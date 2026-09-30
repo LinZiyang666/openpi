@@ -1,0 +1,1613 @@
+[
+  {
+    "arm": "r7_pi05_l10_50_SF1_profile",
+    "cell": "pi05_l10_50",
+    "variant": "SF1",
+    "successes": 14,
+    "IR": 0.06543692088382072,
+    "equal_episode_IR": 0.06409265310031967,
+    "saved_vs_A": 0.01085742458480865,
+    "paired_episode_saved_vs_A": 0.012303694180726,
+    "gains_vs_A": 1,
+    "losses_vs_A": 2,
+    "counts": {
+      "N": 1403,
+      "V": 604,
+      "M": 0,
+      "grants": 213,
+      "valve_checks": 422,
+      "blind_prefixes_checked": 799,
+      "extra_blocks_served": 208,
+      "valve_looks": 5
+    },
+    "eligibility": 0.3526490066225166,
+    "wrist_share": 0.0,
+    "fire_ages": {
+      "1": 4,
+      "2": 1
+    },
+    "extension_sources": {
+      "2.0": 208
+    },
+    "bad": {
+      "valve_verdict": 0,
+      "changed_weights": 0
+    },
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 3.166939721577222e-08,
+    "error_samples": [],
+    "summary_eager_IR": 0.06111437699066663,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_pi05_l10_50_SF2_profile",
+    "cell": "pi05_l10_50",
+    "variant": "SF2",
+    "successes": 11,
+    "IR": 0.061403973509934096,
+    "equal_episode_IR": 0.059427210760301497,
+    "saved_vs_A": 0.014890371958695275,
+    "paired_episode_saved_vs_A": 0.016969136520744183,
+    "gains_vs_A": 1,
+    "losses_vs_A": 5,
+    "counts": {
+      "N": 1510,
+      "V": 610,
+      "M": 0,
+      "grants": 164,
+      "valve_checks": 475,
+      "blind_prefixes_checked": 900,
+      "extra_blocks_served": 304,
+      "valve_looks": 12
+    },
+    "eligibility": 0.26885245901639343,
+    "wrist_share": 0.0,
+    "fire_ages": {
+      "3": 4,
+      "2": 3,
+      "1": 5
+    },
+    "extension_sources": {
+      "2.0": 304
+    },
+    "bad": {
+      "valve_verdict": 0,
+      "changed_weights": 0
+    },
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 3.456596076034657e-08,
+    "error_samples": [],
+    "summary_eager_IR": 0.0573478326169052,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_pi05_l10_50_UF1_profile",
+    "cell": "pi05_l10_50",
+    "variant": "UF1",
+    "successes": 17,
+    "IR": 0.0551308810949532,
+    "equal_episode_IR": 0.05467077851335626,
+    "saved_vs_A": 0.021163464373676173,
+    "paired_episode_saved_vs_A": 0.02172556876768942,
+    "gains_vs_A": 5,
+    "losses_vs_A": 3,
+    "counts": {
+      "N": 1169,
+      "V": 424,
+      "M": 0,
+      "grants": 334,
+      "blind_prefixes_checked": 745,
+      "extra_blocks_served": 333
+    },
+    "eligibility": 0.7877358490566038,
+    "wrist_share": 0.0,
+    "fire_ages": {},
+    "extension_sources": {
+      "2.0": 333
+    },
+    "bad": {
+      "changed_weights": 0
+    },
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 0.0,
+    "error_samples": [],
+    "summary_eager_IR": 0.05148911968285544,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_pi05_l10_50_A_profile",
+    "cell": "pi05_l10_50",
+    "variant": "A",
+    "successes": 15,
+    "IR": 0.07629434546862937,
+    "equal_episode_IR": 0.07639634728104569,
+    "saved_vs_A": 0.0,
+    "paired_episode_saved_vs_A": -0.0,
+    "gains_vs_A": 0,
+    "losses_vs_A": 0,
+    "counts": {
+      "N": 1291,
+      "V": 648,
+      "M": 0,
+      "grants": 0
+    },
+    "eligibility": 0.0,
+    "wrist_share": 0.0,
+    "fire_ages": {},
+    "extension_sources": {},
+    "bad": {},
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 0.0,
+    "error_samples": [],
+    "summary_eager_IR": 0.07125459646098387,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_pi05_l10_500_SF1_profile",
+    "cell": "pi05_l10_500",
+    "variant": "SF1",
+    "successes": 20,
+    "IR": 0.0678761238761242,
+    "equal_episode_IR": 0.06761317765419506,
+    "saved_vs_A": 0.00880719280719286,
+    "paired_episode_saved_vs_A": 0.00911926003665619,
+    "gains_vs_A": 0,
+    "losses_vs_A": 0,
+    "counts": {
+      "N": 1001,
+      "V": 447,
+      "M": 0,
+      "grants": 119,
+      "valve_checks": 237,
+      "blind_prefixes_checked": 554,
+      "extra_blocks_served": 117,
+      "valve_looks": 2
+    },
+    "eligibility": 0.2662192393736018,
+    "wrist_share": 0.0,
+    "fire_ages": {
+      "1": 1,
+      "2": 1
+    },
+    "extension_sources": {
+      "2.0": 117
+    },
+    "bad": {
+      "valve_verdict": 0,
+      "changed_weights": 0
+    },
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 3.858688668589849e-08,
+    "error_samples": [],
+    "summary_eager_IR": 0.06339245440040697,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_pi05_l10_500_SF2_profile",
+    "cell": "pi05_l10_500",
+    "variant": "SF2",
+    "successes": 18,
+    "IR": 0.06422140221402244,
+    "equal_episode_IR": 0.06316473252710766,
+    "saved_vs_A": 0.012461914469294622,
+    "paired_episode_saved_vs_A": 0.013567705163743584,
+    "gains_vs_A": 0,
+    "losses_vs_A": 2,
+    "counts": {
+      "N": 1084,
+      "V": 458,
+      "M": 0,
+      "grants": 87,
+      "valve_checks": 261,
+      "blind_prefixes_checked": 626,
+      "extra_blocks_served": 173,
+      "valve_looks": 1
+    },
+    "eligibility": 0.18995633187772926,
+    "wrist_share": 0.0,
+    "fire_ages": {
+      "3": 1
+    },
+    "extension_sources": {
+      "2.0": 173
+    },
+    "bad": {
+      "valve_verdict": 0,
+      "changed_weights": 0
+    },
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 2.336597176855193e-08,
+    "error_samples": [],
+    "summary_eager_IR": 0.05997915141431144,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_pi05_l10_500_UF1_profile",
+    "cell": "pi05_l10_500",
+    "variant": "UF1",
+    "successes": 13,
+    "IR": 0.0559883296863606,
+    "equal_episode_IR": 0.05501196511386593,
+    "saved_vs_A": 0.02069498699695646,
+    "paired_episode_saved_vs_A": 0.021720472576985332,
+    "gains_vs_A": 0,
+    "losses_vs_A": 7,
+    "counts": {
+      "N": 1371,
+      "V": 505,
+      "M": 0,
+      "grants": 373,
+      "blind_prefixes_checked": 866,
+      "extra_blocks_served": 372
+    },
+    "eligibility": 0.7386138613861386,
+    "wrist_share": 0.0,
+    "fire_ages": {},
+    "extension_sources": {
+      "2.0": 372
+    },
+    "bad": {
+      "changed_weights": 0
+    },
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 0.0,
+    "error_samples": [],
+    "summary_eager_IR": 0.05228992809128321,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_pi05_l10_500_A_profile",
+    "cell": "pi05_l10_500",
+    "variant": "A",
+    "successes": 20,
+    "IR": 0.07668331668331706,
+    "equal_episode_IR": 0.07673243769085128,
+    "saved_vs_A": 0.0,
+    "paired_episode_saved_vs_A": -0.0,
+    "gains_vs_A": 0,
+    "losses_vs_A": 0,
+    "counts": {
+      "N": 1001,
+      "V": 505,
+      "M": 0,
+      "grants": 0
+    },
+    "eligibility": 0.0,
+    "wrist_share": 0.0,
+    "fire_ages": {},
+    "extension_sources": {},
+    "bad": {},
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 0.0,
+    "error_samples": [],
+    "summary_eager_IR": 0.07161787353960967,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_pi05_spatial_50_SF1_profile",
+    "cell": "pi05_spatial_50",
+    "variant": "SF1",
+    "successes": 13,
+    "IR": 0.06723580034423429,
+    "equal_episode_IR": 0.0657521809520403,
+    "saved_vs_A": 0.010042704328663152,
+    "paired_episode_saved_vs_A": 0.011982645987431146,
+    "gains_vs_A": 0,
+    "losses_vs_A": 2,
+    "counts": {
+      "N": 581,
+      "V": 257,
+      "M": 0,
+      "grants": 78,
+      "valve_checks": 156,
+      "blind_prefixes_checked": 324,
+      "extra_blocks_served": 78
+    },
+    "eligibility": 0.3035019455252918,
+    "wrist_share": 0.0,
+    "fire_ages": {},
+    "extension_sources": {
+      "2.0": 78
+    },
+    "bad": {
+      "valve_verdict": 0,
+      "changed_weights": 0
+    },
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 2.3564035972478692e-08,
+    "error_samples": [],
+    "summary_eager_IR": 0.06279442849705821,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_pi05_spatial_50_SF2_profile",
+    "cell": "pi05_spatial_50",
+    "variant": "SF2",
+    "successes": 16,
+    "IR": 0.06180544747081726,
+    "equal_episode_IR": 0.060430183242162795,
+    "saved_vs_A": 0.015473057202080184,
+    "paired_episode_saved_vs_A": 0.017304643697308653,
+    "gains_vs_A": 1,
+    "losses_vs_A": 0,
+    "counts": {
+      "N": 514,
+      "V": 209,
+      "M": 0,
+      "grants": 54,
+      "valve_checks": 162,
+      "blind_prefixes_checked": 305,
+      "extra_blocks_served": 107,
+      "valve_looks": 1
+    },
+    "eligibility": 0.2583732057416268,
+    "wrist_share": 0.0,
+    "fire_ages": {
+      "3": 1
+    },
+    "extension_sources": {
+      "2.0": 107
+    },
+    "bad": {
+      "valve_verdict": 0,
+      "changed_weights": 0
+    },
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 2.7235212474163717e-08,
+    "error_samples": [],
+    "summary_eager_IR": 0.05772278655217552,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_pi05_spatial_50_UF1_profile",
+    "cell": "pi05_spatial_50",
+    "variant": "UF1",
+    "successes": 14,
+    "IR": 0.06085457809694809,
+    "equal_episode_IR": 0.058981048097871636,
+    "saved_vs_A": 0.016423926575949356,
+    "paired_episode_saved_vs_A": 0.018753778841599802,
+    "gains_vs_A": 0,
+    "losses_vs_A": 1,
+    "counts": {
+      "N": 557,
+      "V": 223,
+      "M": 0,
+      "grants": 117,
+      "blind_prefixes_checked": 334,
+      "extra_blocks_served": 117
+    },
+    "eligibility": 0.5246636771300448,
+    "wrist_share": 0.0,
+    "fire_ages": {},
+    "extension_sources": {
+      "2.0": 117
+    },
+    "bad": {
+      "changed_weights": 0
+    },
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 0.0,
+    "error_samples": [],
+    "summary_eager_IR": 0.05683472842537743,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_pi05_spatial_50_A_profile",
+    "cell": "pi05_spatial_50",
+    "variant": "A",
+    "successes": 15,
+    "IR": 0.07727850467289744,
+    "equal_episode_IR": 0.07773482693947145,
+    "saved_vs_A": 0.0,
+    "paired_episode_saved_vs_A": -0.0,
+    "gains_vs_A": 0,
+    "losses_vs_A": 0,
+    "counts": {
+      "N": 535,
+      "V": 272,
+      "M": 0,
+      "grants": 0
+    },
+    "eligibility": 0.0,
+    "wrist_share": 0.0,
+    "fire_ages": {},
+    "extension_sources": {},
+    "bad": {},
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 0.0,
+    "error_samples": [],
+    "summary_eager_IR": 0.07217374540344815,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_pi05_spatial_500_SF1_profile",
+    "cell": "pi05_spatial_500",
+    "variant": "SF1",
+    "successes": 18,
+    "IR": 0.0623758099352053,
+    "equal_episode_IR": 0.06118070156442024,
+    "saved_vs_A": 0.015437639088656092,
+    "paired_episode_saved_vs_A": 0.01695081274565161,
+    "gains_vs_A": 0,
+    "losses_vs_A": 0,
+    "counts": {
+      "N": 463,
+      "V": 190,
+      "M": 0,
+      "grants": 92,
+      "blind_prefixes_checked": 273,
+      "valve_checks": 184,
+      "extra_blocks_served": 92
+    },
+    "eligibility": 0.4842105263157895,
+    "wrist_share": 0.0,
+    "fire_ages": {},
+    "extension_sources": {
+      "2.0": 92
+    },
+    "bad": {
+      "changed_weights": 0,
+      "valve_verdict": 0
+    },
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 2.0747361398343322e-08,
+    "error_samples": [],
+    "summary_eager_IR": 0.05825547278189322,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_pi05_spatial_500_SF2_profile",
+    "cell": "pi05_spatial_500",
+    "variant": "SF2",
+    "successes": 18,
+    "IR": 0.0564291845493563,
+    "equal_episode_IR": 0.05449393117879563,
+    "saved_vs_A": 0.021384264474505095,
+    "paired_episode_saved_vs_A": 0.023637583131276212,
+    "gains_vs_A": 0,
+    "losses_vs_A": 0,
+    "counts": {
+      "N": 466,
+      "V": 173,
+      "M": 0,
+      "grants": 66,
+      "blind_prefixes_checked": 293,
+      "valve_checks": 196,
+      "extra_blocks_served": 129,
+      "valve_looks": 2
+    },
+    "eligibility": 0.3815028901734104,
+    "wrist_share": 0.0,
+    "fire_ages": {
+      "1": 1,
+      "3": 1
+    },
+    "extension_sources": {
+      "2.0": 129
+    },
+    "bad": {
+      "changed_weights": 0,
+      "valve_verdict": 0
+    },
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 1.991538393919523e-08,
+    "error_samples": [],
+    "summary_eager_IR": 0.05270166155813039,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_pi05_spatial_500_UF1_profile",
+    "cell": "pi05_spatial_500",
+    "variant": "UF1",
+    "successes": 18,
+    "IR": 0.055272727272727334,
+    "equal_episode_IR": 0.05524254770236868,
+    "saved_vs_A": 0.022540721751134057,
+    "paired_episode_saved_vs_A": 0.02288896660770317,
+    "gains_vs_A": 0,
+    "losses_vs_A": 0,
+    "counts": {
+      "N": 462,
+      "V": 168,
+      "M": 0,
+      "grants": 136,
+      "blind_prefixes_checked": 294,
+      "extra_blocks_served": 136
+    },
+    "eligibility": 0.8095238095238095,
+    "wrist_share": 0.0,
+    "fire_ages": {},
+    "extension_sources": {
+      "2.0": 136
+    },
+    "bad": {
+      "changed_weights": 0
+    },
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 0.0,
+    "error_samples": [],
+    "summary_eager_IR": 0.051621595977065185,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_pi05_spatial_500_A_profile",
+    "cell": "pi05_spatial_500",
+    "variant": "A",
+    "successes": 18,
+    "IR": 0.07781344902386139,
+    "equal_episode_IR": 0.07813151431007184,
+    "saved_vs_A": 0.0,
+    "paired_episode_saved_vs_A": -0.0,
+    "gains_vs_A": 0,
+    "losses_vs_A": 0,
+    "counts": {
+      "N": 461,
+      "V": 236,
+      "M": 0,
+      "grants": 0
+    },
+    "eligibility": 0.0,
+    "wrist_share": 0.0,
+    "fire_ages": {},
+    "extension_sources": {},
+    "bad": {},
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 0.0,
+    "error_samples": [],
+    "summary_eager_IR": 0.07267335312172518,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_groot_l10_50_SF1_profile",
+    "cell": "groot_l10_50",
+    "variant": "SF1",
+    "successes": 14,
+    "IR": 0.06486562500000012,
+    "equal_episode_IR": 0.06388062601672796,
+    "saved_vs_A": 0.009402296795799764,
+    "paired_episode_saved_vs_A": 0.010462187404346283,
+    "gains_vs_A": 2,
+    "losses_vs_A": 2,
+    "counts": {
+      "N": 1280,
+      "V": 561,
+      "M": 0,
+      "grants": 174,
+      "valve_checks": 345,
+      "blind_prefixes_checked": 719,
+      "extra_blocks_served": 171,
+      "valve_looks": 3
+    },
+    "eligibility": 0.31016042780748665,
+    "wrist_share": 0.0,
+    "fire_ages": {
+      "1": 3
+    },
+    "extension_sources": {
+      "1.0": 171
+    },
+    "bad": {
+      "valve_verdict": 0,
+      "changed_weights": 0
+    },
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 0.0,
+    "error_samples": [],
+    "summary_eager_IR": 0.05585440628306843,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_groot_l10_50_SF2_profile",
+    "cell": "groot_l10_50",
+    "variant": "SF2",
+    "successes": 13,
+    "IR": 0.060382310984308206,
+    "equal_episode_IR": 0.05865876397525863,
+    "saved_vs_A": 0.013885610811491679,
+    "paired_episode_saved_vs_A": 0.0156840494458156,
+    "gains_vs_A": 2,
+    "losses_vs_A": 3,
+    "counts": {
+      "N": 1402,
+      "V": 572,
+      "M": 0,
+      "grants": 135,
+      "valve_checks": 401,
+      "blind_prefixes_checked": 830,
+      "extra_blocks_served": 265,
+      "valve_looks": 2
+    },
+    "eligibility": 0.23601398601398602,
+    "wrist_share": 0.0,
+    "fire_ages": {
+      "1": 1,
+      "3": 1
+    },
+    "extension_sources": {
+      "1.0": 133,
+      "2.0": 132
+    },
+    "bad": {
+      "valve_verdict": 0,
+      "changed_weights": 0
+    },
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 0.0,
+    "error_samples": [],
+    "summary_eager_IR": 0.05199392020084802,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_groot_l10_50_UF1_profile",
+    "cell": "groot_l10_50",
+    "variant": "UF1",
+    "successes": 14,
+    "IR": 0.055022761760243115,
+    "equal_episode_IR": 0.0540828399874879,
+    "saved_vs_A": 0.01924516003555677,
+    "paired_episode_saved_vs_A": 0.020259973433586327,
+    "gains_vs_A": 2,
+    "losses_vs_A": 2,
+    "counts": {
+      "N": 1318,
+      "V": 490,
+      "M": 0,
+      "grants": 349,
+      "blind_prefixes_checked": 828,
+      "extra_blocks_served": 346
+    },
+    "eligibility": 0.7122448979591837,
+    "wrist_share": 0.0,
+    "fire_ages": {},
+    "extension_sources": {
+      "1.0": 346
+    },
+    "bad": {
+      "changed_weights": 0
+    },
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 0.0,
+    "error_samples": [],
+    "summary_eager_IR": 0.047378926668371464,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_groot_l10_50_A_profile",
+    "cell": "groot_l10_50",
+    "variant": "A",
+    "successes": 14,
+    "IR": 0.07426792179579988,
+    "equal_episode_IR": 0.07434281342107422,
+    "saved_vs_A": 0.0,
+    "paired_episode_saved_vs_A": -0.0,
+    "gains_vs_A": 0,
+    "losses_vs_A": 0,
+    "counts": {
+      "N": 1381,
+      "V": 693,
+      "M": 0,
+      "grants": 0
+    },
+    "eligibility": 0.0,
+    "wrist_share": 0.0,
+    "fire_ages": {},
+    "extension_sources": {},
+    "bad": {},
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 0.0,
+    "error_samples": [],
+    "summary_eager_IR": 0.06395052352893808,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_groot_l10_500_SF1_profile",
+    "cell": "groot_l10_500",
+    "variant": "SF1",
+    "successes": 17,
+    "IR": 0.0679618055555558,
+    "equal_episode_IR": 0.06680833947260874,
+    "saved_vs_A": 0.006707272202129702,
+    "paired_episode_saved_vs_A": 0.007947244664907578,
+    "gains_vs_A": 0,
+    "losses_vs_A": 1,
+    "counts": {
+      "N": 1152,
+      "V": 529,
+      "M": 0,
+      "grants": 101,
+      "blind_prefixes_checked": 623,
+      "valve_checks": 202,
+      "extra_blocks_served": 101
+    },
+    "eligibility": 0.19092627599243855,
+    "wrist_share": 0.0,
+    "fire_ages": {},
+    "extension_sources": {
+      "1.0": 101
+    },
+    "bad": {
+      "changed_weights": 0,
+      "valve_verdict": 0
+    },
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 0.0,
+    "error_samples": [],
+    "summary_eager_IR": 0.05852046132648683,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_groot_l10_500_SF2_profile",
+    "cell": "groot_l10_500",
+    "variant": "SF2",
+    "successes": 16,
+    "IR": 0.0652203389830511,
+    "equal_episode_IR": 0.063292513143926,
+    "saved_vs_A": 0.009448738774634396,
+    "paired_episode_saved_vs_A": 0.011463070993590316,
+    "gains_vs_A": 0,
+    "losses_vs_A": 2,
+    "counts": {
+      "N": 1180,
+      "V": 520,
+      "M": 0,
+      "grants": 74,
+      "blind_prefixes_checked": 660,
+      "valve_checks": 220,
+      "extra_blocks_served": 146,
+      "valve_looks": 1
+    },
+    "eligibility": 0.1423076923076923,
+    "wrist_share": 0.0,
+    "fire_ages": {
+      "1": 1
+    },
+    "extension_sources": {
+      "1.0": 73,
+      "2.0": 73
+    },
+    "bad": {
+      "changed_weights": 0,
+      "valve_verdict": 0
+    },
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 0.0,
+    "error_samples": [],
+    "summary_eager_IR": 0.05615984292880503,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_groot_l10_500_UF1_profile",
+    "cell": "groot_l10_500",
+    "variant": "UF1",
+    "successes": 17,
+    "IR": 0.052919695688926974,
+    "equal_episode_IR": 0.05244144698610018,
+    "saved_vs_A": 0.021749382068758524,
+    "paired_episode_saved_vs_A": 0.022314137151416138,
+    "gains_vs_A": 1,
+    "losses_vs_A": 2,
+    "counts": {
+      "N": 1183,
+      "V": 423,
+      "M": 0,
+      "grants": 350,
+      "blind_prefixes_checked": 760,
+      "extra_blocks_served": 349
+    },
+    "eligibility": 0.8274231678486997,
+    "wrist_share": 0.0,
+    "fire_ages": {},
+    "extension_sources": {
+      "1.0": 349
+    },
+    "bad": {
+      "changed_weights": 0
+    },
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 0.0,
+    "error_samples": [],
+    "summary_eager_IR": 0.045568021326945415,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_groot_l10_500_A_profile",
+    "cell": "groot_l10_500",
+    "variant": "A",
+    "successes": 18,
+    "IR": 0.0746690777576855,
+    "equal_episode_IR": 0.07475558413751632,
+    "saved_vs_A": 0.0,
+    "paired_episode_saved_vs_A": -0.0,
+    "gains_vs_A": 0,
+    "losses_vs_A": 0,
+    "counts": {
+      "N": 1106,
+      "V": 558,
+      "M": 0,
+      "grants": 0
+    },
+    "eligibility": 0.0,
+    "wrist_share": 0.0,
+    "fire_ages": {},
+    "extension_sources": {},
+    "bad": {},
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 0.0,
+    "error_samples": [],
+    "summary_eager_IR": 0.06429595037216995,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_groot_spatial_50_SF1_profile",
+    "cell": "groot_spatial_50",
+    "variant": "SF1",
+    "successes": 16,
+    "IR": 0.0641618497109826,
+    "equal_episode_IR": 0.06310152678529748,
+    "saved_vs_A": 0.011026905309097848,
+    "paired_episode_saved_vs_A": 0.012369170623185355,
+    "gains_vs_A": 0,
+    "losses_vs_A": 1,
+    "counts": {
+      "N": 519,
+      "V": 225,
+      "M": 0,
+      "grants": 82,
+      "valve_checks": 164,
+      "blind_prefixes_checked": 294,
+      "extra_blocks_served": 79,
+      "valve_looks": 3
+    },
+    "eligibility": 0.36444444444444446,
+    "wrist_share": 0.0,
+    "fire_ages": {
+      "2": 3
+    },
+    "extension_sources": {
+      "1.0": 79
+    },
+    "bad": {
+      "valve_verdict": 0,
+      "changed_weights": 0
+    },
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 0.0,
+    "error_samples": [],
+    "summary_eager_IR": 0.05763728693124659,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_groot_spatial_50_SF2_profile",
+    "cell": "groot_spatial_50",
+    "variant": "SF2",
+    "successes": 15,
+    "IR": 0.05865185185185175,
+    "equal_episode_IR": 0.05705539539403478,
+    "saved_vs_A": 0.0165369031682287,
+    "paired_episode_saved_vs_A": 0.018415302014448055,
+    "gains_vs_A": 0,
+    "losses_vs_A": 2,
+    "counts": {
+      "N": 540,
+      "V": 214,
+      "M": 0,
+      "grants": 61,
+      "valve_checks": 182,
+      "blind_prefixes_checked": 326,
+      "extra_blocks_served": 120,
+      "valve_looks": 1
+    },
+    "eligibility": 0.2850467289719626,
+    "wrist_share": 0.0,
+    "fire_ages": {
+      "2": 1
+    },
+    "extension_sources": {
+      "1.0": 60,
+      "2.0": 60
+    },
+    "bad": {
+      "valve_verdict": 0,
+      "changed_weights": 0
+    },
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 0.0,
+    "error_samples": [],
+    "summary_eager_IR": 0.05268759596959534,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_groot_spatial_50_UF1_profile",
+    "cell": "groot_spatial_50",
+    "variant": "UF1",
+    "successes": 15,
+    "IR": 0.059806331471135836,
+    "equal_episode_IR": 0.05821889715797133,
+    "saved_vs_A": 0.015382423548944611,
+    "paired_episode_saved_vs_A": 0.017251800250511505,
+    "gains_vs_A": 0,
+    "losses_vs_A": 2,
+    "counts": {
+      "N": 537,
+      "V": 217,
+      "M": 0,
+      "grants": 115,
+      "blind_prefixes_checked": 320,
+      "extra_blocks_served": 115
+    },
+    "eligibility": 0.5299539170506913,
+    "wrist_share": 0.0,
+    "fire_ages": {},
+    "extension_sources": {
+      "1.0": 115
+    },
+    "bad": {
+      "changed_weights": 0
+    },
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 0.0,
+    "error_samples": [],
+    "summary_eager_IR": 0.05372467755893056,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_groot_spatial_50_A_profile",
+    "cell": "groot_spatial_50",
+    "variant": "A",
+    "successes": 17,
+    "IR": 0.07518875502008045,
+    "equal_episode_IR": 0.07547069740848283,
+    "saved_vs_A": 0.0,
+    "paired_episode_saved_vs_A": -0.0,
+    "gains_vs_A": 0,
+    "losses_vs_A": 0,
+    "counts": {
+      "N": 498,
+      "V": 253,
+      "M": 0,
+      "grants": 0
+    },
+    "eligibility": 0.0,
+    "wrist_share": 0.0,
+    "fire_ages": {},
+    "extension_sources": {},
+    "bad": {},
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 0.0,
+    "error_samples": [],
+    "summary_eager_IR": 0.06754287581509323,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_groot_spatial_500_SF1_profile",
+    "cell": "groot_spatial_500",
+    "variant": "SF1",
+    "successes": 18,
+    "IR": 0.06535881104033958,
+    "equal_episode_IR": 0.06479428005812107,
+    "saved_vs_A": 0.009736326380379273,
+    "paired_episode_saved_vs_A": 0.010463134142341702,
+    "gains_vs_A": 0,
+    "losses_vs_A": 0,
+    "counts": {
+      "N": 471,
+      "V": 208,
+      "M": 0,
+      "grants": 68,
+      "blind_prefixes_checked": 263,
+      "valve_checks": 136,
+      "extra_blocks_served": 68
+    },
+    "eligibility": 0.3269230769230769,
+    "wrist_share": 0.0,
+    "fire_ages": {},
+    "extension_sources": {
+      "1.0": 68
+    },
+    "bad": {
+      "changed_weights": 0,
+      "valve_verdict": 0
+    },
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 0.0,
+    "error_samples": [],
+    "summary_eager_IR": 0.058712530302448045,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_groot_spatial_500_SF2_profile",
+    "cell": "groot_spatial_500",
+    "variant": "SF2",
+    "successes": 18,
+    "IR": 0.06159006211180113,
+    "equal_episode_IR": 0.06073849725956054,
+    "saved_vs_A": 0.013505075308917723,
+    "paired_episode_saved_vs_A": 0.014518916940902224,
+    "gains_vs_A": 0,
+    "losses_vs_A": 0,
+    "counts": {
+      "N": 483,
+      "V": 201,
+      "M": 0,
+      "grants": 45,
+      "blind_prefixes_checked": 282,
+      "valve_checks": 135,
+      "extra_blocks_served": 90
+    },
+    "eligibility": 0.22388059701492538,
+    "wrist_share": 0.0,
+    "fire_ages": {},
+    "extension_sources": {
+      "1.0": 45,
+      "2.0": 45
+    },
+    "bad": {
+      "changed_weights": 0,
+      "valve_verdict": 0
+    },
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 0.0,
+    "error_samples": [],
+    "summary_eager_IR": 0.0553270221797167,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_groot_spatial_500_UF1_profile",
+    "cell": "groot_spatial_500",
+    "variant": "UF1",
+    "successes": 18,
+    "IR": 0.05410084033613436,
+    "equal_episode_IR": 0.05363602378615288,
+    "saved_vs_A": 0.020994297084584494,
+    "paired_episode_saved_vs_A": 0.02162139041430991,
+    "gains_vs_A": 0,
+    "losses_vs_A": 0,
+    "counts": {
+      "N": 476,
+      "V": 174,
+      "M": 0,
+      "grants": 134,
+      "blind_prefixes_checked": 302,
+      "extra_blocks_served": 134
+    },
+    "eligibility": 0.7701149425287356,
+    "wrist_share": 0.0,
+    "fire_ages": {},
+    "extension_sources": {
+      "1.0": 134
+    },
+    "bad": {
+      "changed_weights": 0
+    },
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 0.0,
+    "error_samples": [],
+    "summary_eager_IR": 0.048599372862867925,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_groot_spatial_500_A_profile",
+    "cell": "groot_spatial_500",
+    "variant": "A",
+    "successes": 18,
+    "IR": 0.07509513742071885,
+    "equal_episode_IR": 0.07525741420046281,
+    "saved_vs_A": 0.0,
+    "paired_episode_saved_vs_A": -0.0,
+    "gains_vs_A": 0,
+    "losses_vs_A": 0,
+    "counts": {
+      "N": 473,
+      "V": 240,
+      "M": 0,
+      "grants": 0
+    },
+    "eligibility": 0.0,
+    "wrist_share": 0.0,
+    "fire_ages": {},
+    "extension_sources": {},
+    "bad": {},
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 0.0,
+    "error_samples": [],
+    "summary_eager_IR": 0.0674587781081144,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_sw_pi05_l10_50_profile",
+    "cell": "pi05_l10_50",
+    "variant": "SW",
+    "successes": 16,
+    "IR": 0.05950198710717189,
+    "equal_episode_IR": 0.05775373968861443,
+    "saved_vs_A": 0.016792358361457482,
+    "paired_episode_saved_vs_A": 0.018642607592431255,
+    "gains_vs_A": 3,
+    "losses_vs_A": 2,
+    "counts": {
+      "N": 1241,
+      "V": 624,
+      "M": 0,
+      "grants": 0,
+      "wrist_looks": 217,
+      "completion_calls": 0,
+      "camera_stage1_calls": 624
+    },
+    "eligibility": 0.0,
+    "wrist_share": 0.34775641025641024,
+    "fire_ages": {},
+    "extension_sources": {},
+    "bad": {
+      "camera_on_blind": 0,
+      "first_camera": 0,
+      "owner_cost": 0
+    },
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 0.0,
+    "error_samples": [],
+    "summary_eager_IR": 0.05557154208979916,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_sw_pi05_l10_500_profile",
+    "cell": "pi05_l10_500",
+    "variant": "SW",
+    "successes": 19,
+    "IR": 0.06538097180451154,
+    "equal_episode_IR": 0.06424625927982106,
+    "saved_vs_A": 0.01130234487880552,
+    "paired_episode_saved_vs_A": 0.012486178411030214,
+    "gains_vs_A": 0,
+    "losses_vs_A": 1,
+    "counts": {
+      "N": 1064,
+      "V": 536,
+      "M": 0,
+      "grants": 0,
+      "wrist_looks": 123,
+      "completion_calls": 0,
+      "camera_stage1_calls": 536
+    },
+    "eligibility": 0.0,
+    "wrist_share": 0.2294776119402985,
+    "fire_ages": {},
+    "extension_sources": {},
+    "bad": {
+      "camera_on_blind": 0,
+      "first_camera": 0,
+      "owner_cost": 0
+    },
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 0.0,
+    "error_samples": [],
+    "summary_eager_IR": 0.06106216141834195,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_sw_pi05_sp_50_profile",
+    "cell": "pi05_spatial_50",
+    "variant": "SW",
+    "successes": 15,
+    "IR": 0.06368120370370381,
+    "equal_episode_IR": 0.06240578958357766,
+    "saved_vs_A": 0.013597300969193635,
+    "paired_episode_saved_vs_A": 0.015329037355893771,
+    "gains_vs_A": 0,
+    "losses_vs_A": 0,
+    "counts": {
+      "N": 540,
+      "V": 274,
+      "M": 0,
+      "grants": 0,
+      "wrist_looks": 75,
+      "completion_calls": 0,
+      "camera_stage1_calls": 274
+    },
+    "eligibility": 0.0,
+    "wrist_share": 0.2737226277372263,
+    "fire_ages": {},
+    "extension_sources": {},
+    "bad": {
+      "camera_on_blind": 0,
+      "first_camera": 0,
+      "owner_cost": 0
+    },
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 0.0,
+    "error_samples": [],
+    "summary_eager_IR": 0.059474681901106906,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_sw_pi05_sp_500_profile",
+    "cell": "pi05_spatial_500",
+    "variant": "SW",
+    "successes": 17,
+    "IR": 0.05742088100208768,
+    "equal_episode_IR": 0.05542631614401903,
+    "saved_vs_A": 0.020392568021773715,
+    "paired_episode_saved_vs_A": 0.022705198166052813,
+    "gains_vs_A": 0,
+    "losses_vs_A": 1,
+    "counts": {
+      "N": 479,
+      "V": 244,
+      "M": 0,
+      "grants": 0,
+      "wrist_looks": 99,
+      "completion_calls": 0,
+      "camera_stage1_calls": 244
+    },
+    "eligibility": 0.0,
+    "wrist_share": 0.4057377049180328,
+    "fire_ages": {},
+    "extension_sources": {},
+    "bad": {
+      "camera_on_blind": 0,
+      "first_camera": 0,
+      "owner_cost": 0
+    },
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 0.0,
+    "error_samples": [],
+    "summary_eager_IR": 0.05362791726307133,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_pi05_l10_50_CU30_profile",
+    "cell": "pi05_l10_50",
+    "variant": "CU30",
+    "successes": 18,
+    "IR": 0.2989923664122158,
+    "equal_episode_IR": 0.3022249591941125,
+    "saved_vs_A": -0.22269802094358646,
+    "paired_episode_saved_vs_A": -0.22582861191306686,
+    "gains_vs_A": 4,
+    "losses_vs_A": 1,
+    "counts": {
+      "N": 1179,
+      "V": 612,
+      "M": 306,
+      "grants": 0
+    },
+    "eligibility": 0.0,
+    "wrist_share": 0.0,
+    "fire_ages": {},
+    "extension_sources": {},
+    "bad": {},
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 0.0,
+    "error_samples": [],
+    "summary_eager_IR": 0.296386406288974,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_pi05_l10_50_CT30_profile",
+    "cell": "pi05_l10_50",
+    "variant": "CT30",
+    "successes": 19,
+    "IR": 0.31841852181656505,
+    "equal_episode_IR": 0.31783198264701634,
+    "saved_vs_A": -0.24212417634793568,
+    "paired_episode_saved_vs_A": -0.24143563536597065,
+    "gains_vs_A": 4,
+    "losses_vs_A": 0,
+    "counts": {
+      "N": 1123,
+      "V": 584,
+      "M": 317,
+      "grants": 0
+    },
+    "eligibility": 0.0,
+    "wrist_share": 0.0,
+    "fire_ages": {},
+    "extension_sources": {},
+    "bad": {},
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 0.0,
+    "error_samples": [],
+    "summary_eager_IR": 0.31603130618536074,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_pi05_spatial_50_CU30_profile",
+    "cell": "pi05_spatial_50",
+    "variant": "CU30",
+    "successes": 18,
+    "IR": 0.30180425531914895,
+    "equal_episode_IR": 0.30191336300592364,
+    "saved_vs_A": -0.22452575064625152,
+    "paired_episode_saved_vs_A": -0.2241785360664522,
+    "gains_vs_A": 3,
+    "losses_vs_A": 0,
+    "counts": {
+      "N": 470,
+      "V": 247,
+      "M": 123,
+      "grants": 0
+    },
+    "eligibility": 0.0,
+    "wrist_share": 0.0,
+    "fire_ages": {},
+    "extension_sources": {},
+    "bad": {},
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 0.0,
+    "error_samples": [],
+    "summary_eager_IR": 0.2991552430386792,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_pi05_spatial_50_CT30_profile",
+    "cell": "pi05_spatial_50",
+    "variant": "CT30",
+    "successes": 16,
+    "IR": 0.29265510597302513,
+    "equal_episode_IR": 0.29001979203381884,
+    "saved_vs_A": -0.2153766013001277,
+    "paired_episode_saved_vs_A": -0.21228496509434738,
+    "gains_vs_A": 3,
+    "losses_vs_A": 2,
+    "counts": {
+      "N": 519,
+      "V": 274,
+      "M": 130,
+      "grants": 0
+    },
+    "eligibility": 0.0,
+    "wrist_share": 0.0,
+    "fire_ages": {},
+    "extension_sources": {},
+    "bad": {},
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 0.0,
+    "error_samples": [],
+    "summary_eager_IR": 0.2898692716896297,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_groot_l10_50_CU30_profile",
+    "cell": "groot_l10_50",
+    "variant": "CU30",
+    "successes": 15,
+    "IR": 0.3070999213217934,
+    "equal_episode_IR": 0.3100423524207403,
+    "saved_vs_A": -0.23283199952599354,
+    "paired_episode_saved_vs_A": -0.23569953899966603,
+    "gains_vs_A": 3,
+    "losses_vs_A": 2,
+    "counts": {
+      "N": 1271,
+      "V": 657,
+      "M": 344,
+      "grants": 0
+    },
+    "eligibility": 0.0,
+    "wrist_share": 0.0,
+    "fire_ages": {},
+    "extension_sources": {},
+    "bad": {},
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 0.0,
+    "error_samples": [],
+    "summary_eager_IR": 0.3020366706822684,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_groot_l10_50_CT30_profile",
+    "cell": "groot_l10_50",
+    "variant": "CT30",
+    "successes": 15,
+    "IR": 0.29660931333859497,
+    "equal_episode_IR": 0.29631448371073654,
+    "saved_vs_A": -0.22234139154279509,
+    "paired_episode_saved_vs_A": -0.2219716702896623,
+    "gains_vs_A": 4,
+    "losses_vs_A": 3,
+    "counts": {
+      "N": 1267,
+      "V": 651,
+      "M": 328,
+      "grants": 0
+    },
+    "eligibility": 0.0,
+    "wrist_share": 0.0,
+    "fire_ages": {},
+    "extension_sources": {},
+    "bad": {},
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 0.0,
+    "error_samples": [],
+    "summary_eager_IR": 0.2913678017938874,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_groot_spatial_50_CU30_profile",
+    "cell": "groot_spatial_50",
+    "variant": "CU30",
+    "successes": 17,
+    "IR": 0.30463492063492104,
+    "equal_episode_IR": 0.29944038175781784,
+    "saved_vs_A": -0.2294461656148406,
+    "paired_episode_saved_vs_A": -0.22396968434933498,
+    "gains_vs_A": 1,
+    "losses_vs_A": 1,
+    "counts": {
+      "N": 504,
+      "V": 266,
+      "M": 134,
+      "grants": 0
+    },
+    "eligibility": 0.0,
+    "wrist_share": 0.0,
+    "fire_ages": {},
+    "extension_sources": {},
+    "bad": {},
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 0.0,
+    "error_samples": [],
+    "summary_eager_IR": 0.3006932562000515,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  },
+  {
+    "arm": "r7_groot_spatial_50_CT30_profile",
+    "cell": "groot_spatial_50",
+    "variant": "CT30",
+    "successes": 18,
+    "IR": 0.31618565400843907,
+    "equal_episode_IR": 0.31177997780071737,
+    "saved_vs_A": -0.24099689898835863,
+    "paired_episode_saved_vs_A": -0.2363092803922346,
+    "gains_vs_A": 1,
+    "losses_vs_A": 0,
+    "counts": {
+      "N": 474,
+      "V": 247,
+      "M": 133,
+      "grants": 0
+    },
+    "eligibility": 0.0,
+    "wrist_share": 0.0,
+    "fire_ages": {},
+    "extension_sources": {},
+    "bad": {},
+    "max_prefix_difference": 0.0,
+    "max_valve_stat_difference": 0.0,
+    "error_samples": [],
+    "summary_eager_IR": 0.312566035804727,
+    "audit": {
+      "episodes": 20,
+      "discarded_prior_prefix": 0
+    }
+  }
+]

@@ -87,6 +87,26 @@ def monotone_alignment(distance):
     return float(value[0, path[0]] / len(d)), path
 
 
+def _monotone_alignment_batch(distance, columns):
+    """The same suffix DP, on (time, template, point) padded costs.
+
+    Padding is +inf. Each addition has exactly the reference's two operands;
+    only independent templates are batched. argmin's first occurrence keeps
+    the lexicographically earliest entire path, including repeats and skips.
+    Inputs are internal, already checked finite at the valid template points.
+    """
+    value = np.empty_like(distance)
+    value[-1] = distance[-1]
+    for t in range(len(distance) - 2, -1, -1):
+        value[t] = distance[t] + np.minimum.accumulate(value[t+1, :, ::-1], axis=1)[:, ::-1]
+    rows = np.arange(distance.shape[1])
+    path = np.empty((len(distance), len(rows)), np.int64)
+    path[0] = np.argmin(value[0], axis=1)
+    for t in range(1, len(distance)):
+        path[t] = np.argmin(np.where(columns >= path[t-1, :, None], value[t], np.inf), axis=1)
+    return value[0, rows, path[0]] / len(distance), path
+
+
 def _extract_metric(metric, manifest):
     if isinstance(metric, Mapping):
         # Protocol for another benchmark/robot: provide codes + optional encoder.
@@ -278,46 +298,119 @@ class StallModel:
                 raise ValueError("code does not match the saved metric regime/dimension")
         return _array(code,np.float64),regime
 
+    def _template_cache(self, task_key):
+        """Derived arrays stay outside tasks/_payload; never write them to disk."""
+        if not hasattr(self, '_template_caches'):
+            self._template_caches = {}
+        if task_key not in self._template_caches:
+            templates = self.tasks[task_key]['templates']
+            lengths = np.array([len(t['phase']) for t in templates], np.int64)
+            n = int(max(lengths, default=0))
+            columns = np.arange(n)
+            valid = columns < lengths[:, None]
+            phase = np.zeros(valid.shape)
+            for i, t in enumerate(templates):
+                phase[i, :lengths[i]] = t['phase']
+            # Flatten valid rows for the metric arithmetic: same contiguous
+            # float64 ij,ij->i einsum as before, without computing padding.
+            codes = {regime: np.concatenate([t['codes'][regime] for t in templates])
+                     for regime in templates[0]['codes']} if templates else {}
+            self._template_caches[task_key] = dict(codes=codes, phase=phase,
+                valid=valid, columns=columns, rows=np.arange(len(templates)),
+                episodes=np.array([t['episode'] for t in templates]))
+        return self._template_caches[task_key]
+
+    def _distances(self, task_key, encoded):
+        cache = self._template_cache(task_key)
+        z, regime = encoded
+        difference = cache['codes'][regime] - z
+        flat = np.sqrt(np.einsum('ij,ij->i', difference, difference))
+        if not np.isfinite(flat).all():
+            raise ValueError('alignment needs a finite, nonempty distance matrix')
+        distances = np.full(cache['valid'].shape, np.inf)
+        distances[cache['valid']] = flat
+        return distances
+
     def _estimate(self, task_key, window, span, exclude=None):
-        d = self.tasks[task_key]
-        candidates=[]
-        for order,t in enumerate(d["templates"]):
-            if t["episode"] == exclude: continue
-            distances=[]
-            for z,regime in window:
-                # Exact Euclidean metric-code norm in float64, without an
-                # arbitrary distance floor or action-continuity reranking.
-                difference = t["codes"][regime] - z
-                distances.append(np.sqrt(np.einsum("ij,ij->i",difference,difference)))
-            mean,path=monotone_alignment(np.asarray(distances))
-            advance=float((t["phase"][path[-1]]-t["phase"][path[0]])*d["W"]*self.commit_controls/span)
-            candidates.append((mean,order,advance,float(t["phase"][path[0]])))
-        best=sorted(candidates,key=lambda v:(v[0],v[1]))[:d["K"]]
-        if len(best)!=d["K"] or not best: raise ValueError("insufficient alignment templates")
-        advances=[v[2] for v in best]
-        return dict(delta_hat=_quantile(advances,.5), phase_hat=_quantile([v[3] for v in best],.5),
-                    distance_hat=_quantile([v[0] for v in best],.5),
-                    spread_hat=_quantile(advances,.9)-_quantile(advances,.1))
+        return self._estimate_distances(task_key,
+            np.asarray([self._distances(task_key, v) for v in window]), span, exclude)
+
+    def _estimate_distances(self, task_key, distances, span, exclude=None, *, details=False):
+        data = self.tasks[task_key]
+        cache = self._template_cache(task_key)
+        if not len(cache['rows']) or not data['K']:
+            raise ValueError('insufficient alignment templates')
+        means, paths = _monotone_alignment_batch(distances, cache['columns'])
+        # Stable sorting is exactly (mean, original template order).
+        eligible = cache['rows'][cache['episodes'] != exclude]
+        best = eligible[np.argsort(means[eligible], kind='stable')[:data['K']]]
+        if len(best) != data['K'] or not len(best):
+            raise ValueError('insufficient alignment templates')
+        phase = cache['phase']
+        starts = phase[best, paths[0, best]]
+        # Keep subtraction/multiplication/division in the original order.
+        advances = (phase[best, paths[-1, best]] - starts) * data['W'] * self.commit_controls / span
+        sorted_advances = np.sort(advances)
+        k = len(best)
+        middle = max(0, math.ceil(.5*k)-1)
+        estimate = dict(delta_hat=float(sorted_advances[middle]),
+            phase_hat=float(np.sort(starts)[middle]), distance_hat=float(np.sort(means[best])[middle]),
+            spread_hat=float(sorted_advances[max(0, math.ceil(.9*k)-1)]) -
+                       float(sorted_advances[max(0, math.ceil(.1*k)-1)]))
+        if details:
+            return estimate, best, paths
+        return estimate
+
+    def _estimate_reference(self, task_key, window, span, exclude=None):
+        from .stall_reference import StallModel as ReferenceModel
+        return ReferenceModel._estimate(self, task_key, window, span, exclude)
 
     def _context(self, task_key, estimate):
         c=self.tasks[task_key]["cdfs"]
         return np.array([estimate["phase_hat"],_cdf(c["distance_hat"],estimate["distance_hat"]),
                          _cdf(c["spread_hat"],estimate["spread_hat"])])
 
+    def _reference_cache(self, task_key):
+        if not hasattr(self, '_reference_caches'):
+            self._reference_caches = {}
+        if task_key not in self._reference_caches:
+            refs = self.tasks[task_key]['references']
+            lengths = np.array([len(r['context']) for r in refs], np.int64)
+            valid = np.arange(int(max(lengths, default=0))) < lengths[:, None]
+            context = np.zeros((*valid.shape, 3))
+            residual, advance = np.zeros(valid.shape), np.zeros(valid.shape)
+            end = np.zeros(valid.shape, np.int64)
+            for i, r in enumerate(refs):
+                context[i, :lengths[i]] = r['context']
+                residual[i, :lengths[i]] = r['residual']
+                advance[i, :lengths[i]] = r['advance']
+                end[i, :lengths[i]] = r['end_control']
+            self._reference_caches[task_key] = dict(context=context, valid=valid,
+                residual=residual, advance=advance, end=end,
+                episodes=[r['episode'] for r in refs], rows=np.arange(len(refs)))
+        return self._reference_caches[task_key]
+
     def calibrated_status(self, task_key, estimate, span):
-        data=self.tasks[task_key]
-        context=self._context(task_key,estimate)
-        residuals,advances,selected=[],[],[]
-        for r in data["references"]:
-            # References are ordered by end_control, so argmin is earliest tie.
-            j=int(np.argmin(np.abs(r["context"]-context).sum(axis=1)))
-            residuals.append(r["residual"][j]);advances.append(r["advance"][j])
-            selected.append([r["episode"],int(r["end_control"][j])])
-        e90,a10=_quantile(residuals,.9),_quantile(advances,.1)
-        delta=estimate["delta_hat"]
-        state="slow_confirmed" if delta+e90<a10 else "slow_ambiguous" if delta<a10<=delta+e90 else "ok"
-        return dict(state=state,**estimate,e90=e90,a10=a10,window_span=int(span),
-                    W=data["W"],K=data["K"],reference_episodes=len(residuals),reference_windows=selected)
+        data = self.tasks[task_key]
+        cache = self._reference_cache(task_key)
+        # Three-component sums use the same contiguous last axis as the
+        # reference's (windows, 3) arrays; argmin keeps earliest window ties.
+        distance = np.abs(cache['context'] - self._context(task_key, estimate)).sum(axis=2)
+        distance[~cache['valid']] = np.inf
+        j = np.argmin(distance, axis=1)
+        rows = cache['rows']
+        residuals = cache['residual'][rows, j]
+        advances = cache['advance'][rows, j]
+        e90, a10 = _quantile(residuals, .9), _quantile(advances, .1)
+        selected = [[ep, int(end)] for ep, end in zip(cache['episodes'], cache['end'][rows, j], strict=True)]
+        delta = estimate['delta_hat']
+        state = 'slow_confirmed' if delta+e90<a10 else 'slow_ambiguous' if delta<a10<=delta+e90 else 'ok'
+        return dict(state=state, **estimate, e90=e90, a10=a10, window_span=int(span),
+                    W=data['W'], K=data['K'], reference_episodes=len(residuals), reference_windows=selected)
+
+    def calibrated_status_reference(self, task_key, estimate, span):
+        from .stall_reference import StallModel as ReferenceModel
+        return ReferenceModel.calibrated_status(self, task_key, estimate, span)
 
     def save(self,path):
         """Save a self-contained trusted artifact directory, or a .pkl path."""
@@ -370,6 +463,7 @@ class StallTracker:
         self.model=model;self.task_key=model.resolve_task(task_key)
         data=model.tasks.get(self.task_key)
         self._window=deque(maxlen=data['W']+1 if data else 1)
+        self._distance_window=deque(maxlen=self._window.maxlen)
         self._last_control=None
         self._status=self._inactive('unobserved')
 
@@ -395,12 +489,24 @@ class StallTracker:
         except (ValueError,KeyError,TypeError,AttributeError):
             # A bad observation breaks a window; do not bridge through missing
             # vision or silently treat a malformed metric code as zero motion.
-            self._window.clear();self._status=self._inactive('invalid_observation');return
+            self._window.clear();self._distance_window.clear()
+            self._status=self._inactive('invalid_observation');return
         self._window.append((encoded,control_index))
         if len(self._window)<d['W']+1:
             self._status=self._inactive('warming_up');return
         span=self._window[-1][1]-self._window[0][1]
-        estimate=self.model._estimate(self.task_key,[v[0] for v in self._window],span)
+        # Defer distance arithmetic until the first complete window, preserving
+        # warmup/error behavior even for finite codes whose squared norm overflows.
+        try:
+            if not self._distance_window:
+                distances = [self.model._distances(self.task_key, v[0]) for v in self._window]
+                self._distance_window.extend(distances)
+            else:
+                self._distance_window.append(self.model._distances(self.task_key, encoded))
+        except ValueError:
+            self._distance_window.clear()
+            raise
+        estimate=self.model._estimate_distances(self.task_key,np.asarray(self._distance_window),span)
         self._status=self.model.calibrated_status(self.task_key,estimate,span)
 
     def status(self)->dict:

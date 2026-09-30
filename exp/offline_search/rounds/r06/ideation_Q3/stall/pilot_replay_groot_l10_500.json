@@ -1,0 +1,109 @@
+{
+  "cell": "groot_l10_500",
+  "model_fingerprint": "f5426ac559b27059decef316ebe071de30b84e6377e55970ebfafe303ba1b903",
+  "anchors": 3583,
+  "episodes": 120,
+  "observe_input": "precomputed deployed A metric_code; excludes JSON parse/status copy",
+  "observe_median_us": 4292.492,
+  "observe_p99_us": 5102.22632,
+  "observe_cpu_median_us": 4294.585,
+  "observe_cpu_p99_us": 5063.247619999999,
+  "active_observe_median_us": 4321.373,
+  "active_observe_p99_us": 5123.382899999999,
+  "scope": "official test inits; descriptive and engineering only; no tuning or fitting",
+  "summaries": [
+    {
+      "cell": "groot_l10_500",
+      "cohort": "A",
+      "scope": "all_anchors",
+      "n": 1862,
+      "episodes": 60,
+      "counts": {
+        "inactive": 126,
+        "ok": 1184,
+        "slow_confirmed": 356,
+        "slow_ambiguous": 196
+      },
+      "rates": {
+        "inactive": 0.06766917293233082,
+        "ok": 0.635875402792696,
+        "slow_confirmed": 0.19119226638023631,
+        "slow_ambiguous": 0.10526315789473684
+      },
+      "observe_median_us": 4297.1044999999995,
+      "observe_p99_us": 5158.035039999998,
+      "observe_cpu_median_us": 4298.966,
+      "observe_cpu_p99_us": 5135.3619199999985
+    },
+    {
+      "cell": "groot_l10_500",
+      "cohort": "A",
+      "scope": "noprog_flagged",
+      "n": 555,
+      "episodes": 60,
+      "counts": {
+        "inactive": 7,
+        "ok": 258,
+        "slow_confirmed": 209,
+        "slow_ambiguous": 81
+      },
+      "rates": {
+        "inactive": 0.012612612612612612,
+        "ok": 0.4648648648648649,
+        "slow_confirmed": 0.37657657657657656,
+        "slow_ambiguous": 0.14594594594594595
+      },
+      "observe_median_us": 4328.353,
+      "observe_p99_us": 4967.577460000001,
+      "observe_cpu_median_us": 4330.915,
+      "observe_cpu_p99_us": 4970.534700000001
+    },
+    {
+      "cell": "groot_l10_500",
+      "cohort": "B",
+      "scope": "all_anchors",
+      "n": 1721,
+      "episodes": 60,
+      "counts": {
+        "inactive": 126,
+        "ok": 1211,
+        "slow_confirmed": 241,
+        "slow_ambiguous": 143
+      },
+      "rates": {
+        "inactive": 0.07321324811156305,
+        "ok": 0.7036606624055781,
+        "slow_confirmed": 0.1400348634514817,
+        "slow_ambiguous": 0.0830912260313771
+      },
+      "observe_median_us": 4288.678,
+      "observe_p99_us": 4864.307599999999,
+      "observe_cpu_median_us": 4290.909,
+      "observe_cpu_p99_us": 4869.0808
+    },
+    {
+      "cell": "groot_l10_500",
+      "cohort": "B",
+      "scope": "noprog_flagged",
+      "n": 446,
+      "episodes": 60,
+      "counts": {
+        "inactive": 6,
+        "ok": 243,
+        "slow_confirmed": 137,
+        "slow_ambiguous": 60
+      },
+      "rates": {
+        "inactive": 0.013452914798206279,
+        "ok": 0.5448430493273543,
+        "slow_confirmed": 0.3071748878923767,
+        "slow_ambiguous": 0.13452914798206278
+      },
+      "observe_median_us": 4276.5740000000005,
+      "observe_p99_us": 4783.51165,
+      "observe_cpu_median_us": 4275.4235,
+      "observe_cpu_p99_us": 4786.26515
+    }
+  ],
+  "status_counts_match_previous_run": true
+}

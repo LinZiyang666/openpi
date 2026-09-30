@@ -1,0 +1,486 @@
+{
+  "exp/offline_search/rounds/r06/frontier_final/frontier_points.csv": {
+    "bytes": 274158,
+    "mtime_ns": 1790706418917694687
+  },
+  "exp/offline_search/rounds/r06/frontier_final/outcomes.json": {
+    "bytes": 2346380,
+    "mtime_ns": 1790706403783690979
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_l10/current/action.npy": {
+    "bytes": 5417088,
+    "mtime_ns": 1790449148619794286
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_l10/current/rs.npy": {
+    "bytes": 84768,
+    "mtime_ns": 1790449148615794283
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_l10/current/episode.npy": {
+    "bytes": 10708,
+    "mtime_ns": 1790449176228817889
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_l10/current/task_id.npy": {
+    "bytes": 5418,
+    "mtime_ns": 1790449176228817889
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_l10/current/step.npy": {
+    "bytes": 5418,
+    "mtime_ns": 1790449176228817889
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_l10/current/progress.npy": {
+    "bytes": 10708,
+    "mtime_ns": 1790449176228817889
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_l10/current/next.npy": {
+    "bytes": 10708,
+    "mtime_ns": 1790449176229817890
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_l10/current/prev.npy": {
+    "bytes": 10708,
+    "mtime_ns": 1790449176228817889
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_l10_50_U30/client/journal.jsonl": {
+    "bytes": 120505,
+    "mtime_ns": 1790698323034467551
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_l10_50_U30/server_23150/decisions_r6c_groot_l10_50_U30_23150.jsonl": {
+    "bytes": 121208481,
+    "mtime_ns": 1790698303763466258
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_frontier/runs/r6q2_groot_l10_50_risk_rho0p35/client/journal.jsonl": {
+    "bytes": 130435,
+    "mtime_ns": 1790691446671939372
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_frontier/runs/r6q2_groot_l10_50_risk_rho0p35/server_23153/decisions_r6q2_groot_l10_50_risk_rho0p35_23153.jsonl": {
+    "bytes": 1820814,
+    "mtime_ns": 1790691414552938737
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_frontier/runs/r6q2_groot_l10_50_risk_rho0p35/server_23166/decisions_r6q2_groot_l10_50_risk_rho0p35_23166.jsonl": {
+    "bytes": 113526291,
+    "mtime_ns": 1790674154566858186
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_frontier/runs/r6q2_groot_l10_50_risk_rho0p45/client/journal.jsonl": {
+    "bytes": 130387,
+    "mtime_ns": 1790691655931943483
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_frontier/runs/r6q2_groot_l10_50_risk_rho0p45/server_23152/decisions_r6q2_groot_l10_50_risk_rho0p45_23152.jsonl": {
+    "bytes": 4697073,
+    "mtime_ns": 1790691582333942042
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_frontier/runs/r6q2_groot_l10_50_risk_rho0p45/server_23166/decisions_r6q2_groot_l10_50_risk_rho0p45_23166.jsonl": {
+    "bytes": 102496427,
+    "mtime_ns": 1790686029236703823
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all/action.npy": {
+    "bytes": 60684416,
+    "mtime_ns": 1790449450220002374
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all/rs.npy": {
+    "bytes": 948320,
+    "mtime_ns": 1790449449144001795
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all/episode.npy": {
+    "bytes": 118652,
+    "mtime_ns": 1790449455333005113
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all/task_id.npy": {
+    "bytes": 59390,
+    "mtime_ns": 1790449455332005113
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all/step.npy": {
+    "bytes": 59390,
+    "mtime_ns": 1790449455333005113
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all/progress.npy": {
+    "bytes": 118652,
+    "mtime_ns": 1790449455333005113
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all/next.npy": {
+    "bytes": 118652,
+    "mtime_ns": 1790449455334005114
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all/prev.npy": {
+    "bytes": 118652,
+    "mtime_ns": 1790449455334005114
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_l10_500_U18/client/journal.jsonl": {
+    "bytes": 121112,
+    "mtime_ns": 1790704503413204852
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_l10_500_U18/server_23165/decisions_r6c_groot_l10_500_U18_23165.jsonl": {
+    "bytes": 118754089,
+    "mtime_ns": 1790704473253198387
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_frontier/runs/r6q2_groot_l10_500_risk_rho0p13/client/journal.jsonl": {
+    "bytes": 131096,
+    "mtime_ns": 1790693045344845766
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_frontier/runs/r6q2_groot_l10_500_risk_rho0p13/server_23164/decisions_r6q2_groot_l10_500_risk_rho0p13_23164.jsonl": {
+    "bytes": 122262675,
+    "mtime_ns": 1790693006019850762
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_frontier/runs/r6q2_groot_l10_500_risk_rho0p18/client/journal.jsonl": {
+    "bytes": 131166,
+    "mtime_ns": 1790693504756803234
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_frontier/runs/r6q2_groot_l10_500_risk_rho0p18/server_23166/decisions_r6q2_groot_l10_500_risk_rho0p18_23166.jsonl": {
+    "bytes": 119872279,
+    "mtime_ns": 1790693477679805146
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/current/action.npy": {
+    "bytes": 2177152,
+    "mtime_ns": 1790449017350665522
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/current/rs.npy": {
+    "bytes": 34144,
+    "mtime_ns": 1790449017348665519
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/current/episode.npy": {
+    "bytes": 4380,
+    "mtime_ns": 1790449025739674652
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/current/task_id.npy": {
+    "bytes": 2254,
+    "mtime_ns": 1790449025738674651
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/current/step.npy": {
+    "bytes": 2254,
+    "mtime_ns": 1790449025739674652
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/current/progress.npy": {
+    "bytes": 4380,
+    "mtime_ns": 1790449025739674652
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/current/next.npy": {
+    "bytes": 4380,
+    "mtime_ns": 1790449025740674653
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/current/prev.npy": {
+    "bytes": 4380,
+    "mtime_ns": 1790449025739674652
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_spatial_50_U30/client/journal.jsonl": {
+    "bytes": 123854,
+    "mtime_ns": 1790696475107388246
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_spatial_50_U30/server_23166/decisions_r6c_groot_spatial_50_U30_23166.jsonl": {
+    "bytes": 45407206,
+    "mtime_ns": 1790696445749385137
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_frontier/runs/r6q2_groot_spatial_50_risk_rho0p12/client/journal.jsonl": {
+    "bytes": 133983,
+    "mtime_ns": 1790691637957943131
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_frontier/runs/r6q2_groot_spatial_50_risk_rho0p12/server_23153/decisions_r6q2_groot_spatial_50_risk_rho0p12_23153.jsonl": {
+    "bytes": 1110707,
+    "mtime_ns": 1790691613889942660
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_frontier/runs/r6q2_groot_spatial_50_risk_rho0p12/server_23165/decisions_r6q2_groot_spatial_50_risk_rho0p12_23165.jsonl": {
+    "bytes": 50543630,
+    "mtime_ns": 1790684433264144863
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_frontier/runs/r6q2_groot_spatial_50_risk_rho0p2/client/journal.jsonl": {
+    "bytes": 132890,
+    "mtime_ns": 1790685722078723766
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_frontier/runs/r6q2_groot_spatial_50_risk_rho0p2/server_23164/decisions_r6q2_groot_spatial_50_risk_rho0p2_23164.jsonl": {
+    "bytes": 48622432,
+    "mtime_ns": 1790685693010726211
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all/action.npy": {
+    "bytes": 24066176,
+    "mtime_ns": 1790449133470780860
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all/rs.npy": {
+    "bytes": 376160,
+    "mtime_ns": 1790449133135780559
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all/episode.npy": {
+    "bytes": 47132,
+    "mtime_ns": 1790449135447782632
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all/task_id.npy": {
+    "bytes": 23630,
+    "mtime_ns": 1790449135447782632
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all/step.npy": {
+    "bytes": 23630,
+    "mtime_ns": 1790449135447782632
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all/progress.npy": {
+    "bytes": 47132,
+    "mtime_ns": 1790449135448782633
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all/next.npy": {
+    "bytes": 47132,
+    "mtime_ns": 1790449135448782633
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all/prev.npy": {
+    "bytes": 47132,
+    "mtime_ns": 1790449135448782633
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_spatial_500_U18/client/journal.jsonl": {
+    "bytes": 124772,
+    "mtime_ns": 1790703670387050492
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_spatial_500_U18/server_23166/decisions_r6c_groot_spatial_500_U18_23166.jsonl": {
+    "bytes": 44915725,
+    "mtime_ns": 1790703628104044970
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_frontier/runs/r6q2_groot_spatial_500_risk_rho0p09/client/journal.jsonl": {
+    "bytes": 134735,
+    "mtime_ns": 1790687677560896583
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_frontier/runs/r6q2_groot_spatial_500_risk_rho0p09/server_23165/decisions_r6q2_groot_spatial_500_risk_rho0p09_23165.jsonl": {
+    "bytes": 46238615,
+    "mtime_ns": 1790687620078893324
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/current/action.npy": {
+    "bytes": 3379328,
+    "mtime_ns": 1790449033578683064
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/current/rs.npy": {
+    "bytes": 338048,
+    "mtime_ns": 1790449033578683064
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/current/episode.npy": {
+    "bytes": 10688,
+    "mtime_ns": 1790449041759691721
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/current/task_id.npy": {
+    "bytes": 5408,
+    "mtime_ns": 1790449041759691721
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/current/step.npy": {
+    "bytes": 5408,
+    "mtime_ns": 1790449041759691721
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/current/progress.npy": {
+    "bytes": 10688,
+    "mtime_ns": 1790449041759691721
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/current/next.npy": {
+    "bytes": 10688,
+    "mtime_ns": 1790449041760691722
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/current/prev.npy": {
+    "bytes": 10688,
+    "mtime_ns": 1790449041759691721
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_l10_50_U30/client/journal.jsonl": {
+    "bytes": 118947,
+    "mtime_ns": 1790695346157207169
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_l10_50_U30/server_23164/decisions_r6c_pi05_l10_50_U30_23164.jsonl": {
+    "bytes": 115895068,
+    "mtime_ns": 1790695336163204425
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_frontier/runs/r6q2_pi05_l10_50_risk_rho0p35/client/journal.jsonl": {
+    "bytes": 129069,
+    "mtime_ns": 1790692816080879520
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_frontier/runs/r6q2_pi05_l10_50_risk_rho0p35/server_23153/decisions_r6q2_pi05_l10_50_risk_rho0p35_23153.jsonl": {
+    "bytes": 2267074,
+    "mtime_ns": 1790692765002888824
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_frontier/runs/r6q2_pi05_l10_50_risk_rho0p35/server_23166/decisions_r6q2_pi05_l10_50_risk_rho0p35_23166.jsonl": {
+    "bytes": 117204334,
+    "mtime_ns": 1790669110335904338
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_frontier/runs/r6q2_pi05_l10_50_risk_rho0p45/client/journal.jsonl": {
+    "bytes": 128971,
+    "mtime_ns": 1790680834142747839
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_frontier/runs/r6q2_pi05_l10_50_risk_rho0p45/server_23166/decisions_r6q2_pi05_l10_50_risk_rho0p45_23166.jsonl": {
+    "bytes": 110310057,
+    "mtime_ns": 1790680770258705572
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs/action.npy": {
+    "bytes": 37724288,
+    "mtime_ns": 1790450306368277906
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs/rs.npy": {
+    "bytes": 3772544,
+    "mtime_ns": 1790450306368277906
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs/episode.npy": {
+    "bytes": 118016,
+    "mtime_ns": 1790450371921290494
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs/task_id.npy": {
+    "bytes": 59072,
+    "mtime_ns": 1790450371920290494
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs/step.npy": {
+    "bytes": 59072,
+    "mtime_ns": 1790450371921290494
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs/progress.npy": {
+    "bytes": 118016,
+    "mtime_ns": 1790450371921290494
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs/next.npy": {
+    "bytes": 118016,
+    "mtime_ns": 1790450371922290495
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs/prev.npy": {
+    "bytes": 118016,
+    "mtime_ns": 1790450371921290494
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_l10_500_U18/client/journal.jsonl": {
+    "bytes": 119917,
+    "mtime_ns": 1790702133654900702
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_l10_500_U18/server_23165/decisions_r6c_pi05_l10_500_U18_23165.jsonl": {
+    "bytes": 122955292,
+    "mtime_ns": 1790702117754894748
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_frontier/runs/r6q2_pi05_l10_500_risk_rho0p18/client/journal.jsonl": {
+    "bytes": 130150,
+    "mtime_ns": 1790692349181956897
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_frontier/runs/r6q2_pi05_l10_500_risk_rho0p18/server_23150/decisions_r6q2_pi05_l10_500_risk_rho0p18_23150.jsonl": {
+    "bytes": 62133986,
+    "mtime_ns": 1790674150797854556
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_frontier/runs/r6q2_pi05_l10_500_risk_rho0p18/server_23151/decisions_r6q2_pi05_l10_500_risk_rho0p18_23151.jsonl": {
+    "bytes": 58924096,
+    "mtime_ns": 1790674094230797885
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_frontier/runs/r6q2_pi05_l10_500_risk_rho0p18/server_23152/decisions_r6q2_pi05_l10_500_risk_rho0p18_23152.jsonl": {
+    "bytes": 1460089,
+    "mtime_ns": 1790692341167956743
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_frontier/runs/r6q2_pi05_l10_500_risk_rho0p24/client/journal.jsonl": {
+    "bytes": 130167,
+    "mtime_ns": 1790692440592958654
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_frontier/runs/r6q2_pi05_l10_500_risk_rho0p24/server_23150/decisions_r6q2_pi05_l10_500_risk_rho0p24_23150.jsonl": {
+    "bytes": 59155658,
+    "mtime_ns": 1790675963263772305
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_frontier/runs/r6q2_pi05_l10_500_risk_rho0p24/server_23151/decisions_r6q2_pi05_l10_500_risk_rho0p24_23151.jsonl": {
+    "bytes": 54793293,
+    "mtime_ns": 1790675916812755950
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_frontier/runs/r6q2_pi05_l10_500_risk_rho0p24/server_23153/decisions_r6q2_pi05_l10_500_risk_rho0p24_23153.jsonl": {
+    "bytes": 4463412,
+    "mtime_ns": 1790692428207958416
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/current/action.npy": {
+    "bytes": 1303168,
+    "mtime_ns": 1790449017570665763
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/current/rs.npy": {
+    "bytes": 130432,
+    "mtime_ns": 1790449017569665762
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/current/episode.npy": {
+    "bytes": 4200,
+    "mtime_ns": 1790449022657671313
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/current/task_id.npy": {
+    "bytes": 2164,
+    "mtime_ns": 1790449022657671313
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/current/step.npy": {
+    "bytes": 2164,
+    "mtime_ns": 1790449022657671313
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/current/progress.npy": {
+    "bytes": 4200,
+    "mtime_ns": 1790449022657671313
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/current/next.npy": {
+    "bytes": 4200,
+    "mtime_ns": 1790449022658671314
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/current/prev.npy": {
+    "bytes": 4200,
+    "mtime_ns": 1790449022657671313
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_spatial_50_U30/client/journal.jsonl": {
+    "bytes": 122793,
+    "mtime_ns": 1790694818199988599
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_spatial_50_U30/server_23150/decisions_r6c_pi05_spatial_50_U30_23150.jsonl": {
+    "bytes": 45858681,
+    "mtime_ns": 1790694797209975507
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_frontier/runs/r6q2_pi05_spatial_50_risk_rho0p35/client/journal.jsonl": {
+    "bytes": 132870,
+    "mtime_ns": 1790693275020821464
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_frontier/runs/r6q2_pi05_spatial_50_risk_rho0p35/server_23152/decisions_r6q2_pi05_spatial_50_risk_rho0p35_23152.jsonl": {
+    "bytes": 696592,
+    "mtime_ns": 1790693258449822981
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_frontier/runs/r6q2_pi05_spatial_50_risk_rho0p35/server_23164/decisions_r6q2_pi05_spatial_50_risk_rho0p35_23164.jsonl": {
+    "bytes": 44371633,
+    "mtime_ns": 1790684489834098079
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_frontier/runs/r6q2_pi05_spatial_50_risk_rho0p45/client/journal.jsonl": {
+    "bytes": 132742,
+    "mtime_ns": 1790685603984734483
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_frontier/runs/r6q2_pi05_spatial_50_risk_rho0p45/server_23150/decisions_r6q2_pi05_spatial_50_risk_rho0p45_23150.jsonl": {
+    "bytes": 42369929,
+    "mtime_ns": 1790685597576735128
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs/action.npy": {
+    "bytes": 13963648,
+    "mtime_ns": 1790449728265125259
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs/rs.npy": {
+    "bytes": 1396480,
+    "mtime_ns": 1790449727550125000
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs/episode.npy": {
+    "bytes": 43764,
+    "mtime_ns": 1790449733486127142
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs/task_id.npy": {
+    "bytes": 21946,
+    "mtime_ns": 1790449733486127142
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs/step.npy": {
+    "bytes": 21946,
+    "mtime_ns": 1790449733486127142
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs/progress.npy": {
+    "bytes": 43764,
+    "mtime_ns": 1790449733487127142
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs/next.npy": {
+    "bytes": 43764,
+    "mtime_ns": 1790449733487127142
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs/prev.npy": {
+    "bytes": 43764,
+    "mtime_ns": 1790449733487127142
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_spatial_500_U18/client/journal.jsonl": {
+    "bytes": 123756,
+    "mtime_ns": 1790702643844080272
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_spatial_500_U18/server_23166/decisions_r6c_pi05_spatial_500_U18_23166.jsonl": {
+    "bytes": 45811276,
+    "mtime_ns": 1790702584545060243
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_frontier/runs/r6q2_pi05_spatial_500_risk_rho0p085/client/journal.jsonl": {
+    "bytes": 134764,
+    "mtime_ns": 1790688339332925911
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_frontier/runs/r6q2_pi05_spatial_500_risk_rho0p085/server_23165/decisions_r6q2_pi05_spatial_500_risk_rho0p085_23165.jsonl": {
+    "bytes": 47787119,
+    "mtime_ns": 1790688321353925241
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_frontier/runs/r6q2_pi05_spatial_500_risk_rho0p105/client/journal.jsonl": {
+    "bytes": 134778,
+    "mtime_ns": 1790688793522908179
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_frontier/runs/r6q2_pi05_spatial_500_risk_rho0p105/server_23164/decisions_r6q2_pi05_spatial_500_risk_rho0p105_23164.jsonl": {
+    "bytes": 47305147,
+    "mtime_ns": 1790688786112908355
+  }
+}

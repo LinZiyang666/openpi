@@ -2,6 +2,7 @@
 import itertools
 import json
 from pathlib import Path
+import shutil
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -82,7 +83,8 @@ class ModelTests(unittest.TestCase):
         self.assertEqual(StallTracker(model,'missing').status()['state'],'inactive')
 
     def test_roundtrip_corruption_and_no_overwrite(self):
-        path=Path(tempfile.mkdtemp(prefix='_test_model_',dir=HERE))
+        path=Path(tempfile.mkdtemp(prefix='_test_model_'))
+        self.addCleanup(shutil.rmtree,path)
         self.model.save(path);loaded=StallModel.load(path)
         self.assertEqual(loaded.fingerprint,self.model.fingerprint)
         a,b=StallTracker(self.model,0),StallTracker(loaded,'task')

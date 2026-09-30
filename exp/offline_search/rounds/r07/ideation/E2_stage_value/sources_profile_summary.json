@@ -1,0 +1,34 @@
+{
+  "exp/offline_search/rounds/r06/ideation_Q3/stall/pilot_status_pi05_l10_500.csv": {
+    "bytes": 771599,
+    "mtime_ns": 1790687593269891744
+  },
+  "exp/offline_search/rounds/r06/ideation_Q3/stall/pilot_status_pi05_sp_500.csv": {
+    "bytes": 291048,
+    "mtime_ns": 1790687570316890358
+  },
+  "exp/offline_search/rounds/r06/ideation_Q3/stall/pilot_status_pi05_l10_50.csv": {
+    "bytes": 868704,
+    "mtime_ns": 1790687565891890087
+  },
+  "exp/offline_search/rounds/r06/ideation_Q3/stall/pilot_status_pi05_sp_50.csv": {
+    "bytes": 322068,
+    "mtime_ns": 1790687559870889717
+  },
+  "exp/offline_search/rounds/r06/ideation_Q3/stall/pilot_status_groot_l10_50.csv": {
+    "bytes": 1006685,
+    "mtime_ns": 1790687566990890155
+  },
+  "exp/offline_search/rounds/r06/ideation_Q3/stall/pilot_status_groot_sp_500.csv": {
+    "bytes": 297176,
+    "mtime_ns": 1790687570106890345
+  },
+  "exp/offline_search/rounds/r06/ideation_Q3/stall/pilot_status_groot_sp_50.csv": {
+    "bytes": 291548,
+    "mtime_ns": 1790687559552889697
+  },
+  "exp/offline_search/rounds/r06/ideation_Q3/stall/pilot_status_groot_l10_500.csv": {
+    "bytes": 834394,
+    "mtime_ns": 1790687592132891676
+  }
+}

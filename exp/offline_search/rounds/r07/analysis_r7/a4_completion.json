@@ -1,0 +1,318 @@
+{
+ "sparse_two_replicates": {
+  "rho": 0.3,
+  "cells": [
+   {
+    "cell": "pi05_l10_50",
+    "pairs": 500,
+    "ct_sr": 0.854,
+    "cu_sr": 0.848,
+    "dSR": 0.006,
+    "ci": [
+     -0.021,
+     0.034
+    ],
+    "ir_pairs": [
+     {
+      "ct": "r7_pi05_l10_50_CT30",
+      "cu": "r7_pi05_l10_50_CU30",
+      "ct_ir": 0.30805636109310497,
+      "cu_ir": 0.30068844839371156,
+      "dIR": 0.0073679126993934085
+     },
+     {
+      "ct": "r7_pi05_l10_50_CT30_rep2",
+      "cu": "r7_pi05_l10_50_CU30_rep2",
+      "ct_ir": 0.3071614224789281,
+      "cu_ir": 0.29974654610239004,
+      "dIR": 0.007414876376538038
+     }
+    ],
+    "ir_matched": true
+   },
+   {
+    "cell": "pi05_spatial_50",
+    "pairs": 500,
+    "ct_sr": 0.962,
+    "cu_sr": 0.947,
+    "dSR": 0.015,
+    "ci": [
+     -0.001,
+     0.031
+    ],
+    "ir_pairs": [
+     {
+      "ct": "r7_pi05_spatial_50_CT30",
+      "cu": "r7_pi05_spatial_50_CU30",
+      "ct_ir": 0.28782217323413245,
+      "cu_ir": 0.2972928057553957,
+      "dIR": -0.009470632521263234
+     },
+     {
+      "ct": "r7_pi05_spatial_50_CT30_rep2",
+      "cu": "r7_pi05_spatial_50_CU30_rep2",
+      "ct_ir": 0.28706147280486694,
+      "cu_ir": 0.30237038361799157,
+      "dIR": -0.015308910813124632
+     }
+    ],
+    "ir_matched": false
+   },
+   {
+    "cell": "groot_l10_50",
+    "pairs": 500,
+    "ct_sr": 0.832,
+    "cu_sr": 0.784,
+    "dSR": 0.048,
+    "ci": [
+     0.019,
+     0.078
+    ],
+    "ir_pairs": [
+     {
+      "ct": "r7_groot_l10_50_CT30",
+      "cu": "r7_groot_l10_50_CU30",
+      "ct_ir": 0.2992617258614412,
+      "cu_ir": 0.30089780704479097,
+      "dIR": -0.0016360811833497912
+     },
+     {
+      "ct": "r7_groot_l10_50_CT30_rep2",
+      "cu": "r7_groot_l10_50_CU30_rep2",
+      "ct_ir": 0.2994186031374081,
+      "cu_ir": 0.2993917479176083,
+      "dIR": 2.6855219799781782e-05
+     }
+    ],
+    "ir_matched": true
+   },
+   {
+    "cell": "groot_spatial_50",
+    "pairs": 500,
+    "ct_sr": 0.931,
+    "cu_sr": 0.929,
+    "dSR": 0.002,
+    "ci": [
+     -0.017,
+     0.021
+    ],
+    "ir_pairs": [
+     {
+      "ct": "r7_groot_spatial_50_CT30",
+      "cu": "r7_groot_spatial_50_CU30",
+      "ct_ir": 0.30713866573524273,
+      "cu_ir": 0.30123960327127197,
+      "dIR": 0.005899062463970761
+     },
+     {
+      "ct": "r7_groot_spatial_50_CT30_rep2",
+      "cu": "r7_groot_spatial_50_CU30_rep2",
+      "ct_ir": 0.30504824077999154,
+      "cu_ir": 0.2973326483431801,
+      "dIR": 0.007715592436811469
+     }
+    ],
+    "ir_matched": true
+   }
+  ],
+  "pooled_dSR": 0.017750000000000002,
+  "pooled_ci": [
+   0.006,
+   0.029256249999999914
+  ],
+  "all_ir_matched": false,
+  "verdict": "not supported (IR not matched in a cell)"
+ },
+ "sparse_rep2_only": {
+  "rho": 0.3,
+  "cells": [
+   {
+    "cell": "pi05_l10_50",
+    "pairs": 500,
+    "ct_sr": 0.854,
+    "cu_sr": 0.832,
+    "dSR": 0.022,
+    "ci": [
+     -0.018,
+     0.062
+    ],
+    "ir_pairs": [
+     {
+      "ct": "r7_pi05_l10_50_CT30_rep2",
+      "cu": "r7_pi05_l10_50_CU30_rep2",
+      "ct_ir": 0.3071614224789281,
+      "cu_ir": 0.29974654610239004,
+      "dIR": 0.007414876376538038
+     }
+    ],
+    "ir_matched": true
+   },
+   {
+    "cell": "pi05_spatial_50",
+    "pairs": 500,
+    "ct_sr": 0.962,
+    "cu_sr": 0.948,
+    "dSR": 0.014,
+    "ci": [
+     -0.01,
+     0.036
+    ],
+    "ir_pairs": [
+     {
+      "ct": "r7_pi05_spatial_50_CT30_rep2",
+      "cu": "r7_pi05_spatial_50_CU30_rep2",
+      "ct_ir": 0.28706147280486694,
+      "cu_ir": 0.30237038361799157,
+      "dIR": -0.015308910813124632
+     }
+    ],
+    "ir_matched": false
+   },
+   {
+    "cell": "groot_l10_50",
+    "pairs": 500,
+    "ct_sr": 0.824,
+    "cu_sr": 0.812,
+    "dSR": 0.012,
+    "ci": [
+     -0.028,
+     0.052
+    ],
+    "ir_pairs": [
+     {
+      "ct": "r7_groot_l10_50_CT30_rep2",
+      "cu": "r7_groot_l10_50_CU30_rep2",
+      "ct_ir": 0.2994186031374081,
+      "cu_ir": 0.2993917479176083,
+      "dIR": 2.6855219799781782e-05
+     }
+    ],
+    "ir_matched": true
+   },
+   {
+    "cell": "groot_spatial_50",
+    "pairs": 500,
+    "ct_sr": 0.912,
+    "cu_sr": 0.926,
+    "dSR": -0.014,
+    "ci": [
+     -0.044,
+     0.018
+    ],
+    "ir_pairs": [
+     {
+      "ct": "r7_groot_spatial_50_CT30_rep2",
+      "cu": "r7_groot_spatial_50_CU30_rep2",
+      "ct_ir": 0.30504824077999154,
+      "cu_ir": 0.2973326483431801,
+      "dIR": 0.007715592436811469
+     }
+    ],
+    "ir_matched": true
+   }
+  ],
+  "pooled_dSR": 0.0085,
+  "pooled_ci": [
+   -0.008,
+   0.0255
+  ],
+  "all_ir_matched": false,
+  "verdict": "not supported"
+ },
+ "dense": {
+  "rho": 0.18,
+  "cells": [
+   {
+    "cell": "pi05_l10_500",
+    "pairs": 500,
+    "ct_sr": 0.898,
+    "cu_sr": 0.902,
+    "dSR": -0.004,
+    "ci": [
+     -0.032,
+     0.024
+    ],
+    "ir_pairs": [
+     {
+      "ct": "r7_pi05_l10_500_CT18",
+      "cu": "r7_pi05_l10_500_CU18",
+      "ct_ir": 0.18632905617336754,
+      "cu_ir": 0.18846291223451564,
+      "dIR": -0.002133856061148104
+     }
+    ],
+    "ir_matched": true
+   },
+   {
+    "cell": "pi05_spatial_500",
+    "pairs": 500,
+    "ct_sr": 0.966,
+    "cu_sr": 0.984,
+    "dSR": -0.018,
+    "ci": [
+     -0.036,
+     -0.002
+    ],
+    "ir_pairs": [
+     {
+      "ct": "r7_pi05_spatial_500_CT18",
+      "cu": "r7_pi05_spatial_500_CU18",
+      "ct_ir": 0.1647944848146078,
+      "cu_ir": 0.1630832383124287,
+      "dIR": 0.0017112465021790757
+     }
+    ],
+    "ir_matched": true
+   },
+   {
+    "cell": "groot_l10_500",
+    "pairs": 500,
+    "ct_sr": 0.87,
+    "cu_sr": 0.87,
+    "dSR": 0.0,
+    "ci": [
+     -0.032,
+     0.032
+    ],
+    "ir_pairs": [
+     {
+      "ct": "r7_groot_l10_500_CT18",
+      "cu": "r7_groot_l10_500_CU18",
+      "ct_ir": 0.1884060202524622,
+      "cu_ir": 0.18670932294745626,
+      "dIR": 0.0016966973050059342
+     }
+    ],
+    "ir_matched": true
+   },
+   {
+    "cell": "groot_spatial_500",
+    "pairs": 500,
+    "ct_sr": 0.934,
+    "cu_sr": 0.934,
+    "dSR": 0.0,
+    "ci": [
+     -0.024,
+     0.024
+    ],
+    "ir_pairs": [
+     {
+      "ct": "r7_groot_spatial_500_CT18",
+      "cu": "r7_groot_spatial_500_CU18",
+      "ct_ir": 0.18247382337387624,
+      "cu_ir": 0.18379687362006536,
+      "dIR": -0.001323050246189117
+     }
+    ],
+    "ir_matched": true
+   }
+  ],
+  "pooled_dSR": -0.0055,
+  "pooled_ci": [
+   -0.018500000000000003,
+   0.0075
+  ],
+  "all_ir_matched": true,
+  "verdict": "not supported"
+ }
+}

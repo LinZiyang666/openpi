@@ -1,0 +1,556 @@
+{
+  "model": "groot",
+  "cell": "l10_50",
+  "library_path": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/current",
+  "fit": "/home/weiland/trace_runs/os_closed_loop/r05_x/fits/r5x_g_l10_50_tail1u.pkl",
+  "horizon": 16,
+  "library_rows": 2645,
+  "library_episodes": 50,
+  "successful_library_episodes": 50,
+  "state_scale": [
+    0.2990585827106413,
+    0.3995675674468453,
+    0.5811662901488015,
+    0.27743785839902085,
+    0.3514881663200692,
+    0.23879486557506538,
+    0.6225515209365896,
+    0.6224422405165376
+  ],
+  "calibration": {
+    "q_row95": 0.3675918766864049,
+    "q_episode95": 1.171952184218027,
+    "anchors": 1164,
+    "episodes": 50,
+    "convention": "frozen-fit candidate-LOEO; max 5/10-control displacement error, pooled across tasks"
+  },
+  "library": {
+    "5": {
+      "supported_share": 0.90847711927982,
+      "n": 1211,
+      "delta_q": [
+        0.03935799466277976,
+        0.16156356261969487,
+        0.24837746799881777
+      ],
+      "absolute_q": [
+        0.1878926724950912,
+        0.45294867457902377,
+        0.5853595413317089
+      ],
+      "row95_cumulative_alert": 0.01568951279933939
+    },
+    "10": {
+      "supported_share": 0.873218304576144,
+      "n": 1164,
+      "delta_q": [
+        0.07662185784575337,
+        0.24082947673837682,
+        0.3506467114358522
+      ],
+      "absolute_q": [
+        0.1937978200798377,
+        0.4843487621225082,
+        0.6341850305092545
+      ],
+      "row95_cumulative_alert": 0.04982817869415808
+    },
+    "15": {
+      "supported_share": 0.8379594898724682,
+      "n": 1117,
+      "delta_q": [
+        0.11163524118218257,
+        0.3173237723951348,
+        0.4378142755735453
+      ],
+      "absolute_q": [
+        0.2067842332312236,
+        0.5157357013769576,
+        0.6930840059525241
+      ],
+      "row95_cumulative_alert": 0.09131602506714413
+    },
+    "20": {
+      "supported_share": 0.8177044261065266,
+      "n": 1090,
+      "delta_q": [
+        0.13858961745432163,
+        0.38567971445646043,
+        0.5284437259192525
+      ],
+      "absolute_q": [
+        0.21173412965135516,
+        0.535532652481713,
+        0.731812300008503
+      ],
+      "row95_cumulative_alert": 0.14770642201834863
+    },
+    "30": {
+      "supported_share": 0.7456864216054013,
+      "n": 994,
+      "delta_q": [
+        0.18859263021508782,
+        0.48713030053527884,
+        0.6131854866924377
+      ],
+      "absolute_q": [
+        0.2289924433899252,
+        0.5681037108291868,
+        0.7578065659023294
+      ],
+      "row95_cumulative_alert": 0.2635814889336016
+    },
+    "40": {
+      "supported_share": 0.6774193548387096,
+      "n": 903,
+      "delta_q": [
+        0.2292557499368334,
+        0.5701969750348802,
+        0.7059855069129799
+      ],
+      "absolute_q": [
+        0.24895503423020235,
+        0.6150095974770796,
+        0.8003600504624899
+      ],
+      "row95_cumulative_alert": 0.3831672203765227
+    },
+    "45": {
+      "supported_share": 0.641410352588147,
+      "n": 855,
+      "delta_q": [
+        0.258655204525262,
+        0.6377810144566517,
+        0.7640840974867824
+      ],
+      "absolute_q": [
+        0.26676871999885954,
+        0.659554683599473,
+        0.86732994876498
+      ],
+      "row95_cumulative_alert": 0.447953216374269
+    },
+    "60": {
+      "supported_share": 0.5716429107276819,
+      "n": 762,
+      "delta_q": [
+        0.3073525317325023,
+        0.7251568459896756,
+        0.899738691286664
+      ],
+      "absolute_q": [
+        0.3075479699128977,
+        0.7439155045166114,
+        0.9145930092848037
+      ],
+      "row95_cumulative_alert": 0.6141732283464567
+    }
+  },
+  "tail_successor_mismatch": {
+    "5": {
+      "rms_q": [
+        0.13985832035541534,
+        0.4658416807651519,
+        0.6200068235397337
+      ],
+      "n": 2595,
+      "gripper_sign_mismatch": 0.03344894026974952
+    },
+    "10": {
+      "rms_q": [
+        0.2069292664527893,
+        0.6144692778587341,
+        0.8492979288101188
+      ],
+      "n": 2545,
+      "gripper_sign_mismatch": 0.0456581532416503
+    }
+  },
+  "bval": {
+    "episodes": 10,
+    "anchors": 365,
+    "successful_episodes": 6,
+    "by_age": {
+      "5": {
+        "n": 319,
+        "supported_share": 0.873972602739726,
+        "delta_q": [
+          0.0309183641988221,
+          0.14573291427301027,
+          0.2221751186520358
+        ],
+        "absolute_q": [
+          0.1560063871483049,
+          1.049346557947957,
+          1.2960144496761106
+        ],
+        "row95_cumulative_alert": 0.025078369905956112,
+        "row95_alert_success": 0.014084507042253521,
+        "row95_alert_failure": 0.03389830508474576,
+        "episode95_cumulative_alert": 0.0,
+        "episode95_alert_success": 0.0,
+        "episode95_alert_failure": 0.0
+      },
+      "10": {
+        "n": 311,
+        "supported_share": 0.852054794520548,
+        "delta_q": [
+          0.0543500941821965,
+          0.2188251037169962,
+          0.34531080512914913
+        ],
+        "absolute_q": [
+          0.1633948230045534,
+          0.9686183894423778,
+          1.2324174311005915
+        ],
+        "row95_cumulative_alert": 0.04501607717041801,
+        "row95_alert_success": 0.0364963503649635,
+        "row95_alert_failure": 0.05172413793103448,
+        "episode95_cumulative_alert": 0.006430868167202572,
+        "episode95_alert_success": 0.0,
+        "episode95_alert_failure": 0.011494252873563218
+      },
+      "15": {
+        "n": 305,
+        "supported_share": 0.8356164383561644,
+        "delta_q": [
+          0.10259981359930297,
+          0.35190637402501307,
+          0.5500554469106895
+        ],
+        "absolute_q": [
+          0.20458631820193302,
+          1.0233149387966252,
+          1.2461744403290076
+        ],
+        "row95_cumulative_alert": 0.09836065573770492,
+        "row95_alert_success": 0.06060606060606061,
+        "row95_alert_failure": 0.12716763005780346,
+        "episode95_cumulative_alert": 0.006557377049180328,
+        "episode95_alert_success": 0.0,
+        "episode95_alert_failure": 0.011560693641618497
+      },
+      "20": {
+        "n": 299,
+        "supported_share": 0.8191780821917808,
+        "delta_q": [
+          0.1231988441383617,
+          0.4542655015761218,
+          0.6500188557606238
+        ],
+        "absolute_q": [
+          0.203539269200385,
+          1.0624873329826716,
+          1.2445090542939947
+        ],
+        "row95_cumulative_alert": 0.16387959866220736,
+        "row95_alert_success": 0.1076923076923077,
+        "row95_alert_failure": 0.20710059171597633,
+        "episode95_cumulative_alert": 0.013377926421404682,
+        "episode95_alert_success": 0.0,
+        "episode95_alert_failure": 0.023668639053254437
+      },
+      "30": {
+        "n": 280,
+        "supported_share": 0.7671232876712328,
+        "delta_q": [
+          0.212287732980524,
+          0.6091834952875789,
+          0.8388993263612978
+        ],
+        "absolute_q": [
+          0.25609889037429223,
+          1.1635344281838234,
+          1.287680347235931
+        ],
+        "row95_cumulative_alert": 0.3392857142857143,
+        "row95_alert_success": 0.1565217391304348,
+        "row95_alert_failure": 0.4666666666666667,
+        "episode95_cumulative_alert": 0.02142857142857143,
+        "episode95_alert_success": 0.0,
+        "episode95_alert_failure": 0.03636363636363636
+      },
+      "40": {
+        "n": 264,
+        "supported_share": 0.7232876712328767,
+        "delta_q": [
+          0.24299972815032134,
+          0.7852062153371581,
+          1.0055354877223524
+        ],
+        "absolute_q": [
+          0.284888691255908,
+          1.1007120073275936,
+          1.264951555573201
+        ],
+        "row95_cumulative_alert": 0.4962121212121212,
+        "row95_alert_success": 0.24324324324324326,
+        "row95_alert_failure": 0.6797385620915033,
+        "episode95_cumulative_alert": 0.041666666666666664,
+        "episode95_alert_success": 0.0,
+        "episode95_alert_failure": 0.0718954248366013
+      },
+      "45": {
+        "n": 248,
+        "supported_share": 0.6794520547945205,
+        "delta_q": [
+          0.27300841028430056,
+          0.8794069453709663,
+          1.1016325069277797
+        ],
+        "absolute_q": [
+          0.30658491211506045,
+          1.0762008306177937,
+          1.2630145262169898
+        ],
+        "row95_cumulative_alert": 0.532258064516129,
+        "row95_alert_success": 0.29411764705882354,
+        "row95_alert_failure": 0.6986301369863014,
+        "episode95_cumulative_alert": 0.04435483870967742,
+        "episode95_alert_success": 0.0,
+        "episode95_alert_failure": 0.07534246575342465
+      },
+      "60": {
+        "n": 229,
+        "supported_share": 0.6273972602739726,
+        "delta_q": [
+          0.3371685268634154,
+          1.058499865127447,
+          1.2748009964145737
+        ],
+        "absolute_q": [
+          0.3558123706362024,
+          1.1729308950062403,
+          1.3551466851049054
+        ],
+        "row95_cumulative_alert": 0.6331877729257642,
+        "row95_alert_success": 0.4444444444444444,
+        "row95_alert_failure": 0.7553956834532374,
+        "episode95_cumulative_alert": 0.09606986899563319,
+        "episode95_alert_success": 0.0,
+        "episode95_alert_failure": 0.15827338129496402
+      }
+    },
+    "chunk_boundary_replay": {
+      "10": {
+        "vision_share": 0.5,
+        "alert_looks": 0,
+        "cap_or_end_looks": 355,
+        "looks": 365,
+        "assumed_full_decisions": 730,
+        "caveat": "two decisions per anchor, terminal partial control not corrected"
+      },
+      "20": {
+        "vision_share": 0.2863013698630137,
+        "alert_looks": 5,
+        "cap_or_end_looks": 194,
+        "looks": 209,
+        "assumed_full_decisions": 730,
+        "caveat": "two decisions per anchor, terminal partial control not corrected"
+      },
+      "30": {
+        "vision_share": 0.2232876712328767,
+        "alert_looks": 20,
+        "cap_or_end_looks": 133,
+        "looks": 163,
+        "assumed_full_decisions": 730,
+        "caveat": "two decisions per anchor, terminal partial control not corrected"
+      }
+    }
+  },
+  "p3_A_r0": {
+    "episodes": 20,
+    "anchors": 731,
+    "successful_episodes": 12,
+    "by_age": {
+      "5": {
+        "n": 585,
+        "supported_share": 0.8002735978112175,
+        "delta_q": [
+          0.025243243616629926,
+          0.14775736169193462,
+          0.23707178693104095
+        ],
+        "absolute_q": [
+          0.17807378704587676,
+          1.2403665752056499,
+          1.6150821010699885
+        ],
+        "row95_cumulative_alert": 0.020512820512820513,
+        "row95_alert_success": 0.007462686567164179,
+        "row95_alert_failure": 0.031545741324921134,
+        "episode95_cumulative_alert": 0.0,
+        "episode95_alert_success": 0.0,
+        "episode95_alert_failure": 0.0
+      },
+      "10": {
+        "n": 563,
+        "supported_share": 0.7701778385772914,
+        "delta_q": [
+          0.04734602399490485,
+          0.24256298376238855,
+          0.43137571480122733
+        ],
+        "absolute_q": [
+          0.1880266295270883,
+          1.2072639308969162,
+          1.507354687502583
+        ],
+        "row95_cumulative_alert": 0.056838365896980464,
+        "row95_alert_success": 0.04230769230769231,
+        "row95_alert_failure": 0.06930693069306931,
+        "episode95_cumulative_alert": 0.0053285968028419185,
+        "episode95_alert_success": 0.0,
+        "episode95_alert_failure": 0.009900990099009901
+      },
+      "15": {
+        "n": 544,
+        "supported_share": 0.7441860465116279,
+        "delta_q": [
+          0.07966944168316326,
+          0.36675679544312784,
+          0.5484431142475352
+        ],
+        "absolute_q": [
+          0.21240483623703552,
+          1.197659896941256,
+          1.4564460833993145
+        ],
+        "row95_cumulative_alert": 0.11397058823529412,
+        "row95_alert_success": 0.08032128514056225,
+        "row95_alert_failure": 0.1423728813559322,
+        "episode95_cumulative_alert": 0.003676470588235294,
+        "episode95_alert_success": 0.0,
+        "episode95_alert_failure": 0.006779661016949152
+      },
+      "20": {
+        "n": 522,
+        "supported_share": 0.7140902872777017,
+        "delta_q": [
+          0.12146301061277581,
+          0.46809429226083,
+          0.6228359743166272
+        ],
+        "absolute_q": [
+          0.22948472816052648,
+          1.1932336069599634,
+          1.3783418466575479
+        ],
+        "row95_cumulative_alert": 0.18582375478927204,
+        "row95_alert_success": 0.13692946058091288,
+        "row95_alert_failure": 0.2277580071174377,
+        "episode95_cumulative_alert": 0.007662835249042145,
+        "episode95_alert_success": 0.0,
+        "episode95_alert_failure": 0.014234875444839857
+      },
+      "30": {
+        "n": 490,
+        "supported_share": 0.6703146374829001,
+        "delta_q": [
+          0.18512789115734352,
+          0.6237943003286337,
+          0.7461718664832989
+        ],
+        "absolute_q": [
+          0.250164914921821,
+          1.2436818893948198,
+          1.4997302376820734
+        ],
+        "row95_cumulative_alert": 0.36122448979591837,
+        "row95_alert_success": 0.2183406113537118,
+        "row95_alert_failure": 0.48659003831417624,
+        "episode95_cumulative_alert": 0.0163265306122449,
+        "episode95_alert_success": 0.0,
+        "episode95_alert_failure": 0.03065134099616858
+      },
+      "40": {
+        "n": 427,
+        "supported_share": 0.5841313269493844,
+        "delta_q": [
+          0.23785343595364158,
+          0.6809755530469487,
+          0.8757075114197787
+        ],
+        "absolute_q": [
+          0.25519588190462233,
+          0.94564567941473,
+          1.3243845480771852
+        ],
+        "row95_cumulative_alert": 0.477751756440281,
+        "row95_alert_success": 0.3076923076923077,
+        "row95_alert_failure": 0.639269406392694,
+        "episode95_cumulative_alert": 0.02810304449648712,
+        "episode95_alert_success": 0.0,
+        "episode95_alert_failure": 0.0547945205479452
+      },
+      "45": {
+        "n": 404,
+        "supported_share": 0.5526675786593708,
+        "delta_q": [
+          0.2561435683511927,
+          0.7275702615385576,
+          0.868549709603637
+        ],
+        "absolute_q": [
+          0.2620607042008265,
+          0.8939405331851188,
+          1.2170279435692082
+        ],
+        "row95_cumulative_alert": 0.5222772277227723,
+        "row95_alert_success": 0.38,
+        "row95_alert_failure": 0.6617647058823529,
+        "episode95_cumulative_alert": 0.027227722772277228,
+        "episode95_alert_success": 0.0,
+        "episode95_alert_failure": 0.05392156862745098
+      },
+      "60": {
+        "n": 357,
+        "supported_share": 0.4883720930232558,
+        "delta_q": [
+          0.3098427443918474,
+          0.887824112496578,
+          1.0469789170884292
+        ],
+        "absolute_q": [
+          0.31648384871221164,
+          0.9894606760016974,
+          1.216885964568954
+        ],
+        "row95_cumulative_alert": 0.6526610644257703,
+        "row95_alert_success": 0.5333333333333333,
+        "row95_alert_failure": 0.7740112994350282,
+        "episode95_cumulative_alert": 0.0392156862745098,
+        "episode95_alert_success": 0.0,
+        "episode95_alert_failure": 0.07909604519774012
+      }
+    },
+    "chunk_boundary_replay": {
+      "10": {
+        "vision_share": 0.5,
+        "alert_looks": 0,
+        "cap_or_end_looks": 711,
+        "looks": 731,
+        "assumed_full_decisions": 1462,
+        "caveat": "two decisions per anchor, terminal partial control not corrected"
+      },
+      "20": {
+        "vision_share": 0.3064295485636115,
+        "alert_looks": 15,
+        "cap_or_end_looks": 413,
+        "looks": 448,
+        "assumed_full_decisions": 1462,
+        "caveat": "two decisions per anchor, terminal partial control not corrected"
+      },
+      "30": {
+        "vision_share": 0.246922024623803,
+        "alert_looks": 35,
+        "cap_or_end_looks": 306,
+        "looks": 361,
+        "assumed_full_decisions": 1462,
+        "caveat": "two decisions per anchor, terminal partial control not corrected"
+      }
+    }
+  },
+  "elapsed_s": 3.6075096130371094
+}

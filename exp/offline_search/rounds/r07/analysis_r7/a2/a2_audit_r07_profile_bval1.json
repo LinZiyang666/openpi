@@ -1,0 +1,7049 @@
+{
+ "schema": "r7.a2.audit.v1",
+ "run": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1",
+ "audited": [
+  "r7_pi05_l10_50_SF1_profile",
+  "r7_pi05_l10_50_SF2_profile",
+  "r7_pi05_l10_50_UF1_profile",
+  "r7_pi05_l10_50_A_profile",
+  "r7_pi05_l10_500_SF1_profile",
+  "r7_pi05_l10_500_SF2_profile",
+  "r7_pi05_l10_500_UF1_profile",
+  "r7_pi05_l10_500_A_profile",
+  "r7_pi05_spatial_50_SF1_profile",
+  "r7_pi05_spatial_50_SF2_profile",
+  "r7_pi05_spatial_50_UF1_profile",
+  "r7_pi05_spatial_50_A_profile",
+  "r7_pi05_spatial_500_SF1_profile",
+  "r7_pi05_spatial_500_SF2_profile",
+  "r7_pi05_spatial_500_UF1_profile",
+  "r7_pi05_spatial_500_A_profile",
+  "r7_groot_l10_50_SF1_profile",
+  "r7_groot_l10_50_SF2_profile",
+  "r7_groot_l10_50_UF1_profile",
+  "r7_groot_l10_50_A_profile",
+  "r7_groot_l10_500_SF1_profile",
+  "r7_groot_l10_500_SF2_profile",
+  "r7_groot_l10_500_UF1_profile",
+  "r7_groot_l10_500_A_profile",
+  "r7_groot_spatial_50_SF1_profile",
+  "r7_groot_spatial_50_SF2_profile",
+  "r7_groot_spatial_50_UF1_profile",
+  "r7_groot_spatial_50_A_profile",
+  "r7_groot_spatial_500_SF1_profile",
+  "r7_groot_spatial_500_SF2_profile",
+  "r7_groot_spatial_500_UF1_profile",
+  "r7_groot_spatial_500_A_profile",
+  "r7_sw_pi05_l10_50_profile",
+  "r7_sw_pi05_l10_500_profile",
+  "r7_sw_pi05_sp_50_profile",
+  "r7_sw_pi05_sp_500_profile",
+  "r7_pi05_l10_50_CU30_profile",
+  "r7_pi05_l10_50_CT30_profile",
+  "r7_pi05_spatial_50_CU30_profile",
+  "r7_pi05_spatial_50_CT30_profile",
+  "r7_groot_l10_50_CU30_profile",
+  "r7_groot_l10_50_CT30_profile",
+  "r7_groot_spatial_50_CU30_profile",
+  "r7_groot_spatial_50_CT30_profile"
+ ],
+ "skipped": {},
+ "chain_events": {
+  "r7_pi05_l10_50_A_profile": {
+   "ARM_START": 2,
+   "SERVERS_READY": 2,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_groot_l10_50_A_profile": {
+   "ARM_START": 2,
+   "SERVERS_READY": 2,
+   "ARM_INCOMPLETE": 2,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_pi05_l10_50_SF1_profile": {
+   "ARM_START": 2,
+   "SERVERS_READY": 2,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_groot_l10_50_SF1_profile": {
+   "ARM_START": 2,
+   "SERVERS_READY": 2,
+   "ARM_INCOMPLETE": 2,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_pi05_l10_50_SF2_profile": {
+   "ARM_START": 1,
+   "SERVERS_READY": 1,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_groot_l10_50_SF2_profile": {
+   "ARM_START": 1,
+   "SERVERS_READY": 1,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_pi05_l10_50_UF1_profile": {
+   "ARM_START": 1,
+   "SERVERS_READY": 1,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_groot_l10_50_UF1_profile": {
+   "ARM_START": 1,
+   "SERVERS_READY": 1,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_sw_pi05_l10_50_profile": {
+   "ARM_START": 1,
+   "SERVERS_READY": 1,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_sw_pi05_l10_500_profile": {
+   "ARM_START": 1,
+   "SERVERS_READY": 1,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_sw_pi05_sp_50_profile": {
+   "ARM_START": 1,
+   "SERVERS_READY": 1,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_sw_pi05_sp_500_profile": {
+   "ARM_START": 1,
+   "SERVERS_READY": 1,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_pi05_l10_50_CU30_profile": {
+   "ARM_START": 1,
+   "SERVERS_READY": 1,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_pi05_l10_50_CT30_profile": {
+   "ARM_START": 1,
+   "SERVERS_READY": 1,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_pi05_spatial_50_CU30_profile": {
+   "ARM_START": 1,
+   "SERVERS_READY": 1,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_pi05_spatial_50_CT30_profile": {
+   "ARM_START": 1,
+   "SERVERS_READY": 1,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_groot_l10_50_CU30_profile": {
+   "ARM_START": 1,
+   "SERVERS_READY": 1,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_groot_l10_50_CT30_profile": {
+   "ARM_START": 1,
+   "SERVERS_READY": 1,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_groot_spatial_50_CU30_profile": {
+   "ARM_START": 1,
+   "SERVERS_READY": 1,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_groot_spatial_50_CT30_profile": {
+   "ARM_START": 1,
+   "SERVERS_READY": 1,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_pi05_l10_500_SF1_profile": {
+   "ARM_START": 1,
+   "SERVERS_READY": 1,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_pi05_l10_500_SF2_profile": {
+   "ARM_START": 1,
+   "SERVERS_READY": 1,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_pi05_l10_500_UF1_profile": {
+   "ARM_START": 1,
+   "SERVERS_READY": 1,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_pi05_l10_500_A_profile": {
+   "ARM_START": 1,
+   "SERVERS_READY": 1,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_pi05_spatial_50_SF1_profile": {
+   "ARM_START": 1,
+   "SERVERS_READY": 1,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_pi05_spatial_50_SF2_profile": {
+   "ARM_START": 1,
+   "SERVERS_READY": 1,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_pi05_spatial_50_UF1_profile": {
+   "ARM_START": 1,
+   "SERVERS_READY": 1,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_pi05_spatial_50_A_profile": {
+   "ARM_START": 1,
+   "SERVERS_READY": 1,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_pi05_spatial_500_SF1_profile": {
+   "ARM_START": 1,
+   "SERVERS_READY": 1,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_pi05_spatial_500_SF2_profile": {
+   "ARM_START": 1,
+   "SERVERS_READY": 1,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_pi05_spatial_500_UF1_profile": {
+   "ARM_START": 1,
+   "SERVERS_READY": 1,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_pi05_spatial_500_A_profile": {
+   "ARM_START": 1,
+   "SERVERS_READY": 1,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_groot_l10_500_SF1_profile": {
+   "ARM_START": 1,
+   "SERVERS_READY": 1,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_groot_l10_500_SF2_profile": {
+   "ARM_START": 1,
+   "SERVERS_READY": 1,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_groot_l10_500_UF1_profile": {
+   "ARM_START": 1,
+   "SERVERS_READY": 1,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_groot_l10_500_A_profile": {
+   "ARM_START": 1,
+   "SERVERS_READY": 1,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_groot_spatial_50_SF1_profile": {
+   "ARM_START": 1,
+   "SERVERS_READY": 1,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_groot_spatial_50_SF2_profile": {
+   "ARM_START": 1,
+   "SERVERS_READY": 1,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_groot_spatial_50_UF1_profile": {
+   "ARM_START": 1,
+   "SERVERS_READY": 1,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_groot_spatial_50_A_profile": {
+   "ARM_START": 1,
+   "SERVERS_READY": 1,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_groot_spatial_500_SF1_profile": {
+   "ARM_START": 1,
+   "SERVERS_READY": 1,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_groot_spatial_500_SF2_profile": {
+   "ARM_START": 1,
+   "SERVERS_READY": 1,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_groot_spatial_500_UF1_profile": {
+   "ARM_START": 1,
+   "SERVERS_READY": 1,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  },
+  "r7_groot_spatial_500_A_profile": {
+   "ARM_START": 1,
+   "SERVERS_READY": 1,
+   "ARM_DONE": 1,
+   "CHAIN_DONE": 1
+  }
+ },
+ "reports": [
+  {
+   "arm": "r7_pi05_l10_50_SF1_profile",
+   "info": {
+    "arm": "r7_pi05_l10_50_SF1_profile",
+    "model": "pi05",
+    "suite": "l10",
+    "size": 50,
+    "cell": "pi05_l10_50",
+    "variant": "SF1",
+    "family": "follow",
+    "profile": true,
+    "r6cell": "l10_50"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 1403,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_pi05_l10_50_SF1_profile.manifest_ffc3fd203e70e276550b18bd46005235c0b43489a3bc3cab1109ebfac31f401e.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "fa993ce2042942a79941960eba23d9186f2b835c2fc0ba1e2f47e7d308d00b14",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 14,
+    "sr": 0.7,
+    "summary_complete": 20,
+    "summary_success": 14
+   },
+   "counts": {
+    "strict": {
+     "N": 1403,
+     "V": 604,
+     "M": 0
+    },
+    "ledger_style": {
+     "N": 1403,
+     "V": 604,
+     "M": 0
+    },
+    "summary_ledger": {
+     "N": 1403,
+     "V": 604,
+     "M": 0
+    },
+    "client_rows": 1403,
+    "client_hit_mix": {
+     "FULL_HIT": 1403
+    },
+    "sources": {
+     "cache": 604,
+     "cache_blind": 799
+    },
+    "cameras": {
+     "full(implicit)": 604
+    },
+    "look_reasons": {
+     "6": 20,
+     "1": 579,
+     "11": 5
+    },
+    "call_reasons": {}
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.06543692088382037,
+    "owner_twocam_from_summary_counts": 0.06543692088382037,
+    "owner_twocam_episode_mean": 0.06409265310031967,
+    "ledger_table_ir": 0.06111437699066663,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "L": 5.0,
+    "v": 0.4305060584461867,
+    "m": 0.0,
+    "decisions_per_episode": 70.15
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 14,
+     "step_cap": 6
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 2,
+     "SERVERS_READY": 2,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 604,
+     "p50": 4.21255,
+     "p95": 8.05929,
+     "mean": 4.558940562913907
+    },
+    "blind_server_ms": {
+     "n": 799,
+     "p50": 2.149,
+     "p95": 7.241899999999984,
+     "mean": 2.8888898623279102
+    },
+    "blind_prepare_ms": {
+     "n": 799,
+     "p50": 0.565541,
+     "p95": 1.4265530999999994,
+     "mean": 0.7022505494367961
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_pi05_l10_50_SF1_profile_23172",
+     "method": "SF_E1_S1_V1__BL_anchor_tail_B1_budget_only_r0.5__AWM_joint_cur_fcur_kr5",
+     "model": "pi05",
+     "stage1_mode": "full",
+     "request_cameras": null,
+     "camera_cost_basis": null,
+     "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "extend_blocks": 1,
+      "stage_gate": true,
+      "state_valve": true
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_pi05_l10_50_SF2_profile",
+   "info": {
+    "arm": "r7_pi05_l10_50_SF2_profile",
+    "model": "pi05",
+    "suite": "l10",
+    "size": 50,
+    "cell": "pi05_l10_50",
+    "variant": "SF2",
+    "family": "follow",
+    "profile": true,
+    "r6cell": "l10_50"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 1510,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_pi05_l10_50_SF2_profile.manifest_ffc3fd203e70e276550b18bd46005235c0b43489a3bc3cab1109ebfac31f401e.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "fa993ce2042942a79941960eba23d9186f2b835c2fc0ba1e2f47e7d308d00b14",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 11,
+    "sr": 0.55,
+    "summary_complete": 20,
+    "summary_success": 11
+   },
+   "counts": {
+    "strict": {
+     "N": 1510,
+     "V": 610,
+     "M": 0
+    },
+    "ledger_style": {
+     "N": 1510,
+     "V": 610,
+     "M": 0
+    },
+    "summary_ledger": {
+     "N": 1510,
+     "V": 610,
+     "M": 0
+    },
+    "client_rows": 1510,
+    "client_hit_mix": {
+     "FULL_HIT": 1510
+    },
+    "sources": {
+     "cache": 610,
+     "cache_blind": 900
+    },
+    "cameras": {
+     "full(implicit)": 610
+    },
+    "look_reasons": {
+     "6": 20,
+     "1": 578,
+     "11": 12
+    },
+    "call_reasons": {}
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.061403973509933776,
+    "owner_twocam_from_summary_counts": 0.061403973509933776,
+    "owner_twocam_episode_mean": 0.059427210760301497,
+    "ledger_table_ir": 0.0573478326169052,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "L": 5.0,
+    "v": 0.40397350993377484,
+    "m": 0.0,
+    "decisions_per_episode": 75.5
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 11,
+     "step_cap": 9
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 1,
+     "SERVERS_READY": 1,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 610,
+     "p50": 4.5001,
+     "p95": 10.178914999999998,
+     "mean": 5.113526065573771
+    },
+    "blind_server_ms": {
+     "n": 900,
+     "p50": 2.228,
+     "p95": 7.009349999999999,
+     "mean": 3.0214577777777776
+    },
+    "blind_prepare_ms": {
+     "n": 900,
+     "p50": 0.59092,
+     "p95": 1.78405325,
+     "mean": 0.7724549511111111
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_pi05_l10_50_SF2_profile_23171",
+     "method": "SF_E2_S1_V1__BL_anchor_tail_B1_budget_only_r0.5__AWM_joint_cur_fcur_kr5",
+     "model": "pi05",
+     "stage1_mode": "full",
+     "request_cameras": null,
+     "camera_cost_basis": null,
+     "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "extend_blocks": 2,
+      "stage_gate": true,
+      "state_valve": true
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_pi05_l10_50_UF1_profile",
+   "info": {
+    "arm": "r7_pi05_l10_50_UF1_profile",
+    "model": "pi05",
+    "suite": "l10",
+    "size": 50,
+    "cell": "pi05_l10_50",
+    "variant": "UF1",
+    "family": "follow",
+    "profile": true,
+    "r6cell": "l10_50"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 1169,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_pi05_l10_50_UF1_profile.manifest_ffc3fd203e70e276550b18bd46005235c0b43489a3bc3cab1109ebfac31f401e.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "fa993ce2042942a79941960eba23d9186f2b835c2fc0ba1e2f47e7d308d00b14",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 17,
+    "sr": 0.85,
+    "summary_complete": 20,
+    "summary_success": 17
+   },
+   "counts": {
+    "strict": {
+     "N": 1169,
+     "V": 424,
+     "M": 0
+    },
+    "ledger_style": {
+     "N": 1169,
+     "V": 424,
+     "M": 0
+    },
+    "summary_ledger": {
+     "N": 1169,
+     "V": 424,
+     "M": 0
+    },
+    "client_rows": 1169,
+    "client_hit_mix": {
+     "FULL_HIT": 1169
+    },
+    "sources": {
+     "cache": 424,
+     "cache_blind": 745
+    },
+    "cameras": {
+     "full(implicit)": 424
+    },
+    "look_reasons": {
+     "6": 20,
+     "1": 404
+    },
+    "call_reasons": {}
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.05513088109495294,
+    "owner_twocam_from_summary_counts": 0.05513088109495294,
+    "owner_twocam_episode_mean": 0.05467077851335624,
+    "ledger_table_ir": 0.05148911968285544,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "L": 5.0,
+    "v": 0.3627031650983747,
+    "m": 0.0,
+    "decisions_per_episode": 58.45
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 17,
+     "step_cap": 3
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 1,
+     "SERVERS_READY": 1,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 424,
+     "p50": 4.52205,
+     "p95": 8.974775,
+     "mean": 4.8833957547169815
+    },
+    "blind_server_ms": {
+     "n": 745,
+     "p50": 2.067,
+     "p95": 6.959799999999991,
+     "mean": 2.865143624161074
+    },
+    "blind_prepare_ms": {
+     "n": 745,
+     "p50": 0.549305,
+     "p95": 1.5718741999999999,
+     "mean": 0.7287531463087249
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_pi05_l10_50_UF1_profile_23170",
+     "method": "SF_E1_S0_V0__BL_anchor_tail_B1_budget_only_r0.5__AWM_joint_cur_fcur_kr5",
+     "model": "pi05",
+     "stage1_mode": "full",
+     "request_cameras": null,
+     "camera_cost_basis": null,
+     "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "extend_blocks": 1,
+      "stage_gate": false,
+      "state_valve": false
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_pi05_l10_50_A_profile",
+   "info": {
+    "arm": "r7_pi05_l10_50_A_profile",
+    "model": "pi05",
+    "suite": "l10",
+    "size": 50,
+    "cell": "pi05_l10_50",
+    "variant": "A",
+    "family": "A",
+    "profile": true,
+    "r6cell": "l10_50"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 1291,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_pi05_l10_50_A_profile.manifest_ffc3fd203e70e276550b18bd46005235c0b43489a3bc3cab1109ebfac31f401e.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "fa993ce2042942a79941960eba23d9186f2b835c2fc0ba1e2f47e7d308d00b14",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 15,
+    "sr": 0.75,
+    "summary_complete": 20,
+    "summary_success": 15
+   },
+   "counts": {
+    "strict": {
+     "N": 1291,
+     "V": 648,
+     "M": 0
+    },
+    "ledger_style": {
+     "N": 1291,
+     "V": 648,
+     "M": 0
+    },
+    "summary_ledger": {
+     "N": 1291,
+     "V": 648,
+     "M": 0
+    },
+    "client_rows": 1291,
+    "client_hit_mix": {
+     "FULL_HIT": 1291
+    },
+    "sources": {
+     "cache": 648,
+     "cache_blind": 643
+    },
+    "cameras": {
+     "full(implicit)": 648
+    },
+    "look_reasons": {
+     "6": 20,
+     "1": 628
+    },
+    "call_reasons": {}
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.07629434546862897,
+    "owner_twocam_from_summary_counts": 0.07629434546862897,
+    "owner_twocam_episode_mean": 0.07639634728104569,
+    "ledger_table_ir": 0.07125459646098387,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "L": 5.0,
+    "v": 0.5019364833462432,
+    "m": 0.0,
+    "decisions_per_episode": 64.55
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 15,
+     "step_cap": 5
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 2,
+     "SERVERS_READY": 2,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 648,
+     "p50": 3.52765,
+     "p95": 8.1106,
+     "mean": 4.086352160493827
+    },
+    "blind_server_ms": {
+     "n": 643,
+     "p50": 2.024,
+     "p95": 5.015699999999997,
+     "mean": 2.435149300155521
+    },
+    "blind_prepare_ms": {
+     "n": 643,
+     "p50": 0.552989,
+     "p95": 1.3937114999999995,
+     "mean": 0.6796423188180405
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_pi05_l10_50_A_profile_23170",
+     "method": "BL_anchor_tail_B1_budget_only_r0.5__AWM_joint_cur_fcur_kr5",
+     "model": "pi05",
+     "stage1_mode": "full",
+     "request_cameras": null,
+     "camera_cost_basis": null,
+     "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only"
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_pi05_l10_500_SF1_profile",
+   "info": {
+    "arm": "r7_pi05_l10_500_SF1_profile",
+    "model": "pi05",
+    "suite": "l10",
+    "size": 500,
+    "cell": "pi05_l10_500",
+    "variant": "SF1",
+    "family": "follow",
+    "profile": true,
+    "r6cell": "l10_500"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 1001,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_pi05_l10_500_SF1_profile.manifest_ffc3fd203e70e276550b18bd46005235c0b43489a3bc3cab1109ebfac31f401e.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "fa993ce2042942a79941960eba23d9186f2b835c2fc0ba1e2f47e7d308d00b14",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 20,
+    "sr": 1.0,
+    "summary_complete": 20,
+    "summary_success": 20
+   },
+   "counts": {
+    "strict": {
+     "N": 1001,
+     "V": 447,
+     "M": 0
+    },
+    "ledger_style": {
+     "N": 1001,
+     "V": 447,
+     "M": 0
+    },
+    "summary_ledger": {
+     "N": 1001,
+     "V": 447,
+     "M": 0
+    },
+    "client_rows": 1001,
+    "client_hit_mix": {
+     "FULL_HIT": 1001
+    },
+    "sources": {
+     "cache": 447,
+     "cache_blind": 554
+    },
+    "cameras": {
+     "full(implicit)": 447
+    },
+    "look_reasons": {
+     "6": 20,
+     "1": 425,
+     "11": 2
+    },
+    "call_reasons": {}
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.06787612387612388,
+    "owner_twocam_from_summary_counts": 0.06787612387612388,
+    "owner_twocam_episode_mean": 0.06761317765419508,
+    "ledger_table_ir": 0.06339245440040697,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "L": 5.0,
+    "v": 0.44655344655344653,
+    "m": 0.0,
+    "decisions_per_episode": 50.05
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 20
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 1,
+     "SERVERS_READY": 1,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 447,
+     "p50": 6.895,
+     "p95": 15.908399999999999,
+     "mean": 7.771744295302013
+    },
+    "blind_server_ms": {
+     "n": 554,
+     "p50": 2.4695,
+     "p95": 9.746800000000002,
+     "mean": 3.673767148014441
+    },
+    "blind_prepare_ms": {
+     "n": 554,
+     "p50": 0.6688205,
+     "p95": 2.3497968000000005,
+     "mean": 0.9044432472924188
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_pi05_l10_500_SF1_profile_23171",
+     "method": "SF_E1_S1_V1__BL_anchor_tail_B1_budget_only_r0.5__AWM_joint_big_fbig",
+     "model": "pi05",
+     "stage1_mode": "full",
+     "request_cameras": null,
+     "camera_cost_basis": null,
+     "kwargs": {
+      "lib": "bpool_cs",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "extend_blocks": 1,
+      "stage_gate": true,
+      "state_valve": true
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_pi05_l10_500_SF2_profile",
+   "info": {
+    "arm": "r7_pi05_l10_500_SF2_profile",
+    "model": "pi05",
+    "suite": "l10",
+    "size": 500,
+    "cell": "pi05_l10_500",
+    "variant": "SF2",
+    "family": "follow",
+    "profile": true,
+    "r6cell": "l10_500"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 1084,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_pi05_l10_500_SF2_profile.manifest_ffc3fd203e70e276550b18bd46005235c0b43489a3bc3cab1109ebfac31f401e.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "fa993ce2042942a79941960eba23d9186f2b835c2fc0ba1e2f47e7d308d00b14",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 18,
+    "sr": 0.9,
+    "summary_complete": 20,
+    "summary_success": 18
+   },
+   "counts": {
+    "strict": {
+     "N": 1084,
+     "V": 458,
+     "M": 0
+    },
+    "ledger_style": {
+     "N": 1084,
+     "V": 458,
+     "M": 0
+    },
+    "summary_ledger": {
+     "N": 1084,
+     "V": 458,
+     "M": 0
+    },
+    "client_rows": 1084,
+    "client_hit_mix": {
+     "FULL_HIT": 1084
+    },
+    "sources": {
+     "cache": 458,
+     "cache_blind": 626
+    },
+    "cameras": {
+     "full(implicit)": 458
+    },
+    "look_reasons": {
+     "6": 20,
+     "1": 437,
+     "11": 1
+    },
+    "call_reasons": {}
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.06422140221402214,
+    "owner_twocam_from_summary_counts": 0.06422140221402214,
+    "owner_twocam_episode_mean": 0.06316473252710766,
+    "ledger_table_ir": 0.05997915141431144,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "L": 5.0,
+    "v": 0.4225092250922509,
+    "m": 0.0,
+    "decisions_per_episode": 54.2
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 18,
+     "step_cap": 2
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 1,
+     "SERVERS_READY": 1,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 458,
+     "p50": 6.0837,
+     "p95": 14.010174999999997,
+     "mean": 6.911668340611354
+    },
+    "blind_server_ms": {
+     "n": 626,
+     "p50": 2.3435,
+     "p95": 6.5275,
+     "mean": 2.9671980830670925
+    },
+    "blind_prepare_ms": {
+     "n": 626,
+     "p50": 0.633081,
+     "p95": 1.62893475,
+     "mean": 0.7837218929712461
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_pi05_l10_500_SF2_profile_23173",
+     "method": "SF_E2_S1_V1__BL_anchor_tail_B1_budget_only_r0.5__AWM_joint_big_fbig",
+     "model": "pi05",
+     "stage1_mode": "full",
+     "request_cameras": null,
+     "camera_cost_basis": null,
+     "kwargs": {
+      "lib": "bpool_cs",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "extend_blocks": 2,
+      "stage_gate": true,
+      "state_valve": true
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_pi05_l10_500_UF1_profile",
+   "info": {
+    "arm": "r7_pi05_l10_500_UF1_profile",
+    "model": "pi05",
+    "suite": "l10",
+    "size": 500,
+    "cell": "pi05_l10_500",
+    "variant": "UF1",
+    "family": "follow",
+    "profile": true,
+    "r6cell": "l10_500"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 1371,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_pi05_l10_500_UF1_profile.manifest_ffc3fd203e70e276550b18bd46005235c0b43489a3bc3cab1109ebfac31f401e.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "fa993ce2042942a79941960eba23d9186f2b835c2fc0ba1e2f47e7d308d00b14",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 13,
+    "sr": 0.65,
+    "summary_complete": 20,
+    "summary_success": 13
+   },
+   "counts": {
+    "strict": {
+     "N": 1371,
+     "V": 505,
+     "M": 0
+    },
+    "ledger_style": {
+     "N": 1371,
+     "V": 505,
+     "M": 0
+    },
+    "summary_ledger": {
+     "N": 1371,
+     "V": 505,
+     "M": 0
+    },
+    "client_rows": 1371,
+    "client_hit_mix": {
+     "FULL_HIT": 1371
+    },
+    "sources": {
+     "cache": 505,
+     "cache_blind": 866
+    },
+    "cameras": {
+     "full(implicit)": 505
+    },
+    "look_reasons": {
+     "6": 20,
+     "1": 485
+    },
+    "call_reasons": {}
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.055988329686360326,
+    "owner_twocam_from_summary_counts": 0.055988329686360326,
+    "owner_twocam_episode_mean": 0.05501196511386593,
+    "ledger_table_ir": 0.05228992809128321,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "L": 5.0,
+    "v": 0.36834427425237054,
+    "m": 0.0,
+    "decisions_per_episode": 68.55
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 13,
+     "step_cap": 7
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 1,
+     "SERVERS_READY": 1,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 505,
+     "p50": 4.3652,
+     "p95": 10.106039999999998,
+     "mean": 5.186601782178217
+    },
+    "blind_server_ms": {
+     "n": 866,
+     "p50": 1.9700000000000002,
+     "p95": 6.37625,
+     "mean": 2.60836143187067
+    },
+    "blind_prepare_ms": {
+     "n": 866,
+     "p50": 0.545771,
+     "p95": 1.2361315,
+     "mean": 0.6467245277136259
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_pi05_l10_500_UF1_profile_23170",
+     "method": "SF_E1_S0_V0__BL_anchor_tail_B1_budget_only_r0.5__AWM_joint_big_fbig",
+     "model": "pi05",
+     "stage1_mode": "full",
+     "request_cameras": null,
+     "camera_cost_basis": null,
+     "kwargs": {
+      "lib": "bpool_cs",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "extend_blocks": 1,
+      "stage_gate": false,
+      "state_valve": false
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_pi05_l10_500_A_profile",
+   "info": {
+    "arm": "r7_pi05_l10_500_A_profile",
+    "model": "pi05",
+    "suite": "l10",
+    "size": 500,
+    "cell": "pi05_l10_500",
+    "variant": "A",
+    "family": "A",
+    "profile": true,
+    "r6cell": "l10_500"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 1001,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_pi05_l10_500_A_profile.manifest_ffc3fd203e70e276550b18bd46005235c0b43489a3bc3cab1109ebfac31f401e.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "fa993ce2042942a79941960eba23d9186f2b835c2fc0ba1e2f47e7d308d00b14",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 20,
+    "sr": 1.0,
+    "summary_complete": 20,
+    "summary_success": 20
+   },
+   "counts": {
+    "strict": {
+     "N": 1001,
+     "V": 505,
+     "M": 0
+    },
+    "ledger_style": {
+     "N": 1001,
+     "V": 505,
+     "M": 0
+    },
+    "summary_ledger": {
+     "N": 1001,
+     "V": 505,
+     "M": 0
+    },
+    "client_rows": 1001,
+    "client_hit_mix": {
+     "FULL_HIT": 1001
+    },
+    "sources": {
+     "cache": 505,
+     "cache_blind": 496
+    },
+    "cameras": {
+     "full(implicit)": 505
+    },
+    "look_reasons": {
+     "6": 20,
+     "1": 485
+    },
+    "call_reasons": {}
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.07668331668331668,
+    "owner_twocam_from_summary_counts": 0.07668331668331668,
+    "owner_twocam_episode_mean": 0.07673243769085128,
+    "ledger_table_ir": 0.07161787353960967,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "L": 5.0,
+    "v": 0.5044955044955045,
+    "m": 0.0,
+    "decisions_per_episode": 50.05
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 20
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 1,
+     "SERVERS_READY": 1,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 505,
+     "p50": 6.273899999999999,
+     "p95": 14.056439999999998,
+     "mean": 6.911777623762376
+    },
+    "blind_server_ms": {
+     "n": 496,
+     "p50": 2.261,
+     "p95": 7.2227500000000004,
+     "mean": 3.138239919354839
+    },
+    "blind_prepare_ms": {
+     "n": 496,
+     "p50": 0.595181,
+     "p95": 2.32100125,
+     "mean": 0.8330634858870967
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_pi05_l10_500_A_profile_23172",
+     "method": "BL_anchor_tail_B1_budget_only_r0.5__AWM_joint_big_fbig",
+     "model": "pi05",
+     "stage1_mode": "full",
+     "request_cameras": null,
+     "camera_cost_basis": null,
+     "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only"
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_pi05_spatial_50_SF1_profile",
+   "info": {
+    "arm": "r7_pi05_spatial_50_SF1_profile",
+    "model": "pi05",
+    "suite": "spatial",
+    "size": 50,
+    "cell": "pi05_spatial_50",
+    "variant": "SF1",
+    "family": "follow",
+    "profile": true,
+    "r6cell": "sp_50"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 581,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_pi05_spatial_50_SF1_profile.manifest_1abe7d6b9e4bec39d7639456190be4fb2aa215bb561c4137f9f5eac058a9da62.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "f35ae5439028a3cf5279271b34db2b58a0ad842b53f58e7162ef17de5840d478",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 13,
+    "sr": 0.65,
+    "summary_complete": 20,
+    "summary_success": 13
+   },
+   "counts": {
+    "strict": {
+     "N": 581,
+     "V": 257,
+     "M": 0
+    },
+    "ledger_style": {
+     "N": 581,
+     "V": 257,
+     "M": 0
+    },
+    "summary_ledger": {
+     "N": 581,
+     "V": 257,
+     "M": 0
+    },
+    "client_rows": 581,
+    "client_hit_mix": {
+     "FULL_HIT": 581
+    },
+    "sources": {
+     "cache": 257,
+     "cache_blind": 324
+    },
+    "cameras": {
+     "full(implicit)": 257
+    },
+    "look_reasons": {
+     "6": 20,
+     "1": 237
+    },
+    "call_reasons": {}
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.06723580034423408,
+    "owner_twocam_from_summary_counts": 0.06723580034423408,
+    "owner_twocam_episode_mean": 0.0657521809520403,
+    "ledger_table_ir": 0.06279442849705821,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "L": 5.0,
+    "v": 0.4423407917383821,
+    "m": 0.0,
+    "decisions_per_episode": 29.05
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 13,
+     "step_cap": 7
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 1,
+     "SERVERS_READY": 1,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 257,
+     "p50": 3.6234,
+     "p95": 7.6007799999999985,
+     "mean": 4.31629766536965
+    },
+    "blind_server_ms": {
+     "n": 324,
+     "p50": 2.303,
+     "p95": 6.279149999999999,
+     "mean": 3.0162746913580247
+    },
+    "blind_prepare_ms": {
+     "n": 324,
+     "p50": 0.6514260000000001,
+     "p95": 1.611135499999999,
+     "mean": 0.79403537654321
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_pi05_spatial_50_SF1_profile_23171",
+     "method": "SF_E1_S1_V1__BL_anchor_tail_B1_budget_only_r0.5__AWM_joint_cur_fcur_kr5",
+     "model": "pi05",
+     "stage1_mode": "full",
+     "request_cameras": null,
+     "camera_cost_basis": null,
+     "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "extend_blocks": 1,
+      "stage_gate": true,
+      "state_valve": true
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_pi05_spatial_50_SF2_profile",
+   "info": {
+    "arm": "r7_pi05_spatial_50_SF2_profile",
+    "model": "pi05",
+    "suite": "spatial",
+    "size": 50,
+    "cell": "pi05_spatial_50",
+    "variant": "SF2",
+    "family": "follow",
+    "profile": true,
+    "r6cell": "sp_50"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 514,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_pi05_spatial_50_SF2_profile.manifest_1abe7d6b9e4bec39d7639456190be4fb2aa215bb561c4137f9f5eac058a9da62.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "f35ae5439028a3cf5279271b34db2b58a0ad842b53f58e7162ef17de5840d478",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 16,
+    "sr": 0.8,
+    "summary_complete": 20,
+    "summary_success": 16
+   },
+   "counts": {
+    "strict": {
+     "N": 514,
+     "V": 209,
+     "M": 0
+    },
+    "ledger_style": {
+     "N": 514,
+     "V": 209,
+     "M": 0
+    },
+    "summary_ledger": {
+     "N": 514,
+     "V": 209,
+     "M": 0
+    },
+    "client_rows": 514,
+    "client_hit_mix": {
+     "FULL_HIT": 514
+    },
+    "sources": {
+     "cache": 209,
+     "cache_blind": 305
+    },
+    "cameras": {
+     "full(implicit)": 209
+    },
+    "look_reasons": {
+     "6": 20,
+     "1": 188,
+     "11": 1
+    },
+    "call_reasons": {}
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.06180544747081712,
+    "owner_twocam_from_summary_counts": 0.06180544747081712,
+    "owner_twocam_episode_mean": 0.060430183242162795,
+    "ledger_table_ir": 0.05772278655217552,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "L": 5.0,
+    "v": 0.4066147859922179,
+    "m": 0.0,
+    "decisions_per_episode": 25.7
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 16,
+     "step_cap": 4
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 1,
+     "SERVERS_READY": 1,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 209,
+     "p50": 3.9280999999999997,
+     "p95": 9.239959999999998,
+     "mean": 4.72447990430622
+    },
+    "blind_server_ms": {
+     "n": 305,
+     "p50": 2.067,
+     "p95": 7.698600000000001,
+     "mean": 2.9195311475409835
+    },
+    "blind_prepare_ms": {
+     "n": 305,
+     "p50": 0.561457,
+     "p95": 1.9062354000000001,
+     "mean": 0.7724946491803278
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_pi05_spatial_50_SF2_profile_23170",
+     "method": "SF_E2_S1_V1__BL_anchor_tail_B1_budget_only_r0.5__AWM_joint_cur_fcur_kr5",
+     "model": "pi05",
+     "stage1_mode": "full",
+     "request_cameras": null,
+     "camera_cost_basis": null,
+     "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "extend_blocks": 2,
+      "stage_gate": true,
+      "state_valve": true
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_pi05_spatial_50_UF1_profile",
+   "info": {
+    "arm": "r7_pi05_spatial_50_UF1_profile",
+    "model": "pi05",
+    "suite": "spatial",
+    "size": 50,
+    "cell": "pi05_spatial_50",
+    "variant": "UF1",
+    "family": "follow",
+    "profile": true,
+    "r6cell": "sp_50"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 557,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_pi05_spatial_50_UF1_profile.manifest_1abe7d6b9e4bec39d7639456190be4fb2aa215bb561c4137f9f5eac058a9da62.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "f35ae5439028a3cf5279271b34db2b58a0ad842b53f58e7162ef17de5840d478",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 14,
+    "sr": 0.7,
+    "summary_complete": 20,
+    "summary_success": 14
+   },
+   "counts": {
+    "strict": {
+     "N": 557,
+     "V": 223,
+     "M": 0
+    },
+    "ledger_style": {
+     "N": 557,
+     "V": 223,
+     "M": 0
+    },
+    "summary_ledger": {
+     "N": 557,
+     "V": 223,
+     "M": 0
+    },
+    "client_rows": 557,
+    "client_hit_mix": {
+     "FULL_HIT": 557
+    },
+    "sources": {
+     "cache": 223,
+     "cache_blind": 334
+    },
+    "cameras": {
+     "full(implicit)": 223
+    },
+    "look_reasons": {
+     "6": 20,
+     "1": 203
+    },
+    "call_reasons": {}
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.06085457809694793,
+    "owner_twocam_from_summary_counts": 0.06085457809694793,
+    "owner_twocam_episode_mean": 0.058981048097871636,
+    "ledger_table_ir": 0.05683472842537743,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "L": 5.0,
+    "v": 0.400359066427289,
+    "m": 0.0,
+    "decisions_per_episode": 27.85
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 14,
+     "step_cap": 6
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 1,
+     "SERVERS_READY": 1,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 223,
+     "p50": 3.1997,
+     "p95": 10.103869999999999,
+     "mean": 4.427136322869956
+    },
+    "blind_server_ms": {
+     "n": 334,
+     "p50": 1.9565000000000001,
+     "p95": 4.124299999999999,
+     "mean": 2.2874850299401195
+    },
+    "blind_prepare_ms": {
+     "n": 334,
+     "p50": 0.5540754999999999,
+     "p95": 1.0548604499999998,
+     "mean": 0.6050856946107784
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_pi05_spatial_50_UF1_profile_23172",
+     "method": "SF_E1_S0_V0__BL_anchor_tail_B1_budget_only_r0.5__AWM_joint_cur_fcur_kr5",
+     "model": "pi05",
+     "stage1_mode": "full",
+     "request_cameras": null,
+     "camera_cost_basis": null,
+     "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "extend_blocks": 1,
+      "stage_gate": false,
+      "state_valve": false
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_pi05_spatial_50_A_profile",
+   "info": {
+    "arm": "r7_pi05_spatial_50_A_profile",
+    "model": "pi05",
+    "suite": "spatial",
+    "size": 50,
+    "cell": "pi05_spatial_50",
+    "variant": "A",
+    "family": "A",
+    "profile": true,
+    "r6cell": "sp_50"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 535,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_pi05_spatial_50_A_profile.manifest_1abe7d6b9e4bec39d7639456190be4fb2aa215bb561c4137f9f5eac058a9da62.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "f35ae5439028a3cf5279271b34db2b58a0ad842b53f58e7162ef17de5840d478",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 15,
+    "sr": 0.75,
+    "summary_complete": 20,
+    "summary_success": 15
+   },
+   "counts": {
+    "strict": {
+     "N": 535,
+     "V": 272,
+     "M": 0
+    },
+    "ledger_style": {
+     "N": 535,
+     "V": 272,
+     "M": 0
+    },
+    "summary_ledger": {
+     "N": 535,
+     "V": 272,
+     "M": 0
+    },
+    "client_rows": 535,
+    "client_hit_mix": {
+     "FULL_HIT": 535
+    },
+    "sources": {
+     "cache": 272,
+     "cache_blind": 263
+    },
+    "cameras": {
+     "full(implicit)": 272
+    },
+    "look_reasons": {
+     "6": 20,
+     "1": 252
+    },
+    "call_reasons": {}
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.0772785046728972,
+    "owner_twocam_from_summary_counts": 0.0772785046728972,
+    "owner_twocam_episode_mean": 0.07773482693947145,
+    "ledger_table_ir": 0.07217374540344815,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "L": 5.0,
+    "v": 0.508411214953271,
+    "m": 0.0,
+    "decisions_per_episode": 26.75
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 15,
+     "step_cap": 5
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 1,
+     "SERVERS_READY": 1,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 272,
+     "p50": 4.30125,
+     "p95": 11.2781,
+     "mean": 5.171310661764706
+    },
+    "blind_server_ms": {
+     "n": 263,
+     "p50": 2.345,
+     "p95": 6.227499999999995,
+     "mean": 2.972977186311787
+    },
+    "blind_prepare_ms": {
+     "n": 263,
+     "p50": 0.65944,
+     "p95": 1.439432399999999,
+     "mean": 0.8073261140684411
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_pi05_spatial_50_A_profile_23173",
+     "method": "BL_anchor_tail_B1_budget_only_r0.5__AWM_joint_cur_fcur_kr5",
+     "model": "pi05",
+     "stage1_mode": "full",
+     "request_cameras": null,
+     "camera_cost_basis": null,
+     "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only"
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_pi05_spatial_500_SF1_profile",
+   "info": {
+    "arm": "r7_pi05_spatial_500_SF1_profile",
+    "model": "pi05",
+    "suite": "spatial",
+    "size": 500,
+    "cell": "pi05_spatial_500",
+    "variant": "SF1",
+    "family": "follow",
+    "profile": true,
+    "r6cell": "sp_500"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 463,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_pi05_spatial_500_SF1_profile.manifest_1abe7d6b9e4bec39d7639456190be4fb2aa215bb561c4137f9f5eac058a9da62.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "f35ae5439028a3cf5279271b34db2b58a0ad842b53f58e7162ef17de5840d478",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 18,
+    "sr": 0.9,
+    "summary_complete": 20,
+    "summary_success": 18
+   },
+   "counts": {
+    "strict": {
+     "N": 463,
+     "V": 190,
+     "M": 0
+    },
+    "ledger_style": {
+     "N": 463,
+     "V": 190,
+     "M": 0
+    },
+    "summary_ledger": {
+     "N": 463,
+     "V": 190,
+     "M": 0
+    },
+    "client_rows": 463,
+    "client_hit_mix": {
+     "FULL_HIT": 463
+    },
+    "sources": {
+     "cache": 190,
+     "cache_blind": 273
+    },
+    "cameras": {
+     "full(implicit)": 190
+    },
+    "look_reasons": {
+     "6": 20,
+     "1": 170
+    },
+    "call_reasons": {}
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.06237580993520518,
+    "owner_twocam_from_summary_counts": 0.06237580993520518,
+    "owner_twocam_episode_mean": 0.06118070156442024,
+    "ledger_table_ir": 0.05825547278189322,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "L": 5.0,
+    "v": 0.4103671706263499,
+    "m": 0.0,
+    "decisions_per_episode": 23.15
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 18,
+     "step_cap": 2
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 1,
+     "SERVERS_READY": 1,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 190,
+     "p50": 4.13575,
+     "p95": 9.53624,
+     "mean": 5.057792105263158
+    },
+    "blind_server_ms": {
+     "n": 273,
+     "p50": 2.372,
+     "p95": 5.3526,
+     "mean": 2.7735787545787547
+    },
+    "blind_prepare_ms": {
+     "n": 273,
+     "p50": 0.663452,
+     "p95": 1.4311269999999991,
+     "mean": 0.7673325934065935
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_pi05_spatial_500_SF1_profile_23171",
+     "method": "SF_E1_S1_V1__BL_anchor_tail_B1_budget_only_r0.5__AWM_joint_big_fbig",
+     "model": "pi05",
+     "stage1_mode": "full",
+     "request_cameras": null,
+     "camera_cost_basis": null,
+     "kwargs": {
+      "lib": "bpool_cs",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "extend_blocks": 1,
+      "stage_gate": true,
+      "state_valve": true
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_pi05_spatial_500_SF2_profile",
+   "info": {
+    "arm": "r7_pi05_spatial_500_SF2_profile",
+    "model": "pi05",
+    "suite": "spatial",
+    "size": 500,
+    "cell": "pi05_spatial_500",
+    "variant": "SF2",
+    "family": "follow",
+    "profile": true,
+    "r6cell": "sp_500"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 466,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_pi05_spatial_500_SF2_profile.manifest_1abe7d6b9e4bec39d7639456190be4fb2aa215bb561c4137f9f5eac058a9da62.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "f35ae5439028a3cf5279271b34db2b58a0ad842b53f58e7162ef17de5840d478",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 18,
+    "sr": 0.9,
+    "summary_complete": 20,
+    "summary_success": 18
+   },
+   "counts": {
+    "strict": {
+     "N": 466,
+     "V": 173,
+     "M": 0
+    },
+    "ledger_style": {
+     "N": 466,
+     "V": 173,
+     "M": 0
+    },
+    "summary_ledger": {
+     "N": 466,
+     "V": 173,
+     "M": 0
+    },
+    "client_rows": 466,
+    "client_hit_mix": {
+     "FULL_HIT": 466
+    },
+    "sources": {
+     "cache": 173,
+     "cache_blind": 293
+    },
+    "cameras": {
+     "full(implicit)": 173
+    },
+    "look_reasons": {
+     "6": 20,
+     "1": 151,
+     "11": 2
+    },
+    "call_reasons": {}
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.056429184549356214,
+    "owner_twocam_from_summary_counts": 0.056429184549356214,
+    "owner_twocam_episode_mean": 0.05449393117879563,
+    "ledger_table_ir": 0.05270166155813039,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "L": 5.0,
+    "v": 0.37124463519313305,
+    "m": 0.0,
+    "decisions_per_episode": 23.3
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 18,
+     "step_cap": 2
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 1,
+     "SERVERS_READY": 1,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 173,
+     "p50": 4.8801000000000005,
+     "p95": 10.920700000000002,
+     "mean": 5.567878612716763
+    },
+    "blind_server_ms": {
+     "n": 293,
+     "p50": 2.139,
+     "p95": 5.695799999999997,
+     "mean": 2.6587952218430035
+    },
+    "blind_prepare_ms": {
+     "n": 293,
+     "p50": 0.551324,
+     "p95": 1.417320799999999,
+     "mean": 0.6975767576791809
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_pi05_spatial_500_SF2_profile_23170",
+     "method": "SF_E2_S1_V1__BL_anchor_tail_B1_budget_only_r0.5__AWM_joint_big_fbig",
+     "model": "pi05",
+     "stage1_mode": "full",
+     "request_cameras": null,
+     "camera_cost_basis": null,
+     "kwargs": {
+      "lib": "bpool_cs",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "extend_blocks": 2,
+      "stage_gate": true,
+      "state_valve": true
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_pi05_spatial_500_UF1_profile",
+   "info": {
+    "arm": "r7_pi05_spatial_500_UF1_profile",
+    "model": "pi05",
+    "suite": "spatial",
+    "size": 500,
+    "cell": "pi05_spatial_500",
+    "variant": "UF1",
+    "family": "follow",
+    "profile": true,
+    "r6cell": "sp_500"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 462,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_pi05_spatial_500_UF1_profile.manifest_1abe7d6b9e4bec39d7639456190be4fb2aa215bb561c4137f9f5eac058a9da62.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "f35ae5439028a3cf5279271b34db2b58a0ad842b53f58e7162ef17de5840d478",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 18,
+    "sr": 0.9,
+    "summary_complete": 20,
+    "summary_success": 18
+   },
+   "counts": {
+    "strict": {
+     "N": 462,
+     "V": 168,
+     "M": 0
+    },
+    "ledger_style": {
+     "N": 462,
+     "V": 168,
+     "M": 0
+    },
+    "summary_ledger": {
+     "N": 462,
+     "V": 168,
+     "M": 0
+    },
+    "client_rows": 462,
+    "client_hit_mix": {
+     "FULL_HIT": 462
+    },
+    "sources": {
+     "cache": 168,
+     "cache_blind": 294
+    },
+    "cameras": {
+     "full(implicit)": 168
+    },
+    "look_reasons": {
+     "6": 20,
+     "1": 148
+    },
+    "call_reasons": {}
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.055272727272727265,
+    "owner_twocam_from_summary_counts": 0.055272727272727265,
+    "owner_twocam_episode_mean": 0.05524254770236868,
+    "ledger_table_ir": 0.051621595977065185,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "L": 5.0,
+    "v": 0.36363636363636365,
+    "m": 0.0,
+    "decisions_per_episode": 23.1
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 18,
+     "step_cap": 2
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 1,
+     "SERVERS_READY": 1,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 168,
+     "p50": 3.72465,
+     "p95": 13.213985000000008,
+     "mean": 5.4657398809523805
+    },
+    "blind_server_ms": {
+     "n": 294,
+     "p50": 1.981,
+     "p95": 5.441899999999994,
+     "mean": 2.45952380952381
+    },
+    "blind_prepare_ms": {
+     "n": 294,
+     "p50": 0.5534870000000001,
+     "p95": 1.1927448999999963,
+     "mean": 0.650905231292517
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_pi05_spatial_500_UF1_profile_23172",
+     "method": "SF_E1_S0_V0__BL_anchor_tail_B1_budget_only_r0.5__AWM_joint_big_fbig",
+     "model": "pi05",
+     "stage1_mode": "full",
+     "request_cameras": null,
+     "camera_cost_basis": null,
+     "kwargs": {
+      "lib": "bpool_cs",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "extend_blocks": 1,
+      "stage_gate": false,
+      "state_valve": false
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_pi05_spatial_500_A_profile",
+   "info": {
+    "arm": "r7_pi05_spatial_500_A_profile",
+    "model": "pi05",
+    "suite": "spatial",
+    "size": 500,
+    "cell": "pi05_spatial_500",
+    "variant": "A",
+    "family": "A",
+    "profile": true,
+    "r6cell": "sp_500"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 461,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_pi05_spatial_500_A_profile.manifest_1abe7d6b9e4bec39d7639456190be4fb2aa215bb561c4137f9f5eac058a9da62.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "f35ae5439028a3cf5279271b34db2b58a0ad842b53f58e7162ef17de5840d478",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 18,
+    "sr": 0.9,
+    "summary_complete": 20,
+    "summary_success": 18
+   },
+   "counts": {
+    "strict": {
+     "N": 461,
+     "V": 236,
+     "M": 0
+    },
+    "ledger_style": {
+     "N": 461,
+     "V": 236,
+     "M": 0
+    },
+    "summary_ledger": {
+     "N": 461,
+     "V": 236,
+     "M": 0
+    },
+    "client_rows": 461,
+    "client_hit_mix": {
+     "FULL_HIT": 461
+    },
+    "sources": {
+     "cache": 236,
+     "cache_blind": 225
+    },
+    "cameras": {
+     "full(implicit)": 236
+    },
+    "look_reasons": {
+     "6": 20,
+     "1": 216
+    },
+    "call_reasons": {}
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.07781344902386117,
+    "owner_twocam_from_summary_counts": 0.07781344902386117,
+    "owner_twocam_episode_mean": 0.07813151431007184,
+    "ledger_table_ir": 0.07267335312172518,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "L": 5.0,
+    "v": 0.5119305856832972,
+    "m": 0.0,
+    "decisions_per_episode": 23.05
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 18,
+     "step_cap": 2
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 1,
+     "SERVERS_READY": 1,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 236,
+     "p50": 6.49815,
+     "p95": 13.727625,
+     "mean": 7.020785169491525
+    },
+    "blind_server_ms": {
+     "n": 225,
+     "p50": 2.417,
+     "p95": 6.025599999999995,
+     "mean": 2.9696044444444447
+    },
+    "blind_prepare_ms": {
+     "n": 225,
+     "p50": 0.681733,
+     "p95": 1.4559141999999996,
+     "mean": 0.79712136
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_pi05_spatial_500_A_profile_23173",
+     "method": "BL_anchor_tail_B1_budget_only_r0.5__AWM_joint_big_fbig",
+     "model": "pi05",
+     "stage1_mode": "full",
+     "request_cameras": null,
+     "camera_cost_basis": null,
+     "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only"
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_groot_l10_50_SF1_profile",
+   "info": {
+    "arm": "r7_groot_l10_50_SF1_profile",
+    "model": "groot",
+    "suite": "l10",
+    "size": 50,
+    "cell": "groot_l10_50",
+    "variant": "SF1",
+    "family": "follow",
+    "profile": true,
+    "r6cell": "l10_50"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 1280,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_groot_l10_50_SF1_profile.manifest_ffc3fd203e70e276550b18bd46005235c0b43489a3bc3cab1109ebfac31f401e.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "fa993ce2042942a79941960eba23d9186f2b835c2fc0ba1e2f47e7d308d00b14",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 14,
+    "sr": 0.7,
+    "summary_complete": 20,
+    "summary_success": 14
+   },
+   "counts": {
+    "strict": {
+     "N": 1280,
+     "V": 561,
+     "M": 0
+    },
+    "ledger_style": {
+     "N": 1280,
+     "V": 561,
+     "M": 0
+    },
+    "summary_ledger": {
+     "N": 1280,
+     "V": 561,
+     "M": 0
+    },
+    "client_rows": 1280,
+    "client_hit_mix": {
+     "FULL_HIT": 1280
+    },
+    "sources": {
+     "cache": 561,
+     "cache_blind": 719
+    },
+    "cameras": {
+     "full(implicit)": 561
+    },
+    "look_reasons": {
+     "6": 20,
+     "1": 538,
+     "11": 3
+    },
+    "call_reasons": {}
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.064865625,
+    "owner_twocam_from_summary_counts": 0.064865625,
+    "owner_twocam_episode_mean": 0.06388062601672796,
+    "ledger_table_ir": 0.05585440628306843,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "L": 5.0,
+    "v": 0.43828125,
+    "m": 0.0,
+    "decisions_per_episode": 64.0
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 14,
+     "step_cap": 6
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 2,
+     "SERVERS_READY": 2,
+     "ARM_INCOMPLETE": 2,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 561,
+     "p50": 3.1085,
+     "p95": 3.7829,
+     "mean": 3.1904604278074866
+    },
+    "blind_server_ms": {
+     "n": 719,
+     "p50": 395.555,
+     "p95": 1049.1163000000004,
+     "mean": 424.1597413073714
+    },
+    "blind_prepare_ms": {
+     "n": 719,
+     "p50": 16.196778,
+     "p95": 25.6460961,
+     "mean": 17.153985178025035
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_groot_l10_50_SF1_profile_23173",
+     "method": "SF_E1_S1_V1__BL_anchor_tail_B1_budget_only_r0.5__AWM_joint_cur_fcur_kr5",
+     "model": "groot",
+     "stage1_mode": "full",
+     "request_cameras": null,
+     "camera_cost_basis": null,
+     "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "extend_blocks": 1,
+      "stage_gate": true,
+      "state_valve": true
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_groot_l10_50_SF2_profile",
+   "info": {
+    "arm": "r7_groot_l10_50_SF2_profile",
+    "model": "groot",
+    "suite": "l10",
+    "size": 50,
+    "cell": "groot_l10_50",
+    "variant": "SF2",
+    "family": "follow",
+    "profile": true,
+    "r6cell": "l10_50"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 1402,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_groot_l10_50_SF2_profile.manifest_ffc3fd203e70e276550b18bd46005235c0b43489a3bc3cab1109ebfac31f401e.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "fa993ce2042942a79941960eba23d9186f2b835c2fc0ba1e2f47e7d308d00b14",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 13,
+    "sr": 0.65,
+    "summary_complete": 20,
+    "summary_success": 13
+   },
+   "counts": {
+    "strict": {
+     "N": 1402,
+     "V": 572,
+     "M": 0
+    },
+    "ledger_style": {
+     "N": 1402,
+     "V": 572,
+     "M": 0
+    },
+    "summary_ledger": {
+     "N": 1402,
+     "V": 572,
+     "M": 0
+    },
+    "client_rows": 1402,
+    "client_hit_mix": {
+     "FULL_HIT": 1402
+    },
+    "sources": {
+     "cache": 572,
+     "cache_blind": 830
+    },
+    "cameras": {
+     "full(implicit)": 572
+    },
+    "look_reasons": {
+     "6": 20,
+     "1": 550,
+     "11": 2
+    },
+    "call_reasons": {}
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.060382310984308116,
+    "owner_twocam_from_summary_counts": 0.060382310984308116,
+    "owner_twocam_episode_mean": 0.05865876397525863,
+    "ledger_table_ir": 0.05199392020084802,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "L": 5.0,
+    "v": 0.4079885877318117,
+    "m": 0.0,
+    "decisions_per_episode": 70.1
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 13,
+     "step_cap": 7
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 1,
+     "SERVERS_READY": 1,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 572,
+     "p50": 3.1857,
+     "p95": 3.903934999999999,
+     "mean": 3.2855746503496506
+    },
+    "blind_server_ms": {
+     "n": 830,
+     "p50": 353.84450000000004,
+     "p95": 1012.1335499999992,
+     "mean": 392.643843373494
+    },
+    "blind_prepare_ms": {
+     "n": 830,
+     "p50": 16.310941,
+     "p95": 25.31262694999999,
+     "mean": 17.335107343373494
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_groot_l10_50_SF2_profile_23173",
+     "method": "SF_E2_S1_V1__BL_anchor_tail_B1_budget_only_r0.5__AWM_joint_cur_fcur_kr5",
+     "model": "groot",
+     "stage1_mode": "full",
+     "request_cameras": null,
+     "camera_cost_basis": null,
+     "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "extend_blocks": 2,
+      "stage_gate": true,
+      "state_valve": true
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_groot_l10_50_UF1_profile",
+   "info": {
+    "arm": "r7_groot_l10_50_UF1_profile",
+    "model": "groot",
+    "suite": "l10",
+    "size": 50,
+    "cell": "groot_l10_50",
+    "variant": "UF1",
+    "family": "follow",
+    "profile": true,
+    "r6cell": "l10_50"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 1318,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_groot_l10_50_UF1_profile.manifest_ffc3fd203e70e276550b18bd46005235c0b43489a3bc3cab1109ebfac31f401e.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "fa993ce2042942a79941960eba23d9186f2b835c2fc0ba1e2f47e7d308d00b14",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 14,
+    "sr": 0.7,
+    "summary_complete": 20,
+    "summary_success": 14
+   },
+   "counts": {
+    "strict": {
+     "N": 1318,
+     "V": 490,
+     "M": 0
+    },
+    "ledger_style": {
+     "N": 1318,
+     "V": 490,
+     "M": 0
+    },
+    "summary_ledger": {
+     "N": 1318,
+     "V": 490,
+     "M": 0
+    },
+    "client_rows": 1318,
+    "client_hit_mix": {
+     "FULL_HIT": 1318
+    },
+    "sources": {
+     "cache": 490,
+     "cache_blind": 828
+    },
+    "cameras": {
+     "full(implicit)": 490
+    },
+    "look_reasons": {
+     "6": 20,
+     "1": 470
+    },
+    "call_reasons": {}
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.05502276176024279,
+    "owner_twocam_from_summary_counts": 0.05502276176024279,
+    "owner_twocam_episode_mean": 0.0540828399874879,
+    "ledger_table_ir": 0.047378926668371464,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "L": 5.0,
+    "v": 0.37177541729893776,
+    "m": 0.0,
+    "decisions_per_episode": 65.9
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 14,
+     "step_cap": 6
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 1,
+     "SERVERS_READY": 1,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 490,
+     "p50": 3.16275,
+     "p95": 3.7768249999999997,
+     "mean": 3.208619183673469
+    },
+    "blind_server_ms": {
+     "n": 828,
+     "p50": 373.47749999999996,
+     "p95": 972.2744,
+     "mean": 383.0955688405797
+    },
+    "blind_prepare_ms": {
+     "n": 828,
+     "p50": 16.063847,
+     "p95": 25.066091500000002,
+     "mean": 17.02024424879227
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_groot_l10_50_UF1_profile_23172",
+     "method": "SF_E1_S0_V0__BL_anchor_tail_B1_budget_only_r0.5__AWM_joint_cur_fcur_kr5",
+     "model": "groot",
+     "stage1_mode": "full",
+     "request_cameras": null,
+     "camera_cost_basis": null,
+     "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "extend_blocks": 1,
+      "stage_gate": false,
+      "state_valve": false
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_groot_l10_50_A_profile",
+   "info": {
+    "arm": "r7_groot_l10_50_A_profile",
+    "model": "groot",
+    "suite": "l10",
+    "size": 50,
+    "cell": "groot_l10_50",
+    "variant": "A",
+    "family": "A",
+    "profile": true,
+    "r6cell": "l10_50"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 1381,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_groot_l10_50_A_profile.manifest_ffc3fd203e70e276550b18bd46005235c0b43489a3bc3cab1109ebfac31f401e.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "fa993ce2042942a79941960eba23d9186f2b835c2fc0ba1e2f47e7d308d00b14",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 14,
+    "sr": 0.7,
+    "summary_complete": 20,
+    "summary_success": 14
+   },
+   "counts": {
+    "strict": {
+     "N": 1381,
+     "V": 693,
+     "M": 0
+    },
+    "ledger_style": {
+     "N": 1381,
+     "V": 693,
+     "M": 0
+    },
+    "summary_ledger": {
+     "N": 1381,
+     "V": 693,
+     "M": 0
+    },
+    "client_rows": 1381,
+    "client_hit_mix": {
+     "FULL_HIT": 1381
+    },
+    "sources": {
+     "cache": 693,
+     "cache_blind": 688
+    },
+    "cameras": {
+     "full(implicit)": 693
+    },
+    "look_reasons": {
+     "6": 20,
+     "1": 673
+    },
+    "call_reasons": {}
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.07426792179580013,
+    "owner_twocam_from_summary_counts": 0.07426792179580013,
+    "owner_twocam_episode_mean": 0.07434281342107422,
+    "ledger_table_ir": 0.06395052352893808,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "L": 5.0,
+    "v": 0.501810282404055,
+    "m": 0.0,
+    "decisions_per_episode": 69.05
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 14,
+     "step_cap": 6
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 2,
+     "SERVERS_READY": 2,
+     "ARM_INCOMPLETE": 2,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 693,
+     "p50": 2.8701,
+     "p95": 3.477339999999999,
+     "mean": 2.9437610389610387
+    },
+    "blind_server_ms": {
+     "n": 688,
+     "p50": 458.773,
+     "p95": 1299.7486999999994,
+     "mean": 521.2326627906978
+    },
+    "blind_prepare_ms": {
+     "n": 688,
+     "p50": 16.252163,
+     "p95": 25.5331613,
+     "mean": 17.320798960755813
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_groot_l10_50_A_profile_23171",
+     "method": "BL_anchor_tail_B1_budget_only_r0.5__AWM_joint_cur_fcur_kr5",
+     "model": "groot",
+     "stage1_mode": "full",
+     "request_cameras": null,
+     "camera_cost_basis": null,
+     "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only"
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_groot_l10_500_SF1_profile",
+   "info": {
+    "arm": "r7_groot_l10_500_SF1_profile",
+    "model": "groot",
+    "suite": "l10",
+    "size": 500,
+    "cell": "groot_l10_500",
+    "variant": "SF1",
+    "family": "follow",
+    "profile": true,
+    "r6cell": "l10_500"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 1152,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_groot_l10_500_SF1_profile.manifest_ffc3fd203e70e276550b18bd46005235c0b43489a3bc3cab1109ebfac31f401e.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "fa993ce2042942a79941960eba23d9186f2b835c2fc0ba1e2f47e7d308d00b14",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 17,
+    "sr": 0.85,
+    "summary_complete": 20,
+    "summary_success": 17
+   },
+   "counts": {
+    "strict": {
+     "N": 1152,
+     "V": 529,
+     "M": 0
+    },
+    "ledger_style": {
+     "N": 1152,
+     "V": 529,
+     "M": 0
+    },
+    "summary_ledger": {
+     "N": 1152,
+     "V": 529,
+     "M": 0
+    },
+    "client_rows": 1152,
+    "client_hit_mix": {
+     "FULL_HIT": 1152
+    },
+    "sources": {
+     "cache": 529,
+     "cache_blind": 623
+    },
+    "cameras": {
+     "full(implicit)": 529
+    },
+    "look_reasons": {
+     "6": 20,
+     "1": 509
+    },
+    "call_reasons": {}
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.06796180555555556,
+    "owner_twocam_from_summary_counts": 0.06796180555555556,
+    "owner_twocam_episode_mean": 0.06680833947260874,
+    "ledger_table_ir": 0.05852046132648683,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "L": 5.0,
+    "v": 0.4592013888888889,
+    "m": 0.0,
+    "decisions_per_episode": 57.6
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 17,
+     "step_cap": 3
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 1,
+     "SERVERS_READY": 1,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 529,
+     "p50": 3.3581,
+     "p95": 4.0564599999999995,
+     "mean": 3.4513336483931947
+    },
+    "blind_server_ms": {
+     "n": 623,
+     "p50": 397.271,
+     "p95": 964.8294,
+     "mean": 428.15631621187805
+    },
+    "blind_prepare_ms": {
+     "n": 623,
+     "p50": 15.562178,
+     "p95": 21.7036353,
+     "mean": 15.886165443017658
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_groot_l10_500_SF1_profile_23171",
+     "method": "SF_E1_S1_V1__BL_anchor_tail_B1_budget_only_r0.5__AWM_joint_big_fbig",
+     "model": "groot",
+     "stage1_mode": "full",
+     "request_cameras": null,
+     "camera_cost_basis": null,
+     "kwargs": {
+      "lib": "bpool_all",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "extend_blocks": 1,
+      "stage_gate": true,
+      "state_valve": true
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_groot_l10_500_SF2_profile",
+   "info": {
+    "arm": "r7_groot_l10_500_SF2_profile",
+    "model": "groot",
+    "suite": "l10",
+    "size": 500,
+    "cell": "groot_l10_500",
+    "variant": "SF2",
+    "family": "follow",
+    "profile": true,
+    "r6cell": "l10_500"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 1180,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_groot_l10_500_SF2_profile.manifest_ffc3fd203e70e276550b18bd46005235c0b43489a3bc3cab1109ebfac31f401e.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "fa993ce2042942a79941960eba23d9186f2b835c2fc0ba1e2f47e7d308d00b14",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 16,
+    "sr": 0.8,
+    "summary_complete": 20,
+    "summary_success": 16
+   },
+   "counts": {
+    "strict": {
+     "N": 1180,
+     "V": 520,
+     "M": 0
+    },
+    "ledger_style": {
+     "N": 1180,
+     "V": 520,
+     "M": 0
+    },
+    "summary_ledger": {
+     "N": 1180,
+     "V": 520,
+     "M": 0
+    },
+    "client_rows": 1180,
+    "client_hit_mix": {
+     "FULL_HIT": 1180
+    },
+    "sources": {
+     "cache": 520,
+     "cache_blind": 660
+    },
+    "cameras": {
+     "full(implicit)": 520
+    },
+    "look_reasons": {
+     "6": 20,
+     "1": 499,
+     "11": 1
+    },
+    "call_reasons": {}
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.06522033898305084,
+    "owner_twocam_from_summary_counts": 0.06522033898305084,
+    "owner_twocam_episode_mean": 0.063292513143926,
+    "ledger_table_ir": 0.05615984292880503,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "L": 5.0,
+    "v": 0.4406779661016949,
+    "m": 0.0,
+    "decisions_per_episode": 59.0
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 16,
+     "step_cap": 4
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 1,
+     "SERVERS_READY": 1,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 520,
+     "p50": 3.25105,
+     "p95": 4.0806499999999994,
+     "mean": 3.3206907692307692
+    },
+    "blind_server_ms": {
+     "n": 660,
+     "p50": 331.97249999999997,
+     "p95": 916.5964999999997,
+     "mean": 362.41359545454543
+    },
+    "blind_prepare_ms": {
+     "n": 660,
+     "p50": 14.108494,
+     "p95": 18.566876549999996,
+     "mean": 14.624334328787878
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_groot_l10_500_SF2_profile_23170",
+     "method": "SF_E2_S1_V1__BL_anchor_tail_B1_budget_only_r0.5__AWM_joint_big_fbig",
+     "model": "groot",
+     "stage1_mode": "full",
+     "request_cameras": null,
+     "camera_cost_basis": null,
+     "kwargs": {
+      "lib": "bpool_all",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "extend_blocks": 2,
+      "stage_gate": true,
+      "state_valve": true
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_groot_l10_500_UF1_profile",
+   "info": {
+    "arm": "r7_groot_l10_500_UF1_profile",
+    "model": "groot",
+    "suite": "l10",
+    "size": 500,
+    "cell": "groot_l10_500",
+    "variant": "UF1",
+    "family": "follow",
+    "profile": true,
+    "r6cell": "l10_500"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 1183,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_groot_l10_500_UF1_profile.manifest_ffc3fd203e70e276550b18bd46005235c0b43489a3bc3cab1109ebfac31f401e.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "fa993ce2042942a79941960eba23d9186f2b835c2fc0ba1e2f47e7d308d00b14",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 17,
+    "sr": 0.85,
+    "summary_complete": 20,
+    "summary_success": 17
+   },
+   "counts": {
+    "strict": {
+     "N": 1183,
+     "V": 423,
+     "M": 0
+    },
+    "ledger_style": {
+     "N": 1183,
+     "V": 423,
+     "M": 0
+    },
+    "summary_ledger": {
+     "N": 1183,
+     "V": 423,
+     "M": 0
+    },
+    "client_rows": 1183,
+    "client_hit_mix": {
+     "FULL_HIT": 1183
+    },
+    "sources": {
+     "cache": 423,
+     "cache_blind": 760
+    },
+    "cameras": {
+     "full(implicit)": 423
+    },
+    "look_reasons": {
+     "6": 20,
+     "1": 403
+    },
+    "call_reasons": {}
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.05291969568892646,
+    "owner_twocam_from_summary_counts": 0.05291969568892646,
+    "owner_twocam_episode_mean": 0.05244144698610018,
+    "ledger_table_ir": 0.045568021326945415,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "L": 5.0,
+    "v": 0.35756551141166526,
+    "m": 0.0,
+    "decisions_per_episode": 59.15
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 17,
+     "step_cap": 3
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 1,
+     "SERVERS_READY": 1,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 423,
+     "p50": 3.3323,
+     "p95": 4.01854,
+     "mean": 3.4279217494089838
+    },
+    "blind_server_ms": {
+     "n": 760,
+     "p50": 308.7355,
+     "p95": 841.45535,
+     "mean": 334.8761776315789
+    },
+    "blind_prepare_ms": {
+     "n": 760,
+     "p50": 15.5920215,
+     "p95": 23.435712349999992,
+     "mean": 16.35194602631579
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_groot_l10_500_UF1_profile_23172",
+     "method": "SF_E1_S0_V0__BL_anchor_tail_B1_budget_only_r0.5__AWM_joint_big_fbig",
+     "model": "groot",
+     "stage1_mode": "full",
+     "request_cameras": null,
+     "camera_cost_basis": null,
+     "kwargs": {
+      "lib": "bpool_all",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "extend_blocks": 1,
+      "stage_gate": false,
+      "state_valve": false
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_groot_l10_500_A_profile",
+   "info": {
+    "arm": "r7_groot_l10_500_A_profile",
+    "model": "groot",
+    "suite": "l10",
+    "size": 500,
+    "cell": "groot_l10_500",
+    "variant": "A",
+    "family": "A",
+    "profile": true,
+    "r6cell": "l10_500"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 1106,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_groot_l10_500_A_profile.manifest_ffc3fd203e70e276550b18bd46005235c0b43489a3bc3cab1109ebfac31f401e.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "fa993ce2042942a79941960eba23d9186f2b835c2fc0ba1e2f47e7d308d00b14",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 18,
+    "sr": 0.9,
+    "summary_complete": 20,
+    "summary_success": 18
+   },
+   "counts": {
+    "strict": {
+     "N": 1106,
+     "V": 558,
+     "M": 0
+    },
+    "ledger_style": {
+     "N": 1106,
+     "V": 558,
+     "M": 0
+    },
+    "summary_ledger": {
+     "N": 1106,
+     "V": 558,
+     "M": 0
+    },
+    "client_rows": 1106,
+    "client_hit_mix": {
+     "FULL_HIT": 1106
+    },
+    "sources": {
+     "cache": 558,
+     "cache_blind": 548
+    },
+    "cameras": {
+     "full(implicit)": 558
+    },
+    "look_reasons": {
+     "6": 20,
+     "1": 538
+    },
+    "call_reasons": {}
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.07466907775768535,
+    "owner_twocam_from_summary_counts": 0.07466907775768535,
+    "owner_twocam_episode_mean": 0.07475558413751632,
+    "ledger_table_ir": 0.06429595037216995,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "L": 5.0,
+    "v": 0.5045207956600362,
+    "m": 0.0,
+    "decisions_per_episode": 55.3
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 18,
+     "step_cap": 2
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 1,
+     "SERVERS_READY": 1,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 558,
+     "p50": 3.0637,
+     "p95": 3.6514900000000003,
+     "mean": 3.1386344086021505
+    },
+    "blind_server_ms": {
+     "n": 548,
+     "p50": 479.226,
+     "p95": 1270.77865,
+     "mean": 536.7974744525548
+    },
+    "blind_prepare_ms": {
+     "n": 548,
+     "p50": 15.621344,
+     "p95": 23.4984729,
+     "mean": 16.367961111313868
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_groot_l10_500_A_profile_23173",
+     "method": "BL_anchor_tail_B1_budget_only_r0.5__AWM_joint_big_fbig",
+     "model": "groot",
+     "stage1_mode": "full",
+     "request_cameras": null,
+     "camera_cost_basis": null,
+     "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only"
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_groot_spatial_50_SF1_profile",
+   "info": {
+    "arm": "r7_groot_spatial_50_SF1_profile",
+    "model": "groot",
+    "suite": "spatial",
+    "size": 50,
+    "cell": "groot_spatial_50",
+    "variant": "SF1",
+    "family": "follow",
+    "profile": true,
+    "r6cell": "sp_50"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 519,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_groot_spatial_50_SF1_profile.manifest_1abe7d6b9e4bec39d7639456190be4fb2aa215bb561c4137f9f5eac058a9da62.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "f35ae5439028a3cf5279271b34db2b58a0ad842b53f58e7162ef17de5840d478",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 16,
+    "sr": 0.8,
+    "summary_complete": 20,
+    "summary_success": 16
+   },
+   "counts": {
+    "strict": {
+     "N": 519,
+     "V": 225,
+     "M": 0
+    },
+    "ledger_style": {
+     "N": 519,
+     "V": 225,
+     "M": 0
+    },
+    "summary_ledger": {
+     "N": 519,
+     "V": 225,
+     "M": 0
+    },
+    "client_rows": 519,
+    "client_hit_mix": {
+     "FULL_HIT": 519
+    },
+    "sources": {
+     "cache": 225,
+     "cache_blind": 294
+    },
+    "cameras": {
+     "full(implicit)": 225
+    },
+    "look_reasons": {
+     "6": 20,
+     "1": 202,
+     "11": 3
+    },
+    "call_reasons": {}
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.06416184971098265,
+    "owner_twocam_from_summary_counts": 0.06416184971098265,
+    "owner_twocam_episode_mean": 0.06310152678529748,
+    "ledger_table_ir": 0.05763728693124659,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "L": 5.0,
+    "v": 0.43352601156069365,
+    "m": 0.0,
+    "decisions_per_episode": 25.95
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 16,
+     "step_cap": 4
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 1,
+     "SERVERS_READY": 1,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 225,
+     "p50": 2.923,
+     "p95": 3.6421199999999985,
+     "mean": 3.033824
+    },
+    "blind_server_ms": {
+     "n": 294,
+     "p50": 231.537,
+     "p95": 733.1286499999997,
+     "mean": 274.7450544217687
+    },
+    "blind_prepare_ms": {
+     "n": 294,
+     "p50": 14.5556505,
+     "p95": 19.13659079999999,
+     "mean": 14.86406980952381
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_groot_spatial_50_SF1_profile_23171",
+     "method": "SF_E1_S1_V1__BL_anchor_tail_B1_budget_only_r0.5__AWM_joint_cur_fcur_kr5",
+     "model": "groot",
+     "stage1_mode": "full",
+     "request_cameras": null,
+     "camera_cost_basis": null,
+     "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "extend_blocks": 1,
+      "stage_gate": true,
+      "state_valve": true
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_groot_spatial_50_SF2_profile",
+   "info": {
+    "arm": "r7_groot_spatial_50_SF2_profile",
+    "model": "groot",
+    "suite": "spatial",
+    "size": 50,
+    "cell": "groot_spatial_50",
+    "variant": "SF2",
+    "family": "follow",
+    "profile": true,
+    "r6cell": "sp_50"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 540,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_groot_spatial_50_SF2_profile.manifest_1abe7d6b9e4bec39d7639456190be4fb2aa215bb561c4137f9f5eac058a9da62.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "f35ae5439028a3cf5279271b34db2b58a0ad842b53f58e7162ef17de5840d478",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 15,
+    "sr": 0.75,
+    "summary_complete": 20,
+    "summary_success": 15
+   },
+   "counts": {
+    "strict": {
+     "N": 540,
+     "V": 214,
+     "M": 0
+    },
+    "ledger_style": {
+     "N": 540,
+     "V": 214,
+     "M": 0
+    },
+    "summary_ledger": {
+     "N": 540,
+     "V": 214,
+     "M": 0
+    },
+    "client_rows": 540,
+    "client_hit_mix": {
+     "FULL_HIT": 540
+    },
+    "sources": {
+     "cache": 214,
+     "cache_blind": 326
+    },
+    "cameras": {
+     "full(implicit)": 214
+    },
+    "look_reasons": {
+     "6": 20,
+     "1": 193,
+     "11": 1
+    },
+    "call_reasons": {}
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.058651851851851844,
+    "owner_twocam_from_summary_counts": 0.058651851851851844,
+    "owner_twocam_episode_mean": 0.05705539539403478,
+    "ledger_table_ir": 0.05268759596959534,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "L": 5.0,
+    "v": 0.3962962962962963,
+    "m": 0.0,
+    "decisions_per_episode": 27.0
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 15,
+     "step_cap": 5
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 1,
+     "SERVERS_READY": 1,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 214,
+     "p50": 2.88835,
+     "p95": 3.80816,
+     "mean": 3.033513551401869
+    },
+    "blind_server_ms": {
+     "n": 326,
+     "p50": 264.091,
+     "p95": 794.09275,
+     "mean": 309.26311042944786
+    },
+    "blind_prepare_ms": {
+     "n": 326,
+     "p50": 15.191874,
+     "p95": 18.805231499999998,
+     "mean": 15.270889503067485
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_groot_spatial_50_SF2_profile_23170",
+     "method": "SF_E2_S1_V1__BL_anchor_tail_B1_budget_only_r0.5__AWM_joint_cur_fcur_kr5",
+     "model": "groot",
+     "stage1_mode": "full",
+     "request_cameras": null,
+     "camera_cost_basis": null,
+     "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "extend_blocks": 2,
+      "stage_gate": true,
+      "state_valve": true
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_groot_spatial_50_UF1_profile",
+   "info": {
+    "arm": "r7_groot_spatial_50_UF1_profile",
+    "model": "groot",
+    "suite": "spatial",
+    "size": 50,
+    "cell": "groot_spatial_50",
+    "variant": "UF1",
+    "family": "follow",
+    "profile": true,
+    "r6cell": "sp_50"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 537,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_groot_spatial_50_UF1_profile.manifest_1abe7d6b9e4bec39d7639456190be4fb2aa215bb561c4137f9f5eac058a9da62.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "f35ae5439028a3cf5279271b34db2b58a0ad842b53f58e7162ef17de5840d478",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 15,
+    "sr": 0.75,
+    "summary_complete": 20,
+    "summary_success": 15
+   },
+   "counts": {
+    "strict": {
+     "N": 537,
+     "V": 217,
+     "M": 0
+    },
+    "ledger_style": {
+     "N": 537,
+     "V": 217,
+     "M": 0
+    },
+    "summary_ledger": {
+     "N": 537,
+     "V": 217,
+     "M": 0
+    },
+    "client_rows": 537,
+    "client_hit_mix": {
+     "FULL_HIT": 537
+    },
+    "sources": {
+     "cache": 217,
+     "cache_blind": 320
+    },
+    "cameras": {
+     "full(implicit)": 217
+    },
+    "look_reasons": {
+     "6": 20,
+     "1": 197
+    },
+    "call_reasons": {}
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.05980633147113594,
+    "owner_twocam_from_summary_counts": 0.05980633147113594,
+    "owner_twocam_episode_mean": 0.05821889715797133,
+    "ledger_table_ir": 0.05372467755893056,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "L": 5.0,
+    "v": 0.40409683426443205,
+    "m": 0.0,
+    "decisions_per_episode": 26.85
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 15,
+     "step_cap": 5
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 1,
+     "SERVERS_READY": 1,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 217,
+     "p50": 2.8613000000000004,
+     "p95": 3.634059999999999,
+     "mean": 2.965440092165898
+    },
+    "blind_server_ms": {
+     "n": 320,
+     "p50": 230.179,
+     "p95": 609.0016500000002,
+     "mean": 251.27686875
+    },
+    "blind_prepare_ms": {
+     "n": 320,
+     "p50": 15.1343275,
+     "p95": 23.37134975,
+     "mean": 15.746834571875002
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_groot_spatial_50_UF1_profile_23172",
+     "method": "SF_E1_S0_V0__BL_anchor_tail_B1_budget_only_r0.5__AWM_joint_cur_fcur_kr5",
+     "model": "groot",
+     "stage1_mode": "full",
+     "request_cameras": null,
+     "camera_cost_basis": null,
+     "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "extend_blocks": 1,
+      "stage_gate": false,
+      "state_valve": false
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_groot_spatial_50_A_profile",
+   "info": {
+    "arm": "r7_groot_spatial_50_A_profile",
+    "model": "groot",
+    "suite": "spatial",
+    "size": 50,
+    "cell": "groot_spatial_50",
+    "variant": "A",
+    "family": "A",
+    "profile": true,
+    "r6cell": "sp_50"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 498,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_groot_spatial_50_A_profile.manifest_1abe7d6b9e4bec39d7639456190be4fb2aa215bb561c4137f9f5eac058a9da62.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "f35ae5439028a3cf5279271b34db2b58a0ad842b53f58e7162ef17de5840d478",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 17,
+    "sr": 0.85,
+    "summary_complete": 20,
+    "summary_success": 17
+   },
+   "counts": {
+    "strict": {
+     "N": 498,
+     "V": 253,
+     "M": 0
+    },
+    "ledger_style": {
+     "N": 498,
+     "V": 253,
+     "M": 0
+    },
+    "summary_ledger": {
+     "N": 498,
+     "V": 253,
+     "M": 0
+    },
+    "client_rows": 498,
+    "client_hit_mix": {
+     "FULL_HIT": 498
+    },
+    "sources": {
+     "cache": 253,
+     "cache_blind": 245
+    },
+    "cameras": {
+     "full(implicit)": 253
+    },
+    "look_reasons": {
+     "6": 20,
+     "1": 233
+    },
+    "call_reasons": {}
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.07518875502008031,
+    "owner_twocam_from_summary_counts": 0.07518875502008031,
+    "owner_twocam_episode_mean": 0.07547069740848283,
+    "ledger_table_ir": 0.06754287581509323,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "L": 5.0,
+    "v": 0.5080321285140562,
+    "m": 0.0,
+    "decisions_per_episode": 24.9
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 17,
+     "step_cap": 3
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 1,
+     "SERVERS_READY": 1,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 253,
+     "p50": 2.7506999999999997,
+     "p95": 3.3859399999999997,
+     "mean": 2.825490118577075
+    },
+    "blind_server_ms": {
+     "n": 245,
+     "p50": 429.416,
+     "p95": 1144.1809999999994,
+     "mean": 477.84700000000004
+    },
+    "blind_prepare_ms": {
+     "n": 245,
+     "p50": 15.791714,
+     "p95": 23.6477288,
+     "mean": 16.435053008163266
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_groot_spatial_50_A_profile_23173",
+     "method": "BL_anchor_tail_B1_budget_only_r0.5__AWM_joint_cur_fcur_kr5",
+     "model": "groot",
+     "stage1_mode": "full",
+     "request_cameras": null,
+     "camera_cost_basis": null,
+     "kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only"
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_groot_spatial_500_SF1_profile",
+   "info": {
+    "arm": "r7_groot_spatial_500_SF1_profile",
+    "model": "groot",
+    "suite": "spatial",
+    "size": 500,
+    "cell": "groot_spatial_500",
+    "variant": "SF1",
+    "family": "follow",
+    "profile": true,
+    "r6cell": "sp_500"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 471,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_groot_spatial_500_SF1_profile.manifest_1abe7d6b9e4bec39d7639456190be4fb2aa215bb561c4137f9f5eac058a9da62.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "f35ae5439028a3cf5279271b34db2b58a0ad842b53f58e7162ef17de5840d478",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 18,
+    "sr": 0.9,
+    "summary_complete": 20,
+    "summary_success": 18
+   },
+   "counts": {
+    "strict": {
+     "N": 471,
+     "V": 208,
+     "M": 0
+    },
+    "ledger_style": {
+     "N": 471,
+     "V": 208,
+     "M": 0
+    },
+    "summary_ledger": {
+     "N": 471,
+     "V": 208,
+     "M": 0
+    },
+    "client_rows": 471,
+    "client_hit_mix": {
+     "FULL_HIT": 471
+    },
+    "sources": {
+     "cache": 208,
+     "cache_blind": 263
+    },
+    "cameras": {
+     "full(implicit)": 208
+    },
+    "look_reasons": {
+     "6": 20,
+     "1": 188
+    },
+    "call_reasons": {}
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.0653588110403397,
+    "owner_twocam_from_summary_counts": 0.0653588110403397,
+    "owner_twocam_episode_mean": 0.06479428005812107,
+    "ledger_table_ir": 0.058712530302448045,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "L": 5.0,
+    "v": 0.4416135881104034,
+    "m": 0.0,
+    "decisions_per_episode": 23.55
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 18,
+     "step_cap": 2
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 1,
+     "SERVERS_READY": 1,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 208,
+     "p50": 3.1214500000000003,
+     "p95": 3.9310749999999968,
+     "mean": 3.219410096153846
+    },
+    "blind_server_ms": {
+     "n": 263,
+     "p50": 323.984,
+     "p95": 787.7337,
+     "mean": 352.8466577946768
+    },
+    "blind_prepare_ms": {
+     "n": 263,
+     "p50": 15.051166,
+     "p95": 21.755892299999996,
+     "mean": 15.405872243346007
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_groot_spatial_500_SF1_profile_23171",
+     "method": "SF_E1_S1_V1__BL_anchor_tail_B1_budget_only_r0.5__AWM_joint_big_fbig",
+     "model": "groot",
+     "stage1_mode": "full",
+     "request_cameras": null,
+     "camera_cost_basis": null,
+     "kwargs": {
+      "lib": "bpool_all",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "extend_blocks": 1,
+      "stage_gate": true,
+      "state_valve": true
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_groot_spatial_500_SF2_profile",
+   "info": {
+    "arm": "r7_groot_spatial_500_SF2_profile",
+    "model": "groot",
+    "suite": "spatial",
+    "size": 500,
+    "cell": "groot_spatial_500",
+    "variant": "SF2",
+    "family": "follow",
+    "profile": true,
+    "r6cell": "sp_500"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 483,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_groot_spatial_500_SF2_profile.manifest_1abe7d6b9e4bec39d7639456190be4fb2aa215bb561c4137f9f5eac058a9da62.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "f35ae5439028a3cf5279271b34db2b58a0ad842b53f58e7162ef17de5840d478",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 18,
+    "sr": 0.9,
+    "summary_complete": 20,
+    "summary_success": 18
+   },
+   "counts": {
+    "strict": {
+     "N": 483,
+     "V": 201,
+     "M": 0
+    },
+    "ledger_style": {
+     "N": 483,
+     "V": 201,
+     "M": 0
+    },
+    "summary_ledger": {
+     "N": 483,
+     "V": 201,
+     "M": 0
+    },
+    "client_rows": 483,
+    "client_hit_mix": {
+     "FULL_HIT": 483
+    },
+    "sources": {
+     "cache": 201,
+     "cache_blind": 282
+    },
+    "cameras": {
+     "full(implicit)": 201
+    },
+    "look_reasons": {
+     "6": 20,
+     "1": 181
+    },
+    "call_reasons": {}
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.061590062111801236,
+    "owner_twocam_from_summary_counts": 0.061590062111801236,
+    "owner_twocam_episode_mean": 0.06073849725956054,
+    "ledger_table_ir": 0.0553270221797167,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "L": 5.0,
+    "v": 0.4161490683229814,
+    "m": 0.0,
+    "decisions_per_episode": 24.15
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 18,
+     "step_cap": 2
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 1,
+     "SERVERS_READY": 1,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 201,
+     "p50": 3.0329,
+     "p95": 3.8364000000000003,
+     "mean": 3.159587064676617
+    },
+    "blind_server_ms": {
+     "n": 282,
+     "p50": 311.0675,
+     "p95": 883.2142999999998,
+     "mean": 358.01333687943264
+    },
+    "blind_prepare_ms": {
+     "n": 282,
+     "p50": 15.107426499999999,
+     "p95": 19.679613799999995,
+     "mean": 15.424851762411349
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_groot_spatial_500_SF2_profile_23170",
+     "method": "SF_E2_S1_V1__BL_anchor_tail_B1_budget_only_r0.5__AWM_joint_big_fbig",
+     "model": "groot",
+     "stage1_mode": "full",
+     "request_cameras": null,
+     "camera_cost_basis": null,
+     "kwargs": {
+      "lib": "bpool_all",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "extend_blocks": 2,
+      "stage_gate": true,
+      "state_valve": true
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_groot_spatial_500_UF1_profile",
+   "info": {
+    "arm": "r7_groot_spatial_500_UF1_profile",
+    "model": "groot",
+    "suite": "spatial",
+    "size": 500,
+    "cell": "groot_spatial_500",
+    "variant": "UF1",
+    "family": "follow",
+    "profile": true,
+    "r6cell": "sp_500"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 476,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_groot_spatial_500_UF1_profile.manifest_1abe7d6b9e4bec39d7639456190be4fb2aa215bb561c4137f9f5eac058a9da62.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "f35ae5439028a3cf5279271b34db2b58a0ad842b53f58e7162ef17de5840d478",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 18,
+    "sr": 0.9,
+    "summary_complete": 20,
+    "summary_success": 18
+   },
+   "counts": {
+    "strict": {
+     "N": 476,
+     "V": 174,
+     "M": 0
+    },
+    "ledger_style": {
+     "N": 476,
+     "V": 174,
+     "M": 0
+    },
+    "summary_ledger": {
+     "N": 476,
+     "V": 174,
+     "M": 0
+    },
+    "client_rows": 476,
+    "client_hit_mix": {
+     "FULL_HIT": 476
+    },
+    "sources": {
+     "cache": 174,
+     "cache_blind": 302
+    },
+    "cameras": {
+     "full(implicit)": 174
+    },
+    "look_reasons": {
+     "6": 20,
+     "1": 154
+    },
+    "call_reasons": {}
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.05410084033613445,
+    "owner_twocam_from_summary_counts": 0.05410084033613445,
+    "owner_twocam_episode_mean": 0.05363602378615288,
+    "ledger_table_ir": 0.048599372862867925,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "L": 5.0,
+    "v": 0.36554621848739494,
+    "m": 0.0,
+    "decisions_per_episode": 23.8
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 18,
+     "step_cap": 2
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 1,
+     "SERVERS_READY": 1,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 174,
+     "p50": 3.1342,
+     "p95": 3.85649,
+     "mean": 3.2637896551724137
+    },
+    "blind_server_ms": {
+     "n": 302,
+     "p50": 236.493,
+     "p95": 667.1503499999999,
+     "mean": 272.9633973509934
+    },
+    "blind_prepare_ms": {
+     "n": 302,
+     "p50": 15.4430485,
+     "p95": 20.890881299999997,
+     "mean": 16.014098794701987
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_groot_spatial_500_UF1_profile_23172",
+     "method": "SF_E1_S0_V0__BL_anchor_tail_B1_budget_only_r0.5__AWM_joint_big_fbig",
+     "model": "groot",
+     "stage1_mode": "full",
+     "request_cameras": null,
+     "camera_cost_basis": null,
+     "kwargs": {
+      "lib": "bpool_all",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only",
+      "extend_blocks": 1,
+      "stage_gate": false,
+      "state_valve": false
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_groot_spatial_500_A_profile",
+   "info": {
+    "arm": "r7_groot_spatial_500_A_profile",
+    "model": "groot",
+    "suite": "spatial",
+    "size": 500,
+    "cell": "groot_spatial_500",
+    "variant": "A",
+    "family": "A",
+    "profile": true,
+    "r6cell": "sp_500"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 473,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_groot_spatial_500_A_profile.manifest_1abe7d6b9e4bec39d7639456190be4fb2aa215bb561c4137f9f5eac058a9da62.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "f35ae5439028a3cf5279271b34db2b58a0ad842b53f58e7162ef17de5840d478",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 18,
+    "sr": 0.9,
+    "summary_complete": 20,
+    "summary_success": 18
+   },
+   "counts": {
+    "strict": {
+     "N": 473,
+     "V": 240,
+     "M": 0
+    },
+    "ledger_style": {
+     "N": 473,
+     "V": 240,
+     "M": 0
+    },
+    "summary_ledger": {
+     "N": 473,
+     "V": 240,
+     "M": 0
+    },
+    "client_rows": 473,
+    "client_hit_mix": {
+     "FULL_HIT": 473
+    },
+    "sources": {
+     "cache": 240,
+     "cache_blind": 233
+    },
+    "cameras": {
+     "full(implicit)": 240
+    },
+    "look_reasons": {
+     "6": 20,
+     "1": 220
+    },
+    "call_reasons": {}
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.07509513742071881,
+    "owner_twocam_from_summary_counts": 0.07509513742071881,
+    "owner_twocam_episode_mean": 0.07525741420046281,
+    "ledger_table_ir": 0.0674587781081144,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "L": 5.0,
+    "v": 0.507399577167019,
+    "m": 0.0,
+    "decisions_per_episode": 23.65
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 18,
+     "step_cap": 2
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 1,
+     "SERVERS_READY": 1,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 240,
+     "p50": 2.7986500000000003,
+     "p95": 3.521825,
+     "mean": 2.8976804166666663
+    },
+    "blind_server_ms": {
+     "n": 233,
+     "p50": 434.252,
+     "p95": 1074.3489999999997,
+     "mean": 458.5449957081545
+    },
+    "blind_prepare_ms": {
+     "n": 233,
+     "p50": 15.418291,
+     "p95": 23.321399599999996,
+     "mean": 15.926376987124465
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_groot_spatial_500_A_profile_23173",
+     "method": "BL_anchor_tail_B1_budget_only_r0.5__AWM_joint_big_fbig",
+     "model": "groot",
+     "stage1_mode": "full",
+     "request_cameras": null,
+     "camera_cost_basis": null,
+     "kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only"
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_sw_pi05_l10_50_profile",
+   "info": {
+    "arm": "r7_sw_pi05_l10_50_profile",
+    "model": "pi05",
+    "suite": "l10",
+    "size": 50,
+    "cell": "pi05_l10_50",
+    "variant": "SW",
+    "family": "wrist",
+    "profile": true,
+    "r6cell": "l10_50"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 1241,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_sw_pi05_l10_50_profile.manifest_ffc3fd203e70e276550b18bd46005235c0b43489a3bc3cab1109ebfac31f401e.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "fa993ce2042942a79941960eba23d9186f2b835c2fc0ba1e2f47e7d308d00b14",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 16,
+    "sr": 0.8,
+    "summary_complete": 20,
+    "summary_success": 16
+   },
+   "counts": {
+    "strict": {
+     "N": 1241,
+     "V": 624,
+     "M": 0
+    },
+    "ledger_style": {
+     "N": 1241,
+     "V": 624,
+     "M": 0
+    },
+    "summary_ledger": {
+     "N": 1241,
+     "V": 624,
+     "M": 0
+    },
+    "client_rows": 1241,
+    "client_hit_mix": {
+     "FULL_HIT": 1241
+    },
+    "sources": {
+     "cache": 624,
+     "cache_blind": 617
+    },
+    "cameras": {
+     "full": 407,
+     "wrist_only": 217
+    },
+    "look_reasons": {
+     "6": 20,
+     "1": 604
+    },
+    "call_reasons": {}
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.0764286865431104,
+    "owner_twocam_from_summary_counts": 0.0764286865431104,
+    "owner_twocam_episode_mean": 0.07652338386702201,
+    "ledger_table_ir": 0.05557154208979916,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "L": 5.0,
+    "v": 0.5028203062046737,
+    "m": 0.0,
+    "decisions_per_episode": 62.05,
+    "sw": {
+     "owner_cost_sum_over_N": 0.05950198710717186,
+     "counters_over_N": 0.05950198710717186,
+     "two_camera_convention": 0.0764286865431104,
+     "owner_cost_missing": 0,
+     "owner_cost_mismatch": 0,
+     "wrist_share_of_looks": 0.34775641025641024,
+     "completions": 0
+    }
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 16,
+     "step_cap": 4
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 1,
+     "SERVERS_READY": 1,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 624,
+     "p50": 8.42305,
+     "p95": 20.444315000000003,
+     "mean": 9.36615753205128
+    },
+    "blind_server_ms": {
+     "n": 617,
+     "p50": 3.035,
+     "p95": 7.625599999999998,
+     "mean": 3.729363047001621
+    },
+    "blind_prepare_ms": {
+     "n": 617,
+     "p50": 0.611006,
+     "p95": 1.6727005999999998,
+     "mean": 0.7630242236628849
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_sw_pi05_l10_50_profile_23173",
+     "method": "SW__BL_anchor_tail_B1_budget_only_r0.5__AWM_joint_cur_fcur_kr5",
+     "model": "pi05",
+     "stage1_mode": "per_request",
+     "request_cameras": true,
+     "camera_cost_basis": "R4 proportional-latency assumption",
+     "kwargs": {
+      "enabled": true,
+      "base_spec": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+      "base_kwargs": {
+       "lib": "current",
+       "kref": 5,
+       "serving": "anchor_tail",
+       "budget": 1,
+       "gates": "budget_only"
+      },
+      "base_fit": "/home/weiland/trace_runs/os_closed_loop/r05_ptail/fits/r5t_p_l10_50_tail1uc.pkl",
+      "wrist_fit": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/fits/wrist_pi05_l10_50.pkl",
+      "stage_fit": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/fits/stages_pi05_l10_50.pkl"
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_sw_pi05_l10_500_profile",
+   "info": {
+    "arm": "r7_sw_pi05_l10_500_profile",
+    "model": "pi05",
+    "suite": "l10",
+    "size": 500,
+    "cell": "pi05_l10_500",
+    "variant": "SW",
+    "family": "wrist",
+    "profile": true,
+    "r6cell": "l10_500"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 1064,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_sw_pi05_l10_500_profile.manifest_ffc3fd203e70e276550b18bd46005235c0b43489a3bc3cab1109ebfac31f401e.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "fa993ce2042942a79941960eba23d9186f2b835c2fc0ba1e2f47e7d308d00b14",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 19,
+    "sr": 0.95,
+    "summary_complete": 20,
+    "summary_success": 19
+   },
+   "counts": {
+    "strict": {
+     "N": 1064,
+     "V": 536,
+     "M": 0
+    },
+    "ledger_style": {
+     "N": 1064,
+     "V": 536,
+     "M": 0
+    },
+    "summary_ledger": {
+     "N": 1064,
+     "V": 536,
+     "M": 0
+    },
+    "client_rows": 1064,
+    "client_hit_mix": {
+     "FULL_HIT": 1064
+    },
+    "sources": {
+     "cache": 536,
+     "cache_blind": 528
+    },
+    "cameras": {
+     "full": 413,
+     "wrist_only": 123
+    },
+    "look_reasons": {
+     "6": 20,
+     "1": 516
+    },
+    "call_reasons": {}
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.07657142857142857,
+    "owner_twocam_from_summary_counts": 0.07657142857142857,
+    "owner_twocam_episode_mean": 0.0766806061528573,
+    "ledger_table_ir": 0.06106216141834195,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "L": 5.0,
+    "v": 0.5037593984962406,
+    "m": 0.0,
+    "decisions_per_episode": 53.2,
+    "sw": {
+     "owner_cost_sum_over_N": 0.06538097180451152,
+     "counters_over_N": 0.06538097180451152,
+     "two_camera_convention": 0.07657142857142857,
+     "owner_cost_missing": 0,
+     "owner_cost_mismatch": 0,
+     "wrist_share_of_looks": 0.2294776119402985,
+     "completions": 0
+    }
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 19,
+     "step_cap": 1
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 1,
+     "SERVERS_READY": 1,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 536,
+     "p50": 12.52955,
+     "p95": 24.166825000000003,
+     "mean": 12.645349440298506
+    },
+    "blind_server_ms": {
+     "n": 528,
+     "p50": 2.8985,
+     "p95": 7.912949999999999,
+     "mean": 3.680282196969697
+    },
+    "blind_prepare_ms": {
+     "n": 528,
+     "p50": 0.6247845000000001,
+     "p95": 1.6210215999999995,
+     "mean": 0.7718453465909091
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_sw_pi05_l10_500_profile_23171",
+     "method": "SW__BL_anchor_tail_B1_budget_only_r0.5__AWM_joint_big_fbig",
+     "model": "pi05",
+     "stage1_mode": "per_request",
+     "request_cameras": true,
+     "camera_cost_basis": "R4 proportional-latency assumption",
+     "kwargs": {
+      "enabled": true,
+      "base_spec": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+      "base_kwargs": {
+       "lib": "big",
+       "kref": 8,
+       "serving": "anchor_tail",
+       "budget": 1,
+       "gates": "budget_only"
+      },
+      "base_fit": "/home/weiland/trace_runs/os_closed_loop/r05_ptail/fits/r5t_p_l10_500_tail1uc.pkl",
+      "wrist_fit": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/fits/wrist_pi05_l10_500.pkl",
+      "stage_fit": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/fits/stages_pi05_l10_500.pkl"
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_sw_pi05_sp_50_profile",
+   "info": {
+    "arm": "r7_sw_pi05_sp_50_profile",
+    "model": "pi05",
+    "suite": "spatial",
+    "size": 50,
+    "cell": "pi05_spatial_50",
+    "variant": "SW",
+    "family": "wrist",
+    "profile": true,
+    "r6cell": "sp_50"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 540,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_sw_pi05_sp_50_profile.manifest_1abe7d6b9e4bec39d7639456190be4fb2aa215bb561c4137f9f5eac058a9da62.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "f35ae5439028a3cf5279271b34db2b58a0ad842b53f58e7162ef17de5840d478",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 15,
+    "sr": 0.75,
+    "summary_complete": 20,
+    "summary_success": 15
+   },
+   "counts": {
+    "strict": {
+     "N": 540,
+     "V": 274,
+     "M": 0
+    },
+    "ledger_style": {
+     "N": 540,
+     "V": 274,
+     "M": 0
+    },
+    "summary_ledger": {
+     "N": 540,
+     "V": 274,
+     "M": 0
+    },
+    "client_rows": 540,
+    "client_hit_mix": {
+     "FULL_HIT": 540
+    },
+    "sources": {
+     "cache": 274,
+     "cache_blind": 266
+    },
+    "cameras": {
+     "full": 199,
+     "wrist_only": 75
+    },
+    "look_reasons": {
+     "6": 20,
+     "1": 254
+    },
+    "call_reasons": {}
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.07712592592592592,
+    "owner_twocam_from_summary_counts": 0.07712592592592592,
+    "owner_twocam_episode_mean": 0.07742223434687885,
+    "ledger_table_ir": 0.059474681901106906,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "L": 5.0,
+    "v": 0.5074074074074074,
+    "m": 0.0,
+    "decisions_per_episode": 27.0,
+    "sw": {
+     "owner_cost_sum_over_N": 0.06368120370370392,
+     "counters_over_N": 0.06368120370370392,
+     "two_camera_convention": 0.07712592592592592,
+     "owner_cost_missing": 0,
+     "owner_cost_mismatch": 0,
+     "wrist_share_of_looks": 0.2737226277372263,
+     "completions": 0
+    }
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 15,
+     "step_cap": 5
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 1,
+     "SERVERS_READY": 1,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 274,
+     "p50": 6.46475,
+     "p95": 17.134059999999998,
+     "mean": 8.01583102189781
+    },
+    "blind_server_ms": {
+     "n": 266,
+     "p50": 2.775,
+     "p95": 7.1325,
+     "mean": 3.4419661654135343
+    },
+    "blind_prepare_ms": {
+     "n": 266,
+     "p50": 0.5970044999999999,
+     "p95": 1.223252,
+     "mean": 0.7010350563909774
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_sw_pi05_sp_50_profile_23172",
+     "method": "SW__BL_anchor_tail_B1_budget_only_r0.5__AWM_joint_cur_fcur_kr5",
+     "model": "pi05",
+     "stage1_mode": "per_request",
+     "request_cameras": true,
+     "camera_cost_basis": "R4 proportional-latency assumption",
+     "kwargs": {
+      "enabled": true,
+      "base_spec": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+      "base_kwargs": {
+       "lib": "current",
+       "kref": 5,
+       "serving": "anchor_tail",
+       "budget": 1,
+       "gates": "budget_only"
+      },
+      "base_fit": "/home/weiland/trace_runs/os_closed_loop/r05_ptail/fits/r5t_p_sp_50_tail1uc.pkl",
+      "wrist_fit": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/fits/wrist_pi05_sp_50.pkl",
+      "stage_fit": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/fits/stages_pi05_sp_50.pkl"
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_sw_pi05_sp_500_profile",
+   "info": {
+    "arm": "r7_sw_pi05_sp_500_profile",
+    "model": "pi05",
+    "suite": "spatial",
+    "size": 500,
+    "cell": "pi05_spatial_500",
+    "variant": "SW",
+    "family": "wrist",
+    "profile": true,
+    "r6cell": "sp_500"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 479,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_sw_pi05_sp_500_profile.manifest_1abe7d6b9e4bec39d7639456190be4fb2aa215bb561c4137f9f5eac058a9da62.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "f35ae5439028a3cf5279271b34db2b58a0ad842b53f58e7162ef17de5840d478",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 17,
+    "sr": 0.85,
+    "summary_complete": 20,
+    "summary_success": 17
+   },
+   "counts": {
+    "strict": {
+     "N": 479,
+     "V": 244,
+     "M": 0
+    },
+    "ledger_style": {
+     "N": 479,
+     "V": 244,
+     "M": 0
+    },
+    "summary_ledger": {
+     "N": 479,
+     "V": 244,
+     "M": 0
+    },
+    "client_rows": 479,
+    "client_hit_mix": {
+     "FULL_HIT": 479
+    },
+    "sources": {
+     "cache": 244,
+     "cache_blind": 235
+    },
+    "cameras": {
+     "full": 145,
+     "wrist_only": 99
+    },
+    "look_reasons": {
+     "6": 20,
+     "1": 224
+    },
+    "call_reasons": {}
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.07742797494780794,
+    "owner_twocam_from_summary_counts": 0.07742797494780794,
+    "owner_twocam_episode_mean": 0.07774522859578614,
+    "ledger_table_ir": 0.05362791726307133,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "L": 5.0,
+    "v": 0.5093945720250522,
+    "m": 0.0,
+    "decisions_per_episode": 23.95,
+    "sw": {
+     "owner_cost_sum_over_N": 0.05742088100208788,
+     "counters_over_N": 0.05742088100208788,
+     "two_camera_convention": 0.07742797494780794,
+     "owner_cost_missing": 0,
+     "owner_cost_mismatch": 0,
+     "wrist_share_of_looks": 0.4057377049180328,
+     "completions": 0
+    }
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 17,
+     "step_cap": 3
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 1,
+     "SERVERS_READY": 1,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 244,
+     "p50": 10.71285,
+     "p95": 19.413579999999996,
+     "mean": 10.57177213114754
+    },
+    "blind_server_ms": {
+     "n": 235,
+     "p50": 2.902,
+     "p95": 8.330599999999997,
+     "mean": 3.700187234042553
+    },
+    "blind_prepare_ms": {
+     "n": 235,
+     "p50": 0.578369,
+     "p95": 1.2620298999999995,
+     "mean": 0.6935068510638298
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_sw_pi05_sp_500_profile_23170",
+     "method": "SW__BL_anchor_tail_B1_budget_only_r0.5__AWM_joint_big_fbig",
+     "model": "pi05",
+     "stage1_mode": "per_request",
+     "request_cameras": true,
+     "camera_cost_basis": "R4 proportional-latency assumption",
+     "kwargs": {
+      "enabled": true,
+      "base_spec": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+      "base_kwargs": {
+       "lib": "big",
+       "kref": 8,
+       "serving": "anchor_tail",
+       "budget": 1,
+       "gates": "budget_only"
+      },
+      "base_fit": "/home/weiland/trace_runs/os_closed_loop/r04_blind/fits/r4b3_p_sp_500_tail1uc.pkl",
+      "wrist_fit": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/fits/wrist_pi05_sp_500.pkl",
+      "stage_fit": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/fits/stages_pi05_sp_500.pkl"
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_pi05_l10_50_CU30_profile",
+   "info": {
+    "arm": "r7_pi05_l10_50_CU30_profile",
+    "model": "pi05",
+    "suite": "l10",
+    "size": 50,
+    "cell": "pi05_l10_50",
+    "variant": "CU30",
+    "family": "calls",
+    "profile": true,
+    "r6cell": "l10_50"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 1179,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_pi05_l10_50_CU30_profile.manifest_ffc3fd203e70e276550b18bd46005235c0b43489a3bc3cab1109ebfac31f401e.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "fa993ce2042942a79941960eba23d9186f2b835c2fc0ba1e2f47e7d308d00b14",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 18,
+    "sr": 0.9,
+    "summary_complete": 20,
+    "summary_success": 18
+   },
+   "counts": {
+    "strict": {
+     "N": 1179,
+     "V": 612,
+     "M": 306
+    },
+    "ledger_style": {
+     "N": 1179,
+     "V": 612,
+     "M": 306
+    },
+    "summary_ledger": {
+     "N": 1179,
+     "V": 612,
+     "M": 306
+    },
+    "client_rows": 1179,
+    "client_hit_mix": {
+     "MISS": 306,
+     "FULL_HIT": 873
+    },
+    "sources": {
+     "policy": 306,
+     "policy_tail": 302,
+     "cache": 306,
+     "cache_blind": 265
+    },
+    "cameras": {
+     "full(implicit)": 612
+    },
+    "look_reasons": {
+     "6": 317,
+     "1": 263,
+     "8": 32
+    },
+    "call_reasons": {
+     "62.0": 244,
+     "63.0": 62
+    }
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.2989923664122137,
+    "owner_twocam_from_summary_counts": 0.2989923664122137,
+    "owner_twocam_episode_mean": 0.30222495919411235,
+    "ledger_table_ir": 0.296386406288974,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "L": 5.0,
+    "v": 0.5190839694656488,
+    "m": 0.2595419847328244,
+    "decisions_per_episode": 58.95,
+    "calls": {
+     "rho": 0.3,
+     "pooled_minus_rho": -0.0010076335877862719,
+     "episode_mean_minus_rho": 0.0022249591941123636,
+     "lottery_calls": 244,
+     "stall_calls": 62,
+     "forced_ambiguous_looks": 32,
+     "policy_tail_rows": 302
+    }
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 18,
+     "step_cap": 2
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 1,
+     "SERVERS_READY": 1,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 612,
+     "p50": 6.13675,
+     "p95": 18.562619999999992,
+     "mean": 7.726338235294118
+    },
+    "blind_server_ms": {
+     "n": 567,
+     "p50": 2.257,
+     "p95": 5.245699999999998,
+     "mean": 2.6827936507936507
+    },
+    "blind_prepare_ms": {
+     "n": 567,
+     "p50": 0.666733,
+     "p95": 1.4148645999999998,
+     "mean": 0.7668845767195767
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_pi05_l10_50_CU30_profile_23172",
+     "method": "CU_rho0.3",
+     "model": "pi05",
+     "stage1_mode": "full",
+     "request_cameras": null,
+     "camera_cost_basis": null,
+     "kwargs": {
+      "rho": 0.3,
+      "placement": "uniform",
+      "tilt": false,
+      "cooldown_scope": "stall",
+      "calibration_path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/cal/pi05_l10_50/CU/calibration.json",
+      "stall_model_path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/stall/pi05_l10_50",
+      "random_seed": 26092903,
+      "randomization_key": "R6-C-v2/pi05_l10_50"
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_pi05_l10_50_CT30_profile",
+   "info": {
+    "arm": "r7_pi05_l10_50_CT30_profile",
+    "model": "pi05",
+    "suite": "l10",
+    "size": 50,
+    "cell": "pi05_l10_50",
+    "variant": "CT30",
+    "family": "calls",
+    "profile": true,
+    "r6cell": "l10_50"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 1123,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_pi05_l10_50_CT30_profile.manifest_ffc3fd203e70e276550b18bd46005235c0b43489a3bc3cab1109ebfac31f401e.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "fa993ce2042942a79941960eba23d9186f2b835c2fc0ba1e2f47e7d308d00b14",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 19,
+    "sr": 0.95,
+    "summary_complete": 20,
+    "summary_success": 19
+   },
+   "counts": {
+    "strict": {
+     "N": 1123,
+     "V": 584,
+     "M": 317
+    },
+    "ledger_style": {
+     "N": 1123,
+     "V": 584,
+     "M": 317
+    },
+    "summary_ledger": {
+     "N": 1123,
+     "V": 584,
+     "M": 317
+    },
+    "client_rows": 1123,
+    "client_hit_mix": {
+     "MISS": 317,
+     "FULL_HIT": 806
+    },
+    "sources": {
+     "policy": 317,
+     "policy_tail": 307,
+     "cache": 267,
+     "cache_blind": 232
+    },
+    "cameras": {
+     "full(implicit)": 584
+    },
+    "look_reasons": {
+     "6": 320,
+     "1": 230,
+     "8": 34
+    },
+    "call_reasons": {
+     "62.0": 284,
+     "63.0": 33
+    }
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.3184185218165627,
+    "owner_twocam_from_summary_counts": 0.3184185218165627,
+    "owner_twocam_episode_mean": 0.3178319826470163,
+    "ledger_table_ir": 0.31603130618536074,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "L": 5.0,
+    "v": 0.5200356188780053,
+    "m": 0.28227960819234194,
+    "decisions_per_episode": 56.15,
+    "calls": {
+     "rho": 0.3,
+     "pooled_minus_rho": 0.018418521816562727,
+     "episode_mean_minus_rho": 0.017831982647016298,
+     "lottery_calls": 284,
+     "stall_calls": 33,
+     "forced_ambiguous_looks": 34,
+     "policy_tail_rows": 307
+    }
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 19,
+     "step_cap": 1
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 1,
+     "SERVERS_READY": 1,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 584,
+     "p50": 7.11455,
+     "p95": 19.265760000000004,
+     "mean": 8.667380479452055
+    },
+    "blind_server_ms": {
+     "n": 539,
+     "p50": 2.108,
+     "p95": 5.6447,
+     "mean": 2.594025974025974
+    },
+    "blind_prepare_ms": {
+     "n": 539,
+     "p50": 0.615815,
+     "p95": 1.5317347,
+     "mean": 0.7546451669758812
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_pi05_l10_50_CT30_profile_23173",
+     "method": "CT_rho0.3",
+     "model": "pi05",
+     "stage1_mode": "full",
+     "request_cameras": null,
+     "camera_cost_basis": null,
+     "kwargs": {
+      "rho": 0.3,
+      "placement": "uniform",
+      "tilt": true,
+      "cooldown_scope": "stall",
+      "calibration_path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/cal/pi05_l10_50/CT/calibration.json",
+      "stall_model_path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/stall/pi05_l10_50",
+      "random_seed": 26092903,
+      "randomization_key": "R6-C-v2/pi05_l10_50"
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_pi05_spatial_50_CU30_profile",
+   "info": {
+    "arm": "r7_pi05_spatial_50_CU30_profile",
+    "model": "pi05",
+    "suite": "spatial",
+    "size": 50,
+    "cell": "pi05_spatial_50",
+    "variant": "CU30",
+    "family": "calls",
+    "profile": true,
+    "r6cell": "sp_50"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 470,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_pi05_spatial_50_CU30_profile.manifest_1abe7d6b9e4bec39d7639456190be4fb2aa215bb561c4137f9f5eac058a9da62.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "f35ae5439028a3cf5279271b34db2b58a0ad842b53f58e7162ef17de5840d478",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 18,
+    "sr": 0.9,
+    "summary_complete": 20,
+    "summary_success": 18
+   },
+   "counts": {
+    "strict": {
+     "N": 470,
+     "V": 247,
+     "M": 123
+    },
+    "ledger_style": {
+     "N": 470,
+     "V": 247,
+     "M": 123
+    },
+    "summary_ledger": {
+     "N": 470,
+     "V": 247,
+     "M": 123
+    },
+    "client_rows": 470,
+    "client_hit_mix": {
+     "FULL_HIT": 347,
+     "MISS": 123
+    },
+    "sources": {
+     "policy": 123,
+     "policy_tail": 116,
+     "cache": 124,
+     "cache_blind": 107
+    },
+    "cameras": {
+     "full(implicit)": 247
+    },
+    "look_reasons": {
+     "6": 132,
+     "1": 104,
+     "8": 11
+    },
+    "call_reasons": {
+     "62.0": 98,
+     "63.0": 25
+    }
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.30180425531914895,
+    "owner_twocam_from_summary_counts": 0.30180425531914895,
+    "owner_twocam_episode_mean": 0.3019133630059236,
+    "ledger_table_ir": 0.2991552430386792,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "L": 5.0,
+    "v": 0.5255319148936171,
+    "m": 0.26170212765957446,
+    "decisions_per_episode": 23.5,
+    "calls": {
+     "rho": 0.3,
+     "pooled_minus_rho": 0.0018042553191489619,
+     "episode_mean_minus_rho": 0.0019133630059235962,
+     "lottery_calls": 98,
+     "stall_calls": 25,
+     "forced_ambiguous_looks": 11,
+     "policy_tail_rows": 116
+    }
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 18,
+     "step_cap": 2
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 1,
+     "SERVERS_READY": 1,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 247,
+     "p50": 5.888,
+     "p95": 17.039089999999998,
+     "mean": 7.536204048582996
+    },
+    "blind_server_ms": {
+     "n": 223,
+     "p50": 2.132,
+     "p95": 6.128199999999993,
+     "mean": 2.577304932735426
+    },
+    "blind_prepare_ms": {
+     "n": 223,
+     "p50": 0.628592,
+     "p95": 1.8229861999999917,
+     "mean": 0.7734949103139013
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_pi05_spatial_50_CU30_profile_23170",
+     "method": "CU_rho0.3",
+     "model": "pi05",
+     "stage1_mode": "full",
+     "request_cameras": null,
+     "camera_cost_basis": null,
+     "kwargs": {
+      "rho": 0.3,
+      "placement": "uniform",
+      "tilt": false,
+      "cooldown_scope": "stall",
+      "calibration_path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/cal/pi05_spatial_50/CU/calibration.json",
+      "stall_model_path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/stall/pi05_spatial_50",
+      "random_seed": 26092903,
+      "randomization_key": "R6-C-v2/pi05_spatial_50"
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_pi05_spatial_50_CT30_profile",
+   "info": {
+    "arm": "r7_pi05_spatial_50_CT30_profile",
+    "model": "pi05",
+    "suite": "spatial",
+    "size": 50,
+    "cell": "pi05_spatial_50",
+    "variant": "CT30",
+    "family": "calls",
+    "profile": true,
+    "r6cell": "sp_50"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 519,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_pi05_spatial_50_CT30_profile.manifest_1abe7d6b9e4bec39d7639456190be4fb2aa215bb561c4137f9f5eac058a9da62.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "f35ae5439028a3cf5279271b34db2b58a0ad842b53f58e7162ef17de5840d478",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 16,
+    "sr": 0.8,
+    "summary_complete": 20,
+    "summary_success": 16
+   },
+   "counts": {
+    "strict": {
+     "N": 519,
+     "V": 274,
+     "M": 130
+    },
+    "ledger_style": {
+     "N": 519,
+     "V": 274,
+     "M": 130
+    },
+    "summary_ledger": {
+     "N": 519,
+     "V": 274,
+     "M": 130
+    },
+    "client_rows": 519,
+    "client_hit_mix": {
+     "FULL_HIT": 389,
+     "MISS": 130
+    },
+    "sources": {
+     "policy": 130,
+     "policy_tail": 124,
+     "cache": 144,
+     "cache_blind": 121
+    },
+    "cameras": {
+     "full(implicit)": 274
+    },
+    "look_reasons": {
+     "6": 139,
+     "1": 120,
+     "8": 15
+    },
+    "call_reasons": {
+     "62.0": 97,
+     "63.0": 33
+    }
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.292655105973025,
+    "owner_twocam_from_summary_counts": 0.292655105973025,
+    "owner_twocam_episode_mean": 0.29001979203381884,
+    "ledger_table_ir": 0.2898692716896297,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "L": 5.0,
+    "v": 0.5279383429672447,
+    "m": 0.2504816955684008,
+    "decisions_per_episode": 25.95,
+    "calls": {
+     "rho": 0.3,
+     "pooled_minus_rho": -0.0073448940269749685,
+     "episode_mean_minus_rho": -0.009980207966181154,
+     "lottery_calls": 97,
+     "stall_calls": 33,
+     "forced_ambiguous_looks": 15,
+     "policy_tail_rows": 124
+    }
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 16,
+     "step_cap": 4
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 1,
+     "SERVERS_READY": 1,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 274,
+     "p50": 6.86795,
+     "p95": 19.00070499999999,
+     "mean": 8.68753102189781
+    },
+    "blind_server_ms": {
+     "n": 245,
+     "p50": 2.356,
+     "p95": 6.660199999999998,
+     "mean": 2.960722448979592
+    },
+    "blind_prepare_ms": {
+     "n": 245,
+     "p50": 0.653395,
+     "p95": 1.7051567999999993,
+     "mean": 0.8244063428571429
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_pi05_spatial_50_CT30_profile_23171",
+     "method": "CT_rho0.3",
+     "model": "pi05",
+     "stage1_mode": "full",
+     "request_cameras": null,
+     "camera_cost_basis": null,
+     "kwargs": {
+      "rho": 0.3,
+      "placement": "uniform",
+      "tilt": true,
+      "cooldown_scope": "stall",
+      "calibration_path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/cal/pi05_spatial_50/CT/calibration.json",
+      "stall_model_path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/stall/pi05_spatial_50",
+      "random_seed": 26092903,
+      "randomization_key": "R6-C-v2/pi05_spatial_50"
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_groot_l10_50_CU30_profile",
+   "info": {
+    "arm": "r7_groot_l10_50_CU30_profile",
+    "model": "groot",
+    "suite": "l10",
+    "size": 50,
+    "cell": "groot_l10_50",
+    "variant": "CU30",
+    "family": "calls",
+    "profile": true,
+    "r6cell": "l10_50"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 1271,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_groot_l10_50_CU30_profile.manifest_ffc3fd203e70e276550b18bd46005235c0b43489a3bc3cab1109ebfac31f401e.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "fa993ce2042942a79941960eba23d9186f2b835c2fc0ba1e2f47e7d308d00b14",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 15,
+    "sr": 0.75,
+    "summary_complete": 20,
+    "summary_success": 15
+   },
+   "counts": {
+    "strict": {
+     "N": 1271,
+     "V": 657,
+     "M": 344
+    },
+    "ledger_style": {
+     "N": 1271,
+     "V": 657,
+     "M": 344
+    },
+    "summary_ledger": {
+     "N": 1271,
+     "V": 657,
+     "M": 344
+    },
+    "client_rows": 1271,
+    "client_hit_mix": {
+     "MISS": 344,
+     "FULL_HIT": 927
+    },
+    "sources": {
+     "cache": 313,
+     "cache_blind": 277,
+     "policy": 344,
+     "policy_tail": 337
+    },
+    "cameras": {
+     "full(implicit)": 657
+    },
+    "look_reasons": {
+     "6": 348,
+     "1": 275,
+     "8": 34
+    },
+    "call_reasons": {
+     "62.0": 237,
+     "63.0": 107
+    }
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.3070999213217938,
+    "owner_twocam_from_summary_counts": 0.3070999213217938,
+    "owner_twocam_episode_mean": 0.3100423524207402,
+    "ledger_table_ir": 0.3020366706822684,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "L": 5.0,
+    "v": 0.5169158143194336,
+    "m": 0.27065302911093625,
+    "decisions_per_episode": 63.55,
+    "calls": {
+     "rho": 0.3,
+     "pooled_minus_rho": 0.007099921321793823,
+     "episode_mean_minus_rho": 0.010042352420740197,
+     "lottery_calls": 237,
+     "stall_calls": 107,
+     "forced_ambiguous_looks": 34,
+     "policy_tail_rows": 337
+    }
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 15,
+     "step_cap": 5
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 1,
+     "SERVERS_READY": 1,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 657,
+     "p50": 3.1841,
+     "p95": 3.755339999999999,
+     "mean": 3.2401471841704717
+    },
+    "blind_server_ms": {
+     "n": 614,
+     "p50": 1019.162,
+     "p95": 3081.3070000000002,
+     "mean": 1174.979522801303
+    },
+    "blind_prepare_ms": {
+     "n": 614,
+     "p50": 13.1643975,
+     "p95": 16.177333150000003,
+     "mean": 13.505707765472312
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_groot_l10_50_CU30_profile_23170",
+     "method": "CU_rho0.3",
+     "model": "groot",
+     "stage1_mode": "full",
+     "request_cameras": null,
+     "camera_cost_basis": null,
+     "kwargs": {
+      "rho": 0.3,
+      "placement": "uniform",
+      "tilt": false,
+      "cooldown_scope": "stall",
+      "calibration_path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/cal/groot_l10_50/CU/calibration.json",
+      "stall_model_path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/stall/groot_l10_50",
+      "random_seed": 26092903,
+      "randomization_key": "R6-C-v2/groot_l10_50"
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_groot_l10_50_CT30_profile",
+   "info": {
+    "arm": "r7_groot_l10_50_CT30_profile",
+    "model": "groot",
+    "suite": "l10",
+    "size": 50,
+    "cell": "groot_l10_50",
+    "variant": "CT30",
+    "family": "calls",
+    "profile": true,
+    "r6cell": "l10_50"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 1267,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_groot_l10_50_CT30_profile.manifest_ffc3fd203e70e276550b18bd46005235c0b43489a3bc3cab1109ebfac31f401e.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "fa993ce2042942a79941960eba23d9186f2b835c2fc0ba1e2f47e7d308d00b14",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 15,
+    "sr": 0.75,
+    "summary_complete": 20,
+    "summary_success": 15
+   },
+   "counts": {
+    "strict": {
+     "N": 1267,
+     "V": 651,
+     "M": 328
+    },
+    "ledger_style": {
+     "N": 1267,
+     "V": 651,
+     "M": 328
+    },
+    "summary_ledger": {
+     "N": 1267,
+     "V": 651,
+     "M": 328
+    },
+    "client_rows": 1267,
+    "client_hit_mix": {
+     "FULL_HIT": 939,
+     "MISS": 328
+    },
+    "sources": {
+     "cache": 323,
+     "cache_blind": 297,
+     "policy": 328,
+     "policy_tail": 319
+    },
+    "cameras": {
+     "full(implicit)": 651
+    },
+    "look_reasons": {
+     "6": 335,
+     "1": 294,
+     "8": 22
+    },
+    "call_reasons": {
+     "62.0": 225,
+     "63.0": 103
+    }
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.29660931333859514,
+    "owner_twocam_from_summary_counts": 0.29660931333859514,
+    "owner_twocam_episode_mean": 0.29631448371073643,
+    "ledger_table_ir": 0.2913678017938874,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "L": 5.0,
+    "v": 0.5138121546961326,
+    "m": 0.25887924230465664,
+    "decisions_per_episode": 63.35,
+    "calls": {
+     "rho": 0.3,
+     "pooled_minus_rho": -0.0033906866614048514,
+     "episode_mean_minus_rho": -0.0036855162892635573,
+     "lottery_calls": 225,
+     "stall_calls": 103,
+     "forced_ambiguous_looks": 22,
+     "policy_tail_rows": 319
+    }
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 15,
+     "step_cap": 5
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 1,
+     "SERVERS_READY": 1,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 651,
+     "p50": 3.4683,
+     "p95": 4.13735,
+     "mean": 3.5307615975422433
+    },
+    "blind_server_ms": {
+     "n": 616,
+     "p50": 978.392,
+     "p95": 2915.404,
+     "mean": 1144.4443068181818
+    },
+    "blind_prepare_ms": {
+     "n": 616,
+     "p50": 13.362019499999999,
+     "p95": 17.151927,
+     "mean": 13.875548381493504
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_groot_l10_50_CT30_profile_23172",
+     "method": "CT_rho0.3",
+     "model": "groot",
+     "stage1_mode": "full",
+     "request_cameras": null,
+     "camera_cost_basis": null,
+     "kwargs": {
+      "rho": 0.3,
+      "placement": "uniform",
+      "tilt": true,
+      "cooldown_scope": "stall",
+      "calibration_path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/cal/groot_l10_50/CT/calibration.json",
+      "stall_model_path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/stall/groot_l10_50",
+      "random_seed": 26092903,
+      "randomization_key": "R6-C-v2/groot_l10_50"
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_groot_spatial_50_CU30_profile",
+   "info": {
+    "arm": "r7_groot_spatial_50_CU30_profile",
+    "model": "groot",
+    "suite": "spatial",
+    "size": 50,
+    "cell": "groot_spatial_50",
+    "variant": "CU30",
+    "family": "calls",
+    "profile": true,
+    "r6cell": "sp_50"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 504,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_groot_spatial_50_CU30_profile.manifest_1abe7d6b9e4bec39d7639456190be4fb2aa215bb561c4137f9f5eac058a9da62.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "f35ae5439028a3cf5279271b34db2b58a0ad842b53f58e7162ef17de5840d478",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 17,
+    "sr": 0.85,
+    "summary_complete": 20,
+    "summary_success": 17
+   },
+   "counts": {
+    "strict": {
+     "N": 504,
+     "V": 266,
+     "M": 134
+    },
+    "ledger_style": {
+     "N": 504,
+     "V": 266,
+     "M": 134
+    },
+    "summary_ledger": {
+     "N": 504,
+     "V": 266,
+     "M": 134
+    },
+    "client_rows": 504,
+    "client_hit_mix": {
+     "MISS": 134,
+     "FULL_HIT": 370
+    },
+    "sources": {
+     "policy": 134,
+     "policy_tail": 129,
+     "cache": 132,
+     "cache_blind": 109
+    },
+    "cameras": {
+     "full(implicit)": 266
+    },
+    "look_reasons": {
+     "6": 143,
+     "1": 107,
+     "8": 16
+    },
+    "call_reasons": {
+     "62.0": 110,
+     "63.0": 24
+    }
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.30463492063492065,
+    "owner_twocam_from_summary_counts": 0.30463492063492065,
+    "owner_twocam_episode_mean": 0.2994403817578178,
+    "ledger_table_ir": 0.3006932562000515,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "L": 5.0,
+    "v": 0.5277777777777778,
+    "m": 0.26587301587301587,
+    "decisions_per_episode": 25.2,
+    "calls": {
+     "rho": 0.3,
+     "pooled_minus_rho": 0.004634920634920658,
+     "episode_mean_minus_rho": -0.0005596182421822027,
+     "lottery_calls": 110,
+     "stall_calls": 24,
+     "forced_ambiguous_looks": 16,
+     "policy_tail_rows": 129
+    }
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 17,
+     "step_cap": 3
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 1,
+     "SERVERS_READY": 1,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 266,
+     "p50": 3.22465,
+     "p95": 3.905675,
+     "mean": 3.310003759398496
+    },
+    "blind_server_ms": {
+     "n": 238,
+     "p50": 1072.2755000000002,
+     "p95": 3067.5187999999994,
+     "mean": 1225.1718655462184
+    },
+    "blind_prepare_ms": {
+     "n": 238,
+     "p50": 14.267269500000001,
+     "p95": 20.715431099999996,
+     "mean": 14.995449008403364
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_groot_spatial_50_CU30_profile_23171",
+     "method": "CU_rho0.3",
+     "model": "groot",
+     "stage1_mode": "full",
+     "request_cameras": null,
+     "camera_cost_basis": null,
+     "kwargs": {
+      "rho": 0.3,
+      "placement": "uniform",
+      "tilt": false,
+      "cooldown_scope": "stall",
+      "calibration_path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/cal/groot_spatial_50/CU/calibration.json",
+      "stall_model_path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/stall/groot_spatial_50",
+      "random_seed": 26092903,
+      "randomization_key": "R6-C-v2/groot_spatial_50"
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  },
+  {
+   "arm": "r7_groot_spatial_50_CT30_profile",
+   "info": {
+    "arm": "r7_groot_spatial_50_CT30_profile",
+    "model": "groot",
+    "suite": "spatial",
+    "size": 50,
+    "cell": "groot_spatial_50",
+    "variant": "CT30",
+    "family": "calls",
+    "profile": true,
+    "r6cell": "sp_50"
+   },
+   "status": "complete",
+   "flags": [],
+   "qc": {
+    "journal_rows": 20,
+    "decisions_logged_all": 474,
+    "decisions_prior_incarnation": 0,
+    "malformed_lines": 0
+   },
+   "provenance": {
+    "done_markers": [
+     "r7_groot_spatial_50_CT30_profile.manifest_1abe7d6b9e4bec39d7639456190be4fb2aa215bb561c4137f9f5eac058a9da62.DONE"
+    ],
+    "manifest_json": true,
+    "selection_json": true,
+    "pairs": 20,
+    "pairs_are_10x50": null,
+    "apool_rollup_sha256": "f35ae5439028a3cf5279271b34db2b58a0ad842b53f58e7162ef17de5840d478",
+    "trials_per_task": 50,
+    "init_map_sha256": null
+   },
+   "outcomes": {
+    "accepted": 20,
+    "success": 18,
+    "sr": 0.9,
+    "summary_complete": 20,
+    "summary_success": 18
+   },
+   "counts": {
+    "strict": {
+     "N": 474,
+     "V": 247,
+     "M": 133
+    },
+    "ledger_style": {
+     "N": 474,
+     "V": 247,
+     "M": 133
+    },
+    "summary_ledger": {
+     "N": 474,
+     "V": 247,
+     "M": 133
+    },
+    "client_rows": 474,
+    "client_hit_mix": {
+     "FULL_HIT": 341,
+     "MISS": 133
+    },
+    "sources": {
+     "policy": 133,
+     "policy_tail": 127,
+     "cache": 114,
+     "cache_blind": 100
+    },
+    "cameras": {
+     "full(implicit)": 247
+    },
+    "look_reasons": {
+     "6": 139,
+     "1": 96,
+     "8": 12
+    },
+    "call_reasons": {
+     "62.0": 115,
+     "63.0": 18
+    }
+   },
+   "ir": {
+    "owner_twocam_pooled": 0.31618565400843884,
+    "owner_twocam_from_summary_counts": 0.31618565400843884,
+    "owner_twocam_episode_mean": 0.3117799778007173,
+    "ledger_table_ir": 0.312566035804727,
+    "ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "L": 5.0,
+    "v": 0.5210970464135021,
+    "m": 0.2805907172995781,
+    "decisions_per_episode": 23.7,
+    "calls": {
+     "rho": 0.3,
+     "pooled_minus_rho": 0.016185654008438854,
+     "episode_mean_minus_rho": 0.011779977800717323,
+     "lottery_calls": 115,
+     "stall_calls": 18,
+     "forced_ambiguous_looks": 12,
+     "policy_tail_rows": 127
+    }
+   },
+   "exceptions": {
+    "per_step_present": true,
+    "accepted_keys": 20,
+    "covered": 20,
+    "accepted_termination": {
+     "success": 18,
+     "step_cap": 2
+    },
+    "residual_accepted_exceptions": 0,
+    "residual_keys": [],
+    "exception_attempts_in_per_step": 0,
+    "multi_reason_keys": 0,
+    "success_mismatch": 0,
+    "infers_mismatch": 0,
+    "purged_local_rows": 0,
+    "chain_events": {
+     "ARM_START": 1,
+     "SERVERS_READY": 1,
+     "ARM_DONE": 1,
+     "CHAIN_DONE": 1
+    },
+    "chain_exc_purged": 0
+   },
+   "cpu_ms": {
+    "vision_method_query_ms": {
+     "n": 247,
+     "p50": 3.4267,
+     "p95": 4.06579,
+     "mean": 3.4827959514170037
+    },
+    "blind_server_ms": {
+     "n": 227,
+     "p50": 1176.707,
+     "p95": 3227.3645999999985,
+     "mean": 1361.0028986784143
+    },
+    "blind_prepare_ms": {
+     "n": 227,
+     "p50": 13.752171,
+     "p95": 21.284847499999994,
+     "mean": 14.592810612334802
+    }
+   },
+   "startups": [
+    {
+     "tag": "r7_groot_spatial_50_CT30_profile_23173",
+     "method": "CT_rho0.3",
+     "model": "groot",
+     "stage1_mode": "full",
+     "request_cameras": null,
+     "camera_cost_basis": null,
+     "kwargs": {
+      "rho": 0.3,
+      "placement": "uniform",
+      "tilt": true,
+      "cooldown_scope": "stall",
+      "calibration_path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/cal/groot_spatial_50/CT/calibration.json",
+      "stall_model_path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/stall/groot_spatial_50",
+      "random_seed": 26092903,
+      "randomization_key": "R6-C-v2/groot_spatial_50"
+     },
+     "git_head": "1080430c3769"
+    }
+   ]
+  }
+ ],
+ "references": {}
+}

@@ -1,0 +1,95 @@
+{
+  "cell": "pi05_l10_50",
+  "source": "P3 A_r0, original trajectory; position/fingers only",
+  "control_rows": 6310,
+  "anchors": 640,
+  "q95": 0.5043808733542261,
+  "affine_max_abs_error": [
+    8.431036335743158e-08,
+    9.968620662270666e-08,
+    1.2393739390326175e-07,
+    1.2390322823296884e-07,
+    1.3866834192022282e-07
+  ],
+  "caveat": "linear interpolation between 5-control library observations; normalization fitted from same recorded proprioception",
+  "horizons": {
+    "5": {
+      "n": 544,
+      "endpoint_q": [
+        0.009454486349140546,
+        0.1698444293176221,
+        0.2746288834010098
+      ],
+      "cumulative_any_control": 0.009191176470588236,
+      "cumulative_five_control": 0.007352941176470588,
+      "dense_only_share": 0.001838235294117647
+    },
+    "10": {
+      "n": 519,
+      "endpoint_q": [
+        0.019653379251990684,
+        0.2794388245932392,
+        0.4213849664444146
+      ],
+      "cumulative_any_control": 0.04046242774566474,
+      "cumulative_five_control": 0.036608863198458574,
+      "dense_only_share": 0.0038535645472061657
+    },
+    "15": {
+      "n": 483,
+      "endpoint_q": [
+        0.035550055229989365,
+        0.39868218086851764,
+        0.4905416929349244
+      ],
+      "cumulative_any_control": 0.06625258799171843,
+      "cumulative_five_control": 0.055900621118012424,
+      "dense_only_share": 0.010351966873706004
+    },
+    "20": {
+      "n": 452,
+      "endpoint_q": [
+        0.06265253065386431,
+        0.5100790393159869,
+        0.6358669002891522
+      ],
+      "cumulative_any_control": 0.13053097345132744,
+      "cumulative_five_control": 0.11946902654867257,
+      "dense_only_share": 0.011061946902654867
+    },
+    "30": {
+      "n": 415,
+      "endpoint_q": [
+        0.1120624294115138,
+        0.6026456689104923,
+        0.898598902677231
+      ],
+      "cumulative_any_control": 0.2,
+      "cumulative_five_control": 0.1783132530120482,
+      "dense_only_share": 0.021686746987951807
+    },
+    "40": {
+      "n": 386,
+      "endpoint_q": [
+        0.15675978907058358,
+        0.6837050855300277,
+        1.0236485330778258
+      ],
+      "cumulative_any_control": 0.266839378238342,
+      "cumulative_five_control": 0.22797927461139897,
+      "dense_only_share": 0.038860103626943004
+    },
+    "60": {
+      "n": 306,
+      "endpoint_q": [
+        0.20962161984265354,
+        0.6687467274028266,
+        1.0299340783753763
+      ],
+      "cumulative_any_control": 0.42810457516339867,
+      "cumulative_five_control": 0.35947712418300654,
+      "dense_only_share": 0.06862745098039216
+    }
+  },
+  "elapsed_s": 6.987921237945557
+}

@@ -1,0 +1,201 @@
+[
+ {
+  "arm": "r6p2_direct_p_l10_50",
+  "source": "/home/weiland/trace_runs/os_closed_loop/r05_ptail/arms_in.json",
+  "source_row": {
+   "name": "r5t_p_l10_50_tail1uc",
+   "model": "pi05",
+   "suite": "l10",
+   "mode": "plugin",
+   "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+   "kwargs": {
+    "lib": "current",
+    "kref": 5,
+    "serving": "anchor_tail",
+    "budget": 1,
+    "gates": "budget_only"
+   },
+   "plugin_args": [
+    "--os-no-shadow-native",
+    "--os-blind",
+    "--os-fit-artifact",
+    "/home/weiland/trace_runs/os_closed_loop/r05_ptail/fits/r5t_p_l10_50_tail1uc.pkl"
+   ],
+   "cost_ledger": true
+  }
+ },
+ {
+  "arm": "r6p2_direct_p_l10_500",
+  "source": "/home/weiland/trace_runs/os_closed_loop/r05_ptail/arms_in.json",
+  "source_row": {
+   "name": "r5t_p_l10_500_tail1uc",
+   "model": "pi05",
+   "suite": "l10",
+   "mode": "plugin",
+   "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+   "kwargs": {
+    "lib": "big",
+    "kref": 8,
+    "serving": "anchor_tail",
+    "budget": 1,
+    "gates": "budget_only"
+   },
+   "plugin_args": [
+    "--os-no-shadow-native",
+    "--os-blind",
+    "--os-fit-artifact",
+    "/home/weiland/trace_runs/os_closed_loop/r05_ptail/fits/r5t_p_l10_500_tail1uc.pkl"
+   ],
+   "cost_ledger": true
+  }
+ },
+ {
+  "arm": "r6p2_direct_p_sp_50",
+  "source": "/home/weiland/trace_runs/os_closed_loop/r05_ptail/arms_in.json",
+  "source_row": {
+   "name": "r5t_p_sp_50_tail1uc",
+   "model": "pi05",
+   "suite": "spatial",
+   "mode": "plugin",
+   "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+   "kwargs": {
+    "lib": "current",
+    "kref": 5,
+    "serving": "anchor_tail",
+    "budget": 1,
+    "gates": "budget_only"
+   },
+   "plugin_args": [
+    "--os-no-shadow-native",
+    "--os-blind",
+    "--os-fit-artifact",
+    "/home/weiland/trace_runs/os_closed_loop/r05_ptail/fits/r5t_p_sp_50_tail1uc.pkl"
+   ],
+   "cost_ledger": true
+  }
+ },
+ {
+  "arm": "r6p2_direct_p_sp_500",
+  "source": "/home/weiland/trace_runs/os_closed_loop/r04_blind/arms_in.json",
+  "source_row": {
+   "name": "r4b3_p_sp_500_tail1uc",
+   "model": "pi05",
+   "suite": "spatial",
+   "mode": "plugin",
+   "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+   "kwargs": {
+    "lib": "big",
+    "kref": 8,
+    "serving": "anchor_tail",
+    "budget": 1,
+    "gates": "budget_only"
+   },
+   "plugin_args": [
+    "--os-no-shadow-native",
+    "--os-blind",
+    "--os-fit-artifact",
+    "/home/weiland/trace_runs/os_closed_loop/r04_blind/fits/r4b3_p_sp_500_tail1uc.pkl"
+   ]
+  }
+ },
+ {
+  "arm": "r6p2_direct_g_l10_50",
+  "source": "/home/weiland/trace_runs/os_closed_loop/r05_x/arms_in.json",
+  "source_row": {
+   "name": "r5x_g_l10_50_tail1u",
+   "model": "groot",
+   "suite": "l10",
+   "mode": "plugin",
+   "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+   "kwargs": {
+    "lib": "current",
+    "kref": 5,
+    "serving": "anchor_tail",
+    "budget": 1,
+    "gates": "budget_only"
+   },
+   "plugin_args": [
+    "--os-no-shadow-native",
+    "--os-blind",
+    "--os-fit-artifact",
+    "/home/weiland/trace_runs/os_closed_loop/r05_x/fits/r5x_g_l10_50_tail1u.pkl"
+   ],
+   "cost_ledger": true
+  }
+ },
+ {
+  "arm": "r6p2_direct_g_l10_500",
+  "source": "/home/weiland/trace_runs/os_closed_loop/r05_x/arms_in.json",
+  "source_row": {
+   "name": "r5x_g_l10_500_tail1u",
+   "model": "groot",
+   "suite": "l10",
+   "mode": "plugin",
+   "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+   "kwargs": {
+    "lib": "big",
+    "kref": 8,
+    "serving": "anchor_tail",
+    "budget": 1,
+    "gates": "budget_only"
+   },
+   "plugin_args": [
+    "--os-no-shadow-native",
+    "--os-blind",
+    "--os-fit-artifact",
+    "/home/weiland/trace_runs/os_closed_loop/r05_x/fits/r5x_g_l10_500_tail1u.pkl"
+   ],
+   "cost_ledger": true
+  }
+ },
+ {
+  "arm": "r6p2_direct_g_sp_50",
+  "source": "/home/weiland/trace_runs/os_closed_loop/r05_x/arms_in.json",
+  "source_row": {
+   "name": "r5x_g_sp_50_tail1u",
+   "model": "groot",
+   "suite": "spatial",
+   "mode": "plugin",
+   "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+   "kwargs": {
+    "lib": "current",
+    "kref": 5,
+    "serving": "anchor_tail",
+    "budget": 1,
+    "gates": "budget_only"
+   },
+   "plugin_args": [
+    "--os-no-shadow-native",
+    "--os-blind",
+    "--os-fit-artifact",
+    "/home/weiland/trace_runs/os_closed_loop/r05_x/fits/r5x_g_sp_50_tail1u.pkl"
+   ],
+   "cost_ledger": true
+  }
+ },
+ {
+  "arm": "r6p2_direct_g_sp_500",
+  "source": "/home/weiland/trace_runs/os_closed_loop/r05_x/arms_in.json",
+  "source_row": {
+   "name": "r5x_g_sp_500_tail1u",
+   "model": "groot",
+   "suite": "spatial",
+   "mode": "plugin",
+   "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+   "kwargs": {
+    "lib": "big",
+    "kref": 8,
+    "serving": "anchor_tail",
+    "budget": 1,
+    "gates": "budget_only"
+   },
+   "plugin_args": [
+    "--os-no-shadow-native",
+    "--os-blind",
+    "--os-fit-artifact",
+    "/home/weiland/trace_runs/os_closed_loop/r05_x/fits/r5x_g_sp_500_tail1u.pkl"
+   ],
+   "cost_ledger": true
+  }
+ }
+]

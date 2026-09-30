@@ -1,0 +1,130 @@
+[
+  {
+    "arm": "r7_sw_pi05_l10_50",
+    "path": "/tmp/r7_C2/fits/r7_sw_pi05_l10_50.pkl",
+    "bytes": 40958871,
+    "metric_width": 72,
+    "stage_calibration": {
+      "convention": "frozen-A candidate-LOEO, successful even-row sources; maximum over reference commitment",
+      "anchors": 1172,
+      "attempted_anchors": 1333,
+      "episodes": 50,
+      "q_row95": 0.3987586889618458,
+      "q_episode95": 0.8407026137678197,
+      "reference_controls": 10
+    },
+    "elapsed_s": 0.8478901780908927
+  },
+  {
+    "arm": "r7_sf_sw_pi05_l10_50",
+    "path": "/tmp/r7_C2/fits/r7_sf_sw_pi05_l10_50.pkl",
+    "bytes": 41204277,
+    "metric_width": 72,
+    "stage_calibration": {
+      "convention": "frozen-A candidate-LOEO, successful even-row sources; maximum over reference commitment",
+      "anchors": 1172,
+      "attempted_anchors": 1333,
+      "episodes": 50,
+      "q_row95": 0.3987586889618458,
+      "q_episode95": 0.8407026137678197,
+      "reference_controls": 10
+    },
+    "elapsed_s": 1.0323148630559444
+  },
+  {
+    "arm": "r7_sw_pi05_l10_500",
+    "path": "/tmp/r7_C2/fits/r7_sw_pi05_l10_500.pkl",
+    "bytes": 168044460,
+    "metric_width": 72,
+    "stage_calibration": {
+      "convention": "frozen-A candidate-LOEO, successful even-row sources; maximum over reference commitment",
+      "anchors": 10569,
+      "attempted_anchors": 11516,
+      "episodes": 436,
+      "q_row95": 0.26430627971008475,
+      "q_episode95": 0.7961956613124335,
+      "reference_controls": 10
+    },
+    "elapsed_s": 24.9664856280433
+  },
+  {
+    "arm": "r7_sf_sw_pi05_l10_500",
+    "path": "/tmp/r7_C2/fits/r7_sf_sw_pi05_l10_500.pkl",
+    "bytes": 170758462,
+    "metric_width": 72,
+    "stage_calibration": {
+      "convention": "frozen-A candidate-LOEO, successful even-row sources; maximum over reference commitment",
+      "anchors": 10569,
+      "attempted_anchors": 11516,
+      "episodes": 436,
+      "q_row95": 0.26430627971008475,
+      "q_episode95": 0.7961956613124335,
+      "reference_controls": 10
+    },
+    "elapsed_s": 25.84822092903778
+  },
+  {
+    "arm": "r7_sw_pi05_sp_50",
+    "path": "/tmp/r7_C2/fits/r7_sw_pi05_sp_50.pkl",
+    "bytes": 33276967,
+    "metric_width": 72,
+    "stage_calibration": {
+      "convention": "frozen-A candidate-LOEO, successful even-row sources; maximum over reference commitment",
+      "anchors": 390,
+      "attempted_anchors": 526,
+      "episodes": 49,
+      "q_row95": 0.34230940510579827,
+      "q_episode95": 0.6083156656554503,
+      "reference_controls": 10
+    },
+    "elapsed_s": 0.4492880640318617
+  },
+  {
+    "arm": "r7_sf_sw_pi05_sp_50",
+    "path": "/tmp/r7_C2/fits/r7_sf_sw_pi05_sp_50.pkl",
+    "bytes": 33373148,
+    "metric_width": 72,
+    "stage_calibration": {
+      "convention": "frozen-A candidate-LOEO, successful even-row sources; maximum over reference commitment",
+      "anchors": 390,
+      "attempted_anchors": 526,
+      "episodes": 49,
+      "q_row95": 0.34230940510579827,
+      "q_episode95": 0.6083156656554503,
+      "reference_controls": 10
+    },
+    "elapsed_s": 0.5706627330509946
+  },
+  {
+    "arm": "r7_sw_pi05_sp_500",
+    "path": "/tmp/r7_C2/fits/r7_sw_pi05_sp_500.pkl",
+    "bytes": 80130012,
+    "metric_width": 72,
+    "stage_calibration": {
+      "convention": "frozen-A candidate-LOEO, successful even-row sources; maximum over reference commitment",
+      "anchors": 4521,
+      "attempted_anchors": 5296,
+      "episodes": 487,
+      "q_row95": 0.2726420403719471,
+      "q_episode95": 0.47206900272149277,
+      "reference_controls": 10
+    },
+    "elapsed_s": 5.525006568990648
+  },
+  {
+    "arm": "r7_sf_sw_pi05_sp_500",
+    "path": "/tmp/r7_C2/fits/r7_sf_sw_pi05_sp_500.pkl",
+    "bytes": 81136190,
+    "metric_width": 72,
+    "stage_calibration": {
+      "convention": "frozen-A candidate-LOEO, successful even-row sources; maximum over reference commitment",
+      "anchors": 4521,
+      "attempted_anchors": 5296,
+      "episodes": 487,
+      "q_row95": 0.2726420403719471,
+      "q_episode95": 0.47206900272149277,
+      "reference_controls": 10
+    },
+    "elapsed_s": 5.8764505829894915
+  }
+]

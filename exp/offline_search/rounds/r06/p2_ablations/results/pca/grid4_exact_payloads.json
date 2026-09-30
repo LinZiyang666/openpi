@@ -1,0 +1,79 @@
+{
+ "PASS": true,
+ "all_extras_including_still_equal": true,
+ "cells": [
+  {
+   "model": "pi05",
+   "suite": "l10",
+   "scale": 50,
+   "queries": {
+    "cache": 347,
+    "inf": 343
+   }
+  },
+  {
+   "model": "pi05",
+   "suite": "l10",
+   "scale": 500,
+   "queries": {
+    "cache": 347,
+    "inf": 343
+   }
+  },
+  {
+   "model": "pi05",
+   "suite": "spatial",
+   "scale": 50,
+   "queries": {
+    "cache": 338,
+    "inf": 337
+   }
+  },
+  {
+   "model": "pi05",
+   "suite": "spatial",
+   "scale": 500,
+   "queries": {
+    "cache": 338,
+    "inf": 337
+   }
+  },
+  {
+   "model": "groot",
+   "suite": "l10",
+   "scale": 50,
+   "queries": {
+    "cache": 345,
+    "inf": 344
+   }
+  },
+  {
+   "model": "groot",
+   "suite": "l10",
+   "scale": 500,
+   "queries": {
+    "cache": 345,
+    "inf": 344
+   }
+  },
+  {
+   "model": "groot",
+   "suite": "spatial",
+   "scale": 50,
+   "queries": {
+    "cache": 343,
+    "inf": 337
+   }
+  },
+  {
+   "model": "groot",
+   "suite": "spatial",
+   "scale": 500,
+   "queries": {
+    "cache": 343,
+    "inf": 337
+   }
+  }
+ ],
+ "queries": 5468
+}

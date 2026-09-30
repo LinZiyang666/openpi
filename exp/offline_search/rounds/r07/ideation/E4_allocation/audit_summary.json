@@ -1,0 +1,8 @@
+{
+  "episodes": 4000,
+  "decisions": 163316,
+  "vision_anchors": 82534,
+  "phase_intervals_containing_zero": 24,
+  "refit_intervals_containing_zero": 8,
+  "same_best_destination": 4
+}

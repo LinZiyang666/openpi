@@ -1,0 +1,11 @@
+{
+ "source": "/home/weiland/projects/openpi/exp/offline_search/rounds/r06/p3_profiling/chain_p3.sh",
+ "source_sha256": "d8124f111b1c2524cc471667dd8e2d13aaa9881f19c02095377fb2f54fdd8ade",
+ "generated_sha256": "a77bd562a18f66049610f585ab7bfeb3a2b6b47d6105724e5ede97655872157d",
+ "executed": false,
+ "changes": [
+  "ordinary plugin arms; only remote launcher changed to B-val wrapper",
+  "helper CPU affinity",
+  "stream required before any launch"
+ ]
+}

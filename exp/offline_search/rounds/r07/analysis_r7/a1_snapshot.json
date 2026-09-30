@@ -1,0 +1,782 @@
+{
+  "schema": "r7.a1.v1",
+  "phase": "final",
+  "snapshot_CDT": "2026-09-30T05:59:26.910508-05:00",
+  "inventory_CDT": "2026-09-30T05:59:26.910508-05:00",
+  "run_root": "/home/weiland/trace_runs/os_closed_loop/r07_main",
+  "evaluation_complete": true,
+  "expected_arms": 28,
+  "complete_arms": 28,
+  "missing_arms": [],
+  "invalid_arms": [],
+  "conventions": {
+    "bootstrap": "10,000 draws, seed 20260930; fixed tasks, paired init resampling; A/B three-replicate means per pair",
+    "pooling": "equal-cell mean; independent cell resamples within each contrast, as R6 ops/c_validation.py",
+    "IR": "ratio of total owner cost to nominal five-control blocks; A/B arithmetic mean of three ledger ratios",
+    "rule2_no_significant_loss": "pooled SF-A two-sided 95% bootstrap upper endpoint >= 0; not equivalence or rule-1 NI",
+    "rule4_cost_matching": "SELECTION section 8 pre-CT clarification: every cell must have |CT-CU aggregate owner IR| <= .015; pooled mean delta and equal-episode means are descriptive, not alternative acceptance gates",
+    "frontier": "frozen R6 frontier_final eligible single-run points and shared pure references; strict dominance, ties retained; no convex interpolation",
+    "NI": "Q2 conservative CP_lower(wins)-CP_upper(losses), alpha .05, margin .02; fractional means not passed to binary tests",
+    "SW": "actual camera counters / owner_cost; wrist .055198 and completion .049890 use the R4 proportional-latency assumption; full-camera counterfactual and stock ledger also shown",
+    "physical_controls": "nominal requested blocks only; no inferred actual-control denominator"
+  },
+  "inventory": [
+    {
+      "cell": "pi05_l10_50",
+      "variant": "SF1",
+      "arm": "r7_pi05_l10_50_SF1",
+      "status": "complete",
+      "done_markers": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/state/r7_pi05_l10_50_SF1.DONE",
+          "bytes": 0,
+          "mtime_ns": 1790757866442036240
+        }
+      ],
+      "summary_present": true
+    },
+    {
+      "cell": "pi05_l10_50",
+      "variant": "UF1",
+      "arm": "r7_pi05_l10_50_UF1",
+      "status": "complete",
+      "done_markers": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/state/r7_pi05_l10_50_UF1.DONE",
+          "bytes": 0,
+          "mtime_ns": 1790759614413246303
+        }
+      ],
+      "summary_present": true
+    },
+    {
+      "cell": "pi05_l10_50",
+      "variant": "SW",
+      "arm": "r7_sw_pi05_l10_50",
+      "status": "complete",
+      "done_markers": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/state/r7_sw_pi05_l10_50.DONE",
+          "bytes": 0,
+          "mtime_ns": 1790765268024318763
+        }
+      ],
+      "summary_present": true
+    },
+    {
+      "cell": "pi05_l10_50",
+      "variant": "CU30",
+      "arm": "r7_pi05_l10_50_CU30",
+      "status": "complete",
+      "done_markers": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/state/r7_pi05_l10_50_CU30.manifest_11643c404ab59393af09ba1589a14d643dee6600d8b1f1045c71ae81b4090433.DONE",
+          "bytes": 0,
+          "mtime_ns": 1790757380463868024
+        }
+      ],
+      "summary_present": true
+    },
+    {
+      "cell": "pi05_l10_50",
+      "variant": "CT30",
+      "arm": "r7_pi05_l10_50_CT30",
+      "status": "complete",
+      "done_markers": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/state/r7_pi05_l10_50_CT30.manifest_11643c404ab59393af09ba1589a14d643dee6600d8b1f1045c71ae81b4090433.DONE",
+          "bytes": 0,
+          "mtime_ns": 1790763677061436347
+        }
+      ],
+      "summary_present": true
+    },
+    {
+      "cell": "pi05_l10_500",
+      "variant": "SF1",
+      "arm": "r7_pi05_l10_500_SF1",
+      "status": "complete",
+      "done_markers": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/state/r7_pi05_l10_500_SF1.DONE",
+          "bytes": 0,
+          "mtime_ns": 1790758466074545725
+        }
+      ],
+      "summary_present": true
+    },
+    {
+      "cell": "pi05_l10_500",
+      "variant": "UF1",
+      "arm": "r7_pi05_l10_500_UF1",
+      "status": "complete",
+      "done_markers": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/state/r7_pi05_l10_500_UF1.DONE",
+          "bytes": 0,
+          "mtime_ns": 1790760840605695522
+        }
+      ],
+      "summary_present": true
+    },
+    {
+      "cell": "pi05_l10_500",
+      "variant": "SW",
+      "arm": "r7_sw_pi05_l10_500",
+      "status": "complete",
+      "done_markers": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/state/r7_sw_pi05_l10_500.DONE",
+          "bytes": 0,
+          "mtime_ns": 1790765249114309532
+        }
+      ],
+      "summary_present": true
+    },
+    {
+      "cell": "pi05_spatial_50",
+      "variant": "SF1",
+      "arm": "r7_pi05_spatial_50_SF1",
+      "status": "complete",
+      "done_markers": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/state/r7_pi05_spatial_50_SF1.DONE",
+          "bytes": 0,
+          "mtime_ns": 1790760582455603892
+        }
+      ],
+      "summary_present": true
+    },
+    {
+      "cell": "pi05_spatial_50",
+      "variant": "UF1",
+      "arm": "r7_pi05_spatial_50_UF1",
+      "status": "complete",
+      "done_markers": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/state/r7_pi05_spatial_50_UF1.DONE",
+          "bytes": 0,
+          "mtime_ns": 1790762040505189812
+        }
+      ],
+      "summary_present": true
+    },
+    {
+      "cell": "pi05_spatial_50",
+      "variant": "SW",
+      "arm": "r7_sw_pi05_sp_50",
+      "status": "complete",
+      "done_markers": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/state/r7_sw_pi05_sp_50.DONE",
+          "bytes": 0,
+          "mtime_ns": 1790765014038190192
+        }
+      ],
+      "summary_present": true
+    },
+    {
+      "cell": "pi05_spatial_50",
+      "variant": "CU30",
+      "arm": "r7_pi05_spatial_50_CU30",
+      "status": "complete",
+      "done_markers": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/state/r7_pi05_spatial_50_CU30.manifest_11643c404ab59393af09ba1589a14d643dee6600d8b1f1045c71ae81b4090433.DONE",
+          "bytes": 0,
+          "mtime_ns": 1790756709509589600
+        }
+      ],
+      "summary_present": true
+    },
+    {
+      "cell": "pi05_spatial_50",
+      "variant": "CT30",
+      "arm": "r7_pi05_spatial_50_CT30",
+      "status": "complete",
+      "done_markers": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/state/r7_pi05_spatial_50_CT30.manifest_11643c404ab59393af09ba1589a14d643dee6600d8b1f1045c71ae81b4090433.DONE",
+          "bytes": 0,
+          "mtime_ns": 1790763193309292763
+        }
+      ],
+      "summary_present": true
+    },
+    {
+      "cell": "pi05_spatial_500",
+      "variant": "SF1",
+      "arm": "r7_pi05_spatial_500_SF1",
+      "status": "complete",
+      "done_markers": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/state/r7_pi05_spatial_500_SF1.DONE",
+          "bytes": 0,
+          "mtime_ns": 1790761566515987835
+        }
+      ],
+      "summary_present": true
+    },
+    {
+      "cell": "pi05_spatial_500",
+      "variant": "UF1",
+      "arm": "r7_pi05_spatial_500_UF1",
+      "status": "complete",
+      "done_markers": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/state/r7_pi05_spatial_500_UF1.DONE",
+          "bytes": 0,
+          "mtime_ns": 1790762346317176206
+        }
+      ],
+      "summary_present": true
+    },
+    {
+      "cell": "pi05_spatial_500",
+      "variant": "SW",
+      "arm": "r7_sw_pi05_sp_500",
+      "status": "complete",
+      "done_markers": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/state/r7_sw_pi05_sp_500.DONE",
+          "bytes": 0,
+          "mtime_ns": 1790765672806507661
+        }
+      ],
+      "summary_present": true
+    },
+    {
+      "cell": "groot_l10_50",
+      "variant": "SF1",
+      "arm": "r7_groot_l10_50_SF1",
+      "status": "complete",
+      "done_markers": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/state/r7_groot_l10_50_SF1.DONE",
+          "bytes": 0,
+          "mtime_ns": 1790759264152062688
+        }
+      ],
+      "summary_present": true
+    },
+    {
+      "cell": "groot_l10_50",
+      "variant": "UF1",
+      "arm": "r7_groot_l10_50_UF1",
+      "status": "complete",
+      "done_markers": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/state/r7_groot_l10_50_UF1.DONE",
+          "bytes": 0,
+          "mtime_ns": 1790761088430791330
+        }
+      ],
+      "summary_present": true
+    },
+    {
+      "cell": "groot_l10_50",
+      "variant": "CU30",
+      "arm": "r7_groot_l10_50_CU30",
+      "status": "complete",
+      "done_markers": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/state/r7_groot_l10_50_CU30.manifest_11643c404ab59393af09ba1589a14d643dee6600d8b1f1045c71ae81b4090433.DONE",
+          "bytes": 0,
+          "mtime_ns": 1790759557618217324
+        }
+      ],
+      "summary_present": true
+    },
+    {
+      "cell": "groot_l10_50",
+      "variant": "CT30",
+      "arm": "r7_groot_l10_50_CT30",
+      "status": "complete",
+      "done_markers": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/state/r7_groot_l10_50_CT30.manifest_11643c404ab59393af09ba1589a14d643dee6600d8b1f1045c71ae81b4090433.DONE",
+          "bytes": 0,
+          "mtime_ns": 1790765490436424304
+        }
+      ],
+      "summary_present": true
+    },
+    {
+      "cell": "groot_l10_500",
+      "variant": "SF1",
+      "arm": "r7_groot_l10_500_SF1",
+      "status": "complete",
+      "done_markers": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/state/r7_groot_l10_500_SF1.DONE",
+          "bytes": 0,
+          "mtime_ns": 1790759508916192267
+        }
+      ],
+      "summary_present": true
+    },
+    {
+      "cell": "groot_l10_500",
+      "variant": "UF1",
+      "arm": "r7_groot_l10_500_UF1",
+      "status": "complete",
+      "done_markers": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/state/r7_groot_l10_500_UF1.DONE",
+          "bytes": 0,
+          "mtime_ns": 1790761138498811328
+        }
+      ],
+      "summary_present": true
+    },
+    {
+      "cell": "groot_spatial_50",
+      "variant": "SF1",
+      "arm": "r7_groot_spatial_50_SF1",
+      "status": "complete",
+      "done_markers": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/state/r7_groot_spatial_50_SF1.DONE",
+          "bytes": 0,
+          "mtime_ns": 1790761368732905250
+        }
+      ],
+      "summary_present": true
+    },
+    {
+      "cell": "groot_spatial_50",
+      "variant": "UF1",
+      "arm": "r7_groot_spatial_50_UF1",
+      "status": "complete",
+      "done_markers": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/state/r7_groot_spatial_50_UF1.DONE",
+          "bytes": 0,
+          "mtime_ns": 1790762219772194426
+        }
+      ],
+      "summary_present": true
+    },
+    {
+      "cell": "groot_spatial_50",
+      "variant": "CU30",
+      "arm": "r7_groot_spatial_50_CU30",
+      "status": "complete",
+      "done_markers": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/state/r7_groot_spatial_50_CU30.manifest_11643c404ab59393af09ba1589a14d643dee6600d8b1f1045c71ae81b4090433.DONE",
+          "bytes": 0,
+          "mtime_ns": 1790757316358844533
+        }
+      ],
+      "summary_present": true
+    },
+    {
+      "cell": "groot_spatial_50",
+      "variant": "CT30",
+      "arm": "r7_groot_spatial_50_CT30",
+      "status": "complete",
+      "done_markers": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/state/r7_groot_spatial_50_CT30.manifest_11643c404ab59393af09ba1589a14d643dee6600d8b1f1045c71ae81b4090433.DONE",
+          "bytes": 0,
+          "mtime_ns": 1790764167784600639
+        }
+      ],
+      "summary_present": true
+    },
+    {
+      "cell": "groot_spatial_500",
+      "variant": "SF1",
+      "arm": "r7_groot_spatial_500_SF1",
+      "status": "complete",
+      "done_markers": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/state/r7_groot_spatial_500_SF1.DONE",
+          "bytes": 0,
+          "mtime_ns": 1790761934157144156
+        }
+      ],
+      "summary_present": true
+    },
+    {
+      "cell": "groot_spatial_500",
+      "variant": "UF1",
+      "arm": "r7_groot_spatial_500_UF1",
+      "status": "complete",
+      "done_markers": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/state/r7_groot_spatial_500_UF1.DONE",
+          "bytes": 0,
+          "mtime_ns": 1790762659465183901
+        }
+      ],
+      "summary_present": true
+    }
+  ],
+  "acceptance": {
+    "1": {
+      "rule": "Pooled 8-cell SR(SF)-SR(A) 95% lower bound > -0.010 and IR lower than A in at least 6/8 cells.",
+      "verdict": "not supported",
+      "contrasts": [
+        "SF1-A"
+      ],
+      "lower_IR_cells": 8
+    },
+    "2": {
+      "rule": "Pooled SR(SF)-SR(UF) lower bound > 0, OR SF has no significant loss versus A while UF has pooled lower bound < -0.010.",
+      "verdict": "supported",
+      "contrasts": [
+        "SF1-UF1",
+        "SF1-A",
+        "UF1-A"
+      ],
+      "direct_SF_UF_branch": true,
+      "SF_no_significant_loss": false,
+      "UF_lower_below_minus_1pp": true,
+      "fallback": "Otherwise the lever works (or not) without the stage signal."
+    },
+    "3": {
+      "rule": "Pooled 4-cell SR(SW)-SR(A) lower bound > -0.015 and IR lower in 4/4 pi05 cells.",
+      "verdict": "supported",
+      "contrasts": [
+        "SW-A"
+      ],
+      "lower_IR_cells": 4
+    },
+    "4": {
+      "rule": "Pooled 4-cell SR(CT)-SR(CU) lower bound > 0 at |delta aggregate owner IR| <= 0.015 in every cell.",
+      "verdict": "supported",
+      "contrasts": [
+        "CT30-CU30"
+      ],
+      "SR_lower_positive": true,
+      "all_cell_cost_match": true,
+      "unmatched_cells": [],
+      "cell_cost_verdict": {
+        "pi05_l10_50": "IR matched",
+        "pi05_spatial_50": "IR matched",
+        "groot_l10_50": "IR matched",
+        "groot_spatial_50": "IR matched"
+      },
+      "cost_scope": "SELECTION section 8 pre-CT clarification: every cell must have |CT-CU aggregate owner IR| <= .015; pooled mean delta and equal-episode means are descriptive, not alternative acceptance gates"
+    },
+    "5": {
+      "rule": "Each R7 point moves the frontier only if non-dominated by R6 single-run points; show CP NI bound, no certified NI claim.",
+      "verdict": "reported pointwise",
+      "certified_NI_claim": false
+    }
+  },
+  "pooled": {
+    "SF1-A": {
+      "status": "complete",
+      "cells": [
+        "pi05_l10_50",
+        "pi05_l10_500",
+        "pi05_spatial_50",
+        "pi05_spatial_500",
+        "groot_l10_50",
+        "groot_l10_500",
+        "groot_spatial_50",
+        "groot_spatial_500"
+      ],
+      "candidate": "SF1",
+      "reference": "A",
+      "delta_SR": {
+        "estimate": -0.01775,
+        "lo": -0.028083333333333328,
+        "hi": -0.0075833333333333326,
+        "draws": 10000,
+        "seed": 20260930,
+        "cells": 8,
+        "n_pairs_per_cell": [
+          500,
+          500,
+          500,
+          500,
+          500,
+          500,
+          500,
+          500
+        ]
+      },
+      "delta_owner_IR_by_cell": {
+        "pi05_l10_50": -0.011838021406654242,
+        "pi05_l10_500": -0.007574951083803058,
+        "pi05_spatial_50": -0.012056449969197039,
+        "pi05_spatial_500": -0.017728837501583383,
+        "groot_l10_50": -0.008756438916846437,
+        "groot_l10_500": -0.0060947671939919346,
+        "groot_spatial_50": -0.0119165646340951,
+        "groot_spatial_500": -0.011401711676023066
+      },
+      "delta_owner_IR_pooled": -0.010920967797774283
+    },
+    "UF1-A": {
+      "status": "complete",
+      "cells": [
+        "pi05_l10_50",
+        "pi05_l10_500",
+        "pi05_spatial_50",
+        "pi05_spatial_500",
+        "groot_l10_50",
+        "groot_l10_500",
+        "groot_spatial_50",
+        "groot_spatial_500"
+      ],
+      "candidate": "UF1",
+      "reference": "A",
+      "delta_SR": {
+        "estimate": -0.0375,
+        "lo": -0.04899999999999999,
+        "hi": -0.026249999999999996,
+        "draws": 10000,
+        "seed": 20260930,
+        "cells": 8,
+        "n_pairs_per_cell": [
+          500,
+          500,
+          500,
+          500,
+          500,
+          500,
+          500,
+          500
+        ]
+      },
+      "delta_owner_IR_by_cell": {
+        "pi05_l10_50": -0.01912852664531664,
+        "pi05_l10_500": -0.023267644741275927,
+        "pi05_spatial_50": -0.01729568683201265,
+        "pi05_spatial_500": -0.02253356329868978,
+        "groot_l10_50": -0.01927990011067183,
+        "groot_l10_500": -0.022345160348478513,
+        "groot_spatial_50": -0.01684101516257131,
+        "groot_spatial_500": -0.021374511184312633
+      },
+      "delta_owner_IR_pooled": -0.02025825104041616
+    },
+    "SF1-UF1": {
+      "status": "complete",
+      "cells": [
+        "pi05_l10_50",
+        "pi05_l10_500",
+        "pi05_spatial_50",
+        "pi05_spatial_500",
+        "groot_l10_50",
+        "groot_l10_500",
+        "groot_spatial_50",
+        "groot_spatial_500"
+      ],
+      "candidate": "SF1",
+      "reference": "UF1",
+      "delta_SR": {
+        "estimate": 0.019749999999999997,
+        "lo": 0.00875,
+        "hi": 0.03075,
+        "draws": 10000,
+        "seed": 20260930,
+        "cells": 8,
+        "n_pairs_per_cell": [
+          500,
+          500,
+          500,
+          500,
+          500,
+          500,
+          500,
+          500
+        ]
+      },
+      "delta_owner_IR_by_cell": {
+        "pi05_l10_50": 0.007290505238662398,
+        "pi05_l10_500": 0.01569269365747287,
+        "pi05_spatial_50": 0.005239236862815612,
+        "pi05_spatial_500": 0.0048047257971063975,
+        "groot_l10_50": 0.010523461193825391,
+        "groot_l10_500": 0.016250393154486578,
+        "groot_spatial_50": 0.004924450528476211,
+        "groot_spatial_500": 0.009972799508289568
+      },
+      "delta_owner_IR_pooled": 0.009337283242641877,
+      "equal_episode_IR_by_cell": {
+        "pi05_l10_50": {
+          "SF1": 0.06344828469866048,
+          "UF1": 0.056235236841018124
+        },
+        "pi05_l10_500": {
+          "SF1": 0.06774039011129841,
+          "UF1": 0.053152108772049594
+        },
+        "pi05_spatial_50": {
+          "SF1": 0.06442721060780769,
+          "UF1": 0.05893913183752958
+        },
+        "pi05_spatial_500": {
+          "SF1": 0.06029889985272254,
+          "UF1": 0.05547052165676693
+        },
+        "groot_l10_50": {
+          "SF1": 0.06424375099820276,
+          "UF1": 0.054240179735380666
+        },
+        "groot_l10_500": {
+          "SF1": 0.0669536833810622,
+          "UF1": 0.05190873811354743
+        },
+        "groot_spatial_50": {
+          "SF1": 0.06253200628986982,
+          "UF1": 0.05724808379518169
+        },
+        "groot_spatial_500": {
+          "SF1": 0.06403098338369317,
+          "UF1": 0.053868538298680824
+        }
+      },
+      "equal_episode_IR_pooled": {
+        "SF1": 0.06420940116541463,
+        "UF1": 0.05513281738126936
+      },
+      "delta_equal_episode_IR_pooled": 0.009076583784145269
+    },
+    "SW-A": {
+      "status": "complete",
+      "cells": [
+        "pi05_l10_50",
+        "pi05_l10_500",
+        "pi05_spatial_50",
+        "pi05_spatial_500"
+      ],
+      "candidate": "SW",
+      "reference": "A",
+      "delta_SR": {
+        "estimate": -0.0004999999999999944,
+        "lo": -0.013999999999999993,
+        "hi": 0.012833333333333337,
+        "draws": 10000,
+        "seed": 20260930,
+        "cells": 4,
+        "n_pairs_per_cell": [
+          500,
+          500,
+          500,
+          500
+        ]
+      },
+      "delta_owner_IR_by_cell": {
+        "pi05_l10_50": -0.01479404000001592,
+        "pi05_l10_500": -0.010138482657751427,
+        "pi05_spatial_50": -0.014985974567883156,
+        "pi05_spatial_500": -0.02241917825643138
+      },
+      "delta_owner_IR_pooled": -0.015584418870520471
+    },
+    "CT30-CU30": {
+      "status": "complete",
+      "cells": [
+        "pi05_l10_50",
+        "pi05_spatial_50",
+        "groot_l10_50",
+        "groot_spatial_50"
+      ],
+      "candidate": "CT30",
+      "reference": "CU30",
+      "delta_SR": {
+        "estimate": 0.027000000000000003,
+        "lo": 0.0105,
+        "hi": 0.04351249999999982,
+        "draws": 10000,
+        "seed": 20260930,
+        "cells": 4,
+        "n_pairs_per_cell": [
+          500,
+          500,
+          500,
+          500
+        ]
+      },
+      "delta_owner_IR_by_cell": {
+        "pi05_l10_50": 0.0073679126993934085,
+        "pi05_spatial_50": -0.009470632521263178,
+        "groot_l10_50": -0.0016360811833497912,
+        "groot_spatial_50": 0.005899062463970761
+      },
+      "delta_owner_IR_pooled": 0.0005400653646878001,
+      "equal_episode_IR_by_cell": {
+        "pi05_l10_50": {
+          "CT30": 0.3072151867907655,
+          "CU30": 0.3008431511338464
+        },
+        "pi05_spatial_50": {
+          "CT30": 0.2865582412845875,
+          "CU30": 0.29652744464928305
+        },
+        "groot_l10_50": {
+          "CT30": 0.2981916917342071,
+          "CU30": 0.3017893490468091
+        },
+        "groot_spatial_50": {
+          "CT30": 0.3064216616050905,
+          "CU30": 0.30099608940332834
+        }
+      },
+      "equal_episode_IR_pooled": {
+        "CT30": 0.2995966953536627,
+        "CU30": 0.3000390085583167
+      },
+      "delta_equal_episode_IR_pooled": -0.00044231320465404345
+    }
+  },
+  "r6_validation": {
+    "status": "ok",
+    "references_checked": 84,
+    "cells_checked": 8,
+    "frozen_points": 325,
+    "mismatches": [],
+    "sources": [
+      {
+        "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r06/frontier_final/frontier_data.json",
+        "bytes": 548298,
+        "mtime_ns": 1790706418961694698,
+        "sha256": "e6bd70d16ec82e2373955af14e7478fc7f85da7d4feb4286f3872278f04ab798"
+      },
+      {
+        "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r06/frontier_final/outcomes.json",
+        "bytes": 2346380,
+        "mtime_ns": 1790706403783690979,
+        "sha256": "ab4c696da6a48f6d1b486249b57d034dbdb28df8ad992d906d2f99544d9b508a"
+      }
+    ]
+  },
+  "chain_exception_audit": {
+    "status": "ok",
+    "source": {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/runs/chain.log",
+      "bytes": 23485,
+      "mtime_ns": 1790765672809507663
+    },
+    "events": [],
+    "per_arm": {}
+  },
+  "scripts": [
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r07/analysis_scripts/a1_analyze.py",
+      "bytes": 21579,
+      "mtime_ns": 1790765965873637782,
+      "sha256": "81b0a4c6da78344a1e8f83a40b03b47cc393bef154a6cc3a74b7c24c78567777"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r07/analysis_scripts/a1_common.py",
+      "bytes": 26087,
+      "mtime_ns": 1790765965820637759,
+      "sha256": "af005e5ac99ac7f172694d474c497458c1018092ebba360ecfe4a45c8077b322"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r07/analysis_scripts/a1_validate.py",
+      "bytes": 17864,
+      "mtime_ns": 1790765930814622401,
+      "sha256": "d722383ec071397afa6745e30f909c7ade77d1c95fe7ef0365875366c2c04801"
+    }
+  ],
+  "no_conclusions_in_phase1": true
+}

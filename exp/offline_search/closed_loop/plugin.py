@@ -116,6 +116,8 @@ def build_parser() -> argparse.ArgumentParser:
                     help="after a forced MISS (extras os_force_miss == 1) MISS the next n-1 decisions too (1 = off)")
     ap.add_argument("--os-blind", action="store_true",
                     help="enable pre-inference blind_step serving and R4 decision logs")
+    ap.add_argument("--os-request-cameras", action="store_true",
+                    help="pi05 only: method declares next_camera_mode before request stage 1; completes on MISS")
     ap.add_argument("--os-policy-tail", action="store_true",
                     help="allow method-approved reuse of a MISS wire tail; requires --os-blind and a five-step client")
     ap.add_argument("--os-policy-tail-blocks", type=int, choices=(1, 2), default=None,
@@ -149,6 +151,8 @@ def parse_cli(argv):
         raise SystemExit("--os-judge needs a method (--os-method native keeps the native judge)")
     if opts.os_blind and opts.os_method == "native":
         raise SystemExit("--os-blind requires a method")
+    if opts.os_request_cameras and (not opts.os_blind or not opts.os_no_shadow_native or opts.os_tokens != "off"):
+        raise SystemExit("--os-request-cameras requires --os-blind --os-no-shadow-native --os-tokens off")
     if opts.os_policy_tail and not opts.os_blind:
         raise SystemExit("--os-policy-tail requires --os-blind")
     if opts.os_policy_tail_blocks is not None and not opts.os_policy_tail:
@@ -426,6 +430,9 @@ class PluginRuntime:
         self.api, self.dims, self.store = api, dims, store
         self.opts = opts
         self.blind = bool(getattr(opts, "os_blind", False))
+        self.request_cameras = bool(getattr(opts, "os_request_cameras", False))
+        if self.request_cameras and model != "pi05":
+            raise ValueError("request cameras unavailable for GR00T: no validated one-camera encoder path")
         self.policy_tail = bool(getattr(opts, "os_policy_tail", False))
         self.policy_tail_blocks = getattr(opts, "os_policy_tail_blocks", None) or 1
         if self.policy_tail and (not self.blind or model not in ("pi05", "groot")):
@@ -499,6 +506,8 @@ class PluginRuntime:
             self.ctrl = QuantileController(self.judge.h, self.judge.W, self.judge.tau0)
         if not self.native_mode:
             self._load_and_fit()
+        if self.request_cameras and not callable(getattr(self.method, "set_camera_mode", None)):
+            raise ValueError("request cameras requires method.set_camera_mode and next_camera_mode")
         if getattr(opts, "os_gpu_retrieval", None):
             from exp.offline_search.rounds.r05.q5_gpu.dev.gpu_retrieval import DeviceRuntime
             self.gpu = DeviceRuntime(self)
@@ -527,6 +536,8 @@ class PluginRuntime:
                                          replicate=opts.os_rand_replicate, propensity=0.5)
         if self.gpu is not None:
             row["gpu_retrieval"] = self.gpu.info
+        if self.request_cameras:
+            row.update(request_cameras=True, stage1_mode="per_request", camera_cost_basis="R4 proportional-latency assumption")
         self.emit(row)
         log.info("osplug ready: method=%s cell=%s L=%d libs=%s log=%s", self.method_name, self.cell, self.L,
                  self.lib_sizes, self.dec_path)
@@ -1095,6 +1106,20 @@ class PluginSession:
         rt = self.rt
         m = self.ep_meta
         ex = d.get("extras") or {}
+        if getattr(rt, "request_cameras", False):
+            # Actual dispatch/verdict, not the method's forecast. Prepend so these
+            # costs survive the scalar cap even when composed with SF.
+            vision = bool(d.get("vision", True))
+            wrist = vision and getattr(self, "_camera_mode", "full") == "wrist_only"
+            miss = vision and not bool(d.get("hit", True))
+            look_cost = (0.055198 if wrist else 0.152) if vision else 0.0
+            work = getattr(self, "_camera_work", {}) if vision else {}
+            completion = 0.049890 * work.get("completions", 0)
+            call_cost = 0.848 if miss else 0.0
+            actual = {"os_sw_camera": float(wrist), "os_sw_look_cost": look_cost,
+                  "os_sw_completion_cost": completion, "os_sw_call_cost": call_cost,
+                  "os_sw_decision_cost": look_cost + completion + call_cost}
+            ex = {**actual, **{k: v for k, v in ex.items() if k not in actual}}
         exs = {}
         mixed = rt.judge is not None
         if mixed:
@@ -1157,6 +1182,12 @@ class PluginSession:
             self.blind_age = 0 if vision else self._age_before + 1
         if rt.randomized:
             row.update(d["randomization"])
+        if getattr(rt, "request_cameras", False):
+            row.update(camera_mode=getattr(self, "_camera_mode", "full") if d.get("vision", True) else "blind",
+                       stage1_mode=getattr(self, "_camera_mode", "full") if d.get("vision", True) else "full",
+                       camera_completion=bool(ex["os_sw_completion_cost"]),
+                       camera_completion_calls=work.get("completions", 0), camera_stage1_calls=work.get("looks", 0),
+                       owner_cost=ex["os_sw_decision_cost"], camera_cost_assumption="R4 proportional-latency")
         if "gpu_retrieval" in d:
             row["gpu_retrieval"] = d["gpu_retrieval"]
         if err:
@@ -1591,6 +1622,9 @@ class _BlindAdapter:
         def counted(*args, **kwargs):
             t0 = time.perf_counter_ns()
             self.s.stage1_calls += 1
+            if getattr(self.s.rt, "request_cameras", False) and not self.fake:
+                from exp.offline_search.closed_loop.stage_overrides import CameraRequest
+                args = (CameraRequest(args[0], self.s._camera_mode, self.s._camera_work), *args[1:])
             out = fn(*args, **kwargs)
             # Stage functions may enqueue CUDA work; opt-in diagnostics time its completion.
             torch = sys.modules.get("torch")
@@ -1896,6 +1930,17 @@ class _ConnPolicy:
                     with adapter.lock:
                         out = _try_blind(s, adapter, obs)
                 if out is None:
+                    if getattr(s.rt, "request_cameras", False):
+                        mode = getattr(s.method, "next_camera_mode", "full")
+                        # Lifecycle/audit/forced LOOKs unresolved by the method
+                        # always retain every camera.
+                        if s.step == 0 or s._look_reason in (6, 7, 8):
+                            mode = "full"
+                        if mode not in ("full", "wrist_only"):
+                            raise ValueError(f"invalid next_camera_mode: {mode!r}")
+                        s._camera_mode = mode
+                        s._camera_work = {}
+                        s.method.set_camera_mode(mode)
                     out = self._osp_inner.infer(obs, *a, **kw)
                 if s._dec is not None:
                     s._dec["wire_actions"] = np.asarray(out["actions"]).copy()
@@ -1919,6 +1964,8 @@ class _ConnPolicy:
             return out
         except Exception:
             for session in sessions:
+                if getattr(session.rt, "request_cameras", False):
+                    session.method.invalidate_anchor()
                 if session.rt.gpu is not None:
                     session._gpu_failed = True
                 if session.rt.policy_tail and decision_admitted:
@@ -1957,6 +2004,11 @@ def install(opts, model: str) -> PluginRuntime:
     global RUNTIME
     if RUNTIME is not None:
         raise RuntimeError("osplug already installed")
+    if getattr(opts, "os_request_cameras", False):
+        if model != "pi05":
+            raise SystemExit("--os-request-cameras is pi05 only; GR00T has no validated one-camera path")
+        from exp.offline_search.closed_loop.stage_overrides import install_pi05
+        install_pi05("per_request")
     J = getattr(opts, "judge", None)
     if J is not None and J.can_miss:
         # a MISS runs stage 2/3: refuse the stage-1-only server up front instead of dying on the first MISS

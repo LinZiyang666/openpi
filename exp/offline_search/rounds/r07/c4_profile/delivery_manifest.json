@@ -1,0 +1,196 @@
+{
+ "schema": "r7.c4.delivery.v1",
+ "completed_utc": "2026-09-30T07:21:00.092013+00:00",
+ "files": [
+  {
+   "path": "HANDBACK.md",
+   "bytes": 19190,
+   "sha256": "e79aac06a065daa3af1b6db49bd93e0a237fe1cb0a1b7d8a63d8bcf5e6d385dd"
+  },
+  {
+   "path": "PROFILE_RUN.md",
+   "bytes": 12510,
+   "sha256": "a7a09d7d8ff49541549f041a639931dc5d983d4386a830a4942f8c2a9c196651"
+  },
+  {
+   "path": "README.md",
+   "bytes": 9997,
+   "sha256": "bda4d655b993572ebd944b697f029d4e88b5bff14f772c05817e645d2aa4d414"
+  },
+  {
+   "path": "__init__.py",
+   "bytes": 73,
+   "sha256": "41a6b012534813869bdb223516ae83e75bc1ad56de9c1f48fbdbad3312d01ed0"
+  },
+  {
+   "path": "camera_audit.py",
+   "bytes": 10853,
+   "sha256": "ced2dd251f190a1796e3fdda93b7cb02f0bb5f5333948ace6e534847367125a9"
+  },
+  {
+   "path": "common.py",
+   "bytes": 9438,
+   "sha256": "ddd96734c8d5fe7294de783eb5ad5067cd81e528d3c3c2fbed80769d42a368c1"
+  },
+  {
+   "path": "failure_clock.py",
+   "bytes": 7094,
+   "sha256": "66d3018a9424d0d46c0b65a814c0d2348487da16b9652ffb0377a24086fe197e"
+  },
+  {
+   "path": "follow_audit.py",
+   "bytes": 7369,
+   "sha256": "2087d4a27c9a835d3d84047b83c53bc7d8371fb3285808a5478c238f2c0db417"
+  },
+  {
+   "path": "prefit.py",
+   "bytes": 3561,
+   "sha256": "83d531b819ba9bf87b055faf6dc4c1bf639d9b160a31275120adc9ad72f6bc4e"
+  },
+  {
+   "path": "prepare_profile.py",
+   "bytes": 9711,
+   "sha256": "6295cc7bf5fe06f2eb05b057d0ed556d5328ab54b5c7ffa974ab6df571e5c2bb"
+  },
+  {
+   "path": "prepared/arm_names_eval500.txt",
+   "bytes": 688,
+   "sha256": "3a3cd6fe13c711e8271e105f6d7704a2a2e6529bdfd41e07c541b6bd67071fd2"
+  },
+  {
+   "path": "prepared/arm_names_profile.txt",
+   "bytes": 1292,
+   "sha256": "f86a4b4b301153c0f7cb48086ca267603fd54add0b6a540a520c3856519e6beb"
+  },
+  {
+   "path": "prepared/arms_eval500.json",
+   "bytes": 27584,
+   "sha256": "02ebc8896312ad8480d221df614c98364981a9cf44a2ca90fe654ac1eaea00cd"
+  },
+  {
+   "path": "prepared/arms_profile.json",
+   "bytes": 37221,
+   "sha256": "cc60e52022cf83a3d4ae7f2c82ef32621049eb1ec2f8fcf52d1119845f64490f"
+  },
+  {
+   "path": "prepared/chain_profile.sh",
+   "bytes": 13720,
+   "sha256": "a77bd562a18f66049610f585ab7bfeb3a2b6b47d6105724e5ede97655872157d"
+  },
+  {
+   "path": "prepared/launch_source.json",
+   "bytes": 450,
+   "sha256": "00f1d30a8067eda1fb869d4938b3d3584092588c3126a231f743e2db79ea96f7"
+  },
+  {
+   "path": "prepared/manifests/bval_pool_l10.yaml",
+   "bytes": 1943,
+   "sha256": "29f54ac94e8ec3dd92ba8d63918d926a2a8c25ba9fb0e9080a10bf946628921e"
+  },
+  {
+   "path": "prepared/manifests/bval_pool_spatial.yaml",
+   "bytes": 1863,
+   "sha256": "f14a67a6be0dba6f87febfdbf88009fa58ffc893538951b7fd2e28e007c3dcac"
+  },
+  {
+   "path": "prepared/manifests/groot_l10_bval20.json",
+   "bytes": 3290,
+   "sha256": "12a019966f530b3a3a382a773a5c4827f1058c3d6304cecaf89d5fbe21f44491"
+  },
+  {
+   "path": "prepared/manifests/groot_spatial_bval20.json",
+   "bytes": 3308,
+   "sha256": "85f9f51cdbd2723d0cf9e7b20a112d1e5e4a8fe365ba0b74d0e0cdf1ec2b7c18"
+  },
+  {
+   "path": "prepared/manifests/manifest_audit.json",
+   "bytes": 4055,
+   "sha256": "b168f375fc7708db1c0b149bf1f9881661d4c6264826fd2372f62645bdd86cc0"
+  },
+  {
+   "path": "prepared/manifests/pi05_l10_bval20.json",
+   "bytes": 3289,
+   "sha256": "6168c30b73472df1820c030d8f8afccd9837bcbcab7d3121d1e672606851d44a"
+  },
+  {
+   "path": "prepared/manifests/pi05_spatial_bval20.json",
+   "bytes": 3307,
+   "sha256": "d1571dfaa2b9c43ed17829d9ea563f8ddb60598c67241277806ae72646ed7b5f"
+  },
+  {
+   "path": "prepared/pending_variants.json",
+   "bytes": 281,
+   "sha256": "9903f2b8d76cbaa5c01b24c25966ecbcde93d5a09d0c51493c14a1099133575c"
+  },
+  {
+   "path": "prepared/prefit_eval500.sh",
+   "bytes": 10114,
+   "sha256": "2172c0c4998332d246c27c4e80ac5970a79b01ff60c501832258184dc7ca151d"
+  },
+  {
+   "path": "prepared/prefit_profile.sh",
+   "bytes": 14246,
+   "sha256": "c9b137ca583dca36b988c982c255ea4b3d40af9e76aa0e5df343c1efc2a0ca61"
+  },
+  {
+   "path": "prepared/run_arm_bval.sh",
+   "bytes": 909,
+   "sha256": "bd43f643acd43179dc26d071765db381a876624d649cde105690e0600a60b725"
+  },
+  {
+   "path": "prepared/schedule_v2.json",
+   "bytes": 6574,
+   "sha256": "6454a9c144c15961264593459b151b7955071ba0b9f7232bd8d04464d3d3ce89"
+  },
+  {
+   "path": "profile_report.py",
+   "bytes": 12211,
+   "sha256": "cd8d3d118b8e7f44048c21d398861d7e9fa8e2c2e9aaed5b1780a04e8859d363"
+  },
+  {
+   "path": "render_profile.py",
+   "bytes": 2419,
+   "sha256": "9f989eca76ac95a033df2680c004593399deca89b95ebad54b11db225b7cea67"
+  },
+  {
+   "path": "results/headlines.json",
+   "bytes": 109613,
+   "sha256": "4a9984791dc3675f09847421f34049e828d8581410ad90a1b2b32751c362cb9d"
+  },
+  {
+   "path": "results/verification.json",
+   "bytes": 7808,
+   "sha256": "184df63363108e13811a6fe9b925c66d627b05170c664b9974a7fa2c2a2e9176"
+  },
+  {
+   "path": "stage_value.py",
+   "bytes": 9736,
+   "sha256": "4d25ae372ae8fb3a9783935a061ff4ec983454fa0e89d7088e3fc875a210ee6d"
+  },
+  {
+   "path": "telemetry_keys.json",
+   "bytes": 1531,
+   "sha256": "cb1878c5faf41289a1beff3218098a816af58a75e55c1d18ea8b782da73c5994"
+  },
+  {
+   "path": "test_toolkit.py",
+   "bytes": 8579,
+   "sha256": "6fffef4ebb09fd395c2d4e9bfa55d5fd6bdea12687435d746d702be403f792d9"
+  },
+  {
+   "path": "verify_replay.py",
+   "bytes": 1302,
+   "sha256": "81dd80411e070d26ef55337dd727a81e5ac9d2102e739a7f0159a2a35bdbca2a"
+  }
+ ],
+ "imported_source_sha256": {
+  "/home/weiland/projects/openpi/exp/offline_search/rounds/r07/stages/stages.py": "ad6ee8015370b111f1a337b667c07ac7bad20573217d39cc7e4a353e75e99e06",
+  "/home/weiland/projects/openpi/exp/offline_search/rounds/r07/c1_follow/methods.py": "1d8739b53cafffb3eacf097c79bb174d8dd9019e9b3b86f9727d7ffbdd727a9a",
+  "/home/weiland/projects/openpi/exp/offline_search/rounds/r07/c1_follow/replay.py": "01f9e204f12978feaaa95bb70b72f6db2ab1f71382831ebbf8ab8d200a7fc9a6",
+  "/home/weiland/projects/openpi/exp/offline_search/rounds/r07/c2_wrist/method.py": "1629c979d1753d0d598ac980236336a25c794d21533617f68ee18b8c26dcb28a",
+  "/home/weiland/projects/openpi/exp/offline_search/rounds/r07/c3_calls/methods.py": "91d3b43b9a3083b83f0af44e3a2bb49bcf39c786db83f04ff4be65e88a7f3f70",
+  "/home/weiland/projects/openpi/exp/offline_search/closed_loop/plugin.py": "45a807a6b9ab6479d693c0ae95be125dec05547dee2ff228d1c68d5270b3e308"
+ },
+ "shared_file_installs": [],
+ "self_hash_omitted": true
+}

@@ -1,0 +1,769 @@
+[
+ {
+  "spec": "r06_c_validation:r6c_pi05_l10_50_R30",
+  "episodes": 500,
+  "counts": {
+   "decisions": 28997,
+   "vision": 14598,
+   "shadow": 0,
+   "miss": 7477,
+   "policy_tail": 7346,
+   "fresh": 14598,
+   "state_0": 14598,
+   "extra_look": 0,
+   "cooldown_anchor": 0,
+   "call_62": 7477,
+   "terminal_call": 131
+  },
+  "violations": {},
+  "ledger": {
+   "N": 28997,
+   "V": 14598,
+   "M": 7477
+  },
+  "ledger_match": true
+ },
+ {
+  "spec": "r06_c_validation:r6c_pi05_l10_50_U30",
+  "episodes": 500,
+  "counts": {
+   "decisions": 28646,
+   "vision": 14421,
+   "shadow": 0,
+   "miss": 7590,
+   "policy_tail": 7469,
+   "call_61": 7590,
+   "terminal_call": 121
+  },
+  "violations": {},
+  "ledger": {
+   "N": 28646,
+   "V": 14421,
+   "M": 7590
+  },
+  "ledger_match": true
+ },
+ {
+  "spec": "r06_c_validation:r6c_pi05_l10_50_C30",
+  "episodes": 500,
+  "counts": {
+   "decisions": 29111,
+   "vision": 15093,
+   "shadow": 0,
+   "miss": 7613,
+   "policy_tail": 7455,
+   "fresh": 15093,
+   "state_0": 1000,
+   "extra_look": 843,
+   "cooldown_anchor": 1481,
+   "call_62": 6058,
+   "state_1": 9496,
+   "state_3": 2232,
+   "call_63": 1555,
+   "state_2": 2365,
+   "look_reason_8": 823,
+   "ambiguous_call": 1054,
+   "terminal_call": 158
+  },
+  "violations": {},
+  "ledger": {
+   "N": 29111,
+   "V": 15093,
+   "M": 7613
+  },
+  "ledger_match": true
+ },
+ {
+  "spec": "r06_c_validation:r6c_pi05_l10_50_C45",
+  "episodes": 500,
+  "counts": {
+   "decisions": 28163,
+   "vision": 14331,
+   "shadow": 0,
+   "miss": 12633,
+   "policy_tail": 12393,
+   "fresh": 14331,
+   "state_0": 1000,
+   "extra_look": 240,
+   "cooldown_anchor": 1279,
+   "call_62": 11283,
+   "state_1": 9166,
+   "state_3": 2159,
+   "ambiguous_call": 1888,
+   "call_63": 1350,
+   "state_2": 2006,
+   "terminal_call": 240,
+   "look_reason_8": 238
+  },
+  "violations": {},
+  "ledger": {
+   "N": 28163,
+   "V": 14331,
+   "M": 12633
+  },
+  "ledger_match": true
+ },
+ {
+  "spec": "r06_c_validation:r6c_pi05_spatial_50_R30",
+  "episodes": 500,
+  "counts": {
+   "decisions": 11261,
+   "vision": 5751,
+   "shadow": 0,
+   "miss": 2655,
+   "policy_tail": 2508,
+   "fresh": 5751,
+   "state_0": 5751,
+   "extra_look": 0,
+   "cooldown_anchor": 0,
+   "call_62": 2655,
+   "terminal_call": 147
+  },
+  "violations": {},
+  "ledger": {
+   "N": 11261,
+   "V": 5751,
+   "M": 2655
+  },
+  "ledger_match": true
+ },
+ {
+  "spec": "r06_c_validation:r6c_pi05_spatial_50_U30",
+  "episodes": 500,
+  "counts": {
+   "decisions": 11279,
+   "vision": 5759,
+   "shadow": 0,
+   "miss": 2847,
+   "policy_tail": 2744,
+   "call_61": 2847,
+   "terminal_call": 103
+  },
+  "violations": {},
+  "ledger": {
+   "N": 11279,
+   "V": 5759,
+   "M": 2847
+  },
+  "ledger_match": true
+ },
+ {
+  "spec": "r06_c_validation:r6c_pi05_spatial_50_C30",
+  "episodes": 500,
+  "counts": {
+   "decisions": 11124,
+   "vision": 5818,
+   "shadow": 0,
+   "miss": 2739,
+   "policy_tail": 2547,
+   "fresh": 5818,
+   "state_0": 1000,
+   "extra_look": 256,
+   "cooldown_anchor": 284,
+   "state_1": 3682,
+   "call_62": 2418,
+   "state_3": 678,
+   "ambiguous_call": 334,
+   "terminal_call": 192,
+   "call_63": 321,
+   "state_2": 458,
+   "look_reason_8": 199
+  },
+  "violations": {},
+  "ledger": {
+   "N": 11124,
+   "V": 5818,
+   "M": 2739
+  },
+  "ledger_match": true
+ },
+ {
+  "spec": "r06_c_validation:r6c_pi05_spatial_50_C45",
+  "episodes": 500,
+  "counts": {
+   "decisions": 10869,
+   "vision": 5570,
+   "shadow": 0,
+   "miss": 5027,
+   "policy_tail": 4793,
+   "call_62": 4756,
+   "fresh": 5570,
+   "state_0": 1000,
+   "extra_look": 29,
+   "cooldown_anchor": 247,
+   "state_1": 3635,
+   "terminal_call": 234,
+   "state_3": 562,
+   "ambiguous_call": 530,
+   "call_63": 271,
+   "state_2": 373,
+   "look_reason_8": 29
+  },
+  "violations": {},
+  "ledger": {
+   "N": 10869,
+   "V": 5570,
+   "M": 5027
+  },
+  "ledger_match": true
+ },
+ {
+  "spec": "r06_c_validation:r6c_groot_l10_50_R30",
+  "episodes": 500,
+  "counts": {
+   "decisions": 31472,
+   "vision": 15831,
+   "shadow": 0,
+   "miss": 8439,
+   "policy_tail": 8313,
+   "fresh": 15831,
+   "state_0": 15831,
+   "extra_look": 0,
+   "cooldown_anchor": 0,
+   "call_62": 8439,
+   "terminal_call": 126
+  },
+  "violations": {},
+  "ledger": {
+   "N": 31472,
+   "V": 15831,
+   "M": 8439
+  },
+  "ledger_match": true
+ },
+ {
+  "spec": "r06_c_validation:r6c_groot_l10_50_U30",
+  "episodes": 500,
+  "counts": {
+   "decisions": 31629,
+   "vision": 15916,
+   "shadow": 0,
+   "miss": 8407,
+   "policy_tail": 8294,
+   "call_61": 8407,
+   "terminal_call": 113
+  },
+  "violations": {},
+  "ledger": {
+   "N": 31629,
+   "V": 15916,
+   "M": 8407
+  },
+  "ledger_match": true
+ },
+ {
+  "spec": "r06_c_validation:r6c_groot_l10_50_C30",
+  "episodes": 500,
+  "counts": {
+   "decisions": 31069,
+   "vision": 16112,
+   "shadow": 0,
+   "miss": 8505,
+   "policy_tail": 8349,
+   "fresh": 16112,
+   "state_0": 1000,
+   "extra_look": 949,
+   "cooldown_anchor": 2165,
+   "state_1": 8972,
+   "call_62": 6276,
+   "state_3": 2774,
+   "ambiguous_call": 1426,
+   "look_reason_8": 923,
+   "call_63": 2229,
+   "state_2": 3366,
+   "terminal_call": 156
+  },
+  "violations": {},
+  "ledger": {
+   "N": 31069,
+   "V": 16112,
+   "M": 8505
+  },
+  "ledger_match": true
+ },
+ {
+  "spec": "r06_c_validation:r6c_groot_l10_50_Cmax",
+  "episodes": 500,
+  "counts": {
+   "decisions": 30689,
+   "vision": 15586,
+   "shadow": 0,
+   "miss": 13485,
+   "policy_tail": 13277,
+   "call_62": 11316,
+   "fresh": 15586,
+   "state_0": 1000,
+   "extra_look": 253,
+   "cooldown_anchor": 2101,
+   "state_1": 8740,
+   "call_63": 2169,
+   "state_2": 3229,
+   "state_3": 2617,
+   "ambiguous_call": 2350,
+   "terminal_call": 208,
+   "look_reason_8": 249
+  },
+  "violations": {},
+  "ledger": {
+   "N": 30689,
+   "V": 15586,
+   "M": 13485
+  },
+  "ledger_match": true
+ },
+ {
+  "spec": "r06_c_validation:r6c_groot_spatial_50_R30",
+  "episodes": 500,
+  "counts": {
+   "decisions": 11716,
+   "vision": 5965,
+   "shadow": 0,
+   "miss": 3020,
+   "policy_tail": 2890,
+   "fresh": 5965,
+   "state_0": 5965,
+   "extra_look": 0,
+   "cooldown_anchor": 0,
+   "call_62": 3020,
+   "terminal_call": 130
+  },
+  "violations": {},
+  "ledger": {
+   "N": 11716,
+   "V": 5965,
+   "M": 3020
+  },
+  "ledger_match": true
+ },
+ {
+  "spec": "r06_c_validation:r6c_groot_spatial_50_U30",
+  "episodes": 500,
+  "counts": {
+   "decisions": 11774,
+   "vision": 5998,
+   "shadow": 0,
+   "miss": 3080,
+   "policy_tail": 2975,
+   "call_61": 3080,
+   "terminal_call": 105
+  },
+  "violations": {},
+  "ledger": {
+   "N": 11774,
+   "V": 5998,
+   "M": 3080
+  },
+  "ledger_match": true
+ },
+ {
+  "spec": "r06_c_validation:r6c_groot_spatial_50_C30",
+  "episodes": 500,
+  "counts": {
+   "decisions": 11447,
+   "vision": 5957,
+   "shadow": 0,
+   "miss": 2964,
+   "policy_tail": 2798,
+   "fresh": 5957,
+   "state_0": 1000,
+   "extra_look": 232,
+   "cooldown_anchor": 356,
+   "state_1": 3668,
+   "call_62": 2560,
+   "state_3": 708,
+   "ambiguous_call": 374,
+   "look_reason_8": 198,
+   "call_63": 404,
+   "state_2": 581,
+   "terminal_call": 166
+  },
+  "violations": {},
+  "ledger": {
+   "N": 11447,
+   "V": 5957,
+   "M": 2964
+  },
+  "ledger_match": true
+ },
+ {
+  "spec": "r06_c_validation:r6c_groot_spatial_50_C45",
+  "episodes": 500,
+  "counts": {
+   "decisions": 11431,
+   "vision": 5875,
+   "shadow": 0,
+   "miss": 5075,
+   "policy_tail": 4831,
+   "call_62": 4660,
+   "fresh": 5875,
+   "state_0": 1000,
+   "extra_look": 60,
+   "cooldown_anchor": 359,
+   "state_1": 3621,
+   "state_3": 667,
+   "ambiguous_call": 603,
+   "terminal_call": 244,
+   "call_63": 415,
+   "state_2": 587,
+   "look_reason_8": 54
+  },
+  "violations": {},
+  "ledger": {
+   "N": 11431,
+   "V": 5875,
+   "M": 5075
+  },
+  "ledger_match": true
+ },
+ {
+  "spec": "r06_c_validation:r6c_pi05_l10_500_R18",
+  "episodes": 500,
+  "counts": {
+   "decisions": 28624,
+   "vision": 14424,
+   "shadow": 0,
+   "miss": 3643,
+   "policy_tail": 3577,
+   "fresh": 14424,
+   "state_0": 14424,
+   "extra_look": 0,
+   "cooldown_anchor": 0,
+   "call_62": 3643,
+   "terminal_call": 66
+  },
+  "violations": {},
+  "ledger": {
+   "N": 28624,
+   "V": 14424,
+   "M": 3643
+  },
+  "ledger_match": true
+ },
+ {
+  "spec": "r06_c_validation:r6c_pi05_l10_500_U18",
+  "episodes": 500,
+  "counts": {
+   "decisions": 28801,
+   "vision": 14497,
+   "shadow": 0,
+   "miss": 3473,
+   "policy_tail": 3423,
+   "call_61": 3473,
+   "terminal_call": 50
+  },
+  "violations": {},
+  "ledger": {
+   "N": 28801,
+   "V": 14497,
+   "M": 3473
+  },
+  "ledger_match": true
+ },
+ {
+  "spec": "r06_c_validation:r6c_pi05_l10_500_C18",
+  "episodes": 500,
+  "counts": {
+   "decisions": 28005,
+   "vision": 14323,
+   "shadow": 0,
+   "miss": 3742,
+   "policy_tail": 3665,
+   "fresh": 14323,
+   "state_0": 1050,
+   "extra_look": 419,
+   "cooldown_anchor": 886,
+   "state_1": 10808,
+   "call_62": 2824,
+   "call_63": 918,
+   "state_2": 1604,
+   "terminal_call": 77,
+   "state_3": 861,
+   "look_reason_8": 402,
+   "ambiguous_call": 211
+  },
+  "violations": {},
+  "ledger": {
+   "N": 28005,
+   "V": 14323,
+   "M": 3742
+  },
+  "ledger_match": true
+ },
+ {
+  "spec": "r06_c_validation:r6c_pi05_spatial_500_R18",
+  "episodes": 500,
+  "counts": {
+   "decisions": 10764,
+   "vision": 5514,
+   "shadow": 0,
+   "miss": 1229,
+   "policy_tail": 1153,
+   "fresh": 5514,
+   "state_0": 5514,
+   "extra_look": 0,
+   "cooldown_anchor": 0,
+   "call_62": 1229,
+   "terminal_call": 76
+  },
+  "violations": {},
+  "ledger": {
+   "N": 10764,
+   "V": 5514,
+   "M": 1229
+  },
+  "ledger_match": true
+ },
+ {
+  "spec": "r06_c_validation:r6c_pi05_spatial_500_U18",
+  "episodes": 500,
+  "counts": {
+   "decisions": 10728,
+   "vision": 5498,
+   "shadow": 0,
+   "miss": 1284,
+   "policy_tail": 1223,
+   "call_61": 1284,
+   "terminal_call": 61
+  },
+  "violations": {},
+  "ledger": {
+   "N": 10728,
+   "V": 5498,
+   "M": 1284
+  },
+  "ledger_match": true
+ },
+ {
+  "spec": "r06_c_validation:r6c_pi05_spatial_500_C18",
+  "episodes": 500,
+  "counts": {
+   "decisions": 10506,
+   "vision": 5399,
+   "shadow": 0,
+   "miss": 1039,
+   "policy_tail": 966,
+   "fresh": 5399,
+   "state_0": 1000,
+   "extra_look": 24,
+   "cooldown_anchor": 57,
+   "state_1": 4238,
+   "call_62": 970,
+   "terminal_call": 73,
+   "call_63": 69,
+   "state_2": 119,
+   "state_3": 42,
+   "look_reason_8": 13,
+   "ambiguous_call": 12
+  },
+  "violations": {},
+  "ledger": {
+   "N": 10506,
+   "V": 5399,
+   "M": 1039
+  },
+  "ledger_match": true
+ },
+ {
+  "spec": "r06_c_validation:r6c_groot_l10_500_R18",
+  "episodes": 500,
+  "counts": {
+   "decisions": 29167,
+   "vision": 14678,
+   "shadow": 0,
+   "miss": 3627,
+   "policy_tail": 3561,
+   "fresh": 14678,
+   "state_0": 14678,
+   "extra_look": 0,
+   "cooldown_anchor": 0,
+   "call_62": 3627,
+   "terminal_call": 66
+  },
+  "violations": {},
+  "ledger": {
+   "N": 29167,
+   "V": 14678,
+   "M": 3627
+  },
+  "ledger_match": true
+ },
+ {
+  "spec": "r06_c_validation:r6c_groot_l10_500_U18",
+  "episodes": 500,
+  "counts": {
+   "decisions": 29370,
+   "vision": 14787,
+   "shadow": 0,
+   "miss": 3653,
+   "policy_tail": 3602,
+   "call_61": 3653,
+   "terminal_call": 51
+  },
+  "violations": {},
+  "ledger": {
+   "N": 29370,
+   "V": 14787,
+   "M": 3653
+  },
+  "ledger_match": true
+ },
+ {
+  "spec": "r06_c_validation:r6c_groot_l10_500_C18",
+  "episodes": 500,
+  "counts": {
+   "decisions": 28748,
+   "vision": 14863,
+   "shadow": 0,
+   "miss": 3628,
+   "policy_tail": 3538,
+   "fresh": 14863,
+   "state_0": 1050,
+   "extra_look": 755,
+   "cooldown_anchor": 1272,
+   "state_1": 10194,
+   "call_62": 2315,
+   "state_3": 1526,
+   "ambiguous_call": 260,
+   "look_reason_8": 720,
+   "call_63": 1313,
+   "state_2": 2093,
+   "terminal_call": 90
+  },
+  "violations": {},
+  "ledger": {
+   "N": 28748,
+   "V": 14863,
+   "M": 3628
+  },
+  "ledger_match": true
+ },
+ {
+  "spec": "r06_c_validation:r6c_groot_spatial_500_R18",
+  "episodes": 500,
+  "counts": {
+   "decisions": 11244,
+   "vision": 5732,
+   "shadow": 0,
+   "miss": 1366,
+   "policy_tail": 1307,
+   "fresh": 5732,
+   "state_0": 5732,
+   "extra_look": 0,
+   "cooldown_anchor": 0,
+   "call_62": 1366,
+   "terminal_call": 59
+  },
+  "violations": {},
+  "ledger": {
+   "N": 11244,
+   "V": 5732,
+   "M": 1366
+  },
+  "ledger_match": true
+ },
+ {
+  "spec": "r06_c_validation:r6c_groot_spatial_500_U18",
+  "episodes": 500,
+  "counts": {
+   "decisions": 11089,
+   "vision": 5658,
+   "shadow": 0,
+   "miss": 1374,
+   "policy_tail": 1323,
+   "call_61": 1374,
+   "terminal_call": 51
+  },
+  "violations": {},
+  "ledger": {
+   "N": 11089,
+   "V": 5658,
+   "M": 1374
+  },
+  "ledger_match": true
+ },
+ {
+  "spec": "r06_c_validation:r6c_groot_spatial_500_C18",
+  "episodes": 500,
+  "counts": {
+   "decisions": 11320,
+   "vision": 5801,
+   "shadow": 0,
+   "miss": 1439,
+   "policy_tail": 1364,
+   "fresh": 5801,
+   "state_0": 1000,
+   "extra_look": 68,
+   "cooldown_anchor": 198,
+   "state_1": 4298,
+   "call_62": 1212,
+   "state_3": 113,
+   "look_reason_8": 43,
+   "call_63": 227,
+   "state_2": 390,
+   "ambiguous_call": 29,
+   "terminal_call": 75
+  },
+  "violations": {},
+  "ledger": {
+   "N": 11320,
+   "V": 5801,
+   "M": 1439
+  },
+  "ledger_match": true
+ },
+ {
+  "spec": "r06_c_smoke:r6c_pi05_l10_500_C18",
+  "episodes": 4,
+  "counts": {
+   "decisions": 203,
+   "vision": 102,
+   "shadow": 0,
+   "miss": 31,
+   "policy_tail": 31,
+   "fresh": 102,
+   "state_0": 8,
+   "extra_look": 0,
+   "cooldown_anchor": 3,
+   "state_1": 90,
+   "call_62": 28,
+   "call_63": 3,
+   "state_2": 4
+  },
+  "violations": {},
+  "ledger": {
+   "N": 203,
+   "V": 102,
+   "M": 31
+  },
+  "ledger_match": true
+ },
+ {
+  "spec": "r06_c_smoke:r6c_groot_l10_500_C18",
+  "episodes": 4,
+  "counts": {
+   "decisions": 256,
+   "vision": 132,
+   "shadow": 0,
+   "miss": 36,
+   "policy_tail": 35,
+   "fresh": 132,
+   "state_0": 8,
+   "extra_look": 7,
+   "cooldown_anchor": 15,
+   "call_62": 21,
+   "state_1": 94,
+   "call_63": 15,
+   "state_2": 20,
+   "state_3": 10,
+   "look_reason_8": 5,
+   "terminal_call": 1
+  },
+  "violations": {},
+  "ledger": {
+   "N": 256,
+   "V": 132,
+   "M": 36
+  },
+  "ledger_match": true
+ }
+]

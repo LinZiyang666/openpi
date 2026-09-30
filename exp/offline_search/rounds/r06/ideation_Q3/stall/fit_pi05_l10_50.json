@@ -1,0 +1,80 @@
+{
+  "cell": "pi05_l10_50",
+  "status": "FITTED_AND_RELOADED",
+  "fingerprint": "e4ed6e3d0ed45115201cd6d1785fd4d4131fbec35fdeee92abea2e71e4b3fc49",
+  "seconds": 3.9166294939350337,
+  "artifact": "/tmp/q3_stall_fits/pi05_l10_50",
+  "bytes": 24413747,
+  "tasks": {
+    "0": {
+      "E": 5,
+      "W": 2,
+      "K": 4,
+      "windows": 136,
+      "references": 5
+    },
+    "1": {
+      "E": 5,
+      "W": 2,
+      "K": 4,
+      "windows": 115,
+      "references": 5
+    },
+    "2": {
+      "E": 5,
+      "W": 2,
+      "K": 4,
+      "windows": 128,
+      "references": 5
+    },
+    "3": {
+      "E": 5,
+      "W": 2,
+      "K": 4,
+      "windows": 143,
+      "references": 5
+    },
+    "4": {
+      "E": 5,
+      "W": 2,
+      "K": 4,
+      "windows": 104,
+      "references": 5
+    },
+    "5": {
+      "E": 5,
+      "W": 2,
+      "K": 4,
+      "windows": 76,
+      "references": 5
+    },
+    "6": {
+      "E": 5,
+      "W": 2,
+      "K": 4,
+      "windows": 106,
+      "references": 5
+    },
+    "7": {
+      "E": 5,
+      "W": 2,
+      "K": 4,
+      "windows": 122,
+      "references": 5
+    },
+    "8": {
+      "E": 5,
+      "W": 2,
+      "K": 4,
+      "windows": 193,
+      "references": 5
+    },
+    "9": {
+      "E": 5,
+      "W": 2,
+      "K": 4,
+      "windows": 134,
+      "references": 5
+    }
+  }
+}

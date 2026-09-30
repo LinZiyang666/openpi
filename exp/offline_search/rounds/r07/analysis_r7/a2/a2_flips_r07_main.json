@@ -1,0 +1,8502 @@
+{
+ "schema": "r7.a2.flips.v1",
+ "run": "/home/weiland/trace_runs/os_closed_loop/r07_main",
+ "analysed": [
+  "r7_pi05_l10_50_SF1",
+  "r7_pi05_l10_50_UF1",
+  "r7_sw_pi05_l10_50",
+  "r7_pi05_l10_50_CU30",
+  "r7_pi05_l10_50_CT30",
+  "r7_pi05_l10_500_SF1",
+  "r7_pi05_l10_500_UF1",
+  "r7_sw_pi05_l10_500",
+  "r7_pi05_spatial_50_SF1",
+  "r7_pi05_spatial_50_UF1",
+  "r7_sw_pi05_sp_50",
+  "r7_pi05_spatial_50_CU30",
+  "r7_pi05_spatial_50_CT30",
+  "r7_pi05_spatial_500_SF1",
+  "r7_pi05_spatial_500_UF1",
+  "r7_sw_pi05_sp_500",
+  "r7_groot_l10_50_SF1",
+  "r7_groot_l10_50_UF1",
+  "r7_groot_l10_50_CU30",
+  "r7_groot_l10_50_CT30",
+  "r7_groot_l10_500_SF1",
+  "r7_groot_l10_500_UF1",
+  "r7_groot_spatial_50_SF1",
+  "r7_groot_spatial_50_UF1",
+  "r7_groot_spatial_50_CU30",
+  "r7_groot_spatial_50_CT30",
+  "r7_groot_spatial_500_SF1",
+  "r7_groot_spatial_500_UF1"
+ ],
+ "skipped": {},
+ "arms": {
+  "r7_pi05_l10_50_SF1": {
+   "reference": [
+    "r05_ptail:r5t_p_l10_50_tail1uc",
+    "r06_paper:r5t_p_l10_50_tail1uc_rep2",
+    "r06_paper:r5t_p_l10_50_tail1uc_rep3"
+   ],
+   "pairs": 500,
+   "sr": 0.684,
+   "counts": {
+    "same_fail": 104,
+    "loss": 54,
+    "same_success": 309,
+    "gain": 33
+   },
+   "loss_vs_A_unanimous": 36,
+   "gain_vs_A_unanimous": 20,
+   "a_self_noise": {
+    "pairs": 500,
+    "mean_loss_vs_other_two_unanimous": 16.0,
+    "mean_gain_vs_other_two_unanimous": 10.0,
+    "per_rep": [
+     [
+      16,
+      6
+     ],
+     [
+      21,
+      13
+     ],
+     [
+      11,
+      11
+     ]
+    ]
+   },
+   "loss": {
+    "n": 54,
+    "termination": {
+     "step_cap": 54
+    },
+    "first_lever": {
+     "extension": 54
+    },
+    "first_lever_macro": {
+     "S0": 54
+    },
+    "first_lever_cls": {
+     "interior": 54
+    },
+    "first_lever_frac_median": 0.019230769230769232,
+    "final_macro": {
+     "S3": 25,
+     "S2": 13,
+     "S1": 8,
+     "S0": 3,
+     "S4+": 5
+    },
+    "final_label": {
+     "S3.mixed": 12,
+     "S3.event": 10,
+     "S1.mixed": 7,
+     "S2.interior": 6,
+     "S2.mixed": 5,
+     "S4+.mixed": 5,
+     "S3.interior": 3,
+     "S0.mixed": 2
+    },
+    "max_macro": {
+     "S3": 33,
+     "S4+": 15,
+     "S2": 6
+    },
+    "mean_per_anchor": {
+     "granted": 0.24914590290338165,
+     "ext_blocks": 0.23624380931789923,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.006922730803278816,
+     "ext_fire": 0.0026112477511329732,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 11.25925925925926,
+     "ext_blocks": 10.685185185185185,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.3148148148148148,
+     "ext_fire": 0.1111111111111111,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 104.0
+   },
+   "gain": {
+    "n": 33,
+    "termination": {
+     "success": 33
+    },
+    "first_lever": {
+     "extension": 33
+    },
+    "first_lever_macro": {
+     "S0": 33
+    },
+    "first_lever_cls": {
+     "interior": 33
+    },
+    "first_lever_frac_median": 0.03773584905660377,
+    "final_macro": {
+     "S4+": 6,
+     "S1": 1,
+     "S3": 20,
+     "S2": 6
+    },
+    "final_label": {
+     "S3.mixed": 9,
+     "S3.event": 7,
+     "S4+.mixed": 6,
+     "S3.interior": 4,
+     "S2.interior": 4,
+     "S1.mixed": 1,
+     "S2.event": 1,
+     "S2.mixed": 1
+    },
+    "max_macro": {
+     "S4+": 6,
+     "S3": 21,
+     "S2": 6
+    },
+    "mean_per_anchor": {
+     "granted": 0.4926168161467062,
+     "ext_blocks": 0.47989645825805655,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.010498135666427351,
+     "ext_fire": 0.0022222222222222222,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 11.757575757575758,
+     "ext_blocks": 11.424242424242424,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.2727272727272727,
+     "ext_fire": 0.06060606060606061,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 57.78787878787879
+   },
+   "same_success": {
+    "n": 309,
+    "termination": {
+     "success": 309
+    },
+    "first_lever": {
+     "extension": 309
+    },
+    "first_lever_macro": {
+     "S0": 309
+    },
+    "first_lever_cls": {
+     "interior": 309
+    },
+    "first_lever_frac_median": 0.04081632653061224,
+    "final_macro": {
+     "S4+": 62,
+     "S3": 112,
+     "S1": 51,
+     "S2": 84
+    },
+    "final_label": {
+     "S2.interior": 67,
+     "S4+.mixed": 61,
+     "S1.interior": 50,
+     "S3.interior": 38,
+     "S3.mixed": 38,
+     "S3.event": 36,
+     "S2.event": 9,
+     "S2.mixed": 8
+    },
+    "max_macro": {
+     "S4+": 62,
+     "S3": 118,
+     "S2": 79,
+     "S1": 50
+    },
+    "mean_per_anchor": {
+     "granted": 0.5157275928951318,
+     "ext_blocks": 0.5079036602817137,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0034383651874776403,
+     "ext_fire": 0.0029150677453955052,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 10.54368932038835,
+     "ext_blocks": 10.36569579288026,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.08414239482200647,
+     "ext_fire": 0.07119741100323625,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 51.996763754045304
+   },
+   "same_fail": {
+    "n": 104,
+    "termination": {
+     "step_cap": 104
+    },
+    "first_lever": {
+     "extension": 104
+    },
+    "first_lever_macro": {
+     "S0": 104
+    },
+    "first_lever_cls": {
+     "interior": 104
+    },
+    "first_lever_frac_median": 0.019230769230769232,
+    "final_macro": {
+     "S3": 63,
+     "S2": 28,
+     "S0": 3,
+     "S1": 7,
+     "S4+": 3
+    },
+    "final_label": {
+     "S3.event": 35,
+     "S3.mixed": 26,
+     "S2.mixed": 20,
+     "S2.interior": 6,
+     "S1.mixed": 5,
+     "S0.mixed": 3,
+     "S4+.mixed": 3,
+     "S3.interior": 2
+    },
+    "max_macro": {
+     "S4+": 20,
+     "S3": 75,
+     "S2": 8,
+     "S1": 1
+    },
+    "mean_per_anchor": {
+     "granted": 0.31439168857493266,
+     "ext_blocks": 0.2931872186958882,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.007224782047682892,
+     "ext_fire": 0.009669733848344601,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 13.826923076923077,
+     "ext_blocks": 12.923076923076923,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.3173076923076923,
+     "ext_fire": 0.40384615384615385,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 104.0
+   },
+   "cross_run": null
+  },
+  "r7_pi05_l10_50_UF1": {
+   "reference": [
+    "r05_ptail:r5t_p_l10_50_tail1uc",
+    "r06_paper:r5t_p_l10_50_tail1uc_rep2",
+    "r06_paper:r5t_p_l10_50_tail1uc_rep3"
+   ],
+   "pairs": 500,
+   "sr": 0.648,
+   "counts": {
+    "same_fail": 102,
+    "same_success": 289,
+    "loss": 74,
+    "gain": 35
+   },
+   "loss_vs_A_unanimous": 48,
+   "gain_vs_A_unanimous": 22,
+   "a_self_noise": {
+    "pairs": 500,
+    "mean_loss_vs_other_two_unanimous": 16.0,
+    "mean_gain_vs_other_two_unanimous": 10.0,
+    "per_rep": [
+     [
+      16,
+      6
+     ],
+     [
+      21,
+      13
+     ],
+     [
+      11,
+      11
+     ]
+    ]
+   },
+   "loss": {
+    "n": 74,
+    "termination": {
+     "step_cap": 74
+    },
+    "first_lever": {
+     "extension": 74
+    },
+    "first_lever_macro": {
+     "S0": 74
+    },
+    "first_lever_cls": {
+     "interior": 74
+    },
+    "first_lever_frac_median": 0.019230769230769232,
+    "final_macro": {
+     "S3": 40,
+     "S0": 6,
+     "S2": 21,
+     "S1": 2,
+     "S4+": 5
+    },
+    "final_label": {
+     "S3.mixed": 25,
+     "S3.event": 13,
+     "S2.mixed": 10,
+     "S2.interior": 9,
+     "S0.mixed": 6,
+     "S4+.mixed": 5,
+     "S3.interior": 2,
+     "S1.mixed": 2
+    },
+    "max_macro": {
+     "S3": 40,
+     "S4+": 24,
+     "S2": 10
+    },
+    "mean_per_anchor": {
+     "granted": 0.5474844837356574,
+     "ext_blocks": 0.5426010647303076,
+     "sf_refused_ext": 0.25851345886761506,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 21.85135135135135,
+     "ext_blocks": 21.66216216216216,
+     "sf_refused_ext": 10.445945945945946,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 104.0
+   },
+   "gain": {
+    "n": 35,
+    "termination": {
+     "success": 35
+    },
+    "first_lever": {
+     "extension": 35
+    },
+    "first_lever_macro": {
+     "S0": 35
+    },
+    "first_lever_cls": {
+     "interior": 35
+    },
+    "first_lever_frac_median": 0.03571428571428571,
+    "final_macro": {
+     "S4+": 8,
+     "S3": 17,
+     "S2": 10
+    },
+    "final_label": {
+     "S3.mixed": 10,
+     "S4+.mixed": 8,
+     "S2.interior": 7,
+     "S3.event": 5,
+     "S3.interior": 2,
+     "S2.mixed": 2,
+     "S2.event": 1
+    },
+    "max_macro": {
+     "S4+": 8,
+     "S3": 17,
+     "S2": 10
+    },
+    "mean_per_anchor": {
+     "granted": 0.8571347715032497,
+     "ext_blocks": 0.8571347715032497,
+     "sf_refused_ext": 0.2875342423504598,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 18.428571428571427,
+     "ext_blocks": 18.428571428571427,
+     "sf_refused_ext": 5.9714285714285715,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 61.0
+   },
+   "same_success": {
+    "n": 289,
+    "termination": {
+     "success": 289
+    },
+    "first_lever": {
+     "extension": 289
+    },
+    "first_lever_macro": {
+     "S0": 289
+    },
+    "first_lever_cls": {
+     "interior": 289
+    },
+    "first_lever_frac_median": 0.04,
+    "final_macro": {
+     "S4+": 55,
+     "S3": 104,
+     "S2": 79,
+     "S1": 51
+    },
+    "final_label": {
+     "S2.interior": 74,
+     "S4+.mixed": 54,
+     "S1.interior": 50,
+     "S3.mixed": 43,
+     "S3.interior": 34,
+     "S3.event": 27,
+     "S2.mixed": 4,
+     "S4+.event": 1
+    },
+    "max_macro": {
+     "S4+": 55,
+     "S3": 109,
+     "S2": 75,
+     "S1": 50
+    },
+    "mean_per_anchor": {
+     "granted": 0.8331301509775969,
+     "ext_blocks": 0.8323612159526065,
+     "sf_refused_ext": 0.2743335949170605,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 15.235294117647058,
+     "ext_blocks": 15.22491349480969,
+     "sf_refused_ext": 5.0657439446366785,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 52.25259515570934
+   },
+   "same_fail": {
+    "n": 102,
+    "termination": {
+     "step_cap": 102
+    },
+    "first_lever": {
+     "extension": 102
+    },
+    "first_lever_macro": {
+     "S0": 102
+    },
+    "first_lever_cls": {
+     "interior": 102
+    },
+    "first_lever_frac_median": 0.019230769230769232,
+    "final_macro": {
+     "S3": 65,
+     "S2": 16,
+     "S0": 5,
+     "S1": 13,
+     "S4+": 3
+    },
+    "final_label": {
+     "S3.mixed": 33,
+     "S3.event": 31,
+     "S2.mixed": 12,
+     "S1.mixed": 11,
+     "S0.mixed": 5,
+     "S2.interior": 4,
+     "S4+.mixed": 3,
+     "S1.event": 1
+    },
+    "max_macro": {
+     "S3": 78,
+     "S4+": 19,
+     "S2": 4,
+     "S1": 1
+    },
+    "mean_per_anchor": {
+     "granted": 0.590550605031192,
+     "ext_blocks": 0.5819169407869726,
+     "sf_refused_ext": 0.26398075887804984,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 23.205882352941178,
+     "ext_blocks": 22.88235294117647,
+     "sf_refused_ext": 10.568627450980392,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 104.0
+   },
+   "cross_run": null
+  },
+  "r7_sw_pi05_l10_50": {
+   "reference": [
+    "r05_ptail:r5t_p_l10_50_tail1uc",
+    "r06_paper:r5t_p_l10_50_tail1uc_rep2",
+    "r06_paper:r5t_p_l10_50_tail1uc_rep3"
+   ],
+   "pairs": 500,
+   "sr": 0.704,
+   "counts": {
+    "same_fail": 98,
+    "same_success": 313,
+    "loss": 50,
+    "gain": 39
+   },
+   "loss_vs_A_unanimous": 36,
+   "gain_vs_A_unanimous": 25,
+   "a_self_noise": {
+    "pairs": 500,
+    "mean_loss_vs_other_two_unanimous": 16.0,
+    "mean_gain_vs_other_two_unanimous": 10.0,
+    "per_rep": [
+     [
+      16,
+      6
+     ],
+     [
+      21,
+      13
+     ],
+     [
+      11,
+      11
+     ]
+    ]
+   },
+   "loss": {
+    "n": 50,
+    "termination": {
+     "step_cap": 50
+    },
+    "first_lever": {
+     "wrist_look": 50
+    },
+    "first_lever_macro": {
+     "S0": 50
+    },
+    "first_lever_cls": {
+     "interior": 50
+    },
+    "first_lever_frac_median": 0.019230769230769232,
+    "final_macro": {
+     "S3": 29,
+     "S1": 9,
+     "S2": 9,
+     "S0": 2,
+     "S4+": 1
+    },
+    "final_label": {
+     "S3.mixed": 18,
+     "S3.event": 11,
+     "S1.mixed": 7,
+     "S2.interior": 6,
+     "S2.mixed": 3,
+     "S1.interior": 2,
+     "S0.mixed": 2,
+     "S4+.mixed": 1
+    },
+    "max_macro": {
+     "S3": 31,
+     "S4+": 11,
+     "S2": 7,
+     "S1": 1
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.1915384615384616,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 9.96,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 104.0
+   },
+   "gain": {
+    "n": 39,
+    "termination": {
+     "success": 39
+    },
+    "first_lever": {
+     "wrist_look": 39
+    },
+    "first_lever_macro": {
+     "S0": 39
+    },
+    "first_lever_cls": {
+     "interior": 39
+    },
+    "first_lever_frac_median": 0.038461538461538464,
+    "final_macro": {
+     "S4+": 9,
+     "S3": 24,
+     "S2": 6
+    },
+    "final_label": {
+     "S4+.mixed": 9,
+     "S3.event": 8,
+     "S3.interior": 8,
+     "S3.mixed": 8,
+     "S2.interior": 4,
+     "S2.mixed": 1,
+     "S2.event": 1
+    },
+    "max_macro": {
+     "S4+": 9,
+     "S3": 24,
+     "S2": 6
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.3778173026965818,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 11.307692307692308,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 57.82051282051282
+   },
+   "same_success": {
+    "n": 313,
+    "termination": {
+     "success": 313
+    },
+    "first_lever": {
+     "wrist_look": 313
+    },
+    "first_lever_macro": {
+     "S0": 313
+    },
+    "first_lever_cls": {
+     "interior": 313
+    },
+    "first_lever_frac_median": 0.041666666666666664,
+    "final_macro": {
+     "S4+": 61,
+     "S3": 123,
+     "S2": 79,
+     "S1": 50
+    },
+    "final_label": {
+     "S2.interior": 70,
+     "S4+.mixed": 60,
+     "S1.interior": 49,
+     "S3.interior": 48,
+     "S3.mixed": 47,
+     "S3.event": 28,
+     "S2.event": 7,
+     "S2.mixed": 2
+    },
+    "max_macro": {
+     "S4+": 61,
+     "S3": 125,
+     "S2": 78,
+     "S1": 49
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.421744868979722,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 10.664536741214057,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 50.91693290734824
+   },
+   "same_fail": {
+    "n": 98,
+    "termination": {
+     "step_cap": 98
+    },
+    "first_lever": {
+     "wrist_look": 98
+    },
+    "first_lever_macro": {
+     "S0": 98
+    },
+    "first_lever_cls": {
+     "interior": 98
+    },
+    "first_lever_frac_median": 0.019230769230769232,
+    "final_macro": {
+     "S3": 54,
+     "S4+": 4,
+     "S2": 20,
+     "S0": 3,
+     "S1": 17
+    },
+    "final_label": {
+     "S3.event": 35,
+     "S3.mixed": 18,
+     "S1.mixed": 15,
+     "S2.mixed": 13,
+     "S4+.mixed": 4,
+     "S2.interior": 4,
+     "S0.mixed": 3,
+     "S2.event": 3
+    },
+    "max_macro": {
+     "S3": 72,
+     "S4+": 17,
+     "S2": 8,
+     "S1": 1
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.16620879120879123,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 8.642857142857142,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 104.0
+   },
+   "cross_run": null
+  },
+  "r7_pi05_l10_50_CU30": {
+   "reference": [
+    "r05_ptail:r5t_p_l10_50_tail1uc",
+    "r06_paper:r5t_p_l10_50_tail1uc_rep2",
+    "r06_paper:r5t_p_l10_50_tail1uc_rep3"
+   ],
+   "pairs": 500,
+   "sr": 0.864,
+   "counts": {
+    "gain": 102,
+    "same_success": 330,
+    "same_fail": 35,
+    "loss": 33
+   },
+   "loss_vs_A_unanimous": 25,
+   "gain_vs_A_unanimous": 78,
+   "a_self_noise": {
+    "pairs": 500,
+    "mean_loss_vs_other_two_unanimous": 16.0,
+    "mean_gain_vs_other_two_unanimous": 10.0,
+    "per_rep": [
+     [
+      16,
+      6
+     ],
+     [
+      21,
+      13
+     ],
+     [
+      11,
+      11
+     ]
+    ]
+   },
+   "loss": {
+    "n": 33,
+    "termination": {
+     "step_cap": 33
+    },
+    "first_lever": {
+     "call_lottery": 33
+    },
+    "first_lever_macro": {
+     "S0": 33
+    },
+    "first_lever_cls": {
+     "interior": 31,
+     "event": 2
+    },
+    "first_lever_frac_median": 0.019230769230769232,
+    "final_macro": {
+     "S3": 13,
+     "S2": 14,
+     "S1": 6
+    },
+    "final_label": {
+     "S3.mixed": 10,
+     "S2.mixed": 10,
+     "S2.interior": 4,
+     "S1.mixed": 3,
+     "S3.event": 2,
+     "S1.event": 2,
+     "S3.interior": 1,
+     "S1.interior": 1
+    },
+    "max_macro": {
+     "S3": 25,
+     "S2": 6,
+     "S4+": 1,
+     "S1": 1
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.4871049147685607,
+     "lottery_calls": 0.27148509621095746,
+     "stall_calls": 0.21561981855760332,
+     "extra_looks": 0.09494994453368341
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 26.727272727272727,
+     "lottery_calls": 15.0,
+     "stall_calls": 11.727272727272727,
+     "extra_looks": 5.333333333333333
+    },
+    "mean_decisions": 104.0
+   },
+   "gain": {
+    "n": 102,
+    "termination": {
+     "success": 102
+    },
+    "first_lever": {
+     "call_lottery": 99,
+     "call_stall": 3
+    },
+    "first_lever_macro": {
+     "S0": 100,
+     "S1": 2
+    },
+    "first_lever_cls": {
+     "interior": 95,
+     "event": 6,
+     "mixed": 1
+    },
+    "first_lever_frac_median": 0.028985507246376812,
+    "final_macro": {
+     "S2": 16,
+     "S4+": 40,
+     "S1": 5,
+     "S3": 41
+    },
+    "final_label": {
+     "S4+.mixed": 40,
+     "S3.mixed": 20,
+     "S3.interior": 16,
+     "S2.interior": 8,
+     "S2.mixed": 7,
+     "S1.mixed": 5,
+     "S3.event": 5,
+     "S2.event": 1
+    },
+    "max_macro": {
+     "S3": 51,
+     "S4+": 42,
+     "S2": 9
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.5014340453481428,
+     "lottery_calls": 0.43218490381664215,
+     "stall_calls": 0.06924914153150079,
+     "extra_looks": 0.048276557171576785
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 14.666666666666666,
+     "lottery_calls": 12.490196078431373,
+     "stall_calls": 2.176470588235294,
+     "extra_looks": 1.4509803921568627
+    },
+    "mean_decisions": 56.470588235294116
+   },
+   "same_success": {
+    "n": 330,
+    "termination": {
+     "success": 330
+    },
+    "first_lever": {
+     "call_lottery": 322,
+     "extra_look": 4,
+     "call_stall": 4
+    },
+    "first_lever_macro": {
+     "S0": 321,
+     "S1": 9
+    },
+    "first_lever_cls": {
+     "interior": 312,
+     "event": 10,
+     "mixed": 8
+    },
+    "first_lever_frac_median": 0.02649122807017544,
+    "final_macro": {
+     "S2": 86,
+     "S1": 54,
+     "S4+": 75,
+     "S3": 115
+    },
+    "final_label": {
+     "S2.interior": 76,
+     "S4+.mixed": 75,
+     "S3.mixed": 52,
+     "S1.interior": 50,
+     "S3.interior": 34,
+     "S3.event": 29,
+     "S2.mixed": 6,
+     "S1.mixed": 4
+    },
+    "max_macro": {
+     "S4+": 78,
+     "S3": 123,
+     "S2": 79,
+     "S1": 50
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.5080898463250545,
+     "lottery_calls": 0.45312177074422544,
+     "stall_calls": 0.05496807558082915,
+     "extra_looks": 0.04899215256494205
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 13.06969696969697,
+     "lottery_calls": 11.578787878787878,
+     "stall_calls": 1.490909090909091,
+     "extra_looks": 1.2818181818181817
+    },
+    "mean_decisions": 49.78181818181818
+   },
+   "same_fail": {
+    "n": 35,
+    "termination": {
+     "step_cap": 35
+    },
+    "first_lever": {
+     "call_lottery": 33,
+     "extra_look": 2
+    },
+    "first_lever_macro": {
+     "S0": 35
+    },
+    "first_lever_cls": {
+     "interior": 34,
+     "event": 1
+    },
+    "first_lever_frac_median": 0.0,
+    "final_macro": {
+     "S1": 5,
+     "S2": 15,
+     "S3": 15
+    },
+    "final_label": {
+     "S2.mixed": 12,
+     "S3.mixed": 11,
+     "S3.event": 4,
+     "S1.mixed": 3,
+     "S2.event": 3,
+     "S1.interior": 2
+    },
+    "max_macro": {
+     "S3": 28,
+     "S4+": 1,
+     "S1": 2,
+     "S2": 4
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.5034403481641778,
+     "lottery_calls": 0.2632830082032708,
+     "stall_calls": 0.24015733996090713,
+     "extra_looks": 0.08278224418728573
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 27.428571428571427,
+     "lottery_calls": 14.457142857142857,
+     "stall_calls": 12.971428571428572,
+     "extra_looks": 4.628571428571429
+    },
+    "mean_decisions": 104.0
+   },
+   "cross_run": null
+  },
+  "r7_pi05_l10_50_CT30": {
+   "reference": [
+    "r05_ptail:r5t_p_l10_50_tail1uc",
+    "r06_paper:r5t_p_l10_50_tail1uc_rep2",
+    "r06_paper:r5t_p_l10_50_tail1uc_rep3"
+   ],
+   "pairs": 500,
+   "sr": 0.854,
+   "counts": {
+    "gain": 106,
+    "same_success": 321,
+    "same_fail": 31,
+    "loss": 42
+   },
+   "loss_vs_A_unanimous": 33,
+   "gain_vs_A_unanimous": 83,
+   "a_self_noise": {
+    "pairs": 500,
+    "mean_loss_vs_other_two_unanimous": 16.0,
+    "mean_gain_vs_other_two_unanimous": 10.0,
+    "per_rep": [
+     [
+      16,
+      6
+     ],
+     [
+      21,
+      13
+     ],
+     [
+      11,
+      11
+     ]
+    ]
+   },
+   "loss": {
+    "n": 42,
+    "termination": {
+     "step_cap": 42
+    },
+    "first_lever": {
+     "call_lottery": 41,
+     "extra_look": 1
+    },
+    "first_lever_macro": {
+     "S0": 41,
+     "S1": 1
+    },
+    "first_lever_cls": {
+     "interior": 40,
+     "mixed": 2
+    },
+    "first_lever_frac_median": 0.028846153846153848,
+    "final_macro": {
+     "S3": 19,
+     "S2": 12,
+     "S1": 9,
+     "S0": 2
+    },
+    "final_label": {
+     "S3.mixed": 13,
+     "S1.mixed": 9,
+     "S2.mixed": 6,
+     "S3.event": 5,
+     "S2.interior": 4,
+     "S0.mixed": 2,
+     "S2.event": 2,
+     "S3.interior": 1
+    },
+    "max_macro": {
+     "S4+": 4,
+     "S3": 29,
+     "S2": 9
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.530651074497475,
+     "lottery_calls": 0.3061544571605304,
+     "stall_calls": 0.2244966173369444,
+     "extra_looks": 0.07410525460752279
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 28.80952380952381,
+     "lottery_calls": 16.714285714285715,
+     "stall_calls": 12.095238095238095,
+     "extra_looks": 4.119047619047619
+    },
+    "mean_decisions": 104.0
+   },
+   "gain": {
+    "n": 106,
+    "termination": {
+     "success": 106
+    },
+    "first_lever": {
+     "call_lottery": 101,
+     "call_stall": 2,
+     "extra_look": 3
+    },
+    "first_lever_macro": {
+     "S0": 105,
+     "S1": 1
+    },
+    "first_lever_cls": {
+     "interior": 92,
+     "mixed": 7,
+     "event": 7
+    },
+    "first_lever_frac_median": 0.043478260869565216,
+    "final_macro": {
+     "S4+": 44,
+     "S1": 2,
+     "S2": 16,
+     "S3": 44
+    },
+    "final_label": {
+     "S4+.mixed": 43,
+     "S3.interior": 20,
+     "S3.mixed": 15,
+     "S3.event": 9,
+     "S2.interior": 9,
+     "S2.mixed": 4,
+     "S2.event": 3,
+     "S1.mixed": 2
+    },
+    "max_macro": {
+     "S4+": 45,
+     "S3": 49,
+     "S2": 12
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.5427736573901029,
+     "lottery_calls": 0.46393044451801496,
+     "stall_calls": 0.07884321287208787,
+     "extra_looks": 0.04796471714786337
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 15.981132075471699,
+     "lottery_calls": 13.433962264150944,
+     "stall_calls": 2.547169811320755,
+     "extra_looks": 1.4433962264150944
+    },
+    "mean_decisions": 57.27358490566038
+   },
+   "same_success": {
+    "n": 321,
+    "termination": {
+     "success": 321
+    },
+    "first_lever": {
+     "call_lottery": 305,
+     "call_stall": 10,
+     "extra_look": 6
+    },
+    "first_lever_macro": {
+     "S0": 316,
+     "S1": 5
+    },
+    "first_lever_cls": {
+     "interior": 279,
+     "mixed": 19,
+     "event": 23
+    },
+    "first_lever_frac_median": 0.044444444444444446,
+    "final_macro": {
+     "S4+": 70,
+     "S1": 58,
+     "S3": 112,
+     "S2": 81
+    },
+    "final_label": {
+     "S2.interior": 72,
+     "S4+.mixed": 68,
+     "S1.interior": 50,
+     "S3.mixed": 40,
+     "S3.interior": 37,
+     "S3.event": 35,
+     "S1.mixed": 8,
+     "S2.mixed": 6
+    },
+    "max_macro": {
+     "S4+": 70,
+     "S3": 125,
+     "S2": 76,
+     "S1": 50
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.5142419128181148,
+     "lottery_calls": 0.4634119866663,
+     "stall_calls": 0.05082992615181486,
+     "extra_looks": 0.044375318373677745
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 12.937694704049845,
+     "lottery_calls": 11.598130841121495,
+     "stall_calls": 1.3395638629283488,
+     "extra_looks": 1.1246105919003115
+    },
+    "mean_decisions": 48.74766355140187
+   },
+   "same_fail": {
+    "n": 31,
+    "termination": {
+     "step_cap": 31
+    },
+    "first_lever": {
+     "call_lottery": 30,
+     "extra_look": 1
+    },
+    "first_lever_macro": {
+     "S0": 31
+    },
+    "first_lever_cls": {
+     "interior": 25,
+     "event": 5,
+     "mixed": 1
+    },
+    "first_lever_frac_median": 0.019230769230769232,
+    "final_macro": {
+     "S0": 3,
+     "S2": 9,
+     "S1": 6,
+     "S3": 13
+    },
+    "final_label": {
+     "S3.mixed": 12,
+     "S2.mixed": 7,
+     "S1.mixed": 4,
+     "S0.event": 2,
+     "S2.event": 2,
+     "S1.interior": 1,
+     "S3.event": 1,
+     "S1.event": 1
+    },
+    "max_macro": {
+     "S3": 26,
+     "S4+": 2,
+     "S2": 3
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.5248970676382023,
+     "lottery_calls": 0.2704107026863858,
+     "stall_calls": 0.2544863649518164,
+     "extra_looks": 0.052321740647012144
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 28.225806451612904,
+     "lottery_calls": 14.580645161290322,
+     "stall_calls": 13.64516129032258,
+     "extra_looks": 2.870967741935484
+    },
+    "mean_decisions": 104.0
+   },
+   "cross_run": null
+  },
+  "r7_pi05_l10_500_SF1": {
+   "reference": [
+    "r05_ptail:r5t_p_l10_500_tail1uc",
+    "r06_paper:r5t_p_l10_500_tail1uc_rep2",
+    "r06_paper:r5t_p_l10_500_tail1uc_rep3"
+   ],
+   "pairs": 500,
+   "sr": 0.834,
+   "counts": {
+    "same_success": 394,
+    "loss": 26,
+    "gain": 23,
+    "same_fail": 57
+   },
+   "loss_vs_A_unanimous": 15,
+   "gain_vs_A_unanimous": 6,
+   "a_self_noise": {
+    "pairs": 500,
+    "mean_loss_vs_other_two_unanimous": 15.666666666666666,
+    "mean_gain_vs_other_two_unanimous": 9.333333333333334,
+    "per_rep": [
+     [
+      15,
+      9
+     ],
+     [
+      19,
+      9
+     ],
+     [
+      13,
+      10
+     ]
+    ]
+   },
+   "loss": {
+    "n": 26,
+    "termination": {
+     "step_cap": 26
+    },
+    "first_lever": {
+     "extension": 23,
+     "None": 3
+    },
+    "first_lever_macro": {
+     "S0": 18,
+     "S1": 4,
+     "S3": 1,
+     "None": 3
+    },
+    "first_lever_cls": {
+     "interior": 21,
+     "event": 2,
+     "None": 3
+    },
+    "first_lever_frac_median": 0.019230769230769232,
+    "final_macro": {
+     "S3": 8,
+     "S2": 4,
+     "S?": 9,
+     "S4+": 5
+    },
+    "final_label": {
+     "S?.unknown": 9,
+     "S3.unknown": 4,
+     "S3.mixed": 3,
+     "S4+.unknown": 3,
+     "S2.unknown": 2,
+     "S4+.mixed": 2,
+     "S3.interior": 1,
+     "S2.mixed": 1
+    },
+    "max_macro": {
+     "S3": 9,
+     "S4+": 15,
+     "S2": 2
+    },
+    "mean_per_anchor": {
+     "granted": 0.15753080590051763,
+     "ext_blocks": 0.14358455076951293,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.013091554276303844,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 7.461538461538462,
+     "ext_blocks": 6.8076923076923075,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.6153846153846154,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 104.0
+   },
+   "gain": {
+    "n": 23,
+    "termination": {
+     "success": 23
+    },
+    "first_lever": {
+     "extension": 19,
+     "None": 4
+    },
+    "first_lever_macro": {
+     "S0": 11,
+     "S3": 2,
+     "None": 4,
+     "S1": 3,
+     "S2": 3
+    },
+    "first_lever_cls": {
+     "interior": 16,
+     "None": 4,
+     "event": 3
+    },
+    "first_lever_frac_median": 0.07142857142857142,
+    "final_macro": {
+     "S4+": 9,
+     "S3": 7,
+     "S2": 7
+    },
+    "final_label": {
+     "S4+.mixed": 8,
+     "S3.unknown": 4,
+     "S2.interior": 4,
+     "S2.unknown": 3,
+     "S3.mixed": 2,
+     "S3.interior": 1,
+     "S4+.event": 1
+    },
+    "max_macro": {
+     "S4+": 10,
+     "S2": 7,
+     "S3": 6
+    },
+    "mean_per_anchor": {
+     "granted": 0.3091226994520199,
+     "ext_blocks": 0.3069487864085417,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.002173913043478261,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 6.782608695652174,
+     "ext_blocks": 6.695652173913044,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.08695652173913043,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 60.21739130434783
+   },
+   "same_success": {
+    "n": 394,
+    "termination": {
+     "success": 394
+    },
+    "first_lever": {
+     "extension": 341,
+     "None": 52,
+     "early_valve_look": 1
+    },
+    "first_lever_macro": {
+     "S0": 234,
+     "S1": 62,
+     "S3": 21,
+     "S4+": 2,
+     "S2": 23,
+     "None": 52
+    },
+    "first_lever_cls": {
+     "interior": 297,
+     "event": 45,
+     "None": 52
+    },
+    "first_lever_frac_median": 0.0851063829787234,
+    "final_macro": {
+     "S4+": 130,
+     "S3": 127,
+     "S2": 86,
+     "S?": 1,
+     "S1": 50
+    },
+    "final_label": {
+     "S4+.mixed": 89,
+     "S2.interior": 67,
+     "S3.mixed": 40,
+     "S3.unknown": 40,
+     "S1.interior": 34,
+     "S3.interior": 33,
+     "S4+.event": 25,
+     "S2.unknown": 19
+    },
+    "max_macro": {
+     "S4+": 134,
+     "S3": 123,
+     "S2": 87,
+     "S1": 50
+    },
+    "mean_per_anchor": {
+     "granted": 0.3350780378756873,
+     "ext_blocks": 0.33198412177894243,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0022932467998826554,
+     "ext_fire": 0.0004607490648099786,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 6.51015228426396,
+     "ext_blocks": 6.436548223350254,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0583756345177665,
+     "ext_fire": 0.01015228426395939,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 49.8756345177665
+   },
+   "same_fail": {
+    "n": 57,
+    "termination": {
+     "step_cap": 57
+    },
+    "first_lever": {
+     "extension": 28,
+     "None": 29
+    },
+    "first_lever_macro": {
+     "S0": 22,
+     "None": 29,
+     "S2": 2,
+     "S1": 4
+    },
+    "first_lever_cls": {
+     "interior": 23,
+     "None": 29,
+     "event": 5
+    },
+    "first_lever_frac_median": 0.019230769230769232,
+    "final_macro": {
+     "S3": 14,
+     "S2": 11,
+     "S?": 22,
+     "S4+": 6,
+     "S0": 3,
+     "S1": 1
+    },
+    "final_label": {
+     "S?.unknown": 22,
+     "S3.unknown": 10,
+     "S2.unknown": 6,
+     "S2.interior": 5,
+     "S4+.unknown": 4,
+     "S0.unknown": 3,
+     "S3.mixed": 2,
+     "S3.interior": 2
+    },
+    "max_macro": {
+     "S4+": 29,
+     "S3": 17,
+     "S1": 2,
+     "S2": 9
+    },
+    "mean_per_anchor": {
+     "granted": 0.08285581659022101,
+     "ext_blocks": 0.07239715084837048,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.00674491356526417,
+     "ext_fire": 0.0021620273885793757,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 3.8947368421052633,
+     "ext_blocks": 3.4035087719298245,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.3157894736842105,
+     "ext_fire": 0.10526315789473684,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 104.0
+   },
+   "cross_run": null
+  },
+  "r7_pi05_l10_500_UF1": {
+   "reference": [
+    "r05_ptail:r5t_p_l10_500_tail1uc",
+    "r06_paper:r5t_p_l10_500_tail1uc_rep2",
+    "r06_paper:r5t_p_l10_500_tail1uc_rep3"
+   ],
+   "pairs": 500,
+   "sr": 0.79,
+   "counts": {
+    "same_success": 369,
+    "loss": 51,
+    "same_fail": 54,
+    "gain": 26
+   },
+   "loss_vs_A_unanimous": 37,
+   "gain_vs_A_unanimous": 14,
+   "a_self_noise": {
+    "pairs": 500,
+    "mean_loss_vs_other_two_unanimous": 15.666666666666666,
+    "mean_gain_vs_other_two_unanimous": 9.333333333333334,
+    "per_rep": [
+     [
+      15,
+      9
+     ],
+     [
+      19,
+      9
+     ],
+     [
+      13,
+      10
+     ]
+    ]
+   },
+   "loss": {
+    "n": 51,
+    "termination": {
+     "step_cap": 51
+    },
+    "first_lever": {
+     "extension": 51
+    },
+    "first_lever_macro": {
+     "S0": 51
+    },
+    "first_lever_cls": {
+     "interior": 17,
+     "unknown": 34
+    },
+    "first_lever_frac_median": 0.019230769230769232,
+    "final_macro": {
+     "S3": 18,
+     "S2": 11,
+     "S4+": 6,
+     "S?": 15,
+     "S0": 1
+    },
+    "final_label": {
+     "S?.unknown": 15,
+     "S3.unknown": 14,
+     "S4+.unknown": 5,
+     "S2.unknown": 5,
+     "S2.mixed": 4,
+     "S3.mixed": 4,
+     "S2.event": 1,
+     "S4+.mixed": 1
+    },
+    "max_macro": {
+     "S4+": 31,
+     "S3": 13,
+     "S2": 7
+    },
+    "mean_per_anchor": {
+     "granted": 0.8447375945053963,
+     "ext_blocks": 0.8315698048670184,
+     "sf_refused_ext": 0.6894796214455656,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 30.901960784313726,
+     "ext_blocks": 30.431372549019606,
+     "sf_refused_ext": 25.235294117647058,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 104.0
+   },
+   "gain": {
+    "n": 26,
+    "termination": {
+     "success": 26
+    },
+    "first_lever": {
+     "extension": 26
+    },
+    "first_lever_macro": {
+     "S0": 26
+    },
+    "first_lever_cls": {
+     "interior": 12,
+     "unknown": 14
+    },
+    "first_lever_frac_median": 0.03636363636363636,
+    "final_macro": {
+     "S4+": 10,
+     "S3": 10,
+     "S2": 6
+    },
+    "final_label": {
+     "S2.interior": 6,
+     "S3.unknown": 6,
+     "S4+.mixed": 5,
+     "S4+.event": 3,
+     "S3.event": 2,
+     "S4+.unknown": 2,
+     "S3.mixed": 1,
+     "S3.interior": 1
+    },
+    "max_macro": {
+     "S4+": 11,
+     "S3": 9,
+     "S2": 6
+    },
+    "mean_per_anchor": {
+     "granted": 0.9111193049827377,
+     "ext_blocks": 0.9111193049827377,
+     "sf_refused_ext": 0.6428708185303831,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 19.153846153846153,
+     "ext_blocks": 19.153846153846153,
+     "sf_refused_ext": 14.038461538461538,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 60.61538461538461
+   },
+   "same_success": {
+    "n": 369,
+    "termination": {
+     "success": 369
+    },
+    "first_lever": {
+     "extension": 369
+    },
+    "first_lever_macro": {
+     "S0": 369
+    },
+    "first_lever_cls": {
+     "interior": 150,
+     "unknown": 219
+    },
+    "first_lever_frac_median": 0.04081632653061224,
+    "final_macro": {
+     "S4+": 117,
+     "S2": 83,
+     "S3": 118,
+     "S1": 50,
+     "S?": 1
+    },
+    "final_label": {
+     "S4+.mixed": 89,
+     "S2.interior": 62,
+     "S3.unknown": 44,
+     "S3.mixed": 33,
+     "S1.interior": 30,
+     "S3.interior": 27,
+     "S4+.event": 21,
+     "S2.unknown": 20
+    },
+    "max_macro": {
+     "S4+": 121,
+     "S3": 116,
+     "S2": 82,
+     "S1": 50
+    },
+    "mean_per_anchor": {
+     "granted": 0.9022740780069377,
+     "ext_blocks": 0.901822406823559,
+     "sf_refused_ext": 0.5241333464455378,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 15.639566395663957,
+     "ext_blocks": 15.631436314363144,
+     "sf_refused_ext": 9.368563685636856,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 49.72357723577236
+   },
+   "same_fail": {
+    "n": 54,
+    "termination": {
+     "step_cap": 54
+    },
+    "first_lever": {
+     "extension": 54
+    },
+    "first_lever_macro": {
+     "S0": 54
+    },
+    "first_lever_cls": {
+     "interior": 15,
+     "unknown": 39
+    },
+    "first_lever_frac_median": 0.019230769230769232,
+    "final_macro": {
+     "S3": 14,
+     "S2": 9,
+     "S4+": 9,
+     "S?": 20,
+     "S1": 2
+    },
+    "final_label": {
+     "S?.unknown": 20,
+     "S3.unknown": 10,
+     "S4+.unknown": 9,
+     "S2.interior": 3,
+     "S2.unknown": 3,
+     "S3.interior": 3,
+     "S2.mixed": 2,
+     "S1.unknown": 2
+    },
+    "max_macro": {
+     "S4+": 28,
+     "S3": 14,
+     "S2": 10,
+     "S1": 2
+    },
+    "mean_per_anchor": {
+     "granted": 0.846587761501825,
+     "ext_blocks": 0.8363419098086049,
+     "sf_refused_ext": 0.7294959885175258,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 30.98148148148148,
+     "ext_blocks": 30.61111111111111,
+     "sf_refused_ext": 26.72222222222222,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 104.0
+   },
+   "cross_run": null
+  },
+  "r7_sw_pi05_l10_500": {
+   "reference": [
+    "r05_ptail:r5t_p_l10_500_tail1uc",
+    "r06_paper:r5t_p_l10_500_tail1uc_rep2",
+    "r06_paper:r5t_p_l10_500_tail1uc_rep3"
+   ],
+   "pairs": 500,
+   "sr": 0.846,
+   "counts": {
+    "same_success": 391,
+    "loss": 29,
+    "same_fail": 48,
+    "gain": 32
+   },
+   "loss_vs_A_unanimous": 23,
+   "gain_vs_A_unanimous": 13,
+   "a_self_noise": {
+    "pairs": 500,
+    "mean_loss_vs_other_two_unanimous": 15.666666666666666,
+    "mean_gain_vs_other_two_unanimous": 9.333333333333334,
+    "per_rep": [
+     [
+      15,
+      9
+     ],
+     [
+      19,
+      9
+     ],
+     [
+      13,
+      10
+     ]
+    ]
+   },
+   "loss": {
+    "n": 29,
+    "termination": {
+     "step_cap": 29
+    },
+    "first_lever": {
+     "wrist_look": 24,
+     "None": 5
+    },
+    "first_lever_macro": {
+     "S0": 19,
+     "S2": 1,
+     "S3": 1,
+     "None": 5,
+     "S1": 3
+    },
+    "first_lever_cls": {
+     "interior": 24,
+     "None": 5
+    },
+    "first_lever_frac_median": 0.019230769230769232,
+    "final_macro": {
+     "S3": 7,
+     "S2": 7,
+     "S4+": 7,
+     "S?": 6,
+     "S1": 2
+    },
+    "final_label": {
+     "S?.unknown": 6,
+     "S4+.mixed": 4,
+     "S3.unknown": 3,
+     "S4+.unknown": 3,
+     "S3.interior": 2,
+     "S2.interior": 2,
+     "S3.mixed": 2,
+     "S2.mixed": 2
+    },
+    "max_macro": {
+     "S4+": 20,
+     "S3": 7,
+     "S1": 1,
+     "S2": 1
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.1352785145888594,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 7.0344827586206895,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 104.0
+   },
+   "gain": {
+    "n": 32,
+    "termination": {
+     "success": 32
+    },
+    "first_lever": {
+     "wrist_look": 26,
+     "None": 6
+    },
+    "first_lever_macro": {
+     "S0": 18,
+     "None": 6,
+     "S2": 4,
+     "S1": 3,
+     "S3": 1
+    },
+    "first_lever_cls": {
+     "interior": 26,
+     "None": 6
+    },
+    "first_lever_frac_median": 0.046031746031746035,
+    "final_macro": {
+     "S4+": 11,
+     "S3": 16,
+     "S2": 5
+    },
+    "final_label": {
+     "S3.unknown": 12,
+     "S4+.mixed": 7,
+     "S2.interior": 4,
+     "S4+.event": 3,
+     "S3.mixed": 3,
+     "S2.unknown": 1,
+     "S3.interior": 1,
+     "S4+.unknown": 1
+    },
+    "max_macro": {
+     "S4+": 12,
+     "S3": 15,
+     "S2": 5
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.22999650788565154,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 6.3125,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 56.4375
+   },
+   "same_success": {
+    "n": 391,
+    "termination": {
+     "success": 391
+    },
+    "first_lever": {
+     "wrist_look": 339,
+     "None": 52
+    },
+    "first_lever_macro": {
+     "S0": 227,
+     "S2": 36,
+     "S4+": 1,
+     "S3": 21,
+     "None": 52,
+     "S1": 54
+    },
+    "first_lever_cls": {
+     "interior": 339,
+     "None": 52
+    },
+    "first_lever_frac_median": 0.08163265306122448,
+    "final_macro": {
+     "S4+": 118,
+     "S2": 88,
+     "S3": 135,
+     "S1": 50
+    },
+    "final_label": {
+     "S4+.mixed": 91,
+     "S2.interior": 66,
+     "S3.mixed": 52,
+     "S3.unknown": 47,
+     "S1.unknown": 25,
+     "S1.interior": 25,
+     "S3.interior": 22,
+     "S2.unknown": 20
+    },
+    "max_macro": {
+     "S4+": 125,
+     "S3": 130,
+     "S2": 86,
+     "S1": 50
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.2694394337531287,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 6.4884910485933505,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 50.35805626598466
+   },
+   "same_fail": {
+    "n": 48,
+    "termination": {
+     "step_cap": 48
+    },
+    "first_lever": {
+     "wrist_look": 19,
+     "None": 29
+    },
+    "first_lever_macro": {
+     "S0": 14,
+     "None": 29,
+     "S1": 4,
+     "S2": 1
+    },
+    "first_lever_cls": {
+     "interior": 19,
+     "None": 29
+    },
+    "first_lever_frac_median": 0.019230769230769232,
+    "final_macro": {
+     "S3": 10,
+     "S2": 9,
+     "S0": 3,
+     "S?": 18,
+     "S4+": 6,
+     "S1": 2
+    },
+    "final_label": {
+     "S?.unknown": 18,
+     "S3.unknown": 9,
+     "S4+.unknown": 5,
+     "S2.mixed": 4,
+     "S2.unknown": 4,
+     "S0.unknown": 2,
+     "S2.interior": 1,
+     "S0.mixed": 1
+    },
+    "max_macro": {
+     "S3": 12,
+     "S4+": 23,
+     "S2": 12,
+     "S1": 1
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.062099358974358976,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 3.2291666666666665,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 104.0
+   },
+   "cross_run": null
+  },
+  "r7_pi05_spatial_50_SF1": {
+   "reference": [
+    "r05_ptail:r5t_p_sp_50_tail1uc",
+    "r06_paper:r5t_p_sp_50_tail1uc_rep2",
+    "r06_paper:r5t_p_sp_50_tail1uc_rep3"
+   ],
+   "pairs": 500,
+   "sr": 0.794,
+   "counts": {
+    "same_success": 380,
+    "loss": 43,
+    "same_fail": 60,
+    "gain": 17
+   },
+   "loss_vs_A_unanimous": 39,
+   "gain_vs_A_unanimous": 9,
+   "a_self_noise": {
+    "pairs": 500,
+    "mean_loss_vs_other_two_unanimous": 9.0,
+    "mean_gain_vs_other_two_unanimous": 4.333333333333333,
+    "per_rep": [
+     [
+      7,
+      3
+     ],
+     [
+      6,
+      5
+     ],
+     [
+      14,
+      5
+     ]
+    ]
+   },
+   "loss": {
+    "n": 43,
+    "termination": {
+     "step_cap": 43
+    },
+    "first_lever": {
+     "extension": 43
+    },
+    "first_lever_macro": {
+     "S0": 43
+    },
+    "first_lever_cls": {
+     "interior": 43
+    },
+    "first_lever_frac_median": 0.045454545454545456,
+    "final_macro": {
+     "S1": 43
+    },
+    "final_label": {
+     "S1.mixed": 26,
+     "S1.event": 14,
+     "S1.interior": 3
+    },
+    "max_macro": {
+     "S1": 43
+    },
+    "mean_per_anchor": {
+     "granted": 0.19543838454487164,
+     "ext_blocks": 0.18868312430123937,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.005647840531561462,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 3.9302325581395348,
+     "ext_blocks": 3.7906976744186047,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.11627906976744186,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 44.0
+   },
+   "gain": {
+    "n": 17,
+    "termination": {
+     "success": 17
+    },
+    "first_lever": {
+     "extension": 17
+    },
+    "first_lever_macro": {
+     "S0": 17
+    },
+    "first_lever_cls": {
+     "interior": 17
+    },
+    "first_lever_frac_median": 0.09090909090909091,
+    "final_macro": {
+     "S1": 17
+    },
+    "final_label": {
+     "S1.interior": 7,
+     "S1.mixed": 6,
+     "S1.event": 4
+    },
+    "max_macro": {
+     "S1": 17
+    },
+    "mean_per_anchor": {
+     "granted": 0.4768674136321195,
+     "ext_blocks": 0.4768674136321195,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 4.235294117647059,
+     "ext_blocks": 4.235294117647059,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 21.823529411764707
+   },
+   "same_success": {
+    "n": 380,
+    "termination": {
+     "success": 380
+    },
+    "first_lever": {
+     "extension": 380
+    },
+    "first_lever_macro": {
+     "S0": 380
+    },
+    "first_lever_cls": {
+     "interior": 380
+    },
+    "first_lever_frac_median": 0.1,
+    "final_macro": {
+     "S1": 380
+    },
+    "final_label": {
+     "S1.mixed": 170,
+     "S1.interior": 128,
+     "S1.event": 82
+    },
+    "max_macro": {
+     "S1": 380
+    },
+    "mean_per_anchor": {
+     "granted": 0.48991448071780475,
+     "ext_blocks": 0.4885177195842016,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0013967611336032392,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 4.184210526315789,
+     "ext_blocks": 4.168421052631579,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.015789473684210527,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 20.78684210526316
+   },
+   "same_fail": {
+    "n": 60,
+    "termination": {
+     "step_cap": 60
+    },
+    "first_lever": {
+     "extension": 60
+    },
+    "first_lever_macro": {
+     "S0": 60
+    },
+    "first_lever_cls": {
+     "interior": 60
+    },
+    "first_lever_frac_median": 0.045454545454545456,
+    "final_macro": {
+     "S1": 52,
+     "S0": 8
+    },
+    "final_label": {
+     "S1.mixed": 42,
+     "S1.event": 9,
+     "S0.mixed": 8,
+     "S1.interior": 1
+    },
+    "max_macro": {
+     "S1": 60
+    },
+    "mean_per_anchor": {
+     "granted": 0.18618629908103593,
+     "ext_blocks": 0.17491645781119464,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.008888888888888889,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 3.783333333333333,
+     "ext_blocks": 3.55,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.18333333333333332,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 44.0
+   },
+   "cross_run": null
+  },
+  "r7_pi05_spatial_50_UF1": {
+   "reference": [
+    "r05_ptail:r5t_p_sp_50_tail1uc",
+    "r06_paper:r5t_p_sp_50_tail1uc_rep2",
+    "r06_paper:r5t_p_sp_50_tail1uc_rep3"
+   ],
+   "pairs": 500,
+   "sr": 0.78,
+   "counts": {
+    "same_success": 374,
+    "loss": 49,
+    "same_fail": 61,
+    "gain": 16
+   },
+   "loss_vs_A_unanimous": 43,
+   "gain_vs_A_unanimous": 8,
+   "a_self_noise": {
+    "pairs": 500,
+    "mean_loss_vs_other_two_unanimous": 9.0,
+    "mean_gain_vs_other_two_unanimous": 4.333333333333333,
+    "per_rep": [
+     [
+      7,
+      3
+     ],
+     [
+      6,
+      5
+     ],
+     [
+      14,
+      5
+     ]
+    ]
+   },
+   "loss": {
+    "n": 49,
+    "termination": {
+     "step_cap": 49
+    },
+    "first_lever": {
+     "extension": 49
+    },
+    "first_lever_macro": {
+     "S0": 49
+    },
+    "first_lever_cls": {
+     "interior": 49
+    },
+    "first_lever_frac_median": 0.045454545454545456,
+    "final_macro": {
+     "S1": 45,
+     "S0": 4
+    },
+    "final_label": {
+     "S1.mixed": 34,
+     "S1.event": 8,
+     "S1.interior": 3,
+     "S0.mixed": 3,
+     "S0.event": 1
+    },
+    "max_macro": {
+     "S1": 48,
+     "S2": 1
+    },
+    "mean_per_anchor": {
+     "granted": 0.30856307435254804,
+     "ext_blocks": 0.30856307435254804,
+     "sf_refused_ext": 0.11018021243585155,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 5.8979591836734695,
+     "ext_blocks": 5.8979591836734695,
+     "sf_refused_ext": 2.1020408163265305,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 44.0
+   },
+   "gain": {
+    "n": 16,
+    "termination": {
+     "success": 16
+    },
+    "first_lever": {
+     "extension": 16
+    },
+    "first_lever_macro": {
+     "S0": 16
+    },
+    "first_lever_cls": {
+     "interior": 16
+    },
+    "first_lever_frac_median": 0.09090909090909091,
+    "final_macro": {
+     "S1": 16
+    },
+    "final_label": {
+     "S1.interior": 7,
+     "S1.mixed": 5,
+     "S1.event": 4
+    },
+    "max_macro": {
+     "S1": 16
+    },
+    "mean_per_anchor": {
+     "granted": 0.6976573773448773,
+     "ext_blocks": 0.6976573773448773,
+     "sf_refused_ext": 0.22091224747474747,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 5.75,
+     "ext_blocks": 5.75,
+     "sf_refused_ext": 1.8125,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 21.8125
+   },
+   "same_success": {
+    "n": 374,
+    "termination": {
+     "success": 374
+    },
+    "first_lever": {
+     "extension": 374
+    },
+    "first_lever_macro": {
+     "S0": 374
+    },
+    "first_lever_cls": {
+     "interior": 374
+    },
+    "first_lever_frac_median": 0.09523809523809523,
+    "final_macro": {
+     "S1": 374
+    },
+    "final_label": {
+     "S1.mixed": 157,
+     "S1.interior": 112,
+     "S1.event": 105
+    },
+    "max_macro": {
+     "S1": 374
+    },
+    "mean_per_anchor": {
+     "granted": 0.7508154679154537,
+     "ext_blocks": 0.7508154679154537,
+     "sf_refused_ext": 0.21037127334622407,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 5.828877005347594,
+     "ext_blocks": 5.828877005347594,
+     "sf_refused_ext": 1.6229946524064172,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 20.877005347593585
+   },
+   "same_fail": {
+    "n": 61,
+    "termination": {
+     "step_cap": 61
+    },
+    "first_lever": {
+     "extension": 61
+    },
+    "first_lever_macro": {
+     "S0": 61
+    },
+    "first_lever_cls": {
+     "interior": 61
+    },
+    "first_lever_frac_median": 0.045454545454545456,
+    "final_macro": {
+     "S1": 54,
+     "S0": 7
+    },
+    "final_label": {
+     "S1.mixed": 43,
+     "S1.event": 7,
+     "S0.mixed": 7,
+     "S1.interior": 4
+    },
+    "max_macro": {
+     "S1": 61
+    },
+    "mean_per_anchor": {
+     "granted": 0.34955503915687636,
+     "ext_blocks": 0.3467089553681696,
+     "sf_refused_ext": 0.1474994340560498,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 6.524590163934426,
+     "ext_blocks": 6.475409836065574,
+     "sf_refused_ext": 2.737704918032787,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 44.0
+   },
+   "cross_run": null
+  },
+  "r7_sw_pi05_sp_50": {
+   "reference": [
+    "r05_ptail:r5t_p_sp_50_tail1uc",
+    "r06_paper:r5t_p_sp_50_tail1uc_rep2",
+    "r06_paper:r5t_p_sp_50_tail1uc_rep3"
+   ],
+   "pairs": 500,
+   "sr": 0.824,
+   "counts": {
+    "same_success": 387,
+    "loss": 36,
+    "same_fail": 52,
+    "gain": 25
+   },
+   "loss_vs_A_unanimous": 30,
+   "gain_vs_A_unanimous": 14,
+   "a_self_noise": {
+    "pairs": 500,
+    "mean_loss_vs_other_two_unanimous": 9.0,
+    "mean_gain_vs_other_two_unanimous": 4.333333333333333,
+    "per_rep": [
+     [
+      7,
+      3
+     ],
+     [
+      6,
+      5
+     ],
+     [
+      14,
+      5
+     ]
+    ]
+   },
+   "loss": {
+    "n": 36,
+    "termination": {
+     "step_cap": 36
+    },
+    "first_lever": {
+     "wrist_look": 36
+    },
+    "first_lever_macro": {
+     "S0": 35,
+     "S1": 1
+    },
+    "first_lever_cls": {
+     "interior": 36
+    },
+    "first_lever_frac_median": 0.045454545454545456,
+    "final_macro": {
+     "S1": 34,
+     "S0": 2
+    },
+    "final_label": {
+     "S1.mixed": 25,
+     "S1.event": 6,
+     "S1.interior": 3,
+     "S0.mixed": 1,
+     "S0.event": 1
+    },
+    "max_macro": {
+     "S1": 36
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.16287878787878787,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 3.5833333333333335,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 44.0
+   },
+   "gain": {
+    "n": 25,
+    "termination": {
+     "success": 25
+    },
+    "first_lever": {
+     "wrist_look": 25
+    },
+    "first_lever_macro": {
+     "S0": 23,
+     "S1": 2
+    },
+    "first_lever_cls": {
+     "interior": 25
+    },
+    "first_lever_frac_median": 0.09523809523809523,
+    "final_macro": {
+     "S1": 25
+    },
+    "final_label": {
+     "S1.interior": 11,
+     "S1.mixed": 8,
+     "S1.event": 6
+    },
+    "max_macro": {
+     "S1": 25
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.3786688866688867,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 4.24,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 21.44
+   },
+   "same_success": {
+    "n": 387,
+    "termination": {
+     "success": 387
+    },
+    "first_lever": {
+     "wrist_look": 387
+    },
+    "first_lever_macro": {
+     "S0": 337,
+     "S1": 50
+    },
+    "first_lever_cls": {
+     "interior": 387
+    },
+    "first_lever_frac_median": 0.1,
+    "final_macro": {
+     "S1": 387
+    },
+    "final_label": {
+     "S1.mixed": 192,
+     "S1.interior": 120,
+     "S1.event": 75
+    },
+    "max_macro": {
+     "S1": 387
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.3479489968831055,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 3.8656330749354004,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 21.108527131782946
+   },
+   "same_fail": {
+    "n": 52,
+    "termination": {
+     "step_cap": 52
+    },
+    "first_lever": {
+     "wrist_look": 52
+    },
+    "first_lever_macro": {
+     "S0": 52
+    },
+    "first_lever_cls": {
+     "interior": 52
+    },
+    "first_lever_frac_median": 0.045454545454545456,
+    "final_macro": {
+     "S1": 38,
+     "S0": 14
+    },
+    "final_label": {
+     "S1.mixed": 36,
+     "S0.mixed": 14,
+     "S1.event": 2
+    },
+    "max_macro": {
+     "S1": 52
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.16870629370629373,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 3.7115384615384617,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 44.0
+   },
+   "cross_run": null
+  },
+  "r7_pi05_spatial_50_CU30": {
+   "reference": [
+    "r05_ptail:r5t_p_sp_50_tail1uc",
+    "r06_paper:r5t_p_sp_50_tail1uc_rep2",
+    "r06_paper:r5t_p_sp_50_tail1uc_rep3"
+   ],
+   "pairs": 500,
+   "sr": 0.946,
+   "counts": {
+    "same_success": 407,
+    "loss": 16,
+    "same_fail": 11,
+    "gain": 66
+   },
+   "loss_vs_A_unanimous": 15,
+   "gain_vs_A_unanimous": 54,
+   "a_self_noise": {
+    "pairs": 500,
+    "mean_loss_vs_other_two_unanimous": 9.0,
+    "mean_gain_vs_other_two_unanimous": 4.333333333333333,
+    "per_rep": [
+     [
+      7,
+      3
+     ],
+     [
+      6,
+      5
+     ],
+     [
+      14,
+      5
+     ]
+    ]
+   },
+   "loss": {
+    "n": 16,
+    "termination": {
+     "step_cap": 16
+    },
+    "first_lever": {
+     "call_lottery": 15,
+     "call_stall": 1
+    },
+    "first_lever_macro": {
+     "S0": 16
+    },
+    "first_lever_cls": {
+     "interior": 16
+    },
+    "first_lever_frac_median": 0.045454545454545456,
+    "final_macro": {
+     "S1": 15,
+     "S0": 1
+    },
+    "final_label": {
+     "S1.mixed": 13,
+     "S0.mixed": 1,
+     "S1.event": 1,
+     "S1.interior": 1
+    },
+    "max_macro": {
+     "S1": 15,
+     "S2": 1
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.5181365283267457,
+     "lottery_calls": 0.2718111824769433,
+     "stall_calls": 0.24632534584980237,
+     "extra_looks": 0.06125452898550725
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 11.875,
+     "lottery_calls": 6.25,
+     "stall_calls": 5.625,
+     "extra_looks": 1.4375
+    },
+    "mean_decisions": 44.0
+   },
+   "gain": {
+    "n": 66,
+    "termination": {
+     "success": 66
+    },
+    "first_lever": {
+     "call_lottery": 62,
+     "call_stall": 3,
+     "extra_look": 1
+    },
+    "first_lever_macro": {
+     "S0": 64,
+     "S1": 2
+    },
+    "first_lever_cls": {
+     "interior": 62,
+     "event": 3,
+     "mixed": 1
+    },
+    "first_lever_frac_median": 0.08166666666666667,
+    "final_macro": {
+     "S1": 66
+    },
+    "final_label": {
+     "S1.mixed": 28,
+     "S1.event": 28,
+     "S1.interior": 10
+    },
+    "max_macro": {
+     "S1": 66
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.5081134143634143,
+     "lottery_calls": 0.46133523463068915,
+     "stall_calls": 0.04677817973272519,
+     "extra_looks": 0.0504632362586908
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 5.818181818181818,
+     "lottery_calls": 5.2727272727272725,
+     "stall_calls": 0.5454545454545454,
+     "extra_looks": 0.6363636363636364
+    },
+    "mean_decisions": 21.833333333333332
+   },
+   "same_success": {
+    "n": 407,
+    "termination": {
+     "success": 407
+    },
+    "first_lever": {
+     "call_lottery": 397,
+     "call_stall": 7,
+     "extra_look": 3
+    },
+    "first_lever_macro": {
+     "S0": 389,
+     "S1": 18
+    },
+    "first_lever_cls": {
+     "interior": 347,
+     "event": 28,
+     "mixed": 32
+    },
+    "first_lever_frac_median": 0.07407407407407407,
+    "final_macro": {
+     "S1": 406,
+     "S0": 1
+    },
+    "final_label": {
+     "S1.mixed": 211,
+     "S1.event": 99,
+     "S1.interior": 96,
+     "S0.mixed": 1
+    },
+    "max_macro": {
+     "S1": 407
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.4858425597061961,
+     "lottery_calls": 0.4580678501133047,
+     "stall_calls": 0.02777470959289141,
+     "extra_looks": 0.04139767548858458
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 5.302211302211302,
+     "lottery_calls": 4.995085995085995,
+     "stall_calls": 0.3071253071253071,
+     "extra_looks": 0.5061425061425061
+    },
+    "mean_decisions": 20.862407862407863
+   },
+   "same_fail": {
+    "n": 11,
+    "termination": {
+     "step_cap": 11
+    },
+    "first_lever": {
+     "call_lottery": 11
+    },
+    "first_lever_macro": {
+     "S0": 11
+    },
+    "first_lever_cls": {
+     "interior": 9,
+     "event": 1,
+     "mixed": 1
+    },
+    "first_lever_frac_median": 0.045454545454545456,
+    "final_macro": {
+     "S1": 10,
+     "S0": 1
+    },
+    "final_label": {
+     "S1.mixed": 6,
+     "S1.event": 3,
+     "S1.interior": 1,
+     "S0.mixed": 1
+    },
+    "max_macro": {
+     "S1": 11
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.47885076057012815,
+     "lottery_calls": 0.2476104922745239,
+     "stall_calls": 0.23124026829560426,
+     "extra_looks": 0.09065876152832675
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 11.090909090909092,
+     "lottery_calls": 5.818181818181818,
+     "stall_calls": 5.2727272727272725,
+     "extra_looks": 2.1818181818181817
+    },
+    "mean_decisions": 44.0
+   },
+   "cross_run": null
+  },
+  "r7_pi05_spatial_50_CT30": {
+   "reference": [
+    "r05_ptail:r5t_p_sp_50_tail1uc",
+    "r06_paper:r5t_p_sp_50_tail1uc_rep2",
+    "r06_paper:r5t_p_sp_50_tail1uc_rep3"
+   ],
+   "pairs": 500,
+   "sr": 0.962,
+   "counts": {
+    "same_success": 412,
+    "same_fail": 8,
+    "gain": 69,
+    "loss": 11
+   },
+   "loss_vs_A_unanimous": 9,
+   "gain_vs_A_unanimous": 57,
+   "a_self_noise": {
+    "pairs": 500,
+    "mean_loss_vs_other_two_unanimous": 9.0,
+    "mean_gain_vs_other_two_unanimous": 4.333333333333333,
+    "per_rep": [
+     [
+      7,
+      3
+     ],
+     [
+      6,
+      5
+     ],
+     [
+      14,
+      5
+     ]
+    ]
+   },
+   "loss": {
+    "n": 11,
+    "termination": {
+     "step_cap": 11
+    },
+    "first_lever": {
+     "call_lottery": 11
+    },
+    "first_lever_macro": {
+     "S0": 10,
+     "S1": 1
+    },
+    "first_lever_cls": {
+     "interior": 7,
+     "mixed": 3,
+     "event": 1
+    },
+    "first_lever_frac_median": 0.09090909090909091,
+    "final_macro": {
+     "S1": 10,
+     "S0": 1
+    },
+    "final_label": {
+     "S1.mixed": 8,
+     "S1.interior": 2,
+     "S0.event": 1
+    },
+    "max_macro": {
+     "S1": 11
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.5372499700562942,
+     "lottery_calls": 0.33785483291412144,
+     "stall_calls": 0.19939513714217272,
+     "extra_looks": 0.06949934123847167
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 12.363636363636363,
+     "lottery_calls": 7.818181818181818,
+     "stall_calls": 4.545454545454546,
+     "extra_looks": 1.6363636363636365
+    },
+    "mean_decisions": 44.0
+   },
+   "gain": {
+    "n": 69,
+    "termination": {
+     "success": 69
+    },
+    "first_lever": {
+     "call_lottery": 63,
+     "call_stall": 5,
+     "extra_look": 1
+    },
+    "first_lever_macro": {
+     "S0": 68,
+     "S1": 1
+    },
+    "first_lever_cls": {
+     "interior": 57,
+     "event": 7,
+     "mixed": 5
+    },
+    "first_lever_frac_median": 0.16,
+    "final_macro": {
+     "S1": 69
+    },
+    "final_label": {
+     "S1.mixed": 29,
+     "S1.event": 27,
+     "S1.interior": 13
+    },
+    "max_macro": {
+     "S1": 69
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.47736747954139247,
+     "lottery_calls": 0.4290170377126899,
+     "stall_calls": 0.0483504418287027,
+     "extra_looks": 0.04567284567284568
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 5.579710144927536,
+     "lottery_calls": 5.0,
+     "stall_calls": 0.5797101449275363,
+     "extra_looks": 0.5507246376811594
+    },
+    "mean_decisions": 22.26086956521739
+   },
+   "same_success": {
+    "n": 412,
+    "termination": {
+     "success": 412
+    },
+    "first_lever": {
+     "call_lottery": 400,
+     "call_stall": 10,
+     "extra_look": 2
+    },
+    "first_lever_macro": {
+     "S0": 385,
+     "S1": 27
+    },
+    "first_lever_cls": {
+     "interior": 276,
+     "mixed": 85,
+     "event": 51
+    },
+    "first_lever_frac_median": 0.11764705882352941,
+    "final_macro": {
+     "S1": 411,
+     "S0": 1
+    },
+    "final_label": {
+     "S1.mixed": 205,
+     "S1.interior": 109,
+     "S1.event": 97,
+     "S0.mixed": 1
+    },
+    "max_macro": {
+     "S1": 412
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.4644099762871179,
+     "lottery_calls": 0.44186529707838956,
+     "stall_calls": 0.02254467920872832,
+     "extra_looks": 0.03233770342386847
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 5.004854368932039,
+     "lottery_calls": 4.764563106796117,
+     "stall_calls": 0.24029126213592233,
+     "extra_looks": 0.3737864077669903
+    },
+    "mean_decisions": 20.66747572815534
+   },
+   "same_fail": {
+    "n": 8,
+    "termination": {
+     "step_cap": 8
+    },
+    "first_lever": {
+     "call_lottery": 8
+    },
+    "first_lever_macro": {
+     "S0": 7,
+     "S1": 1
+    },
+    "first_lever_cls": {
+     "mixed": 4,
+     "interior": 4
+    },
+    "first_lever_frac_median": 0.1590909090909091,
+    "final_macro": {
+     "S1": 4,
+     "S0": 4
+    },
+    "final_label": {
+     "S0.mixed": 3,
+     "S1.mixed": 3,
+     "S1.event": 1,
+     "S0.event": 1
+    },
+    "max_macro": {
+     "S1": 8
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.5051877470355731,
+     "lottery_calls": 0.2701951581027668,
+     "stall_calls": 0.23499258893280633,
+     "extra_looks": 0.05366847826086957
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 11.625,
+     "lottery_calls": 6.25,
+     "stall_calls": 5.375,
+     "extra_looks": 1.25
+    },
+    "mean_decisions": 44.0
+   },
+   "cross_run": null
+  },
+  "r7_pi05_spatial_500_SF1": {
+   "reference": [
+    "r04_blind:r4b3_p_sp_500_tail1uc",
+    "r06_paper:r4b3_p_sp_500_tail1uc_rep2",
+    "r06_paper:r4b3_p_sp_500_tail1uc_rep3"
+   ],
+   "pairs": 500,
+   "sr": 0.974,
+   "counts": {
+    "same_success": 481,
+    "same_fail": 4,
+    "gain": 6,
+    "loss": 9
+   },
+   "loss_vs_A_unanimous": 9,
+   "gain_vs_A_unanimous": 2,
+   "a_self_noise": {
+    "pairs": 500,
+    "mean_loss_vs_other_two_unanimous": 3.6666666666666665,
+    "mean_gain_vs_other_two_unanimous": 1.6666666666666667,
+    "per_rep": [
+     [
+      2,
+      3
+     ],
+     [
+      4,
+      1
+     ],
+     [
+      5,
+      1
+     ]
+    ]
+   },
+   "loss": {
+    "n": 9,
+    "termination": {
+     "step_cap": 9
+    },
+    "first_lever": {
+     "extension": 9
+    },
+    "first_lever_macro": {
+     "S0": 9
+    },
+    "first_lever_cls": {
+     "interior": 9
+    },
+    "first_lever_frac_median": 0.045454545454545456,
+    "final_macro": {
+     "S0": 5,
+     "S1": 3,
+     "S2": 1
+    },
+    "final_label": {
+     "S0.unknown": 5,
+     "S1.mixed": 2,
+     "S1.interior": 1,
+     "S2.unknown": 1
+    },
+    "max_macro": {
+     "S1": 5,
+     "S2": 2,
+     "S3": 2
+    },
+    "mean_per_anchor": {
+     "granted": 0.17161970583023212,
+     "ext_blocks": 0.17161970583023212,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 3.4444444444444446,
+     "ext_blocks": 3.4444444444444446,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 44.0
+   },
+   "gain": {
+    "n": 6,
+    "termination": {
+     "success": 6
+    },
+    "first_lever": {
+     "extension": 6
+    },
+    "first_lever_macro": {
+     "S0": 6
+    },
+    "first_lever_cls": {
+     "interior": 6
+    },
+    "first_lever_frac_median": 0.10230179028132992,
+    "final_macro": {
+     "S1": 6
+    },
+    "final_label": {
+     "S1.event": 4,
+     "S1.mixed": 1,
+     "S1.interior": 1
+    },
+    "max_macro": {
+     "S1": 6
+    },
+    "mean_per_anchor": {
+     "granted": 0.596031746031746,
+     "ext_blocks": 0.596031746031746,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 5.0,
+     "ext_blocks": 5.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 20.833333333333332
+   },
+   "same_success": {
+    "n": 481,
+    "termination": {
+     "success": 481
+    },
+    "first_lever": {
+     "extension": 480,
+     "None": 1
+    },
+    "first_lever_macro": {
+     "S0": 469,
+     "None": 1,
+     "S1": 11
+    },
+    "first_lever_cls": {
+     "interior": 473,
+     "None": 1,
+     "event": 7
+    },
+    "first_lever_frac_median": 0.1,
+    "final_macro": {
+     "S1": 475,
+     "S0": 1,
+     "S3": 3,
+     "S2": 2
+    },
+    "final_label": {
+     "S1.interior": 273,
+     "S1.mixed": 101,
+     "S1.event": 85,
+     "S1.unknown": 16,
+     "S3.mixed": 2,
+     "S2.mixed": 2,
+     "S0.unknown": 1,
+     "S3.unknown": 1
+    },
+    "max_macro": {
+     "S1": 467,
+     "S3": 9,
+     "S2": 5
+    },
+    "mean_per_anchor": {
+     "granted": 0.6090658504120042,
+     "ext_blocks": 0.6081079263771572,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.00015992323684631377,
+     "ext_fire": 0.000567000567000567,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 4.956340956340957,
+     "ext_blocks": 4.945945945945946,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.002079002079002079,
+     "ext_fire": 0.006237006237006237,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 20.777546777546778
+   },
+   "same_fail": {
+    "n": 4,
+    "termination": {
+     "step_cap": 4
+    },
+    "first_lever": {
+     "extension": 4
+    },
+    "first_lever_macro": {
+     "S0": 3,
+     "S1": 1
+    },
+    "first_lever_cls": {
+     "interior": 3,
+     "event": 1
+    },
+    "first_lever_frac_median": 0.06818181818181818,
+    "final_macro": {
+     "S1": 3,
+     "S2": 1
+    },
+    "final_label": {
+     "S1.unknown": 3,
+     "S2.unknown": 1
+    },
+    "max_macro": {
+     "S1": 1,
+     "S2": 3
+    },
+    "mean_per_anchor": {
+     "granted": 0.14983481430849852,
+     "ext_blocks": 0.14983481430849852,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 3.0,
+     "ext_blocks": 3.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 44.0
+   },
+   "cross_run": null
+  },
+  "r7_pi05_spatial_500_UF1": {
+   "reference": [
+    "r04_blind:r4b3_p_sp_500_tail1uc",
+    "r06_paper:r4b3_p_sp_500_tail1uc_rep2",
+    "r06_paper:r4b3_p_sp_500_tail1uc_rep3"
+   ],
+   "pairs": 500,
+   "sr": 0.958,
+   "counts": {
+    "same_success": 472,
+    "same_fail": 3,
+    "loss": 18,
+    "gain": 7
+   },
+   "loss_vs_A_unanimous": 13,
+   "gain_vs_A_unanimous": 2,
+   "a_self_noise": {
+    "pairs": 500,
+    "mean_loss_vs_other_two_unanimous": 3.6666666666666665,
+    "mean_gain_vs_other_two_unanimous": 1.6666666666666667,
+    "per_rep": [
+     [
+      2,
+      3
+     ],
+     [
+      4,
+      1
+     ],
+     [
+      5,
+      1
+     ]
+    ]
+   },
+   "loss": {
+    "n": 18,
+    "termination": {
+     "step_cap": 18
+    },
+    "first_lever": {
+     "extension": 18
+    },
+    "first_lever_macro": {
+     "S0": 18
+    },
+    "first_lever_cls": {
+     "interior": 11,
+     "unknown": 7
+    },
+    "first_lever_frac_median": 0.045454545454545456,
+    "final_macro": {
+     "S0": 1,
+     "S1": 7,
+     "S4+": 3,
+     "S2": 7
+    },
+    "final_label": {
+     "S2.unknown": 6,
+     "S1.unknown": 4,
+     "S1.mixed": 2,
+     "S4+.unknown": 2,
+     "S0.unknown": 1,
+     "S1.interior": 1,
+     "S4+.mixed": 1,
+     "S2.event": 1
+    },
+    "max_macro": {
+     "S1": 5,
+     "S3": 5,
+     "S4+": 3,
+     "S2": 5
+    },
+    "mean_per_anchor": {
+     "granted": 0.5624498337346635,
+     "ext_blocks": 0.555042426327256,
+     "sf_refused_ext": 0.37684850743416276,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 9.61111111111111,
+     "ext_blocks": 9.5,
+     "sf_refused_ext": 6.388888888888889,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 44.0
+   },
+   "gain": {
+    "n": 7,
+    "termination": {
+     "success": 7
+    },
+    "first_lever": {
+     "extension": 7
+    },
+    "first_lever_macro": {
+     "S0": 7
+    },
+    "first_lever_cls": {
+     "interior": 5,
+     "unknown": 2
+    },
+    "first_lever_frac_median": 0.08333333333333333,
+    "final_macro": {
+     "S1": 6,
+     "S3": 1
+    },
+    "final_label": {
+     "S1.mixed": 4,
+     "S1.event": 1,
+     "S3.interior": 1,
+     "S1.unknown": 1
+    },
+    "max_macro": {
+     "S1": 6,
+     "S3": 1
+    },
+    "mean_per_anchor": {
+     "granted": 0.8202947845804989,
+     "ext_blocks": 0.8202947845804989,
+     "sf_refused_ext": 0.29024943310657597,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 6.714285714285714,
+     "ext_blocks": 6.714285714285714,
+     "sf_refused_ext": 2.4285714285714284,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 22.285714285714285
+   },
+   "same_success": {
+    "n": 472,
+    "termination": {
+     "success": 472
+    },
+    "first_lever": {
+     "extension": 472
+    },
+    "first_lever_macro": {
+     "S0": 472
+    },
+    "first_lever_cls": {
+     "unknown": 67,
+     "interior": 405
+    },
+    "first_lever_frac_median": 0.09523809523809523,
+    "final_macro": {
+     "S1": 463,
+     "S3": 4,
+     "S0": 1,
+     "S2": 4
+    },
+    "final_label": {
+     "S1.interior": 257,
+     "S1.event": 115,
+     "S1.mixed": 81,
+     "S1.unknown": 10,
+     "S2.mixed": 4,
+     "S3.mixed": 2,
+     "S3.event": 1,
+     "S0.mixed": 1
+    },
+    "max_macro": {
+     "S1": 456,
+     "S3": 8,
+     "S2": 7,
+     "S4+": 1
+    },
+    "mean_per_anchor": {
+     "granted": 0.8279154284980556,
+     "ext_blocks": 0.8279154284980556,
+     "sf_refused_ext": 0.2025342712842713,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 6.216101694915254,
+     "ext_blocks": 6.216101694915254,
+     "sf_refused_ext": 1.5169491525423728,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 20.6864406779661
+   },
+   "same_fail": {
+    "n": 3,
+    "termination": {
+     "step_cap": 3
+    },
+    "first_lever": {
+     "extension": 3
+    },
+    "first_lever_macro": {
+     "S0": 3
+    },
+    "first_lever_cls": {
+     "unknown": 1,
+     "interior": 2
+    },
+    "first_lever_frac_median": 0.045454545454545456,
+    "final_macro": {
+     "S0": 1,
+     "S2": 1,
+     "S1": 1
+    },
+    "final_label": {
+     "S0.unknown": 1,
+     "S2.unknown": 1,
+     "S1.unknown": 1
+    },
+    "max_macro": {
+     "S1": 1,
+     "S2": 2
+    },
+    "mean_per_anchor": {
+     "granted": 0.44169246646026833,
+     "ext_blocks": 0.44169246646026833,
+     "sf_refused_ext": 0.27966976264189886,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 8.0,
+     "ext_blocks": 8.0,
+     "sf_refused_ext": 5.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 44.0
+   },
+   "cross_run": null
+  },
+  "r7_sw_pi05_sp_500": {
+   "reference": [
+    "r04_blind:r4b3_p_sp_500_tail1uc",
+    "r06_paper:r4b3_p_sp_500_tail1uc_rep2",
+    "r06_paper:r4b3_p_sp_500_tail1uc_rep3"
+   ],
+   "pairs": 500,
+   "sr": 0.978,
+   "counts": {
+    "same_success": 483,
+    "same_fail": 4,
+    "gain": 6,
+    "loss": 7
+   },
+   "loss_vs_A_unanimous": 5,
+   "gain_vs_A_unanimous": 3,
+   "a_self_noise": {
+    "pairs": 500,
+    "mean_loss_vs_other_two_unanimous": 3.6666666666666665,
+    "mean_gain_vs_other_two_unanimous": 1.6666666666666667,
+    "per_rep": [
+     [
+      2,
+      3
+     ],
+     [
+      4,
+      1
+     ],
+     [
+      5,
+      1
+     ]
+    ]
+   },
+   "loss": {
+    "n": 7,
+    "termination": {
+     "step_cap": 7
+    },
+    "first_lever": {
+     "wrist_look": 7
+    },
+    "first_lever_macro": {
+     "S0": 6,
+     "S1": 1
+    },
+    "first_lever_cls": {
+     "interior": 7
+    },
+    "first_lever_frac_median": 0.045454545454545456,
+    "final_macro": {
+     "S1": 5,
+     "S2": 2
+    },
+    "final_label": {
+     "S1.mixed": 3,
+     "S2.unknown": 2,
+     "S1.unknown": 2
+    },
+    "max_macro": {
+     "S1": 4,
+     "S2": 2,
+     "S3": 1
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.1623376623376623,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 3.5714285714285716,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 44.0
+   },
+   "gain": {
+    "n": 6,
+    "termination": {
+     "success": 6
+    },
+    "first_lever": {
+     "wrist_look": 6
+    },
+    "first_lever_macro": {
+     "S0": 5,
+     "S1": 1
+    },
+    "first_lever_cls": {
+     "interior": 6
+    },
+    "first_lever_frac_median": 0.10049019607843138,
+    "final_macro": {
+     "S1": 6
+    },
+    "final_label": {
+     "S1.event": 3,
+     "S1.mixed": 1,
+     "S1.interior": 1,
+     "S1.unknown": 1
+    },
+    "max_macro": {
+     "S1": 6
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.39574106449106455,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 4.833333333333333,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 23.166666666666668
+   },
+   "same_success": {
+    "n": 483,
+    "termination": {
+     "success": 483
+    },
+    "first_lever": {
+     "wrist_look": 474,
+     "None": 9
+    },
+    "first_lever_macro": {
+     "S0": 459,
+     "None": 9,
+     "S1": 15
+    },
+    "first_lever_cls": {
+     "interior": 474,
+     "None": 9
+    },
+    "first_lever_frac_median": 0.1,
+    "final_macro": {
+     "S1": 480,
+     "S3": 1,
+     "S2": 2
+    },
+    "final_label": {
+     "S1.interior": 267,
+     "S1.mixed": 105,
+     "S1.event": 98,
+     "S1.unknown": 10,
+     "S2.mixed": 2,
+     "S3.interior": 1
+    },
+    "max_macro": {
+     "S1": 477,
+     "S3": 3,
+     "S2": 3
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.4524443093679484,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 4.910973084886129,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 20.4824016563147
+   },
+   "same_fail": {
+    "n": 4,
+    "termination": {
+     "step_cap": 4
+    },
+    "first_lever": {
+     "wrist_look": 4
+    },
+    "first_lever_macro": {
+     "S0": 4
+    },
+    "first_lever_cls": {
+     "interior": 4
+    },
+    "first_lever_frac_median": 0.045454545454545456,
+    "final_macro": {
+     "S1": 3,
+     "S0": 1
+    },
+    "final_label": {
+     "S1.unknown": 2,
+     "S0.unknown": 1,
+     "S1.mixed": 1
+    },
+    "max_macro": {
+     "S1": 4
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.125,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 2.75,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 44.0
+   },
+   "cross_run": null
+  },
+  "r7_groot_l10_50_SF1": {
+   "reference": [
+    "r05_x:r5x_g_l10_50_tail1u",
+    "r06_paper:r5x_g_l10_50_tail1u_rep2",
+    "r06_paper:r5x_g_l10_50_tail1u_rep3"
+   ],
+   "pairs": 500,
+   "sr": 0.58,
+   "counts": {
+    "gain": 46,
+    "same_fail": 146,
+    "same_success": 244,
+    "loss": 64
+   },
+   "loss_vs_A_unanimous": 57,
+   "gain_vs_A_unanimous": 43,
+   "a_self_noise": {
+    "pairs": 500,
+    "mean_loss_vs_other_two_unanimous": 5.333333333333333,
+    "mean_gain_vs_other_two_unanimous": 2.6666666666666665,
+    "per_rep": [
+     [
+      5,
+      1
+     ],
+     [
+      3,
+      4
+     ],
+     [
+      8,
+      3
+     ]
+    ]
+   },
+   "loss": {
+    "n": 64,
+    "termination": {
+     "step_cap": 64
+    },
+    "first_lever": {
+     "extension": 64
+    },
+    "first_lever_macro": {
+     "S0": 64
+    },
+    "first_lever_cls": {
+     "interior": 64
+    },
+    "first_lever_frac_median": 0.019230769230769232,
+    "final_macro": {
+     "S0": 8,
+     "S3": 13,
+     "S2": 26,
+     "S4+": 6,
+     "S1": 11
+    },
+    "final_label": {
+     "S2.mixed": 22,
+     "S0.mixed": 7,
+     "S3.mixed": 6,
+     "S4+.mixed": 6,
+     "S1.mixed": 6,
+     "S3.event": 5,
+     "S1.event": 3,
+     "S2.event": 2
+    },
+    "max_macro": {
+     "S4+": 18,
+     "S3": 30,
+     "S2": 12,
+     "S1": 3,
+     "S0": 1
+    },
+    "mean_per_anchor": {
+     "granted": 0.18978526794651193,
+     "ext_blocks": 0.18482050614584866,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0029677982425127102,
+     "ext_fire": 0.0006614861853832442,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 8.859375,
+     "ext_blocks": 8.625,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.140625,
+     "ext_fire": 0.03125,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 104.0
+   },
+   "gain": {
+    "n": 46,
+    "termination": {
+     "success": 46
+    },
+    "first_lever": {
+     "extension": 46
+    },
+    "first_lever_macro": {
+     "S0": 46
+    },
+    "first_lever_cls": {
+     "interior": 46
+    },
+    "first_lever_frac_median": 0.04,
+    "final_macro": {
+     "S4+": 11,
+     "S2": 10,
+     "S3": 25
+    },
+    "final_label": {
+     "S3.mixed": 18,
+     "S4+.mixed": 11,
+     "S2.interior": 6,
+     "S3.interior": 6,
+     "S2.mixed": 2,
+     "S2.event": 2,
+     "S3.event": 1
+    },
+    "max_macro": {
+     "S4+": 14,
+     "S3": 24,
+     "S2": 8
+    },
+    "mean_per_anchor": {
+     "granted": 0.36615358088385114,
+     "ext_blocks": 0.3642305367241128,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0004940711462450593,
+     "ext_fire": 0.0014289730134932534,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 8.58695652173913,
+     "ext_blocks": 8.521739130434783,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.021739130434782608,
+     "ext_fire": 0.043478260869565216,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 55.65217391304348
+   },
+   "same_success": {
+    "n": 244,
+    "termination": {
+     "success": 244
+    },
+    "first_lever": {
+     "extension": 244
+    },
+    "first_lever_macro": {
+     "S0": 244
+    },
+    "first_lever_cls": {
+     "interior": 244
+    },
+    "first_lever_frac_median": 0.0425531914893617,
+    "final_macro": {
+     "S4+": 32,
+     "S2": 54,
+     "S3": 112,
+     "S1": 46
+    },
+    "final_label": {
+     "S3.mixed": 90,
+     "S1.interior": 46,
+     "S2.interior": 43,
+     "S4+.mixed": 32,
+     "S3.interior": 19,
+     "S2.mixed": 11,
+     "S3.event": 3
+    },
+    "max_macro": {
+     "S4+": 34,
+     "S3": 121,
+     "S2": 43,
+     "S1": 46
+    },
+    "mean_per_anchor": {
+     "granted": 0.45613637978842,
+     "ext_blocks": 0.4541243703149833,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0012304822574832218,
+     "ext_fire": 0.0007815272159534454,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 9.049180327868852,
+     "ext_blocks": 9.008196721311476,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.02459016393442623,
+     "ext_fire": 0.01639344262295082,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 49.73360655737705
+   },
+   "same_fail": {
+    "n": 146,
+    "termination": {
+     "step_cap": 146
+    },
+    "first_lever": {
+     "extension": 146
+    },
+    "first_lever_macro": {
+     "S0": 146
+    },
+    "first_lever_cls": {
+     "interior": 146
+    },
+    "first_lever_frac_median": 0.019230769230769232,
+    "final_macro": {
+     "S3": 31,
+     "S2": 59,
+     "S1": 28,
+     "S0": 24,
+     "S4+": 4
+    },
+    "final_label": {
+     "S2.mixed": 34,
+     "S0.mixed": 18,
+     "S3.mixed": 17,
+     "S2.interior": 15,
+     "S1.event": 12,
+     "S3.event": 11,
+     "S2.event": 10,
+     "S1.mixed": 9
+    },
+    "max_macro": {
+     "S3": 70,
+     "S4+": 28,
+     "S2": 40,
+     "S1": 6,
+     "S0": 2
+    },
+    "mean_per_anchor": {
+     "granted": 0.20474447687078476,
+     "ext_blocks": 0.19592943481278147,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0035692821942229537,
+     "ext_fire": 0.0022895441840102945,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 9.575342465753424,
+     "ext_blocks": 9.164383561643836,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.1643835616438356,
+     "ext_fire": 0.1095890410958904,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 104.0
+   },
+   "cross_run": {
+    "reference": "r05_x:r5x_g_l10_50_tail1u",
+    "categories": {
+     "div_eq_lever": 494,
+     "div_before_lever": 6
+    },
+    "a_rep_baseline": {
+     "A1_A2_identical": 398,
+     "A1_A2_differ": 102
+    }
+   }
+  },
+  "r7_groot_l10_50_UF1": {
+   "reference": [
+    "r05_x:r5x_g_l10_50_tail1u",
+    "r06_paper:r5x_g_l10_50_tail1u_rep2",
+    "r06_paper:r5x_g_l10_50_tail1u_rep3"
+   ],
+   "pairs": 500,
+   "sr": 0.566,
+   "counts": {
+    "same_fail": 143,
+    "same_success": 234,
+    "loss": 74,
+    "gain": 49
+   },
+   "loss_vs_A_unanimous": 68,
+   "gain_vs_A_unanimous": 45,
+   "a_self_noise": {
+    "pairs": 500,
+    "mean_loss_vs_other_two_unanimous": 5.333333333333333,
+    "mean_gain_vs_other_two_unanimous": 2.6666666666666665,
+    "per_rep": [
+     [
+      5,
+      1
+     ],
+     [
+      3,
+      4
+     ],
+     [
+      8,
+      3
+     ]
+    ]
+   },
+   "loss": {
+    "n": 74,
+    "termination": {
+     "step_cap": 74
+    },
+    "first_lever": {
+     "extension": 74
+    },
+    "first_lever_macro": {
+     "S0": 74
+    },
+    "first_lever_cls": {
+     "interior": 74
+    },
+    "first_lever_frac_median": 0.019230769230769232,
+    "final_macro": {
+     "S0": 8,
+     "S2": 31,
+     "S3": 17,
+     "S4+": 7,
+     "S1": 11
+    },
+    "final_label": {
+     "S2.mixed": 21,
+     "S3.mixed": 9,
+     "S4+.mixed": 7,
+     "S0.mixed": 6,
+     "S3.event": 6,
+     "S2.event": 5,
+     "S2.interior": 5,
+     "S1.event": 5
+    },
+    "max_macro": {
+     "S3": 36,
+     "S4+": 26,
+     "S2": 10,
+     "S1": 2
+    },
+    "mean_per_anchor": {
+     "granted": 0.6050716461181135,
+     "ext_blocks": 0.5943494656543391,
+     "sf_refused_ext": 0.37549896480660544,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 23.256756756756758,
+     "ext_blocks": 22.864864864864863,
+     "sf_refused_ext": 14.364864864864865,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 104.0
+   },
+   "gain": {
+    "n": 49,
+    "termination": {
+     "success": 49
+    },
+    "first_lever": {
+     "extension": 49
+    },
+    "first_lever_macro": {
+     "S0": 49
+    },
+    "first_lever_cls": {
+     "interior": 49
+    },
+    "first_lever_frac_median": 0.0425531914893617,
+    "final_macro": {
+     "S4+": 4,
+     "S2": 12,
+     "S3": 32,
+     "S1": 1
+    },
+    "final_label": {
+     "S3.mixed": 23,
+     "S2.interior": 11,
+     "S3.interior": 9,
+     "S4+.mixed": 4,
+     "S2.mixed": 1,
+     "S1.interior": 1
+    },
+    "max_macro": {
+     "S4+": 4,
+     "S3": 33,
+     "S2": 11,
+     "S1": 1
+    },
+    "mean_per_anchor": {
+     "granted": 0.8652638582017588,
+     "ext_blocks": 0.8652638582017588,
+     "sf_refused_ext": 0.4243500087759278,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 15.387755102040817,
+     "ext_blocks": 15.387755102040817,
+     "sf_refused_ext": 7.428571428571429,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 50.57142857142857
+   },
+   "same_success": {
+    "n": 234,
+    "termination": {
+     "success": 234
+    },
+    "first_lever": {
+     "extension": 234
+    },
+    "first_lever_macro": {
+     "S0": 234
+    },
+    "first_lever_cls": {
+     "interior": 234
+    },
+    "first_lever_frac_median": 0.043478260869565216,
+    "final_macro": {
+     "S4+": 30,
+     "S2": 47,
+     "S3": 110,
+     "S1": 47
+    },
+    "final_label": {
+     "S3.mixed": 86,
+     "S1.interior": 46,
+     "S2.interior": 41,
+     "S4+.mixed": 29,
+     "S3.interior": 17,
+     "S3.event": 7,
+     "S2.mixed": 6,
+     "S1.mixed": 1
+    },
+    "max_macro": {
+     "S4+": 37,
+     "S3": 110,
+     "S2": 41,
+     "S1": 46
+    },
+    "mean_per_anchor": {
+     "granted": 0.8541719995101684,
+     "ext_blocks": 0.8541719995101684,
+     "sf_refused_ext": 0.35697839776350265,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 14.623931623931623,
+     "ext_blocks": 14.623931623931623,
+     "sf_refused_ext": 6.260683760683761,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 48.4059829059829
+   },
+   "same_fail": {
+    "n": 143,
+    "termination": {
+     "step_cap": 143
+    },
+    "first_lever": {
+     "extension": 143
+    },
+    "first_lever_macro": {
+     "S0": 143
+    },
+    "first_lever_cls": {
+     "interior": 143
+    },
+    "first_lever_frac_median": 0.019230769230769232,
+    "final_macro": {
+     "S1": 30,
+     "S3": 34,
+     "S2": 50,
+     "S0": 25,
+     "S4+": 4
+    },
+    "final_label": {
+     "S2.mixed": 34,
+     "S3.mixed": 21,
+     "S1.mixed": 13,
+     "S0.mixed": 12,
+     "S2.event": 11,
+     "S3.event": 11,
+     "S1.interior": 9,
+     "S0.event": 9
+    },
+    "max_macro": {
+     "S4+": 25,
+     "S3": 79,
+     "S1": 2,
+     "S2": 37
+    },
+    "mean_per_anchor": {
+     "granted": 0.6936478152221819,
+     "ext_blocks": 0.6794896510029746,
+     "sf_refused_ext": 0.4419127343672765,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 26.237762237762237,
+     "ext_blocks": 25.713286713286713,
+     "sf_refused_ext": 16.503496503496503,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 104.0
+   },
+   "cross_run": {
+    "reference": "r05_x:r5x_g_l10_50_tail1u",
+    "categories": {
+     "div_eq_lever": 496,
+     "div_before_lever": 4
+    },
+    "a_rep_baseline": {
+     "A1_A2_identical": 398,
+     "A1_A2_differ": 102
+    }
+   }
+  },
+  "r7_groot_l10_50_CU30": {
+   "reference": [
+    "r05_x:r5x_g_l10_50_tail1u",
+    "r06_paper:r5x_g_l10_50_tail1u_rep2",
+    "r06_paper:r5x_g_l10_50_tail1u_rep3"
+   ],
+   "pairs": 500,
+   "sr": 0.756,
+   "counts": {
+    "same_fail": 81,
+    "gain": 111,
+    "same_success": 267,
+    "loss": 41
+   },
+   "loss_vs_A_unanimous": 39,
+   "gain_vs_A_unanimous": 106,
+   "a_self_noise": {
+    "pairs": 500,
+    "mean_loss_vs_other_two_unanimous": 5.333333333333333,
+    "mean_gain_vs_other_two_unanimous": 2.6666666666666665,
+    "per_rep": [
+     [
+      5,
+      1
+     ],
+     [
+      3,
+      4
+     ],
+     [
+      8,
+      3
+     ]
+    ]
+   },
+   "loss": {
+    "n": 41,
+    "termination": {
+     "step_cap": 41
+    },
+    "first_lever": {
+     "call_lottery": 40,
+     "extra_look": 1
+    },
+    "first_lever_macro": {
+     "S0": 40,
+     "S1": 1
+    },
+    "first_lever_cls": {
+     "interior": 38,
+     "mixed": 3
+    },
+    "first_lever_frac_median": 0.0,
+    "final_macro": {
+     "S3": 10,
+     "S0": 13,
+     "S4+": 6,
+     "S1": 6,
+     "S2": 6
+    },
+    "final_label": {
+     "S0.mixed": 13,
+     "S4+.mixed": 6,
+     "S3.mixed": 5,
+     "S3.event": 4,
+     "S2.mixed": 4,
+     "S1.mixed": 3,
+     "S1.event": 2,
+     "S2.interior": 2
+    },
+    "max_macro": {
+     "S4+": 18,
+     "S3": 16,
+     "S2": 7
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.5078920025438425,
+     "lottery_calls": 0.2729389139537445,
+     "stall_calls": 0.23495308859009797,
+     "extra_looks": 0.07577681802851201
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 27.585365853658537,
+     "lottery_calls": 14.902439024390244,
+     "stall_calls": 12.682926829268293,
+     "extra_looks": 4.219512195121951
+    },
+    "mean_decisions": 104.0
+   },
+   "gain": {
+    "n": 111,
+    "termination": {
+     "success": 111
+    },
+    "first_lever": {
+     "call_lottery": 100,
+     "call_stall": 7,
+     "extra_look": 4
+    },
+    "first_lever_macro": {
+     "S0": 111
+    },
+    "first_lever_cls": {
+     "interior": 107,
+     "mixed": 3,
+     "event": 1
+    },
+    "first_lever_frac_median": 0.0,
+    "final_macro": {
+     "S4+": 35,
+     "S2": 33,
+     "S3": 41,
+     "S1": 2
+    },
+    "final_label": {
+     "S4+.mixed": 34,
+     "S3.mixed": 31,
+     "S2.interior": 27,
+     "S3.interior": 7,
+     "S2.mixed": 4,
+     "S3.event": 3,
+     "S2.event": 2,
+     "S1.interior": 2
+    },
+    "max_macro": {
+     "S4+": 38,
+     "S3": 43,
+     "S2": 28,
+     "S1": 2
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.5104011035701447,
+     "lottery_calls": 0.40321943264288745,
+     "stall_calls": 0.10718167092725726,
+     "extra_looks": 0.05766436871819498
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 14.513513513513514,
+     "lottery_calls": 11.342342342342342,
+     "stall_calls": 3.171171171171171,
+     "extra_looks": 1.7477477477477477
+    },
+    "mean_decisions": 54.93693693693694
+   },
+   "same_success": {
+    "n": 267,
+    "termination": {
+     "success": 267
+    },
+    "first_lever": {
+     "call_lottery": 255,
+     "call_stall": 6,
+     "extra_look": 6
+    },
+    "first_lever_macro": {
+     "S0": 263,
+     "S1": 4
+    },
+    "first_lever_cls": {
+     "interior": 259,
+     "mixed": 4,
+     "event": 4
+    },
+    "first_lever_frac_median": 0.0,
+    "final_macro": {
+     "S4+": 34,
+     "S3": 120,
+     "S1": 51,
+     "S2": 62
+    },
+    "final_label": {
+     "S3.mixed": 99,
+     "S1.interior": 49,
+     "S2.interior": 47,
+     "S4+.mixed": 34,
+     "S2.mixed": 15,
+     "S3.interior": 15,
+     "S3.event": 6,
+     "S1.mixed": 2
+    },
+    "max_macro": {
+     "S4+": 46,
+     "S3": 126,
+     "S2": 47,
+     "S1": 48
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.5093192577595669,
+     "lottery_calls": 0.43306380468927547,
+     "stall_calls": 0.0762554530702914,
+     "extra_looks": 0.06298010766008853
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 13.318352059925093,
+     "lottery_calls": 11.205992509363297,
+     "stall_calls": 2.1123595505617976,
+     "extra_looks": 1.7078651685393258
+    },
+    "mean_decisions": 50.21722846441948
+   },
+   "same_fail": {
+    "n": 81,
+    "termination": {
+     "step_cap": 81
+    },
+    "first_lever": {
+     "call_lottery": 73,
+     "call_stall": 3,
+     "extra_look": 5
+    },
+    "first_lever_macro": {
+     "S0": 81
+    },
+    "first_lever_cls": {
+     "interior": 80,
+     "event": 1
+    },
+    "first_lever_frac_median": 0.0,
+    "final_macro": {
+     "S2": 35,
+     "S3": 18,
+     "S1": 8,
+     "S0": 18,
+     "S4+": 2
+    },
+    "final_label": {
+     "S2.mixed": 21,
+     "S0.mixed": 15,
+     "S3.mixed": 9,
+     "S2.event": 7,
+     "S2.interior": 7,
+     "S3.event": 6,
+     "S1.mixed": 5,
+     "S0.event": 3
+    },
+    "max_macro": {
+     "S4+": 13,
+     "S3": 39,
+     "S1": 3,
+     "S2": 26
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.4951332522740077,
+     "lottery_calls": 0.22184582463450941,
+     "stall_calls": 0.27328742763949826,
+     "extra_looks": 0.06250591533262687
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 26.679012345679013,
+     "lottery_calls": 12.049382716049383,
+     "stall_calls": 14.62962962962963,
+     "extra_looks": 3.4814814814814814
+    },
+    "mean_decisions": 104.0
+   },
+   "cross_run": {
+    "reference": "r05_x:r5x_g_l10_50_tail1u",
+    "categories": {
+     "div_eq_lever": 492,
+     "div_before_lever": 8
+    },
+    "a_rep_baseline": {
+     "A1_A2_identical": 398,
+     "A1_A2_differ": 102
+    }
+   }
+  },
+  "r7_groot_l10_50_CT30": {
+   "reference": [
+    "r05_x:r5x_g_l10_50_tail1u",
+    "r06_paper:r5x_g_l10_50_tail1u_rep2",
+    "r06_paper:r5x_g_l10_50_tail1u_rep3"
+   ],
+   "pairs": 500,
+   "sr": 0.84,
+   "counts": {
+    "gain": 141,
+    "same_fail": 51,
+    "same_success": 279,
+    "loss": 29
+   },
+   "loss_vs_A_unanimous": 28,
+   "gain_vs_A_unanimous": 135,
+   "a_self_noise": {
+    "pairs": 500,
+    "mean_loss_vs_other_two_unanimous": 5.333333333333333,
+    "mean_gain_vs_other_two_unanimous": 2.6666666666666665,
+    "per_rep": [
+     [
+      5,
+      1
+     ],
+     [
+      3,
+      4
+     ],
+     [
+      8,
+      3
+     ]
+    ]
+   },
+   "loss": {
+    "n": 29,
+    "termination": {
+     "step_cap": 29
+    },
+    "first_lever": {
+     "call_lottery": 26,
+     "call_stall": 3
+    },
+    "first_lever_macro": {
+     "S0": 29
+    },
+    "first_lever_cls": {
+     "interior": 27,
+     "mixed": 2
+    },
+    "first_lever_frac_median": 0.019230769230769232,
+    "final_macro": {
+     "S0": 7,
+     "S3": 7,
+     "S4+": 2,
+     "S2": 8,
+     "S1": 5
+    },
+    "final_label": {
+     "S3.mixed": 6,
+     "S2.mixed": 6,
+     "S0.mixed": 5,
+     "S1.mixed": 3,
+     "S4+.mixed": 2,
+     "S0.interior": 1,
+     "S0.event": 1,
+     "S2.interior": 1
+    },
+    "max_macro": {
+     "S3": 12,
+     "S4+": 13,
+     "S2": 3,
+     "S1": 1
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.5190095860537196,
+     "lottery_calls": 0.2860940589568489,
+     "stall_calls": 0.23291552709687063,
+     "extra_looks": 0.08170753990297021
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 28.24137931034483,
+     "lottery_calls": 15.655172413793103,
+     "stall_calls": 12.586206896551724,
+     "extra_looks": 4.586206896551724
+    },
+    "mean_decisions": 104.0
+   },
+   "gain": {
+    "n": 141,
+    "termination": {
+     "success": 141
+    },
+    "first_lever": {
+     "call_lottery": 114,
+     "call_stall": 11,
+     "extra_look": 16
+    },
+    "first_lever_macro": {
+     "S0": 140,
+     "S1": 1
+    },
+    "first_lever_cls": {
+     "interior": 128,
+     "mixed": 9,
+     "event": 4
+    },
+    "first_lever_frac_median": 0.0425531914893617,
+    "final_macro": {
+     "S4+": 39,
+     "S2": 45,
+     "S3": 55,
+     "S1": 2
+    },
+    "final_label": {
+     "S3.mixed": 41,
+     "S2.interior": 41,
+     "S4+.mixed": 39,
+     "S3.interior": 12,
+     "S2.event": 3,
+     "S3.event": 2,
+     "S1.interior": 2,
+     "S2.mixed": 1
+    },
+    "max_macro": {
+     "S4+": 45,
+     "S3": 52,
+     "S2": 42,
+     "S1": 2
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.5123142515862362,
+     "lottery_calls": 0.41386196123425023,
+     "stall_calls": 0.09845229035198605,
+     "extra_looks": 0.05156132839747789
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 14.687943262411348,
+     "lottery_calls": 11.702127659574469,
+     "stall_calls": 2.9858156028368796,
+     "extra_looks": 1.5460992907801419
+    },
+    "mean_decisions": 55.50354609929078
+   },
+   "same_success": {
+    "n": 279,
+    "termination": {
+     "success": 279
+    },
+    "first_lever": {
+     "call_lottery": 247,
+     "call_stall": 15,
+     "extra_look": 17
+    },
+    "first_lever_macro": {
+     "S0": 269,
+     "S1": 10
+    },
+    "first_lever_cls": {
+     "interior": 244,
+     "mixed": 26,
+     "event": 9
+    },
+    "first_lever_frac_median": 0.04878048780487805,
+    "final_macro": {
+     "S4+": 47,
+     "S2": 52,
+     "S1": 50,
+     "S3": 130
+    },
+    "final_label": {
+     "S3.mixed": 99,
+     "S2.interior": 49,
+     "S1.interior": 47,
+     "S4+.mixed": 46,
+     "S3.interior": 20,
+     "S3.event": 11,
+     "S2.mixed": 3,
+     "S1.mixed": 3
+    },
+    "max_macro": {
+     "S4+": 52,
+     "S3": 131,
+     "S2": 49,
+     "S1": 47
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.49506926272666485,
+     "lottery_calls": 0.4196539914856358,
+     "stall_calls": 0.0754152712410289,
+     "extra_looks": 0.0557831582103587
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 13.053763440860216,
+     "lottery_calls": 11.007168458781361,
+     "stall_calls": 2.046594982078853,
+     "extra_looks": 1.4838709677419355
+    },
+    "mean_decisions": 50.412186379928315
+   },
+   "same_fail": {
+    "n": 51,
+    "termination": {
+     "step_cap": 51
+    },
+    "first_lever": {
+     "call_stall": 8,
+     "call_lottery": 40,
+     "extra_look": 3
+    },
+    "first_lever_macro": {
+     "S0": 51
+    },
+    "first_lever_cls": {
+     "interior": 44,
+     "mixed": 6,
+     "event": 1
+    },
+    "first_lever_frac_median": 0.038461538461538464,
+    "final_macro": {
+     "S2": 24,
+     "S3": 10,
+     "S0": 5,
+     "S1": 10,
+     "S4+": 2
+    },
+    "final_label": {
+     "S2.mixed": 14,
+     "S1.mixed": 7,
+     "S2.event": 7,
+     "S3.mixed": 6,
+     "S0.mixed": 5,
+     "S3.event": 4,
+     "S2.interior": 3,
+     "S1.event": 2
+    },
+    "max_macro": {
+     "S3": 28,
+     "S4+": 13,
+     "S1": 1,
+     "S2": 9
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.4975766758140379,
+     "lottery_calls": 0.22656167125792526,
+     "stall_calls": 0.27101500455611266,
+     "extra_looks": 0.04887261616366469
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 26.627450980392158,
+     "lottery_calls": 12.215686274509803,
+     "stall_calls": 14.411764705882353,
+     "extra_looks": 2.7254901960784315
+    },
+    "mean_decisions": 104.0
+   },
+   "cross_run": {
+    "reference": "r05_x:r5x_g_l10_50_tail1u",
+    "categories": {
+     "div_eq_lever": 490,
+     "div_before_lever": 10
+    },
+    "a_rep_baseline": {
+     "A1_A2_identical": 398,
+     "A1_A2_differ": 102
+    }
+   }
+  },
+  "r7_groot_l10_500_SF1": {
+   "reference": [
+    "r05_x:r5x_g_l10_500_tail1u",
+    "r06_paper:r5x_g_l10_500_tail1u_rep2",
+    "r06_paper:r5x_g_l10_500_tail1u_rep3"
+   ],
+   "pairs": 500,
+   "sr": 0.836,
+   "counts": {
+    "same_success": 394,
+    "same_fail": 62,
+    "loss": 20,
+    "gain": 24
+   },
+   "loss_vs_A_unanimous": 18,
+   "gain_vs_A_unanimous": 21,
+   "a_self_noise": {
+    "pairs": 500,
+    "mean_loss_vs_other_two_unanimous": 2.6666666666666665,
+    "mean_gain_vs_other_two_unanimous": 3.6666666666666665,
+    "per_rep": [
+     [
+      3,
+      4
+     ],
+     [
+      2,
+      4
+     ],
+     [
+      3,
+      3
+     ]
+    ]
+   },
+   "loss": {
+    "n": 20,
+    "termination": {
+     "step_cap": 20
+    },
+    "first_lever": {
+     "extension": 16,
+     "None": 4
+    },
+    "first_lever_macro": {
+     "S1": 6,
+     "S0": 8,
+     "S2": 2,
+     "None": 4
+    },
+    "first_lever_cls": {
+     "event": 3,
+     "interior": 13,
+     "None": 4
+    },
+    "first_lever_frac_median": 0.11538461538461539,
+    "final_macro": {
+     "S2": 5,
+     "S4+": 4,
+     "S1": 3,
+     "S3": 6,
+     "S?": 2
+    },
+    "final_label": {
+     "S3.unknown": 5,
+     "S2.unknown": 4,
+     "S4+.unknown": 4,
+     "S1.unknown": 3,
+     "S?.unknown": 2,
+     "S3.mixed": 1,
+     "S2.interior": 1
+    },
+    "max_macro": {
+     "S4+": 11,
+     "S3": 7,
+     "S2": 1,
+     "S1": 1
+    },
+    "mean_per_anchor": {
+     "granted": 0.057518920170359464,
+     "ext_blocks": 0.05645509038312543,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 2.85,
+     "ext_blocks": 2.8,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 104.0
+   },
+   "gain": {
+    "n": 24,
+    "termination": {
+     "success": 24
+    },
+    "first_lever": {
+     "extension": 21,
+     "None": 3
+    },
+    "first_lever_macro": {
+     "S2": 3,
+     "S0": 15,
+     "S1": 2,
+     "None": 3,
+     "S3": 1
+    },
+    "first_lever_cls": {
+     "interior": 19,
+     "event": 2,
+     "None": 3
+    },
+    "first_lever_frac_median": 0.14545454545454545,
+    "final_macro": {
+     "S4+": 9,
+     "S3": 11,
+     "S2": 4
+    },
+    "final_label": {
+     "S4+.mixed": 9,
+     "S3.unknown": 9,
+     "S2.interior": 4,
+     "S3.mixed": 2
+    },
+    "max_macro": {
+     "S4+": 12,
+     "S3": 8,
+     "S2": 4
+    },
+    "mean_per_anchor": {
+     "granted": 0.22937736384440455,
+     "ext_blocks": 0.22764125273329341,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.001736111111111111,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 5.25,
+     "ext_blocks": 5.208333333333333,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.041666666666666664,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 64.41666666666667
+   },
+   "same_success": {
+    "n": 394,
+    "termination": {
+     "success": 394
+    },
+    "first_lever": {
+     "extension": 351,
+     "early_valve_look": 1,
+     "None": 42
+    },
+    "first_lever_macro": {
+     "S0": 220,
+     "S1": 67,
+     "S3": 40,
+     "S2": 25,
+     "None": 42
+    },
+    "first_lever_cls": {
+     "interior": 297,
+     "event": 55,
+     "None": 42
+    },
+    "first_lever_frac_median": 0.1165158371040724,
+    "final_macro": {
+     "S3": 168,
+     "S4+": 84,
+     "S2": 94,
+     "S1": 48
+    },
+    "final_label": {
+     "S3.unknown": 81,
+     "S4+.mixed": 68,
+     "S3.mixed": 61,
+     "S2.interior": 54,
+     "S2.unknown": 39,
+     "S1.interior": 39,
+     "S3.interior": 16,
+     "S4+.unknown": 15
+    },
+    "max_macro": {
+     "S3": 159,
+     "S4+": 95,
+     "S2": 92,
+     "S1": 48
+    },
+    "mean_per_anchor": {
+     "granted": 0.2957804929523791,
+     "ext_blocks": 0.29488126445040874,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0008428269227261186,
+     "ext_fire": 5.640157924421884e-05,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 5.571065989847716,
+     "ext_blocks": 5.548223350253807,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.02030456852791878,
+     "ext_fire": 0.0025380710659898475,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 49.15228426395939
+   },
+   "same_fail": {
+    "n": 62,
+    "termination": {
+     "step_cap": 62
+    },
+    "first_lever": {
+     "None": 34,
+     "extension": 27,
+     "early_valve_look": 1
+    },
+    "first_lever_macro": {
+     "None": 34,
+     "S1": 7,
+     "S0": 14,
+     "S3": 5,
+     "S2": 2
+    },
+    "first_lever_cls": {
+     "None": 34,
+     "event": 8,
+     "interior": 20
+    },
+    "first_lever_frac_median": 0.1346153846153846,
+    "final_macro": {
+     "S4+": 10,
+     "S2": 25,
+     "S3": 6,
+     "S?": 12,
+     "S1": 6,
+     "S0": 3
+    },
+    "final_label": {
+     "S2.unknown": 20,
+     "S?.unknown": 12,
+     "S4+.unknown": 8,
+     "S3.unknown": 6,
+     "S1.unknown": 6,
+     "S2.mixed": 3,
+     "S0.unknown": 3,
+     "S4+.interior": 1
+    },
+    "max_macro": {
+     "S4+": 34,
+     "S3": 20,
+     "S2": 8
+    },
+    "mean_per_anchor": {
+     "granted": 0.028393453705809507,
+     "ext_blocks": 0.027474637281819623,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0006086427267194157,
+     "ext_fire": 0.00031017369727047146,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 1.403225806451613,
+     "ext_blocks": 1.3548387096774193,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.03225806451612903,
+     "ext_fire": 0.016129032258064516,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 104.0
+   },
+   "cross_run": {
+    "reference": "r05_x:r5x_g_l10_500_tail1u",
+    "categories": {
+     "div_eq_lever": 388,
+     "no_lever_identical": 43,
+     "div_before_lever": 29,
+     "no_lever_but_differs": 40
+    },
+    "a_rep_baseline": {
+     "A1_A2_identical": 400,
+     "A1_A2_differ": 100
+    }
+   }
+  },
+  "r7_groot_l10_500_UF1": {
+   "reference": [
+    "r05_x:r5x_g_l10_500_tail1u",
+    "r06_paper:r5x_g_l10_500_tail1u_rep2",
+    "r06_paper:r5x_g_l10_500_tail1u_rep3"
+   ],
+   "pairs": 500,
+   "sr": 0.804,
+   "counts": {
+    "same_success": 362,
+    "gain": 40,
+    "loss": 52,
+    "same_fail": 46
+   },
+   "loss_vs_A_unanimous": 48,
+   "gain_vs_A_unanimous": 33,
+   "a_self_noise": {
+    "pairs": 500,
+    "mean_loss_vs_other_two_unanimous": 2.6666666666666665,
+    "mean_gain_vs_other_two_unanimous": 3.6666666666666665,
+    "per_rep": [
+     [
+      3,
+      4
+     ],
+     [
+      2,
+      4
+     ],
+     [
+      3,
+      3
+     ]
+    ]
+   },
+   "loss": {
+    "n": 52,
+    "termination": {
+     "step_cap": 52
+    },
+    "first_lever": {
+     "extension": 52
+    },
+    "first_lever_macro": {
+     "S0": 52
+    },
+    "first_lever_cls": {
+     "unknown": 45,
+     "interior": 7
+    },
+    "first_lever_frac_median": 0.019230769230769232,
+    "final_macro": {
+     "S2": 18,
+     "S4+": 8,
+     "S3": 10,
+     "S?": 13,
+     "S1": 3
+    },
+    "final_label": {
+     "S2.unknown": 17,
+     "S?.unknown": 13,
+     "S3.unknown": 10,
+     "S4+.unknown": 8,
+     "S1.unknown": 3,
+     "S2.mixed": 1
+    },
+    "max_macro": {
+     "S4+": 24,
+     "S3": 20,
+     "S2": 5,
+     "S1": 3
+    },
+    "mean_per_anchor": {
+     "granted": 0.7917049891931066,
+     "ext_blocks": 0.7787399425742136,
+     "sf_refused_ext": 0.7228617629000311,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 29.096153846153847,
+     "ext_blocks": 28.634615384615383,
+     "sf_refused_ext": 26.576923076923077,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 104.0
+   },
+   "gain": {
+    "n": 40,
+    "termination": {
+     "success": 40
+    },
+    "first_lever": {
+     "extension": 40
+    },
+    "first_lever_macro": {
+     "S0": 40
+    },
+    "first_lever_cls": {
+     "unknown": 35,
+     "interior": 5
+    },
+    "first_lever_frac_median": 0.03571428571428571,
+    "final_macro": {
+     "S4+": 11,
+     "S3": 23,
+     "S2": 5,
+     "S1": 1
+    },
+    "final_label": {
+     "S3.unknown": 13,
+     "S4+.mixed": 10,
+     "S3.mixed": 7,
+     "S2.interior": 4,
+     "S3.event": 2,
+     "S2.unknown": 1,
+     "S1.unknown": 1,
+     "S3.interior": 1
+    },
+    "max_macro": {
+     "S4+": 13,
+     "S3": 22,
+     "S1": 1,
+     "S2": 4
+    },
+    "mean_per_anchor": {
+     "granted": 0.9025585760665809,
+     "ext_blocks": 0.9025585760665809,
+     "sf_refused_ext": 0.7216516391834593,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 19.15,
+     "ext_blocks": 19.15,
+     "sf_refused_ext": 15.7,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 61.175
+   },
+   "same_success": {
+    "n": 362,
+    "termination": {
+     "success": 362
+    },
+    "first_lever": {
+     "extension": 362
+    },
+    "first_lever_macro": {
+     "S0": 362
+    },
+    "first_lever_cls": {
+     "unknown": 254,
+     "interior": 108
+    },
+    "first_lever_frac_median": 0.0425531914893617,
+    "final_macro": {
+     "S4+": 86,
+     "S3": 135,
+     "S2": 91,
+     "S1": 48,
+     "S?": 2
+    },
+    "final_label": {
+     "S4+.mixed": 78,
+     "S3.unknown": 66,
+     "S3.mixed": 51,
+     "S2.unknown": 46,
+     "S2.interior": 44,
+     "S1.interior": 38,
+     "S3.interior": 12,
+     "S1.unknown": 10
+    },
+    "max_macro": {
+     "S4+": 87,
+     "S3": 136,
+     "S2": 90,
+     "S1": 49
+    },
+    "mean_per_anchor": {
+     "granted": 0.9031720446420415,
+     "ext_blocks": 0.902860891706579,
+     "sf_refused_ext": 0.5704359002861413,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 15.138121546961326,
+     "ext_blocks": 15.132596685082873,
+     "sf_refused_ext": 9.994475138121548,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 48.17955801104972
+   },
+   "same_fail": {
+    "n": 46,
+    "termination": {
+     "step_cap": 46
+    },
+    "first_lever": {
+     "extension": 46
+    },
+    "first_lever_macro": {
+     "S0": 46
+    },
+    "first_lever_cls": {
+     "unknown": 41,
+     "interior": 5
+    },
+    "first_lever_frac_median": 0.019230769230769232,
+    "final_macro": {
+     "S2": 16,
+     "S0": 1,
+     "S4+": 9,
+     "S3": 7,
+     "S?": 10,
+     "S1": 3
+    },
+    "final_label": {
+     "S2.unknown": 15,
+     "S?.unknown": 10,
+     "S4+.unknown": 8,
+     "S3.unknown": 5,
+     "S1.unknown": 3,
+     "S3.mixed": 2,
+     "S0.unknown": 1,
+     "S4+.mixed": 1
+    },
+    "max_macro": {
+     "S4+": 30,
+     "S2": 7,
+     "S3": 9
+    },
+    "mean_per_anchor": {
+     "granted": 0.8300727284157826,
+     "ext_blocks": 0.8173657285855198,
+     "sf_refused_ext": 0.7716844289331313,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 30.32608695652174,
+     "ext_blocks": 29.869565217391305,
+     "sf_refused_ext": 28.217391304347824,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 104.0
+   },
+   "cross_run": {
+    "reference": "r05_x:r5x_g_l10_500_tail1u",
+    "categories": {
+     "div_eq_lever": 491,
+     "div_before_lever": 9
+    },
+    "a_rep_baseline": {
+     "A1_A2_identical": 400,
+     "A1_A2_differ": 100
+    }
+   }
+  },
+  "r7_groot_spatial_50_SF1": {
+   "reference": [
+    "r05_x:r5x_g_sp_50_tail1u",
+    "r06_paper:r5x_g_sp_50_tail1u_rep2",
+    "r06_paper:r5x_g_sp_50_tail1u_rep3"
+   ],
+   "pairs": 500,
+   "sr": 0.828,
+   "counts": {
+    "same_success": 375,
+    "same_fail": 28,
+    "gain": 39,
+    "loss": 58
+   },
+   "loss_vs_A_unanimous": 58,
+   "gain_vs_A_unanimous": 38,
+   "a_self_noise": {
+    "pairs": 500,
+    "mean_loss_vs_other_two_unanimous": 0.3333333333333333,
+    "mean_gain_vs_other_two_unanimous": 1.0,
+    "per_rep": [
+     [
+      0,
+      1
+     ],
+     [
+      1,
+      1
+     ],
+     [
+      0,
+      1
+     ]
+    ]
+   },
+   "loss": {
+    "n": 58,
+    "termination": {
+     "step_cap": 58
+    },
+    "first_lever": {
+     "extension": 58
+    },
+    "first_lever_macro": {
+     "S0": 58
+    },
+    "first_lever_cls": {
+     "interior": 58
+    },
+    "first_lever_frac_median": 0.045454545454545456,
+    "final_macro": {
+     "S1": 52,
+     "S0": 5,
+     "S2": 1
+    },
+    "final_label": {
+     "S1.interior": 32,
+     "S1.mixed": 17,
+     "S1.event": 3,
+     "S0.mixed": 3,
+     "S0.event": 2,
+     "S2.mixed": 1
+    },
+    "max_macro": {
+     "S1": 55,
+     "S2": 3
+    },
+    "mean_per_anchor": {
+     "granted": 0.2274546083076029,
+     "ext_blocks": 0.20725025730470376,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.011924167786236752,
+     "ext_fire": 0.007590528044248552,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 4.620689655172414,
+     "ext_blocks": 4.155172413793103,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.27586206896551724,
+     "ext_fire": 0.1724137931034483,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 44.0
+   },
+   "gain": {
+    "n": 39,
+    "termination": {
+     "success": 39
+    },
+    "first_lever": {
+     "extension": 39
+    },
+    "first_lever_macro": {
+     "S0": 39
+    },
+    "first_lever_cls": {
+     "interior": 39
+    },
+    "first_lever_frac_median": 0.08695652173913043,
+    "final_macro": {
+     "S1": 38,
+     "S2": 1
+    },
+    "final_label": {
+     "S1.mixed": 19,
+     "S1.interior": 15,
+     "S1.event": 4,
+     "S2.mixed": 1
+    },
+    "max_macro": {
+     "S1": 38,
+     "S2": 1
+    },
+    "mean_per_anchor": {
+     "granted": 0.4697247197247197,
+     "ext_blocks": 0.4673937173937174,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.002331002331002331,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 4.230769230769231,
+     "ext_blocks": 4.205128205128205,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.02564102564102564,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 22.076923076923077
+   },
+   "same_success": {
+    "n": 375,
+    "termination": {
+     "success": 375
+    },
+    "first_lever": {
+     "extension": 375
+    },
+    "first_lever_macro": {
+     "S0": 375
+    },
+    "first_lever_cls": {
+     "interior": 375
+    },
+    "first_lever_frac_median": 0.09090909090909091,
+    "final_macro": {
+     "S1": 372,
+     "S0": 1,
+     "S2": 2
+    },
+    "final_label": {
+     "S1.interior": 157,
+     "S1.mixed": 117,
+     "S1.event": 98,
+     "S2.mixed": 2,
+     "S0.event": 1
+    },
+    "max_macro": {
+     "S1": 373,
+     "S2": 2
+    },
+    "mean_per_anchor": {
+     "granted": 0.4745075900020172,
+     "ext_blocks": 0.47035063105682307,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.00106031746031746,
+     "ext_fire": 0.003096641484876779,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 4.282666666666667,
+     "ext_blocks": 4.24,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.010666666666666666,
+     "ext_fire": 0.032,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 22.12
+   },
+   "same_fail": {
+    "n": 28,
+    "termination": {
+     "step_cap": 28
+    },
+    "first_lever": {
+     "extension": 28
+    },
+    "first_lever_macro": {
+     "S0": 28
+    },
+    "first_lever_cls": {
+     "interior": 28
+    },
+    "first_lever_frac_median": 0.045454545454545456,
+    "final_macro": {
+     "S1": 24,
+     "S0": 3,
+     "S2": 1
+    },
+    "final_label": {
+     "S1.interior": 14,
+     "S1.mixed": 10,
+     "S0.mixed": 3,
+     "S2.mixed": 1
+    },
+    "max_macro": {
+     "S1": 26,
+     "S2": 2
+    },
+    "mean_per_anchor": {
+     "granted": 0.21764134715671166,
+     "ext_blocks": 0.20771085322000654,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.006359065365276545,
+     "ext_fire": 0.0035714285714285718,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 4.357142857142857,
+     "ext_blocks": 4.142857142857143,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.14285714285714285,
+     "ext_fire": 0.07142857142857142,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 44.0
+   },
+   "cross_run": {
+    "reference": "r05_x:r5x_g_sp_50_tail1u",
+    "categories": {
+     "div_eq_lever": 496,
+     "div_before_lever": 4
+    },
+    "a_rep_baseline": {
+     "A1_A2_identical": 464,
+     "A1_A2_differ": 36
+    }
+   }
+  },
+  "r7_groot_spatial_50_UF1": {
+   "reference": [
+    "r05_x:r5x_g_sp_50_tail1u",
+    "r06_paper:r5x_g_sp_50_tail1u_rep2",
+    "r06_paper:r5x_g_sp_50_tail1u_rep3"
+   ],
+   "pairs": 500,
+   "sr": 0.832,
+   "counts": {
+    "same_success": 377,
+    "same_fail": 28,
+    "gain": 39,
+    "loss": 56
+   },
+   "loss_vs_A_unanimous": 56,
+   "gain_vs_A_unanimous": 37,
+   "a_self_noise": {
+    "pairs": 500,
+    "mean_loss_vs_other_two_unanimous": 0.3333333333333333,
+    "mean_gain_vs_other_two_unanimous": 1.0,
+    "per_rep": [
+     [
+      0,
+      1
+     ],
+     [
+      1,
+      1
+     ],
+     [
+      0,
+      1
+     ]
+    ]
+   },
+   "loss": {
+    "n": 56,
+    "termination": {
+     "step_cap": 56
+    },
+    "first_lever": {
+     "extension": 56
+    },
+    "first_lever_macro": {
+     "S0": 56
+    },
+    "first_lever_cls": {
+     "interior": 56
+    },
+    "first_lever_frac_median": 0.045454545454545456,
+    "final_macro": {
+     "S1": 54,
+     "S0": 2
+    },
+    "final_label": {
+     "S1.interior": 29,
+     "S1.mixed": 21,
+     "S1.event": 4,
+     "S0.mixed": 2
+    },
+    "max_macro": {
+     "S1": 55,
+     "S2": 1
+    },
+    "mean_per_anchor": {
+     "granted": 0.3176575015971301,
+     "ext_blocks": 0.3176575015971301,
+     "sf_refused_ext": 0.1196830925352597,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 6.035714285714286,
+     "ext_blocks": 6.035714285714286,
+     "sf_refused_ext": 2.267857142857143,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 44.0
+   },
+   "gain": {
+    "n": 39,
+    "termination": {
+     "success": 39
+    },
+    "first_lever": {
+     "extension": 39
+    },
+    "first_lever_macro": {
+     "S0": 39
+    },
+    "first_lever_cls": {
+     "interior": 39
+    },
+    "first_lever_frac_median": 0.09090909090909091,
+    "final_macro": {
+     "S1": 36,
+     "S0": 2,
+     "S2": 1
+    },
+    "final_label": {
+     "S1.mixed": 18,
+     "S1.interior": 15,
+     "S1.event": 3,
+     "S0.mixed": 2,
+     "S2.mixed": 1
+    },
+    "max_macro": {
+     "S1": 38,
+     "S2": 1
+    },
+    "mean_per_anchor": {
+     "granted": 0.6609877451982716,
+     "ext_blocks": 0.6609877451982716,
+     "sf_refused_ext": 0.18129175892333782,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 5.564102564102564,
+     "ext_blocks": 5.564102564102564,
+     "sf_refused_ext": 1.5384615384615385,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 22.58974358974359
+   },
+   "same_success": {
+    "n": 377,
+    "termination": {
+     "success": 377
+    },
+    "first_lever": {
+     "extension": 377
+    },
+    "first_lever_macro": {
+     "S0": 377
+    },
+    "first_lever_cls": {
+     "interior": 377
+    },
+    "first_lever_frac_median": 0.09090909090909091,
+    "final_macro": {
+     "S1": 376,
+     "S2": 1
+    },
+    "final_label": {
+     "S1.interior": 167,
+     "S1.mixed": 115,
+     "S1.event": 94,
+     "S2.mixed": 1
+    },
+    "max_macro": {
+     "S1": 376,
+     "S2": 1
+    },
+    "mean_per_anchor": {
+     "granted": 0.7377024444410153,
+     "ext_blocks": 0.7377024444410153,
+     "sf_refused_ext": 0.22222532326292666,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 5.923076923076923,
+     "ext_blocks": 5.923076923076923,
+     "sf_refused_ext": 1.7612732095490715,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 21.689655172413794
+   },
+   "same_fail": {
+    "n": 28,
+    "termination": {
+     "step_cap": 28
+    },
+    "first_lever": {
+     "extension": 28
+    },
+    "first_lever_macro": {
+     "S0": 28
+    },
+    "first_lever_cls": {
+     "interior": 28
+    },
+    "first_lever_frac_median": 0.045454545454545456,
+    "final_macro": {
+     "S1": 26,
+     "S0": 2
+    },
+    "final_label": {
+     "S1.interior": 13,
+     "S1.mixed": 12,
+     "S1.event": 1,
+     "S0.interior": 1,
+     "S0.event": 1
+    },
+    "max_macro": {
+     "S1": 24,
+     "S2": 4
+    },
+    "mean_per_anchor": {
+     "granted": 0.32167919799498745,
+     "ext_blocks": 0.31979949874686714,
+     "sf_refused_ext": 0.13153717627401837,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 6.142857142857143,
+     "ext_blocks": 6.107142857142857,
+     "sf_refused_ext": 2.5,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 44.0
+   },
+   "cross_run": {
+    "reference": "r05_x:r5x_g_sp_50_tail1u",
+    "categories": {
+     "div_eq_lever": 498,
+     "div_before_lever": 2
+    },
+    "a_rep_baseline": {
+     "A1_A2_identical": 464,
+     "A1_A2_differ": 36
+    }
+   }
+  },
+  "r7_groot_spatial_50_CU30": {
+   "reference": [
+    "r05_x:r5x_g_sp_50_tail1u",
+    "r06_paper:r5x_g_sp_50_tail1u_rep2",
+    "r06_paper:r5x_g_sp_50_tail1u_rep3"
+   ],
+   "pairs": 500,
+   "sr": 0.932,
+   "counts": {
+    "same_success": 411,
+    "same_fail": 12,
+    "gain": 55,
+    "loss": 22
+   },
+   "loss_vs_A_unanimous": 22,
+   "gain_vs_A_unanimous": 53,
+   "a_self_noise": {
+    "pairs": 500,
+    "mean_loss_vs_other_two_unanimous": 0.3333333333333333,
+    "mean_gain_vs_other_two_unanimous": 1.0,
+    "per_rep": [
+     [
+      0,
+      1
+     ],
+     [
+      1,
+      1
+     ],
+     [
+      0,
+      1
+     ]
+    ]
+   },
+   "loss": {
+    "n": 22,
+    "termination": {
+     "step_cap": 22
+    },
+    "first_lever": {
+     "call_lottery": 21,
+     "extra_look": 1
+    },
+    "first_lever_macro": {
+     "S0": 22
+    },
+    "first_lever_cls": {
+     "interior": 22
+    },
+    "first_lever_frac_median": 0.0,
+    "final_macro": {
+     "S1": 18,
+     "S0": 4
+    },
+    "final_label": {
+     "S1.mixed": 12,
+     "S1.event": 4,
+     "S0.mixed": 4,
+     "S1.interior": 2
+    },
+    "max_macro": {
+     "S1": 20,
+     "S2": 2
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.49800874356210306,
+     "lottery_calls": 0.2553748951970296,
+     "stall_calls": 0.24263384836507368,
+     "extra_looks": 0.05451251646903821
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 11.409090909090908,
+     "lottery_calls": 5.863636363636363,
+     "stall_calls": 5.545454545454546,
+     "extra_looks": 1.2727272727272727
+    },
+    "mean_decisions": 44.0
+   },
+   "gain": {
+    "n": 55,
+    "termination": {
+     "success": 55
+    },
+    "first_lever": {
+     "call_lottery": 53,
+     "extra_look": 1,
+     "call_stall": 1
+    },
+    "first_lever_macro": {
+     "S0": 52,
+     "S1": 3
+    },
+    "first_lever_cls": {
+     "interior": 48,
+     "mixed": 2,
+     "event": 5
+    },
+    "first_lever_frac_median": 0.07407407407407407,
+    "final_macro": {
+     "S1": 54,
+     "S2": 1
+    },
+    "final_label": {
+     "S1.mixed": 25,
+     "S1.interior": 25,
+     "S1.event": 4,
+     "S2.mixed": 1
+    },
+    "max_macro": {
+     "S1": 54,
+     "S2": 1
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.5084400448036812,
+     "lottery_calls": 0.4693564011745831,
+     "stall_calls": 0.03908364362909818,
+     "extra_looks": 0.05114955751319388
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 5.709090909090909,
+     "lottery_calls": 5.254545454545455,
+     "stall_calls": 0.45454545454545453,
+     "extra_looks": 0.6
+    },
+    "mean_decisions": 21.236363636363638
+   },
+   "same_success": {
+    "n": 411,
+    "termination": {
+     "success": 411
+    },
+    "first_lever": {
+     "call_lottery": 404,
+     "None": 1,
+     "call_stall": 4,
+     "extra_look": 2
+    },
+    "first_lever_macro": {
+     "S0": 389,
+     "None": 1,
+     "S1": 21
+    },
+    "first_lever_cls": {
+     "interior": 350,
+     "None": 1,
+     "mixed": 27,
+     "event": 33
+    },
+    "first_lever_frac_median": 0.0,
+    "final_macro": {
+     "S1": 402,
+     "S0": 1,
+     "S2": 8
+    },
+    "final_label": {
+     "S1.interior": 180,
+     "S1.mixed": 131,
+     "S1.event": 91,
+     "S2.mixed": 8,
+     "S0.mixed": 1
+    },
+    "max_macro": {
+     "S1": 402,
+     "S2": 9
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.5033636860123832,
+     "lottery_calls": 0.4657551243159478,
+     "stall_calls": 0.037608561696435415,
+     "extra_looks": 0.039579761410624
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 5.644768856447689,
+     "lottery_calls": 5.18734793187348,
+     "stall_calls": 0.45742092457420924,
+     "extra_looks": 0.4744525547445255
+    },
+    "mean_decisions": 21.484184914841848
+   },
+   "same_fail": {
+    "n": 12,
+    "termination": {
+     "step_cap": 12
+    },
+    "first_lever": {
+     "call_lottery": 12
+    },
+    "first_lever_macro": {
+     "S0": 11,
+     "S1": 1
+    },
+    "first_lever_cls": {
+     "interior": 11,
+     "event": 1
+    },
+    "first_lever_frac_median": 0.0,
+    "final_macro": {
+     "S1": 12
+    },
+    "final_label": {
+     "S1.mixed": 8,
+     "S1.interior": 3,
+     "S1.event": 1
+    },
+    "max_macro": {
+     "S1": 9,
+     "S2": 3
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.5,
+     "lottery_calls": 0.22611989459815543,
+     "stall_calls": 0.2738801054018445,
+     "extra_looks": 0.04347826086956521
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 11.416666666666666,
+     "lottery_calls": 5.166666666666667,
+     "stall_calls": 6.25,
+     "extra_looks": 1.0
+    },
+    "mean_decisions": 44.0
+   },
+   "cross_run": {
+    "reference": "r05_x:r5x_g_sp_50_tail1u",
+    "categories": {
+     "div_eq_lever": 497,
+     "no_lever_identical": 1,
+     "div_before_lever": 2
+    },
+    "a_rep_baseline": {
+     "A1_A2_identical": 464,
+     "A1_A2_differ": 36
+    }
+   }
+  },
+  "r7_groot_spatial_50_CT30": {
+   "reference": [
+    "r05_x:r5x_g_sp_50_tail1u",
+    "r06_paper:r5x_g_sp_50_tail1u_rep2",
+    "r06_paper:r5x_g_sp_50_tail1u_rep3"
+   ],
+   "pairs": 500,
+   "sr": 0.95,
+   "counts": {
+    "same_success": 415,
+    "gain": 60,
+    "same_fail": 7,
+    "loss": 18
+   },
+   "loss_vs_A_unanimous": 18,
+   "gain_vs_A_unanimous": 58,
+   "a_self_noise": {
+    "pairs": 500,
+    "mean_loss_vs_other_two_unanimous": 0.3333333333333333,
+    "mean_gain_vs_other_two_unanimous": 1.0,
+    "per_rep": [
+     [
+      0,
+      1
+     ],
+     [
+      1,
+      1
+     ],
+     [
+      0,
+      1
+     ]
+    ]
+   },
+   "loss": {
+    "n": 18,
+    "termination": {
+     "step_cap": 18
+    },
+    "first_lever": {
+     "call_stall": 2,
+     "call_lottery": 16
+    },
+    "first_lever_macro": {
+     "S0": 18
+    },
+    "first_lever_cls": {
+     "interior": 16,
+     "mixed": 1,
+     "event": 1
+    },
+    "first_lever_frac_median": 0.022727272727272728,
+    "final_macro": {
+     "S1": 15,
+     "S0": 2,
+     "S2": 1
+    },
+    "final_label": {
+     "S1.mixed": 9,
+     "S1.interior": 6,
+     "S0.mixed": 2,
+     "S2.mixed": 1
+    },
+    "max_macro": {
+     "S1": 15,
+     "S2": 3
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.5478700043917436,
+     "lottery_calls": 0.3071933099107012,
+     "stall_calls": 0.24067669448104226,
+     "extra_looks": 0.06149355877616748
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 12.61111111111111,
+     "lottery_calls": 7.111111111111111,
+     "stall_calls": 5.5,
+     "extra_looks": 1.4444444444444444
+    },
+    "mean_decisions": 44.0
+   },
+   "gain": {
+    "n": 60,
+    "termination": {
+     "success": 60
+    },
+    "first_lever": {
+     "call_lottery": 59,
+     "call_stall": 1
+    },
+    "first_lever_macro": {
+     "S0": 59,
+     "S1": 1
+    },
+    "first_lever_cls": {
+     "event": 10,
+     "interior": 46,
+     "mixed": 4
+    },
+    "first_lever_frac_median": 0.10263157894736842,
+    "final_macro": {
+     "S1": 59,
+     "S2": 1
+    },
+    "final_label": {
+     "S1.mixed": 29,
+     "S1.interior": 27,
+     "S1.event": 3,
+     "S2.mixed": 1
+    },
+    "max_macro": {
+     "S1": 58,
+     "S2": 2
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.535972823114851,
+     "lottery_calls": 0.47890645825049843,
+     "stall_calls": 0.05706636486435248,
+     "extra_looks": 0.029115989502986404
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 6.35,
+     "lottery_calls": 5.566666666666666,
+     "stall_calls": 0.7833333333333333,
+     "extra_looks": 0.35
+    },
+    "mean_decisions": 22.866666666666667
+   },
+   "same_success": {
+    "n": 415,
+    "termination": {
+     "success": 415
+    },
+    "first_lever": {
+     "call_lottery": 407,
+     "call_stall": 3,
+     "extra_look": 5
+    },
+    "first_lever_macro": {
+     "S0": 389,
+     "S1": 26
+    },
+    "first_lever_cls": {
+     "mixed": 70,
+     "interior": 301,
+     "event": 44
+    },
+    "first_lever_frac_median": 0.10526315789473684,
+    "final_macro": {
+     "S1": 410,
+     "S2": 5
+    },
+    "final_label": {
+     "S1.interior": 176,
+     "S1.mixed": 146,
+     "S1.event": 88,
+     "S2.mixed": 5
+    },
+    "max_macro": {
+     "S1": 410,
+     "S2": 5
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.5107570316822888,
+     "lottery_calls": 0.4750119858979513,
+     "stall_calls": 0.035745045784337424,
+     "extra_looks": 0.03752140809373374
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 5.744578313253012,
+     "lottery_calls": 5.296385542168674,
+     "stall_calls": 0.44819277108433736,
+     "extra_looks": 0.4578313253012048
+    },
+    "mean_decisions": 21.63855421686747
+   },
+   "same_fail": {
+    "n": 7,
+    "termination": {
+     "step_cap": 7
+    },
+    "first_lever": {
+     "call_lottery": 7
+    },
+    "first_lever_macro": {
+     "S0": 7
+    },
+    "first_lever_cls": {
+     "interior": 7
+    },
+    "first_lever_frac_median": 0.045454545454545456,
+    "final_macro": {
+     "S1": 6,
+     "S0": 1
+    },
+    "final_label": {
+     "S1.mixed": 5,
+     "S1.interior": 1,
+     "S0.event": 1
+    },
+    "max_macro": {
+     "S1": 7
+    },
+    "mean_per_anchor": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.6235177865612648,
+     "lottery_calls": 0.37867024280067757,
+     "stall_calls": 0.24484754376058723,
+     "extra_looks": 0.05512422360248447
+    },
+    "mean_counts": {
+     "granted": 0.0,
+     "ext_blocks": 0.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 14.285714285714286,
+     "lottery_calls": 8.714285714285714,
+     "stall_calls": 5.571428571428571,
+     "extra_looks": 1.2857142857142858
+    },
+    "mean_decisions": 44.0
+   },
+   "cross_run": {
+    "reference": "r05_x:r5x_g_sp_50_tail1u",
+    "categories": {
+     "div_eq_lever": 498,
+     "div_before_lever": 2
+    },
+    "a_rep_baseline": {
+     "A1_A2_identical": 464,
+     "A1_A2_differ": 36
+    }
+   }
+  },
+  "r7_groot_spatial_500_SF1": {
+   "reference": [
+    "r05_x:r5x_g_sp_500_tail1u",
+    "r06_paper:r5x_g_sp_500_tail1u_rep2",
+    "r06_paper:r5x_g_sp_500_tail1u_rep3"
+   ],
+   "pairs": 500,
+   "sr": 0.954,
+   "counts": {
+    "same_success": 470,
+    "same_fail": 11,
+    "gain": 7,
+    "loss": 12
+   },
+   "loss_vs_A_unanimous": 12,
+   "gain_vs_A_unanimous": 7,
+   "a_self_noise": {
+    "pairs": 500,
+    "mean_loss_vs_other_two_unanimous": 0.0,
+    "mean_gain_vs_other_two_unanimous": 0.0,
+    "per_rep": [
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ]
+    ]
+   },
+   "loss": {
+    "n": 12,
+    "termination": {
+     "step_cap": 12
+    },
+    "first_lever": {
+     "extension": 12
+    },
+    "first_lever_macro": {
+     "S0": 10,
+     "S1": 2
+    },
+    "first_lever_cls": {
+     "interior": 11,
+     "event": 1
+    },
+    "first_lever_frac_median": 0.09090909090909091,
+    "final_macro": {
+     "S1": 7,
+     "S?": 4,
+     "S4+": 1
+    },
+    "final_label": {
+     "S1.unknown": 5,
+     "S?.unknown": 4,
+     "S1.interior": 2,
+     "S4+.unknown": 1
+    },
+    "max_macro": {
+     "S2": 4,
+     "S1": 6,
+     "S4+": 1,
+     "S3": 1
+    },
+    "mean_per_anchor": {
+     "granted": 0.12260006075795553,
+     "ext_blocks": 0.12260006075795553,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 2.5,
+     "ext_blocks": 2.5,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 44.0
+   },
+   "gain": {
+    "n": 7,
+    "termination": {
+     "success": 7
+    },
+    "first_lever": {
+     "extension": 7
+    },
+    "first_lever_macro": {
+     "S0": 7
+    },
+    "first_lever_cls": {
+     "interior": 7
+    },
+    "first_lever_frac_median": 0.10526315789473684,
+    "final_macro": {
+     "S1": 7
+    },
+    "final_label": {
+     "S1.interior": 3,
+     "S1.mixed": 2,
+     "S1.unknown": 1,
+     "S1.event": 1
+    },
+    "max_macro": {
+     "S1": 6,
+     "S3": 1
+    },
+    "mean_per_anchor": {
+     "granted": 0.4703253096110239,
+     "ext_blocks": 0.4703253096110239,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 4.0,
+     "ext_blocks": 4.0,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 21.142857142857142
+   },
+   "same_success": {
+    "n": 470,
+    "termination": {
+     "success": 470
+    },
+    "first_lever": {
+     "extension": 429,
+     "None": 41
+    },
+    "first_lever_macro": {
+     "S0": 366,
+     "None": 41,
+     "S1": 63
+    },
+    "first_lever_cls": {
+     "interior": 406,
+     "None": 41,
+     "event": 23
+    },
+    "first_lever_frac_median": 0.1111111111111111,
+    "final_macro": {
+     "S1": 467,
+     "S2": 3
+    },
+    "final_label": {
+     "S1.interior": 184,
+     "S1.unknown": 126,
+     "S1.event": 87,
+     "S1.mixed": 70,
+     "S2.unknown": 2,
+     "S2.mixed": 1
+    },
+    "max_macro": {
+     "S1": 467,
+     "S2": 3
+    },
+    "mean_per_anchor": {
+     "granted": 0.4131693070522858,
+     "ext_blocks": 0.4124059746400172,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0004973749654600718,
+     "ext_fire": 0.00026595744680851064,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 3.6212765957446806,
+     "ext_blocks": 3.6148936170212767,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.00425531914893617,
+     "ext_fire": 0.002127659574468085,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 21.151063829787233
+   },
+   "same_fail": {
+    "n": 11,
+    "termination": {
+     "step_cap": 11
+    },
+    "first_lever": {
+     "extension": 5,
+     "None": 6
+    },
+    "first_lever_macro": {
+     "S0": 3,
+     "None": 6,
+     "S1": 2
+    },
+    "first_lever_cls": {
+     "interior": 5,
+     "None": 6
+    },
+    "first_lever_frac_median": 0.13636363636363635,
+    "final_macro": {
+     "S1": 5,
+     "S?": 4,
+     "S2": 2
+    },
+    "final_label": {
+     "S1.unknown": 5,
+     "S?.unknown": 4,
+     "S2.unknown": 2
+    },
+    "max_macro": {
+     "S1": 6,
+     "S2": 5
+    },
+    "mean_per_anchor": {
+     "granted": 0.04376229830775285,
+     "ext_blocks": 0.04376229830775285,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 0.9090909090909091,
+     "ext_blocks": 0.9090909090909091,
+     "sf_refused_ext": 0.0,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 44.0
+   },
+   "cross_run": {
+    "reference": "r05_x:r5x_g_sp_500_tail1u",
+    "categories": {
+     "div_eq_lever": 447,
+     "no_lever_identical": 45,
+     "no_lever_but_differs": 2,
+     "div_before_lever": 6
+    },
+    "a_rep_baseline": {
+     "A1_A2_identical": 469,
+     "A1_A2_differ": 31
+    }
+   }
+  },
+  "r7_groot_spatial_500_UF1": {
+   "reference": [
+    "r05_x:r5x_g_sp_500_tail1u",
+    "r06_paper:r5x_g_sp_500_tail1u_rep2",
+    "r06_paper:r5x_g_sp_500_tail1u_rep3"
+   ],
+   "pairs": 500,
+   "sr": 0.948,
+   "counts": {
+    "same_success": 465,
+    "same_fail": 9,
+    "loss": 17,
+    "gain": 9
+   },
+   "loss_vs_A_unanimous": 17,
+   "gain_vs_A_unanimous": 9,
+   "a_self_noise": {
+    "pairs": 500,
+    "mean_loss_vs_other_two_unanimous": 0.0,
+    "mean_gain_vs_other_two_unanimous": 0.0,
+    "per_rep": [
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      0
+     ]
+    ]
+   },
+   "loss": {
+    "n": 17,
+    "termination": {
+     "step_cap": 17
+    },
+    "first_lever": {
+     "extension": 17
+    },
+    "first_lever_macro": {
+     "S0": 17
+    },
+    "first_lever_cls": {
+     "unknown": 14,
+     "interior": 3
+    },
+    "first_lever_frac_median": 0.045454545454545456,
+    "final_macro": {
+     "S1": 6,
+     "S?": 11
+    },
+    "final_label": {
+     "S?.unknown": 11,
+     "S1.unknown": 6
+    },
+    "max_macro": {
+     "S2": 11,
+     "S1": 5,
+     "S3": 1
+    },
+    "mean_per_anchor": {
+     "granted": 0.5469960946194783,
+     "ext_blocks": 0.5469960946194783,
+     "sf_refused_ext": 0.4884153867945527,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 9.529411764705882,
+     "ext_blocks": 9.529411764705882,
+     "sf_refused_ext": 8.470588235294118,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 44.0
+   },
+   "gain": {
+    "n": 9,
+    "termination": {
+     "success": 9
+    },
+    "first_lever": {
+     "extension": 9
+    },
+    "first_lever_macro": {
+     "S0": 9
+    },
+    "first_lever_cls": {
+     "unknown": 4,
+     "interior": 5
+    },
+    "first_lever_frac_median": 0.08695652173913043,
+    "final_macro": {
+     "S1": 9
+    },
+    "final_label": {
+     "S1.mixed": 4,
+     "S1.unknown": 2,
+     "S1.event": 2,
+     "S1.interior": 1
+    },
+    "max_macro": {
+     "S1": 9
+    },
+    "mean_per_anchor": {
+     "granted": 0.8474426807760141,
+     "ext_blocks": 0.8474426807760141,
+     "sf_refused_ext": 0.4272486772486772,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 6.666666666666667,
+     "ext_blocks": 6.666666666666667,
+     "sf_refused_ext": 3.3333333333333335,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 21.88888888888889
+   },
+   "same_success": {
+    "n": 465,
+    "termination": {
+     "success": 465
+    },
+    "first_lever": {
+     "extension": 465
+    },
+    "first_lever_macro": {
+     "S0": 465
+    },
+    "first_lever_cls": {
+     "unknown": 194,
+     "interior": 271
+    },
+    "first_lever_frac_median": 0.09523809523809523,
+    "final_macro": {
+     "S1": 463,
+     "S2": 2
+    },
+    "final_label": {
+     "S1.interior": 201,
+     "S1.unknown": 125,
+     "S1.event": 75,
+     "S1.mixed": 62,
+     "S2.unknown": 2
+    },
+    "max_macro": {
+     "S1": 463,
+     "S2": 2
+    },
+    "mean_per_anchor": {
+     "granted": 0.838695790469984,
+     "ext_blocks": 0.838695790469984,
+     "sf_refused_ext": 0.41213952117177927,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 6.372043010752688,
+     "ext_blocks": 6.372043010752688,
+     "sf_refused_ext": 3.043010752688172,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 21.101075268817205
+   },
+   "same_fail": {
+    "n": 9,
+    "termination": {
+     "step_cap": 9
+    },
+    "first_lever": {
+     "extension": 9
+    },
+    "first_lever_macro": {
+     "S0": 9
+    },
+    "first_lever_cls": {
+     "unknown": 8,
+     "interior": 1
+    },
+    "first_lever_frac_median": 0.045454545454545456,
+    "final_macro": {
+     "S?": 2,
+     "S1": 5,
+     "S2": 2
+    },
+    "final_label": {
+     "S1.unknown": 3,
+     "S?.unknown": 2,
+     "S2.unknown": 2,
+     "S1.mixed": 1,
+     "S1.interior": 1
+    },
+    "max_macro": {
+     "S2": 5,
+     "S1": 4
+    },
+    "mean_per_anchor": {
+     "granted": 0.478156174750602,
+     "ext_blocks": 0.47162022703818374,
+     "sf_refused_ext": 0.4062798608722241,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_counts": {
+     "granted": 8.555555555555555,
+     "ext_blocks": 8.444444444444445,
+     "sf_refused_ext": 7.222222222222222,
+     "early_abort": 0.0,
+     "ext_fire": 0.0,
+     "wrist_looks": 0.0,
+     "calls": 0.0,
+     "lottery_calls": 0.0,
+     "stall_calls": 0.0,
+     "extra_looks": 0.0
+    },
+    "mean_decisions": 44.0
+   },
+   "cross_run": {
+    "reference": "r05_x:r5x_g_sp_500_tail1u",
+    "categories": {
+     "div_eq_lever": 493,
+     "div_before_lever": 7
+    },
+    "a_rep_baseline": {
+     "A1_A2_identical": 469,
+     "A1_A2_differ": 31
+    }
+   }
+  }
+ },
+ "sf_uf": {
+  "groot_l10_50": {
+   "pairs": 500,
+   "sf1_uf1_table": {
+    "SF0_UF0": 166,
+    "SF0_UF1": 44,
+    "SF1_UF0": 51,
+    "SF1_UF1": 239
+   },
+   "uf_refused_per_anchor": {
+    "uf_only_loss": 0.36400847851985546,
+    "both_fail": 0.43624103617889587,
+    "both_success": 0.360539411880394,
+    "sf_only_loss": 0.4126630924378617
+   },
+   "uf_ext_per_anchor": {
+    "uf_only_loss": 0.5873138478288812,
+    "both_fail": 0.6698546645335757,
+    "both_success": 0.8539633135481999,
+    "sf_only_loss": 0.8676578408919494
+   },
+   "uf_only_loss_A_k": {
+    "0": 19,
+    "3": 28,
+    "2": 2,
+    "1": 2
+   },
+   "sf_only_loss_A_k": {
+    "0": 21,
+    "3": 17,
+    "2": 3,
+    "1": 3
+   },
+   "uf_only_loss_final_macro": {
+    "S1": 8,
+    "S2": 22,
+    "S3": 13,
+    "S4+": 5,
+    "S0": 3
+   },
+   "uf_only_loss_refused_labels": {
+    "S2.mixed": 191,
+    "S3.mixed": 115,
+    "S1.mixed": 103,
+    "S0.mixed": 94,
+    "S2.event": 45,
+    "S0.event": 43,
+    "S3.event": 29,
+    "S0.interior": 23,
+    "S1.interior": 21,
+    "S1.event": 19
+   },
+   "both_success_refused_labels": {
+    "S1.mixed": 344,
+    "S2.mixed": 317,
+    "S0.event": 141,
+    "S0.mixed": 131,
+    "S3.mixed": 122,
+    "S2.event": 95,
+    "S1.event": 82,
+    "S1.interior": 79,
+    "S0.interior": 72,
+    "S2.interior": 41
+   }
+  },
+  "groot_l10_500": {
+   "pairs": 500,
+   "sf1_uf1_table": {
+    "SF0_UF0": 42,
+    "SF0_UF1": 40,
+    "SF1_UF0": 56,
+    "SF1_UF1": 362
+   },
+   "uf_refused_per_anchor": {
+    "both_success": 0.5667091436580736,
+    "sf_only_loss": 0.7553787866674728,
+    "uf_only_loss": 0.7398986904699397,
+    "both_fail": 0.753618303224025
+   },
+   "uf_ext_per_anchor": {
+    "both_success": 0.9032433186051254,
+    "sf_only_loss": 0.8990976126347358,
+    "uf_only_loss": 0.7901011181257986,
+    "both_fail": 0.8058961408035314
+   },
+   "uf_only_loss_A_k": {
+    "3": 43,
+    "0": 8,
+    "2": 4,
+    "1": 1
+   },
+   "sf_only_loss_A_k": {
+    "0": 20,
+    "3": 13,
+    "1": 5,
+    "2": 2
+   },
+   "uf_only_loss_final_macro": {
+    "S2": 17,
+    "S4+": 10,
+    "S3": 11,
+    "S?": 13,
+    "S1": 5
+   },
+   "uf_only_loss_refused_labels": {
+    "S0.unknown": 384,
+    "S2.unknown": 370,
+    "S1.unknown": 308,
+    "S?.unknown": 186,
+    "S3.unknown": 143,
+    "S2.mixed": 29,
+    "S4+.unknown": 27,
+    "S3.mixed": 24,
+    "S1.mixed": 12,
+    "S0.event": 9
+   },
+   "both_success_refused_labels": {
+    "S0.unknown": 1091,
+    "S1.unknown": 735,
+    "S2.unknown": 699,
+    "S3.unknown": 218,
+    "S2.mixed": 195,
+    "S1.mixed": 171,
+    "S3.mixed": 75,
+    "S0.mixed": 75,
+    "S1.interior": 57,
+    "S1.event": 55
+   }
+  },
+  "groot_spatial_50": {
+   "pairs": 500,
+   "sf1_uf1_table": {
+    "SF0_UF0": 55,
+    "SF0_UF1": 31,
+    "SF1_UF0": 29,
+    "SF1_UF1": 385
+   },
+   "uf_refused_per_anchor": {
+    "both_success": 0.21890850077553467,
+    "both_fail": 0.12702661287800604,
+    "uf_only_loss": 0.11720104859850779,
+    "sf_only_loss": 0.21192105385653767
+   },
+   "uf_ext_per_anchor": {
+    "both_success": 0.7341482323291458,
+    "both_fail": 0.3211417581386621,
+    "uf_only_loss": 0.31311756402500507,
+    "sf_only_loss": 0.685331424847554
+   },
+   "uf_only_loss_A_k": {
+    "0": 8,
+    "3": 21
+   },
+   "sf_only_loss_A_k": {
+    "3": 23,
+    "0": 7,
+    "1": 1
+   },
+   "uf_only_loss_final_macro": {
+    "S1": 27,
+    "S0": 2
+   },
+   "uf_only_loss_refused_labels": {
+    "S1.mixed": 26,
+    "S0.mixed": 16,
+    "S0.event": 12,
+    "S0.interior": 10,
+    "S1.event": 1
+   },
+   "both_success_refused_labels": {
+    "S0.event": 194,
+    "S1.mixed": 185,
+    "S0.mixed": 174,
+    "S0.interior": 110,
+    "S1.interior": 4
+   }
+  },
+  "groot_spatial_500": {
+   "pairs": 500,
+   "sf1_uf1_table": {
+    "SF0_UF0": 10,
+    "SF0_UF1": 13,
+    "SF1_UF0": 16,
+    "SF1_UF1": 461
+   },
+   "uf_refused_per_anchor": {
+    "both_success": 0.40957811771260794,
+    "uf_only_loss": 0.49808651530787756,
+    "both_fail": 0.3990196078431373,
+    "sf_only_loss": 0.5134310134310135
+   },
+   "uf_ext_per_anchor": {
+    "both_success": 0.8397287877222801,
+    "uf_only_loss": 0.5464396284829722,
+    "both_fail": 0.4800481596147231,
+    "sf_only_loss": 0.8081196581196581
+   },
+   "uf_only_loss_A_k": {
+    "3": 14,
+    "0": 2
+   },
+   "sf_only_loss_A_k": {
+    "3": 9,
+    "0": 4
+   },
+   "uf_only_loss_final_macro": {
+    "S1": 5,
+    "S?": 11
+   },
+   "uf_only_loss_refused_labels": {
+    "S0.unknown": 49,
+    "S1.unknown": 39,
+    "S?.unknown": 37,
+    "S2.unknown": 4,
+    "S0.interior": 3,
+    "S3.mixed": 2,
+    "S0.event": 1,
+    "S1.mixed": 1,
+    "S2.mixed": 1,
+    "S2.event": 1
+   },
+   "both_success_refused_labels": {
+    "S0.unknown": 699,
+    "S1.unknown": 327,
+    "S0.mixed": 102,
+    "S1.mixed": 84,
+    "S0.event": 82,
+    "S0.interior": 59,
+    "S1.event": 30,
+    "S1.interior": 6
+   }
+  },
+  "pi05_l10_50": {
+   "pairs": 500,
+   "sf1_uf1_table": {
+    "SF0_UF0": 117,
+    "SF0_UF1": 41,
+    "SF1_UF0": 59,
+    "SF1_UF1": 283
+   },
+   "uf_refused_per_anchor": {
+    "both_fail": 0.26375661105976483,
+    "sf_only_loss": 0.3247632344402271,
+    "both_success": 0.26866012297260516,
+    "uf_only_loss": 0.2575679638605443
+   },
+   "uf_ext_per_anchor": {
+    "both_fail": 0.5767915287687536,
+    "sf_only_loss": 0.8596838518327945,
+    "both_success": 0.8314666801688072,
+    "uf_only_loss": 0.542769455667285
+   },
+   "uf_only_loss_A_k": {
+    "2": 12,
+    "3": 31,
+    "0": 10,
+    "1": 6
+   },
+   "sf_only_loss_A_k": {
+    "3": 19,
+    "1": 6,
+    "0": 12,
+    "2": 4
+   },
+   "uf_only_loss_final_macro": {
+    "S3": 30,
+    "S2": 17,
+    "S1": 6,
+    "S4+": 3,
+    "S0": 3
+   },
+   "uf_only_loss_refused_labels": {
+    "S2.mixed": 143,
+    "S3.mixed": 92,
+    "S1.mixed": 89,
+    "S0.mixed": 70,
+    "S2.event": 40,
+    "S0.interior": 39,
+    "S0.event": 37,
+    "S1.interior": 29,
+    "S1.event": 24,
+    "S3.event": 23
+   },
+   "both_success_refused_labels": {
+    "S1.mixed": 232,
+    "S2.mixed": 226,
+    "S0.mixed": 175,
+    "S0.interior": 149,
+    "S0.event": 119,
+    "S1.interior": 115,
+    "S1.event": 107,
+    "S2.event": 94,
+    "S3.mixed": 69,
+    "S2.interior": 53
+   }
+  },
+  "pi05_l10_500": {
+   "pairs": 500,
+   "sf1_uf1_table": {
+    "SF0_UF0": 61,
+    "SF0_UF1": 22,
+    "SF1_UF0": 44,
+    "SF1_UF1": 373
+   },
+   "uf_refused_per_anchor": {
+    "both_success": 0.5212366192964926,
+    "uf_only_loss": 0.7047528658174591,
+    "both_fail": 0.7138871799623285,
+    "sf_only_loss": 0.7135721419364388
+   },
+   "uf_ext_per_anchor": {
+    "both_success": 0.9025254091809788,
+    "uf_only_loss": 0.821523390004251,
+    "both_fail": 0.8430408855359925,
+    "sf_only_loss": 0.9008905646790614
+   },
+   "uf_only_loss_A_k": {
+    "3": 25,
+    "2": 8,
+    "1": 9,
+    "0": 2
+   },
+   "sf_only_loss_A_k": {
+    "0": 10,
+    "3": 3,
+    "1": 4,
+    "2": 5
+   },
+   "uf_only_loss_final_macro": {
+    "S3": 15,
+    "S2": 9,
+    "S?": 15,
+    "S4+": 4,
+    "S0": 1
+   },
+   "uf_only_loss_refused_labels": {
+    "S2.unknown": 252,
+    "S0.unknown": 195,
+    "S?.unknown": 162,
+    "S1.unknown": 154,
+    "S3.unknown": 119,
+    "S4+.unknown": 79,
+    "S2.mixed": 54,
+    "S2.interior": 23,
+    "S3.mixed": 23,
+    "S1.mixed": 21
+   },
+   "both_success_refused_labels": {
+    "S0.unknown": 989,
+    "S1.unknown": 751,
+    "S2.unknown": 602,
+    "S3.unknown": 185,
+    "S1.mixed": 169,
+    "S2.mixed": 152,
+    "S0.event": 80,
+    "S1.event": 79,
+    "S2.event": 73,
+    "S0.interior": 71
+   }
+  },
+  "pi05_spatial_50": {
+   "pairs": 500,
+   "sf1_uf1_table": {
+    "SF0_UF0": 80,
+    "SF0_UF1": 23,
+    "SF1_UF0": 30,
+    "SF1_UF1": 367
+   },
+   "uf_refused_per_anchor": {
+    "both_success": 0.21130022438641397,
+    "both_fail": 0.14939135522630104,
+    "uf_only_loss": 0.08149958228905599,
+    "sf_only_loss": 0.20288129744651484
+   },
+   "uf_ext_per_anchor": {
+    "both_success": 0.7518847667223546,
+    "both_fail": 0.34948044897783676,
+    "uf_only_loss": 0.2770133667502089,
+    "sf_only_loss": 0.6967736369910283
+   },
+   "uf_only_loss_A_k": {
+    "3": 19,
+    "1": 2,
+    "0": 4,
+    "2": 5
+   },
+   "sf_only_loss_A_k": {
+    "3": 15,
+    "0": 3,
+    "1": 2,
+    "2": 3
+   },
+   "uf_only_loss_final_macro": {
+    "S1": 27,
+    "S0": 3
+   },
+   "uf_only_loss_refused_labels": {
+    "S0.mixed": 18,
+    "S0.event": 12,
+    "S1.mixed": 9,
+    "S0.interior": 6,
+    "S1.interior": 1,
+    "S1.event": 1
+   },
+   "both_success_refused_labels": {
+    "S0.mixed": 204,
+    "S0.event": 198,
+    "S1.mixed": 80,
+    "S0.interior": 74,
+    "S1.interior": 31,
+    "S1.event": 12
+   }
+  },
+  "pi05_spatial_500": {
+   "pairs": 500,
+   "sf1_uf1_table": {
+    "SF0_UF0": 4,
+    "SF0_UF1": 9,
+    "SF1_UF0": 17,
+    "SF1_UF1": 470
+   },
+   "uf_refused_per_anchor": {
+    "both_success": 0.20093664609622056,
+    "both_fail": 0.34210526315789475,
+    "uf_only_loss": 0.3678741981828851,
+    "sf_only_loss": 0.35418871252204587
+   },
+   "uf_ext_per_anchor": {
+    "both_success": 0.827699871050935,
+    "both_fail": 0.49303405572755415,
+    "uf_only_loss": 0.5496296970800705,
+    "sf_only_loss": 0.8332451499118166
+   },
+   "uf_only_loss_A_k": {
+    "3": 12,
+    "2": 5
+   },
+   "sf_only_loss_A_k": {
+    "3": 8,
+    "1": 1
+   },
+   "uf_only_loss_final_macro": {
+    "S0": 1,
+    "S1": 6,
+    "S4+": 3,
+    "S2": 7
+   },
+   "uf_only_loss_refused_labels": {
+    "S1.unknown": 22,
+    "S2.unknown": 18,
+    "S0.unknown": 17,
+    "S1.mixed": 12,
+    "S0.interior": 11,
+    "S0.mixed": 10,
+    "S2.mixed": 6,
+    "S1.event": 5,
+    "S0.event": 3,
+    "S3.mixed": 1
+   },
+   "both_success_refused_labels": {
+    "S0.mixed": 190,
+    "S0.interior": 170,
+    "S0.event": 120,
+    "S0.unknown": 87,
+    "S1.mixed": 86,
+    "S1.event": 17,
+    "S1.interior": 16,
+    "S1.unknown": 10,
+    "S2.mixed": 8,
+    "S3.mixed": 2
+   }
+  }
+ }
+}

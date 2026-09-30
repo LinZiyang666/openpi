@@ -1,0 +1,12 @@
+{
+  "one_sided_95_zero_adverse_event_upper_bound": {
+    "2": 0.7763932022500211,
+    "3": 0.6315968501359612,
+    "10": 0.2588655508930523,
+    "50": 0.058155079116972264,
+    "149": 0.019904816220685073,
+    "299": 0.009969146792899286
+  },
+  "n_for_2pp_zero_adverse_events": 149,
+  "independent_n_per_arm_90pct_SR_2pp_halfwidth_two_sided": 1729
+}

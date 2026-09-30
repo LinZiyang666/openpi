@@ -1,0 +1,72 @@
+[
+ {
+  "arm": "r06_abl:r6p2_identity_g_l10_500",
+  "ledger_N": 31495,
+  "client_N": 31711,
+  "rel_diff": -0.006811516508467093,
+  "owner_IR": 0.07442997301158914,
+  "IR_bound_lo": 0.07392299202169594,
+  "IR_bound_hi": 0.08073450853016303,
+  "purged": true
+ },
+ {
+  "arm": "r06_frontier:r6q2_groot_l10_500_A_dose0p125",
+  "ledger_N": 29628,
+  "client_N": 29713,
+  "rel_diff": -0.00286070070339582,
+  "owner_IR": 0.12732037262049412,
+  "IR_bound_lo": 0.12695614714098205,
+  "IR_bound_hi": 0.12981684784437786,
+  "purged": true
+ },
+ {
+  "arm": "r06_frontier:r6q2_groot_l10_50_B_dose0p5",
+  "ledger_N": 30618,
+  "client_N": 30880,
+  "rel_diff": -0.008484455958549223,
+  "owner_IR": 0.35775870403030896,
+  "IR_bound_lo": 0.35472331606217616,
+  "IR_bound_hi": 0.3632077720207254,
+  "purged": true
+ },
+ {
+  "arm": "r06_frontier:r6q2_groot_l10_50_risk_rho0p45",
+  "ledger_N": 28908,
+  "client_N": 29338,
+  "rel_diff": -0.014656759151953098,
+  "owner_IR": 0.45297869101978694,
+  "IR_bound_lo": 0.44633949144454294,
+  "IR_bound_hi": 0.46099625059649596,
+  "purged": true
+ },
+ {
+  "arm": "r06_frontier:r6q2_pi05_l10_50_risk_rho0p35",
+  "ledger_N": 28861,
+  "client_N": 29041,
+  "rel_diff": -0.006198133673082883,
+  "owner_IR": 0.34068064169640694,
+  "IR_bound_lo": 0.3385690575393409,
+  "IR_bound_hi": 0.34476719121242383,
+  "purged": true
+ },
+ {
+  "arm": "r06_frontier:r6q2_pi05_spatial_500_A_dose0p03125",
+  "ledger_N": 10647,
+  "client_N": 10634,
+  "rel_diff": 0.0012224938875305623,
+  "owner_IR": 0.0926383018690711,
+  "IR_bound_lo": 0.09152905773932668,
+  "IR_bound_hi": 0.09275155162685725,
+  "purged": true
+ },
+ {
+  "arm": "r06_paper:r5q1_c10_p_l10_50_rep2",
+  "ledger_N": 30623,
+  "client_N": 30711,
+  "rel_diff": -0.0028654228126729834,
+  "owner_IR": 0.1801931881265715,
+  "IR_bound_lo": 0.17967685845462536,
+  "IR_bound_hi": 0.18254228126729838,
+  "purged": true
+ }
+]

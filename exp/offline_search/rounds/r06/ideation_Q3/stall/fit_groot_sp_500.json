@@ -1,0 +1,80 @@
+{
+  "cell": "groot_sp_500",
+  "status": "FITTED_AND_RELOADED",
+  "fingerprint": "1fb0d9754c2100d216f5372fdc36b8043a0099f28ae81cefb4c4f44a344315df",
+  "seconds": 26.41759012802504,
+  "artifact": "/tmp/q3_stall_fits/groot_sp_500",
+  "bytes": 43718902,
+  "tasks": {
+    "0": {
+      "E": 36,
+      "W": 2,
+      "K": 5,
+      "windows": 261,
+      "references": 36
+    },
+    "1": {
+      "E": 44,
+      "W": 2,
+      "K": 5,
+      "windows": 440,
+      "references": 44
+    },
+    "2": {
+      "E": 47,
+      "W": 2,
+      "K": 5,
+      "windows": 432,
+      "references": 47
+    },
+    "3": {
+      "E": 49,
+      "W": 2,
+      "K": 5,
+      "windows": 356,
+      "references": 49
+    },
+    "4": {
+      "E": 49,
+      "W": 2,
+      "K": 5,
+      "windows": 578,
+      "references": 49
+    },
+    "5": {
+      "E": 48,
+      "W": 2,
+      "K": 5,
+      "windows": 432,
+      "references": 48
+    },
+    "6": {
+      "E": 49,
+      "W": 2,
+      "K": 5,
+      "windows": 465,
+      "references": 49
+    },
+    "7": {
+      "E": 47,
+      "W": 2,
+      "K": 5,
+      "windows": 510,
+      "references": 47
+    },
+    "8": {
+      "E": 40,
+      "W": 2,
+      "K": 5,
+      "windows": 360,
+      "references": 40
+    },
+    "9": {
+      "E": 47,
+      "W": 2,
+      "K": 5,
+      "windows": 510,
+      "references": 47
+    }
+  }
+}

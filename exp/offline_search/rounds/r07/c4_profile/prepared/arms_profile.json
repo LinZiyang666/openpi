@@ -1,0 +1,1522 @@
+[
+ {
+  "name": "r7_pi05_l10_50_SF1_profile",
+  "model": "pi05",
+  "suite": "l10",
+  "mode": "plugin",
+  "cost_ledger": true,
+  "method": "exp.offline_search.rounds.r07.c1_follow.methods:StageFollow",
+  "kwargs": {
+   "lib": "current",
+   "kref": 5,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only",
+   "extend_blocks": 1,
+   "stage_gate": true,
+   "state_valve": true
+  },
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 224
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-log-r4",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_pi05_l10_50_SF1_profile.pkl",
+   "--os-log-inputs"
+  ],
+  "manifest": "<RUN>/manifests/pi05_l10_bval20.json"
+ },
+ {
+  "name": "r7_pi05_l10_50_SF2_profile",
+  "model": "pi05",
+  "suite": "l10",
+  "mode": "plugin",
+  "cost_ledger": true,
+  "method": "exp.offline_search.rounds.r07.c1_follow.methods:StageFollow",
+  "kwargs": {
+   "lib": "current",
+   "kref": 5,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only",
+   "extend_blocks": 2,
+   "stage_gate": true,
+   "state_valve": true
+  },
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 224
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-log-r4",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_pi05_l10_50_SF2_profile.pkl",
+   "--os-log-inputs"
+  ],
+  "manifest": "<RUN>/manifests/pi05_l10_bval20.json"
+ },
+ {
+  "name": "r7_pi05_l10_50_UF1_profile",
+  "model": "pi05",
+  "suite": "l10",
+  "mode": "plugin",
+  "cost_ledger": true,
+  "method": "exp.offline_search.rounds.r07.c1_follow.methods:UniformFollow",
+  "kwargs": {
+   "lib": "current",
+   "kref": 5,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only",
+   "extend_blocks": 1,
+   "stage_gate": false,
+   "state_valve": false
+  },
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 224
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-log-r4",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_pi05_l10_50_UF1_profile.pkl",
+   "--os-log-inputs"
+  ],
+  "manifest": "<RUN>/manifests/pi05_l10_bval20.json"
+ },
+ {
+  "name": "r7_pi05_l10_50_A_profile",
+  "model": "pi05",
+  "suite": "l10",
+  "mode": "plugin",
+  "cost_ledger": true,
+  "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+  "kwargs": {
+   "lib": "current",
+   "kref": 5,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only"
+  },
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 224
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-log-r4",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_pi05_l10_50_A_profile.pkl",
+   "--os-log-inputs"
+  ],
+  "manifest": "<RUN>/manifests/pi05_l10_bval20.json"
+ },
+ {
+  "name": "r7_pi05_l10_500_SF1_profile",
+  "model": "pi05",
+  "suite": "l10",
+  "mode": "plugin",
+  "cost_ledger": true,
+  "method": "exp.offline_search.rounds.r07.c1_follow.methods:StageFollow",
+  "kwargs": {
+   "lib": "bpool_cs",
+   "kref": 8,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only",
+   "extend_blocks": 1,
+   "stage_gate": true,
+   "state_valve": true
+  },
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 224
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-log-r4",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_pi05_l10_500_SF1_profile.pkl",
+   "--os-log-inputs"
+  ],
+  "manifest": "<RUN>/manifests/pi05_l10_bval20.json"
+ },
+ {
+  "name": "r7_pi05_l10_500_SF2_profile",
+  "model": "pi05",
+  "suite": "l10",
+  "mode": "plugin",
+  "cost_ledger": true,
+  "method": "exp.offline_search.rounds.r07.c1_follow.methods:StageFollow",
+  "kwargs": {
+   "lib": "bpool_cs",
+   "kref": 8,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only",
+   "extend_blocks": 2,
+   "stage_gate": true,
+   "state_valve": true
+  },
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 224
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-log-r4",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_pi05_l10_500_SF2_profile.pkl",
+   "--os-log-inputs"
+  ],
+  "manifest": "<RUN>/manifests/pi05_l10_bval20.json"
+ },
+ {
+  "name": "r7_pi05_l10_500_UF1_profile",
+  "model": "pi05",
+  "suite": "l10",
+  "mode": "plugin",
+  "cost_ledger": true,
+  "method": "exp.offline_search.rounds.r07.c1_follow.methods:UniformFollow",
+  "kwargs": {
+   "lib": "bpool_cs",
+   "kref": 8,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only",
+   "extend_blocks": 1,
+   "stage_gate": false,
+   "state_valve": false
+  },
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 224
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-log-r4",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_pi05_l10_500_UF1_profile.pkl",
+   "--os-log-inputs"
+  ],
+  "manifest": "<RUN>/manifests/pi05_l10_bval20.json"
+ },
+ {
+  "name": "r7_pi05_l10_500_A_profile",
+  "model": "pi05",
+  "suite": "l10",
+  "mode": "plugin",
+  "cost_ledger": true,
+  "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+  "kwargs": {
+   "lib": "big",
+   "kref": 8,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only"
+  },
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 224
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-log-r4",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_pi05_l10_500_A_profile.pkl",
+   "--os-log-inputs"
+  ],
+  "manifest": "<RUN>/manifests/pi05_l10_bval20.json"
+ },
+ {
+  "name": "r7_pi05_spatial_50_SF1_profile",
+  "model": "pi05",
+  "suite": "spatial",
+  "mode": "plugin",
+  "cost_ledger": true,
+  "method": "exp.offline_search.rounds.r07.c1_follow.methods:StageFollow",
+  "kwargs": {
+   "lib": "current",
+   "kref": 5,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only",
+   "extend_blocks": 1,
+   "stage_gate": true,
+   "state_valve": true
+  },
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 224
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-log-r4",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_pi05_spatial_50_SF1_profile.pkl",
+   "--os-log-inputs"
+  ],
+  "manifest": "<RUN>/manifests/pi05_spatial_bval20.json"
+ },
+ {
+  "name": "r7_pi05_spatial_50_SF2_profile",
+  "model": "pi05",
+  "suite": "spatial",
+  "mode": "plugin",
+  "cost_ledger": true,
+  "method": "exp.offline_search.rounds.r07.c1_follow.methods:StageFollow",
+  "kwargs": {
+   "lib": "current",
+   "kref": 5,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only",
+   "extend_blocks": 2,
+   "stage_gate": true,
+   "state_valve": true
+  },
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 224
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-log-r4",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_pi05_spatial_50_SF2_profile.pkl",
+   "--os-log-inputs"
+  ],
+  "manifest": "<RUN>/manifests/pi05_spatial_bval20.json"
+ },
+ {
+  "name": "r7_pi05_spatial_50_UF1_profile",
+  "model": "pi05",
+  "suite": "spatial",
+  "mode": "plugin",
+  "cost_ledger": true,
+  "method": "exp.offline_search.rounds.r07.c1_follow.methods:UniformFollow",
+  "kwargs": {
+   "lib": "current",
+   "kref": 5,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only",
+   "extend_blocks": 1,
+   "stage_gate": false,
+   "state_valve": false
+  },
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 224
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-log-r4",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_pi05_spatial_50_UF1_profile.pkl",
+   "--os-log-inputs"
+  ],
+  "manifest": "<RUN>/manifests/pi05_spatial_bval20.json"
+ },
+ {
+  "name": "r7_pi05_spatial_50_A_profile",
+  "model": "pi05",
+  "suite": "spatial",
+  "mode": "plugin",
+  "cost_ledger": true,
+  "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+  "kwargs": {
+   "lib": "current",
+   "kref": 5,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only"
+  },
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 224
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-log-r4",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_pi05_spatial_50_A_profile.pkl",
+   "--os-log-inputs"
+  ],
+  "manifest": "<RUN>/manifests/pi05_spatial_bval20.json"
+ },
+ {
+  "name": "r7_pi05_spatial_500_SF1_profile",
+  "model": "pi05",
+  "suite": "spatial",
+  "mode": "plugin",
+  "cost_ledger": true,
+  "method": "exp.offline_search.rounds.r07.c1_follow.methods:StageFollow",
+  "kwargs": {
+   "lib": "bpool_cs",
+   "kref": 8,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only",
+   "extend_blocks": 1,
+   "stage_gate": true,
+   "state_valve": true
+  },
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 224
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-log-r4",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_pi05_spatial_500_SF1_profile.pkl",
+   "--os-log-inputs"
+  ],
+  "manifest": "<RUN>/manifests/pi05_spatial_bval20.json"
+ },
+ {
+  "name": "r7_pi05_spatial_500_SF2_profile",
+  "model": "pi05",
+  "suite": "spatial",
+  "mode": "plugin",
+  "cost_ledger": true,
+  "method": "exp.offline_search.rounds.r07.c1_follow.methods:StageFollow",
+  "kwargs": {
+   "lib": "bpool_cs",
+   "kref": 8,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only",
+   "extend_blocks": 2,
+   "stage_gate": true,
+   "state_valve": true
+  },
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 224
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-log-r4",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_pi05_spatial_500_SF2_profile.pkl",
+   "--os-log-inputs"
+  ],
+  "manifest": "<RUN>/manifests/pi05_spatial_bval20.json"
+ },
+ {
+  "name": "r7_pi05_spatial_500_UF1_profile",
+  "model": "pi05",
+  "suite": "spatial",
+  "mode": "plugin",
+  "cost_ledger": true,
+  "method": "exp.offline_search.rounds.r07.c1_follow.methods:UniformFollow",
+  "kwargs": {
+   "lib": "bpool_cs",
+   "kref": 8,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only",
+   "extend_blocks": 1,
+   "stage_gate": false,
+   "state_valve": false
+  },
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 224
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-log-r4",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_pi05_spatial_500_UF1_profile.pkl",
+   "--os-log-inputs"
+  ],
+  "manifest": "<RUN>/manifests/pi05_spatial_bval20.json"
+ },
+ {
+  "name": "r7_pi05_spatial_500_A_profile",
+  "model": "pi05",
+  "suite": "spatial",
+  "mode": "plugin",
+  "cost_ledger": true,
+  "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+  "kwargs": {
+   "lib": "big",
+   "kref": 8,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only"
+  },
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 224
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-log-r4",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_pi05_spatial_500_A_profile.pkl",
+   "--os-log-inputs"
+  ],
+  "manifest": "<RUN>/manifests/pi05_spatial_bval20.json"
+ },
+ {
+  "name": "r7_groot_l10_50_SF1_profile",
+  "model": "groot",
+  "suite": "l10",
+  "mode": "plugin",
+  "cost_ledger": true,
+  "method": "exp.offline_search.rounds.r07.c1_follow.methods:StageFollow",
+  "kwargs": {
+   "lib": "current",
+   "kref": 5,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only",
+   "extend_blocks": 1,
+   "stage_gate": true,
+   "state_valve": true
+  },
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 256
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-log-r4",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_groot_l10_50_SF1_profile.pkl",
+   "--os-log-inputs"
+  ],
+  "manifest": "<RUN>/manifests/groot_l10_bval20.json"
+ },
+ {
+  "name": "r7_groot_l10_50_SF2_profile",
+  "model": "groot",
+  "suite": "l10",
+  "mode": "plugin",
+  "cost_ledger": true,
+  "method": "exp.offline_search.rounds.r07.c1_follow.methods:StageFollow",
+  "kwargs": {
+   "lib": "current",
+   "kref": 5,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only",
+   "extend_blocks": 2,
+   "stage_gate": true,
+   "state_valve": true
+  },
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 256
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-log-r4",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_groot_l10_50_SF2_profile.pkl",
+   "--os-log-inputs"
+  ],
+  "manifest": "<RUN>/manifests/groot_l10_bval20.json"
+ },
+ {
+  "name": "r7_groot_l10_50_UF1_profile",
+  "model": "groot",
+  "suite": "l10",
+  "mode": "plugin",
+  "cost_ledger": true,
+  "method": "exp.offline_search.rounds.r07.c1_follow.methods:UniformFollow",
+  "kwargs": {
+   "lib": "current",
+   "kref": 5,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only",
+   "extend_blocks": 1,
+   "stage_gate": false,
+   "state_valve": false
+  },
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 256
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-log-r4",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_groot_l10_50_UF1_profile.pkl",
+   "--os-log-inputs"
+  ],
+  "manifest": "<RUN>/manifests/groot_l10_bval20.json"
+ },
+ {
+  "name": "r7_groot_l10_50_A_profile",
+  "model": "groot",
+  "suite": "l10",
+  "mode": "plugin",
+  "cost_ledger": true,
+  "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+  "kwargs": {
+   "lib": "current",
+   "kref": 5,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only"
+  },
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 256
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-log-r4",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_groot_l10_50_A_profile.pkl",
+   "--os-log-inputs"
+  ],
+  "manifest": "<RUN>/manifests/groot_l10_bval20.json"
+ },
+ {
+  "name": "r7_groot_l10_500_SF1_profile",
+  "model": "groot",
+  "suite": "l10",
+  "mode": "plugin",
+  "cost_ledger": true,
+  "method": "exp.offline_search.rounds.r07.c1_follow.methods:StageFollow",
+  "kwargs": {
+   "lib": "bpool_all",
+   "kref": 8,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only",
+   "extend_blocks": 1,
+   "stage_gate": true,
+   "state_valve": true
+  },
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 256
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-log-r4",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_groot_l10_500_SF1_profile.pkl",
+   "--os-log-inputs"
+  ],
+  "manifest": "<RUN>/manifests/groot_l10_bval20.json"
+ },
+ {
+  "name": "r7_groot_l10_500_SF2_profile",
+  "model": "groot",
+  "suite": "l10",
+  "mode": "plugin",
+  "cost_ledger": true,
+  "method": "exp.offline_search.rounds.r07.c1_follow.methods:StageFollow",
+  "kwargs": {
+   "lib": "bpool_all",
+   "kref": 8,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only",
+   "extend_blocks": 2,
+   "stage_gate": true,
+   "state_valve": true
+  },
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 256
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-log-r4",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_groot_l10_500_SF2_profile.pkl",
+   "--os-log-inputs"
+  ],
+  "manifest": "<RUN>/manifests/groot_l10_bval20.json"
+ },
+ {
+  "name": "r7_groot_l10_500_UF1_profile",
+  "model": "groot",
+  "suite": "l10",
+  "mode": "plugin",
+  "cost_ledger": true,
+  "method": "exp.offline_search.rounds.r07.c1_follow.methods:UniformFollow",
+  "kwargs": {
+   "lib": "bpool_all",
+   "kref": 8,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only",
+   "extend_blocks": 1,
+   "stage_gate": false,
+   "state_valve": false
+  },
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 256
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-log-r4",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_groot_l10_500_UF1_profile.pkl",
+   "--os-log-inputs"
+  ],
+  "manifest": "<RUN>/manifests/groot_l10_bval20.json"
+ },
+ {
+  "name": "r7_groot_l10_500_A_profile",
+  "model": "groot",
+  "suite": "l10",
+  "mode": "plugin",
+  "cost_ledger": true,
+  "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+  "kwargs": {
+   "lib": "big",
+   "kref": 8,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only"
+  },
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 256
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-log-r4",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_groot_l10_500_A_profile.pkl",
+   "--os-log-inputs"
+  ],
+  "manifest": "<RUN>/manifests/groot_l10_bval20.json"
+ },
+ {
+  "name": "r7_groot_spatial_50_SF1_profile",
+  "model": "groot",
+  "suite": "spatial",
+  "mode": "plugin",
+  "cost_ledger": true,
+  "method": "exp.offline_search.rounds.r07.c1_follow.methods:StageFollow",
+  "kwargs": {
+   "lib": "current",
+   "kref": 5,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only",
+   "extend_blocks": 1,
+   "stage_gate": true,
+   "state_valve": true
+  },
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 256
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-log-r4",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_groot_spatial_50_SF1_profile.pkl",
+   "--os-log-inputs"
+  ],
+  "manifest": "<RUN>/manifests/groot_spatial_bval20.json"
+ },
+ {
+  "name": "r7_groot_spatial_50_SF2_profile",
+  "model": "groot",
+  "suite": "spatial",
+  "mode": "plugin",
+  "cost_ledger": true,
+  "method": "exp.offline_search.rounds.r07.c1_follow.methods:StageFollow",
+  "kwargs": {
+   "lib": "current",
+   "kref": 5,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only",
+   "extend_blocks": 2,
+   "stage_gate": true,
+   "state_valve": true
+  },
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 256
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-log-r4",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_groot_spatial_50_SF2_profile.pkl",
+   "--os-log-inputs"
+  ],
+  "manifest": "<RUN>/manifests/groot_spatial_bval20.json"
+ },
+ {
+  "name": "r7_groot_spatial_50_UF1_profile",
+  "model": "groot",
+  "suite": "spatial",
+  "mode": "plugin",
+  "cost_ledger": true,
+  "method": "exp.offline_search.rounds.r07.c1_follow.methods:UniformFollow",
+  "kwargs": {
+   "lib": "current",
+   "kref": 5,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only",
+   "extend_blocks": 1,
+   "stage_gate": false,
+   "state_valve": false
+  },
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 256
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-log-r4",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_groot_spatial_50_UF1_profile.pkl",
+   "--os-log-inputs"
+  ],
+  "manifest": "<RUN>/manifests/groot_spatial_bval20.json"
+ },
+ {
+  "name": "r7_groot_spatial_50_A_profile",
+  "model": "groot",
+  "suite": "spatial",
+  "mode": "plugin",
+  "cost_ledger": true,
+  "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+  "kwargs": {
+   "lib": "current",
+   "kref": 5,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only"
+  },
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 256
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-log-r4",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_groot_spatial_50_A_profile.pkl",
+   "--os-log-inputs"
+  ],
+  "manifest": "<RUN>/manifests/groot_spatial_bval20.json"
+ },
+ {
+  "name": "r7_groot_spatial_500_SF1_profile",
+  "model": "groot",
+  "suite": "spatial",
+  "mode": "plugin",
+  "cost_ledger": true,
+  "method": "exp.offline_search.rounds.r07.c1_follow.methods:StageFollow",
+  "kwargs": {
+   "lib": "bpool_all",
+   "kref": 8,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only",
+   "extend_blocks": 1,
+   "stage_gate": true,
+   "state_valve": true
+  },
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 256
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-log-r4",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_groot_spatial_500_SF1_profile.pkl",
+   "--os-log-inputs"
+  ],
+  "manifest": "<RUN>/manifests/groot_spatial_bval20.json"
+ },
+ {
+  "name": "r7_groot_spatial_500_SF2_profile",
+  "model": "groot",
+  "suite": "spatial",
+  "mode": "plugin",
+  "cost_ledger": true,
+  "method": "exp.offline_search.rounds.r07.c1_follow.methods:StageFollow",
+  "kwargs": {
+   "lib": "bpool_all",
+   "kref": 8,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only",
+   "extend_blocks": 2,
+   "stage_gate": true,
+   "state_valve": true
+  },
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 256
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-log-r4",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_groot_spatial_500_SF2_profile.pkl",
+   "--os-log-inputs"
+  ],
+  "manifest": "<RUN>/manifests/groot_spatial_bval20.json"
+ },
+ {
+  "name": "r7_groot_spatial_500_UF1_profile",
+  "model": "groot",
+  "suite": "spatial",
+  "mode": "plugin",
+  "cost_ledger": true,
+  "method": "exp.offline_search.rounds.r07.c1_follow.methods:UniformFollow",
+  "kwargs": {
+   "lib": "bpool_all",
+   "kref": 8,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only",
+   "extend_blocks": 1,
+   "stage_gate": false,
+   "state_valve": false
+  },
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 256
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-log-r4",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_groot_spatial_500_UF1_profile.pkl",
+   "--os-log-inputs"
+  ],
+  "manifest": "<RUN>/manifests/groot_spatial_bval20.json"
+ },
+ {
+  "name": "r7_groot_spatial_500_A_profile",
+  "model": "groot",
+  "suite": "spatial",
+  "mode": "plugin",
+  "cost_ledger": true,
+  "method": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+  "kwargs": {
+   "lib": "big",
+   "kref": 8,
+   "serving": "anchor_tail",
+   "budget": 1,
+   "gates": "budget_only"
+  },
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 256
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-log-r4",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_groot_spatial_500_A_profile.pkl",
+   "--os-log-inputs"
+  ],
+  "manifest": "<RUN>/manifests/groot_spatial_bval20.json"
+ },
+ {
+  "name": "r7_sw_pi05_l10_50_profile",
+  "model": "pi05",
+  "suite": "l10",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r07.c2_wrist.method:StageWrist",
+  "kwargs": {
+   "enabled": true,
+   "base_spec": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+   "base_kwargs": {
+    "lib": "current",
+    "kref": 5,
+    "serving": "anchor_tail",
+    "budget": 1,
+    "gates": "budget_only"
+   },
+   "base_fit": "/home/weiland/trace_runs/os_closed_loop/r05_ptail/fits/r5t_p_l10_50_tail1uc.pkl",
+   "wrist_fit": "<RUN>/fits/wrist_pi05_l10_50.pkl",
+   "stage_fit": "<RUN>/fits/stages_pi05_l10_50.pkl"
+  },
+  "full_model": true,
+  "cost_ledger": true,
+  "server_env": {
+   "BATCHING_MAX_BATCH_SIZE": "1"
+  },
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 224
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-tokens",
+   "off",
+   "--os-blind",
+   "--os-request-cameras",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_sw_pi05_l10_50_profile.pkl",
+   "--os-log-inputs",
+   "--os-log-r4"
+  ],
+  "manifest": "<RUN>/manifests/pi05_l10_bval20.json"
+ },
+ {
+  "name": "r7_sw_pi05_l10_500_profile",
+  "model": "pi05",
+  "suite": "l10",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r07.c2_wrist.method:StageWrist",
+  "kwargs": {
+   "enabled": true,
+   "base_spec": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+   "base_kwargs": {
+    "lib": "big",
+    "kref": 8,
+    "serving": "anchor_tail",
+    "budget": 1,
+    "gates": "budget_only"
+   },
+   "base_fit": "/home/weiland/trace_runs/os_closed_loop/r05_ptail/fits/r5t_p_l10_500_tail1uc.pkl",
+   "wrist_fit": "<RUN>/fits/wrist_pi05_l10_500.pkl",
+   "stage_fit": "<RUN>/fits/stages_pi05_l10_500.pkl"
+  },
+  "full_model": true,
+  "cost_ledger": true,
+  "server_env": {
+   "BATCHING_MAX_BATCH_SIZE": "1"
+  },
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 224
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-tokens",
+   "off",
+   "--os-blind",
+   "--os-request-cameras",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_sw_pi05_l10_500_profile.pkl",
+   "--os-log-inputs",
+   "--os-log-r4"
+  ],
+  "manifest": "<RUN>/manifests/pi05_l10_bval20.json"
+ },
+ {
+  "name": "r7_sw_pi05_sp_50_profile",
+  "model": "pi05",
+  "suite": "spatial",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r07.c2_wrist.method:StageWrist",
+  "kwargs": {
+   "enabled": true,
+   "base_spec": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+   "base_kwargs": {
+    "lib": "current",
+    "kref": 5,
+    "serving": "anchor_tail",
+    "budget": 1,
+    "gates": "budget_only"
+   },
+   "base_fit": "/home/weiland/trace_runs/os_closed_loop/r05_ptail/fits/r5t_p_sp_50_tail1uc.pkl",
+   "wrist_fit": "<RUN>/fits/wrist_pi05_sp_50.pkl",
+   "stage_fit": "<RUN>/fits/stages_pi05_sp_50.pkl"
+  },
+  "full_model": true,
+  "cost_ledger": true,
+  "server_env": {
+   "BATCHING_MAX_BATCH_SIZE": "1"
+  },
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 224
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-tokens",
+   "off",
+   "--os-blind",
+   "--os-request-cameras",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_sw_pi05_sp_50_profile.pkl",
+   "--os-log-inputs",
+   "--os-log-r4"
+  ],
+  "manifest": "<RUN>/manifests/pi05_spatial_bval20.json"
+ },
+ {
+  "name": "r7_sw_pi05_sp_500_profile",
+  "model": "pi05",
+  "suite": "spatial",
+  "mode": "plugin",
+  "method": "exp.offline_search.rounds.r07.c2_wrist.method:StageWrist",
+  "kwargs": {
+   "enabled": true,
+   "base_spec": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+   "base_kwargs": {
+    "lib": "big",
+    "kref": 8,
+    "serving": "anchor_tail",
+    "budget": 1,
+    "gates": "budget_only"
+   },
+   "base_fit": "/home/weiland/trace_runs/os_closed_loop/r04_blind/fits/r4b3_p_sp_500_tail1uc.pkl",
+   "wrist_fit": "<RUN>/fits/wrist_pi05_sp_500.pkl",
+   "stage_fit": "<RUN>/fits/stages_pi05_sp_500.pkl"
+  },
+  "full_model": true,
+  "cost_ledger": true,
+  "server_env": {
+   "BATCHING_MAX_BATCH_SIZE": "1"
+  },
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 224
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-tokens",
+   "off",
+   "--os-blind",
+   "--os-request-cameras",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_sw_pi05_sp_500_profile.pkl",
+   "--os-log-inputs",
+   "--os-log-r4"
+  ],
+  "manifest": "<RUN>/manifests/pi05_spatial_bval20.json"
+ },
+ {
+  "name": "r7_pi05_l10_50_CU30_profile",
+  "model": "pi05",
+  "suite": "l10",
+  "mode": "plugin",
+  "full_model": true,
+  "method": "exp.offline_search.rounds.r07.c3_calls.methods:CallController",
+  "kwargs": {
+   "rho": 0.3,
+   "placement": "uniform",
+   "tilt": false,
+   "cooldown_scope": "stall",
+   "calibration_path": "<RUN>/cal/pi05_l10_50/CU/calibration.json",
+   "stall_model_path": "<RUN>/stall/pi05_l10_50",
+   "random_seed": 26092903,
+   "randomization_key": "R6-C-v2/pi05_l10_50"
+  },
+  "manifest": "<RUN>/manifests/pi05_l10_bval20.json",
+  "cost_ledger": true,
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 224
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-policy-tail",
+   "--os-policy-tail-blocks",
+   "1",
+   "--os-judge",
+   "guard_only",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_pi05_l10_50_CU30_profile.pkl",
+   "--os-log-inputs",
+   "--os-log-r4"
+  ]
+ },
+ {
+  "name": "r7_pi05_l10_50_CT30_profile",
+  "model": "pi05",
+  "suite": "l10",
+  "mode": "plugin",
+  "full_model": true,
+  "method": "exp.offline_search.rounds.r07.c3_calls.methods:CallController",
+  "kwargs": {
+   "rho": 0.3,
+   "placement": "uniform",
+   "tilt": true,
+   "cooldown_scope": "stall",
+   "calibration_path": "<RUN>/cal/pi05_l10_50/CT/calibration.json",
+   "stall_model_path": "<RUN>/stall/pi05_l10_50",
+   "random_seed": 26092903,
+   "randomization_key": "R6-C-v2/pi05_l10_50"
+  },
+  "manifest": "<RUN>/manifests/pi05_l10_bval20.json",
+  "cost_ledger": true,
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 224
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-policy-tail",
+   "--os-policy-tail-blocks",
+   "1",
+   "--os-judge",
+   "guard_only",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_pi05_l10_50_CT30_profile.pkl",
+   "--os-log-inputs",
+   "--os-log-r4"
+  ]
+ },
+ {
+  "name": "r7_pi05_spatial_50_CU30_profile",
+  "model": "pi05",
+  "suite": "spatial",
+  "mode": "plugin",
+  "full_model": true,
+  "method": "exp.offline_search.rounds.r07.c3_calls.methods:CallController",
+  "kwargs": {
+   "rho": 0.3,
+   "placement": "uniform",
+   "tilt": false,
+   "cooldown_scope": "stall",
+   "calibration_path": "<RUN>/cal/pi05_spatial_50/CU/calibration.json",
+   "stall_model_path": "<RUN>/stall/pi05_spatial_50",
+   "random_seed": 26092903,
+   "randomization_key": "R6-C-v2/pi05_spatial_50"
+  },
+  "manifest": "<RUN>/manifests/pi05_spatial_bval20.json",
+  "cost_ledger": true,
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 224
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-policy-tail",
+   "--os-policy-tail-blocks",
+   "1",
+   "--os-judge",
+   "guard_only",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_pi05_spatial_50_CU30_profile.pkl",
+   "--os-log-inputs",
+   "--os-log-r4"
+  ]
+ },
+ {
+  "name": "r7_pi05_spatial_50_CT30_profile",
+  "model": "pi05",
+  "suite": "spatial",
+  "mode": "plugin",
+  "full_model": true,
+  "method": "exp.offline_search.rounds.r07.c3_calls.methods:CallController",
+  "kwargs": {
+   "rho": 0.3,
+   "placement": "uniform",
+   "tilt": true,
+   "cooldown_scope": "stall",
+   "calibration_path": "<RUN>/cal/pi05_spatial_50/CT/calibration.json",
+   "stall_model_path": "<RUN>/stall/pi05_spatial_50",
+   "random_seed": 26092903,
+   "randomization_key": "R6-C-v2/pi05_spatial_50"
+  },
+  "manifest": "<RUN>/manifests/pi05_spatial_bval20.json",
+  "cost_ledger": true,
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 224
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-policy-tail",
+   "--os-policy-tail-blocks",
+   "1",
+   "--os-judge",
+   "guard_only",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_pi05_spatial_50_CT30_profile.pkl",
+   "--os-log-inputs",
+   "--os-log-r4"
+  ]
+ },
+ {
+  "name": "r7_groot_l10_50_CU30_profile",
+  "model": "groot",
+  "suite": "l10",
+  "mode": "plugin",
+  "full_model": true,
+  "method": "exp.offline_search.rounds.r07.c3_calls.methods:CallController",
+  "kwargs": {
+   "rho": 0.3,
+   "placement": "uniform",
+   "tilt": false,
+   "cooldown_scope": "stall",
+   "calibration_path": "<RUN>/cal/groot_l10_50/CU/calibration.json",
+   "stall_model_path": "<RUN>/stall/groot_l10_50",
+   "random_seed": 26092903,
+   "randomization_key": "R6-C-v2/groot_l10_50"
+  },
+  "manifest": "<RUN>/manifests/groot_l10_bval20.json",
+  "cost_ledger": true,
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 256
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-policy-tail",
+   "--os-policy-tail-blocks",
+   "1",
+   "--os-judge",
+   "guard_only",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_groot_l10_50_CU30_profile.pkl",
+   "--os-log-inputs",
+   "--os-log-r4"
+  ]
+ },
+ {
+  "name": "r7_groot_l10_50_CT30_profile",
+  "model": "groot",
+  "suite": "l10",
+  "mode": "plugin",
+  "full_model": true,
+  "method": "exp.offline_search.rounds.r07.c3_calls.methods:CallController",
+  "kwargs": {
+   "rho": 0.3,
+   "placement": "uniform",
+   "tilt": true,
+   "cooldown_scope": "stall",
+   "calibration_path": "<RUN>/cal/groot_l10_50/CT/calibration.json",
+   "stall_model_path": "<RUN>/stall/groot_l10_50",
+   "random_seed": 26092903,
+   "randomization_key": "R6-C-v2/groot_l10_50"
+  },
+  "manifest": "<RUN>/manifests/groot_l10_bval20.json",
+  "cost_ledger": true,
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 256
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-policy-tail",
+   "--os-policy-tail-blocks",
+   "1",
+   "--os-judge",
+   "guard_only",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_groot_l10_50_CT30_profile.pkl",
+   "--os-log-inputs",
+   "--os-log-r4"
+  ]
+ },
+ {
+  "name": "r7_groot_spatial_50_CU30_profile",
+  "model": "groot",
+  "suite": "spatial",
+  "mode": "plugin",
+  "full_model": true,
+  "method": "exp.offline_search.rounds.r07.c3_calls.methods:CallController",
+  "kwargs": {
+   "rho": 0.3,
+   "placement": "uniform",
+   "tilt": false,
+   "cooldown_scope": "stall",
+   "calibration_path": "<RUN>/cal/groot_spatial_50/CU/calibration.json",
+   "stall_model_path": "<RUN>/stall/groot_spatial_50",
+   "random_seed": 26092903,
+   "randomization_key": "R6-C-v2/groot_spatial_50"
+  },
+  "manifest": "<RUN>/manifests/groot_spatial_bval20.json",
+  "cost_ledger": true,
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 256
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-policy-tail",
+   "--os-policy-tail-blocks",
+   "1",
+   "--os-judge",
+   "guard_only",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_groot_spatial_50_CU30_profile.pkl",
+   "--os-log-inputs",
+   "--os-log-r4"
+  ]
+ },
+ {
+  "name": "r7_groot_spatial_50_CT30_profile",
+  "model": "groot",
+  "suite": "spatial",
+  "mode": "plugin",
+  "full_model": true,
+  "method": "exp.offline_search.rounds.r07.c3_calls.methods:CallController",
+  "kwargs": {
+   "rho": 0.3,
+   "placement": "uniform",
+   "tilt": true,
+   "cooldown_scope": "stall",
+   "calibration_path": "<RUN>/cal/groot_spatial_50/CT/calibration.json",
+   "stall_model_path": "<RUN>/stall/groot_spatial_50",
+   "random_seed": 26092903,
+   "randomization_key": "R6-C-v2/groot_spatial_50"
+  },
+  "manifest": "<RUN>/manifests/groot_spatial_bval20.json",
+  "cost_ledger": true,
+  "client_overrides": {
+   "replan_steps": 5,
+   "resize_size": 256
+  },
+  "plugin_args": [
+   "--os-root",
+   "/home/weiland/trace_runs/offline_search_store",
+   "--os-no-shadow-native",
+   "--os-blind",
+   "--os-policy-tail",
+   "--os-policy-tail-blocks",
+   "1",
+   "--os-judge",
+   "guard_only",
+   "--os-fit-artifact",
+   "<RUN>/fits/r7_groot_spatial_50_CT30_profile.pkl",
+   "--os-log-inputs",
+   "--os-log-r4"
+  ]
+ }
+]

@@ -1,0 +1,346 @@
+[
+  {
+    "name": "r7_sw_pi05_l10_50",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r07.c2_wrist.method:StageWrist",
+    "kwargs": {
+      "enabled": true,
+      "base_spec": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "base_fit": "/home/weiland/trace_runs/os_closed_loop/r05_ptail/fits/r5t_p_l10_50_tail1uc.pkl",
+      "wrist_fit": "<RUN>/fits/wrist_pi05_l10_50.pkl",
+      "stage_fit": "<RUN>/fits/stages_pi05_l10_50.pkl"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "server_env": {
+      "BATCHING_MAX_BATCH_SIZE": "1"
+    },
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 224
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-no-shadow-native",
+      "--os-tokens",
+      "off",
+      "--os-blind",
+      "--os-request-cameras",
+      "--os-fit-artifact",
+      "<RUN>/fits/r7_sw_pi05_l10_50.pkl"
+    ]
+  },
+  {
+    "name": "r7_sf_sw_pi05_l10_50",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r07.c2_wrist.method:StageWrist",
+    "kwargs": {
+      "enabled": true,
+      "base_spec": "exp.offline_search.rounds.r07.c1_follow.methods:StageFollow",
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only",
+        "extend_blocks": 1,
+        "stage_gate": true,
+        "state_valve": true,
+        "stages_path": "<RUN>/fits/stages_pi05_l10_50.pkl"
+      },
+      "base_fit": "/home/weiland/trace_runs/os_closed_loop/r05_ptail/fits/r5t_p_l10_50_tail1uc.pkl",
+      "wrist_fit": "<RUN>/fits/wrist_pi05_l10_50.pkl",
+      "stage_fit": "<RUN>/fits/stages_pi05_l10_50.pkl"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "server_env": {
+      "BATCHING_MAX_BATCH_SIZE": "1"
+    },
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 224
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-no-shadow-native",
+      "--os-tokens",
+      "off",
+      "--os-blind",
+      "--os-request-cameras",
+      "--os-fit-artifact",
+      "<RUN>/fits/r7_sf_sw_pi05_l10_50.pkl"
+    ]
+  },
+  {
+    "name": "r7_sw_pi05_l10_500",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r07.c2_wrist.method:StageWrist",
+    "kwargs": {
+      "enabled": true,
+      "base_spec": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "base_fit": "/home/weiland/trace_runs/os_closed_loop/r05_ptail/fits/r5t_p_l10_500_tail1uc.pkl",
+      "wrist_fit": "<RUN>/fits/wrist_pi05_l10_500.pkl",
+      "stage_fit": "<RUN>/fits/stages_pi05_l10_500.pkl"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "server_env": {
+      "BATCHING_MAX_BATCH_SIZE": "1"
+    },
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 224
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-no-shadow-native",
+      "--os-tokens",
+      "off",
+      "--os-blind",
+      "--os-request-cameras",
+      "--os-fit-artifact",
+      "<RUN>/fits/r7_sw_pi05_l10_500.pkl"
+    ]
+  },
+  {
+    "name": "r7_sf_sw_pi05_l10_500",
+    "model": "pi05",
+    "suite": "l10",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r07.c2_wrist.method:StageWrist",
+    "kwargs": {
+      "enabled": true,
+      "base_spec": "exp.offline_search.rounds.r07.c1_follow.methods:StageFollow",
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only",
+        "extend_blocks": 1,
+        "stage_gate": true,
+        "state_valve": true,
+        "stages_path": "<RUN>/fits/stages_pi05_l10_500.pkl"
+      },
+      "base_fit": "/home/weiland/trace_runs/os_closed_loop/r05_ptail/fits/r5t_p_l10_500_tail1uc.pkl",
+      "wrist_fit": "<RUN>/fits/wrist_pi05_l10_500.pkl",
+      "stage_fit": "<RUN>/fits/stages_pi05_l10_500.pkl"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "server_env": {
+      "BATCHING_MAX_BATCH_SIZE": "1"
+    },
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 224
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-no-shadow-native",
+      "--os-tokens",
+      "off",
+      "--os-blind",
+      "--os-request-cameras",
+      "--os-fit-artifact",
+      "<RUN>/fits/r7_sf_sw_pi05_l10_500.pkl"
+    ]
+  },
+  {
+    "name": "r7_sw_pi05_sp_50",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r07.c2_wrist.method:StageWrist",
+    "kwargs": {
+      "enabled": true,
+      "base_spec": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "base_fit": "/home/weiland/trace_runs/os_closed_loop/r05_ptail/fits/r5t_p_sp_50_tail1uc.pkl",
+      "wrist_fit": "<RUN>/fits/wrist_pi05_sp_50.pkl",
+      "stage_fit": "<RUN>/fits/stages_pi05_sp_50.pkl"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "server_env": {
+      "BATCHING_MAX_BATCH_SIZE": "1"
+    },
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 224
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-no-shadow-native",
+      "--os-tokens",
+      "off",
+      "--os-blind",
+      "--os-request-cameras",
+      "--os-fit-artifact",
+      "<RUN>/fits/r7_sw_pi05_sp_50.pkl"
+    ]
+  },
+  {
+    "name": "r7_sf_sw_pi05_sp_50",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r07.c2_wrist.method:StageWrist",
+    "kwargs": {
+      "enabled": true,
+      "base_spec": "exp.offline_search.rounds.r07.c1_follow.methods:StageFollow",
+      "base_kwargs": {
+        "lib": "current",
+        "kref": 5,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only",
+        "extend_blocks": 1,
+        "stage_gate": true,
+        "state_valve": true,
+        "stages_path": "<RUN>/fits/stages_pi05_sp_50.pkl"
+      },
+      "base_fit": "/home/weiland/trace_runs/os_closed_loop/r05_ptail/fits/r5t_p_sp_50_tail1uc.pkl",
+      "wrist_fit": "<RUN>/fits/wrist_pi05_sp_50.pkl",
+      "stage_fit": "<RUN>/fits/stages_pi05_sp_50.pkl"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "server_env": {
+      "BATCHING_MAX_BATCH_SIZE": "1"
+    },
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 224
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-no-shadow-native",
+      "--os-tokens",
+      "off",
+      "--os-blind",
+      "--os-request-cameras",
+      "--os-fit-artifact",
+      "<RUN>/fits/r7_sf_sw_pi05_sp_50.pkl"
+    ]
+  },
+  {
+    "name": "r7_sw_pi05_sp_500",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r07.c2_wrist.method:StageWrist",
+    "kwargs": {
+      "enabled": true,
+      "base_spec": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only"
+      },
+      "base_fit": "/home/weiland/trace_runs/os_closed_loop/r04_blind/fits/r4b3_p_sp_500_tail1uc.pkl",
+      "wrist_fit": "<RUN>/fits/wrist_pi05_sp_500.pkl",
+      "stage_fit": "<RUN>/fits/stages_pi05_sp_500.pkl"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "server_env": {
+      "BATCHING_MAX_BATCH_SIZE": "1"
+    },
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 224
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-no-shadow-native",
+      "--os-tokens",
+      "off",
+      "--os-blind",
+      "--os-request-cameras",
+      "--os-fit-artifact",
+      "<RUN>/fits/r7_sw_pi05_sp_500.pkl"
+    ]
+  },
+  {
+    "name": "r7_sf_sw_pi05_sp_500",
+    "model": "pi05",
+    "suite": "spatial",
+    "mode": "plugin",
+    "method": "exp.offline_search.rounds.r07.c2_wrist.method:StageWrist",
+    "kwargs": {
+      "enabled": true,
+      "base_spec": "exp.offline_search.rounds.r07.c1_follow.methods:StageFollow",
+      "base_kwargs": {
+        "lib": "big",
+        "kref": 8,
+        "serving": "anchor_tail",
+        "budget": 1,
+        "gates": "budget_only",
+        "extend_blocks": 1,
+        "stage_gate": true,
+        "state_valve": true,
+        "stages_path": "<RUN>/fits/stages_pi05_sp_500.pkl"
+      },
+      "base_fit": "/home/weiland/trace_runs/os_closed_loop/r04_blind/fits/r4b3_p_sp_500_tail1uc.pkl",
+      "wrist_fit": "<RUN>/fits/wrist_pi05_sp_500.pkl",
+      "stage_fit": "<RUN>/fits/stages_pi05_sp_500.pkl"
+    },
+    "full_model": true,
+    "cost_ledger": true,
+    "server_env": {
+      "BATCHING_MAX_BATCH_SIZE": "1"
+    },
+    "client_overrides": {
+      "replan_steps": 5,
+      "resize_size": 224
+    },
+    "plugin_args": [
+      "--os-root",
+      "/home/weiland/trace_runs/offline_search_store",
+      "--os-no-shadow-native",
+      "--os-tokens",
+      "off",
+      "--os-blind",
+      "--os-request-cameras",
+      "--os-fit-artifact",
+      "<RUN>/fits/r7_sf_sw_pi05_sp_500.pkl"
+    ]
+  }
+]

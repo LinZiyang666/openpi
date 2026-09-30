@@ -1,0 +1,306 @@
+{
+  "PASS": true,
+  "shared_file_identity": [
+    {
+      "test": "pi05_cache",
+      "episodes": 4,
+      "decisions": 80,
+      "array_fields_exact": 196,
+      "PASS": true
+    },
+    {
+      "test": "groot_cache",
+      "episodes": 4,
+      "decisions": 74,
+      "array_fields_exact": 196,
+      "PASS": true
+    },
+    {
+      "test": "pi05_miss",
+      "episodes": 4,
+      "decisions": 77,
+      "array_fields_exact": 212,
+      "PASS": true
+    },
+    {
+      "test": "groot_miss",
+      "episodes": 4,
+      "decisions": 78,
+      "array_fields_exact": 212,
+      "PASS": true
+    },
+    {
+      "test": "blind_pi05",
+      "PASS": true,
+      "decisions": 48,
+      "vision": 32,
+      "blind": 16,
+      "miss": 8,
+      "stage1_calls": 32,
+      "broadcasts": 48,
+      "connections": 2,
+      "episodes": 4,
+      "duplicate_rejections": 4,
+      "rejected_preflight": 4,
+      "output_fallbacks": 4,
+      "partial_looks": 4
+    },
+    {
+      "test": "blind_groot",
+      "PASS": true,
+      "decisions": 48,
+      "vision": 32,
+      "blind": 16,
+      "miss": 8,
+      "stage1_calls": 32,
+      "broadcasts": 48,
+      "connections": 2,
+      "episodes": 4,
+      "duplicate_rejections": 4,
+      "rejected_preflight": 4,
+      "output_fallbacks": 4,
+      "partial_looks": 4
+    }
+  ],
+  "method_off_identity": {
+    "episodes": 120,
+    "decisions": 5173,
+    "datasets": 8
+  },
+  "enabled_replay": [
+    {
+      "cell": "pi05_l10_50",
+      "dataset": "r06_c_cal",
+      "episodes": 10,
+      "decisions": 688,
+      "identical_actions": 688,
+      "identical_verdicts": 688,
+      "identical_vision": 688,
+      "identical_extras": 688,
+      "enabled_fixed_stream": {
+        "sw": {
+          "full": 235,
+          "wrist": 111,
+          "blind": 342,
+          "wrist_metric_exact": 111,
+          "proposed_cost": 41.84697800000016
+        },
+        "sf_sw": {
+          "full": 235,
+          "wrist": 58,
+          "blind": 395,
+          "wrist_metric_exact": 58,
+          "proposed_cost": 38.92148400000013
+        }
+      },
+      "PASS": true
+    },
+    {
+      "cell": "pi05_l10_50",
+      "dataset": "r06_p3_pilot",
+      "episodes": 20,
+      "decisions": 1269,
+      "identical_actions": 1269,
+      "identical_verdicts": 1269,
+      "identical_vision": 1269,
+      "identical_extras": 1269,
+      "enabled_fixed_stream": {
+        "sw": {
+          "full": 405,
+          "wrist": 235,
+          "blind": 629,
+          "wrist_metric_exact": 235,
+          "proposed_cost": 74.53153000000033
+        },
+        "sf_sw": {
+          "full": 407,
+          "wrist": 122,
+          "blind": 740,
+          "wrist_metric_exact": 122,
+          "proposed_cost": 68.59815600000029
+        }
+      },
+      "PASS": true
+    },
+    {
+      "cell": "pi05_l10_500",
+      "dataset": "r06_c_cal",
+      "episodes": 10,
+      "decisions": 546,
+      "identical_actions": 546,
+      "identical_verdicts": 546,
+      "identical_vision": 546,
+      "identical_extras": 546,
+      "enabled_fixed_stream": {
+        "sw": {
+          "full": 218,
+          "wrist": 56,
+          "blind": 272,
+          "wrist_metric_exact": 56,
+          "proposed_cost": 36.2270880000001
+        },
+        "sf_sw": {
+          "full": 211,
+          "wrist": 36,
+          "blind": 299,
+          "wrist_metric_exact": 36,
+          "proposed_cost": 34.05912800000009
+        }
+      },
+      "PASS": true
+    },
+    {
+      "cell": "pi05_l10_500",
+      "dataset": "r06_p3_pilot",
+      "episodes": 20,
+      "decisions": 1167,
+      "identical_actions": 1167,
+      "identical_verdicts": 1167,
+      "identical_vision": 1167,
+      "identical_extras": 1167,
+      "enabled_fixed_stream": {
+        "sw": {
+          "full": 454,
+          "wrist": 135,
+          "blind": 578,
+          "wrist_metric_exact": 135,
+          "proposed_cost": 76.45973000000018
+        },
+        "sf_sw": {
+          "full": 435,
+          "wrist": 87,
+          "blind": 645,
+          "wrist_metric_exact": 87,
+          "proposed_cost": 70.92222600000018
+        }
+      },
+      "PASS": true
+    },
+    {
+      "cell": "pi05_sp_50",
+      "dataset": "r06_c_cal",
+      "episodes": 10,
+      "decisions": 301,
+      "identical_actions": 301,
+      "identical_verdicts": 301,
+      "identical_vision": 301,
+      "identical_extras": 301,
+      "enabled_fixed_stream": {
+        "sw": {
+          "full": 114,
+          "wrist": 38,
+          "blind": 149,
+          "wrist_metric_exact": 38,
+          "proposed_cost": 19.425524000000003
+        },
+        "sf_sw": {
+          "full": 113,
+          "wrist": 19,
+          "blind": 169,
+          "wrist_metric_exact": 19,
+          "proposed_cost": 18.224761999999988
+        }
+      },
+      "PASS": true
+    },
+    {
+      "cell": "pi05_sp_50",
+      "dataset": "r06_p3_pilot",
+      "episodes": 20,
+      "decisions": 499,
+      "identical_actions": 499,
+      "identical_verdicts": 499,
+      "identical_vision": 499,
+      "identical_extras": 499,
+      "enabled_fixed_stream": {
+        "sw": {
+          "full": 177,
+          "wrist": 77,
+          "blind": 245,
+          "wrist_metric_exact": 77,
+          "proposed_cost": 31.1542460000001
+        },
+        "sf_sw": {
+          "full": 174,
+          "wrist": 41,
+          "blind": 284,
+          "wrist_metric_exact": 41,
+          "proposed_cost": 28.71111800000007
+        }
+      },
+      "PASS": true
+    },
+    {
+      "cell": "pi05_sp_500",
+      "dataset": "r06_c_cal",
+      "episodes": 10,
+      "decisions": 264,
+      "identical_actions": 264,
+      "identical_verdicts": 264,
+      "identical_vision": 264,
+      "identical_extras": 264,
+      "enabled_fixed_stream": {
+        "sw": {
+          "full": 89,
+          "wrist": 46,
+          "blind": 129,
+          "wrist_metric_exact": 46,
+          "proposed_cost": 16.067107999999994
+        },
+        "sf_sw": {
+          "full": 87,
+          "wrist": 25,
+          "blind": 152,
+          "wrist_metric_exact": 25,
+          "proposed_cost": 14.60394999999999
+        }
+      },
+      "PASS": true
+    },
+    {
+      "cell": "pi05_sp_500",
+      "dataset": "r06_p3_pilot",
+      "episodes": 20,
+      "decisions": 439,
+      "identical_actions": 439,
+      "identical_verdicts": 439,
+      "identical_vision": 439,
+      "identical_extras": 439,
+      "enabled_fixed_stream": {
+        "sw": {
+          "full": 129,
+          "wrist": 97,
+          "blind": 213,
+          "wrist_metric_exact": 97,
+          "proposed_cost": 24.96220600000007
+        },
+        "sf_sw": {
+          "full": 125,
+          "wrist": 52,
+          "blind": 262,
+          "wrist_metric_exact": 52,
+          "proposed_cost": 21.870296000000028
+        }
+      },
+      "PASS": true
+    }
+  ],
+  "wrist_metric_comparisons": 1235,
+  "new_cpu_tests": 15,
+  "legacy_override_checks": 11,
+  "spec_checks": {
+    "PASS": true,
+    "arm_bank_loads": 8,
+    "configs": 8,
+    "groot_refusals": 1,
+    "scripts_parsed": 11
+  },
+  "relocated_artifacts": {
+    "PASS": true,
+    "arms_loaded": 8
+  },
+  "gpu_parity": {
+    "status": "DEFERRED_TO_COORDINATOR",
+    "reason": "nvidia-smi driver communication failed; no GPU process started"
+  }
+}

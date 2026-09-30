@@ -1,0 +1,210 @@
+{
+  "/tmp/r7_C3/cal/groot_l10_500/CT/calibration.json": {
+    "sha256": "83ffb65219f7c02c03f0b652ced5728d44ac55aa1f91c6a5a0eeb1514df74f6c",
+    "bytes": 12419
+  },
+  "/tmp/r7_C3/cal/groot_l10_500/CT/cost_replay.json": {
+    "sha256": "855861169b7ec18f4f1272bf5b3bc572563955855ad0393d690a377c229fc747",
+    "bytes": 505622
+  },
+  "/tmp/r7_C3/cal/groot_l10_500/CU/calibration.json": {
+    "sha256": "0d5725bb9906ecccbdddafddd64a6c8af6af01842a91071cad85755446d0072d",
+    "bytes": 20438
+  },
+  "/tmp/r7_C3/cal/groot_l10_500/CU/calibration_anchor_labels.csv": {
+    "sha256": "b35fa0d24b32f6cad8ad94ddc167bf669130b0baacb32cc2f2710eb02f198f93",
+    "bytes": 34892
+  },
+  "/tmp/r7_C3/cal/groot_l10_500/CU/cost_replay.json": {
+    "sha256": "d9cf1ab62dbf3969551671e32d947222b707cd6f38a1f3edec2d12bc7f829b3a",
+    "bytes": 412678
+  },
+  "/tmp/r7_C3/cal/groot_l10_500/CU/r_bank.json": {
+    "sha256": "128ab5c5eac7c38f3b251f1fed42496005a7b15b6a2a4dfdf27e5c5709e728c6",
+    "bytes": 3105
+  },
+  "/tmp/r7_C3/cal/groot_l10_500/CU/r_bank.npz": {
+    "sha256": "53777ea6ecef1c628e5e30c8349d9da9c08585e78f9022f386fcc1f6a878613b",
+    "bytes": 343048
+  },
+  "/tmp/r7_C3/cal/groot_l10_500/feasibility.json": {
+    "sha256": "3cce3105bd4dfdf0436e2b640363bcd629e8bb40606bbb88a523f55d235ff5f8",
+    "bytes": 3440
+  },
+  "/tmp/r7_C3/cal/groot_l10_500/r6_refit.log": {
+    "sha256": "23485d1a87d8e23528f435f222e48645c4f53005f7c475e99ec85b1e6c2e4575",
+    "bytes": 6747
+  },
+  "/tmp/r7_C3/cal/groot_l10_500/stage_features.json": {
+    "sha256": "aa7fb6c53b29c1f012004ee71a5d12d5b88a75518325b5012bae03d70875d0b7",
+    "bytes": 154771
+  },
+  "/tmp/r7_C3/cal/groot_l10_500/stages.pkl": {
+    "sha256": "6728a597ddcc598efdb0a97e9ab403c2cfd162fb7d2dce23ad575f9cb8c8087f",
+    "bytes": 2728505
+  },
+  "/tmp/r7_C3/cal/groot_spatial_500/CT/calibration.json": {
+    "sha256": "ce3a85551f63d87f922d860e1f2586d9a18b0c1c1ee7689dc0f4eba373105714",
+    "bytes": 12654
+  },
+  "/tmp/r7_C3/cal/groot_spatial_500/CT/cost_replay.json": {
+    "sha256": "b47411ee366748d53e615200278001d24b29a462115dc4b23e223482e672760d",
+    "bytes": 142782
+  },
+  "/tmp/r7_C3/cal/groot_spatial_500/CU/calibration.json": {
+    "sha256": "4e3876fa4c6aba4eda9a1afc2cc023c0eded982c98fc459eb9f903fcc6ed025b",
+    "bytes": 20513
+  },
+  "/tmp/r7_C3/cal/groot_spatial_500/CU/calibration_anchor_labels.csv": {
+    "sha256": "d55a727191170af88815551440b838cb923849c45bd6b6f83fcc530bfd4d073b",
+    "bytes": 15636
+  },
+  "/tmp/r7_C3/cal/groot_spatial_500/CU/cost_replay.json": {
+    "sha256": "b5b11567bd9a135f10561273378e792d171b608fcf72db5ec9178a4df94c604b",
+    "bytes": 140462
+  },
+  "/tmp/r7_C3/cal/groot_spatial_500/CU/r_bank.json": {
+    "sha256": "4c0a3d06fe7edc5f2218cd857de2bb6a4109cf9a428864140641661440a4db0c",
+    "bytes": 3113
+  },
+  "/tmp/r7_C3/cal/groot_spatial_500/CU/r_bank.npz": {
+    "sha256": "b72679c14caa2f79a89739f577dc43bd261ab354ee056bb2c0a75cc74dd86bb0",
+    "bytes": 137860
+  },
+  "/tmp/r7_C3/cal/groot_spatial_500/feasibility.json": {
+    "sha256": "6a24abb6f4847e659cbe9186cf34e22b8cecb52d8b570b50eb6431eb6d8a08be",
+    "bytes": 3445
+  },
+  "/tmp/r7_C3/cal/groot_spatial_500/r6_refit.log": {
+    "sha256": "5fc8cce0483754e1382fee6f55c738ef40b79c91133ed30d64234c57da010564",
+    "bytes": 6595
+  },
+  "/tmp/r7_C3/cal/groot_spatial_500/stage_features.json": {
+    "sha256": "69e82060084f8d932f8aa9dbc88d6c944b5fd957c1471d83b5e19f42d7bc6dc1",
+    "bytes": 62478
+  },
+  "/tmp/r7_C3/cal/groot_spatial_500/stages.pkl": {
+    "sha256": "f425167530668e8e6c19c9b0f90cd7bb829381de36786ed6d4a750bad6a0d3fd",
+    "bytes": 1083518
+  },
+  "/tmp/r7_C3/cal/pi05_l10_500/CT/calibration.json": {
+    "sha256": "7f904814c76c7ead53c30358422d99e097d6b3ab2afe5432d595f4fdee5eb9fd",
+    "bytes": 12409
+  },
+  "/tmp/r7_C3/cal/pi05_l10_500/CT/cost_replay.json": {
+    "sha256": "6245ab5e75ebe48575ee966169c95b4c33dc69752b31f9a0872fed5c12283a78",
+    "bytes": 398497
+  },
+  "/tmp/r7_C3/cal/pi05_l10_500/CU/calibration.json": {
+    "sha256": "d03b51f30960e00353783a77c0a9f23cc8ec6027b515bdd432ec6783ddb59f14",
+    "bytes": 20200
+  },
+  "/tmp/r7_C3/cal/pi05_l10_500/CU/calibration_anchor_labels.csv": {
+    "sha256": "cf62ece3b80e6c83e892259e0583029de5c7327fdc510cbe5aa433be430d281a",
+    "bytes": 32519
+  },
+  "/tmp/r7_C3/cal/pi05_l10_500/CU/cost_replay.json": {
+    "sha256": "75731e400abd03534a177a9868079013ed3feab5adc5176f5074c1591d857310",
+    "bytes": 350620
+  },
+  "/tmp/r7_C3/cal/pi05_l10_500/CU/r_bank.json": {
+    "sha256": "0752d988db7140450afc5832bd5607849da46a9b6c646ba6c9e5006e74987084",
+    "bytes": 3110
+  },
+  "/tmp/r7_C3/cal/pi05_l10_500/CU/r_bank.npz": {
+    "sha256": "51b1e79e20500f96a67390e4e9b2807ecc0e1916944aa43594a902667fbadd0b",
+    "bytes": 343121
+  },
+  "/tmp/r7_C3/cal/pi05_l10_500/feasibility.json": {
+    "sha256": "964c1de08a0c359a1df63d0def5ebbfa7e787385831ba23834bc0e80bc2a69db",
+    "bytes": 3428
+  },
+  "/tmp/r7_C3/cal/pi05_l10_500/r6_refit.log": {
+    "sha256": "200a5d6425fe18c0ab935ca8c69f9065a35befc8213d0c7a89a10dd1defb94ff",
+    "bytes": 6545
+  },
+  "/tmp/r7_C3/cal/pi05_l10_500/stage_features.json": {
+    "sha256": "2ec322e6bd290fe93840aaee803cfe1c31d460770951dc99ebbaa7eb09d08c99",
+    "bytes": 144954
+  },
+  "/tmp/r7_C3/cal/pi05_l10_500/stages.pkl": {
+    "sha256": "0df3778bfd12b7f17518b79188824bb7534c2bf5543579f35e86b22b78e53056",
+    "bytes": 2713877
+  },
+  "/tmp/r7_C3/cal/pi05_spatial_500/CT/calibration.json": {
+    "sha256": "5e0be6ee237bd14db15e22ce3deeda506010c9e15e7ec044823dab494a5d48eb",
+    "bytes": 12597
+  },
+  "/tmp/r7_C3/cal/pi05_spatial_500/CT/cost_replay.json": {
+    "sha256": "04c111e1f6dd23e7b3eb7d9d8002c8cd367408c11689247965f8b6beaaa82d37",
+    "bytes": 223788
+  },
+  "/tmp/r7_C3/cal/pi05_spatial_500/CU/calibration.json": {
+    "sha256": "3386b03335dbe6920e2284f5ad941a14b0060d131bb00eb1245a35f92f9c93cb",
+    "bytes": 20655
+  },
+  "/tmp/r7_C3/cal/pi05_spatial_500/CU/calibration_anchor_labels.csv": {
+    "sha256": "79b36c94f81a004db9418c0529aecf37d6840441f0a991ceade7a2f8e3679660",
+    "bytes": 17060
+  },
+  "/tmp/r7_C3/cal/pi05_spatial_500/CU/cost_replay.json": {
+    "sha256": "170b7b3b40e8fbc18c5c5c983a23205020c0c717d0988270431e94c3bb6b2a24",
+    "bytes": 188934
+  },
+  "/tmp/r7_C3/cal/pi05_spatial_500/CU/r_bank.json": {
+    "sha256": "3fd21ca8dbe1caa65d30f1ea731f398cc0540e08560772c65c3b9bae06fb9fdb",
+    "bytes": 3119
+  },
+  "/tmp/r7_C3/cal/pi05_spatial_500/CU/r_bank.npz": {
+    "sha256": "ad8b661ed61c0c1153f86040dda68452cd6e5dbc879065ae8ddfbcce2a5af14f",
+    "bytes": 129290
+  },
+  "/tmp/r7_C3/cal/pi05_spatial_500/feasibility.json": {
+    "sha256": "d71c6d8961ba326fc2929269abcceac10de8aa7b05a56c08cfea39c0e049d2ef",
+    "bytes": 3440
+  },
+  "/tmp/r7_C3/cal/pi05_spatial_500/r6_refit.log": {
+    "sha256": "11acf4558cbd16fc1b1e284f13e5204d2df24564b91504fab981ec6758b85dc3",
+    "bytes": 6772
+  },
+  "/tmp/r7_C3/cal/pi05_spatial_500/stage_features.json": {
+    "sha256": "6187a46620014a31c573e6433cb01d22126bf20c63f2fc1d11da2f4da6818c10",
+    "bytes": 68457
+  },
+  "/tmp/r7_C3/cal/pi05_spatial_500/stages.pkl": {
+    "sha256": "3ab47b303008f46b484005d0984142da6ba8abbe0fc4362148a53cfb4f8dfe8c",
+    "bytes": 1006054
+  },
+  "/tmp/r7_C3/stall/groot_l10_500/stall.json": {
+    "sha256": "1e58f1e8148a984ce6c9d7bd087e3088a5b315519b582dd84d3a96b0670fff4c",
+    "bytes": 4266
+  },
+  "/tmp/r7_C3/stall/groot_l10_500/stall.pkl": {
+    "sha256": "c345dabf76b0f2601ab6e46174d66c0205dca5e3e11668e8871a1b414e3de286",
+    "bytes": 77853896
+  },
+  "/tmp/r7_C3/stall/groot_spatial_500/stall.json": {
+    "sha256": "1db2668f9cbeb400bbde87a97be2874c1e044cf1ec737f14217daed14f7dfc44",
+    "bytes": 4257
+  },
+  "/tmp/r7_C3/stall/groot_spatial_500/stall.pkl": {
+    "sha256": "b6f63b626ce64e1b250d4479ea7e3baf614fa31cce1e4e89eb74869809e4e6d4",
+    "bytes": 43718902
+  },
+  "/tmp/r7_C3/stall/pi05_l10_500/stall.json": {
+    "sha256": "51821f18610a61550ad34d8b111b1f2f43d475bb47855fda74b05a803a8c3dca",
+    "bytes": 4270
+  },
+  "/tmp/r7_C3/stall/pi05_l10_500/stall.pkl": {
+    "sha256": "001f53250d8059ba0e80f5bc65f16e536fbf2269dc27ce35e98e922b9d3fd8a8",
+    "bytes": 78624591
+  },
+  "/tmp/r7_C3/stall/pi05_spatial_500/stall.json": {
+    "sha256": "61f3e52c681c4e9ac92bfadf6052bf51f37639c673d67ca3574cc34090fdb0fa",
+    "bytes": 4259
+  },
+  "/tmp/r7_C3/stall/pi05_spatial_500/stall.pkl": {
+    "sha256": "7fdd5fcf2f446d671ddc6724b17b8da2f75b2d5b2e110510555da05ee7fe0fad",
+    "bytes": 43446173
+  }
+}

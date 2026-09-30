@@ -1,0 +1,1316 @@
+{
+  "pilot": {
+    "groot_l10_50": {
+      "cell": "groot_l10_50",
+      "anchors": 4389,
+      "episodes": 120,
+      "active": 4149,
+      "per_template_paths_and_distance_matrices": 20745,
+      "cohorts": {
+        "A": 2234,
+        "B": 2155
+      },
+      "fields": [
+        "state",
+        "reason",
+        "delta_hat",
+        "phase_hat",
+        "distance_hat",
+        "spread_hat",
+        "e90",
+        "a10",
+        "reference_windows",
+        "window_span",
+        "W",
+        "K",
+        "reference_episodes",
+        "all_template_paths",
+        "selected_template_order",
+        "every_distance"
+      ],
+      "differences": 0,
+      "maximum_absolute_float_difference": 0.0,
+      "fingerprint": "e962aa7d665a23a6df5a95d113e5cf9daa2b02ccb241e38b12be6a03081393f9",
+      "previous_status_counts_identical": true
+    },
+    "groot_l10_500": {
+      "cell": "groot_l10_500",
+      "anchors": 3583,
+      "episodes": 120,
+      "active": 3331,
+      "per_template_paths_and_distance_matrices": 138932,
+      "cohorts": {
+        "A": 1862,
+        "B": 1721
+      },
+      "fields": [
+        "state",
+        "reason",
+        "delta_hat",
+        "phase_hat",
+        "distance_hat",
+        "spread_hat",
+        "e90",
+        "a10",
+        "reference_windows",
+        "window_span",
+        "W",
+        "K",
+        "reference_episodes",
+        "all_template_paths",
+        "selected_template_order",
+        "every_distance"
+      ],
+      "differences": 0,
+      "maximum_absolute_float_difference": 0.0,
+      "fingerprint": "f5426ac559b27059decef316ebe071de30b84e6377e55970ebfafe303ba1b903",
+      "previous_status_counts_identical": true
+    },
+    "groot_sp_50": {
+      "cell": "groot_sp_50",
+      "anchors": 1393,
+      "episodes": 120,
+      "active": 1153,
+      "per_template_paths_and_distance_matrices": 5765,
+      "cohorts": {
+        "A": 706,
+        "B": 687
+      },
+      "fields": [
+        "state",
+        "reason",
+        "delta_hat",
+        "phase_hat",
+        "distance_hat",
+        "spread_hat",
+        "e90",
+        "a10",
+        "reference_windows",
+        "window_span",
+        "W",
+        "K",
+        "reference_episodes",
+        "all_template_paths",
+        "selected_template_order",
+        "every_distance"
+      ],
+      "differences": 0,
+      "maximum_absolute_float_difference": 0.0,
+      "fingerprint": "3def6cdcb5a8c12d306261dae33c3c4e31ae6866c438e58c55fc0d64818cfa63",
+      "previous_status_counts_identical": true
+    },
+    "groot_sp_500": {
+      "cell": "groot_sp_500",
+      "anchors": 1376,
+      "episodes": 120,
+      "active": 1136,
+      "per_template_paths_and_distance_matrices": 52121,
+      "cohorts": {
+        "A": 678,
+        "B": 698
+      },
+      "fields": [
+        "state",
+        "reason",
+        "delta_hat",
+        "phase_hat",
+        "distance_hat",
+        "spread_hat",
+        "e90",
+        "a10",
+        "reference_windows",
+        "window_span",
+        "W",
+        "K",
+        "reference_episodes",
+        "all_template_paths",
+        "selected_template_order",
+        "every_distance"
+      ],
+      "differences": 0,
+      "maximum_absolute_float_difference": 0.0,
+      "fingerprint": "1fb0d9754c2100d216f5372fdc36b8043a0099f28ae81cefb4c4f44a344315df",
+      "previous_status_counts_identical": true
+    },
+    "pi05_l10_50": {
+      "cell": "pi05_l10_50",
+      "anchors": 3839,
+      "episodes": 120,
+      "active": 3599,
+      "per_template_paths_and_distance_matrices": 17995,
+      "cohorts": {
+        "A": 2055,
+        "B": 1784
+      },
+      "fields": [
+        "state",
+        "reason",
+        "delta_hat",
+        "phase_hat",
+        "distance_hat",
+        "spread_hat",
+        "e90",
+        "a10",
+        "reference_windows",
+        "window_span",
+        "W",
+        "K",
+        "reference_episodes",
+        "all_template_paths",
+        "selected_template_order",
+        "every_distance"
+      ],
+      "differences": 0,
+      "maximum_absolute_float_difference": 0.0,
+      "fingerprint": "e4ed6e3d0ed45115201cd6d1785fd4d4131fbec35fdeee92abea2e71e4b3fc49",
+      "previous_status_counts_identical": true
+    },
+    "pi05_l10_500": {
+      "cell": "pi05_l10_500",
+      "anchors": 3321,
+      "episodes": 120,
+      "active": 3069,
+      "per_template_paths_and_distance_matrices": 130822,
+      "cohorts": {
+        "A": 1657,
+        "B": 1664
+      },
+      "fields": [
+        "state",
+        "reason",
+        "delta_hat",
+        "phase_hat",
+        "distance_hat",
+        "spread_hat",
+        "e90",
+        "a10",
+        "reference_windows",
+        "window_span",
+        "W",
+        "K",
+        "reference_episodes",
+        "all_template_paths",
+        "selected_template_order",
+        "every_distance"
+      ],
+      "differences": 0,
+      "maximum_absolute_float_difference": 0.0,
+      "fingerprint": "312754f81b3971dd52d4198ac12d5463a49939ef9946ab9cf7a011c0249c29b1",
+      "previous_status_counts_identical": true
+    },
+    "pi05_sp_50": {
+      "cell": "pi05_sp_50",
+      "anchors": 1574,
+      "episodes": 120,
+      "active": 1334,
+      "per_template_paths_and_distance_matrices": 6575,
+      "cohorts": {
+        "A": 813,
+        "B": 761
+      },
+      "fields": [
+        "state",
+        "reason",
+        "delta_hat",
+        "phase_hat",
+        "distance_hat",
+        "spread_hat",
+        "e90",
+        "a10",
+        "reference_windows",
+        "window_span",
+        "W",
+        "K",
+        "reference_episodes",
+        "all_template_paths",
+        "selected_template_order",
+        "every_distance"
+      ],
+      "differences": 0,
+      "maximum_absolute_float_difference": 0.0,
+      "fingerprint": "f93f6c830d4411b252865242a15ce3cefdf3527995866200974ff212c41805d8",
+      "previous_status_counts_identical": true
+    },
+    "pi05_sp_500": {
+      "cell": "pi05_sp_500",
+      "anchors": 1361,
+      "episodes": 120,
+      "active": 1121,
+      "per_template_paths_and_distance_matrices": 54724,
+      "cohorts": {
+        "A": 686,
+        "B": 675
+      },
+      "fields": [
+        "state",
+        "reason",
+        "delta_hat",
+        "phase_hat",
+        "distance_hat",
+        "spread_hat",
+        "e90",
+        "a10",
+        "reference_windows",
+        "window_span",
+        "W",
+        "K",
+        "reference_episodes",
+        "all_template_paths",
+        "selected_template_order",
+        "every_distance"
+      ],
+      "differences": 0,
+      "maximum_absolute_float_difference": 0.0,
+      "fingerprint": "4ca05097b54dfc17963fcb2870df1dc7647fdfed66f3c0ea2df0c6146a70cc9f",
+      "previous_status_counts_identical": true
+    }
+  },
+  "calibration": {
+    "groot_l10_50": {
+      "cell": "groot_l10_50",
+      "production": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/cal/groot_l10_50/calibrated/calibration.json",
+      "output": "/tmp/codex_stall_fast/calibration_verified/groot_l10_50/calibration.json",
+      "anchors": 365,
+      "episodes": 10,
+      "cadence_nodes": {
+        "no_stall": 365,
+        "stall": 851
+      },
+      "solution_count": 20,
+      "differences": 0,
+      "entire_calibration_json_identical": true,
+      "entire_cost_replay_identical": true,
+      "stall_fingerprint": {
+        "no_stall": "none",
+        "stall": "e962aa7d665a23a6df5a95d113e5cf9daa2b02ccb241e38b12be6a03081393f9"
+      },
+      "c1": 0.148,
+      "targets": [
+        0.18,
+        0.3,
+        0.45
+      ],
+      "tables": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/tables/groot_l10_50",
+      "bank": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/cal/groot_l10_50/r_bank.json",
+      "bval_manifest": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/manifests/calibration_manifest_groot_l10_50.json",
+      "client_root": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/runs/r6c_cal_groot_l10_50/client_telemetry",
+      "stall_model_path": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/stall/groot_l10_50"
+    },
+    "groot_l10_500": {
+      "cell": "groot_l10_500",
+      "production": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/cal/groot_l10_500/calibrated/calibration.json",
+      "output": "/tmp/codex_stall_fast/calibration_verified/groot_l10_500/calibration.json",
+      "anchors": 290,
+      "episodes": 10,
+      "cadence_nodes": {
+        "no_stall": 290,
+        "stall": 475
+      },
+      "solution_count": 20,
+      "differences": 0,
+      "entire_calibration_json_identical": true,
+      "entire_cost_replay_identical": true,
+      "stall_fingerprint": {
+        "no_stall": "none",
+        "stall": "f5426ac559b27059decef316ebe071de30b84e6377e55970ebfafe303ba1b903"
+      },
+      "c1": 0.148,
+      "targets": [
+        0.18,
+        0.3,
+        0.45
+      ],
+      "tables": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/tables/groot_l10_500",
+      "bank": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/cal/groot_l10_500/r_bank.json",
+      "bval_manifest": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/manifests/calibration_manifest_groot_l10_500.json",
+      "client_root": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/runs/r6c_cal_groot_l10_500/client_telemetry",
+      "stall_model_path": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/stall/groot_l10_500"
+    },
+    "groot_sp_50": {
+      "cell": "groot_sp_50",
+      "production": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/cal/groot_spatial_50/calibrated/calibration.json",
+      "output": "/tmp/codex_stall_fast/calibration_verified/groot_sp_50/calibration.json",
+      "anchors": 133,
+      "episodes": 10,
+      "cadence_nodes": {
+        "no_stall": 133,
+        "stall": 208
+      },
+      "solution_count": 20,
+      "differences": 0,
+      "entire_calibration_json_identical": true,
+      "entire_cost_replay_identical": true,
+      "stall_fingerprint": {
+        "no_stall": "none",
+        "stall": "3def6cdcb5a8c12d306261dae33c3c4e31ae6866c438e58c55fc0d64818cfa63"
+      },
+      "c1": 0.148,
+      "targets": [
+        0.18,
+        0.3,
+        0.45
+      ],
+      "tables": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/tables/groot_spatial_50",
+      "bank": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/cal/groot_spatial_50/r_bank.json",
+      "bval_manifest": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/manifests/calibration_manifest_groot_spatial_50.json",
+      "client_root": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/runs/r6c_cal_groot_spatial_50/client_telemetry",
+      "stall_model_path": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/stall/groot_sp_50"
+    },
+    "groot_sp_500": {
+      "cell": "groot_sp_500",
+      "production": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/cal/groot_spatial_500/calibrated/calibration.json",
+      "output": "/tmp/codex_stall_fast/calibration_verified/groot_sp_500/calibration.json",
+      "anchors": 122,
+      "episodes": 10,
+      "cadence_nodes": {
+        "no_stall": 122,
+        "stall": 135
+      },
+      "solution_count": 20,
+      "differences": 0,
+      "entire_calibration_json_identical": true,
+      "entire_cost_replay_identical": true,
+      "stall_fingerprint": {
+        "no_stall": "none",
+        "stall": "1fb0d9754c2100d216f5372fdc36b8043a0099f28ae81cefb4c4f44a344315df"
+      },
+      "c1": 0.148,
+      "targets": [
+        0.18,
+        0.3,
+        0.45
+      ],
+      "tables": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/tables/groot_spatial_500",
+      "bank": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/cal/groot_spatial_500/r_bank.json",
+      "bval_manifest": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/manifests/calibration_manifest_groot_spatial_500.json",
+      "client_root": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/runs/r6c_cal_groot_spatial_500/client_telemetry",
+      "stall_model_path": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/stall/groot_sp_500"
+    },
+    "pi05_l10_50": {
+      "cell": "pi05_l10_50",
+      "production": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/cal/pi05_l10_50/calibrated/calibration.json",
+      "output": "/tmp/codex_stall_fast/calibration_verified/pi05_l10_50/calibration.json",
+      "anchors": 346,
+      "episodes": 10,
+      "cadence_nodes": {
+        "no_stall": 346,
+        "stall": 725
+      },
+      "solution_count": 20,
+      "differences": 0,
+      "entire_calibration_json_identical": true,
+      "entire_cost_replay_identical": true,
+      "stall_fingerprint": {
+        "no_stall": "none",
+        "stall": "e4ed6e3d0ed45115201cd6d1785fd4d4131fbec35fdeee92abea2e71e4b3fc49"
+      },
+      "c1": 0.152,
+      "targets": [
+        0.18,
+        0.3,
+        0.45
+      ],
+      "tables": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/tables/pi05_l10_50",
+      "bank": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/cal/pi05_l10_50/r_bank.json",
+      "bval_manifest": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/manifests/calibration_manifest_pi05_l10_50.json",
+      "client_root": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/runs/r6c_cal_pi05_l10_50/client_telemetry",
+      "stall_model_path": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/stall/pi05_l10_50"
+    },
+    "pi05_l10_500": {
+      "cell": "pi05_l10_500",
+      "production": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/cal/pi05_l10_500/calibrated/calibration.json",
+      "output": "/tmp/codex_stall_fast/calibration_verified/pi05_l10_500/calibration.json",
+      "anchors": 274,
+      "episodes": 10,
+      "cadence_nodes": {
+        "no_stall": 274,
+        "stall": 376
+      },
+      "solution_count": 20,
+      "differences": 0,
+      "entire_calibration_json_identical": true,
+      "entire_cost_replay_identical": true,
+      "stall_fingerprint": {
+        "no_stall": "none",
+        "stall": "312754f81b3971dd52d4198ac12d5463a49939ef9946ab9cf7a011c0249c29b1"
+      },
+      "c1": 0.152,
+      "targets": [
+        0.18,
+        0.3,
+        0.45
+      ],
+      "tables": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/tables/pi05_l10_500",
+      "bank": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/cal/pi05_l10_500/r_bank.json",
+      "bval_manifest": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/manifests/calibration_manifest_pi05_l10_500.json",
+      "client_root": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/runs/r6c_cal_pi05_l10_500/client_telemetry",
+      "stall_model_path": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/stall/pi05_l10_500"
+    },
+    "pi05_sp_50": {
+      "cell": "pi05_sp_50",
+      "production": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/cal/pi05_spatial_50/calibrated/calibration.json",
+      "output": "/tmp/codex_stall_fast/calibration_verified/pi05_sp_50/calibration.json",
+      "anchors": 152,
+      "episodes": 10,
+      "cadence_nodes": {
+        "no_stall": 152,
+        "stall": 255
+      },
+      "solution_count": 20,
+      "differences": 0,
+      "entire_calibration_json_identical": true,
+      "entire_cost_replay_identical": true,
+      "stall_fingerprint": {
+        "no_stall": "none",
+        "stall": "f93f6c830d4411b252865242a15ce3cefdf3527995866200974ff212c41805d8"
+      },
+      "c1": 0.152,
+      "targets": [
+        0.18,
+        0.3,
+        0.45
+      ],
+      "tables": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/tables/pi05_spatial_50",
+      "bank": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/cal/pi05_spatial_50/r_bank.json",
+      "bval_manifest": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/manifests/calibration_manifest_pi05_spatial_50.json",
+      "client_root": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/runs/r6c_cal_pi05_spatial_50/client_telemetry",
+      "stall_model_path": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/stall/pi05_sp_50"
+    },
+    "pi05_sp_500": {
+      "cell": "pi05_sp_500",
+      "production": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/cal/pi05_spatial_500/calibrated/calibration.json",
+      "output": "/tmp/codex_stall_fast/calibration_verified/pi05_sp_500/calibration.json",
+      "anchors": 135,
+      "episodes": 10,
+      "cadence_nodes": {
+        "no_stall": 135,
+        "stall": 210
+      },
+      "solution_count": 20,
+      "differences": 0,
+      "entire_calibration_json_identical": true,
+      "entire_cost_replay_identical": true,
+      "stall_fingerprint": {
+        "no_stall": "none",
+        "stall": "4ca05097b54dfc17963fcb2870df1dc7647fdfed66f3c0ea2df0c6146a70cc9f"
+      },
+      "c1": 0.152,
+      "targets": [
+        0.18,
+        0.3,
+        0.45
+      ],
+      "tables": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/tables/pi05_spatial_500",
+      "bank": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/cal/pi05_spatial_500/r_bank.json",
+      "bval_manifest": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/manifests/calibration_manifest_pi05_spatial_500.json",
+      "client_root": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/runs/r6c_cal_pi05_spatial_500/client_telemetry",
+      "stall_model_path": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/stall/pi05_sp_500"
+    }
+  },
+  "timing": {
+    "groot_l10_50": {
+      "reference": {
+        "cell": "groot_l10_50",
+        "implementation": "reference",
+        "anchors": 4389,
+        "cpu_median_ms": 0.767457,
+        "cpu_p99_ms": 0.95050752,
+        "wall_median_ms": 0.764341,
+        "wall_p99_ms": 0.9460411199999998
+      },
+      "fast": {
+        "cell": "groot_l10_50",
+        "implementation": "fast",
+        "anchors": 4389,
+        "cpu_median_ms": 0.38287299999999996,
+        "cpu_p99_ms": 0.5758046799999996,
+        "wall_median_ms": 0.379629,
+        "wall_p99_ms": 0.5730489599999997
+      }
+    },
+    "groot_l10_500": {
+      "reference": {
+        "cell": "groot_l10_500",
+        "implementation": "reference",
+        "anchors": 3583,
+        "cpu_median_ms": 5.373261,
+        "cpu_p99_ms": 6.362135239999999,
+        "wall_median_ms": 5.370012,
+        "wall_p99_ms": 6.359102039999998
+      },
+      "fast": {
+        "cell": "groot_l10_500",
+        "implementation": "fast",
+        "anchors": 3583,
+        "cpu_median_ms": 0.8774919999999999,
+        "cpu_p99_ms": 1.8960959999999987,
+        "wall_median_ms": 0.87414,
+        "wall_p99_ms": 1.8878266399999974
+      }
+    },
+    "groot_sp_50": {
+      "reference": {
+        "cell": "groot_sp_50",
+        "implementation": "reference",
+        "anchors": 1393,
+        "cpu_median_ms": 0.6575700000000001,
+        "cpu_p99_ms": 0.7380035599999999,
+        "wall_median_ms": 0.6549550000000001,
+        "wall_p99_ms": 0.7354527999999999
+      },
+      "fast": {
+        "cell": "groot_sp_50",
+        "implementation": "fast",
+        "anchors": 1393,
+        "cpu_median_ms": 0.342837,
+        "cpu_p99_ms": 0.4831421599999998,
+        "wall_median_ms": 0.340066,
+        "wall_p99_ms": 0.4802848399999998
+      }
+    },
+    "groot_sp_500": {
+      "reference": {
+        "cell": "groot_sp_500",
+        "implementation": "reference",
+        "anchors": 1376,
+        "cpu_median_ms": 4.795136500000001,
+        "cpu_p99_ms": 5.3132865,
+        "wall_median_ms": 4.7924809999999995,
+        "wall_p99_ms": 5.310417500000001
+      },
+      "fast": {
+        "cell": "groot_sp_500",
+        "implementation": "fast",
+        "anchors": 1376,
+        "cpu_median_ms": 0.5693635,
+        "cpu_p99_ms": 1.123337,
+        "wall_median_ms": 0.5661185000000001,
+        "wall_p99_ms": 1.1204765
+      }
+    },
+    "pi05_l10_50": {
+      "reference": {
+        "cell": "pi05_l10_50",
+        "implementation": "reference",
+        "anchors": 3839,
+        "cpu_median_ms": 0.7807029999999999,
+        "cpu_p99_ms": 0.9309621799999999,
+        "wall_median_ms": 0.777818,
+        "wall_p99_ms": 0.9307353799999999
+      },
+      "fast": {
+        "cell": "pi05_l10_50",
+        "implementation": "fast",
+        "anchors": 3839,
+        "cpu_median_ms": 0.38556799999999997,
+        "cpu_p99_ms": 0.5842975599999995,
+        "wall_median_ms": 0.382483,
+        "wall_p99_ms": 0.5835056999999999
+      }
+    },
+    "pi05_l10_500": {
+      "reference": {
+        "cell": "pi05_l10_500",
+        "implementation": "reference",
+        "anchors": 3321,
+        "cpu_median_ms": 5.33502,
+        "cpu_p99_ms": 6.828412200000002,
+        "wall_median_ms": 5.33296,
+        "wall_p99_ms": 6.825369600000001
+      },
+      "fast": {
+        "cell": "pi05_l10_500",
+        "implementation": "fast",
+        "anchors": 3321,
+        "cpu_median_ms": 0.888475,
+        "cpu_p99_ms": 1.9773246000000004,
+        "wall_median_ms": 0.885171,
+        "wall_p99_ms": 1.9744422000000006
+      }
+    },
+    "pi05_sp_50": {
+      "reference": {
+        "cell": "pi05_sp_50",
+        "implementation": "reference",
+        "anchors": 1574,
+        "cpu_median_ms": 0.643338,
+        "cpu_p99_ms": 0.74538226,
+        "wall_median_ms": 0.6408165,
+        "wall_p99_ms": 0.7447528
+      },
+      "fast": {
+        "cell": "pi05_sp_50",
+        "implementation": "fast",
+        "anchors": 1574,
+        "cpu_median_ms": 0.33979750000000003,
+        "cpu_p99_ms": 0.4937370399999999,
+        "wall_median_ms": 0.336865,
+        "wall_p99_ms": 0.49107991
+      }
+    },
+    "pi05_sp_500": {
+      "reference": {
+        "cell": "pi05_sp_500",
+        "implementation": "reference",
+        "anchors": 1361,
+        "cpu_median_ms": 5.050209,
+        "cpu_p99_ms": 5.4853114000000005,
+        "wall_median_ms": 5.047372,
+        "wall_p99_ms": 5.492143200000001
+      },
+      "fast": {
+        "cell": "pi05_sp_500",
+        "implementation": "fast",
+        "anchors": 1361,
+        "cpu_median_ms": 0.625188,
+        "cpu_p99_ms": 1.3280854000000006,
+        "wall_median_ms": 0.620758,
+        "wall_p99_ms": 1.3247592000000006
+      }
+    }
+  },
+  "breakdown": {
+    "groot_l10_50": {
+      "cell": "groot_l10_50",
+      "scope": "CPU component medians on a separate instrumented pilot pass; lazy preparation included; timer overhead means medians are not additive",
+      "components": {
+        "encode": {
+          "calls": 4389,
+          "median_ms": 0.03552,
+          "p99_ms": 0.06441999999999999
+        },
+        "distance": {
+          "calls": 4389,
+          "median_ms": 0.083541,
+          "p99_ms": 0.1358106799999999
+        },
+        "alignment_estimate": {
+          "calls": 4149,
+          "median_ms": 0.157216,
+          "p99_ms": 0.21145423999999988
+        },
+        "calibrated_status": {
+          "calls": 4149,
+          "median_ms": 0.101456,
+          "p99_ms": 0.15492115999999956
+        }
+      }
+    },
+    "groot_l10_500": {
+      "cell": "groot_l10_500",
+      "scope": "CPU component medians on a separate instrumented pilot pass; lazy preparation included; timer overhead means medians are not additive",
+      "components": {
+        "encode": {
+          "calls": 3583,
+          "median_ms": 0.042442,
+          "p99_ms": 0.06878025999999995
+        },
+        "distance": {
+          "calls": 3583,
+          "median_ms": 0.398012,
+          "p99_ms": 0.5135385399999999
+        },
+        "alignment_estimate": {
+          "calls": 3331,
+          "median_ms": 0.233941,
+          "p99_ms": 0.3374444999999999
+        },
+        "calibrated_status": {
+          "calls": 3331,
+          "median_ms": 0.178651,
+          "p99_ms": 0.26604989999999995
+        }
+      }
+    },
+    "groot_sp_50": {
+      "cell": "groot_sp_50",
+      "scope": "CPU component medians on a separate instrumented pilot pass; lazy preparation included; timer overhead means medians are not additive",
+      "components": {
+        "encode": {
+          "calls": 1393,
+          "median_ms": 0.035756,
+          "p99_ms": 0.06296015999999999
+        },
+        "distance": {
+          "calls": 1393,
+          "median_ms": 0.066105,
+          "p99_ms": 0.11437667999999984
+        },
+        "alignment_estimate": {
+          "calls": 1153,
+          "median_ms": 0.153428,
+          "p99_ms": 0.20784928000000003
+        },
+        "calibrated_status": {
+          "calls": 1153,
+          "median_ms": 0.097694,
+          "p99_ms": 0.15954948000000002
+        }
+      }
+    },
+    "groot_sp_500": {
+      "cell": "groot_sp_500",
+      "scope": "CPU component medians on a separate instrumented pilot pass; lazy preparation included; timer overhead means medians are not additive",
+      "components": {
+        "encode": {
+          "calls": 1376,
+          "median_ms": 0.037055,
+          "p99_ms": 0.07015375
+        },
+        "distance": {
+          "calls": 1376,
+          "median_ms": 0.193129,
+          "p99_ms": 0.29087975
+        },
+        "alignment_estimate": {
+          "calls": 1136,
+          "median_ms": 0.199438,
+          "p99_ms": 0.24970730000000013
+        },
+        "calibrated_status": {
+          "calls": 1136,
+          "median_ms": 0.1421265,
+          "p99_ms": 0.20734680000000014
+        }
+      }
+    },
+    "pi05_l10_50": {
+      "cell": "pi05_l10_50",
+      "scope": "CPU component medians on a separate instrumented pilot pass; lazy preparation included; timer overhead means medians are not additive",
+      "components": {
+        "encode": {
+          "calls": 3839,
+          "median_ms": 0.035588,
+          "p99_ms": 0.05973911999999999
+        },
+        "distance": {
+          "calls": 3839,
+          "median_ms": 0.090982,
+          "p99_ms": 0.1316124
+        },
+        "alignment_estimate": {
+          "calls": 3599,
+          "median_ms": 0.157894,
+          "p99_ms": 0.19679997999999999
+        },
+        "calibrated_status": {
+          "calls": 3599,
+          "median_ms": 0.1017,
+          "p99_ms": 0.14128814
+        }
+      }
+    },
+    "pi05_l10_500": {
+      "cell": "pi05_l10_500",
+      "scope": "CPU component medians on a separate instrumented pilot pass; lazy preparation included; timer overhead means medians are not additive",
+      "components": {
+        "encode": {
+          "calls": 3321,
+          "median_ms": 0.037575,
+          "p99_ms": 0.06349940000000003
+        },
+        "distance": {
+          "calls": 3321,
+          "median_ms": 0.433511,
+          "p99_ms": 0.5825204000000002
+        },
+        "alignment_estimate": {
+          "calls": 3069,
+          "median_ms": 0.240181,
+          "p99_ms": 0.29544628000000017
+        },
+        "calibrated_status": {
+          "calls": 3069,
+          "median_ms": 0.18563,
+          "p99_ms": 0.2487936400000002
+        }
+      }
+    },
+    "pi05_sp_50": {
+      "cell": "pi05_sp_50",
+      "scope": "CPU component medians on a separate instrumented pilot pass; lazy preparation included; timer overhead means medians are not additive",
+      "components": {
+        "encode": {
+          "calls": 1574,
+          "median_ms": 0.035671,
+          "p99_ms": 0.06315128999999998
+        },
+        "distance": {
+          "calls": 1574,
+          "median_ms": 0.061504500000000004,
+          "p99_ms": 0.10535419999999997
+        },
+        "alignment_estimate": {
+          "calls": 1334,
+          "median_ms": 0.1503715,
+          "p99_ms": 0.19587018000000006
+        },
+        "calibrated_status": {
+          "calls": 1334,
+          "median_ms": 0.09604,
+          "p99_ms": 0.15294484000000053
+        }
+      }
+    },
+    "pi05_sp_500": {
+      "cell": "pi05_sp_500",
+      "scope": "CPU component medians on a separate instrumented pilot pass; lazy preparation included; timer overhead means medians are not additive",
+      "components": {
+        "encode": {
+          "calls": 1361,
+          "median_ms": 0.038072,
+          "p99_ms": 0.0677922000000001
+        },
+        "distance": {
+          "calls": 1361,
+          "median_ms": 0.234739,
+          "p99_ms": 0.3429104000000009
+        },
+        "alignment_estimate": {
+          "calls": 1121,
+          "median_ms": 0.215153,
+          "p99_ms": 0.3024608
+        },
+        "calibrated_status": {
+          "calls": 1121,
+          "median_ms": 0.15312,
+          "p99_ms": 0.245192
+        }
+      }
+    }
+  },
+  "metric_audit": [
+    {
+      "cell": "groot_l10_50",
+      "A_B_metric_bit_identical": true,
+      "saved_metric_matches_A": true,
+      "source_A_sha256": "e7df33a2b71949be66b5d2633cb0df55b62dc03e2cb38038f417250d96397404",
+      "source_B_sha256": "407836eb861d7eefc58b8ab288f5f95cedb13d677c2d0ef42741baf0a1295d1f",
+      "raw_code_checks": 240,
+      "raw_and_code_status_identical": true,
+      "float64_metric_vs_A_float32_distance_max_abs": 0.4998636291447777,
+      "other_episode_distance_max_abs": 0.0206894311191288,
+      "other_episode_distance_max_relative": 0.005886300595289889,
+      "queries_with_max_error_at_self": 183,
+      "raw_observe_median_us": 1313.893,
+      "raw_observe_p99_us": 1977.9051799999997,
+      "code_observe_median_us": 22.301000000000002,
+      "code_observe_p99_us": 585.77128,
+      "timing_scope": "240 library queries/cell, both regimes, repeated windows; includes warmup; parity/engineering only"
+    },
+    {
+      "cell": "groot_l10_500",
+      "A_B_metric_bit_identical": true,
+      "saved_metric_matches_A": true,
+      "source_A_sha256": "c7727c501730949437f2bad7e06b685f4645153b3fe4348f9148aa8f64e5b96a",
+      "source_B_sha256": "7f12910c032328b4b143b0017856436d0c8e002c2f6c020fd1efce80cc14fbd1",
+      "raw_code_checks": 240,
+      "raw_and_code_status_identical": true,
+      "float64_metric_vs_A_float32_distance_max_abs": 0.1767225608502212,
+      "other_episode_distance_max_abs": 0.003494437147164575,
+      "other_episode_distance_max_relative": 0.00042868434257186056,
+      "queries_with_max_error_at_self": 174,
+      "raw_observe_median_us": 1361.009,
+      "raw_observe_p99_us": 3805.476260000001,
+      "code_observe_median_us": 23.0105,
+      "code_observe_p99_us": 2110.2349400000003,
+      "timing_scope": "240 library queries/cell, both regimes, repeated windows; includes warmup; parity/engineering only"
+    },
+    {
+      "cell": "groot_sp_50",
+      "A_B_metric_bit_identical": true,
+      "saved_metric_matches_A": true,
+      "source_A_sha256": "d0e6d03f4c758ff32e5fda5d0accf01669de6efeb93a8eff6011902ef27d2cb9",
+      "source_B_sha256": "9bdfa36b2765c1d8365d60c3de31041cd93de2b208c092cf85cf2db8f816943f",
+      "raw_code_checks": 240,
+      "raw_and_code_status_identical": true,
+      "float64_metric_vs_A_float32_distance_max_abs": 0.1530458252587654,
+      "other_episode_distance_max_abs": 0.003933923619966695,
+      "other_episode_distance_max_relative": 0.001149769231348883,
+      "queries_with_max_error_at_self": 168,
+      "raw_observe_median_us": 971.62,
+      "raw_observe_p99_us": 1454.0167299999998,
+      "code_observe_median_us": 20.845,
+      "code_observe_p99_us": 450.50124,
+      "timing_scope": "240 library queries/cell, both regimes, repeated windows; includes warmup; parity/engineering only"
+    },
+    {
+      "cell": "groot_sp_500",
+      "A_B_metric_bit_identical": true,
+      "saved_metric_matches_A": true,
+      "source_A_sha256": "aca68fde36b9a988955ddbb7ee313c476e321a99592ae48b01f3d3f69d08c8e8",
+      "source_B_sha256": "b41dae39fb728d22f1b343de7bcd602a6e18fdf5ca598bfffa5ecbfeac837c24",
+      "raw_code_checks": 240,
+      "raw_and_code_status_identical": true,
+      "float64_metric_vs_A_float32_distance_max_abs": 0.12496429264806118,
+      "other_episode_distance_max_abs": 0.001058631507424579,
+      "other_episode_distance_max_relative": 0.00012060935584295109,
+      "queries_with_max_error_at_self": 169,
+      "raw_observe_median_us": 822.2660000000001,
+      "raw_observe_p99_us": 2527.852019999997,
+      "code_observe_median_us": 19.731499999999997,
+      "code_observe_p99_us": 1049.8501399999998,
+      "timing_scope": "240 library queries/cell, both regimes, repeated windows; includes warmup; parity/engineering only"
+    },
+    {
+      "cell": "pi05_l10_50",
+      "A_B_metric_bit_identical": true,
+      "saved_metric_matches_A": true,
+      "source_A_sha256": "6dfc2f714e58d9c9b8e48a8c3c5ec7b5b80bad95d28df6041c44fc012de51208",
+      "source_B_sha256": "16ddfec3dc8d3af95c1a39c1f483475746e3ee8194e0730ef38a7f043b77c69a",
+      "raw_code_checks": 240,
+      "raw_and_code_status_identical": true,
+      "float64_metric_vs_A_float32_distance_max_abs": 0.49986971453438567,
+      "other_episode_distance_max_abs": 0.03490753414520187,
+      "other_episode_distance_max_relative": 0.010458318433029048,
+      "queries_with_max_error_at_self": 201,
+      "raw_observe_median_us": 1317.4885,
+      "raw_observe_p99_us": 1894.0191099999988,
+      "code_observe_median_us": 21.747,
+      "code_observe_p99_us": 594.9712699999999,
+      "timing_scope": "240 library queries/cell, both regimes, repeated windows; includes warmup; parity/engineering only"
+    },
+    {
+      "cell": "pi05_l10_500",
+      "A_B_metric_bit_identical": true,
+      "saved_metric_matches_A": true,
+      "source_A_sha256": "93d56ffe81d4874c988f1e16eb5a6a9850268853189866054525f6d137e94504",
+      "source_B_sha256": "186f635e234a229f7bbbe1fb93b7ed7c2a9d43581d138294aa2e978e5957cb9d",
+      "raw_code_checks": 240,
+      "raw_and_code_status_identical": true,
+      "float64_metric_vs_A_float32_distance_max_abs": 0.35342567652786927,
+      "other_episode_distance_max_abs": 0.011092279272162386,
+      "other_episode_distance_max_relative": 0.0015076286109233534,
+      "queries_with_max_error_at_self": 189,
+      "raw_observe_median_us": 1333.286,
+      "raw_observe_p99_us": 3613.481430000004,
+      "code_observe_median_us": 23.737000000000002,
+      "code_observe_p99_us": 1953.9633600000004,
+      "timing_scope": "240 library queries/cell, both regimes, repeated windows; includes warmup; parity/engineering only"
+    },
+    {
+      "cell": "pi05_sp_50",
+      "A_B_metric_bit_identical": true,
+      "saved_metric_matches_A": true,
+      "source_A_sha256": "54a10c4a986d492a49ebd109eed1ee2fd7710631be6effe4c2a182662487a89e",
+      "source_B_sha256": "6cadcc8f75a127601ccf8bca3520d46eedd766c80d6b10a351e2fd5195f2654f",
+      "raw_code_checks": 240,
+      "raw_and_code_status_identical": true,
+      "float64_metric_vs_A_float32_distance_max_abs": 0.1766744181915435,
+      "other_episode_distance_max_abs": 0.004148243597196011,
+      "other_episode_distance_max_relative": 0.0013019698160201024,
+      "queries_with_max_error_at_self": 184,
+      "raw_observe_median_us": 1231.2910000000002,
+      "raw_observe_p99_us": 1775.3553699999998,
+      "code_observe_median_us": 21.3455,
+      "code_observe_p99_us": 443.87686999999994,
+      "timing_scope": "240 library queries/cell, both regimes, repeated windows; includes warmup; parity/engineering only"
+    },
+    {
+      "cell": "pi05_sp_500",
+      "A_B_metric_bit_identical": true,
+      "saved_metric_matches_A": true,
+      "source_A_sha256": "9b219adb2f978736d18c200a46262e119d902a3a865cfeb2a69a309ef68082c0",
+      "source_B_sha256": "3ef80beaf240680327e75c07c2f067fd7e79f50b656e71cae3af04c1ccfbc315",
+      "raw_code_checks": 240,
+      "raw_and_code_status_identical": true,
+      "float64_metric_vs_A_float32_distance_max_abs": 0.24990654219781,
+      "other_episode_distance_max_abs": 0.004265496759120246,
+      "other_episode_distance_max_relative": 0.0005547185952277553,
+      "queries_with_max_error_at_self": 159,
+      "raw_observe_median_us": 793.0455,
+      "raw_observe_p99_us": 2274.8965999999996,
+      "code_observe_median_us": 20.2315,
+      "code_observe_p99_us": 1114.6938099999998,
+      "timing_scope": "240 library queries/cell, both regimes, repeated windows; includes warmup; parity/engineering only"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "/tmp/q3_stall_fits/groot_l10_50",
+      "cell": "groot_l10_50",
+      "fingerprint": "e962aa7d665a23a6df5a95d113e5cf9daa2b02ccb241e38b12be6a03081393f9",
+      "payload_sha256": "9feb11a563ec5111ae78f050bdfe8fb177dbebdeb8c8ab06f3b6236e4473fcf4",
+      "sidecar_sha256": "3ee83c2d92a63ed0b70a4b177625443533633c8b5f8dc8eff34a861cd4d38e9e",
+      "loaded_verified": true,
+      "content_unchanged_after_caches": true
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/stall/groot_l10_50",
+      "cell": "groot_l10_50",
+      "fingerprint": "e962aa7d665a23a6df5a95d113e5cf9daa2b02ccb241e38b12be6a03081393f9",
+      "payload_sha256": "9feb11a563ec5111ae78f050bdfe8fb177dbebdeb8c8ab06f3b6236e4473fcf4",
+      "sidecar_sha256": "3ee83c2d92a63ed0b70a4b177625443533633c8b5f8dc8eff34a861cd4d38e9e",
+      "loaded_verified": true,
+      "content_unchanged_after_caches": true
+    },
+    {
+      "path": "/tmp/q3_stall_fits/groot_l10_500",
+      "cell": "groot_l10_500",
+      "fingerprint": "f5426ac559b27059decef316ebe071de30b84e6377e55970ebfafe303ba1b903",
+      "payload_sha256": "c345dabf76b0f2601ab6e46174d66c0205dca5e3e11668e8871a1b414e3de286",
+      "sidecar_sha256": "1e58f1e8148a984ce6c9d7bd087e3088a5b315519b582dd84d3a96b0670fff4c",
+      "loaded_verified": true,
+      "content_unchanged_after_caches": true
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/stall/groot_l10_500",
+      "cell": "groot_l10_500",
+      "fingerprint": "f5426ac559b27059decef316ebe071de30b84e6377e55970ebfafe303ba1b903",
+      "payload_sha256": "c345dabf76b0f2601ab6e46174d66c0205dca5e3e11668e8871a1b414e3de286",
+      "sidecar_sha256": "1e58f1e8148a984ce6c9d7bd087e3088a5b315519b582dd84d3a96b0670fff4c",
+      "loaded_verified": true,
+      "content_unchanged_after_caches": true
+    },
+    {
+      "path": "/tmp/q3_stall_fits/groot_sp_50",
+      "cell": "groot_sp_50",
+      "fingerprint": "3def6cdcb5a8c12d306261dae33c3c4e31ae6866c438e58c55fc0d64818cfa63",
+      "payload_sha256": "184e6cf1cff891721c3c02accb44955c053f8c32d346780fb60ea016409e2ba7",
+      "sidecar_sha256": "1619e0c577d8da657c5da69fd90c9f784cf48f6d30d79af5a819150c1fd5af58",
+      "loaded_verified": true,
+      "content_unchanged_after_caches": true
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/stall/groot_sp_50",
+      "cell": "groot_sp_50",
+      "fingerprint": "3def6cdcb5a8c12d306261dae33c3c4e31ae6866c438e58c55fc0d64818cfa63",
+      "payload_sha256": "184e6cf1cff891721c3c02accb44955c053f8c32d346780fb60ea016409e2ba7",
+      "sidecar_sha256": "1619e0c577d8da657c5da69fd90c9f784cf48f6d30d79af5a819150c1fd5af58",
+      "loaded_verified": true,
+      "content_unchanged_after_caches": true
+    },
+    {
+      "path": "/tmp/q3_stall_fits/groot_sp_500",
+      "cell": "groot_sp_500",
+      "fingerprint": "1fb0d9754c2100d216f5372fdc36b8043a0099f28ae81cefb4c4f44a344315df",
+      "payload_sha256": "b6f63b626ce64e1b250d4479ea7e3baf614fa31cce1e4e89eb74869809e4e6d4",
+      "sidecar_sha256": "1db2668f9cbeb400bbde87a97be2874c1e044cf1ec737f14217daed14f7dfc44",
+      "loaded_verified": true,
+      "content_unchanged_after_caches": true
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/stall/groot_sp_500",
+      "cell": "groot_sp_500",
+      "fingerprint": "1fb0d9754c2100d216f5372fdc36b8043a0099f28ae81cefb4c4f44a344315df",
+      "payload_sha256": "b6f63b626ce64e1b250d4479ea7e3baf614fa31cce1e4e89eb74869809e4e6d4",
+      "sidecar_sha256": "1db2668f9cbeb400bbde87a97be2874c1e044cf1ec737f14217daed14f7dfc44",
+      "loaded_verified": true,
+      "content_unchanged_after_caches": true
+    },
+    {
+      "path": "/tmp/q3_stall_fits/pi05_l10_50",
+      "cell": "pi05_l10_50",
+      "fingerprint": "e4ed6e3d0ed45115201cd6d1785fd4d4131fbec35fdeee92abea2e71e4b3fc49",
+      "payload_sha256": "2f6c930139215bff90558daca4be73d81db75b7a2fce2d36a74ccf1f82e18f77",
+      "sidecar_sha256": "f2429676b45e5247f3537e29bd402195448f84e84e936f72257583c08bc98644",
+      "loaded_verified": true,
+      "content_unchanged_after_caches": true
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/stall/pi05_l10_50",
+      "cell": "pi05_l10_50",
+      "fingerprint": "e4ed6e3d0ed45115201cd6d1785fd4d4131fbec35fdeee92abea2e71e4b3fc49",
+      "payload_sha256": "2f6c930139215bff90558daca4be73d81db75b7a2fce2d36a74ccf1f82e18f77",
+      "sidecar_sha256": "f2429676b45e5247f3537e29bd402195448f84e84e936f72257583c08bc98644",
+      "loaded_verified": true,
+      "content_unchanged_after_caches": true
+    },
+    {
+      "path": "/tmp/q3_stall_fits/pi05_l10_500",
+      "cell": "pi05_l10_500",
+      "fingerprint": "312754f81b3971dd52d4198ac12d5463a49939ef9946ab9cf7a011c0249c29b1",
+      "payload_sha256": "001f53250d8059ba0e80f5bc65f16e536fbf2269dc27ce35e98e922b9d3fd8a8",
+      "sidecar_sha256": "51821f18610a61550ad34d8b111b1f2f43d475bb47855fda74b05a803a8c3dca",
+      "loaded_verified": true,
+      "content_unchanged_after_caches": true
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/stall/pi05_l10_500",
+      "cell": "pi05_l10_500",
+      "fingerprint": "312754f81b3971dd52d4198ac12d5463a49939ef9946ab9cf7a011c0249c29b1",
+      "payload_sha256": "001f53250d8059ba0e80f5bc65f16e536fbf2269dc27ce35e98e922b9d3fd8a8",
+      "sidecar_sha256": "51821f18610a61550ad34d8b111b1f2f43d475bb47855fda74b05a803a8c3dca",
+      "loaded_verified": true,
+      "content_unchanged_after_caches": true
+    },
+    {
+      "path": "/tmp/q3_stall_fits/pi05_sp_50",
+      "cell": "pi05_sp_50",
+      "fingerprint": "f93f6c830d4411b252865242a15ce3cefdf3527995866200974ff212c41805d8",
+      "payload_sha256": "5b0095f31cecc7d83570d25f6081a1e2d100c764eca6756daf0909381fdecdb2",
+      "sidecar_sha256": "d30f85131681e1ffe452d1bcac91ccc48192ae92f003f36ded0d63b1f4e7a3ed",
+      "loaded_verified": true,
+      "content_unchanged_after_caches": true
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/stall/pi05_sp_50",
+      "cell": "pi05_sp_50",
+      "fingerprint": "f93f6c830d4411b252865242a15ce3cefdf3527995866200974ff212c41805d8",
+      "payload_sha256": "5b0095f31cecc7d83570d25f6081a1e2d100c764eca6756daf0909381fdecdb2",
+      "sidecar_sha256": "d30f85131681e1ffe452d1bcac91ccc48192ae92f003f36ded0d63b1f4e7a3ed",
+      "loaded_verified": true,
+      "content_unchanged_after_caches": true
+    },
+    {
+      "path": "/tmp/q3_stall_fits/pi05_sp_500",
+      "cell": "pi05_sp_500",
+      "fingerprint": "4ca05097b54dfc17963fcb2870df1dc7647fdfed66f3c0ea2df0c6146a70cc9f",
+      "payload_sha256": "7fdd5fcf2f446d671ddc6724b17b8da2f75b2d5b2e110510555da05ee7fe0fad",
+      "sidecar_sha256": "61f3e52c681c4e9ac92bfadf6052bf51f37639c673d67ca3574cc34090fdb0fa",
+      "loaded_verified": true,
+      "content_unchanged_after_caches": true
+    },
+    {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/stall/pi05_sp_500",
+      "cell": "pi05_sp_500",
+      "fingerprint": "4ca05097b54dfc17963fcb2870df1dc7647fdfed66f3c0ea2df0c6146a70cc9f",
+      "payload_sha256": "7fdd5fcf2f446d671ddc6724b17b8da2f75b2d5b2e110510555da05ee7fe0fad",
+      "sidecar_sha256": "61f3e52c681c4e9ac92bfadf6052bf51f37639c673d67ca3574cc34090fdb0fa",
+      "loaded_verified": true,
+      "content_unchanged_after_caches": true
+    }
+  ],
+  "decision_logs": {
+    "arms": 12,
+    "decisions": 242482,
+    "fresh_anchors": 124728,
+    "replayable": false,
+    "reason": "Decision logs record state and scalar diagnostics, robot_state, retrieval rows/weights/scores; they omit metric codes, visual keys and any input archive pointer. Rows/weights and robot state cannot recover the visual query metric code.",
+    "reports": [
+      {
+        "arm": "r6c_groot_l10_500_C18",
+        "files": 1,
+        "decisions": 28748,
+        "fresh_anchors": 14863,
+        "logged_stall_states": 14863,
+        "metric_code_records": 0,
+        "raw_visual_key_records": 0,
+        "input_archive_records": 0,
+        "replayable": false
+      },
+      {
+        "arm": "r6c_groot_l10_50_C30",
+        "files": 1,
+        "decisions": 31069,
+        "fresh_anchors": 16112,
+        "logged_stall_states": 16112,
+        "metric_code_records": 0,
+        "raw_visual_key_records": 0,
+        "input_archive_records": 0,
+        "replayable": false
+      },
+      {
+        "arm": "r6c_groot_l10_50_Cmax",
+        "files": 1,
+        "decisions": 30689,
+        "fresh_anchors": 15586,
+        "logged_stall_states": 15586,
+        "metric_code_records": 0,
+        "raw_visual_key_records": 0,
+        "input_archive_records": 0,
+        "replayable": false
+      },
+      {
+        "arm": "r6c_groot_spatial_500_C18",
+        "files": 1,
+        "decisions": 11320,
+        "fresh_anchors": 5801,
+        "logged_stall_states": 5801,
+        "metric_code_records": 0,
+        "raw_visual_key_records": 0,
+        "input_archive_records": 0,
+        "replayable": false
+      },
+      {
+        "arm": "r6c_groot_spatial_50_C30",
+        "files": 1,
+        "decisions": 11447,
+        "fresh_anchors": 5957,
+        "logged_stall_states": 5957,
+        "metric_code_records": 0,
+        "raw_visual_key_records": 0,
+        "input_archive_records": 0,
+        "replayable": false
+      },
+      {
+        "arm": "r6c_groot_spatial_50_C45",
+        "files": 1,
+        "decisions": 11431,
+        "fresh_anchors": 5875,
+        "logged_stall_states": 5875,
+        "metric_code_records": 0,
+        "raw_visual_key_records": 0,
+        "input_archive_records": 0,
+        "replayable": false
+      },
+      {
+        "arm": "r6c_pi05_l10_500_C18",
+        "files": 1,
+        "decisions": 28005,
+        "fresh_anchors": 14323,
+        "logged_stall_states": 14323,
+        "metric_code_records": 0,
+        "raw_visual_key_records": 0,
+        "input_archive_records": 0,
+        "replayable": false
+      },
+      {
+        "arm": "r6c_pi05_l10_50_C30",
+        "files": 1,
+        "decisions": 29111,
+        "fresh_anchors": 15093,
+        "logged_stall_states": 15093,
+        "metric_code_records": 0,
+        "raw_visual_key_records": 0,
+        "input_archive_records": 0,
+        "replayable": false
+      },
+      {
+        "arm": "r6c_pi05_l10_50_C45",
+        "files": 1,
+        "decisions": 28163,
+        "fresh_anchors": 14331,
+        "logged_stall_states": 14331,
+        "metric_code_records": 0,
+        "raw_visual_key_records": 0,
+        "input_archive_records": 0,
+        "replayable": false
+      },
+      {
+        "arm": "r6c_pi05_spatial_500_C18",
+        "files": 1,
+        "decisions": 10506,
+        "fresh_anchors": 5399,
+        "logged_stall_states": 5399,
+        "metric_code_records": 0,
+        "raw_visual_key_records": 0,
+        "input_archive_records": 0,
+        "replayable": false
+      },
+      {
+        "arm": "r6c_pi05_spatial_50_C30",
+        "files": 1,
+        "decisions": 11124,
+        "fresh_anchors": 5818,
+        "logged_stall_states": 5818,
+        "metric_code_records": 0,
+        "raw_visual_key_records": 0,
+        "input_archive_records": 0,
+        "replayable": false
+      },
+      {
+        "arm": "r6c_pi05_spatial_50_C45",
+        "files": 1,
+        "decisions": 10869,
+        "fresh_anchors": 5570,
+        "logged_stall_states": 5570,
+        "metric_code_records": 0,
+        "raw_visual_key_records": 0,
+        "input_archive_records": 0,
+        "replayable": false
+      }
+    ]
+  },
+  "frozen_source_sha256": "8d595cf8e0eafe45e94a59d93095400d35ed2b355f5c4d0ffc10a4620775c0e3"
+}

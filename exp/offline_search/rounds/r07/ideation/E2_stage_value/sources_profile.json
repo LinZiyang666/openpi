@@ -1,0 +1,386 @@
+{
+  "/home/weiland/trace_runs/offline_search_store/library/groot_l10/current/action.npy": {
+    "bytes": 5417088,
+    "mtime_ns": 1790449148619794286
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_l10/current/rs.npy": {
+    "bytes": 84768,
+    "mtime_ns": 1790449148615794283
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_l10/current/episode.npy": {
+    "bytes": 10708,
+    "mtime_ns": 1790449176228817889
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_l10/current/task_id.npy": {
+    "bytes": 5418,
+    "mtime_ns": 1790449176228817889
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_l10/current/step.npy": {
+    "bytes": 5418,
+    "mtime_ns": 1790449176228817889
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_l10/current/progress.npy": {
+    "bytes": 10708,
+    "mtime_ns": 1790449176228817889
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_l10/current/next.npy": {
+    "bytes": 10708,
+    "mtime_ns": 1790449176229817890
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_l10/current/prev.npy": {
+    "bytes": 10708,
+    "mtime_ns": 1790449176228817889
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/tables/groot_l10_50/anchors.csv": {
+    "bytes": 26470192,
+    "mtime_ns": 1790689899502909635
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/tables/groot_l10_50/action_steps.csv": {
+    "bytes": 3342542,
+    "mtime_ns": 1790689899959909641
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all/action.npy": {
+    "bytes": 60684416,
+    "mtime_ns": 1790449450220002374
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all/rs.npy": {
+    "bytes": 948320,
+    "mtime_ns": 1790449449144001795
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all/episode.npy": {
+    "bytes": 118652,
+    "mtime_ns": 1790449455333005113
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all/task_id.npy": {
+    "bytes": 59390,
+    "mtime_ns": 1790449455332005113
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all/step.npy": {
+    "bytes": 59390,
+    "mtime_ns": 1790449455333005113
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all/progress.npy": {
+    "bytes": 118652,
+    "mtime_ns": 1790449455333005113
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all/next.npy": {
+    "bytes": 118652,
+    "mtime_ns": 1790449455334005114
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all/prev.npy": {
+    "bytes": 118652,
+    "mtime_ns": 1790449455334005114
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/tables/groot_l10_500/anchors.csv": {
+    "bytes": 20812655,
+    "mtime_ns": 1790690622260922309
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/tables/groot_l10_500/action_steps.csv": {
+    "bytes": 2673531,
+    "mtime_ns": 1790690622556922316
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/current/action.npy": {
+    "bytes": 2177152,
+    "mtime_ns": 1790449017350665522
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/current/rs.npy": {
+    "bytes": 34144,
+    "mtime_ns": 1790449017348665519
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/current/episode.npy": {
+    "bytes": 4380,
+    "mtime_ns": 1790449025739674652
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/current/task_id.npy": {
+    "bytes": 2254,
+    "mtime_ns": 1790449025738674651
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/current/step.npy": {
+    "bytes": 2254,
+    "mtime_ns": 1790449025739674652
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/current/progress.npy": {
+    "bytes": 4380,
+    "mtime_ns": 1790449025739674652
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/current/next.npy": {
+    "bytes": 4380,
+    "mtime_ns": 1790449025740674653
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/current/prev.npy": {
+    "bytes": 4380,
+    "mtime_ns": 1790449025739674652
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/tables/groot_spatial_50/anchors.csv": {
+    "bytes": 14774042,
+    "mtime_ns": 1790690261474915089
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/tables/groot_spatial_50/action_steps.csv": {
+    "bytes": 1238746,
+    "mtime_ns": 1790690261613915091
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all/action.npy": {
+    "bytes": 24066176,
+    "mtime_ns": 1790449133470780860
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all/rs.npy": {
+    "bytes": 376160,
+    "mtime_ns": 1790449133135780559
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all/episode.npy": {
+    "bytes": 47132,
+    "mtime_ns": 1790449135447782632
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all/task_id.npy": {
+    "bytes": 23630,
+    "mtime_ns": 1790449135447782632
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all/step.npy": {
+    "bytes": 23630,
+    "mtime_ns": 1790449135447782632
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all/progress.npy": {
+    "bytes": 47132,
+    "mtime_ns": 1790449135448782633
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all/next.npy": {
+    "bytes": 47132,
+    "mtime_ns": 1790449135448782633
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all/prev.npy": {
+    "bytes": 47132,
+    "mtime_ns": 1790449135448782633
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/tables/groot_spatial_500/anchors.csv": {
+    "bytes": 13440991,
+    "mtime_ns": 1790690990919930194
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/tables/groot_spatial_500/action_steps.csv": {
+    "bytes": 1143742,
+    "mtime_ns": 1790690991043930197
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/current/action.npy": {
+    "bytes": 3379328,
+    "mtime_ns": 1790449033578683064
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/current/rs.npy": {
+    "bytes": 338048,
+    "mtime_ns": 1790449033578683064
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/current/episode.npy": {
+    "bytes": 10688,
+    "mtime_ns": 1790449041759691721
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/current/task_id.npy": {
+    "bytes": 5408,
+    "mtime_ns": 1790449041759691721
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/current/step.npy": {
+    "bytes": 5408,
+    "mtime_ns": 1790449041759691721
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/current/progress.npy": {
+    "bytes": 10688,
+    "mtime_ns": 1790449041759691721
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/current/next.npy": {
+    "bytes": 10688,
+    "mtime_ns": 1790449041760691722
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/current/prev.npy": {
+    "bytes": 10688,
+    "mtime_ns": 1790449041759691721
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/tables/pi05_l10_50/anchors.csv": {
+    "bytes": 24346508,
+    "mtime_ns": 1790690007742911169
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/tables/pi05_l10_50/action_steps.csv": {
+    "bytes": 1963909,
+    "mtime_ns": 1790690008024911173
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs/action.npy": {
+    "bytes": 37724288,
+    "mtime_ns": 1790450306368277906
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs/rs.npy": {
+    "bytes": 3772544,
+    "mtime_ns": 1790450306368277906
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs/episode.npy": {
+    "bytes": 118016,
+    "mtime_ns": 1790450371921290494
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs/task_id.npy": {
+    "bytes": 59072,
+    "mtime_ns": 1790450371920290494
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs/step.npy": {
+    "bytes": 59072,
+    "mtime_ns": 1790450371921290494
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs/progress.npy": {
+    "bytes": 118016,
+    "mtime_ns": 1790450371921290494
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs/next.npy": {
+    "bytes": 118016,
+    "mtime_ns": 1790450371922290495
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs/prev.npy": {
+    "bytes": 118016,
+    "mtime_ns": 1790450371921290494
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/tables/pi05_l10_500/anchors.csv": {
+    "bytes": 19312281,
+    "mtime_ns": 1790690744286924988
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/tables/pi05_l10_500/action_steps.csv": {
+    "bytes": 1559958,
+    "mtime_ns": 1790690744488924992
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/current/action.npy": {
+    "bytes": 1303168,
+    "mtime_ns": 1790449017570665763
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/current/rs.npy": {
+    "bytes": 130432,
+    "mtime_ns": 1790449017569665762
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/current/episode.npy": {
+    "bytes": 4200,
+    "mtime_ns": 1790449022657671313
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/current/task_id.npy": {
+    "bytes": 2164,
+    "mtime_ns": 1790449022657671313
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/current/step.npy": {
+    "bytes": 2164,
+    "mtime_ns": 1790449022657671313
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/current/progress.npy": {
+    "bytes": 4200,
+    "mtime_ns": 1790449022657671313
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/current/next.npy": {
+    "bytes": 4200,
+    "mtime_ns": 1790449022658671314
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/current/prev.npy": {
+    "bytes": 4200,
+    "mtime_ns": 1790449022657671313
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/tables/pi05_spatial_50/anchors.csv": {
+    "bytes": 16750186,
+    "mtime_ns": 1790690243573914801
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/tables/pi05_spatial_50/action_steps.csv": {
+    "bytes": 875324,
+    "mtime_ns": 1790690243676914802
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs/action.npy": {
+    "bytes": 13963648,
+    "mtime_ns": 1790449728265125259
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs/rs.npy": {
+    "bytes": 1396480,
+    "mtime_ns": 1790449727550125000
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs/episode.npy": {
+    "bytes": 43764,
+    "mtime_ns": 1790449733486127142
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs/task_id.npy": {
+    "bytes": 21946,
+    "mtime_ns": 1790449733486127142
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs/step.npy": {
+    "bytes": 21946,
+    "mtime_ns": 1790449733486127142
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs/progress.npy": {
+    "bytes": 43764,
+    "mtime_ns": 1790449733487127142
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs/next.npy": {
+    "bytes": 43764,
+    "mtime_ns": 1790449733487127142
+  },
+  "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs/prev.npy": {
+    "bytes": 43764,
+    "mtime_ns": 1790449733487127142
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/tables/pi05_spatial_500/anchors.csv": {
+    "bytes": 14389457,
+    "mtime_ns": 1790691022110930837
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/tables/pi05_spatial_500/action_steps.csv": {
+    "bytes": 781743,
+    "mtime_ns": 1790691022233930840
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_p3_pilot/tables/groot_l10_50/anchors.csv": {
+    "bytes": 1433164237,
+    "mtime_ns": 1790663486985927045
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_p3_pilot/tables/groot_l10_50/action_steps.csv": {
+    "bytes": 177595880,
+    "mtime_ns": 1790663507303935104
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_p3_pilot/tables/groot_l10_500/anchors.csv": {
+    "bytes": 1230376648,
+    "mtime_ns": 1790678084266740506
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_p3_pilot/tables/groot_l10_500/action_steps.csv": {
+    "bytes": 154565173,
+    "mtime_ns": 1790678102674743409
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_p3_pilot/tables/groot_sp_50/anchors.csv": {
+    "bytes": 739590939,
+    "mtime_ns": 1790644138458652375
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_p3_pilot/tables/groot_sp_50/action_steps.csv": {
+    "bytes": 60864395,
+    "mtime_ns": 1790644145553660671
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_p3_pilot/tables/groot_sp_500/anchors.csv": {
+    "bytes": 720059410,
+    "mtime_ns": 1790683338023151515
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_p3_pilot/tables/groot_sp_500/action_steps.csv": {
+    "bytes": 59780341,
+    "mtime_ns": 1790683344310152121
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_p3_pilot/tables/pi05_l10_50/anchors.csv": {
+    "bytes": 1186800692,
+    "mtime_ns": 1790640932793882704
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_p3_pilot/tables/pi05_l10_50/action_steps.csv": {
+    "bytes": 95797337,
+    "mtime_ns": 1790640945649888909
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_p3_pilot/tables/pi05_l10_500/anchors.csv": {
+    "bytes": 1079027695,
+    "mtime_ns": 1790666616152983038
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_p3_pilot/tables/pi05_l10_500/action_steps.csv": {
+    "bytes": 87066625,
+    "mtime_ns": 1790666627828987498
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_p3_pilot/tables/pi05_sp_50/anchors.csv": {
+    "bytes": 756283559,
+    "mtime_ns": 1790649359979333030
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_p3_pilot/tables/pi05_sp_50/action_steps.csv": {
+    "bytes": 39314556,
+    "mtime_ns": 1790649365303334169
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_p3_pilot/tables/pi05_sp_500/anchors.csv": {
+    "bytes": 673429575,
+    "mtime_ns": 1790680980205835316
+  },
+  "/home/weiland/trace_runs/os_closed_loop/r06_p3_pilot/tables/pi05_sp_500/action_steps.csv": {
+    "bytes": 35306817,
+    "mtime_ns": 1790680984674837818
+  }
+}

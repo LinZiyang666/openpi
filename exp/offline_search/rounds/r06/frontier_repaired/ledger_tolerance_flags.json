@@ -1,0 +1,37 @@
+{
+  "r6p2_identity_g_l10_500": {
+    "ledger_decisions": 31495,
+    "client_decisions": 31711,
+    "rel_diff": -0.006811516508467093
+  },
+  "r6q2_groot_l10_500_A_dose0p125": {
+    "ledger_decisions": 29628,
+    "client_decisions": 29713,
+    "rel_diff": -0.00286070070339582
+  },
+  "r6q2_groot_l10_50_B_dose0p5": {
+    "ledger_decisions": 30618,
+    "client_decisions": 30880,
+    "rel_diff": -0.008484455958549223
+  },
+  "r6q2_groot_l10_50_risk_rho0p45": {
+    "ledger_decisions": 28908,
+    "client_decisions": 29338,
+    "rel_diff": -0.014656759151953098
+  },
+  "r6q2_pi05_l10_50_risk_rho0p35": {
+    "ledger_decisions": 28861,
+    "client_decisions": 29041,
+    "rel_diff": -0.006198133673082883
+  },
+  "r6q2_pi05_spatial_500_A_dose0p03125": {
+    "ledger_decisions": 10647,
+    "client_decisions": 10634,
+    "rel_diff": 0.0012224938875305623
+  },
+  "r5q1_c10_p_l10_50_rep2": {
+    "ledger_decisions": 30623,
+    "client_decisions": 30711,
+    "rel_diff": -0.0028654228126729834
+  }
+}

@@ -1,0 +1,556 @@
+{
+  "model": "groot",
+  "cell": "sp_50",
+  "library_path": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/current",
+  "fit": "/home/weiland/trace_runs/os_closed_loop/r05_x/fits/r5x_g_sp_50_tail1u.pkl",
+  "horizon": 16,
+  "library_rows": 1063,
+  "library_episodes": 50,
+  "successful_library_episodes": 50,
+  "state_scale": [
+    0.4788923439808899,
+    0.41056782836642924,
+    0.4842015023980073,
+    0.1791067057871328,
+    0.24492260555240405,
+    0.23151150147778407,
+    0.8518528601029558,
+    0.826010070013383
+  ],
+  "calibration": {
+    "q_row95": 0.3216723963651381,
+    "q_episode95": 0.4703490091354604,
+    "anchors": 415,
+    "episodes": 50,
+    "convention": "frozen-fit candidate-LOEO; max 5/10-control displacement error, pooled across tasks"
+  },
+  "library": {
+    "5": {
+      "supported_share": 0.8180147058823529,
+      "n": 445,
+      "delta_q": [
+        0.07139326589400873,
+        0.15730632839813047,
+        0.20664413576574447
+      ],
+      "absolute_q": [
+        0.25770729207590254,
+        0.5290285371258904,
+        0.6028218776530031
+      ],
+      "row95_cumulative_alert": 0.006741573033707865
+    },
+    "10": {
+      "supported_share": 0.7628676470588235,
+      "n": 415,
+      "delta_q": [
+        0.1313917435454608,
+        0.28198598692604676,
+        0.31785702390650833
+      ],
+      "absolute_q": [
+        0.2680671189792663,
+        0.5302568751256563,
+        0.601340962711799
+      ],
+      "row95_cumulative_alert": 0.04819277108433735
+    },
+    "15": {
+      "supported_share": 0.7150735294117647,
+      "n": 389,
+      "delta_q": [
+        0.1878783933752498,
+        0.3914679092122007,
+        0.47066246743092066
+      ],
+      "absolute_q": [
+        0.281410602634797,
+        0.5598270891101205,
+        0.6243517604546943
+      ],
+      "row95_cumulative_alert": 0.19794344473007713
+    },
+    "20": {
+      "supported_share": 0.6838235294117647,
+      "n": 372,
+      "delta_q": [
+        0.24632666466139408,
+        0.4468289215202427,
+        0.5210953368010911
+      ],
+      "absolute_q": [
+        0.2974817329538564,
+        0.5781896692335369,
+        0.6297442730606804
+      ],
+      "row95_cumulative_alert": 0.31451612903225806
+    },
+    "30": {
+      "supported_share": 0.5698529411764706,
+      "n": 310,
+      "delta_q": [
+        0.31923727718424366,
+        0.5418433787686194,
+        0.6404190237551788
+      ],
+      "absolute_q": [
+        0.32811060251583457,
+        0.5936481342332893,
+        0.6834320262723493
+      ],
+      "row95_cumulative_alert": 0.5548387096774193
+    },
+    "40": {
+      "supported_share": 0.48161764705882354,
+      "n": 262,
+      "delta_q": [
+        0.3472429881615855,
+        0.634631643481422,
+        0.7436734161446551
+      ],
+      "absolute_q": [
+        0.3507373354182717,
+        0.6089658764369493,
+        0.6845386217018019
+      ],
+      "row95_cumulative_alert": 0.7442748091603053
+    },
+    "45": {
+      "supported_share": 0.44669117647058826,
+      "n": 243,
+      "delta_q": [
+        0.37847993544722547,
+        0.6729806677468247,
+        0.8101921312933468
+      ],
+      "absolute_q": [
+        0.36858108102368436,
+        0.6232717973021243,
+        0.6826115834031038
+      ],
+      "row95_cumulative_alert": 0.8271604938271605
+    },
+    "60": {
+      "supported_share": 0.2977941176470588,
+      "n": 162,
+      "delta_q": [
+        0.40153229199792545,
+        0.6475799219576692,
+        0.7437422694884691
+      ],
+      "absolute_q": [
+        0.3729543920570488,
+        0.6268392312836961,
+        0.6924512267591505
+      ],
+      "row95_cumulative_alert": 0.9135802469135802
+    }
+  },
+  "tail_successor_mismatch": {
+    "5": {
+      "rms_q": [
+        0.14526952803134918,
+        0.33790596127510075,
+        0.43865489363670346
+      ],
+      "n": 1013,
+      "gripper_sign_mismatch": 0.01125370187561698
+    },
+    "10": {
+      "rms_q": [
+        0.21193723380565643,
+        0.46592296957969676,
+        0.5870871424674987
+      ],
+      "n": 963,
+      "gripper_sign_mismatch": 0.015368639667705089
+    }
+  },
+  "bval": {
+    "episodes": 10,
+    "anchors": 133,
+    "successful_episodes": 8,
+    "by_age": {
+      "5": {
+        "n": 91,
+        "supported_share": 0.6842105263157895,
+        "delta_q": [
+          0.01877652163485209,
+          0.10798228242998029,
+          0.12481666332182183
+        ],
+        "absolute_q": [
+          0.1369940496904129,
+          0.34313230107788695,
+          0.36701605388397074
+        ],
+        "row95_cumulative_alert": 0.0,
+        "row95_alert_success": 0.0,
+        "row95_alert_failure": 0.0,
+        "episode95_cumulative_alert": 0.0,
+        "episode95_alert_success": 0.0,
+        "episode95_alert_failure": 0.0
+      },
+      "10": {
+        "n": 87,
+        "supported_share": 0.6541353383458647,
+        "delta_q": [
+          0.03031991476451138,
+          0.15494378474195244,
+          0.24674671513815802
+        ],
+        "absolute_q": [
+          0.14302663999835805,
+          0.3482286670497399,
+          0.3692086597210609
+        ],
+        "row95_cumulative_alert": 0.022988505747126436,
+        "row95_alert_success": 0.013888888888888888,
+        "row95_alert_failure": 0.06666666666666667,
+        "episode95_cumulative_alert": 0.0,
+        "episode95_alert_success": 0.0,
+        "episode95_alert_failure": 0.0
+      },
+      "15": {
+        "n": 82,
+        "supported_share": 0.6165413533834586,
+        "delta_q": [
+          0.060508237943629785,
+          0.24918963407104938,
+          0.28587292852360735
+        ],
+        "absolute_q": [
+          0.1515442610355181,
+          0.35030545601954166,
+          0.41294431827672196
+        ],
+        "row95_cumulative_alert": 0.04878048780487805,
+        "row95_alert_success": 0.014925373134328358,
+        "row95_alert_failure": 0.2,
+        "episode95_cumulative_alert": 0.0,
+        "episode95_alert_success": 0.0,
+        "episode95_alert_failure": 0.0
+      },
+      "20": {
+        "n": 78,
+        "supported_share": 0.5864661654135338,
+        "delta_q": [
+          0.09485327249243915,
+          0.2958418040473009,
+          0.43023199589791755
+        ],
+        "absolute_q": [
+          0.17406692992610312,
+          0.3985167711940445,
+          0.47732695445721196
+        ],
+        "row95_cumulative_alert": 0.08974358974358974,
+        "row95_alert_success": 0.0625,
+        "row95_alert_failure": 0.21428571428571427,
+        "episode95_cumulative_alert": 0.038461538461538464,
+        "episode95_alert_success": 0.03125,
+        "episode95_alert_failure": 0.07142857142857142
+      },
+      "30": {
+        "n": 65,
+        "supported_share": 0.48872180451127817,
+        "delta_q": [
+          0.1778981158232811,
+          0.36633832499277974,
+          0.4404053803541157
+        ],
+        "absolute_q": [
+          0.22573315475434988,
+          0.42648017557966583,
+          0.45408501216903424
+        ],
+        "row95_cumulative_alert": 0.23076923076923078,
+        "row95_alert_success": 0.19230769230769232,
+        "row95_alert_failure": 0.38461538461538464,
+        "episode95_cumulative_alert": 0.07692307692307693,
+        "episode95_alert_success": 0.038461538461538464,
+        "episode95_alert_failure": 0.23076923076923078
+      },
+      "40": {
+        "n": 55,
+        "supported_share": 0.41353383458646614,
+        "delta_q": [
+          0.21315278516302794,
+          0.4527957717821662,
+          0.4888777199136294
+        ],
+        "absolute_q": [
+          0.26099935992917356,
+          0.4246261520624109,
+          0.4845957330479593
+        ],
+        "row95_cumulative_alert": 0.43636363636363634,
+        "row95_alert_success": 0.38636363636363635,
+        "row95_alert_failure": 0.6363636363636364,
+        "episode95_cumulative_alert": 0.10909090909090909,
+        "episode95_alert_success": 0.045454545454545456,
+        "episode95_alert_failure": 0.36363636363636365
+      },
+      "45": {
+        "n": 50,
+        "supported_share": 0.37593984962406013,
+        "delta_q": [
+          0.25334357441474786,
+          0.5124778348733852,
+          0.5356034269665926
+        ],
+        "absolute_q": [
+          0.26958120782539924,
+          0.48860187415101225,
+          0.5303539176610647
+        ],
+        "row95_cumulative_alert": 0.48,
+        "row95_alert_success": 0.4,
+        "row95_alert_failure": 0.8,
+        "episode95_cumulative_alert": 0.18,
+        "episode95_alert_success": 0.05,
+        "episode95_alert_failure": 0.7
+      },
+      "60": {
+        "n": 36,
+        "supported_share": 0.2706766917293233,
+        "delta_q": [
+          0.2781751665135753,
+          0.536872340938751,
+          0.6123713651540812
+        ],
+        "absolute_q": [
+          0.29766694510842073,
+          0.5206680661692926,
+          0.556206063558999
+        ],
+        "row95_cumulative_alert": 0.7777777777777778,
+        "row95_alert_success": 0.7037037037037037,
+        "row95_alert_failure": 1.0,
+        "episode95_cumulative_alert": 0.3888888888888889,
+        "episode95_alert_success": 0.2222222222222222,
+        "episode95_alert_failure": 0.8888888888888888
+      }
+    },
+    "chunk_boundary_replay": {
+      "10": {
+        "vision_share": 0.5,
+        "alert_looks": 0,
+        "cap_or_end_looks": 123,
+        "looks": 133,
+        "assumed_full_decisions": 266,
+        "caveat": "two decisions per anchor, terminal partial control not corrected"
+      },
+      "20": {
+        "vision_share": 0.3308270676691729,
+        "alert_looks": 1,
+        "cap_or_end_looks": 77,
+        "looks": 88,
+        "assumed_full_decisions": 266,
+        "caveat": "two decisions per anchor, terminal partial control not corrected"
+      },
+      "30": {
+        "vision_share": 0.2556390977443609,
+        "alert_looks": 2,
+        "cap_or_end_looks": 56,
+        "looks": 68,
+        "assumed_full_decisions": 266,
+        "caveat": "two decisions per anchor, terminal partial control not corrected"
+      }
+    }
+  },
+  "p3_A_r0": {
+    "episodes": 20,
+    "anchors": 235,
+    "successful_episodes": 19,
+    "by_age": {
+      "5": {
+        "n": 182,
+        "supported_share": 0.774468085106383,
+        "delta_q": [
+          0.01444066631217581,
+          0.09357882941582299,
+          0.12114004367698089
+        ],
+        "absolute_q": [
+          0.10078870065538453,
+          0.19235103587959682,
+          0.22928309727738233
+        ],
+        "row95_cumulative_alert": 0.005494505494505495,
+        "row95_alert_success": 0.005747126436781609,
+        "row95_alert_failure": 0.0,
+        "episode95_cumulative_alert": 0.0,
+        "episode95_alert_success": 0.0,
+        "episode95_alert_failure": 0.0
+      },
+      "10": {
+        "n": 169,
+        "supported_share": 0.7191489361702128,
+        "delta_q": [
+          0.025957994559929812,
+          0.13509378066040928,
+          0.20513234656028104
+        ],
+        "absolute_q": [
+          0.10268590051224348,
+          0.20826816634486064,
+          0.24961530009115931
+        ],
+        "row95_cumulative_alert": 0.005917159763313609,
+        "row95_alert_success": 0.006211180124223602,
+        "row95_alert_failure": 0.0,
+        "episode95_cumulative_alert": 0.0,
+        "episode95_alert_success": 0.0,
+        "episode95_alert_failure": 0.0
+      },
+      "15": {
+        "n": 165,
+        "supported_share": 0.7021276595744681,
+        "delta_q": [
+          0.04741433938904813,
+          0.16541908501616606,
+          0.23106518419063776
+        ],
+        "absolute_q": [
+          0.10704105730020352,
+          0.21114403049602343,
+          0.2831492475099659
+        ],
+        "row95_cumulative_alert": 0.030303030303030304,
+        "row95_alert_success": 0.03184713375796178,
+        "row95_alert_failure": 0.0,
+        "episode95_cumulative_alert": 0.0,
+        "episode95_alert_success": 0.0,
+        "episode95_alert_failure": 0.0
+      },
+      "20": {
+        "n": 155,
+        "supported_share": 0.6595744680851063,
+        "delta_q": [
+          0.07346757420700945,
+          0.18537815377966596,
+          0.2610427029722739
+        ],
+        "absolute_q": [
+          0.11698925822556151,
+          0.2088864974358234,
+          0.26336299141470204
+        ],
+        "row95_cumulative_alert": 0.04516129032258064,
+        "row95_alert_success": 0.0472972972972973,
+        "row95_alert_failure": 0.0,
+        "episode95_cumulative_alert": 0.0064516129032258064,
+        "episode95_alert_success": 0.006756756756756757,
+        "episode95_alert_failure": 0.0
+      },
+      "30": {
+        "n": 133,
+        "supported_share": 0.5659574468085107,
+        "delta_q": [
+          0.11515720726780153,
+          0.24685709310062529,
+          0.3552074643525173
+        ],
+        "absolute_q": [
+          0.13609082318276614,
+          0.245769733025159,
+          0.3581504908181566
+        ],
+        "row95_cumulative_alert": 0.09022556390977443,
+        "row95_alert_success": 0.09448818897637795,
+        "row95_alert_failure": 0.0,
+        "episode95_cumulative_alert": 0.022556390977443608,
+        "episode95_alert_success": 0.023622047244094488,
+        "episode95_alert_failure": 0.0
+      },
+      "40": {
+        "n": 113,
+        "supported_share": 0.4808510638297872,
+        "delta_q": [
+          0.15238608177408955,
+          0.2816963821255017,
+          0.32812697437159727
+        ],
+        "absolute_q": [
+          0.15678488429772863,
+          0.292234156827582,
+          0.32473717766285454
+        ],
+        "row95_cumulative_alert": 0.13274336283185842,
+        "row95_alert_success": 0.13761467889908258,
+        "row95_alert_failure": 0.0,
+        "episode95_cumulative_alert": 0.02654867256637168,
+        "episode95_alert_success": 0.027522935779816515,
+        "episode95_alert_failure": 0.0
+      },
+      "45": {
+        "n": 100,
+        "supported_share": 0.425531914893617,
+        "delta_q": [
+          0.16698399075364703,
+          0.3481727233156707,
+          0.3795129466738732
+        ],
+        "absolute_q": [
+          0.16139068101668702,
+          0.33577166513457507,
+          0.3823814877540864
+        ],
+        "row95_cumulative_alert": 0.21,
+        "row95_alert_success": 0.21875,
+        "row95_alert_failure": 0.0,
+        "episode95_cumulative_alert": 0.04,
+        "episode95_alert_success": 0.041666666666666664,
+        "episode95_alert_failure": 0.0
+      },
+      "60": {
+        "n": 73,
+        "supported_share": 0.31063829787234043,
+        "delta_q": [
+          0.18071471984315687,
+          0.31509031163279216,
+          0.3342830016262282
+        ],
+        "absolute_q": [
+          0.18446207236001563,
+          0.3058776035907045,
+          0.356708491913279
+        ],
+        "row95_cumulative_alert": 0.3013698630136986,
+        "row95_alert_success": 0.30985915492957744,
+        "row95_alert_failure": 0.0,
+        "episode95_cumulative_alert": 0.0684931506849315,
+        "episode95_alert_success": 0.07042253521126761,
+        "episode95_alert_failure": 0.0
+      }
+    },
+    "chunk_boundary_replay": {
+      "10": {
+        "vision_share": 0.5,
+        "alert_looks": 0,
+        "cap_or_end_looks": 215,
+        "looks": 235,
+        "assumed_full_decisions": 470,
+        "caveat": "two decisions per anchor, terminal partial control not corrected"
+      },
+      "20": {
+        "vision_share": 0.3127659574468085,
+        "alert_looks": 0,
+        "cap_or_end_looks": 127,
+        "looks": 147,
+        "assumed_full_decisions": 470,
+        "caveat": "two decisions per anchor, terminal partial control not corrected"
+      },
+      "30": {
+        "vision_share": 0.23829787234042554,
+        "alert_looks": 3,
+        "cap_or_end_looks": 89,
+        "looks": 112,
+        "assumed_full_decisions": 470,
+        "caveat": "two decisions per anchor, terminal partial control not corrected"
+      }
+    }
+  },
+  "elapsed_s": 1.4595615863800049
+}

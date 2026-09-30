@@ -1,0 +1,370 @@
+{
+ "groot_l10_50": {
+  "options": 27,
+  "flagged_arm_level_ir": 3,
+  "pure": "r05_q2/r5q2_g_l10_policy_L10",
+  "pure_SR": 0.866,
+  "in_sample": {
+   "SR": 0.866,
+   "IR": 0.2434170629755,
+   "plan": [
+    "r06_frontier/r6q2_groot_l10_50_risk_rho0p45",
+    "r06_abl/r6p2_direct_g_l10_50",
+    "r06_paper/r5x_g_l10_50_tail1u_rep2",
+    "r06_abl/r6p2_direct_g_l10_50",
+    "r06_frontier/r6q2_groot_l10_50_CycleTail_k2",
+    "r06_abl/r6p2_no_progress_g_l10_50",
+    "r06_frontier/r6q2_groot_l10_50_B_dose0p5",
+    "r05_q2/r5q2_g_l10_policy_L10",
+    "r06_paper/r5x_g_l10_50_tail1u_rep2",
+    "r06_frontier/r6q2_groot_l10_50_B_dose0p75"
+   ]
+  },
+  "best_single": [
+   0.45297869101978694,
+   0.868,
+   "r06_frontier/r6q2_groot_l10_50_risk_rho0p45"
+  ],
+  "cv": {
+   "SR": 0.746,
+   "IR": 0.19879238500218804,
+   "pure_SR": 0.866,
+   "n_halves": 2
+  },
+  "cheapest_cache_arm": "r06_paper/r5x_g_l10_50_tail1u_rep2",
+  "per_task_gap_pure_minus_cache": [
+   32.0,
+   10.0,
+   -1.0,
+   5.0,
+   11.0,
+   -2.0,
+   10.0,
+   26.0,
+   -6.0,
+   39.0
+  ]
+ },
+ "groot_l10_500": {
+  "options": 22,
+  "flagged_arm_level_ir": 4,
+  "pure": "r05_q2/r5q2_g_l10_policy_L10",
+  "pure_SR": 0.866,
+  "in_sample": {
+   "SR": 0.866,
+   "IR": 0.06456709088128035,
+   "plan": [
+    "r06_abl/r6p2_direct_g_l10_500",
+    "r04_gblind/r4b3_g_l10_500_tail2u",
+    "r06_abl/r6p2_identity_g_l10_500",
+    "r04_gblind/r4b3_g_l10_500_tail2u",
+    "r06_abl/r6p2_direct_g_l10_500",
+    "r04_gblind/r4b3_g_l10_500_ph2",
+    "r05_x/r5x_g_l10_500_tail1u",
+    "r06_abl/r6p2_direct_g_l10_500",
+    "r04_gblind/r4b3_g_l10_500_tail2u",
+    "r04_gblind/r4b3_g_l10_500_tail2u"
+   ]
+  },
+  "best_single": [
+   0.18199747840650043,
+   0.866,
+   "r06_c_validation/r6c_groot_l10_500_C18"
+  ],
+  "cv": {
+   "SR": 0.822,
+   "IR": 0.06263586181546599,
+   "pure_SR": 0.866,
+   "n_halves": 2
+  },
+  "cheapest_cache_arm": "r06_paper/r5x_g_l10_500_tail1u_rep2",
+  "per_task_gap_pure_minus_cache": [
+   17.0,
+   1.0,
+   -1.0,
+   -1.0,
+   -4.0,
+   -3.0,
+   -4.0,
+   8.0,
+   2.0,
+   2.0
+  ]
+ },
+ "groot_spatial_50": {
+  "options": 28,
+  "flagged_arm_level_ir": 2,
+  "pure": "r05_q2/r5q2_g_spatial_policy_L10",
+  "pure_SR": 0.938,
+  "in_sample": {
+   "SR": 0.938,
+   "IR": 0.06121585638801978,
+   "plan": [
+    "r04_gblind/r4b3_g_sp_50_tail2u",
+    "r04_gblind/r4b3_g_sp_50_tail2u",
+    "r04_gblind/r4b3_g_sp_50_tail2u",
+    "r04_gblind/r4b3_g_sp_50_tail2u",
+    "r06_abl/r6p2_identity_g_sp_50",
+    "r06_abl/r6p2_identity_g_sp_50",
+    "r04_gblind/r4b3_g_sp_50_tail2u",
+    "r04_gblind/r4b3_g_sp_50_ph2",
+    "r06_abl/r6p2_direct_g_sp_50",
+    "r04_gblind/r4b3_g_sp_50_tail2u"
+   ]
+  },
+  "best_single": [
+   0.2983364691197047,
+   0.94,
+   "r06_c_validation/r6c_groot_spatial_50_C30"
+  ],
+  "cv": {
+   "SR": 0.91,
+   "IR": 0.058893816066866195,
+   "pure_SR": 0.938,
+   "n_halves": 2
+  },
+  "cheapest_cache_arm": "r06_abl/r6p2_direct_g_sp_50",
+  "per_task_gap_pure_minus_cache": [
+   4.0,
+   -1.0,
+   6.0,
+   3.0,
+   -1.0,
+   2.0,
+   0.0,
+   -1.0,
+   -2.0,
+   4.0
+  ]
+ },
+ "groot_spatial_500": {
+  "options": 21,
+  "flagged_arm_level_ir": 2,
+  "pure": "r05_q2/r5q2_g_spatial_policy_L10",
+  "pure_SR": 0.938,
+  "in_sample": {
+   "SR": 0.946,
+   "IR": 0.05178340431036973,
+   "plan": [
+    "r06_frontier/r6q2_groot_spatial_500_A15_confirmation",
+    "r04_gblind/r4b3_g_sp_500_tail2u",
+    "r04_gblind/r4b3_g_sp_500_tail2u",
+    "r04_gblind/r4b3_g_sp_500_tail2u",
+    "r04_gblind/r4b3_g_sp_500_tail2u",
+    "r04_gblind/r4b3_g_sp_500_tail2u",
+    "r04_gblind/r4b3_g_sp_500_tail2u",
+    "r04_gblind/r4b3_g_sp_500_tail2u",
+    "r04_gblind/r4b3_g_sp_500_tail2u",
+    "r04_gblind/r4b3_g_sp_500_tail2u"
+   ]
+  },
+  "best_single": [
+   0.05178804744026773,
+   0.946,
+   "r06_frontier/r6q2_groot_spatial_500_A15_confirmation"
+  ],
+  "cv": {
+   "SR": 0.946,
+   "IR": 0.051797410262950254,
+   "pure_SR": 0.938,
+   "n_halves": 2
+  },
+  "cheapest_cache_arm": "r04_gblind/r4b3_g_sp_500_ph2",
+  "per_task_gap_pure_minus_cache": [
+   2.0,
+   -1.0,
+   0.0,
+   -4.0,
+   -7.0,
+   0.0,
+   1.0,
+   -5.0,
+   -2.0,
+   -3.0
+  ]
+ },
+ "pi05_l10_50": {
+  "options": 40,
+  "flagged_arm_level_ir": 9,
+  "pure": "r04_cost/r4f_p_l10_inf_k10_L10",
+  "pure_SR": 0.904,
+  "in_sample": {
+   "SR": 0.904,
+   "IR": 0.14431611683875323,
+   "plan": [
+    "r06_frontier/r6q2_pi05_l10_50_B_dose0p5",
+    "r05_q1/r5q1_c10_p_l10_50",
+    "r06_abl/r6p2_identity_p_l10_50",
+    "r06_paper/r5t_p_l10_50_tail1uc_rep3",
+    "r05_ptail/r5t_p_l10_50_tail1uc",
+    "r06_paper/r5t_p_l10_50_tail1uc_rep3",
+    "r05_q1/r5q1_c10_p_l10_50",
+    "r06_abl/r6p2_stuck_p_l10_50",
+    "r06_paper/r5q1_c10_p_l10_50_rep3",
+    "r05_q6/r5q6_p_l10_50_tail"
+   ]
+  },
+  "best_single": [
+   0.5,
+   0.904,
+   "r04_cost/r4f_p_l10_inf_k10_L10"
+  ],
+  "cv": {
+   "SR": 0.828,
+   "IR": 0.1313482296559435,
+   "pure_SR": 0.904,
+   "n_halves": 2
+  },
+  "cheapest_cache_arm": "r06_paper/r5t_p_l10_50_tail1uc_rep3",
+  "per_task_gap_pure_minus_cache": [
+   32.0,
+   6.0,
+   0.0,
+   -4.0,
+   16.0,
+   -3.0,
+   19.0,
+   17.0,
+   -6.0,
+   12.0
+  ]
+ },
+ "pi05_l10_500": {
+  "options": 46,
+  "flagged_arm_level_ir": 9,
+  "pure": "r04_cost/r4f_p_l10_inf_k10_L10",
+  "pure_SR": 0.904,
+  "in_sample": {
+   "SR": 0.904,
+   "IR": 0.10082047884367876,
+   "plan": [
+    "r05_b1/r5b_p_l10_500_hand",
+    "r05_q1/r5q1_d1_p_l10_500",
+    "r06_abl/r6p2_identity_p_l10_500",
+    "r06_paper/r5t_p_l10_500_tail1uc_rep3",
+    "r06_c_validation/r6c_pi05_l10_500_C18",
+    "r05_ptail/r5t_p_l10_500_tail1uc",
+    "r05_ptail/r5t_p_l10_500_tail1uc",
+    "r06_paper/r5t_p_l10_500_tail1uc_rep3",
+    "r06_paper/r5t_p_l10_500_tail1uc_rep3",
+    "r06_abl/r6p2_direct_p_l10_500"
+   ]
+  },
+  "best_single": [
+   0.19247935623885543,
+   0.906,
+   "r05_b1/r5b_p_l10_500_hand"
+  ],
+  "cv": {
+   "SR": 0.854,
+   "IR": 0.09060950273235585,
+   "pure_SR": 0.904,
+   "n_halves": 2
+  },
+  "cheapest_cache_arm": "r06_abl/r6p2_direct_p_l10_500",
+  "per_task_gap_pure_minus_cache": [
+   8.0,
+   4.0,
+   -1.0,
+   1.0,
+   9.0,
+   -3.0,
+   13.0,
+   5.0,
+   -10.0,
+   3.0
+  ]
+ },
+ "pi05_spatial_50": {
+  "options": 32,
+  "flagged_arm_level_ir": 4,
+  "pure": "r04_cost/r4f_p_sp_inf_k10_L10",
+  "pure_SR": 0.986,
+  "in_sample": {
+   "SR": 0.986,
+   "IR": 0.16015606913727423,
+   "plan": [
+    "r04_k7/r4k7_p_sp_50_tail1ug",
+    "r05_q6/r5q6_p_spatial_50_tail",
+    "r06_paper/r5t_p_sp_50_tail1uc_rep2",
+    "r06_paper/r5t_p_sp_50_tail1uc_rep2",
+    "r05_ptail/r5t_p_sp_g50_wrist_rep",
+    "r06_paper/r5q1_c10_p_sp_50_rep3",
+    "r06_frontier/r6q2_pi05_spatial_50_risk_rho0p45",
+    "r06_method/r6p5_bmech_p_sp_50",
+    "r06_abl/r6p2_identity_p_sp_50",
+    "r04_b4w/r4b4_p_sp_g50_wrist"
+   ]
+  },
+  "best_single": [
+   0.44538683477454616,
+   0.986,
+   "r06_frontier/r6q2_pi05_spatial_50_risk_rho0p45"
+  ],
+  "cv": {
+   "SR": 0.946,
+   "IR": 0.14328094880971878,
+   "pure_SR": 0.986,
+   "n_halves": 2
+  },
+  "cheapest_cache_arm": "r06_paper/r5t_p_sp_50_tail1uc_rep2",
+  "per_task_gap_pure_minus_cache": [
+   3.0,
+   7.0,
+   0.0,
+   0.0,
+   9.0,
+   2.0,
+   34.0,
+   1.0,
+   7.0,
+   8.0
+  ]
+ },
+ "pi05_spatial_500": {
+  "options": 26,
+  "flagged_arm_level_ir": 5,
+  "pure": "r04_cost/r4f_p_sp_inf_k10_L10",
+  "pure_SR": 0.986,
+  "in_sample": {
+   "SR": 0.986,
+   "IR": 0.07772652453829103,
+   "plan": [
+    "r04_blind/r4b3_p_sp_500_tail1uc",
+    "r04_blind/r4b3_p_sp_500_ph2c",
+    "r06_abl/r6p2_direct_p_sp_500",
+    "r06_abl/r6p2_identity_p_sp_500",
+    "r04_blind/r4b3_p_sp_500_ph2c",
+    "r04_blind/r4b3_p_sp_500_tail1uc",
+    "r06_paper/r4b3_p_sp_500_tail1uc_rep3",
+    "r06_paper/r4b3_p_sp_500_tail1uc_rep2",
+    "r04_blind/r4b3_p_sp_500_tail1uc",
+    "r06_paper/r4b3_p_sp_500_tail1uc_rep3"
+   ]
+  },
+  "best_single": [
+   0.11947184718348051,
+   0.986,
+   "r06_paper/r5q1_c10_p_sp_500_rep3"
+  ],
+  "cv": {
+   "SR": 0.962,
+   "IR": 0.07842841622964192,
+   "pure_SR": 0.986,
+   "n_halves": 2
+  },
+  "cheapest_cache_arm": "r04_blind/r4b3_p_sp_500_tail1uc",
+  "per_task_gap_pure_minus_cache": [
+   2.0,
+   0.0,
+   0.0,
+   2.0,
+   -2.0,
+   -2.0,
+   0.0,
+   0.0,
+   -2.0,
+   4.0
+  ]
+ }
+}

@@ -1,0 +1,25 @@
+{
+  "scope": "R7 E1 exploratory analysis; no serving implementation",
+  "checks": {
+    "cells": 8,
+    "successful_library_episodes": 2005,
+    "successful_library_rows": 72373,
+    "p3_A_episodes": 480,
+    "p3_A_anchors": 10691,
+    "proposal_lines": 205,
+    "local_links_exist": true,
+    "labels_cover_successful_rows_only": true
+  },
+  "sha256": {
+    "analyze_stages.py": "cfee9fdec476c846a97c65d063730ed314eb798acb9c4b2b3759b3d6a2612154",
+    "check_telemetry.py": "4fc397314da5722e2c2ff072ecae7bd100ea0acbe1364725a94ea73c73e8d71f",
+    "summarize_evidence.py": "5f483f5cbe9dcb19718317d7478d63b2d770bdcdee1f6ea5294866d88eb275a4",
+    "run_analysis.sh": "14ec05e4b86c8e49044945b409b3741f0161667f495c77ca624e04c40b43129b",
+    "PROPOSAL.md": "790d8fbd6a0bc22a34c38e6ef5f669ecaae9ffa872ef95ac07de21215aea6d32"
+  },
+  "source_roots": [
+    "/home/weiland/trace_runs/offline_search_store/library",
+    "/home/weiland/trace_runs/os_closed_loop/r06_p3_pilot/tables",
+    "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/tables"
+  ]
+}

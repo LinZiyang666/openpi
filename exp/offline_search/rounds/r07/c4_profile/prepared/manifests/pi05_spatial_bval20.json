@@ -1,0 +1,115 @@
+{
+ "role": "NONTEST_BVAL",
+ "purpose": "R7_PROFILE",
+ "model": "pi05",
+ "suite": "spatial",
+ "pool_sha256": "f35ae5439028a3cf5279271b34db2b58a0ad842b53f58e7162ef17de5840d478",
+ "pool_record": "<RUN>/manifests/bval_pool_spatial.yaml",
+ "pool_directory": "/scratch/zixuans8/openpi_trace/exp/common/data/db_init/libero/libero_spatial",
+ "split_sha256": "647c5f73da6b534a6644b215db9d8b4d678e10d9d8709722ce09a101b731d07d",
+ "prior_calibration_manifest": "/home/weiland/projects/openpi/exp/offline_search/rounds/r06/ideation_Q1/method_c/calibration_manifest_pi05_spatial_50.json",
+ "prior_calibration_manifest_sha256": "5b39a95fe7d6b37e79c856c1ae7a967444e136b980739015c19cb2bda62bf3ba",
+ "selection_rule": "lowest two frozen B-val indices/task excluding the R6 lowest-index calibration state; no outcomes consulted",
+ "selected": [
+  {
+   "task": 0,
+   "init": 17,
+   "state_sha256": "1226dc8e2ea52ad52de7d6c0928951fc86be526240164f9753dc4f7e73f919b6"
+  },
+  {
+   "task": 0,
+   "init": 32,
+   "state_sha256": "8888abf50f916f5f49dbf9a90fac66731acc7f59a193214500a0ef21c3c94d11"
+  },
+  {
+   "task": 1,
+   "init": 7,
+   "state_sha256": "47d040e0799d730e0232e213fd3536dc3780b57066f88f0504052e8d89f5e4f8"
+  },
+  {
+   "task": 1,
+   "init": 24,
+   "state_sha256": "7a7d82a83b3461aed509f6b6deacced1551e81c2456044503bfc0f2d6bbe9720"
+  },
+  {
+   "task": 2,
+   "init": 7,
+   "state_sha256": "7aa94165c7f866dafbd83087ab39c0040d9d840b826fc95c02677a07cc40835c"
+  },
+  {
+   "task": 2,
+   "init": 10,
+   "state_sha256": "d8e821cf984f17540a172887632843d8973a0176886d6b19ae26faeb536ea67a"
+  },
+  {
+   "task": 3,
+   "init": 16,
+   "state_sha256": "579c836a8676dcdc235c6cdccc731eb61b792fb632b1de9effccc1cfe800a4f0"
+  },
+  {
+   "task": 3,
+   "init": 27,
+   "state_sha256": "a36ced9bb9a474ddf6db524e0e0959adde74d099a691b8429bfb33ff22a1bc50"
+  },
+  {
+   "task": 4,
+   "init": 16,
+   "state_sha256": "44cd989886f7a0dcb5ca2f9d87fd6d207463aab1b8ecc8b6e531c99a133eec15"
+  },
+  {
+   "task": 4,
+   "init": 20,
+   "state_sha256": "20ba070d6c8c5492721baebd5bd56857aff03e2fb6d13840488624a29f5e5b9e"
+  },
+  {
+   "task": 5,
+   "init": 10,
+   "state_sha256": "7e1836c8129727694b493d7dfe5eb43f823f25429cda956c18efc8a418b9fba2"
+  },
+  {
+   "task": 5,
+   "init": 32,
+   "state_sha256": "2a42819e397492a668f67cee5e35a9aba43970059d9ce7f906ff9423e6b1d59c"
+  },
+  {
+   "task": 6,
+   "init": 14,
+   "state_sha256": "e0fc397893f0f3eaeb83682239c1ca95ec1f137883d941fbe3d1452a0f02a35b"
+  },
+  {
+   "task": 6,
+   "init": 15,
+   "state_sha256": "15995cdde9588cb7637a800a269f86e5c679df2c0b120aa2d0d5a20d5ad0abdd"
+  },
+  {
+   "task": 7,
+   "init": 11,
+   "state_sha256": "429f9f05bb0f24565d654fb471f099b9903d4ee5968d7449b3faf6db1bbaff9c"
+  },
+  {
+   "task": 7,
+   "init": 15,
+   "state_sha256": "20ca85e18ebb6ee74d5e5cf6fd122f8e3eb1c0b8d97b42f74b10ffaa40143228"
+  },
+  {
+   "task": 8,
+   "init": 10,
+   "state_sha256": "6d91a775f419eb6ddd1037d0a288e0664bf1b587be31f741549d40da8a9b44f2"
+  },
+  {
+   "task": 8,
+   "init": 15,
+   "state_sha256": "6872c3c4f0a26d0b3de6125cd3c56f864411dd7b2214c0d5769f48ba33097ff7"
+  },
+  {
+   "task": 9,
+   "init": 12,
+   "state_sha256": "b8d24f0a2b7ee8e343594324b37707dadea1fabeff24d53aaf166b421c4a9916"
+  },
+  {
+   "task": 9,
+   "init": 22,
+   "state_sha256": "4b91671371ff38f4272941b582b88cff411e5b85521374468e1005a6f86ac8e4"
+  }
+ ]
+}

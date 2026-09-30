@@ -1,0 +1,185 @@
+{
+  "status": "PASS",
+  "owned_root": "/home/weiland/projects/openpi/exp/offline_search/rounds/r07/c3_calls",
+  "scratch": "/tmp/r7_C3",
+  "shared_file_installs": [],
+  "files": [
+    {
+      "path": "COMPOSITION.md",
+      "sha256": "caf74811ff320763aa3ba9b0426103d1242b0c8d6052bc3c4fc70d9a04a5cf0c",
+      "bytes": 2956
+    },
+    {
+      "path": "__init__.py",
+      "sha256": "7c6c4ee77eb8c20a15f17410fac56381b5fedfe304acd602a5aeaed9a85ce73e",
+      "bytes": 71
+    },
+    {
+      "path": "arms_eval500.json",
+      "sha256": "a1128b258c955c5419e6d444daa11f85b28425562431de2d452d675905739d43",
+      "bytes": 8335
+    },
+    {
+      "path": "arms_profile.json",
+      "sha256": "cfc788d870645529ac14ddba30984e438a52328664b68061bacec082b1c6d74c",
+      "bytes": 8915
+    },
+    {
+      "path": "build_handback.py",
+      "sha256": "0de137ba4dc523ba0f9370d2cfcf09f5b228c711688c8a0a43027a43b5f6368a",
+      "bytes": 19720
+    },
+    {
+      "path": "calibrate.py",
+      "sha256": "7afb06f56890f99ea93e289d4604884c124e99377398eddb0bd352eabd9473a0",
+      "bytes": 7467
+    },
+    {
+      "path": "calibration_feasibility.json",
+      "sha256": "9517dfb252566033cc7baac283af2bfdae93ea6c6534ae80a836c43d6e1342c3",
+      "bytes": 12852
+    },
+    {
+      "path": "common.py",
+      "sha256": "c0d3f7e6e2e6177361af0d0b50cbbac5a97ea90c116d87407271177d26336942",
+      "bytes": 671
+    },
+    {
+      "path": "composition.py",
+      "sha256": "893081ae8c650dd8c020c3536ef166248ac839ea511ed3767b81e128a82ee563",
+      "bytes": 1770
+    },
+    {
+      "path": "integration.json",
+      "sha256": "dc5814a3e83ed54f64ad53876bb1476e2ccbcc1f591f5b2344150bd082f23213",
+      "bytes": 194
+    },
+    {
+      "path": "integration.py",
+      "sha256": "8f948bbff8dee4069269c09370b606cf86a915d3bf4cf4abdd04dd25d301d3d0",
+      "bytes": 1395
+    },
+    {
+      "path": "methods.py",
+      "sha256": "91d3b43b9a3083b83f0af44e3a2bb49bcf39c786db83f04ff4be65e88a7f3f70",
+      "bytes": 6092
+    },
+    {
+      "path": "package.py",
+      "sha256": "7a881d37ad84eeb36b3d5ae1eed587d9f6a07da69084dadf5e6789ff5fcb7fda",
+      "bytes": 5777
+    },
+    {
+      "path": "package_manifest.json",
+      "sha256": "5924fa74365e9e62fe32d2a9038531d8508e6a4ad69a56c0894ff45e29c1abe9",
+      "bytes": 1149
+    },
+    {
+      "path": "plugin_replay.py",
+      "sha256": "e0b48bfe98110aafd3ad1d488c9763ebc23493cc4c7547b6fc06afb850ceb2c2",
+      "bytes": 6848
+    },
+    {
+      "path": "prefit_commands.sh",
+      "sha256": "19bfd61ae5426436004aa3a6f2510d7dd33107b2be9e181a55465855bdd55ca0",
+      "bytes": 6072
+    },
+    {
+      "path": "prefit_manifest.json",
+      "sha256": "6f5fb19e7860751e8ea9194c6c09ea0c95264833555cdbc80d1473e1aa2c5bb5",
+      "bytes": 4263
+    },
+    {
+      "path": "recordings.py",
+      "sha256": "67414bbd1d4e278636bae69c2e6be33f8faf16183a19190126e6b7706c5e9b8c",
+      "bytes": 3715
+    },
+    {
+      "path": "replay.py",
+      "sha256": "426c032fec3a392c3b20fcd1a23c6b4058e0ec7bd09c4baf0921ecdb4512683d",
+      "bytes": 11900
+    },
+    {
+      "path": "test_calls.py",
+      "sha256": "bb553fce6a92fc4cc17b5f90be313812c11b8c9ba5718bbc03c40a5926c0c2f2",
+      "bytes": 6751
+    },
+    {
+      "path": "tilt.py",
+      "sha256": "3913801f2920e6616a9ac5d1bcd556359955d0e2d4b08f0cb5fc1fce09d15d24",
+      "bytes": 3600
+    },
+    {
+      "path": "verification.json",
+      "sha256": "bf02a823ace211993439625eb6d2357f5197906ef7af1366739a621c878046e9",
+      "bytes": 22729
+    },
+    {
+      "path": "verify.py",
+      "sha256": "5c2f36e069430e217393d49ecbfa818f0af85a7f6b3b95d9b55a1ad57d7f5090",
+      "bytes": 6979
+    },
+    {
+      "path": "HANDBACK.md",
+      "sha256": "9034ff8e0b59336ba114ba7f2a36b85b71af6a3fff700768c83309f9f8c944fc",
+      "bytes": 21516
+    },
+    {
+      "path": "artifact_manifest.json",
+      "sha256": "560fa880df6c12a578b17f45e03cb0b6f36b533e90c608b3e233ee171151dd5b",
+      "bytes": 8951
+    }
+  ],
+  "read_only_dependencies": [
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r07/stages/stages.py",
+      "sha256": "ad6ee8015370b111f1a337b667c07ac7bad20573217d39cc7e4a353e75e99e06"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r07/stages/STAGES_API.md",
+      "sha256": "89c16a94420bcfda24ab90a0a5699873f5510c163b5c4fefdb670dfc3447e0c9"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r07/c1_follow/methods.py",
+      "sha256": "1d8739b53cafffb3eacf097c79bb174d8dd9019e9b3b86f9727d7ffbdd727a9a"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r06/ideation_Q1/method_c/methods.py",
+      "sha256": "c284b5413a377654e819be72ef6a4a28b0f2042a866f04aaf54b7cea78da1626"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r06/ideation_Q1/method_c/budget.py",
+      "sha256": "444a6227cde86771d7acdf3eeedcfd450600e6032a1f9cf1c163db6debf09d93"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r06/ideation_Q1/method_c/fit_calibration.py",
+      "sha256": "48d100a82fb1d859fc9f1d1345422a92797ba16228cad87bc4c0b122447a94c0"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r06/ideation_Q1/method_c/stall_bridge.py",
+      "sha256": "6cf0a49430aa0f1e7d35523cc34ca3f7ce2fa77b277ebc12cfb48c2ea4a41f88"
+    }
+  ],
+  "original_calibrations": [
+    {
+      "cell": "pi05_l10_50",
+      "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/cal/pi05_l10_50/calibrated/calibration.json",
+      "sha256": "2ba1b27aaba93dbdbe50119b37769e653fe990777ba38e508f222838bf74e004"
+    },
+    {
+      "cell": "pi05_spatial_50",
+      "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/cal/pi05_spatial_50/calibrated/calibration.json",
+      "sha256": "7ba293b52830911c81b7d18b35145836b92d49bd6bc0bc75ecfc8e54fae2c8ce"
+    },
+    {
+      "cell": "groot_l10_50",
+      "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/cal/groot_l10_50/calibrated/calibration.json",
+      "sha256": "348a1ded7dba70f43585cba547e9a3717904b8c8417e3062670004513c5abedf"
+    },
+    {
+      "cell": "groot_spatial_50",
+      "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/cal/groot_spatial_50/calibrated/calibration.json",
+      "sha256": "442fbf1f27fa88e9b6f7aa0861fb609f72d0026c466a6ddf80e758b97b5b6e78"
+    }
+  ]
+}

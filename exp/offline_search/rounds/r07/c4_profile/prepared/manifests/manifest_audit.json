@@ -1,0 +1,236 @@
+{
+ "l10": {
+  "tasks": [
+   {
+    "task": 0,
+    "selected": [
+     15,
+     32
+    ],
+    "excluded_r6": 8,
+    "B_pool_count": 50,
+    "test_pool_count": 50,
+    "identical_states": 0
+   },
+   {
+    "task": 1,
+    "selected": [
+     9,
+     26
+    ],
+    "excluded_r6": 8,
+    "B_pool_count": 50,
+    "test_pool_count": 50,
+    "identical_states": 0
+   },
+   {
+    "task": 2,
+    "selected": [
+     6,
+     9
+    ],
+    "excluded_r6": 4,
+    "B_pool_count": 50,
+    "test_pool_count": 50,
+    "identical_states": 0
+   },
+   {
+    "task": 3,
+    "selected": [
+     18,
+     28
+    ],
+    "excluded_r6": 2,
+    "B_pool_count": 50,
+    "test_pool_count": 50,
+    "identical_states": 0
+   },
+   {
+    "task": 4,
+    "selected": [
+     15,
+     20
+    ],
+    "excluded_r6": 9,
+    "B_pool_count": 50,
+    "test_pool_count": 50,
+    "identical_states": 0
+   },
+   {
+    "task": 5,
+    "selected": [
+     10,
+     33
+    ],
+    "excluded_r6": 9,
+    "B_pool_count": 50,
+    "test_pool_count": 50,
+    "identical_states": 0
+   },
+   {
+    "task": 6,
+    "selected": [
+     17,
+     18
+    ],
+    "excluded_r6": 11,
+    "B_pool_count": 50,
+    "test_pool_count": 50,
+    "identical_states": 0
+   },
+   {
+    "task": 7,
+    "selected": [
+     11,
+     15
+    ],
+    "excluded_r6": 0,
+    "B_pool_count": 50,
+    "test_pool_count": 50,
+    "identical_states": 0
+   },
+   {
+    "task": 8,
+    "selected": [
+     10,
+     13
+    ],
+    "excluded_r6": 9,
+    "B_pool_count": 50,
+    "test_pool_count": 50,
+    "identical_states": 0
+   },
+   {
+    "task": 9,
+    "selected": [
+     11,
+     22
+    ],
+    "excluded_r6": 2,
+    "B_pool_count": 50,
+    "test_pool_count": 50,
+    "identical_states": 0
+   }
+  ],
+  "selected_pairs": 20,
+  "record_sha256": "29f54ac94e8ec3dd92ba8d63918d926a2a8c25ba9fb0e9080a10bf946628921e",
+  "dense_library_note": "These B states were library acquisition states in dense banks. Ordinary deployment bank retained; PROFILE is plumbing/allocation screening, not an independent library-generalization test."
+ },
+ "spatial": {
+  "tasks": [
+   {
+    "task": 0,
+    "selected": [
+     17,
+     32
+    ],
+    "excluded_r6": 9,
+    "B_pool_count": 50,
+    "test_pool_count": 50,
+    "identical_states": 0
+   },
+   {
+    "task": 1,
+    "selected": [
+     7,
+     24
+    ],
+    "excluded_r6": 6,
+    "B_pool_count": 50,
+    "test_pool_count": 50,
+    "identical_states": 0
+   },
+   {
+    "task": 2,
+    "selected": [
+     7,
+     10
+    ],
+    "excluded_r6": 5,
+    "B_pool_count": 50,
+    "test_pool_count": 50,
+    "identical_states": 0
+   },
+   {
+    "task": 3,
+    "selected": [
+     16,
+     27
+    ],
+    "excluded_r6": 0,
+    "B_pool_count": 50,
+    "test_pool_count": 50,
+    "identical_states": 0
+   },
+   {
+    "task": 4,
+    "selected": [
+     16,
+     20
+    ],
+    "excluded_r6": 11,
+    "B_pool_count": 50,
+    "test_pool_count": 50,
+    "identical_states": 0
+   },
+   {
+    "task": 5,
+    "selected": [
+     10,
+     32
+    ],
+    "excluded_r6": 9,
+    "B_pool_count": 50,
+    "test_pool_count": 50,
+    "identical_states": 0
+   },
+   {
+    "task": 6,
+    "selected": [
+     14,
+     15
+    ],
+    "excluded_r6": 9,
+    "B_pool_count": 50,
+    "test_pool_count": 50,
+    "identical_states": 0
+   },
+   {
+    "task": 7,
+    "selected": [
+     11,
+     15
+    ],
+    "excluded_r6": 0,
+    "B_pool_count": 50,
+    "test_pool_count": 50,
+    "identical_states": 0
+   },
+   {
+    "task": 8,
+    "selected": [
+     10,
+     15
+    ],
+    "excluded_r6": 9,
+    "B_pool_count": 50,
+    "test_pool_count": 50,
+    "identical_states": 0
+   },
+   {
+    "task": 9,
+    "selected": [
+     12,
+     22
+    ],
+    "excluded_r6": 2,
+    "B_pool_count": 50,
+    "test_pool_count": 50,
+    "identical_states": 0
+   }
+  ],
+  "selected_pairs": 20,
+  "record_sha256": "f14a67a6be0dba6f87febfdbf88009fa58ffc893538951b7fd2e28e007c3dcac",
+  "dense_library_note": "These B states were library acquisition states in dense banks. Ordinary deployment bank retained; PROFILE is plumbing/allocation screening, not an independent library-generalization test."
+ }
+}

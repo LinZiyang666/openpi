@@ -1,0 +1,106 @@
+{
+  "pi05_l10_50": {
+    "source_arm": "r05_ptail/r5t_p_l10_50_tail1uc",
+    "source_spec": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "source_kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only"
+    },
+    "source_artifact": "/home/weiland/trace_runs/os_closed_loop/r05_ptail/fits/r5t_p_l10_50_tail1uc.pkl",
+    "target_changes": true
+  },
+  "pi05_l10_500": {
+    "source_arm": "r05_ptail/r5t_p_l10_500_tail1uc",
+    "source_spec": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "source_kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only"
+    },
+    "source_artifact": "/home/weiland/trace_runs/os_closed_loop/r05_ptail/fits/r5t_p_l10_500_tail1uc.pkl",
+    "target_changes": true
+  },
+  "pi05_sp_50": {
+    "source_arm": "r05_ptail/r5t_p_sp_50_tail1uc",
+    "source_spec": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "source_kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only"
+    },
+    "source_artifact": "/home/weiland/trace_runs/os_closed_loop/r05_ptail/fits/r5t_p_sp_50_tail1uc.pkl",
+    "target_changes": true
+  },
+  "pi05_sp_500": {
+    "source_arm": "r04_blind/r4b3_p_sp_500_tail1uc",
+    "source_spec": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "source_kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only"
+    },
+    "source_artifact": "/home/weiland/trace_runs/os_closed_loop/r04_blind/fits/r4b3_p_sp_500_tail1uc.pkl",
+    "target_changes": true
+  },
+  "groot_l10_50": {
+    "source_arm": "r05_x/r5x_g_l10_50_tail1u",
+    "source_spec": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "source_kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only"
+    },
+    "source_artifact": "/home/weiland/trace_runs/os_closed_loop/r05_x/fits/r5x_g_l10_50_tail1u.pkl",
+    "target_changes": true
+  },
+  "groot_l10_500": {
+    "source_arm": "r05_x/r5x_g_l10_500_tail1u",
+    "source_spec": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "source_kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only"
+    },
+    "source_artifact": "/home/weiland/trace_runs/os_closed_loop/r05_x/fits/r5x_g_l10_500_tail1u.pkl",
+    "target_changes": true
+  },
+  "groot_sp_50": {
+    "source_arm": "r05_x/r5x_g_sp_50_tail1u",
+    "source_spec": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "source_kwargs": {
+      "lib": "current",
+      "kref": 5,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only"
+    },
+    "source_artifact": "/home/weiland/trace_runs/os_closed_loop/r05_x/fits/r5x_g_sp_50_tail1u.pkl",
+    "target_changes": true
+  },
+  "groot_sp_500": {
+    "source_arm": "r05_x/r5x_g_sp_500_tail1u",
+    "source_spec": "exp.offline_search.rounds.r04.k1_blind.blind_awm:BlindAWM",
+    "source_kwargs": {
+      "lib": "big",
+      "kref": 8,
+      "serving": "anchor_tail",
+      "budget": 1,
+      "gates": "budget_only"
+    },
+    "source_artifact": "/home/weiland/trace_runs/os_closed_loop/r05_x/fits/r5x_g_sp_500_tail1u.pkl",
+    "target_changes": true
+  }
+}

@@ -1,0 +1,4510 @@
+{
+ "schema": "r7.c4.headlines.v1",
+ "follow": [
+  {
+   "cell": "groot_l10_50",
+   "campaign": "bval",
+   "cap": 1,
+   "anchors": 365,
+   "SF_eligible": 0.3041095890410959,
+   "UF_eligible": 0.8547945205479452,
+   "valve_observed": 311,
+   "valve_alerts": 14,
+   "lost_mass_mean": 0.06931484908136164,
+   "lead_controls": {
+    "n": 13,
+    "p50": 0.0,
+    "p90": 0.0,
+    "p95": 0.0,
+    "mean": -2.3076923076923075
+   },
+   "modeled_SF_complete_anchors": 365,
+   "modeled_SF_IR": 0.06423305588585018,
+   "modeled_UF_IR": 0.051842610364683295
+  },
+  {
+   "cell": "groot_l10_50",
+   "campaign": "bval",
+   "cap": 2,
+   "anchors": 365,
+   "SF_eligible": 0.25753424657534246,
+   "UF_eligible": 0.8383561643835616,
+   "valve_observed": 305,
+   "valve_alerts": 30,
+   "lost_mass_mean": 0.07802212160108768,
+   "lead_controls": {
+    "n": 29,
+    "p50": -10.0,
+    "p90": 0.0,
+    "p95": 0.0,
+    "mean": -6.379310344827586
+   },
+   "modeled_SF_complete_anchors": 365,
+   "modeled_SF_IR": 0.058845315904139425,
+   "modeled_UF_IR": 0.04025335320417287
+  },
+  {
+   "cell": "groot_l10_50",
+   "campaign": "p3",
+   "cap": 1,
+   "anchors": 731,
+   "SF_eligible": 0.3392612859097127,
+   "UF_eligible": 0.7770177838577291,
+   "valve_observed": 563,
+   "valve_alerts": 32,
+   "lost_mass_mean": 0.059329459964194774,
+   "lead_controls": {
+    "n": 25,
+    "p50": -5.0,
+    "p90": 0.0,
+    "p95": 0.0,
+    "mean": -3.4
+   },
+   "modeled_SF_complete_anchors": 728,
+   "modeled_SF_IR": 0.06334156378600822,
+   "modeled_UF_IR": 0.05329458128078817
+  },
+  {
+   "cell": "groot_l10_50",
+   "campaign": "p3",
+   "cap": 2,
+   "anchors": 731,
+   "SF_eligible": 0.29001367989056087,
+   "UF_eligible": 0.7510259917920656,
+   "valve_observed": 544,
+   "valve_alerts": 62,
+   "lost_mass_mean": 0.07071434762055813,
+   "lead_controls": {
+    "n": 56,
+    "p50": -5.0,
+    "p90": 0.0,
+    "p95": 0.0,
+    "mean": -6.071428571428571
+   },
+   "modeled_SF_complete_anchors": 729,
+   "modeled_SF_IR": 0.05735885167464115,
+   "modeled_UF_IR": 0.0422609375
+  },
+  {
+   "cell": "groot_l10_500",
+   "campaign": "bval",
+   "cap": 1,
+   "anchors": 290,
+   "SF_eligible": 0.21724137931034482,
+   "UF_eligible": 0.9448275862068966,
+   "valve_observed": 273,
+   "valve_alerts": 20,
+   "lost_mass_mean": 0.04006263517241379,
+   "lead_controls": {
+    "n": 19,
+    "p50": -5.0,
+    "p90": 0.0,
+    "p95": 0.0,
+    "mean": -4.2105263157894735
+   },
+   "modeled_SF_complete_anchors": 290,
+   "modeled_SF_IR": 0.06685358255451712,
+   "modeled_UF_IR": 0.050257611241217796
+  },
+  {
+   "cell": "groot_l10_500",
+   "campaign": "bval",
+   "cap": 2,
+   "anchors": 290,
+   "SF_eligible": 0.1896551724137931,
+   "UF_eligible": 0.9206896551724137,
+   "valve_observed": 266,
+   "valve_alerts": 30,
+   "lost_mass_mean": 0.05441044689655171,
+   "lead_controls": {
+    "n": 29,
+    "p50": -5.0,
+    "p90": -4.0000000000000036,
+    "p95": 0.0,
+    "mean": -6.206896551724138
+   },
+   "modeled_SF_complete_anchors": 290,
+   "modeled_SF_IR": 0.06229317851959361,
+   "modeled_UF_IR": 0.0385278276481149
+  },
+  {
+   "cell": "groot_l10_500",
+   "campaign": "p3",
+   "cap": 1,
+   "anchors": 618,
+   "SF_eligible": 0.18284789644012944,
+   "UF_eligible": 0.8705501618122977,
+   "valve_observed": 534,
+   "valve_alerts": 28,
+   "lost_mass_mean": 0.06288579870550161,
+   "lead_controls": {
+    "n": 27,
+    "p50": -5.0,
+    "p90": 0.0,
+    "p95": 0.0,
+    "mean": -2.962962962962963
+   },
+   "modeled_SF_complete_anchors": 618,
+   "modeled_SF_IR": 0.0678013343217198,
+   "modeled_UF_IR": 0.05155806087936865
+  },
+  {
+   "cell": "groot_l10_500",
+   "campaign": "p3",
+   "cap": 2,
+   "anchors": 618,
+   "SF_eligible": 0.16019417475728157,
+   "UF_eligible": 0.8543689320388349,
+   "valve_observed": 525,
+   "valve_alerts": 51,
+   "lost_mass_mean": 0.08053834721682847,
+   "lead_controls": {
+    "n": 50,
+    "p50": -5.0,
+    "p90": 0.0,
+    "p95": 0.0,
+    "mean": -6.2
+   },
+   "modeled_SF_complete_anchors": 618,
+   "modeled_SF_IR": 0.06378242677824268,
+   "modeled_UF_IR": 0.03990575916230366
+  },
+  {
+   "cell": "groot_spatial_50",
+   "campaign": "bval",
+   "cap": 1,
+   "anchors": 133,
+   "SF_eligible": 0.44360902255639095,
+   "UF_eligible": 0.6541353383458647,
+   "valve_observed": 87,
+   "valve_alerts": 2,
+   "lost_mass_mean": 0.18216997791663903,
+   "lead_controls": {
+    "n": 2,
+    "p50": -5.0,
+    "p90": -5.0,
+    "p95": -5.0,
+    "mean": -5.0
+   },
+   "modeled_SF_complete_anchors": 133,
+   "modeled_SF_IR": 0.060566153846153846,
+   "modeled_UF_IR": 0.055762039660056655
+  },
+  {
+   "cell": "groot_spatial_50",
+   "campaign": "bval",
+   "cap": 2,
+   "anchors": 133,
+   "SF_eligible": 0.39849624060150374,
+   "UF_eligible": 0.6165413533834586,
+   "valve_observed": 82,
+   "valve_alerts": 4,
+   "lost_mass_mean": 0.22570627907518792,
+   "lead_controls": {
+    "n": 4,
+    "p50": -7.5,
+    "p90": -5.0,
+    "p95": -5.0,
+    "mean": -7.5
+   },
+   "modeled_SF_complete_anchors": 133,
+   "modeled_SF_IR": 0.052913978494623655,
+   "modeled_UF_IR": 0.045776744186046506
+  },
+  {
+   "cell": "groot_spatial_50",
+   "campaign": "p3",
+   "cap": 1,
+   "anchors": 235,
+   "SF_eligible": 0.48936170212765956,
+   "UF_eligible": 0.7191489361702128,
+   "valve_observed": 169,
+   "valve_alerts": 1,
+   "lost_mass_mean": 0.1693766069288119,
+   "lead_controls": {
+    "n": 1,
+    "p50": 0.0,
+    "p90": 0.0,
+    "p95": 0.0,
+    "mean": 0.0
+   },
+   "modeled_SF_complete_anchors": 235,
+   "modeled_SF_IR": 0.05945299145299145,
+   "modeled_UF_IR": 0.054428794992175275
+  },
+  {
+   "cell": "groot_spatial_50",
+   "campaign": "p3",
+   "cap": 2,
+   "anchors": 235,
+   "SF_eligible": 0.4425531914893617,
+   "UF_eligible": 0.7021276595744681,
+   "valve_observed": 165,
+   "valve_alerts": 5,
+   "lost_mass_mean": 0.21090141109455698,
+   "lead_controls": {
+    "n": 5,
+    "p50": -10.0,
+    "p90": -3.999999999999999,
+    "p95": -2.0000000000000018,
+    "mean": -8.0
+   },
+   "modeled_SF_complete_anchors": 235,
+   "modeled_SF_IR": 0.05129793510324484,
+   "modeled_UF_IR": 0.043475
+  },
+  {
+   "cell": "groot_spatial_500",
+   "campaign": "bval",
+   "cap": 1,
+   "anchors": 122,
+   "SF_eligible": 0.45081967213114754,
+   "UF_eligible": 0.8360655737704918,
+   "valve_observed": 102,
+   "valve_alerts": 2,
+   "lost_mass_mean": 0.10951890655737706,
+   "lead_controls": {
+    "n": 1,
+    "p50": 5.0,
+    "p90": 5.0,
+    "p95": 5.0,
+    "mean": 5.0
+   },
+   "modeled_SF_complete_anchors": 122,
+   "modeled_SF_IR": 0.06038795986622073,
+   "modeled_UF_IR": 0.0521849710982659
+  },
+  {
+   "cell": "groot_spatial_500",
+   "campaign": "bval",
+   "cap": 2,
+   "anchors": 122,
+   "SF_eligible": 0.4016393442622951,
+   "UF_eligible": 0.7868852459016393,
+   "valve_observed": 96,
+   "valve_alerts": 6,
+   "lost_mass_mean": 0.15515919672131148,
+   "lead_controls": {
+    "n": 2,
+    "p50": -2.5,
+    "p90": 3.5000000000000004,
+    "p95": 4.249999999999999,
+    "mean": -2.5
+   },
+   "modeled_SF_complete_anchors": 122,
+   "modeled_SF_IR": 0.0527953216374269,
+   "modeled_UF_IR": 0.04141284403669725
+  },
+  {
+   "cell": "groot_spatial_500",
+   "campaign": "p3",
+   "cap": 1,
+   "anchors": 231,
+   "SF_eligible": 0.3939393939393939,
+   "UF_eligible": 0.8138528138528138,
+   "valve_observed": 188,
+   "valve_alerts": 1,
+   "lost_mass_mean": 0.1618361922077922,
+   "lead_controls": {
+    "n": 1,
+    "p50": -5.0,
+    "p90": -5.0,
+    "p95": -5.0,
+    "mean": -5.0
+   },
+   "modeled_SF_complete_anchors": 231,
+   "modeled_SF_IR": 0.061822784810126576,
+   "modeled_UF_IR": 0.052596923076923076
+  },
+  {
+   "cell": "groot_spatial_500",
+   "campaign": "p3",
+   "cap": 2,
+   "anchors": 231,
+   "SF_eligible": 0.35064935064935066,
+   "UF_eligible": 0.7705627705627706,
+   "valve_observed": 178,
+   "valve_alerts": 1,
+   "lost_mass_mean": 0.20268590216450216,
+   "lead_controls": {
+    "n": 1,
+    "p50": -5.0,
+    "p90": -5.0,
+    "p95": -5.0,
+    "mean": -5.0
+   },
+   "modeled_SF_complete_anchors": 231,
+   "modeled_SF_IR": 0.054788461538461536,
+   "modeled_UF_IR": 0.04179462102689486
+  },
+  {
+   "cell": "pi05_l10_50",
+   "campaign": "bval",
+   "cap": 1,
+   "anchors": 346,
+   "SF_eligible": 0.4421965317919075,
+   "UF_eligible": 0.7254335260115607,
+   "valve_observed": 250,
+   "valve_alerts": 10,
+   "lost_mass_mean": 0.12403738560404626,
+   "lead_controls": {
+    "n": 7,
+    "p50": 0.0,
+    "p90": 4.0000000000000036,
+    "p95": 6.999999999999993,
+    "mean": -0.7142857142857143
+   },
+   "modeled_SF_complete_anchors": 345,
+   "modeled_SF_IR": 0.06235434007134364,
+   "modeled_UF_IR": 0.05577094379639448
+  },
+  {
+   "cell": "pi05_l10_50",
+   "campaign": "bval",
+   "cap": 2,
+   "anchors": 346,
+   "SF_eligible": 0.36127167630057805,
+   "UF_eligible": 0.6560693641618497,
+   "valve_observed": 227,
+   "valve_alerts": 16,
+   "lost_mass_mean": 0.13937004656705201,
+   "lead_controls": {
+    "n": 15,
+    "p50": -10.0,
+    "p90": 0.0,
+    "p95": 2.9999999999999893,
+    "mean": -5.666666666666667
+   },
+   "modeled_SF_complete_anchors": 346,
+   "modeled_SF_IR": 0.05588947927736451,
+   "modeled_UF_IR": 0.045891797556719016
+  },
+  {
+   "cell": "pi05_l10_50",
+   "campaign": "p3",
+   "cap": 1,
+   "anchors": 640,
+   "SF_eligible": 0.4828125,
+   "UF_eligible": 0.8109375,
+   "valve_observed": 518,
+   "valve_alerts": 19,
+   "lost_mass_mean": 0.07501318658077452,
+   "lead_controls": {
+    "n": 15,
+    "p50": -5.0,
+    "p90": 0.0,
+    "p95": 0.0,
+    "mean": -4.0
+   },
+   "modeled_SF_complete_anchors": 639,
+   "modeled_SF_IR": 0.0612794952681388,
+   "modeled_UF_IR": 0.05407448582545858
+  },
+  {
+   "cell": "pi05_l10_50",
+   "campaign": "p3",
+   "cap": 2,
+   "anchors": 640,
+   "SF_eligible": 0.415625,
+   "UF_eligible": 0.7578125,
+   "valve_observed": 483,
+   "valve_alerts": 27,
+   "lost_mass_mean": 0.09754231739598745,
+   "lead_controls": {
+    "n": 24,
+    "p50": -5.0,
+    "p90": 0.0,
+    "p95": 0.0,
+    "mean": -5.208333333333333
+   },
+   "modeled_SF_complete_anchors": 638,
+   "modeled_SF_IR": 0.05369656699889258,
+   "modeled_UF_IR": 0.043235555555555555
+  },
+  {
+   "cell": "pi05_l10_500",
+   "campaign": "bval",
+   "cap": 1,
+   "anchors": 274,
+   "SF_eligible": 0.2737226277372263,
+   "UF_eligible": 0.948905109489051,
+   "valve_observed": 259,
+   "valve_alerts": 8,
+   "lost_mass_mean": 0.03858270218978103,
+   "lead_controls": {
+    "n": 8,
+    "p50": -5.0,
+    "p90": -5.0,
+    "p95": -5.0,
+    "mean": -5.0
+   },
+   "modeled_SF_complete_anchors": 273,
+   "modeled_SF_IR": 0.06682125603864734,
+   "modeled_UF_IR": 0.05154455445544554
+  },
+  {
+   "cell": "pi05_l10_500",
+   "campaign": "bval",
+   "cap": 2,
+   "anchors": 274,
+   "SF_eligible": 0.23357664233576642,
+   "UF_eligible": 0.9233576642335767,
+   "valve_observed": 252,
+   "valve_alerts": 18,
+   "lost_mass_mean": 0.05272834197080292,
+   "lead_controls": {
+    "n": 18,
+    "p50": -10.0,
+    "p90": -5.0,
+    "p95": -5.0,
+    "mean": -7.777777777777778
+   },
+   "modeled_SF_complete_anchors": 273,
+   "modeled_SF_IR": 0.06156676557863501,
+   "modeled_UF_IR": 0.039514231499051235
+  },
+  {
+   "cell": "pi05_l10_500",
+   "campaign": "p3",
+   "cap": 1,
+   "anchors": 589,
+   "SF_eligible": 0.32597623089983024,
+   "UF_eligible": 0.9151103565365025,
+   "valve_observed": 536,
+   "valve_alerts": 21,
+   "lost_mass_mean": 0.056023275891341276,
+   "lead_controls": {
+    "n": 16,
+    "p50": -5.0,
+    "p90": 0.0,
+    "p95": 0.0,
+    "mean": -2.8125
+   },
+   "modeled_SF_complete_anchors": 588,
+   "modeled_SF_IR": 0.06547692307692307,
+   "modeled_UF_IR": 0.05214210832847991
+  },
+  {
+   "cell": "pi05_l10_500",
+   "campaign": "p3",
+   "cap": 2,
+   "anchors": 589,
+   "SF_eligible": 0.27504244482173174,
+   "UF_eligible": 0.8811544991511036,
+   "valve_observed": 516,
+   "valve_alerts": 40,
+   "lost_mass_mean": 0.07201190317487269,
+   "lead_controls": {
+    "n": 34,
+    "p50": -7.5,
+    "p90": 0.0,
+    "p95": 0.0,
+    "mean": -6.470588235294118
+   },
+   "modeled_SF_complete_anchors": 588,
+   "modeled_SF_IR": 0.05966355140186916,
+   "modeled_UF_IR": 0.04040072202166065
+  },
+  {
+   "cell": "pi05_spatial_50",
+   "campaign": "bval",
+   "cap": 1,
+   "anchors": 152,
+   "SF_eligible": 0.3684210526315789,
+   "UF_eligible": 0.5723684210526315,
+   "valve_observed": 87,
+   "valve_alerts": 4,
+   "lost_mass_mean": 0.27795642193261166,
+   "lead_controls": {
+    "n": 2,
+    "p50": -5.0,
+    "p90": -5.0,
+    "p95": -5.0,
+    "mean": -5.0
+   },
+   "modeled_SF_complete_anchors": 152,
+   "modeled_SF_IR": 0.06417777777777778,
+   "modeled_UF_IR": 0.059089514066496165
+  },
+  {
+   "cell": "pi05_spatial_50",
+   "campaign": "bval",
+   "cap": 2,
+   "anchors": 152,
+   "SF_eligible": 0.3026315789473684,
+   "UF_eligible": 0.5328947368421053,
+   "valve_observed": 81,
+   "valve_alerts": 6,
+   "lost_mass_mean": 0.3288622932095131,
+   "lead_controls": {
+    "n": 6,
+    "p50": -7.5,
+    "p90": 2.5,
+    "p95": 6.25,
+    "mean": -5.0
+   },
+   "modeled_SF_complete_anchors": 152,
+   "modeled_SF_IR": 0.05834343434343434,
+   "modeled_UF_IR": 0.0495793991416309
+  },
+  {
+   "cell": "pi05_spatial_50",
+   "campaign": "p3",
+   "cap": 1,
+   "anchors": 254,
+   "SF_eligible": 0.4251968503937008,
+   "UF_eligible": 0.6456692913385826,
+   "valve_observed": 164,
+   "valve_alerts": 1,
+   "lost_mass_mean": 0.21238569619264971,
+   "lead_controls": {
+    "n": 1,
+    "p50": -5.0,
+    "p90": -5.0,
+    "p95": -5.0,
+    "mean": -5.0
+   },
+   "modeled_SF_complete_anchors": 254,
+   "modeled_SF_IR": 0.06267532467532468,
+   "modeled_UF_IR": 0.05745238095238095
+  },
+  {
+   "cell": "pi05_spatial_50",
+   "campaign": "p3",
+   "cap": 2,
+   "anchors": 254,
+   "SF_eligible": 0.35826771653543305,
+   "UF_eligible": 0.6141732283464567,
+   "valve_observed": 156,
+   "valve_alerts": 5,
+   "lost_mass_mean": 0.2567091025775985,
+   "lead_controls": {
+    "n": 5,
+    "p50": -10.0,
+    "p90": -7.0,
+    "p95": -6.000000000000001,
+    "mean": -9.0
+   },
+   "modeled_SF_complete_anchors": 254,
+   "modeled_SF_IR": 0.05595362318840579,
+   "modeled_UF_IR": 0.04708292682926829
+  },
+  {
+   "cell": "pi05_spatial_500",
+   "campaign": "bval",
+   "cap": 1,
+   "anchors": 135,
+   "SF_eligible": 0.48148148148148145,
+   "UF_eligible": 0.7703703703703704,
+   "valve_observed": 104,
+   "valve_alerts": 5,
+   "lost_mass_mean": 0.17316377925925933,
+   "lead_controls": {
+    "n": 4,
+    "p50": -5.0,
+    "p90": -1.4999999999999991,
+    "p95": -0.7500000000000018,
+    "mean": -3.75
+   },
+   "modeled_SF_complete_anchors": 135,
+   "modeled_SF_IR": 0.06125373134328358,
+   "modeled_UF_IR": 0.05486631016042781
+  },
+  {
+   "cell": "pi05_spatial_500",
+   "campaign": "bval",
+   "cap": 2,
+   "anchors": 135,
+   "SF_eligible": 0.37777777777777777,
+   "UF_eligible": 0.725925925925926,
+   "valve_observed": 98,
+   "valve_alerts": 10,
+   "lost_mass_mean": 0.21170542088888894,
+   "lead_controls": {
+    "n": 10,
+    "p50": -7.5,
+    "p90": 0.9999999999999964,
+    "p95": 5.499999999999989,
+    "mean": -5.5
+   },
+   "modeled_SF_complete_anchors": 135,
+   "modeled_SF_IR": 0.055161290322580644,
+   "modeled_UF_IR": 0.044034334763948496
+  },
+  {
+   "cell": "pi05_spatial_500",
+   "campaign": "p3",
+   "cap": 1,
+   "anchors": 226,
+   "SF_eligible": 0.588495575221239,
+   "UF_eligible": 0.8097345132743363,
+   "valve_observed": 183,
+   "valve_alerts": 1,
+   "lost_mass_mean": 0.18648054115044246,
+   "lead_controls": {
+    "n": 1,
+    "p50": 0.0,
+    "p90": 0.0,
+    "p95": 0.0,
+    "mean": 0.0
+   },
+   "modeled_SF_complete_anchors": 226,
+   "modeled_SF_IR": 0.058721367521367515,
+   "modeled_UF_IR": 0.05409763779527559
+  },
+  {
+   "cell": "pi05_spatial_500",
+   "campaign": "p3",
+   "cap": 2,
+   "anchors": 226,
+   "SF_eligible": 0.48672566371681414,
+   "UF_eligible": 0.7610619469026548,
+   "valve_observed": 172,
+   "valve_alerts": 3,
+   "lost_mass_mean": 0.23001914955752215,
+   "lead_controls": {
+    "n": 3,
+    "p50": -10.0,
+    "p90": -1.9999999999999996,
+    "p95": -1.0000000000000009,
+    "mean": -6.666666666666667
+   },
+   "modeled_SF_complete_anchors": 226,
+   "modeled_SF_IR": 0.05111904761904761,
+   "modeled_UF_IR": 0.043155778894472356
+  }
+ ],
+ "calibration": [
+  {
+   "cell": "groot_l10_50",
+   "calibration": {
+    "row95": 0.3675918766864049,
+    "episode95": 1.1719521842180267,
+    "convention": "frozen-A candidate-LOEO, successful even-row sources; maximum over reference commitment",
+    "anchors": 1164,
+    "attempted_anchors": 1333,
+    "episodes": 50,
+    "q_row95": 0.3675918766864049,
+    "q_episode95": 1.1719521842180267,
+    "reference_controls": 10
+   },
+   "stage_fingerprint": "67de34007fd8714c13ea1277c13470382cd8cd05f8b6461a2f92c6b527555bcb"
+  },
+  {
+   "cell": "groot_l10_500",
+   "calibration": {
+    "row95": 0.36956860445337175,
+    "episode95": 0.8948977147455417,
+    "convention": "frozen-A candidate-LOEO, successful even-row sources; maximum over reference commitment",
+    "anchors": 10164,
+    "attempted_anchors": 11125,
+    "episodes": 427,
+    "q_row95": 0.36956860445337175,
+    "q_episode95": 0.8948977147455417,
+    "reference_controls": 10
+   },
+   "stage_fingerprint": "8996e8dd19e2e554aa04be38793d32acced97791c2a8e3a0da9307d41afb574c"
+  },
+  {
+   "cell": "groot_spatial_50",
+   "calibration": {
+    "row95": 0.3216723963651381,
+    "episode95": 0.4703490091354607,
+    "convention": "frozen-A candidate-LOEO, successful even-row sources; maximum over reference commitment",
+    "anchors": 415,
+    "attempted_anchors": 544,
+    "episodes": 50,
+    "q_row95": 0.3216723963651381,
+    "q_episode95": 0.4703490091354607,
+    "reference_controls": 10
+   },
+   "stage_fingerprint": "2d421c072a8a475491e5c9f8d5fcbaa7719b3bbebdbbd05c9d3a8301b5e51520"
+  },
+  {
+   "cell": "groot_spatial_500",
+   "calibration": {
+    "row95": 0.2854046407280351,
+    "episode95": 0.4772723947022816,
+    "convention": "frozen-A candidate-LOEO, successful even-row sources; maximum over reference commitment",
+    "anchors": 4332,
+    "attempted_anchors": 5015,
+    "episodes": 456,
+    "q_row95": 0.2854046407280351,
+    "q_episode95": 0.4772723947022816,
+    "reference_controls": 10
+   },
+   "stage_fingerprint": "e6f9dda3b5f30cb916e2cc59e702ea9fdb7d5e302a2bdbabf0216097d761f5f5"
+  },
+  {
+   "cell": "pi05_l10_50",
+   "calibration": {
+    "row95": 0.3987586889618458,
+    "episode95": 0.8407026137678197,
+    "convention": "frozen-A candidate-LOEO, successful even-row sources; maximum over reference commitment",
+    "anchors": 1172,
+    "attempted_anchors": 1333,
+    "episodes": 50,
+    "q_row95": 0.3987586889618458,
+    "q_episode95": 0.8407026137678197,
+    "reference_controls": 10
+   },
+   "stage_fingerprint": "83612018c9b9bb00f87fe2bd2ed41dce35657370ec19b8590418fd2b3d72a920"
+  },
+  {
+   "cell": "pi05_l10_500",
+   "calibration": {
+    "row95": 0.26430627971008475,
+    "episode95": 0.7961956613124335,
+    "convention": "frozen-A candidate-LOEO, successful even-row sources; maximum over reference commitment",
+    "anchors": 10569,
+    "attempted_anchors": 11516,
+    "episodes": 436,
+    "q_row95": 0.26430627971008475,
+    "q_episode95": 0.7961956613124335,
+    "reference_controls": 10
+   },
+   "stage_fingerprint": "97146facf80f3b567f4089317e8519cda9971d42fa2dc48b8a859035d5b4dfe9"
+  },
+  {
+   "cell": "pi05_spatial_50",
+   "calibration": {
+    "row95": 0.34230940510579827,
+    "episode95": 0.6083156656554503,
+    "convention": "frozen-A candidate-LOEO, successful even-row sources; maximum over reference commitment",
+    "anchors": 390,
+    "attempted_anchors": 526,
+    "episodes": 49,
+    "q_row95": 0.34230940510579827,
+    "q_episode95": 0.6083156656554503,
+    "reference_controls": 10
+   },
+   "stage_fingerprint": "58844b8ba4196c8f40c3b7e405c05c725d422c3ed0b461430aaddc829b9dd9dc"
+  },
+  {
+   "cell": "pi05_spatial_500",
+   "calibration": {
+    "row95": 0.2726420403719471,
+    "episode95": 0.47206900272149277,
+    "convention": "frozen-A candidate-LOEO, successful even-row sources; maximum over reference commitment",
+    "anchors": 4521,
+    "attempted_anchors": 5296,
+    "episodes": 487,
+    "q_row95": 0.2726420403719471,
+    "q_episode95": 0.47206900272149277,
+    "reference_controls": 10
+   },
+   "stage_fingerprint": "02cc60c16422c0b2331f495a95c7311e9b08a1802cf6ade3f14bd2819bdf918d"
+  }
+ ],
+ "camera": [
+  {
+   "cell": "groot_l10_50",
+   "rows": 2645,
+   "source_episodes": 50,
+   "bval_anchors": 365,
+   "folds": 2,
+   "library_all": [
+    {
+     "stage": "all",
+     "camera": "full",
+     "rows": 2645,
+     "episodes": 50,
+     "head_rms": {
+      "est": 0.5763989070177229,
+      "lo": 0.545736702833643,
+      "hi": 0.6071063372041728,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 50,
+     "commit_rms": {
+      "est": 0.5942739332057883,
+      "lo": 0.5635816094593833,
+      "hi": 0.6250890183614396,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 50,
+     "gripper_mode_error": {
+      "est": 0.08085181956948612,
+      "lo": 0.06661446365416542,
+      "hi": 0.09604901505139764,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 50,
+     "missing_event": {
+      "est": 0.06677976058324184,
+      "lo": 0.05424605805117403,
+      "hi": 0.08148734815264631,
+      "p_le0": 0.0
+     },
+     "missing_event_episodes": 50,
+     "extra_event": {
+      "est": 0.06239139919384274,
+      "lo": 0.04427253393809496,
+      "hi": 0.08431608205954876,
+      "p_le0": 0.0
+     },
+     "extra_event_episodes": 50,
+     "event_time_error": {
+      "est": 2.612063492063492,
+      "lo": 2.273484126984127,
+      "hi": 2.9807592592592593,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 45,
+     "delete_head_rms_delta": {
+      "est": 0.05453340276382208,
+      "lo": 0.04473762957888997,
+      "hi": 0.06493556477304128,
+      "p_le0": 0.0
+     },
+     "delete_head_rms_delta_episodes": 50
+    },
+    {
+     "stage": "all",
+     "camera": "wrist",
+     "rows": 2645,
+     "episodes": 50,
+     "head_rms": {
+      "est": 0.58058716334511,
+      "lo": 0.5499345180586896,
+      "hi": 0.611207024342652,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 50,
+     "commit_rms": {
+      "est": 0.5955654270225065,
+      "lo": 0.5650285318624144,
+      "hi": 0.6264063646326827,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 50,
+     "gripper_mode_error": {
+      "est": 0.07604312384357327,
+      "lo": 0.06563000016743867,
+      "hi": 0.08689138869256678,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 50,
+     "missing_event": {
+      "est": 0.058221862453421515,
+      "lo": 0.04818150869774911,
+      "hi": 0.06921995231351681,
+      "p_le0": 0.0
+     },
+     "missing_event_episodes": 50,
+     "extra_event": {
+      "est": 0.060770845476971286,
+      "lo": 0.04977530736834512,
+      "hi": 0.0730010224637425,
+      "p_le0": 0.0
+     },
+     "extra_event_episodes": 50,
+     "event_time_error": {
+      "est": 2.803571428571429,
+      "lo": 2.403941798941799,
+      "hi": 3.2455661375661378,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 45,
+     "delete_head_rms_delta": {
+      "est": 0.05881908818210216,
+      "lo": 0.04819909055349814,
+      "hi": 0.0694230965866941,
+      "p_le0": 0.0
+     },
+     "delete_head_rms_delta_episodes": 50,
+     "paired_head_delta_vs_full": {
+      "est": 0.004188256327387058,
+      "lo": -0.0032118082974554847,
+      "hi": 0.011093611457710052,
+      "p_le0": 0.1305
+     }
+    },
+    {
+     "stage": "all",
+     "camera": "third_person",
+     "rows": 2645,
+     "episodes": 50,
+     "head_rms": {
+      "est": 0.6016081290246736,
+      "lo": 0.5700417184738381,
+      "hi": 0.6331957107093661,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 50,
+     "commit_rms": {
+      "est": 0.6156681779338797,
+      "lo": 0.5841799997068614,
+      "hi": 0.6473696559431231,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 50,
+     "gripper_mode_error": {
+      "est": 0.09422797234340692,
+      "lo": 0.07873031520264893,
+      "hi": 0.11150508597641579,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 50,
+     "missing_event": {
+      "est": 0.06095620385681435,
+      "lo": 0.049326346497339364,
+      "hi": 0.07404266441894593,
+      "p_le0": 0.0
+     },
+     "missing_event_episodes": 50,
+     "extra_event": {
+      "est": 0.06504690153026697,
+      "lo": 0.050093429731791275,
+      "hi": 0.08296541509832019,
+      "p_le0": 0.0
+     },
+     "extra_event_episodes": 50,
+     "event_time_error": {
+      "est": 2.561160714285714,
+      "lo": 2.22195808531746,
+      "hi": 2.9283544146825395,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 48,
+     "delete_head_rms_delta": {
+      "est": 0.05078703165005601,
+      "lo": 0.03993966515984111,
+      "hi": 0.06165567527332467,
+      "p_le0": 0.0
+     },
+     "delete_head_rms_delta_episodes": 50,
+     "paired_head_delta_vs_full": {
+      "est": 0.025209222006950666,
+      "lo": 0.012271059699242831,
+      "hi": 0.03810728814935308,
+      "p_le0": 0.0
+     }
+    }
+   ],
+   "bval_all": [
+    {
+     "stage": "all",
+     "camera": "full",
+     "rows": 365,
+     "episodes": 10,
+     "head_rms": {
+      "est": 0.467983393236412,
+      "lo": 0.37976089599696916,
+      "hi": 0.5541629774884453,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 10,
+     "commit_rms": {
+      "est": 0.488879131502647,
+      "lo": 0.38956250026164135,
+      "hi": 0.5795379831692152,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 10,
+     "gripper_mode_error": {
+      "est": 0.1258481976960238,
+      "lo": 0.05977027591973244,
+      "hi": 0.19288461538461538,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 10,
+     "missing_event": {
+      "est": 0.04001620984379605,
+      "lo": 0.019647435897435898,
+      "hi": 0.06278754052460947,
+      "p_le0": 0.0
+     },
+     "missing_event_episodes": 10,
+     "extra_event": {
+      "est": 0.12031990997508239,
+      "lo": 0.045094244835624145,
+      "hi": 0.21589115625753535,
+      "p_le0": 0.0
+     },
+     "extra_event_episodes": 10,
+     "event_time_error": {
+      "est": 2.1791666666666667,
+      "lo": 1.3541666666666667,
+      "hi": 3.013124999999997,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 8,
+     "delete_head_rms_delta": null,
+     "delete_head_rms_delta_episodes": 0
+    },
+    {
+     "stage": "all",
+     "camera": "wrist",
+     "rows": 365,
+     "episodes": 10,
+     "head_rms": {
+      "est": 0.4750277331694777,
+      "lo": 0.3868004130553705,
+      "hi": 0.5537674860319927,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 10,
+     "commit_rms": {
+      "est": 0.5006358387813415,
+      "lo": 0.3994122115324667,
+      "hi": 0.5924808090368318,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 10,
+     "gripper_mode_error": {
+      "est": 0.14276069424495214,
+      "lo": 0.06150698769205141,
+      "hi": 0.23359479242022338,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 10,
+     "missing_event": {
+      "est": 0.033605953433539636,
+      "lo": 0.015384615384615385,
+      "hi": 0.0518272914824639,
+      "p_le0": 0.0
+     },
+     "missing_event_episodes": 10,
+     "extra_event": {
+      "est": 0.10410939635077568,
+      "lo": 0.0438527851458886,
+      "hi": 0.19324602122015896,
+      "p_le0": 0.0
+     },
+     "extra_event_episodes": 10,
+     "event_time_error": {
+      "est": 2.03125,
+      "lo": 0.9375,
+      "hi": 3.4375,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 8,
+     "delete_head_rms_delta": null,
+     "delete_head_rms_delta_episodes": 0,
+     "paired_head_delta_vs_full": {
+      "est": 0.007044339933065674,
+      "lo": -0.025439359964840876,
+      "hi": 0.03356858764586072,
+      "p_le0": 0.307
+     }
+    },
+    {
+     "stage": "all",
+     "camera": "third_person",
+     "rows": 365,
+     "episodes": 10,
+     "head_rms": {
+      "est": 0.46884915610185046,
+      "lo": 0.3868514381876731,
+      "hi": 0.5577050849889654,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 10,
+     "commit_rms": {
+      "est": 0.4825619354036288,
+      "lo": 0.4013763276371613,
+      "hi": 0.567610377025116,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 10,
+     "gripper_mode_error": {
+      "est": 0.11957283304734581,
+      "lo": 0.06796800281386114,
+      "hi": 0.16844738928612615,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 10,
+     "missing_event": {
+      "est": 0.037208959622752724,
+      "lo": 0.020512820512820513,
+      "hi": 0.05427497789566755,
+      "p_le0": 0.0
+     },
+     "missing_event_episodes": 10,
+     "extra_event": {
+      "est": 0.0914730863006725,
+      "lo": 0.048181181844974955,
+      "hi": 0.14188424362993327,
+      "p_le0": 0.0
+     },
+     "extra_event_episodes": 10,
+     "event_time_error": {
+      "est": 2.525,
+      "lo": 1.7832291666666666,
+      "hi": 3.3130208333333306,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 8,
+     "delete_head_rms_delta": null,
+     "delete_head_rms_delta_episodes": 0,
+     "paired_head_delta_vs_full": {
+      "est": 0.0008657628654383444,
+      "lo": -0.022746637272411777,
+      "hi": 0.02305061637380955,
+      "p_le0": 0.4595
+     }
+    }
+   ]
+  },
+  {
+   "cell": "groot_l10_500",
+   "rows": 22039,
+   "source_episodes": 500,
+   "bval_anchors": 290,
+   "folds": 2,
+   "library_all": [
+    {
+     "stage": "all",
+     "camera": "full",
+     "rows": 22039,
+     "episodes": 427,
+     "head_rms": {
+      "est": 0.42835607788213553,
+      "lo": 0.41902929176583453,
+      "hi": 0.43746792214704666,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 427,
+     "commit_rms": {
+      "est": 0.439191487804496,
+      "lo": 0.4297034092061636,
+      "hi": 0.44838884716019345,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 427,
+     "gripper_mode_error": {
+      "est": 0.046250519144684296,
+      "lo": 0.0430911092822434,
+      "hi": 0.04981143162797355,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 427,
+     "missing_event": {
+      "est": 0.03086986042048943,
+      "lo": 0.027895590845605226,
+      "hi": 0.034071619720406295,
+      "p_le0": 0.0
+     },
+     "missing_event_episodes": 427,
+     "extra_event": {
+      "est": 0.04919774578311621,
+      "lo": 0.04532466723257535,
+      "hi": 0.05344651486754601,
+      "p_le0": 0.0
+     },
+     "extra_event_episodes": 427,
+     "event_time_error": {
+      "est": 1.8410005710320758,
+      "lo": 1.7499202374668001,
+      "hi": 1.931817451425726,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 426,
+     "delete_head_rms_delta": {
+      "est": 0.018818714605667,
+      "lo": 0.016704961510089066,
+      "hi": 0.021068556468942047,
+      "p_le0": 0.0
+     },
+     "delete_head_rms_delta_episodes": 427
+    },
+    {
+     "stage": "all",
+     "camera": "wrist",
+     "rows": 22039,
+     "episodes": 427,
+     "head_rms": {
+      "est": 0.4422918376748715,
+      "lo": 0.43272138299532076,
+      "hi": 0.4512434461599314,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 427,
+     "commit_rms": {
+      "est": 0.4533907010634033,
+      "lo": 0.443827527979794,
+      "hi": 0.4624397616667375,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 427,
+     "gripper_mode_error": {
+      "est": 0.049255701574759246,
+      "lo": 0.046202474945449795,
+      "hi": 0.05247914643726847,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 427,
+     "missing_event": {
+      "est": 0.033640289022872666,
+      "lo": 0.030663404871316483,
+      "hi": 0.03656633773502486,
+      "p_le0": 0.0
+     },
+     "missing_event_episodes": 427,
+     "extra_event": {
+      "est": 0.05321567823373577,
+      "lo": 0.04915465818482376,
+      "hi": 0.05762651289226265,
+      "p_le0": 0.0
+     },
+     "extra_event_episodes": 427,
+     "event_time_error": {
+      "est": 1.917962757975447,
+      "lo": 1.825238124876005,
+      "hi": 2.011126340702427,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 422,
+     "delete_head_rms_delta": {
+      "est": 0.019341948138043855,
+      "lo": 0.017146900629107044,
+      "hi": 0.021596599931530597,
+      "p_le0": 0.0
+     },
+     "delete_head_rms_delta_episodes": 427,
+     "paired_head_delta_vs_full": {
+      "est": 0.013935759792735971,
+      "lo": 0.012244416874607957,
+      "hi": 0.015530544506215951,
+      "p_le0": 0.0
+     }
+    },
+    {
+     "stage": "all",
+     "camera": "third_person",
+     "rows": 22039,
+     "episodes": 427,
+     "head_rms": {
+      "est": 0.4548108398309569,
+      "lo": 0.4459750261745996,
+      "hi": 0.46377953545597544,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 427,
+     "commit_rms": {
+      "est": 0.46566290749905315,
+      "lo": 0.4565650397411107,
+      "hi": 0.4748534636252761,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 427,
+     "gripper_mode_error": {
+      "est": 0.05248381729461196,
+      "lo": 0.049039704330667094,
+      "hi": 0.056307598458944653,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 427,
+     "missing_event": {
+      "est": 0.03153926349742966,
+      "lo": 0.028413803596000802,
+      "hi": 0.03466366576805014,
+      "p_le0": 0.0
+     },
+     "missing_event_episodes": 427,
+     "extra_event": {
+      "est": 0.05506010563338473,
+      "lo": 0.05112878617322155,
+      "hi": 0.05917604124045344,
+      "p_le0": 0.0
+     },
+     "extra_event_episodes": 427,
+     "event_time_error": {
+      "est": 1.8950616658155655,
+      "lo": 1.8177771399698222,
+      "hi": 1.9744193713585494,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 426,
+     "delete_head_rms_delta": {
+      "est": 0.013775688461482473,
+      "lo": 0.011498718539943545,
+      "hi": 0.016314242548516995,
+      "p_le0": 0.0
+     },
+     "delete_head_rms_delta_episodes": 427,
+     "paired_head_delta_vs_full": {
+      "est": 0.026454761948821293,
+      "lo": 0.024255841409560188,
+      "hi": 0.02875048350558409,
+      "p_le0": 0.0
+     }
+    }
+   ],
+   "bval_all": [
+    {
+     "stage": "all",
+     "camera": "full",
+     "rows": 290,
+     "episodes": 10,
+     "head_rms": {
+      "est": 0.36865548692112987,
+      "lo": 0.31413512550131706,
+      "hi": 0.4164349315210329,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 10,
+     "commit_rms": {
+      "est": 0.3879175378328822,
+      "lo": 0.3279765759633626,
+      "hi": 0.4407372629217809,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 10,
+     "gripper_mode_error": {
+      "est": 0.07595766107530813,
+      "lo": 0.035073016934046346,
+      "hi": 0.12669473258223257,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 10,
+     "missing_event": {
+      "est": 0.030187998276233568,
+      "lo": 0.010833333333333334,
+      "hi": 0.05044284636931694,
+      "p_le0": 0.002
+     },
+     "missing_event_episodes": 10,
+     "extra_event": {
+      "est": 0.08447536668124904,
+      "lo": 0.046683036870536876,
+      "hi": 0.12625213675213673,
+      "p_le0": 0.0
+     },
+     "extra_event_episodes": 10,
+     "event_time_error": {
+      "est": 2.416666666666667,
+      "lo": 1.5666666666666669,
+      "hi": 3.366666666666667,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 10,
+     "delete_head_rms_delta": null,
+     "delete_head_rms_delta_episodes": 0
+    },
+    {
+     "stage": "all",
+     "camera": "wrist",
+     "rows": 290,
+     "episodes": 10,
+     "head_rms": {
+      "est": 0.38045222913733046,
+      "lo": 0.3244244346181794,
+      "hi": 0.4314821126131148,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 10,
+     "commit_rms": {
+      "est": 0.3972558181330862,
+      "lo": 0.3371503048852831,
+      "hi": 0.45457290100331726,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 10,
+     "gripper_mode_error": {
+      "est": 0.06628208991444284,
+      "lo": 0.030621110439125146,
+      "hi": 0.11152047616054969,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 10,
+     "missing_event": {
+      "est": 0.02804541863365393,
+      "lo": 0.009206349206349208,
+      "hi": 0.04824425574425568,
+      "p_le0": 0.0005
+     },
+     "missing_event_episodes": 10,
+     "extra_event": {
+      "est": 0.05625946493593552,
+      "lo": 0.019442340067340063,
+      "hi": 0.09631038610082726,
+      "p_le0": 0.0005
+     },
+     "extra_event_episodes": 10,
+     "event_time_error": {
+      "est": 2.085185185185185,
+      "lo": 1.4074074074074074,
+      "hi": 2.911388888888887,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 9,
+     "delete_head_rms_delta": null,
+     "delete_head_rms_delta_episodes": 0,
+     "paired_head_delta_vs_full": {
+      "est": 0.011796742216200579,
+      "lo": -0.0004447994149178107,
+      "hi": 0.024881406573617686,
+      "p_le0": 0.0325
+     }
+    },
+    {
+     "stage": "all",
+     "camera": "third_person",
+     "rows": 290,
+     "episodes": 10,
+     "head_rms": {
+      "est": 0.39757666279009707,
+      "lo": 0.34418183989425116,
+      "hi": 0.4423398406535234,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 10,
+     "commit_rms": {
+      "est": 0.411511537165323,
+      "lo": 0.3553213170310311,
+      "hi": 0.4599026908919833,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 10,
+     "gripper_mode_error": {
+      "est": 0.08741045120456885,
+      "lo": 0.0405575573663809,
+      "hi": 0.14284592798269272,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 10,
+     "missing_event": {
+      "est": 0.019952955541190837,
+      "lo": 0.006784771600948073,
+      "hi": 0.03392156862745098,
+      "p_le0": 0.0
+     },
+     "missing_event_episodes": 10,
+     "extra_event": {
+      "est": 0.08641055567526154,
+      "lo": 0.0385930759055759,
+      "hi": 0.1376894197850079,
+      "p_le0": 0.0
+     },
+     "extra_event_episodes": 10,
+     "event_time_error": {
+      "est": 1.8555555555555554,
+      "lo": 1.148148148148148,
+      "hi": 2.5999999999999996,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 9,
+     "delete_head_rms_delta": null,
+     "delete_head_rms_delta_episodes": 0,
+     "paired_head_delta_vs_full": {
+      "est": 0.028921175868967135,
+      "lo": 0.017195877945510897,
+      "hi": 0.03917645586306037,
+      "p_le0": 0.0
+     }
+    }
+   ]
+  },
+  {
+   "cell": "groot_spatial_50",
+   "rows": 1063,
+   "source_episodes": 50,
+   "bval_anchors": 133,
+   "folds": 2,
+   "library_all": [
+    {
+     "stage": "all",
+     "camera": "full",
+     "rows": 1063,
+     "episodes": 50,
+     "head_rms": {
+      "est": 0.5956097089145433,
+      "lo": 0.5525036210013938,
+      "hi": 0.6403976565066988,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 50,
+     "commit_rms": {
+      "est": 0.6214320274807367,
+      "lo": 0.5773010367421894,
+      "hi": 0.6669043876195285,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 50,
+     "gripper_mode_error": {
+      "est": 0.06738184733029194,
+      "lo": 0.05258242346307953,
+      "hi": 0.08510873090355076,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 50,
+     "missing_event": {
+      "est": 0.0729731557818649,
+      "lo": 0.05847400423149262,
+      "hi": 0.08678855579477954,
+      "p_le0": 0.0
+     },
+     "missing_event_episodes": 50,
+     "extra_event": {
+      "est": 0.04306923737260929,
+      "lo": 0.030071409591533933,
+      "hi": 0.05894866752453807,
+      "p_le0": 0.0
+     },
+     "extra_event_episodes": 50,
+     "event_time_error": {
+      "est": 2.321969696969697,
+      "lo": 1.8295454545454546,
+      "hi": 2.837215909090909,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 44,
+     "delete_head_rms_delta": {
+      "est": 0.059755005567537156,
+      "lo": 0.04860329334210436,
+      "hi": 0.07067268183985399,
+      "p_le0": 0.0
+     },
+     "delete_head_rms_delta_episodes": 50
+    },
+    {
+     "stage": "all",
+     "camera": "wrist",
+     "rows": 1063,
+     "episodes": 50,
+     "head_rms": {
+      "est": 0.6158395844263733,
+      "lo": 0.5721075340545163,
+      "hi": 0.6603246997161658,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 50,
+     "commit_rms": {
+      "est": 0.6424305727528781,
+      "lo": 0.5972045297374661,
+      "hi": 0.689259186296391,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 50,
+     "gripper_mode_error": {
+      "est": 0.08402563824727644,
+      "lo": 0.06326375364701817,
+      "hi": 0.10750451371536437,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 50,
+     "missing_event": {
+      "est": 0.07991976911827497,
+      "lo": 0.0666908532994951,
+      "hi": 0.09336718158382126,
+      "p_le0": 0.0
+     },
+     "missing_event_episodes": 50,
+     "extra_event": {
+      "est": 0.03766888327269267,
+      "lo": 0.02443568847303367,
+      "hi": 0.05279878728155901,
+      "p_le0": 0.0
+     },
+     "extra_event_episodes": 50,
+     "event_time_error": {
+      "est": 2.573412698412698,
+      "lo": 2.073363095238095,
+      "hi": 3.0695932539682538,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 42,
+     "delete_head_rms_delta": {
+      "est": 0.05873786412500591,
+      "lo": 0.046505341570866776,
+      "hi": 0.06968349279334711,
+      "p_le0": 0.0
+     },
+     "delete_head_rms_delta_episodes": 50,
+     "paired_head_delta_vs_full": {
+      "est": 0.02022987551182996,
+      "lo": 0.005177092050129105,
+      "hi": 0.03349946172845083,
+      "p_le0": 0.0065
+     }
+    },
+    {
+     "stage": "all",
+     "camera": "third_person",
+     "rows": 1063,
+     "episodes": 50,
+     "head_rms": {
+      "est": 0.6303481966800263,
+      "lo": 0.5888105638177353,
+      "hi": 0.6721084503120437,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 50,
+     "commit_rms": {
+      "est": 0.6500159269000662,
+      "lo": 0.608826808304209,
+      "hi": 0.6922384979070846,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 50,
+     "gripper_mode_error": {
+      "est": 0.06669864020964304,
+      "lo": 0.05480246202157312,
+      "hi": 0.08056504527344933,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 50,
+     "missing_event": {
+      "est": 0.08354565546178144,
+      "lo": 0.06899957699942405,
+      "hi": 0.0988730223978023,
+      "p_le0": 0.0
+     },
+     "missing_event_episodes": 50,
+     "extra_event": {
+      "est": 0.05336970505900375,
+      "lo": 0.034243175248514966,
+      "hi": 0.07666753725600911,
+      "p_le0": 0.0
+     },
+     "extra_event_episodes": 50,
+     "event_time_error": {
+      "est": 1.9959349593495936,
+      "lo": 1.5284552845528456,
+      "hi": 2.520426829268292,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 41,
+     "delete_head_rms_delta": {
+      "est": 0.048899500308159434,
+      "lo": 0.039744219361974954,
+      "hi": 0.05749566159418416,
+      "p_le0": 0.0
+     },
+     "delete_head_rms_delta_episodes": 50,
+     "paired_head_delta_vs_full": {
+      "est": 0.03473848776548301,
+      "lo": 0.017502832604365942,
+      "hi": 0.051084672338393325,
+      "p_le0": 0.0
+     }
+    }
+   ],
+   "bval_all": [
+    {
+     "stage": "all",
+     "camera": "full",
+     "rows": 133,
+     "episodes": 10,
+     "head_rms": {
+      "est": 0.4304339868099478,
+      "lo": 0.36474779192658047,
+      "hi": 0.514827691298253,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 10,
+     "commit_rms": {
+      "est": 0.4353379450118795,
+      "lo": 0.3729279278103386,
+      "hi": 0.516998818937632,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 10,
+     "gripper_mode_error": {
+      "est": 0.07469619269619268,
+      "lo": 0.02383585858585859,
+      "hi": 0.13464343434343404,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 10,
+     "missing_event": {
+      "est": 0.05636363636363636,
+      "lo": 0.0,
+      "hi": 0.11272727272727275,
+      "p_le0": 0.033
+     },
+     "missing_event_episodes": 10,
+     "extra_event": {
+      "est": 0.03272727272727273,
+      "lo": 0.00909090909090909,
+      "hi": 0.06002272727272716,
+      "p_le0": 0.0075
+     },
+     "extra_event_episodes": 10,
+     "event_time_error": {
+      "est": 1.4444444444444444,
+      "lo": 1.1111111111111112,
+      "hi": 1.8888888888888888,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 9,
+     "delete_head_rms_delta": null,
+     "delete_head_rms_delta_episodes": 0
+    },
+    {
+     "stage": "all",
+     "camera": "wrist",
+     "rows": 133,
+     "episodes": 10,
+     "head_rms": {
+      "est": 0.42526681637666675,
+      "lo": 0.3768097606017316,
+      "hi": 0.48004937048747304,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 10,
+     "commit_rms": {
+      "est": 0.4304148471369612,
+      "lo": 0.38162159328585876,
+      "hi": 0.4880309141272138,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 10,
+     "gripper_mode_error": {
+      "est": 0.07803768453768453,
+      "lo": 0.031144764957264957,
+      "hi": 0.1304833916083916,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 10,
+     "missing_event": {
+      "est": 0.04041958041958042,
+      "lo": 0.0,
+      "hi": 0.0908409090909091,
+      "p_le0": 0.0285
+     },
+     "missing_event_episodes": 10,
+     "extra_event": {
+      "est": 0.046363636363636364,
+      "lo": 0.00909090909090909,
+      "hi": 0.09181818181818183,
+      "p_le0": 0.0075
+     },
+     "extra_event_episodes": 10,
+     "event_time_error": {
+      "est": 1.8333333333333333,
+      "lo": 1.3,
+      "hi": 2.5,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 10,
+     "delete_head_rms_delta": null,
+     "delete_head_rms_delta_episodes": 0,
+     "paired_head_delta_vs_full": {
+      "est": -0.00516717043328098,
+      "lo": -0.04246821829898132,
+      "hi": 0.021973973422614524,
+      "p_le0": 0.5785
+     }
+    },
+    {
+     "stage": "all",
+     "camera": "third_person",
+     "rows": 133,
+     "episodes": 10,
+     "head_rms": {
+      "est": 0.4684391677126287,
+      "lo": 0.37500776709627015,
+      "hi": 0.5767334140516374,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 10,
+     "commit_rms": {
+      "est": 0.4698013762204547,
+      "lo": 0.38244559116751364,
+      "hi": 0.5802102885694181,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 10,
+     "gripper_mode_error": {
+      "est": 0.08864219114219113,
+      "lo": 0.03791768648018648,
+      "hi": 0.15263913170163163,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 10,
+     "missing_event": {
+      "est": 0.08287878787878787,
+      "lo": 0.02727272727272727,
+      "hi": 0.14198863636363623,
+      "p_le0": 0.0015
+     },
+     "missing_event_episodes": 10,
+     "extra_event": {
+      "est": 0.03727272727272728,
+      "lo": 0.00909090909090909,
+      "hi": 0.06545454545454546,
+      "p_le0": 0.0075
+     },
+     "extra_event_episodes": 10,
+     "event_time_error": {
+      "est": 2.1875,
+      "lo": 1.5625,
+      "hi": 2.875,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 8,
+     "delete_head_rms_delta": null,
+     "delete_head_rms_delta_episodes": 0,
+     "paired_head_delta_vs_full": {
+      "est": 0.03800518090268095,
+      "lo": 0.00042996803892045695,
+      "hi": 0.0819606367729225,
+      "p_le0": 0.024
+     }
+    }
+   ]
+  },
+  {
+   "cell": "groot_spatial_500",
+   "rows": 9815,
+   "source_episodes": 500,
+   "bval_anchors": 122,
+   "folds": 2,
+   "library_all": [
+    {
+     "stage": "all",
+     "camera": "full",
+     "rows": 9815,
+     "episodes": 456,
+     "head_rms": {
+      "est": 0.4026453157140053,
+      "lo": 0.3941689724853296,
+      "hi": 0.4114415267931962,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 456,
+     "commit_rms": {
+      "est": 0.4185470862364804,
+      "lo": 0.40992040915372796,
+      "hi": 0.4276179160640254,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 456,
+     "gripper_mode_error": {
+      "est": 0.031024403435414925,
+      "lo": 0.028795322625332145,
+      "hi": 0.033498925027489045,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 456,
+     "missing_event": {
+      "est": 0.030769170797367684,
+      "lo": 0.027324237672062067,
+      "hi": 0.03424931495270601,
+      "p_le0": 0.0
+     },
+     "missing_event_episodes": 456,
+     "extra_event": {
+      "est": 0.025491048656561544,
+      "lo": 0.022230789605307194,
+      "hi": 0.02911412924479315,
+      "p_le0": 0.0
+     },
+     "extra_event_episodes": 456,
+     "event_time_error": {
+      "est": 1.5413544973544973,
+      "lo": 1.4483961640211638,
+      "hi": 1.6377620370370367,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 450,
+     "delete_head_rms_delta": {
+      "est": 0.013043756461730872,
+      "lo": 0.01186455162580577,
+      "hi": 0.014280173609783542,
+      "p_le0": 0.0
+     },
+     "delete_head_rms_delta_episodes": 456
+    },
+    {
+     "stage": "all",
+     "camera": "wrist",
+     "rows": 9815,
+     "episodes": 456,
+     "head_rms": {
+      "est": 0.4213801645418136,
+      "lo": 0.41302067865837777,
+      "hi": 0.43035099210070726,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 456,
+     "commit_rms": {
+      "est": 0.4376308478160812,
+      "lo": 0.4290850683905961,
+      "hi": 0.44694771647945714,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 456,
+     "gripper_mode_error": {
+      "est": 0.035988778889814284,
+      "lo": 0.033380713760595,
+      "hi": 0.03887075517507071,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 456,
+     "missing_event": {
+      "est": 0.03859884772698863,
+      "lo": 0.03502427959907918,
+      "hi": 0.04214279381577713,
+      "p_le0": 0.0
+     },
+     "missing_event_episodes": 456,
+     "extra_event": {
+      "est": 0.02935995391204104,
+      "lo": 0.02588915431359921,
+      "hi": 0.033003372113702335,
+      "p_le0": 0.0
+     },
+     "extra_event_episodes": 456,
+     "event_time_error": {
+      "est": 1.7580740740740743,
+      "lo": 1.645394444444444,
+      "hi": 1.8724083333333335,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 450,
+     "delete_head_rms_delta": {
+      "est": 0.012315640108211658,
+      "lo": 0.01100481688604884,
+      "hi": 0.013666215389290698,
+      "p_le0": 0.0
+     },
+     "delete_head_rms_delta_episodes": 456,
+     "paired_head_delta_vs_full": {
+      "est": 0.018734848827808254,
+      "lo": 0.01712490252318051,
+      "hi": 0.020389135462498414,
+      "p_le0": 0.0
+     }
+    },
+    {
+     "stage": "all",
+     "camera": "third_person",
+     "rows": 9815,
+     "episodes": 456,
+     "head_rms": {
+      "est": 0.4224147653252035,
+      "lo": 0.4138214999630823,
+      "hi": 0.4315316072185138,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 456,
+     "commit_rms": {
+      "est": 0.4360528776990519,
+      "lo": 0.42738926012941175,
+      "hi": 0.4453333872179019,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 456,
+     "gripper_mode_error": {
+      "est": 0.03172012817078721,
+      "lo": 0.029720399185867233,
+      "hi": 0.03397421371417738,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 456,
+     "missing_event": {
+      "est": 0.03185311593634536,
+      "lo": 0.028566243274787146,
+      "hi": 0.035316020309745205,
+      "p_le0": 0.0
+     },
+     "missing_event_episodes": 456,
+     "extra_event": {
+      "est": 0.029303950732384162,
+      "lo": 0.02605508211819751,
+      "hi": 0.03297941147851157,
+      "p_le0": 0.0
+     },
+     "extra_event_episodes": 456,
+     "event_time_error": {
+      "est": 1.5416852264291019,
+      "lo": 1.4500658871566443,
+      "hi": 1.6358212694877503,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 449,
+     "delete_head_rms_delta": {
+      "est": 0.010674089448467929,
+      "lo": 0.009348651149987064,
+      "hi": 0.012031627810984916,
+      "p_le0": 0.0
+     },
+     "delete_head_rms_delta_episodes": 456,
+     "paired_head_delta_vs_full": {
+      "est": 0.019769449611198222,
+      "lo": 0.017751611386881163,
+      "hi": 0.021816925635091976,
+      "p_le0": 0.0
+     }
+    }
+   ],
+   "bval_all": [
+    {
+     "stage": "all",
+     "camera": "full",
+     "rows": 122,
+     "episodes": 10,
+     "head_rms": {
+      "est": 0.35401879047603924,
+      "lo": 0.2858512422425566,
+      "hi": 0.4505041309409583,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 10,
+     "commit_rms": {
+      "est": 0.3680914072553082,
+      "lo": 0.30210411876024046,
+      "hi": 0.4570523439640746,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 10,
+     "gripper_mode_error": {
+      "est": 0.03484421134421134,
+      "lo": 0.014461043123543123,
+      "hi": 0.06430423465423464,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 10,
+     "missing_event": {
+      "est": 0.028181818181818186,
+      "lo": 0.0,
+      "hi": 0.06818181818181819,
+      "p_le0": 0.111
+     },
+     "missing_event_episodes": 10,
+     "extra_event": {
+      "est": 0.013636363636363636,
+      "lo": 0.0,
+      "hi": 0.04090909090909091,
+      "p_le0": 0.348
+     },
+     "extra_event_episodes": 10,
+     "event_time_error": {
+      "est": 1.4666666666666666,
+      "lo": 0.9333333333333332,
+      "hi": 2.05,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 10,
+     "delete_head_rms_delta": null,
+     "delete_head_rms_delta_episodes": 0
+    },
+    {
+     "stage": "all",
+     "camera": "wrist",
+     "rows": 122,
+     "episodes": 10,
+     "head_rms": {
+      "est": 0.37767038844731327,
+      "lo": 0.3044338917019799,
+      "hi": 0.4803498652533771,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 10,
+     "commit_rms": {
+      "est": 0.39072775481011,
+      "lo": 0.3187096847943596,
+      "hi": 0.4884132557845985,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 10,
+     "gripper_mode_error": {
+      "est": 0.03291336441336441,
+      "lo": 0.010820512820512822,
+      "hi": 0.06445921717171715,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 10,
+     "missing_event": {
+      "est": 0.036515151515151514,
+      "lo": 0.0,
+      "hi": 0.07659090909090868,
+      "p_le0": 0.0265
+     },
+     "missing_event_episodes": 10,
+     "extra_event": {
+      "est": 0.013636363636363636,
+      "lo": 0.0,
+      "hi": 0.04090909090909091,
+      "p_le0": 0.348
+     },
+     "extra_event_episodes": 10,
+     "event_time_error": {
+      "est": 1.1166666666666667,
+      "lo": 0.5666666666666667,
+      "hi": 1.6833333333333331,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 10,
+     "delete_head_rms_delta": null,
+     "delete_head_rms_delta_episodes": 0,
+     "paired_head_delta_vs_full": {
+      "est": 0.023651597971273954,
+      "lo": 0.0174157458915156,
+      "hi": 0.03166772780684428,
+      "p_le0": 0.0
+     }
+    },
+    {
+     "stage": "all",
+     "camera": "third_person",
+     "rows": 122,
+     "episodes": 10,
+     "head_rms": {
+      "est": 0.37005918519584274,
+      "lo": 0.29567831000537814,
+      "hi": 0.4743468471044053,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 10,
+     "commit_rms": {
+      "est": 0.3736789416728681,
+      "lo": 0.3079518818246505,
+      "hi": 0.46031344202453295,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 10,
+     "gripper_mode_error": {
+      "est": 0.045657342657342656,
+      "lo": 0.017665384615384618,
+      "hi": 0.09264055944055943,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 10,
+     "missing_event": {
+      "est": 0.04727272727272727,
+      "lo": 0.0,
+      "hi": 0.11454545454545455,
+      "p_le0": 0.111
+     },
+     "missing_event_episodes": 10,
+     "extra_event": {
+      "est": 0.00909090909090909,
+      "lo": 0.0,
+      "hi": 0.02727272727272727,
+      "p_le0": 0.348
+     },
+     "extra_event_episodes": 10,
+     "event_time_error": {
+      "est": 1.4444444444444444,
+      "lo": 0.7777777777777778,
+      "hi": 2.1124999999999923,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 9,
+     "delete_head_rms_delta": null,
+     "delete_head_rms_delta_episodes": 0,
+     "paired_head_delta_vs_full": {
+      "est": 0.016040394719803543,
+      "lo": 0.003340826490253596,
+      "hi": 0.02848830674199722,
+      "p_le0": 0.0055
+     }
+    }
+   ]
+  },
+  {
+   "cell": "pi05_l10_50",
+   "rows": 2640,
+   "source_episodes": 50,
+   "bval_anchors": 346,
+   "folds": 2,
+   "library_all": [
+    {
+     "stage": "all",
+     "camera": "full",
+     "rows": 2640,
+     "episodes": 50,
+     "head_rms": {
+      "est": 0.4898593745297541,
+      "lo": 0.46216385626894035,
+      "hi": 0.5179426557866584,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 50,
+     "commit_rms": {
+      "est": 0.5079377502964428,
+      "lo": 0.47988738834701805,
+      "hi": 0.5359961733581288,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 50,
+     "gripper_mode_error": {
+      "est": 0.05303703759090009,
+      "lo": 0.040872547716288433,
+      "hi": 0.06879958323351865,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 50,
+     "missing_event": {
+      "est": 0.06030366503497188,
+      "lo": 0.04902086335349422,
+      "hi": 0.07142122201814656,
+      "p_le0": 0.0
+     },
+     "missing_event_episodes": 50,
+     "extra_event": {
+      "est": 0.030567145842305275,
+      "lo": 0.02313313156008387,
+      "hi": 0.039972664227949366,
+      "p_le0": 0.0
+     },
+     "extra_event_episodes": 50,
+     "event_time_error": {
+      "est": 1.889112103174603,
+      "lo": 1.6323623511904763,
+      "hi": 2.154419642857142,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 48,
+     "delete_head_rms_delta": {
+      "est": 0.06693088460189978,
+      "lo": 0.055449130278744534,
+      "hi": 0.07895096822519546,
+      "p_le0": 0.0
+     },
+     "delete_head_rms_delta_episodes": 50
+    },
+    {
+     "stage": "all",
+     "camera": "wrist",
+     "rows": 2640,
+     "episodes": 50,
+     "head_rms": {
+      "est": 0.49557289538228944,
+      "lo": 0.47005378061269537,
+      "hi": 0.5223708468394545,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 50,
+     "commit_rms": {
+      "est": 0.5135374670860372,
+      "lo": 0.4872676331548298,
+      "hi": 0.5401823417927951,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 50,
+     "gripper_mode_error": {
+      "est": 0.04601721905557289,
+      "lo": 0.0368396963486234,
+      "hi": 0.05705641643135079,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 50,
+     "missing_event": {
+      "est": 0.05285711389753285,
+      "lo": 0.04322525153419157,
+      "hi": 0.06289428915926981,
+      "p_le0": 0.0
+     },
+     "missing_event_episodes": 50,
+     "extra_event": {
+      "est": 0.024747022969250597,
+      "lo": 0.018925686514802274,
+      "hi": 0.031135279462855384,
+      "p_le0": 0.0
+     },
+     "extra_event_episodes": 50,
+     "event_time_error": {
+      "est": 1.9726869502379707,
+      "lo": 1.6654633886521644,
+      "hi": 2.248366942014901,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 49,
+     "delete_head_rms_delta": {
+      "est": 0.06819229834169133,
+      "lo": 0.05465532927925131,
+      "hi": 0.08282949622017026,
+      "p_le0": 0.0
+     },
+     "delete_head_rms_delta_episodes": 50,
+     "paired_head_delta_vs_full": {
+      "est": 0.005713520852535382,
+      "lo": -0.0021063983323631077,
+      "hi": 0.013988360680526888,
+      "p_le0": 0.0815
+     }
+    },
+    {
+     "stage": "all",
+     "camera": "third_person",
+     "rows": 2640,
+     "episodes": 50,
+     "head_rms": {
+      "est": 0.5280677071952501,
+      "lo": 0.49358052723135476,
+      "hi": 0.5613961423958469,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 50,
+     "commit_rms": {
+      "est": 0.541060721705934,
+      "lo": 0.5068851400862682,
+      "hi": 0.574246571963478,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 50,
+     "gripper_mode_error": {
+      "est": 0.06671261478834965,
+      "lo": 0.053902530879569845,
+      "hi": 0.0804582773941376,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 50,
+     "missing_event": {
+      "est": 0.05652694358760956,
+      "lo": 0.04533092650428313,
+      "hi": 0.06802598470387032,
+      "p_le0": 0.0
+     },
+     "missing_event_episodes": 50,
+     "extra_event": {
+      "est": 0.05409929257753898,
+      "lo": 0.04105527111948227,
+      "hi": 0.06988993800897186,
+      "p_le0": 0.0
+     },
+     "extra_event_episodes": 50,
+     "event_time_error": {
+      "est": 2.0884126984126983,
+      "lo": 1.7648174603174602,
+      "hi": 2.4289690476190473,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 50,
+     "delete_head_rms_delta": {
+      "est": 0.06438080489891766,
+      "lo": 0.05184768937882001,
+      "hi": 0.07721861628528139,
+      "p_le0": 0.0
+     },
+     "delete_head_rms_delta_episodes": 50,
+     "paired_head_delta_vs_full": {
+      "est": 0.03820833266549598,
+      "lo": 0.02263769900517315,
+      "hi": 0.05418433718011362,
+      "p_le0": 0.0
+     }
+    }
+   ],
+   "bval_all": [
+    {
+     "stage": "all",
+     "camera": "full",
+     "rows": 346,
+     "episodes": 10,
+     "head_rms": {
+      "est": 0.4270241205347416,
+      "lo": 0.3365945926212036,
+      "hi": 0.5324873968734744,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 10,
+     "commit_rms": {
+      "est": 0.4361147776502354,
+      "lo": 0.3454821042016439,
+      "hi": 0.5436859272825356,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 10,
+     "gripper_mode_error": {
+      "est": 0.1159850101095791,
+      "lo": 0.021727400460805638,
+      "hi": 0.23577008186070672,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 10,
+     "missing_event": {
+      "est": 0.05947293447293447,
+      "lo": 0.0057692307692307696,
+      "hi": 0.1346153846153846,
+      "p_le0": 0.009
+     },
+     "missing_event_episodes": 10,
+     "extra_event": {
+      "est": 0.05801282051282051,
+      "lo": 0.0057692307692307696,
+      "hi": 0.1410657051282049,
+      "p_le0": 0.007
+     },
+     "extra_event_episodes": 10,
+     "event_time_error": {
+      "est": 1.5083333333333333,
+      "lo": 0.8666666666666666,
+      "hi": 2.1918749999999987,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 10,
+     "delete_head_rms_delta": null,
+     "delete_head_rms_delta_episodes": 0
+    },
+    {
+     "stage": "all",
+     "camera": "wrist",
+     "rows": 346,
+     "episodes": 10,
+     "head_rms": {
+      "est": 0.43493416457581213,
+      "lo": 0.35102804507155,
+      "hi": 0.5305333404077178,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 10,
+     "commit_rms": {
+      "est": 0.44756478988010223,
+      "lo": 0.3587815264993896,
+      "hi": 0.5489330022035648,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 10,
+     "gripper_mode_error": {
+      "est": 0.12885812324260598,
+      "lo": 0.03296009881234019,
+      "hi": 0.24680032069204444,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 10,
+     "missing_event": {
+      "est": 0.06099537037037037,
+      "lo": 0.011253561253561254,
+      "hi": 0.1340823094729344,
+      "p_le0": 0.0
+     },
+     "missing_event_episodes": 10,
+     "extra_event": {
+      "est": 0.03967175066312997,
+      "lo": 0.009615384615384616,
+      "hi": 0.07500663129973471,
+      "p_le0": 0.0005
+     },
+     "extra_event_episodes": 10,
+     "event_time_error": {
+      "est": 1.6192857142857142,
+      "lo": 1.0449166666666665,
+      "hi": 2.333416666666666,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 10,
+     "delete_head_rms_delta": null,
+     "delete_head_rms_delta_episodes": 0,
+     "paired_head_delta_vs_full": {
+      "est": 0.007910044041070447,
+      "lo": -0.010549623069317062,
+      "hi": 0.02031010169657495,
+      "p_le0": 0.174
+     }
+    },
+    {
+     "stage": "all",
+     "camera": "third_person",
+     "rows": 346,
+     "episodes": 10,
+     "head_rms": {
+      "est": 0.4770923046733412,
+      "lo": 0.3741726343210701,
+      "hi": 0.5966263378678283,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 10,
+     "commit_rms": {
+      "est": 0.4796984811133712,
+      "lo": 0.37446220682667114,
+      "hi": 0.6027102219302447,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 10,
+     "gripper_mode_error": {
+      "est": 0.132701709766796,
+      "lo": 0.03523280640554347,
+      "hi": 0.253755929054054,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 10,
+     "missing_event": {
+      "est": 0.07164857164857165,
+      "lo": 0.011174636174636175,
+      "hi": 0.15079396704396694,
+      "p_le0": 0.001
+     },
+     "missing_event_episodes": 10,
+     "extra_event": {
+      "est": 0.05649591069849691,
+      "lo": 0.009935897435897437,
+      "hi": 0.13141239776746244,
+      "p_le0": 0.0
+     },
+     "extra_event_episodes": 10,
+     "event_time_error": {
+      "est": 1.8148148148148147,
+      "lo": 1.2777777777777777,
+      "hi": 2.407407407407407,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 9,
+     "delete_head_rms_delta": null,
+     "delete_head_rms_delta_episodes": 0,
+     "paired_head_delta_vs_full": {
+      "est": 0.050068184138599515,
+      "lo": 0.032915650571405455,
+      "hi": 0.07166779025728767,
+      "p_le0": 0.0
+     }
+    }
+   ]
+  },
+  {
+   "cell": "pi05_l10_500",
+   "rows": 22816,
+   "source_episodes": 500,
+   "bval_anchors": 274,
+   "folds": 2,
+   "library_all": [
+    {
+     "stage": "all",
+     "camera": "full",
+     "rows": 22816,
+     "episodes": 436,
+     "head_rms": {
+      "est": 0.3371175968256719,
+      "lo": 0.3292020443787691,
+      "hi": 0.3452018977403935,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 436,
+     "commit_rms": {
+      "est": 0.34771045359659586,
+      "lo": 0.33966182998086786,
+      "hi": 0.35547217320607427,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 436,
+     "gripper_mode_error": {
+      "est": 0.028373961866792755,
+      "lo": 0.02602496787429927,
+      "hi": 0.031066850749358606,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 436,
+     "missing_event": {
+      "est": 0.02501705007769121,
+      "lo": 0.022408578411290857,
+      "hi": 0.027742432836336754,
+      "p_le0": 0.0
+     },
+     "missing_event_episodes": 436,
+     "extra_event": {
+      "est": 0.025844743650045205,
+      "lo": 0.023164074233378552,
+      "hi": 0.028663952036329345,
+      "p_le0": 0.0
+     },
+     "extra_event_episodes": 436,
+     "event_time_error": {
+      "est": 1.2161141817255725,
+      "lo": 1.1664209472738858,
+      "hi": 1.2678725728734497,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 436,
+     "delete_head_rms_delta": {
+      "est": 0.020988097178364935,
+      "lo": 0.019465304115855734,
+      "hi": 0.02259963121565839,
+      "p_le0": 0.0
+     },
+     "delete_head_rms_delta_episodes": 436
+    },
+    {
+     "stage": "all",
+     "camera": "wrist",
+     "rows": 22816,
+     "episodes": 436,
+     "head_rms": {
+      "est": 0.3517872792276162,
+      "lo": 0.34377213162419334,
+      "hi": 0.35986877275567997,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 436,
+     "commit_rms": {
+      "est": 0.36242399888517624,
+      "lo": 0.3545525982716257,
+      "hi": 0.37046007502360984,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 436,
+     "gripper_mode_error": {
+      "est": 0.028424207467911425,
+      "lo": 0.026190652980081133,
+      "hi": 0.03062804561251291,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 436,
+     "missing_event": {
+      "est": 0.027278351100704513,
+      "lo": 0.024433199800209745,
+      "hi": 0.030157777366906422,
+      "p_le0": 0.0
+     },
+     "missing_event_episodes": 436,
+     "extra_event": {
+      "est": 0.023390917149830822,
+      "lo": 0.021059841287278874,
+      "hi": 0.025835756541131162,
+      "p_le0": 0.0
+     },
+     "extra_event_episodes": 436,
+     "event_time_error": {
+      "est": 1.2473456466631474,
+      "lo": 1.197467621508438,
+      "hi": 1.2978102910472138,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 436,
+     "delete_head_rms_delta": {
+      "est": 0.02100231180652942,
+      "lo": 0.01929427935591692,
+      "hi": 0.022768962878262855,
+      "p_le0": 0.0
+     },
+     "delete_head_rms_delta_episodes": 436,
+     "paired_head_delta_vs_full": {
+      "est": 0.014669682401944316,
+      "lo": 0.012985427783387835,
+      "hi": 0.01635952849388082,
+      "p_le0": 0.0
+     }
+    },
+    {
+     "stage": "all",
+     "camera": "third_person",
+     "rows": 22816,
+     "episodes": 436,
+     "head_rms": {
+      "est": 0.3896758351022411,
+      "lo": 0.3815770506760777,
+      "hi": 0.3981136425954502,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 436,
+     "commit_rms": {
+      "est": 0.397914961431116,
+      "lo": 0.389938311998956,
+      "hi": 0.4059583269249564,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 436,
+     "gripper_mode_error": {
+      "est": 0.04349456623616303,
+      "lo": 0.04036877951649593,
+      "hi": 0.046938407502349226,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 436,
+     "missing_event": {
+      "est": 0.03523994450419782,
+      "lo": 0.03195353728172991,
+      "hi": 0.038596489175915565,
+      "p_le0": 0.0
+     },
+     "missing_event_episodes": 436,
+     "extra_event": {
+      "est": 0.04532899408627295,
+      "lo": 0.042017900258808416,
+      "hi": 0.0488288087646393,
+      "p_le0": 0.0
+     },
+     "extra_event_episodes": 436,
+     "event_time_error": {
+      "est": 1.603819557212052,
+      "lo": 1.532688311788464,
+      "hi": 1.6738389211145295,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 435,
+     "delete_head_rms_delta": {
+      "est": 0.014781657639270031,
+      "lo": 0.013005965244840715,
+      "hi": 0.0164984294859119,
+      "p_le0": 0.0
+     },
+     "delete_head_rms_delta_episodes": 436,
+     "paired_head_delta_vs_full": {
+      "est": 0.05255823827656919,
+      "lo": 0.050537865964748414,
+      "hi": 0.05468713820880365,
+      "p_le0": 0.0
+     }
+    }
+   ],
+   "bval_all": [
+    {
+     "stage": "all",
+     "camera": "full",
+     "rows": 274,
+     "episodes": 10,
+     "head_rms": {
+      "est": 0.2450296080760352,
+      "lo": 0.21324086357800048,
+      "hi": 0.27425999187120015,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 10,
+     "commit_rms": {
+      "est": 0.2509530678141753,
+      "lo": 0.22455252834478162,
+      "hi": 0.2755178792346636,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 10,
+     "gripper_mode_error": {
+      "est": 0.025119246138811356,
+      "lo": 0.012714975054105489,
+      "hi": 0.041004282722597936,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 10,
+     "missing_event": {
+      "est": 0.007703703703703704,
+      "lo": 0.0,
+      "hi": 0.019111111111111113,
+      "p_le0": 0.111
+     },
+     "missing_event_episodes": 10,
+     "extra_event": {
+      "est": 0.02710713160713161,
+      "lo": 0.012166666666666668,
+      "hi": 0.042967883355383346,
+      "p_le0": 0.0
+     },
+     "extra_event_episodes": 10,
+     "event_time_error": {
+      "est": 1.2816666666666667,
+      "lo": 0.7532083333333333,
+      "hi": 1.7833333333333332,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 10,
+     "delete_head_rms_delta": null,
+     "delete_head_rms_delta_episodes": 0
+    },
+    {
+     "stage": "all",
+     "camera": "wrist",
+     "rows": 274,
+     "episodes": 10,
+     "head_rms": {
+      "est": 0.2687961066157672,
+      "lo": 0.23244271508472944,
+      "hi": 0.3098174304861939,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 10,
+     "commit_rms": {
+      "est": 0.27489726918324836,
+      "lo": 0.24230485275351635,
+      "hi": 0.31097700800994454,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 10,
+     "gripper_mode_error": {
+      "est": 0.04024623581471408,
+      "lo": 0.01591122698785742,
+      "hi": 0.08103538385869904,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 10,
+     "missing_event": {
+      "est": 0.009626780626780627,
+      "lo": 0.0,
+      "hi": 0.01954985754985755,
+      "p_le0": 0.034
+     },
+     "missing_event_episodes": 10,
+     "extra_event": {
+      "est": 0.022018389018389022,
+      "lo": 0.008,
+      "hi": 0.035330212380212354,
+      "p_le0": 0.001
+     },
+     "extra_event_episodes": 10,
+     "event_time_error": {
+      "est": 1.7950000000000004,
+      "lo": 1.1983333333333335,
+      "hi": 2.548499999999999,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 10,
+     "delete_head_rms_delta": null,
+     "delete_head_rms_delta_episodes": 0,
+     "paired_head_delta_vs_full": {
+      "est": 0.023766498539731996,
+      "lo": 0.009550867983183246,
+      "hi": 0.0433539570860577,
+      "p_le0": 0.0
+     }
+    },
+    {
+     "stage": "all",
+     "camera": "third_person",
+     "rows": 274,
+     "episodes": 10,
+     "head_rms": {
+      "est": 0.30749511839960425,
+      "lo": 0.2679029704278946,
+      "hi": 0.3452196024254359,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 10,
+     "commit_rms": {
+      "est": 0.3106906387426415,
+      "lo": 0.2744972046663829,
+      "hi": 0.346044514815027,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 10,
+     "gripper_mode_error": {
+      "est": 0.039272900233769795,
+      "lo": 0.025165765953700733,
+      "hi": 0.053347526490461275,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 10,
+     "missing_event": {
+      "est": 0.005626780626780627,
+      "lo": 0.0,
+      "hi": 0.013176638176638177,
+      "p_le0": 0.1065
+     },
+     "missing_event_episodes": 10,
+     "extra_event": {
+      "est": 0.04125971897711028,
+      "lo": 0.02073268921095008,
+      "hi": 0.06119920467746555,
+      "p_le0": 0.0
+     },
+     "extra_event_episodes": 10,
+     "event_time_error": {
+      "est": 1.7449999999999999,
+      "lo": 0.9748749999999999,
+      "hi": 2.5701249999999995,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 10,
+     "delete_head_rms_delta": null,
+     "delete_head_rms_delta_episodes": 0,
+     "paired_head_delta_vs_full": {
+      "est": 0.06246551032356899,
+      "lo": 0.050262143497030516,
+      "hi": 0.07600597067228464,
+      "p_le0": 0.0
+     }
+    }
+   ]
+  },
+  {
+   "cell": "pi05_spatial_50",
+   "rows": 1018,
+   "source_episodes": 49,
+   "bval_anchors": 152,
+   "folds": 2,
+   "library_all": [
+    {
+     "stage": "all",
+     "camera": "full",
+     "rows": 1018,
+     "episodes": 49,
+     "head_rms": {
+      "est": 0.5459881558075685,
+      "lo": 0.5110200530293288,
+      "hi": 0.5840492050531908,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 49,
+     "commit_rms": {
+      "est": 0.5739901294852758,
+      "lo": 0.5363396195023016,
+      "hi": 0.6136592012131421,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 49,
+     "gripper_mode_error": {
+      "est": 0.05781738154069283,
+      "lo": 0.04654093318369546,
+      "hi": 0.07167761991217336,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 49,
+     "missing_event": {
+      "est": 0.07101114175677868,
+      "lo": 0.05702591690515121,
+      "hi": 0.08594218771293154,
+      "p_le0": 0.0
+     },
+     "missing_event_episodes": 49,
+     "extra_event": {
+      "est": 0.028898178760583672,
+      "lo": 0.018976240689694206,
+      "hi": 0.03979880703702955,
+      "p_le0": 0.0
+     },
+     "extra_event_episodes": 49,
+     "event_time_error": {
+      "est": 1.990942028985507,
+      "lo": 1.6431159420289854,
+      "hi": 2.3623641304347824,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 46,
+     "delete_head_rms_delta": {
+      "est": 0.08683965659237167,
+      "lo": 0.07382665288446925,
+      "hi": 0.100534527085954,
+      "p_le0": 0.0
+     },
+     "delete_head_rms_delta_episodes": 49
+    },
+    {
+     "stage": "all",
+     "camera": "wrist",
+     "rows": 1018,
+     "episodes": 49,
+     "head_rms": {
+      "est": 0.5442828820863657,
+      "lo": 0.5092158575979793,
+      "hi": 0.5829626045756624,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 49,
+     "commit_rms": {
+      "est": 0.5724127824264694,
+      "lo": 0.5359434625890098,
+      "hi": 0.6118909395166575,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 49,
+     "gripper_mode_error": {
+      "est": 0.046663971644513975,
+      "lo": 0.039731328519500564,
+      "hi": 0.054185482780327095,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 49,
+     "missing_event": {
+      "est": 0.07930412544622988,
+      "lo": 0.06387444893457596,
+      "hi": 0.09489673883560773,
+      "p_le0": 0.0
+     },
+     "missing_event_episodes": 49,
+     "extra_event": {
+      "est": 0.022132404683734137,
+      "lo": 0.012147119851817349,
+      "hi": 0.03363108146068813,
+      "p_le0": 0.0
+     },
+     "extra_event_episodes": 49,
+     "event_time_error": {
+      "est": 2.0425925925925923,
+      "lo": 1.6611111111111112,
+      "hi": 2.45375,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 45,
+     "delete_head_rms_delta": {
+      "est": 0.08909938533119252,
+      "lo": 0.07631658699761129,
+      "hi": 0.10141361903468045,
+      "p_le0": 0.0
+     },
+     "delete_head_rms_delta_episodes": 49,
+     "paired_head_delta_vs_full": {
+      "est": -0.0017052737212030218,
+      "lo": -0.012338362165372416,
+      "hi": 0.008658057936720458,
+      "p_le0": 0.6325
+     }
+    },
+    {
+     "stage": "all",
+     "camera": "third_person",
+     "rows": 1018,
+     "episodes": 49,
+     "head_rms": {
+      "est": 0.5881125601043165,
+      "lo": 0.5505614620388939,
+      "hi": 0.6286972401973225,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 49,
+     "commit_rms": {
+      "est": 0.6112404945607184,
+      "lo": 0.5731464982199985,
+      "hi": 0.6526625813223912,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 49,
+     "gripper_mode_error": {
+      "est": 0.07077898516328786,
+      "lo": 0.058470419231274245,
+      "hi": 0.08515885474267569,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 49,
+     "missing_event": {
+      "est": 0.08065311462994565,
+      "lo": 0.06589834189749218,
+      "hi": 0.09613074787436018,
+      "p_le0": 0.0
+     },
+     "missing_event_episodes": 49,
+     "extra_event": {
+      "est": 0.039494499249279884,
+      "lo": 0.026405089788216377,
+      "hi": 0.054402150713185986,
+      "p_le0": 0.0
+     },
+     "extra_event_episodes": 49,
+     "event_time_error": {
+      "est": 2.294573643410853,
+      "lo": 1.8603682170542635,
+      "hi": 2.7674418604651163,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 43,
+     "delete_head_rms_delta": {
+      "est": 0.07928679815690307,
+      "lo": 0.06578205225033723,
+      "hi": 0.0936385045483053,
+      "p_le0": 0.0
+     },
+     "delete_head_rms_delta_episodes": 49,
+     "paired_head_delta_vs_full": {
+      "est": 0.0421244042967478,
+      "lo": 0.02816113557096835,
+      "hi": 0.05747700930485306,
+      "p_le0": 0.0
+     }
+    }
+   ],
+   "bval_all": [
+    {
+     "stage": "all",
+     "camera": "full",
+     "rows": 152,
+     "episodes": 10,
+     "head_rms": {
+      "est": 0.560052867678214,
+      "lo": 0.3871395488648055,
+      "hi": 0.7439902572126199,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 10,
+     "commit_rms": {
+      "est": 0.5576146531329444,
+      "lo": 0.38412858843554476,
+      "hi": 0.7393301558950485,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 10,
+     "gripper_mode_error": {
+      "est": 0.21855361305361307,
+      "lo": 0.07064076340326343,
+      "hi": 0.3802185606060606,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 10,
+     "missing_event": {
+      "est": 0.08181818181818182,
+      "lo": 0.0,
+      "hi": 0.16829545454545392,
+      "p_le0": 0.0305
+     },
+     "missing_event_episodes": 10,
+     "extra_event": {
+      "est": 0.11742424242424243,
+      "lo": 0.013636363636363636,
+      "hi": 0.2583333333333333,
+      "p_le0": 0.0015
+     },
+     "extra_event_episodes": 10,
+     "event_time_error": {
+      "est": 1.5277777777777777,
+      "lo": 0.8611111111111112,
+      "hi": 2.361111111111111,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 9,
+     "delete_head_rms_delta": null,
+     "delete_head_rms_delta_episodes": 0
+    },
+    {
+     "stage": "all",
+     "camera": "wrist",
+     "rows": 152,
+     "episodes": 10,
+     "head_rms": {
+      "est": 0.5702776259006188,
+      "lo": 0.38671438504937145,
+      "hi": 0.7704189260572321,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 10,
+     "commit_rms": {
+      "est": 0.5666336009945423,
+      "lo": 0.3842431433577718,
+      "hi": 0.7559266937381418,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 10,
+     "gripper_mode_error": {
+      "est": 0.20670318570318566,
+      "lo": 0.07101890054390053,
+      "hi": 0.3542710858585858,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 10,
+     "missing_event": {
+      "est": 0.086985236985237,
+      "lo": 0.01818181818181818,
+      "hi": 0.18698523698523697,
+      "p_le0": 0.002
+     },
+     "missing_event_episodes": 10,
+     "extra_event": {
+      "est": 0.1315151515151515,
+      "lo": 0.030303030303030297,
+      "hi": 0.2460681818181818,
+      "p_le0": 0.0015
+     },
+     "extra_event_episodes": 10,
+     "event_time_error": {
+      "est": 1.5555555555555556,
+      "lo": 1.0,
+      "hi": 2.067499999999995,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 10,
+     "delete_head_rms_delta": null,
+     "delete_head_rms_delta_episodes": 0,
+     "paired_head_delta_vs_full": {
+      "est": 0.0102247582224048,
+      "lo": -0.010733767099335888,
+      "hi": 0.03443365622030757,
+      "p_le0": 0.1745
+     }
+    },
+    {
+     "stage": "all",
+     "camera": "third_person",
+     "rows": 152,
+     "episodes": 10,
+     "head_rms": {
+      "est": 0.5855416170723976,
+      "lo": 0.4142995489769174,
+      "hi": 0.768674535720939,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 10,
+     "commit_rms": {
+      "est": 0.585871893020936,
+      "lo": 0.41602492851994755,
+      "hi": 0.7662781879858465,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 10,
+     "gripper_mode_error": {
+      "est": 0.21416317016317016,
+      "lo": 0.07043790792540792,
+      "hi": 0.36710606060606066,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 10,
+     "missing_event": {
+      "est": 0.08272727272727273,
+      "lo": 0.01,
+      "hi": 0.17272727272727273,
+      "p_le0": 0.007
+     },
+     "missing_event_episodes": 10,
+     "extra_event": {
+      "est": 0.09727272727272727,
+      "lo": 0.013636363636363636,
+      "hi": 0.21277272727272703,
+      "p_le0": 0.004
+     },
+     "extra_event_episodes": 10,
+     "event_time_error": {
+      "est": 2.5317460317460316,
+      "lo": 1.3333333333333333,
+      "hi": 3.9761904761904763,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 9,
+     "delete_head_rms_delta": null,
+     "delete_head_rms_delta_episodes": 0,
+     "paired_head_delta_vs_full": {
+      "est": 0.025488749394183656,
+      "lo": -0.009419460110986055,
+      "hi": 0.0658751372384199,
+      "p_le0": 0.0855
+     }
+    }
+   ]
+  },
+  {
+   "cell": "pi05_spatial_500",
+   "rows": 10337,
+   "source_episodes": 500,
+   "bval_anchors": 135,
+   "folds": 2,
+   "library_all": [
+    {
+     "stage": "all",
+     "camera": "full",
+     "rows": 10337,
+     "episodes": 487,
+     "head_rms": {
+      "est": 0.3552734806134239,
+      "lo": 0.3467229525900108,
+      "hi": 0.36412466075970223,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 487,
+     "commit_rms": {
+      "est": 0.37236349350804454,
+      "lo": 0.3638507122971289,
+      "hi": 0.381204578949219,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 487,
+     "gripper_mode_error": {
+      "est": 0.024686821351382546,
+      "lo": 0.022815136575375303,
+      "hi": 0.02649392723454845,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 487,
+     "missing_event": {
+      "est": 0.01882313453721553,
+      "lo": 0.01612730063533631,
+      "hi": 0.02145655650957128,
+      "p_le0": 0.0
+     },
+     "missing_event_episodes": 487,
+     "extra_event": {
+      "est": 0.01984991601885317,
+      "lo": 0.016997706786857532,
+      "hi": 0.022988108500136373,
+      "p_le0": 0.0
+     },
+     "extra_event_episodes": 487,
+     "event_time_error": {
+      "est": 1.1596346272937652,
+      "lo": 1.0935331923666114,
+      "hi": 1.226827087611225,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 487,
+     "delete_head_rms_delta": {
+      "est": 0.01755634122316587,
+      "lo": 0.016069600511017676,
+      "hi": 0.01906684137467852,
+      "p_le0": 0.0
+     },
+     "delete_head_rms_delta_episodes": 487
+    },
+    {
+     "stage": "all",
+     "camera": "wrist",
+     "rows": 10337,
+     "episodes": 487,
+     "head_rms": {
+      "est": 0.3665672482799366,
+      "lo": 0.358005875214893,
+      "hi": 0.3753824573506117,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 487,
+     "commit_rms": {
+      "est": 0.3831696054857066,
+      "lo": 0.37467229126565016,
+      "hi": 0.391923682708223,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 487,
+     "gripper_mode_error": {
+      "est": 0.024308879369181417,
+      "lo": 0.02252630050708778,
+      "hi": 0.026015510780138456,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 487,
+     "missing_event": {
+      "est": 0.01999850556608356,
+      "lo": 0.017198285722726404,
+      "hi": 0.022653548667037254,
+      "p_le0": 0.0
+     },
+     "missing_event_episodes": 487,
+     "extra_event": {
+      "est": 0.01970899960852116,
+      "lo": 0.016907410897801175,
+      "hi": 0.022571755247319816,
+      "p_le0": 0.0
+     },
+     "extra_event_episodes": 487,
+     "event_time_error": {
+      "est": 1.1656986408526453,
+      "lo": 1.1035152659626482,
+      "hi": 1.2281783514227045,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 487,
+     "delete_head_rms_delta": {
+      "est": 0.016732544828126646,
+      "lo": 0.015095705522992964,
+      "hi": 0.01837361839822114,
+      "p_le0": 0.0
+     },
+     "delete_head_rms_delta_episodes": 487,
+     "paired_head_delta_vs_full": {
+      "est": 0.011293767666512715,
+      "lo": 0.009758474030885296,
+      "hi": 0.012913459163148126,
+      "p_le0": 0.0
+     }
+    },
+    {
+     "stage": "all",
+     "camera": "third_person",
+     "rows": 10337,
+     "episodes": 487,
+     "head_rms": {
+      "est": 0.39987036817516936,
+      "lo": 0.3909837506739484,
+      "hi": 0.40902800516114945,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 487,
+     "commit_rms": {
+      "est": 0.41268912154151055,
+      "lo": 0.40373190347700627,
+      "hi": 0.42187609749936067,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 487,
+     "gripper_mode_error": {
+      "est": 0.030199839323421292,
+      "lo": 0.027838306119549523,
+      "hi": 0.03239241181976565,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 487,
+     "missing_event": {
+      "est": 0.027584637293157684,
+      "lo": 0.024374185255692283,
+      "hi": 0.03092399425179838,
+      "p_le0": 0.0
+     },
+     "missing_event_episodes": 487,
+     "extra_event": {
+      "est": 0.02622148227889165,
+      "lo": 0.022884905702452527,
+      "hi": 0.029620748032512814,
+      "p_le0": 0.0
+     },
+     "extra_event_episodes": 487,
+     "event_time_error": {
+      "est": 1.3204668437622984,
+      "lo": 1.2490632378984652,
+      "hi": 1.3928436147186147,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 484,
+     "delete_head_rms_delta": {
+      "est": 0.011245626544428133,
+      "lo": 0.009543153248388314,
+      "hi": 0.012905930051855322,
+      "p_le0": 0.0
+     },
+     "delete_head_rms_delta_episodes": 487,
+     "paired_head_delta_vs_full": {
+      "est": 0.04459688756174557,
+      "lo": 0.04207587624486676,
+      "hi": 0.047015342278927306,
+      "p_le0": 0.0
+     }
+    }
+   ],
+   "bval_all": [
+    {
+     "stage": "all",
+     "camera": "full",
+     "rows": 135,
+     "episodes": 10,
+     "head_rms": {
+      "est": 0.34171427785872677,
+      "lo": 0.2555727448836173,
+      "hi": 0.4546699952976383,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 10,
+     "commit_rms": {
+      "est": 0.34817879763913173,
+      "lo": 0.2645939236139971,
+      "hi": 0.4509904095259289,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 10,
+     "gripper_mode_error": {
+      "est": 0.06271761571761572,
+      "lo": 0.018957417582417584,
+      "hi": 0.12160357142857131,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 10,
+     "missing_event": {
+      "est": 0.030419580419580417,
+      "lo": 0.00909090909090909,
+      "hi": 0.05454545454545454,
+      "p_le0": 0.006
+     },
+     "missing_event_episodes": 10,
+     "extra_event": {
+      "est": 0.041818181818181824,
+      "lo": 0.0,
+      "hi": 0.0909545454545452,
+      "p_le0": 0.0325
+     },
+     "extra_event_episodes": 10,
+     "event_time_error": {
+      "est": 1.351851851851852,
+      "lo": 0.9629629629629631,
+      "hi": 1.7222222222222223,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 9,
+     "delete_head_rms_delta": null,
+     "delete_head_rms_delta_episodes": 0
+    },
+    {
+     "stage": "all",
+     "camera": "wrist",
+     "rows": 135,
+     "episodes": 10,
+     "head_rms": {
+      "est": 0.34798787350233723,
+      "lo": 0.2627597240282785,
+      "hi": 0.45764377097297493,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 10,
+     "commit_rms": {
+      "est": 0.3541030653711625,
+      "lo": 0.27546196188392325,
+      "hi": 0.4501469115332749,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 10,
+     "gripper_mode_error": {
+      "est": 0.04017915417915418,
+      "lo": 0.01414484681984682,
+      "hi": 0.07213034465534465,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 10,
+     "missing_event": {
+      "est": 0.021328671328671327,
+      "lo": 0.0,
+      "hi": 0.04265734265734265,
+      "p_le0": 0.0255
+     },
+     "missing_event_episodes": 10,
+     "extra_event": {
+      "est": 0.03272727272727273,
+      "lo": 0.0,
+      "hi": 0.07454545454545454,
+      "p_le0": 0.0325
+     },
+     "extra_event_episodes": 10,
+     "event_time_error": {
+      "est": 0.9074074074074073,
+      "lo": 0.5185185185185185,
+      "hi": 1.3333333333333333,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 9,
+     "delete_head_rms_delta": null,
+     "delete_head_rms_delta_episodes": 0,
+     "paired_head_delta_vs_full": {
+      "est": 0.0062735956436104304,
+      "lo": -0.0035597302868504216,
+      "hi": 0.015665380225803816,
+      "p_le0": 0.131
+     }
+    },
+    {
+     "stage": "all",
+     "camera": "third_person",
+     "rows": 135,
+     "episodes": 10,
+     "head_rms": {
+      "est": 0.412613511260359,
+      "lo": 0.3153402410721587,
+      "hi": 0.5266255975625399,
+      "p_le0": 0.0
+     },
+     "head_rms_episodes": 10,
+     "commit_rms": {
+      "est": 0.4143066121771478,
+      "lo": 0.32011540299070296,
+      "hi": 0.5210508360450412,
+      "p_le0": 0.0
+     },
+     "commit_rms_episodes": 10,
+     "gripper_mode_error": {
+      "est": 0.08336996336996337,
+      "lo": 0.025116008991008992,
+      "hi": 0.15837450882450865,
+      "p_le0": 0.0
+     },
+     "gripper_mode_error_episodes": 10,
+     "missing_event": {
+      "est": 0.03636363636363636,
+      "lo": 0.0,
+      "hi": 0.08636363636363635,
+      "p_le0": 0.103
+     },
+     "missing_event_episodes": 10,
+     "extra_event": {
+      "est": 0.03272727272727273,
+      "lo": 0.0,
+      "hi": 0.07454545454545454,
+      "p_le0": 0.0325
+     },
+     "extra_event_episodes": 10,
+     "event_time_error": {
+      "est": 1.9,
+      "lo": 1.45,
+      "hi": 2.4,
+      "p_le0": 0.0
+     },
+     "event_time_error_episodes": 10,
+     "delete_head_rms_delta": null,
+     "delete_head_rms_delta_episodes": 0,
+     "paired_head_delta_vs_full": {
+      "est": 0.07089923340163225,
+      "lo": 0.04902003162087083,
+      "hi": 0.09387465373387685,
+      "p_le0": 0.0
+     }
+    }
+   ]
+  }
+ ],
+ "stage_value": {
+  "audits": [
+   {
+    "episodes": 500,
+    "discarded_prior_prefix": 0,
+    "arm": "r6c_groot_l10_500_U18",
+    "cell": "groot_l10_500",
+    "accepted_decisions": 29370,
+    "supported_anchors": 14787,
+    "forced_or_endpoint": 0,
+    "unavailable_full_kernel": 0,
+    "supported_dose_counts": {
+     "0": 2,
+     "1": 2,
+     "2": 2,
+     "3": 2,
+     "4": 2,
+     "5": 2,
+     "6": 2,
+     "7": 2,
+     "8": 2,
+     "9": 2
+    },
+    "SR_descriptive": 0.848
+   },
+   {
+    "episodes": 500,
+    "discarded_prior_prefix": 0,
+    "arm": "r6c_groot_l10_50_U30",
+    "cell": "groot_l10_50",
+    "accepted_decisions": 31629,
+    "supported_anchors": 15036,
+    "forced_or_endpoint": 880,
+    "unavailable_full_kernel": 0,
+    "supported_dose_counts": {
+     "0": 1,
+     "1": 1,
+     "2": 1,
+     "3": 1,
+     "4": 1,
+     "5": 1,
+     "6": 1,
+     "7": 1,
+     "8": 1,
+     "9": 1
+    },
+    "SR_descriptive": 0.77
+   },
+   {
+    "episodes": 500,
+    "discarded_prior_prefix": 0,
+    "arm": "r6c_groot_spatial_500_U18",
+    "cell": "groot_spatial_500",
+    "accepted_decisions": 11089,
+    "supported_anchors": 5658,
+    "forced_or_endpoint": 0,
+    "unavailable_full_kernel": 0,
+    "supported_dose_counts": {
+     "0": 2,
+     "1": 2,
+     "2": 2,
+     "3": 2,
+     "4": 2,
+     "5": 2,
+     "6": 2,
+     "7": 2,
+     "8": 2,
+     "9": 2
+    },
+    "SR_descriptive": 0.954
+   },
+   {
+    "episodes": 500,
+    "discarded_prior_prefix": 0,
+    "arm": "r6c_groot_spatial_50_U30",
+    "cell": "groot_spatial_50",
+    "accepted_decisions": 11774,
+    "supported_anchors": 5872,
+    "forced_or_endpoint": 126,
+    "unavailable_full_kernel": 0,
+    "supported_dose_counts": {
+     "0": 1,
+     "1": 1,
+     "2": 1,
+     "3": 1,
+     "4": 1,
+     "5": 1,
+     "6": 1,
+     "7": 1,
+     "8": 1,
+     "9": 1
+    },
+    "SR_descriptive": 0.928
+   },
+   {
+    "episodes": 500,
+    "discarded_prior_prefix": 0,
+    "arm": "r6c_pi05_l10_500_U18",
+    "cell": "pi05_l10_500",
+    "accepted_decisions": 28801,
+    "supported_anchors": 14497,
+    "forced_or_endpoint": 0,
+    "unavailable_full_kernel": 0,
+    "supported_dose_counts": {
+     "0": 2,
+     "1": 2,
+     "2": 2,
+     "3": 2,
+     "4": 2,
+     "5": 2,
+     "6": 2,
+     "7": 2,
+     "8": 2,
+     "9": 2
+    },
+    "SR_descriptive": 0.874
+   },
+   {
+    "episodes": 500,
+    "discarded_prior_prefix": 0,
+    "arm": "r6c_pi05_l10_50_U30",
+    "cell": "pi05_l10_50",
+    "accepted_decisions": 28646,
+    "supported_anchors": 13839,
+    "forced_or_endpoint": 582,
+    "unavailable_full_kernel": 0,
+    "supported_dose_counts": {
+     "0": 1,
+     "1": 1,
+     "2": 1,
+     "3": 1,
+     "4": 1,
+     "5": 1,
+     "6": 1,
+     "7": 1,
+     "8": 1,
+     "9": 1
+    },
+    "SR_descriptive": 0.878
+   },
+   {
+    "episodes": 500,
+    "discarded_prior_prefix": 0,
+    "arm": "r6c_pi05_spatial_500_U18",
+    "cell": "pi05_spatial_500",
+    "accepted_decisions": 10728,
+    "supported_anchors": 5498,
+    "forced_or_endpoint": 0,
+    "unavailable_full_kernel": 0,
+    "supported_dose_counts": {
+     "0": 2,
+     "1": 2,
+     "2": 2,
+     "3": 2,
+     "4": 2,
+     "5": 2,
+     "6": 2,
+     "7": 2,
+     "8": 2,
+     "9": 2
+    },
+    "SR_descriptive": 0.968
+   },
+   {
+    "episodes": 500,
+    "discarded_prior_prefix": 0,
+    "arm": "r6c_pi05_spatial_50_U30",
+    "cell": "pi05_spatial_50",
+    "accepted_decisions": 11279,
+    "supported_anchors": 5706,
+    "forced_or_endpoint": 53,
+    "unavailable_full_kernel": 0,
+    "supported_dose_counts": {
+     "0": 1,
+     "1": 1,
+     "2": 1,
+     "3": 1,
+     "4": 1,
+     "5": 1,
+     "6": 1,
+     "7": 1,
+     "8": 1,
+     "9": 1
+    },
+    "SR_descriptive": 0.94
+   },
+   {
+    "episodes": 500,
+    "discarded_prior_prefix": 0,
+    "arm": "r6q2_groot_l10_500_risk_rho0p13",
+    "cell": "groot_l10_500",
+    "accepted_decisions": 29379,
+    "supported_anchors": 13406,
+    "forced_or_endpoint": 1387,
+    "unavailable_full_kernel": 0,
+    "supported_dose_counts": {
+     "0": 2,
+     "1": 2,
+     "2": 1,
+     "3": 1,
+     "4": 1,
+     "5": 1,
+     "6": 2,
+     "7": 2,
+     "8": 2,
+     "9": 1
+    },
+    "SR_descriptive": 0.852
+   },
+   {
+    "episodes": 500,
+    "discarded_prior_prefix": 0,
+    "arm": "r6q2_groot_l10_500_risk_rho0p18",
+    "cell": "groot_l10_500",
+    "accepted_decisions": 29352,
+    "supported_anchors": 14779,
+    "forced_or_endpoint": 0,
+    "unavailable_full_kernel": 0,
+    "supported_dose_counts": {
+     "0": 2,
+     "1": 2,
+     "2": 2,
+     "3": 2,
+     "4": 2,
+     "5": 2,
+     "6": 2,
+     "7": 2,
+     "8": 2,
+     "9": 2
+    },
+    "SR_descriptive": 0.844
+   },
+   {
+    "episodes": 500,
+    "discarded_prior_prefix": 0,
+    "arm": "r6q2_groot_l10_50_risk_rho0p35",
+    "cell": "groot_l10_50",
+    "accepted_decisions": 30044,
+    "supported_anchors": 10264,
+    "forced_or_endpoint": 4851,
+    "unavailable_full_kernel": 0,
+    "supported_dose_counts": {
+     "0": 1,
+     "1": 1,
+     "2": 2,
+     "3": 2,
+     "4": 1,
+     "5": 2,
+     "6": 1,
+     "7": 1,
+     "8": 1,
+     "9": 1
+    },
+    "SR_descriptive": 0.84
+   },
+   {
+    "episodes": 500,
+    "discarded_prior_prefix": 495,
+    "arm": "r6q2_groot_l10_50_risk_rho0p45",
+    "cell": "groot_l10_50",
+    "accepted_decisions": 28901,
+    "supported_anchors": 3482,
+    "forced_or_endpoint": 11076,
+    "unavailable_full_kernel": 0,
+    "supported_dose_counts": {
+     "0": 0,
+     "1": 0,
+     "2": 1,
+     "3": 1,
+     "4": 0,
+     "5": 1,
+     "6": 0,
+     "7": 0,
+     "8": 1,
+     "9": 1
+    },
+    "SR_descriptive": 0.868
+   },
+   {
+    "episodes": 500,
+    "discarded_prior_prefix": 0,
+    "arm": "r6q2_groot_spatial_500_risk_rho0p09",
+    "cell": "groot_spatial_500",
+    "accepted_decisions": 10950,
+    "supported_anchors": 1506,
+    "forced_or_endpoint": 4083,
+    "unavailable_full_kernel": 0,
+    "supported_dose_counts": {
+     "0": 1,
+     "1": 1,
+     "2": 1,
+     "3": 1,
+     "4": 1,
+     "5": 1,
+     "6": 1,
+     "7": 1,
+     "8": 1,
+     "9": 1
+    },
+    "SR_descriptive": 0.966
+   },
+   {
+    "episodes": 500,
+    "discarded_prior_prefix": 0,
+    "arm": "r6q2_groot_spatial_50_risk_rho0p12",
+    "cell": "groot_spatial_50",
+    "accepted_decisions": 12381,
+    "supported_anchors": 5042,
+    "forced_or_endpoint": 1257,
+    "unavailable_full_kernel": 0,
+    "supported_dose_counts": {
+     "0": 2,
+     "1": 1,
+     "2": 1,
+     "3": 1,
+     "4": 1,
+     "5": 1,
+     "6": 1,
+     "7": 1,
+     "8": 1,
+     "9": 1
+    },
+    "SR_descriptive": 0.876
+   },
+   {
+    "episodes": 500,
+    "discarded_prior_prefix": 0,
+    "arm": "r6q2_groot_spatial_50_risk_rho0p2",
+    "cell": "groot_spatial_50",
+    "accepted_decisions": 12014,
+    "supported_anchors": 6117,
+    "forced_or_endpoint": 0,
+    "unavailable_full_kernel": 0,
+    "supported_dose_counts": {
+     "0": 2,
+     "1": 2,
+     "2": 2,
+     "3": 2,
+     "4": 2,
+     "5": 2,
+     "6": 2,
+     "7": 2,
+     "8": 2,
+     "9": 2
+    },
+    "SR_descriptive": 0.896
+   },
+   {
+    "episodes": 500,
+    "discarded_prior_prefix": 0,
+    "arm": "r6q2_pi05_l10_500_risk_rho0p18",
+    "cell": "pi05_l10_500",
+    "accepted_decisions": 28381,
+    "supported_anchors": 14302,
+    "forced_or_endpoint": 0,
+    "unavailable_full_kernel": 0,
+    "supported_dose_counts": {
+     "0": 2,
+     "1": 2,
+     "2": 2,
+     "3": 2,
+     "4": 2,
+     "5": 2,
+     "6": 2,
+     "7": 2,
+     "8": 2,
+     "9": 2
+    },
+    "SR_descriptive": 0.868
+   },
+   {
+    "episodes": 500,
+    "discarded_prior_prefix": 0,
+    "arm": "r6q2_pi05_l10_500_risk_rho0p24",
+    "cell": "pi05_l10_500",
+    "accepted_decisions": 27844,
+    "supported_anchors": 13962,
+    "forced_or_endpoint": 77,
+    "unavailable_full_kernel": 0,
+    "supported_dose_counts": {
+     "0": 1,
+     "1": 1,
+     "2": 2,
+     "3": 2,
+     "4": 2,
+     "5": 2,
+     "6": 2,
+     "7": 2,
+     "8": 2,
+     "9": 2
+    },
+    "SR_descriptive": 0.91
+   },
+   {
+    "episodes": 500,
+    "discarded_prior_prefix": 72,
+    "arm": "r6q2_pi05_l10_50_risk_rho0p35",
+    "cell": "pi05_l10_50",
+    "accepted_decisions": 28861,
+    "supported_anchors": 10634,
+    "forced_or_endpoint": 3898,
+    "unavailable_full_kernel": 0,
+    "supported_dose_counts": {
+     "0": 1,
+     "1": 1,
+     "2": 2,
+     "3": 1,
+     "4": 1,
+     "5": 2,
+     "6": 1,
+     "7": 1,
+     "8": 1,
+     "9": 1
+    },
+    "SR_descriptive": 0.87
+   },
+   {
+    "episodes": 500,
+    "discarded_prior_prefix": 0,
+    "arm": "r6q2_pi05_l10_50_risk_rho0p45",
+    "cell": "pi05_l10_50",
+    "accepted_decisions": 28692,
+    "supported_anchors": 3867,
+    "forced_or_endpoint": 10586,
+    "unavailable_full_kernel": 0,
+    "supported_dose_counts": {
+     "0": 0,
+     "1": 0,
+     "2": 1,
+     "3": 1,
+     "4": 0,
+     "5": 1,
+     "6": 0,
+     "7": 1,
+     "8": 1,
+     "9": 1
+    },
+    "SR_descriptive": 0.874
+   },
+   {
+    "episodes": 500,
+    "discarded_prior_prefix": 0,
+    "arm": "r6q2_pi05_spatial_500_risk_rho0p085",
+    "cell": "pi05_spatial_500",
+    "accepted_decisions": 10705,
+    "supported_anchors": 586,
+    "forced_or_endpoint": 4911,
+    "unavailable_full_kernel": 0,
+    "supported_dose_counts": {
+     "0": 1,
+     "1": 1,
+     "2": 1,
+     "3": 1,
+     "4": 1,
+     "5": 1,
+     "6": 1,
+     "7": 1,
+     "8": 1,
+     "9": 1
+    },
+    "SR_descriptive": 0.97
+   },
+   {
+    "episodes": 500,
+    "discarded_prior_prefix": 0,
+    "arm": "r6q2_pi05_spatial_500_risk_rho0p105",
+    "cell": "pi05_spatial_500",
+    "accepted_decisions": 10653,
+    "supported_anchors": 2507,
+    "forced_or_endpoint": 2968,
+    "unavailable_full_kernel": 0,
+    "supported_dose_counts": {
+     "0": 1,
+     "1": 1,
+     "2": 1,
+     "3": 1,
+     "4": 1,
+     "5": 1,
+     "6": 1,
+     "7": 1,
+     "8": 1,
+     "9": 1
+    },
+    "SR_descriptive": 0.972
+   },
+   {
+    "episodes": 500,
+    "discarded_prior_prefix": 0,
+    "arm": "r6q2_pi05_spatial_50_risk_rho0p35",
+    "cell": "pi05_spatial_50",
+    "accepted_decisions": 11175,
+    "supported_anchors": 4137,
+    "forced_or_endpoint": 1578,
+    "unavailable_full_kernel": 0,
+    "supported_dose_counts": {
+     "0": 1,
+     "1": 2,
+     "2": 1,
+     "3": 1,
+     "4": 1,
+     "5": 1,
+     "6": 1,
+     "7": 2,
+     "8": 1,
+     "9": 1
+    },
+    "SR_descriptive": 0.952
+   },
+   {
+    "episodes": 500,
+    "discarded_prior_prefix": 0,
+    "arm": "r6q2_pi05_spatial_50_risk_rho0p45",
+    "cell": "pi05_spatial_50",
+    "accepted_decisions": 10905,
+    "supported_anchors": 1737,
+    "forced_or_endpoint": 3845,
+    "unavailable_full_kernel": 0,
+    "supported_dose_counts": {
+     "0": 0,
+     "1": 1,
+     "2": 1,
+     "3": 0,
+     "4": 1,
+     "5": 1,
+     "6": 1,
+     "7": 1,
+     "8": 1,
+     "9": 1
+    },
+    "SR_descriptive": 0.986
+   }
+  ],
+  "natural_first_entry_comparisons": 244,
+  "reported_intervals": 236,
+  "withheld_intervals": 8,
+  "intervals_excluding_zero": [
+   {
+    "arm": "r6q2_pi05_spatial_500_risk_rho0p105",
+    "stage": "unknown",
+    "estimand": "first_entry",
+    "dose_target": "natural",
+    "anchors": 49,
+    "calls": 4,
+    "propensity_min": 0.125,
+    "propensity_max": 0.125,
+    "episode_probability_min": 0.4579696929743266,
+    "effect": {
+     "estimate": 0.013165714285714284,
+     "lo": 0.00018285714285714156,
+     "hi": 0.03097726984126994,
+     "clusters": 500,
+     "tasks": 10,
+     "draws": 2000,
+     "seed": 20260930,
+     "interval_status": "reported_exploratory"
+    },
+    "downstream_cost_effect": {
+     "estimate": 0.01996800000000007,
+     "lo": -0.22642559999999998,
+     "hi": 0.33365760000000005,
+     "clusters": 500,
+     "tasks": 10,
+     "draws": 2000,
+     "seed": 20260930,
+     "interval_status": "reported_exploratory"
+    },
+    "downstream_call_effect": {
+     "estimate": 0.05714285714285716,
+     "lo": -0.10514285714285712,
+     "hi": 0.2789142857142854,
+     "clusters": 500,
+     "tasks": 10,
+     "draws": 2000,
+     "seed": 20260930,
+     "interval_status": "reported_exploratory"
+    },
+    "ESS_call": 4.0,
+    "ESS_cache": 44.99999999999999,
+    "unsupported_equal_dose_tasks": [],
+    "held_task_estimates": {
+     "0": 0.016050793650793645,
+     "4": 0.014628571428571423,
+     "5": 0.012596825396825393,
+     "8": 0.009853968253968252,
+     "9": 0.005384126984126982
+    },
+    "init_fold_estimates": {
+     "0": 0.009691428571428566,
+     "1": 0.01664
+    }
+   }
+  ]
+ },
+ "failure_clock": {
+  "episodes": 240,
+  "decisions": 10569,
+  "controls": 54849,
+  "failures": 43,
+  "failed_state_crossings": 43,
+  "failed_valve_crossings": 25,
+  "failed_stall_crossings": 26,
+  "aperture_missing": 0,
+  "contacts_missing": 0,
+  "object_pose_missing": 0,
+  "cells": [
+   {
+    "cell": "groot_l10_50",
+    "campaign": "bval",
+    "episodes": 10,
+    "failures": 4
+   },
+   {
+    "cell": "groot_l10_50",
+    "campaign": "p3",
+    "episodes": 20,
+    "failures": 8
+   },
+   {
+    "cell": "groot_l10_500",
+    "campaign": "bval",
+    "episodes": 10,
+    "failures": 1
+   },
+   {
+    "cell": "groot_l10_500",
+    "campaign": "p3",
+    "episodes": 20,
+    "failures": 4
+   },
+   {
+    "cell": "groot_spatial_50",
+    "campaign": "bval",
+    "episodes": 10,
+    "failures": 2
+   },
+   {
+    "cell": "groot_spatial_50",
+    "campaign": "p3",
+    "episodes": 20,
+    "failures": 1
+   },
+   {
+    "cell": "groot_spatial_500",
+    "campaign": "bval",
+    "episodes": 10,
+    "failures": 1
+   },
+   {
+    "cell": "groot_spatial_500",
+    "campaign": "p3",
+    "episodes": 20,
+    "failures": 1
+   },
+   {
+    "cell": "pi05_l10_50",
+    "campaign": "bval",
+    "episodes": 10,
+    "failures": 3
+   },
+   {
+    "cell": "pi05_l10_50",
+    "campaign": "p3",
+    "episodes": 20,
+    "failures": 4
+   },
+   {
+    "cell": "pi05_l10_500",
+    "campaign": "bval",
+    "episodes": 10,
+    "failures": 1
+   },
+   {
+    "cell": "pi05_l10_500",
+    "campaign": "p3",
+    "episodes": 20,
+    "failures": 3
+   },
+   {
+    "cell": "pi05_spatial_50",
+    "campaign": "bval",
+    "episodes": 10,
+    "failures": 3
+   },
+   {
+    "cell": "pi05_spatial_50",
+    "campaign": "p3",
+    "episodes": 20,
+    "failures": 4
+   },
+   {
+    "cell": "pi05_spatial_500",
+    "campaign": "bval",
+    "episodes": 10,
+    "failures": 2
+   },
+   {
+    "cell": "pi05_spatial_500",
+    "campaign": "p3",
+    "episodes": 20,
+    "failures": 1
+   }
+  ]
+ },
+ "identity": {
+  "episodes": 240,
+  "decisions": 10569,
+  "executed_controls": 52449,
+  "recorded_action_equal": 10569,
+  "recorded_vision_equal": 10569,
+  "recorded_verdict_equal": 10569,
+  "parity_failures": 0,
+  "rejected_anchor_decisions": 6612
+ },
+ "historical_profile": {
+  "reports": [
+   {
+    "arm": "r6c_pi05_l10_50_U30",
+    "cell": "pi05_l10_50",
+    "N": 28646,
+    "V": 14421,
+    "M": 7590,
+    "IR": 0.3012047755358567,
+    "IR_components": {
+     "full_looks": 0.07652000279272674,
+     "wrist_looks": 0.0,
+     "completion": 0.0,
+     "calls": 0.22468477274312998,
+     "blind": 0.0
+    },
+    "camera_modes": {
+     "full": 14421,
+     "blind": 14225
+    },
+    "SR_descriptive": 0.878
+   },
+   {
+    "arm": "r6c_groot_l10_50_U30",
+    "cell": "groot_l10_50",
+    "N": 31629,
+    "V": 15916,
+    "M": 8407,
+    "IR": 0.30093686174077744,
+    "IR_components": {
+     "full_looks": 0.07447494388060936,
+     "wrist_looks": 0.0,
+     "completion": 0.0,
+     "calls": 0.2264619178601681,
+     "blind": 0.0
+    },
+    "camera_modes": {
+     "full": 15916,
+     "blind": 15713
+    },
+    "SR_descriptive": 0.77
+   },
+   {
+    "arm": "r6c_pi05_l10_50_C30",
+    "cell": "pi05_l10_50",
+    "N": 29111,
+    "V": 15093,
+    "M": 7613,
+    "IR": 0.3005722922606636,
+    "IR_components": {
+     "full_looks": 0.07880649926146403,
+     "wrist_looks": 0.0,
+     "completion": 0.0,
+     "calls": 0.22176579299919963,
+     "blind": 0.0
+    },
+    "camera_modes": {
+     "full": 15093,
+     "blind": 14018
+    },
+    "SR_descriptive": 0.868
+   },
+   {
+    "arm": "r6c_groot_l10_50_C30",
+    "cell": "groot_l10_50",
+    "N": 31069,
+    "V": 16112,
+    "M": 8505,
+    "IR": 0.30998216872120327,
+    "IR_components": {
+     "full_looks": 0.07675097363931317,
+     "wrist_looks": 0.0,
+     "completion": 0.0,
+     "calls": 0.23323119508189008,
+     "blind": 0.0
+    },
+    "camera_modes": {
+     "full": 16112,
+     "blind": 14957
+    },
+    "SR_descriptive": 0.806
+   }
+  ],
+  "paired": [
+   {
+    "arm": "r6c_pi05_l10_50_U30",
+    "reference": "r6c_pi05_l10_50_C30",
+    "matched": 500,
+    "unmatched_arm": 0,
+    "unmatched_reference": 0,
+    "delta_IR": {
+     "estimate": 0.0018898432932041187,
+     "lo": -0.003184908471115946,
+     "hi": 0.007322393697432325,
+     "clusters": 500,
+     "tasks": 10,
+     "draws": 2000,
+     "seed": 20260930
+    },
+    "delta_SR_descriptive": 0.01,
+    "delta_component_IR": {
+     "full_looks": {
+      "estimate": -0.0021264143454145404,
+      "lo": -0.0022907766453055594,
+      "hi": -0.0019506705230140397,
+      "clusters": 500,
+      "tasks": 10,
+      "draws": 2000,
+      "seed": 20260930
+     },
+     "wrist_looks": {
+      "estimate": 0.0,
+      "lo": 0.0,
+      "hi": 0.0,
+      "clusters": 500,
+      "tasks": 10,
+      "draws": 2000,
+      "seed": 20260930
+     },
+     "completion": {
+      "estimate": 0.0,
+      "lo": 0.0,
+      "hi": 0.0,
+      "clusters": 500,
+      "tasks": 10,
+      "draws": 2000,
+      "seed": 20260930
+     },
+     "calls": {
+      "estimate": 0.004016257638618656,
+      "lo": -0.001045263416974986,
+      "hi": 0.009476607256056877,
+      "clusters": 500,
+      "tasks": 10,
+      "draws": 2000,
+      "seed": 20260930
+     }
+    }
+   },
+   {
+    "arm": "r6c_groot_l10_50_U30",
+    "reference": "r6c_groot_l10_50_C30",
+    "matched": 500,
+    "unmatched_arm": 0,
+    "unmatched_reference": 0,
+    "delta_IR": {
+     "estimate": -0.006748696536869979,
+     "lo": -0.012437478775071167,
+     "hi": -0.0010167439839529964,
+     "clusters": 500,
+     "tasks": 10,
+     "draws": 2000,
+     "seed": 20260930
+    },
+    "delta_SR_descriptive": -0.036,
+    "delta_component_IR": {
+     "full_looks": {
+      "estimate": -0.0021157850777268577,
+      "lo": -0.0022905854370572545,
+      "hi": -0.001956803939553667,
+      "clusters": 500,
+      "tasks": 10,
+      "draws": 2000,
+      "seed": 20260930
+     },
+     "wrist_looks": {
+      "estimate": 0.0,
+      "lo": 0.0,
+      "hi": 0.0,
+      "clusters": 500,
+      "tasks": 10,
+      "draws": 2000,
+      "seed": 20260930
+     },
+     "completion": {
+      "estimate": 0.0,
+      "lo": 0.0,
+      "hi": 0.0,
+      "clusters": 500,
+      "tasks": 10,
+      "draws": 2000,
+      "seed": 20260930
+     },
+     "calls": {
+      "estimate": -0.004632911459143118,
+      "lo": -0.010241795076128142,
+      "hi": 0.0010523028702319683,
+      "clusters": 500,
+      "tasks": 10,
+      "draws": 2000,
+      "seed": 20260930
+     }
+    }
+   }
+  ]
+ }
+}

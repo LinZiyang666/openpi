@@ -1,0 +1,2532 @@
+{
+  "placements": [
+    {
+      "status": "complete",
+      "cell": "pi05_l10_50",
+      "id": "r07_main/r7_pi05_l10_50_SF1",
+      "variant": "SF1",
+      "SR": 0.684,
+      "owner_IR": 0.06455780968435738,
+      "nondominated_by_R6": true,
+      "R6_dominators": [],
+      "nondominated_after_available_R7": false,
+      "R6_points_dominated": [
+        "r06_abl/r6p2_identity_p_l10_50"
+      ],
+      "coincident_R6_points": [],
+      "best_R6_at_no_greater_IR": null,
+      "exact_vs_L10": {
+        "wins": 34,
+        "losses": 144,
+        "n": 500,
+        "delta_SR": -0.22,
+        "mcnemar_two_sided_exact_p": 2.5863049795330724e-17,
+        "cp_lower95": -0.2823168964980878,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": false,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "exact_vs_R6_neighbor": null,
+      "L5_reference_ids": [
+        "DUAL/tr_pi05_l10_inf",
+        "r04_cost/r4f_p_l10_inf_s1001",
+        "r04_cost/r4f_p_l10_inf_s2001"
+      ],
+      "L5_reference_SR": 0.8506666666666667,
+      "CP_lower_vs_L5_mean": -0.2467192544037534,
+      "L5_constituent_CP": [
+        {
+          "reference": "DUAL/tr_pi05_l10_inf",
+          "wins": 57,
+          "losses": 137,
+          "n": 500,
+          "delta_SR": -0.16,
+          "mcnemar_two_sided_exact_p": 8.778388557524864e-09,
+          "cp_lower95": -0.24219586326144033,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        },
+        {
+          "reference": "r04_cost/r4f_p_l10_inf_s1001",
+          "wins": 50,
+          "losses": 132,
+          "n": 500,
+          "delta_SR": -0.164,
+          "mcnemar_two_sided_exact_p": 1.007869106264661e-09,
+          "cp_lower95": -0.24371148882913257,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        },
+        {
+          "reference": "r04_cost/r4f_p_l10_inf_s2001",
+          "wins": 45,
+          "losses": 133,
+          "n": 500,
+          "delta_SR": -0.176,
+          "mcnemar_two_sided_exact_p": 2.73492113556604e-11,
+          "cp_lower95": -0.25425041112068725,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        }
+      ],
+      "certified_NI_claim": false
+    },
+    {
+      "status": "complete",
+      "cell": "pi05_l10_50",
+      "id": "r07_main/r7_pi05_l10_50_UF1",
+      "variant": "UF1",
+      "SR": 0.648,
+      "owner_IR": 0.057267304445694986,
+      "nondominated_by_R6": true,
+      "R6_dominators": [],
+      "nondominated_after_available_R7": true,
+      "R6_points_dominated": [
+        "r06_abl/r6p2_identity_p_l10_50"
+      ],
+      "coincident_R6_points": [],
+      "best_R6_at_no_greater_IR": null,
+      "exact_vs_L10": {
+        "wins": 26,
+        "losses": 154,
+        "n": 500,
+        "delta_SR": -0.256,
+        "mcnemar_two_sided_exact_p": 2.523658862428156e-23,
+        "cp_lower95": -0.3162698985229818,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": false,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "exact_vs_R6_neighbor": null,
+      "L5_reference_ids": [
+        "DUAL/tr_pi05_l10_inf",
+        "r04_cost/r4f_p_l10_inf_s1001",
+        "r04_cost/r4f_p_l10_inf_s2001"
+      ],
+      "L5_reference_SR": 0.8506666666666667,
+      "CP_lower_vs_L5_mean": -0.2839570574746137,
+      "L5_constituent_CP": [
+        {
+          "reference": "DUAL/tr_pi05_l10_inf",
+          "wins": 57,
+          "losses": 155,
+          "n": 500,
+          "delta_SR": -0.196,
+          "mcnemar_two_sided_exact_p": 1.1590525688028713e-11,
+          "cp_lower95": -0.2796402673573378,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        },
+        {
+          "reference": "r04_cost/r4f_p_l10_inf_s1001",
+          "wins": 50,
+          "losses": 150,
+          "n": 500,
+          "delta_SR": -0.2,
+          "mcnemar_two_sided_exact_p": 8.393020875604761e-13,
+          "cp_lower95": -0.28125904152360465,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        },
+        {
+          "reference": "r04_cost/r4f_p_l10_inf_s2001",
+          "wins": 43,
+          "losses": 149,
+          "n": 500,
+          "delta_SR": -0.212,
+          "mcnemar_two_sided_exact_p": 6.858813482497591e-15,
+          "cp_lower95": -0.2909718635428986,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        }
+      ],
+      "certified_NI_claim": false
+    },
+    {
+      "status": "complete",
+      "cell": "pi05_l10_50",
+      "id": "r07_main/r7_sw_pi05_l10_50",
+      "variant": "SW",
+      "SR": 0.704,
+      "owner_IR": 0.06160179109099571,
+      "nondominated_by_R6": true,
+      "R6_dominators": [],
+      "nondominated_after_available_R7": true,
+      "R6_points_dominated": [
+        "r06_abl/r6p2_identity_p_l10_50"
+      ],
+      "coincident_R6_points": [],
+      "best_R6_at_no_greater_IR": null,
+      "exact_vs_L10": {
+        "wins": 32,
+        "losses": 132,
+        "n": 500,
+        "delta_SR": -0.2,
+        "mcnemar_two_sided_exact_p": 1.2535526556506857e-15,
+        "cp_lower95": -0.2607762216863538,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": false,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "exact_vs_R6_neighbor": null,
+      "L5_reference_ids": [
+        "DUAL/tr_pi05_l10_inf",
+        "r04_cost/r4f_p_l10_inf_s1001",
+        "r04_cost/r4f_p_l10_inf_s2001"
+      ],
+      "L5_reference_SR": 0.8506666666666667,
+      "CP_lower_vs_L5_mean": -0.22714008738501343,
+      "L5_constituent_CP": [
+        {
+          "reference": "DUAL/tr_pi05_l10_inf",
+          "wins": 63,
+          "losses": 133,
+          "n": 500,
+          "delta_SR": -0.14,
+          "mcnemar_two_sided_exact_p": 6.367913348860306e-07,
+          "cp_lower95": -0.22342119538566518,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        },
+        {
+          "reference": "r04_cost/r4f_p_l10_inf_s1001",
+          "wins": 51,
+          "losses": 123,
+          "n": 500,
+          "delta_SR": -0.144,
+          "mcnemar_two_sided_exact_p": 4.778862796288037e-08,
+          "cp_lower95": -0.22308955656694646,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        },
+        {
+          "reference": "r04_cost/r4f_p_l10_inf_s2001",
+          "wins": 49,
+          "losses": 127,
+          "n": 500,
+          "delta_SR": -0.156,
+          "mcnemar_two_sided_exact_p": 3.6170003167403906e-09,
+          "cp_lower95": -0.23490951020242867,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        }
+      ],
+      "certified_NI_claim": false
+    },
+    {
+      "status": "complete",
+      "cell": "pi05_l10_50",
+      "id": "r07_main/r7_pi05_l10_50_CU30",
+      "variant": "CU30",
+      "SR": 0.864,
+      "owner_IR": 0.30068844839371156,
+      "nondominated_by_R6": false,
+      "R6_dominators": [
+        "r06_c_validation/r6c_pi05_l10_50_C30",
+        "r06_c_validation/r6c_pi05_l10_50_R30",
+        "r06_frontier/r6q2_pi05_l10_50_B_cap4"
+      ],
+      "nondominated_after_available_R7": false,
+      "R6_points_dominated": [],
+      "coincident_R6_points": [],
+      "best_R6_at_no_greater_IR": {
+        "id": "r06_c_validation/r6c_pi05_l10_50_C30",
+        "SR": 0.868,
+        "owner_IR": 0.3005722922606575
+      },
+      "exact_vs_L10": {
+        "wins": 36,
+        "losses": 56,
+        "n": 500,
+        "delta_SR": -0.04,
+        "mcnemar_two_sided_exact_p": 0.047011561644854,
+        "cp_lower95": -0.09203418956656476,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": false,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "exact_vs_R6_neighbor": {
+        "reference": "r06_c_validation/r6c_pi05_l10_50_C30",
+        "wins": 45,
+        "losses": 47,
+        "n": 500,
+        "delta_SR": -0.004,
+        "mcnemar_two_sided_exact_p": 0.917040519652471,
+        "cp_lower95": -0.05663359913499155,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": false,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "L5_reference_ids": [
+        "DUAL/tr_pi05_l10_inf",
+        "r04_cost/r4f_p_l10_inf_s1001",
+        "r04_cost/r4f_p_l10_inf_s2001"
+      ],
+      "L5_reference_SR": 0.8506666666666667,
+      "CP_lower_vs_L5_mean": -0.0553063025904973,
+      "L5_constituent_CP": [
+        {
+          "reference": "DUAL/tr_pi05_l10_inf",
+          "wins": 58,
+          "losses": 48,
+          "n": 500,
+          "delta_SR": 0.02,
+          "mcnemar_two_sided_exact_p": 0.3821258105292198,
+          "cp_lower95": -0.047954132427686924,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        },
+        {
+          "reference": "r04_cost/r4f_p_l10_inf_s1001",
+          "wins": 61,
+          "losses": 53,
+          "n": 500,
+          "delta_SR": 0.016,
+          "mcnemar_two_sided_exact_p": 0.5122548722298448,
+          "cp_lower95": -0.054069768384009426,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        },
+        {
+          "reference": "r04_cost/r4f_p_l10_inf_s2001",
+          "wins": 54,
+          "losses": 52,
+          "n": 500,
+          "delta_SR": 0.004,
+          "mcnemar_two_sided_exact_p": 0.9226851594412759,
+          "cp_lower95": -0.06389500695979555,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        }
+      ],
+      "certified_NI_claim": false
+    },
+    {
+      "status": "complete",
+      "cell": "pi05_l10_50",
+      "id": "r07_main/r7_pi05_l10_50_CT30",
+      "variant": "CT30",
+      "SR": 0.854,
+      "owner_IR": 0.30805636109310497,
+      "nondominated_by_R6": false,
+      "R6_dominators": [
+        "r06_c_validation/r6c_pi05_l10_50_C30",
+        "r06_c_validation/r6c_pi05_l10_50_R30",
+        "r06_c_validation/r6c_pi05_l10_50_U30",
+        "r06_frontier/r6q2_pi05_l10_50_B_cap4"
+      ],
+      "nondominated_after_available_R7": false,
+      "R6_points_dominated": [],
+      "coincident_R6_points": [],
+      "best_R6_at_no_greater_IR": {
+        "id": "r06_c_validation/r6c_pi05_l10_50_U30",
+        "SR": 0.878,
+        "owner_IR": 0.3012047755358514
+      },
+      "exact_vs_L10": {
+        "wins": 37,
+        "losses": 62,
+        "n": 500,
+        "delta_SR": -0.05,
+        "mcnemar_two_sided_exact_p": 0.015432364507309008,
+        "cp_lower95": -0.10349413710237726,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": false,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "exact_vs_R6_neighbor": {
+        "reference": "r06_c_validation/r6c_pi05_l10_50_U30",
+        "wins": 37,
+        "losses": 49,
+        "n": 500,
+        "delta_SR": -0.024,
+        "mcnemar_two_sided_exact_p": 0.23537986221105522,
+        "cp_lower95": -0.07485343413689505,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": false,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "L5_reference_ids": [
+        "DUAL/tr_pi05_l10_inf",
+        "r04_cost/r4f_p_l10_inf_s1001",
+        "r04_cost/r4f_p_l10_inf_s2001"
+      ],
+      "L5_reference_SR": 0.8506666666666667,
+      "CP_lower_vs_L5_mean": -0.06408067970954302,
+      "L5_constituent_CP": [
+        {
+          "reference": "DUAL/tr_pi05_l10_inf",
+          "wins": 57,
+          "losses": 52,
+          "n": 500,
+          "delta_SR": 0.01,
+          "mcnemar_two_sided_exact_p": 0.701811182064683,
+          "cp_lower95": -0.05873756701368192,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        },
+        {
+          "reference": "r04_cost/r4f_p_l10_inf_s1001",
+          "wins": 52,
+          "losses": 49,
+          "n": 500,
+          "delta_SR": 0.006,
+          "mcnemar_two_sided_exact_p": 0.842382098507744,
+          "cp_lower95": -0.06052828659865264,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        },
+        {
+          "reference": "r04_cost/r4f_p_l10_inf_s2001",
+          "wins": 50,
+          "losses": 53,
+          "n": 500,
+          "delta_SR": -0.006,
+          "mcnemar_two_sided_exact_p": 0.8438976552528619,
+          "cp_lower95": -0.07297618551629449,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        }
+      ],
+      "certified_NI_claim": false
+    },
+    {
+      "status": "complete",
+      "cell": "pi05_l10_500",
+      "id": "r07_main/r7_pi05_l10_500_SF1",
+      "variant": "SF1",
+      "SR": 0.834,
+      "owner_IR": 0.06894000269650802,
+      "nondominated_by_R6": true,
+      "R6_dominators": [],
+      "nondominated_after_available_R7": false,
+      "R6_points_dominated": [
+        "r05_ptail/r5t_p_l10_500_tail1uc",
+        "r06_abl/r6p2_identity_p_l10_500",
+        "r06_paper/r5t_p_l10_500_tail1uc_rep3"
+      ],
+      "coincident_R6_points": [],
+      "best_R6_at_no_greater_IR": null,
+      "exact_vs_L10": {
+        "wins": 32,
+        "losses": 67,
+        "n": 500,
+        "delta_SR": -0.07,
+        "mcnemar_two_sided_exact_p": 0.000562208248357049,
+        "cp_lower95": -0.12284571266710817,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": false,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "exact_vs_R6_neighbor": null,
+      "L5_reference_ids": [
+        "DUAL/tr_pi05_l10_inf",
+        "r04_cost/r4f_p_l10_inf_s1001",
+        "r04_cost/r4f_p_l10_inf_s2001"
+      ],
+      "L5_reference_SR": 0.8506666666666667,
+      "CP_lower_vs_L5_mean": -0.08701138031873101,
+      "L5_constituent_CP": [
+        {
+          "reference": "DUAL/tr_pi05_l10_inf",
+          "wins": 57,
+          "losses": 62,
+          "n": 500,
+          "delta_SR": -0.01,
+          "mcnemar_two_sided_exact_p": 0.7140263124847867,
+          "cp_lower95": -0.0811361078368877,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        },
+        {
+          "reference": "r04_cost/r4f_p_l10_inf_s1001",
+          "wins": 56,
+          "losses": 63,
+          "n": 500,
+          "delta_SR": -0.014,
+          "mcnemar_two_sided_exact_p": 0.5824937911572249,
+          "cp_lower95": -0.08508136627918073,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        },
+        {
+          "reference": "r04_cost/r4f_p_l10_inf_s2001",
+          "wins": 49,
+          "losses": 62,
+          "n": 500,
+          "delta_SR": -0.026,
+          "mcnemar_two_sided_exact_p": 0.25460512309379413,
+          "cp_lower95": -0.0948166668401246,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        }
+      ],
+      "certified_NI_claim": false
+    },
+    {
+      "status": "complete",
+      "cell": "pi05_l10_500",
+      "id": "r07_main/r7_pi05_l10_500_UF1",
+      "variant": "UF1",
+      "SR": 0.79,
+      "owner_IR": 0.05324730903903515,
+      "nondominated_by_R6": true,
+      "R6_dominators": [],
+      "nondominated_after_available_R7": true,
+      "R6_points_dominated": [
+        "r06_abl/r6p2_identity_p_l10_500"
+      ],
+      "coincident_R6_points": [],
+      "best_R6_at_no_greater_IR": null,
+      "exact_vs_L10": {
+        "wins": 33,
+        "losses": 90,
+        "n": 500,
+        "delta_SR": -0.114,
+        "mcnemar_two_sided_exact_p": 2.744658521632981e-07,
+        "cp_lower95": -0.1706730123264932,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": false,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "exact_vs_R6_neighbor": null,
+      "L5_reference_ids": [
+        "DUAL/tr_pi05_l10_inf",
+        "r04_cost/r4f_p_l10_inf_s1001",
+        "r04_cost/r4f_p_l10_inf_s2001"
+      ],
+      "L5_reference_SR": 0.8506666666666667,
+      "CP_lower_vs_L5_mean": -0.13260358443039194,
+      "L5_constituent_CP": [
+        {
+          "reference": "DUAL/tr_pi05_l10_inf",
+          "wins": 52,
+          "losses": 79,
+          "n": 500,
+          "delta_SR": -0.054,
+          "mcnemar_two_sided_exact_p": 0.02274326812824497,
+          "cp_lower95": -0.12714414181984066,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        },
+        {
+          "reference": "r04_cost/r4f_p_l10_inf_s1001",
+          "wins": 51,
+          "losses": 80,
+          "n": 500,
+          "delta_SR": -0.058,
+          "mcnemar_two_sided_exact_p": 0.014117875212515802,
+          "cp_lower95": -0.13102930480937203,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        },
+        {
+          "reference": "r04_cost/r4f_p_l10_inf_s2001",
+          "wins": 42,
+          "losses": 77,
+          "n": 500,
+          "delta_SR": -0.07,
+          "mcnemar_two_sided_exact_p": 0.0017105290774106674,
+          "cp_lower95": -0.1396373066619631,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        }
+      ],
+      "certified_NI_claim": false
+    },
+    {
+      "status": "complete",
+      "cell": "pi05_l10_500",
+      "id": "r07_main/r7_sw_pi05_l10_500",
+      "variant": "SW",
+      "SR": 0.846,
+      "owner_IR": 0.06637647112255965,
+      "nondominated_by_R6": true,
+      "R6_dominators": [],
+      "nondominated_after_available_R7": true,
+      "R6_points_dominated": [
+        "r05_ptail/r5t_p_l10_500_tail1uc",
+        "r06_abl/r6p2_direct_p_l10_500",
+        "r06_abl/r6p2_identity_p_l10_500",
+        "r06_paper/r5t_p_l10_500_tail1uc_rep3"
+      ],
+      "coincident_R6_points": [],
+      "best_R6_at_no_greater_IR": null,
+      "exact_vs_L10": {
+        "wins": 33,
+        "losses": 62,
+        "n": 500,
+        "delta_SR": -0.058,
+        "mcnemar_two_sided_exact_p": 0.00383287238487556,
+        "cp_lower95": -0.11026588854078476,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": false,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "exact_vs_R6_neighbor": null,
+      "L5_reference_ids": [
+        "DUAL/tr_pi05_l10_inf",
+        "r04_cost/r4f_p_l10_inf_s1001",
+        "r04_cost/r4f_p_l10_inf_s2001"
+      ],
+      "L5_reference_SR": 0.8506666666666667,
+      "CP_lower_vs_L5_mean": -0.07272469152578018,
+      "L5_constituent_CP": [
+        {
+          "reference": "DUAL/tr_pi05_l10_inf",
+          "wins": 52,
+          "losses": 51,
+          "n": 500,
+          "delta_SR": 0.002,
+          "mcnemar_two_sided_exact_p": 1.0,
+          "cp_lower95": -0.06505695520196306,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        },
+        {
+          "reference": "r04_cost/r4f_p_l10_inf_s1001",
+          "wins": 56,
+          "losses": 57,
+          "n": 500,
+          "delta_SR": -0.002,
+          "mcnemar_two_sided_exact_p": 1.0,
+          "cp_lower95": -0.07170016035439605,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        },
+        {
+          "reference": "r04_cost/r4f_p_l10_inf_s2001",
+          "wins": 49,
+          "losses": 56,
+          "n": 500,
+          "delta_SR": -0.014,
+          "mcnemar_two_sided_exact_p": 0.5583942911655908,
+          "cp_lower95": -0.08141695902098142,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        }
+      ],
+      "certified_NI_claim": false
+    },
+    {
+      "status": "complete",
+      "cell": "pi05_spatial_50",
+      "id": "r07_main/r7_pi05_spatial_50_SF1",
+      "variant": "SF1",
+      "SR": 0.794,
+      "owner_IR": 0.06546852054366505,
+      "nondominated_by_R6": true,
+      "R6_dominators": [],
+      "nondominated_after_available_R7": false,
+      "R6_points_dominated": [
+        "r06_abl/r6p2_identity_p_sp_50"
+      ],
+      "coincident_R6_points": [],
+      "best_R6_at_no_greater_IR": null,
+      "exact_vs_L10": {
+        "wins": 6,
+        "losses": 102,
+        "n": 500,
+        "delta_SR": -0.192,
+        "mcnemar_two_sided_exact_p": 1.2514492494239994e-23,
+        "cp_lower95": -0.2376100055043777,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": false,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "exact_vs_R6_neighbor": null,
+      "L5_reference_ids": [
+        "DUAL/tr_pi05_sp_inf",
+        "r04_cost/r4f_p_sp_inf_s1001",
+        "r04_cost/r4f_p_sp_inf_s2001"
+      ],
+      "L5_reference_SR": 0.9906666666666667,
+      "CP_lower_vs_L5_mean": -0.24904560619315722,
+      "L5_constituent_CP": [
+        {
+          "reference": "DUAL/tr_pi05_sp_inf",
+          "wins": 6,
+          "losses": 102,
+          "n": 500,
+          "delta_SR": -0.192,
+          "mcnemar_two_sided_exact_p": 1.2514492494239994e-23,
+          "cp_lower95": -0.24711326146775597,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        },
+        {
+          "reference": "r04_cost/r4f_p_sp_inf_s1001",
+          "wins": 3,
+          "losses": 102,
+          "n": 500,
+          "delta_SR": -0.198,
+          "mcnemar_two_sided_exact_p": 9.516916568199439e-27,
+          "cp_lower95": -0.24973877493238783,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        },
+        {
+          "reference": "r04_cost/r4f_p_sp_inf_s2001",
+          "wins": 2,
+          "losses": 102,
+          "n": 500,
+          "delta_SR": -0.2,
+          "mcnemar_two_sided_exact_p": 5.384961754264932e-28,
+          "cp_lower95": -0.25028478217932787,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        }
+      ],
+      "certified_NI_claim": false
+    },
+    {
+      "status": "complete",
+      "cell": "pi05_spatial_50",
+      "id": "r07_main/r7_pi05_spatial_50_UF1",
+      "variant": "UF1",
+      "SR": 0.78,
+      "owner_IR": 0.060229283680849434,
+      "nondominated_by_R6": true,
+      "R6_dominators": [],
+      "nondominated_after_available_R7": true,
+      "R6_points_dominated": [
+        "r06_abl/r6p2_identity_p_sp_50"
+      ],
+      "coincident_R6_points": [],
+      "best_R6_at_no_greater_IR": null,
+      "exact_vs_L10": {
+        "wins": 7,
+        "losses": 110,
+        "n": 500,
+        "delta_SR": -0.206,
+        "mcnemar_two_sided_exact_p": 6.367310544014082e-25,
+        "cp_lower95": -0.2532649717670592,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": false,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "exact_vs_R6_neighbor": null,
+      "L5_reference_ids": [
+        "DUAL/tr_pi05_sp_inf",
+        "r04_cost/r4f_p_sp_inf_s1001",
+        "r04_cost/r4f_p_sp_inf_s2001"
+      ],
+      "L5_reference_SR": 0.9906666666666667,
+      "CP_lower_vs_L5_mean": -0.2625597483578643,
+      "L5_constituent_CP": [
+        {
+          "reference": "DUAL/tr_pi05_sp_inf",
+          "wins": 4,
+          "losses": 107,
+          "n": 500,
+          "delta_SR": -0.206,
+          "mcnemar_two_sided_exact_p": 4.789431089465355e-27,
+          "cp_lower95": -0.2596654964701193,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        },
+        {
+          "reference": "r04_cost/r4f_p_sp_inf_s1001",
+          "wins": 3,
+          "losses": 109,
+          "n": 500,
+          "delta_SR": -0.212,
+          "mcnemar_two_sided_exact_p": 9.022943270855312e-29,
+          "cp_lower95": -0.2646714202236986,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        },
+        {
+          "reference": "r04_cost/r4f_p_sp_inf_s2001",
+          "wins": 1,
+          "losses": 108,
+          "n": 500,
+          "delta_SR": -0.214,
+          "mcnemar_two_sided_exact_p": 3.389636702121535e-31,
+          "cp_lower95": -0.2633423283797749,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        }
+      ],
+      "certified_NI_claim": false
+    },
+    {
+      "status": "complete",
+      "cell": "pi05_spatial_50",
+      "id": "r07_main/r7_sw_pi05_sp_50",
+      "variant": "SW",
+      "SR": 0.824,
+      "owner_IR": 0.06253899594497893,
+      "nondominated_by_R6": true,
+      "R6_dominators": [],
+      "nondominated_after_available_R7": true,
+      "R6_points_dominated": [
+        "r06_abl/r6p2_identity_p_sp_50"
+      ],
+      "coincident_R6_points": [],
+      "best_R6_at_no_greater_IR": null,
+      "exact_vs_L10": {
+        "wins": 6,
+        "losses": 87,
+        "n": 500,
+        "delta_SR": -0.162,
+        "mcnemar_two_sided_exact_p": 1.6504649136152465e-19,
+        "cp_lower95": -0.2057146617232191,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": false,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "exact_vs_R6_neighbor": null,
+      "L5_reference_ids": [
+        "DUAL/tr_pi05_sp_inf",
+        "r04_cost/r4f_p_sp_inf_s1001",
+        "r04_cost/r4f_p_sp_inf_s2001"
+      ],
+      "L5_reference_SR": 0.9906666666666667,
+      "CP_lower_vs_L5_mean": -0.21595365116367948,
+      "L5_constituent_CP": [
+        {
+          "reference": "DUAL/tr_pi05_sp_inf",
+          "wins": 4,
+          "losses": 85,
+          "n": 500,
+          "delta_SR": -0.162,
+          "mcnemar_two_sided_exact_p": 8.269208261418977e-21,
+          "cp_lower95": -0.21238404037689354,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        },
+        {
+          "reference": "r04_cost/r4f_p_sp_inf_s1001",
+          "wins": 3,
+          "losses": 87,
+          "n": 500,
+          "delta_SR": -0.168,
+          "mcnemar_two_sided_exact_p": 1.9641662139013065e-22,
+          "cp_lower95": -0.21746545293360245,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        },
+        {
+          "reference": "r04_cost/r4f_p_sp_inf_s2001",
+          "wins": 2,
+          "losses": 87,
+          "n": 500,
+          "delta_SR": -0.17,
+          "mcnemar_two_sided_exact_p": 1.2944084116747769e-23,
+          "cp_lower95": -0.2180114601805425,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        }
+      ],
+      "certified_NI_claim": false
+    },
+    {
+      "status": "complete",
+      "cell": "pi05_spatial_50",
+      "id": "r07_main/r7_pi05_spatial_50_CU30",
+      "variant": "CU30",
+      "SR": 0.946,
+      "owner_IR": 0.29729280575539563,
+      "nondominated_by_R6": true,
+      "R6_dominators": [],
+      "nondominated_after_available_R7": false,
+      "R6_points_dominated": [],
+      "coincident_R6_points": [],
+      "best_R6_at_no_greater_IR": {
+        "id": "r06_c_validation/r6c_pi05_spatial_50_R30",
+        "SR": 0.944,
+        "owner_IR": 0.2775590089690081
+      },
+      "exact_vs_L10": {
+        "wins": 7,
+        "losses": 27,
+        "n": 500,
+        "delta_SR": -0.04,
+        "mcnemar_two_sided_exact_p": 0.0008213953115046024,
+        "cp_lower95": -0.07195070742461272,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": false,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "exact_vs_R6_neighbor": {
+        "reference": "r06_c_validation/r6c_pi05_spatial_50_R30",
+        "wins": 19,
+        "losses": 18,
+        "n": 500,
+        "delta_SR": 0.002,
+        "mcnemar_two_sided_exact_p": 1.0,
+        "cp_lower95": -0.03326940539554346,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": false,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "L5_reference_ids": [
+        "DUAL/tr_pi05_sp_inf",
+        "r04_cost/r4f_p_sp_inf_s1001",
+        "r04_cost/r4f_p_sp_inf_s2001"
+      ],
+      "L5_reference_SR": 0.9906666666666667,
+      "CP_lower_vs_L5_mean": -0.07939355870039656,
+      "L5_constituent_CP": [
+        {
+          "reference": "DUAL/tr_pi05_sp_inf",
+          "wins": 5,
+          "losses": 25,
+          "n": 500,
+          "delta_SR": -0.04,
+          "mcnemar_two_sided_exact_p": 0.00032491423189640045,
+          "cp_lower95": -0.0758969382827146,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        },
+        {
+          "reference": "r04_cost/r4f_p_sp_inf_s1001",
+          "wins": 3,
+          "losses": 26,
+          "n": 500,
+          "delta_SR": -0.046,
+          "mcnemar_two_sided_exact_p": 1.5236437320709229e-05,
+          "cp_lower95": -0.07994151678305919,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        },
+        {
+          "reference": "r04_cost/r4f_p_sp_inf_s2001",
+          "wins": 3,
+          "losses": 27,
+          "n": 500,
+          "delta_SR": -0.048,
+          "mcnemar_two_sided_exact_p": 8.430331945419312e-06,
+          "cp_lower95": -0.08234222103541589,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        }
+      ],
+      "certified_NI_claim": false
+    },
+    {
+      "status": "complete",
+      "cell": "pi05_spatial_50",
+      "id": "r07_main/r7_pi05_spatial_50_CT30",
+      "variant": "CT30",
+      "SR": 0.962,
+      "owner_IR": 0.28782217323413245,
+      "nondominated_by_R6": true,
+      "R6_dominators": [],
+      "nondominated_after_available_R7": true,
+      "R6_points_dominated": [
+        "r06_frontier/r6q2_pi05_spatial_50_B_dose0p5"
+      ],
+      "coincident_R6_points": [],
+      "best_R6_at_no_greater_IR": {
+        "id": "r06_c_validation/r6c_pi05_spatial_50_R30",
+        "SR": 0.944,
+        "owner_IR": 0.2775590089690081
+      },
+      "exact_vs_L10": {
+        "wins": 7,
+        "losses": 19,
+        "n": 500,
+        "delta_SR": -0.024,
+        "mcnemar_two_sided_exact_p": 0.028959274291992188,
+        "cp_lower95": -0.05306052939290412,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": false,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "exact_vs_R6_neighbor": {
+        "reference": "r06_c_validation/r6c_pi05_spatial_50_R30",
+        "wins": 20,
+        "losses": 11,
+        "n": 500,
+        "delta_SR": 0.018,
+        "mcnemar_two_sided_exact_p": 0.14961278438568115,
+        "cp_lower95": -0.014421238759263402,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": true,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "L5_reference_ids": [
+        "DUAL/tr_pi05_sp_inf",
+        "r04_cost/r4f_p_sp_inf_s1001",
+        "r04_cost/r4f_p_sp_inf_s2001"
+      ],
+      "L5_reference_SR": 0.9906666666666667,
+      "CP_lower_vs_L5_mean": -0.06088821306543391,
+      "L5_constituent_CP": [
+        {
+          "reference": "DUAL/tr_pi05_sp_inf",
+          "wins": 6,
+          "losses": 18,
+          "n": 500,
+          "delta_SR": -0.024,
+          "mcnemar_two_sided_exact_p": 0.022655844688415527,
+          "cp_lower95": -0.057724940977292784,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        },
+        {
+          "reference": "r04_cost/r4f_p_sp_inf_s1001",
+          "wins": 4,
+          "losses": 19,
+          "n": 500,
+          "delta_SR": -0.03,
+          "mcnemar_two_sided_exact_p": 0.002599477767944336,
+          "cp_lower95": -0.062096256531611924,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        },
+        {
+          "reference": "r04_cost/r4f_p_sp_inf_s2001",
+          "wins": 3,
+          "losses": 19,
+          "n": 500,
+          "delta_SR": -0.032,
+          "mcnemar_two_sided_exact_p": 0.0008554458618164062,
+          "cp_lower95": -0.06284344168739703,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        }
+      ],
+      "certified_NI_claim": false
+    },
+    {
+      "status": "complete",
+      "cell": "pi05_spatial_500",
+      "id": "r07_main/r7_pi05_spatial_500_SF1",
+      "variant": "SF1",
+      "SR": 0.974,
+      "owner_IR": 0.060382003554391536,
+      "nondominated_by_R6": true,
+      "R6_dominators": [],
+      "nondominated_after_available_R7": false,
+      "R6_points_dominated": [
+        "r06_abl/r6p2_direct_p_sp_500",
+        "r06_abl/r6p2_identity_p_sp_500",
+        "r06_paper/r4b3_p_sp_500_tail1uc_rep2",
+        "r06_paper/r4b3_p_sp_500_tail1uc_rep3"
+      ],
+      "coincident_R6_points": [],
+      "best_R6_at_no_greater_IR": null,
+      "exact_vs_L10": {
+        "wins": 7,
+        "losses": 13,
+        "n": 500,
+        "delta_SR": -0.012,
+        "mcnemar_two_sided_exact_p": 0.26317596435546875,
+        "cp_lower95": -0.03840367578654934,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": false,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "exact_vs_R6_neighbor": null,
+      "L5_reference_ids": [
+        "DUAL/tr_pi05_sp_inf",
+        "r04_cost/r4f_p_sp_inf_s1001",
+        "r04_cost/r4f_p_sp_inf_s2001"
+      ],
+      "L5_reference_SR": 0.9906666666666667,
+      "CP_lower_vs_L5_mean": -0.04483636832010889,
+      "L5_constituent_CP": [
+        {
+          "reference": "DUAL/tr_pi05_sp_inf",
+          "wins": 7,
+          "losses": 13,
+          "n": 500,
+          "delta_SR": -0.012,
+          "mcnemar_two_sided_exact_p": 0.26317596435546875,
+          "cp_lower95": -0.043929250728462814,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        },
+        {
+          "reference": "r04_cost/r4f_p_sp_inf_s1001",
+          "wins": 3,
+          "losses": 12,
+          "n": 500,
+          "delta_SR": -0.018,
+          "mcnemar_two_sided_exact_p": 0.03515625,
+          "cp_lower95": -0.0450169234924619,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        },
+        {
+          "reference": "r04_cost/r4f_p_sp_inf_s2001",
+          "wins": 2,
+          "losses": 12,
+          "n": 500,
+          "delta_SR": -0.02,
+          "mcnemar_two_sided_exact_p": 0.012939453125,
+          "cp_lower95": -0.04556293073940196,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        }
+      ],
+      "certified_NI_claim": false
+    },
+    {
+      "status": "complete",
+      "cell": "pi05_spatial_500",
+      "id": "r07_main/r7_pi05_spatial_500_UF1",
+      "variant": "UF1",
+      "SR": 0.958,
+      "owner_IR": 0.05557727775728514,
+      "nondominated_by_R6": true,
+      "R6_dominators": [],
+      "nondominated_after_available_R7": true,
+      "R6_points_dominated": [
+        "r06_abl/r6p2_identity_p_sp_500"
+      ],
+      "coincident_R6_points": [],
+      "best_R6_at_no_greater_IR": null,
+      "exact_vs_L10": {
+        "wins": 6,
+        "losses": 20,
+        "n": 500,
+        "delta_SR": -0.028,
+        "mcnemar_two_sided_exact_p": 0.009355306625366211,
+        "cp_lower95": -0.056686437102443046,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": false,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "exact_vs_R6_neighbor": null,
+      "L5_reference_ids": [
+        "DUAL/tr_pi05_sp_inf",
+        "r04_cost/r4f_p_sp_inf_s1001",
+        "r04_cost/r4f_p_sp_inf_s2001"
+      ],
+      "L5_reference_SR": 0.9906666666666667,
+      "CP_lower_vs_L5_mean": -0.06573347195067852,
+      "L5_constituent_CP": [
+        {
+          "reference": "DUAL/tr_pi05_sp_inf",
+          "wins": 7,
+          "losses": 21,
+          "n": 500,
+          "delta_SR": -0.028,
+          "mcnemar_two_sided_exact_p": 0.012540951371192932,
+          "cp_lower95": -0.06409083390949369,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        },
+        {
+          "reference": "r04_cost/r4f_p_sp_inf_s1001",
+          "wins": 3,
+          "losses": 20,
+          "n": 500,
+          "delta_SR": -0.034,
+          "mcnemar_two_sided_exact_p": 0.00048828125,
+          "cp_lower95": -0.06532211900866625,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        },
+        {
+          "reference": "r04_cost/r4f_p_sp_inf_s2001",
+          "wins": 3,
+          "losses": 21,
+          "n": 500,
+          "delta_SR": -0.036,
+          "mcnemar_two_sided_exact_p": 0.0002771615982055664,
+          "cp_lower95": -0.06778746293387564,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        }
+      ],
+      "certified_NI_claim": false
+    },
+    {
+      "status": "complete",
+      "cell": "pi05_spatial_500",
+      "id": "r07_main/r7_sw_pi05_sp_500",
+      "variant": "SW",
+      "SR": 0.978,
+      "owner_IR": 0.05569166279954354,
+      "nondominated_by_R6": true,
+      "R6_dominators": [],
+      "nondominated_after_available_R7": true,
+      "R6_points_dominated": [
+        "r06_abl/r6p2_direct_p_sp_500",
+        "r06_abl/r6p2_identity_p_sp_500",
+        "r06_paper/r4b3_p_sp_500_tail1uc_rep2",
+        "r06_paper/r4b3_p_sp_500_tail1uc_rep3"
+      ],
+      "coincident_R6_points": [],
+      "best_R6_at_no_greater_IR": null,
+      "exact_vs_L10": {
+        "wins": 7,
+        "losses": 11,
+        "n": 500,
+        "delta_SR": -0.008,
+        "mcnemar_two_sided_exact_p": 0.480682373046875,
+        "cp_lower95": -0.03337578977448437,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": false,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "exact_vs_R6_neighbor": null,
+      "L5_reference_ids": [
+        "DUAL/tr_pi05_sp_inf",
+        "r04_cost/r4f_p_sp_inf_s1001",
+        "r04_cost/r4f_p_sp_inf_s2001"
+      ],
+      "L5_reference_SR": 0.9906666666666667,
+      "CP_lower_vs_L5_mean": -0.040899771163129955,
+      "L5_constituent_CP": [
+        {
+          "reference": "DUAL/tr_pi05_sp_inf",
+          "wins": 7,
+          "losses": 11,
+          "n": 500,
+          "delta_SR": -0.008,
+          "mcnemar_two_sided_exact_p": 0.480682373046875,
+          "cp_lower95": -0.03868441353213702,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        },
+        {
+          "reference": "r04_cost/r4f_p_sp_inf_s1001",
+          "wins": 4,
+          "losses": 11,
+          "n": 500,
+          "delta_SR": -0.014,
+          "mcnemar_two_sided_exact_p": 0.11846923828125,
+          "cp_lower95": -0.04163385740073387,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        },
+        {
+          "reference": "r04_cost/r4f_p_sp_inf_s2001",
+          "wins": 3,
+          "losses": 11,
+          "n": 500,
+          "delta_SR": -0.016,
+          "mcnemar_two_sided_exact_p": 0.057373046875,
+          "cp_lower95": -0.04238104255651898,
+          "alpha": 0.016666666666666666,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        }
+      ],
+      "certified_NI_claim": false
+    },
+    {
+      "status": "complete",
+      "cell": "groot_l10_50",
+      "id": "r07_main/r7_groot_l10_50_SF1",
+      "variant": "SF1",
+      "SR": 0.58,
+      "owner_IR": 0.06551941973450116,
+      "nondominated_by_R6": true,
+      "R6_dominators": [],
+      "nondominated_after_available_R7": true,
+      "R6_points_dominated": [],
+      "coincident_R6_points": [],
+      "best_R6_at_no_greater_IR": {
+        "id": "r04_gblind/r4b3_g_l10_50_tail2u",
+        "SR": 0.57,
+        "owner_IR": 0.05003844258255298
+      },
+      "exact_vs_L10": {
+        "wins": 35,
+        "losses": 178,
+        "n": 500,
+        "delta_SR": -0.286,
+        "mcnemar_two_sided_exact_p": 2.949729212881538e-24,
+        "cp_lower95": -0.35048535076228543,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": false,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "exact_vs_R6_neighbor": {
+        "reference": "r04_gblind/r4b3_g_l10_50_tail2u",
+        "wins": 47,
+        "losses": 42,
+        "n": 500,
+        "delta_SR": 0.01,
+        "mcnemar_two_sided_exact_p": 0.6718086491746106,
+        "cp_lower95": -0.04196206732663092,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": false,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "L5_reference_ids": [
+        "DUAL/tr_groot_l10_inf"
+      ],
+      "L5_reference_SR": 0.87,
+      "CP_lower_vs_L5_mean": -0.35386063837207654,
+      "L5_constituent_CP": [
+        {
+          "reference": "DUAL/tr_groot_l10_inf",
+          "wins": 33,
+          "losses": 178,
+          "n": 500,
+          "delta_SR": -0.29,
+          "mcnemar_two_sided_exact_p": 3.0673286489427825e-25,
+          "cp_lower95": -0.35386063837207654,
+          "alpha": 0.05,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        }
+      ],
+      "certified_NI_claim": false
+    },
+    {
+      "status": "complete",
+      "cell": "groot_l10_50",
+      "id": "r07_main/r7_groot_l10_50_UF1",
+      "variant": "UF1",
+      "SR": 0.566,
+      "owner_IR": 0.05499595854067577,
+      "nondominated_by_R6": false,
+      "R6_dominators": [
+        "r04_gblind/r4b3_g_l10_50_tail2u"
+      ],
+      "nondominated_after_available_R7": false,
+      "R6_points_dominated": [],
+      "coincident_R6_points": [],
+      "best_R6_at_no_greater_IR": {
+        "id": "r04_gblind/r4b3_g_l10_50_tail2u",
+        "SR": 0.57,
+        "owner_IR": 0.05003844258255298
+      },
+      "exact_vs_L10": {
+        "wins": 29,
+        "losses": 179,
+        "n": 500,
+        "delta_SR": -0.3,
+        "mcnemar_two_sided_exact_p": 1.4139721821183813e-27,
+        "cp_lower95": -0.3625802467934011,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": false,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "exact_vs_R6_neighbor": {
+        "reference": "r04_gblind/r4b3_g_l10_50_tail2u",
+        "wins": 14,
+        "losses": 16,
+        "n": 500,
+        "delta_SR": -0.004,
+        "mcnemar_two_sided_exact_p": 0.855535551905632,
+        "cp_lower95": -0.036056167617807514,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": false,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "L5_reference_ids": [
+        "DUAL/tr_groot_l10_inf"
+      ],
+      "L5_reference_SR": 0.87,
+      "CP_lower_vs_L5_mean": -0.3670355666005868,
+      "L5_constituent_CP": [
+        {
+          "reference": "DUAL/tr_groot_l10_inf",
+          "wins": 30,
+          "losses": 182,
+          "n": 500,
+          "delta_SR": -0.304,
+          "mcnemar_two_sided_exact_p": 9.786304925147786e-28,
+          "cp_lower95": -0.3670355666005868,
+          "alpha": 0.05,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        }
+      ],
+      "certified_NI_claim": false
+    },
+    {
+      "status": "complete",
+      "cell": "groot_l10_50",
+      "id": "r07_main/r7_groot_l10_50_CU30",
+      "variant": "CU30",
+      "SR": 0.756,
+      "owner_IR": 0.30089780704479097,
+      "nondominated_by_R6": false,
+      "R6_dominators": [
+        "r06_frontier/r6q2_groot_l10_50_CycleTail_k2"
+      ],
+      "nondominated_after_available_R7": false,
+      "R6_points_dominated": [],
+      "coincident_R6_points": [],
+      "best_R6_at_no_greater_IR": {
+        "id": "r06_frontier/r6q2_groot_l10_50_CycleTail_k2",
+        "SR": 0.794,
+        "owner_IR": 0.2911289825282631
+      },
+      "exact_vs_L10": {
+        "wins": 38,
+        "losses": 93,
+        "n": 500,
+        "delta_SR": -0.11,
+        "mcnemar_two_sided_exact_p": 1.7005051806680064e-06,
+        "cp_lower95": -0.16858740116707033,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": false,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "exact_vs_R6_neighbor": {
+        "reference": "r06_frontier/r6q2_groot_l10_50_CycleTail_k2",
+        "wins": 59,
+        "losses": 78,
+        "n": 500,
+        "delta_SR": -0.038,
+        "mcnemar_two_sided_exact_p": 0.12377482507747656,
+        "cp_lower95": -0.09977443649836898,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": false,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "L5_reference_ids": [
+        "DUAL/tr_groot_l10_inf"
+      ],
+      "L5_reference_SR": 0.87,
+      "CP_lower_vs_L5_mean": -0.17242071780862317,
+      "L5_constituent_CP": [
+        {
+          "reference": "DUAL/tr_groot_l10_inf",
+          "wins": 37,
+          "losses": 94,
+          "n": 500,
+          "delta_SR": -0.114,
+          "mcnemar_two_sided_exact_p": 6.717865920862285e-07,
+          "cp_lower95": -0.17242071780862317,
+          "alpha": 0.05,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        }
+      ],
+      "certified_NI_claim": false
+    },
+    {
+      "status": "complete",
+      "cell": "groot_l10_50",
+      "id": "r07_main/r7_groot_l10_50_CT30",
+      "variant": "CT30",
+      "SR": 0.84,
+      "owner_IR": 0.2992617258614412,
+      "nondominated_by_R6": true,
+      "R6_dominators": [],
+      "nondominated_after_available_R7": true,
+      "R6_points_dominated": [
+        "r06_c_validation/r6c_groot_l10_50_C30",
+        "r06_frontier/r6q2_groot_l10_50_risk_rho0p35"
+      ],
+      "coincident_R6_points": [],
+      "best_R6_at_no_greater_IR": {
+        "id": "r06_frontier/r6q2_groot_l10_50_CycleTail_k2",
+        "SR": 0.794,
+        "owner_IR": 0.2911289825282631
+      },
+      "exact_vs_L10": {
+        "wins": 50,
+        "losses": 63,
+        "n": 500,
+        "delta_SR": -0.026,
+        "mcnemar_two_sided_exact_p": 0.2588620001653153,
+        "cp_lower95": -0.08317817923258007,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": false,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "exact_vs_R6_neighbor": {
+        "reference": "r06_frontier/r6q2_groot_l10_50_CycleTail_k2",
+        "wins": 69,
+        "losses": 46,
+        "n": 500,
+        "delta_SR": 0.046,
+        "mcnemar_two_sided_exact_p": 0.03975050512654258,
+        "cp_lower95": -0.011823170148430623,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": true,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "L5_reference_ids": [
+        "DUAL/tr_groot_l10_inf"
+      ],
+      "L5_reference_SR": 0.87,
+      "CP_lower_vs_L5_mean": -0.087540666870576,
+      "L5_constituent_CP": [
+        {
+          "reference": "DUAL/tr_groot_l10_inf",
+          "wins": 50,
+          "losses": 65,
+          "n": 500,
+          "delta_SR": -0.03,
+          "mcnemar_two_sided_exact_p": 0.19149593512028196,
+          "cp_lower95": -0.087540666870576,
+          "alpha": 0.05,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        }
+      ],
+      "certified_NI_claim": false
+    },
+    {
+      "status": "complete",
+      "cell": "groot_l10_500",
+      "id": "r07_main/r7_groot_l10_500_SF1",
+      "variant": "SF1",
+      "SR": 0.836,
+      "owner_IR": 0.06839972826086956,
+      "nondominated_by_R6": true,
+      "R6_dominators": [],
+      "nondominated_after_available_R7": true,
+      "R6_points_dominated": [
+        "r06_paper/r5x_g_l10_500_tail1u_rep2",
+        "r06_paper/r5x_g_l10_500_tail1u_rep3"
+      ],
+      "coincident_R6_points": [],
+      "best_R6_at_no_greater_IR": {
+        "id": "r04_gblind/r4b3_g_l10_500_tail2u",
+        "SR": 0.808,
+        "owner_IR": 0.05017932868062479
+      },
+      "exact_vs_L10": {
+        "wins": 50,
+        "losses": 65,
+        "n": 500,
+        "delta_SR": -0.03,
+        "mcnemar_two_sided_exact_p": 0.19149593512028196,
+        "cp_lower95": -0.087540666870576,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": false,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "exact_vs_R6_neighbor": {
+        "reference": "r04_gblind/r4b3_g_l10_500_tail2u",
+        "wins": 56,
+        "losses": 42,
+        "n": 500,
+        "delta_SR": 0.028,
+        "mcnemar_two_sided_exact_p": 0.18884671980890244,
+        "cp_lower95": -0.026127719717727566,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": false,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "L5_reference_ids": [
+        "DUAL/tr_groot_l10_inf"
+      ],
+      "L5_reference_SR": 0.87,
+      "CP_lower_vs_L5_mean": -0.09189410854739595,
+      "L5_constituent_CP": [
+        {
+          "reference": "DUAL/tr_groot_l10_inf",
+          "wins": 50,
+          "losses": 67,
+          "n": 500,
+          "delta_SR": -0.034,
+          "mcnemar_two_sided_exact_p": 0.13875316894302558,
+          "cp_lower95": -0.09189410854739595,
+          "alpha": 0.05,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        }
+      ],
+      "certified_NI_claim": false
+    },
+    {
+      "status": "complete",
+      "cell": "groot_l10_500",
+      "id": "r07_main/r7_groot_l10_500_UF1",
+      "variant": "UF1",
+      "SR": 0.804,
+      "owner_IR": 0.05214933510638298,
+      "nondominated_by_R6": false,
+      "R6_dominators": [
+        "r04_gblind/r4b3_g_l10_500_tail2u"
+      ],
+      "nondominated_after_available_R7": false,
+      "R6_points_dominated": [],
+      "coincident_R6_points": [],
+      "best_R6_at_no_greater_IR": {
+        "id": "r04_gblind/r4b3_g_l10_500_tail2u",
+        "SR": 0.808,
+        "owner_IR": 0.05017932868062479
+      },
+      "exact_vs_L10": {
+        "wins": 40,
+        "losses": 71,
+        "n": 500,
+        "delta_SR": -0.062,
+        "mcnemar_two_sided_exact_p": 0.004195534185394854,
+        "cp_lower95": -0.1179448750374203,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": false,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "exact_vs_R6_neighbor": {
+        "reference": "r04_gblind/r4b3_g_l10_500_tail2u",
+        "wins": 12,
+        "losses": 14,
+        "n": 500,
+        "delta_SR": -0.004,
+        "mcnemar_two_sided_exact_p": 0.8450189828872681,
+        "cp_lower95": -0.03407208793192848,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": false,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "L5_reference_ids": [
+        "DUAL/tr_groot_l10_inf"
+      ],
+      "L5_reference_SR": 0.87,
+      "CP_lower_vs_L5_mean": -0.12315057668309115,
+      "L5_constituent_CP": [
+        {
+          "reference": "DUAL/tr_groot_l10_inf",
+          "wins": 42,
+          "losses": 75,
+          "n": 500,
+          "delta_SR": -0.066,
+          "mcnemar_two_sided_exact_p": 0.00292812834069717,
+          "cp_lower95": -0.12315057668309115,
+          "alpha": 0.05,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        }
+      ],
+      "certified_NI_claim": false
+    },
+    {
+      "status": "complete",
+      "cell": "groot_spatial_50",
+      "id": "r07_main/r7_groot_spatial_50_SF1",
+      "variant": "SF1",
+      "SR": 0.828,
+      "owner_IR": 0.06336321483771253,
+      "nondominated_by_R6": false,
+      "R6_dominators": [
+        "r04_gblind/r4b3_g_sp_50_tail2u"
+      ],
+      "nondominated_after_available_R7": false,
+      "R6_points_dominated": [],
+      "coincident_R6_points": [],
+      "best_R6_at_no_greater_IR": {
+        "id": "r04_gblind/r4b3_g_sp_50_tail2u",
+        "SR": 0.864,
+        "owner_IR": 0.05127290091524074
+      },
+      "exact_vs_L10": {
+        "wins": 24,
+        "losses": 79,
+        "n": 500,
+        "delta_SR": -0.11,
+        "mcnemar_two_sided_exact_p": 4.9807629682571775e-08,
+        "cp_lower95": -0.16198478823791376,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": false,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "exact_vs_R6_neighbor": {
+        "reference": "r04_gblind/r4b3_g_sp_50_tail2u",
+        "wins": 28,
+        "losses": 46,
+        "n": 500,
+        "delta_SR": -0.036,
+        "mcnemar_two_sided_exact_p": 0.04739297550405179,
+        "cp_lower95": -0.08327658813572038,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": false,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "L5_reference_ids": [
+        "DUAL/tr_groot_sp_inf"
+      ],
+      "L5_reference_SR": 0.94,
+      "CP_lower_vs_L5_mean": -0.1630493463855841,
+      "L5_constituent_CP": [
+        {
+          "reference": "DUAL/tr_groot_sp_inf",
+          "wins": 22,
+          "losses": 78,
+          "n": 500,
+          "delta_SR": -0.112,
+          "mcnemar_two_sided_exact_p": 1.590532847378614e-08,
+          "cp_lower95": -0.1630493463855841,
+          "alpha": 0.05,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        }
+      ],
+      "certified_NI_claim": false
+    },
+    {
+      "status": "complete",
+      "cell": "groot_spatial_50",
+      "id": "r07_main/r7_groot_spatial_50_UF1",
+      "variant": "UF1",
+      "SR": 0.832,
+      "owner_IR": 0.058438764309236314,
+      "nondominated_by_R6": false,
+      "R6_dominators": [
+        "r04_gblind/r4b3_g_sp_50_tail2u"
+      ],
+      "nondominated_after_available_R7": false,
+      "R6_points_dominated": [],
+      "coincident_R6_points": [],
+      "best_R6_at_no_greater_IR": {
+        "id": "r04_gblind/r4b3_g_sp_50_tail2u",
+        "SR": 0.864,
+        "owner_IR": 0.05127290091524074
+      },
+      "exact_vs_L10": {
+        "wins": 24,
+        "losses": 77,
+        "n": 500,
+        "delta_SR": -0.106,
+        "mcnemar_two_sided_exact_p": 1.1806803494439654e-07,
+        "cp_lower95": -0.1576792958889138,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": false,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "exact_vs_R6_neighbor": {
+        "reference": "r04_gblind/r4b3_g_sp_50_tail2u",
+        "wins": 12,
+        "losses": 28,
+        "n": 500,
+        "delta_SR": -0.032,
+        "mcnemar_two_sided_exact_p": 0.01658900337497471,
+        "cp_lower95": -0.06746006154480444,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": false,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "L5_reference_ids": [
+        "DUAL/tr_groot_sp_inf"
+      ],
+      "L5_reference_SR": 0.94,
+      "CP_lower_vs_L5_mean": -0.15817605851529165,
+      "L5_constituent_CP": [
+        {
+          "reference": "DUAL/tr_groot_sp_inf",
+          "wins": 21,
+          "losses": 75,
+          "n": 500,
+          "delta_SR": -0.108,
+          "mcnemar_two_sided_exact_p": 2.7069291882474876e-08,
+          "cp_lower95": -0.15817605851529165,
+          "alpha": 0.05,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        }
+      ],
+      "certified_NI_claim": false
+    },
+    {
+      "status": "complete",
+      "cell": "groot_spatial_50",
+      "id": "r07_main/r7_groot_spatial_50_CU30",
+      "variant": "CU30",
+      "SR": 0.932,
+      "owner_IR": 0.30123960327127197,
+      "nondominated_by_R6": false,
+      "R6_dominators": [
+        "r06_c_validation/r6c_groot_spatial_50_C30",
+        "r06_frontier/r6q2_groot_spatial_50_CycleTail_k3"
+      ],
+      "nondominated_after_available_R7": false,
+      "R6_points_dominated": [],
+      "coincident_R6_points": [],
+      "best_R6_at_no_greater_IR": {
+        "id": "r06_c_validation/r6c_groot_spatial_50_C30",
+        "SR": 0.94,
+        "owner_IR": 0.29762942255612823
+      },
+      "exact_vs_L10": {
+        "wins": 26,
+        "losses": 29,
+        "n": 500,
+        "delta_SR": -0.006,
+        "mcnemar_two_sided_exact_p": 0.7877061896700435,
+        "cp_lower95": -0.047992522811067355,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": false,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "exact_vs_R6_neighbor": {
+        "reference": "r06_c_validation/r6c_groot_spatial_50_C30",
+        "wins": 20,
+        "losses": 24,
+        "n": 500,
+        "delta_SR": -0.008,
+        "mcnemar_two_sided_exact_p": 0.651587827208914,
+        "cp_lower95": -0.04597948417178442,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": false,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "L5_reference_ids": [
+        "DUAL/tr_groot_sp_inf"
+      ],
+      "L5_reference_SR": 0.94,
+      "CP_lower_vs_L5_mean": -0.049623040744505235,
+      "L5_constituent_CP": [
+        {
+          "reference": "DUAL/tr_groot_sp_inf",
+          "wins": 25,
+          "losses": 29,
+          "n": 500,
+          "delta_SR": -0.008,
+          "mcnemar_two_sided_exact_p": 0.6834892282353375,
+          "cp_lower95": -0.049623040744505235,
+          "alpha": 0.05,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        }
+      ],
+      "certified_NI_claim": false
+    },
+    {
+      "status": "complete",
+      "cell": "groot_spatial_50",
+      "id": "r07_main/r7_groot_spatial_50_CT30",
+      "variant": "CT30",
+      "SR": 0.95,
+      "owner_IR": 0.30713866573524273,
+      "nondominated_by_R6": true,
+      "R6_dominators": [],
+      "nondominated_after_available_R7": true,
+      "R6_points_dominated": [],
+      "coincident_R6_points": [],
+      "best_R6_at_no_greater_IR": {
+        "id": "r06_c_validation/r6c_groot_spatial_50_C30",
+        "SR": 0.94,
+        "owner_IR": 0.29762942255612823
+      },
+      "exact_vs_L10": {
+        "wins": 28,
+        "losses": 22,
+        "n": 500,
+        "delta_SR": 0.012,
+        "mcnemar_two_sided_exact_p": 0.47988766169832786,
+        "cp_lower95": -0.028330555848572664,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": false,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "exact_vs_R6_neighbor": {
+        "reference": "r06_c_validation/r6c_groot_spatial_50_C30",
+        "wins": 22,
+        "losses": 17,
+        "n": 500,
+        "delta_SR": 0.01,
+        "mcnemar_two_sided_exact_p": 0.5223973804968409,
+        "cp_lower95": -0.026103583450505157,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": false,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "L5_reference_ids": [
+        "DUAL/tr_groot_sp_inf"
+      ],
+      "L5_reference_SR": 0.94,
+      "CP_lower_vs_L5_mean": -0.02924124245015098,
+      "L5_constituent_CP": [
+        {
+          "reference": "DUAL/tr_groot_sp_inf",
+          "wins": 26,
+          "losses": 21,
+          "n": 500,
+          "delta_SR": 0.01,
+          "mcnemar_two_sided_exact_p": 0.5600646295802107,
+          "cp_lower95": -0.02924124245015098,
+          "alpha": 0.05,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        }
+      ],
+      "certified_NI_claim": false
+    },
+    {
+      "status": "complete",
+      "cell": "groot_spatial_500",
+      "id": "r07_main/r7_groot_spatial_500_SF1",
+      "variant": "SF1",
+      "SR": 0.954,
+      "owner_IR": 0.06412755607602919,
+      "nondominated_by_R6": true,
+      "R6_dominators": [],
+      "nondominated_after_available_R7": true,
+      "R6_points_dominated": [],
+      "coincident_R6_points": [],
+      "best_R6_at_no_greater_IR": {
+        "id": "r06_frontier/r6q2_groot_spatial_500_A15_confirmation",
+        "SR": 0.946,
+        "owner_IR": 0.05174490985738631
+      },
+      "exact_vs_L10": {
+        "wins": 28,
+        "losses": 20,
+        "n": 500,
+        "delta_SR": 0.016,
+        "mcnemar_two_sided_exact_p": 0.31232680747326924,
+        "cp_lower95": -0.023572164913222504,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": false,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "exact_vs_R6_neighbor": {
+        "reference": "r06_frontier/r6q2_groot_spatial_500_A15_confirmation",
+        "wins": 16,
+        "losses": 12,
+        "n": 500,
+        "delta_SR": 0.008,
+        "mcnemar_two_sided_exact_p": 0.5715881884098053,
+        "cp_lower95": -0.023148433476046344,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": false,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "L5_reference_ids": [
+        "DUAL/tr_groot_sp_inf"
+      ],
+      "L5_reference_SR": 0.94,
+      "CP_lower_vs_L5_mean": -0.025218349666311035,
+      "L5_constituent_CP": [
+        {
+          "reference": "DUAL/tr_groot_sp_inf",
+          "wins": 27,
+          "losses": 20,
+          "n": 500,
+          "delta_SR": 0.014,
+          "mcnemar_two_sided_exact_p": 0.38169339766321286,
+          "cp_lower95": -0.025218349666311035,
+          "alpha": 0.05,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        }
+      ],
+      "certified_NI_claim": false
+    },
+    {
+      "status": "complete",
+      "cell": "groot_spatial_500",
+      "id": "r07_main/r7_groot_spatial_500_UF1",
+      "variant": "UF1",
+      "SR": 0.948,
+      "owner_IR": 0.05415475656773962,
+      "nondominated_by_R6": true,
+      "R6_dominators": [],
+      "nondominated_after_available_R7": true,
+      "R6_points_dominated": [],
+      "coincident_R6_points": [],
+      "best_R6_at_no_greater_IR": {
+        "id": "r06_frontier/r6q2_groot_spatial_500_A15_confirmation",
+        "SR": 0.946,
+        "owner_IR": 0.05174490985738631
+      },
+      "exact_vs_L10": {
+        "wins": 26,
+        "losses": 21,
+        "n": 500,
+        "delta_SR": 0.01,
+        "mcnemar_two_sided_exact_p": 0.5600646295802107,
+        "cp_lower95": -0.02924124245015098,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": false,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "exact_vs_R6_neighbor": {
+        "reference": "r06_frontier/r6q2_groot_spatial_500_A15_confirmation",
+        "wins": 4,
+        "losses": 3,
+        "n": 500,
+        "delta_SR": 0.002,
+        "mcnemar_two_sided_exact_p": 1.0,
+        "cp_lower95": -0.01524976561757133,
+        "alpha": 0.05,
+        "ni_margin": 0.02,
+        "nominal_NI": true,
+        "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+      },
+      "L5_reference_ids": [
+        "DUAL/tr_groot_sp_inf"
+      ],
+      "L5_reference_SR": 0.94,
+      "CP_lower_vs_L5_mean": -0.03161530224082692,
+      "L5_constituent_CP": [
+        {
+          "reference": "DUAL/tr_groot_sp_inf",
+          "wins": 26,
+          "losses": 22,
+          "n": 500,
+          "delta_SR": 0.008,
+          "mcnemar_two_sided_exact_p": 0.6654658120766186,
+          "cp_lower95": -0.03161530224082692,
+          "alpha": 0.05,
+          "ni_margin": 0.02,
+          "nominal_NI": false,
+          "interpretation": "nominal CP bound only; no certified or simultaneous NI claim"
+        }
+      ],
+      "certified_NI_claim": false
+    }
+  ],
+  "lowest_IR_reaching_L10": [
+    {
+      "cell": "pi05_l10_50",
+      "status": "complete",
+      "available_R7": 5,
+      "expected_R7": 5,
+      "reference_L10_SR": 0.904,
+      "before_nonpure": null,
+      "after_available_nonpure": null,
+      "before_including_pure": {
+        "id": "r04_cost/r4f_p_l10_inf_k10_L10",
+        "SR": 0.904,
+        "owner_IR": 0.5
+      },
+      "after_available_including_pure": {
+        "id": "r04_cost/r4f_p_l10_inf_k10_L10",
+        "SR": 0.904,
+        "owner_IR": 0.5
+      }
+    },
+    {
+      "cell": "pi05_l10_500",
+      "status": "complete",
+      "available_R7": 3,
+      "expected_R7": 3,
+      "reference_L10_SR": 0.904,
+      "before_nonpure": {
+        "id": "r05_b1/r5b_p_l10_500_hand",
+        "SR": 0.906,
+        "owner_IR": 0.19653347555555556
+      },
+      "after_available_nonpure": {
+        "id": "r05_b1/r5b_p_l10_500_hand",
+        "SR": 0.906,
+        "owner_IR": 0.19653347555555556
+      },
+      "before_including_pure": {
+        "id": "r05_b1/r5b_p_l10_500_hand",
+        "SR": 0.906,
+        "owner_IR": 0.19653347555555556
+      },
+      "after_available_including_pure": {
+        "id": "r05_b1/r5b_p_l10_500_hand",
+        "SR": 0.906,
+        "owner_IR": 0.19653347555555556
+      }
+    },
+    {
+      "cell": "pi05_spatial_50",
+      "status": "complete",
+      "available_R7": 5,
+      "expected_R7": 5,
+      "reference_L10_SR": 0.986,
+      "before_nonpure": {
+        "id": "r06_frontier/r6q2_pi05_spatial_50_risk_rho0p45",
+        "SR": 0.986,
+        "owner_IR": 0.44150022925263643
+      },
+      "after_available_nonpure": {
+        "id": "r06_frontier/r6q2_pi05_spatial_50_risk_rho0p45",
+        "SR": 0.986,
+        "owner_IR": 0.44150022925263643
+      },
+      "before_including_pure": {
+        "id": "r06_frontier/r6q2_pi05_spatial_50_risk_rho0p45",
+        "SR": 0.986,
+        "owner_IR": 0.44150022925263643
+      },
+      "after_available_including_pure": {
+        "id": "r06_frontier/r6q2_pi05_spatial_50_risk_rho0p45",
+        "SR": 0.986,
+        "owner_IR": 0.44150022925263643
+      }
+    },
+    {
+      "cell": "pi05_spatial_500",
+      "status": "complete",
+      "available_R7": 3,
+      "expected_R7": 3,
+      "reference_L10_SR": 0.986,
+      "before_nonpure": {
+        "id": "r06_paper/r5q1_c10_p_sp_500_rep3",
+        "SR": 0.986,
+        "owner_IR": 0.11842162979769333
+      },
+      "after_available_nonpure": {
+        "id": "r06_paper/r5q1_c10_p_sp_500_rep3",
+        "SR": 0.986,
+        "owner_IR": 0.11842162979769333
+      },
+      "before_including_pure": {
+        "id": "r06_paper/r5q1_c10_p_sp_500_rep3",
+        "SR": 0.986,
+        "owner_IR": 0.11842162979769333
+      },
+      "after_available_including_pure": {
+        "id": "r06_paper/r5q1_c10_p_sp_500_rep3",
+        "SR": 0.986,
+        "owner_IR": 0.11842162979769333
+      }
+    },
+    {
+      "cell": "groot_l10_50",
+      "status": "complete",
+      "available_R7": 4,
+      "expected_R7": 4,
+      "reference_L10_SR": 0.866,
+      "before_nonpure": {
+        "id": "r06_frontier/r6q2_groot_l10_50_risk_rho0p45",
+        "SR": 0.868,
+        "owner_IR": 0.4529786910197869
+      },
+      "after_available_nonpure": {
+        "id": "r06_frontier/r6q2_groot_l10_50_risk_rho0p45",
+        "SR": 0.868,
+        "owner_IR": 0.4529786910197869
+      },
+      "before_including_pure": {
+        "id": "r06_frontier/r6q2_groot_l10_50_risk_rho0p45",
+        "SR": 0.868,
+        "owner_IR": 0.4529786910197869
+      },
+      "after_available_including_pure": {
+        "id": "r06_frontier/r6q2_groot_l10_50_risk_rho0p45",
+        "SR": 0.868,
+        "owner_IR": 0.4529786910197869
+      }
+    },
+    {
+      "cell": "groot_l10_500",
+      "status": "complete",
+      "available_R7": 2,
+      "expected_R7": 2,
+      "reference_L10_SR": 0.866,
+      "before_nonpure": {
+        "id": "r06_c_validation/r6c_groot_l10_500_C18",
+        "SR": 0.866,
+        "owner_IR": 0.18403993321274523
+      },
+      "after_available_nonpure": {
+        "id": "r06_c_validation/r6c_groot_l10_500_C18",
+        "SR": 0.866,
+        "owner_IR": 0.18403993321274523
+      },
+      "before_including_pure": {
+        "id": "r06_c_validation/r6c_groot_l10_500_C18",
+        "SR": 0.866,
+        "owner_IR": 0.18403993321274523
+      },
+      "after_available_including_pure": {
+        "id": "r06_c_validation/r6c_groot_l10_500_C18",
+        "SR": 0.866,
+        "owner_IR": 0.18403993321274523
+      }
+    },
+    {
+      "cell": "groot_spatial_50",
+      "status": "complete",
+      "available_R7": 4,
+      "expected_R7": 4,
+      "reference_L10_SR": 0.938,
+      "before_nonpure": {
+        "id": "r06_c_validation/r6c_groot_spatial_50_C30",
+        "SR": 0.94,
+        "owner_IR": 0.29762942255612823
+      },
+      "after_available_nonpure": {
+        "id": "r06_c_validation/r6c_groot_spatial_50_C30",
+        "SR": 0.94,
+        "owner_IR": 0.29762942255612823
+      },
+      "before_including_pure": {
+        "id": "r06_c_validation/r6c_groot_spatial_50_C30",
+        "SR": 0.94,
+        "owner_IR": 0.29762942255612823
+      },
+      "after_available_including_pure": {
+        "id": "r06_c_validation/r6c_groot_spatial_50_C30",
+        "SR": 0.94,
+        "owner_IR": 0.29762942255612823
+      }
+    },
+    {
+      "cell": "groot_spatial_500",
+      "status": "complete",
+      "available_R7": 2,
+      "expected_R7": 2,
+      "reference_L10_SR": 0.938,
+      "before_nonpure": {
+        "id": "r06_frontier/r6q2_groot_spatial_500_A15_confirmation",
+        "SR": 0.946,
+        "owner_IR": 0.05174490985738631
+      },
+      "after_available_nonpure": {
+        "id": "r06_frontier/r6q2_groot_spatial_500_A15_confirmation",
+        "SR": 0.946,
+        "owner_IR": 0.05174490985738631
+      },
+      "before_including_pure": {
+        "id": "r06_frontier/r6q2_groot_spatial_500_A15_confirmation",
+        "SR": 0.946,
+        "owner_IR": 0.05174490985738631
+      },
+      "after_available_including_pure": {
+        "id": "r06_frontier/r6q2_groot_spatial_500_A15_confirmation",
+        "SR": 0.946,
+        "owner_IR": 0.05174490985738631
+      }
+    }
+  ],
+  "frontiers": {
+    "pi05_l10_50": {
+      "before": [
+        "r04_cost/r4f_p_l10_inf_k10_L10",
+        "r05_q1/r5q1_c10_p_l10_50",
+        "r06_abl/r6p2_identity_p_l10_50",
+        "r06_abl/r6p2_terminal_p_l10_50",
+        "r06_c_validation/r6c_pi05_l10_50_C30",
+        "r06_c_validation/r6c_pi05_l10_50_C45",
+        "r06_c_validation/r6c_pi05_l10_50_U30",
+        "r06_frontier/r6q2_pi05_l10_50_B_cap4",
+        "r06_frontier/r6q2_pi05_l10_50_B_dose0p25",
+        "r06_frontier/r6q2_pi05_l10_50_B_dose0p5",
+        "r06_frontier/r6q2_pi05_l10_50_B_dose0p75",
+        "r06_paper/r5q1_c10_p_l10_50_rep3",
+        "r06_paper/r5t_p_l10_50_tail1uc_rep3"
+      ],
+      "after_available": [
+        "r04_cost/r4f_p_l10_inf_k10_L10",
+        "r05_q1/r5q1_c10_p_l10_50",
+        "r06_abl/r6p2_terminal_p_l10_50",
+        "r06_c_validation/r6c_pi05_l10_50_C30",
+        "r06_c_validation/r6c_pi05_l10_50_C45",
+        "r06_c_validation/r6c_pi05_l10_50_U30",
+        "r06_frontier/r6q2_pi05_l10_50_B_cap4",
+        "r06_frontier/r6q2_pi05_l10_50_B_dose0p25",
+        "r06_frontier/r6q2_pi05_l10_50_B_dose0p5",
+        "r06_frontier/r6q2_pi05_l10_50_B_dose0p75",
+        "r06_paper/r5q1_c10_p_l10_50_rep3",
+        "r06_paper/r5t_p_l10_50_tail1uc_rep3",
+        "r07_main/r7_pi05_l10_50_UF1",
+        "r07_main/r7_sw_pi05_l10_50"
+      ]
+    },
+    "pi05_l10_500": {
+      "before": [
+        "r05_b1/r5b_p_l10_500_hand",
+        "r05_ptail/r5t_p_l10_500_tail1uc",
+        "r06_abl/r6p2_direct_p_l10_500",
+        "r06_abl/r6p2_identity_p_l10_500",
+        "r06_c_validation/r6c_pi05_l10_500_C18",
+        "r06_frontier/r6q2_pi05_l10_500_B_dose0p25",
+        "r06_paper/r5q1_c10_p_l10_500_rep2",
+        "r06_paper/r5q1_c10_p_l10_500_rep3",
+        "r06_paper/r5t_p_l10_500_tail1uc_rep3"
+      ],
+      "after_available": [
+        "r05_b1/r5b_p_l10_500_hand",
+        "r06_c_validation/r6c_pi05_l10_500_C18",
+        "r06_frontier/r6q2_pi05_l10_500_B_dose0p25",
+        "r06_paper/r5q1_c10_p_l10_500_rep2",
+        "r06_paper/r5q1_c10_p_l10_500_rep3",
+        "r07_main/r7_pi05_l10_500_UF1",
+        "r07_main/r7_sw_pi05_l10_500"
+      ]
+    },
+    "pi05_spatial_50": {
+      "before": [
+        "r03_mx/r3mx_p_sp_awm_h70",
+        "r04_cost/r4f_p_sp_inf_s2001",
+        "r06_abl/r6p2_direct_p_sp_50",
+        "r06_abl/r6p2_identity_p_sp_50",
+        "r06_abl/r6p2_no_progress_p_sp_50",
+        "r06_abl/r6p2_terminal_p_sp_50",
+        "r06_c_validation/r6c_pi05_spatial_50_R30",
+        "r06_frontier/r6q2_pi05_spatial_50_B_dose0p25",
+        "r06_frontier/r6q2_pi05_spatial_50_B_dose0p5",
+        "r06_frontier/r6q2_pi05_spatial_50_B_dose0p75",
+        "r06_frontier/r6q2_pi05_spatial_50_risk_rho0p45",
+        "r06_paper/r5q1_c10_p_sp_50_rep2",
+        "r06_paper/r5t_p_sp_50_tail1uc_rep2"
+      ],
+      "after_available": [
+        "r03_mx/r3mx_p_sp_awm_h70",
+        "r04_cost/r4f_p_sp_inf_s2001",
+        "r06_abl/r6p2_direct_p_sp_50",
+        "r06_abl/r6p2_no_progress_p_sp_50",
+        "r06_abl/r6p2_terminal_p_sp_50",
+        "r06_c_validation/r6c_pi05_spatial_50_R30",
+        "r06_frontier/r6q2_pi05_spatial_50_B_dose0p25",
+        "r06_frontier/r6q2_pi05_spatial_50_B_dose0p75",
+        "r06_frontier/r6q2_pi05_spatial_50_risk_rho0p45",
+        "r06_paper/r5q1_c10_p_sp_50_rep2",
+        "r06_paper/r5t_p_sp_50_tail1uc_rep2",
+        "r07_main/r7_pi05_spatial_50_UF1",
+        "r07_main/r7_sw_pi05_sp_50",
+        "r07_main/r7_pi05_spatial_50_CT30"
+      ]
+    },
+    "pi05_spatial_500": {
+      "before": [
+        "r04_blind/r4b3_p_sp_500_tail1uc",
+        "r04_cost/r4f_p_sp_inf_s2001",
+        "r05_q6/r5q6_p_spatial_500_tail",
+        "r06_abl/r6p2_direct_p_sp_500",
+        "r06_abl/r6p2_identity_p_sp_500",
+        "r06_paper/r4b3_p_sp_500_tail1uc_rep2",
+        "r06_paper/r4b3_p_sp_500_tail1uc_rep3",
+        "r06_paper/r5q1_c10_p_sp_500_rep3"
+      ],
+      "after_available": [
+        "r04_blind/r4b3_p_sp_500_tail1uc",
+        "r04_cost/r4f_p_sp_inf_s2001",
+        "r05_q6/r5q6_p_spatial_500_tail",
+        "r06_paper/r5q1_c10_p_sp_500_rep3",
+        "r07_main/r7_pi05_spatial_500_UF1",
+        "r07_main/r7_sw_pi05_sp_500"
+      ]
+    },
+    "groot_l10_50": {
+      "before": [
+        "r04_gblind/r4b3_g_l10_50_tail2u",
+        "r05_q2/r5q2_g_l10_50_G10",
+        "r06_abl/r6p2_direct_g_l10_50",
+        "r06_abl/r6p2_no_progress_g_l10_50",
+        "r06_abl/r6p2_stuck_g_l10_50",
+        "r06_c_validation/r6c_groot_l10_50_C30",
+        "r06_frontier/r6q2_groot_l10_50_B_dose0p25",
+        "r06_frontier/r6q2_groot_l10_50_B_dose0p75",
+        "r06_frontier/r6q2_groot_l10_50_CycleTail_k2",
+        "r06_frontier/r6q2_groot_l10_50_risk_rho0p35",
+        "r06_frontier/r6q2_groot_l10_50_risk_rho0p45",
+        "r06_method/r6p5_bmech_g_l10_50",
+        "r06_paper/r5x_g_l10_50_tail1u_rep2",
+        "r06_paper/r5x_g_l10_50_tail1u_rep3",
+        "DUAL/tr_groot_l10_inf"
+      ],
+      "after_available": [
+        "r04_gblind/r4b3_g_l10_50_tail2u",
+        "r05_q2/r5q2_g_l10_50_G10",
+        "r06_abl/r6p2_direct_g_l10_50",
+        "r06_abl/r6p2_no_progress_g_l10_50",
+        "r06_abl/r6p2_stuck_g_l10_50",
+        "r06_frontier/r6q2_groot_l10_50_B_dose0p25",
+        "r06_frontier/r6q2_groot_l10_50_B_dose0p75",
+        "r06_frontier/r6q2_groot_l10_50_CycleTail_k2",
+        "r06_frontier/r6q2_groot_l10_50_risk_rho0p45",
+        "r06_method/r6p5_bmech_g_l10_50",
+        "r06_paper/r5x_g_l10_50_tail1u_rep2",
+        "r06_paper/r5x_g_l10_50_tail1u_rep3",
+        "DUAL/tr_groot_l10_inf",
+        "r07_main/r7_groot_l10_50_SF1",
+        "r07_main/r7_groot_l10_50_CT30"
+      ]
+    },
+    "groot_l10_500": {
+      "before": [
+        "r04_gblind/r4b3_g_l10_500_tail2u",
+        "r06_c_validation/r6c_groot_l10_500_C18",
+        "r06_frontier/r6q2_groot_l10_500_A_dose0p125",
+        "r06_frontier/r6q2_groot_l10_500_risk_rho0p13",
+        "r06_paper/r5x_g_l10_500_tail1u_rep2",
+        "r06_paper/r5x_g_l10_500_tail1u_rep3",
+        "r06_paper/r6p1_c10_g_l10_500_rep2",
+        "r06_paper/r6p1_c10_g_l10_500_rep3"
+      ],
+      "after_available": [
+        "r04_gblind/r4b3_g_l10_500_tail2u",
+        "r06_c_validation/r6c_groot_l10_500_C18",
+        "r06_frontier/r6q2_groot_l10_500_A_dose0p125",
+        "r06_frontier/r6q2_groot_l10_500_risk_rho0p13",
+        "r06_paper/r6p1_c10_g_l10_500_rep2",
+        "r06_paper/r6p1_c10_g_l10_500_rep3",
+        "r07_main/r7_groot_l10_500_SF1"
+      ]
+    },
+    "groot_spatial_50": {
+      "before": [
+        "r04_gblind/r4b3_g_sp_50_tail2u",
+        "r05_q2/r5q2_g_spatial_50_G10",
+        "r06_abl/r6p2_direct_g_sp_50",
+        "r06_c_validation/r6c_groot_spatial_50_C30",
+        "r06_frontier/r6q2_groot_spatial_50_CycleTail_k3",
+        "r06_paper/r5x_g_sp_50_tail1u_rep2",
+        "r06_paper/r5x_g_sp_50_tail1u_rep3"
+      ],
+      "after_available": [
+        "r04_gblind/r4b3_g_sp_50_tail2u",
+        "r05_q2/r5q2_g_spatial_50_G10",
+        "r06_abl/r6p2_direct_g_sp_50",
+        "r06_c_validation/r6c_groot_spatial_50_C30",
+        "r06_frontier/r6q2_groot_spatial_50_CycleTail_k3",
+        "r06_paper/r5x_g_sp_50_tail1u_rep2",
+        "r06_paper/r5x_g_sp_50_tail1u_rep3",
+        "r07_main/r7_groot_spatial_50_CT30"
+      ]
+    },
+    "groot_spatial_500": {
+      "before": [
+        "r04_gblind/r4b3_g_sp_500_ph2",
+        "r05_x/r5x_g_sp_500_tail1u",
+        "r06_frontier/r6q2_groot_spatial_500_A15_confirmation"
+      ],
+      "after_available": [
+        "r04_gblind/r4b3_g_sp_500_ph2",
+        "r05_x/r5x_g_sp_500_tail1u",
+        "r06_frontier/r6q2_groot_spatial_500_A15_confirmation",
+        "r07_main/r7_groot_spatial_500_SF1",
+        "r07_main/r7_groot_spatial_500_UF1"
+      ]
+    }
+  },
+  "definition": "frozen R6 frontier_final eligible single-run points and shared pure references; strict dominance, ties retained; no convex interpolation",
+  "certification_claim": false,
+  "historical_wrist_pricing": "R6 points retain frontier_final prices, including full-camera pricing of historical wrist arms; only R7 SW is repriced here"
+}

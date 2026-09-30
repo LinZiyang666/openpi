@@ -1,0 +1,3509 @@
+[
+  {
+    "id": "r05_ptail/r5t_p_l10_50_tail1uc",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 353,
+        "step_cap": 147
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r05_ptail/runs/r5t_p_l10_50_tail1uc/client/per_step.jsonl",
+          "bytes": 27651312,
+          "mtime_ns": 1790571930635742423
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_paper/r5t_p_l10_50_tail1uc_rep2",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 355,
+        "step_cap": 145
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5t_p_l10_50_tail1uc_rep2/client/per_step.jsonl",
+          "bytes": 28105788,
+          "mtime_ns": 1790620811549297046
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_paper/r5t_p_l10_50_tail1uc_rep3",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 363,
+        "step_cap": 137
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5t_p_l10_50_tail1uc_rep3/client/per_step.jsonl",
+          "bytes": 27752493,
+          "mtime_ns": 1790629874631756598
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r05_q1/r5q1_c10_p_l10_50",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "step_cap": 85,
+        "success": 415
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r05_q1/runs/r5q1_c10_p_l10_50/client/per_step.jsonl",
+          "bytes": 26581880,
+          "mtime_ns": 1790576115879320327
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_paper/r5q1_c10_p_l10_50_rep2",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 409,
+        "step_cap": 91
+      },
+      "exception_attempts_all": 13,
+      "purged_records": 13,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5q1_c10_p_l10_50_rep2/client/per_step.jsonl",
+          "bytes": 27248663,
+          "mtime_ns": 1790688120525917406
+        },
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5q1_c10_p_l10_50_rep2/client/purged_exceptions.jsonl",
+          "bytes": 3209,
+          "mtime_ns": 1790688120606917410
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_paper/r5q1_c10_p_l10_50_rep3",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 417,
+        "step_cap": 83
+      },
+      "exception_attempts_all": 5,
+      "purged_records": 5,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5q1_c10_p_l10_50_rep3/client/per_step.jsonl",
+          "bytes": 27259600,
+          "mtime_ns": 1790688424542924093
+        },
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5q1_c10_p_l10_50_rep3/client/purged_exceptions.jsonl",
+          "bytes": 1236,
+          "mtime_ns": 1790688424637924086
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r04_cost/r4f_p_l10_inf_k10_L10",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 452,
+        "step_cap": 48
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r04_cost/runs/r4f_p_l10_inf_k10_L10/client/per_step.jsonl",
+          "bytes": 12907806,
+          "mtime_ns": 1790554150899823136
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r04_cost/r4f_p_l10_inf_s1001",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 424,
+        "step_cap": 76
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r04_cost/runs/r4f_p_l10_inf_s1001/client/per_step.jsonl",
+          "bytes": 26864015,
+          "mtime_ns": 1790547035249077363
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r04_cost/r4f_p_l10_inf_s2001",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "step_cap": 70,
+        "success": 430
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r04_cost/runs/r4f_p_l10_inf_s2001/client/per_step.jsonl",
+          "bytes": 26725384,
+          "mtime_ns": 1790566373521324155
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_c_validation/r6c_pi05_l10_50_U30",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 439,
+        "step_cap": 61
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_l10_50_U30/client/per_step.jsonl",
+          "bytes": 25545354,
+          "mtime_ns": 1790695346137207163
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_c_validation/r6c_pi05_l10_50_R30",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 433,
+        "step_cap": 67
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_l10_50_R30/client/per_step.jsonl",
+          "bytes": 25858197,
+          "mtime_ns": 1790693972393776630
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_c_validation/r6c_pi05_l10_50_C30",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "step_cap": 66,
+        "success": 434
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_l10_50_C30/client/per_step.jsonl",
+          "bytes": 25989960,
+          "mtime_ns": 1790696800287394080
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_c_validation/r6c_pi05_l10_50_C45",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 447,
+        "step_cap": 53
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_l10_50_C45/client/per_step.jsonl",
+          "bytes": 25109074,
+          "mtime_ns": 1790699078407667377
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r05_ptail/r5t_p_l10_500_tail1uc",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 414,
+        "step_cap": 86
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r05_ptail/runs/r5t_p_l10_500_tail1uc/client/per_step.jsonl",
+          "bytes": 24626931,
+          "mtime_ns": 1790571223265417296
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_paper/r5t_p_l10_500_tail1uc_rep2",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 410,
+        "step_cap": 90
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5t_p_l10_500_tail1uc_rep2/client/per_step.jsonl",
+          "bytes": 25304411,
+          "mtime_ns": 1790621532528331549
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_paper/r5t_p_l10_500_tail1uc_rep3",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 417,
+        "step_cap": 83
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5t_p_l10_500_tail1uc_rep3/client/per_step.jsonl",
+          "bytes": 24895139,
+          "mtime_ns": 1790630460791051036
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r05_q1/r5q1_c10_p_l10_500",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 433,
+        "step_cap": 67
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r05_q1/runs/r5q1_c10_p_l10_500/client/per_step.jsonl",
+          "bytes": 25270934,
+          "mtime_ns": 1790575343824896628
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_paper/r5q1_c10_p_l10_500_rep2",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 440,
+        "step_cap": 60
+      },
+      "exception_attempts_all": 9,
+      "purged_records": 9,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5q1_c10_p_l10_500_rep2/client/per_step.jsonl",
+          "bytes": 25315384,
+          "mtime_ns": 1790688052234914568
+        },
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5q1_c10_p_l10_500_rep2/client/purged_exceptions.jsonl",
+          "bytes": 2238,
+          "mtime_ns": 1790688052310914571
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_paper/r5q1_c10_p_l10_500_rep3",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 445,
+        "step_cap": 55
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5q1_c10_p_l10_500_rep3/client/per_step.jsonl",
+          "bytes": 25306751,
+          "mtime_ns": 1790645496124023611
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_c_validation/r6c_pi05_l10_500_U18",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 437,
+        "step_cap": 63
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_l10_500_U18/client/per_step.jsonl",
+          "bytes": 25846611,
+          "mtime_ns": 1790702133635900695
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_c_validation/r6c_pi05_l10_500_R18",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 442,
+        "step_cap": 58
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_l10_500_R18/client/per_step.jsonl",
+          "bytes": 25687392,
+          "mtime_ns": 1790700334920898484
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_c_validation/r6c_pi05_l10_500_C18",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 451,
+        "step_cap": 49
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_l10_500_C18/client/per_step.jsonl",
+          "bytes": 25157100,
+          "mtime_ns": 1790704254187152690
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r05_ptail/r5t_p_sp_50_tail1uc",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 419,
+        "step_cap": 81
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r05_ptail/runs/r5t_p_sp_50_tail1uc/client/per_step.jsonl",
+          "bytes": 10374423,
+          "mtime_ns": 1790572457113002338
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_paper/r5t_p_sp_50_tail1uc_rep2",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 422,
+        "step_cap": 78
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5t_p_sp_50_tail1uc_rep2/client/per_step.jsonl",
+          "bytes": 10469678,
+          "mtime_ns": 1790622127379604117
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_paper/r5t_p_sp_50_tail1uc_rep3",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 414,
+        "step_cap": 86
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5t_p_sp_50_tail1uc_rep3/client/per_step.jsonl",
+          "bytes": 10632014,
+          "mtime_ns": 1790630931736254462
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r05_q1/r5q1_c10_p_sp_50",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 455,
+        "step_cap": 45
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r05_q1/runs/r5q1_c10_p_sp_50/client/per_step.jsonl",
+          "bytes": 10423097,
+          "mtime_ns": 1790577227778875389
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_paper/r5q1_c10_p_sp_50_rep2",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 456,
+        "step_cap": 44
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5q1_c10_p_sp_50_rep2/client/per_step.jsonl",
+          "bytes": 10543643,
+          "mtime_ns": 1790642980514059230
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_paper/r5q1_c10_p_sp_50_rep3",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 454,
+        "step_cap": 46
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5q1_c10_p_sp_50_rep3/client/per_step.jsonl",
+          "bytes": 10580048,
+          "mtime_ns": 1790646030681522933
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r04_cost/r4f_p_sp_inf_k10_L10",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 493,
+        "step_cap": 7
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r04_cost/runs/r4f_p_sp_inf_k10_L10/client/per_step.jsonl",
+          "bytes": 5197052,
+          "mtime_ns": 1790554795292250402
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r04_cost/r4f_p_sp_inf_s1001",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 496,
+        "step_cap": 4
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r04_cost/runs/r4f_p_sp_inf_s1001/client/per_step.jsonl",
+          "bytes": 9815881,
+          "mtime_ns": 1790552782304199785
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r04_cost/r4f_p_sp_inf_s2001",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 497,
+        "step_cap": 3
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r04_cost/runs/r4f_p_sp_inf_s2001/client/per_step.jsonl",
+          "bytes": 9826532,
+          "mtime_ns": 1790567257604954591
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_c_validation/r6c_pi05_spatial_50_U30",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "step_cap": 30,
+        "success": 470
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_spatial_50_U30/client/per_step.jsonl",
+          "bytes": 10390713,
+          "mtime_ns": 1790694818190988593
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_c_validation/r6c_pi05_spatial_50_R30",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 472,
+        "step_cap": 28
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_spatial_50_R30/client/per_step.jsonl",
+          "bytes": 10375673,
+          "mtime_ns": 1790693894943780398
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_c_validation/r6c_pi05_spatial_50_C30",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 469,
+        "step_cap": 31
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_spatial_50_C30/client/per_step.jsonl",
+          "bytes": 10261880,
+          "mtime_ns": 1790697261582405249
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_c_validation/r6c_pi05_spatial_50_C45",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 483,
+        "step_cap": 17
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_spatial_50_C45/client/per_step.jsonl",
+          "bytes": 10014088,
+          "mtime_ns": 1790699191182698002
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r04_blind/r4b3_p_sp_500_tail1uc",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 491,
+        "step_cap": 9
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r04_blind/runs/r4b3_p_sp_500_tail1uc/client/per_step.jsonl",
+          "bytes": 9008042,
+          "mtime_ns": 1790559729025994472
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_paper/r4b3_p_sp_500_tail1uc_rep2",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 487,
+        "step_cap": 13
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r4b3_p_sp_500_tail1uc_rep2/client/per_step.jsonl",
+          "bytes": 9242940,
+          "mtime_ns": 1790622658766719247
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_paper/r4b3_p_sp_500_tail1uc_rep3",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 486,
+        "step_cap": 14
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r4b3_p_sp_500_tail1uc_rep3/client/per_step.jsonl",
+          "bytes": 9236498,
+          "mtime_ns": 1790640305440582303
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r05_q1/r5q1_c10_p_sp_500",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 491,
+        "step_cap": 9
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r05_q1/runs/r5q1_c10_p_sp_500/client/per_step.jsonl",
+          "bytes": 9434514,
+          "mtime_ns": 1790576701193632697
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_paper/r5q1_c10_p_sp_500_rep2",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 489,
+        "step_cap": 11
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5q1_c10_p_sp_500_rep2/client/per_step.jsonl",
+          "bytes": 9696663,
+          "mtime_ns": 1790643515814776185
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_paper/r5q1_c10_p_sp_500_rep3",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 493,
+        "step_cap": 7
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5q1_c10_p_sp_500_rep3/client/per_step.jsonl",
+          "bytes": 9609793,
+          "mtime_ns": 1790646659612105806
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_c_validation/r6c_pi05_spatial_500_U18",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 484,
+        "step_cap": 16
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_spatial_500_U18/client/per_step.jsonl",
+          "bytes": 9952173,
+          "mtime_ns": 1790702643837080269
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_c_validation/r6c_pi05_spatial_500_R18",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 483,
+        "step_cap": 17
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_spatial_500_R18/client/per_step.jsonl",
+          "bytes": 9985086,
+          "mtime_ns": 1790700992350291518
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_c_validation/r6c_pi05_spatial_500_C18",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 493,
+        "step_cap": 7
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_spatial_500_C18/client/per_step.jsonl",
+          "bytes": 9756892,
+          "mtime_ns": 1790703714535056628
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r05_x/r5x_g_l10_50_tail1u",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "step_cap": 196,
+        "success": 304
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r05_x/runs/r5x_g_l10_50_tail1u/client/per_step.jsonl",
+          "bytes": 27424111,
+          "mtime_ns": 1790587356929005561
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_paper/r5x_g_l10_50_tail1u_rep2",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 309,
+        "step_cap": 191
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5x_g_l10_50_tail1u_rep2/client/per_step.jsonl",
+          "bytes": 27858264,
+          "mtime_ns": 1790641384544342431
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_paper/r5x_g_l10_50_tail1u_rep3",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 303,
+        "step_cap": 197
+      },
+      "exception_attempts_all": 4,
+      "purged_records": 4,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5x_g_l10_50_tail1u_rep3/client/per_step.jsonl",
+          "bytes": 27894506,
+          "mtime_ns": 1790688567449915950
+        },
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5x_g_l10_50_tail1u_rep3/client/purged_exceptions.jsonl",
+          "bytes": 1005,
+          "mtime_ns": 1790688567556915945
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_paper/r6p1_c10_g_l10_50",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "step_cap": 137,
+        "success": 363
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_l10_50/client/per_step.jsonl",
+          "bytes": 25389311,
+          "mtime_ns": 1790619381430075056
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_paper/r6p1_c10_g_l10_50_rep2",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 360,
+        "step_cap": 140
+      },
+      "exception_attempts_all": 12,
+      "purged_records": 12,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_l10_50_rep2/client/per_step.jsonl",
+          "bytes": 26184785,
+          "mtime_ns": 1790688885708906338
+        },
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_l10_50_rep2/client/purged_exceptions.jsonl",
+          "bytes": 2965,
+          "mtime_ns": 1790688885788906337
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_paper/r6p1_c10_g_l10_50_rep3",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 364,
+        "step_cap": 136
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_l10_50_rep3/client/per_step.jsonl",
+          "bytes": 26061843,
+          "mtime_ns": 1790648266805323304
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r05_q2/r5q2_g_l10_policy_L10",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "step_cap": 67,
+        "success": 433
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r05_q2/runs/r5q2_g_l10_policy_L10/client/per_step.jsonl",
+          "bytes": 10374315,
+          "mtime_ns": 1790575051148801031
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_c_validation/r6c_groot_l10_50_U30",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "step_cap": 115,
+        "success": 385
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_l10_50_U30/client/per_step.jsonl",
+          "bytes": 25024551,
+          "mtime_ns": 1790698323014467550
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_c_validation/r6c_groot_l10_50_R30",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 392,
+        "step_cap": 108
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_l10_50_R30/client/per_step.jsonl",
+          "bytes": 24901629,
+          "mtime_ns": 1790696841163394196
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_c_validation/r6c_groot_l10_50_C30",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "step_cap": 97,
+        "success": 403
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_l10_50_C30/client/per_step.jsonl",
+          "bytes": 24508009,
+          "mtime_ns": 1790700550673927288
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_c_validation/r6c_groot_l10_50_Cmax",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 411,
+        "step_cap": 89
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_l10_50_Cmax/client/per_step.jsonl",
+          "bytes": 24333747,
+          "mtime_ns": 1790702875016054400
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r05_x/r5x_g_l10_500_tail1u",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 415,
+        "step_cap": 85
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r05_x/runs/r5x_g_l10_500_tail1u/client/per_step.jsonl",
+          "bytes": 22580540,
+          "mtime_ns": 1790586100724510293
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_paper/r5x_g_l10_500_tail1u_rep2",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 416,
+        "step_cap": 84
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5x_g_l10_500_tail1u_rep2/client/per_step.jsonl",
+          "bytes": 22967910,
+          "mtime_ns": 1790642390534562557
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_paper/r5x_g_l10_500_tail1u_rep3",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 414,
+        "step_cap": 86
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5x_g_l10_500_tail1u_rep3/client/per_step.jsonl",
+          "bytes": 22981780,
+          "mtime_ns": 1790645942681441098
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_paper/r6p1_c10_g_l10_500",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 432,
+        "step_cap": 68
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_l10_500/client/per_step.jsonl",
+          "bytes": 22194861,
+          "mtime_ns": 1790617694525721735
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_paper/r6p1_c10_g_l10_500_rep2",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 442,
+        "step_cap": 58
+      },
+      "exception_attempts_all": 10,
+      "purged_records": 10,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_l10_500_rep2/client/per_step.jsonl",
+          "bytes": 22599918,
+          "mtime_ns": 1790688744871909424
+        },
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_l10_500_rep2/client/purged_exceptions.jsonl",
+          "bytes": 2491,
+          "mtime_ns": 1790688744943909422
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_paper/r6p1_c10_g_l10_500_rep3",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 434,
+        "step_cap": 66
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_l10_500_rep3/client/per_step.jsonl",
+          "bytes": 22682094,
+          "mtime_ns": 1790649965959819233
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_c_validation/r6c_groot_l10_500_U18",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 424,
+        "step_cap": 76
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_l10_500_U18/client/per_step.jsonl",
+          "bytes": 23394188,
+          "mtime_ns": 1790704503396204849
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_c_validation/r6c_groot_l10_500_R18",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 426,
+        "step_cap": 74
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_l10_500_R18/client/per_step.jsonl",
+          "bytes": 23234141,
+          "mtime_ns": 1790702858487058452
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_c_validation/r6c_groot_l10_500_C18",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 433,
+        "step_cap": 67
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_l10_500_C18/client/per_step.jsonl",
+          "bytes": 22838817,
+          "mtime_ns": 1790706149722628524
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r05_x/r5x_g_sp_50_tail1u",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "step_cap": 66,
+        "success": 434
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r05_x/runs/r5x_g_sp_50_tail1u/client/per_step.jsonl",
+          "bytes": 9634115,
+          "mtime_ns": 1790588349074377069
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_paper/r5x_g_sp_50_tail1u_rep2",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 433,
+        "step_cap": 67
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5x_g_sp_50_tail1u_rep2/client/per_step.jsonl",
+          "bytes": 9855817,
+          "mtime_ns": 1790642923077013060
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_paper/r5x_g_sp_50_tail1u_rep3",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 434,
+        "step_cap": 66
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5x_g_sp_50_tail1u_rep3/client/per_step.jsonl",
+          "bytes": 9827921,
+          "mtime_ns": 1790646522264978719
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_paper/r6p1_c10_g_sp_50",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 437,
+        "step_cap": 63
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_sp_50/client/per_step.jsonl",
+          "bytes": 9528068,
+          "mtime_ns": 1790620036473199324
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_paper/r6p1_c10_g_sp_50_rep2",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 437,
+        "step_cap": 63
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_sp_50_rep2/client/per_step.jsonl",
+          "bytes": 9702902,
+          "mtime_ns": 1790628765218852515
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_paper/r6p1_c10_g_sp_50_rep3",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 440,
+        "step_cap": 60
+      },
+      "exception_attempts_all": 1,
+      "purged_records": 1,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_sp_50_rep3/client/per_step.jsonl",
+          "bytes": 9675233,
+          "mtime_ns": 1790688930865905657
+        },
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_sp_50_rep3/client/purged_exceptions.jsonl",
+          "bytes": 245,
+          "mtime_ns": 1790688930894905656
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r05_q2/r5q2_g_spatial_policy_L10",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 469,
+        "step_cap": 31
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r05_q2/runs/r5q2_g_spatial_policy_L10/client/per_step.jsonl",
+          "bytes": 4357890,
+          "mtime_ns": 1790576000123247375
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_c_validation/r6c_groot_spatial_50_U30",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 464,
+        "step_cap": 36
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_spatial_50_U30/client/per_step.jsonl",
+          "bytes": 9650086,
+          "mtime_ns": 1790696475100388245
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_c_validation/r6c_groot_spatial_50_R30",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 456,
+        "step_cap": 44
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_spatial_50_R30/client/per_step.jsonl",
+          "bytes": 9604604,
+          "mtime_ns": 1790695024454095692
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_c_validation/r6c_groot_spatial_50_C30",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 470,
+        "step_cap": 30
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_spatial_50_C30/client/per_step.jsonl",
+          "bytes": 9368804,
+          "mtime_ns": 1790698234430461628
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_c_validation/r6c_groot_spatial_50_C45",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 468,
+        "step_cap": 32
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_spatial_50_C45/client/per_step.jsonl",
+          "bytes": 9358859,
+          "mtime_ns": 1790700890219197500
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r05_x/r5x_g_sp_500_tail1u",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 482,
+        "step_cap": 18
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r05_x/runs/r5x_g_sp_500_tail1u/client/per_step.jsonl",
+          "bytes": 8510779,
+          "mtime_ns": 1790587824552176255
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_paper/r5x_g_sp_500_tail1u_rep2",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 482,
+        "step_cap": 18
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5x_g_sp_500_tail1u_rep2/client/per_step.jsonl",
+          "bytes": 8681448,
+          "mtime_ns": 1790643393939548489
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_paper/r5x_g_sp_500_tail1u_rep3",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 482,
+        "step_cap": 18
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5x_g_sp_500_tail1u_rep3/client/per_step.jsonl",
+          "bytes": 8679569,
+          "mtime_ns": 1790646991278412470
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_paper/r6p1_c10_g_sp_500",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 479,
+        "step_cap": 21
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_sp_500/client/per_step.jsonl",
+          "bytes": 8664478,
+          "mtime_ns": 1790618162295432109
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_paper/r6p1_c10_g_sp_500_rep2",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 480,
+        "step_cap": 20
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_sp_500_rep2/client/per_step.jsonl",
+          "bytes": 8800813,
+          "mtime_ns": 1790629228579266162
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_paper/r6p1_c10_g_sp_500_rep3",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 479,
+        "step_cap": 21
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_sp_500_rep3/client/per_step.jsonl",
+          "bytes": 8824466,
+          "mtime_ns": 1790651264088489063
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_c_validation/r6c_groot_spatial_500_U18",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 477,
+        "step_cap": 23
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_spatial_500_U18/client/per_step.jsonl",
+          "bytes": 9151370,
+          "mtime_ns": 1790703670380050491
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_c_validation/r6c_groot_spatial_500_R18",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "step_cap": 30,
+        "success": 470
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_spatial_500_R18/client/per_step.jsonl",
+          "bytes": 9277085,
+          "mtime_ns": 1790701919029817469
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r06_c_validation/r6c_groot_spatial_500_C18",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 467,
+        "step_cap": 33
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_spatial_500_C18/client/per_step.jsonl",
+          "bytes": 9333199,
+          "mtime_ns": 1790704747436258259
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r07_main/r7_pi05_l10_50_SF1",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "step_cap": 158,
+        "success": 342
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/runs/r7_pi05_l10_50_SF1/client/per_step.jsonl",
+          "bytes": 28115873,
+          "mtime_ns": 1790757859807034026
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r07_main/r7_pi05_l10_50_UF1",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 324,
+        "step_cap": 176
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/runs/r7_pi05_l10_50_UF1/client/per_step.jsonl",
+          "bytes": 28962097,
+          "mtime_ns": 1790759608532243313
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r07_main/r7_sw_pi05_l10_50",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "step_cap": 148,
+        "success": 352
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/runs/r7_sw_pi05_l10_50/client/per_step.jsonl",
+          "bytes": 27475511,
+          "mtime_ns": 1790765261671315667
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r07_main/r7_pi05_l10_50_CU30",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 432,
+        "step_cap": 68
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/runs/r7_pi05_l10_50_CU30/client/per_step.jsonl",
+          "bytes": 26116398,
+          "mtime_ns": 1790757374604865894
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r07_main/r7_pi05_l10_50_CT30",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "step_cap": 73,
+        "success": 427
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/runs/r7_pi05_l10_50_CT30/client/per_step.jsonl",
+          "bytes": 26158953,
+          "mtime_ns": 1790763670429434238
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r07_main/r7_pi05_l10_500_SF1",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 417,
+        "step_cap": 83
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/runs/r7_pi05_l10_500_SF1/client/per_step.jsonl",
+          "bytes": 24445461,
+          "mtime_ns": 1790758461344541839
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r07_main/r7_pi05_l10_500_UF1",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 395,
+        "step_cap": 105
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/runs/r7_pi05_l10_500_UF1/client/per_step.jsonl",
+          "bytes": 25273338,
+          "mtime_ns": 1790760835411693582
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r07_main/r7_sw_pi05_l10_500",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "step_cap": 77,
+        "success": 423
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/runs/r7_sw_pi05_l10_500/client/per_step.jsonl",
+          "bytes": 24307591,
+          "mtime_ns": 1790765244007307032
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r07_main/r7_pi05_spatial_50_SF1",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 397,
+        "step_cap": 103
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/runs/r7_pi05_spatial_50_SF1/client/per_step.jsonl",
+          "bytes": 10818485,
+          "mtime_ns": 1790760580658603294
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r07_main/r7_pi05_spatial_50_UF1",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 390,
+        "step_cap": 110
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/runs/r7_pi05_spatial_50_UF1/client/per_step.jsonl",
+          "bytes": 10960034,
+          "mtime_ns": 1790762038404188909
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r07_main/r7_sw_pi05_sp_50",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 412,
+        "step_cap": 88
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/runs/r7_sw_pi05_sp_50/client/per_step.jsonl",
+          "bytes": 10445959,
+          "mtime_ns": 1790765011940189081
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r07_main/r7_pi05_spatial_50_CU30",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "step_cap": 27,
+        "success": 473
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/runs/r7_pi05_spatial_50_CU30/client/per_step.jsonl",
+          "bytes": 10254822,
+          "mtime_ns": 1790756707072588393
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r07_main/r7_pi05_spatial_50_CT30",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 481,
+        "step_cap": 19
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/runs/r7_pi05_spatial_50_CT30/client/per_step.jsonl",
+          "bytes": 10044498,
+          "mtime_ns": 1790763191233292207
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r07_main/r7_pi05_spatial_500_SF1",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 487,
+        "step_cap": 13
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/runs/r7_pi05_spatial_500_SF1/client/per_step.jsonl",
+          "bytes": 9104686,
+          "mtime_ns": 1790761564929987167
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r07_main/r7_pi05_spatial_500_UF1",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 479,
+        "step_cap": 21
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/runs/r7_pi05_spatial_500_UF1/client/per_step.jsonl",
+          "bytes": 9217630,
+          "mtime_ns": 1790762344876176329
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r07_main/r7_sw_pi05_sp_500",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 489,
+        "step_cap": 11
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/runs/r7_sw_pi05_sp_500/client/per_step.jsonl",
+          "bytes": 8823412,
+          "mtime_ns": 1790765671256506962
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r07_main/r7_groot_l10_50_SF1",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 290,
+        "step_cap": 210
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/runs/r7_groot_l10_50_SF1/client/per_step.jsonl",
+          "bytes": 27815185,
+          "mtime_ns": 1790759257402059010
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r07_main/r7_groot_l10_50_UF1",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "step_cap": 217,
+        "success": 283
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/runs/r7_groot_l10_50_UF1/client/per_step.jsonl",
+          "bytes": 27928588,
+          "mtime_ns": 1790761082313788899
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r07_main/r7_groot_l10_50_CU30",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 378,
+        "step_cap": 122
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/runs/r7_groot_l10_50_CU30/client/per_step.jsonl",
+          "bytes": 25384940,
+          "mtime_ns": 1790759550653213753
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r07_main/r7_groot_l10_50_CT30",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 420,
+        "step_cap": 80
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/runs/r7_groot_l10_50_CT30/client/per_step.jsonl",
+          "bytes": 23836720,
+          "mtime_ns": 1790765484706421645
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r07_main/r7_groot_l10_500_SF1",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "step_cap": 82,
+        "success": 418
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/runs/r7_groot_l10_500_SF1/client/per_step.jsonl",
+          "bytes": 22524877,
+          "mtime_ns": 1790759503734189589
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r07_main/r7_groot_l10_500_UF1",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "step_cap": 98,
+        "success": 402
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/runs/r7_groot_l10_500_UF1/client/per_step.jsonl",
+          "bytes": 23324656,
+          "mtime_ns": 1790761133722809412
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r07_main/r7_groot_spatial_50_SF1",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 414,
+        "step_cap": 86
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/runs/r7_groot_spatial_50_SF1/client/per_step.jsonl",
+          "bytes": 10234116,
+          "mtime_ns": 1790761367042904550
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r07_main/r7_groot_spatial_50_UF1",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 416,
+        "step_cap": 84
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/runs/r7_groot_spatial_50_UF1/client/per_step.jsonl",
+          "bytes": 10128204,
+          "mtime_ns": 1790762218138194767
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r07_main/r7_groot_spatial_50_CU30",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 466,
+        "step_cap": 34
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/runs/r7_groot_spatial_50_CU30/client/per_step.jsonl",
+          "bytes": 9403653,
+          "mtime_ns": 1790757314092843695
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r07_main/r7_groot_spatial_50_CT30",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 475,
+        "step_cap": 25
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/runs/r7_groot_spatial_50_CT30/client/per_step.jsonl",
+          "bytes": 9371363,
+          "mtime_ns": 1790764165723598607
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r07_main/r7_groot_spatial_500_SF1",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 477,
+        "step_cap": 23
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/runs/r7_groot_spatial_500_SF1/client/per_step.jsonl",
+          "bytes": 8853289,
+          "mtime_ns": 1790761932457143428
+        }
+      ]
+    },
+    "error": null
+  },
+  {
+    "id": "r07_main/r7_groot_spatial_500_UF1",
+    "status": "complete",
+    "audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 474,
+        "step_cap": 26
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r07_main/runs/r7_groot_spatial_500_UF1/client/per_step.jsonl",
+          "bytes": 8963776,
+          "mtime_ns": 1790762657961183730
+        }
+      ]
+    },
+    "error": null
+  }
+]

@@ -1,0 +1,109 @@
+{
+  "cell": "groot_sp_500",
+  "model_fingerprint": "1fb0d9754c2100d216f5372fdc36b8043a0099f28ae81cefb4c4f44a344315df",
+  "anchors": 1376,
+  "episodes": 120,
+  "observe_input": "precomputed deployed A metric_code; excludes JSON parse/status copy",
+  "observe_median_us": 3883.932,
+  "observe_p99_us": 4480.2252499999995,
+  "observe_cpu_median_us": 3886.365,
+  "observe_cpu_p99_us": 4453.69175,
+  "active_observe_median_us": 3941.1495,
+  "active_observe_p99_us": 4541.234600000004,
+  "scope": "official test inits; descriptive and engineering only; no tuning or fitting",
+  "summaries": [
+    {
+      "cell": "groot_sp_500",
+      "cohort": "A",
+      "scope": "all_anchors",
+      "n": 678,
+      "episodes": 60,
+      "counts": {
+        "inactive": 120,
+        "ok": 524,
+        "slow_confirmed": 21,
+        "slow_ambiguous": 13
+      },
+      "rates": {
+        "inactive": 0.17699115044247787,
+        "ok": 0.7728613569321534,
+        "slow_confirmed": 0.030973451327433628,
+        "slow_ambiguous": 0.019174041297935103
+      },
+      "observe_median_us": 3901.4970000000003,
+      "observe_p99_us": 4897.279160000002,
+      "observe_cpu_median_us": 3903.5845,
+      "observe_cpu_p99_us": 4899.978870000002
+    },
+    {
+      "cell": "groot_sp_500",
+      "cohort": "A",
+      "scope": "noprog_flagged",
+      "n": 71,
+      "episodes": 60,
+      "counts": {
+        "inactive": 3,
+        "ok": 46,
+        "slow_confirmed": 17,
+        "slow_ambiguous": 5
+      },
+      "rates": {
+        "inactive": 0.04225352112676056,
+        "ok": 0.647887323943662,
+        "slow_confirmed": 0.23943661971830985,
+        "slow_ambiguous": 0.07042253521126761
+      },
+      "observe_median_us": 3917.661,
+      "observe_p99_us": 4251.7694,
+      "observe_cpu_median_us": 3920.692,
+      "observe_cpu_p99_us": 4159.5568
+    },
+    {
+      "cell": "groot_sp_500",
+      "cohort": "B",
+      "scope": "all_anchors",
+      "n": 698,
+      "episodes": 60,
+      "counts": {
+        "inactive": 120,
+        "ok": 517,
+        "slow_confirmed": 49,
+        "slow_ambiguous": 12
+      },
+      "rates": {
+        "inactive": 0.17191977077363896,
+        "ok": 0.7406876790830945,
+        "slow_confirmed": 0.07020057306590258,
+        "slow_ambiguous": 0.017191977077363897
+      },
+      "observe_median_us": 3859.183,
+      "observe_p99_us": 4379.97778,
+      "observe_cpu_median_us": 3861.3325,
+      "observe_cpu_p99_us": 4353.275229999999
+    },
+    {
+      "cell": "groot_sp_500",
+      "cohort": "B",
+      "scope": "noprog_flagged",
+      "n": 81,
+      "episodes": 60,
+      "counts": {
+        "inactive": 3,
+        "ok": 42,
+        "slow_confirmed": 34,
+        "slow_ambiguous": 2
+      },
+      "rates": {
+        "inactive": 0.037037037037037035,
+        "ok": 0.5185185185185185,
+        "slow_confirmed": 0.41975308641975306,
+        "slow_ambiguous": 0.024691358024691357
+      },
+      "observe_median_us": 3812.992,
+      "observe_p99_us": 4135.2732000000005,
+      "observe_cpu_median_us": 3816.459,
+      "observe_cpu_p99_us": 4138.163600000001
+    }
+  ],
+  "status_counts_match_previous_run": true
+}

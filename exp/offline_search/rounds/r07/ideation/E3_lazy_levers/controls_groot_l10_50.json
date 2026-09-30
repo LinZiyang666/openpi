@@ -1,0 +1,128 @@
+{
+  "cell": "groot_l10_50",
+  "source": "P3 A_r0, original trajectory; position/fingers only",
+  "control_rows": 7250,
+  "anchors": 731,
+  "q95": 0.4584394402083444,
+  "affine_max_abs_error": [
+    0.0039865603116053805,
+    0.003864180759293845,
+    0.0031445582514209036,
+    0.00200659311152096,
+    0.00208144125918841
+  ],
+  "caveat": "linear interpolation between 5-control library observations; normalization fitted from same recorded proprioception",
+  "horizons": {
+    "5": {
+      "n": 585,
+      "endpoint_q": [
+        0.021742300720578277,
+        0.17553444188168518,
+        0.29994412762521006
+      ],
+      "cumulative_any_control": 0.020512820512820513,
+      "cumulative_five_control": 0.020512820512820513,
+      "dense_only_share": 0.0
+    },
+    "10": {
+      "n": 568,
+      "endpoint_q": [
+        0.041019474339276704,
+        0.2964804064502291,
+        0.4816965121387429
+      ],
+      "cumulative_any_control": 0.05985915492957746,
+      "cumulative_five_control": 0.05457746478873239,
+      "dense_only_share": 0.00528169014084507
+    },
+    "15": {
+      "n": 544,
+      "endpoint_q": [
+        0.07048554041691035,
+        0.4044532659023086,
+        0.6742420351310766
+      ],
+      "cumulative_any_control": 0.11397058823529412,
+      "cumulative_five_control": 0.10110294117647059,
+      "dense_only_share": 0.012867647058823529
+    },
+    "16": {
+      "n": 526,
+      "endpoint_q": [
+        0.08445930235328597,
+        0.44723256741578377,
+        0.6934606761378634
+      ],
+      "cumulative_any_control": 0.12927756653992395,
+      "cumulative_five_control": 0.09885931558935361,
+      "dense_only_share": 0.030418250950570342
+    },
+    "20": {
+      "n": 526,
+      "endpoint_q": [
+        0.12666618177622402,
+        0.5589950891414256,
+        0.7562136137632827
+      ],
+      "cumulative_any_control": 0.1806083650190114,
+      "cumulative_five_control": 0.16539923954372623,
+      "dense_only_share": 0.015209125475285171
+    },
+    "30": {
+      "n": 493,
+      "endpoint_q": [
+        0.20023829617738925,
+        0.7234634079254132,
+        0.9169873371232824
+      ],
+      "cumulative_any_control": 0.33874239350912777,
+      "cumulative_five_control": 0.3144016227180527,
+      "dense_only_share": 0.02434077079107505
+    },
+    "32": {
+      "n": 454,
+      "endpoint_q": [
+        0.21118923747112614,
+        0.7568462497912407,
+        0.9601841188802167
+      ],
+      "cumulative_any_control": 0.3590308370044053,
+      "cumulative_five_control": 0.31277533039647576,
+      "dense_only_share": 0.046255506607929514
+    },
+    "40": {
+      "n": 429,
+      "endpoint_q": [
+        0.2767922518886806,
+        0.8367026493201806,
+        1.0567072064895333
+      ],
+      "cumulative_any_control": 0.44988344988344986,
+      "cumulative_five_control": 0.4219114219114219,
+      "dense_only_share": 0.027972027972027972
+    },
+    "48": {
+      "n": 388,
+      "endpoint_q": [
+        0.3267934263899484,
+        0.9059561432565282,
+        1.0735564561469688
+      ],
+      "cumulative_any_control": 0.5438144329896907,
+      "cumulative_five_control": 0.4845360824742268,
+      "dense_only_share": 0.059278350515463915
+    },
+    "60": {
+      "n": 358,
+      "endpoint_q": [
+        0.3685268857320272,
+        1.0369212215037742,
+        1.2506745363878566
+      ],
+      "cumulative_any_control": 0.6703910614525139,
+      "cumulative_five_control": 0.6368715083798883,
+      "dense_only_share": 0.0335195530726257
+    }
+  },
+  "elapsed_s": 7.346201658248901
+}

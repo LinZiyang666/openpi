@@ -1,0 +1,119 @@
+{
+  "status": "COMPLETE_CPU_ENGINEERING_DELIVERY",
+  "models": 8,
+  "independent_refits_identical": 8,
+  "descriptive_pilot_episodes": 960,
+  "descriptive_pilot_anchors": 20836,
+  "loeo_windows": 33626,
+  "unit_tests_observed_passed": 13,
+  "metric_raw_query_checks": 1920,
+  "bmech_arms": 4,
+  "bmech_replay_decisions": 4150,
+  "sources": {
+    "__init__.py": "0111190705d2c095c04f5e935b1337f97e3a6347188b316080c14f2fc6132837",
+    "audit_metrics.py": "cef60b9b96c0b5992e0487dd64d0731243983e6209e383b04cda9c0c1a40fbcb",
+    "bmech.py": "97d3032f58f3df3f537a9c2a4b28852702b55199cb095aa40060bae0bad9ce5b",
+    "build_handback.py": "9792ace925c2effac39def0973d70b7c3da66866c5b91b65b6d8f17bba01f884",
+    "emit_bmech.py": "faaeb14ac2f31bf9166aceb4b6cafb80e7935acd267a0dc92e068608e238af39",
+    "fit_models.py": "00bd8b697937bcb8a39b9e8c6db9789c8e58292303e54239412f1852e430cf0e",
+    "replay_bmech.py": "2517758bfbe6aa5b9e6bf02741e645c78a0283eb0d1da3693553ba82eba301bb",
+    "replay_pilot.py": "1768ea4702771820ec9662fc1367c4a0f7a36dedb4edfe6adbe26f3a4cc53762",
+    "stall.py": "8d595cf8e0eafe45e94a59d93095400d35ed2b355f5c4d0ffc10a4620775c0e3",
+    "test_stall.py": "80b7bcdc7000e7efaeb577220de9b6100ab71155e45286af284e030090e71197"
+  },
+  "artifacts": {
+    "pi05_l10_50": {
+      "stall.json": "f2429676b45e5247f3537e29bd402195448f84e84e936f72257583c08bc98644",
+      "stall.loeo.csv": "a60894f6eac7c28439547c1e4e209ada5fbfb0c05f71205094b9aad14e7d1e08",
+      "stall.pkl": "2f6c930139215bff90558daca4be73d81db75b7a2fce2d36a74ccf1f82e18f77"
+    },
+    "pi05_l10_500": {
+      "stall.json": "51821f18610a61550ad34d8b111b1f2f43d475bb47855fda74b05a803a8c3dca",
+      "stall.loeo.csv": "2f44ee880a226a58af12c454837f74e1843b89f87afa4c839cc8c494d86f913e",
+      "stall.pkl": "001f53250d8059ba0e80f5bc65f16e536fbf2269dc27ce35e98e922b9d3fd8a8"
+    },
+    "pi05_sp_50": {
+      "stall.json": "d30f85131681e1ffe452d1bcac91ccc48192ae92f003f36ded0d63b1f4e7a3ed",
+      "stall.loeo.csv": "2cc8279df5148fe954e0c5d3f9533bd3a86eef8536b87f77437a8b66d5eaf892",
+      "stall.pkl": "5b0095f31cecc7d83570d25f6081a1e2d100c764eca6756daf0909381fdecdb2"
+    },
+    "pi05_sp_500": {
+      "stall.json": "61f3e52c681c4e9ac92bfadf6052bf51f37639c673d67ca3574cc34090fdb0fa",
+      "stall.loeo.csv": "d13acf9b40484e110fc8f5b1a700a0f99a6728b1eca20c3399170a0c401059e4",
+      "stall.pkl": "7fdd5fcf2f446d671ddc6724b17b8da2f75b2d5b2e110510555da05ee7fe0fad"
+    },
+    "groot_l10_50": {
+      "stall.json": "3ee83c2d92a63ed0b70a4b177625443533633c8b5f8dc8eff34a861cd4d38e9e",
+      "stall.loeo.csv": "49ab4b431d6f8386c8e1bba8900498d43853f732e0da73de625f43f2eb90272d",
+      "stall.pkl": "9feb11a563ec5111ae78f050bdfe8fb177dbebdeb8c8ab06f3b6236e4473fcf4"
+    },
+    "groot_l10_500": {
+      "stall.json": "1e58f1e8148a984ce6c9d7bd087e3088a5b315519b582dd84d3a96b0670fff4c",
+      "stall.loeo.csv": "78017e86e049b5e4bb91ce07cfce46595aff0808bc99c956e298afd75587b02e",
+      "stall.pkl": "c345dabf76b0f2601ab6e46174d66c0205dca5e3e11668e8871a1b414e3de286"
+    },
+    "groot_sp_50": {
+      "stall.json": "1619e0c577d8da657c5da69fd90c9f784cf48f6d30d79af5a819150c1fd5af58",
+      "stall.loeo.csv": "d24b95d013f4d068e29b6ec1d719e844eb900905cb68452a1fcb8132efc53706",
+      "stall.pkl": "184e6cf1cff891721c3c02accb44955c053f8c32d346780fb60ea016409e2ba7"
+    },
+    "groot_sp_500": {
+      "stall.json": "1db2668f9cbeb400bbde87a97be2874c1e044cf1ec737f14217daed14f7dfc44",
+      "stall.loeo.csv": "b97d8fa4959b5d5ada44947b03d8f13c32608a6127d65773cede4d652d59cb4d",
+      "stall.pkl": "b6f63b626ce64e1b250d4479ea7e3baf614fa31cce1e4e89eb74869809e4e6d4"
+    }
+  },
+  "model_fingerprints": {
+    "pi05_l10_50": "e4ed6e3d0ed45115201cd6d1785fd4d4131fbec35fdeee92abea2e71e4b3fc49",
+    "pi05_l10_500": "312754f81b3971dd52d4198ac12d5463a49939ef9946ab9cf7a011c0249c29b1",
+    "pi05_sp_50": "f93f6c830d4411b252865242a15ce3cefdf3527995866200974ff212c41805d8",
+    "pi05_sp_500": "4ca05097b54dfc17963fcb2870df1dc7647fdfed66f3c0ea2df0c6146a70cc9f",
+    "groot_l10_50": "e962aa7d665a23a6df5a95d113e5cf9daa2b02ccb241e38b12be6a03081393f9",
+    "groot_l10_500": "f5426ac559b27059decef316ebe071de30b84e6377e55970ebfafe303ba1b903",
+    "groot_sp_50": "3def6cdcb5a8c12d306261dae33c3c4e31ae6866c438e58c55fc0d64818cfa63",
+    "groot_sp_500": "1fb0d9754c2100d216f5372fdc36b8043a0099f28ae81cefb4c4f44a344315df"
+  },
+  "bmech_artifacts": {
+    "r6p5_bmech_g_l10_50": "d9803487119d9ac38d6544b299c38a7ff8874425ffc13bbd88048de0520c9bd9",
+    "r6p5_bmech_g_sp_50": "12c73e99294ab5d9b8c078d7345dae54e37182504874a330e3064d47a5c26e9e",
+    "r6p5_bmech_p_l10_50": "254429542fe8e9055781d9d6448efeef26066db92572e8eeb5176fdc5ca05ec8",
+    "r6p5_bmech_p_sp_50": "9df1d9320f0a1fb169f92c1c380542094dc297c02a6ecab95f71c48a6f97cd6c"
+  },
+  "results": {
+    "bmech_artifacts.json": "01c6a9252f12ba52953032f36562650d3c6ba65a83507ab90e71bdeca724521d",
+    "bmech_replay_r6p5_bmech_g_l10_50_Bmech.json": "c366f17348578bb25c30dec93eb3897a8ac7c1a4952c10033b825e131ab9ae98",
+    "bmech_replay_r6p5_bmech_g_sp_50_Bmech.json": "180ef4e5e0bcca5cb00f05623f1bc7ccc43af63156fd6b2e190ce5396ccd48fa",
+    "bmech_replay_r6p5_bmech_p_l10_50_Bmech.json": "da11a6fe22ff4ee9834ef446889d65e8ec41fb8f162033d5e6c7779a15a9f6db",
+    "bmech_replay_r6p5_bmech_p_sp_50_Bmech.json": "0379697766d797bb149a99b30a3b1f712a922f8639bda887686b0b664dc5ca95",
+    "emit_arms_bmech.json": "27519ae7861e3bdf3bc127acfdb4f5d4c86670f8a04bca5ed35079dae4ecee27",
+    "fit_groot_l10_50.json": "f5c16b798eec5b9d549ecf499f25d3495b376163dd2a673d67a2d24b942e7fc8",
+    "fit_groot_l10_500.json": "450abf2a62a5e843182e535f17df103f47cba247c7c5951e84b85a509d32fbee",
+    "fit_groot_sp_50.json": "11e061b134d51254dbf0cbcf30f2564cfdd77af4d4473b9fe5a5fcac67775810",
+    "fit_groot_sp_500.json": "4c7446bea22a21a3bf80cc97f11a50b21963133fc9cb1bad4ceb817da3f463bf",
+    "fit_pi05_l10_50.json": "5e94b995646b912b4eae4765e6c32438d6d43add10371c69a36484f73bdb4c9f",
+    "fit_pi05_l10_500.json": "102617bf97d7de5c9ffe94721c9197a3ad6cdaa5ff1f1ddb64e073f2360a0e5c",
+    "fit_pi05_sp_50.json": "43585ad9f90c66f377da29746d824f39f3bfb0d737d3d7d5fc19f27c4fb1a7ee",
+    "fit_pi05_sp_500.json": "d7df4ff0fe8378a793bc97756b44af1531f6cce7bcd8d9b392785a68426226f6",
+    "metric_audit.json": "0bda439a197a44ee04d4cf1c49d3a028aec4405d123edcaa20a844e788f11c5d",
+    "pilot_replay_groot_l10_50.json": "ee84f091442ef41be94e684de8ee1211f3ff376365d88a6bd1127a06b58456e6",
+    "pilot_replay_groot_l10_500.json": "cbb1f277172e5bf6901e198d9d7dae8700dd83a744afa6e9e10575b68e943604",
+    "pilot_replay_groot_sp_50.json": "25881823ac4a770f78b3004f4e5475af4e7653130b68e09c7cb79c104cc181db",
+    "pilot_replay_groot_sp_500.json": "b56dda264d343d620c63354823f40c129f60c83c7233c781162a59b1dd2195e9",
+    "pilot_replay_pi05_l10_50.json": "ad6d306f85a720ea71d3aed1125c88f4c3dc5f35780f3172789b4319ae8d954c",
+    "pilot_replay_pi05_l10_500.json": "18a42e42ad311a163aebc89f750dc0dd57b6103a2734ffe9a3809be90d6f01d7",
+    "pilot_replay_pi05_sp_50.json": "ee6bed258bac67c077d08f17abb03179a6e608d6df87643b9d2298695306ad52",
+    "pilot_replay_pi05_sp_500.json": "5df84488321b2ca45cfe7a87ecfdf879f61a71031c7d20ea6742fed3e4ab6589",
+    "refit_groot_l10_50.json": "5a977fb6b8468e10e424dcc09acd6a7252fb762dc30b9df467ed84f44f237ac6",
+    "refit_groot_l10_500.json": "7546341b74659986db8c172e7ece13c1efd13d603b983eb243a17ab6e41eb0b6",
+    "refit_groot_sp_50.json": "bc7fb331f6e2a62d81f584cede25dcd798e4a10eb0a49916e9cfc64be6f90d7d",
+    "refit_groot_sp_500.json": "167e53bfaae15d688a4bebf51dd271231fb8a18f310fd5a6dae1bdd8499d4ad9",
+    "refit_pi05_l10_50.json": "a17035c5a0ab1e4c4831dc6e3df2ba32c80f68439b7d654eb6a40a3f4df496ec",
+    "refit_pi05_l10_500.json": "80824b2cf2caf23b1ce75b304563ce6977d485b9cd3055d572fd0910c8718ee6",
+    "refit_pi05_sp_50.json": "f191f19f91971010bcabd00bd909f4be0a19106be7fc2c3908b5b33048d9fb5f",
+    "refit_pi05_sp_500.json": "9c4b000cd512849f07e4151c8dea5dde249d6bf79f8069701efaa58f2d44b730",
+    "source_manifest.json": "0bbda8f9d20f6ca4b72affdb1136d53290341a4123c9888cd6afb104f25c30bb"
+  },
+  "handback_sha256": "753813a4b5d405853d94bace044e78777b0715847176cc7228e3e7eb743eeb89",
+  "no_closed_loop_experiment": true,
+  "no_test_outcome_fitting": true
+}

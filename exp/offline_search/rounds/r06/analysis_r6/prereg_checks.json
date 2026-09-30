@@ -1,0 +1,167 @@
+{
+ "Q1": {
+  "decision": {
+   "complete_eight_cells": true,
+   "scientific_use": true,
+   "status": {
+    "C": "practical_utility_rejected",
+    "D": "inconclusive",
+    "R": "survives",
+    "Qrisk": "survives"
+   },
+   "selected": "R",
+   "permitted_use": "state disagreement diagnostic only; no validated SR probability or call utility"
+  },
+  "pooled": {
+   "C": {
+    "rho": 0.2257906673218117,
+    "rho_sim": [
+     0.16356671457704655,
+     0.27750324692879036
+    ],
+    "gain": 0.006269487124861195,
+    "gain_sim": [
+     -0.029951011772019535,
+     0.037593801915854284
+    ],
+    "mae": 0.18176903445627235,
+    "baseline": 0.18291582285257998
+   },
+   "D": {
+    "rho": 0.14890261345913613,
+    "rho_sim": [
+     0.03956722484137483,
+     0.25175033277371156
+    ],
+    "gain": 0.09772812346325344,
+    "gain_sim": [
+     0.038899342898753686,
+     0.14984102938594476
+    ],
+    "mae": 0.16503980273346044,
+    "baseline": 0.18291582285257998
+   },
+   "R": {
+    "rho": 0.46804238959442795,
+    "rho_sim": [
+     0.39076154272041336,
+     0.5422754522045697
+    ],
+    "gain": 0.15398030250229278,
+    "gain_sim": [
+     0.09376270333243557,
+     0.2195195454590987
+    ],
+    "mae": 0.15475038911728392,
+    "baseline": 0.18291582285257998
+   },
+   "Qrisk": {
+    "rho": 0.43947608035964625,
+    "rho_sim": [
+     0.3546731007746333,
+     0.5095213101902845
+    ],
+    "gain": 0.18613875476965602,
+    "gain_sim": [
+     0.11196451840994431,
+     0.24749964742348957
+    ],
+    "mae": 0.14886809935913375,
+    "baseline": 0.18291582285257998
+   },
+   "dispersion": {
+    "rho": 0.433774088548782,
+    "rho_sim": [
+     0.38810199405439766,
+     0.48010025190821404
+    ],
+    "gain": 0.14792626040812007,
+    "gain_sim": [
+     0.12133544955716745,
+     0.17751027596164923
+    ],
+    "mae": 0.15585776920852368,
+    "baseline": 0.18291582285257998
+   },
+   "V7": {
+    "rho": 0.39372576000763104,
+    "rho_sim": [
+     0.3486978993476792,
+     0.4408936372386249
+    ],
+    "gain": 0.18528106345478557,
+    "gain_sim": [
+     0.1535604081783095,
+     0.2168803567711651
+    ],
+    "mae": 0.1490249846717468,
+    "baseline": 0.18291582285257998
+   },
+   "negative_neff": {
+    "rho": -0.04146099328979952,
+    "rho_sim": [
+     -0.0873973739567893,
+     0.0009243677003599887
+    ],
+    "gain": -0.0005550546625705532,
+    "gain_sim": [
+     -0.002548355869657265,
+     0.0011327781822518589
+    ],
+    "mae": 0.18301735113291223,
+    "baseline": 0.18291582285257998
+   }
+  }
+ },
+ "Q2": {
+  "recommendations": {
+   "groot_l10_50": [
+    "P10_reference_inconclusive",
+    0,
+    "fewer than two distinct inits in a task; variance unavailable"
+   ],
+   "groot_l10_500": [
+    "P10_reference_inconclusive",
+    0,
+    "fewer than two distinct inits in a task; variance unavailable"
+   ],
+   "groot_sp_50": [
+    "P10_reference_inconclusive",
+    0,
+    "fewer than two distinct inits in a task; variance unavailable"
+   ],
+   "groot_sp_500": [
+    "P10_reference_inconclusive",
+    0,
+    "fewer than two distinct inits in a task; variance unavailable"
+   ],
+   "pi05_l10_50": [
+    "P10_reference_inconclusive",
+    0,
+    "fewer than two distinct inits in a task; variance unavailable"
+   ],
+   "pi05_l10_500": [
+    "P10_reference_inconclusive",
+    0,
+    "fewer than two distinct inits in a task; variance unavailable"
+   ],
+   "pi05_sp_50": [
+    "P10_reference_inconclusive",
+    0,
+    "fewer than two distinct inits in a task; variance unavailable"
+   ],
+   "pi05_sp_500": [
+    "P10_reference_inconclusive",
+    0,
+    "fewer than two distinct inits in a task; variance unavailable"
+   ]
+  }
+ },
+ "Q3": {
+  "primary_rows": 64,
+  "estimable": 54,
+  "simultaneous_exclusions": 0,
+  "nomination_rows": 48,
+  "eligible_nominations": 0
+ }
+}

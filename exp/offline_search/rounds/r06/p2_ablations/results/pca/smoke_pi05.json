@@ -1,0 +1,40 @@
+{
+ "method": "P2_tokens_grid16__BL_anchor_tail_B1_budget_only_r0.5__AWM_joint_cur_fcur_kr5",
+ "spec": "exp.offline_search.rounds.r06.p2_ablations.token_pca:TokenPCAAWM",
+ "kwargs": {
+  "lib": "current",
+  "kref": 5,
+  "serving": "anchor_tail",
+  "budget": 1,
+  "gates": "budget_only",
+  "pooling_grid": 16
+ },
+ "cell": "pi05_spatial_cache",
+ "replay_cell": "pi05_spatial_cache",
+ "fit_artifact": "/home/weiland/trace_runs/os_closed_loop/r06_abl/fits/r6p2_direct_p_sp_50.pkl",
+ "judge": null,
+ "policy_tail": false,
+ "blocks": null,
+ "episodes": 4,
+ "decisions": 81,
+ "vision": 42,
+ "misses": 0,
+ "src": {
+  "cache": 42,
+  "cache_blind": 39
+ },
+ "stage1_calls": 42,
+ "max_blind_run": 1,
+ "served_sha256": "990727f94fc7e9ee550c70779e7f78cc21ec71ae01d3430684c09d8567375755",
+ "vision_sha256": "1344ae5afbd31c7b57b003817b527ddb69f297a18eb25fbc9ed4b13e65b1e3f9",
+ "wall_s": 4.6,
+ "ms_per_decision": 29.514,
+ "PASS": true,
+ "selected_episodes": [
+  0,
+  160,
+  320,
+  490
+ ],
+ "tail_checks": 39
+}

@@ -1,0 +1,462 @@
+{
+ "r02_g50": {
+  "arms": 16,
+  "accepted": 8000,
+  "covered": 8000,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ },
+ "r02_g500": {
+  "arms": 16,
+  "accepted": 8000,
+  "covered": 8000,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ },
+ "r03_full": {
+  "arms": 6,
+  "accepted": 3000,
+  "covered": 3000,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ },
+ "r03_mx": {
+  "arms": 17,
+  "accepted": 8500,
+  "covered": 8500,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ },
+ "r03_pilot": {
+  "arms": 13,
+  "accepted": 1300,
+  "covered": 1300,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ },
+ "r03_smoke": {
+  "arms": 2,
+  "accepted": 4,
+  "covered": 4,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ },
+ "r04_b4w": {
+  "arms": 4,
+  "accepted": 2000,
+  "covered": 2000,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ },
+ "r04_blind": {
+  "arms": 13,
+  "accepted": 6500,
+  "covered": 6500,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ },
+ "r04_bsmoke": {
+  "arms": 2,
+  "accepted": 4,
+  "covered": 4,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ },
+ "r04_cost": {
+  "arms": 14,
+  "accepted": 7000,
+  "covered": 7000,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ },
+ "r04_csl": {
+  "arms": 4,
+  "accepted": 2000,
+  "covered": 2000,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ },
+ "r04_frontier": {
+  "arms": 7,
+  "accepted": 3500,
+  "covered": 3500,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ },
+ "r04_gblind": {
+  "arms": 8,
+  "accepted": 4000,
+  "covered": 4000,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ },
+ "r04_k5": {
+  "arms": 4,
+  "accepted": 2000,
+  "covered": 2000,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ },
+ "r04_k5_smoke": {
+  "arms": 2,
+  "accepted": 8,
+  "covered": 8,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ },
+ "r04_k7": {
+  "arms": 9,
+  "accepted": 4500,
+  "covered": 4500,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ },
+ "r04_rep": {
+  "arms": 2,
+  "accepted": 1000,
+  "covered": 1000,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ },
+ "r05_b1": {
+  "arms": 12,
+  "accepted": 6000,
+  "covered": 6000,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ },
+ "r05_demo_curve": {
+  "arms": 8,
+  "accepted": 4000,
+  "covered": 4000,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ },
+ "r05_growth": {
+  "arms": 4,
+  "accepted": 1000,
+  "covered": 1000,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ },
+ "r05_ptail": {
+  "arms": 4,
+  "accepted": 2000,
+  "covered": 2000,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ },
+ "r05_q1": {
+  "arms": 6,
+  "accepted": 3000,
+  "covered": 3000,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ },
+ "r05_q1_smoke": {
+  "arms": 2,
+  "accepted": 4,
+  "covered": 4,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ },
+ "r05_q2": {
+  "arms": 6,
+  "accepted": 3000,
+  "covered": 3000,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ },
+ "r05_q2_smoke": {
+  "arms": 2,
+  "accepted": 4,
+  "covered": 4,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ },
+ "r05_q5": {
+  "arms": 2,
+  "accepted": 1000,
+  "covered": 1000,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ },
+ "r05_q5_smoke": {
+  "arms": 2,
+  "accepted": 4,
+  "covered": 4,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ },
+ "r05_q6": {
+  "arms": 4,
+  "accepted": 2000,
+  "covered": 2000,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ },
+ "r05_q6_smoke": {
+  "arms": 1,
+  "accepted": 2,
+  "covered": 2,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ },
+ "r05_x": {
+  "arms": 6,
+  "accepted": 3000,
+  "covered": 3000,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ },
+ "r06_abl": {
+  "arms": 32,
+  "accepted": 16000,
+  "covered": 16000,
+  "residual": 0,
+  "purged_arms": 11,
+  "purged_records": 87,
+  "purged_uids": 87,
+  "exception_rows": 87
+ },
+ "r06_abl_pca_smoke": {
+  "arms": 2,
+  "accepted": 8,
+  "covered": 8,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ },
+ "r06_abl_smoke": {
+  "arms": 2,
+  "accepted": 4,
+  "covered": 4,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ },
+ "r06_c_cal": {
+  "arms": 8,
+  "accepted": 80,
+  "covered": 80,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ },
+ "r06_c_smoke": {
+  "arms": 2,
+  "accepted": 8,
+  "covered": 8,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ },
+ "r06_c_validation": {
+  "arms": 28,
+  "accepted": 14000,
+  "covered": 14000,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ },
+ "r06_frontier": {
+  "arms": 41,
+  "accepted": 20500,
+  "covered": 20500,
+  "residual": 0,
+  "purged_arms": 15,
+  "purged_records": 175,
+  "purged_uids": 175,
+  "exception_rows": 175
+ },
+ "r06_frontier_smoke": {
+  "arms": 2,
+  "accepted": 8,
+  "covered": 8,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ },
+ "r06_method": {
+  "arms": 4,
+  "accepted": 2000,
+  "covered": 2000,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ },
+ "r06_p3_pilot": {
+  "arms": 216,
+  "accepted": 4320,
+  "covered": 4320,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ },
+ "r06_p3_smoke": {
+  "arms": 4,
+  "accepted": 16,
+  "covered": 16,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ },
+ "r06_p3_stream_smoke": {
+  "arms": 2,
+  "accepted": 8,
+  "covered": 8,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ },
+ "r06_p3_v2_client_smoke": {
+  "arms": 8,
+  "accepted": 32,
+  "covered": 32,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ },
+ "r06_paper": {
+  "arms": 36,
+  "accepted": 18000,
+  "covered": 18000,
+  "residual": 0,
+  "purged_arms": 7,
+  "purged_records": 54,
+  "purged_uids": 54,
+  "exception_rows": 54
+ },
+ "r06_paper_smoke": {
+  "arms": 2,
+  "accepted": 8,
+  "covered": 8,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ },
+ "smoke_20260926": {
+  "arms": 6,
+  "accepted": 60,
+  "covered": 60,
+  "residual": 0,
+  "purged_arms": 0,
+  "purged_records": 0,
+  "purged_uids": 0,
+  "exception_rows": 0
+ }
+}

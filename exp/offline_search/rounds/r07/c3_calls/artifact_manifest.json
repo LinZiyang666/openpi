@@ -1,0 +1,265 @@
+{
+  "root": "/tmp/r7_C3",
+  "artifacts": [
+    {
+      "path": "cal/groot_l10_50/CT/calibration.json",
+      "sha256": "eb92aaed9ff4538a5d28d6979049e672b9d342305f31a539923104a5a143b7df",
+      "bytes": 12278
+    },
+    {
+      "path": "cal/groot_l10_50/CT/cost_replay.json",
+      "sha256": "08c44eafda9d92a049af9262077f8bca5f5a6fa70954e715d95202838324b71a",
+      "bytes": 906841
+    },
+    {
+      "path": "cal/groot_l10_50/CU/calibration.json",
+      "sha256": "3e3f221f02f87c9bfab950f2cd569ed2184a8b8105eda651f30d0da0acf7e8fa",
+      "bytes": 20374
+    },
+    {
+      "path": "cal/groot_l10_50/CU/calibration_anchor_labels.csv",
+      "sha256": "ccc4508f4d706ca2a8d9672b059148076bccb03945a49640476287981d86813d",
+      "bytes": 42995
+    },
+    {
+      "path": "cal/groot_l10_50/CU/cost_replay.json",
+      "sha256": "c53d3781dd36c0be5368b2d19a9050ce503ba724564b3b3d975ebcf6f535cf60",
+      "bytes": 661361
+    },
+    {
+      "path": "cal/groot_l10_50/CU/r_bank.json",
+      "sha256": "f0d30f971cc7b30be9d59538f6deedce0d1e6c728b01f0f517b4b65728cc0319",
+      "bytes": 3073
+    },
+    {
+      "path": "cal/groot_l10_50/CU/r_bank.npz",
+      "sha256": "63450cceab051adffe71c8d6d5fde6c65043b26df94394806d8d7023c6ab6fc1",
+      "bytes": 32013
+    },
+    {
+      "path": "cal/groot_l10_50/feasibility.json",
+      "sha256": "b6fb8a45c920f04d25548b41cf5e9d475f9107496300cc359fc42e02c341ec2a",
+      "bytes": 3012
+    },
+    {
+      "path": "cal/groot_l10_50/r6_refit.log",
+      "sha256": "da930253465a9649d2c60d3682ee21e7dd723b2588dfe44f1a62f0cd98ec7b71",
+      "bytes": 6758
+    },
+    {
+      "path": "cal/groot_l10_50/stage_features.json",
+      "sha256": "a8906d52ec6d2f448a86cb4e1bb1a26ca5ef65b0530af164439306f2ebc3de8e",
+      "bytes": 189951
+    },
+    {
+      "path": "cal/groot_l10_50/stages.pkl",
+      "sha256": "0115634e409d9c67165d639d81f8ce3b2ed237cfbc1dead3f01f1ce679aaf113",
+      "bytes": 245738
+    },
+    {
+      "path": "cal/groot_spatial_50/CT/calibration.json",
+      "sha256": "0be5794a53f29341c0ec57c6d9efe6348e2e03d696605564185b591efceab4f6",
+      "bytes": 12570
+    },
+    {
+      "path": "cal/groot_spatial_50/CT/cost_replay.json",
+      "sha256": "c22fa292e34b0531219ad9bb33e223f1c2a623375dce37800b8eb915959fc758",
+      "bytes": 220354
+    },
+    {
+      "path": "cal/groot_spatial_50/CU/calibration.json",
+      "sha256": "c4a23fa3287c9977e049a0d5a56e3ff6cfc0223bcfcf435f13275d2f34f6f403",
+      "bytes": 20519
+    },
+    {
+      "path": "cal/groot_spatial_50/CU/calibration_anchor_labels.csv",
+      "sha256": "44552cc38cccdbbe0cdd7305fb19ecb33cdccec58662f892df46f21106505b47",
+      "bytes": 16787
+    },
+    {
+      "path": "cal/groot_spatial_50/CU/cost_replay.json",
+      "sha256": "930adb9b78f54fc9aeb18b51aa3b307fd7274f9e4164a9684f58ac2c59b47e65",
+      "bytes": 186362
+    },
+    {
+      "path": "cal/groot_spatial_50/CU/r_bank.json",
+      "sha256": "8523f694de35ef1f204c2f07727f00705d203468d4ed2d7d1f2ecc8ef2261d28",
+      "bytes": 3085
+    },
+    {
+      "path": "cal/groot_spatial_50/CU/r_bank.npz",
+      "sha256": "65debf096d9133bd70d3caf6ecb172992e52f27d114a2685837cc4c1a6493bd9",
+      "bytes": 13851
+    },
+    {
+      "path": "cal/groot_spatial_50/feasibility.json",
+      "sha256": "1fa130db63344347919836d48429f8309d56832839669827de9994a96415e08c",
+      "bytes": 3022
+    },
+    {
+      "path": "cal/groot_spatial_50/r6_refit.log",
+      "sha256": "35922cec3f172564fb63eab23ca9f29669f5eccbfb031f1f0834d72f889e2f1d",
+      "bytes": 6649
+    },
+    {
+      "path": "cal/groot_spatial_50/stage_features.json",
+      "sha256": "b46bd7c932b47f403b666332197dfbc4a0cf0680de5a809a315ea2f75f400380",
+      "bytes": 67047
+    },
+    {
+      "path": "cal/groot_spatial_50/stages.pkl",
+      "sha256": "046b21923f80fba9342e06aba36b2ffee2aad0a68c89ada69b07f96cb9eb2514",
+      "bytes": 100194
+    },
+    {
+      "path": "cal/pi05_l10_50/CT/calibration.json",
+      "sha256": "015584bfe912ae644ab7acebb2a00b40c2a862598a1aea86ac101aed22732f00",
+      "bytes": 12278
+    },
+    {
+      "path": "cal/pi05_l10_50/CT/cost_replay.json",
+      "sha256": "1100d9ce7f3f00400c6049008d757b27e1469c3e3b3bb805cf5a7edd7174b9f3",
+      "bytes": 766594
+    },
+    {
+      "path": "cal/pi05_l10_50/CU/calibration.json",
+      "sha256": "00763aa7cb809c289183b6b75c5261dd151e52057600975858b1ff7bab4e8f54",
+      "bytes": 20246
+    },
+    {
+      "path": "cal/pi05_l10_50/CU/calibration_anchor_labels.csv",
+      "sha256": "d5dbd50df1550fba0bdd6f40afc04a323754f7dffec5293eaa7dbc9a65cef4f5",
+      "bytes": 40201
+    },
+    {
+      "path": "cal/pi05_l10_50/CU/cost_replay.json",
+      "sha256": "0b66ea7d05d0bd32d6b40b32f9c01a463fcf894a886ad93c110342eca45c1a16",
+      "bytes": 579938
+    },
+    {
+      "path": "cal/pi05_l10_50/CU/r_bank.json",
+      "sha256": "8bcdc5594e9c5b1987af507bb59b39ddf86c620a31c70ae57689f80a3884d857",
+      "bytes": 3079
+    },
+    {
+      "path": "cal/pi05_l10_50/CU/r_bank.npz",
+      "sha256": "5b0644fba2da66b1828ece4a7cd2046835fa437e31eb804a5c46aac5813aa99f",
+      "bytes": 32213
+    },
+    {
+      "path": "cal/pi05_l10_50/feasibility.json",
+      "sha256": "4c06d7d534aafc37d35a3476be9a3680eaea073d60ee63869e5cd55ff0d4f450",
+      "bytes": 3047
+    },
+    {
+      "path": "cal/pi05_l10_50/r6_refit.log",
+      "sha256": "9ec0c99f1de9d65ae81cd6efd32691533ff9ce1c1c940dd29f8e901ff9ae88eb",
+      "bytes": 6659
+    },
+    {
+      "path": "cal/pi05_l10_50/stage_features.json",
+      "sha256": "3820951274fa1d37d32defe174e36ffb69c02cf8b5e7d421a9e9d70a8b7b1dbd",
+      "bytes": 178701
+    },
+    {
+      "path": "cal/pi05_l10_50/stages.pkl",
+      "sha256": "e597f90055f98e6ed955ba91f84c1cc93db25fa5fb40ecb47a4ffa81c2b35503",
+      "bytes": 245278
+    },
+    {
+      "path": "cal/pi05_spatial_50/CT/calibration.json",
+      "sha256": "cbe801faa6f8595e964d41f7b10cac618112d435bf29d05fb26510be5d99ede3",
+      "bytes": 12473
+    },
+    {
+      "path": "cal/pi05_spatial_50/CT/cost_replay.json",
+      "sha256": "2b628854cef97e7acda62033a7f57f3df73c19bd114665ce8f2e2606bd981a8b",
+      "bytes": 269846
+    },
+    {
+      "path": "cal/pi05_spatial_50/CU/calibration.json",
+      "sha256": "ef6bbba69e6d958b72dd1c23a85b6939f087bdfdf661c9ab5a4e84b98fa432a4",
+      "bytes": 20522
+    },
+    {
+      "path": "cal/pi05_spatial_50/CU/calibration_anchor_labels.csv",
+      "sha256": "856aa0df19249883eeacbbec717adc37f587617a210a6e9d5a834c49a39a4b53",
+      "bytes": 18790
+    },
+    {
+      "path": "cal/pi05_spatial_50/CU/cost_replay.json",
+      "sha256": "ae39b31b9fef7c347b7603f8a9f02f1d50ea64ff6218275c41ab529e8e52f29d",
+      "bytes": 221546
+    },
+    {
+      "path": "cal/pi05_spatial_50/CU/r_bank.json",
+      "sha256": "0fec11521dda5ad422afaecd38662d6abfefd952454957b9779645c075b223c4",
+      "bytes": 3090
+    },
+    {
+      "path": "cal/pi05_spatial_50/CU/r_bank.npz",
+      "sha256": "5a8e6baa2cbc08c0cf8cb987fe5fa17cf2c7e582703139407b44aec50a5bc2fa",
+      "bytes": 13487
+    },
+    {
+      "path": "cal/pi05_spatial_50/feasibility.json",
+      "sha256": "df539c2054aff22d32ee5c52b38b56d065e3af03eb9e810978a5602048724513",
+      "bytes": 2932
+    },
+    {
+      "path": "cal/pi05_spatial_50/r6_refit.log",
+      "sha256": "9037a0d2bed9b1d5eb2e09c6ef389c90e26780eda7a6d3bb1e545a8d1d342d88",
+      "bytes": 6699
+    },
+    {
+      "path": "cal/pi05_spatial_50/stage_features.json",
+      "sha256": "0759c9b7a7a79a267b801a9b9f85d3bcacbbaadea006cb06d19813ede9038baf",
+      "bytes": 76257
+    },
+    {
+      "path": "cal/pi05_spatial_50/stages.pkl",
+      "sha256": "cbeb7c231ceff28d139e6d2b8cb1c8e17225e2068030149f374736aa4da749e4",
+      "bytes": 96054
+    },
+    {
+      "path": "stall/groot_l10_50/stall.json",
+      "sha256": "3ee83c2d92a63ed0b70a4b177625443533633c8b5f8dc8eff34a861cd4d38e9e",
+      "bytes": 4238
+    },
+    {
+      "path": "stall/groot_l10_50/stall.pkl",
+      "sha256": "9feb11a563ec5111ae78f050bdfe8fb177dbebdeb8c8ab06f3b6236e4473fcf4",
+      "bytes": 24431177
+    },
+    {
+      "path": "stall/groot_spatial_50/stall.json",
+      "sha256": "1619e0c577d8da657c5da69fd90c9f784cf48f6d30d79af5a819150c1fd5af58",
+      "bytes": 4227
+    },
+    {
+      "path": "stall/groot_spatial_50/stall.pkl",
+      "sha256": "184e6cf1cff891721c3c02accb44955c053f8c32d346780fb60ea016409e2ba7",
+      "bytes": 20802218
+    },
+    {
+      "path": "stall/pi05_l10_50/stall.json",
+      "sha256": "f2429676b45e5247f3537e29bd402195448f84e84e936f72257583c08bc98644",
+      "bytes": 4241
+    },
+    {
+      "path": "stall/pi05_l10_50/stall.pkl",
+      "sha256": "2f6c930139215bff90558daca4be73d81db75b7a2fce2d36a74ccf1f82e18f77",
+      "bytes": 24413747
+    },
+    {
+      "path": "stall/pi05_spatial_50/stall.json",
+      "sha256": "d30f85131681e1ffe452d1bcac91ccc48192ae92f003f36ded0d63b1f4e7a3ed",
+      "bytes": 4229
+    },
+    {
+      "path": "stall/pi05_spatial_50/stall.pkl",
+      "sha256": "5b0095f31cecc7d83570d25f6081a1e2d100c764eca6756daf0909381fdecdb2",
+      "bytes": 20685992
+    }
+  ]
+}

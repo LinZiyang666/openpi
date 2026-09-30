@@ -1,0 +1,2720 @@
+{
+  "parity": {
+    "groot_l10_50": {
+      "cell": "groot_l10_50",
+      "differences": 0,
+      "maximum_absolute_float_difference": 0,
+      "counts": {
+        "bval": {
+          "all_fresh_anchors": 727,
+          "all_fresh_actual_recorded_anchors": 365,
+          "early_codes": 20,
+          "main_codes": 1087,
+          "calls": 562,
+          "cooldowns": 267,
+          "extra_LOOKs": 56,
+          "all_fresh_episodes": 10,
+          "C_cadence_anchors": 380,
+          "C_cadence_actual_recorded_anchors": 229,
+          "C_cadence_episodes": 10,
+          "extra_LOOK_observations": 55
+        },
+        "pilot": {
+          "pilot_anchors_anchors": 704,
+          "pilot_anchors_actual_recorded_anchors": 704,
+          "early_codes": 20,
+          "main_codes": 684,
+          "calls": 353,
+          "cooldowns": 121,
+          "extra_LOOKs": 45,
+          "extra_LOOK_observations": 43,
+          "pilot_anchors_episodes": 20
+        }
+      },
+      "fields": "full stall status; all result arrays/scalars/extras; Ehat, nominal p, p, coin, call, stall call, cooldown, extra LOOK, anchor/window/control bookkeeping and policy-tail gate"
+    },
+    "groot_l10_500": {
+      "cell": "groot_l10_500",
+      "differences": 0,
+      "maximum_absolute_float_difference": 0,
+      "counts": {
+        "bval": {
+          "all_fresh_anchors": 577,
+          "all_fresh_actual_recorded_anchors": 290,
+          "early_codes": 20,
+          "main_codes": 852,
+          "calls": 440,
+          "cooldowns": 105,
+          "extra_LOOKs": 27,
+          "all_fresh_episodes": 10,
+          "C_cadence_anchors": 295,
+          "C_cadence_actual_recorded_anchors": 203,
+          "extra_LOOK_observations": 25,
+          "C_cadence_episodes": 10
+        },
+        "pilot": {
+          "pilot_anchors_anchors": 564,
+          "pilot_anchors_actual_recorded_anchors": 564,
+          "early_codes": 20,
+          "main_codes": 544,
+          "calls": 275,
+          "cooldowns": 33,
+          "extra_LOOKs": 29,
+          "extra_LOOK_observations": 22,
+          "pilot_anchors_episodes": 20
+        }
+      },
+      "fields": "full stall status; all result arrays/scalars/extras; Ehat, nominal p, p, coin, call, stall call, cooldown, extra LOOK, anchor/window/control bookkeeping and policy-tail gate"
+    },
+    "groot_sp_50": {
+      "cell": "groot_sp_50",
+      "differences": 0,
+      "maximum_absolute_float_difference": 0,
+      "counts": {
+        "bval": {
+          "all_fresh_anchors": 262,
+          "all_fresh_actual_recorded_anchors": 133,
+          "early_codes": 20,
+          "main_codes": 379,
+          "calls": 200,
+          "cooldowns": 55,
+          "extra_LOOKs": 14,
+          "extra_LOOK_observations": 13,
+          "all_fresh_episodes": 10,
+          "C_cadence_anchors": 137,
+          "C_cadence_actual_recorded_anchors": 111,
+          "C_cadence_episodes": 10
+        },
+        "pilot": {
+          "pilot_anchors_anchors": 241,
+          "pilot_anchors_actual_recorded_anchors": 241,
+          "early_codes": 20,
+          "main_codes": 221,
+          "calls": 108,
+          "cooldowns": 14,
+          "extra_LOOKs": 9,
+          "pilot_anchors_episodes": 20,
+          "extra_LOOK_observations": 7
+        }
+      },
+      "fields": "full stall status; all result arrays/scalars/extras; Ehat, nominal p, p, coin, call, stall call, cooldown, extra LOOK, anchor/window/control bookkeeping and policy-tail gate"
+    },
+    "groot_sp_500": {
+      "cell": "groot_sp_500",
+      "differences": 0,
+      "maximum_absolute_float_difference": 0,
+      "counts": {
+        "bval": {
+          "all_fresh_anchors": 241,
+          "all_fresh_actual_recorded_anchors": 122,
+          "early_codes": 20,
+          "main_codes": 344,
+          "calls": 179,
+          "cooldowns": 25,
+          "extra_LOOKs": 2,
+          "all_fresh_episodes": 10,
+          "C_cadence_anchors": 123,
+          "C_cadence_actual_recorded_anchors": 119,
+          "extra_LOOK_observations": 2,
+          "C_cadence_episodes": 10
+        },
+        "pilot": {
+          "pilot_anchors_anchors": 239,
+          "pilot_anchors_actual_recorded_anchors": 239,
+          "early_codes": 20,
+          "main_codes": 219,
+          "calls": 147,
+          "cooldowns": 8,
+          "extra_LOOKs": 0,
+          "pilot_anchors_episodes": 20
+        }
+      },
+      "fields": "full stall status; all result arrays/scalars/extras; Ehat, nominal p, p, coin, call, stall call, cooldown, extra LOOK, anchor/window/control bookkeeping and policy-tail gate"
+    },
+    "pi05_l10_50": {
+      "cell": "pi05_l10_50",
+      "differences": 0,
+      "maximum_absolute_float_difference": 0,
+      "counts": {
+        "bval": {
+          "all_fresh_anchors": 688,
+          "all_fresh_actual_recorded_anchors": 346,
+          "early_codes": 20,
+          "main_codes": 1025,
+          "calls": 534,
+          "cooldowns": 169,
+          "extra_LOOKs": 37,
+          "extra_LOOK_observations": 35,
+          "all_fresh_episodes": 10,
+          "C_cadence_anchors": 357,
+          "C_cadence_actual_recorded_anchors": 199,
+          "C_cadence_episodes": 10
+        },
+        "pilot": {
+          "pilot_anchors_anchors": 609,
+          "pilot_anchors_actual_recorded_anchors": 609,
+          "early_codes": 20,
+          "main_codes": 589,
+          "calls": 306,
+          "cooldowns": 53,
+          "extra_LOOKs": 41,
+          "extra_LOOK_observations": 40,
+          "pilot_anchors_episodes": 20
+        }
+      },
+      "fields": "full stall status; all result arrays/scalars/extras; Ehat, nominal p, p, coin, call, stall call, cooldown, extra LOOK, anchor/window/control bookkeeping and policy-tail gate"
+    },
+    "pi05_l10_500": {
+      "cell": "pi05_l10_500",
+      "differences": 0,
+      "maximum_absolute_float_difference": 0,
+      "counts": {
+        "bval": {
+          "all_fresh_anchors": 546,
+          "all_fresh_actual_recorded_anchors": 274,
+          "early_codes": 20,
+          "main_codes": 805,
+          "calls": 434,
+          "cooldowns": 56,
+          "extra_LOOKs": 26,
+          "extra_LOOK_observations": 25,
+          "all_fresh_episodes": 10,
+          "C_cadence_anchors": 279,
+          "C_cadence_actual_recorded_anchors": 225,
+          "C_cadence_episodes": 10
+        },
+        "pilot": {
+          "pilot_anchors_anchors": 586,
+          "pilot_anchors_actual_recorded_anchors": 586,
+          "early_codes": 20,
+          "main_codes": 566,
+          "calls": 313,
+          "cooldowns": 35,
+          "extra_LOOKs": 7,
+          "pilot_anchors_episodes": 20,
+          "extra_LOOK_observations": 7
+        }
+      },
+      "fields": "full stall status; all result arrays/scalars/extras; Ehat, nominal p, p, coin, call, stall call, cooldown, extra LOOK, anchor/window/control bookkeeping and policy-tail gate"
+    },
+    "pi05_sp_50": {
+      "cell": "pi05_sp_50",
+      "differences": 0,
+      "maximum_absolute_float_difference": 0,
+      "counts": {
+        "bval": {
+          "all_fresh_anchors": 301,
+          "all_fresh_actual_recorded_anchors": 152,
+          "early_codes": 20,
+          "main_codes": 440,
+          "calls": 235,
+          "cooldowns": 76,
+          "extra_LOOKs": 24,
+          "all_fresh_episodes": 10,
+          "C_cadence_anchors": 159,
+          "C_cadence_actual_recorded_anchors": 116,
+          "extra_LOOK_observations": 24,
+          "C_cadence_episodes": 10
+        },
+        "pilot": {
+          "pilot_anchors_anchors": 244,
+          "pilot_anchors_actual_recorded_anchors": 244,
+          "early_codes": 20,
+          "main_codes": 224,
+          "calls": 113,
+          "cooldowns": 13,
+          "extra_LOOKs": 10,
+          "pilot_anchors_episodes": 20,
+          "extra_LOOK_observations": 7
+        }
+      },
+      "fields": "full stall status; all result arrays/scalars/extras; Ehat, nominal p, p, coin, call, stall call, cooldown, extra LOOK, anchor/window/control bookkeeping and policy-tail gate"
+    },
+    "pi05_sp_500": {
+      "cell": "pi05_sp_500",
+      "differences": 0,
+      "maximum_absolute_float_difference": 0,
+      "counts": {
+        "bval": {
+          "all_fresh_anchors": 264,
+          "all_fresh_actual_recorded_anchors": 135,
+          "early_codes": 20,
+          "main_codes": 381,
+          "calls": 236,
+          "cooldowns": 43,
+          "extra_LOOKs": 9,
+          "extra_LOOK_observations": 9,
+          "all_fresh_episodes": 10,
+          "C_cadence_anchors": 137,
+          "C_cadence_actual_recorded_anchors": 115,
+          "C_cadence_episodes": 10
+        },
+        "pilot": {
+          "pilot_anchors_anchors": 219,
+          "pilot_anchors_actual_recorded_anchors": 219,
+          "early_codes": 20,
+          "main_codes": 199,
+          "calls": 122,
+          "cooldowns": 4,
+          "extra_LOOKs": 1,
+          "pilot_anchors_episodes": 20,
+          "extra_LOOK_observations": 1
+        }
+      },
+      "fields": "full stall status; all result arrays/scalars/extras; Ehat, nominal p, p, coin, call, stall call, cooldown, extra LOOK, anchor/window/control bookkeeping and policy-tail gate"
+    }
+  },
+  "calibration": {
+    "groot_l10_50": {
+      "cell": "groot_l10_50",
+      "production": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/cal/groot_l10_50/calibrated/calibration.json",
+      "output": "/tmp/codex_stall_fast/controller_followup/calibration_verified/groot_l10_50/calibration.json",
+      "anchors": 365,
+      "episodes": 10,
+      "cadence_nodes": {
+        "no_stall": 365,
+        "stall": 851
+      },
+      "solution_count": 20,
+      "differences": 0,
+      "entire_calibration_json_identical": true,
+      "entire_cost_replay_identical": true,
+      "stall_fingerprint": {
+        "no_stall": "none",
+        "stall": "e962aa7d665a23a6df5a95d113e5cf9daa2b02ccb241e38b12be6a03081393f9"
+      },
+      "c1": 0.148,
+      "targets": [
+        0.18,
+        0.3,
+        0.45
+      ],
+      "tables": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/tables/groot_l10_50",
+      "bank": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/cal/groot_l10_50/r_bank.json",
+      "bval_manifest": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/manifests/calibration_manifest_groot_l10_50.json",
+      "client_root": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/runs/r6c_cal_groot_l10_50/client_telemetry",
+      "stall_model_path": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/stall/groot_l10_50",
+      "calibration_byte_equal": true,
+      "cost_replay_byte_equal": true
+    },
+    "groot_l10_500": {
+      "cell": "groot_l10_500",
+      "production": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/cal/groot_l10_500/calibrated/calibration.json",
+      "output": "/tmp/codex_stall_fast/controller_followup/calibration_verified/groot_l10_500/calibration.json",
+      "anchors": 290,
+      "episodes": 10,
+      "cadence_nodes": {
+        "no_stall": 290,
+        "stall": 475
+      },
+      "solution_count": 20,
+      "differences": 0,
+      "entire_calibration_json_identical": true,
+      "entire_cost_replay_identical": true,
+      "stall_fingerprint": {
+        "no_stall": "none",
+        "stall": "f5426ac559b27059decef316ebe071de30b84e6377e55970ebfafe303ba1b903"
+      },
+      "c1": 0.148,
+      "targets": [
+        0.18,
+        0.3,
+        0.45
+      ],
+      "tables": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/tables/groot_l10_500",
+      "bank": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/cal/groot_l10_500/r_bank.json",
+      "bval_manifest": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/manifests/calibration_manifest_groot_l10_500.json",
+      "client_root": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/runs/r6c_cal_groot_l10_500/client_telemetry",
+      "stall_model_path": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/stall/groot_l10_500",
+      "calibration_byte_equal": true,
+      "cost_replay_byte_equal": true
+    },
+    "groot_sp_50": {
+      "cell": "groot_sp_50",
+      "production": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/cal/groot_spatial_50/calibrated/calibration.json",
+      "output": "/tmp/codex_stall_fast/controller_followup/calibration_verified/groot_sp_50/calibration.json",
+      "anchors": 133,
+      "episodes": 10,
+      "cadence_nodes": {
+        "no_stall": 133,
+        "stall": 208
+      },
+      "solution_count": 20,
+      "differences": 0,
+      "entire_calibration_json_identical": true,
+      "entire_cost_replay_identical": true,
+      "stall_fingerprint": {
+        "no_stall": "none",
+        "stall": "3def6cdcb5a8c12d306261dae33c3c4e31ae6866c438e58c55fc0d64818cfa63"
+      },
+      "c1": 0.148,
+      "targets": [
+        0.18,
+        0.3,
+        0.45
+      ],
+      "tables": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/tables/groot_spatial_50",
+      "bank": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/cal/groot_spatial_50/r_bank.json",
+      "bval_manifest": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/manifests/calibration_manifest_groot_spatial_50.json",
+      "client_root": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/runs/r6c_cal_groot_spatial_50/client_telemetry",
+      "stall_model_path": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/stall/groot_sp_50",
+      "calibration_byte_equal": true,
+      "cost_replay_byte_equal": true
+    },
+    "groot_sp_500": {
+      "cell": "groot_sp_500",
+      "production": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/cal/groot_spatial_500/calibrated/calibration.json",
+      "output": "/tmp/codex_stall_fast/controller_followup/calibration_verified/groot_sp_500/calibration.json",
+      "anchors": 122,
+      "episodes": 10,
+      "cadence_nodes": {
+        "no_stall": 122,
+        "stall": 135
+      },
+      "solution_count": 20,
+      "differences": 0,
+      "entire_calibration_json_identical": true,
+      "entire_cost_replay_identical": true,
+      "stall_fingerprint": {
+        "no_stall": "none",
+        "stall": "1fb0d9754c2100d216f5372fdc36b8043a0099f28ae81cefb4c4f44a344315df"
+      },
+      "c1": 0.148,
+      "targets": [
+        0.18,
+        0.3,
+        0.45
+      ],
+      "tables": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/tables/groot_spatial_500",
+      "bank": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/cal/groot_spatial_500/r_bank.json",
+      "bval_manifest": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/manifests/calibration_manifest_groot_spatial_500.json",
+      "client_root": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/runs/r6c_cal_groot_spatial_500/client_telemetry",
+      "stall_model_path": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/stall/groot_sp_500",
+      "calibration_byte_equal": true,
+      "cost_replay_byte_equal": true
+    },
+    "pi05_l10_50": {
+      "cell": "pi05_l10_50",
+      "production": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/cal/pi05_l10_50/calibrated/calibration.json",
+      "output": "/tmp/codex_stall_fast/controller_followup/calibration_verified/pi05_l10_50/calibration.json",
+      "anchors": 346,
+      "episodes": 10,
+      "cadence_nodes": {
+        "no_stall": 346,
+        "stall": 725
+      },
+      "solution_count": 20,
+      "differences": 0,
+      "entire_calibration_json_identical": true,
+      "entire_cost_replay_identical": true,
+      "stall_fingerprint": {
+        "no_stall": "none",
+        "stall": "e4ed6e3d0ed45115201cd6d1785fd4d4131fbec35fdeee92abea2e71e4b3fc49"
+      },
+      "c1": 0.152,
+      "targets": [
+        0.18,
+        0.3,
+        0.45
+      ],
+      "tables": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/tables/pi05_l10_50",
+      "bank": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/cal/pi05_l10_50/r_bank.json",
+      "bval_manifest": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/manifests/calibration_manifest_pi05_l10_50.json",
+      "client_root": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/runs/r6c_cal_pi05_l10_50/client_telemetry",
+      "stall_model_path": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/stall/pi05_l10_50",
+      "calibration_byte_equal": true,
+      "cost_replay_byte_equal": true
+    },
+    "pi05_l10_500": {
+      "cell": "pi05_l10_500",
+      "production": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/cal/pi05_l10_500/calibrated/calibration.json",
+      "output": "/tmp/codex_stall_fast/controller_followup/calibration_verified/pi05_l10_500/calibration.json",
+      "anchors": 274,
+      "episodes": 10,
+      "cadence_nodes": {
+        "no_stall": 274,
+        "stall": 376
+      },
+      "solution_count": 20,
+      "differences": 0,
+      "entire_calibration_json_identical": true,
+      "entire_cost_replay_identical": true,
+      "stall_fingerprint": {
+        "no_stall": "none",
+        "stall": "312754f81b3971dd52d4198ac12d5463a49939ef9946ab9cf7a011c0249c29b1"
+      },
+      "c1": 0.152,
+      "targets": [
+        0.18,
+        0.3,
+        0.45
+      ],
+      "tables": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/tables/pi05_l10_500",
+      "bank": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/cal/pi05_l10_500/r_bank.json",
+      "bval_manifest": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/manifests/calibration_manifest_pi05_l10_500.json",
+      "client_root": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/runs/r6c_cal_pi05_l10_500/client_telemetry",
+      "stall_model_path": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/stall/pi05_l10_500",
+      "calibration_byte_equal": true,
+      "cost_replay_byte_equal": true
+    },
+    "pi05_sp_50": {
+      "cell": "pi05_sp_50",
+      "production": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/cal/pi05_spatial_50/calibrated/calibration.json",
+      "output": "/tmp/codex_stall_fast/controller_followup/calibration_verified/pi05_sp_50/calibration.json",
+      "anchors": 152,
+      "episodes": 10,
+      "cadence_nodes": {
+        "no_stall": 152,
+        "stall": 255
+      },
+      "solution_count": 20,
+      "differences": 0,
+      "entire_calibration_json_identical": true,
+      "entire_cost_replay_identical": true,
+      "stall_fingerprint": {
+        "no_stall": "none",
+        "stall": "f93f6c830d4411b252865242a15ce3cefdf3527995866200974ff212c41805d8"
+      },
+      "c1": 0.152,
+      "targets": [
+        0.18,
+        0.3,
+        0.45
+      ],
+      "tables": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/tables/pi05_spatial_50",
+      "bank": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/cal/pi05_spatial_50/r_bank.json",
+      "bval_manifest": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/manifests/calibration_manifest_pi05_spatial_50.json",
+      "client_root": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/runs/r6c_cal_pi05_spatial_50/client_telemetry",
+      "stall_model_path": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/stall/pi05_sp_50",
+      "calibration_byte_equal": true,
+      "cost_replay_byte_equal": true
+    },
+    "pi05_sp_500": {
+      "cell": "pi05_sp_500",
+      "production": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/cal/pi05_spatial_500/calibrated/calibration.json",
+      "output": "/tmp/codex_stall_fast/controller_followup/calibration_verified/pi05_sp_500/calibration.json",
+      "anchors": 135,
+      "episodes": 10,
+      "cadence_nodes": {
+        "no_stall": 135,
+        "stall": 210
+      },
+      "solution_count": 20,
+      "differences": 0,
+      "entire_calibration_json_identical": true,
+      "entire_cost_replay_identical": true,
+      "stall_fingerprint": {
+        "no_stall": "none",
+        "stall": "4ca05097b54dfc17963fcb2870df1dc7647fdfed66f3c0ea2df0c6146a70cc9f"
+      },
+      "c1": 0.152,
+      "targets": [
+        0.18,
+        0.3,
+        0.45
+      ],
+      "tables": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/tables/pi05_spatial_500",
+      "bank": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/cal/pi05_spatial_500/r_bank.json",
+      "bval_manifest": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/manifests/calibration_manifest_pi05_spatial_500.json",
+      "client_root": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/runs/r6c_cal_pi05_spatial_500/client_telemetry",
+      "stall_model_path": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/stall/pi05_sp_500",
+      "calibration_byte_equal": true,
+      "cost_replay_byte_equal": true
+    }
+  },
+  "timing": {
+    "groot_l10_50": {
+      "raw": {
+        "cell": "groot_l10_50",
+        "input": "raw",
+        "anchors": 380,
+        "observe_cpu_ms_median": 1.284769,
+        "observe_wall_ms_median": 1.2810715,
+        "incremental_controller_cpu_ms_median": 1.376874,
+        "incremental_controller_wall_ms_median": 1.3768305,
+        "full_controller_cpu_ms_median": 2.813965,
+        "full_controller_wall_ms_median": 2.810637,
+        "capture_overhead_cpu_ms_median": 0.0,
+        "observe_cpu_ms_p99": 1.9119487599999985,
+        "observe_wall_ms_p99": 1.9088606299999984,
+        "incremental_controller_cpu_ms_p99": 2.0023068399999984,
+        "incremental_controller_wall_ms_p99": 2.0024612699999986,
+        "full_controller_cpu_ms_p99": 3.6883852899999967,
+        "full_controller_wall_ms_p99": 3.6848514199999967,
+        "capture_overhead_cpu_ms_p99": 0.0
+      },
+      "code": {
+        "cell": "groot_l10_50",
+        "input": "code",
+        "anchors": 380,
+        "observe_cpu_ms_median": 0.4227195,
+        "observe_wall_ms_median": 0.4198675,
+        "incremental_controller_cpu_ms_median": 0.5597145,
+        "incremental_controller_wall_ms_median": 0.56116,
+        "full_controller_cpu_ms_median": 1.8467175,
+        "full_controller_wall_ms_median": 1.8438015,
+        "capture_overhead_cpu_ms_median": 0.034516,
+        "observe_cpu_ms_p99": 0.8130999199999998,
+        "observe_wall_ms_p99": 0.8101324599999997,
+        "incremental_controller_cpu_ms_p99": 0.95112182,
+        "incremental_controller_wall_ms_p99": 0.95381743,
+        "full_controller_cpu_ms_p99": 2.22722804,
+        "full_controller_wall_ms_p99": 2.2242638599999998,
+        "capture_overhead_cpu_ms_p99": 0.05806911999999994
+      }
+    },
+    "groot_l10_500": {
+      "raw": {
+        "cell": "groot_l10_500",
+        "input": "raw",
+        "anchors": 295,
+        "observe_cpu_ms_median": 1.809234,
+        "observe_wall_ms_median": 1.804485,
+        "incremental_controller_cpu_ms_median": 1.907165,
+        "incremental_controller_wall_ms_median": 1.907757,
+        "full_controller_cpu_ms_median": 3.601686,
+        "full_controller_wall_ms_median": 3.598893,
+        "capture_overhead_cpu_ms_median": 0.0,
+        "observe_cpu_ms_p99": 4.65662206,
+        "observe_wall_ms_p99": 4.6534835,
+        "incremental_controller_cpu_ms_p99": 4.80109372,
+        "incremental_controller_wall_ms_p99": 4.801167700000001,
+        "full_controller_cpu_ms_p99": 6.815189420000001,
+        "full_controller_wall_ms_p99": 6.812319580000001,
+        "capture_overhead_cpu_ms_p99": 0.0
+      },
+      "code": {
+        "cell": "groot_l10_500",
+        "input": "code",
+        "anchors": 295,
+        "observe_cpu_ms_median": 0.861099,
+        "observe_wall_ms_median": 0.857998,
+        "incremental_controller_cpu_ms_median": 1.008846,
+        "incremental_controller_wall_ms_median": 1.009788,
+        "full_controller_cpu_ms_median": 2.68596,
+        "full_controller_wall_ms_median": 2.683031,
+        "capture_overhead_cpu_ms_median": 0.034935,
+        "observe_cpu_ms_p99": 3.703425980000001,
+        "observe_wall_ms_p99": 3.7002447600000004,
+        "incremental_controller_cpu_ms_p99": 3.839946760000001,
+        "incremental_controller_wall_ms_p99": 3.8411379000000005,
+        "full_controller_cpu_ms_p99": 5.442761440000001,
+        "full_controller_wall_ms_p99": 5.43993666,
+        "capture_overhead_cpu_ms_p99": 0.07557874000000002
+      }
+    },
+    "groot_sp_50": {
+      "raw": {
+        "cell": "groot_sp_50",
+        "input": "raw",
+        "anchors": 137,
+        "observe_cpu_ms_median": 1.104409,
+        "observe_wall_ms_median": 1.101413,
+        "incremental_controller_cpu_ms_median": 1.180826,
+        "incremental_controller_wall_ms_median": 1.181176,
+        "full_controller_cpu_ms_median": 2.488966,
+        "full_controller_wall_ms_median": 2.486054,
+        "capture_overhead_cpu_ms_median": 0.0,
+        "observe_cpu_ms_p99": 1.6484556399999974,
+        "observe_wall_ms_p99": 1.6453170399999975,
+        "incremental_controller_cpu_ms_p99": 1.7568857999999976,
+        "incremental_controller_wall_ms_p99": 1.7561538399999976,
+        "full_controller_cpu_ms_p99": 3.5898258799999976,
+        "full_controller_wall_ms_p99": 3.5870553599999973,
+        "capture_overhead_cpu_ms_p99": 0.0
+      },
+      "code": {
+        "cell": "groot_sp_50",
+        "input": "code",
+        "anchors": 137,
+        "observe_cpu_ms_median": 0.383206,
+        "observe_wall_ms_median": 0.380481,
+        "incremental_controller_cpu_ms_median": 0.516457,
+        "incremental_controller_wall_ms_median": 0.517207,
+        "full_controller_cpu_ms_median": 1.814661,
+        "full_controller_wall_ms_median": 1.811829,
+        "capture_overhead_cpu_ms_median": 0.033992,
+        "observe_cpu_ms_p99": 0.7629661999999999,
+        "observe_wall_ms_p99": 0.7598386799999999,
+        "incremental_controller_cpu_ms_p99": 0.90126032,
+        "incremental_controller_wall_ms_p99": 0.90104544,
+        "full_controller_cpu_ms_p99": 2.2366899599999996,
+        "full_controller_wall_ms_p99": 2.2332992,
+        "capture_overhead_cpu_ms_p99": 0.05521255999999997
+      }
+    },
+    "groot_sp_500": {
+      "raw": {
+        "cell": "groot_sp_500",
+        "input": "raw",
+        "anchors": 123,
+        "observe_cpu_ms_median": 1.43697,
+        "observe_wall_ms_median": 1.434124,
+        "incremental_controller_cpu_ms_median": 1.52383,
+        "incremental_controller_wall_ms_median": 1.524581,
+        "full_controller_cpu_ms_median": 3.046279,
+        "full_controller_wall_ms_median": 3.043522,
+        "capture_overhead_cpu_ms_median": 0.0,
+        "observe_cpu_ms_p99": 2.8170541,
+        "observe_wall_ms_p99": 2.8140092800000005,
+        "incremental_controller_cpu_ms_p99": 2.92228482,
+        "incremental_controller_wall_ms_p99": 2.92250566,
+        "full_controller_cpu_ms_p99": 4.4978826,
+        "full_controller_wall_ms_p99": 4.493916,
+        "capture_overhead_cpu_ms_p99": 0.0
+      },
+      "code": {
+        "cell": "groot_sp_500",
+        "input": "code",
+        "anchors": 123,
+        "observe_cpu_ms_median": 0.597132,
+        "observe_wall_ms_median": 0.594084,
+        "incremental_controller_cpu_ms_median": 0.735458,
+        "incremental_controller_wall_ms_median": 0.736408,
+        "full_controller_cpu_ms_median": 2.130082,
+        "full_controller_wall_ms_median": 2.127388,
+        "capture_overhead_cpu_ms_median": 0.034601,
+        "observe_cpu_ms_p99": 1.9878538200000002,
+        "observe_wall_ms_p99": 1.9846563400000001,
+        "incremental_controller_cpu_ms_p99": 2.13064824,
+        "incremental_controller_wall_ms_p99": 2.12872372,
+        "full_controller_cpu_ms_p99": 3.47401718,
+        "full_controller_wall_ms_p99": 3.46737026,
+        "capture_overhead_cpu_ms_p99": 0.0694278
+      }
+    },
+    "pi05_l10_50": {
+      "raw": {
+        "cell": "pi05_l10_50",
+        "input": "raw",
+        "anchors": 357,
+        "observe_cpu_ms_median": 1.281567,
+        "observe_wall_ms_median": 1.279409,
+        "incremental_controller_cpu_ms_median": 1.371435,
+        "incremental_controller_wall_ms_median": 1.373838,
+        "full_controller_cpu_ms_median": 2.795777,
+        "full_controller_wall_ms_median": 2.791832,
+        "capture_overhead_cpu_ms_median": 0.0,
+        "observe_cpu_ms_p99": 1.90995648,
+        "observe_wall_ms_p99": 1.9067782,
+        "incremental_controller_cpu_ms_p99": 1.9950375599999999,
+        "incremental_controller_wall_ms_p99": 1.9955547999999999,
+        "full_controller_cpu_ms_p99": 3.64008396,
+        "full_controller_wall_ms_p99": 3.63958408,
+        "capture_overhead_cpu_ms_p99": 0.0
+      },
+      "code": {
+        "cell": "pi05_l10_50",
+        "input": "code",
+        "anchors": 357,
+        "observe_cpu_ms_median": 0.423162,
+        "observe_wall_ms_median": 0.419206,
+        "incremental_controller_cpu_ms_median": 0.554956,
+        "incremental_controller_wall_ms_median": 0.556337,
+        "full_controller_cpu_ms_median": 1.863995,
+        "full_controller_wall_ms_median": 1.862284,
+        "capture_overhead_cpu_ms_median": 0.033636,
+        "observe_cpu_ms_p99": 0.82728024,
+        "observe_wall_ms_p99": 0.82428324,
+        "incremental_controller_cpu_ms_p99": 0.9554154399999999,
+        "incremental_controller_wall_ms_p99": 0.9560403199999998,
+        "full_controller_cpu_ms_p99": 2.3287021599999997,
+        "full_controller_wall_ms_p99": 2.32587492,
+        "capture_overhead_cpu_ms_p99": 0.061351239999999994
+      }
+    },
+    "pi05_l10_500": {
+      "raw": {
+        "cell": "pi05_l10_500",
+        "input": "raw",
+        "anchors": 279,
+        "observe_cpu_ms_median": 1.810648,
+        "observe_wall_ms_median": 1.807404,
+        "incremental_controller_cpu_ms_median": 1.913925,
+        "incremental_controller_wall_ms_median": 1.914207,
+        "full_controller_cpu_ms_median": 3.609611,
+        "full_controller_wall_ms_median": 3.613403,
+        "capture_overhead_cpu_ms_median": 0.0,
+        "observe_cpu_ms_p99": 3.8379654599999986,
+        "observe_wall_ms_p99": 3.8346887799999987,
+        "incremental_controller_cpu_ms_p99": 3.952289659999999,
+        "incremental_controller_wall_ms_p99": 3.952171239999999,
+        "full_controller_cpu_ms_p99": 5.99827732,
+        "full_controller_wall_ms_p99": 5.9951228599999995,
+        "capture_overhead_cpu_ms_p99": 0.0
+      },
+      "code": {
+        "cell": "pi05_l10_500",
+        "input": "code",
+        "anchors": 279,
+        "observe_cpu_ms_median": 0.848205,
+        "observe_wall_ms_median": 0.844741,
+        "incremental_controller_cpu_ms_median": 0.985572,
+        "incremental_controller_wall_ms_median": 0.986463,
+        "full_controller_cpu_ms_median": 2.429728,
+        "full_controller_wall_ms_median": 2.427018,
+        "capture_overhead_cpu_ms_median": 0.034799,
+        "observe_cpu_ms_p99": 2.674838939999999,
+        "observe_wall_ms_p99": 2.671821959999999,
+        "incremental_controller_cpu_ms_p99": 2.8243150599999987,
+        "incremental_controller_wall_ms_p99": 2.829261499999998,
+        "full_controller_cpu_ms_p99": 4.304263439999999,
+        "full_controller_wall_ms_p99": 4.301561739999999,
+        "capture_overhead_cpu_ms_p99": 0.06001273999999998
+      }
+    },
+    "pi05_sp_50": {
+      "raw": {
+        "cell": "pi05_sp_50",
+        "input": "raw",
+        "anchors": 159,
+        "observe_cpu_ms_median": 1.201911,
+        "observe_wall_ms_median": 1.198732,
+        "incremental_controller_cpu_ms_median": 1.29887,
+        "incremental_controller_wall_ms_median": 1.299121,
+        "full_controller_cpu_ms_median": 2.662785,
+        "full_controller_wall_ms_median": 2.659847,
+        "capture_overhead_cpu_ms_median": 0.0,
+        "observe_cpu_ms_p99": 1.6731895199999995,
+        "observe_wall_ms_p99": 1.6677130399999998,
+        "incremental_controller_cpu_ms_p99": 1.7716453799999994,
+        "incremental_controller_wall_ms_p99": 1.7718776199999995,
+        "full_controller_cpu_ms_p99": 3.4578258599999967,
+        "full_controller_wall_ms_p99": 3.4546739199999967,
+        "capture_overhead_cpu_ms_p99": 0.0
+      },
+      "code": {
+        "cell": "pi05_sp_50",
+        "input": "code",
+        "anchors": 159,
+        "observe_cpu_ms_median": 0.388519,
+        "observe_wall_ms_median": 0.385262,
+        "incremental_controller_cpu_ms_median": 0.524312,
+        "incremental_controller_wall_ms_median": 0.526695,
+        "full_controller_cpu_ms_median": 1.83382,
+        "full_controller_wall_ms_median": 1.830849,
+        "capture_overhead_cpu_ms_median": 0.034357,
+        "observe_cpu_ms_p99": 0.7411728999999998,
+        "observe_wall_ms_p99": 0.7381446799999998,
+        "incremental_controller_cpu_ms_p99": 0.8947817599999995,
+        "incremental_controller_wall_ms_p99": 0.9015685199999993,
+        "full_controller_cpu_ms_p99": 2.21415032,
+        "full_controller_wall_ms_p99": 2.20920806,
+        "capture_overhead_cpu_ms_p99": 0.058291199999999974
+      }
+    },
+    "pi05_sp_500": {
+      "raw": {
+        "cell": "pi05_sp_500",
+        "input": "raw",
+        "anchors": 137,
+        "observe_cpu_ms_median": 1.526068,
+        "observe_wall_ms_median": 1.523222,
+        "incremental_controller_cpu_ms_median": 1.623,
+        "incremental_controller_wall_ms_median": 1.623634,
+        "full_controller_cpu_ms_median": 3.104685,
+        "full_controller_wall_ms_median": 3.10186,
+        "capture_overhead_cpu_ms_median": 0.0,
+        "observe_cpu_ms_p99": 2.918794559999998,
+        "observe_wall_ms_p99": 2.915340239999998,
+        "incremental_controller_cpu_ms_p99": 3.0298203599999978,
+        "incremental_controller_wall_ms_p99": 3.030409159999998,
+        "full_controller_cpu_ms_p99": 4.889950839999998,
+        "full_controller_wall_ms_p99": 4.876592239999998,
+        "capture_overhead_cpu_ms_p99": 0.0
+      },
+      "code": {
+        "cell": "pi05_sp_500",
+        "input": "code",
+        "anchors": 137,
+        "observe_cpu_ms_median": 0.609671,
+        "observe_wall_ms_median": 0.606343,
+        "incremental_controller_cpu_ms_median": 0.744757,
+        "incremental_controller_wall_ms_median": 0.745606,
+        "full_controller_cpu_ms_median": 2.099286,
+        "full_controller_wall_ms_median": 2.09571,
+        "capture_overhead_cpu_ms_median": 0.034172,
+        "observe_cpu_ms_p99": 1.9303395199999993,
+        "observe_wall_ms_p99": 1.9274819599999993,
+        "incremental_controller_cpu_ms_p99": 2.061208199999999,
+        "incremental_controller_wall_ms_p99": 2.062493439999999,
+        "full_controller_cpu_ms_p99": 3.4206629599999983,
+        "full_controller_wall_ms_p99": 3.4178952399999982,
+        "capture_overhead_cpu_ms_p99": 0.06451636
+      }
+    }
+  },
+  "tests": {
+    "status": "PASS",
+    "controller_version": "R6-C-v2",
+    "ambiguous_rule": "lottery_then_look",
+    "tag": "v2b",
+    "tests": {
+      "A_floor_bit_identity": "all action columns, histories/sources, vision/HIT schedules; both models",
+      "seed_reproducibility": "same complete action/source sequence with reversed episode arrival and renamed UIDs",
+      "commit_gripper": "every nonfinal call has one exact shift-by-five tail, then fresh vision; all 32 columns preserved for both models",
+      "selection_7b_replays": {
+        "note": "every fresh anchor: logged p/call/extra LOOK/reason re-derived from logged state and nominal p; each realized episode is one path of the budget DAG built from the same recorded keys (states, cooldowns, LOOK eligibility)",
+        "ambiguous_totals": {
+          "anchors": 63,
+          "p_positive": 48,
+          "lottery_calls": 16,
+          "extra_LOOKs": 35
+        },
+        "dag_checked_anchors": 2738,
+        "bit_identical_to_pre7b_v2": [
+          "pi05_l10_50_A",
+          "pi05_l10_50_floor",
+          "pi05_l10_50_uniform",
+          "pi05_l10_50_R",
+          "pi05_l10_50_R45",
+          "pi05_l10_50_R_reverse",
+          "groot_l10_50_A",
+          "groot_l10_50_floor",
+          "groot_l10_50_uniform",
+          "groot_l10_50_R",
+          "groot_l10_50_R45",
+          "groot_l10_50_R_reverse"
+        ]
+      },
+      "stub_cooldown_LOOK": {
+        "note": "missing-module and unconfigured stub; ambiguity LOOK cap at p=0; SELECTION 7b: at p=1 all ambiguous anchors call, zero LOOKs; DAG expectation equals an independent exhaustive branch enumeration (windowed and full-history trackers, stall/all cooldown scopes, uniform/R)",
+        "exhaustive_values_compared": 192,
+        "max_abs_diff": 3.197442310920451e-14
+      },
+      "loader_gates": {
+        "pre_7b_calibration": "rejected",
+        "groot_l10_50_C45": "infeasible target refused",
+        "groot_l10_50_Cmax": {
+          "rho": 0.425776714758,
+          "parameter": 5.645627489953849,
+          "status": "loads at calibrated ceiling"
+        }
+      },
+      "budget_rates": "1000 independent keyed seeds/cell; no-stall R/uniform owner IR within 5 MC SE of .18; uniform versus actual RiskLottery assignment within .01",
+      "stall_budget_rates": "1000 keyed seeds/cell/placement at rho .30 with real Q3 statuses and 7b branching; realized IR, calls and extra LOOKs within 5 MC SE of the exact DAG model",
+      "Bval_exclusions": "all 80 task/cell candidate masks checked on real bank observations; whole matching source episode excluded",
+      "deployment_firewall": "all eight DRYRUN_TEST_INITS calibrations rejected by production loader"
+    },
+    "rates": [
+      {
+        "cell": "pi05_l10_50",
+        "repetitions": 1000,
+        "results": {
+          "uniform": {
+            "mean_IR": 0.18018697199074574,
+            "MC_SE": 0.0003368751133327222,
+            "expected_IR": 0.18
+          },
+          "R": {
+            "mean_IR": 0.1802326587575524,
+            "MC_SE": 0.00033893718433000426,
+            "expected_IR": 0.18
+          },
+          "RiskLottery": {
+            "mean_IR": 0.1802906389258302,
+            "MC_SE": 0.0003653571640056455,
+            "expected_IR": 0.18012321033154058
+          },
+          "uniform_minus_RiskLottery": {
+            "mean_IR": -0.00010366693508444857,
+            "MC_SE": 0.00016610350237546357,
+            "recording_length_shift": -0.00012321033154058525
+          }
+        },
+        "caveat": "Expected realized cost matched at feasible rho; RiskLottery uses an episode mixture, C uniform uses independent anchors; neither cools lottery calls."
+      },
+      {
+        "cell": "pi05_l10_500",
+        "repetitions": 1000,
+        "results": {
+          "uniform": {
+            "mean_IR": 0.18007819080210716,
+            "MC_SE": 0.0003535114855930538,
+            "expected_IR": 0.18
+          },
+          "R": {
+            "mean_IR": 0.18004579423169265,
+            "MC_SE": 0.0003526981679167381,
+            "expected_IR": 0.18
+          },
+          "RiskLottery": {
+            "mean_IR": 0.18041302889558297,
+            "MC_SE": 0.00037367680182552403,
+            "expected_IR": 0.180338505608939
+          },
+          "uniform_minus_RiskLottery": {
+            "mean_IR": -0.0003348380934758606,
+            "MC_SE": 0.00015788359839132991,
+            "recording_length_shift": -0.0003385056089389993
+          }
+        },
+        "caveat": "Expected realized cost matched at feasible rho; RiskLottery uses an episode mixture, C uniform uses independent anchors; neither cools lottery calls."
+      },
+      {
+        "cell": "pi05_spatial_50",
+        "repetitions": 1000,
+        "results": {
+          "uniform": {
+            "mean_IR": 0.17971411082727695,
+            "MC_SE": 0.0005557073830689448,
+            "expected_IR": 0.18
+          },
+          "R": {
+            "mean_IR": 0.1794163383638651,
+            "MC_SE": 0.0005398133651333609,
+            "expected_IR": 0.18
+          },
+          "RiskLottery": {
+            "mean_IR": 0.17806778637360066,
+            "MC_SE": 0.0005833282730807756,
+            "expected_IR": 0.17862379082566482
+          },
+          "uniform_minus_RiskLottery": {
+            "mean_IR": 0.0016463244536762756,
+            "MC_SE": 0.0002882900516473695,
+            "recording_length_shift": 0.0013762091743351745
+          }
+        },
+        "caveat": "Expected realized cost matched at feasible rho; RiskLottery uses an episode mixture, C uniform uses independent anchors; neither cools lottery calls."
+      },
+      {
+        "cell": "pi05_spatial_500",
+        "repetitions": 1000,
+        "results": {
+          "uniform": {
+            "mean_IR": 0.17988144659662797,
+            "MC_SE": 0.0005735132115664026,
+            "expected_IR": 0.18
+          },
+          "R": {
+            "mean_IR": 0.1793338611725858,
+            "MC_SE": 0.0005504793411551632,
+            "expected_IR": 0.18
+          },
+          "RiskLottery": {
+            "mean_IR": 0.18190463967851894,
+            "MC_SE": 0.0005987632549759855,
+            "expected_IR": 0.18231428861010301
+          },
+          "uniform_minus_RiskLottery": {
+            "mean_IR": -0.0020231930818909623,
+            "MC_SE": 0.000287810813441617,
+            "recording_length_shift": -0.0023142886101030213
+          }
+        },
+        "caveat": "Expected realized cost matched at feasible rho; RiskLottery uses an episode mixture, C uniform uses independent anchors; neither cools lottery calls."
+      },
+      {
+        "cell": "groot_l10_50",
+        "repetitions": 1000,
+        "results": {
+          "uniform": {
+            "mean_IR": 0.1803193079410488,
+            "MC_SE": 0.00032570331645863024,
+            "expected_IR": 0.18
+          },
+          "R": {
+            "mean_IR": 0.18027835609987172,
+            "MC_SE": 0.0003153761331513815,
+            "expected_IR": 0.18
+          },
+          "RiskLottery": {
+            "mean_IR": 0.18002243511633195,
+            "MC_SE": 0.0003406251107623414,
+            "expected_IR": 0.17967873145679003
+          },
+          "uniform_minus_RiskLottery": {
+            "mean_IR": 0.0002968728247168644,
+            "MC_SE": 0.00011486775475572122,
+            "recording_length_shift": 0.0003212685432099627
+          }
+        },
+        "caveat": "Expected realized cost matched at feasible rho; RiskLottery uses an episode mixture, C uniform uses independent anchors; neither cools lottery calls."
+      },
+      {
+        "cell": "groot_l10_500",
+        "repetitions": 1000,
+        "results": {
+          "uniform": {
+            "mean_IR": 0.1801022070350403,
+            "MC_SE": 0.0003466680325126019,
+            "expected_IR": 0.18
+          },
+          "R": {
+            "mean_IR": 0.1800023536144441,
+            "MC_SE": 0.00033956838970983705,
+            "expected_IR": 0.18
+          },
+          "RiskLottery": {
+            "mean_IR": 0.1808784370665767,
+            "MC_SE": 0.0003632894764909461,
+            "expected_IR": 0.18077574905462768
+          },
+          "uniform_minus_RiskLottery": {
+            "mean_IR": -0.0007762300315364285,
+            "MC_SE": 0.0001173925888909209,
+            "recording_length_shift": -0.0007757490546276835
+          }
+        },
+        "caveat": "Expected realized cost matched at feasible rho; RiskLottery uses an episode mixture, C uniform uses independent anchors; neither cools lottery calls."
+      },
+      {
+        "cell": "groot_spatial_50",
+        "repetitions": 1000,
+        "results": {
+          "uniform": {
+            "mean_IR": 0.17981143683367382,
+            "MC_SE": 0.0005557337511771621,
+            "expected_IR": 0.18
+          },
+          "R": {
+            "mean_IR": 0.17964053716896913,
+            "MC_SE": 0.0005455182223296748,
+            "expected_IR": 0.18
+          },
+          "RiskLottery": {
+            "mean_IR": 0.18167052657173222,
+            "MC_SE": 0.0005789233936737848,
+            "expected_IR": 0.18207803604514894
+          },
+          "uniform_minus_RiskLottery": {
+            "mean_IR": -0.0018590897380584147,
+            "MC_SE": 0.0002461437767043354,
+            "recording_length_shift": -0.0020780360451489455
+          }
+        },
+        "caveat": "Expected realized cost matched at feasible rho; RiskLottery uses an episode mixture, C uniform uses independent anchors; neither cools lottery calls."
+      },
+      {
+        "cell": "groot_spatial_500",
+        "repetitions": 1000,
+        "results": {
+          "uniform": {
+            "mean_IR": 0.17988307206015242,
+            "MC_SE": 0.0005684819266363466,
+            "expected_IR": 0.18
+          },
+          "R": {
+            "mean_IR": 0.17966410704079408,
+            "MC_SE": 0.0005606146306646601,
+            "expected_IR": 0.18
+          },
+          "RiskLottery": {
+            "mean_IR": 0.181075040720056,
+            "MC_SE": 0.0005858376065769875,
+            "expected_IR": 0.18132458654674158
+          },
+          "uniform_minus_RiskLottery": {
+            "mean_IR": -0.001191968659903564,
+            "MC_SE": 0.0002202792273144446,
+            "recording_length_shift": -0.0013245865467415852
+          }
+        },
+        "caveat": "Expected realized cost matched at feasible rho; RiskLottery uses an episode mixture, C uniform uses independent anchors; neither cools lottery calls."
+      }
+    ],
+    "stall_rates": [
+      {
+        "cell": "pi05_l10_50",
+        "rho": 0.3,
+        "repetitions": 1000,
+        "results": {
+          "uniform": {
+            "IR": {
+              "mean": 0.299781695998459,
+              "MC_SE": 0.0003556957037972852,
+              "modeled": 0.3
+            },
+            "extra_LOOKs": {
+              "mean": 2.7893000000000003,
+              "MC_SE": 0.009143254842183344,
+              "modeled": 2.793585680744274
+            },
+            "calls": {
+              "mean": 16.3484,
+              "MC_SE": 0.02485307053696012,
+              "modeled": 16.36599614689686
+            }
+          },
+          "R": {
+            "IR": {
+              "mean": 0.2997798837168914,
+              "MC_SE": 0.0003510322215729667,
+              "modeled": 0.30000000000000004
+            },
+            "extra_LOOKs": {
+              "mean": 2.5875000000000004,
+              "MC_SE": 0.009572114467314704,
+              "modeled": 2.594075472671886
+            },
+            "calls": {
+              "mean": 16.4604,
+              "MC_SE": 0.024387426813556753,
+              "modeled": 16.478457820908034
+            }
+          }
+        }
+      },
+      {
+        "cell": "pi05_l10_500",
+        "rho": 0.3,
+        "repetitions": 1000,
+        "results": {
+          "uniform": {
+            "IR": {
+              "mean": 0.29990596608399367,
+              "MC_SE": 0.00040429154662581816,
+              "modeled": 0.29999999999999993
+            },
+            "extra_LOOKs": {
+              "mean": 0.25370000000000004,
+              "MC_SE": 0.002788204455215594,
+              "modeled": 0.2550629397575158
+            },
+            "calls": {
+              "mean": 14.6496,
+              "MC_SE": 0.024623284633576943,
+              "modeled": 14.653203504191113
+            }
+          },
+          "R": {
+            "IR": {
+              "mean": 0.299501764014892,
+              "MC_SE": 0.0003862224077509025,
+              "modeled": 0.2999999999999999
+            },
+            "extra_LOOKs": {
+              "mean": 0.23230000000000003,
+              "MC_SE": 0.0026970324402913635,
+              "modeled": 0.23441325803591767
+            },
+            "calls": {
+              "mean": 14.479,
+              "MC_SE": 0.0232434777789224,
+              "modeled": 14.506449292414166
+            }
+          }
+        }
+      },
+      {
+        "cell": "pi05_spatial_50",
+        "rho": 0.3,
+        "repetitions": 1000,
+        "results": {
+          "uniform": {
+            "IR": {
+              "mean": 0.2999874468483525,
+              "MC_SE": 0.0006235346545205366,
+              "modeled": 0.2999999999999999
+            },
+            "extra_LOOKs": {
+              "mean": 0.6013999999999999,
+              "MC_SE": 0.004636759594753598,
+              "modeled": 0.6046260261488658
+            },
+            "calls": {
+              "mean": 6.1116,
+              "MC_SE": 0.016010677118154053,
+              "modeled": 6.107560279406457
+            }
+          },
+          "R": {
+            "IR": {
+              "mean": 0.299806854070898,
+              "MC_SE": 0.0006168893413391672,
+              "modeled": 0.3
+            },
+            "extra_LOOKs": {
+              "mean": 0.48020000000000007,
+              "MC_SE": 0.0044189916822152415,
+              "modeled": 0.47846985111702633
+            },
+            "calls": {
+              "mean": 6.088700000000001,
+              "MC_SE": 0.015737534113703457,
+              "modeled": 6.0894522996601
+            }
+          }
+        }
+      },
+      {
+        "cell": "pi05_spatial_500",
+        "rho": 0.3,
+        "repetitions": 1000,
+        "results": {
+          "uniform": {
+            "IR": {
+              "mean": 0.2999798491391464,
+              "MC_SE": 0.0006629850433553789,
+              "modeled": 0.29999999999999993
+            },
+            "extra_LOOKs": {
+              "mean": 0.0518,
+              "MC_SE": 0.001580904569940659,
+              "modeled": 0.05035906996194205
+            },
+            "calls": {
+              "mean": 5.812,
+              "MC_SE": 0.01607714136513312,
+              "modeled": 5.812297653996086
+            }
+          },
+          "R": {
+            "IR": {
+              "mean": 0.3002594226342886,
+              "MC_SE": 0.000618125321243901,
+              "modeled": 0.3
+            },
+            "extra_LOOKs": {
+              "mean": 0.016700000000000003,
+              "MC_SE": 0.0011800434324644592,
+              "modeled": 0.017120500894356495
+            },
+            "calls": {
+              "mean": 5.8077000000000005,
+              "MC_SE": 0.015142655315697114,
+              "modeled": 5.798781277084542
+            }
+          }
+        }
+      },
+      {
+        "cell": "groot_l10_50",
+        "rho": 0.3,
+        "repetitions": 1000,
+        "results": {
+          "uniform": {
+            "IR": {
+              "mean": 0.30045083338641887,
+              "MC_SE": 0.0002903809860678426,
+              "modeled": 0.3
+            },
+            "extra_LOOKs": {
+              "mean": 1.8403000000000003,
+              "MC_SE": 0.007364791249597652,
+              "modeled": 1.8407301731635521
+            },
+            "calls": {
+              "mean": 20.3456,
+              "MC_SE": 0.020113308658328333,
+              "modeled": 20.325544768419977
+            }
+          },
+          "R": {
+            "IR": {
+              "mean": 0.2999981662287016,
+              "MC_SE": 0.0002961820052020723,
+              "modeled": 0.29999999999999993
+            },
+            "extra_LOOKs": {
+              "mean": 1.6823000000000001,
+              "MC_SE": 0.006167231530009618,
+              "modeled": 1.681268846654166
+            },
+            "calls": {
+              "mean": 20.779400000000003,
+              "MC_SE": 0.02047180340699702,
+              "modeled": 20.78382620565653
+            }
+          }
+        }
+      },
+      {
+        "cell": "groot_l10_500",
+        "rho": 0.3,
+        "repetitions": 1000,
+        "results": {
+          "uniform": {
+            "IR": {
+              "mean": 0.29994077739359604,
+              "MC_SE": 0.0003708654601442968,
+              "modeled": 0.29999999999999993
+            },
+            "extra_LOOKs": {
+              "mean": 1.2135000000000002,
+              "MC_SE": 0.006456735974115672,
+              "modeled": 1.2214125677555774
+            },
+            "calls": {
+              "mean": 15.6109,
+              "MC_SE": 0.023783541511870072,
+              "modeled": 15.608526230895723
+            }
+          },
+          "R": {
+            "IR": {
+              "mean": 0.2997734419575286,
+              "MC_SE": 0.0003635567449604243,
+              "modeled": 0.3
+            },
+            "extra_LOOKs": {
+              "mean": 1.1698000000000002,
+              "MC_SE": 0.006344147555677455,
+              "modeled": 1.1766864070246972
+            },
+            "calls": {
+              "mean": 15.58,
+              "MC_SE": 0.023366771407406842,
+              "modeled": 15.59114995683787
+            }
+          }
+        }
+      },
+      {
+        "cell": "groot_spatial_50",
+        "rho": 0.3,
+        "repetitions": 1000,
+        "results": {
+          "uniform": {
+            "IR": {
+              "mean": 0.29999151085070536,
+              "MC_SE": 0.0006373493346666088,
+              "modeled": 0.29999999999999993
+            },
+            "extra_LOOKs": {
+              "mean": 0.5582999999999999,
+              "MC_SE": 0.003965707608591036,
+              "modeled": 0.5603413665457112
+            },
+            "calls": {
+              "mean": 6.2581000000000016,
+              "MC_SE": 0.01643790116148028,
+              "modeled": 6.249635089713378
+            }
+          },
+          "R": {
+            "IR": {
+              "mean": 0.3002659964094325,
+              "MC_SE": 0.0006138065845946022,
+              "modeled": 0.3
+            },
+            "extra_LOOKs": {
+              "mean": 0.43289999999999995,
+              "MC_SE": 0.0036825468294579976,
+              "modeled": 0.4356311753755848
+            },
+            "calls": {
+              "mean": 6.3231,
+              "MC_SE": 0.0159715835621106,
+              "modeled": 6.313000664524563
+            }
+          }
+        }
+      },
+      {
+        "cell": "groot_spatial_500",
+        "rho": 0.3,
+        "repetitions": 1000,
+        "results": {
+          "uniform": {
+            "IR": {
+              "mean": 0.2999890680705198,
+              "MC_SE": 0.0006652262109130951,
+              "modeled": 0.3000000000000001
+            },
+            "extra_LOOKs": {
+              "mean": 0.14900000000000002,
+              "MC_SE": 0.0026918852587445564,
+              "modeled": 0.1461566292001623
+            },
+            "calls": {
+              "mean": 5.6919,
+              "MC_SE": 0.01666259379664619,
+              "modeled": 5.692204719593997
+            }
+          },
+          "R": {
+            "IR": {
+              "mean": 0.2999709553146564,
+              "MC_SE": 0.000618720904798065,
+              "modeled": 0.3
+            },
+            "extra_LOOKs": {
+              "mean": 0.0694,
+              "MC_SE": 0.0021185202685195456,
+              "modeled": 0.06855639304413125
+            },
+            "calls": {
+              "mean": 5.6333,
+              "MC_SE": 0.015628351012034362,
+              "modeled": 5.633257621702186
+            }
+          }
+        }
+      }
+    ],
+    "plugin_replays": [
+      {
+        "status": "PASS",
+        "controller_version": "R6-C-v2",
+        "ambiguous_rule": "lottery_then_look",
+        "calibration": "/tmp/q1_method_c_fits/pi05_l10_50/dryrun_v2b/calibration.json",
+        "cell": "pi05_l10_50",
+        "case": "A",
+        "reverse": false,
+        "episodes": 4,
+        "decisions": 416,
+        "consecutive_lottery_calls": 0,
+        "stall_cooldowns": 0,
+        "ambiguous": {},
+        "dag_path_agreement": {},
+        "anchors": 208,
+        "calls": 0,
+        "tails": 0,
+        "extra_LOOKs": 0,
+        "IR": 0.076,
+        "sources": {
+          "cache": 208,
+          "cache_blind": 208
+        },
+        "action_sha256": "daffb494d90cf1b9160693dc0e9ce8b8d0d377e3cc3e69139070d0b59c886707",
+        "no_model_no_simulator": true,
+        "no_test_fit_pickle": true
+      },
+      {
+        "status": "PASS",
+        "controller_version": "R6-C-v2",
+        "ambiguous_rule": "lottery_then_look",
+        "calibration": "/tmp/q1_method_c_fits/pi05_l10_50/dryrun_v2b/calibration.json",
+        "cell": "pi05_l10_50",
+        "case": "floor",
+        "reverse": false,
+        "episodes": 4,
+        "decisions": 416,
+        "consecutive_lottery_calls": 0,
+        "stall_cooldowns": 0,
+        "ambiguous": {},
+        "dag_path_agreement": {
+          "anchors": 208,
+          "episodes": 4,
+          "dag_nodes": 208
+        },
+        "anchors": 208,
+        "calls": 0,
+        "tails": 0,
+        "extra_LOOKs": 0,
+        "IR": 0.076,
+        "sources": {
+          "cache": 208,
+          "cache_blind": 208
+        },
+        "action_sha256": "daffb494d90cf1b9160693dc0e9ce8b8d0d377e3cc3e69139070d0b59c886707",
+        "no_model_no_simulator": true,
+        "no_test_fit_pickle": true
+      },
+      {
+        "status": "PASS",
+        "controller_version": "R6-C-v2",
+        "ambiguous_rule": "lottery_then_look",
+        "calibration": "/tmp/q1_method_c_fits/pi05_l10_50/dryrun_v2b/calibration.json",
+        "cell": "pi05_l10_50",
+        "case": "uniform",
+        "reverse": false,
+        "episodes": 4,
+        "decisions": 416,
+        "consecutive_lottery_calls": 22,
+        "stall_cooldowns": 0,
+        "ambiguous": {},
+        "dag_path_agreement": {
+          "anchors": 208,
+          "episodes": 4,
+          "dag_nodes": 208
+        },
+        "anchors": 208,
+        "calls": 61,
+        "tails": 61,
+        "extra_LOOKs": 0,
+        "IR": 0.20034615384615384,
+        "sources": {
+          "cache": 147,
+          "cache_blind": 147,
+          "policy": 61,
+          "policy_tail": 61
+        },
+        "action_sha256": "84b5b585ce7dcf7fe051f571fdc387933c5c0e5d4dcd612c3512ebdb9b6a6bed",
+        "no_model_no_simulator": true,
+        "no_test_fit_pickle": true
+      },
+      {
+        "status": "PASS",
+        "controller_version": "R6-C-v2",
+        "ambiguous_rule": "lottery_then_look",
+        "calibration": "/tmp/q1_method_c_fits/pi05_l10_50/dryrun_v2b/calibration.json",
+        "cell": "pi05_l10_50",
+        "case": "R",
+        "reverse": false,
+        "episodes": 4,
+        "decisions": 416,
+        "consecutive_lottery_calls": 23,
+        "stall_cooldowns": 0,
+        "ambiguous": {},
+        "dag_path_agreement": {
+          "anchors": 208,
+          "episodes": 4,
+          "dag_nodes": 208
+        },
+        "anchors": 208,
+        "calls": 63,
+        "tails": 63,
+        "extra_LOOKs": 0,
+        "IR": 0.20442307692307693,
+        "sources": {
+          "cache": 145,
+          "cache_blind": 145,
+          "policy": 63,
+          "policy_tail": 63
+        },
+        "action_sha256": "26adce8a0da14665c3e3d1075ce935a4b058e423ec4e4e84c9f4afff43ca57be",
+        "no_model_no_simulator": true,
+        "no_test_fit_pickle": true
+      },
+      {
+        "status": "PASS",
+        "controller_version": "R6-C-v2",
+        "ambiguous_rule": "lottery_then_look",
+        "calibration": "/tmp/q1_method_c_fits/pi05_l10_50/dryrun_v2b/calibration.json",
+        "cell": "pi05_l10_50",
+        "case": "stall",
+        "reverse": false,
+        "episodes": 4,
+        "decisions": 416,
+        "consecutive_lottery_calls": 9,
+        "stall_cooldowns": 56,
+        "ambiguous": {
+          "anchors": 18,
+          "p_positive": 13,
+          "lottery_calls": 3,
+          "extra_LOOKs": 12
+        },
+        "dag_path_agreement": {
+          "anchors": 216,
+          "episodes": 4,
+          "dag_nodes": 388
+        },
+        "anchors": 216,
+        "calls": 78,
+        "tails": 78,
+        "extra_LOOKs": 12,
+        "IR": 0.2379230769230769,
+        "sources": {
+          "cache": 138,
+          "cache_blind": 122,
+          "policy": 78,
+          "policy_tail": 78
+        },
+        "action_sha256": "f23c28402edd877455e521f29677eab6f33fa575527e411edd362ca3d8a31cb4",
+        "no_model_no_simulator": true,
+        "no_test_fit_pickle": true
+      },
+      {
+        "status": "PASS",
+        "controller_version": "R6-C-v2",
+        "ambiguous_rule": "lottery_then_look",
+        "calibration": "/tmp/q1_method_c_fits/pi05_l10_50/dryrun_v2b/calibration.json",
+        "cell": "pi05_l10_50",
+        "case": "R45",
+        "reverse": false,
+        "episodes": 4,
+        "decisions": 416,
+        "consecutive_lottery_calls": 158,
+        "stall_cooldowns": 0,
+        "ambiguous": {},
+        "dag_path_agreement": {
+          "anchors": 208,
+          "episodes": 4,
+          "dag_nodes": 208
+        },
+        "anchors": 208,
+        "calls": 181,
+        "tails": 181,
+        "extra_LOOKs": 0,
+        "IR": 0.44496153846153846,
+        "sources": {
+          "policy": 181,
+          "policy_tail": 181,
+          "cache": 27,
+          "cache_blind": 27
+        },
+        "action_sha256": "f8419f29397864bdeda870a8d2a6a6d20bcc481eca4710b240f2d63eb9ae9276",
+        "no_model_no_simulator": true,
+        "no_test_fit_pickle": true
+      },
+      {
+        "status": "PASS",
+        "controller_version": "R6-C-v2",
+        "ambiguous_rule": "lottery_then_look",
+        "calibration": "/tmp/q1_method_c_fits/pi05_l10_50/dryrun_v2b/calibration.json",
+        "cell": "pi05_l10_50",
+        "case": "stall30",
+        "reverse": false,
+        "episodes": 4,
+        "decisions": 416,
+        "consecutive_lottery_calls": 30,
+        "stall_cooldowns": 55,
+        "ambiguous": {
+          "anchors": 17,
+          "p_positive": 13,
+          "lottery_calls": 6,
+          "extra_LOOKs": 10
+        },
+        "dag_path_agreement": {
+          "anchors": 215,
+          "episodes": 4,
+          "dag_nodes": 388
+        },
+        "anchors": 215,
+        "calls": 110,
+        "tails": 110,
+        "extra_LOOKs": 10,
+        "IR": 0.3027884615384615,
+        "sources": {
+          "cache": 105,
+          "cache_blind": 91,
+          "policy": 110,
+          "policy_tail": 110
+        },
+        "action_sha256": "94f2ada7e9b763bcb508ee7346bcd4999d92aa613ffba32bc5da0351c20340ff",
+        "no_model_no_simulator": true,
+        "no_test_fit_pickle": true
+      },
+      {
+        "status": "PASS",
+        "controller_version": "R6-C-v2",
+        "ambiguous_rule": "lottery_then_look",
+        "calibration": "/tmp/q1_method_c_fits/pi05_l10_50/dryrun_v2b/calibration.json",
+        "cell": "pi05_l10_50",
+        "case": "R",
+        "reverse": true,
+        "episodes": 4,
+        "decisions": 416,
+        "consecutive_lottery_calls": 23,
+        "stall_cooldowns": 0,
+        "ambiguous": {},
+        "dag_path_agreement": {
+          "anchors": 208,
+          "episodes": 4,
+          "dag_nodes": 208
+        },
+        "anchors": 208,
+        "calls": 63,
+        "tails": 63,
+        "extra_LOOKs": 0,
+        "IR": 0.20442307692307693,
+        "sources": {
+          "cache": 145,
+          "cache_blind": 145,
+          "policy": 63,
+          "policy_tail": 63
+        },
+        "action_sha256": "d7de8a0879c7ffc3a640a67b1d2d875f282a5093e62b26c3091f8642b08e05d9",
+        "no_model_no_simulator": true,
+        "no_test_fit_pickle": true
+      },
+      {
+        "status": "PASS",
+        "controller_version": "R6-C-v2",
+        "ambiguous_rule": "lottery_then_look",
+        "calibration": "/tmp/q1_method_c_fits/groot_l10_50/dryrun_v2b/calibration.json",
+        "cell": "groot_l10_50",
+        "case": "A",
+        "reverse": false,
+        "episodes": 4,
+        "decisions": 360,
+        "consecutive_lottery_calls": 0,
+        "stall_cooldowns": 0,
+        "ambiguous": {},
+        "dag_path_agreement": {},
+        "anchors": 180,
+        "calls": 0,
+        "tails": 0,
+        "extra_LOOKs": 0,
+        "IR": 0.074,
+        "sources": {
+          "cache": 180,
+          "cache_blind": 180
+        },
+        "action_sha256": "471b616b4283c2ec11ee873596aba8de923e61de3f784bb30e072034a322774c",
+        "no_model_no_simulator": true,
+        "no_test_fit_pickle": true
+      },
+      {
+        "status": "PASS",
+        "controller_version": "R6-C-v2",
+        "ambiguous_rule": "lottery_then_look",
+        "calibration": "/tmp/q1_method_c_fits/groot_l10_50/dryrun_v2b/calibration.json",
+        "cell": "groot_l10_50",
+        "case": "floor",
+        "reverse": false,
+        "episodes": 4,
+        "decisions": 360,
+        "consecutive_lottery_calls": 0,
+        "stall_cooldowns": 0,
+        "ambiguous": {},
+        "dag_path_agreement": {
+          "anchors": 180,
+          "episodes": 4,
+          "dag_nodes": 180
+        },
+        "anchors": 180,
+        "calls": 0,
+        "tails": 0,
+        "extra_LOOKs": 0,
+        "IR": 0.074,
+        "sources": {
+          "cache": 180,
+          "cache_blind": 180
+        },
+        "action_sha256": "471b616b4283c2ec11ee873596aba8de923e61de3f784bb30e072034a322774c",
+        "no_model_no_simulator": true,
+        "no_test_fit_pickle": true
+      },
+      {
+        "status": "PASS",
+        "controller_version": "R6-C-v2",
+        "ambiguous_rule": "lottery_then_look",
+        "calibration": "/tmp/q1_method_c_fits/groot_l10_50/dryrun_v2b/calibration.json",
+        "cell": "groot_l10_50",
+        "case": "uniform",
+        "reverse": false,
+        "episodes": 4,
+        "decisions": 360,
+        "consecutive_lottery_calls": 6,
+        "stall_cooldowns": 0,
+        "ambiguous": {},
+        "dag_path_agreement": {
+          "anchors": 180,
+          "episodes": 4,
+          "dag_nodes": 180
+        },
+        "anchors": 180,
+        "calls": 34,
+        "tails": 34,
+        "extra_LOOKs": 0,
+        "IR": 0.15446666666666667,
+        "sources": {
+          "cache": 146,
+          "cache_blind": 146,
+          "policy": 34,
+          "policy_tail": 34
+        },
+        "action_sha256": "cf546c36ea741505d86df0cfd5af84d6e9f557c5adb4290c4601a674a3b7a7c1",
+        "no_model_no_simulator": true,
+        "no_test_fit_pickle": true
+      },
+      {
+        "status": "PASS",
+        "controller_version": "R6-C-v2",
+        "ambiguous_rule": "lottery_then_look",
+        "calibration": "/tmp/q1_method_c_fits/groot_l10_50/dryrun_v2b/calibration.json",
+        "cell": "groot_l10_50",
+        "case": "R",
+        "reverse": false,
+        "episodes": 4,
+        "decisions": 360,
+        "consecutive_lottery_calls": 9,
+        "stall_cooldowns": 0,
+        "ambiguous": {},
+        "dag_path_agreement": {
+          "anchors": 180,
+          "episodes": 4,
+          "dag_nodes": 180
+        },
+        "anchors": 180,
+        "calls": 42,
+        "tails": 42,
+        "extra_LOOKs": 0,
+        "IR": 0.1734,
+        "sources": {
+          "cache": 138,
+          "cache_blind": 138,
+          "policy": 42,
+          "policy_tail": 42
+        },
+        "action_sha256": "ceac8c6ed8b4157146f5ed3043f75c1a2cf210cef7b1742877a2f9082557f3ba",
+        "no_model_no_simulator": true,
+        "no_test_fit_pickle": true
+      },
+      {
+        "status": "PASS",
+        "controller_version": "R6-C-v2",
+        "ambiguous_rule": "lottery_then_look",
+        "calibration": "/tmp/q1_method_c_fits/groot_l10_50/dryrun_v2b/calibration.json",
+        "cell": "groot_l10_50",
+        "case": "stall",
+        "reverse": false,
+        "episodes": 4,
+        "decisions": 360,
+        "consecutive_lottery_calls": 1,
+        "stall_cooldowns": 45,
+        "ambiguous": {
+          "anchors": 13,
+          "p_positive": 10,
+          "lottery_calls": 0,
+          "extra_LOOKs": 7
+        },
+        "dag_path_agreement": {
+          "anchors": 184,
+          "episodes": 4,
+          "dag_nodes": 266
+        },
+        "anchors": 184,
+        "calls": 48,
+        "tails": 48,
+        "extra_LOOKs": 7,
+        "IR": 0.18924444444444444,
+        "sources": {
+          "cache": 136,
+          "cache_blind": 128,
+          "policy": 48,
+          "policy_tail": 48
+        },
+        "action_sha256": "5e4c12e744224db72a15845cb6ecba279add2ef8f8af384c823e1fb3e96c25e2",
+        "no_model_no_simulator": true,
+        "no_test_fit_pickle": true
+      },
+      {
+        "status": "PASS",
+        "controller_version": "R6-C-v2",
+        "ambiguous_rule": "lottery_then_look",
+        "calibration": "/tmp/q1_method_c_fits/groot_l10_50/dryrun_v2b/calibration.json",
+        "cell": "groot_l10_50",
+        "case": "R45",
+        "reverse": false,
+        "episodes": 4,
+        "decisions": 360,
+        "consecutive_lottery_calls": 138,
+        "stall_cooldowns": 0,
+        "ambiguous": {},
+        "dag_path_agreement": {
+          "anchors": 180,
+          "episodes": 4,
+          "dag_nodes": 180
+        },
+        "anchors": 180,
+        "calls": 154,
+        "tails": 154,
+        "extra_LOOKs": 0,
+        "IR": 0.43846666666666667,
+        "sources": {
+          "cache": 26,
+          "cache_blind": 26,
+          "policy": 154,
+          "policy_tail": 154
+        },
+        "action_sha256": "7ae2453fadbd94abcbff2f48ecaf47fe58eb833860f9cb3b447a32ef3b9794ce",
+        "no_model_no_simulator": true,
+        "no_test_fit_pickle": true
+      },
+      {
+        "status": "PASS",
+        "controller_version": "R6-C-v2",
+        "ambiguous_rule": "lottery_then_look",
+        "calibration": "/tmp/q1_method_c_fits/groot_l10_50/dryrun_v2b/calibration.json",
+        "cell": "groot_l10_50",
+        "case": "stall30",
+        "reverse": false,
+        "episodes": 4,
+        "decisions": 360,
+        "consecutive_lottery_calls": 32,
+        "stall_cooldowns": 45,
+        "ambiguous": {
+          "anchors": 15,
+          "p_positive": 12,
+          "lottery_calls": 7,
+          "extra_LOOKs": 6
+        },
+        "dag_path_agreement": {
+          "anchors": 183,
+          "episodes": 4,
+          "dag_nodes": 266
+        },
+        "anchors": 183,
+        "calls": 92,
+        "tails": 92,
+        "extra_LOOKs": 6,
+        "IR": 0.29296666666666665,
+        "sources": {
+          "cache": 91,
+          "cache_blind": 85,
+          "policy": 92,
+          "policy_tail": 92
+        },
+        "action_sha256": "89d33dec7e428687ec66ae4416bf4cd5e5a530b8448e309fa026f33fc50335f3",
+        "no_model_no_simulator": true,
+        "no_test_fit_pickle": true
+      },
+      {
+        "status": "PASS",
+        "controller_version": "R6-C-v2",
+        "ambiguous_rule": "lottery_then_look",
+        "calibration": "/tmp/q1_method_c_fits/groot_l10_50/dryrun_v2b/calibration.json",
+        "cell": "groot_l10_50",
+        "case": "R",
+        "reverse": true,
+        "episodes": 4,
+        "decisions": 360,
+        "consecutive_lottery_calls": 9,
+        "stall_cooldowns": 0,
+        "ambiguous": {},
+        "dag_path_agreement": {
+          "anchors": 180,
+          "episodes": 4,
+          "dag_nodes": 180
+        },
+        "anchors": 180,
+        "calls": 42,
+        "tails": 42,
+        "extra_LOOKs": 0,
+        "IR": 0.1734,
+        "sources": {
+          "cache": 138,
+          "cache_blind": 138,
+          "policy": 42,
+          "policy_tail": 42
+        },
+        "action_sha256": "4e266d2a397e9bc6f87030207ad7398e28b8b6ef795f9879d91b5043e8e547a2",
+        "no_model_no_simulator": true,
+        "no_test_fit_pickle": true
+      }
+    ]
+  },
+  "packaging": {
+    "status": "PASS",
+    "tag": "v2b",
+    "checks": {
+      "retrieval_identity": "A/floor top-k, scores, confidence, mixture rows/weights and retained diagnostics match exactly",
+      "log_capacity": {
+        "note": "Existing plugin retains at most 40 scalar extras; C telemetry can evict baseline blind diagnostics without changing actions/retrieval.",
+        "dropped_baseline_keys": [
+          "expected_delta_4",
+          "expected_delta_5",
+          "expected_delta_6",
+          "expected_delta_7",
+          "phase_0",
+          "phase_1",
+          "phase_10",
+          "phase_2",
+          "phase_3",
+          "phase_4",
+          "phase_5",
+          "phase_6",
+          "phase_7",
+          "phase_8",
+          "phase_9",
+          "phase_mean",
+          "state_4",
+          "state_5",
+          "state_6",
+          "state_7"
+        ]
+      },
+      "GR00T_judge": "C delegates the exact inherited lifecycle tail function; normalized negative-close convention retained",
+      "reset_provenance": "matching actual init hash accepted; wrong actual pool rejected",
+      "driver_pool_binding": "existing driver loader rehashed all 20 local B files and accepted both 500-state records",
+      "prefits": {
+        "note": "8 A calibration-recording (final CAL paths), 8 original uniform controls, 4 Q3 Bmech; kwargs equal the current specs; no C calibration from test inits",
+        "recording_prefits": "/tmp/q1_method_c_fits/final_recording_prefits",
+        "baseline_prefits": "/tmp/q1_method_c_fits/prefits_v2b"
+      },
+      "production_specs": {
+        "note": "emit_specs and render_specs (rendered_locations.json roots) reproduce emit_arms_c32/emit_arms_smoke2/eval500/smoke4/spec_audit and recording/validation/smoke prefit specs byte-for-value; all C rows carry R6-C-v2 kwargs",
+        "checked_C_rows": 44,
+        "files": [
+          "emit_arms_c32.json",
+          "emit_arms_smoke2.json",
+          "eval500_manifest.json",
+          "smoke4_manifest.json",
+          "spec_audit.json",
+          "recording_prefit_specs.json",
+          "smoke_prefit_specs.json",
+          "validation_prefit_specs.json"
+        ]
+      }
+    },
+    "checked_validation_specs": 32
+  },
+  "replays": [
+    {
+      "status": "PASS",
+      "replays": 1,
+      "anchors": 208,
+      "decisions": 416,
+      "reports": [
+        {
+          "status": "PASS",
+          "controller_version": "R6-C-v2",
+          "ambiguous_rule": "lottery_then_look",
+          "calibration": "/tmp/q1_method_c_fits/pi05_l10_50/dryrun_v2b/calibration.json",
+          "cell": "pi05_l10_50",
+          "case": "A",
+          "reverse": false,
+          "episodes": 4,
+          "decisions": 416,
+          "consecutive_lottery_calls": 0,
+          "stall_cooldowns": 0,
+          "ambiguous": {},
+          "dag_path_agreement": {},
+          "anchors": 208,
+          "calls": 0,
+          "tails": 0,
+          "extra_LOOKs": 0,
+          "IR": 0.076,
+          "sources": {
+            "cache": 208,
+            "cache_blind": 208
+          },
+          "action_sha256": "daffb494d90cf1b9160693dc0e9ce8b8d0d377e3cc3e69139070d0b59c886707",
+          "no_model_no_simulator": true,
+          "no_test_fit_pickle": true
+        }
+      ]
+    },
+    {
+      "status": "PASS",
+      "replays": 1,
+      "anchors": 208,
+      "decisions": 416,
+      "reports": [
+        {
+          "status": "PASS",
+          "controller_version": "R6-C-v2",
+          "ambiguous_rule": "lottery_then_look",
+          "calibration": "/tmp/q1_method_c_fits/pi05_l10_50/dryrun_v2b/calibration.json",
+          "cell": "pi05_l10_50",
+          "case": "floor",
+          "reverse": false,
+          "episodes": 4,
+          "decisions": 416,
+          "consecutive_lottery_calls": 0,
+          "stall_cooldowns": 0,
+          "ambiguous": {},
+          "dag_path_agreement": {
+            "anchors": 208,
+            "episodes": 4,
+            "dag_nodes": 208
+          },
+          "anchors": 208,
+          "calls": 0,
+          "tails": 0,
+          "extra_LOOKs": 0,
+          "IR": 0.076,
+          "sources": {
+            "cache": 208,
+            "cache_blind": 208
+          },
+          "action_sha256": "daffb494d90cf1b9160693dc0e9ce8b8d0d377e3cc3e69139070d0b59c886707",
+          "no_model_no_simulator": true,
+          "no_test_fit_pickle": true
+        }
+      ]
+    },
+    {
+      "status": "PASS",
+      "replays": 1,
+      "anchors": 208,
+      "decisions": 416,
+      "reports": [
+        {
+          "status": "PASS",
+          "controller_version": "R6-C-v2",
+          "ambiguous_rule": "lottery_then_look",
+          "calibration": "/tmp/q1_method_c_fits/pi05_l10_50/dryrun_v2b/calibration.json",
+          "cell": "pi05_l10_50",
+          "case": "uniform",
+          "reverse": false,
+          "episodes": 4,
+          "decisions": 416,
+          "consecutive_lottery_calls": 22,
+          "stall_cooldowns": 0,
+          "ambiguous": {},
+          "dag_path_agreement": {
+            "anchors": 208,
+            "episodes": 4,
+            "dag_nodes": 208
+          },
+          "anchors": 208,
+          "calls": 61,
+          "tails": 61,
+          "extra_LOOKs": 0,
+          "IR": 0.20034615384615384,
+          "sources": {
+            "cache": 147,
+            "cache_blind": 147,
+            "policy": 61,
+            "policy_tail": 61
+          },
+          "action_sha256": "84b5b585ce7dcf7fe051f571fdc387933c5c0e5d4dcd612c3512ebdb9b6a6bed",
+          "no_model_no_simulator": true,
+          "no_test_fit_pickle": true
+        }
+      ]
+    },
+    {
+      "status": "PASS",
+      "replays": 1,
+      "anchors": 208,
+      "decisions": 416,
+      "reports": [
+        {
+          "status": "PASS",
+          "controller_version": "R6-C-v2",
+          "ambiguous_rule": "lottery_then_look",
+          "calibration": "/tmp/q1_method_c_fits/pi05_l10_50/dryrun_v2b/calibration.json",
+          "cell": "pi05_l10_50",
+          "case": "R",
+          "reverse": false,
+          "episodes": 4,
+          "decisions": 416,
+          "consecutive_lottery_calls": 23,
+          "stall_cooldowns": 0,
+          "ambiguous": {},
+          "dag_path_agreement": {
+            "anchors": 208,
+            "episodes": 4,
+            "dag_nodes": 208
+          },
+          "anchors": 208,
+          "calls": 63,
+          "tails": 63,
+          "extra_LOOKs": 0,
+          "IR": 0.20442307692307693,
+          "sources": {
+            "cache": 145,
+            "cache_blind": 145,
+            "policy": 63,
+            "policy_tail": 63
+          },
+          "action_sha256": "26adce8a0da14665c3e3d1075ce935a4b058e423ec4e4e84c9f4afff43ca57be",
+          "no_model_no_simulator": true,
+          "no_test_fit_pickle": true
+        }
+      ]
+    },
+    {
+      "status": "PASS",
+      "replays": 1,
+      "anchors": 208,
+      "decisions": 416,
+      "reports": [
+        {
+          "status": "PASS",
+          "controller_version": "R6-C-v2",
+          "ambiguous_rule": "lottery_then_look",
+          "calibration": "/tmp/q1_method_c_fits/pi05_l10_50/dryrun_v2b/calibration.json",
+          "cell": "pi05_l10_50",
+          "case": "R",
+          "reverse": true,
+          "episodes": 4,
+          "decisions": 416,
+          "consecutive_lottery_calls": 23,
+          "stall_cooldowns": 0,
+          "ambiguous": {},
+          "dag_path_agreement": {
+            "anchors": 208,
+            "episodes": 4,
+            "dag_nodes": 208
+          },
+          "anchors": 208,
+          "calls": 63,
+          "tails": 63,
+          "extra_LOOKs": 0,
+          "IR": 0.20442307692307693,
+          "sources": {
+            "cache": 145,
+            "cache_blind": 145,
+            "policy": 63,
+            "policy_tail": 63
+          },
+          "action_sha256": "d7de8a0879c7ffc3a640a67b1d2d875f282a5093e62b26c3091f8642b08e05d9",
+          "no_model_no_simulator": true,
+          "no_test_fit_pickle": true
+        }
+      ]
+    },
+    {
+      "status": "PASS",
+      "replays": 1,
+      "anchors": 208,
+      "decisions": 416,
+      "reports": [
+        {
+          "status": "PASS",
+          "controller_version": "R6-C-v2",
+          "ambiguous_rule": "lottery_then_look",
+          "calibration": "/tmp/q1_method_c_fits/pi05_l10_50/dryrun_v2b/calibration.json",
+          "cell": "pi05_l10_50",
+          "case": "R45",
+          "reverse": false,
+          "episodes": 4,
+          "decisions": 416,
+          "consecutive_lottery_calls": 158,
+          "stall_cooldowns": 0,
+          "ambiguous": {},
+          "dag_path_agreement": {
+            "anchors": 208,
+            "episodes": 4,
+            "dag_nodes": 208
+          },
+          "anchors": 208,
+          "calls": 181,
+          "tails": 181,
+          "extra_LOOKs": 0,
+          "IR": 0.44496153846153846,
+          "sources": {
+            "policy": 181,
+            "policy_tail": 181,
+            "cache": 27,
+            "cache_blind": 27
+          },
+          "action_sha256": "f8419f29397864bdeda870a8d2a6a6d20bcc481eca4710b240f2d63eb9ae9276",
+          "no_model_no_simulator": true,
+          "no_test_fit_pickle": true
+        }
+      ]
+    },
+    {
+      "status": "PASS",
+      "replays": 1,
+      "anchors": 216,
+      "decisions": 416,
+      "reports": [
+        {
+          "status": "PASS",
+          "controller_version": "R6-C-v2",
+          "ambiguous_rule": "lottery_then_look",
+          "calibration": "/tmp/q1_method_c_fits/pi05_l10_50/dryrun_v2b/calibration.json",
+          "cell": "pi05_l10_50",
+          "case": "stall",
+          "reverse": false,
+          "episodes": 4,
+          "decisions": 416,
+          "consecutive_lottery_calls": 9,
+          "stall_cooldowns": 56,
+          "ambiguous": {
+            "anchors": 18,
+            "p_positive": 13,
+            "lottery_calls": 3,
+            "extra_LOOKs": 12
+          },
+          "dag_path_agreement": {
+            "anchors": 216,
+            "episodes": 4,
+            "dag_nodes": 388
+          },
+          "anchors": 216,
+          "calls": 78,
+          "tails": 78,
+          "extra_LOOKs": 12,
+          "IR": 0.2379230769230769,
+          "sources": {
+            "cache": 138,
+            "cache_blind": 122,
+            "policy": 78,
+            "policy_tail": 78
+          },
+          "action_sha256": "f23c28402edd877455e521f29677eab6f33fa575527e411edd362ca3d8a31cb4",
+          "no_model_no_simulator": true,
+          "no_test_fit_pickle": true
+        }
+      ]
+    },
+    {
+      "status": "PASS",
+      "replays": 1,
+      "anchors": 215,
+      "decisions": 416,
+      "reports": [
+        {
+          "status": "PASS",
+          "controller_version": "R6-C-v2",
+          "ambiguous_rule": "lottery_then_look",
+          "calibration": "/tmp/q1_method_c_fits/pi05_l10_50/dryrun_v2b/calibration.json",
+          "cell": "pi05_l10_50",
+          "case": "stall30",
+          "reverse": false,
+          "episodes": 4,
+          "decisions": 416,
+          "consecutive_lottery_calls": 30,
+          "stall_cooldowns": 55,
+          "ambiguous": {
+            "anchors": 17,
+            "p_positive": 13,
+            "lottery_calls": 6,
+            "extra_LOOKs": 10
+          },
+          "dag_path_agreement": {
+            "anchors": 215,
+            "episodes": 4,
+            "dag_nodes": 388
+          },
+          "anchors": 215,
+          "calls": 110,
+          "tails": 110,
+          "extra_LOOKs": 10,
+          "IR": 0.3027884615384615,
+          "sources": {
+            "cache": 105,
+            "cache_blind": 91,
+            "policy": 110,
+            "policy_tail": 110
+          },
+          "action_sha256": "94f2ada7e9b763bcb508ee7346bcd4999d92aa613ffba32bc5da0351c20340ff",
+          "no_model_no_simulator": true,
+          "no_test_fit_pickle": true
+        }
+      ]
+    },
+    {
+      "status": "PASS",
+      "replays": 1,
+      "anchors": 180,
+      "decisions": 360,
+      "reports": [
+        {
+          "status": "PASS",
+          "controller_version": "R6-C-v2",
+          "ambiguous_rule": "lottery_then_look",
+          "calibration": "/tmp/q1_method_c_fits/groot_l10_50/dryrun_v2b/calibration.json",
+          "cell": "groot_l10_50",
+          "case": "A",
+          "reverse": false,
+          "episodes": 4,
+          "decisions": 360,
+          "consecutive_lottery_calls": 0,
+          "stall_cooldowns": 0,
+          "ambiguous": {},
+          "dag_path_agreement": {},
+          "anchors": 180,
+          "calls": 0,
+          "tails": 0,
+          "extra_LOOKs": 0,
+          "IR": 0.074,
+          "sources": {
+            "cache": 180,
+            "cache_blind": 180
+          },
+          "action_sha256": "471b616b4283c2ec11ee873596aba8de923e61de3f784bb30e072034a322774c",
+          "no_model_no_simulator": true,
+          "no_test_fit_pickle": true
+        }
+      ]
+    },
+    {
+      "status": "PASS",
+      "replays": 1,
+      "anchors": 180,
+      "decisions": 360,
+      "reports": [
+        {
+          "status": "PASS",
+          "controller_version": "R6-C-v2",
+          "ambiguous_rule": "lottery_then_look",
+          "calibration": "/tmp/q1_method_c_fits/groot_l10_50/dryrun_v2b/calibration.json",
+          "cell": "groot_l10_50",
+          "case": "floor",
+          "reverse": false,
+          "episodes": 4,
+          "decisions": 360,
+          "consecutive_lottery_calls": 0,
+          "stall_cooldowns": 0,
+          "ambiguous": {},
+          "dag_path_agreement": {
+            "anchors": 180,
+            "episodes": 4,
+            "dag_nodes": 180
+          },
+          "anchors": 180,
+          "calls": 0,
+          "tails": 0,
+          "extra_LOOKs": 0,
+          "IR": 0.074,
+          "sources": {
+            "cache": 180,
+            "cache_blind": 180
+          },
+          "action_sha256": "471b616b4283c2ec11ee873596aba8de923e61de3f784bb30e072034a322774c",
+          "no_model_no_simulator": true,
+          "no_test_fit_pickle": true
+        }
+      ]
+    },
+    {
+      "status": "PASS",
+      "replays": 1,
+      "anchors": 180,
+      "decisions": 360,
+      "reports": [
+        {
+          "status": "PASS",
+          "controller_version": "R6-C-v2",
+          "ambiguous_rule": "lottery_then_look",
+          "calibration": "/tmp/q1_method_c_fits/groot_l10_50/dryrun_v2b/calibration.json",
+          "cell": "groot_l10_50",
+          "case": "uniform",
+          "reverse": false,
+          "episodes": 4,
+          "decisions": 360,
+          "consecutive_lottery_calls": 6,
+          "stall_cooldowns": 0,
+          "ambiguous": {},
+          "dag_path_agreement": {
+            "anchors": 180,
+            "episodes": 4,
+            "dag_nodes": 180
+          },
+          "anchors": 180,
+          "calls": 34,
+          "tails": 34,
+          "extra_LOOKs": 0,
+          "IR": 0.15446666666666667,
+          "sources": {
+            "cache": 146,
+            "cache_blind": 146,
+            "policy": 34,
+            "policy_tail": 34
+          },
+          "action_sha256": "cf546c36ea741505d86df0cfd5af84d6e9f557c5adb4290c4601a674a3b7a7c1",
+          "no_model_no_simulator": true,
+          "no_test_fit_pickle": true
+        }
+      ]
+    },
+    {
+      "status": "PASS",
+      "replays": 1,
+      "anchors": 180,
+      "decisions": 360,
+      "reports": [
+        {
+          "status": "PASS",
+          "controller_version": "R6-C-v2",
+          "ambiguous_rule": "lottery_then_look",
+          "calibration": "/tmp/q1_method_c_fits/groot_l10_50/dryrun_v2b/calibration.json",
+          "cell": "groot_l10_50",
+          "case": "R",
+          "reverse": false,
+          "episodes": 4,
+          "decisions": 360,
+          "consecutive_lottery_calls": 9,
+          "stall_cooldowns": 0,
+          "ambiguous": {},
+          "dag_path_agreement": {
+            "anchors": 180,
+            "episodes": 4,
+            "dag_nodes": 180
+          },
+          "anchors": 180,
+          "calls": 42,
+          "tails": 42,
+          "extra_LOOKs": 0,
+          "IR": 0.1734,
+          "sources": {
+            "cache": 138,
+            "cache_blind": 138,
+            "policy": 42,
+            "policy_tail": 42
+          },
+          "action_sha256": "ceac8c6ed8b4157146f5ed3043f75c1a2cf210cef7b1742877a2f9082557f3ba",
+          "no_model_no_simulator": true,
+          "no_test_fit_pickle": true
+        }
+      ]
+    },
+    {
+      "status": "PASS",
+      "replays": 1,
+      "anchors": 180,
+      "decisions": 360,
+      "reports": [
+        {
+          "status": "PASS",
+          "controller_version": "R6-C-v2",
+          "ambiguous_rule": "lottery_then_look",
+          "calibration": "/tmp/q1_method_c_fits/groot_l10_50/dryrun_v2b/calibration.json",
+          "cell": "groot_l10_50",
+          "case": "R",
+          "reverse": true,
+          "episodes": 4,
+          "decisions": 360,
+          "consecutive_lottery_calls": 9,
+          "stall_cooldowns": 0,
+          "ambiguous": {},
+          "dag_path_agreement": {
+            "anchors": 180,
+            "episodes": 4,
+            "dag_nodes": 180
+          },
+          "anchors": 180,
+          "calls": 42,
+          "tails": 42,
+          "extra_LOOKs": 0,
+          "IR": 0.1734,
+          "sources": {
+            "cache": 138,
+            "cache_blind": 138,
+            "policy": 42,
+            "policy_tail": 42
+          },
+          "action_sha256": "4e266d2a397e9bc6f87030207ad7398e28b8b6ef795f9879d91b5043e8e547a2",
+          "no_model_no_simulator": true,
+          "no_test_fit_pickle": true
+        }
+      ]
+    },
+    {
+      "status": "PASS",
+      "replays": 1,
+      "anchors": 180,
+      "decisions": 360,
+      "reports": [
+        {
+          "status": "PASS",
+          "controller_version": "R6-C-v2",
+          "ambiguous_rule": "lottery_then_look",
+          "calibration": "/tmp/q1_method_c_fits/groot_l10_50/dryrun_v2b/calibration.json",
+          "cell": "groot_l10_50",
+          "case": "R45",
+          "reverse": false,
+          "episodes": 4,
+          "decisions": 360,
+          "consecutive_lottery_calls": 138,
+          "stall_cooldowns": 0,
+          "ambiguous": {},
+          "dag_path_agreement": {
+            "anchors": 180,
+            "episodes": 4,
+            "dag_nodes": 180
+          },
+          "anchors": 180,
+          "calls": 154,
+          "tails": 154,
+          "extra_LOOKs": 0,
+          "IR": 0.43846666666666667,
+          "sources": {
+            "cache": 26,
+            "cache_blind": 26,
+            "policy": 154,
+            "policy_tail": 154
+          },
+          "action_sha256": "7ae2453fadbd94abcbff2f48ecaf47fe58eb833860f9cb3b447a32ef3b9794ce",
+          "no_model_no_simulator": true,
+          "no_test_fit_pickle": true
+        }
+      ]
+    },
+    {
+      "status": "PASS",
+      "replays": 1,
+      "anchors": 184,
+      "decisions": 360,
+      "reports": [
+        {
+          "status": "PASS",
+          "controller_version": "R6-C-v2",
+          "ambiguous_rule": "lottery_then_look",
+          "calibration": "/tmp/q1_method_c_fits/groot_l10_50/dryrun_v2b/calibration.json",
+          "cell": "groot_l10_50",
+          "case": "stall",
+          "reverse": false,
+          "episodes": 4,
+          "decisions": 360,
+          "consecutive_lottery_calls": 1,
+          "stall_cooldowns": 45,
+          "ambiguous": {
+            "anchors": 13,
+            "p_positive": 10,
+            "lottery_calls": 0,
+            "extra_LOOKs": 7
+          },
+          "dag_path_agreement": {
+            "anchors": 184,
+            "episodes": 4,
+            "dag_nodes": 266
+          },
+          "anchors": 184,
+          "calls": 48,
+          "tails": 48,
+          "extra_LOOKs": 7,
+          "IR": 0.18924444444444444,
+          "sources": {
+            "cache": 136,
+            "cache_blind": 128,
+            "policy": 48,
+            "policy_tail": 48
+          },
+          "action_sha256": "5e4c12e744224db72a15845cb6ecba279add2ef8f8af384c823e1fb3e96c25e2",
+          "no_model_no_simulator": true,
+          "no_test_fit_pickle": true
+        }
+      ]
+    },
+    {
+      "status": "PASS",
+      "replays": 1,
+      "anchors": 183,
+      "decisions": 360,
+      "reports": [
+        {
+          "status": "PASS",
+          "controller_version": "R6-C-v2",
+          "ambiguous_rule": "lottery_then_look",
+          "calibration": "/tmp/q1_method_c_fits/groot_l10_50/dryrun_v2b/calibration.json",
+          "cell": "groot_l10_50",
+          "case": "stall30",
+          "reverse": false,
+          "episodes": 4,
+          "decisions": 360,
+          "consecutive_lottery_calls": 32,
+          "stall_cooldowns": 45,
+          "ambiguous": {
+            "anchors": 15,
+            "p_positive": 12,
+            "lottery_calls": 7,
+            "extra_LOOKs": 6
+          },
+          "dag_path_agreement": {
+            "anchors": 183,
+            "episodes": 4,
+            "dag_nodes": 266
+          },
+          "anchors": 183,
+          "calls": 92,
+          "tails": 92,
+          "extra_LOOKs": 6,
+          "IR": 0.29296666666666665,
+          "sources": {
+            "cache": 91,
+            "cache_blind": 85,
+            "policy": 92,
+            "policy_tail": 92
+          },
+          "action_sha256": "89d33dec7e428687ec66ae4416bf4cd5e5a530b8448e309fa026f33fc50335f3",
+          "no_model_no_simulator": true,
+          "no_test_fit_pickle": true
+        }
+      ]
+    }
+  ],
+  "test_cleanup": {
+    "tests": 22,
+    "errors": 0,
+    "failures": 0,
+    "default_temp": "/tmp",
+    "before": [
+      "/tmp/_test_model_1gm0whs2",
+      "/tmp/_test_model_o17uckyv"
+    ],
+    "after": [
+      "/tmp/_test_model_1gm0whs2",
+      "/tmp/_test_model_o17uckyv"
+    ],
+    "created_dirs_retained": 0
+  },
+  "compared_anchors": 8879,
+  "early_codes": 320,
+  "main_codes": 8559,
+  "before_controller_source": "/tmp/codex_stall_fast/controller_followup/methods_before.py",
+  "before_controller_sha256": "696d78d84ca1f490d93fbbbe2343ab57ccc379be8224b0105b028814340ead1a",
+  "after_controller_sha256": "c284b5413a377654e819be72ef6a4a28b0f2042a866f04aaf54b7cea78da1626"
+}

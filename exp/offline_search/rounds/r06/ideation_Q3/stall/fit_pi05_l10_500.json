@@ -1,0 +1,80 @@
+{
+  "cell": "pi05_l10_500",
+  "status": "FITTED_AND_RELOADED",
+  "fingerprint": "312754f81b3971dd52d4198ac12d5463a49939ef9946ab9cf7a011c0249c29b1",
+  "seconds": 72.00556838605553,
+  "artifact": "/tmp/q3_stall_fits/pi05_l10_500",
+  "bytes": 78624591,
+  "tasks": {
+    "0": {
+      "E": 49,
+      "W": 2,
+      "K": 5,
+      "windows": 1308,
+      "references": 49
+    },
+    "1": {
+      "E": 50,
+      "W": 2,
+      "K": 5,
+      "windows": 1190,
+      "references": 50
+    },
+    "2": {
+      "E": 46,
+      "W": 2,
+      "K": 5,
+      "windows": 1134,
+      "references": 46
+    },
+    "3": {
+      "E": 43,
+      "W": 2,
+      "K": 5,
+      "windows": 1011,
+      "references": 43
+    },
+    "4": {
+      "E": 46,
+      "W": 2,
+      "K": 5,
+      "windows": 1005,
+      "references": 46
+    },
+    "5": {
+      "E": 42,
+      "W": 2,
+      "K": 5,
+      "windows": 687,
+      "references": 42
+    },
+    "6": {
+      "E": 44,
+      "W": 2,
+      "K": 5,
+      "windows": 999,
+      "references": 44
+    },
+    "7": {
+      "E": 50,
+      "W": 2,
+      "K": 5,
+      "windows": 1332,
+      "references": 50
+    },
+    "8": {
+      "E": 25,
+      "W": 3,
+      "K": 5,
+      "windows": 1018,
+      "references": 25
+    },
+    "9": {
+      "E": 41,
+      "W": 2,
+      "K": 5,
+      "windows": 1155,
+      "references": 41
+    }
+  }
+}

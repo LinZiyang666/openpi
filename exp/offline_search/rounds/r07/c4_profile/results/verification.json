@@ -1,0 +1,199 @@
+{
+ "schema": "r7.c4.verification.v1",
+ "completed_utc": "2026-09-30T07:21:00.092013+00:00",
+ "tests": {
+  "passed": 22,
+  "log": "/tmp/r7_C4/pytest_delivery.log",
+  "sha256": "d7951a3108dffc4184370c8a48ea74683e7ecba5ff9225c2d0f400d27c86c3ba"
+ },
+ "python_AST_files": [
+  "__init__.py",
+  "camera_audit.py",
+  "common.py",
+  "failure_clock.py",
+  "follow_audit.py",
+  "prefit.py",
+  "prepare_profile.py",
+  "profile_report.py",
+  "render_profile.py",
+  "stage_value.py",
+  "test_toolkit.py",
+  "verify_replay.py"
+ ],
+ "bash_syntax_files": [
+  "prefit_eval500.sh",
+  "run_arm_bval.sh",
+  "prefit_profile.sh",
+  "chain_profile.sh"
+ ],
+ "emitted": {
+  "profile": {
+   "arms": 44,
+   "yaml_files": 88
+  },
+  "eval500": {
+   "arms": 32,
+   "yaml_files": 64
+  }
+ },
+ "prefit_checks": [
+  {
+   "name": "r7_groot_l10_50_CT30_profile",
+   "path": "/tmp/r7_C4/prefit_checks/r7_groot_l10_50_CT30_profile.pkl",
+   "sha256": "66c66266ca8db9034c70e205cc9318174dbc7647b8365e4dac0ed48c426a1f2d",
+   "bytes": 52839020,
+   "seconds": 0.5057358100311831,
+   "reload": "PASS"
+  },
+  {
+   "name": "r7_groot_l10_50_SF2_profile",
+   "path": "/tmp/r7_C4/prefit_checks/r7_groot_l10_50_SF2_profile.pkl",
+   "sha256": "180cf12ec91d653f156fd52e1f20b175e5e3770063aaebc87f43239e0fe08a58",
+   "bytes": 28381896,
+   "seconds": 0.8149324060650542,
+   "reload": "PASS"
+  },
+  {
+   "name": "r7_pi05_l10_50_A_profile",
+   "path": "/tmp/r7_C4/prefit_checks/r7_pi05_l10_50_A_profile.pkl",
+   "sha256": "68a58f1c21cc3658b4bf49c775ec081f4fc61c01417446a646fc38e652351516",
+   "bytes": 26091696,
+   "seconds": 0.018316667061299086,
+   "reload": "PASS"
+  },
+  {
+   "name": "r7_pi05_l10_50_CU30_profile",
+   "path": "/tmp/r7_C4/prefit_checks/r7_pi05_l10_50_CU30_profile.pkl",
+   "sha256": "76ebf923ea1d315243cd1d499ba8ef9ebdb4b174f80b6150abe6b420c85c6214",
+   "bytes": 50531677,
+   "seconds": 0.48751523706596345,
+   "reload": "PASS"
+  },
+  {
+   "name": "r7_pi05_l10_50_SF1_profile",
+   "path": "/tmp/r7_C4/prefit_checks/r7_pi05_l10_50_SF1_profile.pkl",
+   "sha256": "a584060e74b695582d533185b098bb16dc639dc2eaf8d8232f08af6a2a4ec042",
+   "bytes": 26337186,
+   "seconds": 0.8135774630354717,
+   "reload": "PASS"
+  },
+  {
+   "name": "r7_pi05_l10_50_UF1_profile",
+   "path": "/tmp/r7_C4/prefit_checks/r7_pi05_l10_50_UF1_profile.pkl",
+   "sha256": "9a9c9a159cf7ae0161c58a18d125582098f12b980dac3aed433414eea11ff20c",
+   "bytes": 26337190,
+   "seconds": 0.7946234940318391,
+   "reload": "PASS"
+  },
+  {
+   "name": "r7_sf_sw_pi05_l10_50",
+   "path": "/tmp/r7_C4/prefit_checks/r7_sf_sw_pi05_l10_50.pkl",
+   "sha256": "6f106ecde876ac2408dfd37b78f4c118598c7905add87957a8a2f9bad3447109",
+   "bytes": 41204712,
+   "seconds": 0.22900320694316179,
+   "reload": "PASS"
+  },
+  {
+   "name": "r7_sw_pi05_l10_50_profile",
+   "path": "/tmp/r7_C4/prefit_checks/r7_sw_pi05_l10_50_profile.pkl",
+   "sha256": "5aa914c52d05b1ea83081f8d863fd83bbff487892fbf4fbe0eaf64dec75d1aad",
+   "bytes": 40959410,
+   "seconds": 0.03310829203110188,
+   "reload": "PASS"
+  }
+ ],
+ "identity": {
+  "episodes": 240,
+  "decisions": 10569,
+  "executed_controls": 52449,
+  "recorded_action_equal": 10569,
+  "recorded_vision_equal": 10569,
+  "recorded_verdict_equal": 10569,
+  "parity_failures": 0,
+  "rejected_anchor_decisions": 6612
+ },
+ "commands": [
+  "taskset -c 10-13,54-57 env OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 CUDA_VISIBLE_DEVICES='' PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src .venv/bin/python -m pytest -q -p no:cacheprovider exp/offline_search/rounds/r07/c4_profile/test_toolkit.py --basetemp /tmp/r7_C4/pytest_delivery",
+  "taskset -c 10-13,54-57 env OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 CUDA_VISIBLE_DEVICES='' PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src .venv/bin/python -m exp.offline_search.rounds.r07.c4_profile.follow_audit --cells all --out /tmp/r7_C4/follow_all",
+  "taskset -c 10-13,54-57 env OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 CUDA_VISIBLE_DEVICES='' PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src .venv/bin/python -m exp.offline_search.rounds.r07.c4_profile.camera_audit --cells all --out /tmp/r7_C4/camera_all",
+  "taskset -c 10-13,54-57 env OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 CUDA_VISIBLE_DEVICES='' PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src .venv/bin/python -m exp.offline_search.rounds.r07.c4_profile.stage_value --cells all --out /tmp/r7_C4/value_all",
+  "taskset -c 10-13,54-57 env OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 CUDA_VISIBLE_DEVICES='' PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src .venv/bin/python -m exp.offline_search.rounds.r07.c4_profile.failure_clock --cells all --out /tmp/r7_C4/clock_all",
+  "taskset -c 10-13,54-57 env OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 CUDA_VISIBLE_DEVICES='' PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src .venv/bin/python -m exp.offline_search.rounds.r07.c4_profile.verify_replay --cells all --out /tmp/r7_C4/verify_all",
+  "taskset -c 10-13,54-57 env OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 CUDA_VISIBLE_DEVICES='' PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src .venv/bin/python -m exp.offline_search.rounds.r07.c4_profile.profile_report --run-root /home/weiland/trace_runs/os_closed_loop/r06_c_validation --arms r6c_pi05_l10_50_U30 r6c_groot_l10_50_U30 --references r6c_pi05_l10_50_C30 r6c_groot_l10_50_C30 --legacy-full-camera --out /tmp/r7_C4/report_existing"
+ ],
+ "output_files": [
+  {
+   "path": "/tmp/r7_C4/follow_all/follow_audit.json",
+   "bytes": 359873,
+   "sha256": "eefd35d1d492a96b0610e77ccf7772511ee9727824dd18344471c2a701264a89"
+  },
+  {
+   "path": "/tmp/r7_C4/follow_all/follow_summary.csv",
+   "bytes": 157689,
+   "sha256": "9313302aee7fd6cd73b5aaf67cbf8515d8885a62c39bacbe354212bcec315671"
+  },
+  {
+   "path": "/tmp/r7_C4/follow_all/follow_timeline.csv",
+   "bytes": 1539607,
+   "sha256": "1c8f03da39c5d2471efad5fc16c905b0ed2f3c5f28fb016399dcb65982cc103c"
+  },
+  {
+   "path": "/tmp/r7_C4/camera_all/camera_audit.json",
+   "bytes": 854358,
+   "sha256": "764a3b5a2e58e12dd89ea856350bf47a83f67b49f85d842c248307f94729d957"
+  },
+  {
+   "path": "/tmp/r7_C4/camera_all/camera_rows.csv",
+   "bytes": 25440541,
+   "sha256": "9c15f2e2908246c1ec71907e83e06eea7ed5982ce20fe64c234a4b00a62cfefb"
+  },
+  {
+   "path": "/tmp/r7_C4/value_all/stage_value.json",
+   "bytes": 1551118,
+   "sha256": "ce9701bb9d2094530606264bd447cb16387f338b90832c2def54535d0f7dd169"
+  },
+  {
+   "path": "/tmp/r7_C4/value_all/stage_value_anchors.csv",
+   "bytes": 27693183,
+   "sha256": "b294a5d42887bf749632ba5be109db9f2a6fba728fa38129538b94a42fb91a83"
+  },
+  {
+   "path": "/tmp/r7_C4/clock_all/failure_clock.json",
+   "bytes": 270117,
+   "sha256": "49896fe907709e65b61ac9f55a06b123f6d9e2c3419ef3272d3b6a44ceca1d87"
+  },
+  {
+   "path": "/tmp/r7_C4/clock_all/failure_controls.csv",
+   "bytes": 36462456,
+   "sha256": "57b3b68c2e342c887e0d68a09fabc4e4dca424b19a7ad9fc46701dc57b6250b5"
+  },
+  {
+   "path": "/tmp/r7_C4/clock_all/failure_decisions.csv",
+   "bytes": 2344853,
+   "sha256": "38fb2ce1b6b02cf096104f6826c153b8bee8d83cca13c318fb4122ebdb428d94"
+  },
+  {
+   "path": "/tmp/r7_C4/verify_all/identity_replay.json",
+   "bytes": 6562,
+   "sha256": "e5a5c3a3bbd65d1345039c38480960520d94032996743f09febcc22e9e75ca82"
+  },
+  {
+   "path": "/tmp/r7_C4/report_existing/profile_report.json",
+   "bytes": 778325,
+   "sha256": "f6bd83cf028dadcaa3e1c51197186ecdd7c7b6f8a30a35b2077753240d276eba"
+  },
+  {
+   "path": "/tmp/r7_C4/report_existing/worst_timelines.csv",
+   "bytes": 126970,
+   "sha256": "7403180924003ee98d255e7867d56cc355a453527e92390b3b18775f11516231"
+  }
+ ],
+ "recorded_R7_closed_loops_run": 0,
+ "GPU_work_run": false,
+ "shared_files_edited": false,
+ "pending": [
+  "SA method/calibration/specs \u00d74 after PROFILE",
+  "C2 real GPU parity",
+  "C2 mixed-judge wrist-origin MISS smoke spec and execution"
+ ]
+}

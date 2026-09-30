@@ -1,0 +1,18 @@
+{
+  "name": "r6p5_bmech_p_l10_50",
+  "driver": "Bmech",
+  "assertions": "PASS",
+  "episodes": 20,
+  "decisions": 1615,
+  "vision_queries": 953,
+  "blind_comparisons": 1421,
+  "policy_tail_comparisons": 174,
+  "noprog_look_vetoes": 281,
+  "noprog_flagged": 441,
+  "masked_miss_decisions": 285,
+  "multiple_flag_masks": 156,
+  "source_fit_sha256": "16ddfec3dc8d3af95c1a39c1f483475746e3ee8194e0730ef38a7f043b77c69a",
+  "bmech_fit_sha256": "254429542fe8e9055781d9d6448efeef26066db92572e8eeb5176fdc5ca05ec8",
+  "scope": "recorded observations; common Bmech-driven history; no SR/counterfactual claim",
+  "checks": "unmasked exact B; masked only three verdict fields; diagnostic histories/cache action/LOOK/tail bit-identical"
+}

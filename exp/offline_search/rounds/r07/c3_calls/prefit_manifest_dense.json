@@ -1,0 +1,114 @@
+[
+  {
+    "name": "r7_pi05_l10_500_CU18_profile",
+    "artifact": "/tmp/r7_C3/prefits_dense_checked/r7_pi05_l10_500_CU18_profile.pkl",
+    "sha256": "db28ed2976a1d8d9249e4bea49c8d6cd3204e60dae5f9ebc1ffc1378501b3013",
+    "bytes": 174134956,
+    "lambda_": 0.21851634866786762
+  },
+  {
+    "name": "r7_pi05_l10_500_CT18_profile",
+    "artifact": "/tmp/r7_C3/prefits_dense_checked/r7_pi05_l10_500_CT18_profile.pkl",
+    "sha256": "21e011d1af5d5ac434ae702fc11271bfe07ee26351ecf00b55d221da9ffac4a5",
+    "bytes": 176848730,
+    "lambda_": 0.11286299490007476
+  },
+  {
+    "name": "r7_pi05_spatial_500_CU18_profile",
+    "artifact": "/tmp/r7_C3/prefits_dense_checked/r7_pi05_spatial_500_CU18_profile.pkl",
+    "sha256": "3590a8586d105788a95f878b8424e6563f9364a54073461cb677107f4d909c7b",
+    "bytes": 90953156,
+    "lambda_": 0.18159946138661776
+  },
+  {
+    "name": "r7_pi05_spatial_500_CT18_profile",
+    "artifact": "/tmp/r7_C3/prefits_dense_checked/r7_pi05_spatial_500_CT18_profile.pkl",
+    "sha256": "e1f65912fbf87f21c6fa9d102f7947f9ef0e2e141af22b07e9e1dfdb9b3f1008",
+    "bytes": 91959107,
+    "lambda_": 0.0932169773735623
+  },
+  {
+    "name": "r7_groot_l10_500_CU18_profile",
+    "artifact": "/tmp/r7_C3/prefits_dense_checked/r7_groot_l10_500_CU18_profile.pkl",
+    "sha256": "d5f49ec7e006a3bc5bcc24779f7da60f3dac8224facb9b2751c814ab756ef877",
+    "bytes": 196531936,
+    "lambda_": 0.19416521254971775
+  },
+  {
+    "name": "r7_groot_l10_500_CT18_profile",
+    "artifact": "/tmp/r7_C3/prefits_dense_checked/r7_groot_l10_500_CT18_profile.pkl",
+    "sha256": "99bb76b421b5dcd648aaac357e261c13824015cb585324b0cb9976fe1c046049",
+    "bytes": 199260338,
+    "lambda_": 0.10293144502009377
+  },
+  {
+    "name": "r7_groot_spatial_500_CU18_profile",
+    "artifact": "/tmp/r7_C3/prefits_dense_checked/r7_groot_spatial_500_CU18_profile.pkl",
+    "sha256": "c03c2b9230aee706fa76fffc74d680c0882affdfa67a939882818490b35fe54d",
+    "bytes": 102427692,
+    "lambda_": 0.22354798693257266
+  },
+  {
+    "name": "r7_groot_spatial_500_CT18_profile",
+    "artifact": "/tmp/r7_C3/prefits_dense_checked/r7_groot_spatial_500_CT18_profile.pkl",
+    "sha256": "e68d6c35cfb0b460cabdeb61c668d6452c9c97ec0019d974706b25178f71841a",
+    "bytes": 103511107,
+    "lambda_": 0.11622089590807172
+  },
+  {
+    "name": "r7_pi05_l10_500_CU18",
+    "artifact": "/tmp/r7_C3/prefits_dense_checked/r7_pi05_l10_500_CU18.pkl",
+    "sha256": "1f0166e7be54923ada4ec3fcb598a5a7244ef1fb4d6acbfdd0fdcd6d3c026346",
+    "bytes": 174134956,
+    "lambda_": 0.21851634866786762
+  },
+  {
+    "name": "r7_pi05_l10_500_CT18",
+    "artifact": "/tmp/r7_C3/prefits_dense_checked/r7_pi05_l10_500_CT18.pkl",
+    "sha256": "f85ab319065ba2ea920ce9f78313cb52d094f2f439918bc4c44e84680306e62c",
+    "bytes": 176848730,
+    "lambda_": 0.11286299490007476
+  },
+  {
+    "name": "r7_pi05_spatial_500_CU18",
+    "artifact": "/tmp/r7_C3/prefits_dense_checked/r7_pi05_spatial_500_CU18.pkl",
+    "sha256": "2de6b5651f6061df0e195d03f10cb3ab8e73f0186e5d73668709b3c4f4affaae",
+    "bytes": 90953156,
+    "lambda_": 0.18159946138661776
+  },
+  {
+    "name": "r7_pi05_spatial_500_CT18",
+    "artifact": "/tmp/r7_C3/prefits_dense_checked/r7_pi05_spatial_500_CT18.pkl",
+    "sha256": "69e97e28fb31a3fc6f64590df97cbe6549943c47507706c57dbd2f0e1a9c28d1",
+    "bytes": 91959107,
+    "lambda_": 0.0932169773735623
+  },
+  {
+    "name": "r7_groot_l10_500_CU18",
+    "artifact": "/tmp/r7_C3/prefits_dense_checked/r7_groot_l10_500_CU18.pkl",
+    "sha256": "8c79c7f8cd7653dbf992523ee41323c21dfb60aa51f8312b834b541b17171d92",
+    "bytes": 196531936,
+    "lambda_": 0.19416521254971775
+  },
+  {
+    "name": "r7_groot_l10_500_CT18",
+    "artifact": "/tmp/r7_C3/prefits_dense_checked/r7_groot_l10_500_CT18.pkl",
+    "sha256": "703c5d1ecacf8278fbb41d3af4682eb01e33271d38b4b1cf5ebccd427c0a71ef",
+    "bytes": 199260338,
+    "lambda_": 0.10293144502009377
+  },
+  {
+    "name": "r7_groot_spatial_500_CU18",
+    "artifact": "/tmp/r7_C3/prefits_dense_checked/r7_groot_spatial_500_CU18.pkl",
+    "sha256": "f825fe055d660de50bfa0a5fbeed15a9d5f3b386482526a707223474c90b8bfc",
+    "bytes": 102427692,
+    "lambda_": 0.22354798693257266
+  },
+  {
+    "name": "r7_groot_spatial_500_CT18",
+    "artifact": "/tmp/r7_C3/prefits_dense_checked/r7_groot_spatial_500_CT18.pkl",
+    "sha256": "d642934fc7a490a7cbda5b50ada08d240b3ad916e8d208ec03f47dbc88ac13ee",
+    "bytes": 103511107,
+    "lambda_": 0.11622089590807172
+  }
+]

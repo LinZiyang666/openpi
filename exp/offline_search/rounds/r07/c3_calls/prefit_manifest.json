@@ -1,0 +1,114 @@
+[
+  {
+    "name": "r7_pi05_l10_50_CU30_profile",
+    "artifact": "/tmp/r7_C3/prefits_checked/r7_pi05_l10_50_CU30_profile.pkl",
+    "sha256": "5f3107c68e8aac36141e5577a787dc6bf225ff03da693f4bf6e3a91da6586f9a",
+    "bytes": 50531646,
+    "lambda_": 0.5000265884637702
+  },
+  {
+    "name": "r7_pi05_l10_50_CT30_profile",
+    "artifact": "/tmp/r7_C3/prefits_checked/r7_pi05_l10_50_CT30_profile.pkl",
+    "sha256": "4add60ff7e46110ed4056b7f8371ca4bb9394880573a265654dd3e3c12098dce",
+    "bytes": 50776821,
+    "lambda_": 0.36053466746482965
+  },
+  {
+    "name": "r7_pi05_spatial_50_CU30_profile",
+    "artifact": "/tmp/r7_C3/prefits_checked/r7_pi05_spatial_50_CU30_profile.pkl",
+    "sha256": "9ab4ee7b25d21962653a9cd2a0a30c2fef5783ceccef86526348525eceeb1015",
+    "bytes": 42609171,
+    "lambda_": 0.4947776158071926
+  },
+  {
+    "name": "r7_pi05_spatial_50_CT30_profile",
+    "artifact": "/tmp/r7_C3/prefits_checked/r7_pi05_spatial_50_CT30_profile.pkl",
+    "sha256": "011271866239c204c9af497808f7c347a31cd28ea11ef8e815c8b440531ef306",
+    "bytes": 42705113,
+    "lambda_": 0.29450853222161566
+  },
+  {
+    "name": "r7_groot_l10_50_CU30_profile",
+    "artifact": "/tmp/r7_C3/prefits_checked/r7_groot_l10_50_CU30_profile.pkl",
+    "sha256": "3528820d70b9dd3721359eda9117a8b04c00b1600657428e6628244c4c6d7c03",
+    "bytes": 52593363,
+    "lambda_": 0.5021677631038974
+  },
+  {
+    "name": "r7_groot_l10_50_CT30_profile",
+    "artifact": "/tmp/r7_C3/prefits_checked/r7_groot_l10_50_CT30_profile.pkl",
+    "sha256": "a93681ddf546e06b25d18a61742bcd4a8ee52f0b4aa4adcaffeb64a733872b0f",
+    "bytes": 52838989,
+    "lambda_": 0.3257835399722291
+  },
+  {
+    "name": "r7_groot_spatial_50_CU30_profile",
+    "artifact": "/tmp/r7_C3/prefits_checked/r7_groot_spatial_50_CU30_profile.pkl",
+    "sha256": "8d3d49850421c1b319acd2631aec46475e198b20c978a3c96a7a51528f3b7067",
+    "bytes": 43658171,
+    "lambda_": 0.4988746799812246
+  },
+  {
+    "name": "r7_groot_spatial_50_CT30_profile",
+    "artifact": "/tmp/r7_C3/prefits_checked/r7_groot_spatial_50_CT30_profile.pkl",
+    "sha256": "2675c24656fbcb352f3c2d528d40d370cf78ddc5ee9ca00854298b86f372f855",
+    "bytes": 43758253,
+    "lambda_": 0.3577469922315768
+  },
+  {
+    "name": "r7_pi05_l10_50_CU30",
+    "artifact": "/tmp/r7_C3/prefits_checked/r7_pi05_l10_50_CU30.pkl",
+    "sha256": "ee90a92a1365624ea3cf643ffb0d7823585c4a353c00d2af332684cfdeab67a9",
+    "bytes": 50531646,
+    "lambda_": 0.5000265884637702
+  },
+  {
+    "name": "r7_pi05_l10_50_CT30",
+    "artifact": "/tmp/r7_C3/prefits_checked/r7_pi05_l10_50_CT30.pkl",
+    "sha256": "1a4276dae94ef2efd716ff078b6c4cedd12814ab9b1d482de2e3bf428bb7dd4e",
+    "bytes": 50776821,
+    "lambda_": 0.36053466746482965
+  },
+  {
+    "name": "r7_pi05_spatial_50_CU30",
+    "artifact": "/tmp/r7_C3/prefits_checked/r7_pi05_spatial_50_CU30.pkl",
+    "sha256": "7d31dcbf19ef22bf66ce258cf6ea9954b64e805674d7f5b2885068397af91620",
+    "bytes": 42609171,
+    "lambda_": 0.4947776158071926
+  },
+  {
+    "name": "r7_pi05_spatial_50_CT30",
+    "artifact": "/tmp/r7_C3/prefits_checked/r7_pi05_spatial_50_CT30.pkl",
+    "sha256": "6b6a024e3d09e20bcfd60b6772a7d6f5ae1bf0c79179f06a3117cfb8fafa9504",
+    "bytes": 42705113,
+    "lambda_": 0.29450853222161566
+  },
+  {
+    "name": "r7_groot_l10_50_CU30",
+    "artifact": "/tmp/r7_C3/prefits_checked/r7_groot_l10_50_CU30.pkl",
+    "sha256": "e9477cf8a4d68a9011a0d34f2c93e7c9675ac90347c606cfdefc8ef7dfbc8ac1",
+    "bytes": 52593363,
+    "lambda_": 0.5021677631038974
+  },
+  {
+    "name": "r7_groot_l10_50_CT30",
+    "artifact": "/tmp/r7_C3/prefits_checked/r7_groot_l10_50_CT30.pkl",
+    "sha256": "e235cb69699b9a8fbbf57696c3312393091296fbcd836871280c5cf7e33eddef",
+    "bytes": 52838989,
+    "lambda_": 0.3257835399722291
+  },
+  {
+    "name": "r7_groot_spatial_50_CU30",
+    "artifact": "/tmp/r7_C3/prefits_checked/r7_groot_spatial_50_CU30.pkl",
+    "sha256": "0f2c6afd8c06d8602fef8d410c04be369ae87fdabb19a9218ace571902a57f5c",
+    "bytes": 43658171,
+    "lambda_": 0.4988746799812246
+  },
+  {
+    "name": "r7_groot_spatial_50_CT30",
+    "artifact": "/tmp/r7_C3/prefits_checked/r7_groot_spatial_50_CT30.pkl",
+    "sha256": "8714113d877b1889455d07a80412553494807534674a972a3b175cb71159d25d",
+    "bytes": 43758253,
+    "lambda_": 0.3577469922315768
+  }
+]

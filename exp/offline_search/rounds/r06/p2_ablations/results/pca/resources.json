@@ -1,0 +1,8 @@
+{
+ "peak_children_rss_bytes": 7310393344,
+ "sample_period_s": 2,
+ "workers": 4,
+ "blas_threads_per_worker": 3,
+ "coordinator_threads": 1,
+ "failed": []
+}

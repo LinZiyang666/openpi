@@ -1,0 +1,188 @@
+[
+  {
+    "name": "r6p5_bmech_g_l10_50",
+    "source_spec": {
+      "name": "r6p1_c10_g_l10_50",
+      "model": "groot",
+      "suite": "l10",
+      "mode": "plugin",
+      "method": "exp.offline_search.rounds.r06.p1_groot_commit.judge:GrootCommitJudge",
+      "kwargs": {
+        "base_kwargs": {
+          "lib": "current",
+          "kref": 5,
+          "serving": "anchor_tail",
+          "budget": 1,
+          "gates": "budget_only"
+        },
+        "progress_guard": "noprog_span",
+        "events": "none",
+        "stuck_guard": "vision_confirmed",
+        "policy_tail_gate": "lifecycle",
+        "monitor": "off"
+      },
+      "full_model": true,
+      "cost_ledger": true,
+      "client_overrides": {
+        "replan_steps": 5,
+        "resize_size": 256
+      },
+      "plugin_args": [
+        "--os-root",
+        "/home/weiland/trace_runs/offline_search_store",
+        "--os-blind",
+        "--os-policy-tail",
+        "--os-policy-tail-blocks",
+        "1",
+        "--os-judge",
+        "guard_only",
+        "--os-no-shadow-native",
+        "--os-fit-artifact",
+        "<RUN>/fits/r6p1_c10_g_l10_50.pkl"
+      ]
+    },
+    "artifact": "/tmp/q3_stall_fits/bmech/r6p5_bmech_g_l10_50.pkl",
+    "sha256": "d9803487119d9ac38d6544b299c38a7ff8874425ffc13bbd88048de0520c9bd9",
+    "source_fit": "/home/weiland/trace_runs/os_closed_loop/r06_paper/fits/r6p1_c10_g_l10_50.pkl",
+    "source_sha256": "407836eb861d7eefc58b8ab288f5f95cedb13d677c2d0ef42741baf0a1295d1f",
+    "operation": "no-refit class transplant; only NP output verdict masked"
+  },
+  {
+    "name": "r6p5_bmech_g_sp_50",
+    "source_spec": {
+      "name": "r6p1_c10_g_sp_50",
+      "model": "groot",
+      "suite": "spatial",
+      "mode": "plugin",
+      "method": "exp.offline_search.rounds.r06.p1_groot_commit.judge:GrootCommitJudge",
+      "kwargs": {
+        "base_kwargs": {
+          "lib": "current",
+          "kref": 5,
+          "serving": "anchor_tail",
+          "budget": 1,
+          "gates": "budget_only"
+        },
+        "progress_guard": "noprog_span",
+        "events": "none",
+        "stuck_guard": "vision_confirmed",
+        "policy_tail_gate": "lifecycle",
+        "monitor": "off"
+      },
+      "full_model": true,
+      "cost_ledger": true,
+      "client_overrides": {
+        "replan_steps": 5,
+        "resize_size": 256
+      },
+      "plugin_args": [
+        "--os-root",
+        "/home/weiland/trace_runs/offline_search_store",
+        "--os-blind",
+        "--os-policy-tail",
+        "--os-policy-tail-blocks",
+        "1",
+        "--os-judge",
+        "guard_only",
+        "--os-no-shadow-native",
+        "--os-fit-artifact",
+        "<RUN>/fits/r6p1_c10_g_sp_50.pkl"
+      ]
+    },
+    "artifact": "/tmp/q3_stall_fits/bmech/r6p5_bmech_g_sp_50.pkl",
+    "sha256": "12c73e99294ab5d9b8c078d7345dae54e37182504874a330e3064d47a5c26e9e",
+    "source_fit": "/home/weiland/trace_runs/os_closed_loop/r06_paper/fits/r6p1_c10_g_sp_50.pkl",
+    "source_sha256": "9bdfa36b2765c1d8365d60c3de31041cd93de2b208c092cf85cf2db8f816943f",
+    "operation": "no-refit class transplant; only NP output verdict masked"
+  },
+  {
+    "name": "r6p5_bmech_p_l10_50",
+    "source_spec": {
+      "name": "r5q1_c10_p_l10_50",
+      "model": "pi05",
+      "suite": "l10",
+      "mode": "plugin",
+      "method": "exp.offline_search.rounds.r05.q1_commit.judge:CommitJudge",
+      "kwargs": {
+        "base_kwargs": {
+          "lib": "current",
+          "kref": 5,
+          "serving": "anchor_tail",
+          "budget": 1,
+          "gates": "budget_only"
+        },
+        "progress_guard": "noprog_span",
+        "events": "none",
+        "stuck_guard": "vision_confirmed",
+        "policy_tail_gate": "lifecycle",
+        "monitor": "off"
+      },
+      "full_model": true,
+      "cost_ledger": true,
+      "client_overrides": {
+        "replan_steps": 5
+      },
+      "plugin_args": [
+        "--os-root",
+        "/home/weiland/trace_runs/offline_search_store",
+        "--os-blind",
+        "--os-policy-tail",
+        "--os-judge",
+        "guard_only",
+        "--os-no-shadow-native",
+        "--os-fit-artifact",
+        "/home/weiland/trace_runs/os_closed_loop/r05_q1/fits/r5q1_c10_p_l10_50.pkl"
+      ]
+    },
+    "artifact": "/tmp/q3_stall_fits/bmech/r6p5_bmech_p_l10_50.pkl",
+    "sha256": "254429542fe8e9055781d9d6448efeef26066db92572e8eeb5176fdc5ca05ec8",
+    "source_fit": "/home/weiland/trace_runs/os_closed_loop/r05_q1/fits/r5q1_c10_p_l10_50.pkl",
+    "source_sha256": "16ddfec3dc8d3af95c1a39c1f483475746e3ee8194e0730ef38a7f043b77c69a",
+    "operation": "no-refit class transplant; only NP output verdict masked"
+  },
+  {
+    "name": "r6p5_bmech_p_sp_50",
+    "source_spec": {
+      "name": "r5q1_c10_p_sp_50",
+      "model": "pi05",
+      "suite": "spatial",
+      "mode": "plugin",
+      "method": "exp.offline_search.rounds.r05.q1_commit.judge:CommitJudge",
+      "kwargs": {
+        "base_kwargs": {
+          "lib": "current",
+          "kref": 5,
+          "serving": "anchor_tail",
+          "budget": 1,
+          "gates": "budget_only"
+        },
+        "progress_guard": "noprog_span",
+        "events": "none",
+        "stuck_guard": "vision_confirmed",
+        "policy_tail_gate": "lifecycle",
+        "monitor": "off"
+      },
+      "full_model": true,
+      "cost_ledger": true,
+      "client_overrides": {
+        "replan_steps": 5
+      },
+      "plugin_args": [
+        "--os-root",
+        "/home/weiland/trace_runs/offline_search_store",
+        "--os-blind",
+        "--os-policy-tail",
+        "--os-judge",
+        "guard_only",
+        "--os-no-shadow-native",
+        "--os-fit-artifact",
+        "/home/weiland/trace_runs/os_closed_loop/r05_q1/fits/r5q1_c10_p_sp_50.pkl"
+      ]
+    },
+    "artifact": "/tmp/q3_stall_fits/bmech/r6p5_bmech_p_sp_50.pkl",
+    "sha256": "9df1d9320f0a1fb169f92c1c380542094dc297c02a6ecab95f71c48a6f97cd6c",
+    "source_fit": "/home/weiland/trace_runs/os_closed_loop/r05_q1/fits/r5q1_c10_p_sp_50.pkl",
+    "source_sha256": "6cadcc8f75a127601ccf8bca3520d46eedd766c80d6b10a351e2fd5195f2654f",
+    "operation": "no-refit class transplant; only NP output verdict masked"
+  }
+]

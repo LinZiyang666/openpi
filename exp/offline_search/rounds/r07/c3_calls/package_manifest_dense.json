@@ -1,0 +1,39 @@
+{
+  "version": "R7-C3-v1",
+  "target": 0.18,
+  "cells": [
+    "pi05_l10_500",
+    "pi05_spatial_500",
+    "groot_l10_500",
+    "groot_spatial_500"
+  ],
+  "variants": [
+    "CU",
+    "CT"
+  ],
+  "profile_arms": 8,
+  "eval500_arms": 8,
+  "profile_episodes_per_arm": 20,
+  "eval500_episodes_per_arm": 500,
+  "stage_source": "/tmp/r7_C1/stages",
+  "calibration_root": "/tmp/r7_C3/cal; copy each complete dense cell directory to <RUN>/cal",
+  "stall_source": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/stall; canonicalize sp to spatial",
+  "planned_arms": [
+    "r7_pi05_l10_500_CU18_profile",
+    "r7_pi05_l10_500_CT18_profile",
+    "r7_pi05_spatial_500_CU18_profile",
+    "r7_pi05_spatial_500_CT18_profile",
+    "r7_groot_l10_500_CU18_profile",
+    "r7_groot_l10_500_CT18_profile",
+    "r7_groot_spatial_500_CU18_profile",
+    "r7_groot_spatial_500_CT18_profile",
+    "r7_pi05_l10_500_CU18",
+    "r7_pi05_l10_500_CT18",
+    "r7_pi05_spatial_500_CU18",
+    "r7_pi05_spatial_500_CT18",
+    "r7_groot_l10_500_CU18",
+    "r7_groot_l10_500_CT18",
+    "r7_groot_spatial_500_CU18",
+    "r7_groot_spatial_500_CT18"
+  ]
+}

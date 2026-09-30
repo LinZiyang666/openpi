@@ -1,0 +1,115 @@
+{
+ "role": "NONTEST_BVAL",
+ "purpose": "R7_PROFILE",
+ "model": "groot",
+ "suite": "l10",
+ "pool_sha256": "fa993ce2042942a79941960eba23d9186f2b835c2fc0ba1e2f47e7d308d00b14",
+ "pool_record": "<RUN>/manifests/bval_pool_l10.yaml",
+ "pool_directory": "/scratch/zixuans8/openpi_trace/exp/common/data/db_init/libero/libero_10",
+ "split_sha256": "0a2775ec927acd4e73b17b35ad00ad4825292bb27bfa7ccab6c5492970110f86",
+ "prior_calibration_manifest": "/home/weiland/projects/openpi/exp/offline_search/rounds/r06/ideation_Q1/method_c/calibration_manifest_pi05_l10_50.json",
+ "prior_calibration_manifest_sha256": "c205fa060556cdafcec9bfb73c5384831b373e2cffd598f10123be47ba2ab1ff",
+ "selection_rule": "lowest two frozen B-val indices/task excluding the R6 lowest-index calibration state; no outcomes consulted",
+ "selected": [
+  {
+   "task": 0,
+   "init": 15,
+   "state_sha256": "7e909f3231e6ed64055835c9da5e72c754054f480a83a15d4df338aa582e2aeb"
+  },
+  {
+   "task": 0,
+   "init": 32,
+   "state_sha256": "3116b78f62a5f319b910f5ae348f0b4d44e0ad88ef7a3b4370b1989bd3f567bc"
+  },
+  {
+   "task": 1,
+   "init": 9,
+   "state_sha256": "e9e543556c6f9e631496068fbb4636ab4cdbe684bb93ec6dc6a2c582a5b95e7a"
+  },
+  {
+   "task": 1,
+   "init": 26,
+   "state_sha256": "2b1e17c0f265b12cda0fb1cb51c225bdd4420c54cb795e5c5683919cb34c1f55"
+  },
+  {
+   "task": 2,
+   "init": 6,
+   "state_sha256": "5a36982305a60780308d39e78ea58203c09418ab00aec64f8318754dc4c77368"
+  },
+  {
+   "task": 2,
+   "init": 9,
+   "state_sha256": "d7e03c3cb48fa1af0e6b67461b72080211513492f5cd080c83a621a9c9c21220"
+  },
+  {
+   "task": 3,
+   "init": 18,
+   "state_sha256": "ae257eb05d51cc92cfa092bcd7b5e167c0ce46ddbbe86649833e987b05961c37"
+  },
+  {
+   "task": 3,
+   "init": 28,
+   "state_sha256": "7c6ae144998e4d828a2729b24a28c070e24182a631bbb4b11d2c8181bf7b70af"
+  },
+  {
+   "task": 4,
+   "init": 15,
+   "state_sha256": "4fcfe9af738b11f660154a3a74bbc1dc0b40b4d532b4a5258dad39efd04fb8d8"
+  },
+  {
+   "task": 4,
+   "init": 20,
+   "state_sha256": "bc988855b8cfba9a4e7e78c8fe6e030e7f19e700094a38f12e182006350800f9"
+  },
+  {
+   "task": 5,
+   "init": 10,
+   "state_sha256": "001d1e91022c53a502cb830b4ed2bdac9e26211b6e3ac60d07f49d36bc19cd67"
+  },
+  {
+   "task": 5,
+   "init": 33,
+   "state_sha256": "3d47df4f7f9876ff320518b87ba324c32f21c8b005400bdcfe2d2c22b8cdb5fe"
+  },
+  {
+   "task": 6,
+   "init": 17,
+   "state_sha256": "6bd478d37e2864f9e3a6432978f047f58a937e03e3a894f450dc7d4b4039d9f3"
+  },
+  {
+   "task": 6,
+   "init": 18,
+   "state_sha256": "39f4f3ac5b7949d22e78edf746a2dafee28cef205a4c12eab3400193995bdd37"
+  },
+  {
+   "task": 7,
+   "init": 11,
+   "state_sha256": "4776bfb497c153d00d25f387498ef753d865df97fef10c2210326407b6acc2ce"
+  },
+  {
+   "task": 7,
+   "init": 15,
+   "state_sha256": "18295fb2c6acaa2bb8ba8e8f22fc82d80cfb41e010065034c8eb58134d66065a"
+  },
+  {
+   "task": 8,
+   "init": 10,
+   "state_sha256": "abf223ddf12367b12150d5e3f28dac66eb7e49ef37224e351bdb181f646a8a2e"
+  },
+  {
+   "task": 8,
+   "init": 13,
+   "state_sha256": "8e5dbc424e1fb3317785c6cbfaa7e63ff42fb55ac4c016c079bac61d736edf23"
+  },
+  {
+   "task": 9,
+   "init": 11,
+   "state_sha256": "a9dfa5326536572214cc92b40a25bba5409c3d5fe4d3e4d412f4d5b361599702"
+  },
+  {
+   "task": 9,
+   "init": 22,
+   "state_sha256": "b20c4aa139046aadfd0a4b213ebb40cad3065cbec5cd573e5416e63878e51bb6"
+  }
+ ]
+}

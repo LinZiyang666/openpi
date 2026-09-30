@@ -1,0 +1,146 @@
+{
+ "PASS": true,
+ "pooling_cases": [
+  {
+   "model": "pi05",
+   "camera": "v0",
+   "grid": 1,
+   "dims": 2048,
+   "reference_max_abs_error": 0.0
+  },
+  {
+   "model": "pi05",
+   "camera": "v0",
+   "grid": 2,
+   "dims": 8192,
+   "reference_max_abs_error": 0.0
+  },
+  {
+   "model": "pi05",
+   "camera": "v0",
+   "grid": 4,
+   "dims": 32768,
+   "reference_max_abs_error": 0.0
+  },
+  {
+   "model": "pi05",
+   "camera": "v0",
+   "grid": 8,
+   "dims": 131072,
+   "reference_max_abs_error": 0.0
+  },
+  {
+   "model": "pi05",
+   "camera": "v0",
+   "grid": 16,
+   "dims": 524288,
+   "reference_max_abs_error": 0.0
+  },
+  {
+   "model": "pi05",
+   "camera": "v1",
+   "grid": 1,
+   "dims": 2048,
+   "reference_max_abs_error": 0.0
+  },
+  {
+   "model": "pi05",
+   "camera": "v1",
+   "grid": 2,
+   "dims": 8192,
+   "reference_max_abs_error": 0.0
+  },
+  {
+   "model": "pi05",
+   "camera": "v1",
+   "grid": 4,
+   "dims": 32768,
+   "reference_max_abs_error": 0.0
+  },
+  {
+   "model": "pi05",
+   "camera": "v1",
+   "grid": 8,
+   "dims": 131072,
+   "reference_max_abs_error": 0.0
+  },
+  {
+   "model": "pi05",
+   "camera": "v1",
+   "grid": 16,
+   "dims": 524288,
+   "reference_max_abs_error": 0.0
+  },
+  {
+   "model": "groot",
+   "camera": "v0",
+   "grid": 1,
+   "dims": 2048,
+   "reference_max_abs_error": 0.0
+  },
+  {
+   "model": "groot",
+   "camera": "v0",
+   "grid": 2,
+   "dims": 8192,
+   "reference_max_abs_error": 0.0
+  },
+  {
+   "model": "groot",
+   "camera": "v0",
+   "grid": 4,
+   "dims": 32768,
+   "reference_max_abs_error": 0.0
+  },
+  {
+   "model": "groot",
+   "camera": "v0",
+   "grid": 8,
+   "dims": 131072,
+   "reference_max_abs_error": 0.0
+  },
+  {
+   "model": "groot",
+   "camera": "v0",
+   "grid": 16,
+   "dims": 524288,
+   "reference_max_abs_error": 0.0
+  },
+  {
+   "model": "groot",
+   "camera": "v1",
+   "grid": 1,
+   "dims": 2048,
+   "reference_max_abs_error": 0.0
+  },
+  {
+   "model": "groot",
+   "camera": "v1",
+   "grid": 2,
+   "dims": 8192,
+   "reference_max_abs_error": 0.0
+  },
+  {
+   "model": "groot",
+   "camera": "v1",
+   "grid": 4,
+   "dims": 32768,
+   "reference_max_abs_error": 0.0
+  },
+  {
+   "model": "groot",
+   "camera": "v1",
+   "grid": 8,
+   "dims": 131072,
+   "reference_max_abs_error": 0.0
+  },
+  {
+   "model": "groot",
+   "camera": "v1",
+   "grid": 16,
+   "dims": 524288,
+   "reference_max_abs_error": 0.0
+  }
+ ],
+ "invalid_grid_refusals": 4
+}

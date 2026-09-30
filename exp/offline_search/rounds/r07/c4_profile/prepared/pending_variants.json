@@ -1,0 +1,6 @@
+{
+ "pending": [
+  "SA(.30) \u00d74 sparse"
+ ],
+ "why": "SA is explicitly composed by C1 after PROFILE analysis and needs its own cadence/camera budget calibration; never emit fabricated method/calibration kwargs. C3 rows imported from its literal delivered specs when available."
+}

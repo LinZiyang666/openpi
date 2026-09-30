@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "C4_imported_profile_rows_equal": 8,
+  "C4_imported_eval500_rows_equal": 8,
+  "non_test_manifests_checked": 4,
+  "episodes_per_profile_arm": 20,
+  "external_writes": 0
+}

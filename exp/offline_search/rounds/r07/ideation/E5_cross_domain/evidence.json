@@ -1,0 +1,782 @@
+{
+  "scope": "Descriptive B-val A recordings, one init per task; no causal value, safety, SR or calibration claim.",
+  "script_sha256": "7adb80f45f73b5aa070cc76c41cc861bbe67b9817b909c55180ce12c46829300",
+  "cells": {
+    "pi05_l10_50": {
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/current",
+      "manifest_sha256": "075bbeff4896384e1dd2afeefeb148ca6c8ede2e2827b73af5ee94706f9fe270",
+      "source": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/tables/pi05_l10_50/anchors.csv",
+      "source_bytes": 24346508,
+      "source_sha256": "53ea963d5146b80f09edc52ec7678273c6cc7aa74d6f5d3c09e22cd3207ed434",
+      "H": 10,
+      "R": 5,
+      "D": 7,
+      "library_rows": 2640,
+      "library_episodes": 50,
+      "library_successful_episodes": 50,
+      "recording_episodes": 10,
+      "recording_successes": 7,
+      "anchors": 346,
+      "distinct_episodes": {
+        "q10": 4.0,
+        "median": 5.0,
+        "q90": 5.0
+      },
+      "effective_episodes": {
+        "q10": 2.475723293295287,
+        "median": 3.6085183202356097,
+        "q90": 4.364577381390966
+      },
+      "majority_one_episode_anchor_share": 0.1416184971098266,
+      "low_eff_lt2_anchor_share": 0.057803468208092484,
+      "gripper_split": {
+        "q10": 0.0,
+        "median": 4.440892098500625e-16,
+        "q90": 0.6809718232099471
+      },
+      "progress_sd": {
+        "q10": 0.0153712843347288,
+        "median": 0.044532122947639016,
+        "q90": 0.24450364292213245
+      },
+      "command_mode_span_controls": {
+        "q10": 2.0,
+        "median": 55.0,
+        "q90": 95.4
+      },
+      "command_switches_per_successful_episode": {
+        "q10": 1.9000000000000004,
+        "median": 4.0,
+        "q90": 6.200000000000003
+      },
+      "same_observation_tail_head_dispersion_ratio": 1.0162964097561327,
+      "added_feature_compute_ms": {
+        "q10": 0.3185980021953583,
+        "median": 0.3632365260273218,
+        "q90": 0.41523593245074153
+      },
+      "within_episode_spearman_median": {
+        "raw_dispersion": 0.5904001268362504,
+        "dispersion_sigma": 0.5254101469890943,
+        "progress_sd": 0.28942200973277554,
+        "gripper_split": 0.2644460891907685,
+        "ep_eff": 0.06877667506314887
+      },
+      "within_episode_spearman_n": {
+        "raw_dispersion": 10,
+        "dispersion_sigma": 10,
+        "progress_sd": 10,
+        "gripper_split": 10,
+        "ep_eff": 10
+      },
+      "future": {
+        "10": {
+          "library_successful_rows_with_successors": 0.9810606060606061,
+          "library_successful_rows_with_stable_command": 0.8666666666666667,
+          "Bval_mean_successor_mass": 0.924468503766941,
+          "Bval_mean_stable_command_mass": 0.7869199083503619,
+          "Bval_all_successors_anchor_share": 0.7341040462427746,
+          "Bval_all_stable_same_mode_anchor_count": 160,
+          "Bval_all_stable_same_mode_anchor_share": 0.4624277456647399
+        },
+        "15": {
+          "library_successful_rows_with_successors": 0.9621212121212122,
+          "library_successful_rows_with_stable_command": 0.7950757575757575,
+          "Bval_mean_successor_mass": 0.8970232590181678,
+          "Bval_mean_stable_command_mass": 0.7050837982950049,
+          "Bval_all_successors_anchor_share": 0.7254335260115607,
+          "Bval_all_stable_same_mode_anchor_count": 143,
+          "Bval_all_stable_same_mode_anchor_share": 0.41329479768786126
+        },
+        "20": {
+          "library_successful_rows_with_successors": 0.9431818181818182,
+          "library_successful_rows_with_stable_command": 0.7268939393939394,
+          "Bval_mean_successor_mass": 0.8759626124594727,
+          "Bval_mean_stable_command_mass": 0.646070012290986,
+          "Bval_all_successors_anchor_share": 0.6560693641618497,
+          "Bval_all_stable_same_mode_anchor_count": 116,
+          "Bval_all_stable_same_mode_anchor_share": 0.3352601156069364
+        }
+      }
+    },
+    "pi05_l10_500": {
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs",
+      "manifest_sha256": "20db39ffa43eb66f27981fc7a801e11a3ee34516ea10780d0d3d8407e9743f96",
+      "source": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/tables/pi05_l10_500/anchors.csv",
+      "source_bytes": 19312281,
+      "source_sha256": "63c50dd666360ed97ff1024954dec385de4fca0b37910aad2ad8ea27a897a5fd",
+      "H": 10,
+      "R": 5,
+      "D": 7,
+      "library_rows": 29472,
+      "library_episodes": 500,
+      "library_successful_episodes": 436,
+      "recording_episodes": 10,
+      "recording_successes": 9,
+      "anchors": 274,
+      "distinct_episodes": {
+        "q10": 4.300000000000001,
+        "median": 11.0,
+        "q90": 15.0
+      },
+      "effective_episodes": {
+        "q10": 2.914009094435003,
+        "median": 7.191336580151249,
+        "q90": 10.02465786466364
+      },
+      "majority_one_episode_anchor_share": 0.08394160583941605,
+      "low_eff_lt2_anchor_share": 0.06569343065693431,
+      "gripper_split": {
+        "q10": 0.0,
+        "median": 0.0,
+        "q90": 0.537316600229735
+      },
+      "progress_sd": {
+        "q10": 0.01214502061874306,
+        "median": 0.03334558312289601,
+        "q90": 0.10731011082989578
+      },
+      "command_mode_span_controls": {
+        "q10": 1.0,
+        "median": 47.0,
+        "q90": 84.0
+      },
+      "command_switches_per_successful_episode": {
+        "q10": 2.0,
+        "median": 4.0,
+        "q90": 10.0
+      },
+      "same_observation_tail_head_dispersion_ratio": 1.0405586830406721,
+      "added_feature_compute_ms": {
+        "q10": 0.3162522683851421,
+        "median": 0.3538945456966758,
+        "q90": 0.4152866546064615
+      },
+      "within_episode_spearman_median": {
+        "raw_dispersion": 0.712716631194892,
+        "dispersion_sigma": 0.5365664856511538,
+        "progress_sd": 0.1561067193675889,
+        "gripper_split": 0.49337889714486444,
+        "ep_eff": -0.2572947441368494
+      },
+      "within_episode_spearman_n": {
+        "raw_dispersion": 10,
+        "dispersion_sigma": 10,
+        "progress_sd": 10,
+        "gripper_split": 10,
+        "ep_eff": 10
+      },
+      "future": {
+        "10": {
+          "library_successful_rows_with_successors": 0.980890603085554,
+          "library_successful_rows_with_stable_command": 0.8457661290322581,
+          "Bval_mean_successor_mass": 0.9907689291093875,
+          "Bval_mean_stable_command_mass": 0.8636551655126528,
+          "Bval_all_successors_anchor_share": 0.9635036496350365,
+          "Bval_all_stable_same_mode_anchor_count": 185,
+          "Bval_all_stable_same_mode_anchor_share": 0.6751824817518248
+        },
+        "15": {
+          "library_successful_rows_with_successors": 0.961781206171108,
+          "library_successful_rows_with_stable_command": 0.7715638148667602,
+          "Bval_mean_successor_mass": 0.9769654515425997,
+          "Bval_mean_stable_command_mass": 0.7916767050260446,
+          "Bval_all_successors_anchor_share": 0.948905109489051,
+          "Bval_all_stable_same_mode_anchor_count": 169,
+          "Bval_all_stable_same_mode_anchor_share": 0.6167883211678832
+        },
+        "20": {
+          "library_successful_rows_with_successors": 0.9426718092566619,
+          "library_successful_rows_with_stable_command": 0.7007801542776999,
+          "Bval_mean_successor_mass": 0.9614172919946663,
+          "Bval_mean_stable_command_mass": 0.7323019952546533,
+          "Bval_all_successors_anchor_share": 0.9233576642335767,
+          "Bval_all_stable_same_mode_anchor_count": 144,
+          "Bval_all_stable_same_mode_anchor_share": 0.5255474452554745
+        }
+      }
+    },
+    "pi05_spatial_50": {
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/current",
+      "manifest_sha256": "f78b3c0a142925dcb499bcfcc51ef109f7c31e952d8055521af9559a115a7b88",
+      "source": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/tables/pi05_spatial_50/anchors.csv",
+      "source_bytes": 16750186,
+      "source_sha256": "36c862c6d186da923a470d1fd636bf359ec3fef918bdd4fe07670a43397accf4",
+      "H": 10,
+      "R": 5,
+      "D": 7,
+      "library_rows": 1018,
+      "library_episodes": 49,
+      "library_successful_episodes": 49,
+      "recording_episodes": 10,
+      "recording_successes": 7,
+      "anchors": 152,
+      "distinct_episodes": {
+        "q10": 5.0,
+        "median": 5.0,
+        "q90": 5.0
+      },
+      "effective_episodes": {
+        "q10": 2.9793280630800276,
+        "median": 3.9634469154040657,
+        "q90": 4.6527170098984
+      },
+      "majority_one_episode_anchor_share": 0.039473684210526314,
+      "low_eff_lt2_anchor_share": 0.0,
+      "gripper_split": {
+        "q10": 0.0,
+        "median": 7.771461869733442e-09,
+        "q90": 0.5774176685167516
+      },
+      "progress_sd": {
+        "q10": 0.022767510605951512,
+        "median": 0.04048004272748758,
+        "q90": 0.2013679067402114
+      },
+      "command_mode_span_controls": {
+        "q10": 3.0,
+        "median": 45.0,
+        "q90": 70.60000000000001
+      },
+      "command_switches_per_successful_episode": {
+        "q10": 1.0,
+        "median": 1.0,
+        "q90": 2.0
+      },
+      "same_observation_tail_head_dispersion_ratio": 1.1907820642818772,
+      "added_feature_compute_ms": {
+        "q10": 0.296346063259989,
+        "median": 0.34250254975631833,
+        "q90": 0.40579657070338726
+      },
+      "within_episode_spearman_median": {
+        "raw_dispersion": 0.7525691699604744,
+        "dispersion_sigma": 0.4286474395170048,
+        "progress_sd": 0.21992138296486125,
+        "gripper_split": 0.3951739021826942,
+        "ep_eff": -0.14748729531338228
+      },
+      "within_episode_spearman_n": {
+        "raw_dispersion": 10,
+        "dispersion_sigma": 10,
+        "progress_sd": 10,
+        "gripper_split": 10,
+        "ep_eff": 10
+      },
+      "future": {
+        "10": {
+          "library_successful_rows_with_successors": 0.9518664047151277,
+          "library_successful_rows_with_stable_command": 0.8457760314341847,
+          "Bval_mean_successor_mass": 0.8564591129663603,
+          "Bval_mean_stable_command_mass": 0.7408441131465622,
+          "Bval_all_successors_anchor_share": 0.5921052631578947,
+          "Bval_all_stable_same_mode_anchor_count": 56,
+          "Bval_all_stable_same_mode_anchor_share": 0.3684210526315789
+        },
+        "15": {
+          "library_successful_rows_with_successors": 0.9037328094302554,
+          "library_successful_rows_with_stable_command": 0.74950884086444,
+          "Bval_mean_successor_mass": 0.7925895335178171,
+          "Bval_mean_stable_command_mass": 0.6454644797876915,
+          "Bval_all_successors_anchor_share": 0.5723684210526315,
+          "Bval_all_stable_same_mode_anchor_count": 51,
+          "Bval_all_stable_same_mode_anchor_share": 0.3355263157894737
+        },
+        "20": {
+          "library_successful_rows_with_successors": 0.8555992141453831,
+          "library_successful_rows_with_stable_command": 0.6532416502946955,
+          "Bval_mean_successor_mass": 0.7220435812560874,
+          "Bval_mean_stable_command_mass": 0.5406371889461492,
+          "Bval_all_successors_anchor_share": 0.5328947368421053,
+          "Bval_all_stable_same_mode_anchor_count": 40,
+          "Bval_all_stable_same_mode_anchor_share": 0.2631578947368421
+        }
+      }
+    },
+    "pi05_spatial_500": {
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs",
+      "manifest_sha256": "b5d5c33775d7483fe17eec178ab56070491890a400dc98a7ca6f6fc070abd12b",
+      "source": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/tables/pi05_spatial_500/anchors.csv",
+      "source_bytes": 14389457,
+      "source_sha256": "271e1225bc5ca297166261ddebe1d60ee862994f49a622717fe0734768636d7c",
+      "H": 10,
+      "R": 5,
+      "D": 7,
+      "library_rows": 10909,
+      "library_episodes": 500,
+      "library_successful_episodes": 487,
+      "recording_episodes": 10,
+      "recording_successes": 8,
+      "anchors": 135,
+      "distinct_episodes": {
+        "q10": 10.0,
+        "median": 14.0,
+        "q90": 16.0
+      },
+      "effective_episodes": {
+        "q10": 5.46685608090033,
+        "median": 9.15492665084919,
+        "q90": 11.856061528361737
+      },
+      "majority_one_episode_anchor_share": 0.037037037037037035,
+      "low_eff_lt2_anchor_share": 0.007407407407407408,
+      "gripper_split": {
+        "q10": 0.0,
+        "median": 0.0,
+        "q90": 0.4852949257488272
+      },
+      "progress_sd": {
+        "q10": 0.0118452521213462,
+        "median": 0.03185118420393791,
+        "q90": 0.14307618719493392
+      },
+      "command_mode_span_controls": {
+        "q10": 4.0,
+        "median": 46.0,
+        "q90": 73.0
+      },
+      "command_switches_per_successful_episode": {
+        "q10": 1.0,
+        "median": 1.0,
+        "q90": 2.0
+      },
+      "same_observation_tail_head_dispersion_ratio": 1.0489611855977559,
+      "added_feature_compute_ms": {
+        "q10": 0.3147220239043236,
+        "median": 0.35822903737425804,
+        "q90": 0.41256125550717115
+      },
+      "within_episode_spearman_median": {
+        "raw_dispersion": 0.8617730095990965,
+        "dispersion_sigma": 0.7592320722755506,
+        "progress_sd": 0.42507492507492506,
+        "gripper_split": 0.3760128610035133,
+        "ep_eff": -0.005407635842418455
+      },
+      "within_episode_spearman_n": {
+        "raw_dispersion": 10,
+        "dispersion_sigma": 10,
+        "progress_sd": 10,
+        "gripper_split": 10,
+        "ep_eff": 10
+      },
+      "future": {
+        "10": {
+          "library_successful_rows_with_successors": 0.9528876850149947,
+          "library_successful_rows_with_stable_command": 0.8422172777401568,
+          "Bval_mean_successor_mass": 0.9293147504820324,
+          "Bval_mean_stable_command_mass": 0.8112572974715443,
+          "Bval_all_successors_anchor_share": 0.837037037037037,
+          "Bval_all_stable_same_mode_anchor_count": 82,
+          "Bval_all_stable_same_mode_anchor_share": 0.6074074074074074
+        },
+        "15": {
+          "library_successful_rows_with_successors": 0.9057753700299893,
+          "library_successful_rows_with_stable_command": 0.7436393537776917,
+          "Bval_mean_successor_mass": 0.880749834064535,
+          "Bval_mean_stable_command_mass": 0.7130494731157361,
+          "Bval_all_successors_anchor_share": 0.7703703703703704,
+          "Bval_all_stable_same_mode_anchor_count": 65,
+          "Bval_all_stable_same_mode_anchor_share": 0.48148148148148145
+        },
+        "20": {
+          "library_successful_rows_with_successors": 0.8586630550449841,
+          "library_successful_rows_with_stable_command": 0.6464157879462127,
+          "Bval_mean_successor_mass": 0.8268362396517246,
+          "Bval_mean_stable_command_mass": 0.623513752648287,
+          "Bval_all_successors_anchor_share": 0.725925925925926,
+          "Bval_all_stable_same_mode_anchor_count": 54,
+          "Bval_all_stable_same_mode_anchor_share": 0.4
+        }
+      }
+    },
+    "groot_l10_50": {
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/current",
+      "manifest_sha256": "9f9e034c3a26b90b14a56553db5c1d6ddc0741164ed7acaef18a99b364e767d8",
+      "source": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/tables/groot_l10_50/anchors.csv",
+      "source_bytes": 26470192,
+      "source_sha256": "cf62f52c9dc4a7efbf9b59b7384796a4bfefd6776e5a3ca416334e44fb1b133b",
+      "H": 16,
+      "R": 5,
+      "D": 7,
+      "library_rows": 2645,
+      "library_episodes": 50,
+      "library_successful_episodes": 50,
+      "recording_episodes": 10,
+      "recording_successes": 6,
+      "anchors": 365,
+      "distinct_episodes": {
+        "q10": 4.0,
+        "median": 5.0,
+        "q90": 5.0
+      },
+      "effective_episodes": {
+        "q10": 1.9523099071142567,
+        "median": 3.0184360255991556,
+        "q90": 4.088490326759121
+      },
+      "majority_one_episode_anchor_share": 0.3178082191780822,
+      "low_eff_lt2_anchor_share": 0.10684931506849316,
+      "gripper_split": {
+        "q10": 0.0,
+        "median": 0.0054579487989791856,
+        "q90": 0.8513648861609133
+      },
+      "progress_sd": {
+        "q10": 0.018660392655989483,
+        "median": 0.05795489653758956,
+        "q90": 0.2120503491873064
+      },
+      "command_mode_span_controls": {
+        "q10": 1.0,
+        "median": 54.0,
+        "q90": 94.0
+      },
+      "command_switches_per_successful_episode": {
+        "q10": 2.0,
+        "median": 4.0,
+        "q90": 8.0
+      },
+      "same_observation_tail_head_dispersion_ratio": 1.1774362663763407,
+      "added_feature_compute_ms": {
+        "q10": 0.3171055344864726,
+        "median": 0.3588879480957985,
+        "q90": 0.4157939925789833
+      },
+      "within_episode_spearman_median": {
+        "raw_dispersion": 0.6549265951439864,
+        "dispersion_sigma": 0.4993484522370555,
+        "progress_sd": 0.3058924082453494,
+        "gripper_split": 0.577219886986916,
+        "ep_eff": -0.20419740442623738
+      },
+      "within_episode_spearman_n": {
+        "raw_dispersion": 10,
+        "dispersion_sigma": 10,
+        "progress_sd": 10,
+        "gripper_split": 10,
+        "ep_eff": 10
+      },
+      "future": {
+        "10": {
+          "library_successful_rows_with_successors": 0.9810964083175804,
+          "library_successful_rows_with_stable_command": 0.8665406427221172,
+          "Bval_mean_successor_mass": 0.9666986259612249,
+          "Bval_mean_stable_command_mass": 0.7999346240078092,
+          "Bval_all_successors_anchor_share": 0.873972602739726,
+          "Bval_all_stable_same_mode_anchor_count": 122,
+          "Bval_all_stable_same_mode_anchor_share": 0.33424657534246577
+        },
+        "15": {
+          "library_successful_rows_with_successors": 0.9621928166351607,
+          "library_successful_rows_with_stable_command": 0.7920604914933838,
+          "Bval_mean_successor_mass": 0.9448115280234726,
+          "Bval_mean_stable_command_mass": 0.7058352131475286,
+          "Bval_all_successors_anchor_share": 0.8547945205479452,
+          "Bval_all_stable_same_mode_anchor_count": 103,
+          "Bval_all_stable_same_mode_anchor_share": 0.2821917808219178
+        },
+        "20": {
+          "library_successful_rows_with_successors": 0.943289224952741,
+          "library_successful_rows_with_stable_command": 0.7217391304347827,
+          "Bval_mean_successor_mass": 0.9306851497793612,
+          "Bval_mean_stable_command_mass": 0.6436570668103111,
+          "Bval_all_successors_anchor_share": 0.8383561643835616,
+          "Bval_all_stable_same_mode_anchor_count": 89,
+          "Bval_all_stable_same_mode_anchor_share": 0.24383561643835616
+        }
+      }
+    },
+    "groot_l10_500": {
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all",
+      "manifest_sha256": "4983a37d0155f95900c83c12bee3d217d9c4b99da7245ebac3999c74faff63ba",
+      "source": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/tables/groot_l10_500/anchors.csv",
+      "source_bytes": 20812655,
+      "source_sha256": "03fe6cfc5c8c204e9ec991e023844e6a727efadb678817c6325d3086a48c25be",
+      "H": 16,
+      "R": 5,
+      "D": 7,
+      "library_rows": 29631,
+      "library_episodes": 500,
+      "library_successful_episodes": 427,
+      "recording_episodes": 10,
+      "recording_successes": 9,
+      "anchors": 290,
+      "distinct_episodes": {
+        "q10": 6.0,
+        "median": 11.0,
+        "q90": 15.0
+      },
+      "effective_episodes": {
+        "q10": 2.9427608085529267,
+        "median": 7.5052619345288285,
+        "q90": 10.728160728140447
+      },
+      "majority_one_episode_anchor_share": 0.10344827586206896,
+      "low_eff_lt2_anchor_share": 0.06206896551724138,
+      "gripper_split": {
+        "q10": 0.0,
+        "median": 0.0,
+        "q90": 0.8073833182981459
+      },
+      "progress_sd": {
+        "q10": 0.01573756303040942,
+        "median": 0.04484396579809666,
+        "q90": 0.12266020257737073
+      },
+      "command_mode_span_controls": {
+        "q10": 1.0,
+        "median": 53.0,
+        "q90": 90.0
+      },
+      "command_switches_per_successful_episode": {
+        "q10": 1.0,
+        "median": 4.0,
+        "q90": 8.0
+      },
+      "same_observation_tail_head_dispersion_ratio": 1.044110345988009,
+      "added_feature_compute_ms": {
+        "q10": 0.33593111438676715,
+        "median": 0.3811469650827348,
+        "q90": 0.4342249012552202
+      },
+      "within_episode_spearman_median": {
+        "raw_dispersion": 0.7556119643196804,
+        "dispersion_sigma": 0.4808695652173912,
+        "progress_sd": 0.11450023406545146,
+        "gripper_split": 0.5308241859044259,
+        "ep_eff": -0.2628834933182759
+      },
+      "within_episode_spearman_n": {
+        "raw_dispersion": 10,
+        "dispersion_sigma": 10,
+        "progress_sd": 10,
+        "gripper_split": 10,
+        "ep_eff": 10
+      },
+      "future": {
+        "10": {
+          "library_successful_rows_with_successors": 0.9806252552293662,
+          "library_successful_rows_with_stable_command": 0.864467534824629,
+          "Bval_mean_successor_mass": 0.9888871229843212,
+          "Bval_mean_stable_command_mass": 0.8605699815976857,
+          "Bval_all_successors_anchor_share": 0.9586206896551724,
+          "Bval_all_stable_same_mode_anchor_count": 165,
+          "Bval_all_stable_same_mode_anchor_share": 0.5689655172413793
+        },
+        "15": {
+          "library_successful_rows_with_successors": 0.9612505104587322,
+          "library_successful_rows_with_stable_command": 0.7883751531376196,
+          "Bval_mean_successor_mass": 0.9753546782796841,
+          "Bval_mean_stable_command_mass": 0.780930728906071,
+          "Bval_all_successors_anchor_share": 0.9448275862068966,
+          "Bval_all_stable_same_mode_anchor_count": 136,
+          "Bval_all_stable_same_mode_anchor_share": 0.4689655172413793
+        },
+        "20": {
+          "library_successful_rows_with_successors": 0.9418757656880984,
+          "library_successful_rows_with_stable_command": 0.7170016788420527,
+          "Bval_mean_successor_mass": 0.9599373733030258,
+          "Bval_mean_stable_command_mass": 0.702004540349499,
+          "Bval_all_successors_anchor_share": 0.9206896551724137,
+          "Bval_all_stable_same_mode_anchor_count": 121,
+          "Bval_all_stable_same_mode_anchor_share": 0.41724137931034483
+        }
+      }
+    },
+    "groot_spatial_50": {
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/current",
+      "manifest_sha256": "58abc19724b4f222276ba7efd4f09325652800f4472b2096a5f1e7cd9e51476c",
+      "source": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/tables/groot_spatial_50/anchors.csv",
+      "source_bytes": 14774042,
+      "source_sha256": "b752a0566bfd6533e1892083ab6b3cb3b962b3541d3324ff766b3ab31ebdf1c5",
+      "H": 16,
+      "R": 5,
+      "D": 7,
+      "library_rows": 1063,
+      "library_episodes": 50,
+      "library_successful_episodes": 50,
+      "recording_episodes": 10,
+      "recording_successes": 8,
+      "anchors": 133,
+      "distinct_episodes": {
+        "q10": 5.0,
+        "median": 5.0,
+        "q90": 5.0
+      },
+      "effective_episodes": {
+        "q10": 3.3327408463102057,
+        "median": 4.091041852195542,
+        "q90": 4.641586798920443
+      },
+      "majority_one_episode_anchor_share": 0.03007518796992481,
+      "low_eff_lt2_anchor_share": 0.007518796992481203,
+      "gripper_split": {
+        "q10": 0.0,
+        "median": 4.440892098500625e-16,
+        "q90": 0.3956949054974107
+      },
+      "progress_sd": {
+        "q10": 0.021132016026046432,
+        "median": 0.036096832046402634,
+        "q90": 0.1820368417672193
+      },
+      "command_mode_span_controls": {
+        "q10": 1.0,
+        "median": 47.0,
+        "q90": 71.5
+      },
+      "command_switches_per_successful_episode": {
+        "q10": 1.0,
+        "median": 1.0,
+        "q90": 2.1000000000000014
+      },
+      "same_observation_tail_head_dispersion_ratio": 1.124844625403931,
+      "added_feature_compute_ms": {
+        "q10": 0.32072861213237047,
+        "median": 0.35848806146532297,
+        "q90": 0.41616938542574644
+      },
+      "within_episode_spearman_median": {
+        "raw_dispersion": 0.7184731934731935,
+        "dispersion_sigma": 0.5163836163836164,
+        "progress_sd": 0.0446969696969697,
+        "gripper_split": 0.5788006881734161,
+        "ep_eff": 0.025757575757575757
+      },
+      "within_episode_spearman_n": {
+        "raw_dispersion": 10,
+        "dispersion_sigma": 10,
+        "progress_sd": 10,
+        "gripper_split": 10,
+        "ep_eff": 10
+      },
+      "future": {
+        "10": {
+          "library_successful_rows_with_successors": 0.9529633113828786,
+          "library_successful_rows_with_stable_command": 0.8419567262464722,
+          "Bval_mean_successor_mass": 0.9005569349587781,
+          "Bval_mean_stable_command_mass": 0.7887212416260084,
+          "Bval_all_successors_anchor_share": 0.6842105263157895,
+          "Bval_all_stable_same_mode_anchor_count": 61,
+          "Bval_all_stable_same_mode_anchor_share": 0.45864661654135336
+        },
+        "15": {
+          "library_successful_rows_with_successors": 0.9059266227657573,
+          "library_successful_rows_with_stable_command": 0.7469426152398871,
+          "Bval_mean_successor_mass": 0.8532167419362835,
+          "Bval_mean_stable_command_mass": 0.7012427344527675,
+          "Bval_all_successors_anchor_share": 0.6541353383458647,
+          "Bval_all_stable_same_mode_anchor_count": 54,
+          "Bval_all_stable_same_mode_anchor_share": 0.40601503759398494
+        },
+        "20": {
+          "library_successful_rows_with_successors": 0.8588899341486359,
+          "library_successful_rows_with_stable_command": 0.6528692380056444,
+          "Bval_mean_successor_mass": 0.8178300438787847,
+          "Bval_mean_stable_command_mass": 0.6333421837859664,
+          "Bval_all_successors_anchor_share": 0.6165413533834586,
+          "Bval_all_stable_same_mode_anchor_count": 45,
+          "Bval_all_stable_same_mode_anchor_share": 0.3383458646616541
+        }
+      }
+    },
+    "groot_spatial_500": {
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all",
+      "manifest_sha256": "fdb3bf41327d3bb75ffd62a4ba4fe7687816a9aeca9a2f6547ec0b0d2ebea321",
+      "source": "/home/weiland/trace_runs/os_closed_loop/r06_c_cal/tables/groot_spatial_500/anchors.csv",
+      "source_bytes": 13440991,
+      "source_sha256": "5b26ee93fa2de832a0c6b9bfdeba9cd615603b0c070ba2449feba92d5a1026b4",
+      "H": 16,
+      "R": 5,
+      "D": 7,
+      "library_rows": 11751,
+      "library_episodes": 500,
+      "library_successful_episodes": 456,
+      "recording_episodes": 10,
+      "recording_successes": 9,
+      "anchors": 122,
+      "distinct_episodes": {
+        "q10": 7.200000000000003,
+        "median": 15.0,
+        "q90": 16.0
+      },
+      "effective_episodes": {
+        "q10": 5.133706762901164,
+        "median": 10.56183703636226,
+        "q90": 12.318068169692411
+      },
+      "majority_one_episode_anchor_share": 0.02459016393442623,
+      "low_eff_lt2_anchor_share": 0.0,
+      "gripper_split": {
+        "q10": 0.0,
+        "median": 0.0,
+        "q90": 0.6395342375231792
+      },
+      "progress_sd": {
+        "q10": 0.015488669415684442,
+        "median": 0.03249238270476311,
+        "q90": 0.12691066084350255
+      },
+      "command_mode_span_controls": {
+        "q10": 2.0,
+        "median": 47.0,
+        "q90": 73.0
+      },
+      "command_switches_per_successful_episode": {
+        "q10": 1.0,
+        "median": 1.0,
+        "q90": 2.0
+      },
+      "same_observation_tail_head_dispersion_ratio": 1.1034053197537008,
+      "added_feature_compute_ms": {
+        "q10": 0.32001581275835633,
+        "median": 0.36355952033773065,
+        "q90": 0.42781843803822994
+      },
+      "within_episode_spearman_median": {
+        "raw_dispersion": 0.8725578769057032,
+        "dispersion_sigma": 0.6710789210789212,
+        "progress_sd": 0.34189723320158105,
+        "gripper_split": 0.36901453106443216,
+        "ep_eff": -0.09440559440559441
+      },
+      "within_episode_spearman_n": {
+        "raw_dispersion": 10,
+        "dispersion_sigma": 10,
+        "progress_sd": 10,
+        "gripper_split": 10,
+        "ep_eff": 10
+      },
+      "future": {
+        "10": {
+          "library_successful_rows_with_successors": 0.9535404992358635,
+          "library_successful_rows_with_stable_command": 0.8480896586856852,
+          "Bval_mean_successor_mass": 0.9697958939662242,
+          "Bval_mean_stable_command_mass": 0.8187425024480525,
+          "Bval_all_successors_anchor_share": 0.9016393442622951,
+          "Bval_all_stable_same_mode_anchor_count": 79,
+          "Bval_all_stable_same_mode_anchor_share": 0.6475409836065574
+        },
+        "15": {
+          "library_successful_rows_with_successors": 0.907080998471727,
+          "library_successful_rows_with_stable_command": 0.7531329597554763,
+          "Bval_mean_successor_mass": 0.9289964712645243,
+          "Bval_mean_stable_command_mass": 0.726705268377862,
+          "Bval_all_successors_anchor_share": 0.8360655737704918,
+          "Bval_all_stable_same_mode_anchor_count": 70,
+          "Bval_all_stable_same_mode_anchor_share": 0.5737704918032787
+        },
+        "20": {
+          "library_successful_rows_with_successors": 0.8606214977075904,
+          "library_successful_rows_with_stable_command": 0.658889454915945,
+          "Bval_mean_successor_mass": 0.8904810943933342,
+          "Bval_mean_stable_command_mass": 0.6382855332320049,
+          "Bval_all_successors_anchor_share": 0.7868852459016393,
+          "Bval_all_stable_same_mode_anchor_count": 57,
+          "Bval_all_stable_same_mode_anchor_share": 0.4672131147540984
+        }
+      }
+    }
+  }
+}

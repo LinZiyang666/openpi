@@ -8,6 +8,7 @@ uniform lottery like an ok anchor; its extra LOOK is scheduled only when that
 lottery does not call. The rule lives in stall_bridge and is shared with budget.
 """
 from __future__ import annotations
+import copy
 import json
 from pathlib import Path
 from types import SimpleNamespace
@@ -20,6 +21,17 @@ from exp.offline_search.rounds.r06.ideation_Q2.frontier.adapters.methods import 
 from .common import SCHEMA, CONTROLLER_VERSION, load_base, read_bank, sha
 from .stall_bridge import (load_stall, extra_look, STATE, verify_stall, AMBIGUOUS_RULE,
                            call_probability, starts_cooldown, scheduled_look)
+
+
+class _MetricCodeMatrix:
+    """Capture A's already computed code without changing its matrix multiply."""
+    def __init__(self, matrix):
+        self.matrix = matrix
+        self.code = None
+
+    def __matmul__(self, code):
+        self.code = code
+        return self.matrix @ code
 
 
 class CalibratedRescue(api.Method):
@@ -123,16 +135,65 @@ class CalibratedRescue(api.Method):
     def invalidate_anchor(self):
         self.base.invalidate_anchor()
 
+    def _metric_distance(self, original, task, name, capture, query):
+        facade = copy.copy(self.base)
+        facade.tasks = dict(self.base.tasks)
+        table = copy.copy(task)
+        setattr(table, name, capture)
+        facade.tasks[int(query.task_id)] = table
+        return original.__func__(facade, query)
+
+    def _query_with_metric_code(self, q):
+        """Run the original A query once and retain its early/main query code.
+
+        A._dist keeps the code local. A query-local shallow facade substitutes
+        only the matrix consuming that code; its multiplication still executes
+        on the original ndarray. Fitted arrays/tasks are never mutated. The
+        temporary _dist hook belongs to this episode's stateful base and is
+        restored even on failure; no hook is retained in a fitted artifact.
+        """
+        base = self.base
+        original = base._dist
+        task = base.tasks[int(q.task_id)]
+        early = int(q.step) == 0 and base.early
+        name = ('Z0' if task.Z0 is not None else 'A0') if early else 'Z'
+        capture = _MetricCodeMatrix(getattr(task, name))
+
+        def distance(query):
+            return self._metric_distance(original, task, name, capture, query)
+
+        previous = base.__dict__.get('_dist')
+        had_override = '_dist' in base.__dict__
+        base._dist = distance
+        try:
+            result = base.query(q)
+        finally:
+            if had_override:
+                base._dist = previous
+            else:
+                del base._dist
+        return result, dict(metric_code=capture.code, metric='early' if early else 'main')
+
     def query(self, q):
         identity = (str(q.episode.uid), int(q.task_id), int(q.episode.init))
         if self._episode_identity != identity:
             self.reset(q.episode)
         control_index = int(q.step) * self.block_controls
-        self.tracker.observe(q, control_index)  # before retrieval/assignment, every fresh observation
+        if self.stall_model is None:
+            self.tracker.observe(q, control_index)
+            result = self.base.query(q)
+        else:
+            try:
+                result, key = self._query_with_metric_code(q)
+            except Exception:
+                # Preserve invalid-observation window clearing on a failed A
+                # query. Successful queries never repeat the raw projection.
+                self.tracker.observe(q, control_index)
+                raise
+            self.tracker.observe(key, control_index)  # includes fresh extra LOOKs
         status = self.tracker.status()
         if status['state'] not in STATE:
             raise api.ContractError('unknown stall state')
-        result = self.base.query(q)  # preserve A arithmetic, tie rule, gripper and actual history
         anchor = self.base._anchor
         R = float(np.asarray(anchor['weights'], float) @ self.r_bank[anchor['rows']])
         estimate = self.a + self.b*R

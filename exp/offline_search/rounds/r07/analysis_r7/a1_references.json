@@ -1,0 +1,5753 @@
+[
+  {
+    "id": "r05_ptail/r5t_p_l10_50_tail1uc",
+    "arm": "r5t_p_l10_50_tail1uc",
+    "cell": "pi05_l10_50",
+    "variant": "A",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r05_ptail/runs/r5t_p_l10_50_tail1uc/summary.json",
+        "bytes": 3182,
+        "mtime_ns": 1790571935900745349,
+        "sha256": "26045bda4624bdf5b49031d437b337c17f01c56bc61c64ccde3bbdfd9884f276"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r05_ptail/runs/r5t_p_l10_50_tail1uc/client/journal.jsonl",
+        "bytes": 120145,
+        "mtime_ns": 1790571930657742435,
+        "sha256": "7e04d3965678da95e6f5c0b398af52b8689f0eec90c5d73a8ebcb41ef6e14a80"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 353,
+        "step_cap": 147
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r05_ptail/runs/r5t_p_l10_50_tail1uc/client/per_step.jsonl",
+          "bytes": 27651312,
+          "mtime_ns": 1790571930635742423
+        }
+      ]
+    },
+    "SR": 0.706,
+    "n": 500,
+    "success": 353,
+    "N": 33461,
+    "V": 16818,
+    "M": 0,
+    "L": 5.0,
+    "owner_IR": 0.07639747766056006,
+    "owner_IR_full_camera_counterfactual": 0.07639747766056006,
+    "stock_ledger_IR": 0.07135091608563032,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "client_decisions": 33461,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_paper/r5t_p_l10_50_tail1uc_rep2",
+    "arm": "r5t_p_l10_50_tail1uc_rep2",
+    "cell": "pi05_l10_50",
+    "variant": "A",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5t_p_l10_50_tail1uc_rep2/summary.json",
+        "bytes": 3204,
+        "mtime_ns": 1790620817613312670,
+        "sha256": "72f3ad1cddf513be520e6d5d2fe4ff3c6c64f5d998e1dceb44b62c10927a78af"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5t_p_l10_50_tail1uc_rep2/client/journal.jsonl",
+        "bytes": 125176,
+        "mtime_ns": 1790620811574297110,
+        "sha256": "02f1bb956a69a62b1ef45194b4f9c13240f4adf5c52db6efac99257275a13e59"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 355,
+        "step_cap": 145
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5t_p_l10_50_tail1uc_rep2/client/per_step.jsonl",
+          "bytes": 28105788,
+          "mtime_ns": 1790620811549297046
+        }
+      ]
+    },
+    "SR": 0.71,
+    "n": 500,
+    "success": 355,
+    "N": 33399,
+    "V": 16787,
+    "M": 0,
+    "L": 5.0,
+    "owner_IR": 0.07639821551543459,
+    "owner_IR_full_camera_counterfactual": 0.07639821551543459,
+    "stock_ledger_IR": 0.07135160520028239,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "client_decisions": 33399,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_paper/r5t_p_l10_50_tail1uc_rep3",
+    "arm": "r5t_p_l10_50_tail1uc_rep3",
+    "cell": "pi05_l10_50",
+    "variant": "A",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5t_p_l10_50_tail1uc_rep3/summary.json",
+        "bytes": 3192,
+        "mtime_ns": 1790629880105759745,
+        "sha256": "d8d551d3969856b575eb7dcd9107ab4fe480343e51c947dd4d263e7c97355fdc"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5t_p_l10_50_tail1uc_rep3/client/journal.jsonl",
+        "bytes": 125153,
+        "mtime_ns": 1790629874652756610,
+        "sha256": "adc07a1fe39a62934b1cfa5d61c57757edef34459b3ae65b54e395e2d6f72a49"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 363,
+        "step_cap": 137
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5t_p_l10_50_tail1uc_rep3/client/per_step.jsonl",
+          "bytes": 27752493,
+          "mtime_ns": 1790629874631756598
+        }
+      ]
+    },
+    "SR": 0.726,
+    "n": 500,
+    "success": 363,
+    "N": 32976,
+    "V": 16573,
+    "M": 0,
+    "L": 5.0,
+    "owner_IR": 0.07639180009704026,
+    "owner_IR_full_camera_counterfactual": 0.07639180009704026,
+    "stock_ledger_IR": 0.07134561356294665,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "client_decisions": 32976,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r05_q1/r5q1_c10_p_l10_50",
+    "arm": "r5q1_c10_p_l10_50",
+    "cell": "pi05_l10_50",
+    "variant": "B",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r05_q1/runs/r5q1_c10_p_l10_50/summary.json",
+        "bytes": 4412,
+        "mtime_ns": 1790576120930323392,
+        "sha256": "f1196183dc7f432828cdb48c2806c975e2ac104144484c830849ad86a6ae22ca"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r05_q1/runs/r5q1_c10_p_l10_50/client/journal.jsonl",
+        "bytes": 117023,
+        "mtime_ns": 1790576115898320339,
+        "sha256": "e0f5c9d6cb86815841a22eebcb3703fbf565dc4b4a9a21fccd06ded2afa9451c"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "step_cap": 85,
+        "success": 415
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r05_q1/runs/r5q1_c10_p_l10_50/client/per_step.jsonl",
+          "bytes": 26581880,
+          "mtime_ns": 1790576115879320327
+        }
+      ]
+    },
+    "SR": 0.83,
+    "n": 500,
+    "success": 415,
+    "N": 30480,
+    "V": 15337,
+    "M": 3747,
+    "L": 5.0,
+    "owner_IR": 0.18073097112860892,
+    "owner_IR_full_camera_counterfactual": 0.18073097112860892,
+    "stock_ledger_IR": 0.17691303536020375,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "client_decisions": 30480,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_paper/r5q1_c10_p_l10_50_rep2",
+    "arm": "r5q1_c10_p_l10_50_rep2",
+    "cell": "pi05_l10_50",
+    "variant": "B",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5q1_c10_p_l10_50_rep2/summary.json",
+        "bytes": 4495,
+        "mtime_ns": 1790688126148917635,
+        "sha256": "45f2f68df2b4cd7214d7ff1ea87bdca12f7ab04bcd6a5a61504d48fc61f0417e"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5q1_c10_p_l10_50_rep2/client/journal.jsonl",
+        "bytes": 122306,
+        "mtime_ns": 1790688120617917410,
+        "sha256": "38c53dfede625aa4620db5a2f6eaff2a7d605a888c95689e14319ed607cc5afe"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 409,
+        "step_cap": 91
+      },
+      "exception_attempts_all": 13,
+      "purged_records": 13,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5q1_c10_p_l10_50_rep2/client/per_step.jsonl",
+          "bytes": 27248663,
+          "mtime_ns": 1790688120525917406
+        },
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5q1_c10_p_l10_50_rep2/client/purged_exceptions.jsonl",
+          "bytes": 3209,
+          "mtime_ns": 1790688120606917410
+        }
+      ]
+    },
+    "SR": 0.818,
+    "n": 500,
+    "success": 409,
+    "N": 30623,
+    "V": 15421,
+    "M": 3743,
+    "L": 5.0,
+    "owner_IR": 0.18019318812657154,
+    "owner_IR_full_camera_counterfactual": 0.18019318812657154,
+    "stock_ledger_IR": 0.17636422767218954,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "client_decisions": 30711,
+    "ledger_minus_client_decisions": -88,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": {
+      "ledger_decisions": 30623,
+      "client_decisions": 30711,
+      "rel_diff": -0.0028654228126729834
+    }
+  },
+  {
+    "id": "r06_paper/r5q1_c10_p_l10_50_rep3",
+    "arm": "r5q1_c10_p_l10_50_rep3",
+    "cell": "pi05_l10_50",
+    "variant": "B",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5q1_c10_p_l10_50_rep3/summary.json",
+        "bytes": 4450,
+        "mtime_ns": 1790688430038923722,
+        "sha256": "dbed068b96049e3e70cb6b41bb38571d9451f5c6d8378b15ef6b2d1bb71262b4"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5q1_c10_p_l10_50_rep3/client/journal.jsonl",
+        "bytes": 122083,
+        "mtime_ns": 1790688424637924086,
+        "sha256": "0a023cce28668ca28e579b00cff67acddc357eb6698cc0bbbdd6dd9f4427d66c"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 417,
+        "step_cap": 83
+      },
+      "exception_attempts_all": 5,
+      "purged_records": 5,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5q1_c10_p_l10_50_rep3/client/per_step.jsonl",
+          "bytes": 27259600,
+          "mtime_ns": 1790688424542924093
+        },
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5q1_c10_p_l10_50_rep3/client/purged_exceptions.jsonl",
+          "bytes": 1236,
+          "mtime_ns": 1790688424637924086
+        }
+      ]
+    },
+    "SR": 0.834,
+    "n": 500,
+    "success": 417,
+    "N": 30728,
+    "V": 15463,
+    "M": 3795,
+    "L": 5.0,
+    "owner_IR": 0.18122025514189014,
+    "owner_IR_full_camera_counterfactual": 0.18122025514189014,
+    "stock_ledger_IR": 0.17740764612457988,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "client_decisions": 30728,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r04_cost/r4f_p_l10_inf_k10_L10",
+    "arm": "r4f_p_l10_inf_k10_L10",
+    "cell": "pi05_l10_50",
+    "variant": "L10",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r04_cost/runs/r4f_p_l10_inf_k10_L10/summary.json",
+        "bytes": 3842,
+        "mtime_ns": 1790554152162823897,
+        "sha256": "5a6794ec164507ce1a24757b456ba9a35a64e963ada062a24a5dabe211e95f7b"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r04_cost/runs/r4f_p_l10_inf_k10_L10/client/journal.jsonl",
+        "bytes": 121120,
+        "mtime_ns": 1790554150910823142,
+        "sha256": "fd7383ea30ef88c7c57e3285d869a92a14cde9710327b73476d41184013fa5e3"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 452,
+        "step_cap": 48
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r04_cost/runs/r4f_p_l10_inf_k10_L10/client/per_step.jsonl",
+          "bytes": 12907806,
+          "mtime_ns": 1790554150899823136
+        }
+      ]
+    },
+    "SR": 0.904,
+    "n": 500,
+    "success": 452,
+    "N": 14073,
+    "V": 14073,
+    "M": 14073,
+    "L": 10.0,
+    "owner_IR": 0.5,
+    "owner_IR_full_camera_counterfactual": 0.5,
+    "stock_ledger_IR": 0.5,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "client_decisions": 14073,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r04_cost/r4f_p_l10_inf_s1001",
+    "arm": "r4f_p_l10_inf_s1001",
+    "cell": "pi05_l10_50",
+    "variant": "L5",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r04_cost/runs/r4f_p_l10_inf_s1001/summary.json",
+        "bytes": 3842,
+        "mtime_ns": 1790547038390085836,
+        "sha256": "a6ed4b438afeba0406fe49d9901e716224d7af82e46d1b0d2bca550a9e95de22"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r04_cost/runs/r4f_p_l10_inf_s1001/client/journal.jsonl",
+        "bytes": 119426,
+        "mtime_ns": 1790547035271077423,
+        "sha256": "0ea83e7d5b5e03537cfe9e327d6bd0443e2492c70e810b0da102909d926388fb"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 424,
+        "step_cap": 76
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r04_cost/runs/r4f_p_l10_inf_s1001/client/per_step.jsonl",
+          "bytes": 26864015,
+          "mtime_ns": 1790547035249077363
+        }
+      ]
+    },
+    "SR": 0.848,
+    "n": 500,
+    "success": 424,
+    "N": 29714,
+    "V": 29714,
+    "M": 29714,
+    "L": 5.0,
+    "owner_IR": 1.0,
+    "owner_IR_full_camera_counterfactual": 1.0,
+    "stock_ledger_IR": 1.0,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "client_decisions": 29714,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r04_cost/r4f_p_l10_inf_s2001",
+    "arm": "r4f_p_l10_inf_s2001",
+    "cell": "pi05_l10_50",
+    "variant": "L5",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r04_cost/runs/r4f_p_l10_inf_s2001/summary.json",
+        "bytes": 3822,
+        "mtime_ns": 1790566376634326087,
+        "sha256": "f640f250e94b7d20c372f70cd033da7a1f6ec290b1f6f23f2fedfb9aff5d65e4"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r04_cost/runs/r4f_p_l10_inf_s2001/client/journal.jsonl",
+        "bytes": 119458,
+        "mtime_ns": 1790566373542324168,
+        "sha256": "12074ac5052923c319b069fb38c232a988962a4ca6b308cb96fce7cdcdc4c074"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "step_cap": 70,
+        "success": 430
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r04_cost/runs/r4f_p_l10_inf_s2001/client/per_step.jsonl",
+          "bytes": 26725384,
+          "mtime_ns": 1790566373521324155
+        }
+      ]
+    },
+    "SR": 0.86,
+    "n": 500,
+    "success": 430,
+    "N": 29560,
+    "V": 29560,
+    "M": 29560,
+    "L": 5.0,
+    "owner_IR": 1.0,
+    "owner_IR_full_camera_counterfactual": 1.0,
+    "stock_ledger_IR": 1.0,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "client_decisions": 29560,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_c_validation/r6c_pi05_l10_50_U30",
+    "arm": "r6c_pi05_l10_50_U30",
+    "cell": "pi05_l10_50",
+    "variant": "R6_U30",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_l10_50_U30/summary.json",
+        "bytes": 5041,
+        "mtime_ns": 1790695351064208502,
+        "sha256": "5306b093709c15f98bb039b5b251dd4c6032609db2e093aaa123c0fa78fe8b81"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_l10_50_U30/client/journal.jsonl",
+        "bytes": 118947,
+        "mtime_ns": 1790695346157207169,
+        "sha256": "691a9d3b30e2ac4e3fc91d518d02d2c8339e4f04910fd24f0998071ee537d471"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 439,
+        "step_cap": 61
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_l10_50_U30/client/per_step.jsonl",
+          "bytes": 25545354,
+          "mtime_ns": 1790695346137207163
+        }
+      ]
+    },
+    "SR": 0.878,
+    "n": 500,
+    "success": 439,
+    "N": 28646,
+    "V": 14421,
+    "M": 7590,
+    "L": 5.0,
+    "owner_IR": 0.3012047755358514,
+    "owner_IR_full_camera_counterfactual": 0.3012047755358514,
+    "stock_ledger_IR": 0.2988104651898402,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "client_decisions": 28646,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_c_validation/r6c_pi05_l10_50_R30",
+    "arm": "r6c_pi05_l10_50_R30",
+    "cell": "pi05_l10_50",
+    "variant": "R6_R30",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_l10_50_R30/summary.json",
+        "bytes": 4824,
+        "mtime_ns": 1790693977745776376,
+        "sha256": "ae1f348748c173cd96540a04b7fccea64aa16567cb352ee5c30cfe9902808c2e"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_l10_50_R30/client/journal.jsonl",
+        "bytes": 118938,
+        "mtime_ns": 1790693972413776629,
+        "sha256": "aca235e0c24cce197ca9542d91997b6b8b125fbbb95d97057819f7cb9d24afaa"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 433,
+        "step_cap": 67
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_l10_50_R30/client/per_step.jsonl",
+          "bytes": 25858197,
+          "mtime_ns": 1790693972393776630
+        }
+      ]
+    },
+    "SR": 0.866,
+    "n": 500,
+    "success": 433,
+    "N": 28997,
+    "V": 14598,
+    "M": 7477,
+    "L": 5.0,
+    "owner_IR": 0.29518198434320797,
+    "owner_IR_full_camera_counterfactual": 0.29518198434320797,
+    "stock_ledger_IR": 0.292716239908262,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "client_decisions": 28997,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_c_validation/r6c_pi05_l10_50_C30",
+    "arm": "r6c_pi05_l10_50_C30",
+    "cell": "pi05_l10_50",
+    "variant": "R6_C30",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_l10_50_C30/summary.json",
+        "bytes": 4879,
+        "mtime_ns": 1790696805726394082,
+        "sha256": "22be9e367c2e218c9def15f4d12ca275cc5a41f1b8665e0a5a983ee64b92906b"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_l10_50_C30/client/journal.jsonl",
+        "bytes": 118925,
+        "mtime_ns": 1790696800307394080,
+        "sha256": "4b4041df02ad668ec1291ba746f8ba7ab461ece21403d8a49fc1b824ae44d852"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "step_cap": 66,
+        "success": 434
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_l10_50_C30/client/per_step.jsonl",
+          "bytes": 25989960,
+          "mtime_ns": 1790696800287394080
+        }
+      ]
+    },
+    "SR": 0.868,
+    "n": 500,
+    "success": 434,
+    "N": 29111,
+    "V": 15093,
+    "M": 7613,
+    "L": 5.0,
+    "owner_IR": 0.3005722922606575,
+    "owner_IR_full_camera_counterfactual": 0.3005722922606575,
+    "stock_ledger_IR": 0.297992381891664,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "client_decisions": 29111,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_c_validation/r6c_pi05_l10_50_C45",
+    "arm": "r6c_pi05_l10_50_C45",
+    "cell": "pi05_l10_50",
+    "variant": "R6_C45",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_l10_50_C45/summary.json",
+        "bytes": 4892,
+        "mtime_ns": 1790699083699668900,
+        "sha256": "be0c44ab7d672ec38917c4e48bcd5b70b583cfd1665316ecb30d2de4e2b1d96e"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_l10_50_C45/client/journal.jsonl",
+        "bytes": 118958,
+        "mtime_ns": 1790699078427667383,
+        "sha256": "8f23b834899ee8b289ebb45dc2f11b6e43e171c8b8de983befe6580cb1ecf6bf"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 447,
+        "step_cap": 53
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_l10_50_C45/client/per_step.jsonl",
+          "bytes": 25109074,
+          "mtime_ns": 1790699078407667377
+        }
+      ]
+    },
+    "SR": 0.894,
+    "n": 500,
+    "success": 447,
+    "N": 28163,
+    "V": 14331,
+    "M": 12633,
+    "L": 5.0,
+    "owner_IR": 0.4577316337037957,
+    "owner_IR_full_camera_counterfactual": 0.4577316337037957,
+    "stock_ledger_IR": 0.45712626646361915,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "client_decisions": 28163,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r05_ptail/r5t_p_l10_500_tail1uc",
+    "arm": "r5t_p_l10_500_tail1uc",
+    "cell": "pi05_l10_500",
+    "variant": "A",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r05_ptail/runs/r5t_p_l10_500_tail1uc/summary.json",
+        "bytes": 3176,
+        "mtime_ns": 1790571227470418456,
+        "sha256": "bef9ca167a7cff7d2ae9c59abb180e6fdd6a483a454de2c95289eb9bea3f1aef"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r05_ptail/runs/r5t_p_l10_500_tail1uc/client/journal.jsonl",
+        "bytes": 120977,
+        "mtime_ns": 1790571223284417301,
+        "sha256": "427f35c564925aa7a7a0104f47fc23b58d07e7429f765d6ad407275162e479ee"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 414,
+        "step_cap": 86
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r05_ptail/runs/r5t_p_l10_500_tail1uc/client/per_step.jsonl",
+          "bytes": 24626931,
+          "mtime_ns": 1790571223265417296
+        }
+      ]
+    },
+    "SR": 0.828,
+    "n": 500,
+    "success": 414,
+    "N": 29606,
+    "V": 14900,
+    "M": 0,
+    "L": 5.0,
+    "owner_IR": 0.07649800716071066,
+    "owner_IR_full_camera_counterfactual": 0.07649800716071066,
+    "stock_ledger_IR": 0.07144480494360082,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "client_decisions": 29606,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_paper/r5t_p_l10_500_tail1uc_rep2",
+    "arm": "r5t_p_l10_500_tail1uc_rep2",
+    "cell": "pi05_l10_500",
+    "variant": "A",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5t_p_l10_500_tail1uc_rep2/summary.json",
+        "bytes": 3212,
+        "mtime_ns": 1790621537108334775,
+        "sha256": "61d34591cc62b4214a87a28b8c66ae6e42f086e5d899f2e4004577af75dbcad0"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5t_p_l10_500_tail1uc_rep2/client/journal.jsonl",
+        "bytes": 125965,
+        "mtime_ns": 1790621532549331564,
+        "sha256": "e22b8232eb728b907287492f6c4ad89881f1696b25eb317a3244bf0f503ebe84"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 410,
+        "step_cap": 90
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5t_p_l10_500_tail1uc_rep2/client/per_step.jsonl",
+          "bytes": 25304411,
+          "mtime_ns": 1790621532528331549
+        }
+      ]
+    },
+    "SR": 0.82,
+    "n": 500,
+    "success": 410,
+    "N": 29872,
+    "V": 15036,
+    "M": 0,
+    "L": 5.0,
+    "owner_IR": 0.07650883770755222,
+    "owner_IR_full_camera_counterfactual": 0.07650883770755222,
+    "stock_ledger_IR": 0.07145492006078162,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "client_decisions": 29872,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_paper/r5t_p_l10_500_tail1uc_rep3",
+    "arm": "r5t_p_l10_500_tail1uc_rep3",
+    "cell": "pi05_l10_500",
+    "variant": "A",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5t_p_l10_500_tail1uc_rep3/summary.json",
+        "bytes": 3238,
+        "mtime_ns": 1790630465317053080,
+        "sha256": "85907b7ae99dc653acddaf1282d9b12e0d9a1ff2d36433a5dc546d179e2d4a33"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5t_p_l10_500_tail1uc_rep3/client/journal.jsonl",
+        "bytes": 125958,
+        "mtime_ns": 1790630460814051046,
+        "sha256": "b6ea0a9e7aa9a1f10df7937c63dd7d086a90cda5a1cb194cb20e805afe1cedd6"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 417,
+        "step_cap": 83
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5t_p_l10_500_tail1uc_rep3/client/per_step.jsonl",
+          "bytes": 24895139,
+          "mtime_ns": 1790630460791051036
+        }
+      ]
+    },
+    "SR": 0.834,
+    "n": 500,
+    "success": 417,
+    "N": 29382,
+    "V": 14795,
+    "M": 0,
+    "L": 5.0,
+    "owner_IR": 0.07653801647267035,
+    "owner_IR_full_camera_counterfactual": 0.07653801647267035,
+    "stock_ledger_IR": 0.07148217137437439,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "client_decisions": 29382,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r05_q1/r5q1_c10_p_l10_500",
+    "arm": "r5q1_c10_p_l10_500",
+    "cell": "pi05_l10_500",
+    "variant": "B",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r05_q1/runs/r5q1_c10_p_l10_500/summary.json",
+        "bytes": 4394,
+        "mtime_ns": 1790575348458898162,
+        "sha256": "b3974168f15bf3209a276b1db149f7e0437d5a3562d5459ae553b94e906a30a5"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r05_q1/runs/r5q1_c10_p_l10_500/client/journal.jsonl",
+        "bytes": 117933,
+        "mtime_ns": 1790575343843896634,
+        "sha256": "4e4b978db1c72d90d58aa1f8ac652b55e21e70ba2973baa423d204a56986990b"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 433,
+        "step_cap": 67
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r05_q1/runs/r5q1_c10_p_l10_500/client/per_step.jsonl",
+          "bytes": 25270934,
+          "mtime_ns": 1790575343824896628
+        }
+      ]
+    },
+    "SR": 0.866,
+    "n": 500,
+    "success": 433,
+    "N": 28784,
+    "V": 14497,
+    "M": 2869,
+    "L": 5.0,
+    "owner_IR": 0.1610775430794886,
+    "owner_IR_full_camera_counterfactual": 0.1610775430794886,
+    "stock_ledger_IR": 0.15702139294603298,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "client_decisions": 28784,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_paper/r5q1_c10_p_l10_500_rep2",
+    "arm": "r5q1_c10_p_l10_500_rep2",
+    "cell": "pi05_l10_500",
+    "variant": "B",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5q1_c10_p_l10_500_rep2/summary.json",
+        "bytes": 4422,
+        "mtime_ns": 1790688057226914779,
+        "sha256": "7686e85310f92974f2fd9874162b3a258f913c6aec116cee52da2c0bbc8b8fd0"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5q1_c10_p_l10_500_rep2/client/journal.jsonl",
+        "bytes": 123148,
+        "mtime_ns": 1790688052329914572,
+        "sha256": "b8e5b54edd612a70a4b400625c11b0160ce79023ed3b4169aa713de7e9be1c65"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 440,
+        "step_cap": 60
+      },
+      "exception_attempts_all": 9,
+      "purged_records": 9,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5q1_c10_p_l10_500_rep2/client/per_step.jsonl",
+          "bytes": 25315384,
+          "mtime_ns": 1790688052234914568
+        },
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5q1_c10_p_l10_500_rep2/client/purged_exceptions.jsonl",
+          "bytes": 2238,
+          "mtime_ns": 1790688052310914571
+        }
+      ]
+    },
+    "SR": 0.88,
+    "n": 500,
+    "success": 440,
+    "N": 28342,
+    "V": 14287,
+    "M": 2655,
+    "L": 5.0,
+    "owner_IR": 0.15606040505257215,
+    "owner_IR_full_camera_counterfactual": 0.15606040505257215,
+    "stock_ledger_IR": 0.15193958126153276,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "client_decisions": 28342,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_paper/r5q1_c10_p_l10_500_rep3",
+    "arm": "r5q1_c10_p_l10_500_rep3",
+    "cell": "pi05_l10_500",
+    "variant": "B",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5q1_c10_p_l10_500_rep3/summary.json",
+        "bytes": 4416,
+        "mtime_ns": 1790645500995028193,
+        "sha256": "f6f2be0c45efe0203f9dde799a2c6eb968c4c0acb7752a392c15aaec83eaa8d1"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5q1_c10_p_l10_500_rep3/client/journal.jsonl",
+        "bytes": 122921,
+        "mtime_ns": 1790645496147023633,
+        "sha256": "b98e3eee57d1868dbafe639b6678a88dff3e363e3b4f458421891a085777ab02"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 445,
+        "step_cap": 55
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5q1_c10_p_l10_500_rep3/client/per_step.jsonl",
+          "bytes": 25306751,
+          "mtime_ns": 1790645496124023611
+        }
+      ]
+    },
+    "SR": 0.89,
+    "n": 500,
+    "success": 445,
+    "N": 28336,
+    "V": 14283,
+    "M": 2762,
+    "L": 5.0,
+    "owner_IR": 0.1592741389045737,
+    "owner_IR_full_camera_counterfactual": 0.1592741389045737,
+    "stock_ledger_IR": 0.15519177441919685,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "client_decisions": 28336,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_c_validation/r6c_pi05_l10_500_U18",
+    "arm": "r6c_pi05_l10_500_U18",
+    "cell": "pi05_l10_500",
+    "variant": "R6_U18",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_l10_500_U18/summary.json",
+        "bytes": 4984,
+        "mtime_ns": 1790702138171902388,
+        "sha256": "a1551c77dc54cb85b3020f18091c997a29f4529401dbe838923db738419b776a"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_l10_500_U18/client/journal.jsonl",
+        "bytes": 119917,
+        "mtime_ns": 1790702133654900702,
+        "sha256": "001b32b7e58485117114071a65db23e9ca5d8e59944b9d462554fb3ea73ac9e7"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 437,
+        "step_cap": 63
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_l10_500_U18/client/per_step.jsonl",
+          "bytes": 25846611,
+          "mtime_ns": 1790702133635900695
+        }
+      ]
+    },
+    "SR": 0.874,
+    "n": 500,
+    "success": 437,
+    "N": 28801,
+    "V": 14497,
+    "M": 3473,
+    "L": 5.0,
+    "owner_IR": 0.17876629283705425,
+    "owner_IR_full_camera_counterfactual": 0.17876629283705425,
+    "stock_ledger_IR": 0.17492310349087561,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "client_decisions": 28801,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_c_validation/r6c_pi05_l10_500_R18",
+    "arm": "r6c_pi05_l10_500_R18",
+    "cell": "pi05_l10_500",
+    "variant": "R6_R18",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_l10_500_R18/summary.json",
+        "bytes": 4839,
+        "mtime_ns": 1790700339732899139,
+        "sha256": "26395e65f8fcfb7f414b506a485a1fb19461985d472932f4617d7b5f19bf14a3"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_l10_500_R18/client/journal.jsonl",
+        "bytes": 119888,
+        "mtime_ns": 1790700334939898487,
+        "sha256": "9f09dd8c832e1f3f1b390853ebc2891eb94026f12a9aa7c9bc346a7ab2632a82"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 442,
+        "step_cap": 58
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_l10_500_R18/client/per_step.jsonl",
+          "bytes": 25687392,
+          "mtime_ns": 1790700334920898484
+        }
+      ]
+    },
+    "SR": 0.884,
+    "n": 500,
+    "success": 442,
+    "N": 28624,
+    "V": 14424,
+    "M": 3643,
+    "L": 5.0,
+    "owner_IR": 0.18452040245947454,
+    "owner_IR_full_camera_counterfactual": 0.18452040245947454,
+    "stock_ledger_IR": 0.18073868684072927,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "client_decisions": 28624,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_c_validation/r6c_pi05_l10_500_C18",
+    "arm": "r6c_pi05_l10_500_C18",
+    "cell": "pi05_l10_500",
+    "variant": "R6_C18",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_l10_500_C18/summary.json",
+        "bytes": 4882,
+        "mtime_ns": 1790704259189153704,
+        "sha256": "42cc8f0d20e3b688572a9e525ca7157a39f0f52e46ac4fb298c618c706360a22"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_l10_500_C18/client/journal.jsonl",
+        "bytes": 119878,
+        "mtime_ns": 1790704254206152693,
+        "sha256": "cce79be9499abbf28708289f94248c0d13384ccd50b0034201bb45661ca7eefb"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 451,
+        "step_cap": 49
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_l10_500_C18/client/per_step.jsonl",
+          "bytes": 25157100,
+          "mtime_ns": 1790704254187152690
+        }
+      ]
+    },
+    "SR": 0.902,
+    "n": 500,
+    "success": 451,
+    "N": 28005,
+    "V": 14323,
+    "M": 3742,
+    "L": 5.0,
+    "owner_IR": 0.1910484556329227,
+    "owner_IR_full_camera_counterfactual": 0.1910484556329227,
+    "stock_ledger_IR": 0.18725485785901264,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "client_decisions": 28005,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r05_ptail/r5t_p_sp_50_tail1uc",
+    "arm": "r5t_p_sp_50_tail1uc",
+    "cell": "pi05_spatial_50",
+    "variant": "A",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r05_ptail/runs/r5t_p_sp_50_tail1uc/summary.json",
+        "bytes": 3207,
+        "mtime_ns": 1790572458703003052,
+        "sha256": "5f57ee2bfc7657cb0d6c92345f9f602d31b12e9ded14d81b3f77ef4a4e5b3808"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r05_ptail/runs/r5t_p_sp_50_tail1uc/client/journal.jsonl",
+        "bytes": 118962,
+        "mtime_ns": 1790572457121002342,
+        "sha256": "0825d929d37fb05e8bf3db0d10035f25eb5bebf63fe859e28610ea2183b90ca9"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 419,
+        "step_cap": 81
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r05_ptail/runs/r5t_p_sp_50_tail1uc/client/per_step.jsonl",
+          "bytes": 10374423,
+          "mtime_ns": 1790572457113002338
+        }
+      ]
+    },
+    "SR": 0.838,
+    "n": 500,
+    "success": 419,
+    "N": 12355,
+    "V": 6303,
+    "M": 0,
+    "L": 5.0,
+    "owner_IR": 0.07754399028733305,
+    "owner_IR_full_camera_counterfactual": 0.07754399028733305,
+    "stock_ledger_IR": 0.07242169392711172,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "client_decisions": 12355,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_paper/r5t_p_sp_50_tail1uc_rep2",
+    "arm": "r5t_p_sp_50_tail1uc_rep2",
+    "cell": "pi05_spatial_50",
+    "variant": "A",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5t_p_sp_50_tail1uc_rep2/summary.json",
+        "bytes": 3179,
+        "mtime_ns": 1790622129201604642,
+        "sha256": "9c56c02adfd5c00ed72db5c90c21985d6f06282dbd0702554700c1900d844efd"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5t_p_sp_50_tail1uc_rep2/client/journal.jsonl",
+        "bytes": 123962,
+        "mtime_ns": 1790622127389604120,
+        "sha256": "45c5d9e3c6a6c961e687dc6a5d2e43ca68c1d3c0fbb31f2ab7f2a48f8b45e603"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 422,
+        "step_cap": 78
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5t_p_sp_50_tail1uc_rep2/client/per_step.jsonl",
+          "bytes": 10469678,
+          "mtime_ns": 1790622127379604117
+        }
+      ]
+    },
+    "SR": 0.844,
+    "n": 500,
+    "success": 422,
+    "N": 12241,
+    "V": 6244,
+    "M": 0,
+    "L": 5.0,
+    "owner_IR": 0.07753353484192468,
+    "owner_IR_full_camera_counterfactual": 0.07753353484192468,
+    "stock_ledger_IR": 0.07241192913341936,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "client_decisions": 12241,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_paper/r5t_p_sp_50_tail1uc_rep3",
+    "arm": "r5t_p_sp_50_tail1uc_rep3",
+    "cell": "pi05_spatial_50",
+    "variant": "A",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5t_p_sp_50_tail1uc_rep3/summary.json",
+        "bytes": 3211,
+        "mtime_ns": 1790630933481255191,
+        "sha256": "87be23bbde8cd42af65e9307125cd380328c10e31de17ba7dd7e741b77f9c707"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5t_p_sp_50_tail1uc_rep3/client/journal.jsonl",
+        "bytes": 123943,
+        "mtime_ns": 1790630931745254466,
+        "sha256": "dc0c315d3cd117ca05f73a8dfcd91a841a0b3736c5c9190abac0929742ea128e"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 414,
+        "step_cap": 86
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5t_p_sp_50_tail1uc_rep3/client/per_step.jsonl",
+          "bytes": 10632014,
+          "mtime_ns": 1790630931736254462
+        }
+      ]
+    },
+    "SR": 0.828,
+    "n": 500,
+    "success": 414,
+    "N": 12435,
+    "V": 6340,
+    "M": 0,
+    "L": 5.0,
+    "owner_IR": 0.07749738640932852,
+    "owner_IR_full_camera_counterfactual": 0.07749738640932852,
+    "stock_ledger_IR": 0.0723781685452458,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "client_decisions": 12435,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r05_q1/r5q1_c10_p_sp_50",
+    "arm": "r5q1_c10_p_sp_50",
+    "cell": "pi05_spatial_50",
+    "variant": "B",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r05_q1/runs/r5q1_c10_p_sp_50/summary.json",
+        "bytes": 4369,
+        "mtime_ns": 1790577229412876117,
+        "sha256": "189de555873f50b7023d6d32abd93ca0d3136c0c4aa6fac78d8e216c760e5d92"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r05_q1/runs/r5q1_c10_p_sp_50/client/journal.jsonl",
+        "bytes": 115827,
+        "mtime_ns": 1790577227787875393,
+        "sha256": "9d595660b73f80843153b46c59aab76b6fc38c7d29e74661eedb624de8578af0"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 455,
+        "step_cap": 45
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r05_q1/runs/r5q1_c10_p_sp_50/client/per_step.jsonl",
+          "bytes": 10423097,
+          "mtime_ns": 1790577227778875389
+        }
+      ]
+    },
+    "SR": 0.91,
+    "n": 500,
+    "success": 455,
+    "N": 11771,
+    "V": 6017,
+    "M": 885,
+    "L": 5.0,
+    "owner_IR": 0.14145476170248916,
+    "owner_IR_full_camera_counterfactual": 0.14145476170248916,
+    "stock_ledger_IR": 0.137077188346302,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "client_decisions": 11771,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_paper/r5q1_c10_p_sp_50_rep2",
+    "arm": "r5q1_c10_p_sp_50_rep2",
+    "cell": "pi05_spatial_50",
+    "variant": "B",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5q1_c10_p_sp_50_rep2/summary.json",
+        "bytes": 4461,
+        "mtime_ns": 1790642982361060710,
+        "sha256": "ed8a7141dbb0b94c5f18249f202b4aabb2731a8319b2c7789615309e9a2bf247"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5q1_c10_p_sp_50_rep2/client/journal.jsonl",
+        "bytes": 120845,
+        "mtime_ns": 1790642980522059237,
+        "sha256": "125b5678cf1e40f6729a0515320875867554d00ecc7357e53c7ee5fa95eea07b"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 456,
+        "step_cap": 44
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5q1_c10_p_sp_50_rep2/client/per_step.jsonl",
+          "bytes": 10543643,
+          "mtime_ns": 1790642980514059230
+        }
+      ]
+    },
+    "SR": 0.912,
+    "n": 500,
+    "success": 456,
+    "N": 11702,
+    "V": 5978,
+    "M": 840,
+    "L": 5.0,
+    "owner_IR": 0.13852127841394635,
+    "owner_IR_full_camera_counterfactual": 0.13852127841394635,
+    "stock_ledger_IR": 0.13411274486053176,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "client_decisions": 11702,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_paper/r5q1_c10_p_sp_50_rep3",
+    "arm": "r5q1_c10_p_sp_50_rep3",
+    "cell": "pi05_spatial_50",
+    "variant": "B",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5q1_c10_p_sp_50_rep3/summary.json",
+        "bytes": 4424,
+        "mtime_ns": 1790646032591524708,
+        "sha256": "1a6c12032337e922dde9176db8aea0b804442ebbdb989d650229db71fb40d1db"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5q1_c10_p_sp_50_rep3/client/journal.jsonl",
+        "bytes": 120859,
+        "mtime_ns": 1790646030690522941,
+        "sha256": "2ca1d4cb5f3affd59bf7a0c4d3d042c7d7d22617f46163e7b67b796b0d9dc5d1"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 454,
+        "step_cap": 46
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5q1_c10_p_sp_50_rep3/client/per_step.jsonl",
+          "bytes": 10580048,
+          "mtime_ns": 1790646030681522933
+        }
+      ]
+    },
+    "SR": 0.908,
+    "n": 500,
+    "success": 454,
+    "N": 11744,
+    "V": 5996,
+    "M": 882,
+    "L": 5.0,
+    "owner_IR": 0.141291553133515,
+    "owner_IR_full_camera_counterfactual": 0.141291553133515,
+    "stock_ledger_IR": 0.1369193047533597,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "client_decisions": 11744,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r04_cost/r4f_p_sp_inf_k10_L10",
+    "arm": "r4f_p_sp_inf_k10_L10",
+    "cell": "pi05_spatial_50",
+    "variant": "L10",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r04_cost/runs/r4f_p_sp_inf_k10_L10/summary.json",
+        "bytes": 3819,
+        "mtime_ns": 1790554795872250809,
+        "sha256": "2ec7946a3d460e1afd436b8c8794deb7fa2f3dd61e0a12dd1305b23d3bc842eb"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r04_cost/runs/r4f_p_sp_inf_k10_L10/client/journal.jsonl",
+        "bytes": 119751,
+        "mtime_ns": 1790554795298250406,
+        "sha256": "8b595bffbb8f0aa691a2ab8d977bf1b3f304289a0be9fd1bec82b2dd72543f01"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 493,
+        "step_cap": 7
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r04_cost/runs/r4f_p_sp_inf_k10_L10/client/per_step.jsonl",
+          "bytes": 5197052,
+          "mtime_ns": 1790554795292250402
+        }
+      ]
+    },
+    "SR": 0.986,
+    "n": 500,
+    "success": 493,
+    "N": 5499,
+    "V": 5499,
+    "M": 5499,
+    "L": 10.0,
+    "owner_IR": 0.5,
+    "owner_IR_full_camera_counterfactual": 0.5,
+    "stock_ledger_IR": 0.5,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "client_decisions": 5499,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r04_cost/r4f_p_sp_inf_s1001",
+    "arm": "r4f_p_sp_inf_s1001",
+    "cell": "pi05_spatial_50",
+    "variant": "L5",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r04_cost/runs/r4f_p_sp_inf_s1001/summary.json",
+        "bytes": 3835,
+        "mtime_ns": 1790552783290200636,
+        "sha256": "10e9711f6db0a4dd29522c475154e919b3cf1a40a74506f47fd8c9ca19a28926"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r04_cost/runs/r4f_p_sp_inf_s1001/client/journal.jsonl",
+        "bytes": 117802,
+        "mtime_ns": 1790552782311199791,
+        "sha256": "c8d2a4b31883308702648149004648cfb55ac78babfd0937124f1564378a5fed"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 496,
+        "step_cap": 4
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r04_cost/runs/r4f_p_sp_inf_s1001/client/per_step.jsonl",
+          "bytes": 9815881,
+          "mtime_ns": 1790552782304199785
+        }
+      ]
+    },
+    "SR": 0.992,
+    "n": 500,
+    "success": 496,
+    "N": 10679,
+    "V": 10679,
+    "M": 10679,
+    "L": 5.0,
+    "owner_IR": 1.0,
+    "owner_IR_full_camera_counterfactual": 1.0,
+    "stock_ledger_IR": 1.0,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "client_decisions": 10679,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r04_cost/r4f_p_sp_inf_s2001",
+    "arm": "r4f_p_sp_inf_s2001",
+    "cell": "pi05_spatial_50",
+    "variant": "L5",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r04_cost/runs/r4f_p_sp_inf_s2001/summary.json",
+        "bytes": 3837,
+        "mtime_ns": 1790567258622955371,
+        "sha256": "65347db3bc222e2c463ee15db07495d3d81c6dae5ff9d140ae86816f5f4e764a"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r04_cost/runs/r4f_p_sp_inf_s2001/client/journal.jsonl",
+        "bytes": 117713,
+        "mtime_ns": 1790567257612954597,
+        "sha256": "004773cc094a4cda29b9792c8a1dfa2261c518c3e0a8d6f6a9d462723f2d6910"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 497,
+        "step_cap": 3
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r04_cost/runs/r4f_p_sp_inf_s2001/client/per_step.jsonl",
+          "bytes": 9826532,
+          "mtime_ns": 1790567257604954591
+        }
+      ]
+    },
+    "SR": 0.994,
+    "n": 500,
+    "success": 497,
+    "N": 10690,
+    "V": 10690,
+    "M": 10690,
+    "L": 5.0,
+    "owner_IR": 1.0,
+    "owner_IR_full_camera_counterfactual": 1.0,
+    "stock_ledger_IR": 1.0,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "client_decisions": 10690,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_c_validation/r6c_pi05_spatial_50_U30",
+    "arm": "r6c_pi05_spatial_50_U30",
+    "cell": "pi05_spatial_50",
+    "variant": "R6_U30",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_spatial_50_U30/summary.json",
+        "bytes": 5031,
+        "mtime_ns": 1790694819759989554,
+        "sha256": "0b1fe71fde4b2ca0fa970b5dc3ab0651ad5da524867d7543bd60901b7f8e88c3"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_spatial_50_U30/client/journal.jsonl",
+        "bytes": 122793,
+        "mtime_ns": 1790694818199988599,
+        "sha256": "50476b3fdac2dd7847c6a7d18d6fae951c75c12f9c0ac0375cf602c8781d5d47"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "step_cap": 30,
+        "success": 470
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_spatial_50_U30/client/per_step.jsonl",
+          "bytes": 10390713,
+          "mtime_ns": 1790694818190988593
+        }
+      ]
+    },
+    "SR": 0.94,
+    "n": 500,
+    "success": 470,
+    "N": 11279,
+    "V": 5759,
+    "M": 2847,
+    "L": 5.0,
+    "owner_IR": 0.291659189644472,
+    "owner_IR_full_camera_counterfactual": 0.291659189644472,
+    "stock_ledger_IR": 0.28906691555850145,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "client_decisions": 11279,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_c_validation/r6c_pi05_spatial_50_R30",
+    "arm": "r6c_pi05_spatial_50_R30",
+    "cell": "pi05_spatial_50",
+    "variant": "R6_R30",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_spatial_50_R30/summary.json",
+        "bytes": 4806,
+        "mtime_ns": 1790693896749780308,
+        "sha256": "d850e22a056eaffe32bffcb9fa39055241bcabd8c5fbceff03e42ed253d2bb14"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_spatial_50_R30/client/journal.jsonl",
+        "bytes": 122775,
+        "mtime_ns": 1790693894951780398,
+        "sha256": "8cf93e5bf63be541686de93a66ac5fcbaa1cc688d2f81d5e7efe2add645dec75"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 472,
+        "step_cap": 28
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_spatial_50_R30/client/per_step.jsonl",
+          "bytes": 10375673,
+          "mtime_ns": 1790693894943780398
+        }
+      ]
+    },
+    "SR": 0.944,
+    "n": 500,
+    "success": 472,
+    "N": 11261,
+    "V": 5751,
+    "M": 2655,
+    "L": 5.0,
+    "owner_IR": 0.2775590089690081,
+    "owner_IR_full_camera_counterfactual": 0.2775590089690081,
+    "stock_ledger_IR": 0.27479853193754844,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "client_decisions": 11261,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_c_validation/r6c_pi05_spatial_50_C30",
+    "arm": "r6c_pi05_spatial_50_C30",
+    "cell": "pi05_spatial_50",
+    "variant": "R6_C30",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_spatial_50_C30/summary.json",
+        "bytes": 4921,
+        "mtime_ns": 1790697263366405324,
+        "sha256": "afea271862c11dd6ef6b9bdfc33f8118a27e61e538af0a5c20898666c2198008"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_spatial_50_C30/client/journal.jsonl",
+        "bytes": 122784,
+        "mtime_ns": 1790697261590405249,
+        "sha256": "d201ae86f5e539571b37debe94dee1eb8a2dbd945698ea8f906a880a89c781eb"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 469,
+        "step_cap": 31
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_spatial_50_C30/client/per_step.jsonl",
+          "bytes": 10261880,
+          "mtime_ns": 1790697261582405249
+        }
+      ]
+    },
+    "SR": 0.938,
+    "n": 500,
+    "success": 469,
+    "N": 11124,
+    "V": 5818,
+    "M": 2739,
+    "L": 5.0,
+    "owner_IR": 0.2882962962962963,
+    "owner_IR_full_camera_counterfactual": 0.2882962962962963,
+    "stock_ledger_IR": 0.2855171663553403,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "client_decisions": 11124,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_c_validation/r6c_pi05_spatial_50_C45",
+    "arm": "r6c_pi05_spatial_50_C45",
+    "cell": "pi05_spatial_50",
+    "variant": "R6_C45",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_spatial_50_C45/summary.json",
+        "bytes": 4918,
+        "mtime_ns": 1790699192807698417,
+        "sha256": "24e214b5602a1069f96407e9fc689c14ae364fe03407fa0a19c9a70470bd74f6"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_spatial_50_C45/client/journal.jsonl",
+        "bytes": 122739,
+        "mtime_ns": 1790699191190698004,
+        "sha256": "cc06a5b9bba630938911158bad125777d33433ad41a087fc4780e1479bec09d5"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 483,
+        "step_cap": 17
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_spatial_50_C45/client/per_step.jsonl",
+          "bytes": 10014088,
+          "mtime_ns": 1790699191182698002
+        }
+      ]
+    },
+    "SR": 0.966,
+    "n": 500,
+    "success": 483,
+    "N": 10869,
+    "V": 5570,
+    "M": 5027,
+    "L": 5.0,
+    "owner_IR": 0.47010175729137915,
+    "owner_IR_full_camera_counterfactual": 0.47010175729137915,
+    "stock_ledger_IR": 0.4696001424411402,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "client_decisions": 10869,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r04_blind/r4b3_p_sp_500_tail1uc",
+    "arm": "r4b3_p_sp_500_tail1uc",
+    "cell": "pi05_spatial_500",
+    "variant": "A",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r04_blind/runs/r4b3_p_sp_500_tail1uc/summary.json",
+        "bytes": 3183,
+        "mtime_ns": 1790559730670996144,
+        "sha256": "e9ce7fcbc19687a57232a5c9f4a71bad7cdf43dccd3105e3f9abb8cb50528a0a"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r04_blind/runs/r4b3_p_sp_500_tail1uc/client/journal.jsonl",
+        "bytes": 120750,
+        "mtime_ns": 1790559729034994482,
+        "sha256": "40c56894582d82237e01d0564a88210a204f438c4960338247037f4c09249853"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 491,
+        "step_cap": 9
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r04_blind/runs/r4b3_p_sp_500_tail1uc/client/per_step.jsonl",
+          "bytes": 9008042,
+          "mtime_ns": 1790559729025994472
+        }
+      ]
+    },
+    "SR": 0.982,
+    "n": 500,
+    "success": 491,
+    "N": 10593,
+    "V": 5449,
+    "M": 0,
+    "L": 5.0,
+    "owner_IR": 0.07818823751534032,
+    "owner_IR_full_camera_counterfactual": 0.07818823751534032,
+    "stock_ledger_IR": 0.07302338434035001,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "client_decisions": 10593,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_paper/r4b3_p_sp_500_tail1uc_rep2",
+    "arm": "r4b3_p_sp_500_tail1uc_rep2",
+    "cell": "pi05_spatial_500",
+    "variant": "A",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r4b3_p_sp_500_tail1uc_rep2/summary.json",
+        "bytes": 3189,
+        "mtime_ns": 1790622660309719503,
+        "sha256": "b50a5a9afa49c92925f0f1100854284f67f0f334b6d101b1a54439700ebb4dc8"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r4b3_p_sp_500_tail1uc_rep2/client/journal.jsonl",
+        "bytes": 125743,
+        "mtime_ns": 1790622658774719249,
+        "sha256": "8950204f42cef91d813a915bae3a0fd1e0b531f10eee7dd263545a4451baaede"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 487,
+        "step_cap": 13
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r4b3_p_sp_500_tail1uc_rep2/client/per_step.jsonl",
+          "bytes": 9242940,
+          "mtime_ns": 1790622658766719247
+        }
+      ]
+    },
+    "SR": 0.974,
+    "n": 500,
+    "success": 487,
+    "N": 10676,
+    "V": 5484,
+    "M": 0,
+    "L": 5.0,
+    "owner_IR": 0.07807868115399025,
+    "owner_IR_full_camera_counterfactual": 0.07807868115399025,
+    "stock_ledger_IR": 0.07292106490540654,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "client_decisions": 10676,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_paper/r4b3_p_sp_500_tail1uc_rep3",
+    "arm": "r4b3_p_sp_500_tail1uc_rep3",
+    "cell": "pi05_spatial_500",
+    "variant": "A",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r4b3_p_sp_500_tail1uc_rep3/summary.json",
+        "bytes": 3261,
+        "mtime_ns": 1790640306914583000,
+        "sha256": "3f4ae7f1eb56de755e664d101b3fc0efdaff60f28c722fc825bf305de3c15847"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r4b3_p_sp_500_tail1uc_rep3/client/journal.jsonl",
+        "bytes": 125757,
+        "mtime_ns": 1790640305447582306,
+        "sha256": "3aa6ff2b5753fb1fa5b9f3707c856c020a2c278582ec5283d37a89e809ea50e8"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 486,
+        "step_cap": 14
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r4b3_p_sp_500_tail1uc_rep3/client/per_step.jsonl",
+          "bytes": 9236498,
+          "mtime_ns": 1790640305440582303
+        }
+      ]
+    },
+    "SR": 0.972,
+    "n": 500,
+    "success": 486,
+    "N": 10670,
+    "V": 5480,
+    "M": 0,
+    "L": 5.0,
+    "owner_IR": 0.07806560449859418,
+    "owner_IR_full_camera_counterfactual": 0.07806560449859418,
+    "stock_ledger_IR": 0.07290885205008175,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "client_decisions": 10670,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r05_q1/r5q1_c10_p_sp_500",
+    "arm": "r5q1_c10_p_sp_500",
+    "cell": "pi05_spatial_500",
+    "variant": "B",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r05_q1/runs/r5q1_c10_p_sp_500/summary.json",
+        "bytes": 4400,
+        "mtime_ns": 1790576702772633459,
+        "sha256": "c501a557e1c937f581f60d9726e3f61e7df95a2739475b2d3d60e594faa1b067"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r05_q1/runs/r5q1_c10_p_sp_500/client/journal.jsonl",
+        "bytes": 116757,
+        "mtime_ns": 1790576701201632701,
+        "sha256": "8f08c2af46a3c6716ffd44c5ea5e1e8b9ac261a419f7593c2bfcabf8b7cb1b52"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 491,
+        "step_cap": 9
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r05_q1/runs/r5q1_c10_p_sp_500/client/per_step.jsonl",
+          "bytes": 9434514,
+          "mtime_ns": 1790576701193632697
+        }
+      ]
+    },
+    "SR": 0.982,
+    "n": 500,
+    "success": 491,
+    "N": 10564,
+    "V": 5429,
+    "M": 529,
+    "L": 5.0,
+    "owner_IR": 0.12057932601287391,
+    "owner_IR_full_camera_counterfactual": 0.12057932601287391,
+    "stock_ledger_IR": 0.11592209445200241,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "client_decisions": 10564,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_paper/r5q1_c10_p_sp_500_rep2",
+    "arm": "r5q1_c10_p_sp_500_rep2",
+    "cell": "pi05_spatial_500",
+    "variant": "B",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5q1_c10_p_sp_500_rep2/summary.json",
+        "bytes": 4413,
+        "mtime_ns": 1790643517496779143,
+        "sha256": "61f461b0669a56166f73747dd0fe1d7f93c494eaf2f45b17605103ad4acdd05f"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5q1_c10_p_sp_500_rep2/client/journal.jsonl",
+        "bytes": 121720,
+        "mtime_ns": 1790643515821776198,
+        "sha256": "582908dcfdaf3c330cf49e6eaf250cce8a3cf00331a6e9477bcfbe95092822e0"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 489,
+        "step_cap": 11
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5q1_c10_p_sp_500_rep2/client/per_step.jsonl",
+          "bytes": 9696663,
+          "mtime_ns": 1790643515814776185
+        }
+      ]
+    },
+    "SR": 0.978,
+    "n": 500,
+    "success": 489,
+    "N": 10676,
+    "V": 5479,
+    "M": 522,
+    "L": 5.0,
+    "owner_IR": 0.11947021356313225,
+    "owner_IR_full_camera_counterfactual": 0.11947021356313225,
+    "stock_ledger_IR": 0.11480823257403132,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "client_decisions": 10676,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_paper/r5q1_c10_p_sp_500_rep3",
+    "arm": "r5q1_c10_p_sp_500_rep3",
+    "cell": "pi05_spatial_500",
+    "variant": "B",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5q1_c10_p_sp_500_rep3/summary.json",
+        "bytes": 4415,
+        "mtime_ns": 1790646661145107224,
+        "sha256": "edd9da2a81f727ced7e3c1d2dafed6ed7d3b2d3bfd87b6fea678a430c064f558"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5q1_c10_p_sp_500_rep3/client/journal.jsonl",
+        "bytes": 121731,
+        "mtime_ns": 1790646659619105813,
+        "sha256": "6e3f3e58c063f6ad32c0b2dae2842075eab66c6bcbf141aca27fe1a3529df917"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 493,
+        "step_cap": 7
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5q1_c10_p_sp_500_rep3/client/per_step.jsonl",
+          "bytes": 9609793,
+          "mtime_ns": 1790646659612105806
+        }
+      ]
+    },
+    "SR": 0.986,
+    "n": 500,
+    "success": 493,
+    "N": 10578,
+    "V": 5435,
+    "M": 503,
+    "L": 5.0,
+    "owner_IR": 0.11842162979769333,
+    "owner_IR_full_camera_counterfactual": 0.11842162979769333,
+    "stock_ledger_IR": 0.11374018777055542,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "client_decisions": 10578,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_c_validation/r6c_pi05_spatial_500_U18",
+    "arm": "r6c_pi05_spatial_500_U18",
+    "cell": "pi05_spatial_500",
+    "variant": "R6_U18",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_spatial_500_U18/summary.json",
+        "bytes": 5064,
+        "mtime_ns": 1790702645336080773,
+        "sha256": "9f23e9fbc57f8a05f23e346b0f16a38037fff13b20a46aff05ffe352cb09f478"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_spatial_500_U18/client/journal.jsonl",
+        "bytes": 123756,
+        "mtime_ns": 1790702643844080272,
+        "sha256": "84e45f4307b7e79b3251a99cf4ecc89a0f7bd707fc11f1c675acb92b37ae3eea"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 484,
+        "step_cap": 16
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_spatial_500_U18/client/per_step.jsonl",
+          "bytes": 9952173,
+          "mtime_ns": 1790702643837080269
+        }
+      ]
+    },
+    "SR": 0.968,
+    "n": 500,
+    "success": 484,
+    "N": 10728,
+    "V": 5498,
+    "M": 1284,
+    "L": 5.0,
+    "owner_IR": 0.179392990305742,
+    "owner_IR_full_camera_counterfactual": 0.179392990305742,
+    "stock_ledger_IR": 0.17544899934565808,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "client_decisions": 10728,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_c_validation/r6c_pi05_spatial_500_R18",
+    "arm": "r6c_pi05_spatial_500_R18",
+    "cell": "pi05_spatial_500",
+    "variant": "R6_R18",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_spatial_500_R18/summary.json",
+        "bytes": 4835,
+        "mtime_ns": 1790700994004292943,
+        "sha256": "d64ddefcdfe2dc0cef3dbc3e315dbb14a5fe87bcca6fcecbc16b7e3e5375f463"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_spatial_500_R18/client/journal.jsonl",
+        "bytes": 123757,
+        "mtime_ns": 1790700992357291524,
+        "sha256": "4ba021b4af8678cf4f70e775cb39e5367aff017572387ec4100f1bd597e4710b"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 483,
+        "step_cap": 17
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_spatial_500_R18/client/per_step.jsonl",
+          "bytes": 9985086,
+          "mtime_ns": 1790700992350291518
+        }
+      ]
+    },
+    "SR": 0.966,
+    "n": 500,
+    "success": 483,
+    "N": 10764,
+    "V": 5514,
+    "M": 1229,
+    "L": 5.0,
+    "owner_IR": 0.17468599033816426,
+    "owner_IR_full_camera_counterfactual": 0.17468599033816426,
+    "stock_ledger_IR": 0.17068896150081214,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "client_decisions": 10764,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_c_validation/r6c_pi05_spatial_500_C18",
+    "arm": "r6c_pi05_spatial_500_C18",
+    "cell": "pi05_spatial_500",
+    "variant": "R6_C18",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_spatial_500_C18/summary.json",
+        "bytes": 4917,
+        "mtime_ns": 1790703716332056886,
+        "sha256": "59084915225c72792bfe94f233f2ead897c621837594d5e7cd6478b9c2eb9543"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_spatial_500_C18/client/journal.jsonl",
+        "bytes": 123752,
+        "mtime_ns": 1790703714542056630,
+        "sha256": "cacd5a19d38308670ca35e4d5bf5f2b6eafd34154a17e8bb68a75b7c621d5337"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 493,
+        "step_cap": 7
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_spatial_500_C18/client/per_step.jsonl",
+          "bytes": 9756892,
+          "mtime_ns": 1790703714535056628
+        }
+      ]
+    },
+    "SR": 0.986,
+    "n": 500,
+    "success": 493,
+    "N": 10506,
+    "V": 5399,
+    "M": 1039,
+    "L": 5.0,
+    "owner_IR": 0.16197601370645343,
+    "owner_IR_full_camera_counterfactual": 0.16197601370645343,
+    "stock_ledger_IR": 0.15780915055825354,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "client_decisions": 10506,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r05_x/r5x_g_l10_50_tail1u",
+    "arm": "r5x_g_l10_50_tail1u",
+    "cell": "groot_l10_50",
+    "variant": "A",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r05_x/runs/r5x_g_l10_50_tail1u/summary.json",
+        "bytes": 3210,
+        "mtime_ns": 1790587362088007458,
+        "sha256": "7f06855532057eb66686f824e2d803c5c4c66752fec6831c9c522ab47272cec3"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r05_x/runs/r5x_g_l10_50_tail1u/client/journal.jsonl",
+        "bytes": 119540,
+        "mtime_ns": 1790587356950005569,
+        "sha256": "ee952bf1b4e636b323327584889975a626decaa15f7d336cce7cea9972991369"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "step_cap": 196,
+        "success": 304
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r05_x/runs/r5x_g_l10_50_tail1u/client/per_step.jsonl",
+          "bytes": 27424111,
+          "mtime_ns": 1790587356929005561
+        }
+      ]
+    },
+    "SR": 0.608,
+    "n": 500,
+    "success": 304,
+    "N": 36299,
+    "V": 18218,
+    "M": 0,
+    "L": 5.0,
+    "owner_IR": 0.07427929144053555,
+    "owner_IR_full_camera_counterfactual": 0.07427929144053555,
+    "stock_ledger_IR": 0.06396031368753666,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "client_decisions": 36299,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_paper/r5x_g_l10_50_tail1u_rep2",
+    "arm": "r5x_g_l10_50_tail1u_rep2",
+    "cell": "groot_l10_50",
+    "variant": "A",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5x_g_l10_50_tail1u_rep2/summary.json",
+        "bytes": 3196,
+        "mtime_ns": 1790641390002352237,
+        "sha256": "eeb5177b19598aed6dc9719299524984f35bdd6e32ac115c3bf6c04e6e2a83cb"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5x_g_l10_50_tail1u_rep2/client/journal.jsonl",
+        "bytes": 124507,
+        "mtime_ns": 1790641384565342469,
+        "sha256": "4760ddbcdec738ff1d92a8352a968a7626b4bcf20526562497de98dd33a76521"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 309,
+        "step_cap": 191
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5x_g_l10_50_tail1u_rep2/client/per_step.jsonl",
+          "bytes": 27858264,
+          "mtime_ns": 1790641384544342431
+        }
+      ]
+    },
+    "SR": 0.618,
+    "n": 500,
+    "success": 309,
+    "N": 36150,
+    "V": 18145,
+    "M": 0,
+    "L": 5.0,
+    "owner_IR": 0.0742865836791148,
+    "owner_IR_full_camera_counterfactual": 0.0742865836791148,
+    "stock_ledger_IR": 0.06396659287865397,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "client_decisions": 36150,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_paper/r5x_g_l10_50_tail1u_rep3",
+    "arm": "r5x_g_l10_50_tail1u_rep3",
+    "cell": "groot_l10_50",
+    "variant": "A",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5x_g_l10_50_tail1u_rep3/summary.json",
+        "bytes": 3210,
+        "mtime_ns": 1790688572851915698,
+        "sha256": "9b6941e768033d665ca7162c23b7fee5f29a68fdb94e70620f7b249c942b8a53"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5x_g_l10_50_tail1u_rep3/client/journal.jsonl",
+        "bytes": 124545,
+        "mtime_ns": 1790688567557915945,
+        "sha256": "b8e32e4cd43a06dd512ddc71af36a6274774601ff745cf0bfdf1d15b1b13164f"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 303,
+        "step_cap": 197
+      },
+      "exception_attempts_all": 4,
+      "purged_records": 4,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5x_g_l10_50_tail1u_rep3/client/per_step.jsonl",
+          "bytes": 27894506,
+          "mtime_ns": 1790688567449915950
+        },
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5x_g_l10_50_tail1u_rep3/client/purged_exceptions.jsonl",
+          "bytes": 1005,
+          "mtime_ns": 1790688567556915945
+        }
+      ]
+    },
+    "SR": 0.606,
+    "n": 500,
+    "success": 303,
+    "N": 36194,
+    "V": 18161,
+    "M": 0,
+    "L": 5.0,
+    "owner_IR": 0.07426170083439243,
+    "owner_IR_full_camera_counterfactual": 0.07426170083439243,
+    "stock_ledger_IR": 0.06394516679174582,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "client_decisions": 36194,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_paper/r6p1_c10_g_l10_50",
+    "arm": "r6p1_c10_g_l10_50",
+    "cell": "groot_l10_50",
+    "variant": "B",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_l10_50/summary.json",
+        "bytes": 4549,
+        "mtime_ns": 1790619387194078124,
+        "sha256": "fa469f0e201160d10c56ed1b1f1760aa85078d7906c0adeaa09b577671a76cf0"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_l10_50/client/journal.jsonl",
+        "bytes": 117482,
+        "mtime_ns": 1790619381452075068,
+        "sha256": "1ce796fd1bfa7bd4da968043d4db1c5d24d9b03c69e3b7c0c68020ef2c4d47f8"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "step_cap": 137,
+        "success": 363
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_l10_50/client/per_step.jsonl",
+          "bytes": 25389311,
+          "mtime_ns": 1790619381430075056
+        }
+      ]
+    },
+    "SR": 0.726,
+    "n": 500,
+    "success": 363,
+    "N": 33073,
+    "V": 16629,
+    "M": 5746,
+    "L": 5.0,
+    "owner_IR": 0.22243775889698542,
+    "owner_IR_full_camera_counterfactual": 0.22243775889698542,
+    "stock_ledger_IR": 0.2156721688677691,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "client_decisions": 33073,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_paper/r6p1_c10_g_l10_50_rep2",
+    "arm": "r6p1_c10_g_l10_50_rep2",
+    "cell": "groot_l10_50",
+    "variant": "B",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_l10_50_rep2/summary.json",
+        "bytes": 4573,
+        "mtime_ns": 1790688891288906247,
+        "sha256": "e48ce21e7b880d46a3433ce1e1d6648a258cdeb5db7aa402d2f6c65c2e7e3967"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_l10_50_rep2/client/journal.jsonl",
+        "bytes": 122554,
+        "mtime_ns": 1790688885789906337,
+        "sha256": "b54bfca736913dcdaa08a46c758e25e12a64892107e2466fbb215dd9ba8db0c6"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 360,
+        "step_cap": 140
+      },
+      "exception_attempts_all": 12,
+      "purged_records": 12,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_l10_50_rep2/client/per_step.jsonl",
+          "bytes": 26184785,
+          "mtime_ns": 1790688885708906338
+        },
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_l10_50_rep2/client/purged_exceptions.jsonl",
+          "bytes": 2965,
+          "mtime_ns": 1790688885788906337
+        }
+      ]
+    },
+    "SR": 0.72,
+    "n": 500,
+    "success": 360,
+    "N": 33446,
+    "V": 16806,
+    "M": 5774,
+    "L": 5.0,
+    "owner_IR": 0.22145356694373017,
+    "owner_IR_full_camera_counterfactual": 0.22145356694373017,
+    "stock_ledger_IR": 0.21467183363796988,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "client_decisions": 33446,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_paper/r6p1_c10_g_l10_50_rep3",
+    "arm": "r6p1_c10_g_l10_50_rep3",
+    "cell": "groot_l10_50",
+    "variant": "B",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_l10_50_rep3/summary.json",
+        "bytes": 4524,
+        "mtime_ns": 1790648272394321097,
+        "sha256": "e7377af90bbd4520fd8342477c304b8abcb9000e86f8d5d37a021c69f3d1dc35"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_l10_50_rep3/client/journal.jsonl",
+        "bytes": 122435,
+        "mtime_ns": 1790648266826323296,
+        "sha256": "840eae727b7dff6aa3e1eb9ce253cbb9cb5d4236dca34753b9ce34325bd49df2"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 364,
+        "step_cap": 136
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_l10_50_rep3/client/per_step.jsonl",
+          "bytes": 26061843,
+          "mtime_ns": 1790648266805323304
+        }
+      ]
+    },
+    "SR": 0.728,
+    "n": 500,
+    "success": 364,
+    "N": 33292,
+    "V": 16731,
+    "M": 5670,
+    "L": 5.0,
+    "owner_IR": 0.21948299891865913,
+    "owner_IR_full_camera_counterfactual": 0.21948299891865913,
+    "stock_ledger_IR": 0.21265198538745186,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "client_decisions": 33292,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r05_q2/r5q2_g_l10_policy_L10",
+    "arm": "r5q2_g_l10_policy_L10",
+    "cell": "groot_l10_50",
+    "variant": "L10",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r05_q2/runs/r5q2_g_l10_policy_L10/summary.json",
+        "bytes": 3924,
+        "mtime_ns": 1790575052916801599,
+        "sha256": "bc3e034932aa058017d3ab39c04a18638b00eaac2d41a577a0cb5eaacb0e170d"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r05_q2/runs/r5q2_g_l10_policy_L10/client/journal.jsonl",
+        "bytes": 121413,
+        "mtime_ns": 1790575051157801034,
+        "sha256": "e7abfd86b1a45c152c6e9cba107a7fab553bd1f8b6499d5a53f92872fdde2e02"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "step_cap": 67,
+        "success": 433
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r05_q2/runs/r5q2_g_l10_policy_L10/client/per_step.jsonl",
+          "bytes": 10374315,
+          "mtime_ns": 1790575051148801031
+        }
+      ]
+    },
+    "SR": 0.866,
+    "n": 500,
+    "success": 433,
+    "N": 14559,
+    "V": 14559,
+    "M": 14559,
+    "L": 10.0,
+    "owner_IR": 0.5,
+    "owner_IR_full_camera_counterfactual": 0.5,
+    "stock_ledger_IR": 0.5,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "client_decisions": 14559,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_c_validation/r6c_groot_l10_50_U30",
+    "arm": "r6c_groot_l10_50_U30",
+    "cell": "groot_l10_50",
+    "variant": "R6_U30",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_l10_50_U30/summary.json",
+        "bytes": 5151,
+        "mtime_ns": 1790698327618467859,
+        "sha256": "6219de3aa8ddd30d40a95680e18c02f7c7852ec9e57f2c044e3a035e06c42a2c"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_l10_50_U30/client/journal.jsonl",
+        "bytes": 120505,
+        "mtime_ns": 1790698323034467551,
+        "sha256": "2941eca74612d966566bc7de115c210715f6464090574cf06f242fb435d7fedb"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "step_cap": 115,
+        "success": 385
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_l10_50_U30/client/per_step.jsonl",
+          "bytes": 25024551,
+          "mtime_ns": 1790698323014467550
+        }
+      ]
+    },
+    "SR": 0.77,
+    "n": 500,
+    "success": 385,
+    "N": 31629,
+    "V": 15916,
+    "M": 8407,
+    "L": 5.0,
+    "owner_IR": 0.30093686174080747,
+    "owner_IR_full_camera_counterfactual": 0.30093686174080747,
+    "stock_ledger_IR": 0.29605565410102147,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "client_decisions": 31629,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_c_validation/r6c_groot_l10_50_R30",
+    "arm": "r6c_groot_l10_50_R30",
+    "cell": "groot_l10_50",
+    "variant": "R6_R30",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_l10_50_R30/summary.json",
+        "bytes": 4914,
+        "mtime_ns": 1790696846544394228,
+        "sha256": "142885f317063d3650459abb74f30a888ddb9ca3f7b30a5995c008edd213df09"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_l10_50_R30/client/journal.jsonl",
+        "bytes": 120486,
+        "mtime_ns": 1790696841181394196,
+        "sha256": "c337791bbe9d411d3bd7cc576f1b8cd8385188d72cf1809f124668151a4d32bd"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 392,
+        "step_cap": 108
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_l10_50_R30/client/per_step.jsonl",
+          "bytes": 24901629,
+          "mtime_ns": 1790696841163394196
+        }
+      ]
+    },
+    "SR": 0.784,
+    "n": 500,
+    "success": 392,
+    "N": 31472,
+    "V": 15831,
+    "M": 8439,
+    "L": 5.0,
+    "owner_IR": 0.30290467717336045,
+    "owner_IR_full_camera_counterfactual": 0.30290467717336045,
+    "stock_ledger_IR": 0.29807555431061294,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "client_decisions": 31472,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_c_validation/r6c_groot_l10_50_C30",
+    "arm": "r6c_groot_l10_50_C30",
+    "cell": "groot_l10_50",
+    "variant": "R6_C30",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_l10_50_C30/summary.json",
+        "bytes": 4986,
+        "mtime_ns": 1790700556150928006,
+        "sha256": "5ae1b60f30a69757d6a9ee63f7b97447e5c3007c93da89a681c26414766a0425"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_l10_50_C30/client/journal.jsonl",
+        "bytes": 120479,
+        "mtime_ns": 1790700550691927290,
+        "sha256": "2d30c1069b9de8ed02bbf31c9b6ddc45722bb05e4c42474552fc2f90515adcc4"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "step_cap": 97,
+        "success": 403
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_l10_50_C30/client/per_step.jsonl",
+          "bytes": 24508009,
+          "mtime_ns": 1790700550673927288
+        }
+      ]
+    },
+    "SR": 0.806,
+    "n": 500,
+    "success": 403,
+    "N": 31069,
+    "V": 16112,
+    "M": 8505,
+    "L": 5.0,
+    "owner_IR": 0.30998216872123335,
+    "owner_IR_full_camera_counterfactual": 0.30998216872123335,
+    "stock_ledger_IR": 0.30494812734980176,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "client_decisions": 31069,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_c_validation/r6c_groot_l10_50_Cmax",
+    "arm": "r6c_groot_l10_50_Cmax",
+    "cell": "groot_l10_50",
+    "variant": "R6_C45",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_l10_50_Cmax/summary.json",
+        "bytes": 5025,
+        "mtime_ns": 1790702880241053172,
+        "sha256": "d00319b81d579d34cc64ae1fbfc5f4eada56bcae4df45162774549208e4a1ea5"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_l10_50_Cmax/client/journal.jsonl",
+        "bytes": 121488,
+        "mtime_ns": 1790702875035054396,
+        "sha256": "f9eb2b89000416ad17343cd9e3c3543b3235fa81866ae6ea21a138f4a45ed656"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 411,
+        "step_cap": 89
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_l10_50_Cmax/client/per_step.jsonl",
+          "bytes": 24333747,
+          "mtime_ns": 1790702875016054400
+        }
+      ]
+    },
+    "SR": 0.822,
+    "n": 500,
+    "success": 411,
+    "N": 30689,
+    "V": 15586,
+    "M": 13485,
+    "L": 5.0,
+    "owner_IR": 0.4495404868193815,
+    "owner_IR_full_camera_counterfactual": 0.4495404868193815,
+    "stock_ledger_IR": 0.44813290400921874,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "client_decisions": 30689,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r05_x/r5x_g_l10_500_tail1u",
+    "arm": "r5x_g_l10_500_tail1u",
+    "cell": "groot_l10_500",
+    "variant": "A",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r05_x/runs/r5x_g_l10_500_tail1u/summary.json",
+        "bytes": 3206,
+        "mtime_ns": 1790586104809512139,
+        "sha256": "0eff5acf1812c70d3ac37e9289cfa6aa0a459a71d39b662646b554e570524eb1"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r05_x/runs/r5x_g_l10_500_tail1u/client/journal.jsonl",
+        "bytes": 120104,
+        "mtime_ns": 1790586100740510300,
+        "sha256": "c907885e56708039a41d2ab2d09e80677e0b7845f99eb3bc3d3c98b4dabde9a3"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 415,
+        "step_cap": 85
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r05_x/runs/r5x_g_l10_500_tail1u/client/per_step.jsonl",
+          "bytes": 22580540,
+          "mtime_ns": 1790586100724510293
+        }
+      ]
+    },
+    "SR": 0.83,
+    "n": 500,
+    "success": 415,
+    "N": 29678,
+    "V": 14939,
+    "M": 0,
+    "L": 5.0,
+    "owner_IR": 0.07449868589527596,
+    "owner_IR_full_camera_counterfactual": 0.07449868589527596,
+    "stock_ledger_IR": 0.06414922957343652,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "client_decisions": 29678,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_paper/r5x_g_l10_500_tail1u_rep2",
+    "arm": "r5x_g_l10_500_tail1u_rep2",
+    "cell": "groot_l10_500",
+    "variant": "A",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5x_g_l10_500_tail1u_rep2/summary.json",
+        "bytes": 3218,
+        "mtime_ns": 1790642395000566580,
+        "sha256": "47200fc4ac61adcaaed48d03a4ce974d5fa4a231ea49030671031017be0a15b0"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5x_g_l10_500_tail1u_rep2/client/journal.jsonl",
+        "bytes": 125087,
+        "mtime_ns": 1790642390551562573,
+        "sha256": "14f5f689b2cdfd9eea6ce1808000460ea64c011da49babdf52f41fa73088bac1"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 416,
+        "step_cap": 84
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5x_g_l10_500_tail1u_rep2/client/per_step.jsonl",
+          "bytes": 22967910,
+          "mtime_ns": 1790642390534562557
+        }
+      ]
+    },
+    "SR": 0.832,
+    "n": 500,
+    "success": 416,
+    "N": 29597,
+    "V": 14897,
+    "M": 0,
+    "L": 5.0,
+    "owner_IR": 0.07449254992060006,
+    "owner_IR_full_camera_counterfactual": 0.07449254992060006,
+    "stock_ledger_IR": 0.06414394601650648,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "client_decisions": 29597,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_paper/r5x_g_l10_500_tail1u_rep3",
+    "arm": "r5x_g_l10_500_tail1u_rep3",
+    "cell": "groot_l10_500",
+    "variant": "A",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5x_g_l10_500_tail1u_rep3/summary.json",
+        "bytes": 3196,
+        "mtime_ns": 1790645947320445415,
+        "sha256": "85bcba494cd804a3e3fa5c910948c6ba91fe5feaa46ed0bb2c56d5f69d45074d"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5x_g_l10_500_tail1u_rep3/client/journal.jsonl",
+        "bytes": 125104,
+        "mtime_ns": 1790645942700441116,
+        "sha256": "2641bb275e068f9a9ba770194bb6c8fd5220f079401356ff904ad7ae79d07414"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 414,
+        "step_cap": 86
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5x_g_l10_500_tail1u_rep3/client/per_step.jsonl",
+          "bytes": 22981780,
+          "mtime_ns": 1790645942681441098
+        }
+      ]
+    },
+    "SR": 0.828,
+    "n": 500,
+    "success": 414,
+    "N": 29615,
+    "V": 14906,
+    "M": 0,
+    "L": 5.0,
+    "owner_IR": 0.07449225054870842,
+    "owner_IR_full_camera_counterfactual": 0.07449225054870842,
+    "stock_ledger_IR": 0.06414368823375537,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "client_decisions": 29615,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_paper/r6p1_c10_g_l10_500",
+    "arm": "r6p1_c10_g_l10_500",
+    "cell": "groot_l10_500",
+    "variant": "B",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_l10_500/summary.json",
+        "bytes": 4486,
+        "mtime_ns": 1790617699530718693,
+        "sha256": "847c8ff71e73e6c82935e884b5f528c17de562f7d82a7db35989c1b1da6d4992"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_l10_500/client/journal.jsonl",
+        "bytes": 118056,
+        "mtime_ns": 1790617694544721724,
+        "sha256": "d6824c201e089b810619edb10388a6dc03b698c57374e24ee28cfcb2bdf25fa1"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 432,
+        "step_cap": 68
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_l10_500/client/per_step.jsonl",
+          "bytes": 22194861,
+          "mtime_ns": 1790617694525721735
+        }
+      ]
+    },
+    "SR": 0.864,
+    "n": 500,
+    "success": 432,
+    "N": 28711,
+    "V": 14461,
+    "M": 3777,
+    "L": 5.0,
+    "owner_IR": 0.18662644979276233,
+    "owner_IR_full_camera_counterfactual": 0.18662644979276233,
+    "stock_ledger_IR": 0.17897548507169567,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "client_decisions": 28711,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_paper/r6p1_c10_g_l10_500_rep2",
+    "arm": "r6p1_c10_g_l10_500_rep2",
+    "cell": "groot_l10_500",
+    "variant": "B",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_l10_500_rep2/summary.json",
+        "bytes": 4541,
+        "mtime_ns": 1790688749513909297,
+        "sha256": "9d06f3593bb19090a1366fbd594095480f471c880cc68d3387bbd01c13ca4428"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_l10_500_rep2/client/journal.jsonl",
+        "bytes": 123276,
+        "mtime_ns": 1790688744946909422,
+        "sha256": "c1a23c698b875ce61aa431bb9912f8b88349676720289751ae8a241871cc1199"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 442,
+        "step_cap": 58
+      },
+      "exception_attempts_all": 10,
+      "purged_records": 10,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_l10_500_rep2/client/per_step.jsonl",
+          "bytes": 22599918,
+          "mtime_ns": 1790688744871909424
+        },
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_l10_500_rep2/client/purged_exceptions.jsonl",
+          "bytes": 2491,
+          "mtime_ns": 1790688744943909422
+        }
+      ]
+    },
+    "SR": 0.884,
+    "n": 500,
+    "success": 442,
+    "N": 28660,
+    "V": 14438,
+    "M": 3820,
+    "L": 5.0,
+    "owner_IR": 0.18811807397069086,
+    "owner_IR_full_camera_counterfactual": 0.18811807397069086,
+    "stock_ledger_IR": 0.18050084212902606,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "client_decisions": 28660,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_paper/r6p1_c10_g_l10_500_rep3",
+    "arm": "r6p1_c10_g_l10_500_rep3",
+    "cell": "groot_l10_500",
+    "variant": "B",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_l10_500_rep3/summary.json",
+        "bytes": 4503,
+        "mtime_ns": 1790649970576822323,
+        "sha256": "1e66af0edf2ed5b04b23714459d62291d00753775d49323f069111185e46ece1"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_l10_500_rep3/client/journal.jsonl",
+        "bytes": 123218,
+        "mtime_ns": 1790649965976819244,
+        "sha256": "fcea29e33b3a400cb522f180cea05634e9eeb3cf3814571fcc80825dc2b7eb57"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 434,
+        "step_cap": 66
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_l10_500_rep3/client/per_step.jsonl",
+          "bytes": 22682094,
+          "mtime_ns": 1790649965959819233
+        }
+      ]
+    },
+    "SR": 0.868,
+    "n": 500,
+    "success": 434,
+    "N": 28779,
+    "V": 14502,
+    "M": 3833,
+    "L": 5.0,
+    "owner_IR": 0.18805420619201502,
+    "owner_IR_full_camera_counterfactual": 0.18805420619201502,
+    "stock_ledger_IR": 0.1804320357635747,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "client_decisions": 28779,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_c_validation/r6c_groot_l10_500_U18",
+    "arm": "r6c_groot_l10_500_U18",
+    "cell": "groot_l10_500",
+    "variant": "R6_U18",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_l10_500_U18/summary.json",
+        "bytes": 5154,
+        "mtime_ns": 1790704507692205772,
+        "sha256": "5b9676fe5c1ead549cfb45de9c89eb5029b5a53095f19a5f78c63afe178f5940"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_l10_500_U18/client/journal.jsonl",
+        "bytes": 121112,
+        "mtime_ns": 1790704503413204852,
+        "sha256": "4dbc9c3da10a8779a29726fb1e23ab825eae361385d8beb1b744621720a1e983"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 424,
+        "step_cap": 76
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_l10_500_U18/client/per_step.jsonl",
+          "bytes": 23394188,
+          "mtime_ns": 1790704503396204849
+        }
+      ]
+    },
+    "SR": 0.848,
+    "n": 500,
+    "success": 424,
+    "N": 29370,
+    "V": 14787,
+    "M": 3653,
+    "L": 5.0,
+    "owner_IR": 0.18048457609805924,
+    "owner_IR_full_camera_counterfactual": 0.18048457609805924,
+    "stock_ledger_IR": 0.17269026188286005,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "client_decisions": 29370,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_c_validation/r6c_groot_l10_500_R18",
+    "arm": "r6c_groot_l10_500_R18",
+    "cell": "groot_l10_500",
+    "variant": "R6_R18",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_l10_500_R18/summary.json",
+        "bytes": 4924,
+        "mtime_ns": 1790702863126057289,
+        "sha256": "23c15117037185b5833753c3193a192ad4091c8e356dffddb7e1ac6fc80824af"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_l10_500_R18/client/journal.jsonl",
+        "bytes": 121082,
+        "mtime_ns": 1790702858504058448,
+        "sha256": "0f9f7aff1b5b68a2954497f31130b224a5e0504e1a826767f9cb1e3f0c198e77"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 426,
+        "step_cap": 74
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_l10_500_R18/client/per_step.jsonl",
+          "bytes": 23234141,
+          "mtime_ns": 1790702858487058452
+        }
+      ]
+    },
+    "SR": 0.852,
+    "n": 500,
+    "success": 426,
+    "N": 29167,
+    "V": 14678,
+    "M": 3627,
+    "L": 5.0,
+    "owner_IR": 0.18042815510679877,
+    "owner_IR_full_camera_counterfactual": 0.18042815510679877,
+    "stock_ledger_IR": 0.1726381013159857,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "client_decisions": 29167,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_c_validation/r6c_groot_l10_500_C18",
+    "arm": "r6c_groot_l10_500_C18",
+    "cell": "groot_l10_500",
+    "variant": "R6_C18",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_l10_500_C18/summary.json",
+        "bytes": 5024,
+        "mtime_ns": 1790706154178629623,
+        "sha256": "cefb72ae184436c546f61790389d62a34b92637672fc80d541bf2c58c0547307"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_l10_500_C18/client/journal.jsonl",
+        "bytes": 121092,
+        "mtime_ns": 1790706149737628528,
+        "sha256": "d88606fb541f6c4be38b7df8379b0e63ebb6ca4040d60739db54384953102c80"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 433,
+        "step_cap": 67
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_l10_500_C18/client/per_step.jsonl",
+          "bytes": 22838817,
+          "mtime_ns": 1790706149722628524
+        }
+      ]
+    },
+    "SR": 0.866,
+    "n": 500,
+    "success": 433,
+    "N": 28748,
+    "V": 14863,
+    "M": 3628,
+    "L": 5.0,
+    "owner_IR": 0.18403993321274523,
+    "owner_IR_full_camera_counterfactual": 0.18403993321274523,
+    "stock_ledger_IR": 0.17600474452136114,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (l10)",
+    "client_decisions": 28748,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r05_x/r5x_g_sp_50_tail1u",
+    "arm": "r5x_g_sp_50_tail1u",
+    "cell": "groot_spatial_50",
+    "variant": "A",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r05_x/runs/r5x_g_sp_50_tail1u/summary.json",
+        "bytes": 3213,
+        "mtime_ns": 1790588350880377759,
+        "sha256": "b97c74c7da83a791eaf8a55e7f824fbff873ee49281e655309700ceb09900910"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r05_x/runs/r5x_g_sp_50_tail1u/client/journal.jsonl",
+        "bytes": 117932,
+        "mtime_ns": 1790588349084377073,
+        "sha256": "89fd9f59cae900cc38eaa1c1bde844fb8b1c24c87ccf16e7da47c3e836cd3311"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "step_cap": 66,
+        "success": 434
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r05_x/runs/r5x_g_sp_50_tail1u/client/per_step.jsonl",
+          "bytes": 9634115,
+          "mtime_ns": 1790588349074377069
+        }
+      ]
+    },
+    "SR": 0.868,
+    "n": 500,
+    "success": 434,
+    "N": 12535,
+    "V": 6377,
+    "M": 0,
+    "L": 5.0,
+    "owner_IR": 0.07529285999202233,
+    "owner_IR_full_camera_counterfactual": 0.07529285999202233,
+    "stock_ledger_IR": 0.06763639444284196,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "client_decisions": 12535,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_paper/r5x_g_sp_50_tail1u_rep2",
+    "arm": "r5x_g_sp_50_tail1u_rep2",
+    "cell": "groot_spatial_50",
+    "variant": "A",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5x_g_sp_50_tail1u_rep2/summary.json",
+        "bytes": 3214,
+        "mtime_ns": 1790642924662014339,
+        "sha256": "619185429bebb07d66fed12d2d727a0c3564c00f806e9479ab97415045243204"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5x_g_sp_50_tail1u_rep2/client/journal.jsonl",
+        "bytes": 122918,
+        "mtime_ns": 1790642923084013066,
+        "sha256": "a1d7acc7b9a985836972e3b2ccd0a4fd14bb39d7dceae91860072f648c474c0c"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 433,
+        "step_cap": 67
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5x_g_sp_50_tail1u_rep2/client/per_step.jsonl",
+          "bytes": 9855817,
+          "mtime_ns": 1790642923077013060
+        }
+      ]
+    },
+    "SR": 0.866,
+    "n": 500,
+    "success": 433,
+    "N": 12572,
+    "V": 6393,
+    "M": 0,
+    "L": 5.0,
+    "owner_IR": 0.07525962456251988,
+    "owner_IR_full_camera_counterfactual": 0.07525962456251988,
+    "stock_ledger_IR": 0.06760653869530436,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "client_decisions": 12572,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_paper/r5x_g_sp_50_tail1u_rep3",
+    "arm": "r5x_g_sp_50_tail1u_rep3",
+    "cell": "groot_spatial_50",
+    "variant": "A",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5x_g_sp_50_tail1u_rep3/summary.json",
+        "bytes": 3213,
+        "mtime_ns": 1790646523983980310,
+        "sha256": "2144dc9a78179df2b81f9f407ed08094f6039fe6724f76ea4c296f56568685c0"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5x_g_sp_50_tail1u_rep3/client/journal.jsonl",
+        "bytes": 122951,
+        "mtime_ns": 1790646522271978726,
+        "sha256": "0c5cbbd2b2f1c5c9b56206f9a38c3e1b7d487ff53a50cceaac4633e6ebb62230"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 434,
+        "step_cap": 66
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5x_g_sp_50_tail1u_rep3/client/per_step.jsonl",
+          "bytes": 9827921,
+          "mtime_ns": 1790646522264978719
+        }
+      ]
+    },
+    "SR": 0.868,
+    "n": 500,
+    "success": 434,
+    "N": 12536,
+    "V": 6377,
+    "M": 0,
+    "L": 5.0,
+    "owner_IR": 0.07528685386088065,
+    "owner_IR_full_camera_counterfactual": 0.07528685386088065,
+    "stock_ledger_IR": 0.06763099906996042,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "client_decisions": 12536,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_paper/r6p1_c10_g_sp_50",
+    "arm": "r6p1_c10_g_sp_50",
+    "cell": "groot_spatial_50",
+    "variant": "B",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_sp_50/summary.json",
+        "bytes": 4493,
+        "mtime_ns": 1790620038296199254,
+        "sha256": "60331b6f6af235dcf17740faa9c42d20fb6879f1b6e2ac053bbaf91727e2be1d"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_sp_50/client/journal.jsonl",
+        "bytes": 115898,
+        "mtime_ns": 1790620036483199324,
+        "sha256": "ce3879f1d32cd7c0e9c73bb3cd14e80d175b8d08fd32fab03d4f1fd2058e4aea"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 437,
+        "step_cap": 63
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_sp_50/client/per_step.jsonl",
+          "bytes": 9528068,
+          "mtime_ns": 1790620036473199324
+        }
+      ]
+    },
+    "SR": 0.874,
+    "n": 500,
+    "success": 437,
+    "N": 12211,
+    "V": 6207,
+    "M": 1050,
+    "L": 5.0,
+    "owner_IR": 0.14849201539595447,
+    "owner_IR_full_camera_counterfactual": 0.14849201539595447,
+    "stock_ledger_IR": 0.14213604077838876,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "client_decisions": 12211,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_paper/r6p1_c10_g_sp_50_rep2",
+    "arm": "r6p1_c10_g_sp_50_rep2",
+    "cell": "groot_spatial_50",
+    "variant": "B",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_sp_50_rep2/summary.json",
+        "bytes": 4493,
+        "mtime_ns": 1790628766973852945,
+        "sha256": "4bb2f54eca1491ae14530009ac64e70712918d10b4640f4ad00f71996d274a81"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_sp_50_rep2/client/journal.jsonl",
+        "bytes": 120916,
+        "mtime_ns": 1790628765227852518,
+        "sha256": "2e8af32152b3a189c89fb2d0ed03d9e358eb645577a000b3dd35bc353e58d458"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 437,
+        "step_cap": 63
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_sp_50_rep2/client/per_step.jsonl",
+          "bytes": 9702902,
+          "mtime_ns": 1790628765218852515
+        }
+      ]
+    },
+    "SR": 0.874,
+    "n": 500,
+    "success": 437,
+    "N": 12193,
+    "V": 6194,
+    "M": 1011,
+    "L": 5.0,
+    "owner_IR": 0.14582826211760846,
+    "owner_IR_full_camera_counterfactual": 0.14582826211760846,
+    "stock_ledger_IR": 0.13943081228298712,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "client_decisions": 12193,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_paper/r6p1_c10_g_sp_50_rep3",
+    "arm": "r6p1_c10_g_sp_50_rep3",
+    "cell": "groot_spatial_50",
+    "variant": "B",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_sp_50_rep3/summary.json",
+        "bytes": 4512,
+        "mtime_ns": 1790688932584905633,
+        "sha256": "fb5fe1aee98866850357dbfb6de0135c2eb3dafa93b1edb6df4bd3d948d35b12"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_sp_50_rep3/client/journal.jsonl",
+        "bytes": 120936,
+        "mtime_ns": 1790688930895905656,
+        "sha256": "a8aa854a39d03b14092e8f34d05013139743451a76e5299e1fcff72910ab873c"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 440,
+        "step_cap": 60
+      },
+      "exception_attempts_all": 1,
+      "purged_records": 1,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_sp_50_rep3/client/per_step.jsonl",
+          "bytes": 9675233,
+          "mtime_ns": 1790688930865905657
+        },
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_sp_50_rep3/client/purged_exceptions.jsonl",
+          "bytes": 245,
+          "mtime_ns": 1790688930894905656
+        }
+      ]
+    },
+    "SR": 0.88,
+    "n": 500,
+    "success": 440,
+    "N": 12159,
+    "V": 6181,
+    "M": 1025,
+    "L": 5.0,
+    "owner_IR": 0.14705880417797518,
+    "owner_IR_full_camera_counterfactual": 0.14705880417797518,
+    "stock_ledger_IR": 0.14067688493596378,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "client_decisions": 12159,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r05_q2/r5q2_g_spatial_policy_L10",
+    "arm": "r5q2_g_spatial_policy_L10",
+    "cell": "groot_spatial_50",
+    "variant": "L10",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r05_q2/runs/r5q2_g_spatial_policy_L10/summary.json",
+        "bytes": 3912,
+        "mtime_ns": 1790576000753247788,
+        "sha256": "bc5501d036b0cd4ff500fd1497ac272c74d27d915293fed101e257a4ba63743b"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r05_q2/runs/r5q2_g_spatial_policy_L10/client/journal.jsonl",
+        "bytes": 124865,
+        "mtime_ns": 1790576000127247378,
+        "sha256": "176116d2058805a686a86bb862a7e36e7993d31fe293a193498dab9b406aa2ba"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 469,
+        "step_cap": 31
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r05_q2/runs/r5q2_g_spatial_policy_L10/client/per_step.jsonl",
+          "bytes": 4357890,
+          "mtime_ns": 1790576000123247375
+        }
+      ]
+    },
+    "SR": 0.938,
+    "n": 500,
+    "success": 469,
+    "N": 5805,
+    "V": 5805,
+    "M": 5805,
+    "L": 10.0,
+    "owner_IR": 0.5,
+    "owner_IR_full_camera_counterfactual": 0.5,
+    "stock_ledger_IR": 0.5,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "client_decisions": 5805,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_c_validation/r6c_groot_spatial_50_U30",
+    "arm": "r6c_groot_spatial_50_U30",
+    "cell": "groot_spatial_50",
+    "variant": "R6_U30",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_spatial_50_U30/summary.json",
+        "bytes": 5151,
+        "mtime_ns": 1790696476714388415,
+        "sha256": "40b492018214d5c20e253a53550b97cc9dd57b326c36f2e65a89c77c4364041b"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_spatial_50_U30/client/journal.jsonl",
+        "bytes": 123854,
+        "mtime_ns": 1790696475107388246,
+        "sha256": "6affd540e95136c0dd99e136ddc62a68060be60e4c389e4908778a5776d37d96"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 464,
+        "step_cap": 36
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_spatial_50_U30/client/per_step.jsonl",
+          "bytes": 9650086,
+          "mtime_ns": 1790696475100388245
+        }
+      ]
+    },
+    "SR": 0.928,
+    "n": 500,
+    "success": 464,
+    "N": 11774,
+    "V": 5998,
+    "M": 3080,
+    "L": 5.0,
+    "owner_IR": 0.29827280448445725,
+    "owner_IR_full_camera_counterfactual": 0.29827280448445725,
+    "stock_ledger_IR": 0.2945429017212053,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "client_decisions": 11774,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_c_validation/r6c_groot_spatial_50_R30",
+    "arm": "r6c_groot_spatial_50_R30",
+    "cell": "groot_spatial_50",
+    "variant": "R6_R30",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_spatial_50_R30/summary.json",
+        "bytes": 4925,
+        "mtime_ns": 1790695026185096448,
+        "sha256": "586dc891ec1bda8ae0c810487292d472347b852ff6076c145e0405682a8242a8"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_spatial_50_R30/client/journal.jsonl",
+        "bytes": 123868,
+        "mtime_ns": 1790695024461095695,
+        "sha256": "08e4d9dc2a76a92dd81ce64e79480ad08c198b4b74c3725a28340471dc1922d7"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 456,
+        "step_cap": 44
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_spatial_50_R30/client/per_step.jsonl",
+          "bytes": 9604604,
+          "mtime_ns": 1790695024454095692
+        }
+      ]
+    },
+    "SR": 0.912,
+    "n": 500,
+    "success": 456,
+    "N": 11716,
+    "V": 5965,
+    "M": 3020,
+    "L": 5.0,
+    "owner_IR": 0.29496927278934787,
+    "owner_IR_full_camera_counterfactual": 0.29496927278934787,
+    "stock_ledger_IR": 0.29118622184154563,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "client_decisions": 11716,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_c_validation/r6c_groot_spatial_50_C30",
+    "arm": "r6c_groot_spatial_50_C30",
+    "cell": "groot_spatial_50",
+    "variant": "R6_C30",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_spatial_50_C30/summary.json",
+        "bytes": 5026,
+        "mtime_ns": 1790698236112461740,
+        "sha256": "b9def3ff5600a39c65f614ce40c0e2391f76ddba4718b5c7581b4b61ff848f8a"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_spatial_50_C30/client/journal.jsonl",
+        "bytes": 123821,
+        "mtime_ns": 1790698234436461629,
+        "sha256": "469627c45b8fc33c562f261432ab2a3bba227fb084aaef96ca19cc88f0f37c1b"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 470,
+        "step_cap": 30
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_spatial_50_C30/client/per_step.jsonl",
+          "bytes": 9368804,
+          "mtime_ns": 1790698234430461628
+        }
+      ]
+    },
+    "SR": 0.94,
+    "n": 500,
+    "success": 470,
+    "N": 11447,
+    "V": 5957,
+    "M": 2964,
+    "L": 5.0,
+    "owner_IR": 0.29762942255612823,
+    "owner_IR_full_camera_counterfactual": 0.29762942255612823,
+    "stock_ledger_IR": 0.2936943631959969,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "client_decisions": 11447,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_c_validation/r6c_groot_spatial_50_C45",
+    "arm": "r6c_groot_spatial_50_C45",
+    "cell": "groot_spatial_50",
+    "variant": "R6_C45",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_spatial_50_C45/summary.json",
+        "bytes": 4997,
+        "mtime_ns": 1790700891903199154,
+        "sha256": "70d401634693adaad2f9a629a499bbab613e756be0d586ef8d590401b4262a96"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_spatial_50_C45/client/journal.jsonl",
+        "bytes": 123841,
+        "mtime_ns": 1790700890227197508,
+        "sha256": "df0a7280c4e6acc5097f149e1a26f187f036af63ed0b591dd61de9c23ea42d40"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 468,
+        "step_cap": 32
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_spatial_50_C45/client/per_step.jsonl",
+          "bytes": 9358859,
+          "mtime_ns": 1790700890219197500
+        }
+      ]
+    },
+    "SR": 0.936,
+    "n": 500,
+    "success": 468,
+    "N": 11431,
+    "V": 5875,
+    "M": 5075,
+    "L": 5.0,
+    "owner_IR": 0.4543259557344065,
+    "owner_IR_full_camera_counterfactual": 0.4543259557344065,
+    "stock_ledger_IR": 0.4532726801519663,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "client_decisions": 11431,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r05_x/r5x_g_sp_500_tail1u",
+    "arm": "r5x_g_sp_500_tail1u",
+    "cell": "groot_spatial_500",
+    "variant": "A",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r05_x/runs/r5x_g_sp_500_tail1u/summary.json",
+        "bytes": 3185,
+        "mtime_ns": 1790587825891176741,
+        "sha256": "efa3123bf68e8c0b0bef4a6bbef98eb2744a950e939112d54c686237ea50d0b8"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r05_x/runs/r5x_g_sp_500_tail1u/client/journal.jsonl",
+        "bytes": 118767,
+        "mtime_ns": 1790587824558176257,
+        "sha256": "ac74a1a2c7317b7f62ce80fac891ec558057d4332f99460785e7fa5eca04b5f8"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 482,
+        "step_cap": 18
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r05_x/runs/r5x_g_sp_500_tail1u/client/per_step.jsonl",
+          "bytes": 8510779,
+          "mtime_ns": 1790587824552176255
+        }
+      ]
+    },
+    "SR": 0.964,
+    "n": 500,
+    "success": 482,
+    "N": 10984,
+    "V": 5604,
+    "M": 0,
+    "L": 5.0,
+    "owner_IR": 0.07550910415149308,
+    "owner_IR_full_camera_counterfactual": 0.07550910415149308,
+    "stock_ledger_IR": 0.06783064892151992,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "client_decisions": 10984,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_paper/r5x_g_sp_500_tail1u_rep2",
+    "arm": "r5x_g_sp_500_tail1u_rep2",
+    "cell": "groot_spatial_500",
+    "variant": "A",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5x_g_sp_500_tail1u_rep2/summary.json",
+        "bytes": 3182,
+        "mtime_ns": 1790643395387551362,
+        "sha256": "f940fadf28ff2c4a58c4b2a1b3d7897c54b4b5f01a66368c2e911a9910879986"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5x_g_sp_500_tail1u_rep2/client/journal.jsonl",
+        "bytes": 123770,
+        "mtime_ns": 1790643393946548503,
+        "sha256": "3a08ee5351096973b5929d210c67310a5fa184656ec3d84e63588d5721cd4407"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 482,
+        "step_cap": 18
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5x_g_sp_500_tail1u_rep2/client/per_step.jsonl",
+          "bytes": 8681448,
+          "mtime_ns": 1790643393939548489
+        }
+      ]
+    },
+    "SR": 0.964,
+    "n": 500,
+    "success": 482,
+    "N": 10986,
+    "V": 5608,
+    "M": 0,
+    "L": 5.0,
+    "owner_IR": 0.07554924449299107,
+    "owner_IR_full_camera_counterfactual": 0.07554924449299107,
+    "stock_ledger_IR": 0.06786670742654838,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "client_decisions": 10986,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_paper/r5x_g_sp_500_tail1u_rep3",
+    "arm": "r5x_g_sp_500_tail1u_rep3",
+    "cell": "groot_spatial_500",
+    "variant": "A",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5x_g_sp_500_tail1u_rep3/summary.json",
+        "bytes": 3189,
+        "mtime_ns": 1790646992746413827,
+        "sha256": "26a9271d9a0391fb8ac35c590dff8fcead0a77c6314cab7ae53778d4ed67cbee"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5x_g_sp_500_tail1u_rep3/client/journal.jsonl",
+        "bytes": 123745,
+        "mtime_ns": 1790646991287412478,
+        "sha256": "d0fc464cab79edc0a13e8e8a4bbac414bacc32beb4aa82885d6381fc8af7d71e"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 482,
+        "step_cap": 18
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r5x_g_sp_500_tail1u_rep3/client/per_step.jsonl",
+          "bytes": 8679569,
+          "mtime_ns": 1790646991278412470
+        }
+      ]
+    },
+    "SR": 0.964,
+    "n": 500,
+    "success": 482,
+    "N": 10983,
+    "V": 5605,
+    "M": 0,
+    "L": 5.0,
+    "owner_IR": 0.07552945461167258,
+    "owner_IR_full_camera_counterfactual": 0.07552945461167258,
+    "stock_ledger_IR": 0.06784892996107587,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "client_decisions": 10983,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_paper/r6p1_c10_g_sp_500",
+    "arm": "r6p1_c10_g_sp_500",
+    "cell": "groot_spatial_500",
+    "variant": "B",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_sp_500/summary.json",
+        "bytes": 4489,
+        "mtime_ns": 1790618164113430969,
+        "sha256": "1ee641857a7a087588fb8fd41af77c8907c505b91d4fd54e347cd7bb5a5195b6"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_sp_500/client/journal.jsonl",
+        "bytes": 116773,
+        "mtime_ns": 1790618162303432104,
+        "sha256": "8e4ebecd97551788f9e36b75bf0b9cff635c9ea1e5b29d4d015f688eaf2264fb"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 479,
+        "step_cap": 21
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_sp_500/client/per_step.jsonl",
+          "bytes": 8664478,
+          "mtime_ns": 1790618162295432109
+        }
+      ]
+    },
+    "SR": 0.958,
+    "n": 500,
+    "success": 479,
+    "N": 11017,
+    "V": 5626,
+    "M": 665,
+    "L": 5.0,
+    "owner_IR": 0.1270062630480167,
+    "owner_IR_full_camera_counterfactual": 0.1270062630480167,
+    "stock_ledger_IR": 0.12022919054867105,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "client_decisions": 11017,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_paper/r6p1_c10_g_sp_500_rep2",
+    "arm": "r6p1_c10_g_sp_500_rep2",
+    "cell": "groot_spatial_500",
+    "variant": "B",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_sp_500_rep2/summary.json",
+        "bytes": 4508,
+        "mtime_ns": 1790629230148267788,
+        "sha256": "5c28d62024f3a1c4e448ed7a9d1df1247622699cf61d6eddaaa591cebc09bbdf"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_sp_500_rep2/client/journal.jsonl",
+        "bytes": 121787,
+        "mtime_ns": 1790629228586266170,
+        "sha256": "0a5cb8c8c521f0ea35006db49194c43310e6c13f1f9cdaa38b7d1f930be49075"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 480,
+        "step_cap": 20
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_sp_500_rep2/client/per_step.jsonl",
+          "bytes": 8800813,
+          "mtime_ns": 1790629228579266162
+        }
+      ]
+    },
+    "SR": 0.96,
+    "n": 500,
+    "success": 480,
+    "N": 10974,
+    "V": 5605,
+    "M": 649,
+    "L": 5.0,
+    "owner_IR": 0.1259784946236559,
+    "owner_IR_full_camera_counterfactual": 0.1259784946236559,
+    "stock_ledger_IR": 0.1191817242784857,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "client_decisions": 10974,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_paper/r6p1_c10_g_sp_500_rep3",
+    "arm": "r6p1_c10_g_sp_500_rep3",
+    "cell": "groot_spatial_500",
+    "variant": "B",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_sp_500_rep3/summary.json",
+        "bytes": 4486,
+        "mtime_ns": 1790651265689489779,
+        "sha256": "b0b72fe8839d93852d31860e445c1e11494f6d57cfbf5d34daf36ba8d3298b6b"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_sp_500_rep3/client/journal.jsonl",
+        "bytes": 121786,
+        "mtime_ns": 1790651264096489067,
+        "sha256": "d398ca915a54041024490cdbe372d11057ea48e1e9152b9b88f1efe125dfd7d2"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 479,
+        "step_cap": 21
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_paper/runs/r6p1_c10_g_sp_500_rep3/client/per_step.jsonl",
+          "bytes": 8824466,
+          "mtime_ns": 1790651264088489063
+        }
+      ]
+    },
+    "SR": 0.958,
+    "n": 500,
+    "success": 479,
+    "N": 11003,
+    "V": 5614,
+    "M": 660,
+    "L": 5.0,
+    "owner_IR": 0.12661928564936836,
+    "owner_IR_full_camera_counterfactual": 0.12661928564936836,
+    "stock_ledger_IR": 0.11984316479278917,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "client_decisions": 11003,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_c_validation/r6c_groot_spatial_500_U18",
+    "arm": "r6c_groot_spatial_500_U18",
+    "cell": "groot_spatial_500",
+    "variant": "R6_U18",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_spatial_500_U18/summary.json",
+        "bytes": 5139,
+        "mtime_ns": 1790703671998050709,
+        "sha256": "3f6b24511838a9fa538e6fcf2712f836f10e5d7a7fed75697cb94cc722806220"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_spatial_500_U18/client/journal.jsonl",
+        "bytes": 124772,
+        "mtime_ns": 1790703670387050492,
+        "sha256": "0f77859d193ff49b0fd77fb92accc152698f9c19abb9882b4be363f5e86fee2a"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 477,
+        "step_cap": 23
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_spatial_500_U18/client/per_step.jsonl",
+          "bytes": 9151370,
+          "mtime_ns": 1790703670380050491
+        }
+      ]
+    },
+    "SR": 0.954,
+    "n": 500,
+    "success": 477,
+    "N": 11089,
+    "V": 5658,
+    "M": 1374,
+    "L": 5.0,
+    "owner_IR": 0.18108323563892142,
+    "owner_IR_full_camera_counterfactual": 0.18108323563892142,
+    "stock_ledger_IR": 0.17526899057676212,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "client_decisions": 11089,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_c_validation/r6c_groot_spatial_500_R18",
+    "arm": "r6c_groot_spatial_500_R18",
+    "cell": "groot_spatial_500",
+    "variant": "R6_R18",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_spatial_500_R18/summary.json",
+        "bytes": 4952,
+        "mtime_ns": 1790701920650818124,
+        "sha256": "4bb36dc3dba36ea67b1be77ab8ea065bf7f0eb57ad3ca5288a4d051ae94d5260"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_spatial_500_R18/client/journal.jsonl",
+        "bytes": 124816,
+        "mtime_ns": 1790701919036817472,
+        "sha256": "6edba86e6248f19dcc05fcc9a77894acd6feafafa96236e111af2fa0f6d0731c"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "step_cap": 30,
+        "success": 470
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_spatial_500_R18/client/per_step.jsonl",
+          "bytes": 9277085,
+          "mtime_ns": 1790701919029817469
+        }
+      ]
+    },
+    "SR": 0.94,
+    "n": 500,
+    "success": 470,
+    "N": 11244,
+    "V": 5732,
+    "M": 1366,
+    "L": 5.0,
+    "owner_IR": 0.17895482034863036,
+    "owner_IR_full_camera_counterfactual": 0.17895482034863036,
+    "stock_ledger_IR": 0.1731109691572813,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "client_decisions": 11244,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  },
+  {
+    "id": "r06_c_validation/r6c_groot_spatial_500_C18",
+    "arm": "r6c_groot_spatial_500_C18",
+    "cell": "groot_spatial_500",
+    "variant": "R6_C18",
+    "status": "complete",
+    "journal_audit": {
+      "accepted_pairs": 500,
+      "exact_duplicate_rows": 0,
+      "ignored_nonaccepted_rows": 0
+    },
+    "sources": [
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_spatial_500_C18/summary.json",
+        "bytes": 5033,
+        "mtime_ns": 1790704749188258648,
+        "sha256": "0c26139e1e827c51f6d8c50842a8df28830507ac2990c5bfa4207f2392aea4f3"
+      },
+      {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_spatial_500_C18/client/journal.jsonl",
+        "bytes": 124796,
+        "mtime_ns": 1790704747443258260,
+        "sha256": "8be6945611e6c2ed5d513836f4d06f51c9872274c857a478dacd38ffb7ca38b4"
+      }
+    ],
+    "exception_audit": {
+      "status": "ok",
+      "per_step_present": true,
+      "accepted": 500,
+      "covered": 500,
+      "residual_exceptions": 0,
+      "residual_keys": [],
+      "uncovered_keys": [],
+      "conflicting_keys": [],
+      "malformed_timing_rows": 0,
+      "accepted_termination_counts": {
+        "success": 467,
+        "step_cap": 33
+      },
+      "exception_attempts_all": 0,
+      "purged_records": 0,
+      "purged_all_failed": true,
+      "purged_all_match_exception": true,
+      "sources": [
+        {
+          "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_spatial_500_C18/client/per_step.jsonl",
+          "bytes": 9333199,
+          "mtime_ns": 1790704747436258259
+        }
+      ]
+    },
+    "SR": 0.934,
+    "n": 500,
+    "success": 467,
+    "N": 11320,
+    "V": 5801,
+    "M": 1439,
+    "L": 5.0,
+    "owner_IR": 0.18414982332155477,
+    "owner_IR_full_camera_counterfactual": 0.18414982332155477,
+    "stock_ledger_IR": 0.17835052448501637,
+    "stock_ledger_cost_source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/cost_table.json (spatial)",
+    "client_decisions": 11320,
+    "ledger_minus_client_decisions": 0,
+    "denominator": "nominal requested five-control blocks; not measured applied controls",
+    "IR_active_controls": null,
+    "r6_ledger_tolerance_flag": null
+  }
+]

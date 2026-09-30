@@ -1,0 +1,9 @@
+model,suite,L,SR,owner_IR,n,init_clusters,constituent_SR,runs
+pi05,l10,5,0.8506666666666667,1.0,1500,500,"[0.844, 0.848, 0.86]","[""DUAL/tr_pi05_l10_inf"", ""r04_cost/r4f_p_l10_inf_s1001"", ""r04_cost/r4f_p_l10_inf_s2001""]"
+pi05,l10,10,0.904,0.5,500,500,[0.904],"[""r04_cost/r4f_p_l10_inf_k10_L10""]"
+pi05,spatial,5,0.9906666666666667,1.0,1500,500,"[0.986, 0.992, 0.994]","[""DUAL/tr_pi05_sp_inf"", ""r04_cost/r4f_p_sp_inf_s1001"", ""r04_cost/r4f_p_sp_inf_s2001""]"
+pi05,spatial,10,0.986,0.5,500,500,[0.986],"[""r04_cost/r4f_p_sp_inf_k10_L10""]"
+groot,l10,5,0.87,1.0,500,500,[0.87],"[""DUAL/tr_groot_l10_inf""]"
+groot,l10,10,0.866,0.5,500,500,[0.866],"[""r05_q2/r5q2_g_l10_policy_L10""]"
+groot,spatial,5,0.94,1.0,500,500,[0.94],"[""DUAL/tr_groot_sp_inf""]"
+groot,spatial,10,0.938,0.5,500,500,[0.938],"[""r05_q2/r5q2_g_spatial_policy_L10""]"

@@ -1,0 +1,10 @@
+{
+  "note": "R7 owner basis. Wrist and missing-camera costs are the R4 proportional-latency assumption, not new measurements.",
+  "models": {
+    "pi05": {
+      "full": {"s1": 0.152, "s2": 0.410, "s3": 0.438, "k": 10},
+      "modes": {"wrist_only": {"s1": 0.055198, "s2": 0.410, "s3": 0.438, "k": 10, "miss_s1_extra": 0.049890}},
+      "full_cost_ms": 67.52
+    }
+  }
+}

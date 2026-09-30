@@ -1,0 +1,109 @@
+{
+  "cell": "pi05_sp_50",
+  "model_fingerprint": "f93f6c830d4411b252865242a15ce3cefdf3527995866200974ff212c41805d8",
+  "anchors": 1574,
+  "episodes": 120,
+  "observe_input": "precomputed deployed A metric_code; excludes JSON parse/status copy",
+  "observe_median_us": 567.8215,
+  "observe_p99_us": 780.7878599999999,
+  "observe_cpu_median_us": 570.8154999999999,
+  "observe_cpu_p99_us": 783.8150799999999,
+  "active_observe_median_us": 582.1825,
+  "active_observe_p99_us": 787.39456,
+  "scope": "official test inits; descriptive and engineering only; no tuning or fitting",
+  "summaries": [
+    {
+      "cell": "pi05_sp_50",
+      "cohort": "A",
+      "scope": "all_anchors",
+      "n": 813,
+      "episodes": 60,
+      "counts": {
+        "inactive": 120,
+        "ok": 452,
+        "slow_confirmed": 129,
+        "slow_ambiguous": 112
+      },
+      "rates": {
+        "inactive": 0.14760147601476015,
+        "ok": 0.5559655596555966,
+        "slow_confirmed": 0.15867158671586715,
+        "slow_ambiguous": 0.13776137761377613
+      },
+      "observe_median_us": 569.112,
+      "observe_p99_us": 798.5682,
+      "observe_cpu_median_us": 572.075,
+      "observe_cpu_p99_us": 798.1387199999999
+    },
+    {
+      "cell": "pi05_sp_50",
+      "cohort": "A",
+      "scope": "noprog_flagged",
+      "n": 179,
+      "episodes": 60,
+      "counts": {
+        "inactive": 1,
+        "ok": 19,
+        "slow_confirmed": 111,
+        "slow_ambiguous": 48
+      },
+      "rates": {
+        "inactive": 0.00558659217877095,
+        "ok": 0.10614525139664804,
+        "slow_confirmed": 0.6201117318435754,
+        "slow_ambiguous": 0.2681564245810056
+      },
+      "observe_median_us": 591.003,
+      "observe_p99_us": 782.42566,
+      "observe_cpu_median_us": 593.692,
+      "observe_cpu_p99_us": 772.85258
+    },
+    {
+      "cell": "pi05_sp_50",
+      "cohort": "B",
+      "scope": "all_anchors",
+      "n": 761,
+      "episodes": 60,
+      "counts": {
+        "inactive": 120,
+        "ok": 467,
+        "slow_confirmed": 92,
+        "slow_ambiguous": 82
+      },
+      "rates": {
+        "inactive": 0.15768725361366623,
+        "ok": 0.6136662286465178,
+        "slow_confirmed": 0.12089356110381078,
+        "slow_ambiguous": 0.10775295663600526
+      },
+      "observe_median_us": 567.281,
+      "observe_p99_us": 761.3711999999998,
+      "observe_cpu_median_us": 570.231,
+      "observe_cpu_p99_us": 764.5185999999999
+    },
+    {
+      "cell": "pi05_sp_50",
+      "cohort": "B",
+      "scope": "noprog_flagged",
+      "n": 127,
+      "episodes": 60,
+      "counts": {
+        "inactive": 1,
+        "ok": 21,
+        "slow_confirmed": 68,
+        "slow_ambiguous": 37
+      },
+      "rates": {
+        "inactive": 0.007874015748031496,
+        "ok": 0.16535433070866143,
+        "slow_confirmed": 0.5354330708661418,
+        "slow_ambiguous": 0.29133858267716534
+      },
+      "observe_median_us": 576.83,
+      "observe_p99_us": 762.9458999999999,
+      "observe_cpu_median_us": 582.834,
+      "observe_cpu_p99_us": 765.8660999999998
+    }
+  ],
+  "status_counts_match_previous_run": true
+}

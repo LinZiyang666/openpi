@@ -1,0 +1,2668 @@
+{
+  "unit_tests": 17,
+  "unit_pass": true,
+  "failures": [],
+  "profile": {
+    "source": {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r07/profile_results/closed_loop/profile_report.json",
+      "bytes": 531391,
+      "mtime_ns": 1790755968926059126,
+      "sha256": "8a03aaf463901da3a5479b72af90eaa8bd82dda81db2da4322c1ba2cf80f58b7"
+    },
+    "arms": 44,
+    "decisions": 37999,
+    "all_match": true,
+    "rows": [
+      {
+        "arm": "r7_pi05_l10_50_SF1_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 1403,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "success": 14,
+            "step_cap": 6
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_pi05_l10_50_SF1_profile/client/per_step.jsonl",
+              "bytes": 1178969,
+              "mtime_ns": 1790753579556106404
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 1403,
+          "camera_modes": {
+            "full": 604,
+            "blind": 799
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 91.80800000000004,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 0.0,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_pi05_l10_50_SF1_profile/server_23172/decisions_r7_pi05_l10_50_SF1_profile_23172.jsonl",
+              "bytes": 5796935,
+              "mtime_ns": 1790753572910104339
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_pi05_l10_50_SF2_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 1510,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "success": 11,
+            "step_cap": 9
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_pi05_l10_50_SF2_profile/client/per_step.jsonl",
+              "bytes": 1266476,
+              "mtime_ns": 1790753769783167468
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 1510,
+          "camera_modes": {
+            "full": 610,
+            "blind": 900
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 92.72000000000006,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 0.0,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_pi05_l10_50_SF2_profile/server_23171/decisions_r7_pi05_l10_50_SF2_profile_23171.jsonl",
+              "bytes": 6257349,
+              "mtime_ns": 1790753763985165557
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_pi05_l10_50_UF1_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 1169,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "success": 17,
+            "step_cap": 3
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_pi05_l10_50_UF1_profile/client/per_step.jsonl",
+              "bytes": 980238,
+              "mtime_ns": 1790753809558180649
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 1169,
+          "camera_modes": {
+            "full": 424,
+            "blind": 745
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 64.44800000000002,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 0.0,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_pi05_l10_50_UF1_profile/server_23170/decisions_r7_pi05_l10_50_UF1_profile_23170.jsonl",
+              "bytes": 4527038,
+              "mtime_ns": 1790753794708175713
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_pi05_l10_50_A_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 1291,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "success": 15,
+            "step_cap": 5
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_pi05_l10_50_A_profile/client/per_step.jsonl",
+              "bytes": 1081472,
+              "mtime_ns": 1790753569388103247
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 1291,
+          "camera_modes": {
+            "full": 648,
+            "blind": 643
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 98.49600000000004,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 0.0,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_pi05_l10_50_A_profile/server_23170/decisions_r7_pi05_l10_50_A_profile_23170.jsonl",
+              "bytes": 5053133,
+              "mtime_ns": 1790753564489101731
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_pi05_l10_500_SF1_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 1001,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "success": 20
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_pi05_l10_500_SF1_profile/client/per_step.jsonl",
+              "bytes": 848812,
+              "mtime_ns": 1790754770449902698
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 1001,
+          "camera_modes": {
+            "full": 447,
+            "blind": 554
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 67.94400000000003,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 0.0,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_pi05_l10_500_SF1_profile/server_23171/decisions_r7_pi05_l10_500_SF1_profile_23171.jsonl",
+              "bytes": 4207613,
+              "mtime_ns": 1790754753733902957
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_pi05_l10_500_SF2_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 1084,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "success": 18,
+            "step_cap": 2
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_pi05_l10_500_SF2_profile/client/per_step.jsonl",
+              "bytes": 917540,
+              "mtime_ns": 1790754856855903287
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 1084,
+          "camera_modes": {
+            "full": 458,
+            "blind": 626
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 69.61600000000003,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 0.0,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_pi05_l10_500_SF2_profile/server_23173/decisions_r7_pi05_l10_500_SF2_profile_23173.jsonl",
+              "bytes": 4580625,
+              "mtime_ns": 1790754796707902545
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_pi05_l10_500_UF1_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 1371,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "success": 13,
+            "step_cap": 7
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_pi05_l10_500_UF1_profile/client/per_step.jsonl",
+              "bytes": 1155575,
+              "mtime_ns": 1790754789818902556
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 1371,
+          "camera_modes": {
+            "full": 505,
+            "blind": 866
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 76.76000000000002,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 0.0,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_pi05_l10_500_UF1_profile/server_23170/decisions_r7_pi05_l10_500_UF1_profile_23170.jsonl",
+              "bytes": 5408497,
+              "mtime_ns": 1790754785371902574
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_pi05_l10_500_A_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 1001,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "success": 20
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_pi05_l10_500_A_profile/client/per_step.jsonl",
+              "bytes": 845125,
+              "mtime_ns": 1790754840768902946
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 1001,
+          "camera_modes": {
+            "full": 505,
+            "blind": 496
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 76.76000000000002,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 0.0,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_pi05_l10_500_A_profile/server_23172/decisions_r7_pi05_l10_500_A_profile_23172.jsonl",
+              "bytes": 3934266,
+              "mtime_ns": 1790754816909902629
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_pi05_spatial_50_SF1_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 581,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "success": 13,
+            "step_cap": 7
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_pi05_spatial_50_SF1_profile/client/per_step.jsonl",
+              "bytes": 503932,
+              "mtime_ns": 1790755015865911521
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 581,
+          "camera_modes": {
+            "full": 257,
+            "blind": 324
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 39.064,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 0.0,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_pi05_spatial_50_SF1_profile/server_23171/decisions_r7_pi05_spatial_50_SF1_profile_23171.jsonl",
+              "bytes": 2413349,
+              "mtime_ns": 1790754993944909911
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_pi05_spatial_50_SF2_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 514,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "step_cap": 4,
+            "success": 16
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_pi05_spatial_50_SF2_profile/client/per_step.jsonl",
+              "bytes": 446025,
+              "mtime_ns": 1790755030051912635
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 514,
+          "camera_modes": {
+            "full": 209,
+            "blind": 305
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 31.768,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 0.0,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_pi05_spatial_50_SF2_profile/server_23170/decisions_r7_pi05_spatial_50_SF2_profile_23170.jsonl",
+              "bytes": 2120993,
+              "mtime_ns": 1790755001803910473
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_pi05_spatial_50_UF1_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 557,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "success": 14,
+            "step_cap": 6
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_pi05_spatial_50_UF1_profile/client/per_step.jsonl",
+              "bytes": 482418,
+              "mtime_ns": 1790755086480917595
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 557,
+          "camera_modes": {
+            "full": 223,
+            "blind": 334
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 33.896,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 0.0,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_pi05_spatial_50_UF1_profile/server_23172/decisions_r7_pi05_spatial_50_UF1_profile_23172.jsonl",
+              "bytes": 2237381,
+              "mtime_ns": 1790755062228915363
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_pi05_spatial_50_A_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 535,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "success": 15,
+            "step_cap": 5
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_pi05_spatial_50_A_profile/client/per_step.jsonl",
+              "bytes": 462996,
+              "mtime_ns": 1790755102188919117
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 535,
+          "camera_modes": {
+            "full": 272,
+            "blind": 263
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 41.344,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 0.0,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_pi05_spatial_50_A_profile/server_23173/decisions_r7_pi05_spatial_50_A_profile_23173.jsonl",
+              "bytes": 2093938,
+              "mtime_ns": 1790755074827916504
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_pi05_spatial_500_SF1_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 463,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "success": 18,
+            "step_cap": 2
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_pi05_spatial_500_SF1_profile/client/per_step.jsonl",
+              "bytes": 404823,
+              "mtime_ns": 1790755261306937547
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 463,
+          "camera_modes": {
+            "full": 190,
+            "blind": 273
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 28.880000000000003,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 0.0,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_pi05_spatial_500_SF1_profile/server_23171/decisions_r7_pi05_spatial_500_SF1_profile_23171.jsonl",
+              "bytes": 1873278,
+              "mtime_ns": 1790755235407934209
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_pi05_spatial_500_SF2_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 466,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "success": 18,
+            "step_cap": 2
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_pi05_spatial_500_SF2_profile/client/per_step.jsonl",
+              "bytes": 406613,
+              "mtime_ns": 1790755270549938766
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 466,
+          "camera_modes": {
+            "full": 173,
+            "blind": 293
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 26.296,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 0.0,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_pi05_spatial_500_SF2_profile/server_23170/decisions_r7_pi05_spatial_500_SF2_profile_23170.jsonl",
+              "bytes": 1891565,
+              "mtime_ns": 1790755243114935190
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_pi05_spatial_500_UF1_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 462,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "success": 18,
+            "step_cap": 2
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_pi05_spatial_500_UF1_profile/client/per_step.jsonl",
+              "bytes": 403040,
+              "mtime_ns": 1790755331681947188
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 462,
+          "camera_modes": {
+            "full": 168,
+            "blind": 294
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 25.536,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 0.0,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_pi05_spatial_500_UF1_profile/server_23172/decisions_r7_pi05_spatial_500_UF1_profile_23172.jsonl",
+              "bytes": 1786512,
+              "mtime_ns": 1790755305372943490
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_pi05_spatial_500_A_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 461,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "success": 18,
+            "step_cap": 2
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_pi05_spatial_500_A_profile/client/per_step.jsonl",
+              "bytes": 402304,
+              "mtime_ns": 1790755347497949461
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 461,
+          "camera_modes": {
+            "full": 236,
+            "blind": 225
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 35.87199999999999,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 0.0,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_pi05_spatial_500_A_profile/server_23173/decisions_r7_pi05_spatial_500_A_profile_23173.jsonl",
+              "bytes": 1809511,
+              "mtime_ns": 1790755318823945368
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_groot_l10_50_SF1_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 1280,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "step_cap": 6,
+            "success": 14
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_groot_l10_50_SF1_profile/client/per_step.jsonl",
+              "bytes": 1005549,
+              "mtime_ns": 1790753540380094311
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 1280,
+          "camera_modes": {
+            "full": 561,
+            "blind": 719
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 83.02799999999996,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 0.0,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_groot_l10_50_SF1_profile/server_23173/decisions_r7_groot_l10_50_SF1_profile_23173.jsonl",
+              "bytes": 5056758,
+              "mtime_ns": 1790753485950077838
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_groot_l10_50_SF2_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 1402,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "success": 13,
+            "step_cap": 7
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_groot_l10_50_SF2_profile/client/per_step.jsonl",
+              "bytes": 1104305,
+              "mtime_ns": 1790753735229156122
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 1402,
+          "camera_modes": {
+            "full": 572,
+            "blind": 830
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 84.65599999999995,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 0.0,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_groot_l10_50_SF2_profile/server_23173/decisions_r7_groot_l10_50_SF2_profile_23173.jsonl",
+              "bytes": 5545753,
+              "mtime_ns": 1790753693575142583
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_groot_l10_50_UF1_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 1318,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "success": 14,
+            "step_cap": 6
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_groot_l10_50_UF1_profile/client/per_step.jsonl",
+              "bytes": 1043055,
+              "mtime_ns": 1790753774536169037
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 1318,
+          "camera_modes": {
+            "full": 490,
+            "blind": 828
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 72.51999999999997,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 0.0,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_groot_l10_50_UF1_profile/server_23172/decisions_r7_groot_l10_50_UF1_profile_23172.jsonl",
+              "bytes": 4916945,
+              "mtime_ns": 1790753727873153719
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_groot_l10_50_A_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 1381,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "success": 14,
+            "step_cap": 6
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_groot_l10_50_A_profile/client/per_step.jsonl",
+              "bytes": 1067924,
+              "mtime_ns": 1790753524313089408
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 1381,
+          "camera_modes": {
+            "full": 693,
+            "blind": 688
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 102.56399999999996,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 0.0,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_groot_l10_50_A_profile/server_23171/decisions_r7_groot_l10_50_A_profile_23171.jsonl",
+              "bytes": 5095101,
+              "mtime_ns": 1790753496053080865
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_groot_l10_500_SF1_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 1152,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "success": 17,
+            "step_cap": 3
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_groot_l10_500_SF1_profile/client/per_step.jsonl",
+              "bytes": 908386,
+              "mtime_ns": 1790755456074966003
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 1152,
+          "camera_modes": {
+            "full": 529,
+            "blind": 623
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 78.29199999999999,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 0.0,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_groot_l10_500_SF1_profile/server_23171/decisions_r7_groot_l10_500_SF1_profile_23171.jsonl",
+              "bytes": 4672405,
+              "mtime_ns": 1790755415146959586
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_groot_l10_500_SF2_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 1180,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "success": 16,
+            "step_cap": 4
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_groot_l10_500_SF2_profile/client/per_step.jsonl",
+              "bytes": 932314,
+              "mtime_ns": 1790755465395967492
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 1180,
+          "camera_modes": {
+            "full": 520,
+            "blind": 660
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 76.95999999999997,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 0.0,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_groot_l10_500_SF2_profile/server_23170/decisions_r7_groot_l10_500_SF2_profile_23170.jsonl",
+              "bytes": 4791841,
+              "mtime_ns": 1790755418115960045
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_groot_l10_500_UF1_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 1183,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "success": 17,
+            "step_cap": 3
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_groot_l10_500_UF1_profile/client/per_step.jsonl",
+              "bytes": 943881,
+              "mtime_ns": 1790755526622977519
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 1183,
+          "camera_modes": {
+            "full": 423,
+            "blind": 760
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 62.604,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 0.0,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_groot_l10_500_UF1_profile/server_23172/decisions_r7_groot_l10_500_UF1_profile_23172.jsonl",
+              "bytes": 4413386,
+              "mtime_ns": 1790755476244969238
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_groot_l10_500_A_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 1106,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "success": 18,
+            "step_cap": 2
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_groot_l10_500_A_profile/client/per_step.jsonl",
+              "bytes": 860851,
+              "mtime_ns": 1790755542619980204
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 1106,
+          "camera_modes": {
+            "full": 558,
+            "blind": 548
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 82.584,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 0.0,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_groot_l10_500_A_profile/server_23173/decisions_r7_groot_l10_500_A_profile_23173.jsonl",
+              "bytes": 4099255,
+              "mtime_ns": 1790755498433972852
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_groot_spatial_50_SF1_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 519,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "success": 16,
+            "step_cap": 4
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_groot_spatial_50_SF1_profile/client/per_step.jsonl",
+              "bytes": 422422,
+              "mtime_ns": 1790755585724987565
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 519,
+          "camera_modes": {
+            "full": 225,
+            "blind": 294
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 33.300000000000004,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 0.0,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_groot_spatial_50_SF1_profile/server_23171/decisions_r7_groot_spatial_50_SF1_profile_23171.jsonl",
+              "bytes": 2027164,
+              "mtime_ns": 1790755566092984190
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_groot_spatial_50_SF2_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 540,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "success": 15,
+            "step_cap": 5
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_groot_spatial_50_SF2_profile/client/per_step.jsonl",
+              "bytes": 440974,
+              "mtime_ns": 1790755594779989134
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 540,
+          "camera_modes": {
+            "full": 214,
+            "blind": 326
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 31.672000000000008,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 0.0,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_groot_spatial_50_SF2_profile/server_23170/decisions_r7_groot_spatial_50_SF2_profile_23170.jsonl",
+              "bytes": 2112397,
+              "mtime_ns": 1790755576696986009
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_groot_spatial_50_UF1_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 537,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "success": 15,
+            "step_cap": 5
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_groot_spatial_50_UF1_profile/client/per_step.jsonl",
+              "bytes": 438202,
+              "mtime_ns": 1790755656113999947
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 537,
+          "camera_modes": {
+            "full": 217,
+            "blind": 320
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 32.11600000000001,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 0.0,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_groot_spatial_50_UF1_profile/server_23172/decisions_r7_groot_spatial_50_UF1_profile_23172.jsonl",
+              "bytes": 2042228,
+              "mtime_ns": 1790755635813996333
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_groot_spatial_50_A_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 498,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "success": 17,
+            "step_cap": 3
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_groot_spatial_50_A_profile/client/per_step.jsonl",
+              "bytes": 399252,
+              "mtime_ns": 1790755672295002852
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 498,
+          "camera_modes": {
+            "full": 253,
+            "blind": 245
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 37.443999999999996,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 0.0,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_groot_spatial_50_A_profile/server_23173/decisions_r7_groot_spatial_50_A_profile_23173.jsonl",
+              "bytes": 1836240,
+              "mtime_ns": 1790755654060999580
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_groot_spatial_500_SF1_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 471,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "success": 18,
+            "step_cap": 2
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_groot_spatial_500_SF1_profile/client/per_step.jsonl",
+              "bytes": 385856,
+              "mtime_ns": 1790755715315010671
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 471,
+          "camera_modes": {
+            "full": 208,
+            "blind": 263
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 30.784000000000006,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 0.0,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_groot_spatial_500_SF1_profile/server_23171/decisions_r7_groot_spatial_500_SF1_profile_23171.jsonl",
+              "bytes": 1855841,
+              "mtime_ns": 1790755696250007189
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_groot_spatial_500_SF2_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 483,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "step_cap": 2,
+            "success": 18
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_groot_spatial_500_SF2_profile/client/per_step.jsonl",
+              "bytes": 396610,
+              "mtime_ns": 1790755724224012307
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 483,
+          "camera_modes": {
+            "full": 201,
+            "blind": 282
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 29.748000000000005,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 0.0,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_groot_spatial_500_SF2_profile/server_23170/decisions_r7_groot_spatial_500_SF2_profile_23170.jsonl",
+              "bytes": 1916999,
+              "mtime_ns": 1790755703407008493
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_groot_spatial_500_UF1_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 476,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "success": 18,
+            "step_cap": 2
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_groot_spatial_500_UF1_profile/client/per_step.jsonl",
+              "bytes": 393219,
+              "mtime_ns": 1790755785655023735
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 476,
+          "camera_modes": {
+            "full": 174,
+            "blind": 302
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 25.752000000000006,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 0.0,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_groot_spatial_500_UF1_profile/server_23172/decisions_r7_groot_spatial_500_UF1_profile_23172.jsonl",
+              "bytes": 1776179,
+              "mtime_ns": 1790755761250019165
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_groot_spatial_500_A_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 473,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "success": 18,
+            "step_cap": 2
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_groot_spatial_500_A_profile/client/per_step.jsonl",
+              "bytes": 381609,
+              "mtime_ns": 1790755801792026777
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 473,
+          "camera_modes": {
+            "full": 240,
+            "blind": 233
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 35.519999999999996,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 0.0,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_groot_spatial_500_A_profile/server_23173/decisions_r7_groot_spatial_500_A_profile_23173.jsonl",
+              "bytes": 1753780,
+              "mtime_ns": 1790755781483022951
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_sw_pi05_l10_50_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 1241,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "success": 16,
+            "step_cap": 4
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_sw_pi05_l10_50_profile/client/per_step.jsonl",
+              "bytes": 1044402,
+              "mtime_ns": 1790754045740113339
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 1241,
+          "camera_modes": {
+            "full": 407,
+            "blind": 617,
+            "wrist_only": 217
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 61.86400000000002,
+            "wrist_looks": 11.977965999999995,
+            "completion": 0.0,
+            "calls": 0.0,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_sw_pi05_l10_50_profile/server_23173/decisions_r7_sw_pi05_l10_50_profile_23173.jsonl",
+              "bytes": 5723188,
+              "mtime_ns": 1790753998179150472
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_sw_pi05_l10_500_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 1064,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "success": 19,
+            "step_cap": 1
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_sw_pi05_l10_500_profile/client/per_step.jsonl",
+              "bytes": 901747,
+              "mtime_ns": 1790754085279085701
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 1064,
+          "camera_modes": {
+            "full": 413,
+            "blind": 528,
+            "wrist_only": 123
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 62.77600000000002,
+            "wrist_looks": 6.789353999999998,
+            "completion": 0.0,
+            "calls": 0.0,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_sw_pi05_l10_500_profile/server_23171/decisions_r7_sw_pi05_l10_500_profile_23171.jsonl",
+              "bytes": 4944738,
+              "mtime_ns": 1790754041820116234
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_sw_pi05_sp_50_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 540,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "success": 15,
+            "step_cap": 5
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_sw_pi05_sp_50_profile/client/per_step.jsonl",
+              "bytes": 460753,
+              "mtime_ns": 1790754024787129154
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 540,
+          "camera_modes": {
+            "full": 199,
+            "blind": 266,
+            "wrist_only": 75
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 30.248,
+            "wrist_looks": 4.139849999999999,
+            "completion": 0.0,
+            "calls": 0.0,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_sw_pi05_sp_50_profile/server_23172/decisions_r7_sw_pi05_sp_50_profile_23172.jsonl",
+              "bytes": 2475518,
+              "mtime_ns": 1790754013895137710
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_sw_pi05_sp_500_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 479,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "success": 17,
+            "step_cap": 3
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_sw_pi05_sp_500_profile/client/per_step.jsonl",
+              "bytes": 412035,
+              "mtime_ns": 1790754054801106755
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 479,
+          "camera_modes": {
+            "full": 145,
+            "blind": 235,
+            "wrist_only": 99
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 22.040000000000006,
+            "wrist_looks": 5.464602,
+            "completion": 0.0,
+            "calls": 0.0,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_sw_pi05_sp_500_profile/server_23170/decisions_r7_sw_pi05_sp_500_profile_23170.jsonl",
+              "bytes": 2203277,
+              "mtime_ns": 1790754032226123443
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_pi05_l10_50_CU30_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 1179,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "success": 18,
+            "step_cap": 2
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_pi05_l10_50_CU30_profile/client/per_step.jsonl",
+              "bytes": 1079529,
+              "mtime_ns": 1790754335250965899
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 1179,
+          "camera_modes": {
+            "full": 612,
+            "blind": 567
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 93.02400000000003,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 259.488,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_pi05_l10_50_CU30_profile/server_23172/decisions_r7_pi05_l10_50_CU30_profile_23172.jsonl",
+              "bytes": 5781149,
+              "mtime_ns": 1790754307477975267
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_pi05_l10_50_CT30_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 1123,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "success": 19,
+            "step_cap": 1
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_pi05_l10_50_CT30_profile/client/per_step.jsonl",
+              "bytes": 1028559,
+              "mtime_ns": 1790754356333959337
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 1123,
+          "camera_modes": {
+            "full": 584,
+            "blind": 539
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 88.76800000000003,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 268.81600000000003,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_pi05_l10_50_CT30_profile/server_23173/decisions_r7_pi05_l10_50_CT30_profile_23173.jsonl",
+              "bytes": 6112574,
+              "mtime_ns": 1790754324245969510
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_pi05_spatial_50_CU30_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 470,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "success": 18,
+            "step_cap": 2
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_pi05_spatial_50_CU30_profile/client/per_step.jsonl",
+              "bytes": 444101,
+              "mtime_ns": 1790754294740979849
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 470,
+          "camera_modes": {
+            "full": 247,
+            "blind": 223
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 37.54399999999999,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 104.304,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_pi05_spatial_50_CU30_profile/server_23170/decisions_r7_pi05_spatial_50_CU30_profile_23170.jsonl",
+              "bytes": 2288235,
+              "mtime_ns": 1790754289175981909
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_pi05_spatial_50_CT30_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 519,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "success": 16,
+            "step_cap": 4
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_pi05_spatial_50_CT30_profile/client/per_step.jsonl",
+              "bytes": 489606,
+              "mtime_ns": 1790754335528965810
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 519,
+          "camera_modes": {
+            "full": 274,
+            "blind": 245
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 41.648,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 110.24000000000001,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_pi05_spatial_50_CT30_profile/server_23171/decisions_r7_pi05_spatial_50_CT30_profile_23171.jsonl",
+              "bytes": 2801735,
+              "mtime_ns": 1790754323022969920
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_groot_l10_50_CU30_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 1271,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "success": 15,
+            "step_cap": 5
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_groot_l10_50_CU30_profile/client/per_step.jsonl",
+              "bytes": 1032257,
+              "mtime_ns": 1790754549604918091
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 1271,
+          "camera_modes": {
+            "full": 657,
+            "blind": 614
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 97.23599999999999,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 293.088,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_groot_l10_50_CU30_profile/server_23170/decisions_r7_groot_l10_50_CU30_profile_23170.jsonl",
+              "bytes": 5977969,
+              "mtime_ns": 1790754514188923380
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_groot_l10_50_CT30_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 1267,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "success": 15,
+            "step_cap": 5
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_groot_l10_50_CT30_profile/client/per_step.jsonl",
+              "bytes": 1029732,
+              "mtime_ns": 1790754590124913110
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 1267,
+          "camera_modes": {
+            "full": 651,
+            "blind": 616
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 96.34799999999996,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 279.456,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_groot_l10_50_CT30_profile/server_23172/decisions_r7_groot_l10_50_CT30_profile_23172.jsonl",
+              "bytes": 6670540,
+              "mtime_ns": 1790754557151917080
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_groot_spatial_50_CU30_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 504,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "success": 17,
+            "step_cap": 3
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_groot_spatial_50_CU30_profile/client/per_step.jsonl",
+              "bytes": 422944,
+              "mtime_ns": 1790754525192921639
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 504,
+          "camera_modes": {
+            "full": 266,
+            "blind": 238
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 39.367999999999995,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 114.16800000000002,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_groot_spatial_50_CU30_profile/server_23171/decisions_r7_groot_spatial_50_CU30_profile_23171.jsonl",
+              "bytes": 2356821,
+              "mtime_ns": 1790754479528929463
+            }
+          ]
+        }
+      },
+      {
+        "arm": "r7_groot_spatial_50_CT30_profile",
+        "status": "ok",
+        "errors": [],
+        "N": 474,
+        "exception_audit": {
+          "status": "ok",
+          "per_step_present": true,
+          "accepted": 20,
+          "covered": 20,
+          "residual_exceptions": 0,
+          "residual_keys": [],
+          "uncovered_keys": [],
+          "conflicting_keys": [],
+          "malformed_timing_rows": 0,
+          "accepted_termination_counts": {
+            "success": 18,
+            "step_cap": 2
+          },
+          "exception_attempts_all": 0,
+          "purged_records": 0,
+          "purged_all_failed": true,
+          "purged_all_match_exception": true,
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_groot_spatial_50_CT30_profile/client/per_step.jsonl",
+              "bytes": 398761,
+              "mtime_ns": 1790754546175918564
+            }
+          ]
+        },
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 474,
+          "camera_modes": {
+            "full": 247,
+            "blind": 227
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 36.556,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 113.316,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/r7_groot_spatial_50_CT30_profile/server_23173/decisions_r7_groot_spatial_50_CT30_profile_23173.jsonl",
+              "bytes": 2471397,
+              "mtime_ns": 1790754494526926716
+            }
+          ]
+        }
+      }
+    ],
+    "chain_exception_audit": {
+      "status": "ok",
+      "source": {
+        "path": "/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/runs/chain.log",
+        "bytes": 38911,
+        "mtime_ns": 1790755801890026795
+      },
+      "events": [],
+      "per_arm": {}
+    }
+  },
+  "r6_raw": {
+    "all_match": true,
+    "rows": [
+      {
+        "id": "r06_c_validation/r6c_pi05_l10_50_U30",
+        "status": "ok",
+        "error": null,
+        "N": 28646,
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 28646,
+          "camera_modes": {
+            "full": 14421,
+            "blind": 14225
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 2191.9920000000043,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 6436.320000000011,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_l10_50_U30/server_23164/decisions_r6c_pi05_l10_50_U30_23164.jsonl",
+              "bytes": 115895068,
+              "mtime_ns": 1790695336163204425
+            }
+          ]
+        }
+      },
+      {
+        "id": "r06_c_validation/r6c_pi05_l10_50_C30",
+        "status": "ok",
+        "error": null,
+        "N": 29111,
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 29111,
+          "camera_modes": {
+            "full": 15093,
+            "blind": 14018
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 2294.1360000000077,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 6455.824000000023,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_pi05_l10_50_C30/server_23164/decisions_r6c_pi05_l10_50_C30_23164.jsonl",
+              "bytes": 141888910,
+              "mtime_ns": 1790696776980394116
+            }
+          ]
+        }
+      },
+      {
+        "id": "r06_c_validation/r6c_groot_l10_50_U30",
+        "status": "ok",
+        "error": null,
+        "N": 31629,
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 31629,
+          "camera_modes": {
+            "full": 15916,
+            "blind": 15713
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 2355.567999999992,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 7162.764000000013,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_l10_50_U30/server_23150/decisions_r6c_groot_l10_50_U30_23150.jsonl",
+              "bytes": 121208481,
+              "mtime_ns": 1790698303763466258
+            }
+          ]
+        }
+      },
+      {
+        "id": "r06_c_validation/r6c_groot_l10_50_C30",
+        "status": "ok",
+        "error": null,
+        "N": 31069,
+        "decision_audit": {
+          "status": "ok",
+          "discarded_prior_prefix": 0,
+          "exact_duplicate_decisions": 0,
+          "stage1_counter_rows": 31069,
+          "camera_modes": {
+            "full": 16112,
+            "blind": 14957
+          },
+          "camera_completion_calls": 0,
+          "total_components": {
+            "full_looks": 2384.575999999997,
+            "wrist_looks": 0.0,
+            "completion": 0.0,
+            "calls": 7246.2599999999975,
+            "blind": 0.0
+          },
+          "sources": [
+            {
+              "path": "/home/weiland/trace_runs/os_closed_loop/r06_c_validation/runs/r6c_groot_l10_50_C30/server_23164/decisions_r6c_groot_l10_50_C30_23164.jsonl",
+              "bytes": 145109777,
+              "mtime_ns": 1790700490226919322
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "all_pass": true
+}

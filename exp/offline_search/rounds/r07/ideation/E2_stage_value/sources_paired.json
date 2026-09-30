@@ -1,0 +1,14 @@
+{
+  "exp/offline_search/rounds/r06/frontier_final/outcomes.json": {
+    "bytes": 2346380,
+    "mtime_ns": 1790706403783690979
+  },
+  "exp/offline_search/rounds/r06/frontier_final/paper_AB_recomputed.csv": {
+    "bytes": 7350,
+    "mtime_ns": 1790706418945694694
+  },
+  "exp/offline_search/rounds/r06/frontier_final/pure_references.csv": {
+    "bytes": 851,
+    "mtime_ns": 1790706418945694694
+  }
+}
