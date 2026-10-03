@@ -100,3 +100,65 @@ def test_stopping_an_unknown_cell_keeps_its_resume_state(monkeypatch):
     monkeypatch.setattr(Q, "sh", lambda *args: pytest.fail("unknown cell must not have its log rotated"))
     Q.slot_main(state, budget, host, teacher, port, "0", job["id"])
     assert job["status"] == "running" and job["tries"] == 1 and job["slot"] == key
+
+
+def test_slot_sheds_its_server_between_cells_while_the_host_is_over_budget(monkeypatch):
+    """Resumed cells are forced into the budget at a restart; a slot whose cell ended on an over-budget host returns
+    its server instead of claiming the next job, and only until the host fits again."""
+    host, port, teacher = "h100", 23250, "groot"
+    key = f"{host}:{port}"
+    jobs = [{"id": "g1", "teacher": teacher, "arm": "warmshoot_t0.75", "lane": "main", "task": "CloseFridge",
+             "status": "pending", "tries": 0, "slot": None, "cell": None}]
+    state = {"jobs": jobs, "slots": {key: {"arm": "warmshoot_t0.75", "job": "g0"}}}
+    budget = Q.Budget(Q.DEFAULT_CAPS)
+    n_fit = int(Q.HOSTS[host]["ram_budget"] // Q.COST[teacher][1])
+    for _ in range(n_fit + 1):  # one more than fits, as after a restart
+        budget.try_take(host, teacher, False, force=True)
+    assert budget.over(host)
+    stop = threading.Event()
+    events = []
+    monkeypatch.setattr(Q, "_stop", stop)
+    monkeypatch.setattr(Q, "save_state", lambda st: None)
+    monkeypatch.setattr(Q, "log", lambda msg: events.append(msg))
+    monkeypatch.setattr(Q, "libero_pi05_waiting", lambda *a: False)
+    monkeypatch.setattr(Q, "stop_server", lambda h, p: events.append(f"stop {p}"))
+    monkeypatch.setattr(Q, "start_server", lambda *a: pytest.fail("a shedding slot must not start a server"))
+    monkeypatch.setattr(Q.time, "sleep", lambda s: stop.set())
+    Q.slot_main(state, budget, host, teacher, port, "0", "g0")
+    assert f"stop {port}" in events and any("SLOT_YIELD" in e and "host budget" in e for e in events)
+    assert not budget.over(host) and budget.count[host][teacher] == n_fit and jobs[0]["status"] == "pending"
+
+
+def test_host_overrides_repair_a_server_host_with_another_worker(monkeypatch):
+    hosts = {h: dict(v) for h, v in Q.HOSTS.items()}
+    monkeypatch.setattr(Q, "HOSTS", hosts)
+    got = Q.apply_host_overrides('{"h100": {"worker": "timan107", "worker_gpus": ["4", "5"]}}')
+    assert got == {"h100": {"worker": "timan107", "worker_gpus": ["4", "5"]}}
+    assert hosts["h100"]["worker"] == "timan107" and hosts["h100"]["addr"] == "149.165.153.233"
+    assert Q.apply_host_overrides("{}") == {}
+    for bad in ('{"nohost": {"worker": "x"}}', '{"h100": {"addr": "x"}}'):
+        with pytest.raises(ValueError):
+            Q.apply_host_overrides(bad)
+
+
+def test_server_launch_moves_the_previous_serve_output_aside(tmp_path, monkeypatch):
+    """A failure line an earlier launch left in serve_<port>.out must not fail the next start on the port."""
+    host, port = "wls", 23154
+    cmds = []
+    probes = iter([None, "config-sha"])
+    monkeypatch.setattr(Q, "_server_probe", lambda *a: next(probes))
+    monkeypatch.setattr(Q, "stop_server", lambda *a: None)
+    monkeypatch.setattr(Q, "sh", lambda h, cmd, *a, **k: (cmds.append(cmd) or (0, "")))
+    monkeypatch.setattr(Q.time, "sleep", lambda s: None)
+    assert Q.start_server(host, "groot", "selfresetfinal_t0.5", port) == "config-sha"
+    launch = cmds[0]
+    assert launch.index(f"mv -f /tmp/sdiag/serve_{port}.out") < launch.index("nohup bash")
+    # the rotation step itself never fails the launch chain when there is nothing to move
+    out = tmp_path / "serve.out"
+    step = Q.rotate_serve_out(port).replace("/tmp/sdiag/", f"{tmp_path}/")
+    assert subprocess.run(["bash", "-c", f"{step} && echo ok"], capture_output=True, text=True).stdout.strip() == "ok"
+    out.write_text("server readiness failed: old\n")
+    moved = tmp_path / f"serve_{port}.out"
+    out.rename(moved)
+    subprocess.run(["bash", "-c", step], check=True)
+    assert not moved.exists() and (tmp_path / f"serve_{port}.out.prev").read_text().startswith("server readiness failed")

@@ -57,9 +57,23 @@ def manifest_problems(manifest: dict | None, *, env_id: str, arm_id: str, config
     return problems
 
 
+# Checkpoint digests (``envs.checkpoint_digest``) verified to name the same weights on two serving hosts: the
+# pi0.5 LIBERO checkpoint directory on weilandserver additionally holds a Jupyter autosave,
+# ``.ipynb_checkpoints/config-checkpoint.json``, whose content equals ``config.json``; ``model.safetensors`` is
+# byte-identical to h100's (sha256 69960c7b...), and the weilandserver digest without that file is h100's
+# (checked 2026-09-25). Each entry maps a digest to the one it is equivalent to.
+CHECKPOINT_DIGEST_EQUIVALENTS = {
+    "6475927c26a4e4d19e3fcb1e13c66adfe98637e3fd6dc1244b9da73a7e1e2c04":
+        "b1e1785c51ef9e22a7148cbb90a9cd2e3ff53ced89c2e45f8ba584fe105dbc6d",
+}
+
+
 def comparison_identity(manifest: dict) -> str:
-    """What must be identical across the arms of one comparison: model + environment contract."""
-    return E.sha256_json({"env": env_contract(manifest.get("env")), "checkpoint_sha256": manifest.get("checkpoint_sha256")})
+    """What must be identical across the arms of one comparison: model + environment contract (checkpoint
+    digests listed in ``CHECKPOINT_DIGEST_EQUIVALENTS`` count as the digest they are verified equal to)."""
+    ckpt = manifest.get("checkpoint_sha256")
+    return E.sha256_json({"env": env_contract(manifest.get("env")),
+                          "checkpoint_sha256": CHECKPOINT_DIGEST_EQUIVALENTS.get(ckpt, ckpt)})
 
 
 def runtime_note(manifest: dict) -> dict:

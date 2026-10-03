@@ -46,11 +46,16 @@ ROSTER_MAIN = tuple(_envs.RC_MAIN_LANE)
 ROSTER_PNP = tuple(_envs.RC_PNP_LANE)
 TEACHER_DIR = {"pi05": "pi05", "groot": "groot_tp"}
 ENV_ID = {"pi05": "pi05_rc", "groot": "groot_rc"}
-COST = {"pi05": (7.8, 31.0), "groot": (6.4, 21.0)}  # measured per server: GPU GB, RSS GB (2026-09-24)
+# measured per server: GPU GB, RSS GB (pi0.5 2026-09-24; GR00T 26 GB RSS re-measured on h100 2026-09-25 -- the
+# earlier 21 GB let 8 servers overcommit h100 and squeezed the 19 GB library out of the page cache)
+COST = {"pi05": (7.8, 31.0), "groot": (6.4, 26.0)}
 
 HOSTS = {
+    # ram_budget 160 (was 185, 2026-09-25): long-running GR00T servers grow to 27-31 GB anon RSS, so seven of them
+    # overran the 230 GB host; the kernel OOM-killed one at 2026-09-22 12:49, 09-24 23:38 and 09-25 18:57 UTC
+    # (dmesg), each time dropping the cells of several slots. 160 / COST 26 = six servers.
     "h100": {
-        "remote": True, "repo": "/data/openpi_sdiag", "home": "/home/exouser", "gpu_budget": 76.0, "ram_budget": 175.0,
+        "remote": True, "repo": "/data/openpi_sdiag", "home": "/home/exouser", "gpu_budget": 76.0, "ram_budget": 160.0,
         "addr": "149.165.153.233", "worker": "timan108", "worker_env": "", "worker_gpus": ["0", "1", "2"],
         "ports": {"pi05": list(range(23240, 23248)), "groot": list(range(23250, 23260))},
         "env": {"pi05": "SD_PY=/home/exouser/openpi/.venv/bin/python SD_CKPT=/home/exouser/ckpt/pi05_robocasa_pytorch",
@@ -72,6 +77,10 @@ HOSTS = {
 DEFAULT_CAPS = {"h100": {"pi05": 4, "groot": 2}, "wls": {"pi05": 5, "groot": 0}}  # pi0.5 first (owner 2026-09-24)
 WORKER_REPO = "/scratch/zixuans8/step_diag/openpi"
 CELL_SCRIPT = "/tmp/sdiag/run_rc_cell.sh.self"
+# The LIBERO round's queue (``libero_queue.py``) shares these hosts: each queue fits its servers next to the other's
+# live ones, and pi0.5 LIBERO ranks before the GR00T arms of this round (owner 2026-09-24)
+LIBERO_STATE = Path("/data/step_diag_libero_self/queue_state.json")
+LIBERO_SESSION = "sdlq"
 
 _lock = threading.Lock()
 _stop = threading.Event()
@@ -143,18 +152,26 @@ class Budget:
         self.caps = caps
 
     def try_take(self, host: str, teacher: str, other_pending: bool, force: bool = False) -> bool:
-        """Reserve one server of ``teacher`` on ``host`` if it fits the GPU / RAM budget and the teacher's cap (the cap
-        applies only while the other teacher has work); ``force`` reserves regardless (resumed cells)."""
+        """Reserve one server of ``teacher`` on ``host`` if it fits the GPU / RAM budget next to the LIBERO queue's live
+        servers and the teacher's cap (the cap applies only while the other teacher has work); ``force`` reserves
+        regardless (resumed cells)."""
         g, r = COST[teacher]
         u = self.used[host]
-        cap = self.caps[host][teacher] if other_pending else 99
-        fits = u[0] + g <= HOSTS[host]["gpu_budget"] and u[1] + r <= HOSTS[host]["ram_budget"]
-        if force or (fits and self.count[host][teacher] < cap):
-            u[0] += g
-            u[1] += r
-            self.count[host][teacher] += 1
-            return True
-        return False
+        if not force:
+            cap = self.caps[host][teacher] if other_pending else 99
+            lib_g, lib_r = libero_usage(host)
+            fits = (u[0] + lib_g + g <= HOSTS[host]["gpu_budget"]) and (u[1] + lib_r + r <= HOSTS[host]["ram_budget"])
+            if not fits or self.count[host][teacher] >= cap:
+                return False
+        u[0] += g
+        u[1] += r
+        self.count[host][teacher] += 1
+        return True
+
+    def over(self, host: str) -> bool:
+        """True while this queue's reservations on ``host`` exceed its GPU or RAM budget."""
+        u = self.used[host]
+        return u[0] > HOSTS[host]["gpu_budget"] + 1e-9 or u[1] > HOSTS[host]["ram_budget"] + 1e-9
 
     def give_back(self, host: str, teacher: str) -> None:
         """Release one server reservation of ``teacher`` on ``host``."""
@@ -162,6 +179,38 @@ class Budget:
         self.used[host][0] -= g
         self.used[host][1] -= r
         self.count[host][teacher] -= 1
+
+
+def libero_usage(host: str, state_path: Path | None = None) -> tuple[float, float]:
+    """(GPU GB, RSS GB) of the servers the LIBERO queue's live slots hold on ``host`` (0 without a LIBERO round; an
+    unreadable state file counts as the whole host, retried next poll)."""
+    try:
+        state = json.loads((state_path or LIBERO_STATE).read_text())
+    except FileNotFoundError:
+        return 0.0, 0.0
+    except (OSError, ValueError):
+        return float("inf"), float("inf")
+    from exp.step_diag.ops import libero_queue as _lq  # lazy: libero_queue imports this module
+
+    gpu = ram = 0.0
+    for key, slot in state.get("slots", {}).items():
+        if key.rsplit(":", 1)[0] == host:
+            g, r = _lq.COST["pi05" if slot["env_id"].startswith("pi05") else "groot"]
+            gpu += g
+            ram += r
+    return gpu, ram
+
+
+def libero_pi05_waiting(state_path: Path | None = None) -> bool:
+    """True while the LIBERO queue runs (tmux ``LIBERO_SESSION``) with pi0.5 LIBERO jobs pending: pi0.5 LIBERO ranks
+    before this round's GR00T arms (owner 2026-09-24), so a GR00T slot hands its capacity over when its cell ends."""
+    try:
+        state = json.loads((state_path or LIBERO_STATE).read_text())
+    except (OSError, ValueError):
+        return False
+    if not any(j["teacher"] == "pi05" and j["status"] == "pending" for j in state["jobs"]):
+        return False
+    return subprocess.run(["tmux", "has-session", "-t", LIBERO_SESSION], capture_output=True).returncode == 0
 
 
 # -- servers and cells ------------------------------------------------------------------------------------
@@ -197,6 +246,14 @@ def _server_probe(host: str, teacher: str, arm: str, port: int) -> str | None:
     return None
 
 
+def rotate_serve_out(port: int) -> str:
+    """Shell step that moves the port's previous ``serve_<port>.out`` aside before a launch appends to it. The
+    readiness poll reads the file's last lines, so a failure line left by an earlier launch on the port (or written
+    later by that launch's still-waiting script, which keeps its descriptor on the renamed file) would otherwise fail
+    every new start at its first poll."""
+    return f"{{ mv -f /tmp/sdiag/serve_{port}.out /tmp/sdiag/serve_{port}.out.prev 2>/dev/null || true; }}"
+
+
 def start_server(host: str, teacher: str, arm: str, port: int) -> str | None:
     """Start the arm's server on ``port`` and wait until it listens; returns the arm's config_sha or None.
     A server of the same arm already listening on the port (queue restart) is reused as is."""
@@ -206,7 +263,7 @@ def start_server(host: str, teacher: str, arm: str, port: int) -> str | None:
         return live
     mode = _envs.warm_mode_of(arm)
     script = f"exp/step_diag/ops/serve_{'pi05' if teacher == 'pi05' else 'groot'}.sh"
-    launch = (f"cd {h['repo']} && {server_env(host, teacher)} && mkdir -p /tmp/sdiag && "
+    launch = (f"cd {h['repo']} && {server_env(host, teacher)} && mkdir -p /tmp/sdiag && {rotate_serve_out(port)} && "
               f"nohup bash {script} {ENV_ID[teacher]} {mode} {arm} {port} {yaml_for(host, teacher, arm)} "
               f">> /tmp/sdiag/serve_{port}.out 2>&1 < /dev/null &")
     stop_server(host, port)  # clears a stale claim of this port (our sdsrv session only)
@@ -335,7 +392,7 @@ def slot_main(state: dict, budget: Budget, host: str, teacher: str, port: int, g
     try:
         while not _stop.is_set():
             job = None
-            release = False
+            release = ""
             with _lock:
                 if resume_job is not None:  # a cell this slot was running when the queue stopped
                     job = next((j for j in state["jobs"] if j["id"] == resume_job and j["status"] == "running"), None)
@@ -344,11 +401,23 @@ def slot_main(state: dict, budget: Budget, host: str, teacher: str, port: int, g
                     if not any(j["teacher"] == teacher and j["status"] == "pending" for j in state["jobs"]):
                         break
                     other_busy = any(j["teacher"] == other and j["status"] in ("pending", "running") for j in state["jobs"])
-                    if holding and other_busy and budget.count[host][teacher] > budget.caps[host][teacher]:
+                    if teacher == "groot" and libero_pi05_waiting():
+                        # pi0.5 LIBERO goes first: hand this slot's capacity over between cells
+                        if holding:
+                            budget.give_back(host, teacher)
+                            holding = False
+                            release = "pi0.5 LIBERO"
+                    elif holding and other_busy and budget.count[host][teacher] > budget.caps[host][teacher]:
                         # over this teacher's cap (caps changed at restart): hand the capacity to the other teacher
                         budget.give_back(host, teacher)
                         holding = False
-                        release = True
+                        release = other
+                    elif holding and budget.over(host):
+                        # the host holds more than its budget (resumed cells are forced in at a restart, or the budget
+                        # shrank): shed this server between cells until the host fits again
+                        budget.give_back(host, teacher)
+                        holding = False
+                        release = "the host budget"
                     else:
                         if not holding:
                             holding = budget.try_take(host, teacher, other_busy)
@@ -364,7 +433,10 @@ def slot_main(state: dict, budget: Budget, host: str, teacher: str, port: int, g
                 if release:
                     stop_server(host, port)
                     arm_loaded, cs = None, None
-                    log(f"SLOT_YIELD {key} teacher={teacher} (over cap; capacity handed to {other})")
+                    with _lock:  # only now, with the server down, may the LIBERO queue count this capacity free
+                        state["slots"].pop(key, None)
+                        save_state(state)
+                    log(f"SLOT_YIELD {key} teacher={teacher} (capacity handed to {release})")
                 time.sleep(POLL_S)
                 continue
             if arm_loaded != job["arm"] or cs is None:
@@ -431,13 +503,29 @@ def slot_main(state: dict, budget: Budget, host: str, teacher: str, port: int, g
         log(f"SLOT_EXIT {key} teacher={teacher}")
 
 
+def apply_host_overrides(raw: str | None = None) -> dict:
+    """Merge ``SDQ_HOST_OVERRIDES`` (JSON ``{host: {key: value}}``) into ``HOSTS`` and return it: re-pairs a server
+    host with another worker box while its own is down (e.g. ``{"h100": {"worker": "timan107", ...}}``)."""
+    overrides = json.loads(raw if raw is not None else os.environ.get("SDQ_HOST_OVERRIDES", "{}"))
+    for host, fields in overrides.items():
+        unknown = set(fields) - {"worker", "worker_env", "worker_gpus"}
+        if host not in HOSTS or unknown:
+            raise ValueError(f"unsupported host override {host}: {sorted(unknown)}")
+        HOSTS[host].update(fields)
+    return overrides
+
+
 def run() -> None:
     """Start the queue: load / resume the state, reserve budget for resumed cells, start every slot thread and wait."""
+    overrides = apply_host_overrides()
     STATE_DIR.mkdir(parents=True, exist_ok=True)
     state = load_state()
     for j in state["jobs"]:
         if j["status"] == "running" and not j.get("slot"):
             j["status"] = "pending"
+    running = {j["id"] for j in state["jobs"] if j["status"] == "running"}
+    # slots whose last job is not running hold no server after a restart (the LIBERO queue counts live slots)
+    state["slots"] = {k: v for k, v in state["slots"].items() if v.get("job") in running}
     save_state(state)
     caps = json.loads(os.environ.get("SDQ_CAPS", json.dumps(DEFAULT_CAPS)))
     budget = Budget(caps)
@@ -445,7 +533,8 @@ def run() -> None:
         if j["status"] == "running" and j.get("slot"):
             host = j["slot"].split(":")[0]
             budget.try_take(host, j["teacher"], True, force=True)
-    log(f"QUEUE_START caps={caps} jobs={len(state['jobs'])} done={sum(j['status'] == 'done' for j in state['jobs'])}")
+    log(f"QUEUE_START caps={caps} jobs={len(state['jobs'])} done={sum(j['status'] == 'done' for j in state['jobs'])}"
+        + (f" host_overrides={overrides}" if overrides else ""))
     threads = []
     gpu_rr = {h: 0 for h in HOSTS}
     # start slots in an order that interleaves teachers per host; each slot waits for budget on its own

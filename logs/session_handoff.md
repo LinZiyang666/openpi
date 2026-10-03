@@ -1,6 +1,6 @@
 # Session handoff
 
-> 多条线共用本文件。§0 为常驻初始化（不动）。**§1–§6 = 离线检索探索线（offline_search）交接，2026-09-30 08:2x CDT 更新：R7（阶段级分配）全部完成，含收尾检查（手腕价实测、规则 4 复现与稠密库），停在暂停点 2（未提交）**。step_diag / warm reset 线的交接原文在附录 A（该线已全部完成、待 owner 裁定提交）。
+> 多条线共用本文件。§0 为常驻初始化（不动）。**§1–§6 = 离线检索探索线（offline_search）交接，2026-10-01 19:4x CDT 更新：R8 全部完成（采集 / 影子 / 校验 / 报告 / 补充消融），等 owner 裁定提交**。step_diag / warm reset 线的交接原文在附录 A（该线已全部完成、待 owner 裁定提交）。
 
 ## 0. 初始化方式（不变）
 
@@ -52,18 +52,92 @@ owner 的常驻指令，逐字有效：
 
 
 
-## 1. 现在在哪（2026-09-30 08:2x CDT）—— R7 完成（含收尾检查），停在暂停点 2
+## 1. 现在在哪（2026-10-02 19:5x CDT）—— R10 完成；owner 拍板"三层设计"；sol 正在做 `R10Recipe`（部署类 + 构建器）
 
-**目标（/goal，owner 9-30 00:1x 设）**：免暂停点 1，独自按流程推进 R7（阶段级分配），不做完不停。构思 5 个 astra 探索者 → 选题 → 4 个 sol 编码 → 非测试集 profile → 探索者续聊分析自己的 profile → 全量闭环 → astra + opus 分析 → 暂停点 2。**全部完成**；本轮所有代码与产物**未提交**（等 owner 指示）。
-- **唯一权威**：`logs/offline_search_exploration.log.md` §10「R7」；R7 报告 `exp/offline_search/rounds/r07/ANALYSIS.md`（§§1–5 A1 定量判决，§§6–8 A2 机理 / 数据质量 / 普适性 / R8 提案）。
-- **模型分工（owner 9-30）**：探索 / 分析用 gpt-6-astra xhigh，编码用 gpt-6.1-sol xhigh，分析也可用 opus；fable 禁用；每次显式 `--model/--effort`。
-- **术语（owner 9-30 定，统一使用；跟 owner 说话不用代号）**：**原子手段**（少调用 / 少看〔沿库轨迹盲走更长〕/ 看一半〔只编码一路相机〕；便宜调用〔少步去噪〕已搁置）；**触发信号**（状态偏离、停滞检测、阶段标签；预测差异已证无用）；**分配策略**（均匀 → 任务级 → 阶段级 → 事件触发，可嵌套；其上是预算旋钮）。
-- **R7 产物**（都在 `exp/offline_search/rounds/r07/`）：`IDEATION_BRIEF.md`、`ideation/E1..E5/{PROPOSAL,PROFILE_ANALYSIS}.md`、`SELECTION.md`（含预登记验收 §5 与冻结记录 §8）、`CODING_BRIEF.md`、`stages/`（共享阶段表）、`c1_follow/`（SF/UF）、`c2_wrist/`（SW + 插件按请求选相机）、`c3_calls/`（CU/CT）、`c4_profile/`（profile 工具）、`profile_results/`（≈ 94 MB 数据，**不入库**）、`ANALYSIS_BRIEF.md`、`ANALYSIS.md`、`analysis_scripts/`（a1_* / a2_*）、`analysis_r7/`。
-- **共享文件改动（未提交）**：`closed_loop/plugin.py`、`closed_loop/stage_overrides.py`（C2，加 `--os-request-cameras`，不带新 flag 时逐位不变）；R6 的停滞提速改动（`ideation_Q3/stall/`、`method_c/methods.py`）也仍未提交。
-- **run root**：profile `/home/weiland/trace_runs/os_closed_loop/r07_profile_bval1/`（44 臂 × 20 集非测试 B-val）；评测 `r07_main/`（28 臂 × 500 测试对）。
-- **收尾检查（SELECTION §9，06:2x 预登记；ANALYSIS 附录 A–C）**：手腕价实测（`analysis_scripts/a3_wrist_latency.py`）；规则 4 在稀疏 4 格换种子复现（8 臂 `*_rep2`）；规则 4 在稠密 4 格 ρ=.18（C3 扩展标定、8 臂 profile + 8 臂评测 `*18`）；判决脚本 `analysis_scripts/a4_completion.py`。
-- **所有车道已停**；GPU 只剩别的会话的 MPS 守护进程；timan107 无本线进程。巡检 cron `83c49546`、`e57d1be4` 均已删。
-- R6 网页 https://claude.ai/artifact/N9KTGqB8Hkpt5wUBEZcrRd v6 未更新 R7。
+**当前设计（owner 10-02 19:5x 定，记忆 `project_offline_search_three_layer_design`）**：三层，全部只从示范库拟合，各格各库大小统一。
+1. 缓存（R4 BlindAWM，10 控制步提交，kref 每任务 5 集为 5、否则 8）；
+2. 只留无进展守卫（R8 onlynp 判官，库内留本集伪查询标定）；
+3. 库内留本集修正器（每任务一个 RFF + 岭回归头，学"大模型 − 缓存"运动 6 通道前 10 步），强度 = .5 × clip((2 − r)/1.25, 0, 1)，即 astra 的 GC_dist。
+- **已去掉"掉队交给策略"**：R9 阈值拟合于测试集。
+
+**R10（owner 10-02 /goal，已完成 120 臂；报告 `exp/offline_search/rounds/r10/REPORT.md`，附表由 `tmp/r10/r10_table.py` 生成）**：
+- **设计**：库大小 50–500 集（500 集差集池库按任务嵌套子集，每任务固定种子前缀）× {A 纯缓存, G 只留守卫, GC_loeo, GC_pair, GC_dist}，4 格，官方测试集各 500 局、只测一次。
+- **数据纪律**：一切拟合只用示范库（`assert_fit_input` 拒读 os_closed_loop），测试集只测量。
+- **结论**：
+  - 守卫长任务每档 +4~18 pp；短任务 100 集饱和；随机 50 集远差于精选 50 集（π0.5 L10 .634 vs .718）。
+  - 6 档合并 vs G：
+    - LOEO：π0.5 L10 +266/−185（p=1e-4）、π0.5 Sp +87/−53、GR00T L10 +355/−257（p=8e-5）、GR00T Sp 持平；
+    - PAIR：GR00T L10 无效（LOEO 胜 PAIR p=5e-5）；
+    - GC_dist：长任务≈LOEO，GR00T Sp 胜 LOEO（+110/−77，p=.02）。
+  - 长任务 500 集库已追平纯策略：π0.5 .900–.914 vs .908；GR00T .906 vs .898。
+  - 修正器使守卫调用略减，IR −.01。
+- **修正器训练范围（owner 问过）**：每个库大小只在自己那份库上 LOEO 训练（如 50 集：任务 0 头只用该子库任务 0 的 5 集共 277 行，检索只在另外 4 集里）；PCA / 度量 / σ / 守卫阈值 / 配对半径 / GC_dist 标尺均按库大小单独拟合。
+- **代码 / 产物**：
+  - sol：`rounds/r10/{data,method,train,build,selftest,tests,report}.py`，子库按行号引用父库，h100 示范库零新增；`heads2b/`、`training2b/`、`artifacts2b/` 为修正版；
+  - opus 离线：`rounds/r10/analysis_opus/`（REPORT 代存）；
+  - astra GC_dist：`rounds/r10/astra/`。
+  - 运行根：`r10_size_{pi05,groot}`（A / G）、`r10_corr2_*`（LOEO / PAIR 修正版）、`r10_corr3_{pi05,groot,groot_b}`（GC_dist）；`r10_corr_*` 为作废 v1 未跑；`r10_corr3_groot` 链在 L10-400 处按计划中止（该臂由 `_b` 跑完）。
+
+**进行中**：sol（codex `task-muror4p0-bp0fnh`，Monitor 盯 job json 状态）。
+- 内容：写 `exp/offline_search/rounds/r10/recipe/` 的 `R10Recipe` + 构建器（任意库一条命令拟合三层）。
+- 验收：对 r10_corr3_* 24 臂逐决策 0 差异；并在部署用精选 50 集 `current` 库出 4 臂到新根 `r10_recipe_current`（manifest = 测试集 500）。
+- 简报 `~/.claude/jobs/a607dd74/tmp/r10/sol_recipe.md`。
+
+**sol 交付后要做**：
+1. 读 `rounds/r10/HANDBACK.md` 的 R10Recipe 节。
+2. 把新源文件推 h100（`tether push --force <f> h100:/data/oscl_h100/openpi/<f>`）并 `sha256sum -c` 核对。
+3. 跑 `r10_recipe_current` 4 臂：两车队串行 sync（脚本范式 `tmp/r10/next_on_fleet_v2.sh` / `after_log_v2.sh`：flock `/tmp/r8_coord/r10_sync.lock`，timan107 WPS 16，timan108 WPS 10，`OSCL_MANIFEST=$R/eval500.json`）。外部参数文件先复制进根并改 `arms.json` 指向。
+4. 与 R8 / R9 精选 50 集结果对比，写进 R10 报告。
+5. **停掉本会话 codex 中转进程对**：`~/.claude/plugins/data/codex-openai-codex/state/openpi-50fd553c5e274099/broker.json` 的 pid 及其 `codex app-server` 子进程，按 PID kill。
+
+**待 owner 裁定**：
+- 修正器按任务编号选头是否算"沿任务分治"；
+- 是否补随机调用 / 空抓守卫的库大小消融（已提议，未答）；
+- 本机 4090 + timan1 第三车队（未答；本机 4090 当前空闲）；
+- R8–R10 提交（一律未提交）。
+
+**本日其他要点**：
+- owner 禁用 fable（记忆已更新）；"现在开始可以用 astra"。
+- owner 追问后确认 R9 测试集污染：R9 修正器每任务头与掉队 / 闸门阈值拟合于测试集 init 0–19，20–29 用于筛选，30–49 被协调者开 49 次 → R9"全量 500"非干净测试数。已披露。
+- codex 常驻进程空转：每工作目录一对 broker + app-server，空转 20–40% CPU。tether 热更新会话已清 56 对；本会话那对也已停（记忆 `reference_codex_broker_cpu_leak`）。
+- h100 `/data` 余约 45G（保留 32G）；已删 h100 上 `runs/r09_astra_r5/serving_store`、`runs/r08_abl*`（结果均已在本地）。
+
+### R9（2026-10-02 09:0x）—— 最终配方 8 格全量 500 已评估，报告 `rounds/r09/REPORT.md`；注意其修正器 / 掉队阈值拟合用了测试集（见台账 10-02 自查）
+
+**R9（owner 10-01 19:5x 起）**：派 astra + fable（owner 点名）+ opus 自由探索"压低推理占比同时保住成功率"。
+- **owner 硬规则**：
+  - 不准偷看：init 30–49 只给协调者对冻结候选开盲，研究员不许读 `r09_holdout*` / `r09_astra_holdout*`；
+  - 不再在"沿任务分治"上下功夫；
+  - 拟合 / 评估 init 不重叠（拟合 0–19，筛选 20–29）。
+- **唯一权威**：台账 R9 段 + `exp/offline_search/rounds/r09/REPORT.md`（白话结论、8 格全量表、否定清单、待裁、错误记录）。
+- **最终配方** `rounds/r09/recipe/`（`R9Recipe` v3，sha bbee155c，已推 h100）：
+  - 50 示范库与 L10-500 = 只留无进展守卫 + 一半修正器（π0.5 L10-50 另加掉队交给策略）；
+  - Spatial-500 = 纯缓存。
+  - 可选更省档：π0.5 500 示范库省看、GR00T L10-50 每局 20 次上限，默认关。
+- **8 格全量 500（括号 = 留出 30–49）**：
+  - π0.5：L10-50 .894(.875) @ .183、Sp-50 .968 @ .103、L10-500 .886 @ .154、Sp-500 .988 @ .078；
+  - GR00T：L10-50 .832(.830) @ .200、Sp-50 .944 @ .109、L10-500 .874 @ .181、Sp-500 .956 @ .076。
+  - 运行根：`r09_recipe_full_{p,g}`、`r09_l10_500_full_{p,g}`；对照为 R8 `r08_main` / `r08_abl` 500 局。
+- **待 owner 裁定**：
+  - 修正器按任务选头是否算"沿任务分治"。不含任务编号版 `r09_taskfree_full`：短任务无代价，长任务 −5~6 pp；
+  - timan1 第三车队；
+  - R8 / R9 是否提交。
+- **跑法坑**：
+  - 外部参数文件须复制进新根并改 `arms.json` 指向；
+  - `chain_h100.sh` 会 exec 成 python，排队要 pgrep `ops.h100.control chain <root>`；
+  - 两条 sync 同秒启动会互判"未认证持锁者"，必须错开；
+  - 非标准模块名持锁会阻塞全车队；
+  - h100 `/data` 只剩 ~44 GB（保留线 32 GB，`DISK_BLOCKED`），已删 `runs/r09_astra_r5/serving_store`；
+  - 部署新方法后在 h100 逐个核对 sha。
+
+### R8（2026-10-01 19:4x 完成）—— 采集 70/70、影子 70/70、全量校验 70/70 PASS、补充消融 44/44、报告定稿
+
+**目标（/goal，owner 9-30 11:2x 设）**：R8 专心做 profile 工具并集成进系统 debug 工具，收集真实运行轨迹数据全量 500 集；先发 opus / astra 研究分段需要的 profile 工具；组别 1 纯推理、2 A+停滞+随机调用、3 R7 阶段系统、4 少看 / 看一半系统研究、5 其他；数据放 /home（放不下再搬 /archive）；免暂停点 1，不做完不停。owner 12:5x 追加：编码完派 opus 查正确性，之前的 R 可 commit push（已推 `b3dd3d7`）。
+- **唯一权威**：台账 `logs/offline_search_exploration.log.md` §10「R8」。R8 文档：`rounds/r08/{IDEATION_BRIEF,SELECTION,CODING_BRIEF,REVIEW_1}.md`、`ideation/E1..E5/PROPOSAL.md`；数据契约 `exp/offline_search/debug/SCHEMA.md`；各编码交接 `exp/offline_search/debug/handbacks/HANDBACK_S*.md`、`rounds/r08/methods/HANDBACK.md`。
+- **系统**：`exp/offline_search/debug/`（server 观察器 / client 采集 / transport 流式 / reader / validate / capacity / catalog / aug 延后影子 / tools/{decision,physical}）；插件 `--os-debug-dir/--os-debug-config/--os-oracle`；链 `debug/ops/chain_debug.sh`；R8 新方法 `rounds/r08/methods/`；臂与拟合 `rounds/r08/ops/`。**全部未提交**（R8 进行中）。
+- **已验证**：GPU 真机 11 类方法 debug 开/关下发逐字节相同（修复后 GR00T 延迟 62.0→63.4 ms）；真仿真采集开/关物理逐字节相同；smoke 70 臂 × 20 集非测试全部通过（回执 + 模式校验）；影子策略与真实调用一致（MSE .0020 < 独立抽样 .0082）；合并测试 318 passed；opus 审查 `REVIEW_1.md` 全部修复。
+- **存储实测**（每集）：π0.5 L10 9.0 MB、Spatial 3.8；GR00T L10 11.2、Spatial 4.5 ⇒ 正式约 255 GB，/home 余 2.0 TB，不需要搬 /archive。
+- **R7**（已完成并已推送 `b3dd3d7`）：`rounds/r07/ANALYSIS.md`；R7 的"少看 / 看一半"是越权做了 owner 已搁置的项（owner 9-30 指出），R8 按 owner 新指令把它们作为组别 4 系统研究。
 
 ## 2. R7 关键结果（owner 口径；详见 `rounds/r07/ANALYSIS.md`）
 - **四条预登记规则**：
@@ -124,15 +198,15 @@ owner 的常驻指令，逐字有效：
 3. **l10 +0.04 显示口径**（owner 演示图 `~/projects/openpi_ext/artifacts/fig2_frontier_ab/` 里 l10 新点上移 0.04）：建议表格与正文一律用测量值，图若保留偏移就在图注写明。
 4. **下一轮**：是否按 ANALYSIS §7.2 开 R7——C′（ρ + 均匀放置 + 标定停滞 + 预登记的库级不调用闸门），并在 RoboCasa365 上做第二基准。
 
-## 4. 正在运行的东西
-- 无。R7 profile（02:24–03:12）与评测（03:10–06:02）全部结束，车道 tmux 已退出，服务器已关，timan107 无 worker。
-- 巡检 cron `83c49546` 已删（06:1x）。
-- 4090 已于 9-30 01:34 由沙堆实验会话交还；目前空闲。
+## 4. 正在运行的东西（10-02 19:5x）
+- 闭环：**无链在跑**；h100 MPS 开着；两车队空闲。
+- codex：sol `task-muror4p0-bp0fnh`（R10Recipe）运行中。
+- tmux 里残留的 r10 排队会话均已结束。
 
 ## 5. 下一步
-1. 等 owner 在暂停点 2 裁定 §3 的 R7 待裁定 1–5。
-2. R7 前的搁置项（决策 1 B 层消融、CLIP 消融、少步去噪、库自增长、任务级旋钮故事）仍搁置，除非 owner 重开。
-3. 若开 R8：沿用 R7 流程与车道脚本（`tmp/r7_lane.sh` 评测、`tmp/r7p_lane2.sh` + run 内 `chain_bval.sh` 非测试 profile）。
+1. sol 交付后按 §1"sol 交付后要做"执行。
+2. 汇报 owner：三层设计在精选 50 集库上的测试集结果；回答待裁项。
+3. 提交（等 owner）：R8–R10 范围 = `exp/offline_search/debug/`、`rounds/r08/`、`rounds/r09/`、`rounds/r10/`、`closed_loop/ops/h100/`、`tests/exp/offline_search/`、plugin / blind 的 debug 钩子、台账与交接；画图脚本不入库；commit 不加 AI 署名。
 
 ## 6. 纪律与坑（本线专有，章程 §8 / §9 有全文）
 - **（R7 新增）非测试 B-val 闭环**：P3 v2 客户端的遥测包装要求服务器返回 `__p3__` v2 标记，普通插件臂用不了（每集 ValueError）。改用原版客户端 + 远端 wrapper `os_cl/run_arm_r7_bval_stock.sh`（末尾追加 B-val 池的 `--apool-record/--apool-dir`）+ run 内 `chain_bval.sh`（= 原版 chain.sh，改调用脚本名与 HERE 路径）；代价是没有逐控制遥测。

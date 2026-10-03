@@ -118,6 +118,9 @@ def build_parser() -> argparse.ArgumentParser:
                     help="enable pre-inference blind_step serving and R4 decision logs")
     ap.add_argument("--os-request-cameras", action="store_true",
                     help="pi05 only: method declares next_camera_mode before request stage 1; completes on MISS")
+    ap.add_argument("--os-debug-dir", default="", help="enable passive osdebug.v1 capture in this directory")
+    ap.add_argument("--os-debug-config", default="{}", help="JSON campaign, sampling and writer queue configuration")
+    ap.add_argument("--os-oracle", action="store_true", help="allow the labelled privileged diagnostic oracle channel")
     ap.add_argument("--os-policy-tail", action="store_true",
                     help="allow method-approved reuse of a MISS wire tail; requires --os-blind and a five-step client")
     ap.add_argument("--os-policy-tail-blocks", type=int, choices=(1, 2), default=None,
@@ -157,6 +160,12 @@ def parse_cli(argv):
         raise SystemExit("--os-policy-tail requires --os-blind")
     if opts.os_policy_tail_blocks is not None and not opts.os_policy_tail:
         raise SystemExit("--os-policy-tail-blocks requires --os-policy-tail")
+    if opts.os_debug_dir:
+        from exp.offline_search.debug.server.observer import parse_config
+        try:
+            opts.debug_config = parse_config(opts.os_debug_config)
+        except (ValueError, TypeError) as e:
+            raise SystemExit(f"--os-debug-config: {e}") from None
     if opts.os_rand_seed is not None or opts.os_rand_replicate is not None:
         from exp.offline_search.rounds.r04.k5_rand.overlay import validate_options
         validate_options(opts)
@@ -429,6 +438,8 @@ class PluginRuntime:
 
         self.api, self.dims, self.store = api, dims, store
         self.opts = opts
+        self.oracle = bool(getattr(opts, "os_oracle", False))
+        self.debug = None
         self.blind = bool(getattr(opts, "os_blind", False))
         self.request_cameras = bool(getattr(opts, "os_request_cameras", False))
         if self.request_cameras and model != "pi05":
@@ -539,6 +550,12 @@ class PluginRuntime:
         if self.request_cameras:
             row.update(request_cameras=True, stage1_mode="per_request", camera_cost_basis="R4 proportional-latency assumption")
         self.emit(row)
+        if getattr(opts, "os_debug_dir", ""):
+            from exp.offline_search.debug.server import ServerObserver
+            try:
+                self.debug = ServerObserver(self, opts.os_debug_dir, getattr(opts, "debug_config", {}))
+            except Exception as exc:  # noqa: BLE001
+                raise RuntimeError("osplug: required debug observer startup failed") from exc
         log.info("osplug ready: method=%s cell=%s L=%d libs=%s log=%s", self.method_name, self.cell, self.L,
                  self.lib_sizes, self.dec_path)
 
@@ -711,6 +728,8 @@ class PluginRuntime:
                     s.finish_episode(reason="exit")
             except Exception:  # noqa: BLE001
                 log.exception("osplug: flush at exit failed")
+        if self.debug is not None:
+            self.debug.close()
 
 
 def _clean(o):
@@ -1218,6 +1237,9 @@ class PluginSession:
             self._recs.append(rec)
 
     def finish_episode(self, reason: str, success=None) -> None:
+        observer = getattr(self.rt, "debug", None)
+        if observer is not None:
+            observer.flush()
         if self.ep is None:
             return
         self._policy_tail = None
@@ -1351,6 +1373,11 @@ class OnlineQueryView:
         self.step = step
         self.task_id = task_id
         self.episode = episode
+
+    @property
+    def oracle(self):
+        """Privileged request channel, exposed only by --os-oracle."""
+        return getattr(self._s, "_oracle", None) if getattr(self._s.rt, "oracle", False) else None
 
     def __getattr__(self, name):
         api = RUNTIME.api if RUNTIME is not None else None
@@ -1677,7 +1704,8 @@ def _blind_view(s, rs):
                           _ro(s._raw_state().copy()), None if not s.step else bool(s.hits[-1]),
                           None if not s.step else s.b_aex.view(s.step - 1, s.step)[0],
                           s.b_aex.view(0, s.step), _ro(np.asarray(s.hits, np.int8)),
-                          s.b_rs.view(0, s.step), _ro(np.asarray(s.has_vision, bool)), s.blind_age)
+                          s.b_rs.view(0, s.step), _ro(np.asarray(s.has_vision, bool)), s.blind_age,
+                          getattr(s, "_oracle", None) if getattr(s.rt, "oracle", False) else None)
 
 
 def _duplicate_blind_request(s, obs):
@@ -1868,6 +1896,13 @@ class _ConnPolicy:
             object.__setattr__(self, "on_episode_end", self._osp_episode_end)
         if hasattr(inner, "on_task_end"):
             object.__setattr__(self, "on_task_end", self._osp_task_end)
+        for s in sessions:
+            if getattr(s.rt, "debug", None) is not None:
+                try:
+                    from exp.offline_search.debug.server.dispatch import install_dispatch_tap
+                    s._debug_dispatch_status = install_dispatch_tap(inner, s)
+                except Exception:  # noqa: BLE001
+                    log.exception("osplug: debug dispatch adapter unavailable")
 
     def _osp_episode_start(self, **kw):
         with self._osp_lock:
@@ -1904,8 +1939,36 @@ class _ConnPolicy:
 
     def _osp_infer(self, obs, *a, **kw):
         sessions = self._osp_sessions
+        envelope, oracle = None, None
+        oracle_present = "__oracle__" in obs
+        # Reserved telemetry/truth fields never reach a model transform. Keep
+        # the original object on ordinary requests (debug-off compatibility).
+        if "__debug__" in obs or "__oracle__" in obs:
+            obs = dict(obs)
+            envelope = obs.pop("__debug__", None)
+            oracle = obs.pop("__oracle__", None)
         for s in sessions:
+            if getattr(s.rt, "oracle", False):
+                s._oracle = copy.deepcopy(oracle)
+                s._oracle_error = None
+            elif oracle_present:
+                s._oracle = None
+                s._oracle_error = "__oracle__ dropped: --os-oracle is absent"
+                log.error("osplug: %s", s._oracle_error)
+            elif hasattr(s, "_oracle_error"):
+                s._oracle_error = None
             s.set_obs(obs)
+        observer = getattr(sessions[0].rt, "debug", None) if sessions else None
+        capture, capture_context, out = None, None, None
+        if observer is not None:
+            try:
+                capture = observer.begin(obs, envelope)
+                sessions[0]._debug_capture = capture
+                capture_context = capture.observe(sessions[0])
+                capture_context.__enter__()
+            except Exception:  # noqa: BLE001
+                log.exception("osplug: debug request capture failed")
+                capture_context = None
         t0 = time.perf_counter()
         ok, err = False, None
         decision_admitted = False
@@ -1974,6 +2037,25 @@ class _ConnPolicy:
             raise
         finally:
             dt = (time.perf_counter() - t0) * 1e3
+            if capture_context is not None:
+                try:
+                    capture_context.__exit__(None, None, None)
+                except Exception:  # noqa: BLE001
+                    log.exception("osplug: debug metric capture failed")
+            if observer is not None and capture is not None:
+                try:
+                    echo = observer.finish(capture, sessions[0], out, dt, ok, err)
+                    if out is not None:
+                        out["__debug__"] = echo
+                except Exception:  # noqa: BLE001
+                    log.exception("osplug: debug decision capture failed")
+                    if out is not None:
+                        out["__debug__"] = dict(v=1, decision_id=(envelope or {}).get("decision_id"),
+                                                server_tag=sessions[0].rt.tag, server_seq=-1, status="error")
+                sessions[0]._debug_capture = None
+            elif observer is not None and out is not None:
+                out["__debug__"] = dict(v=1, decision_id=(envelope or {}).get("decision_id"),
+                                        server_tag=sessions[0].rt.tag, server_seq=-1, status="error")
             for s in sessions:
                 try:
                     s.after_infer(dt, ok, err)

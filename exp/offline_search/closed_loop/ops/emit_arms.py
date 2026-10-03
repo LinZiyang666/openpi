@@ -32,6 +32,7 @@ from __future__ import annotations
 
 import argparse
 import copy
+import fcntl
 import hashlib
 import json
 import pathlib
@@ -80,9 +81,18 @@ def main(argv=None):
     ap.add_argument("--spec", required=True)
     a = ap.parse_args(argv)
     run = pathlib.Path(a.run_root)
+    run.mkdir(parents=True, exist_ok=True)
+    # Separate agents may emit disjoint specs into one run. Serialize the whole
+    # read/merge/write so neither can overwrite the other's latest arm rows.
+    with (run / '.emit_arms.lock').open('a') as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        _emit(run, pathlib.Path(a.spec))
+
+
+def _emit(run, spec_path):
     cfg_dir = run / "config"
     cfg_dir.mkdir(parents=True, exist_ok=True)
-    spec = expand_replicates(json.loads(pathlib.Path(a.spec).read_text()))
+    spec = expand_replicates(json.loads(spec_path.read_text()))
     arms_path = run / "arms.json"
     arms = {r["arm"]: r for r in json.loads(arms_path.read_text())} if arms_path.exists() else {}
     for s in spec:
@@ -185,7 +195,9 @@ def main(argv=None):
         if prev and prev != row:
             print(f"note: arm {name} redefined")
         arms[name] = row
-    arms_path.write_text(json.dumps(list(arms.values()), indent=1))
+    tmp = arms_path.with_suffix('.json.tmp')
+    tmp.write_text(json.dumps(list(arms.values()), indent=1))
+    tmp.replace(arms_path)
     print(json.dumps([{k: r[k] for k in ("arm", "model", "suite", "mode", "method")} for r in arms.values()], indent=1))
 
 

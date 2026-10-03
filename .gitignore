@@ -321,3 +321,46 @@ exp/offline_search/rounds/r05/q3_callvalue/rerun/
 # figure / plot scripts are never committed (owner rule)
 exp/offline_search/rounds/**/plot.py
 exp/offline_search/rounds/**/plot_*.py
+
+# Generated artifacts, scratch and figure scripts (added 2026-10-02)
+# Scope: exp/offline_search/** and exp/trace_dual/** (rounds r06-r11 write multi-GB
+# fitted-state pickles, replay traces and lock files; the reproducible sources
+# and human-written reports live next to them and stay visible).
+exp/offline_search/**/*.pkl
+exp/offline_search/**/*.npy
+exp/offline_search/**/*.npz
+exp/offline_search/**/*.h5
+exp/offline_search/**/*.parquet
+exp/offline_search/**/*.joblib
+exp/offline_search/**/*.mp4
+exp/offline_search/**/*.gz
+exp/offline_search/**/*.lock
+exp/trace_dual/**/*.pkl
+exp/trace_dual/**/*.npy
+exp/trace_dual/**/*.npz
+exp/trace_dual/**/*.h5
+exp/trace_dual/**/*.parquet
+exp/trace_dual/**/*.gz
+exp/trace_dual/**/*.lock
+# scratch / test-run / replay / cache output directories
+exp/offline_search/**/scratch/
+exp/offline_search/**/tmp/
+exp/offline_search/**/cache/
+exp/offline_search/**/replays/
+exp/offline_search/**/test_runs/
+exp/offline_search/**/selftest/
+exp/offline_search/**/_test_*/
+# R6 ideation pilot output dirs (csv/json/png result dumps + README), and
+# input_tables symlinks that point outside the repo
+exp/offline_search/rounds/r06/ideation_Q*/pilot_*/
+exp/offline_search/rounds/r06/ideation_Q*/final_analysis/input_tables/
+# figure / plot / render scripts and figure editors are never committed (owner rule)
+exp/offline_search/**/*figure*.py
+exp/offline_search/**/*figure*.html
+exp/offline_search/**/*_plot.py
+exp/offline_search/**/plot_*.py
+exp/offline_search/**/render_*.py
+exp/offline_search/**/edit_*figure*
+exp/trace_dual/**/*figure*.py
+exp/trace_dual/**/plot_*.py
+exp/trace_dual/**/render_*.py

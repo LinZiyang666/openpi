@@ -2,10 +2,11 @@
 every (env, arm, task) cell of ``envs.LIBERO_SELF_ARMS_BY_POLICY`` on libero_spatial / libero_10, 50 episodes each
 (init_idx 0..49 of the frozen pruned A pool), on the pairs h100 <-> timan108 and weilandserver <-> timan107.
 
-The round queues behind the RoboCasa ``sdiag_self13`` queue (``self13_queue.py``; plan §5): a host takes LIBERO
-servers only once no RoboCasa job is waiting to be claimed, and its budget is the RoboCasa host budget minus the
-servers the RoboCasa slots still hold (read from that queue's state file) minus this queue's own servers. So the
-two queues never plan the same GPU / RAM, and every RoboCasa slot that exits hands its capacity to LIBERO.
+Priority (owner 2026-09-24): RoboCasa pi0.5 (``sdiag_self13``, ``self13_queue.py``) > pi0.5 LIBERO > RoboCasa GR00T
+> GR00T LIBERO. A pi0.5 LIBERO slot takes a server once no RoboCasa pi0.5 job waits to be claimed; the RoboCasa
+GR00T slots hand their capacity over between cells while pi0.5 LIBERO jobs are pending; a GR00T LIBERO slot waits
+until no RoboCasa job at all waits. Each queue fits its servers into the host budget next to the other queue's live
+servers (read from its state file), so the two never plan the same GPU / RAM.
 
 Otherwise the mechanics are ``self13_queue.py``'s: one slot per server port; a slot keeps its (env, arm) server
 while jobs of it remain; a single-task cell (``ops/run_lib_cell.sh``) runs on the paired worker under a per-job run
@@ -26,6 +27,7 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
 import sys
 import threading
 import time
@@ -44,7 +46,9 @@ POLL_S = 60
 TEACHER_DIR = {"pi05": "pi05", "groot": "groot_tp"}
 ENV_IDS = {"pi05": ("pi05_libero_spatial", "pi05_libero_10"), "groot": ("groot_libero_spatial", "groot_libero_10")}
 SUITE_TAG = {"libero_spatial": "sp", "libero_10": "l10"}
-COST = {"pi05": (7.8, 20.0), "groot": (6.4, 16.0)}  # per LIBERO server: GPU GB, RSS GB (smoke 2026-09-24)
+# per LIBERO server: GPU GB, RSS GB with margin (smoke 2026-09-24: pi0.5 7.9 GB / 4.2 GB on the spatial library,
+# GR00T 5.8 GB / 3.0 GB on the libero_10 library)
+COST = {"pi05": (8.0, 8.0), "groot": (6.4, 6.0)}
 SERVER_REPO = "/data/openpi_sdlib"
 WORKER_REPO = "/scratch/zixuans8/step_diag/openpi_lib"
 CELL_SCRIPT = f"{WORKER_REPO}/exp/step_diag/ops/run_lib_cell.sh"
@@ -68,9 +72,9 @@ HOSTS = {
         "worker_gpus": ["0", "1", "2", "4", "5", "6", "7"],  # GPU 3 of timan107 belongs to another project
     },
 }
-# per-host server caps per teacher while the other teacher still has work (LIBQ_CAPS overrides); GR00T has
-# 29 arms to pi0.5's 9
-DEFAULT_CAPS = {"h100": {"pi05": 3, "groot": 7}, "wls": {"pi05": 2, "groot": 4}}
+# per-host server caps per teacher while the other teacher still has work (LIBQ_CAPS overrides); none by default:
+# the order between the teachers comes from the RoboCasa gate (pi0.5 LIBERO runs before GR00T LIBERO may start)
+DEFAULT_CAPS = {"h100": {"pi05": 99, "groot": 99}, "wls": {"pi05": 99, "groot": 99}}
 
 _lock = threading.Lock()
 _stop = threading.Event()
@@ -125,18 +129,42 @@ def save_state(state: dict) -> None:
 # ------------------------------------------------------------------
 
 
-def rc_usage(host: str, rc_state_path: Path = RC.STATE) -> tuple[bool, float, float]:
-    """``(RoboCasa blocks, GPU GB, RSS GB)`` for ``host``: it blocks while a RoboCasa job waits to be claimed and a
-    RoboCasa slot is alive to claim it; the GB are the servers the live RoboCasa slots on ``host`` hold. A missing
-    state file means no RoboCasa round; an unreadable one blocks (retried next poll)."""
+RC_SESSION = "sdq"  # the RoboCasa queue's tmux session
+
+
+RC_RESTART_GRACE_S = 900  # a RoboCasa state file written this recently counts as a live queue (restart window)
+
+
+def rc_queue_alive(rc_state_path: Path = RC.STATE) -> bool:
+    """True while the RoboCasa queue runs: its tmux session exists, or its state file changed within
+    ``RC_RESTART_GRACE_S`` (a restart takes seconds; its pending jobs must not leak to LIBERO meanwhile). Only a live
+    queue can still claim its pending jobs, so only then do they hold back the LIBERO jobs ranked after them."""
+    if subprocess.run(["tmux", "has-session", "-t", RC_SESSION], capture_output=True).returncode == 0:
+        return True
+    try:
+        return time.time() - rc_state_path.stat().st_mtime < RC_RESTART_GRACE_S
+    except OSError:
+        return False
+
+
+def rc_usage(host: str, teacher: str, rc_state_path: Path = RC.STATE) -> tuple[bool, float, float]:
+    """``(RoboCasa blocks, GPU GB, RSS GB)`` for a ``teacher`` server on ``host``: RoboCasa blocks while a job that
+    ranks before it waits to be claimed (pi0.5 LIBERO: a RoboCasa pi0.5 job; GR00T LIBERO: any RoboCasa job) and the
+    RoboCasa queue runs to claim it (its GR00T slots may be idle, having yielded to pi0.5 LIBERO); the GB are the
+    servers the RoboCasa slots running a cell on ``host`` hold. A missing state file means no RoboCasa round; an
+    unreadable one blocks (retried next poll)."""
     try:
         state = json.loads(rc_state_path.read_text())
     except FileNotFoundError:
         return False, 0.0, 0.0
     except (OSError, ValueError):
         return True, 0.0, 0.0
-    slots = state.get("slots", {})
-    blocks = bool(slots) and any(j["status"] == "pending" for j in state["jobs"])
+    running = {j["id"] for j in state["jobs"] if j["status"] == "running"}
+    # a slot entry names the slot's last job; one whose job is no longer running is a slot that yielded or stopped
+    # (it holds no server): only slots with a running job count as live
+    slots = {k: v for k, v in state.get("slots", {}).items() if v.get("job") in running}
+    blocks = any(j["status"] == "pending" and (teacher == "groot" or j["teacher"] == "pi05")
+                 for j in state["jobs"]) and rc_queue_alive(rc_state_path)
     gpu = ram = 0.0
     for key in slots:
         slot_host, port = key.rsplit(":", 1)
@@ -164,7 +192,7 @@ class Budget:
         g, r = COST[teacher]
         u = self.used[host]
         if not force:
-            blocks, rc_g, rc_r = rc_usage(host, self.rc_state_path)
+            blocks, rc_g, rc_r = rc_usage(host, teacher, self.rc_state_path)
             cap = self.caps[host][teacher] if other_pending else 99
             fits = (u[0] + rc_g + g <= RC.HOSTS[host]["gpu_budget"] and u[1] + rc_r + r <= RC.HOSTS[host]["ram_budget"])
             if blocks or not fits or self.count[host][teacher] >= cap:
@@ -236,6 +264,7 @@ def start_server(host: str, teacher: str, env_id: str, arm: str, port: int) -> s
     mode, arg = server_args(env_id, arm)
     script = f"exp/step_diag/ops/serve_{'pi05' if teacher == 'pi05' else 'groot'}.sh"
     launch = (f"cd {SERVER_REPO} && {server_env(host, teacher, env_id)} && mkdir -p /tmp/sdiag && "
+              f"{RC.rotate_serve_out(port)} && "
               f"nohup bash {script} {env_id} {mode} {arm} {port} {arg} >> /tmp/sdiag/serve_{port}.out 2>&1 < /dev/null &")
     stop_server(host, port)  # clears a stale claim of this port (our sdsrv session only)
     RC.sh(host, launch)
@@ -327,6 +356,7 @@ def slot_main(state: dict, budget: Budget, host: str, teacher: str, port: int, g
     try:
         while not _stop.is_set():
             job = None
+            release = False
             with _lock:
                 if resume_job is not None:
                     job = next((j for j in state["jobs"] if j["id"] == resume_job and j["status"] == "running"), None)
@@ -335,7 +365,13 @@ def slot_main(state: dict, budget: Budget, host: str, teacher: str, port: int, g
                     if not any(j["teacher"] == teacher and j["status"] == "pending" for j in state["jobs"]):
                         break
                     other_busy = any(j["teacher"] == other and j["status"] in ("pending", "running") for j in state["jobs"])
-                    if not holding:
+                    if holding and rc_usage(host, teacher, budget.rc_state_path)[0]:
+                        # RoboCasa jobs that rank before this teacher wait again (a slot resumed at a restart holds
+                        # its budget without passing try_take): hand the capacity back between cells
+                        budget.give_back(host, teacher)
+                        holding = False
+                        release = True
+                    elif not holding:
                         holding = budget.try_take(host, teacher, other_busy)
                     if holding:
                         job = claim(state, teacher, loaded, key)
@@ -346,6 +382,13 @@ def slot_main(state: dict, budget: Budget, host: str, teacher: str, port: int, g
                     state["slots"][key] = {"env_id": job["env_id"], "arm": job["arm"], "job": job["id"]}
                     save_state(state)
             if job is None:  # no budget yet: wait for RoboCasa or another slot to release some
+                if release:
+                    stop_server(host, port)
+                    loaded, cs = None, None
+                    with _lock:  # only now, with the server down, may the RoboCasa queue count this capacity free
+                        state["slots"].pop(key, None)
+                        save_state(state)
+                    log(f"SLOT_YIELD {key} teacher={teacher} (RoboCasa jobs rank first)")
                 time.sleep(POLL_S)
                 continue
             if loaded != (job["env_id"], job["arm"]) or cs is None:
@@ -413,7 +456,12 @@ def slot_main(state: dict, budget: Budget, host: str, teacher: str, port: int, g
 
 
 def run() -> None:
-    """Start the queue: load / resume the state, reserve budget for resumed cells, start every slot thread and wait."""
+    """Start the queue: load / resume the state, reserve budget for resumed cells, start every slot thread and wait.
+    ``SDQ_HOST_OVERRIDES`` re-pairs a server host with another worker box exactly as in the RoboCasa queue."""
+    overrides = RC.apply_host_overrides()
+    for host, fields in overrides.items():
+        if "worker_gpus" in fields:
+            HOSTS[host]["worker_gpus"] = list(fields["worker_gpus"])
     STATE_DIR.mkdir(parents=True, exist_ok=True)
     state = load_state()
     for j in state["jobs"]:
@@ -425,7 +473,8 @@ def run() -> None:
     for j in state["jobs"]:  # resumed cells hold their server before any slot may claim new work
         if j["status"] == "running" and j.get("slot"):
             budget.try_take(j["slot"].split(":")[0], j["teacher"], True, force=True)
-    log(f"QUEUE_START caps={caps} jobs={len(state['jobs'])} done={sum(j['status'] == 'done' for j in state['jobs'])}")
+    log(f"QUEUE_START caps={caps} jobs={len(state['jobs'])} done={sum(j['status'] == 'done' for j in state['jobs'])}"
+        + (f" host_overrides={overrides}" if overrides else ""))
     threads = []
     for host, h in HOSTS.items():
         order = []

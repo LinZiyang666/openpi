@@ -1,0 +1,450 @@
+"""Stdlib remote operations. Launches are locked and carry process/session ownership."""
+import argparse
+import fcntl
+import hashlib
+import json
+import os
+from pathlib import Path
+import shlex
+import signal
+import socket
+import subprocess
+import tarfile
+import time
+
+BASE = Path(os.environ.get("OSCL_H100_BASE", "/data/oscl_h100"))
+TREE = BASE / "openpi"
+ISLAND = Path(os.environ.get("OSCL_ISLAND", "/scratch/zixuans8/openpi_trace"))
+
+
+def within(path, root):
+    try:
+        Path(path).resolve().relative_to(Path(root).resolve())
+        return True
+    except ValueError:
+        return False
+
+
+def sha(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for b in iter(lambda: f.read(8 << 20), b""):
+            h.update(b)
+    return h.hexdigest()
+
+
+def call(args, **kw):
+    p = subprocess.run(args, text=True, capture_output=True, **kw)
+    if p.returncode:
+        raise RuntimeError(f"{shlex.join(list(map(str,args)))} exit={p.returncode}\n{p.stdout}\n{p.stderr}")
+    return p.stdout.strip()
+
+
+def atomic(path, data):
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(json.dumps(data, indent=1))
+    tmp.replace(path)
+
+
+def identity(pid):
+    try:
+        # starttime disambiguates a recycled PID; comm may contain spaces.
+        return Path(f"/proc/{pid}/stat").read_text().rsplit(")", 1)[1].split()[19]
+    except FileNotFoundError:
+        return None
+
+
+def session_exists(receipt):
+    return subprocess.run(["tmux", *receipt["socket"], "has-session", "-t", receipt["session"]],
+                          stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0
+
+
+def ours(receipt):
+    if not session_exists(receipt):
+        return False
+    value = call(["tmux", *receipt["socket"], "show-options", "-t", receipt["session"], "-v", "@oscl_owner"])
+    if value != receipt["owner"]:
+        raise RuntimeError(f"session {receipt['session']} belongs to another launch; refusing")
+    return True
+
+
+def port_busy(port):
+    return bool(call(["ss", "-ltnH", f"sport = :{port}"]))
+
+
+def island_workers(proc_root=Path("/proc")):
+    """Only this UID's worker_entry argv referencing this island counts."""
+    existing = 0
+    prefix = str(ISLAND).rstrip("/") + "/"
+    for p in proc_root.glob("[0-9]*/cmdline"):
+        try:
+            if p.stat().st_uid != os.getuid():
+                continue
+            argv = p.read_bytes().decode(errors="replace").split("\0")
+            if "examples.libero.worker_entry" in argv and any(
+                    arg.startswith(prefix) or arg == str(ISLAND) for arg in argv):
+                existing += 1
+        except (FileNotFoundError, PermissionError, ProcessLookupError):
+            pass
+    return existing
+
+
+def wait_workers(timeout_s=120):
+    deadline = time.monotonic() + timeout_s
+    while True:
+        existing = island_workers()
+        if not existing:
+            return
+        if time.monotonic() >= deadline:
+            raise RuntimeError(f"WORKERS_BUSY existing={existing}; refusing to add workers")
+        time.sleep(min(2, max(0, deadline - time.monotonic())))
+
+
+def wait_fleet(timeout_s=180):
+    """The old outer-flock PID can exit while run_gtp still holds this lock."""
+    path = ISLAND / "os_cl/locks/fleet.lock"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    deadline = time.monotonic() + timeout_s
+    with open(path, "a") as lock:
+        while True:
+            try:
+                fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                return
+            except BlockingIOError:
+                if time.monotonic() >= deadline:
+                    raise RuntimeError(f"FLEET_STOP_TIMEOUT lock held after {timeout_s}s")
+                time.sleep(min(1, max(0, deadline - time.monotonic())))
+
+
+def code_manifest(spec):
+    """Hash sorted relative-path/file-SHA records, excluding generated caches."""
+    root = Path(spec["root"])
+    if root.resolve() != TREE.resolve():
+        raise ValueError("code manifest must use the isolated h100 tree")
+    if not root.is_dir():
+        raise FileNotFoundError(root)
+    digest, files, size = hashlib.sha256(), 0, 0
+    for path in sorted(root.rglob("*")):
+        rel = path.relative_to(root)
+        if any(p in ("__pycache__", ".git", ".venv") for p in rel.parts) or path.suffix in (".pyc", ".pyo"):
+            continue
+        if not path.is_file() or path.is_symlink():
+            continue
+        digest.update(f"{rel.as_posix()}\0{sha(path)}\n".encode())
+        files += 1
+        size += path.stat().st_size
+    result = dict(root=str(root), sha256=digest.hexdigest(), files=files, bytes=size,
+                  rule="sorted relative-path NUL file-sha256 LF; regular files; no .git/.venv/__pycache__/.pyc/.pyo")
+    print(json.dumps(result))
+    return result
+
+
+def command(model, suite, port, yaml, log, tag, plugin, env):
+    s1 = env.get("STAGE1_ONLY", "1") == "1"
+    stock = env.get("STOCK", "0") == "1"
+    if model == "pi05":
+        py = "/home/exouser/openpi/.venv/bin/python"
+        entry = TREE / ("scripts/serve_policy.py" if stock else "exp/offline_search/closed_loop/serve_pi05.py")
+        args = ["--port", str(port), "--replicas", "1", "--cache-config", yaml]
+        if s1:
+            args += ["--stage1-device", "cuda:0", "--stage2-device", "meta", "--stage3-device", "meta"]
+        args += ["policy:checkpoint", "--policy.config", "pi05_libero", "--policy.dir",
+                 env.get("PI05_CKPT", "/home/exouser/ckpt/pi05_libero_pytorch")]
+    elif model == "groot" and suite in ("libero_10", "libero_spatial"):
+        py = "/home/exouser/gr00t_n15_venv/.venv/bin/python"
+        entry = TREE / ("exp/libero_groot/serve_groot_libero.py" if stock else "exp/offline_search/closed_loop/serve_groot.py")
+        args = ["--checkpoint", env.get("GROOT_CKPT", f"/home/exouser/ckpt/n15_{suite}"), "--port", str(port),
+                "--denoising-steps", env.get("GROOT_DENOISING_STEPS", "8"), "--concurrent",
+                "--allow-dynamic-bundles", "--cache-config", yaml]
+        if s1:
+            args += ["--stage1-only"]
+        env.update(HF_HUB_OFFLINE="1", TRANSFORMERS_OFFLINE="1", OPENPI_MONITOR_LEVEL="BASIC")
+    else:
+        raise ValueError(f"bad model/suite {model}/{suite}")
+    if stock and plugin:
+        raise ValueError("STOCK takes no plugin args")
+    if not stock:
+        args = [*plugin, "--os-log-dir", log, "--os-tag", tag, *args]
+    env.update(HOME="/home/exouser", PYTHONPATH=f"/home/exouser/gr00t_n15:/home/exouser/gr00t_n15/examples/Libero:{TREE}:{TREE}/src:{TREE}/packages/openpi-client/src",
+               OMP_NUM_THREADS=env.get("OMP", "4"), MKL_NUM_THREADS=env.get("OMP", "4"), OPENBLAS_NUM_THREADS="1",
+               OPENPI_SERVER_GPU_MEMORY_LOCK=env.get("GPU_LOCK", "0"), CUDA_VISIBLE_DEVICES="0")
+    return [py, str(entry), *args], env
+
+
+def launch(spec):
+    role = spec["role"]
+    out = Path(spec["out"])
+    allowed = BASE / "runs" if role == "server" else ISLAND / "os_cl/runs"
+    if not within(out, allowed):
+        raise ValueError(f"output must be under {allowed}")
+    out.mkdir(parents=True, exist_ok=True)
+    receipt_path = out / (f"server_{spec['tag']}.owner.json" if role == "server" else "driver.owner.json")
+    session = f"oscl{spec['port']}" if role == "server" else f"oscl_{spec['arm']}"
+    sock = [] if role == "server" else ["-L", "oscl"]
+    lockdir = BASE / "locks" if role == "server" else ISLAND / "os_cl/locks"
+    lockdir.mkdir(parents=True, exist_ok=True)
+    with open(lockdir / (session + ".lock"), "w") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        owner = hashlib.sha256((str(receipt_path) + json.dumps(spec, sort_keys=True)).encode()).hexdigest()
+        receipt = dict(spec=spec, owner=owner, socket=sock, session=session)
+        if session_exists(receipt):
+            if not receipt_path.exists() or json.loads(receipt_path.read_text())["spec"] != spec:
+                raise RuntimeError(f"occupied session {session}; refusing")
+            ours(receipt)
+            print("ALREADY_STARTED " + session)
+            return
+        if receipt_path.exists():
+            old = json.loads(receipt_path.read_text())
+            if old["spec"] == spec and (old.get("finished") or old.get("stopped")):
+                print("ALREADY_FINISHED " + session)
+                return
+        if role == "server":
+            port = int(spec["port"])
+            if not 23200 <= port <= 23299 or port_busy(port):
+                raise RuntimeError(f"invalid/occupied port {port}")
+            free = int(call(["nvidia-smi", "--query-gpu=memory.free", "--format=csv,noheader,nounits"]).splitlines()[0])
+            if free < spec["need_mb"]:
+                raise RuntimeError(f"GPU_TIGHT free={free} need={spec['need_mb']}")
+            if not Path(spec["yaml"]).is_file():
+                raise FileNotFoundError(spec["yaml"])
+            cmd, env = command(spec["model"], spec["suite"], port, spec["yaml"], str(out), spec["tag"],
+                               spec["plugin"], dict(spec["env"]))
+            name, cwd = "server_" + spec["tag"], TREE
+        else:
+            total = sum(spec["workers"])
+            if total < 1 or total > 40 or len(spec["workers"]) != len(spec["servers"]):
+                raise ValueError("workers must total 1..40 and match servers")
+            wait_workers()
+            # run_arm holds the fleet lock itself, rather than supervising an outer flock PID.
+            cmd = ["bash", str(ISLAND / "os_cl/run_arm.sh"),
+                   spec["suite"], spec["arm"], ",".join(spec["servers"]),
+                   ",".join(map(str, spec["workers"])), str(out)]
+            env, name, cwd = dict(spec["env"]), "driver", ISLAND
+        log = out / (name + ".log")
+        if role == "server" and log.exists():
+            log.replace(out / (name + f".prev.{time.time_ns()}.log"))
+        pidfile = out / (name + ".pid")
+        launchfile = out / ("launch_" + name + ".sh")
+        # exec the supervisor; it records starttime and always appends the same exit marker.
+        nodefile = Path(__file__).resolve()
+        jobfile = out / (name + ".job.json")
+        atomic(jobfile, dict(cmd=cmd, env=env, cwd=str(cwd), log=str(log), pidfile=str(pidfile),
+                             receipt=str(receipt_path), role=role))
+        launchfile.write_text("#!/bin/bash\nexec python3 " + shlex.join([str(nodefile), "supervise", str(jobfile)]) + "\n")
+        atomic(receipt_path, receipt)
+        # Setting the option in the same tmux command sequence prevents a duplicate-exec race.
+        call(["tmux", *sock, "new-session", "-d", "-s", session, "bash " + shlex.quote(str(launchfile)),
+              ";", "set-option", "-t", session, "@oscl_owner", owner])
+        print("STARTED " + session)
+
+
+def supervise(path):
+    job = json.loads(Path(path).read_text())
+    with open(job["log"], "a", buffering=1) as log:
+        env = {**os.environ, **job["env"]}
+        proc = subprocess.Popen(job["cmd"], cwd=job["cwd"], env=env, stdout=log, stderr=log,
+                                start_new_session=True)
+        atomic(job["pidfile"], {"pid": proc.pid, "starttime": identity(proc.pid)})
+        def forward(sig, frame):
+            if proc.poll() is None:
+                # Driver's finally clause stops its WorkerAgent when interrupted.
+                os.killpg(proc.pid, signal.SIGINT if job["role"] == "driver" else signal.SIGTERM)
+        signal.signal(signal.SIGTERM, forward)
+        signal.signal(signal.SIGINT, forward)
+        rc = proc.wait()
+        log.write(f"{'SERVER' if job['role'] == 'server' else 'RUN_ARM'}_EXIT={rc}\n")
+        receipt = json.loads(Path(job["receipt"]).read_text())
+        receipt["finished"] = True
+        atomic(job["receipt"], receipt)
+
+
+def status(spec):
+    out = Path(spec["out"])
+    role = spec["role"]
+    name = "server_" + spec["tag"] if role == "server" else "driver"
+    rp = out / (name + ".owner.json")
+    receipt = json.loads(rp.read_text()) if rp.exists() else None
+    running = bool(receipt and ours(receipt))
+    text = (out / (name + ".log")).read_text(errors="replace") if (out / (name + ".log")).exists() else ""
+    prefix = "SERVER_EXIT=" if role == "server" else "RUN_ARM_EXIT="
+    dead = prefix in text and not running
+    result = dict(running=running, dead=dead, listening=port_busy(spec["port"]) if role == "server" else False,
+                  tail=text[-3000:])
+    return result
+
+
+def stop(spec, timeout_s=120):
+    role = spec["role"]
+    session = f"oscl{spec['port']}" if role == "server" else f"oscl_{spec['arm']}"
+    lockdir = BASE / "locks" if role == "server" else ISLAND / "os_cl/locks"
+    lockdir.mkdir(parents=True, exist_ok=True)
+    with open(lockdir / (session + ".lock"), "w") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        _stop_locked(spec, timeout_s)
+
+
+def _stop_locked(spec, timeout_s):
+    out, role = Path(spec["out"]), spec["role"]
+    name = "server_" + spec["tag"] if role == "server" else "driver"
+    rp = out / (name + ".owner.json")
+    if not rp.exists():
+        if role == "driver":
+            wait_fleet()
+            wait_workers()
+        print("NO_OWNED_LAUNCH")
+        return
+    receipt = json.loads(rp.read_text())
+    # A late duplicated stop must not affect a new launch of a different arm.
+    if receipt["spec"] != spec:
+        raise RuntimeError("receipt does not match requested launch")
+    exists = ours(receipt)
+    pf = out / (name + ".pid")
+    deadline = time.monotonic() + 10
+    while exists and not pf.exists() and session_exists(receipt) and time.monotonic() < deadline:
+        time.sleep(.1)
+    if exists and session_exists(receipt) and not pf.exists():
+        raise RuntimeError("launch has no PID receipt yet; refusing to orphan a starting process")
+    if pf.exists():
+        p = json.loads(pf.read_text())
+        if identity(p["pid"]) == p["starttime"]:
+            cmd = Path(f"/proc/{p['pid']}/cmdline").read_bytes().replace(b"\0", b" ").decode()
+            # Stock servers have no plugin log-dir argument; their unique YAML
+            # still appears in argv, as in the original stop wrapper.
+            needle = spec["yaml"] if role == "server" else str(ISLAND / "os_cl/run_arm.sh")
+            if needle not in cmd:
+                raise RuntimeError(f"pid {p['pid']} has foreign command; refusing")
+            os.killpg(p["pid"], signal.SIGTERM if role == "server" else signal.SIGINT)
+            deadline = time.monotonic() + timeout_s
+            while identity(p["pid"]) == p["starttime"] and time.monotonic() < deadline:
+                time.sleep(1)
+            if identity(p["pid"]) == p["starttime"]:
+                if role != "server":
+                    raise RuntimeError(f"owned process did not stop within {timeout_s}s")
+                # Revalidate the recorded starttime immediately before escalating.
+                if identity(p["pid"]) == p["starttime"]:
+                    os.kill(p["pid"], signal.SIGKILL)
+                    print(f"SERVER_KILL pid={p['pid']} after={timeout_s}s")
+                deadline = time.monotonic() + 20
+                while identity(p["pid"]) == p["starttime"] and time.monotonic() < deadline:
+                    time.sleep(.2)
+                if identity(p["pid"]) == p["starttime"]:
+                    raise RuntimeError("owned server survived SIGKILL; refusing to relaunch")
+    if role == "driver":
+        # Also covers legacy launches whose outer flock PID has already disappeared.
+        wait_fleet()
+        wait_workers()
+    deadline = time.monotonic() + 10
+    while exists and session_exists(receipt) and time.monotonic() < deadline:
+        time.sleep(.2)
+    if session_exists(receipt):
+        ours(receipt)
+        call(["tmux", *receipt["socket"], "kill-session", "-t", receipt["session"]])
+    receipt["stopped"] = True
+    atomic(rp, receipt)
+    print("STOPPED " + receipt["session"])
+
+
+def install(spec):
+    dest = Path(spec["dest"])
+    if not (within(dest, BASE) or within(dest, ISLAND)):
+        raise ValueError("install destination outside owned trees")
+    dest.mkdir(parents=True, exist_ok=True)
+    with tarfile.open(spec["archive"]) as tf:
+        for m in tf.getmembers():
+            p = Path(m.name)
+            if p.is_absolute() or ".." in p.parts or not m.isfile():
+                raise ValueError(f"unsafe archive entry {m.name}")
+            target = dest / p
+            target.parent.mkdir(parents=True, exist_ok=True)
+            with tf.extractfile(m) as src, open(str(target) + ".tmp", "wb") as f:
+                for block in iter(lambda: src.read(8 << 20), b""):
+                    f.write(block)
+            Path(str(target) + ".tmp").replace(target)
+    for rel, digest in spec["hashes"].items():
+        if sha(dest / rel) != digest:
+            raise RuntimeError(f"SHA mismatch {rel}")
+    print(f"INSTALL_OK files={len(spec['hashes'])} dest={dest}")
+
+
+def pull_assets(spec):
+    # Resumable daemon pull; only names listed in the manifest can be served.
+    dest = Path(spec["dest"])
+    dest.mkdir(parents=True, exist_ok=True)
+    with open(dest / ".sync.lock", "w") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        files = spec["files"]
+        missing = sum(x["size"] for x in spec.get("reserve_files", files) if not (dest / x["rel"]).exists()
+                      or (dest / x["rel"]).stat().st_size != x["size"])
+        free = os.statvfs(dest).f_bavail * os.statvfs(dest).f_frsize
+        # rsync --inplace + --partial avoids a second complete copy when resuming/replacing.
+        if free - missing < 30 * (1 << 30):
+            raise RuntimeError(f"DISK_BLOCKED free={free} missing={missing} reserve={30*(1<<30)}")
+        listing = dest / ".files.txt"
+        listing.write_text("".join(x["rel"] + "\n" for x in files))
+        call(["rsync", "-rLt", "--inplace", "--partial", "--checksum", "--files-from=" + str(listing),
+              spec["url"], str(dest) + "/"], timeout=550)
+        for item in files:
+            if sha(dest / item["rel"]) != item["sha256"]:
+                raise RuntimeError(f"SHA mismatch {item['rel']}")
+        print(f"ASSETS_OK files={len(files)} bytes={sum(x['size'] for x in files)}")
+
+
+def archive(spec):
+    root = Path(spec["root"])
+    dest = Path(spec["archive"])
+    # Only regular files, all nested logs/sidecars, preserving layout under arm/.
+    with open(str(dest) + ".lock", "w") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        tmp = Path(str(dest) + ".tmp")
+        with tarfile.open(tmp, "w") as tf:
+            for p in sorted(root.rglob("*")):
+                if p.is_file() and not p.is_symlink():
+                    tf.add(p, arcname=str(Path(spec["prefix"]) / p.relative_to(root)), recursive=False)
+        tmp.replace(dest)
+        print(json.dumps(dict(sha256=sha(dest), size=dest.stat().st_size)))
+
+
+def checkpoints(expected):
+    results = {}
+    for name, want in expected.items():
+        if name == "rule":
+            continue
+        root = Path("/home/exouser/ckpt") / name
+        files = sorted(root.glob("*.safetensors"), key=lambda p: p.name)
+        h = hashlib.sha256()
+        for p in files:
+            h.update(f"{p.name}\0{sha(p)}\n".encode())
+        actual = h.hexdigest() if files else None
+        results[name] = dict(path=str(root), actual=actual, expected=want, match=actual == want)
+    print(json.dumps(results, indent=1))
+    if not all(r["match"] for r in results.values()):
+        raise RuntimeError("checkpoint missing/mismatch; see checkpoint copy command in RUNBOOK")
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("action", choices=["start", "status", "stop", "install", "pull", "archive", "checkpoints", "manifest", "supervise"])
+    ap.add_argument("spec")
+    a = ap.parse_args()
+    if a.action == "supervise":
+        supervise(a.spec)
+        return
+    spec = json.loads(Path(a.spec).read_text())
+    if a.action == "status":
+        print(json.dumps(status(spec)))
+    else:
+        if a.action == "install":
+            dest = Path(spec["dest"])
+            dest.mkdir(parents=True, exist_ok=True)
+            with open(dest / ".install.lock", "w") as lock:
+                fcntl.flock(lock, fcntl.LOCK_EX)
+                install(spec)
+        else:
+            {"start": launch, "stop": stop, "pull": pull_assets,
+             "archive": archive, "checkpoints": checkpoints, "manifest": code_manifest}[a.action](spec)
+
+
+if __name__ == "__main__":
+    main()

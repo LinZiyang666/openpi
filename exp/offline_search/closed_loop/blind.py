@@ -41,6 +41,7 @@ class BlindQueryView:
     hist_rs: np.ndarray
     hist_has_vision: np.ndarray
     blind_age: int
+    oracle: Any = None  # populated only by the explicit --os-oracle diagnostic channel
 
 
 def policy_tail_chunk(chunk, offset=5):

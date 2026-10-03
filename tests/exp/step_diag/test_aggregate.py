@@ -270,3 +270,15 @@ def test_resumed_attempt_collision_selects_the_accepted_launch_session(tmp_path)
     rows_path.write_text("\n".join(json.dumps(r) for r in rows + twin) + "\n")
     cell = AG.cell_admission(arm, AG.load_server_rows(srv / TEACHER / "plain_k2"), "CloseFridge", kind="plain", m=2)
     assert not cell["equal_nfe"] and cell["problems"].get("duplicate_finalize") == 1
+
+
+def test_verified_checkpoint_digest_equivalents_share_one_comparison_identity():
+    """The weilandserver pi0.5 LIBERO checkpoint digest differs from h100's only by a Jupyter autosave copy of
+    config.json (identical weights): both map to one comparison identity; any other digest stays distinct."""
+    from exp.step_diag import evidence as EV
+
+    env = {"env_id": "pi05_libero_spatial", "k_full": 10}
+    (wls, h100), = EV.CHECKPOINT_DIGEST_EQUIVALENTS.items()
+    ident = lambda sha: EV.comparison_identity({"env": env, "checkpoint_sha256": sha})  # noqa: E731
+    assert ident(wls) == ident(h100)
+    assert ident("0" * 64) != ident(h100) and ident(wls) != ident("0" * 64)

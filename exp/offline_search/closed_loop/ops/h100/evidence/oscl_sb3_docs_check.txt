@@ -1,0 +1,34 @@
+import ast
+import re
+import subprocess
+from pathlib import Path
+from exp.offline_search.closed_loop.ops.h100 import control as c
+ops = c.HERE
+for name in ('RUNBOOK.md', 'HANDBACK_SB.md'):
+    blocks = re.findall(r'^```bash\n(.*?)^```', (ops / name).read_text(), re.M | re.S)
+    count = 0
+    for block in blocks:
+        subprocess.run(['bash', '-n'], input=block, text=True, check=True)
+        for inline in re.findall(r"<<'PY'\n(.*?)\nPY", block, re.S):
+            ast.parse(inline)
+            count += 1
+    print(f'DOC_SYNTAX_OK file={name} bash_blocks={len(blocks)} inline_python={count}')
+import tempfile
+import shlex
+with tempfile.TemporaryDirectory(prefix='oscl_sb3_atomic_') as td:
+    stage = Path(td) / 'node.new'
+    target = Path(td) / 'node.py'
+    stage.write_bytes((ops / 'node.py').read_bytes())
+    digest = c.sha(stage)
+    qs, qt = shlex.quote(str(stage)), shlex.quote(str(target))
+    check_stage = f'test "$(sha256sum {qs} | cut -d " " -f 1)" = {digest}'
+    check_target = f'test "$(sha256sum {qt} | cut -d " " -f 1)" = {digest}'
+    script = (f'if test -f {qs}; then {check_stage} && mv -T {qs} {qt}; fi && '
+              f'{check_target} && echo SB3_H100_SHA_OK sha={digest}')
+    for _ in range(2):
+        result = subprocess.run(['bash', '-c', script], capture_output=True, text=True, check=True)
+        print(result.stdout.strip())
+    assert c.sha(target) == digest and not stage.exists()
+    print('ATOMIC_DEPLOY_LOCAL_REPLAY_OK executions=2')
+print('LOCAL_HELPER_SHAS ' + repr({name: c.sha(ops / name) for name in
+      ('node.py', 'run_arm.sh', 'render_test.py', 'verify_worker.py')}))
