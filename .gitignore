@@ -360,6 +360,7 @@ exp/offline_search/**/*figure*.html
 exp/offline_search/**/*_plot.py
 exp/offline_search/**/plot_*.py
 exp/offline_search/**/render_*.py
+!exp/offline_search/closed_loop/ops/h100/render_test.py
 exp/offline_search/**/edit_*figure*
 exp/trace_dual/**/*figure*.py
 exp/trace_dual/**/plot_*.py
