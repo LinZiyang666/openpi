@@ -31,6 +31,7 @@ def main(argv=None):
     if not a.journal:
         ap.error("journal is required")
     m = load_manifest(a.manifest) if a.manifest else None
+    pool = 'B' if m and m['data'].get('init_pool') == 'B' else 'A'
     u, rows = {}, 0
     try:
         with open(a.journal) as f:
@@ -40,6 +41,8 @@ def main(argv=None):
                 except Exception:
                     continue
                 rows += 1
+                if r.get('init_pool', 'A') != pool:
+                    raise ValueError('POOL_MISMATCH: journal pool differs from manifest')
                 if r.get("accepted") and r.get("status") in ("done", "failed") and not r.get("error"):
                     uid = r["task_uid"]
                     if a.arm and uid.split(":", 1)[0] != a.arm:

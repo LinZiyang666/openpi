@@ -18,6 +18,8 @@ import uuid
 from .assets import BASE, ISLAND, build_plan, remap
 from .node import atomic, identity, sha
 from .fleet import FLEETS, island, worker_host
+from .server_host import server_host, endpoint
+from exp.offline_search.closed_loop.devset import root_pool, arm_contract, validate_journal_pool
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[4]
@@ -63,6 +65,8 @@ def run(cmd, timeout=300, attempts=None, **kw):
 
 
 def remote(node, cmd, timeout=300, attempts=None):
+    if node == 'local':
+        return run(cmd, timeout=timeout, attempts=1)
     return run(["tether", "exec", node, "--", "bash", "-c", shlex.join(list(map(str, cmd)))],
                timeout=timeout, attempts=attempts)
 
@@ -86,6 +90,9 @@ def push(node, local, destination):
 
 
 def rpc(node, action, spec, timeout=300, attempts=None):
+    if node == 'local':
+        from . import local_server
+        return local_server.rpc(action, spec)
     payload = json.dumps(spec, sort_keys=True).encode()
     digest = hashlib.sha256(payload).hexdigest()
     root = BASE / ".rpc" if node == "h100" else island(node) / "os_cl/.rpc"
@@ -167,9 +174,11 @@ def source_files():
                             result[q.relative_to(REPO)] = q
                             pending.append(q)
     for suite in ("libero_spatial", "libero_10"):
-        for p in (REPO / f"exp/common/data/db_init/libero/{suite}_apool").rglob("*"):
-            if p.is_file():
+        for directory in (suite + '_apool', suite):
+            for p in (REPO / f"exp/common/data/db_init/libero/{directory}").glob('*.init'):
                 result[p.relative_to(REPO)] = p
+        p = HERE / f'bpool_{suite}.yaml'
+        result[p.relative_to(REPO)] = p
     return [(p, rel) for rel, p in sorted(result.items())]
 
 
@@ -249,6 +258,11 @@ def legacy_chains(ignore_pid=None):
             if host not in FLEETS:
                 raise RuntimeError(f"H100_CHAIN_BUSY unknown fleet pid={pid}")
             found = dict(root=root, worker_host=host)
+            server = next((v.split(b"=", 1)[1].decode() for v in env if v.startswith(b"SERVER_HOST=")), "h100")
+            if server not in ('local', 'h100') or receipt.get('server_host', 'h100') != server:
+                raise RuntimeError(f"H100_CHAIN_BUSY unauthenticated server host pid={pid}")
+            if server == 'local':
+                found['server_host'] = server
             break
         if found is None:
             raise RuntimeError(f"H100_CHAIN_BUSY unauthenticated lock holder pid={pid}")
@@ -281,11 +295,13 @@ def fleet_lock(root=None):
 
 
 def setup(worker_only=False):
+    worker_only = worker_only or server_host() == 'local'
     with fleet_lock() if worker_only else chain_lock():
         _setup(worker_only=worker_only) if worker_only else _setup()
 
 
 def _setup(worker_only=False):
+    worker_only = worker_only or server_host() == 'local'
     host, worker_island = worker_host(), island()
     nodes = [(host, worker_island / "os_cl")]
     if not worker_only:
@@ -320,6 +336,13 @@ def _setup(worker_only=False):
             path.write_text(yaml.safe_dump(data, sort_keys=False))
             worker = [(p, r) for p, r in worker if str(r) != f"exp/ablation_study/cache_size/config/apool_{suite}.yaml"]
             worker.append((path, Path(f"exp/ablation_study/cache_size/config/apool_{suite}.yaml")))
+            bpath = Path(td) / ('bpool_' + suite + '.yaml')
+            bdata = yaml.safe_load((HERE / ('bpool_' + suite + '.yaml')).read_text())
+            bdata['apool_dir'] = str(worker_island / f'exp/common/data/db_init/libero/{suite}')
+            bpath.write_text(yaml.safe_dump(bdata, sort_keys=False))
+            brel = Path(f'exp/offline_search/closed_loop/ops/h100/bpool_{suite}.yaml')
+            worker = [(p, r) for p, r in worker if r != brel]
+            worker.append((bpath, brel))
         # Own config under scratch; never update the user's ~/.libero or sim environment.
         cfg = dict(assets="/home/zixuans8/.cache/libero/assets",
                    bddl_files="/scratch/zixuans8/libero_sim/lib/python3.8/site-packages/libero/libero/bddl_files",
@@ -383,31 +406,39 @@ def daemon(work, files):
         staged.cleanup()
 
 
-def sync(runroot, names, plan_only=False, concurrent=False):
+def sync(runroot, names, plan_only=False, concurrent=False, workdir=None):
     if plan_only:
-        return _sync(runroot, names, plan_only=True)
-    if concurrent:
+        return _sync(runroot, names, plan_only=True, **({'workdir': workdir} if workdir else {}))
+    if workdir:
+        raise ValueError('--work-dir is only for plan')
+    if concurrent or server_host() == 'local':
         with fleet_lock(runroot) as active:
             return _sync(runroot, names, concurrent=True, active=active)
     with chain_lock(runroot):
         return _sync(runroot, names)
 
 
-def _sync(runroot, names, plan_only=False, concurrent=False, active=()):
+def _sync(runroot, names, plan_only=False, concurrent=False, active=(), workdir=None):
     runroot = Path(runroot).resolve()
-    work = runroot / "h100_sync"
+    work = Path(workdir).resolve() if workdir else runroot / "h100_sync"
     work.mkdir(parents=True, exist_ok=True)
     with open(work / "sync.lock", "w") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX)
-        plan = build_plan(runroot, names, work)
+        local = server_host() == 'local'
+        plan = build_plan(runroot, names, work, local=True) if local else build_plan(runroot, names, work)
         plan["arms_sha256"] = sha(runroot / "arms.json")
         plan["worker_host"] = worker_host()
+        if local:
+            plan['worker_island'] = str(island())
+            (work / 'plan.json').write_text(json.dumps(plan, indent=1))
         if plan_only:
             return plan
-        if any(x["size"] > 8 * (1 << 30) for x in plan["files"]):
+        if not local and any(x["size"] > 8 * (1 << 30) for x in plan["files"]):
             raise ValueError("single asset exceeds bounded RPC budget; split it before sync")
         protected = {}
         for chain in active:
+            if local or chain.get('server_host', 'h100') == 'local':
+                continue
             active_plan = json.loads((chain["root"] / "h100_sync/synced.json").read_text())
             for item in active_plan["files"]:
                 if item["rel"] in protected and protected[item["rel"]] != item["sha256"]:
@@ -416,23 +447,24 @@ def _sync(runroot, names, plan_only=False, concurrent=False, active=()):
         for item in plan["files"]:
             if item["rel"] in protected and item["sha256"] != protected[item["rel"]]:
                 raise RuntimeError("ACTIVE_ASSET_CONFLICT " + item["rel"])
-        with daemon(work, plan["files"]) as url:
-            spec = dict(dest=str(BASE), files=plan["files"], reserve_files=plan["files"], url=url)
-            if concurrent:
-                spec["protected"] = protected
-            pull_action = "pull-new" if concurrent else "pull"
-            # One RPC must stay below tether's ten-minute cap. Chunk by 8 GiB.
-            batch, size = [], 0
-            for item in plan["files"]:
-                if batch and size + item["size"] > 8 * (1 << 30):
+        if not local:
+            with daemon(work, plan["files"]) as url:
+                spec = dict(dest=str(BASE), files=plan["files"], reserve_files=plan["files"], url=url)
+                if concurrent:
+                    spec["protected"] = protected
+                pull_action = "pull-new" if concurrent else "pull"
+                # One RPC must stay below tether's ten-minute cap. Chunk by 8 GiB.
+                batch, size = [], 0
+                for item in plan["files"]:
+                    if batch and size + item["size"] > 8 * (1 << 30):
+                        print(rpc("h100", pull_action, {**spec, "files": batch}, timeout=590))
+                        batch, size = [], 0
+                    if item["size"] > 8 * (1 << 30):
+                        raise ValueError(f"single asset exceeds bounded RPC budget: {item['rel']}")
+                    batch.append(item)
+                    size += item["size"]
+                if batch:
                     print(rpc("h100", pull_action, {**spec, "files": batch}, timeout=590))
-                    batch, size = [], 0
-                if item["size"] > 8 * (1 << 30):
-                    raise ValueError(f"single asset exceeds bounded RPC budget: {item['rel']}")
-                batch.append(item)
-                size += item["size"]
-            if batch:
-                print(rpc("h100", pull_action, {**spec, "files": batch}, timeout=590))
         # Matrices remain os_cl/cfg relative, preserving run_gtp's contract.
         with tempfile.TemporaryDirectory(prefix="oscl_sb_arms_") as td:
             pairs = []
@@ -442,6 +474,19 @@ def _sync(runroot, names, plan_only=False, concurrent=False, active=()):
                 pairs += [(Path(cfg["source"]), Path("cfg") / (row["arm"] + ".yaml")),
                           (Path(original["matrix"]), Path("cfg") / ("matrix_" + row["arm"] + ".yaml"))]
             bundle(worker_host(), island() / "os_cl", pairs)
+            if plan.get('init_pool') == 'B':
+                from exp.offline_search.closed_loop.devset import pool_record
+                import yaml
+                pool_files = []
+                for suite in sorted({r['suite'] for r in plan['arms']}):
+                    record_path, record = pool_record(suite)
+                    directory = REPO / f'exp/common/data/db_init/libero/{suite}'
+                    pool_files += [(p, p.relative_to(REPO)) for p in sorted(directory.glob('*.init'))]
+                    record['apool_dir'] = str(island() / directory.relative_to(REPO))
+                    path = Path(td) / record_path.name
+                    path.write_text(yaml.safe_dump(record, sort_keys=False))
+                    pool_files.append((path, record_path.relative_to(REPO)))
+                bundle(worker_host(), island(), pool_files)
         (work / "synced.json").write_text(json.dumps(plan, indent=1))
         print("SYNC_OK")
         return plan
@@ -452,8 +497,11 @@ def collect(runroot, arm, manifest=None):
     target = root / "runs" / arm
     tag = root.name
     host = launch_host(root, arm)
-    for node, src, prefix in ((host, island(host) / "os_cl/runs" / tag / arm, "client"),
-                              ("h100", BASE / "runs" / tag / "runs" / arm, "")):
+    sources = [(host, island(host) / "os_cl/runs" / tag / arm, "client")]
+    if launch_server_host(root, arm) == 'h100':
+        sources.append(("h100", BASE / "runs" / tag / "runs" / arm, ""))
+    # Local server logs already live in target/server_<port>.
+    for node, src, prefix in sources:
         archive = (BASE / ".rpc" if node == "h100" else T108_STAGE if node == "timan108" else T107_STAGE) / f"collect_{tag}_{arm}.tar"
         meta = json_output(rpc(node, "archive", dict(root=str(src), archive=str(archive), prefix=prefix)))
         with tempfile.TemporaryDirectory(prefix="oscl_sb_collect_") as td:
@@ -496,8 +544,24 @@ def launch_host(root, arm):
     return host
 
 
+def launch_server_host(root, arm):
+    path = Path(root) / 'runs' / arm / 'h100_launch.json'
+    host = json.loads(path.read_text()).get('server_host', 'h100') if path.exists() else server_host()
+    if host not in ('local', 'h100'):
+        raise ValueError('unknown server host in launch receipt')
+    return host
+
+
 def ports_workers():
     cap = FLEETS[worker_host()][2]
+    if server_host() == 'local':
+        from .local_server import choose_ports
+        requested = [int(p) for p in os.environ['PORTS'].split(',')] if 'PORTS' in os.environ else None
+        ports = choose_ports(int(os.environ.get('LOCAL_SERVER_COUNT', '4')), requested=requested)
+        wps = int(os.environ.get('WPS', '8'))
+        if wps < 1 or wps * len(ports) > cap:
+            raise ValueError(f'WPS * number of ports must be 1..{cap}')
+        return ports, wps
     ports = [int(p) for p in os.environ["PORTS"].split(",")]
     wps = int(os.environ.get("WPS", "8"))
     if len(set(ports)) != len(ports) or any(not 23200 <= p <= 23299 for p in ports):
@@ -513,7 +577,9 @@ def selection(root, row):
     if manifest:
         m = load_manifest(str(manifest).replace("<RUN>", str(root)))
         check_manifest(m, row["model"], row["suite"])
+        arm_contract(root, row, m)
         return len(m["selected"]), m["path"], m["sha256"]
+    arm_contract(root, row, None)
     def ids(name, n):
         val = os.environ.get(name, "")
         selected = [int(v) for v in val.split(",")] if val else list(range(n))
@@ -541,14 +607,19 @@ def server_spec(root, row, port):
             args += ["--os-kwargs", json.dumps(row.get("kwargs") or {})]
         if row.get("server_seed") is not None:
             args += ["--os-seed", str(row["server_seed"] * 65536 + port)]
-    return dict(role="server", out=str(BASE / "runs" / root.name / "runs" / row["arm"] / f"server_{port}"),
+    spec = dict(role="server", out=str(BASE / "runs" / root.name / "runs" / row["arm"] / f"server_{port}"),
                 tag=f"{row['arm']}_{port}", model=row["model"], suite=row["suite"], port=port,
                 yaml=row["yaml"], plugin=args, env=env, need_mb=need)
+    if server_host() == 'local':
+        spec.update(server_host='local', run_root=str(root),
+                    out=str(root / 'runs' / row['arm'] / f'server_{port}'))
+    return spec
 
 
 def chain(runroot, names):
     root = Path(runroot).resolve()
     host, worker_island = worker_host(), island()
+    server = server_host()
     ports, wps = ports_workers()
     attempts = int(os.environ.get("MAX_ATTEMPTS", "3"))
     if attempts < 1:
@@ -581,7 +652,7 @@ def chain(runroot, names):
                 errors.append(str(exc))
         for spec in active["servers"][:]:
             try:
-                note(rpc("h100", "stop", spec))
+                note(rpc(server, "stop", spec))
                 active["servers"].remove(spec)
             except Exception as exc:
                 errors.append(str(exc))
@@ -600,6 +671,8 @@ def chain(runroot, names):
         plan = json.loads((root / "h100_sync/synced.json").read_text())
         if plan.get("worker_host", "timan108") != host:
             raise RuntimeError("synced worker host differs; sync for WORKER_HOST again")
+        if plan.get('server_host', 'h100') != server:
+            raise RuntimeError('synced server host differs; sync for SERVER_HOST again')
         if plan["arms_sha256"] != sha(root / "arms.json"):
             raise RuntimeError("arms.json changed since sync; sync again")
         prepared = {r["arm"]: r for r in plan["arms"]}
@@ -610,11 +683,30 @@ def chain(runroot, names):
         missing = sorted(set(names) - originals.keys())
         if missing:
             raise RuntimeError("requested arms missing from arms.json: " + ", ".join(missing))
+        pool = root_pool(root)
+        for name in names:
+            _, selected_path, _ = selection(root, originals[name])
+            journal = root / 'runs' / name / 'client/journal.jsonl'
+            if journal.exists():
+                rows = []
+                for line in journal.read_text().splitlines():
+                    try:
+                        rows.append(json.loads(line))
+                    except json.JSONDecodeError:
+                        pass
+                validate_journal_pool(rows, pool)
+            if pool == 'B':
+                from exp.offline_search.closed_loop.ops.remote.run_gtp_subset import load_manifest
+                contract = arm_contract(root, originals[name], load_manifest(selected_path))
+                if plan.get('dev_contracts', {}).get(name) != contract:
+                    raise RuntimeError('dev selection/library/fit changed since sync; sync again')
         receipt = dict(pid=os.getpid(), starttime=identity(os.getpid()),
                        cmdline=Path(f"/proc/{os.getpid()}/cmdline").read_bytes().hex(), worker_host=host)
+        if server == 'local':
+            receipt['server_host'] = server
         (state / "h100_chain.owner.json").write_text(json.dumps(receipt))
         try:
-            code_tree = json_output(rpc("h100", "manifest", dict(root=str(BASE / "openpi")), timeout=590))
+            code_tree = json_output(rpc(server, "manifest", dict(root=str(REPO if server == 'local' else BASE / "openpi")), timeout=590))
             if len(code_tree["sha256"]) != 64 or code_tree["files"] < 1:
                 raise RuntimeError("invalid/empty h100 code-tree manifest")
             pending = []
@@ -642,7 +734,8 @@ def chain(runroot, names):
             for arm in names:
                 row = prepared[arm]
                 expect, manifest, manifest_sha = selection(root, originals[arm])
-                done = state / (f"{arm}.manifest_{manifest_sha}.DONE" if manifest else f"{arm}.DONE")
+                done_sha = 'B_' + manifest_sha if pool == 'B' else manifest_sha
+                done = state / (f"{arm}.manifest_{done_sha}.DONE" if manifest else f"{arm}.DONE")
                 if done.exists():
                     note(f"skip {arm} (DONE)")
                     continue
@@ -650,6 +743,13 @@ def chain(runroot, names):
                 dest = root / "runs" / arm
                 dest.mkdir(parents=True, exist_ok=True)
                 env = {k: os.environ[k] for k in ("OSCL_EPISODES", "OSCL_TASKS") if k in os.environ}
+                if pool == 'B':
+                    contract_path = dest / 'pool_contract.json'
+                    contract_path.write_text(json.dumps(plan['dev_contracts'][arm], sort_keys=True))
+                    remote_contract = str(worker_island / 'os_cl/cfg' / f'pool_contract_{root.name}_{arm}.json')
+                    push(host, contract_path, remote_contract)
+                    env.update(OSCL_INIT_POOL='B', OSCL_POOL_CONTRACT=remote_contract,
+                               OSCL_POOL_CONTRACT_SHA256=sha(contract_path))
                 if manifest:
                     saved = dest / "manifest.json"
                     saved.write_bytes(Path(manifest).read_bytes())
@@ -657,36 +757,43 @@ def chain(runroot, names):
                     push(host, saved, remote_manifest)
                     env["OSCL_MANIFEST"] = remote_manifest
                     manifest = str(saved)
-                (dest / "selection.json").write_text(json.dumps(dict(manifest=manifest)))
+                selection_data = dict(manifest=manifest)
+                if pool == 'B':
+                    selection_data['init_pool'] = 'B'
+                (dest / "selection.json").write_text(json.dumps(selection_data))
                 if row.get("replan_steps"):
                     env["OSCL_REPLAN_STEPS"] = str(row["replan_steps"])
                 driver = dict(role="driver", out=str(worker_island / "os_cl/runs" / root.name / arm), arm=arm,
-                              suite=row["suite"], servers=[f"149.165.153.233:{p}" for p in ports],
+                              suite=row["suite"], servers=[endpoint(p, server) for p in ports],
                               workers=[wps] * len(ports), env=env)
                 if host != "timan108":
                     env["WORKER_HOST"] = host
                 specs = [server_spec(root, row, p) for p in ports]
                 def save_launch():
-                    (dest / "h100_launch.json").write_text(json.dumps(
-                        dict(servers=specs, driver=driver, code_tree=code_tree, worker_host=host), indent=1))
+                    launch = dict(servers=specs, driver=driver, code_tree=code_tree, worker_host=host)
+                    if server == 'local':
+                        launch['server_host'] = server
+                    (dest / "h100_launch.json").write_text(json.dumps(launch, indent=1))
                 save_launch()
                 (state / "current").write_text(arm + "\n")
                 event(f"ARM_START arm={arm} suite={row['suite']} ports={','.join(map(str,ports))} workers={wps*len(ports)} expect={expect}")
                 def servers_up():
-                    free = int(remote("h100", ["nvidia-smi", "--query-gpu=memory.free", "--format=csv,noheader,nounits"]).splitlines()[-1])
+                    free = int(remote(server, ["nvidia-smi", "--query-gpu=memory.free", "--format=csv,noheader,nounits"]).splitlines()[-1])
                     if free < sum(x["need_mb"] for x in specs):
+                        if server == 'local':
+                            raise RuntimeError(f"GPU_TIGHT server_host=local free={free} need={sum(x['need_mb'] for x in specs)}")
                         raise RuntimeError(f"GPU_TIGHT free={free} need={sum(x['need_mb'] for x in specs)}")
                     for spec in specs:
                         spec["launch_id"] = uuid.uuid4().hex
                         # Record before launching so partially failed starts are still cleaned up.
                         active["servers"].append(spec)
                         save_launch()
-                        note(rpc("h100", "start", spec))
+                        note(rpc(server, "start", spec))
                     save_launch()
                     deadline = time.monotonic() + 1200
                     failures = 0
                     while True:
-                        statuses, failed = read_status([("h100", x) for x in specs])
+                        statuses, failed = read_status([(server, x) for x in specs])
                         failures = status_failures(failures, failed)
                         if any(s and s["dead"] for s in statuses):
                             raise RuntimeError("SERVER_DIED_AT_BOOT " + json.dumps(statuses))
@@ -708,7 +815,7 @@ def chain(runroot, names):
                     failures = 0
                     while True:
                         time.sleep(poll_seconds)
-                        statuses, failed = read_status([*(("h100", x) for x in specs), (host, driver)])
+                        statuses, failed = read_status([*((server, x) for x in specs), (host, driver)])
                         failures = status_failures(failures, failed)
                         server_statuses, driver_status = statuses[:-1], statuses[-1]
                         dead = any(s and (s["dead"] or not s["running"]) for s in server_statuses)
@@ -791,7 +898,7 @@ def abort(root, arms):
         spec = json.loads((Path(root) / "runs" / arm / "h100_launch.json").read_text())
         print(rpc(launch_host(Path(root), arm), "stop", spec["driver"], timeout=590))
         for server in spec["servers"]:
-            print(rpc("h100", "stop", server))
+            print(rpc(launch_server_host(Path(root), arm), "stop", server))
 
 
 def main():
@@ -799,13 +906,15 @@ def main():
     ap.add_argument("action", choices=["setup", "plan", "sync", "chain", "collect", "abort", "verify", "verify-worker", "render"])
     ap.add_argument("--worker-only", action="store_true", help="setup only the selected worker island")
     ap.add_argument("--concurrent", action="store_true", help="sync without replacing any existing h100 asset")
+    ap.add_argument('--work-dir', help='plan output directory; permits read-only planning against an active root')
     ap.add_argument("run_root", nargs="?")
     ap.add_argument("arms", nargs="*")
     a = ap.parse_intermixed_args()
     if a.action == "setup":
         setup(worker_only=a.worker_only)
     elif a.action in ("plan", "sync"):
-        sync(a.run_root, a.arms, a.action == "plan", concurrent=a.concurrent)
+        sync(a.run_root, a.arms, a.action == "plan", concurrent=a.concurrent,
+             **({'workdir': a.work_dir} if a.work_dir else {}))
     elif a.action == "chain":
         chain(a.run_root, a.arms)
     elif a.action == "collect":
@@ -815,6 +924,15 @@ def main():
         abort(a.run_root, a.arms)
     elif a.action == "verify":
         expected = json.loads(Path(a.run_root or "/home/weiland/trace_runs/os_closed_loop/r08_fits/checkpoint_sha.json").read_text())
+        if server_host() == 'local':
+            from . import local_server
+            print(rpc('local', 'checkpoints', expected))
+            for model, py in (('pi05', str(PY)), ('groot', local_server.GROOT_PY)):
+                env = ['env', 'HOME=/home/weiland', 'CUDA_VISIBLE_DEVICES=', 'OMP_NUM_THREADS=1',
+                       'OPENBLAS_NUM_THREADS=1', 'MKL_NUM_THREADS=1', 'PYTHONDONTWRITEBYTECODE=1',
+                       f'PYTHONPATH={local_server.GROOT}:{local_server.GROOT}/examples/Libero:{REPO}:{REPO}/src:{REPO}/packages/openpi-client/src']
+                print(run(['taskset', '-c', local_server.cpu_affinity(), *env, py, '-B', HERE / 'probe.py', model]))
+            return
         print(rpc("h100", "checkpoints", expected, timeout=590))
         for model, py in (("pi05", "/home/exouser/openpi/.venv/bin/python"),
                           ("groot", "/home/exouser/gr00t_n15_venv/.venv/bin/python")):

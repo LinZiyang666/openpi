@@ -31,6 +31,7 @@ import time
 import numpy as np
 
 from exp.offline_search.closed_loop.ops.remote.run_gtp_subset import load_manifest, uid_pair, check_manifest
+from exp.offline_search.closed_loop.devset import pool_for, root_pool, check_manifest_pool, validate_journal_pool
 from exp.offline_search.rounds.r04.k4_eval.cost_ledger import ledger, r4_enabled
 from exp.offline_search.rounds.r04.k4_eval.estimators import design_estimate
 
@@ -169,9 +170,17 @@ def arm_manifest(run, arm, meta, manifest=None):
 def summarize(run: pathlib.Path, arm: str, *, manifest=None, include_ledger=False, cost_table=None, write=True) -> dict:
     arms = {r["arm"]: r for r in json.loads((run / "arms.json").read_text())}
     meta = arms.get(arm, {})
+    pool = root_pool(run)
+    if pool_for(meta) != pool:
+        raise ValueError('POOL_MISMATCH: arm differs from root')
     design = arm_manifest(run, arm, meta, manifest)
+    if design:
+        check_manifest_pool(design, pool)
+    elif pool == 'B':
+        raise ValueError('dev summary requires its exact manifest')
     cd = run / "runs" / arm / "client"
     jr = _jsonl(cd / "journal.jsonl")
+    validate_journal_pool(jr, pool)
     comp = {}
     errors = 0
     for r in jr:
@@ -196,6 +205,7 @@ def summarize(run: pathlib.Path, arm: str, *, manifest=None, include_ledger=Fals
     dur = [r.get("duration_s") for r in comp.values() if r.get("duration_s") is not None]
     ts = [r.get("ts") for r in comp.values() if r.get("ts") is not None]
     s = {"arm": arm, "model": meta.get("model"), "suite": meta.get("suite"), "mode": meta.get("mode"),
+         "init_pool": pool,
          "method": meta.get("method"), "kwargs": meta.get("kwargs"),
          "journal_rows": len(jr), "error_rows": errors, "complete": len(comp), "success": succ,
          "sr": round(succ / len(comp), 4) if comp else None,

@@ -1,5 +1,21 @@
 # h100 policy servers → timan108 or timan107 LIBERO workers
 
+## Dev set
+
+R11 now supports roots whose every arm declares `dev: true, init_pool: B`.
+These select the frozen B files under `db_init/libero/<suite>` and exact
+manifest pairs outside each arm's actual fitted library subset. Existing roots
+remain A. Cross-pool manifests, journals, summaries and paired scoring are
+refused; a B run cannot use the A paths or records. Worker setup installs both
+digest-bound pools, and dev sync also pushes its selected B pools. Verify-worker
+now reports `BPOOL_OK` alongside the unchanged `APOOL_OK` checks.
+
+Ready JSON-only roots are `r11_dev_current` and `r11_dev_size50` under
+`/home/weiland/trace_runs/os_closed_loop`, four 50-pair arms each. See
+[Dev-set handback](../../../rounds/r11/devset/HANDBACK.md) for exact coordinator
+commands, CPU mapping numbers, metadata identity recovery, the byte-identical
+existing R10 A plan, and the new source checksums. No dev episode was launched.
+
 Run these commands on weilandserver, from `/home/weiland/projects/openpi`.
 The existing ops scripts are unchanged. This topology uses an isolated h100
 tree at `/data/oscl_h100/openpi`, its existing pi0.5/GR00T interpreters, and a

@@ -52,7 +52,56 @@ owner 的常驻指令，逐字有效：
 
 
 
-## 1. 现在在哪（2026-10-02 19:5x CDT）—— R10 完成；owner 拍板"三层设计"；sol 正在做 `R10Recipe`（部署类 + 构建器）
+## 1. 现在在哪（2026-10-03 09:3x CDT）—— R11 完成：第 4 层推理开销旋钮，建议守卫感知的定期调用（待 owner 采纳）；无任何运行
+
+**R11 完成（10-03 09:08 测试集 94/94；报告 `exp/offline_search/rounds/r11/REPORT.md`）**：
+- **结论**：
+  - 定期调用 17/17 落在目标 IR ±.02 内；同实际 IR 比随机 +1.5–2.2 pp，且是唯一稳定高于"整局混跑"直线的可控方法（+1.2）。
+  - 随机调用 16/17 落在目标内，保留作标定参照。
+  - 状态类（距离 / 分歧 / 误差混合）离线标定后闭环少花（距离均 −.08），不作旋钮。
+  - 两个变体不采用。
+  - 接近纯推理的格子默认关闭，判据（opus：缓存与大模型动作差 < .40）待开发集验证；astra 对 GR00T L10-500 有异议（批次噪声 .858 vs .906）。
+- **待 owner**：
+  - 是否采纳定期调用为第 4 层；
+  - 是否开 R12 验证（守卫反复触发时逐步加密 / 全库估守卫率 / 每局预算记账 / 默认关闭判据的开发集验证）；
+  - R11 代码与数据的提交（未授权，未提交）。
+- **代码**：
+  - `rounds/r11/knob/`（R11Knob）；
+  - `closed_loop/devset.py`（B 池开发集）；
+  - `closed_loop/ops/h100/{local_server.py, server_host.py, HANDBACK_LOCAL.md}`（本机 4090 服务，`SERVER_HOST=local`，4 服务 × 16 worker，约 14 分钟 / 组）。
+- **跑法要点**：
+  - h100 只有一张卡，另有项目占 10.6G，两车队同时各 4 个 π0.5 服务会 `GPU_TIGHT` → 一个车队用本机 4090；
+  - 同步须持锁到开跑；
+  - 本机端口释放竞争已修。
+  - 脚本在 `~/.claude/jobs/a607dd74/tmp/r11/`：`run_root3.sh`、`run_dev3.sh`、`sweep107L.sh`、`resume107L2.sh`、`r11_score.py`、`PATROL.md`。
+- **硬件**：4090 与 H100 权重 sha 一致、汇总可合并；单局不可跨卡复现。
+
+
+
+**R11（owner 10-02 20:1x /goal，"不做完不停"）**：
+- **五层设计**（记忆 `project_offline_search_five_layer_design`）：1 缓存 / 2 只留无进展守卫 / 3 库内修正器 GC_dist / 4 IR 旋钮（本轮）/ 5 沿任务分治。第 4 层不得按任务设参数。
+- **简报** `rounds/r11/BRIEF.md`。
+  - opus 报告 `rounds/r11/opus/`（随机 / 定期 + 共用账本；REPORT 代存）。
+  - astra 报告 `rounds/r11/astra/`（距离 / 误差混合 / 自适应 / 分歧；44 组冻结）。
+- **进行中**：
+  - sol codex `task-murrgj6c-kuny2o`（简报 `~/.claude/jobs/a607dd74/tmp/r11/sol_knob.md`）：`R11Knob` + 构建器 + 94 组测试集 A（根 `r11_knob_1..4`）+ 开发集小跑 20 组（`r11_devknob_50`）。
+  - 闭环两路：timan107 精选 50 集三层 4 组（根 `r10_recipe_current`，前 2 组已完成）；timan108 开发集冒烟（根 `r11_dev_current` / `r11_dev_size50`，脚本 `tmp/r11/run_dev.sh`）。
+  - 脚本：`tmp/r11/run_root.sh <fleet> <root>`（测试集，flock 串行同步）、`run_dev.sh`、`score_current.py`。
+- **sol 交付后**：
+  1. 推 h100 源文件并 `sha256sum -c`；
+  2. 先跑 `r11_devknob_50`（只核对开销与生命周期，不改设置）；
+  3. 再两车队各跑两根 `r11_knob_*`；
+  4. 按"同目标开销配对"出 SR-IR 前沿；
+  5. 叫回 opus / astra 分析各自结果；
+  6. 写 `rounds/r11/REPORT.md`；
+  7. 停本会话 codex 中转进程对。
+- **其他**：
+  - 开发集机制：`closed_loop/devset.py`，B 池库外起始状态，硬守卫防混 A / B；
+  - 已推送提交 a3b10ecd、e26c41e1；
+  - h100 余 46G；
+  - 读运行日志的 grep 曾被自动权限审查拒绝，以后台等待通知为准。
+
+
 
 **当前设计（owner 10-02 19:5x 定，记忆 `project_offline_search_three_layer_design`）**：三层，全部只从示范库拟合，各格各库大小统一。
 1. 缓存（R4 BlindAWM，10 控制步提交，kref 每任务 5 集为 5、否则 8）；
@@ -198,15 +247,19 @@ owner 的常驻指令，逐字有效：
 3. **l10 +0.04 显示口径**（owner 演示图 `~/projects/openpi_ext/artifacts/fig2_frontier_ab/` 里 l10 新点上移 0.04）：建议表格与正文一律用测量值，图若保留偏移就在图注写明。
 4. **下一轮**：是否按 ANALYSIS §7.2 开 R7——C′（ρ + 均匀放置 + 标定停滞 + 预登记的库级不调用闸门），并在 RoboCasa365 上做第二基准。
 
-## 4. 正在运行的东西（10-02 19:5x）
-- 闭环：**无链在跑**；h100 MPS 开着；两车队空闲。
-- codex：sol `task-muror4p0-bp0fnh`（R10Recipe）运行中。
-- tmux 里残留的 r10 排队会话均已结束。
+## 4. 正在运行的东西（10-03 09:3x）
+- 闭环：**无链在跑**；h100 与本机 4090 空闲；两车队空闲。
+- codex：无在跑任务；本会话中转进程对已停。
+- 定时巡检 cron 已删。
 
 ## 5. 下一步
-1. sol 交付后按 §1"sol 交付后要做"执行。
-2. 汇报 owner：三层设计在精选 50 集库上的测试集结果；回答待裁项。
-3. 提交（等 owner）：R8–R10 范围 = `exp/offline_search/debug/`、`rounds/r08/`、`rounds/r09/`、`rounds/r10/`、`closed_loop/ops/h100/`、`tests/exp/offline_search/`、plugin / blind 的 debug 钩子、台账与交接；画图脚本不入库；commit 不加 AI 署名。
+1. 等 owner 看 R11 报告并裁定：
+   - 是否采纳定期调用为第 4 层；
+   - 是否开 R12（判据开发集验证 / 守卫反复触发时加密 / 全库估守卫率 / 每局预算记账）。
+2. 提交（等 owner 授权）：
+   - R8–R10 已于 10-02 提交（a3b10ecd、e26c41e1）；
+   - 待提交：`rounds/r10/recipe/`、`rounds/r11/`、`closed_loop/devset.py`、`closed_loop/ops/h100/`（本机服务与端口修复）、台账与交接；
+   - 画图脚本不入库；commit 不加 AI 署名。
 
 ## 6. 纪律与坑（本线专有，章程 §8 / §9 有全文）
 - **（R7 新增）非测试 B-val 闭环**：P3 v2 客户端的遥测包装要求服务器返回 `__p3__` v2 标记，普通插件臂用不了（每集 ValueError）。改用原版客户端 + 远端 wrapper `os_cl/run_arm_r7_bval_stock.sh`（末尾追加 B-val 池的 `--apool-record/--apool-dir`）+ run 内 `chain_bval.sh`（= 原版 chain.sh，改调用脚本名与 HERE 路径）；代价是没有逐控制遥测。

@@ -365,3 +365,16 @@ exp/offline_search/**/edit_*figure*
 exp/trace_dual/**/*figure*.py
 exp/trace_dual/**/plot_*.py
 exp/trace_dual/**/render_*.py
+
+# Rounds r10-r11 run outputs (added 2026-10-03)
+# Scope: exp/offline_search/rounds/** only. pytest basetemp trees (hundreds of
+# copied repo/lock/symlink files), evidence logs and plans, explorer data dumps,
+# fitted-artifact / validation / equivalence / rebuilt output dirs. Reports (.md),
+# sources (.py/.sh) next to them stay visible.
+exp/offline_search/rounds/**/evidence/
+exp/offline_search/rounds/**/pytest_*/
+exp/offline_search/rounds/**/data/
+exp/offline_search/rounds/**/artifacts*/
+exp/offline_search/rounds/**/validation/
+exp/offline_search/rounds/**/equivalence/
+exp/offline_search/rounds/**/rebuilt/

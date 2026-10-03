@@ -25,6 +25,12 @@ for suite in ("libero_spatial", "libero_10"):
     assert value["total_inits"] == 500, value
     assert value["rollup_sha256"] == expected[suite], value
     print("APOOL_OK " + suite + " total=" + str(value["total_inits"]) + " sha=" + value["rollup_sha256"])
+from exp.offline_search.closed_loop.devset import pool_record
+for suite in ("libero_spatial", "libero_10"):
+    p, frozen = pool_record(suite, 'B')
+    value = load_apool_digest(str(p), required=True, verify_contents=True)
+    assert value['init_pool'] == 'B' and value['total_inits'] == 500
+    print('BPOOL_OK ' + suite + ' total=500 sha=' + value['rollup_sha256'])
 '''
     subprocess.run(["/scratch/zixuans8/openpi/.venv/bin/python", "-c", code], env=env, check=True, cwd=R)
     print("WORKER_IMPORTS_OK")

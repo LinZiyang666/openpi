@@ -64,7 +64,15 @@ echo "RUN_ARM_RESIZE arm=$ARM res=${RES[*]:-none}"
 W=0; for n in $(echo "$SW" | tr ',' ' '); do W=$((W+n)); done
 if [ -n "${OSCL_TASKS:-}" ] && [ -z "${OSCL_EPISODES:-}$MANIFEST" ]; then export OSCL_EPISODES=$(seq -s, 0 49); fi
 [ "$W" -le "$WORKER_CAP" ] && [ "$W" -gt 0 ] || { echo "worker cap: 1..$WORKER_CAP" >&2; exit 2; }
-if [ -n "${OSCL_EPISODES:-}$MANIFEST" ]; then ENTRY=("$R/os_cl/run_gtp_subset.py"); else ENTRY=(-m exp.gate_threshold_pareto.run_gtp); fi
+ENTRY=("$R/os_cl/run_gtp_subset.py")
+case "${OSCL_INIT_POOL:-A}" in
+  A) POOL_RECORD=exp/ablation_study/cache_size/config/apool_${SUITE}.yaml
+     POOL_DIR=$R/exp/common/data/db_init/libero/${SUITE}_apool ;;
+  B) [ -n "$MANIFEST" ] && [ -n "${OSCL_POOL_CONTRACT:-}" ] || { echo "dev requires manifest and contract" >&2; exit 2; }
+     POOL_RECORD=exp/offline_search/closed_loop/ops/h100/bpool_${SUITE}.yaml
+     POOL_DIR=$R/exp/common/data/db_init/libero/${SUITE} ;;
+  *) echo "POOL_MISMATCH: unknown init pool" >&2; exit 2 ;;
+esac
 mkdir -p "$OUT"
 cd "$R"
 echo "RUN_ARM_START $(date -Is) arm=$ARM suite=$SUITE servers=$SERVERS sw=$SW episodes=${OSCL_EPISODES:-all}"
@@ -85,8 +93,8 @@ $PY "${ENTRY[@]}" \
   --replan-steps "$REPLAN" \
   --journal "$OUT/journal.jsonl" \
   --per-step-out "$OUT/per_step.jsonl" \
-  --apool-record exp/ablation_study/cache_size/config/apool_${SUITE}.yaml \
-  --apool-dir $R/exp/common/data/db_init/libero/${SUITE}_apool \
+  --apool-record "$POOL_RECORD" \
+  --apool-dir "$POOL_DIR" \
   "${EXTRA_ARGS[@]}"
 rc=$?
 echo "RUN_ARM_EXIT=$rc $(date -Is)"

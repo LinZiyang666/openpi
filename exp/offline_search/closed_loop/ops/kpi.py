@@ -41,6 +41,7 @@ os.environ.setdefault("CUDA_VISIBLE_DEVICES", "")
 import numpy as np  # noqa: E402
 
 from exp.offline_search.closed_loop.ops.collect import arm_manifest
+from exp.offline_search.closed_loop.devset import root_pool, check_manifest_pool, validate_journal_pool
 from exp.offline_search.rounds.r04.k4_eval.cost_ledger import ledger, r4_enabled
 from exp.offline_search.rounds.r04.k4_eval.estimators import design_estimate
 
@@ -392,6 +393,7 @@ def arm_meta(run: pathlib.Path, arm: str) -> dict:
 
 
 def load_journal(run: pathlib.Path, arm: str) -> dict:
+    validate_journal_pool(_jsonl(run / 'runs' / arm / 'client' / 'journal.jsonl'), root_pool(run))
     comp = {}
     for r in _jsonl(run / "runs" / arm / "client" / "journal.jsonl"):
         if r.get("accepted") and r.get("status") in ("done", "failed") and not r.get("error"):
@@ -435,6 +437,10 @@ def load_arm(run: pathlib.Path, arm: str, *, store: str | None, tasks, episodes,
     warns = []
     meta = arm_meta(run, arm)
     design = arm_manifest(run, arm, meta, manifest)
+    if design:
+        check_manifest_pool(design, root_pool(run))
+    elif root_pool(run) == 'B':
+        raise ValueError('dev KPI requires exact manifest')
     comp = load_journal(run, arm)
     if not comp:
         raise SystemExit(f"{arm}: no complete episodes in {run / 'runs' / arm / 'client' / 'journal.jsonl'}")
@@ -835,6 +841,7 @@ def arm_kpis(A: dict, ir_ref_ms: float | None) -> dict:
     cap = int(E["n_dec"].max()) if n_ep else 0
     sr = n_s / n_ep
     out = {"arm": info["arm"], "run_root": info["run_root"], "model": info["model"], "suite": info["suite"],
+           "init_pool": root_pool(info['run_root']),
            "method": info["method"], "method_spec": info["method_spec"], "kwargs": info["kwargs"],
            "recon": {"rule": info["recon_rule"], "note": info["recon_note"], "libs": info["libs"]},
            "subset": info["subset"], "mixed": info["mixed"],
@@ -1049,6 +1056,8 @@ def mixed_kpis(A: dict, ir_ref_ms: float | None) -> dict:
 
 # ----------------------------------------------------------------------------------------------------- paired
 def paired(ref: dict, arm: dict, boot: int, seed: int) -> dict:
+    if root_pool(ref['info']['run_root']) != root_pool(arm['info']['run_root']):
+        raise ValueError('POOL_MISMATCH: cannot pair A and B outcomes')
     Er, Ea = ref["ep"], arm["ep"]
     kr = {(int(t), int(i)): bool(s) for t, i, s in zip(Er["task"], Er["ep_idx"], Er["success"])}
     ka = {(int(t), int(i)): bool(s) for t, i, s in zip(Ea["task"], Ea["ep_idx"], Ea["success"])}
@@ -1306,6 +1315,8 @@ def main(argv=None):
     for t in (ref_t, ir_t):
         if t is not None and t not in jobs:
             jobs.append(t)
+    if len({root_pool(run) for run, _ in jobs}) != 1:
+        raise ValueError('POOL_MISMATCH: one KPI report cannot mix A and B runs')
 
     def kw_for(run, arm):
         tk, epi = tasks, episodes

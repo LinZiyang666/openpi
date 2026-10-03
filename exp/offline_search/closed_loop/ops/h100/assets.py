@@ -57,6 +57,19 @@ def flag(args, name, default=None):
     return default
 
 
+def local_remap(value, run, store=STORE, base=None):
+    """Keep local inputs in place; expand run placeholders and the store alias."""
+    if isinstance(value, str):
+        return value.replace("<RUN>", str(run)).replace("/dev/shm/offline_search_store", str(store))
+    if isinstance(value, dict):
+        return {k: local_remap(v, run, store) for k, v in value.items()}
+    if isinstance(value, (tuple, list)):
+        return type(value)(local_remap(v, run, store) for v in value)
+    if isinstance(value, Path):
+        return Path(local_remap(str(value), run, store))
+    return value
+
+
 def relocated_fit(blob, run, store, base):
     # Only metadata and explicit path values; fitted numerical arrays stay intact.
     seen = set()
@@ -84,20 +97,52 @@ def relocated_fit(blob, run, store, base):
     return walk(blob), bool(changes)
 
 
-def build_plan(run, names, work, *, store=STORE, base=BASE):
+def relocated_local_fit(blob, run, store):
+    """Local metadata only; leave the historical h100 pickle walker untouched."""
+    memo, changes = {}, []
+    def walk(obj):
+        if isinstance(obj, (str, Path)):
+            value = local_remap(obj, run, store)
+            if value != obj:
+                changes.append(True)
+            return value
+        if id(obj) in memo:
+            return memo[id(obj)]
+        memo[id(obj)] = obj
+        if isinstance(obj, dict):
+            for key in list(obj):
+                obj[key] = walk(obj[key])
+        elif isinstance(obj, list):
+            obj[:] = [walk(v) for v in obj]
+        elif isinstance(obj, tuple):
+            value = tuple(walk(v) for v in obj)
+            memo[id(obj)] = value
+            return value
+        elif type(obj).__module__.startswith('exp.offline_search') or type(obj).__name__ == 'LibraryView':
+            for key, value in vars(obj).items():
+                setattr(obj, key, walk(value))
+        return obj
+    return walk(blob), bool(changes)
+
+
+def build_plan(run, names, work, *, store=STORE, base=BASE, local=False):
+    from exp.offline_search.closed_loop.devset import root_pool, arm_contract
+    from exp.offline_search.closed_loop.ops.remote.run_gtp_subset import load_manifest
     run, work = Path(run).resolve(), Path(work)
     rows = {r["arm"]: r for r in json.loads((run / "arms.json").read_text())}
+    pool = root_pool(run)
     if not names:
         raise ValueError("explicit arm list required")
     work.mkdir(parents=True, exist_ok=True)
-    files, prepared = {}, []
+    files, prepared, contracts = {}, [], {}
+    mapper = local_remap if local else remap
 
     def add(path, reason, *, destination=None, content=None):
         path = Path(str(path).replace("<RUN>", str(run)))
         if not path.is_file():
             raise FileNotFoundError(f"{reason}: missing dependency {path}")
-        target = destination or remap(str(path), run, store, base)
-        rel = str(Path(target).relative_to(base))
+        target = destination or mapper(str(path), run, store, base)
+        rel = str(Path(target)).lstrip("/") if local else str(Path(target).relative_to(base))
         if "\n" in rel or ".." in Path(rel).parts:
             raise ValueError("unsafe transfer path")
         if rel in files:
@@ -116,6 +161,10 @@ def build_plan(run, names, work, *, store=STORE, base=BASE):
         if not re.fullmatch(r"[A-Za-z0-9_]+", name):
             raise ValueError("invalid arm name")
         row = copy.deepcopy(rows[name])
+        manifest = os.environ.get('OSCL_MANIFEST') or row.get('manifest')
+        contract = arm_contract(run, row, load_manifest(str(manifest).replace('<RUN>', str(run))) if manifest else None, store)
+        if contract is not None:
+            contracts[name] = contract
         args = row.get("plugin_args", [])
         if any(x.startswith(("--os-debug", "--os-log-inputs", "--os-oracle", "--trace-")) for x in args):
             raise ValueError(f"{name}: standard topology refuses debug/oracle/trace capture flags")
@@ -125,7 +174,8 @@ def build_plan(run, names, work, *, store=STORE, base=BASE):
             from exp.offline_search.rounds.r08.abl.clip.encoder import WEIGHT_SHA256, weights_path
             weight = Path(row.get("server_env", {}).get("R8_CLIP_WEIGHTS") or weights_path())
             add(weight, name + ": online CLIP image tower")
-            entry = files[str(Path(remap(str(weight), run, store, base)).relative_to(base))]
+            target = mapper(str(weight), run, store, base)
+            entry = files[str(target).lstrip("/") if local else str(Path(target).relative_to(base))]
             if entry["source_sha256"] != WEIGHT_SHA256:
                 raise ValueError(f"{name}: CLIP image tower SHA mismatch")
             row.setdefault("server_env", {})["R8_CLIP_WEIGHTS"] = str(weight)
@@ -133,7 +183,7 @@ def build_plan(run, names, work, *, store=STORE, base=BASE):
         config = yaml.safe_load(Path(row["yaml"]).read_text())
         if config.get("trace") or config.get("debug"):
             raise ValueError(f"{name}: trace/debug configuration forbidden")
-        add(row["yaml"], name + ": server config", content=yaml.safe_dump(remap(config, run, store, base), sort_keys=False).encode())
+        add(row["yaml"], name + ": server config", content=yaml.safe_dump(mapper(config, run, store, base), sort_keys=False).encode())
         add(row["matrix"], name + ": client matrix")
         library = config["backend"]["in_memory"]["preload_path"]
         add(library, name + ": native payload PKL")
@@ -144,7 +194,7 @@ def build_plan(run, names, work, *, store=STORE, base=BASE):
                 path = current / fname
                 content = None
                 if fname == "manifest.json":
-                    content = json.dumps(remap(json.loads(path.read_text()), run, store, base), indent=1).encode()
+                    content = json.dumps(mapper(json.loads(path.read_text()), run, store, base), indent=1).encode()
                 add(path, name + ": PluginRuntime current", content=content)
             epj = store / "queries" / row["cell"] / "episodes.json"
             if epj.exists():
@@ -168,7 +218,7 @@ def build_plan(run, names, work, *, store=STORE, base=BASE):
                         # Preserve that exact discovery rule; do not synthesize marker arrays.
                         for fname in ("task_id.npy", "action.npy", "key_v0.npy"):
                             add(directory / fname, name + ": runtime payload tables")
-                blob, changed = relocated_fit(blob, run, store, base)
+                blob, changed = relocated_local_fit(blob, run, store) if local else relocated_fit(blob, run, store, base)
                 content = pickle.dumps(blob, protocol=4) if changed else None
                 add(artifact, name + ": fitted method", content=content)
             # A root flag selects the implicit cell dependencies above, not all 365 GB.
@@ -187,10 +237,24 @@ def build_plan(run, names, work, *, store=STORE, base=BASE):
                     raise FileNotFoundError(f"{name}: missing explicit argument {path}")
             if not flag(args, "--os-root"):
                 args += ["--os-root", str(store)]
-        prepared.append(remap(row, run, store, base))
+        ready = mapper(row, run, store, base)
+        if local:
+            ready['yaml'] = files[str(Path(ready['yaml'])).lstrip('/')]['source']
+            artifact = flag(ready.get('plugin_args', []), '--os-fit-artifact')
+            if artifact:
+                source = files[str(Path(artifact)).lstrip('/')]['source']
+                ready['plugin_args'] = [v.replace(artifact, source) for v in ready['plugin_args']]
+        prepared.append(ready)
     data = dict(run=str(run), remote_run=str(base / "runs" / run.name), arms=prepared,
                 files=sorted(files.values(), key=lambda x: x["rel"]))
     data["bytes"] = sum(x["size"] for x in data["files"])
+    if local:
+        data.update(server_host='local', remote_run=str(run), server_tree='/home/weiland/projects/openpi',
+                    server_store=str(store), worker_endpoint='ziyanglin.com:23100-23199',
+                    server_transfer_bytes=0, transfers=['worker configs/matrices and pool records only'])
+    if pool == 'B':
+        data['init_pool'] = 'B'
+        data['dev_contracts'] = contracts
     (work / "plan.json").write_text(json.dumps(data, indent=1))
     print(f"PLAN files={len(files)} bytes={data['bytes']} GiB={data['bytes']/(1<<30):.3f}")
     for item in data["files"]:

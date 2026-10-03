@@ -22,7 +22,7 @@ def pair(row):
         raise ValueError(f"manifest pair must contain integer IDs: {row!r}")
     t, e = int(t), int(e)
     if not 0 <= t < 10 or not 0 <= e < 50:
-        raise ValueError(f"manifest pair outside the 10-task / 50-init A-pool: {(t, e)}")
+        raise ValueError(f"manifest pair outside the 10-task / 50-init pool: {(t, e)}")
     return t, e
 
 
@@ -75,14 +75,14 @@ def main(argv=None):
         check_manifest(manifest, suite=rest[rest.index("--task-suite") + 1])
     keep_ep = {int(x) for x in os.environ.get("OSCL_EPISODES", "").split(",") if x.strip()}
     keep_t = {int(x) for x in os.environ.get("OSCL_TASKS", "").split(",") if x.strip()}
-    if manifest is None and not keep_ep:
-        raise SystemExit("run_gtp_subset requires --manifest / OSCL_MANIFEST or OSCL_EPISODES")
     sys.path.insert(0, "/scratch/zixuans8/openpi_trace")
     from exp.gate_threshold_pareto import run_gtp
+    from exp.offline_search.closed_loop.worker_pool import install
+    install(run_gtp, rest, manifest)
     original = run_gtp.SweepStrategy._episodes
 
     def episodes(self, yaml_id, server):
-        return selected_tasks(original(self, yaml_id, server), manifest, keep_ep, keep_t)
+        return selected_tasks(original(self, yaml_id, server), manifest, keep_ep or None, keep_t)
 
     run_gtp.SweepStrategy._episodes = episodes
     # The base driver's whole-arm resume count is not exact-pair aware.
