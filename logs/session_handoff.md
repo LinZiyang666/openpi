@@ -1,6 +1,6 @@
 # Session handoff
 
-> 多条线共用本文件。§0 为常驻初始化（不动）。**§1–§6 = 离线检索探索线（offline_search）交接，2026-10-01 19:4x CDT 更新：R8 全部完成（采集 / 影子 / 校验 / 报告 / 补充消融），等 owner 裁定提交**。step_diag / warm reset 线的交接原文在附录 A（该线已全部完成、待 owner 裁定提交）。
+> 多条线共用本文件。§0 为常驻初始化（不动）。**§1–§6 = 离线检索探索线（offline_search）交接，2026-10-05 21:2x CDT 更新（R15 收口；在做纯缓存 + 修正器消融，见 §1.2）。以下为旧摘要：：R13（第 4 层两种调用对比）与 R14（第 5 层逐任务旋钮下降）均已收口，报告在 `rounds/r13/REPORT.md`、`rounds/r14/REPORT.md`；无在跑实验；待 owner 答复是否补 100/200 集；GPU 找"沙堆实验"会话协商（见 §1 首段）；R12/R13/R14 均未提交**。step_diag / warm reset 线的交接原文在附录 A（该线已全部完成、待 owner 裁定提交）。
 
 ## 0. 初始化方式（不变）
 
@@ -52,7 +52,448 @@ owner 的常驻指令，逐字有效：
 
 
 
-## 1. 现在在哪（2026-10-03 09:3x CDT）—— R11 完成：第 4 层推理开销旋钮，建议守卫感知的定期调用（待 owner 采纳）；无任何运行
+## 1. 现在在哪（2026-10-07 19:1x CDT；最先读；R16 在跑）
+
+### 1.R16 正在做：纯减步融入闭环（owner 10-07 目标"融入纯减步并实验"）
+- **决定**：见 `rounds/r16/COORDINATOR_DECISIONS.md`（D1–D7）。
+  - 所有大模型调用都改成 k 步去噪，k = 1 或 2；包括守卫触发、旋钮定期调用和纯推理。库、度量、修正器都沿用现有冻结的那一套。
+  - 执行段用现行的 10 步，旧的 9-15 减步数据不能拿来对比。
+  - 第一步：纯减步推理 8 组 × 500 局。
+  - 第二步：库大小 50/100/200/500 × 两个模型 × 两类任务 × k，共 32 格。开发集上重做逐任务下降，参照用满步纯推理；然后冻结，32 格各跑测试集 500 局。
+  - IR：π0.5 是 .152V + c·M，c = .454（k = 1）/ .498（k = 2）；GR00T 是 .148V + c·M，c = .258 / .343。
+- **设备（owner 规定 + 协议 M6）**：只用本机 4090（28 GB）作 server，worker 在 timan107。实验期间 h100 整张归沙堆实验。**结束后立刻停掉 4090 上我方全部进程，并书面告诉沙堆实验两张卡整台归它。**
+- **实现**：sol 线程 `01a117c6-8ffa-7083-b715-df7eb642bbcc`，交回说明 `rounds/r16/HANDBACK.md`，运行手册 `RUNBOOK.md`。共享代码只改了 `src/openpi/cache/types.py`（放行 GR00T 一步去噪）。
+- **跑法**：`openpi_ext/scratch/r16_ops/`
+  - 运行器 `run_r16.sh`：按模型选服务数和显存预检，π0.5 3 个服务、GR00T 4 个，每个服务 16 个 worker。
+  - 每组跑完用 `r16_check.py` 检查 `miss_k`；监控 `line_watch.sh`；显存峰值采样 `gpu_peak.sh`（tmux `r16_gpupeak`）。
+  - 线：tmux `r16q_local`，日志 `/tmp/r8_coord/r16_q_local_timan107.log`。
+- **进度**：
+  - 4 组真机冒烟全部通过；实测峰值 π0.5 9.9 GB（三个服务稳定在约 27 GB，所以签了 M7：π0.5 组期间 30 / 18 GB）、GR00T 6.0 GB。
+  - 第一步 8/8 已完成，结果在 `rounds/r16/phase1_results/PHASE1.md`：8 格成功率都和满步数分不开（−0.8 到 +1.4 个点），开销 π0.5 −35~40%、GR00T −51~59%。
+- **10-07 19:13 已恢复**（owner："你可以继续工作"）：本机 19:00 左右重启过；已通知沙堆实验收回 4090，台账已更新；运行器、采样器、监控和巡检 cron 都已重新挂上。
+- **（历史）10-07 18:03 owner 要关闭本机运维，R16 暂停**：
+  - 停下的东西：运行器、chain、本机 3 个服务（用 `control abort` 停的）、timan107 worker（为 0）、采样器、监控、巡检定时任务。我方没有在跑的 codex。
+  - 开发集完成 1/176（`r16d_pi05_l10_50_k1_pure_c10`）。被打断的 `r16d_pi05_l10_50_k2_pure_c10` 已放回 `r16_ops/queue.txt` 队首（队列共 175 行）；它的半截运行目录挪到了 `r16_dev_c10_pi05_l10_50_k2/aborted/`。
+  - 台账已写空闲声明，沙堆实验已通知。**恢复前 30 分钟要先通知沙堆实验收回 4090**；R16 还没结束，不要发"整台归你"的结束通知。
+- **恢复步骤**：
+  1. 给沙堆实验发收回通知，30 分钟后开始；
+  2. `tmux new -d -s r16q_local "bash /home/weiland/projects/openpi_ext/scratch/r16_ops/run_r16.sh local timan107 23100,23101,23102,23103 16"`；
+  3. `tmux new -d -s r16_gpupeak "bash .../r16_ops/gpu_peak.sh"`；
+  4. 用 Monitor 挂 `r16_ops/line_watch.sh`，再加 30 分钟一次的巡检 cron。
+  - 开发集还剩约 36–42 小时，之后是测试集 32 组。
+- **之后**：
+  1. `analyze phase1`；
+  2. 开发集跑完后依次 `analyze dev` → `analyze freeze` → `prepare emit-test` → `audit deployment-test` → 跑测试集队列 → `analyze test`；
+  3. 写报告，归还 4090 并通知沙堆实验。
+  - 命令前缀见 RUNBOOK。
+
+### 1.0 会话与环境
+- **重开会话请先 `cd /home/weiland/projects/openpi` 再 `claude --resume <会话号> --dangerously-skip-permissions`**。本会话 14:52 起误在 `/home/weiland/idea-sprint`（沙堆实验的目录）里打开，加载的是 idea-sprint 的记忆；openpi 的记忆在 `~/.claude/projects/-home-weiland-projects-openpi/memory/`，需要时用绝对路径读写。
+- 回复 owner 一律用中文，不用代号。
+- **跑法工具全在持久目录 `/home/weiland/projects/openpi_ext/scratch/r15_ops/`**（作业临时目录会被删，别再放 `$CLAUDE_JOB_DIR/tmp`）：
+  - `run_q8.sh <local|h100> <worker_host> <ports> <wps>`：共享队列 `queue.txt`（每行 `@h100 /abs/root|arm` 或 `@local ...`）。
+  - 本机服务数 `local_servers`（4），本机显存预检 `local_need_mb`（6800；GR00T 实测每服务 5.7–6.3 GB，默认 8000 偏高会报 GPU_TIGHT）。
+  - h100 服务数上限 `h100_max_servers`（现为 4）；`h100_deadline` 不用。
+  - 生效核对 `engage_check.py`；巡检 `probe.sh`；监控 `combined_watch.sh`、`codex_watch.sh <job>`、`tmux_watch.sh`。
+  - 日志 `/tmp/r8_coord/r15_q_<host>_<worker>.log`；tmux 会话 `r15q_h100` / `r15q_local`。
+  - 线上没有作业时会自己 Q_EXIT，补了队列要重新起 tmux。
+- **部署**：
+  - 无链在跑时：`SERVER_HOST=h100 WORKER_HOST=<timan> ... control setup`（h100 + 该 worker）；本机线：`SERVER_HOST=local WORKER_HOST=timan107 ... setup --worker-only`。
+  - 有链在跑时：只推改动文件，`control.bundle('h100', control.BASE/'openpi', [(abs, rel), ...])`，再用 sha256 逐一核对。
+
+### 1.1 R15 结果（已收口，报告 `exp/offline_search/rounds/r15/REPORT.md`）
+- **A 线：100/200/500 集逐任务下降**，测试集每种做法合并 2,000 局，纯推理 93.2% / .506：
+
+  | 库大小 | 统一档位 | 逐任务表 | 逐任务 − 纯推理 |
+  |---|---|---|---|
+  | 100 | 89.1% / .181 | 92.1% / .314 | −1.1，区间含 0 |
+  | 200 | 91.3% / .153 | 92.8% / .266 | −0.5，区间含 0 |
+  | 500 | 93.8% / .145 | 93.8% / .267 | +0.6，区间含 0 |
+
+  - 开销省 38–47%（R14 的 50 集是 −2.2 个点、省 37%）。
+  - 逐任务对统一档位：+3.0 / +1.5 / −0.1 个点。500 集时统一档位四格全是"关闭"，旋钮不开就够了；GR00T 长任务小库最需要逐任务调。
+  - 逐任务保证仍不成立：40 个任务里分别有 8 / 4 / 5 个掉超 5 个点。
+  - 数据在 `rounds/r15/descent/`：`TEST_A.md`、`test_a.json`、`levels*.json`、`LOADER_FIXES.md`。
+- **B 线：轻量图像检索键**，owner 定调"视觉塔最准"，进附录（裁定 D5）。
+  - CPU 约 1 ms/看图；新起点检索误差 +8–10%；闭环小跑 4 组成功率低 2–9 个点、开销只省 12–27%。
+  - 附录稿 `rounds/r15/qk/astra/PILOT_RESULTS.md`。
+- **owner 本轮定的长期规则**（已写进记忆）：检索不能当瞎子，只用状态的键直接否；第 5 层仍按逐任务下降。
+
+### 1.2 纯缓存 + 修正器 补充消融（已收口，10-06 02:05；报告见 `rounds/r15/REPORT.md` 的"补充"节）
+- **设计**：
+  - 24 组 = {π0.5, GR00T} × {长任务, 空间任务} × 库大小 {50, 100, 200, 300, 400, 500}，每组测试集 500 局。
+  - 修正器用 R10 冻结的、每个库大小各自的距离衰减修正器，不开守卫。24/24 绑定已独立核对。
+  - 服务在 h100，worker 在 timan107，与 R10 的纯缓存、只开守卫、守卫 + 修正器逐起点配对。
+- **结果**（四格合并 12,000 局）：
+
+  | 组 | 成功率 |
+  |---|---|
+  | 纯缓存 | 84.0% |
+  | 纯缓存 + 修正器 | 87.2% |
+  | 只开守卫 | 89.0% |
+  | 守卫 + 修正器 | 90.9% |
+
+  - 修正器对纯缓存提高 +3.2 个点，p = 5e-22，owner IR 不变（约 .075）。四格合并后各自都显著。24 组里 20 组提高、3 组持平、1 组降 0.4 个点，没有一组显著变差。
+  - π0.5 长任务在 6 种库大小上全部显著（+4.0 到 +8.0 个点）。
+  - 空间任务上，修正器单独约等于只开守卫，开销只有其三分之二。
+  - 修正器和守卫部分重叠，但叠加最好：守卫 + 修正器比纯缓存 + 修正器高 3.6 个点。
+- **文件**：
+  - 结果表：`pure_corr/TEST_A.md`（sol 的分析脚本）、`pure_corr/SUPPLEMENT.md`（owner IR 和另外三组配对，脚本 `pure_corr/supplement.py`）。
+  - 运行根：`r15_purecorr_*`。
+  - 跑法：`r15_ops/run_q9.sh`，即 run_q8 加 h100 /data 保护。
+- **收尾已做**：
+  - h100 已在台账报空（02:05 起），并通知了沙堆实验；
+  - cron 和监控已停；
+  - h100、timan107 上都没有我方进程。
+- **磁盘**：
+  - h100 /data 余 34 GB。动议 M5（底线临时 30 GB）仍有效，直到 owner 定清理方案。
+  - 我方 `/data/oscl_h100/runs` 约 16 GB，全部已拉回本地，删除要 owner 定。
+
+### 1.3 GPU 与沙堆实验
+- 规则成文 `/home/weiland/gpu_share/RULES.md`（v5），台账 `LEDGER.md` 是唯一依据，任一方可发动议。
+- 现份额：
+  - h100：我方 36 GB（4 服务档）/ I018 44 GB；
+  - 4090：我方 28 GB（已报空，借给 I018 做离线分析）/ I018 20 GB。
+- 沙堆实验地址 `uds:/run/user/1000/cc-socks/839194.sock`（它现在是 bypass 模式，本会话也是，消息不再被扣）。
+- 开跑前后：在台账更新我方行；我方没活就报空；收回提前通知，30 分钟内生效。
+- h100 /data 余约 40 GB，正好在底线上。删已回收的旧运行目录被权限审查拦过，要 owner 定。
+
+### 1.4 codex
+- **⛔ owner 10-05 23:4x："以后不准在发 agent 的时候带 credential"**。`codex exec` / `exec resume` 和 companion 自带的 app-server 都会自己读凭据，不再使用。
+- **一律用共享守护进程**：`python3 /home/weiland/idea-sprint/dynamical_system/runs/i018-control/bin/codex_daemon_run.py --model <gpt-6.1-sol|gpt-6-astra> --effort xhigh --sandbox danger-full-access --cwd /home/weiland/projects/openpi --prompt <文件> --log <日志> [--thread <线程号>]`。
+  - 日志第一行是 `session id: <线程>`，跑完退出码为 0。
+  - 后台或 tmux 里跑，用 Monitor 等它结束。
+  - 加 `--thread` 即可续聊，以前由 exec 开的线程也能续。
+- 开跑前用 `acct codex` 看额度；禁止 CODEX_HOME、搬动 auth.json、传 token、`codex login/logout`。
+- 已有线程：astra `01a10c95-6967-7b92-89c3-ed96ab4c5fdb`（R15-B）；sol `01a10f17-518c-7492-af21-a5610a2191f2`（纯缓存 + 修正器）。
+
+### 1.5 未提交
+- R12–R15 的代码和报告都没提交。提交要 owner 当次授权；英文 commit、不加 AI 署名、json 要 `add -f`、画图脚本不入库。
+
+## 1z. （历史）2026-10-05 09:4x CDT—— R13、R14 都已收口；无在跑实验；待 owner 答复是否补 100/200 集
+
+**最新（优先读这段）**
+- **10-05 09:4x compact 前补充（最先读）**：
+  - **待 owner 回复**：要不要把 R13（开销反馈下距离调用收敛成定期节奏）和 R14（逐任务旋钮下降）补到库大小 100 和 200 集。
+    - 我的建议：两者在 100/200 集上各复现一遍，规模同 50 集（B 池开发集 + 测试集小确认）。
+    - 库子集现成（`rounds/r10/subsets/<model>_<suite>_{100,200,...}`）；100 集的旋钮拟合要 sol 先补，约 1 h；跑约半天到一天。
+    - owner 之前问"你只用 50 集做了吗，有用 100 和 200 吗"，我已如实回答：
+      - R13 开发集验证用了 50 和 200（200 只有长任务）；
+      - R13 测试集精简确认只有 50（另有 200/500 的 GR00T 补充臂 6 个）；
+      - R14 只有 50；
+      - 没有用 100。
+  - **GPU 规则（owner 10-05，已写入记忆 `feedback_gpu_coordination_shadui`）**：要用 GPU 就直接找"沙堆实验"会话（I017/I018，h100 目录 `/data/idea_sprint/dynsys`）协商，不请示 owner；自己没需求或可共卡就按需分配。
+    - 现约定：我上卡提前 ≥30 分钟发消息，对方清空两卡后回复；对方不计时的作业可共卡、5 分钟内让出；h100 /data 余量 ≥40 GB。
+    - 对方地址：它消息里的 `from`（`uds:/run/user/1000/cc-socks/3375024.sock`），或 ListAgents 里的"沙堆实验"。
+    - 目前两卡借给 I018 做逐步 profile。
+  - timan108 已于 08:44 恢复（整机重启过），09:3x verify-worker 通过，h100 线可用。
+  - 起跑方法：本机线和 h100 线都用 `~/.claude/jobs/a607dd74/tmp/r13/run_q6.sh`，队列 `tmp/r13/queue.txt`（`@local` / `@h100`）。
+    - 监控用 `combined_watch.sh` 和 `codex_watch.sh`；巡检 `probe.sh`。cron 已删，重开实验时重建。
+  - codex 派活：astra = `--model gpt-6-astra --effort xhigh`，sol = `--model gpt-6.1-sol --effort xhigh`，用 companion `task --background --full-access`。
+    - 用完按 PID 停本会话的 broker 对（cwd = openpi）。
+    - 不让 agent 自己等数据或看守实验。
+  - **回复 owner 一律用中文**。
+- **R13（owner /goal：两种第 4 层调用对比）**，报告 `exp/offline_search/rounds/r13/REPORT.md`：
+  - 结论：距离阈值加"本局开销反馈"后，按距离调用会收敛成和定期调用几乎一样的节奏；同开销 SR 分不开；第 4 层用定期调用。
+  - 数字：
+    - 开发集 28 臂开销达标；
+    - .32 档平均调用间隔：开发集距离 1.67、定期 1.72；测试集 1.6–1.8；
+    - 测试集 SR：距离 − 定期 +0.25 [−1.35, +1.80] 个点（2000 对）；
+    - 机理：节奏来自开销账本，不是"偏离随时间增大"。
+  - owner 定调：这条结论在论文里展示即可，不要大量数据。
+  - 论文用表：`rounds/r13/astra/final_paper_table.csv`、`final_b_gap_cdf.csv`、`final_test_a_gap_cdf.csv`。
+  - 裁定 D1–D5：`rounds/r13/COORDINATOR_DECISIONS.md`。
+- **R14（第 5 层 = owner 原意的"部署时逐任务旋钮下降"）**，报告 `exp/offline_search/rounds/r14/REPORT.md`：
+  - 做法：B 池每任务 30 局逐档下降（5 个点容差、首次失败即停），冻结档位表后在测试集确认。
+  - 结果（测试集合并）：逐任务表 91.0% @ .317，纯推理 93.2% @ .506（−2.2 个点，开销省 37%），统一档位 89.3% @ .281。
+  - 每任务守容差失败：40 个里 11 个掉超 5 个点，样本太少。
+  - 示范库估计预测不了下降档位。
+  - 建议：逐任务保证需要每任务约 100 局以上或保守规则，再在新数据上确认。
+  - 原 R14 设计（部件共用消融、示范库分配）的代码在 `rounds/r14/{astra,impl,knob}/`，未跑。
+- **owner 的语言要求**：一律中文（10-04 夜两次误用英文被批评，已写入语言记忆）。
+- **机器**：
+  - timan108 的 tether 代理 10-05 02:06–08:44 离线（整机重启过），08:44 起恢复在线，09:3x verify-worker 已核对。
+  - **h100 与本机 4090 借给 I017/I018 共用**（逐步 profile，不计时）：我方要上卡须提前 ≥30 分钟发消息，对方清空两卡后回复；h100 的 /data 余量保持 ≥40 GB。
+  - h100 已由 I017 交还（I017 转 PARK，以后要独占须提前半天约）。
+  - /home 腾空间已完成（余 2.6 TB），备份只管 /home。
+- **未提交**：R12、R13、R14 的代码和报告。提交须 owner 当次授权；英文 commit、不加 AI 署名、json 文件要 `add -f`、画图脚本不入库。
+
+## 1a0. （10-04 23:30 版，已过时）
+
+**最新（优先读这段）**
+- **owner 10-04 晚定调**：
+  - R13 结论 = "加上开销反馈后，按距离调用会收敛成和定期调用几乎一样的节奏"，论文里展示即可，不要大量数据。
+  - R13 大网格已停（裁定 D5），只补 12 臂测试集精简确认。
+  - R14 = owner 原意的"分任务的部署阶段旋钮下降法"：每任务从纯推理逐档往下降，降到 SR 掉出容差为止。
+  - owner 说"可以用示范库估计的比例，如果估计的和真实下降的准就更好"——所以要对照 astra 的示范库估计。
+  - 其余 R14 设计（部件共用消融、示范库分配验证）不跑。
+- **R13 文档**：
+  - astra 终版 `rounds/r13/astra/REPORT.md` / `ANALYSIS.md` / `final/HANDBACK.md`；
+  - 论文用 `final_paper_table.csv`、`final_b_gap_cdf.csv`；
+  - 裁定 `rounds/r13/COORDINATOR_DECISIONS.md`（D1–D5）。
+- **R13 结论（B 池开发集）**：
+  - .32 档平均调用间隔：距离反馈 1.67、定期 1.72（次看图）；无反馈的固定阈值节奏不同。
+  - SR：距离 − 定期 +0.86 [−0.61, +2.29] 个点，2800 对。
+  - 开销控制：28/28 距离反馈臂达标，固定阈值 5/8 越界。
+- **R13 测试集精简集**（4 个 50 集格，.32，rep0，距离 / 定期 / 关闭）：
+  - GR00T 6 臂已跑完（本机）；
+  - π0.5 6 臂待 h100 交还后跑（在 `tmp/r13/queue_h100_hold.txt`）；
+  - 跑完运行 `rounds/r13/astra/final_test_a.py` 填报告（命令见 `final/HANDBACK.md`）。
+- **R14 下降**：
+  - 根 `r14_descent_<cell>`，4 格 × 8 臂 × 300 局（每任务 30 局），说明见 `rounds/r14/descent/HANDBACK.md`；
+  - 都在本机线上：GR00T 22:07 起，π0.5 接在后面，预计 05:00 前后全齐；
+  - astra 已冻结判定协议 `rounds/r14/descent_astra/PROTOCOL.md`（主容差 5 个点、第一次失败即停）。
+- **R14 之后的步骤**：
+  1. 数据齐后运行 `analyze.py apply`（命令见 `descent_astra/HANDBACK.md`），产出 `levels.json` / `uniform.json` / `DESCENT.md`；
+  2. 用 `rounds/r14/descent` 的 `prepare emit-test-a --levels --uniform --out .../test_a_selected` 生成测试根，再 verify / plan / install；
+  3. 部署 `descent/__init__.py` 与 `descent/recipe.py` 到 h100（用 `control.bundle`，见 §4）；
+  4. 测试集每格 3 臂（按任务下降 / 统一档位 / 纯推理），GR00T 在本机，π0.5 在 h100；
+  5. 叫 astra 写 R14 报告。
+- **h100**：借给 I017 跑 n99，预计 10-05 07:30–08:00 交还（最坏 15:00）；对方会发消息。
+- **owner 的语言要求**：一律用中文回复（今晚我两次误用英文，被 owner 严厉批评）。
+
+## 1a. （10-04 20:2x 版，已过时）
+
+**10-04 晚最新状态（优先读这段；下面"10-04 compact 前"及更早段落为历史留档）**
+
+- **owner 目标（/goal，10-04 11:1x）**："研究两种第4层调用详细对比"，即定期调用 vs 距离阈值调用。可用 astra、sol，以及 timan107、timan108、h100、本机 4090。
+- **owner 追加**：
+  - "之后把沿任务分治也做了"，即 R14 第 5 层；范围由我定为两部分：部件共用消融 + 按任务分配调用开销。
+  - "你们两个协商，我不做打扰"：h100 / 4090 与 I017"沙堆实验"会话直接商量，不请示 owner。
+  - 同意只跑重复块 rep0/rep1（裁定 D4）。
+  - 机理问题：两法在轨迹哪里调用；若相近，距离阈值就是"隔一段时间调用一次"的另一种实现。
+- **R13 文档**：
+  - 简报 `exp/offline_search/rounds/r13/BRIEF.md`
+  - astra 冻结设计 `rounds/r13/astra/`：SPEC / PREDICTION / PLAN / OFFLINE，门槛判定 GATES.md + gates.json，机理分析 MECHANISM.md
+  - sol 实现 `rounds/r13/impl/`、`rounds/r13/knob/`（R13Knob：距离反馈原因码 69，固定阈值诊断 70）
+  - 协调者裁定 `rounds/r13/COORDINATOR_DECISIONS.md`（D1–D4）
+  - 数据说明 `rounds/r13/DATA.md`
+- **R13 已有结论（B 池开发集，未看测试集）**：
+  - 新距离调用"距离阈值 + 本局开销反馈"能精准控开销：8 格 32 主臂平均偏差约 .004，最差 .015（R11 旧版平均 −.08）。
+  - 只重新标定固定阈值不够：8 臂里 5 臂越界，方向随格子变。
+  - 定期调用在 π0.5 长任务上系统性少花约 .01。
+  - 开发集 SR 合并：距离 − 定期 +0.9 个点（p = .24，2800 对），分不开。
+  - **机理**：
+    - 两法节奏相近，但同状态重放有 66.6% 的被选位置不同；
+    - 距离并不随"离上次调用多久"增长（间隔只解释 0.3–2.5%），节奏来自开销账本；
+    - 距离单独挑的点，大模型与缓存的动作差高 11.3%（主要在空间任务）。
+  - 放行：64 臂全部纳入，16 个测试根全部放行（含 D1/D2 裁定）。两个配对点不算"同开销"：GR00T L10-200 .25、π0.5 L10-50 .32 rep0。
+- **R13 正式测试**（每臂 500 局，rep0/rep1 共 160 臂；rep2/rep3 的根已装但不跑）：
+  - GR00T 80 臂在本机，17:55 起，20:17 完成 6 臂；
+  - π0.5 80 臂在 h100，交还后开跑。
+- **R14**：
+  - astra 设计 `rounds/r14/astra/`（开发集验证 68 臂 × 50 局，测试 128 臂 × 500 局）；
+  - sol 实现 `rounds/r14/impl/` + `rounds/r14/knob/`；
+  - 已排入两条线的队列（在 R13 测试之后）；R14 测试根要等 astra 判定验证门槛后再装、再入队。
+- **h100 借给 I017**（墙钟计时，需独占）：
+  - 16:21 起跑 W2 n99，约 14.4 h，预计 10-05 07:30–08:00 交还，最坏 15:00；
+  - 对方会发消息交还，失败或超时提前说；交还后我方连续 2–3 天，对方再要须提前半天约；
+  - 4090 已于 13:31 交还，对方以后要独占窗口须提前 ≥ 20 分钟约。
+- **/home 腾空间（owner 10-04）**：已搬 1.25 TB 到 /data 与 /archive，原位置留软链，/home 余量 2.6 TB；备份只管 /home（owner 裁定，已入磁盘记忆）。
+
+## 1b. （历史）2026-10-04 早 CDT —— R12"看一半"全部完成并已裁定
+
+**10-04 compact 前最新状态（优先读这段，下面各段为历史留档）**
+
+**R12 结论与 owner 裁定**
+- 报告定稿：`exp/offline_search/rounds/r12/REPORT.md`，顶部是 owner 裁定和白话结论。
+- **owner 10-04 裁定**：
+  - "看一半"（只编码一路相机）**不进主设计，放附录**：SR 无提升；开销约 −20% 的收益集中在空间任务；GR00T 长任务所有单路方案 −5；按任务选相机在长任务上选不准；有效规律是看过测试集 A 后才得出的，未干净验证。
+  - 不靠第三人称画面的**新守卫（H2）也放附录**：开销 −5%、SR 持平，但长任务首次调用晚约 10 步。旋钮本身能调开销，第 2 层保留原无进展守卫。
+  - 记忆 `project_offline_search_five_layer_design` 已加附录条目，MEMORY.md 索引已同步。
+- **主设计（五层，不变）**：1 缓存（两路相机，按任务马氏距离）；2 无进展守卫；3 库内修正器；4 推理开销旋钮（定期 + 距离阈值都纳入，待细比）；5 按任务分治。挑选和标定只在 B 池开发集上做，测试集 A 只测冻结版。
+
+**测试集 A 定稿数字**（每组 500 局；原系统每格跑两次，对两次逐起点平均配对；5 格不开旋钮等权合并）
+- opus 看一半（M1）：SR −0.8 ± 1.3，开销 −.010（−9%）。
+- 新守卫（H2）：+0.1 ± 1.1，−.007（−5%）。
+- 新守卫 + 看一半（M2）：+0.1 ± 1.3，−.025（−19%）。
+- 按任务选相机五层（half-everywhere）：+0.2 ± 1.2，−.026（−21%）。
+  - GR00T 空 50：+4.0 / −30%；π0.5 空 200：−44%；GR00T 长 50：所有单路方案 −5；开旋钮 .32：+3.2 ± 2.6，开销持平。
+- 纯缓存相机消融：手腕在 GR00T 空间 +7.6、长任务 −11（均显著）；π0.5 长 −3、空间持平；第三人称单路处处更差；重训单路距离无益。
+- 打分脚本：`~/.claude/jobs/a607dd74/tmp/r12/score_final.py`（最终，对两次原系统）、`score_testA.py`、`score_pilot.py`、`half_stoprules.py`。
+
+**数据与文档位置**
+- 小跑（B 池）：`rounds/r12/{lookhalf,guard}/pilots/*_fix1_*`、`guard/pilots/r12_guard_fix2_pi05_spatial_200`。
+- 消融：B 快筛 `rounds/r12/ablate/pilots/`；camdev `rounds/r12/ablate/camdev/`。
+- half-everywhere B 快筛：`rounds/r12/half/pilots/`。
+- 测试集 A 根（均在 `/home/weiland/trace_runs/os_closed_loop/`）：`r12_test_*`、`r12_test_rep_*`（原系统第二次）、`r12_ablate_test_*`、`r12_test_half_*`。
+- 设计与分析：
+  - `rounds/r12/opus/{PILOT_ANALYSIS,DESIGN_HALF_EVERYWHERE,PREDICTION}.md`
+  - `rounds/r12/opus/out/design/camera_choice_screen_camdev.{json,log}`、`design_predict_conditional.log`
+  - `rounds/r12/astra/PILOT_ANALYSIS.md`
+- sol 交接：
+  - `rounds/r12/{lookhalf,guard}/HANDBACK.md`
+  - `rounds/r12/TEST_A_HANDBACK.md`（含 fix3 登记竞态、fix4 回收拆卷）
+  - `rounds/r12/{ablate,ablate/camdev,half,test_a_rep_staged}/HANDBACK.md`
+- 台账：`logs/offline_search_exploration.log.md` 的 R12 段。
+
+**现状**
+- 两台 GPU 空闲，无残留服务；cron 与 Monitor 已全部停止；本会话 codex 中转进程已停。
+- **R12 未提交**，等 owner 授权：commit 用英文、不加 AI 署名、画图脚本不入库。
+- 新文件很多：`closed_loop/{execution_worker,guard,lookhalf*,cache_ablate*,half_everywhere*,look_recording}.py`、`rounds/r12/**`、`ops/h100` 改动等。`.gitignore` 规则是 *.json / *.yaml 一刀切，需要的要 `add -f`。
+- h100 上为腾磁盘，已删除已回收到本地的 4 个 B 池运行目录（7.9 GB）。
+
+**运行基础设施（可复用）**
+- 共享队列跑法：`tmp/r12/run_q5.sh <local|h100> <fleet> <ports> <wps>` + `tmp/r12/queue4.txt`。
+  - 行首 `@h100 ` / `@local ` 指定机器；跑完但回收失败的组只重收、不重跑。
+  - 每组完成后用 `tmp/r12/engage_check.py` 核对生效；h100 上 π0.5 自动用 3 个服务。
+  - 本机：timan107，端口 23100–23103，WPS 16。h100：timan108，端口 23230–23233，WPS 10。
+- 已修的运行坑：
+  - 带回执的 worker 在 A / B 池都启用；
+  - 新守卫配置校验；
+  - 本机服务登记竞态（fix3）；
+  - 回收包超 tether 812 MB 上限自动拆卷（fix4，≤ 700 MB，too_large 不重试）；
+  - h100 /data 余量低于 30 GiB 时同步会被拒（DISK_BLOCKED），需清理已回收的运行目录。
+- GR00T 在 4090 与 H100 上结果不同（空间格 SR 约差 5 点），同一格所有组必须在同一种显卡上跑；π0.5 无此差异。
+
+**10-04 04:4x（已被上段取代）**
+- 报告定稿 `exp/offline_search/rounds/r12/REPORT.md`（顶部白话结论 + 待裁定）。打分：`tmp/r12/score_final.py`（对两次原系统平均配对）。
+- 合并（5 格，不开旋钮）：half-everywhere +0.2 ± 1.2 / −.026（−21%）≈ m2 +0.1 / −.025；空间任务受益（GR00T 空 50 +4.0 / −30%），GR00T 长任务所有单路方案 −5。
+- 待 owner：①两路任务是否叠 m2；②长任务改回两路，或找更可靠的选相机依据（此方向看过 A 后提出，正式验证需新测试数据）。
+- GPU 两台空闲；cron 与 Monitor 已停；R12 未提交（等 owner 授权）。
+
+**10-04 02:4x**
+- camdev 完成，按冻结规则定出相机表（见台账 "half-everywhere" 段），条件预测已落盘；sol 实现交付（`rounds/r12/half/HANDBACK.md`），B 根 `rounds/r12/half/pilots/r12_half_*` 已 emit，A 根暂存 `half/test_a_staged/`（快筛过后 `python -m exp.offline_search.rounds.r12.half.prepare --install-test-a`）。
+- 02:40 B 快筛开跑（queue4；GR00T @h100 带同批 off）。快筛后按设计 §10 冻结停止规则 S1–S5 判格子，过关的上测试集 A（GR00T 在 h100，可加同批 off）。
+
+**10-04 02:3x**
+- 测试集 A（方法组 + 消融）全部完成；报告草稿 `rounds/r12/REPORT.md`。
+- opus 设计"按任务选相机"五层（`rounds/r12/opus/DESIGN_HALF_EVERYWHERE.md`）：手腕任务 = 手腕缓存（原距离）+ H2 + 手腕修正头 + 重算旋钮；两路任务 = 现系统。**待 owner 裁定**：两路任务保持现系统（默认，正在按此实施）还是叠 m2。
+- 进行中：camdev 选相机开发集（queue4，GR00T @h100）；sol 实现 `R12HalfEverywhere`（task-muth6n5u-qslyti，`rounds/r12/half/`）。
+- camdev 完成后：`opus/tools/camera_choice.py screen,camdev` → `design_predict.py conditional …camera_choice_screen_camdev.json`（存日志）→ sol 交付后推代码、emit B 根、排快筛。
+- cron 巡检换为 `5157bcaf`（含上述步骤）。
+
+**10-04 01:4x 进展**
+- 测试集 A 方法组全部完成；合并 5 格：opus 看一半 ΔIR −.0096 / ΔSR −1.2 ± 1.4；h2 −.0066 / −0.3 ± 1.3；**m2 −.0242（−19%）/ −0.4 ± 1.4**。GR00T 长任务看一半显著 −6（m1/m2）。
+- 纯缓存消融测试集 A：GR00T 长任务手腕 −11（显著）、GR00T 空间手腕 +7.6（显著）、π0.5 长任务 −3 / 空间 50 持平；π0.5 空间 200 在本机跑最后一格。→ 手腕并非处处安全，方向改为"按任务选相机"。
+- 已派：sol 生成 B 池"选相机"开发集根 `rounds/r12/ablate/camdev/`（both / wrist_sub，每任务 40 局，不录图）——交付后排队（GR00T @h100）；opus 设计"全看一半"五层（结果存 `rounds/r12/opus/DESIGN_HALF_EVERYWHERE.md`，按任务选相机须在 B 上定）。
+- 待写：`rounds/r12/REPORT.md`（全部数据齐后）。
+
+**22:0x owner 定调 + 通宵计划（owner 去睡，按此顺序独立推进）**
+- owner：纯缓存消融首格（π0.5 长任务 50，B 100 局）"两张图 .63 / 手腕+原距离 .57 / 手腕+重训 .63 / 第三人称+原距离 .52"后说："看起来可以只把 cache 做成全看一半的，不过其他层可能会需要调整"，并批准顺序：
+  1. 跑完测试集 A 剩余组 + 5 格消融快筛；
+  2. 消融测试集 A：每格 both / wrist_refit / wrist_sub 各 500 局（GR00T @h100）；
+  3. 若手腕缓存在 A 上不掉 SR → opus 设计"全手腕"五层（手腕缓存 + 新守卫 h2 + 手腕修正器 + 重标定旋钮 + 按任务可选相机），sol 实现 → B 100 局快筛 → 测试集 A。
+- 巡检：cron `6a860fd4`（每小时 :17/:47），Monitor 条件触发（错误 / 60 分钟停滞）。
+
+**21:2x 增补**
+- owner 加了**纯缓存相机消融**（只开第 1 层：无守卫 / 无调用 / 无旋钮 / 无修正器；两路 vs 一路），owner 同意"都跑"。sol 实现：`rounds/r12/ablate/HANDBACK.md`；每格 5 组 both / wrist_sub / wrist_refit / agent_sub / agent_refit；B 快筛根 `rounds/r12/ablate/pilots/r12_ablate_<cell>`（100 局），A 暂存 `ablate/test_a_staged/`（未安装，快筛后挑组再装：`python -m exp.offline_search.rounds.r12.ablate.prepare --install-test-a`）。
+- 消融代码已推 timan107（哈希一致）；**未推 h100 / timan108**。GR00T 两格消融（h100）要等 sol fix4（回收包超 tether 812 MB 上限自动拆分，`tmp/r12/sol_bugs.md`）交付并推送后再入队（`@h100`）。
+- 队列现为 `tmp/r12/queue4.txt`，脚本 `run_q5.sh`（消融生效核对 `tmp/r12/engage_check.py`）；旧 v4 跑完手上的根后由 succ5 接手。
+- owner 裁定：π0.5 长任务 h2/m2 照跑全量，标"越过筛选"。opus 分析存档 `rounds/r12/opus/PILOT_ANALYSIS.md`，测试集 A 预测冻结在 `opus/PREDICTION.md` 末节。
+- 手动回收过 `r12_guard_groot_l10_50_off`（h100 同显卡对照，SR .70）。
+
+**20:1x 状态**
+- B 池小跑全部完成（看一半 13 组 + 新守卫 9 组 + 额外原系统对照）。opus 方法 / h2 / m2 筛过；astra 两种门筛掉（直接节省 ≤ .005）。打分脚本 `tmp/r12/score_pilot.py`。
+- owner 10-03 ~19:40："用 100 episode 快速筛选完了要上全 500 的" → 测试集 A 全量 20:13 开跑。
+  - 根（sol 生成，`rounds/r12/TEST_A_HANDBACK.md`）：`/home/weiland/trace_runs/os_closed_loop/r12_test_{pi05_l10_50,pi05_spatial_50,groot_spatial_50,groot_l10_50}`（off/opus_m1/h2/m2）、`r12_test_pi05_spatial_200`（off/opus_m1）、`r12_test_pi05_l10_50_periodic_ir32`（off/h2/m2）、`r12_test_pi05_spatial_200_guard_pending`（h2/m2，**等 B 快筛 `guard/pilots/r12_guard_fix2_pi05_spatial_200` 通过才跑**）。
+  - 队列 `tmp/r12/queue2.txt`（源 `queue_testA.txt`），脚本 `tmp/r12/run_q3.sh`（跑完但回收失败只重收不重跑；h100 上 π0.5 用 3 服务）；两条线同前。
+  - sol 修了 A 池上新 worker 不启用的问题（`worker_pool.install`）；代码已推 h100/timan108/timan107，哈希一致。
+- 在跑的 agent：opus（小跑分析 + 冻结测试集 A 预测，结果存 `rounds/r12/opus/PILOT_ANALYSIS.md`）、astra（复盘，`rounds/r12/astra/PILOT_ANALYSIS.md`）、sol fix3（本机服务登记竞态，见 `tmp/r12/sol_bugs.md`；修好后要推 h100/timan 若有改动）。
+- 已知坑：本机服务登记竞态（约每 15 组一次）→ STATUS_POLL_FAILED + 孤儿服务占端口；处理＝核对进程属于该组后按 PID 停 supervisor+child，脚本自动重试。
+
+**18:0x 状态（已过时）**
+- sol 修复已交付（17:48 我取消了它剩余的慢速 CPU 冒烟）。根因：旧 worker 不发执行回执，服务端按规则退回全看。新 worker `closed_loop/execution_worker.py`，主动方法自动选用。
+- 17:51 开跑小跑，**共享队列**：`tmp/r12/run_q.sh` + `tmp/r12/queue.txt`（谁空谁领，方法组在前，看一半根的原系统组在队尾，守卫根原系统组因与看一半根重复而跳过，只留旋钮 .32 根的）。
+  - 本机 4090 + timan107（WPS16，端口 23100–23103），日志 `/tmp/r8_coord/r12_q_local_timan107.log`
+  - h100 + timan108（WPS10，端口 23230–23233，SYNC 23196），日志 `/tmp/r8_coord/r12_q_h100_timan108.log`；h100 上另有别人的两个服务约 41 GB，属正常共用。
+  - 代码已推 h100 / timan107 / timan108，哈希一致。
+- 生效核对：本机 π0.5 长任务 opus_m1 运行中约 27% 看图点只看一路；h100 GR00T 空间 opus_m1 26%。脚本对每个主动组（h2 除外）自动查 `one_camera_looks>0`，失败写 `ENGAGEMENT_FAIL`。
+- 跑完后：各根 `report.py` 打分 → 我写 `rounds/r12/REPORT.md`；回叫 opus / astra 时各自只给自己的方法组 + 原系统组（保持隔离）。
+
+**17:4x 状态（已过时，仅留档）**
+- **h100**：owner 明确说"h100 可以用"。之前读 h100 被自动权限审查拒，是因为我挪动了 h100 镜像文件，并非 h100 不可用。
+  - 现状：显卡空（0 MiB，另一项目训练已结束），`/data` 余 47G；中午 h100 录制 `r12_devlooks_{50S,200}` 已在 12:35 完成。
+  - h100 服务树尚无 R12 代码（lookhalf* / guard.py / plugin 改动），sol 交付后要推送并核对 sha。
+- **sol 修复**（codex `task-musxy7rt-gjkfud`，日志 `~/.claude/plugins/data/codex-openai-codex/state/openpi-50fd553c5e274099/jobs/task-musxy7rt-gjkfud.log`）：17:40 正在本机做真实冒烟。交付位置：
+  - `rounds/r12/lookhalf/HANDBACK.md`
+  - `rounds/r12/guard/HANDBACK.md`
+  - 新名字的小跑根。
+- **交付后做**：
+  1. 推送 R12 服务代码到 h100，核对 sha。
+  2. 两条线并行：π0.5 格子用本机 4090 + timan107，GR00T 格子用 h100 + timan108。
+     - 本机：`SERVER_HOST=local`，4 服务 × WPS 16；
+     - h100：`SERVER_HOST=h100`，PORTS 23230–23233，WPS 10，SYNC_PORT 23196；
+     - 两条线同步都用 flock `/tmp/r8_coord/r10_sync.lock`，持锁到开跑。
+     - 脚本参照 `tmp/r12/run_lhpilot.sh`（rec_run 系，`B=` 指 pilots 目录，`LOCAL_SERVER_COUNT=4`）。
+  3. **每条线第一组方法组跑完立刻核对** `summary.json` 的 `lookhalf_cost_ledger.one_camera_looks > 0`（新守卫看 H2 决策计数）；为 0 立即停（记忆 `feedback_verify_engagement_and_stalls`）。
+  4. 先跑看一半小跑，再跑新守卫小跑（各 5 格；看一半 off / opus_m1 / astra_consensus2，π0.5 50 集两格加 strict；新守卫 off / h2 / m2），各 100 局。
+- **本机此刻**：在跑多余的原系统对照组（`tmp/r12/run_offs.sh`，日志 `/tmp/r8_coord/r12_offs_local.log`，GR00T Sp-50 off 17:39 开跑，之后 GR00T L10-50 off）。
+  - 这些与已有录制重复：`r11_dev_k10_*` 的选集 = 小跑选集，且录制组就是原系统，故每格已有 2–3 份原系统基线，只当重复样本。
+  - 方法组要开跑时可以停掉它：先停包装脚本，再对该根 control abort（`SERVER_HOST=local`）。
+- **owner 不满**：GPU 空等。今天浪费：sol 被中断后空等约 1.5 h，看一半小跑白跑约 1 h。之后不许让 GPU 空等，等待期间要安排有用的活。
+
+
+**R12（owner 10-03 /goal "探索实验看一半"）**——简报 `exp/offline_search/rounds/r12/BRIEF.md`、`DIRECTIVE_2.md`，台账 R12 段
+
+**今天 owner 的定调（都已写进记忆 `project_offline_search_five_layer_design`）**
+- 五层设计：1 缓存 / 2 守卫 / 3 修正器 / 4 推理开销旋钮 / 5 按任务分治。
+- 第 4 层：作用是补纯库与纯推理之间的 SR 差距，按目标调；定期调用与距离阈值调用都正式纳入，之后再细比。
+
+**R12 的目标与规则**
+- 目标：缓存层"看一半"（只编码一个相机），要么 SR 无损且 IR 降，要么掉的 SR 用旋钮补回后同 SR 总 IR 更低。
+- 研究员隔离：astra 与 opus 不许读对方 `rounds/r12/<other>/`。
+- **owner 裁定（DIRECTIVE_2）**：
+  - 必须是方法，不是代码层面的效率优化；合批编码、跳过占位图、底层计算技巧都不算。
+  - 价目按集中部署满负荷算：单看一路 = 视觉价的一半（π0.5 .076 + 补看 .076；GR00T .074 + .074）。
+  - owner 明确说**不要把这条记进记忆**。
+- **数据纪律**：
+  - `offline_search_store/queries/*` 是 trace_dual 在测试集 A 上录的，禁止用于设计。
+  - 只用 B 池示范库（含两视角 key / token / 原图）与 B 池开发集。
+
+**开发集录制（全部完成）**
+- 根目录：`os_closed_loop/r12_devlooks_{50L,400,knob,50S_local,200_local}`；h100 那条录的 `r12_devlooks_{50S,200}` 据 opus 也已完成。
+- 记录内容：每个看图点的两视角 key、状态、top-k、守卫状态；50L 另有 token、图像和影子策略动作。
+- 记录功能：`closed_loop/look_recording.py`（只限 B 池根）。
+
+**研究结果**
+- **opus（`rounds/r12/opus/`，REPORT / HANDBACK 为协调者代存）**
+  - 第 1 版"同批编码"已被 owner 否决；
+  - 按新价目，看一半在五层系统中基本省不下钱：单路检索判"无进展"会漏约三成守卫调用；
+  - 之后研究"换信号源守卫" `GUARD.md`：H2 用 7 个不靠第三人称的特征做风险模型（库内拟合），阈值按格子在开发集上定、使调用率与原守卫相同。回放上更会叫，3 个长任务格首叫晚 3–10 步；
+  - M2 = H2 + 看一半：单路占比不开旋钮 .23–.50、开旋钮 .15–.22，预测同 SR 约 −.025（区间宽）。
+- **astra（`rounds/r12/astra/`）**
+  - 记忆 + 位移 + 双证一致门（consensus2 / strict）；
+  - 影子核对 700 局：π0.5 省 .0016–.0035，同样指出守卫是瓶颈。
+
+**实现（sol）**
+- 看一半：`closed_loop/lookhalf*.py`、`rounds/r12/lookhalf/`（R12LookHalf：off / opus_m1 / astra_consensus2 / astra_strict）。
+- 新守卫：`closed_loop/guard.py`、`rounds/r12/guard/`（R12Guard：off / h2 / m2）。
+- 已知不一致：opus 文字与回放代码的距离归一化不同，服务端按 SPEC 文字实现，少量决策不同，待核。
+
+**看一半小跑作废（17:0x）**
+- 8 组 `one_camera_looks=0`：规划 / 同步把 `--os-lookhalf <方法>` 改写成了契约路径，服务静默按原系统跑。已停并 abort。
+- 修复中：sol codex `task-musxy7rt-gjkfud`（续新守卫线程），等待器 `bjd1w4lzh`。
+  - 要求：修参数改写、配错直接报错、端到端检查真实启动参数、本机冒烟证明单看发生、新守卫一起修、重新生成两套小跑根（新名字）。
+- **修好后**：先跑看一半小跑（5 格 × {off, opus_m1, astra_consensus2} + π0.5 50 集两格的 strict，各 100 局，旋钮关），再跑新守卫小跑（5 格 × {off, h2, m2}）。
+- **跑法**：本机 4090 + timan107，`SERVER_HOST=local`、4 服务 × WPS 16。脚本 `~/.claude/jobs/a607dd74/tmp/r12/run_lhpilot.sh <local> timan107 23100,23101,23102,23103 16 <roots…>`（B=pilots 路径；`left.py` 计剩余组数；失败自动重试）。
+- **验收**：先看 summary 的 `lookhalf_cost_ledger.one_camera_looks > 0`、`ir_compute_share`、`first_guard_call`；再与 off 配对比 SR / IR。
+
+**待 owner 裁定**
+- 新守卫阈值按格子用开发集定是否可接受；
+- 上测试集时是否同时测"只换守卫"和"换守卫 + 看一半"；
+- h100 管理权限：读 h100 录制状态被自动权限审查以"修改共享资源"拒绝，之后未再碰 h100。
+
+**运行器 bug 清单（给 sol，未修）** `tmp/r12/sol_bugs.md`
+- h100 镜像路径冲突：协调者把 4 个旧镜像改名 `*.r11dev.bak`；
+- 本机状态轮询连续失败；
+- 清理拒停自己的服务、留残留：协调者按 PID 停过。
+
+**其他**
+- 13:56 sol 线程被外部中断（`turn_aborted interrupted`）：续跑前须先 cancel 旧任务记录，再 `--resume-last`。
+- owner 说另一会话 `5a375dad` 在 `/home/weiland/s5wt/p1..p28` 开的 28 个 codex "不要管它"。
+- idea-sprint 9 月 29 日孤儿中转进程不归本会话。
+
+### R11（10-03 09:08 完成）—— 第 4 层旋钮，报告 `rounds/r11/REPORT.md`；测试集 94 组
+- 开销落在目标 ±.02 内：定期 17/17、随机 16/17；状态类离线标定后闭环少花（距离均 −.08）。
+- 定期比随机 +1.5–2.2 pp（同实际 IR）。
+- 研究员终稿：`rounds/r11/{opus,astra}/ANALYSIS.md`。
+- 本机 4090 与 H100 汇总可合并（权重 sha 一致）。
+- **提交**：
+  - 已推送：a3b10ecd、e26c41e1（R8–R10）；9d57c8d9（R10Recipe + R11，10-03，sonnet）。
+  - R12 全部未提交。
+
+
 
 **R11 完成（10-03 09:08 测试集 94/94；报告 `exp/offline_search/rounds/r11/REPORT.md`）**：
 - **结论**：
@@ -247,19 +688,20 @@ owner 的常驻指令，逐字有效：
 3. **l10 +0.04 显示口径**（owner 演示图 `~/projects/openpi_ext/artifacts/fig2_frontier_ab/` 里 l10 新点上移 0.04）：建议表格与正文一律用测量值，图若保留偏移就在图注写明。
 4. **下一轮**：是否按 ANALYSIS §7.2 开 R7——C′（ρ + 均匀放置 + 标定停滞 + 预登记的库级不调用闸门），并在 RoboCasa365 上做第二基准。
 
-## 4. 正在运行的东西（10-03 09:3x）
-- 闭环：**无链在跑**；h100 与本机 4090 空闲；两车队空闲。
-- codex：无在跑任务；本会话中转进程对已停。
-- 定时巡检 cron 已删。
+## 4. 正在运行的东西（10-05 07:1x）
+- 无。两条线都已退出（tmux 无 r13q*），cron 已删，codex 中转进程已按 PID 停掉。
+- 可复用：
+  - 排队脚本 `~/.claude/jobs/a607dd74/tmp/r13/run_q6.sh`（共享队列 `queue.txt`、`@local` / `@h100` 指定机器、按 h100 剩余显存定服务数）；
+  - 确实生效检查 `engage_check.py`（原因码 61–79）、巡检 `probe.sh`、监控 `combined_watch.sh`。
+- **坑**：
+  - 一个运行根同一时间只能由一条线服务（`fleet_lock`）；
+  - 完整 `setup` 要拿全局锁，本机线在跑时只能用 `control.bundle` 推文件；
+  - 端口释放超时后，重试会被上一次的孤儿 worker 卡住（PPID=1、同 driver-port），要按 PID 清理。
 
 ## 5. 下一步
-1. 等 owner 看 R11 报告并裁定：
-   - 是否采纳定期调用为第 4 层；
-   - 是否开 R12（判据开发集验证 / 守卫反复触发时加密 / 全库估守卫率 / 每局预算记账）。
-2. 提交（等 owner 授权）：
-   - R8–R10 已于 10-02 提交（a3b10ecd、e26c41e1）；
-   - 待提交：`rounds/r10/recipe/`、`rounds/r11/`、`closed_loop/devset.py`、`closed_loop/ops/h100/`（本机服务与端口修复）、台账与交接；
-   - 画图脚本不入库；commit 不加 AI 署名。
+1. 等 owner 下一个方向。
+2. 若要提交 R12–R14，须 owner 授权。
+3. 若 owner 要把 R14 推进到逐任务保证：每任务约 100 局以上的下降数据或保守规则，再在新的评估数据上确认。
 
 ## 6. 纪律与坑（本线专有，章程 §8 / §9 有全文）
 - **（R7 新增）非测试 B-val 闭环**：P3 v2 客户端的遥测包装要求服务器返回 `__p3__` v2 标记，普通插件臂用不了（每集 ValueError）。改用原版客户端 + 远端 wrapper `os_cl/run_arm_r7_bval_stock.sh`（末尾追加 B-val 池的 `--apool-record/--apool-dir`）+ run 内 `chain_bval.sh`（= 原版 chain.sh，改调用脚本名与 HERE 路径）；代价是没有逐控制遥测。
