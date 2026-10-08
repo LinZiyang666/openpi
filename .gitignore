@@ -378,3 +378,20 @@ exp/offline_search/rounds/**/artifacts*/
 exp/offline_search/rounds/**/validation/
 exp/offline_search/rounds/**/equivalence/
 exp/offline_search/rounds/**/rebuilt/
+
+# Rounds r12-r15 run outputs (added 2026-10-07)
+# Scope: exp/offline_search/rounds/** only. Pilot run trees (generated launch
+# scripts, state markers, rsync configs, error markers), pytest scratch dirs
+# and junit reports. Reports (.md) and sources (.py/.sh) next to them stay visible.
+exp/offline_search/rounds/**/pilots/
+exp/offline_search/rounds/**/runs/
+exp/offline_search/rounds/**/state/
+exp/offline_search/rounds/**/h100_sync/
+exp/offline_search/rounds/**/*_scratch/
+exp/offline_search/rounds/**/*_scratch_*/
+exp/offline_search/rounds/**/*.ERROR
+exp/offline_search/rounds/**/*.xml
+exp/offline_search/rounds/**/*.conf
+exp/offline_search/rounds/**/*.ts
+exp/offline_search/rounds/r1[2-5]/**/r12_camdev_*/
+**/__pycache__/
