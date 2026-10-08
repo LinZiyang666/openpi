@@ -6,6 +6,7 @@ tmux sessions. The supervisor records exits even when a controller disappears.
 import argparse
 from contextlib import contextmanager
 import fcntl
+from functools import partial
 import hashlib
 import json
 import os
@@ -29,8 +30,7 @@ PI05_CKPT = '/home/weiland/.cache/openpi/openpi-assets/checkpoints/pi05_libero_p
 PORT_RELEASE_TIMEOUT = 60
 
 
-def cpu_affinity():
-    value = os.environ.get('LOCAL_SERVER_CPUS', CPUS)
+def cpu_affinity_set(value):
     selected = set()
     try:
         for part in value.split(','):
@@ -46,6 +46,12 @@ def cpu_affinity():
     allowed = set(range(22, 38)) | set(range(66, 82))
     if not selected or not selected <= allowed:
         raise ValueError('LOCAL_SERVER_CPUS must be within 22-37,66-81')
+    return selected
+
+
+def cpu_affinity():
+    value = os.environ.get('LOCAL_SERVER_CPUS', CPUS)
+    cpu_affinity_set(value)
     return value
 
 
@@ -305,16 +311,19 @@ def supervise(job_path):
     rc = 1
     try:
         with open(log, 'a', buffering=1) as stream:
-            child = subprocess.Popen(job['cmd'], cwd=TREE, env={**os.environ, **job['env']},
+            argv = job['cmd']
+            affinity = None
+            if argv[:2] == ['taskset', '-c']:
+                # Resolve the launch descriptor here: spawning taskset would let
+                # Popen return before its second exec, racing the child receipt.
+                affinity = partial(os.sched_setaffinity, 0, cpu_affinity_set(argv[2]))
+                argv = argv[3:]
+            # This dedicated, single-threaded supervisor applies affinity before
+            # exec. Popen waits for that exec (and propagates preexec failures),
+            # so the receipt describes the serving interpreter on its first read.
+            child = subprocess.Popen(argv, cwd=TREE, env={**os.environ, **job['env']},
                                      stdin=subprocess.DEVNULL, stdout=stream, stderr=stream,
-                                     start_new_session=True, close_fds=True)
-            # taskset execs the serving interpreter. Wait for that exec before recording argv.
-            deadline = time.monotonic() + 5
-            while child.poll() is None and time.monotonic() < deadline:
-                argv = Path(f'/proc/{child.pid}/cmdline').read_bytes().split(b'\0')
-                if b'taskset' not in argv[0]:
-                    break
-                time.sleep(.01)
+                                     start_new_session=True, close_fds=True, preexec_fn=affinity)
             if child.poll() is None:
                 receipt['child'] = process_receipt(child.pid)
                 node.atomic(rp, receipt)

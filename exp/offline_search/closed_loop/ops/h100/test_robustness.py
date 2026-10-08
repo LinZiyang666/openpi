@@ -581,6 +581,7 @@ def test_collection_pending_continues_to_next_arm(tmp_path, monkeypatch, error):
 
 def test_collect_pull_retries_timeout_before_sha_and_extraction(tmp_path, monkeypatch):
     monkeypatch.setattr(control, "rpc", lambda *a, **k: '{"sha256":"irrelevant"}')
+    monkeypatch.setattr(control, "remote", lambda *a, **k: "")
     calls, sleeps = [], []
     def run(cmd, **kw):
         calls.append(cmd)
@@ -597,6 +598,7 @@ def test_collect_pull_retries_timeout_before_sha_and_extraction(tmp_path, monkey
 
 def test_collect_pull_timeout_exhausts_eight_attempts(tmp_path, monkeypatch):
     monkeypatch.setattr(control, "rpc", lambda *a, **k: '{"sha256":"irrelevant"}')
+    monkeypatch.setattr(control, "remote", lambda *a, **k: "")
     calls, sleeps = [], []
     def run(cmd, **kw):
         calls.append(cmd)

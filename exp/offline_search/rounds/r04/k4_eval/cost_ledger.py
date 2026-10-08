@@ -66,6 +66,9 @@ def stage_costs(model, table=None, suite=None):
 
 
 def ledger(meta, rows, starts=(), comp=None, table=None):
+    if any('qk_work' in r for r in rows):
+        from exp.offline_search.rounds.r15.qk.impl.accounting import aggregate
+        return aggregate(meta, rows, starts, comp)
     model = meta.get("model") or (starts[0].get("model") if starts else "pi05")
     legacy = not r4_enabled(meta, rows, starts)
     # Historical outcomes retain their original owner pricing even after a new

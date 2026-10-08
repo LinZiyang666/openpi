@@ -216,6 +216,8 @@ def summarize(run: pathlib.Path, arm: str, *, manifest=None, include_ledger=Fals
          "all_full_hit": bool(ps_acc) and set(hit_mix) == {"FULL_HIT"},
          "episode_duration_s": {"p50": pct(dur, 50), "p95": pct(dur, 95)},
          "wall_min_first_to_last_episode": round((max(ts) - min(ts)) / 60, 2) if len(ts) > 1 else None}
+    if '--os-lookhalf' in meta.get('plugin_args', []):
+        s['first_guard_call'] = {uid: None for uid in sorted(comp)}
     # server-side plugin logs
     decs, epis, starts = [], [], []
     for f in sorted(glob.glob(str(run / "runs" / arm / "server_*" / "decisions_*.jsonl"))):
@@ -265,12 +267,31 @@ def summarize(run: pathlib.Path, arm: str, *, manifest=None, include_ledger=Fals
         }
         if is_mixed(meta):
             s["mixed"] = mixed_block(meta, dd, decs, starts, comp, ps_acc, hit_mix)
-        if modern:
+        if modern and '--os-cache-ablate' not in meta.get('plugin_args', []):
             s["cost_ledger"] = ledger(meta, dd, starts, comp, cost_table)
             if "mixed" in s and r4_enabled(meta, dd, starts):
                 s["mixed"]["ir_pi05_formula"] = (round(s["cost_ledger"]["ir_per_five_controls"], 5)
                                                    if dd and meta.get("model") == "pi05" else None)
                 s["mixed"]["ir_measured"] = s["cost_ledger"]["ir_measured_per_five_controls"]
+        if '--os-cache-ablate' in meta.get('plugin_args', []):
+            from exp.offline_search.closed_loop.cache_ablate_ledger import summarize as ablate_ledger
+            from exp.offline_search.closed_loop.lookhalf_config import value
+            s['cache_ablate_cost_ledger'] = ablate_ledger(meta['model'], value(meta['plugin_args'], '--os-cache-ablate'), dd)
+            s['cost_ledger'] = s['cache_ablate_cost_ledger']
+        if '--os-lookhalf' in meta.get('plugin_args', []):
+            from exp.offline_search.closed_loop.lookhalf_ledger import summarize as half_ledger
+            if 'half_everywhere' in meta.get('plugin_args', []):
+                from exp.offline_search.closed_loop.half_everywhere_ledger import summarize as half_ledger
+            s['lookhalf_cost_ledger'] = half_ledger(meta['model'], dd)
+            if 'half_everywhere' in meta.get('plugin_args', []):
+                s['cost_ledger'] = s['lookhalf_cost_ledger']
+            for r in dd:
+                if r.get('hit') is False and (r.get('extras') or {}).get('os_reason') == 4:
+                    uid, step = r['uid'], int(r['step'])
+                    first = s['first_guard_call'][uid]
+                    s['first_guard_call'][uid] = step if first is None else min(first, step)
+            if 'mixed' in s:
+                s['mixed']['ir_compute_share'] = s['lookhalf_cost_ledger']['ir_per_five_controls']
     if design:
         s["weighted"] = design_estimate(design, {uid_pair(u): int(bool(r.get("success"))) for u, r in comp.items()})
         s["weighted"]["sr"] = s["weighted"]["estimate"]

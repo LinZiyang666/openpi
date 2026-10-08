@@ -147,6 +147,31 @@ def code_manifest(spec):
 
 
 def command(model, suite, port, yaml, log, tag, plugin, env):
+    if any(v.startswith('--os-cache-ablate') or v == 'exp.offline_search.closed_loop.cache_ablate:R12CacheAblate'
+           for v in plugin):
+        try:
+            from exp.offline_search.closed_loop.cache_ablate_config import validate as validate_ablate
+        except ModuleNotFoundError:
+            import sys
+            sys.path.insert(0, str(TREE))
+            from exp.offline_search.closed_loop.cache_ablate_config import validate as validate_ablate
+        validate_ablate(plugin)
+    if any(v.startswith('--os-lookhalf') or v in (
+            'exp.offline_search.closed_loop.lookhalf:R12LookHalf',
+            'exp.offline_search.closed_loop.guard:R12Guard',
+            'exp.offline_search.closed_loop.half_everywhere:R12HalfEverywhere') for v in plugin):
+        # The remote helper is stdlib-only and may run outside the serving
+        # tree/PYTHONPATH. Load this equally stdlib-only validator by file then.
+        try:
+            from exp.offline_search.closed_loop.lookhalf_config import validate
+        except ModuleNotFoundError:
+            import importlib.util
+            spec = importlib.util.spec_from_file_location('r12_configuration',
+                TREE / 'exp/offline_search/closed_loop/lookhalf_config.py')
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            validate = module.validate
+        validate(plugin)
     s1 = env.get("STAGE1_ONLY", "1") == "1"
     stock = env.get("STOCK", "0") == "1"
     if model == "pi05":
@@ -402,12 +427,92 @@ def pull_assets(spec):
         print(f"ASSETS_OK files={len(files)} bytes={sum(x['size'] for x in files)}")
 
 
+def _bounded_archive(root, dest, prefix, max_bytes):
+    """Pack whole file entries into bounded tars, splitting huge-file tar bytes."""
+    if not isinstance(max_bytes, int) or max_bytes < tarfile.RECORDSIZE:
+        raise ValueError("archive max_bytes must be at least one tar record")
+    tmp = Path(str(dest) + ".tmp")
+    volumes, created = [], []
+    tf = None
+
+    def finish():
+        tf.close()
+        digest, size = sha(tmp), tmp.stat().st_size
+        parts = []
+        if size <= max_bytes:
+            path = dest if not created else Path(f"{dest}.part{len(created):04d}")
+            tmp.replace(path)
+            created.append(path)
+            parts.append(dict(archive=str(path), sha256=digest, size=size))
+        else:
+            # A single regular file can exceed the broker budget. Split its
+            # tar bytes and rejoin verified parts before ordinary extraction.
+            with tmp.open("rb") as source:
+                remaining = size
+                while remaining:
+                    path = dest if not created else Path(f"{dest}.part{len(created):04d}")
+                    part_tmp = Path(str(path) + ".split.tmp")
+                    count = min(remaining, max_bytes)
+                    h = hashlib.sha256()
+                    try:
+                        with part_tmp.open("wb") as out:
+                            left = count
+                            while left:
+                                block = source.read(min(left, 8 << 20))
+                                if not block:
+                                    raise RuntimeError("archive truncated while splitting")
+                                out.write(block)
+                                h.update(block)
+                                left -= len(block)
+                        part_tmp.replace(path)
+                    finally:
+                        part_tmp.unlink(missing_ok=True)
+                    created.append(path)
+                    parts.append(dict(archive=str(path), sha256=h.hexdigest(), size=count))
+                    remaining -= count
+            tmp.unlink()
+        volumes.append(dict(sha256=digest, size=size, parts=parts))
+
+    try:
+        tf = tarfile.open(tmp, "w")
+        for p in sorted(root.rglob("*")):
+            if not p.is_file() or p.is_symlink():
+                continue
+            name = str(Path(prefix) / p.relative_to(root))
+            info = tf.gettarinfo(p, arcname=name)
+            # Include PAX headers, block padding, end markers and record padding.
+            entry_size = len(info.tobuf(tf.format, tf.encoding, tf.errors))
+            entry_size += (info.size + tarfile.BLOCKSIZE - 1) // tarfile.BLOCKSIZE * tarfile.BLOCKSIZE
+            total = tf.offset + entry_size + 2 * tarfile.BLOCKSIZE
+            padded = (total + tarfile.RECORDSIZE - 1) // tarfile.RECORDSIZE * tarfile.RECORDSIZE
+            if tf.offset and padded > max_bytes:
+                finish()
+                tf = tarfile.open(tmp, "w")
+                info = tf.gettarinfo(p, arcname=name)
+            with p.open("rb") as source:
+                tf.addfile(info, source)
+        finish()
+    except BaseException:
+        if tf is not None:
+            tf.close()
+        for path in created:
+            path.unlink(missing_ok=True)
+        raise
+    finally:
+        tmp.unlink(missing_ok=True)
+    return dict(archives=volumes)
+
+
 def archive(spec):
+    """Create a legacy tar or bounded transfer volumes with per-part hashes."""
     root = Path(spec["root"])
     dest = Path(spec["archive"])
     # Only regular files, all nested logs/sidecars, preserving layout under arm/.
     with open(str(dest) + ".lock", "w") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX)
+        if "max_bytes" in spec:
+            print(json.dumps(_bounded_archive(root, dest, spec["prefix"], spec["max_bytes"])))
+            return
         tmp = Path(str(dest) + ".tmp")
         with tarfile.open(tmp, "w") as tf:
             for p in sorted(root.rglob("*")):

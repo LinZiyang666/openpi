@@ -83,6 +83,8 @@ def _types():
 
         def to(self, device):
             base = super().to(device)
+            if self.deferred_base is None:
+                return base
             return DeferredStage1(**vars(base), deferred_base=self.deferred_base.to(device),
                                   deferred_mask=None if self.deferred_mask is None else self.deferred_mask.to(device),
                                   camera_audits=self.camera_audits)

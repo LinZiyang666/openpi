@@ -118,6 +118,13 @@ def build_parser() -> argparse.ArgumentParser:
                     help="enable pre-inference blind_step serving and R4 decision logs")
     ap.add_argument("--os-request-cameras", action="store_true",
                     help="pi05 only: method declares next_camera_mode before request stage 1; completes on MISS")
+    ap.add_argument("--os-lookhalf", choices=("off", "opus_m1", "astra_consensus2", "astra_strict", "h2", "m2", "half_everywhere"), default=None,
+                    help="opt-in R12 compute-share ledger and acquisition transaction (pi05/GR00T)")
+    ap.add_argument('--os-cache-ablate', choices=('both', 'wrist_sub', 'wrist_refit', 'agent_sub', 'agent_refit'),
+                    help='separate R12 pure-cache camera/metric ablation')
+    ap.add_argument('--os-cache-ablate-sha256', default='', help='SHA256 of the frozen ablation metric artifact')
+    ap.add_argument("--os-groot-path-check-every", type=int, default=0,
+                    help="B look recording only: exact-input joint/separate policy-path check every N real looks")
     ap.add_argument("--os-debug-dir", default="", help="enable passive osdebug.v1 capture in this directory")
     ap.add_argument("--os-debug-config", default="{}", help="JSON campaign, sampling and writer queue configuration")
     ap.add_argument("--os-oracle", action="store_true", help="allow the labelled privileged diagnostic oracle channel")
@@ -133,11 +140,29 @@ def build_parser() -> argparse.ArgumentParser:
                     help="replicate 2 complements replicate 1 for each (task, original init)")
     ap.add_argument("--os-gpu-retrieval", choices=("shadow", "serve"), default=None,
                     help="opt-in K9 CUDA graph retrieval; shadow keeps CPU actions, serve replaces retrieval")
+    ap.add_argument("--os-rollout-seed", type=int, default=None, help="opt-in policy process RNG seed; independent of knob coins")
+    ap.add_argument("--os-light-key", action="store_true", help="R15 opt-in CPU light key before policy stage one")
+    ap.add_argument("--os-record-look-raw-distance", action="store_true")
+    ap.add_argument("--os-record-look-cache-proposal", action="store_true")
+    ap.add_argument("--os-r14-audit", action="store_true", help="versioned R14 side diagnostics; default off")
+    ap.add_argument("--os-record-looks", action="store_true", help="record real looks on attested B dev roots only")
+    ap.add_argument("--os-record-look-tokens", action="store_true")
+    ap.add_argument("--os-record-look-images", type=int, default=0, help="wire RGB downsample size (0=off, 1..256)")
+    ap.add_argument("--os-record-look-shadow", action="store_true", help="same-observation policy label; full model required")
+    ap.add_argument("--os-look-contract", default="", help="coordinator-generated B recording contract")
+    ap.add_argument("--os-look-contract-sha256", default="")
     return ap
 
 
 def parse_cli(argv):
     """Split argv into (plugin options, the rest for the stock server CLI)."""
+    from .lookhalf_config import validate
+    try:
+        validate(list(argv))
+        from .cache_ablate_config import validate as validate_ablate
+        validate_ablate(list(argv))
+    except (ValueError, TypeError) as e:
+        raise SystemExit(f'R12 configuration refused: {e}') from None
     opts, rest = build_parser().parse_known_args(list(argv))
     try:
         opts.kwargs = json.loads(opts.os_kwargs) if opts.os_kwargs else {}
@@ -154,12 +179,44 @@ def parse_cli(argv):
         raise SystemExit("--os-judge needs a method (--os-method native keeps the native judge)")
     if opts.os_blind and opts.os_method == "native":
         raise SystemExit("--os-blind requires a method")
+    if opts.os_lookhalf is not None:
+        from .lookhalf_config import METHODS as methods
+        if opts.os_lookhalf == 'half_everywhere':
+            from .half_everywhere_config import validate_kwargs
+            try:
+                validate_kwargs(opts.kwargs)
+            except ValueError as e:
+                raise SystemExit(f'R12 configuration refused: {e}') from None
+        elif (opts.os_lookhalf not in methods.get(opts.os_method, ())
+                or opts.kwargs.get('method', 'off') != opts.os_lookhalf):
+            raise SystemExit('--os-lookhalf requires the matching R12LookHalf constructor method')
+        opts.os_request_cameras = opts.os_lookhalf not in ('off', 'h2')
+        if not opts.os_blind or opts.judge is None or opts.judge.mode != 'guard_only':
+            raise SystemExit('--os-lookhalf requires --os-blind --os-judge guard_only')
+        if opts.os_gpu_retrieval or opts.os_rand_seed is not None or opts.os_rand_replicate is not None:
+            raise SystemExit('--os-lookhalf requires CPU retrieval and the ordinary guard verdict')
+        if opts.os_judge_cap or opts.os_judge_step0 != 'judge' or opts.os_judge_burst != 1:
+            raise SystemExit('--os-lookhalf requires the unchanged guard with no external call overrides')
+    if opts.os_groot_path_check_every < 0 or (opts.os_groot_path_check_every and not opts.os_record_looks):
+        raise SystemExit('--os-groot-path-check-every requires B look recording and a nonnegative interval')
     if opts.os_request_cameras and (not opts.os_blind or not opts.os_no_shadow_native or opts.os_tokens != "off"):
         raise SystemExit("--os-request-cameras requires --os-blind --os-no-shadow-native --os-tokens off")
     if opts.os_policy_tail and not opts.os_blind:
         raise SystemExit("--os-policy-tail requires --os-blind")
     if opts.os_policy_tail_blocks is not None and not opts.os_policy_tail:
         raise SystemExit("--os-policy-tail-blocks requires --os-policy-tail")
+    if not 0 <= opts.os_record_look_images <= 256:
+        raise SystemExit("--os-record-look-images must be 0..256")
+    if opts.os_rollout_seed is not None and not 0 <= opts.os_rollout_seed < 2**32:
+        raise SystemExit("--os-rollout-seed must be in [0,2**32)")
+    if opts.os_record_look_cache_proposal and not opts.os_record_look_shadow:
+        raise SystemExit("cache proposal recording requires look shadows")
+    if (opts.os_record_look_raw_distance or opts.os_record_look_cache_proposal
+            or opts.os_record_look_tokens or opts.os_record_look_images or opts.os_record_look_shadow
+            or opts.os_look_contract or opts.os_look_contract_sha256) and not opts.os_record_looks:
+        raise SystemExit("look recording options require --os-record-looks")
+    if opts.os_record_looks and (opts.os_method == "native" or not opts.os_look_contract or not opts.os_look_contract_sha256):
+        raise SystemExit("--os-record-looks requires a plugin and a SHA-bound B dev contract")
     if opts.os_debug_dir:
         from exp.offline_search.debug.server.observer import parse_config
         try:
@@ -438,11 +495,20 @@ class PluginRuntime:
 
         self.api, self.dims, self.store = api, dims, store
         self.opts = opts
+        self.looks = None
+        if getattr(opts, "os_record_looks", False):
+            if getattr(opts, 'os_light_key', False):
+                from exp.offline_search.rounds.r15.qk.impl.recording import LightLookWriter as LookWriter
+            else:
+                from .look_recording import LookWriter
+            self.looks = LookWriter(opts, model)
         self.oracle = bool(getattr(opts, "os_oracle", False))
         self.debug = None
         self.blind = bool(getattr(opts, "os_blind", False))
         self.request_cameras = bool(getattr(opts, "os_request_cameras", False))
-        if self.request_cameras and model != "pi05":
+        self.lookhalf = getattr(opts, 'os_lookhalf', None)
+        self.cache_ablate = getattr(opts, 'os_cache_ablate', None)
+        if self.request_cameras and model != "pi05" and self.lookhalf is None and self.cache_ablate is None:
             raise ValueError("request cameras unavailable for GR00T: no validated one-camera encoder path")
         self.policy_tail = bool(getattr(opts, "os_policy_tail", False))
         self.policy_tail_blocks = getattr(opts, "os_policy_tail_blocks", None) or 1
@@ -487,7 +553,7 @@ class PluginRuntime:
             raise SystemExit(f"library action shape {self.cur_action.shape} != (L, {self.H}, 32)")
         self.ep_index = {}
         epj = self.root / "queries" / self.cell / "episodes.json"
-        if epj.exists():
+        if self.looks is None and not getattr(opts, 'os_light_key', False) and epj.exists():
             for i, e in enumerate(json.loads(epj.read_text())):
                 self.ep_index[(int(e["task_id"]), int(e["init"]))] = i
         self.log_dir = pathlib.Path(opts.os_log_dir)
@@ -517,6 +583,13 @@ class PluginRuntime:
             self.ctrl = QuantileController(self.judge.h, self.judge.W, self.judge.tau0)
         if not self.native_mode:
             self._load_and_fit()
+        if getattr(opts, 'os_light_key', False):
+            from exp.offline_search.rounds.r15.qk.impl.runtime import initialize
+            initialize(self)
+        from .lookhalf_config import validate_fitted
+        validate_fitted(self.method, self.lookhalf)
+        from .cache_ablate_config import validate_fitted as validate_ablate_fitted
+        validate_ablate_fitted(self.method, self.cache_ablate)
         if self.request_cameras and not callable(getattr(self.method, "set_camera_mode", None)):
             raise ValueError("request cameras requires method.set_camera_mode and next_camera_mode")
         if getattr(opts, "os_gpu_retrieval", None):
@@ -531,7 +604,7 @@ class PluginRuntime:
                "method": self.method_name, "native_mode": self.native_mode, "shadow_native": self.shadow_native,
                "tokens": opts.os_tokens, "log_inputs": bool(opts.os_log_inputs), "seed": opts.os_seed,
                "H": self.H, "L": self.L, "lib_sizes": self.lib_sizes, "expected_pkl": self.expected_pkl,
-               "git_head": _git_head(), **self.fit_info}
+               "git_head": None if self.looks is not None or self.cache_ablate is not None or getattr(opts, 'os_light_key', False) else _git_head(), **self.fit_info}
         if self.judge is not None:
             row["judge"] = self.judge.as_dict()
         if self.r4:
@@ -549,6 +622,24 @@ class PluginRuntime:
             row["gpu_retrieval"] = self.gpu.info
         if self.request_cameras:
             row.update(request_cameras=True, stage1_mode="per_request", camera_cost_basis="R4 proportional-latency assumption")
+        if self.lookhalf is not None:
+            row.update(lookhalf=self.lookhalf, camera_cost_basis='R12 saturated-serving compute share',
+                       execution_audit_required=self.lookhalf != 'off',
+                       camera_prices=dict(full=.152 if m == 'pi05' else .148, single=.076 if m == 'pi05' else .074,
+                                          completion=.076 if m == 'pi05' else .074, policy=.848 if m == 'pi05' else .852))
+        if self.cache_ablate is not None:
+            row.update(cache_ablate=self.cache_ablate, execution_audit_required=True,
+                       camera_cost_basis='R12 saturated-serving compute share',
+                       camera_prices=dict(full=.152 if m == 'pi05' else .148,
+                                          single=.076 if m == 'pi05' else .074, policy=0., completion=0.))
+        if getattr(opts, "os_rollout_seed", None) is not None:
+            from .rollout_seed import seed_policy_process
+            row["rollout_seed"] = seed_policy_process(opts.os_rollout_seed)
+        if getattr(opts, 'os_light_key', False):
+            spec = self.method.light_key_spec
+            row['light_key'] = dict(key_kind=spec['feature_kind'],representation_sha256=spec['representation_sha256'],
+                epsilon=spec['epsilon'],device='cpu',threads=1,cpu_affinity=spec.get('cpu_affinity',list(range(2,10))+list(range(46,54))),
+                IR_new='(epsilon*Q+M)/N; T=M',logical_vision_history_alias=True)
         self.emit(row)
         if getattr(opts, "os_debug_dir", ""):
             from exp.offline_search.debug.server import ServerObserver
@@ -568,6 +659,10 @@ class PluginRuntime:
         registered = {}
         t0 = time.perf_counter()
         if art is not None and art.exists():
+            if getattr(opts, 'os_cache_ablate', None) is not None:
+                from .devset import sha
+                if sha(art) != opts.os_cache_ablate_sha256:
+                    raise SystemExit('pure-cache ablation frozen artifact SHA256 differs')
             with open(art, "rb") as f:
                 blob = pickle.load(f)
             want = {"spec": opts.os_method, "kwargs": opts.kwargs, "cell": self.cell}
@@ -608,6 +703,9 @@ class PluginRuntime:
         for name, ent in registered.items():
             self.lib_sizes[name] = int(ent["action"].shape[0])
             self.tables[name] = ent["action"]
+        if getattr(opts, "os_r14_audit", False):
+            from .devset import sha
+            self.r14_fit_sha256 = sha(art) if art is not None and art.exists() else None
         self.method = method
         self.method_name = method.name
         try:
@@ -774,7 +872,7 @@ class PluginSession:
         self.kb = key_builder
         self.yaml_id = yaml_id
         self.bundle_id = None
-        self.lock = threading.RLock() if rt.r4 or rt.gpu is not None else contextlib.nullcontext()
+        self.lock = threading.RLock() if rt.r4 or rt.gpu is not None or getattr(rt, "looks", None) is not None else contextlib.nullcontext()
         with rt.decision_lock:
             self.conn = next(rt._conn_ids)
         self.method = None
@@ -832,6 +930,8 @@ class PluginSession:
         if extra.get("task_id") is not None and int(extra["task_id"]) != tid:
             raise RuntimeError(f"osplug: client task_id {extra['task_id']} != library task_id {tid} for {task!r}")
         init = int(extra.get("orig_init_state_idx", -1))
+        if getattr(rt, "looks", None) is not None:
+            rt.looks.validate_episode(extra, tid, init)
         if rt.randomized and init < 0:
             raise ValueError("randomization needs extra_metadata.orig_init_state_idx; arrival order is not an init")
         uid = str(extra.get("task_uid") or f"{rt.tag}:c{self.conn}:e{self.ep_count}")
@@ -848,7 +948,7 @@ class PluginSession:
         H = rt.H
         drs = int(ctx.query_keys["robot_state"].numel()) if hasattr(ctx.query_keys["robot_state"], "numel") else \
             int(np.asarray(ctx.query_keys["robot_state"]).size)
-        kd = rt.dims.KEY_DIM
+        kd = 64 if getattr(rt.opts, 'os_light_key', False) else rt.dims.KEY_DIM
         self.b_v0 = _Buf((kd,), np.float32)
         self.b_v1 = _Buf((kd,), np.float32)
         self.b_rs = _Buf((drs,), np.float32)
@@ -861,6 +961,10 @@ class PluginSession:
         self._policy_tail = None
         self._policy_tail_step = -2
         self._recs = []
+        if getattr(rt.opts, 'os_light_key', False):
+            self._qk_looks = []
+            self._qk_last_policy = self._qk_last_policy_wire = None
+            self._qk_counts = dict(Q=0, T=0, M=0, N=0)
         self.step = 0
         self.burst_left = 0
         self.ep_count += 1
@@ -945,7 +1049,10 @@ class PluginSession:
         if self.b_aex.n != self.step:
             raise RuntimeError(f"osplug: executed chunks recorded {self.b_aex.n} != decisions {self.step}")
         qk = ctx.query_keys
-        if self.rt.gpu is not None and self.rt.opts.os_gpu_retrieval == "serve":
+        if getattr(self.rt.opts, 'os_light_key', False):
+            self.b_v0.append(qk['light_features'][0])
+            self.b_v1.append(qk['light_features'][1])
+        elif self.rt.gpu is not None and self.rt.opts.os_gpu_retrieval == "serve":
             self.b_v0.append(np.full(self.rt.dims.KEY_DIM, np.nan, np.float32))
             self.b_v1.append(np.full(self.rt.dims.KEY_DIM, np.nan, np.float32))
         else:
@@ -964,6 +1071,11 @@ class PluginSession:
         """Method mode: build the online QueryView, run the method, return the served winner as one result."""
         from openpi.cache.storage_types import SearchResultLite
 
+        if getattr(self, '_qk_full', False):
+            if not np.array_equal(_np32(ctx.query_keys['robot_state']).reshape(-1), self.b_rs.a[self._dec['step']]):
+                raise RuntimeError('QK CPU state differs from the full policy key builder')
+            return [SearchResultLite(id=self._dec['winner'], score=0., checkpoint_id=ctx.checkpoint_id)]
+
         rt, api = self.rt, self.rt.api
         t_all = time.perf_counter_ns()
         if rt.gpu is not None and ctx.current_step == 0 and self.step > 0:
@@ -972,11 +1084,24 @@ class PluginSession:
         if rt.gpu is not None:
             self._gpu_host_keys_ms = (time.perf_counter_ns() - t_all) / 1e6
         step = self.step
-        view = OnlineQueryView(self, step, self.ep.task_id, self.ep)
+        if getattr(rt.opts, 'os_light_key', False):
+            from exp.offline_search.rounds.r15.qk.impl.runtime import LightQueryView
+            view = LightQueryView(self, step, self.ep.task_id, self.ep)
+        else:
+            view = OnlineQueryView(self, step, self.ep.task_id, self.ep)
         t0 = time.perf_counter_ns()
         gpu_diag = None
         if rt.gpu is None:
             res = self.method.query(view)
+            if getattr(rt, 'lookhalf', None) is not None:
+                from .lookhalf import NeedCamera
+                if isinstance(res, NeedCamera):
+                    from .lookhalf_cameras import complete_session
+                    complete_session(self, ctx, reason=res.reason)
+                    self.method.set_camera_mode('full')
+                    res = self.method.query(view)
+                    if isinstance(res, NeedCamera):
+                        raise RuntimeError('R12 requested more than one completion')
         else:
             from exp.offline_search.rounds.r05.q5_gpu.dev.gpu_retrieval import query
             res, gpu_diag = query(self, view)
@@ -1018,6 +1143,19 @@ class PluginSession:
                      "native_us": t_nat / 1e3, "native_top1": n_top1, "native_score": n_score,
                      "agree": (n_top1 == top1 and lib == "current") if self.shadow else None,
                      "served": served, "extras": ex, "act": None if act is None else served}
+        if getattr(rt.opts, "os_r14_audit", False):
+            from exp.offline_search.rounds.r14.knob.recipe import reference_diagnostics
+            if getattr(rt.opts, 'os_light_key', False):
+                from exp.offline_search.rounds.r15.qk.impl.recipe import FeatureGeometry
+                audit_view = FeatureGeometry(view)
+            else:
+                audit_view = view
+            self._dec["r14"] = copy.deepcopy(getattr(self.method, "r14_diagnostics", None)
+                or reference_diagnostics(self.method, audit_view, res))
+            self._dec["r14"].update(schema="offline_search.r14.v1", fit_sha256=rt.r14_fit_sha256,
+                retrieval_correction_ms=t_q / 1e6, step=step, task_id=int(view.task_id))
+        if getattr(rt, "looks", None) is not None and getattr(rt, 'lookhalf', None) is None:
+            self._dec["look_snapshot"] = rt.looks.capture(self, ctx, topk, scores, ex)
         if gpu_diag is not None:
             self._dec["gpu_retrieval"] = gpu_diag
         if rt.r4:
@@ -1033,6 +1171,14 @@ class PluginSession:
                     break
         if rt.judge is not None:
             self._dec.update(self._verdict(step, float(conf), ex))
+        if (getattr(rt, 'lookhalf', None) is not None and not self._dec.get('hit', True)
+                and getattr(self, '_camera_mode', 'full') == 'wrist_only'):
+            from .lookhalf_cameras import complete_session
+            complete_session(self, ctx, reason='call')
+        if getattr(rt, 'lookhalf', None) is not None:
+            self._dec['lookhalf'] = copy.deepcopy(self.method.lookhalf_diagnostics)
+            if getattr(rt, 'looks', None) is not None:
+                self._dec['look_snapshot'] = rt.looks.capture(self, ctx, topk, scores, ex)
         if rt.randomized:
             actual_hit, record = self.randomization.apply(step, self._dec["hit"], float(conf), ex, view.prev_a_exec)
             self._dec["randomization"] = record
@@ -1088,8 +1234,11 @@ class PluginSession:
             else:
                 d["exec_ok"] = None          # policy chunk executed: nothing to compare with the served payload
                 d["policy"] = a
+                if getattr(self.rt.opts, 'os_light_key', False):
+                    self._qk_last_policy = _ro(a.copy())
                 if self.rt.blind and callable(getattr(self.method, "invalidate_anchor", None)):
-                    self.method.invalidate_anchor()
+                    hook = getattr(self.method, 'on_policy_executed', None) if getattr(self.rt, 'lookhalf', None) is not None else None
+                    hook() if callable(hook) else self.method.invalidate_anchor()
             if self.rt.judge is not None or self.rt.r4:
                 d["t_exec"] = time.perf_counter_ns()
 
@@ -1113,6 +1262,8 @@ class PluginSession:
         self._prepare_ms = None
         self._output_ms = None
         self._age_before = self.blind_age
+        if getattr(self.rt.opts, 'os_light_key', False):
+            self._qk_tower_before = self.stage1_calls
 
     def after_infer(self, infer_ms: float, ok: bool, err: str | None = None) -> None:
         t_done = time.perf_counter_ns()
@@ -1125,7 +1276,33 @@ class PluginSession:
         rt = self.rt
         m = self.ep_meta
         ex = d.get("extras") or {}
-        if getattr(rt, "request_cameras", False):
+        if getattr(rt, 'cache_ablate', None) is not None:
+            from .cache_ablate_cameras import ledger
+            vision = bool(d.get('vision', True))
+            work = getattr(self, '_camera_work', {}) if vision else {}
+            cost = ledger(rt.model, rt.cache_ablate, vision=vision, work=work, hit=bool(d.get('hit', True)))
+            d['cache_ablate_cost'] = cost
+            ex = {**dict(os_sw_look_cost=cost['look_cost'], os_sw_completion_cost=0., os_sw_call_cost=0.,
+                         os_sw_decision_cost=cost['compute_share_work']), **ex}
+        elif getattr(rt, 'lookhalf', None) is not None:
+            from .lookhalf_cameras import ledger
+            vision = bool(d.get('vision', True))
+            work = getattr(self, '_camera_work', {}) if vision else {}
+            cost = ledger(rt.model, vision=vision,
+                wrist_first=getattr(self, '_camera_mode', 'full') == 'wrist_only',
+                completions=work.get('completions', 0), miss=not bool(d.get('hit', True)))
+            if getattr(rt, 'lookhalf', None) == 'half_everywhere':
+                from .half_everywhere_ledger import validate_receipt
+                mode = self.method.camera[str(int(self.ep.task_id))]
+                validate_receipt(mode, vision=vision, miss=not bool(d.get('hit', True)), work=work, cost=cost)
+                d['task_mode'] = mode
+            d['lookhalf_cost'] = cost
+            actual = dict(os_sw_camera=float(vision and getattr(self, '_camera_mode', 'full') == 'wrist_only'),
+                os_sw_look_cost=cost['look_cost'], os_sw_completion_cost=cost['completion_cost'],
+                os_sw_call_cost=cost['policy_cost'], os_sw_decision_cost=cost['compute_share_work'],
+                os_lh_legacy_work=cost['legacy_work'], os_lh_camera_count=float(cost['camera_encoded_count']))
+            ex = {**actual, **{k:v for k,v in ex.items() if k not in actual}}
+        elif getattr(rt, "request_cameras", False):
             # Actual dispatch/verdict, not the method's forecast. Prepend so these
             # costs survive the scalar cap even when composed with SF.
             vision = bool(d.get("vision", True))
@@ -1199,6 +1376,9 @@ class PluginSession:
             if "rows" in d:
                 row.update(rows=d["rows"], weights=d["weights"])
             self.blind_age = 0 if vision else self._age_before + 1
+        if getattr(rt.opts, 'os_light_key', False):
+            from exp.offline_search.rounds.r15.qk.impl.runtime import ledger
+            ledger(row, d, self, ok)
         if rt.randomized:
             row.update(d["randomization"])
         if getattr(rt, "request_cameras", False):
@@ -1207,8 +1387,35 @@ class PluginSession:
                        camera_completion=bool(ex["os_sw_completion_cost"]),
                        camera_completion_calls=work.get("completions", 0), camera_stage1_calls=work.get("looks", 0),
                        owner_cost=ex["os_sw_decision_cost"], camera_cost_assumption="R4 proportional-latency")
+        if getattr(rt, 'cache_ablate', None) is not None:
+            row.update(cache_ablate=rt.cache_ablate, cache_ablate_cost=d['cache_ablate_cost'], camera_work=work,
+                       camera_initial_count=cost['camera_initial_count'],
+                       camera_encoded_count=cost['camera_encoded_count'],
+                       camera_cost_assumption='R12 saturated-serving compute share',
+                       camera_availability=work.get('availability', [False, False]),
+                       owner_cost=cost['compute_share_work'])
+        if getattr(rt, 'lookhalf', None) is not None:
+            if 'task_mode' in d:
+                row['task_mode'] = d['task_mode']
+                row['camera_work'] = work
+                row['camera_initial_count'] = cost['camera_initial_count']
+                row['camera_encoded_count'] = cost['camera_encoded_count']
+            row.update(lookhalf=d.get('lookhalf', {}), lookhalf_cost=d['lookhalf_cost'],
+                       camera_cost_assumption='R12 saturated-serving compute share',
+                       camera_availability=work.get('availability', [True, True]) if vision else [False, False],
+                       completion_reason=work.get('completion_reason'), owner_cost=cost['compute_share_work'])
         if "gpu_retrieval" in d:
             row["gpu_retrieval"] = d["gpu_retrieval"]
+        if getattr(rt.opts, "os_r14_audit", False):
+            before = int(d["step"])
+            audit = copy.deepcopy(d.get("r14", {}))
+            audit.update(schema="offline_search.r14.v1", fit_sha256=rt.r14_fit_sha256,
+                task_id=self.ep.task_id, N=before, V=sum(self.has_vision[:before]),
+                M=sum(v and h == 0 for v, h in zip(self.has_vision[:before], self.hits[:before])),
+                real_look=bool(d.get("vision", True)), look_reason=self._look_reason,
+                source=row.get("src"), lifecycle_fallback_counts=copy.deepcopy(
+                    getattr(self.method, "_fallback_counts", {})))
+            row["r14"] = audit
         if err:
             row["error"] = err[-2000:]
         if exs:
@@ -1252,6 +1459,12 @@ class PluginSession:
         if rt.judge is not None:
             m.update({"n_hit": int(sum(1 for f in self.hits if f == 1)), "n_miss": int(sum(1 for f in self.hits if f == 0)),
                       "ctrl": rt.ctrl.state() if rt.ctrl is not None else None})
+        if getattr(rt.opts, 'os_light_key', False):
+            counts = self._qk_counts
+            epsilon = float(self.method.light_key_spec['epsilon'])
+            m.update(counts, epsilon=epsilon,
+                IR_new=(epsilon*counts['Q']+counts['M'])/counts['N'] if counts['N'] else None,
+                nominal_controls=5*counts['N'], actual_terminal_controls='client journal n_steps')
         if rt.randomized:
             m.update(exposed=self.randomization.exposed, baseline_miss_opportunities=self.randomization.opportunities)
         rt.emit(m)
@@ -1649,10 +1862,35 @@ class _BlindAdapter:
         def counted(*args, **kwargs):
             t0 = time.perf_counter_ns()
             self.s.stage1_calls += 1
+            if getattr(getattr(self.s.rt, 'opts', None), 'os_groot_path_check_every', 0):
+                self.s._camera_observation = args[0]
             if getattr(self.s.rt, "request_cameras", False) and not self.fake:
-                from exp.offline_search.closed_loop.stage_overrides import CameraRequest
+                if getattr(self.s.rt, 'cache_ablate', None) is not None:
+                    from .cache_ablate_cameras import CameraRequest
+                else:
+                    from exp.offline_search.closed_loop.stage_overrides import CameraRequest
                 args = (CameraRequest(args[0], self.s._camera_mode, self.s._camera_work), *args[1:])
             out = fn(*args, **kwargs)
+            if getattr(self.s.rt, 'cache_ablate', None) is not None:
+                from .cache_ablate_cameras import ledger
+                ledger(self.s.rt.model, self.s.rt.cache_ablate, vision=True,
+                       work=self.s._camera_work, hit=True)
+            if getattr(self.s.rt, 'lookhalf', None) == 'half_everywhere':
+                work = self.s._camera_work
+                wrist = self.s._camera_mode == 'wrist_only'
+                if (work.get('looks') != 1 or work.get('initial_cameras') != (1 if wrist else 2)
+                        or work.get('availability') != [not wrist, True] or work.get('completions', 0) != 0):
+                    raise RuntimeError('HALF_CAMERA_RECEIPT_REQUIRED: actual stage-one dispatch was not attested')
+            if getattr(self.s.rt, 'lookhalf', None) is not None:
+                self.s._camera_stage1 = out
+                self.s._camera_adapter = self
+                if getattr(self.s.rt, 'lookhalf', None) != 'half_everywhere':
+                    self.s._camera_work.setdefault('initial_cameras', 1 if self.s._camera_mode == 'wrist_only' else 2)
+                    self.s._camera_work.setdefault('availability', [self.s._camera_mode != 'wrist_only', True])
+            elif getattr(getattr(self.s.rt, 'opts', None), 'os_groot_path_check_every', 0):
+                self.s._camera_stage1 = out
+            if getattr(self.s.rt, "looks", None) is not None and self.s.rt.looks.shadow:
+                self.s._look_stage1 = out
             # Stage functions may enqueue CUDA work; opt-in diagnostics time its completion.
             torch = sys.modules.get("torch")
             if torch is not None and torch.cuda.is_initialized():
@@ -1747,6 +1985,9 @@ def _try_blind(s, adapter, obs):
     tail = s._policy_tail if s.rt.policy_tail else None
     if s.rt.policy_tail:
         s._policy_tail = None
+    if getattr(s.rt.opts, "os_r14_audit", False) and (len(s.hits) != s.step
+            or len(s.has_vision) != s.step or s.b_aex.n != s.step):
+        raise s.rt.api.ContractError("R14 accepted buffers disagree with the decision count")
     use_tail = bool(s.rt.policy_tail and s.step and
                     (not s.hits[-1] or s.step == s._policy_tail_step + 1))
     cursor = tail.get("cursor", 5) if tail is not None else 5
@@ -1825,8 +2066,9 @@ def _try_blind(s, adapter, obs):
     now = time.perf_counter_ns()
     winner = f"{SYNTH_PREFIX}blind:{s.rt.tag}:{s.conn}:{s.n_synth}"
     s.n_synth += 1
-    s.b_v0.append(np.full(s.rt.dims.KEY_DIM, np.nan, np.float32))
-    s.b_v1.append(np.full(s.rt.dims.KEY_DIM, np.nan, np.float32))
+    kd = 64 if getattr(s.rt.opts, 'os_light_key', False) else s.rt.dims.KEY_DIM
+    s.b_v0.append(np.full(kd, np.nan, np.float32))
+    s.b_v1.append(np.full(kd, np.nan, np.float32))
     s.b_rs.append(rs)
     s.b_raw.append(s._raw_state())
     s.has_vision.append(False)
@@ -1882,7 +2124,7 @@ class _ConnPolicy:
             if len(sessions) != 1:
                 raise RuntimeError("GPU retrieval expects one CP1 session per connection")
             self._osp_lock = gpu_sessions[0].lock
-        enabled = [s for s in sessions if s.rt.r4]
+        enabled = [s for s in sessions if s.rt.r4 or getattr(s.rt, "looks", None) is not None]
         if enabled:
             if len(sessions) != 1:
                 raise RuntimeError("osplug: R4 serving expects one CP1 session per connection")
@@ -1978,6 +2220,10 @@ class _ConnPolicy:
                 out = self._osp_inner.infer(obs, *a, **kw)
             else:
                 s = sessions[0]
+                if (getattr(s.rt, 'lookhalf', None) not in (None, 'off')
+                        or getattr(s.rt, 'cache_ablate', None) is not None):
+                    from .lookhalf_config import validate_execution
+                    validate_execution(obs.get('__extra__') or {}, s.step)
                 # Reject duplicate blind requests before consuming the global clock.
                 did = (obs.get("__extra__") or {}).get("decision_id")
                 if s.rt.blind and _duplicate_blind_request(s, obs):
@@ -1989,23 +2235,46 @@ class _ConnPolicy:
                 # Reservations are never reused after failures: another connection
                 # may already have reserved the following index.
                 out = None
+                if getattr(s.rt.opts, 'os_light_key', False) and not (obs.get('__extra__') or {}).get('exec_ok', True):
+                    s.method.invalidate_anchor()
+                    s._policy_tail = None
                 if s.rt.blind:
                     with adapter.lock:
                         out = _try_blind(s, adapter, obs)
+                if out is None and getattr(s.rt.opts, 'os_light_key', False):
+                    from exp.offline_search.rounds.r15.qk.impl.runtime import infer
+                    with adapter.lock:
+                        out = infer(s, adapter, obs, lambda: self._osp_inner.infer(obs, *a, **kw))
                 if out is None:
+                    if getattr(s.rt, 'lookhalf', None) is not None:
+                        extra = obs.get('__extra__') or {}
+                        plan_start = time.perf_counter_ns()
+                        s._camera_mode = s.method.plan_cameras(_blind_view(s, s._prepared_rs),
+                            look_reason=s._look_reason, executed_steps=extra.get('executed_steps', 5),
+                            execution_audit='executed_steps' in extra, exec_ok=extra.get('exec_ok', True),
+                            previous_source=getattr(s, '_lh_previous_source', None),
+                            previous_ack=getattr(s, '_lh_previous_ack', None))
+                        s.method.lookhalf_diagnostics['plan_us'] = (time.perf_counter_ns()-plan_start)/1e3
+                        s._camera_work = {}
                     if getattr(s.rt, "request_cameras", False):
                         mode = getattr(s.method, "next_camera_mode", "full")
                         # Lifecycle/audit/forced LOOKs unresolved by the method
                         # always retain every camera.
-                        if s.step == 0 or s._look_reason in (6, 7, 8):
+                        if (getattr(s.rt, 'cache_ablate', None) is None and not getattr(s.method, 'allows_wrist_every_look', False)) and (s.step == 0 or (getattr(s.rt, 'lookhalf', None) is None and (
+                                s._look_reason in (7, 8) or (s._look_reason == 6 and not getattr(s.method, 'allows_wrist_after_miss', False))))):
                             mode = "full"
-                        if mode not in ("full", "wrist_only"):
+                        if mode not in (("full", "wrist_only", "agent_only") if getattr(s.rt, 'cache_ablate', None) is not None
+                                        else ("full", "wrist_only")):
                             raise ValueError(f"invalid next_camera_mode: {mode!r}")
                         s._camera_mode = mode
                         s._camera_work = {}
                         s.method.set_camera_mode(mode)
                     out = self._osp_inner.infer(obs, *a, **kw)
                 if s._dec is not None:
+                    if getattr(s.rt, 'lookhalf', None) is not None:
+                        extra = obs.get('__extra__') or {}
+                        s._lh_previous_source = s._dec.get('source')
+                        s._lh_previous_ack = bool('executed_steps' in extra and extra['executed_steps'] == 5 and extra.get('exec_ok', True))
                     s._dec["wire_actions"] = np.asarray(out["actions"]).copy()
                     if s.rt.policy_tail:
                         extra = obs.get("__extra__") or {}
@@ -2023,6 +2292,9 @@ class _ConnPolicy:
                             s._policy_tail = dict(episode=s.ep, step=s._dec["step"], cursor=5,
                                                   action=np.array(action, copy=True), wire=wire.copy())
                 s._last_decision_id = getattr(s, "_pending_decision_id", None)
+            for s in sessions:
+                if getattr(s.rt, "looks", None) is not None and s._dec is not None:
+                    s.rt.looks.write(s, s._dec, out, self._osp_adapter)
             ok = True
             return out
         except Exception:
@@ -2061,6 +2333,9 @@ class _ConnPolicy:
                     s.after_infer(dt, ok, err)
                 except Exception:  # noqa: BLE001
                     log.exception("osplug: decision logging failed")
+                finally:
+                    if getattr(s.rt, "looks", None) is not None:
+                        s._look_stage1 = None
 
     def __getattr__(self, name):
         return getattr(object.__getattribute__(self, "_osp_inner"), name)
@@ -2087,19 +2362,29 @@ def install(opts, model: str) -> PluginRuntime:
     if RUNTIME is not None:
         raise RuntimeError("osplug already installed")
     if getattr(opts, "os_request_cameras", False):
-        if model != "pi05":
-            raise SystemExit("--os-request-cameras is pi05 only; GR00T has no validated one-camera path")
-        from exp.offline_search.closed_loop.stage_overrides import install_pi05
-        install_pi05("per_request")
+        if getattr(opts, 'os_cache_ablate', None) is not None:
+            from .cache_ablate_cameras import install as install_ablate
+            install_ablate(model)
+        elif getattr(opts, 'os_lookhalf', None) == 'half_everywhere':
+            from .half_everywhere_cameras import install as install_half
+            install_half(model)
+        elif model == 'pi05':
+            from exp.offline_search.closed_loop.stage_overrides import install_pi05
+            install_pi05("per_request")
+        elif getattr(opts, 'os_lookhalf', None) is not None:
+            from .lookhalf_cameras import GrootOverride
+            GrootOverride().install()
+        else:
+            raise SystemExit('--os-request-cameras on GR00T requires --os-lookhalf')
     J = getattr(opts, "judge", None)
-    if J is not None and J.can_miss:
+    if (J is not None and J.can_miss) or getattr(opts, "os_record_look_shadow", False):
         # a MISS runs stage 2/3: refuse the stage-1-only server up front instead of dying on the first MISS
         argv = [str(a) for a in sys.argv]
         s1only = "--stage1-only" in argv or any(
             argv[i] in ("--stage2-device", "--stage3-device") and i + 1 < len(argv) and argv[i + 1] == "meta"
             for i in range(len(argv))) or any(a in ("--stage2-device=meta", "--stage3-device=meta") for a in argv)
         if s1only:
-            raise SystemExit(f"osplug: --os-judge {J.text} can MISS but the server is stage-1 only (meta stage 2/3); "
+            raise SystemExit(f"osplug: judge/shadow needs a full model but the server is stage-1 only (meta stage 2/3); "
                              f"start it with STAGE1_ONLY=0 (full model)")
     RUNTIME = PluginRuntime(opts, model)
 

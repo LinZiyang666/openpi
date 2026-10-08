@@ -8,8 +8,10 @@ import json
 import os
 from pathlib import Path
 import shlex
+import shutil
 import signal
 import subprocess
+import sys
 import tarfile
 import tempfile
 import time
@@ -31,6 +33,7 @@ T107_STAGE = Path("/tmp/oscl_sb3_stage")  # tether allow_roots excludes /scratch
 CHAIN_LOCK = Path("/home/weiland/trace_runs/os_closed_loop/h100_chain.lock")
 POLL_SECONDS = 60
 STATUS_FAILURE_LIMIT = 10
+COLLECT_ARCHIVE_MAX_BYTES = 700_000_000
 _RPC_SPECS = set()
 _STAGING_READY = set()
 
@@ -38,9 +41,9 @@ _STAGING_READY = set()
 class CommandError(RuntimeError):
     def __init__(self, cmd, result):
         super().__init__(f"command failed ({result.returncode}): {shlex.join(cmd)}\n{result.stdout}\n{result.stderr}")
-        self.transient = result.returncode in (69, 70, 75, 255) or any(
-            word in (result.stdout + result.stderr).lower()
-            for word in ("too_many_in_flight", "timed out", "timeout", "deadline exceeded"))
+        output = (result.stdout + result.stderr).lower()
+        self.transient = "too_large" not in output and (result.returncode in (69, 70, 75, 255) or any(
+            word in output for word in ("too_many_in_flight", "timed out", "timeout", "deadline exceeded")))
 
 
 def run(cmd, timeout=300, attempts=None, **kw):
@@ -503,30 +506,60 @@ def collect(runroot, arm, manifest=None):
     # Local server logs already live in target/server_<port>.
     for node, src, prefix in sources:
         archive = (BASE / ".rpc" if node == "h100" else T108_STAGE if node == "timan108" else T107_STAGE) / f"collect_{tag}_{arm}.tar"
-        meta = json_output(rpc(node, "archive", dict(root=str(src), archive=str(archive), prefix=prefix)))
-        with tempfile.TemporaryDirectory(prefix="oscl_sb_collect_") as td:
-            local = Path(td) / "logs.tar"
-            for attempt in range(8):
-                try:
-                    run(["tether", "pull", "--force", f"{node}:{archive}", local], timeout=590, attempts=1)
-                    break
-                except (RuntimeError, subprocess.TimeoutExpired):
-                    if attempt == 7:
-                        raise
-                    time.sleep(min(15 * (attempt+1), 60))
-            if sha(local) != meta["sha256"]:
-                raise RuntimeError("collection archive SHA mismatch")
-            target.mkdir(parents=True, exist_ok=True)
-            with tarfile.open(local) as tf:
-                for m in tf.getmembers():
-                    p = Path(m.name)
-                    if not m.isfile() or p.is_absolute() or ".." in p.parts:
-                        raise ValueError("unsafe collected archive member")
-                    dest = target / p
-                    dest.parent.mkdir(parents=True, exist_ok=True)
-                    with tf.extractfile(m) as f:
-                        dest.write_bytes(f.read())
-        remote(node, ["rm", "-f", archive])
+        meta = json_output(rpc(node, "archive", dict(root=str(src), archive=str(archive), prefix=prefix,
+                                                   max_bytes=COLLECT_ARCHIVE_MAX_BYTES)))
+        # A tar containing one exceptionally large file has bounded byte parts;
+        # ordinary volumes are standalone tars. Legacy single replies still work.
+        volumes = meta.get("archives", [dict(sha256=meta.get("sha256"),
+                                             parts=[dict(archive=str(archive), **meta)])])
+        parts = [part for volume in volumes for part in volume["parts"]]
+        for index, part in enumerate(parts):
+            expected = str(archive) if index == 0 else f"{archive}.part{index:04d}"
+            if part["archive"] != expected:
+                raise ValueError("unexpected collection archive path")
+        try:
+            with tempfile.TemporaryDirectory(prefix="oscl_sb_collect_") as td:
+                for volume in volumes:
+                    local = Path(td) / "logs.tar"
+                    local.unlink(missing_ok=True)
+                    for part in volume["parts"]:
+                        if part.get("size", 0) > COLLECT_ARCHIVE_MAX_BYTES:
+                            raise RuntimeError("collection archive exceeds bounded transfer limit")
+                        pulled = local if len(volume["parts"]) == 1 else Path(td) / "part.tar"
+                        for attempt in range(8):
+                            try:
+                                run(["tether", "pull", "--force", f"{node}:{part['archive']}", pulled],
+                                    timeout=590, attempts=1)
+                                break
+                            except (RuntimeError, subprocess.TimeoutExpired) as exc:
+                                if "too_large" in str(exc).lower() or attempt == 7:
+                                    raise
+                                time.sleep(min(15 * (attempt+1), 60))
+                        if sha(pulled) != part["sha256"]:
+                            raise RuntimeError("collection archive SHA mismatch")
+                        if pulled != local:
+                            with pulled.open("rb") as f, local.open("ab") as joined:
+                                shutil.copyfileobj(f, joined, length=8 << 20)
+                    if len(volume["parts"]) > 1 and sha(local) != volume["sha256"]:
+                        raise RuntimeError("collection archive SHA mismatch")
+                    target.mkdir(parents=True, exist_ok=True)
+                    with tarfile.open(local) as tf:
+                        for m in tf.getmembers():
+                            p = Path(m.name)
+                            if not m.isfile() or p.is_absolute() or ".." in p.parts:
+                                raise ValueError("unsafe collected archive member")
+                            dest = target / p
+                            dest.parent.mkdir(parents=True, exist_ok=True)
+                            with tf.extractfile(m) as f:
+                                dest.write_bytes(f.read())
+        finally:
+            failed = sys.exc_info()[0] is not None
+            try:
+                remote(node, ["rm", "-f", *(part["archive"] for part in parts)])
+            except Exception as exc:
+                if not failed:
+                    raise
+                print(f"COLLECT_CLEANUP_FAILED node={node} error={exc}", flush=True)
     from exp.offline_search.closed_loop.ops.collect import summarize
     result = summarize(root, arm, manifest=manifest)
     print(f"COLLECT_OK arm={arm} complete={result['complete']} success={result['success']} sr={result['sr']}")
@@ -590,6 +623,9 @@ def selection(root, row):
 
 
 def server_spec(root, row, port):
+    from exp.offline_search.closed_loop.look_recording import requested
+    if requested(row.get('plugin_args', [])) and (row.get('dev') is not True or row.get('init_pool') != 'B'):
+        raise ValueError('LOOK_RECORDING_REFUSED: server must belong to an explicit dev B arm')
     full = row.get("full_model", False) or os.environ.get("STAGE1_ONLY", "1") == "0"
     need = int(os.environ.get("NEED_MB", "8000" if row["model"] == "groot" and full else "9000" if full else "3000"))
     if "NEED_MB" not in os.environ and row.get("method", "").endswith("clip.method:ClipAWM"):
@@ -614,6 +650,26 @@ def server_spec(root, row, port):
         spec.update(server_host='local', run_root=str(root),
                     out=str(root / 'runs' / row['arm'] / f'server_{port}'))
     return spec
+
+
+def execution_env(row):
+    """Select R12 receipt/recording workers independently of the init pool."""
+    from exp.offline_search.closed_loop.look_recording import requested
+    from exp.offline_search.closed_loop.lookhalf_config import validate_row
+    env = {}
+    from exp.offline_search.closed_loop.cache_ablate_config import validate_row as validate_ablate_row
+    ablate = validate_ablate_row(row)
+    if requested(row.get('plugin_args', [])):
+        env['OSCL_RECORD_LOOKS'] = '1'
+    if validate_row(row) not in (None, 'off'):
+        env['OSCL_EXECUTION_AUDIT'] = '1'
+    if ablate is not None:
+        env['OSCL_EXECUTION_AUDIT'] = '1'
+    if row.get('replan_steps'):
+        env['OSCL_REPLAN_STEPS'] = str(row['replan_steps'])
+    if row.get('rollout_replicate_seed') is not None:
+        env['OSCL_ROLLOUT_SEED'] = str(row['rollout_replicate_seed'])
+    return env
 
 
 def chain(runroot, names):
@@ -750,6 +806,7 @@ def chain(runroot, names):
                     push(host, contract_path, remote_contract)
                     env.update(OSCL_INIT_POOL='B', OSCL_POOL_CONTRACT=remote_contract,
                                OSCL_POOL_CONTRACT_SHA256=sha(contract_path))
+                env.update(execution_env(row))
                 if manifest:
                     saved = dest / "manifest.json"
                     saved.write_bytes(Path(manifest).read_bytes())
@@ -761,8 +818,6 @@ def chain(runroot, names):
                 if pool == 'B':
                     selection_data['init_pool'] = 'B'
                 (dest / "selection.json").write_text(json.dumps(selection_data))
-                if row.get("replan_steps"):
-                    env["OSCL_REPLAN_STEPS"] = str(row["replan_steps"])
                 driver = dict(role="driver", out=str(worker_island / "os_cl/runs" / root.name / arm), arm=arm,
                               suite=row["suite"], servers=[endpoint(p, server) for p in ports],
                               workers=[wps] * len(ports), env=env)

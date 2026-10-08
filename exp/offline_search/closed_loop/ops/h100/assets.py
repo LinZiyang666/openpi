@@ -5,6 +5,7 @@ additionally opens current metadata/actions and each stored payload table. Requi
 prefits so an unfamiliar method cannot silently demand the 365 GB fitting corpus.
 """
 import copy
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -161,11 +162,33 @@ def build_plan(run, names, work, *, store=STORE, base=BASE, local=False):
         if not re.fullmatch(r"[A-Za-z0-9_]+", name):
             raise ValueError("invalid arm name")
         row = copy.deepcopy(rows[name])
+        from exp.offline_search.closed_loop.lookhalf_config import validate_row
+        selected = validate_row(row)
+        from exp.offline_search.closed_loop.cache_ablate_config import validate_row as validate_ablate_row
+        ablate = validate_ablate_row(row)
         manifest = os.environ.get('OSCL_MANIFEST') or row.get('manifest')
         contract = arm_contract(run, row, load_manifest(str(manifest).replace('<RUN>', str(run))) if manifest else None, store)
         if contract is not None:
             contracts[name] = contract
         args = row.get("plugin_args", [])
+        from exp.offline_search.closed_loop.look_recording import validate_arm, validate_root, SCHEMA, CONTRACT_FLAGS
+        record_looks = validate_arm(row, contract)
+        if record_looks:
+            validate_root(run)
+            if any(v.split('=', 1)[0] in CONTRACT_FLAGS for v in args):
+                raise ValueError('look contract flags are owned by the coordinator planner')
+            look_contract = dict(contract, schema=SCHEMA, cell=row['cell'], method=row['method'],
+                                 recording_arm_dir=mapper(str(run / 'runs' / name), run, store, base),
+                                 pairs=sorted(load_manifest(str(manifest).replace('<RUN>', str(run)))['selected']))
+            content = (json.dumps(look_contract, sort_keys=True) + '\n').encode()
+            path = run / 'runs' / name / 'look_contract.json'
+            add(run / 'arms.json', name + ': B recording contract',
+                destination=mapper(str(path), run, store, base), content=content)
+            contract_source = next(v['source'] for v in files.values() if name + ': B recording contract' in v['reasons'])
+            # Local servers read the generated contract; h100 receives its mapped path.
+            args += ['--os-look-contract', contract_source if local else str(path),
+                     '--os-look-contract-sha256', hashlib.sha256(content).hexdigest()]
+            row['plugin_args'] = args
         if any(x.startswith(("--os-debug", "--os-log-inputs", "--os-oracle", "--trace-")) for x in args):
             raise ValueError(f"{name}: standard topology refuses debug/oracle/trace capture flags")
         if row.get("method") == "exp.offline_search.rounds.r08.abl.clip.method:ClipAWM":
@@ -197,7 +220,7 @@ def build_plan(run, names, work, *, store=STORE, base=BASE, local=False):
                     content = json.dumps(mapper(json.loads(path.read_text()), run, store, base), indent=1).encode()
                 add(path, name + ": PluginRuntime current", content=content)
             epj = store / "queries" / row["cell"] / "episodes.json"
-            if epj.exists():
+            if not record_looks and '--os-light-key' not in args and epj.exists():
                 add(epj, name + ": episode identity map")
             if row["mode"] == "plugin":
                 artifact = flag(args, "--os-fit-artifact")
@@ -206,6 +229,9 @@ def build_plan(run, names, work, *, store=STORE, base=BASE, local=False):
                 artifact = Path(artifact.replace("<RUN>", str(run)))
                 with open(artifact, "rb") as f:
                     blob = pickle.load(f)  # trusted research artifact, no fitting or GPU use
+                if selected == 'half_everywhere':
+                    from exp.offline_search.closed_loop.half_everywhere_config import validate_fitted as validate_half
+                    validate_half(blob['method'], row.get('kwargs') or {})
                 want = dict(spec=row["method"], kwargs=row.get("kwargs") or {}, cell=row["cell"])
                 if any(blob.get(k) != v for k, v in want.items()):
                     raise ValueError(f"{name}: fit metadata differs from arms.json")
@@ -221,8 +247,19 @@ def build_plan(run, names, work, *, store=STORE, base=BASE, local=False):
                 blob, changed = relocated_local_fit(blob, run, store) if local else relocated_fit(blob, run, store, base)
                 content = pickle.dumps(blob, protocol=4) if changed else None
                 add(artifact, name + ": fitted method", content=content)
+                if ablate is not None:
+                    if flag(args, '--os-cache-ablate-sha256') != sha(artifact):
+                        raise ValueError(f'{name}: frozen ablation source SHA256 differs')
+                    # Relocation changes payload paths in the pickle. Bind the
+                    # exact bytes served at the destination, retaining the source
+                    # SHA separately in the transfer receipt.
+                    target = mapper(str(artifact), run, store, base)
+                    rel = str(Path(target)).lstrip('/') if local else str(Path(target).relative_to(base))
+                    digest = files[rel]['sha256']
+                    args[args.index('--os-cache-ablate-sha256') + 1] = digest
             # A root flag selects the implicit cell dependencies above, not all 365 GB.
-            for value in strings([row.get("kwargs", {}), args, row.get("server_env", {})]):
+            input_args = args[:-4] if record_looks else args  # generated contract already added above
+            for value in strings([row.get("kwargs", {}), input_args, row.get("server_env", {})]):
                 value = value.replace("<RUN>", str(run))
                 if value in (str(store), "/dev/shm/offline_search_store") or not value.startswith("/"):
                     continue
@@ -243,7 +280,13 @@ def build_plan(run, names, work, *, store=STORE, base=BASE, local=False):
             artifact = flag(ready.get('plugin_args', []), '--os-fit-artifact')
             if artifact:
                 source = files[str(Path(artifact)).lstrip('/')]['source']
-                ready['plugin_args'] = [v.replace(artifact, source) for v in ready['plugin_args']]
+                ready['plugin_args'] = [source if v == artifact else
+                    '--os-fit-artifact=' + source if v == '--os-fit-artifact=' + artifact else v
+                    for v in ready['plugin_args']]
+        if validate_row(ready) != selected:
+            raise ValueError(f'{name}: planner changed --os-lookhalf method')
+        if validate_ablate_row(ready) != ablate:
+            raise ValueError(f'{name}: planner changed pure-cache ablation')
         prepared.append(ready)
     data = dict(run=str(run), remote_run=str(base / "runs" / run.name), arms=prepared,
                 files=sorted(files.values(), key=lambda x: x["rel"]))

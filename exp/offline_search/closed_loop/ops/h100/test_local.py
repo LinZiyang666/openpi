@@ -299,6 +299,8 @@ def test_detached_fake_process_lifecycle_idempotency_and_foreign_receipt(tmp_pat
 def test_stop_refuses_recycled_pid_and_command_mismatch(tmp_path, monkeypatch):
     spec = spec_for(tmp_path)
     monkeypatch.setattr(local, 'LOCKS', tmp_path / 'locks')
+    monkeypatch.setattr(local, 'listeners', lambda: {})
+    monkeypatch.setattr(local, 'can_bind', lambda port: True)
     _, rp, _ = local.paths(spec)
     process = dict(pid=99999999, starttime='original', cmdline=b'owned\0'.hex())
     node.atomic(rp, dict(spec=spec, child=process))
@@ -414,6 +416,7 @@ def test_local_collect_keeps_logs_and_only_pulls_worker_archive(tmp_path, monkey
 def test_local_start_refuses_foreign_listener_and_low_local_memory(tmp_path, monkeypatch):
     spec = spec_for(tmp_path)
     monkeypatch.setattr(local, 'LOCKS', tmp_path / 'locks')
+    monkeypatch.setattr(local, 'can_bind', lambda port: True)
     monkeypatch.setattr(local, 'listeners', lambda: {23150: {123}})
     monkeypatch.setattr(local, 'command', lambda s: pytest.fail('must refuse before spawning'))
     monkeypatch.setattr(local, 'gpu_free', lambda: pytest.fail('busy port must refuse before GPU check'))

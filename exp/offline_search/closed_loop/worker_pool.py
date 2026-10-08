@@ -67,7 +67,16 @@ def validate(args, manifest, repo=None):
         matrix = yaml.safe_load(Path(arg(args, '--arm-matrix')).read_text())
         if [r['arm'] for r in matrix['arms']] != [contract['arm']]:
             raise ValueError('dev contract arm differs from matrix')
-        require_disjoint(manifest, contract['subset'])
+        if contract.get('leave_own_episode_out', False):
+            if (contract.get('leave_own_episode_out') is not True
+                    or contract.get('query_pool') != 'B'
+                    or contract.get('exclusion') != 'original_task_init_identity'
+                    or contract.get('fits_include_own_episode') is not True
+                    or not contract['arm'].startswith('r15d_')
+                    or sum(map(len, contract['subset']['episode_ids_by_task'].values())) != 500):
+                raise ValueError('invalid R15 leave-own-out serving contract')
+        else:
+            require_disjoint(manifest, contract['subset'])
     journal = Path(arg(args, '--journal'))
     if journal.exists():
         rows = []
@@ -102,11 +111,39 @@ def install_journal(pool):
 
 
 def install(run_gtp, args, manifest):
+    """Attest either pool before selecting the opt-in execution receipt worker."""
     pool, contract = validate(args, manifest)
+    install_worker_options(run_gtp)
     # Run the existing attestor against the exact selected file paths before
     # run_gtp can create a driver or workers; run_gtp repeats this at launch.
     from .devset import pool_record
     record_path, record = pool_record(arg(args, '--task-suite'), pool)
     run_gtp.load_apool_digest(str(record_path), required=True, verify_contents=True)
     install_journal(pool)
+    if os.environ.get('OSCL_RECORD_LOOKS') == '1':
+        from .look_recording import stamp_tasks
+        stamp_tasks(run_gtp, pool, contract)
     print(f'INIT_POOL_OK pool={pool} suite={record["suite"]} sha={record["rollup_sha256"]}', flush=True)
+
+
+def install_worker_options(run_gtp):
+    """Default-off worker seed and execution worker adapter, before launch."""
+    audit = os.environ.get('OSCL_EXECUTION_AUDIT') == '1'
+    value = os.environ.get('OSCL_ROLLOUT_SEED')
+    seed = int(value) if value is not None else None
+    if seed is not None and not 0 <= seed < 2**32:
+        raise ValueError('OSCL_ROLLOUT_SEED must be in [0,2**32)')
+    if not audit and seed is None:
+        return
+    original_spec = run_gtp.WorkerSpec
+
+    def worker_spec(*args, **kwargs):
+        if audit:
+            kwargs['worker_module'] = 'exp.offline_search.closed_loop.execution_worker'
+        if seed is not None:
+            kwargs['seed'] = seed
+        return original_spec(*args, **kwargs)
+
+    run_gtp.WorkerSpec = worker_spec
+    if seed is not None:
+        print(f'OSCL_SIMULATOR_SEED seed={seed}', flush=True)
