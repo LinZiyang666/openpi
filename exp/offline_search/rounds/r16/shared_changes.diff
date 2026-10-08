@@ -1,0 +1,27 @@
+--- src/openpi/cache/types.py.before
++++ src/openpi/cache/types.py
+@@ -94,7 +94,11 @@
+     direction: str
+ 
+     def __post_init__(self) -> None:
+-        if self.num_steps < 2:
++        # A one-step GR00T MISS is explicitly requested by its live head K.
++        # It has no recoverable snapshots; all existing schedules are unchanged.
++        single_groot_miss = (type(self.num_steps) is int and self.num_steps == 1 and self.direction == DIRECTION_ASC
++                             and self.schedule_id == "groot_n15_k1_v1")
++        if self.num_steps < 2 and not single_groot_miss:
+             raise ValueError(
+                 f"{self.schedule_id}: num_steps must be >= 2, got {self.num_steps}"
+             )
+@@ -186,9 +190,9 @@
+     step count is part of the identity.
+     """
+     n = int(num_inference_timesteps)
+-    if isinstance(num_inference_timesteps, bool) or n < 2:
++    if isinstance(num_inference_timesteps, bool) or n < 1:
+         raise ValueError(
+-            f"num_inference_timesteps must be an integer >= 2, got {num_inference_timesteps!r}"
++            f"num_inference_timesteps must be an integer >= 1, got {num_inference_timesteps!r}"
+         )
+     return DenoiseSchedule(
+         schedule_id=f"groot_n15_k{n}_v1", num_steps=n, direction=DIRECTION_ASC

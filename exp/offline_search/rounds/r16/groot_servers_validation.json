@@ -1,0 +1,29 @@
+{
+  "PASS": true,
+  "tests": 195,
+  "sha256": {
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/conductor_runner.py": "e0edfeeb003d0e4f6d01d120efe68cdfa597158fb66995595aa85de60e52f977",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/test_groot_servers.py": "3a28ce6fd46f3f97efb2a2e0af55f192a4808c27414e25978ad5d988d898c474",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/CONDUCTOR_LOCK.json": "8a45441a639b7d850b56c22dcc19e5a2d107cf573c8254357ccee9024dde7b62",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/GROOT_SERVERS_OPERATIONAL.json": "1a8231bdc10abc0358b54dffa23623a5d35aa5655aba9222a63c2a8846b3266f",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/HANDBACK_GROOT_SERVERS.md": "cf45ea24d554954a7c51cbdae4a89f91c3089a947fd7044f7939bd3e9779fc6b",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/groot_servers_tests.xml": "5c00ce2323414aeba39ec43c1d96185e128a19ce205aad74afe7f979946945fc",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/before/groot_servers_CONDUCTOR_LOCK.json": "2b51996e08d7685231d162ad188d667d8be3174281a831296a809a648d6f6cb0",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/before/groot_servers_runner.py.txt": "497047401e21a0412a651c088298cd295464b0b6cc37d97114e639bd0341fd29"
+  },
+  "runner_is_only_changed_preexisting_source": true,
+  "measurement_sources_and_frozen_anchors_unchanged": true,
+  "shared_runtime_edits": 0,
+  "live_group_accesses": 0,
+  "live_process_operations": 0,
+  "remote_operations": 0,
+  "test_a_outcome_reads": 0,
+  "source_verify": "analyze verify: DESIGN_VERIFIED",
+  "tests_scope": [
+    "3/4 GR00T processes per suite, both checkpoint bindings, unique ports",
+    "4\u21926/8\u21924 process resize with preserved live receipts and interruption recovery",
+    "Completed episode reuse and persistent stale-attempt fences after endpoint resize",
+    "Stop all before timeout polling, recoverable/unrecoverable slow exits",
+    "Operational source registration and measurement-source tamper rejection"
+  ]
+}

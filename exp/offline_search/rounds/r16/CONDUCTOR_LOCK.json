@@ -1,0 +1,110 @@
+{
+  "schema": "r16.conductor.amendment.v1",
+  "original_design_lock_sha256": "366d14117db2582ed9f0246cf0ec2ca5cafaa99b493638a357b4aca4157c9ba4",
+  "design_sha256": "835f382b01458d08f09e00eebcfee5718326a4bee6b4f0cc64d5ba4d131d1a0e",
+  "protocol_sha256": "80b2f25eeffef6b7d68d4e5117c924e9d49abcdb2ad0d9e8a837268455610c79",
+  "amendment_sha256": "795603f2dedde9a97eaf61a0c68eaeabb34a082d30102352432653cc9db3b330",
+  "adapted_sources": {
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/analyze.py": {
+      "original_sha256": "2391e8abb4be0cd9a1c85eaf739739bc09afa9e025dd3b6f6510531a4936a261",
+      "adapted_sha256": "4549952b436b1ef32598e4742e35a3e7ac76375f94fa550b125c5ebc8f3b8827",
+      "original_copy": "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/before/conductor_original_analyze.py.txt"
+    },
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/prepare.py": {
+      "original_sha256": "9fc8d32943a2a861e3b65f6712936524310f759521cc0a5d8fa1e1b907d5eb40",
+      "adapted_sha256": "da9587567243b7286db3f22b84c5ea8e45e0ae521fa06bcddba9758698eaeb17",
+      "original_copy": "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/before/conductor_original_prepare.py.txt"
+    }
+  },
+  "new_sources": {
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/conductor.py": "9e3152694d9f0959817b6ee6a06cc6bc663cfd2b641f74f83c1a3575c42af0c4",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/conductor_analysis.py": "6664affdfe7a6feea95196afaaa38f23076689fb36a0206f0edada9b8a3c85cf",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/conductor_commands.sh": "5d4c034de419c0687c0b8b1e0628f74ee45f46c83f9381b510affe5341396715",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/conductor_deploy.py": "a9f81d8e74ce358b42046ed61191bc16f340e640b1853c080777c1388220688b",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/conductor_replay.py": "c538b24bab0310a18eb0ceeb8c0972a2604d31de7fc7f2281d7930c342474b7c",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/conductor_reuse.py": "ac579dab9d05bfc5427076150f69b585427042dc4f8fa7635a82ad48d8ba0344",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/conductor_runner.py": "e0edfeeb003d0e4f6d01d120efe68cdfa597158fb66995595aa85de60e52f977",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/conductor_seal.py": "2a293012efcb84fe51576283157b4b490568333726f1abf9e48105d342415d1a",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/resident.py": "466c76b65eac7c62fae88c7658b7d91f05d61b8289bdb77b992f3edbe1423025",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/test_conductor.py": "87fc3f317ebc9a90a25231ae13b188620539a42139f40078ef5a079c008171b7",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/test_groot_servers.py": "3a28ce6fd46f3f97efb2a2e0af55f192a4808c27414e25978ad5d988d898c474"
+  },
+  "unchanged_function_ast_sha256": {
+    "analyze.py": {
+      "apply_dev": "d206c3fea452c3ca9e16c1d89b93ef8e693a5e716493cba9cb89d31b62c50dbb",
+      "apply_phase1": "c0415b0e64dae26040d77bd9f1a6c392699cb7e91a1e34a326cd90b80985a47f",
+      "apply_test": "89727ad2f0c022b04b81a4d522ca03ca3f39663e501930b850a348a6f543850c",
+      "calculate_test": "d42e0bb05bff8357b8ecf5f51541a927bfb0d89a8cc9bc23dd9e9c51faee7a9c",
+      "checked_root": "6a00111680a10bcbbc6516c448de7cdddd07b0bd61780d923e9f621e55f0d74d",
+      "choose": "8f95ce2ed1e51ddb447d917f97edb5f564fd9f2a2dbb69a41523adf13074dc85",
+      "compare": "2f7acf5927e6e92d9d8fdec2a06345a93a1dc06db637161acba54d3347f8f226",
+      "dev_cell": "924774b430dc2cd7461a3250c15c10226683d47c9068040170c865238b267cff",
+      "freeze_tables": "fae931670f98aa61c0fee78036639b5a6f4d12c42d415bccbdbe6421787b34bb",
+      "markdown": "7af482e3b4794ec8ccccf1a93900cdb8237fa06d836a317357b0104aebc31ac3",
+      "sampled": "7b66b87f24d6c267c8bf4bece417d87b15ce3ef752d918df8e7a2c848c53a88a"
+    },
+    "prepare.py": {
+      "base_cell": "b3e956538d98f65d0c5c500164cd5a237c08b5e70cecbe23bc6e543323868cdb",
+      "build": "d5a09129fa65270a4f70d5eda6e16acaa54c54f66ec79c3239c6266602d63d7c",
+      "build_smokes": "b17b0a58ae0368f86d3c918721ddefebbae1d0dc2ba148f2e38c9c04a8e986dd",
+      "emit": "e40b0d7f0e36405fa4620b6672a0e9b9cf791f7dd2193249c7db21a380611340",
+      "main": "97abca828de8ae61b70118540aca9fd67f1c94666da47a6534d7ba793761c038",
+      "parts": "579524afa6f0e3d3af008c768cf7ea08e4b7148770b2c58e2a62f4d17ee9fe06",
+      "prior": "18315cb375098cc58e96a27a4655b7b7a804738536d61317bab981955b62c734",
+      "queue": "67c75d9c150a82fa49e7d4a6594d65a70e0036c3a21004701acc7cf338078bdf",
+      "read_row": "5472a6a45a4fa054da2215e6c02fd5e693d5f96827839ea8230c75873ff9d0f7",
+      "reference": "ef75043c576ef656c29fc94f7e6734a35d609213de5c52bed3a0676fac3284ad",
+      "reference_dev": "763a6883adf51381abda47d5e592828194e30e4142757bfc75df108dccac8c27",
+      "seal": "6e6ade937e5eab9fbda8ce5a5d8785037caf5e0d8788fd06a6147dae5a7f9ba7",
+      "source_dev": "96df4d54775e538b7645f984e7edd56b7d72ecc0664c0ba6336c077cfccf8bed",
+      "spec_from": "e68f8a1a713ad246ab7c1f3c3eeb8ff9c904b5649f4bab88f7fcfe96d60905d1"
+    }
+  },
+  "collector_sr_serialization_fix": {
+    "source": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/collect.py",
+    "source_sha256": "e205699b22f17877f2bb376a016c11097a1bfd274bd3fd3e251ba4530a1adcc5",
+    "decimals": 4,
+    "affects_selection_or_numerical_sr": false
+  },
+  "shared_runtime_edits": 0,
+  "test_a_outcome_reads": 0,
+  "operational_amendments": [
+    {
+      "schema": "r16.conductor.operational.servers.v1",
+      "date": "2026-10-08",
+      "authorization": "Coordinator follow-up: configurable identical GR00T processes and complete bounded server shutdown",
+      "prior_conductor_lock": {
+        "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/before/groot_servers_CONDUCTOR_LOCK.json",
+        "sha256": "2b51996e08d7685231d162ad188d667d8be3174281a831296a809a648d6f6cb0"
+      },
+      "updated_sources": {
+        "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/conductor_runner.py": {
+          "before_sha256": "497047401e21a0412a651c088298cd295464b0b6cc37d97114e639bd0341fd29",
+          "after_sha256": "e0edfeeb003d0e4f6d01d120efe68cdfa597158fb66995595aa85de60e52f977"
+        }
+      },
+      "added_sources": {
+        "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/test_groot_servers.py": "3a28ce6fd46f3f97efb2a2e0af55f192a4808c27414e25978ad5d988d898c474"
+      },
+      "scope": [
+        "GR00T process count per suite, default 2; isolated smoke default 1",
+        "Resume/shrink retains live per-suite receipts and durably retires surplus/dead receipts",
+        "Stop every recorded owned server; after initial attempts, poll timeout releases for at most 240 additional seconds"
+      ],
+      "server_count_enters_decisions_or_estimates": false,
+      "server_count_affects": "Endpoint topology and wall-clock throughput only",
+      "unchanged": [
+        "Resident method sets, per-connection factory/hot switch, dispatch/gates, episode identities/seeds/log schema",
+        "Methods/fits, original design/protocol/amendment, analysis/pairing/pricing, shared runtime"
+      ],
+      "unchanged_runner_function_ast_sha256": {
+        "resident_command": "ca2fae4f60340e8f105c38296c80633007af1d5c9d90a62d2ff7c31eb01d19f9",
+        "run": "4a50c64393e349f7760db4f1ddc50c31919ee764057c2351481388f2157d5dcd"
+      },
+      "group_files_accessed": 0,
+      "real_launches": 0,
+      "remote_operations": 0,
+      "test_a_outcome_reads": 0
+    }
+  ]
+}

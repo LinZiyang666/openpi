@@ -1,0 +1,30 @@
+{
+  "pi05": {
+    "servers": 3,
+    "methods_per_server": 44,
+    "measured_unique_fit_cpu_array_bytes": 432227138,
+    "cpu_bound_scope": "Both suites; conservative bound for GR00T suite server",
+    "additional_fit_gpu_bytes": 0,
+    "owner_measured_model_gpu_gb_steady": 9.0,
+    "owner_measured_model_gpu_gb_peak": 9.9,
+    "estimated_group_gpu_gb_steady": 27.0,
+    "estimated_group_gpu_gb_peak": 29.700000000000003,
+    "quota_gb": 28,
+    "quota_peak_proven": false,
+    "measurement_source": "Owner prompt; no GPU measurement during implementation"
+  },
+  "groot": {
+    "servers": 4,
+    "methods_per_server": 22,
+    "measured_unique_fit_cpu_array_bytes": 379131050,
+    "cpu_bound_scope": "Both suites; conservative bound for GR00T suite server",
+    "additional_fit_gpu_bytes": 0,
+    "owner_measured_model_gpu_gb_steady": 6.0,
+    "owner_measured_model_gpu_gb_peak": null,
+    "estimated_group_gpu_gb_steady": 24.0,
+    "estimated_group_gpu_gb_peak": null,
+    "quota_gb": 28,
+    "quota_peak_proven": false,
+    "measurement_source": "Owner prompt; no GPU measurement during implementation"
+  }
+}

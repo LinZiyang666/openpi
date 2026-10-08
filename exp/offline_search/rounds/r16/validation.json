@@ -1,0 +1,27 @@
+{
+  "PASS": true,
+  "reports": {
+    "tests.xml": {
+      "sha256": "26e7456a2a3f3fb5139b274f38c77bee809bdb37b055f4957acd9241db0ee5b2",
+      "tests": 28,
+      "existing_cases": 0
+    },
+    "regression.xml": {
+      "sha256": "b92f295d79ec018ae5cbeea4b25125af1721d73f9ccc2d208d84fdfabc7a9124",
+      "tests": 123,
+      "existing_cases": 99
+    },
+    "miss_regression.xml": {
+      "sha256": "91d8f12f39b2b09047dd509e79005365a099582eab7a3079a409e5cc3dcff999",
+      "tests": 29,
+      "existing_cases": 29
+    }
+  },
+  "synthetic_only": true,
+  "legacy_k1_rejection_superseded": true,
+  "scratch": "/tmp/r16_*",
+  "cpu_affinity": "2-9,46-53",
+  "cuda_visible_devices": "",
+  "forbidden_operations_performed": 0,
+  "real_outcome_reads": 0
+}

@@ -1,0 +1,104 @@
+[
+  {
+    "root": "/home/weiland/trace_runs/os_closed_loop/r16_smoke_phase1_pi05_l10_k1",
+    "final_root": "/home/weiland/trace_runs/os_closed_loop/r16_smoke_phase1_pi05_l10_k1",
+    "cell": "pi05_l10_50_k1",
+    "arms": [
+      "r16smoke_phase1_pi05_l10_k1"
+    ],
+    "arm_count": 1,
+    "episodes_per_arm": 2,
+    "init_pool": "A",
+    "intended_host": "local",
+    "staged": false,
+    "recording": false,
+    "launches": 0,
+    "definitions_sha256": {
+      "arms.json": "b652909510d4978f91b85cccd3805fbbcd034fc9061a155ae98a1b1ccb98544d",
+      "arms_in.json": "7cd9a033404c04248abe8d75b071c26fb416cdbf2fbdd8b41dbd669b4d4f0af5",
+      "config/matrix_r16smoke_phase1_pi05_l10_k1.yaml": "8c9dd562426463f886550d4cbf646532709db7c94b2d822b63366b4be23f970f",
+      "config/r16smoke_phase1_pi05_l10_k1.yaml": "421cfa761e0cdcb3cc510c89a29ddbe148e8fbbe507ba0130ba7e9ec8cb4f1f5",
+      "eval2.json": "a7f517c1393dad5c65f051f087352837ccd344c6cf1af5ceafffca5e5742a524"
+    },
+    "fit_sha256": {
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r13/knob/artifacts/pi05_l10_50_pure_c10.pkl": "466e75a09b531ded372cb1c23cc9fe01f0126e740b0abd8383bd52fa5b7b5e97"
+    }
+  },
+  {
+    "root": "/home/weiland/trace_runs/os_closed_loop/r16_smoke_dev_pi05_l10_k1",
+    "final_root": "/home/weiland/trace_runs/os_closed_loop/r16_smoke_dev_pi05_l10_k1",
+    "cell": "pi05_l10_50_k1",
+    "arms": [
+      "r16smoke_dev_pi05_l10_k1"
+    ],
+    "arm_count": 1,
+    "episodes_per_arm": 2,
+    "init_pool": "B",
+    "intended_host": "local",
+    "staged": false,
+    "recording": false,
+    "launches": 0,
+    "definitions_sha256": {
+      "arms.json": "9c69d9c6e54406eb36f16a60b6365323e2bf297c62b57128c1830681bee32f97",
+      "arms_in.json": "5b2ff36beb99523858e576185a4109c9efc6bf36848a5cd2e7ea028a0ffa55b3",
+      "config/matrix_r16smoke_dev_pi05_l10_k1.yaml": "6252be327d31d0d7c31abda0ad38b751b626a0983a65cf562557e29ed7d50f2d",
+      "config/r16smoke_dev_pi05_l10_k1.yaml": "6b57a259c3f9817ab7a00962f93eff09720290f857b4c5efa8a8bf9f1b315121",
+      "dev_contracts.json": "c3f7603ffe4203a27435ab91a39b737a4cbb07ba38e4d87d3a4de7c643ba0604",
+      "dev_selection.json": "e5b06dec6957c296be5aa881ba3d02d5875b2352e3d8a22bb28b855ab07a702b"
+    },
+    "fit_sha256": {
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r13/knob/artifacts/pi05_l10_50_periodic_0p45.pkl": "091755b38f91eea9fb9e6bc7dd0ac4a53b309fcbdd66a043fe31c54dca79e02e"
+    }
+  },
+  {
+    "root": "/home/weiland/trace_runs/os_closed_loop/r16_smoke_phase1_groot_l10_k1",
+    "final_root": "/home/weiland/trace_runs/os_closed_loop/r16_smoke_phase1_groot_l10_k1",
+    "cell": "groot_l10_50_k1",
+    "arms": [
+      "r16smoke_phase1_groot_l10_k1"
+    ],
+    "arm_count": 1,
+    "episodes_per_arm": 2,
+    "init_pool": "A",
+    "intended_host": "local",
+    "staged": false,
+    "recording": false,
+    "launches": 0,
+    "definitions_sha256": {
+      "arms.json": "7c3cb6f21822cc226d69e67f7d9170407413aa6f06588cb1f1e1726a93bc197f",
+      "arms_in.json": "b351e0e50b05d418604d2818537f5d09f7f160ec4df629c82dac6cd4b40c1133",
+      "config/matrix_r16smoke_phase1_groot_l10_k1.yaml": "ae7626ac2069278a260e8594745272f6ca6d249978f686c0099cfb8ea027aa6b",
+      "config/r16smoke_phase1_groot_l10_k1.yaml": "c1b568d62cec1ac752bd36561c9365538681184c0be55c41b86699600544d7de",
+      "eval2.json": "a7f517c1393dad5c65f051f087352837ccd344c6cf1af5ceafffca5e5742a524"
+    },
+    "fit_sha256": {
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r13/knob/artifacts/groot_l10_50_pure_c10.pkl": "0f790260938b1e0e8c2d7d4cdec06766ac6082618b49d046395e27488e437b11"
+    }
+  },
+  {
+    "root": "/home/weiland/trace_runs/os_closed_loop/r16_smoke_dev_groot_l10_k1",
+    "final_root": "/home/weiland/trace_runs/os_closed_loop/r16_smoke_dev_groot_l10_k1",
+    "cell": "groot_l10_50_k1",
+    "arms": [
+      "r16smoke_dev_groot_l10_k1"
+    ],
+    "arm_count": 1,
+    "episodes_per_arm": 2,
+    "init_pool": "B",
+    "intended_host": "local",
+    "staged": false,
+    "recording": false,
+    "launches": 0,
+    "definitions_sha256": {
+      "arms.json": "907ac6cf6668d717a89ac1d44010ff12bd76f74acfb55fa763f45ca5346e66df",
+      "arms_in.json": "bdbce23a5bf4563a9111ca80021f4f913df5cf2132b703fbf90093b5c6a920aa",
+      "config/matrix_r16smoke_dev_groot_l10_k1.yaml": "69c5025146342892392c0142db1423ce60f1cfe33dcb07197d94e26400dc37d3",
+      "config/r16smoke_dev_groot_l10_k1.yaml": "7d5d6a0421d2f49291d627bd8e8c6a881cd6895e8aeb1f9118388d3781ff9540",
+      "dev_contracts.json": "8c26b03422e94ae48f3d5cddeb27059cbab52a36113fbc73e482ba40d9290a33",
+      "dev_selection.json": "a62097dd0b27890d530896a14b06e41e8eb1a6f16887db69e106e0e5b1f00e50"
+    },
+    "fit_sha256": {
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r13/knob/artifacts/groot_l10_50_periodic_0p45.pkl": "b65c799913c880577b21e3d7952588ce2c9aca3ca67c0896eb1325b2e966b0df"
+    }
+  }
+]

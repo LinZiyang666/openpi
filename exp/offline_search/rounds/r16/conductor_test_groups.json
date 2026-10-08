@@ -1,0 +1,12 @@
+{
+  "groups": [
+    "/home/weiland/trace_runs/os_closed_loop/r16_conductor_test_pi05_k1_v1/group.json",
+    "/home/weiland/trace_runs/os_closed_loop/r16_conductor_test_pi05_k2_v1/group.json",
+    "/home/weiland/trace_runs/os_closed_loop/r16_conductor_test_groot_k1_v1/group.json",
+    "/home/weiland/trace_runs/os_closed_loop/r16_conductor_test_groot_k2_v1/group.json"
+  ],
+  "completed_reuse": [],
+  "inventory": [],
+  "test_a_outcome_reads": 0,
+  "definitions_only": true
+}

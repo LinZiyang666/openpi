@@ -1,0 +1,47 @@
+{
+  "schema": "r16.conductor.validation.v1",
+  "PASS": true,
+  "tests": 184,
+  "test_report_sha256": "33f7af2aa78227e9119e535ab3de322a861963d3911e3c131f44158fc7144072",
+  "runtime_proof_sha256": "3bed77bcf4ca28b87578056f4ab5006f602964f6776948db801c6d8c1002e135",
+  "dev_groups": {
+    "pi05_k1": {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r16_conductor_dev_pi05_k1_v1/group.json",
+      "sha256": "f5f74bf6646a20a98185a56c9db963f2eedd73def869133ff698bf7af5a74165",
+      "methods": 44
+    },
+    "pi05_k2": {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r16_conductor_dev_pi05_k2_v1/group.json",
+      "sha256": "97240ee5a6d6666247a788fb58be209ea89a9a8bb7d8a8214573d797afc5f508",
+      "methods": 44
+    },
+    "groot_k1": {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r16_conductor_dev_groot_k1_v1/group.json",
+      "sha256": "0400cb09a1044cf5cc5c148057d066ad521f415f7f3d696fe980e35557d8a34c",
+      "methods": 44
+    },
+    "groot_k2": {
+      "path": "/home/weiland/trace_runs/os_closed_loop/r16_conductor_dev_groot_k2_v1/group.json",
+      "sha256": "2ba7c6859fef6d0fb6e72727a0b8adf19b97a8bed9bf0455bcd4b75765be29d9",
+      "methods": 44
+    }
+  },
+  "original_method_rows_unchanged_except_definition_paths": true,
+  "original_yaml_and_manifest_bytes_equal": true,
+  "proof_scope": "Real Euler loops with synthetic velocity forwards, real lower layers, recorded B observations; GPU checkpoint parity remains coordinator smoke",
+  "per_decision_fit_hashes_checked": true,
+  "completed_reused_arms": 14,
+  "originals_intact": [
+    "DESIGN_LOCK.json",
+    "design.json",
+    "PROTOCOL.md",
+    "protocol.json",
+    "COORDINATOR_DECISIONS.md"
+  ],
+  "shared_runtime_edits": 0,
+  "test_a_outcome_reads": 0,
+  "refits": 0,
+  "remote_operations": 0,
+  "servers_launched": 0,
+  "gpu_calls": 0
+}

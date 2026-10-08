@@ -1,0 +1,10 @@
+{
+  "schema": "r16.retest.selection_freeze.v1",
+  "post_test_selected": true,
+  "sha256": {
+    "plan.json": "da35315e658f253a3155249b44b2c9c60702845f1f1290a13fda31809d649ca7",
+    "changes.json": "f6bb91a1b28114ad5fdc4334135776290f498241f041a38a022b751d8e00e41d",
+    "owner_changes.json": "5eabac66d3ac8aba6f9e1846218716327f3d364707865204977c6be9c8652f44",
+    "levels.json": "45b0d7691905e860d37dffa16256a287f4f284d9f57d0a0700a2c18cc3467698"
+  }
+}

@@ -1,0 +1,44 @@
+[
+ {
+  "cell": "groot_l10_200_k1",
+  "task": 7,
+  "from": "ir40",
+  "to": "ir45"
+ },
+ {
+  "cell": "groot_l10_50_k1",
+  "task": 0,
+  "from": "ir40",
+  "to": "ir45"
+ },
+ {
+  "cell": "groot_l10_50_k2",
+  "task": 4,
+  "from": "ir40",
+  "to": "ir45"
+ },
+ {
+  "cell": "pi05_l10_100_k1",
+  "task": 0,
+  "from": "ir25",
+  "to": "ir45"
+ },
+ {
+  "cell": "pi05_l10_50_k1",
+  "task": 8,
+  "from": "off",
+  "to": "ir45"
+ },
+ {
+  "cell": "pi05_l10_50_k2",
+  "task": 7,
+  "from": "off",
+  "to": "ir45"
+ },
+ {
+  "cell": "pi05_spatial_500_k1",
+  "task": 9,
+  "from": "off",
+  "to": "ir45"
+ }
+]

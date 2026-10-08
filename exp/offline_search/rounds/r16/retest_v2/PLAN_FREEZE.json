@@ -1,0 +1,9 @@
+{
+  "schema": "r16.retest.selection_freeze.v1",
+  "post_test_selected": true,
+  "sha256": {
+    "plan.json": "8a6d82f33c33578c87b2326f1f76576e28e33f3ebeaf8e0a4ccbdf4ce8d16c3b",
+    "changes.json": "c8d4037c7fb3c8453a4522bcada2d7ffbfcb29c079feae3a530db67a00538d7f",
+    "levels.json": "a3744ae4181f6ff2e639b1f4e56194a278467fe703753f3a50982567913df877"
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "schema": "r16.retest.cpu_validation.v1",
+  "validated_at_utc": "2026-10-08T15:22:59.109438+00:00",
+  "tests": 236,
+  "new_retest_tests": 41,
+  "failures": 0,
+  "errors": 0,
+  "synthetic_outcomes_only": true,
+  "test_a_outcome_reads": 0,
+  "live_group_roots_read": false,
+  "live_processes_journals_logs_touched": false,
+  "servers_started": 0,
+  "gpu_work": false,
+  "remote_operations": 0,
+  "refits": 0,
+  "worker_bytes_changed": false,
+  "shared_runtime_edits": 0,
+  "existing_code_edits": 0,
+  "existing_freeze_lock_edits": 0,
+  "original_tables": {
+    "cells": 32,
+    "uniform_dropped": true,
+    "freeze_sha256": "3e81f4864699f50d3a57699fcb30ea93f2dd3fea2d8362eefd31630ca1601730",
+    "levels_sha256": "170ce8ace4c3acb6b269d8c54008b588f30f77c36526dce40db308b0521d02a3"
+  },
+  "baseline_sha256": {
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/DESIGN_LOCK.json": "366d14117db2582ed9f0246cf0ec2ca5cafaa99b493638a357b4aca4157c9ba4",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/CONDUCTOR_LOCK.json": "8a45441a639b7d850b56c22dcc19e5a2d107cf573c8254357ccee9024dde7b62",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/design.json": "835f382b01458d08f09e00eebcfee5718326a4bee6b4f0cc64d5ba4d131d1a0e",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/PROTOCOL.md": "80b2f25eeffef6b7d68d4e5117c924e9d49abcdb2ad0d9e8a837268455610c79",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/protocol.json": "3fe180ff32a4e0c70a6e34cbdf350a814401685de5f6f82bfa68e5973e720985",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/COORDINATOR_DECISIONS.md": "8cdb99ec91c902bcab3fda8a8a4552d41d4587d53c5878b8fd8da05d1cf73c1c",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/CONDUCTOR_AMENDMENT.json": "795603f2dedde9a97eaf61a0c68eaeabb34a082d30102352432653cc9db3b330"
+  },
+  "retest_lock_sha256": "39673a1343e85d618103fa19f0943f3f8567d8bcbeba6a6dd2b77b2d60d89d26",
+  "evidence": "retest_tests.xml",
+  "scratch": "/tmp/r16_retest_release_20261008_final",
+  "checks": [
+    "arbitrary subsets including all 32 cells and both suites/models/k",
+    "exact original UIDs/inits, identity seed, unchanged YAML/client protocol",
+    "lower-fit arrays unchanged; existing set_table only; no fit() calls",
+    "resident checkpoint specs; controller-local adapter and restoration",
+    "accepted outcome resume, server-count change and persistent stale-attempt fencing",
+    "only selected full 50-episode cohorts; no dormant-suite dispatch",
+    "actual miss_k/fit/level checks; blind rows with absent level diagnostic",
+    "selected accepted-attempt V/M/N/cost replacement; unlisted arrays unchanged",
+    "same original paired estimators and source-derived D5 pricing",
+    "synthetic definitions\u2192outcomes\u2192all32 merged reports end to end",
+    "emitted selection/source/group tamper rejection",
+    "real frozen-table and unchanged original source verification; no outcome reads",
+    "CLI help and bash -n; no real launch"
+  ]
+}

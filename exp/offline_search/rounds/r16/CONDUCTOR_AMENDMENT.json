@@ -1,0 +1,25 @@
+{
+  "schema": "r16.conductor.owner_speed.v1",
+  "owner_request_date": "2026-10-07",
+  "original_design_sha256": "835f382b01458d08f09e00eebcfee5718326a4bee6b4f0cc64d5ba4d131d1a0e",
+  "original_design_lock_sha256": "366d14117db2582ed9f0246cf0ec2ca5cafaa99b493638a357b4aca4157c9ba4",
+  "protocol_sha256": "80b2f25eeffef6b7d68d4e5117c924e9d49abcdb2ad0d9e8a837268455610c79",
+  "decisions_sha256": "8cdb99ec91c902bcab3fda8a8a4552d41d4587d53c5878b8fd8da05d1cf73c1c",
+  "binding_decisions": "D1-D7 unchanged",
+  "changes": [
+    "Resident frozen methods selected by original arm yaml_id/bundle; same per-connection plugin copies",
+    "Global episode queue grouped by model/k; GR00T endpoint checkpoint capability retains suite-specific weights",
+    "Primary 5 pp first-failure gate on all 30 same B episodes; no lower-level dispatch after first failure",
+    "Uniform cell tables and below-failure recovery diagnostics dropped at owner request",
+    "Sensitivity 0/2 pp and confidence level tables remain identifiable from the primary prefix; alternate stitched SR/IR omitted when unmeasured",
+    "k-step fallback cohorts dispatched only for tasks with primary ir45 failure; completed full arms reused by input hashes",
+    "Partial-cohort analysis keeps unknown outcomes explicit and seals this amendment with the table freeze",
+    "Test A remains 32 frozen arms x 500 original episodes without adaptivity; grouped queue replaces per-arm queue after emission"
+  ],
+  "test_a_outcome_reads": 0,
+  "refits": 0,
+  "shared_runtime_edits": 0,
+  "loader_fix": "Summary SR accepts the collector's exact four-decimal serialization as well as exact SR; all numerical SR is still computed from accepted binary outcomes.",
+  "completed_c10_log_gap_adapter": "Completed pi05_l10_50_k2 has 40 whole episodes with retained accepted client receipts but overwritten server logs from an earlier driver run. Reuse accepted binary outcomes and exact N,V=M from pure C10 receipts, crosscheck all surviving decisions and the partial collector ledger, retain all input hashes. No server rows are fabricated; historical miss_k for those 40 cannot be independently re-audited.",
+  "full_dev_relocation_loader_fix": "Use the existing R15 AServedFitVerifier for both pools, so full-step B references served on H100 use exact deterministic relocated path/hash verification including batch pickle order. Local R16 paths still bind to the exact frozen source. No numerical changes."
+}

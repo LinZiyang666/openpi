@@ -1,0 +1,14 @@
+{
+  "PASS": true,
+  "worker_files": 2881,
+  "local_files": 3370,
+  "archive_sha256": "860c5d90932a229d2649c3f30fc22eea10a3ec1b5cd5c178504a61f99b45125c",
+  "manifest_sha256": "a6f69072b99e46e3fc39dc7572fe9539722e82131960d2132c152b05e4cd0fc3",
+  "archive_regular_files_only": true,
+  "all_archive_and_local_hashes_match": true,
+  "isolated_agent_and_client_import": true,
+  "original_design_and_protocol_verified": true,
+  "no_real_launches": true,
+  "no_remote_operations": true,
+  "test_a_outcome_reads": 0
+}

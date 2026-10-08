@@ -1,0 +1,8 @@
+{
+  "groups": [
+    "/home/weiland/trace_runs/os_closed_loop/r16_conductor_smoke_pi05_k1_v1/group.json",
+    "/home/weiland/trace_runs/os_closed_loop/r16_conductor_smoke_groot_k1_v1/group.json"
+  ],
+  "episodes_per_arm": 2,
+  "arms_per_model": 4
+}

@@ -1,0 +1,834 @@
+[
+  {
+    "root": "/home/weiland/trace_runs/os_closed_loop/r16_test_pi05_l10_50_k1",
+    "final_root": "/home/weiland/trace_runs/os_closed_loop/r16_test_pi05_l10_50_k1",
+    "cell": "pi05_l10_50_k1",
+    "arms": [
+      "r16t_pi05_l10_50_k1_task_descent"
+    ],
+    "arm_count": 1,
+    "episodes_per_arm": 500,
+    "init_pool": "A",
+    "intended_host": "local",
+    "staged": false,
+    "recording": false,
+    "launches": 0,
+    "definitions_sha256": {
+      "arms.json": "ac56d2dc0f4bf2de4b5586184b09d76c31c32de27486f305bafa61efe24d3504",
+      "arms_in.json": "34a91fa85d1010078fbf845c9bfd1743305bca3f0149e9595816cab040084547",
+      "config/matrix_r16t_pi05_l10_50_k1_task_descent.yaml": "c3cc62740dc86d15b0dbd287b34cf9b0e41ded529bf25601a5e961704690b361",
+      "config/r16t_pi05_l10_50_k1_task_descent.yaml": "c496b9ae72fcb561357d00a2bd1d8dd300ad11b5b17c205a037e43d7d9dd7932",
+      "descent_table.json": "15e51d0fed43b602ef409413527193dfd19d92941ccc01c7d385eba4d8838697",
+      "eval500.json": "2c3b0477794c04b9f9925100346f0d0adbca4dcfe42f3c2eb26278f18b4d9a29"
+    },
+    "fit_sha256": {
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/artifacts/pi05_l10_50_k1_task_descent.pkl": "ce996339b14ee0c3f551fdb6f4fb3cdbbbb6a90ab230f25a58821ca04552dc0b"
+    }
+  },
+  {
+    "root": "/home/weiland/trace_runs/os_closed_loop/r16_test_pi05_l10_50_k2",
+    "final_root": "/home/weiland/trace_runs/os_closed_loop/r16_test_pi05_l10_50_k2",
+    "cell": "pi05_l10_50_k2",
+    "arms": [
+      "r16t_pi05_l10_50_k2_task_descent"
+    ],
+    "arm_count": 1,
+    "episodes_per_arm": 500,
+    "init_pool": "A",
+    "intended_host": "local",
+    "staged": false,
+    "recording": false,
+    "launches": 0,
+    "definitions_sha256": {
+      "arms.json": "6136a4b532c311ab266f408bd81d8812c7b39a2d6240e0265088d522c620b748",
+      "arms_in.json": "c11c1b4cafe787008be5d6d47a66f50b87ddb03568de113f8f1aac44811ecfaa",
+      "config/matrix_r16t_pi05_l10_50_k2_task_descent.yaml": "ac3ffe0ca81a915b710adb2ef36c7fb39b043f5004fc06135d411e472604dbe1",
+      "config/r16t_pi05_l10_50_k2_task_descent.yaml": "981dfeea975259e0ac006c8e839caffbaa50c6d3c5fab4dc1f9cca9de4e26505",
+      "descent_table.json": "94343dbc3f2c560ab3a3542905755743d73a7afde9a3b9550b099bfad52c0b67",
+      "eval500.json": "2c3b0477794c04b9f9925100346f0d0adbca4dcfe42f3c2eb26278f18b4d9a29"
+    },
+    "fit_sha256": {
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/artifacts/pi05_l10_50_k2_task_descent.pkl": "1848714e469903064f736358188bf2f3ed37072a7fbd00567226cd1c447b4b38"
+    }
+  },
+  {
+    "root": "/home/weiland/trace_runs/os_closed_loop/r16_test_pi05_spatial_50_k1",
+    "final_root": "/home/weiland/trace_runs/os_closed_loop/r16_test_pi05_spatial_50_k1",
+    "cell": "pi05_spatial_50_k1",
+    "arms": [
+      "r16t_pi05_spatial_50_k1_task_descent"
+    ],
+    "arm_count": 1,
+    "episodes_per_arm": 500,
+    "init_pool": "A",
+    "intended_host": "local",
+    "staged": false,
+    "recording": false,
+    "launches": 0,
+    "definitions_sha256": {
+      "arms.json": "773605e4f87355a8b87ba0ecb2dec87d385bec483f0f2cb7a86a1fc3fdd279d4",
+      "arms_in.json": "bd396a9694704f2e2325413b5461d690a1558575c16a45fe2c7b0538568d968a",
+      "config/matrix_r16t_pi05_spatial_50_k1_task_descent.yaml": "af664ce514f75c075369670824b208578078883fe2cce01a54aaf9fa1d6bfd2a",
+      "config/r16t_pi05_spatial_50_k1_task_descent.yaml": "bcd16f52bdede63d392c35192a0be9ea93465b2031db86025f1748f1ee59aebb",
+      "descent_table.json": "49135016e47846daf21c0be8af0e91feb819b49e8a80975fe34792d47808b319",
+      "eval500.json": "2c3b0477794c04b9f9925100346f0d0adbca4dcfe42f3c2eb26278f18b4d9a29"
+    },
+    "fit_sha256": {
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/artifacts/pi05_spatial_50_k1_task_descent.pkl": "b5cd8b135f6c9da695f9c0aa93a7c0145512085ec64259a2b4df6c676f6cdf11"
+    }
+  },
+  {
+    "root": "/home/weiland/trace_runs/os_closed_loop/r16_test_pi05_spatial_50_k2",
+    "final_root": "/home/weiland/trace_runs/os_closed_loop/r16_test_pi05_spatial_50_k2",
+    "cell": "pi05_spatial_50_k2",
+    "arms": [
+      "r16t_pi05_spatial_50_k2_task_descent"
+    ],
+    "arm_count": 1,
+    "episodes_per_arm": 500,
+    "init_pool": "A",
+    "intended_host": "local",
+    "staged": false,
+    "recording": false,
+    "launches": 0,
+    "definitions_sha256": {
+      "arms.json": "492ecd110ce593aef8f119eab10281290024662c1e011e36d22a09ca1f8d5953",
+      "arms_in.json": "c86076b7eeb8628d21f49adbabe2dd6bbe693665b6b08e0fa5e2ed3766d2a85f",
+      "config/matrix_r16t_pi05_spatial_50_k2_task_descent.yaml": "e895377cc18250019e58f869149767b88758981b763177d0464591b1233f6ff9",
+      "config/r16t_pi05_spatial_50_k2_task_descent.yaml": "8274e18e138256868289fc8e8db325b550641e65170150e40b0a42e8228a6591",
+      "descent_table.json": "4b1e5b15473dc22ba70355a8c3e50cd23a2c4c3083e38bfb889a559a635d9bf4",
+      "eval500.json": "2c3b0477794c04b9f9925100346f0d0adbca4dcfe42f3c2eb26278f18b4d9a29"
+    },
+    "fit_sha256": {
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/artifacts/pi05_spatial_50_k2_task_descent.pkl": "f91779f8e801cda45cf3eedb6a590766f6a726d6e48df11b73f0641f95814d2e"
+    }
+  },
+  {
+    "root": "/home/weiland/trace_runs/os_closed_loop/r16_test_groot_l10_50_k1",
+    "final_root": "/home/weiland/trace_runs/os_closed_loop/r16_test_groot_l10_50_k1",
+    "cell": "groot_l10_50_k1",
+    "arms": [
+      "r16t_groot_l10_50_k1_task_descent"
+    ],
+    "arm_count": 1,
+    "episodes_per_arm": 500,
+    "init_pool": "A",
+    "intended_host": "local",
+    "staged": false,
+    "recording": false,
+    "launches": 0,
+    "definitions_sha256": {
+      "arms.json": "5b5da8cec689f0942dc73bfb2c6cc4d1a19e7fbdcefe87dc35a9be201bddc195",
+      "arms_in.json": "52b570a561f3087e23c143e4080e251d3906c4700452e5162a34df12c6232259",
+      "config/matrix_r16t_groot_l10_50_k1_task_descent.yaml": "c8b3d7a67247b28686359833fca942c77fa8842d5b0fb130103f4dab355ee1d1",
+      "config/r16t_groot_l10_50_k1_task_descent.yaml": "fc3227b2bf94e874ccb572aa2c7ab62b1cc29c2ef60049d7e8965fb7b5d52320",
+      "descent_table.json": "091b4c344faa2b8652e94d003bf2acbc87824b2b0265e30d5895868b0cb3ccfb",
+      "eval500.json": "2c3b0477794c04b9f9925100346f0d0adbca4dcfe42f3c2eb26278f18b4d9a29"
+    },
+    "fit_sha256": {
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/artifacts/groot_l10_50_k1_task_descent.pkl": "335eac07c359f043666ee471d344f120ba4bbb0214b166fafe8249c9b26ee48c"
+    }
+  },
+  {
+    "root": "/home/weiland/trace_runs/os_closed_loop/r16_test_groot_l10_50_k2",
+    "final_root": "/home/weiland/trace_runs/os_closed_loop/r16_test_groot_l10_50_k2",
+    "cell": "groot_l10_50_k2",
+    "arms": [
+      "r16t_groot_l10_50_k2_task_descent"
+    ],
+    "arm_count": 1,
+    "episodes_per_arm": 500,
+    "init_pool": "A",
+    "intended_host": "local",
+    "staged": false,
+    "recording": false,
+    "launches": 0,
+    "definitions_sha256": {
+      "arms.json": "287ff0cc9d7cf7e3c12d1c24b86b8e95f5c90d4ecd6124bd7266645dbc7daa17",
+      "arms_in.json": "720d9a1938e8f9a7af55e5388ecb88abb7b5d85de7b63d81eafaa2af517c90f1",
+      "config/matrix_r16t_groot_l10_50_k2_task_descent.yaml": "bd0ec982ea5ec50994301b50784f8da2d41d497838ea6a4f3cef63ed144aa0ca",
+      "config/r16t_groot_l10_50_k2_task_descent.yaml": "494cb76ab32954dfe2f13a72842760d8d25f51a5b08283f64a173508ff62293a",
+      "descent_table.json": "60f6cf67d5f1c00fbf1fac370c7c1711a4c5b021d04d38943ec6c570dcc6656c",
+      "eval500.json": "2c3b0477794c04b9f9925100346f0d0adbca4dcfe42f3c2eb26278f18b4d9a29"
+    },
+    "fit_sha256": {
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/artifacts/groot_l10_50_k2_task_descent.pkl": "3119c91409517e673c281595abab7a13324c35b7d13895ecadf22053cc680e9a"
+    }
+  },
+  {
+    "root": "/home/weiland/trace_runs/os_closed_loop/r16_test_groot_spatial_50_k1",
+    "final_root": "/home/weiland/trace_runs/os_closed_loop/r16_test_groot_spatial_50_k1",
+    "cell": "groot_spatial_50_k1",
+    "arms": [
+      "r16t_groot_spatial_50_k1_task_descent"
+    ],
+    "arm_count": 1,
+    "episodes_per_arm": 500,
+    "init_pool": "A",
+    "intended_host": "local",
+    "staged": false,
+    "recording": false,
+    "launches": 0,
+    "definitions_sha256": {
+      "arms.json": "81012e3a2359dfec759ae17f592a15a6db22ace53e3c039f966780f09b321a06",
+      "arms_in.json": "344ae048b278e886e004316e44f3142767d675c98cd04ecd65478d5992beafc7",
+      "config/matrix_r16t_groot_spatial_50_k1_task_descent.yaml": "4460f8c56e20e59c446e7378f401f9da9f26329865e853d10a043922153d1f27",
+      "config/r16t_groot_spatial_50_k1_task_descent.yaml": "ecd17446ec710910a1e750bb272b416a9a6264f9eb176950e7b55c67e48a595a",
+      "descent_table.json": "1bc80a056e9e55ea6103b0fa32096a667f48c3875380307b74ab9b15b6c06633",
+      "eval500.json": "2c3b0477794c04b9f9925100346f0d0adbca4dcfe42f3c2eb26278f18b4d9a29"
+    },
+    "fit_sha256": {
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/artifacts/groot_spatial_50_k1_task_descent.pkl": "357ab47b96de5c3a54acb3c990a74879614a09770b3eb6b327399abd31e5ba0b"
+    }
+  },
+  {
+    "root": "/home/weiland/trace_runs/os_closed_loop/r16_test_groot_spatial_50_k2",
+    "final_root": "/home/weiland/trace_runs/os_closed_loop/r16_test_groot_spatial_50_k2",
+    "cell": "groot_spatial_50_k2",
+    "arms": [
+      "r16t_groot_spatial_50_k2_task_descent"
+    ],
+    "arm_count": 1,
+    "episodes_per_arm": 500,
+    "init_pool": "A",
+    "intended_host": "local",
+    "staged": false,
+    "recording": false,
+    "launches": 0,
+    "definitions_sha256": {
+      "arms.json": "6799d04ff3620f6c12192eafe62c1dc320e518f2e7ad987b7b6b1f4476335fd8",
+      "arms_in.json": "d1b2e472a59af462d146fdf6e42dfa97d6e2558f3666ecde3389b3d0e7504809",
+      "config/matrix_r16t_groot_spatial_50_k2_task_descent.yaml": "80d976a6f835fd026e11bcea11434521b5ae83584dec8030d36c742eb873f2ed",
+      "config/r16t_groot_spatial_50_k2_task_descent.yaml": "4d5cb27f90336360cf630ce0b50cfb41cb5dc9ab1adfcef3403728e5ed93f094",
+      "descent_table.json": "d133a6cc95d0b96d3bcfdef6af6e8a0269eb80bc3aab997c4913e2b999258669",
+      "eval500.json": "2c3b0477794c04b9f9925100346f0d0adbca4dcfe42f3c2eb26278f18b4d9a29"
+    },
+    "fit_sha256": {
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/artifacts/groot_spatial_50_k2_task_descent.pkl": "3f24e4ab50a6dfa0a5756095e400593eed208e48e9f697e7be835cd16d6ae18f"
+    }
+  },
+  {
+    "root": "/home/weiland/trace_runs/os_closed_loop/r16_test_pi05_l10_100_k1",
+    "final_root": "/home/weiland/trace_runs/os_closed_loop/r16_test_pi05_l10_100_k1",
+    "cell": "pi05_l10_100_k1",
+    "arms": [
+      "r16t_pi05_l10_100_k1_task_descent"
+    ],
+    "arm_count": 1,
+    "episodes_per_arm": 500,
+    "init_pool": "A",
+    "intended_host": "local",
+    "staged": false,
+    "recording": false,
+    "launches": 0,
+    "definitions_sha256": {
+      "arms.json": "2e53dca87bfd6c613a58e2ffc705ba12cf376e44ecb2a613c209e75141253cc9",
+      "arms_in.json": "8abedbf787cb386ba74773fdad448328fbaaab8e27d31b68502b68607180e4e5",
+      "config/matrix_r16t_pi05_l10_100_k1_task_descent.yaml": "7eda278ba3270fabdc8192bb7fee31c96af283c07f83c9499e5497aea5fadf75",
+      "config/r16t_pi05_l10_100_k1_task_descent.yaml": "b06b1e55982725d634c9829c1867cef6e273410b44ad8becbffe7a186248773b",
+      "descent_table.json": "0b72822c6e018367fe6c6e68b5da49cefaa1c411d91c9354c7e70beb5d0c4a2e",
+      "eval500.json": "2c3b0477794c04b9f9925100346f0d0adbca4dcfe42f3c2eb26278f18b4d9a29"
+    },
+    "fit_sha256": {
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/artifacts/pi05_l10_100_k1_task_descent.pkl": "2591d3a6427b4c415001bf1ffdf8a001bed6f128169b2561310e8765f8ff3492"
+    }
+  },
+  {
+    "root": "/home/weiland/trace_runs/os_closed_loop/r16_test_pi05_l10_100_k2",
+    "final_root": "/home/weiland/trace_runs/os_closed_loop/r16_test_pi05_l10_100_k2",
+    "cell": "pi05_l10_100_k2",
+    "arms": [
+      "r16t_pi05_l10_100_k2_task_descent"
+    ],
+    "arm_count": 1,
+    "episodes_per_arm": 500,
+    "init_pool": "A",
+    "intended_host": "local",
+    "staged": false,
+    "recording": false,
+    "launches": 0,
+    "definitions_sha256": {
+      "arms.json": "ea39838d2f1f4f064c1b9afc5a1e0060f6e9451202060d0bc00f94d3aef8a0fa",
+      "arms_in.json": "8b1cbba7ec8f7c721485a76a9811717019eb93e28f8f4677d6313c5d04b3ee4b",
+      "config/matrix_r16t_pi05_l10_100_k2_task_descent.yaml": "41f8eb5d46c857acd671aa9a8c31733d16727d33826bbe4ec26aaf1693364ca8",
+      "config/r16t_pi05_l10_100_k2_task_descent.yaml": "928c385ebcadd2bb48dcdc5a9ef7afb7c5ed1f91fdfbe3c09892ecac5514897b",
+      "descent_table.json": "ed746e2a400f3b8afdb15012d55bf76e8d0a85121aaa07e8cfe256dfc5c11306",
+      "eval500.json": "2c3b0477794c04b9f9925100346f0d0adbca4dcfe42f3c2eb26278f18b4d9a29"
+    },
+    "fit_sha256": {
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/artifacts/pi05_l10_100_k2_task_descent.pkl": "7d4d4304cadb5a2461df3123466bc6a1094f5b37447b321f185a14248e6f83b9"
+    }
+  },
+  {
+    "root": "/home/weiland/trace_runs/os_closed_loop/r16_test_pi05_spatial_100_k1",
+    "final_root": "/home/weiland/trace_runs/os_closed_loop/r16_test_pi05_spatial_100_k1",
+    "cell": "pi05_spatial_100_k1",
+    "arms": [
+      "r16t_pi05_spatial_100_k1_task_descent"
+    ],
+    "arm_count": 1,
+    "episodes_per_arm": 500,
+    "init_pool": "A",
+    "intended_host": "local",
+    "staged": false,
+    "recording": false,
+    "launches": 0,
+    "definitions_sha256": {
+      "arms.json": "d7eda5c2899d4a8fd4dbfa6033e57153cae4c0efe0c63058c882565152651f78",
+      "arms_in.json": "51465d7e4052b43285e7b5bcc65c3f71cd856294eb999f01ebc9d55d071fdb46",
+      "config/matrix_r16t_pi05_spatial_100_k1_task_descent.yaml": "cd3ddd24ccaa6e187cc021df9a9055661fe384f9090c2303b8866965cd632fee",
+      "config/r16t_pi05_spatial_100_k1_task_descent.yaml": "09b2bd1ba2705d83f35715dca4c72c8b8183d9bc8209fe40a58a31c5b276afeb",
+      "descent_table.json": "12e2421bd41dd1edfdfc875a847767c676a737dc74f8e0e07f039470e9d6c629",
+      "eval500.json": "2c3b0477794c04b9f9925100346f0d0adbca4dcfe42f3c2eb26278f18b4d9a29"
+    },
+    "fit_sha256": {
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/artifacts/pi05_spatial_100_k1_task_descent.pkl": "16831e6897ca953dc8a89becbc211d402e45f721081c271dedffc2095209ece1"
+    }
+  },
+  {
+    "root": "/home/weiland/trace_runs/os_closed_loop/r16_test_pi05_spatial_100_k2",
+    "final_root": "/home/weiland/trace_runs/os_closed_loop/r16_test_pi05_spatial_100_k2",
+    "cell": "pi05_spatial_100_k2",
+    "arms": [
+      "r16t_pi05_spatial_100_k2_task_descent"
+    ],
+    "arm_count": 1,
+    "episodes_per_arm": 500,
+    "init_pool": "A",
+    "intended_host": "local",
+    "staged": false,
+    "recording": false,
+    "launches": 0,
+    "definitions_sha256": {
+      "arms.json": "e78f4ea39eed216b538d4f3975d448f1b6ba1fc8a3fac675d2f1690990a9086e",
+      "arms_in.json": "0d3c18d7d9165d8e2576e48b417c705a00fc8eea44022bd21916b584ac35c0a3",
+      "config/matrix_r16t_pi05_spatial_100_k2_task_descent.yaml": "e52c1771bfc10cc27b4ca4374f4a5847f1291481794f98b26d3fe0b22596f69f",
+      "config/r16t_pi05_spatial_100_k2_task_descent.yaml": "f9d69590c087a47884840146bbd4c869305f698eba2f5311b1c4de83c4b124fe",
+      "descent_table.json": "607e052aa03cb3799c5b2db99cccf0595a7f2aa362745d25e7b3e3989d4d6f73",
+      "eval500.json": "2c3b0477794c04b9f9925100346f0d0adbca4dcfe42f3c2eb26278f18b4d9a29"
+    },
+    "fit_sha256": {
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/artifacts/pi05_spatial_100_k2_task_descent.pkl": "0934a0444c34ecaee9eeb8ff7ba4731acfbe39dbcdc7ebacf3d5205498d4a8cb"
+    }
+  },
+  {
+    "root": "/home/weiland/trace_runs/os_closed_loop/r16_test_groot_l10_100_k1",
+    "final_root": "/home/weiland/trace_runs/os_closed_loop/r16_test_groot_l10_100_k1",
+    "cell": "groot_l10_100_k1",
+    "arms": [
+      "r16t_groot_l10_100_k1_task_descent"
+    ],
+    "arm_count": 1,
+    "episodes_per_arm": 500,
+    "init_pool": "A",
+    "intended_host": "local",
+    "staged": false,
+    "recording": false,
+    "launches": 0,
+    "definitions_sha256": {
+      "arms.json": "4b7b691e321589c94912b79b7ab08d96233b13dc7d5cd064ff8bc33a0bf10535",
+      "arms_in.json": "0a48a5d2061b46e87b58ffcbc7e6e643322afe982e18ebcda56acf0af2e3846c",
+      "config/matrix_r16t_groot_l10_100_k1_task_descent.yaml": "db306da64e068544ee24018e962d677a95501eaff5216cf173c123a226141aea",
+      "config/r16t_groot_l10_100_k1_task_descent.yaml": "a510bfb231b923a5df7769d296b8681455bae169cc6d8514a0448a939b5579bd",
+      "descent_table.json": "47877ee4de0d12bd72ae7003e34e1f6d29be76e949f6ec09c6be3450b6e97013",
+      "eval500.json": "2c3b0477794c04b9f9925100346f0d0adbca4dcfe42f3c2eb26278f18b4d9a29"
+    },
+    "fit_sha256": {
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/artifacts/groot_l10_100_k1_task_descent.pkl": "758ed2ff92389b2afb00071dbdc656eac4f5b9c548bf221fe6110d519eb0b25d"
+    }
+  },
+  {
+    "root": "/home/weiland/trace_runs/os_closed_loop/r16_test_groot_l10_100_k2",
+    "final_root": "/home/weiland/trace_runs/os_closed_loop/r16_test_groot_l10_100_k2",
+    "cell": "groot_l10_100_k2",
+    "arms": [
+      "r16t_groot_l10_100_k2_task_descent"
+    ],
+    "arm_count": 1,
+    "episodes_per_arm": 500,
+    "init_pool": "A",
+    "intended_host": "local",
+    "staged": false,
+    "recording": false,
+    "launches": 0,
+    "definitions_sha256": {
+      "arms.json": "4d44f85790f03be29eefb78e31a5e66f2bf17632c229da2000866ae06559475f",
+      "arms_in.json": "3b1dd0fef0a9ac879106f854a6a52d3d381cf2849357012491613f52e3893cda",
+      "config/matrix_r16t_groot_l10_100_k2_task_descent.yaml": "8ddffe9c701adab29496ac1212c2128d063e35b7e1fdeaee4045b76fef1f42cd",
+      "config/r16t_groot_l10_100_k2_task_descent.yaml": "83b26c47ca76a2a64c94d6330f226b37f45272032d6fb71cec554b96131a0b6a",
+      "descent_table.json": "8f5a41885aeacb555f2e339902d5af23cd0595b32507a5ea4288a9382bba1ec7",
+      "eval500.json": "2c3b0477794c04b9f9925100346f0d0adbca4dcfe42f3c2eb26278f18b4d9a29"
+    },
+    "fit_sha256": {
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/artifacts/groot_l10_100_k2_task_descent.pkl": "d3d21ed3ea94f909e096d277ae61cef96c8930aaf21ff9cc7ef98a362221a9f4"
+    }
+  },
+  {
+    "root": "/home/weiland/trace_runs/os_closed_loop/r16_test_groot_spatial_100_k1",
+    "final_root": "/home/weiland/trace_runs/os_closed_loop/r16_test_groot_spatial_100_k1",
+    "cell": "groot_spatial_100_k1",
+    "arms": [
+      "r16t_groot_spatial_100_k1_task_descent"
+    ],
+    "arm_count": 1,
+    "episodes_per_arm": 500,
+    "init_pool": "A",
+    "intended_host": "local",
+    "staged": false,
+    "recording": false,
+    "launches": 0,
+    "definitions_sha256": {
+      "arms.json": "8e71b5fa1463072ecfab68b207cbac28c25c28a5a46510971afa7b3ee5f4401c",
+      "arms_in.json": "73dcdd0a9a45cf531a3fe09d256d5ce4f2731a3a870c3f85ea0b7b0255714a21",
+      "config/matrix_r16t_groot_spatial_100_k1_task_descent.yaml": "0846d8534898da9603e232dae852bb0f25bca824e842e19944fbce0645c0fe40",
+      "config/r16t_groot_spatial_100_k1_task_descent.yaml": "54b8f0ac27cb30a395b9551a8beaeb2fef230dfc1c3b706453ba869ed9ca9a69",
+      "descent_table.json": "91cc447628f0220f49eb6b246c14a61bccf56ec917b517bd598b784bc58d85b6",
+      "eval500.json": "2c3b0477794c04b9f9925100346f0d0adbca4dcfe42f3c2eb26278f18b4d9a29"
+    },
+    "fit_sha256": {
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/artifacts/groot_spatial_100_k1_task_descent.pkl": "814f3eccf39cf5d6622a545c04693fe65af6c8712974b9d13b540ec5766cc673"
+    }
+  },
+  {
+    "root": "/home/weiland/trace_runs/os_closed_loop/r16_test_groot_spatial_100_k2",
+    "final_root": "/home/weiland/trace_runs/os_closed_loop/r16_test_groot_spatial_100_k2",
+    "cell": "groot_spatial_100_k2",
+    "arms": [
+      "r16t_groot_spatial_100_k2_task_descent"
+    ],
+    "arm_count": 1,
+    "episodes_per_arm": 500,
+    "init_pool": "A",
+    "intended_host": "local",
+    "staged": false,
+    "recording": false,
+    "launches": 0,
+    "definitions_sha256": {
+      "arms.json": "912c6686c9f27cf64a1dc4cb5f6b66f62599791cbd48b8a213ef508f81ac189b",
+      "arms_in.json": "ac134ad789ed6bcd92fe77c4590068fb785c8bbb7269e4579b9f0cde4a1c6b41",
+      "config/matrix_r16t_groot_spatial_100_k2_task_descent.yaml": "4992691c495f5de5ffd2203901bbefa26ea7592d5e95bd436331dc1357ff9d52",
+      "config/r16t_groot_spatial_100_k2_task_descent.yaml": "eae7d4ee29871cf5cdd7bf31056d07dc216f05ebad3f5c07e015abd238272517",
+      "descent_table.json": "94c7cde9c2b7eed6963ae53eb4c4dd10c41a29aaf57c4c6b13e0e3be708e9a90",
+      "eval500.json": "2c3b0477794c04b9f9925100346f0d0adbca4dcfe42f3c2eb26278f18b4d9a29"
+    },
+    "fit_sha256": {
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/artifacts/groot_spatial_100_k2_task_descent.pkl": "f22ac47d0c372410b08c6af11552fb49ab00832dc9a494428b37f7b96b22f660"
+    }
+  },
+  {
+    "root": "/home/weiland/trace_runs/os_closed_loop/r16_test_pi05_l10_200_k1",
+    "final_root": "/home/weiland/trace_runs/os_closed_loop/r16_test_pi05_l10_200_k1",
+    "cell": "pi05_l10_200_k1",
+    "arms": [
+      "r16t_pi05_l10_200_k1_task_descent"
+    ],
+    "arm_count": 1,
+    "episodes_per_arm": 500,
+    "init_pool": "A",
+    "intended_host": "local",
+    "staged": false,
+    "recording": false,
+    "launches": 0,
+    "definitions_sha256": {
+      "arms.json": "39321326400ce4fc1faa9072f8fc5529f07fd017527a16d1cdbd2aa0cf557c75",
+      "arms_in.json": "c557a4ffd0d91e2eed6f3c42299015c4ad34fc11d0d104190bf8b757caf6555d",
+      "config/matrix_r16t_pi05_l10_200_k1_task_descent.yaml": "b7146f80d28835cedba2a0c9b47320f23bc507de14db12502e5636e3002fdff2",
+      "config/r16t_pi05_l10_200_k1_task_descent.yaml": "8fb67d890cbb4b3c0bd869d0af176ce7c3e9fe30bdba265928eb8648d17ed146",
+      "descent_table.json": "c519ed4e3226090188e7e37eb38fcf595d4eb69e4854b326e92be01c2349b41d",
+      "eval500.json": "2c3b0477794c04b9f9925100346f0d0adbca4dcfe42f3c2eb26278f18b4d9a29"
+    },
+    "fit_sha256": {
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/artifacts/pi05_l10_200_k1_task_descent.pkl": "dbe41b1bc1150ab8c0d1b71992e69e4d4a0bbe095e37b8fac2204bd2e4fcd6b4"
+    }
+  },
+  {
+    "root": "/home/weiland/trace_runs/os_closed_loop/r16_test_pi05_l10_200_k2",
+    "final_root": "/home/weiland/trace_runs/os_closed_loop/r16_test_pi05_l10_200_k2",
+    "cell": "pi05_l10_200_k2",
+    "arms": [
+      "r16t_pi05_l10_200_k2_task_descent"
+    ],
+    "arm_count": 1,
+    "episodes_per_arm": 500,
+    "init_pool": "A",
+    "intended_host": "local",
+    "staged": false,
+    "recording": false,
+    "launches": 0,
+    "definitions_sha256": {
+      "arms.json": "b866078a46509c0842df9c0f337d857d5a19a2a08eb8a00db7e86a66ebcaefd4",
+      "arms_in.json": "1bab7ce62d73240f592afac844bbbeccfc33b5cc56469c30240b09ba9dc602bf",
+      "config/matrix_r16t_pi05_l10_200_k2_task_descent.yaml": "9f4c41605bfeb99d94c81ef7e8042ae7c5cbe157f8ea53b9788fa6d409cc372a",
+      "config/r16t_pi05_l10_200_k2_task_descent.yaml": "d86357eeb92c12e89688a6b715638f708802d04cb6fc60bfa7a477956c200549",
+      "descent_table.json": "3c1768c9ef2f2e8b4d2f2817b4d9c90768f7dbe5b0c6b7f3051e1fe3b4ce855b",
+      "eval500.json": "2c3b0477794c04b9f9925100346f0d0adbca4dcfe42f3c2eb26278f18b4d9a29"
+    },
+    "fit_sha256": {
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/artifacts/pi05_l10_200_k2_task_descent.pkl": "0fdd4145672936ccaf01f4589e1d2c7d7e4edee3543ab3ea9bd9e4ac2e716f9b"
+    }
+  },
+  {
+    "root": "/home/weiland/trace_runs/os_closed_loop/r16_test_pi05_spatial_200_k1",
+    "final_root": "/home/weiland/trace_runs/os_closed_loop/r16_test_pi05_spatial_200_k1",
+    "cell": "pi05_spatial_200_k1",
+    "arms": [
+      "r16t_pi05_spatial_200_k1_task_descent"
+    ],
+    "arm_count": 1,
+    "episodes_per_arm": 500,
+    "init_pool": "A",
+    "intended_host": "local",
+    "staged": false,
+    "recording": false,
+    "launches": 0,
+    "definitions_sha256": {
+      "arms.json": "a22dd3a1b92fc81133295e91a48f68b67a84c1f35c23eb8a94d5656ded7563a7",
+      "arms_in.json": "062b8ced17697791565b66bf53a9ebb9996cb44ad6d92f1d55c0480eeb30ef40",
+      "config/matrix_r16t_pi05_spatial_200_k1_task_descent.yaml": "ba467e45ee9311aca6d083580c70c0df3da3a0c2b77599659653cf75bdca9ea1",
+      "config/r16t_pi05_spatial_200_k1_task_descent.yaml": "80ad591d967470ad58b25237004090135ec6b34ae156921073956046096ac2a9",
+      "descent_table.json": "db549b441fb0ef80ac8302db0d14c10da0acd098be60b4e9e48e5c2f7d393391",
+      "eval500.json": "2c3b0477794c04b9f9925100346f0d0adbca4dcfe42f3c2eb26278f18b4d9a29"
+    },
+    "fit_sha256": {
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/artifacts/pi05_spatial_200_k1_task_descent.pkl": "b241e594d71f72650d6f01c26a4f17a9b58bb1747ac74f9e7b5c842495fa1959"
+    }
+  },
+  {
+    "root": "/home/weiland/trace_runs/os_closed_loop/r16_test_pi05_spatial_200_k2",
+    "final_root": "/home/weiland/trace_runs/os_closed_loop/r16_test_pi05_spatial_200_k2",
+    "cell": "pi05_spatial_200_k2",
+    "arms": [
+      "r16t_pi05_spatial_200_k2_task_descent"
+    ],
+    "arm_count": 1,
+    "episodes_per_arm": 500,
+    "init_pool": "A",
+    "intended_host": "local",
+    "staged": false,
+    "recording": false,
+    "launches": 0,
+    "definitions_sha256": {
+      "arms.json": "fe566047b14207325b153a83287441ff1cd92654dbb022508c220b0389f1de2e",
+      "arms_in.json": "c1d3fe6e0681a3b7d6068fe990dfcfde15e7c6d75d139593db7fc648c6eff57d",
+      "config/matrix_r16t_pi05_spatial_200_k2_task_descent.yaml": "3c79b6189825da3463025999b1a80de0e1e6a07952ae4516bd200bf6619d37e9",
+      "config/r16t_pi05_spatial_200_k2_task_descent.yaml": "c88282d984f462b73cebff64084892ec648f58819af6f045d62a16abeeb0daa7",
+      "descent_table.json": "f7d77d61af8b920377e4aa07179804584f4e1af4ee71d165cba3015bbfbb8413",
+      "eval500.json": "2c3b0477794c04b9f9925100346f0d0adbca4dcfe42f3c2eb26278f18b4d9a29"
+    },
+    "fit_sha256": {
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/artifacts/pi05_spatial_200_k2_task_descent.pkl": "8306464de721e271f8c4b89291e9f4047ab8b7f52d4f5d8a22a26367515bf720"
+    }
+  },
+  {
+    "root": "/home/weiland/trace_runs/os_closed_loop/r16_test_groot_l10_200_k1",
+    "final_root": "/home/weiland/trace_runs/os_closed_loop/r16_test_groot_l10_200_k1",
+    "cell": "groot_l10_200_k1",
+    "arms": [
+      "r16t_groot_l10_200_k1_task_descent"
+    ],
+    "arm_count": 1,
+    "episodes_per_arm": 500,
+    "init_pool": "A",
+    "intended_host": "local",
+    "staged": false,
+    "recording": false,
+    "launches": 0,
+    "definitions_sha256": {
+      "arms.json": "21b3b7ab9711ed88ef542ee98157e5969c3ab39d6a1d6bd79a7089d3c5d9a924",
+      "arms_in.json": "352d0113142a062b244ab0308b67ee0e449d4c152952389766cfd5d8b9669b8f",
+      "config/matrix_r16t_groot_l10_200_k1_task_descent.yaml": "6e891f8976fc89fe0313add2dd8a2028e4aee477620c35b4f4b1fa3f51a9946b",
+      "config/r16t_groot_l10_200_k1_task_descent.yaml": "3218d5727404836d2a64c05e37f39a7c41d8475699d6d09f2ffb6ad3a86155e4",
+      "descent_table.json": "23a02d8c54485796f918aa0ed2e9902a3ceb41f5ae3476c72530683302c9bab5",
+      "eval500.json": "2c3b0477794c04b9f9925100346f0d0adbca4dcfe42f3c2eb26278f18b4d9a29"
+    },
+    "fit_sha256": {
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/artifacts/groot_l10_200_k1_task_descent.pkl": "f3f5898e34953060d4c177f1f31626518bab4df45c3762887f8522ffd3fe8166"
+    }
+  },
+  {
+    "root": "/home/weiland/trace_runs/os_closed_loop/r16_test_groot_l10_200_k2",
+    "final_root": "/home/weiland/trace_runs/os_closed_loop/r16_test_groot_l10_200_k2",
+    "cell": "groot_l10_200_k2",
+    "arms": [
+      "r16t_groot_l10_200_k2_task_descent"
+    ],
+    "arm_count": 1,
+    "episodes_per_arm": 500,
+    "init_pool": "A",
+    "intended_host": "local",
+    "staged": false,
+    "recording": false,
+    "launches": 0,
+    "definitions_sha256": {
+      "arms.json": "03d15d659e01898aee5b5baea2b4abd507b14efa6c39731e4261bb725c2ae538",
+      "arms_in.json": "88d380d5d8fe7954c4cc3cb345d1a2493fb91d17b8a2270a304dc8cbf2d23969",
+      "config/matrix_r16t_groot_l10_200_k2_task_descent.yaml": "f1b718a98cf22fd2d1d9680993aa1c440340389940669fbdf772815052db0f69",
+      "config/r16t_groot_l10_200_k2_task_descent.yaml": "113f5a063ee1c4adbf5d643f7528b3e624f9a0549dd118f32af4fed3eb16783f",
+      "descent_table.json": "0e31b1e800ec23e125cca9c18246772689fb57d210195b1864c082d0205963d9",
+      "eval500.json": "2c3b0477794c04b9f9925100346f0d0adbca4dcfe42f3c2eb26278f18b4d9a29"
+    },
+    "fit_sha256": {
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/artifacts/groot_l10_200_k2_task_descent.pkl": "96fe60b8b519f32200fe480264c82de29371f0cfcaea63130c9da157a2572fd3"
+    }
+  },
+  {
+    "root": "/home/weiland/trace_runs/os_closed_loop/r16_test_groot_spatial_200_k1",
+    "final_root": "/home/weiland/trace_runs/os_closed_loop/r16_test_groot_spatial_200_k1",
+    "cell": "groot_spatial_200_k1",
+    "arms": [
+      "r16t_groot_spatial_200_k1_task_descent"
+    ],
+    "arm_count": 1,
+    "episodes_per_arm": 500,
+    "init_pool": "A",
+    "intended_host": "local",
+    "staged": false,
+    "recording": false,
+    "launches": 0,
+    "definitions_sha256": {
+      "arms.json": "0744323e90d4b13718abd483cff1d7af2a0a72d6d8488fa8c74396a5cc6bfb4f",
+      "arms_in.json": "857369b816536194a2a3eea14812ff3ad9d4342f52c1fb86b5dfc9d200b72827",
+      "config/matrix_r16t_groot_spatial_200_k1_task_descent.yaml": "4264af151800d9d3466b3cd51681c49d744b93ff22587cd4a33a245a6e90822c",
+      "config/r16t_groot_spatial_200_k1_task_descent.yaml": "cee27c167e4037fdcbf4ba4451e795a76e13d773ea038775fd3ddaf3849c0c30",
+      "descent_table.json": "c6821849bc36b218a850775d40c2046bf004eeba9cfe12eb7f1dfcc414b878e3",
+      "eval500.json": "2c3b0477794c04b9f9925100346f0d0adbca4dcfe42f3c2eb26278f18b4d9a29"
+    },
+    "fit_sha256": {
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/artifacts/groot_spatial_200_k1_task_descent.pkl": "2f1dfc0aedbef42fff35cafb3f81954f06ff8ae913d6b1da7e5c3510fee21653"
+    }
+  },
+  {
+    "root": "/home/weiland/trace_runs/os_closed_loop/r16_test_groot_spatial_200_k2",
+    "final_root": "/home/weiland/trace_runs/os_closed_loop/r16_test_groot_spatial_200_k2",
+    "cell": "groot_spatial_200_k2",
+    "arms": [
+      "r16t_groot_spatial_200_k2_task_descent"
+    ],
+    "arm_count": 1,
+    "episodes_per_arm": 500,
+    "init_pool": "A",
+    "intended_host": "local",
+    "staged": false,
+    "recording": false,
+    "launches": 0,
+    "definitions_sha256": {
+      "arms.json": "09807b3ae326a49e37c38aa0781a69a4a3f263f631a99e6b9162f613d980b4b5",
+      "arms_in.json": "7e729e2cdc30de4e26445ac4c87bc18a9cc3bb7cb891db06699621cbc1caeb3a",
+      "config/matrix_r16t_groot_spatial_200_k2_task_descent.yaml": "5961c5790a6ecc6f03c5a9da2ef60b9b3fcdbb4babed453021d31a64d96cbb67",
+      "config/r16t_groot_spatial_200_k2_task_descent.yaml": "9b2f4d7c583bc22ac0aa6b2fb49c854694da0413be576c57ddbd1448dbacda19",
+      "descent_table.json": "684b4c1fa577992d1230f53cf1bdb605b60d43e20cce9b4c488ebab7f82e1e42",
+      "eval500.json": "2c3b0477794c04b9f9925100346f0d0adbca4dcfe42f3c2eb26278f18b4d9a29"
+    },
+    "fit_sha256": {
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/artifacts/groot_spatial_200_k2_task_descent.pkl": "b9d2ba7da5e6876ffc8d2cc3e85aa612b40dd04ad8a89a2a0f687a62dcac9264"
+    }
+  },
+  {
+    "root": "/home/weiland/trace_runs/os_closed_loop/r16_test_pi05_l10_500_k1",
+    "final_root": "/home/weiland/trace_runs/os_closed_loop/r16_test_pi05_l10_500_k1",
+    "cell": "pi05_l10_500_k1",
+    "arms": [
+      "r16t_pi05_l10_500_k1_task_descent"
+    ],
+    "arm_count": 1,
+    "episodes_per_arm": 500,
+    "init_pool": "A",
+    "intended_host": "local",
+    "staged": false,
+    "recording": false,
+    "launches": 0,
+    "definitions_sha256": {
+      "arms.json": "c0a5681f27567fb95163ad249de051ba24f2c5f7363e1e28c5d1d22c8a34c0e4",
+      "arms_in.json": "eaa6c5596fd0b41bd5005d2de2c302c13a1db7007f361b298dc7a529b6c083bb",
+      "config/matrix_r16t_pi05_l10_500_k1_task_descent.yaml": "c7c78abb45369ad1e6a52ed2f9ea0e25cf7c1e5af336b9226fbb49fc8b3bf822",
+      "config/r16t_pi05_l10_500_k1_task_descent.yaml": "aa3fc8331806860d59986ab8d39846d515498309924b1707240d7d382bc5e060",
+      "descent_table.json": "07ae84dc0f8c72ab522338bb16b3facab6e7582cc30bcd3e088c8cb4af0015a8",
+      "eval500.json": "2c3b0477794c04b9f9925100346f0d0adbca4dcfe42f3c2eb26278f18b4d9a29"
+    },
+    "fit_sha256": {
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/artifacts/pi05_l10_500_k1_task_descent.pkl": "1d957cfef322cb3590e0f7472ce847015499542f524047606a3671500cdcef93"
+    }
+  },
+  {
+    "root": "/home/weiland/trace_runs/os_closed_loop/r16_test_pi05_l10_500_k2",
+    "final_root": "/home/weiland/trace_runs/os_closed_loop/r16_test_pi05_l10_500_k2",
+    "cell": "pi05_l10_500_k2",
+    "arms": [
+      "r16t_pi05_l10_500_k2_task_descent"
+    ],
+    "arm_count": 1,
+    "episodes_per_arm": 500,
+    "init_pool": "A",
+    "intended_host": "local",
+    "staged": false,
+    "recording": false,
+    "launches": 0,
+    "definitions_sha256": {
+      "arms.json": "b5665c8ac50419c81d9d0e0c19cf00ca49a5c9ddff2d1452c07aeba4d02b17a5",
+      "arms_in.json": "24e4b31a029c4ecde28f7f90b251307ac02fd574f8a8ecbb763aafb5964d6017",
+      "config/matrix_r16t_pi05_l10_500_k2_task_descent.yaml": "0e1975c6a5445b887f2f109bb33fd474d8fcbb59775ed3dcebcb2c271400507f",
+      "config/r16t_pi05_l10_500_k2_task_descent.yaml": "d77ec0465ee7870955103f89452dab8298b51f9418dd963f777e35d3f0dc9e1b",
+      "descent_table.json": "8a164d916e43bd39e54964626adaf82f31e87cd921f0d7ebde57b365bc3ba8ff",
+      "eval500.json": "2c3b0477794c04b9f9925100346f0d0adbca4dcfe42f3c2eb26278f18b4d9a29"
+    },
+    "fit_sha256": {
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/artifacts/pi05_l10_500_k2_task_descent.pkl": "1cb4aaa06b4d48a76310f8968b2c334b0b1e5a5e33579d69b1fbe847f854a0e5"
+    }
+  },
+  {
+    "root": "/home/weiland/trace_runs/os_closed_loop/r16_test_pi05_spatial_500_k1",
+    "final_root": "/home/weiland/trace_runs/os_closed_loop/r16_test_pi05_spatial_500_k1",
+    "cell": "pi05_spatial_500_k1",
+    "arms": [
+      "r16t_pi05_spatial_500_k1_task_descent"
+    ],
+    "arm_count": 1,
+    "episodes_per_arm": 500,
+    "init_pool": "A",
+    "intended_host": "local",
+    "staged": false,
+    "recording": false,
+    "launches": 0,
+    "definitions_sha256": {
+      "arms.json": "ce294211aae0f9bd4345f0820860c3d7c4386551f31113b3077a6aa353ae8379",
+      "arms_in.json": "83750cb52eb59ef0e23bf17c761b66bd2d2ee32efccbb2158b2cfa97ef78bafd",
+      "config/matrix_r16t_pi05_spatial_500_k1_task_descent.yaml": "57b67afdb3bae1c7f954db6f54a749b6569e9bf9b1cf0f3a5651140301ecd61e",
+      "config/r16t_pi05_spatial_500_k1_task_descent.yaml": "5fea858637bc6f0b3bc7b524d0cde38972026ac10ffa0041e9b23fd6542b5e8b",
+      "descent_table.json": "0191d5034c800a900bd09f55d866eab2e90c2d2bc6e3151df0d3d6c401635021",
+      "eval500.json": "2c3b0477794c04b9f9925100346f0d0adbca4dcfe42f3c2eb26278f18b4d9a29"
+    },
+    "fit_sha256": {
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/artifacts/pi05_spatial_500_k1_task_descent.pkl": "b4d79745469cfc56358e4b91e64a5bcbf3b0533f775efc9f4d158b42544ea82a"
+    }
+  },
+  {
+    "root": "/home/weiland/trace_runs/os_closed_loop/r16_test_pi05_spatial_500_k2",
+    "final_root": "/home/weiland/trace_runs/os_closed_loop/r16_test_pi05_spatial_500_k2",
+    "cell": "pi05_spatial_500_k2",
+    "arms": [
+      "r16t_pi05_spatial_500_k2_task_descent"
+    ],
+    "arm_count": 1,
+    "episodes_per_arm": 500,
+    "init_pool": "A",
+    "intended_host": "local",
+    "staged": false,
+    "recording": false,
+    "launches": 0,
+    "definitions_sha256": {
+      "arms.json": "164a50fa01e63355957109adc9f87f5641460d774d9b02b0f8e76a073bd7627c",
+      "arms_in.json": "9bdb23a0d4c81c6173ed8f9ae7ff6f3e054fc796b77205e828e5ac02ac97e0a4",
+      "config/matrix_r16t_pi05_spatial_500_k2_task_descent.yaml": "20570d30d2834e41955641d3e2f33c425521847267e2796a667be9ce409ea969",
+      "config/r16t_pi05_spatial_500_k2_task_descent.yaml": "286930cfd6502dbeebb14581cfcd00db95af10261d665cbfd8ea4855bd0db5c5",
+      "descent_table.json": "f491ad28606117c5aeac1d4c6a5d8cdb77e67a5d312a87665e3e7db82e88707e",
+      "eval500.json": "2c3b0477794c04b9f9925100346f0d0adbca4dcfe42f3c2eb26278f18b4d9a29"
+    },
+    "fit_sha256": {
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/artifacts/pi05_spatial_500_k2_task_descent.pkl": "fc9a7474221d9ec85d2f758508201093a565d5c9127a39d7bf1b3af251cc642f"
+    }
+  },
+  {
+    "root": "/home/weiland/trace_runs/os_closed_loop/r16_test_groot_l10_500_k1",
+    "final_root": "/home/weiland/trace_runs/os_closed_loop/r16_test_groot_l10_500_k1",
+    "cell": "groot_l10_500_k1",
+    "arms": [
+      "r16t_groot_l10_500_k1_task_descent"
+    ],
+    "arm_count": 1,
+    "episodes_per_arm": 500,
+    "init_pool": "A",
+    "intended_host": "local",
+    "staged": false,
+    "recording": false,
+    "launches": 0,
+    "definitions_sha256": {
+      "arms.json": "bafc7e78a1acac80d8b51a91002edf0c18501d68758e38a5c2cc003efa4db061",
+      "arms_in.json": "45fef3213d724f0787c4aab05783c99079dddc59af2f4b93594f963af914af8b",
+      "config/matrix_r16t_groot_l10_500_k1_task_descent.yaml": "4625edb2774e9a24fc1513650e7f802d02b4eca8facb4fca9d92ab8baef632fe",
+      "config/r16t_groot_l10_500_k1_task_descent.yaml": "43a6310916c162e21fff62faf90a834c43752346b1b28aaf9d00e5c9ff5fd410",
+      "descent_table.json": "e105a773ccf5363d083b55b6360e0b53a61e3b1d7d9c3636ebae09b751fce8f5",
+      "eval500.json": "2c3b0477794c04b9f9925100346f0d0adbca4dcfe42f3c2eb26278f18b4d9a29"
+    },
+    "fit_sha256": {
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/artifacts/groot_l10_500_k1_task_descent.pkl": "8c8ee5397eee2d883158462f9d786ddcf6dac8405c18e6dc9933a9b276f5084e"
+    }
+  },
+  {
+    "root": "/home/weiland/trace_runs/os_closed_loop/r16_test_groot_l10_500_k2",
+    "final_root": "/home/weiland/trace_runs/os_closed_loop/r16_test_groot_l10_500_k2",
+    "cell": "groot_l10_500_k2",
+    "arms": [
+      "r16t_groot_l10_500_k2_task_descent"
+    ],
+    "arm_count": 1,
+    "episodes_per_arm": 500,
+    "init_pool": "A",
+    "intended_host": "local",
+    "staged": false,
+    "recording": false,
+    "launches": 0,
+    "definitions_sha256": {
+      "arms.json": "27c5e6a9c6cf5356753a077cb4607d143d4933c0e5d067d83a9259a2a48c5b38",
+      "arms_in.json": "3fadbe8d62c6a80eb4345277ee90d4d4035db2d53d8ba3fc3351f2e6ab82e35a",
+      "config/matrix_r16t_groot_l10_500_k2_task_descent.yaml": "6c9996bb4f9caf5fe3396e0f644b08fc763717db02a602329eebd3426cde1a0a",
+      "config/r16t_groot_l10_500_k2_task_descent.yaml": "3c6ca31e1148e3da010ace7901d386a808d05dc797a08a868b7128e2811dfff0",
+      "descent_table.json": "18edc134d099952705163fc7aacf4257f4c784cce73b28c9b734665bee90bbf1",
+      "eval500.json": "2c3b0477794c04b9f9925100346f0d0adbca4dcfe42f3c2eb26278f18b4d9a29"
+    },
+    "fit_sha256": {
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/artifacts/groot_l10_500_k2_task_descent.pkl": "f582de2f0694377c1d66a291251115721515cabac4cac40e2424e4a1684ec499"
+    }
+  },
+  {
+    "root": "/home/weiland/trace_runs/os_closed_loop/r16_test_groot_spatial_500_k1",
+    "final_root": "/home/weiland/trace_runs/os_closed_loop/r16_test_groot_spatial_500_k1",
+    "cell": "groot_spatial_500_k1",
+    "arms": [
+      "r16t_groot_spatial_500_k1_task_descent"
+    ],
+    "arm_count": 1,
+    "episodes_per_arm": 500,
+    "init_pool": "A",
+    "intended_host": "local",
+    "staged": false,
+    "recording": false,
+    "launches": 0,
+    "definitions_sha256": {
+      "arms.json": "73d639752ce59ed12059ded432f476af49f1e232339e880483817d93a36af4d2",
+      "arms_in.json": "1965f2639c7a77173b5224c504c95c67d70d00fa0622f7b29b20f448177e5df1",
+      "config/matrix_r16t_groot_spatial_500_k1_task_descent.yaml": "02ad14c090978f37f99752bd4520a7c4c33a5542781d40a852a529377ff4b5a1",
+      "config/r16t_groot_spatial_500_k1_task_descent.yaml": "dbd512bdb1ed99bdfdb2a83c7d41c5a53ba551d7cda876eb48c9733d80562dac",
+      "descent_table.json": "fd6da8c03d23dec2db94fab570fddd97f4c29e255dad46f0f997a5b88b40a441",
+      "eval500.json": "2c3b0477794c04b9f9925100346f0d0adbca4dcfe42f3c2eb26278f18b4d9a29"
+    },
+    "fit_sha256": {
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/artifacts/groot_spatial_500_k1_task_descent.pkl": "6f5c551903e15a2648a2408f25451cde8dc50b259f107a21945376b59ab8965c"
+    }
+  },
+  {
+    "root": "/home/weiland/trace_runs/os_closed_loop/r16_test_groot_spatial_500_k2",
+    "final_root": "/home/weiland/trace_runs/os_closed_loop/r16_test_groot_spatial_500_k2",
+    "cell": "groot_spatial_500_k2",
+    "arms": [
+      "r16t_groot_spatial_500_k2_task_descent"
+    ],
+    "arm_count": 1,
+    "episodes_per_arm": 500,
+    "init_pool": "A",
+    "intended_host": "local",
+    "staged": false,
+    "recording": false,
+    "launches": 0,
+    "definitions_sha256": {
+      "arms.json": "d1fe07b7ba97434aeb737fcc04d945d18b67538d9a2b0774e51af665cb9209a1",
+      "arms_in.json": "a8a53debf6798d6358978987b8880b97e686fa9168372305bec0f93bdbea62c6",
+      "config/matrix_r16t_groot_spatial_500_k2_task_descent.yaml": "a88e865f09b65e7d9fd6580e27b94f085c5d39617e803c2e5521a0762b292ee5",
+      "config/r16t_groot_spatial_500_k2_task_descent.yaml": "0dc48664e264c7fcce0f7fa91cea7ebf15f2c6ef4b16283dc722392d18bbc813",
+      "descent_table.json": "f850deaeef2abe4e5ae7a9a28798cdf0d5cbd09809c711b148d6661f1597cfea",
+      "eval500.json": "2c3b0477794c04b9f9925100346f0d0adbca4dcfe42f3c2eb26278f18b4d9a29"
+    },
+    "fit_sha256": {
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/artifacts/groot_spatial_500_k2_task_descent.pkl": "67eddc526221e8b061075f5371db6a5e577e9aa70c17466a4efcd1fc1f28762f"
+    }
+  }
+]

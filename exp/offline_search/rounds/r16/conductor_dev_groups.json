@@ -1,0 +1,911 @@
+{
+  "groups": [
+    "/home/weiland/trace_runs/os_closed_loop/r16_conductor_dev_pi05_k1_v1/group.json",
+    "/home/weiland/trace_runs/os_closed_loop/r16_conductor_dev_pi05_k2_v1/group.json",
+    "/home/weiland/trace_runs/os_closed_loop/r16_conductor_dev_groot_k1_v1/group.json",
+    "/home/weiland/trace_runs/os_closed_loop/r16_conductor_dev_groot_k2_v1/group.json"
+  ],
+  "completed_reuse": [
+    "r15d_r16_pi05_l10_50_k1_ir45",
+    "r16d_groot_l10_100plus_k1_pure_c10",
+    "r16d_groot_l10_100plus_k2_pure_c10",
+    "r16d_groot_l10_50_k1_pure_c10",
+    "r16d_groot_l10_50_k2_pure_c10",
+    "r16d_groot_spatial_100plus_k1_pure_c10",
+    "r16d_groot_spatial_100plus_k2_pure_c10",
+    "r16d_groot_spatial_50_k1_pure_c10",
+    "r16d_groot_spatial_50_k2_pure_c10",
+    "r16d_pi05_l10_100plus_k1_pure_c10",
+    "r16d_pi05_l10_100plus_k2_pure_c10",
+    "r16d_pi05_l10_50_k1_pure_c10",
+    "r16d_pi05_l10_50_k2_pure_c10",
+    "r16d_pi05_spatial_100plus_k1_pure_c10",
+    "r16d_pi05_spatial_100plus_k2_pure_c10",
+    "r16d_pi05_spatial_50_k1_pure_c10",
+    "r16d_pi05_spatial_50_k2_pure_c10"
+  ],
+  "inventory": [
+    {
+      "arm": "r15d_r16_pi05_l10_50_k1_ir45",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_l10_50_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_l10_50_k1_ir40",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_l10_50_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_l10_50_k1_ir32",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_l10_50_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_l10_50_k1_ir25",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_l10_50_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_l10_50_k1_off",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_l10_50_k1",
+      "completed": false
+    },
+    {
+      "arm": "r16d_pi05_l10_50_k1_pure_c10",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_c10_pi05_l10_50_k1",
+      "completed": true
+    },
+    {
+      "arm": "r15d_r16_pi05_l10_50_k2_ir45",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_l10_50_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_l10_50_k2_ir40",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_l10_50_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_l10_50_k2_ir32",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_l10_50_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_l10_50_k2_ir25",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_l10_50_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_l10_50_k2_off",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_l10_50_k2",
+      "completed": false
+    },
+    {
+      "arm": "r16d_pi05_l10_50_k2_pure_c10",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_c10_pi05_l10_50_k2",
+      "completed": true
+    },
+    {
+      "arm": "r15d_r16_pi05_spatial_50_k1_ir45",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_spatial_50_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_spatial_50_k1_ir40",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_spatial_50_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_spatial_50_k1_ir32",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_spatial_50_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_spatial_50_k1_ir25",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_spatial_50_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_spatial_50_k1_off",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_spatial_50_k1",
+      "completed": false
+    },
+    {
+      "arm": "r16d_pi05_spatial_50_k1_pure_c10",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_c10_pi05_spatial_50_k1",
+      "completed": true
+    },
+    {
+      "arm": "r15d_r16_pi05_spatial_50_k2_ir45",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_spatial_50_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_spatial_50_k2_ir40",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_spatial_50_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_spatial_50_k2_ir32",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_spatial_50_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_spatial_50_k2_ir25",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_spatial_50_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_spatial_50_k2_off",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_spatial_50_k2",
+      "completed": false
+    },
+    {
+      "arm": "r16d_pi05_spatial_50_k2_pure_c10",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_c10_pi05_spatial_50_k2",
+      "completed": true
+    },
+    {
+      "arm": "r15d_r16_groot_l10_50_k1_ir45",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_l10_50_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_l10_50_k1_ir40",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_l10_50_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_l10_50_k1_ir32",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_l10_50_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_l10_50_k1_ir25",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_l10_50_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_l10_50_k1_off",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_l10_50_k1",
+      "completed": false
+    },
+    {
+      "arm": "r16d_groot_l10_50_k1_pure_c10",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_c10_groot_l10_50_k1",
+      "completed": true
+    },
+    {
+      "arm": "r15d_r16_groot_l10_50_k2_ir45",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_l10_50_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_l10_50_k2_ir40",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_l10_50_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_l10_50_k2_ir32",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_l10_50_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_l10_50_k2_ir25",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_l10_50_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_l10_50_k2_off",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_l10_50_k2",
+      "completed": false
+    },
+    {
+      "arm": "r16d_groot_l10_50_k2_pure_c10",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_c10_groot_l10_50_k2",
+      "completed": true
+    },
+    {
+      "arm": "r15d_r16_groot_spatial_50_k1_ir45",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_spatial_50_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_spatial_50_k1_ir40",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_spatial_50_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_spatial_50_k1_ir32",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_spatial_50_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_spatial_50_k1_ir25",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_spatial_50_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_spatial_50_k1_off",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_spatial_50_k1",
+      "completed": false
+    },
+    {
+      "arm": "r16d_groot_spatial_50_k1_pure_c10",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_c10_groot_spatial_50_k1",
+      "completed": true
+    },
+    {
+      "arm": "r15d_r16_groot_spatial_50_k2_ir45",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_spatial_50_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_spatial_50_k2_ir40",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_spatial_50_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_spatial_50_k2_ir32",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_spatial_50_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_spatial_50_k2_ir25",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_spatial_50_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_spatial_50_k2_off",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_spatial_50_k2",
+      "completed": false
+    },
+    {
+      "arm": "r16d_groot_spatial_50_k2_pure_c10",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_c10_groot_spatial_50_k2",
+      "completed": true
+    },
+    {
+      "arm": "r15d_r16_pi05_l10_100_k1_ir45",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_l10_100_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_l10_100_k1_ir40",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_l10_100_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_l10_100_k1_ir32",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_l10_100_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_l10_100_k1_ir25",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_l10_100_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_l10_100_k1_off",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_l10_100_k1",
+      "completed": false
+    },
+    {
+      "arm": "r16d_pi05_l10_100plus_k1_pure_c10",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_c10_pi05_l10_100plus_k1",
+      "completed": true
+    },
+    {
+      "arm": "r15d_r16_pi05_l10_100_k2_ir45",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_l10_100_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_l10_100_k2_ir40",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_l10_100_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_l10_100_k2_ir32",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_l10_100_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_l10_100_k2_ir25",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_l10_100_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_l10_100_k2_off",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_l10_100_k2",
+      "completed": false
+    },
+    {
+      "arm": "r16d_pi05_l10_100plus_k2_pure_c10",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_c10_pi05_l10_100plus_k2",
+      "completed": true
+    },
+    {
+      "arm": "r15d_r16_pi05_spatial_100_k1_ir45",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_spatial_100_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_spatial_100_k1_ir40",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_spatial_100_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_spatial_100_k1_ir32",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_spatial_100_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_spatial_100_k1_ir25",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_spatial_100_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_spatial_100_k1_off",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_spatial_100_k1",
+      "completed": false
+    },
+    {
+      "arm": "r16d_pi05_spatial_100plus_k1_pure_c10",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_c10_pi05_spatial_100plus_k1",
+      "completed": true
+    },
+    {
+      "arm": "r15d_r16_pi05_spatial_100_k2_ir45",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_spatial_100_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_spatial_100_k2_ir40",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_spatial_100_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_spatial_100_k2_ir32",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_spatial_100_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_spatial_100_k2_ir25",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_spatial_100_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_spatial_100_k2_off",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_spatial_100_k2",
+      "completed": false
+    },
+    {
+      "arm": "r16d_pi05_spatial_100plus_k2_pure_c10",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_c10_pi05_spatial_100plus_k2",
+      "completed": true
+    },
+    {
+      "arm": "r15d_r16_groot_l10_100_k1_ir45",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_l10_100_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_l10_100_k1_ir40",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_l10_100_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_l10_100_k1_ir32",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_l10_100_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_l10_100_k1_ir25",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_l10_100_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_l10_100_k1_off",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_l10_100_k1",
+      "completed": false
+    },
+    {
+      "arm": "r16d_groot_l10_100plus_k1_pure_c10",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_c10_groot_l10_100plus_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_l10_100_k2_ir45",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_l10_100_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_l10_100_k2_ir40",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_l10_100_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_l10_100_k2_ir32",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_l10_100_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_l10_100_k2_ir25",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_l10_100_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_l10_100_k2_off",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_l10_100_k2",
+      "completed": false
+    },
+    {
+      "arm": "r16d_groot_l10_100plus_k2_pure_c10",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_c10_groot_l10_100plus_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_spatial_100_k1_ir45",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_spatial_100_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_spatial_100_k1_ir40",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_spatial_100_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_spatial_100_k1_ir32",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_spatial_100_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_spatial_100_k1_ir25",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_spatial_100_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_spatial_100_k1_off",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_spatial_100_k1",
+      "completed": false
+    },
+    {
+      "arm": "r16d_groot_spatial_100plus_k1_pure_c10",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_c10_groot_spatial_100plus_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_spatial_100_k2_ir45",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_spatial_100_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_spatial_100_k2_ir40",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_spatial_100_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_spatial_100_k2_ir32",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_spatial_100_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_spatial_100_k2_ir25",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_spatial_100_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_spatial_100_k2_off",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_spatial_100_k2",
+      "completed": false
+    },
+    {
+      "arm": "r16d_groot_spatial_100plus_k2_pure_c10",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_c10_groot_spatial_100plus_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_l10_200_k1_ir45",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_l10_200_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_l10_200_k1_ir40",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_l10_200_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_l10_200_k1_ir32",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_l10_200_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_l10_200_k1_ir25",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_l10_200_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_l10_200_k1_off",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_l10_200_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_l10_200_k2_ir45",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_l10_200_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_l10_200_k2_ir40",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_l10_200_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_l10_200_k2_ir32",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_l10_200_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_l10_200_k2_ir25",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_l10_200_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_l10_200_k2_off",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_l10_200_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_spatial_200_k1_ir45",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_spatial_200_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_spatial_200_k1_ir40",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_spatial_200_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_spatial_200_k1_ir32",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_spatial_200_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_spatial_200_k1_ir25",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_spatial_200_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_spatial_200_k1_off",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_spatial_200_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_spatial_200_k2_ir45",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_spatial_200_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_spatial_200_k2_ir40",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_spatial_200_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_spatial_200_k2_ir32",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_spatial_200_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_spatial_200_k2_ir25",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_spatial_200_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_spatial_200_k2_off",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_spatial_200_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_l10_200_k1_ir45",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_l10_200_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_l10_200_k1_ir40",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_l10_200_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_l10_200_k1_ir32",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_l10_200_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_l10_200_k1_ir25",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_l10_200_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_l10_200_k1_off",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_l10_200_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_l10_200_k2_ir45",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_l10_200_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_l10_200_k2_ir40",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_l10_200_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_l10_200_k2_ir32",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_l10_200_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_l10_200_k2_ir25",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_l10_200_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_l10_200_k2_off",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_l10_200_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_spatial_200_k1_ir45",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_spatial_200_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_spatial_200_k1_ir40",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_spatial_200_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_spatial_200_k1_ir32",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_spatial_200_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_spatial_200_k1_ir25",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_spatial_200_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_spatial_200_k1_off",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_spatial_200_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_spatial_200_k2_ir45",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_spatial_200_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_spatial_200_k2_ir40",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_spatial_200_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_spatial_200_k2_ir32",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_spatial_200_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_spatial_200_k2_ir25",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_spatial_200_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_spatial_200_k2_off",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_spatial_200_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_l10_500_k1_ir45",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_l10_500_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_l10_500_k1_ir40",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_l10_500_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_l10_500_k1_ir32",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_l10_500_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_l10_500_k1_ir25",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_l10_500_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_l10_500_k1_off",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_l10_500_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_l10_500_k2_ir45",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_l10_500_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_l10_500_k2_ir40",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_l10_500_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_l10_500_k2_ir32",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_l10_500_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_l10_500_k2_ir25",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_l10_500_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_l10_500_k2_off",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_l10_500_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_spatial_500_k1_ir45",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_spatial_500_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_spatial_500_k1_ir40",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_spatial_500_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_spatial_500_k1_ir32",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_spatial_500_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_spatial_500_k1_ir25",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_spatial_500_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_spatial_500_k1_off",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_spatial_500_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_spatial_500_k2_ir45",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_spatial_500_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_spatial_500_k2_ir40",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_spatial_500_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_spatial_500_k2_ir32",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_spatial_500_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_spatial_500_k2_ir25",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_spatial_500_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_pi05_spatial_500_k2_off",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_pi05_spatial_500_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_l10_500_k1_ir45",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_l10_500_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_l10_500_k1_ir40",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_l10_500_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_l10_500_k1_ir32",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_l10_500_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_l10_500_k1_ir25",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_l10_500_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_l10_500_k1_off",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_l10_500_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_l10_500_k2_ir45",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_l10_500_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_l10_500_k2_ir40",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_l10_500_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_l10_500_k2_ir32",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_l10_500_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_l10_500_k2_ir25",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_l10_500_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_l10_500_k2_off",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_l10_500_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_spatial_500_k1_ir45",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_spatial_500_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_spatial_500_k1_ir40",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_spatial_500_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_spatial_500_k1_ir32",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_spatial_500_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_spatial_500_k1_ir25",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_spatial_500_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_spatial_500_k1_off",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_spatial_500_k1",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_spatial_500_k2_ir45",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_spatial_500_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_spatial_500_k2_ir40",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_spatial_500_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_spatial_500_k2_ir32",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_spatial_500_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_spatial_500_k2_ir25",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_spatial_500_k2",
+      "completed": false
+    },
+    {
+      "arm": "r15d_r16_groot_spatial_500_k2_off",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_dev_groot_spatial_500_k2",
+      "completed": false
+    }
+  ],
+  "test_a_outcome_reads": 0,
+  "definitions_only": true
+}

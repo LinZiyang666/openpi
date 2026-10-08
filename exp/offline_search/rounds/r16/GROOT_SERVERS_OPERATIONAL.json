@@ -1,0 +1,37 @@
+{
+  "schema": "r16.conductor.operational.servers.v1",
+  "date": "2026-10-08",
+  "authorization": "Coordinator follow-up: configurable identical GR00T processes and complete bounded server shutdown",
+  "prior_conductor_lock": {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/before/groot_servers_CONDUCTOR_LOCK.json",
+    "sha256": "2b51996e08d7685231d162ad188d667d8be3174281a831296a809a648d6f6cb0"
+  },
+  "updated_sources": {
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/conductor_runner.py": {
+      "before_sha256": "497047401e21a0412a651c088298cd295464b0b6cc37d97114e639bd0341fd29",
+      "after_sha256": "e0edfeeb003d0e4f6d01d120efe68cdfa597158fb66995595aa85de60e52f977"
+    }
+  },
+  "added_sources": {
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/test_groot_servers.py": "3a28ce6fd46f3f97efb2a2e0af55f192a4808c27414e25978ad5d988d898c474"
+  },
+  "scope": [
+    "GR00T process count per suite, default 2; isolated smoke default 1",
+    "Resume/shrink retains live per-suite receipts and durably retires surplus/dead receipts",
+    "Stop every recorded owned server; after initial attempts, poll timeout releases for at most 240 additional seconds"
+  ],
+  "server_count_enters_decisions_or_estimates": false,
+  "server_count_affects": "Endpoint topology and wall-clock throughput only",
+  "unchanged": [
+    "Resident method sets, per-connection factory/hot switch, dispatch/gates, episode identities/seeds/log schema",
+    "Methods/fits, original design/protocol/amendment, analysis/pairing/pricing, shared runtime"
+  ],
+  "unchanged_runner_function_ast_sha256": {
+    "resident_command": "ca2fae4f60340e8f105c38296c80633007af1d5c9d90a62d2ff7c31eb01d19f9",
+    "run": "4a50c64393e349f7760db4f1ddc50c31919ee764057c2351481388f2157d5dcd"
+  },
+  "group_files_accessed": 0,
+  "real_launches": 0,
+  "remote_operations": 0,
+  "test_a_outcome_reads": 0
+}

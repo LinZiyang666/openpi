@@ -1,0 +1,24 @@
+{
+  "schema": "r16.retest.lock.v1",
+  "selection": "Owner-selected after observing test A; exploratory, not the original frozen confirmatory result",
+  "frozen_measurement_sources_unchanged": true,
+  "worker_bytes_changed": false,
+  "baseline_sha256": {
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/DESIGN_LOCK.json": "366d14117db2582ed9f0246cf0ec2ca5cafaa99b493638a357b4aca4157c9ba4",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/CONDUCTOR_LOCK.json": "8a45441a639b7d850b56c22dcc19e5a2d107cf573c8254357ccee9024dde7b62",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/design.json": "835f382b01458d08f09e00eebcfee5718326a4bee6b4f0cc64d5ba4d131d1a0e",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/PROTOCOL.md": "80b2f25eeffef6b7d68d4e5117c924e9d49abcdb2ad0d9e8a837268455610c79",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/protocol.json": "3fe180ff32a4e0c70a6e34cbdf350a814401685de5f6f82bfa68e5973e720985",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/COORDINATOR_DECISIONS.md": "8cdb99ec91c902bcab3fda8a8a4552d41d4587d53c5878b8fd8da05d1cf73c1c",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/CONDUCTOR_AMENDMENT.json": "795603f2dedde9a97eaf61a0c68eaeabb34a082d30102352432653cc9db3b330"
+  },
+  "source_sha256": {
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/retest.py": "c0011d7cd84abf52b67bb55bc814c46d4d122994371021297516ac973992765e",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/retest_runner.py": "c7c4e2cc995e332b0d6fe89b377b63cac1bea5c5efaa3e854aaa9f424956a7c1",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/retest_analysis.py": "84da62b80e8927803d818209ce836071dbaeba84ad3a7616feb349e05e7724c6",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/retest_loop.sh": "0a0175114b99f7df52f0c338f4b1b347172cb7df4ded8a3bccc27c2767875a72",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/test_retest.py": "41f54e072bf3470e55d429d9cbe22757c18f1d2e66075b14f6ffafd41a3a4e10"
+  },
+  "owner_request_date": "2026-10-08",
+  "authority": "Owner request: raise selected test tasks to existing higher levels and rerun only those tasks; original frozen experiment remains unchanged"
+}

@@ -1,0 +1,62 @@
+{
+  "parent_protocol": "/home/weiland/projects/openpi/exp/offline_search/rounds/r14/descent_astra/PROTOCOL.md",
+  "parent_protocol_sha256": "80b2f25eeffef6b7d68d4e5117c924e9d49abcdb2ad0d9e8a837268455610c79",
+  "cells": [
+    "pi05_l10_50_k1",
+    "pi05_l10_50_k2",
+    "pi05_spatial_50_k1",
+    "pi05_spatial_50_k2",
+    "groot_l10_50_k1",
+    "groot_l10_50_k2",
+    "groot_spatial_50_k1",
+    "groot_spatial_50_k2",
+    "pi05_l10_100_k1",
+    "pi05_l10_100_k2",
+    "pi05_spatial_100_k1",
+    "pi05_spatial_100_k2",
+    "groot_l10_100_k1",
+    "groot_l10_100_k2",
+    "groot_spatial_100_k1",
+    "groot_spatial_100_k2",
+    "pi05_l10_200_k1",
+    "pi05_l10_200_k2",
+    "pi05_spatial_200_k1",
+    "pi05_spatial_200_k2",
+    "groot_l10_200_k1",
+    "groot_l10_200_k2",
+    "groot_spatial_200_k1",
+    "groot_spatial_200_k2",
+    "pi05_l10_500_k1",
+    "pi05_l10_500_k2",
+    "pi05_spatial_500_k1",
+    "pi05_spatial_500_k2",
+    "groot_l10_500_k1",
+    "groot_l10_500_k2",
+    "groot_spatial_500_k1",
+    "groot_spatial_500_k2"
+  ],
+  "primary_tolerance_pp": 5,
+  "tolerances_pp": [
+    0,
+    2,
+    5
+  ],
+  "descent_order": [
+    "c10",
+    "ir45",
+    "ir40",
+    "ir32",
+    "ir25",
+    "off"
+  ],
+  "confidence_family": 200,
+  "confidence_scope": "Per four-cell size x k group",
+  "bootstrap": {
+    "seed": 20261005,
+    "replicates": 5000
+  },
+  "design_sha256": "835f382b01458d08f09e00eebcfee5718326a4bee6b4f0cc64d5ba4d131d1a0e",
+  "pre_outcome": true,
+  "outcome_reads_before_freeze": 0,
+  "adapter": "ADAPTER.md"
+}

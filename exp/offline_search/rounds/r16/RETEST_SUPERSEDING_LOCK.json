@@ -1,0 +1,15 @@
+{
+  "schema": "r16.retest.superseding.lock.v1",
+  "authority": "Owner seven-pair v3 c10 correction explicitly supersedes v1 ir45 for those pairs only",
+  "combined_lock_sha256": "52ac4e0f3154e56300b5579b72f9909de631d820a16d833e98a0e49b36f186ae",
+  "worker_bytes_changed": false,
+  "legacy_source_edits": 0,
+  "frozen_input_edits": 0,
+  "source_sha256": {
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/retest_superseding.py": "1773536b1e2e8b1e8912a3ba8c04edd9e34d0c8e2ae56c6184beea21029d2af9",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/test_retest_superseding.py": "493afee4ec0002c68c289396b0b2b67b958fe8a60672cff40da108ece76c92dd"
+  },
+  "owner_selection_sha256": {
+    "/home/weiland/projects/openpi_ext/scratch/r16_ops/retest_changes_v3_c10.json": "5eabac66d3ac8aba6f9e1846218716327f3d364707865204977c6be9c8652f44"
+  }
+}

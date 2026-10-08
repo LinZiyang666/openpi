@@ -1,0 +1,278 @@
+[
+ {
+  "cell": "groot_l10_100_k1",
+  "task": 1,
+  "from": "ir25",
+  "to": "ir45"
+ },
+ {
+  "cell": "groot_l10_100_k1",
+  "task": 5,
+  "from": "ir40",
+  "to": "ir45"
+ },
+ {
+  "cell": "groot_l10_100_k2",
+  "task": 4,
+  "from": "off",
+  "to": "ir45"
+ },
+ {
+  "cell": "groot_l10_100_k2",
+  "task": 5,
+  "from": "off",
+  "to": "ir45"
+ },
+ {
+  "cell": "groot_l10_200_k2",
+  "task": 1,
+  "from": "off",
+  "to": "c10"
+ },
+ {
+  "cell": "groot_l10_500_k1",
+  "task": 7,
+  "from": "ir40",
+  "to": "ir45"
+ },
+ {
+  "cell": "groot_l10_50_k1",
+  "task": 1,
+  "from": "ir40",
+  "to": "c10"
+ },
+ {
+  "cell": "groot_l10_50_k1",
+  "task": 5,
+  "from": "off",
+  "to": "ir45"
+ },
+ {
+  "cell": "groot_l10_50_k1",
+  "task": 6,
+  "from": "ir40",
+  "to": "ir45"
+ },
+ {
+  "cell": "groot_l10_50_k2",
+  "task": 1,
+  "from": "ir40",
+  "to": "ir45"
+ },
+ {
+  "cell": "groot_l10_50_k2",
+  "task": 5,
+  "from": "off",
+  "to": "ir45"
+ },
+ {
+  "cell": "groot_l10_50_k2",
+  "task": 9,
+  "from": "ir32",
+  "to": "ir45"
+ },
+ {
+  "cell": "groot_spatial_100_k1",
+  "task": 7,
+  "from": "off",
+  "to": "ir45"
+ },
+ {
+  "cell": "groot_spatial_100_k2",
+  "task": 5,
+  "from": "ir45",
+  "to": "c10"
+ },
+ {
+  "cell": "groot_spatial_500_k1",
+  "task": 1,
+  "from": "off",
+  "to": "c10"
+ },
+ {
+  "cell": "groot_spatial_500_k2",
+  "task": 1,
+  "from": "off",
+  "to": "ir45"
+ },
+ {
+  "cell": "groot_spatial_50_k1",
+  "task": 1,
+  "from": "ir45",
+  "to": "c10"
+ },
+ {
+  "cell": "groot_spatial_50_k1",
+  "task": 5,
+  "from": "ir32",
+  "to": "ir45"
+ },
+ {
+  "cell": "groot_spatial_50_k1",
+  "task": 9,
+  "from": "ir45",
+  "to": "c10"
+ },
+ {
+  "cell": "groot_spatial_50_k2",
+  "task": 3,
+  "from": "ir45",
+  "to": "c10"
+ },
+ {
+  "cell": "pi05_l10_100_k1",
+  "task": 4,
+  "from": "ir32",
+  "to": "c10"
+ },
+ {
+  "cell": "pi05_l10_100_k1",
+  "task": 6,
+  "from": "ir25",
+  "to": "ir45"
+ },
+ {
+  "cell": "pi05_l10_100_k1",
+  "task": 9,
+  "from": "off",
+  "to": "c10"
+ },
+ {
+  "cell": "pi05_l10_100_k2",
+  "task": 9,
+  "from": "off",
+  "to": "ir45"
+ },
+ {
+  "cell": "pi05_l10_200_k1",
+  "task": 0,
+  "from": "off",
+  "to": "c10"
+ },
+ {
+  "cell": "pi05_l10_200_k1",
+  "task": 4,
+  "from": "ir32",
+  "to": "c10"
+ },
+ {
+  "cell": "pi05_l10_200_k1",
+  "task": 9,
+  "from": "off",
+  "to": "ir45"
+ },
+ {
+  "cell": "pi05_l10_200_k2",
+  "task": 4,
+  "from": "ir32",
+  "to": "c10"
+ },
+ {
+  "cell": "pi05_l10_200_k2",
+  "task": 6,
+  "from": "off",
+  "to": "ir45"
+ },
+ {
+  "cell": "pi05_l10_500_k1",
+  "task": 4,
+  "from": "ir32",
+  "to": "ir45"
+ },
+ {
+  "cell": "pi05_l10_500_k1",
+  "task": 6,
+  "from": "off",
+  "to": "ir45"
+ },
+ {
+  "cell": "pi05_l10_500_k2",
+  "task": 0,
+  "from": "off",
+  "to": "ir45"
+ },
+ {
+  "cell": "pi05_l10_500_k2",
+  "task": 8,
+  "from": "ir45",
+  "to": "c10"
+ },
+ {
+  "cell": "pi05_l10_50_k1",
+  "task": 4,
+  "from": "ir40",
+  "to": "c10"
+ },
+ {
+  "cell": "pi05_l10_50_k1",
+  "task": 6,
+  "from": "ir32",
+  "to": "ir45"
+ },
+ {
+  "cell": "pi05_l10_50_k2",
+  "task": 4,
+  "from": "ir32",
+  "to": "c10"
+ },
+ {
+  "cell": "pi05_spatial_100_k1",
+  "task": 5,
+  "from": "off",
+  "to": "c10"
+ },
+ {
+  "cell": "pi05_spatial_100_k1",
+  "task": 9,
+  "from": "off",
+  "to": "c10"
+ },
+ {
+  "cell": "pi05_spatial_200_k1",
+  "task": 1,
+  "from": "ir25",
+  "to": "c10"
+ },
+ {
+  "cell": "pi05_spatial_200_k1",
+  "task": 5,
+  "from": "off",
+  "to": "ir45"
+ },
+ {
+  "cell": "pi05_spatial_500_k2",
+  "task": 8,
+  "from": "off",
+  "to": "ir45"
+ },
+ {
+  "cell": "pi05_spatial_50_k1",
+  "task": 5,
+  "from": "ir25",
+  "to": "c10"
+ },
+ {
+  "cell": "pi05_spatial_50_k1",
+  "task": 6,
+  "from": "off",
+  "to": "c10"
+ },
+ {
+  "cell": "pi05_spatial_50_k1",
+  "task": 7,
+  "from": "off",
+  "to": "ir45"
+ },
+ {
+  "cell": "pi05_spatial_50_k1",
+  "task": 9,
+  "from": "off",
+  "to": "c10"
+ },
+ {
+  "cell": "pi05_spatial_50_k2",
+  "task": 6,
+  "from": "off",
+  "to": "c10"
+ }
+]

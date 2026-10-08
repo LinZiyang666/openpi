@@ -1,0 +1,161 @@
+{
+  "PASS": true,
+  "records": {
+    "pi05_off": {
+      "default_steps": 10,
+      "decisions": 32,
+      "default_action_bytes_equal": true,
+      "default_decision_bytes_equal": true,
+      "method_tag_stage1_call_counts_equal": true,
+      "lower_layer_audit_equal": true,
+      "canonicalization": "Only clocks/timings and connection identities excluded",
+      "reduced_k_checked": [
+        1,
+        2
+      ],
+      "synthetic_forward": true
+    },
+    "pi05_ir45": {
+      "default_steps": 10,
+      "decisions": 32,
+      "default_action_bytes_equal": true,
+      "default_decision_bytes_equal": true,
+      "method_tag_stage1_call_counts_equal": true,
+      "lower_layer_audit_equal": true,
+      "canonicalization": "Only clocks/timings and connection identities excluded",
+      "reduced_k_checked": [
+        1,
+        2
+      ],
+      "synthetic_forward": true
+    },
+    "pi05_c10": {
+      "default_steps": 10,
+      "decisions": 32,
+      "default_action_bytes_equal": true,
+      "default_decision_bytes_equal": true,
+      "method_tag_stage1_call_counts_equal": true,
+      "lower_layer_audit_equal": true,
+      "canonicalization": "Only clocks/timings and connection identities excluded",
+      "reduced_k_checked": [
+        1,
+        2
+      ],
+      "synthetic_forward": true
+    },
+    "groot_off": {
+      "default_steps": 8,
+      "decisions": 32,
+      "default_action_bytes_equal": true,
+      "default_decision_bytes_equal": true,
+      "method_tag_stage1_call_counts_equal": true,
+      "lower_layer_audit_equal": true,
+      "canonicalization": "Only clocks/timings and connection identities excluded",
+      "reduced_k_checked": [
+        1,
+        2
+      ],
+      "synthetic_forward": true
+    },
+    "groot_ir45": {
+      "default_steps": 8,
+      "decisions": 32,
+      "default_action_bytes_equal": true,
+      "default_decision_bytes_equal": true,
+      "method_tag_stage1_call_counts_equal": true,
+      "lower_layer_audit_equal": true,
+      "canonicalization": "Only clocks/timings and connection identities excluded",
+      "reduced_k_checked": [
+        1,
+        2
+      ],
+      "synthetic_forward": true
+    },
+    "groot_c10": {
+      "default_steps": 8,
+      "decisions": 32,
+      "default_action_bytes_equal": true,
+      "default_decision_bytes_equal": true,
+      "method_tag_stage1_call_counts_equal": true,
+      "lower_layer_audit_equal": true,
+      "canonicalization": "Only clocks/timings and connection identities excluded",
+      "reduced_k_checked": [
+        1,
+        2
+      ],
+      "synthetic_forward": true
+    }
+  },
+  "covered_paths": {
+    "guard": 32,
+    "knob": 88,
+    "tail": 136,
+    "pure": 64
+  },
+  "batchers": {
+    "pi05_k1": {
+      "calls": 1,
+      "batcher_direct_byte_equal": true,
+      "action_sha256": "eba1dc0f21c62591c79565b8881362e1cb64bc09adb8d0a5106d3a65a51f44e0"
+    },
+    "pi05_k2": {
+      "calls": 2,
+      "batcher_direct_byte_equal": true,
+      "action_sha256": "71899654d013d8504fc452f20c5ccfe5df5273857fb8fdc8f8f4d7f8feab7580"
+    },
+    "pi05_k10": {
+      "calls": 10,
+      "batcher_direct_byte_equal": true,
+      "action_sha256": "a4f549dfba9ab9a9a70a2356ae8496dd395f99f1deacdc6a1445556eedd6a5f2"
+    },
+    "groot_k1": {
+      "calls": 1,
+      "batcher_direct_byte_equal": true,
+      "upstream_transcription_byte_equal": true,
+      "action_sha256": "c24c7eb265ace95d4276bd503634a8cfe7ba0781c53c8c71aa5d55b6758aba02"
+    },
+    "groot_k2": {
+      "calls": 2,
+      "batcher_direct_byte_equal": true,
+      "upstream_transcription_byte_equal": true,
+      "action_sha256": "f6775b73becab3e3e057a76be1935d08c8443ab244e78ef577fa71a716ec5598"
+    },
+    "groot_k8": {
+      "calls": 8,
+      "batcher_direct_byte_equal": true,
+      "upstream_transcription_byte_equal": true,
+      "action_sha256": "da76dfb1037d64f8c4ef6bdae7a075a1309a6cf0b9d1d13c8f32d780f59bc111"
+    }
+  },
+  "shared_runtime_edits": 1,
+  "schedule_before_after": {
+    "defaults": {
+      "2": {
+        "schedule_bytes_equal": true,
+        "timesteps_equal": true,
+        "replay_times_equal": true
+      },
+      "4": {
+        "schedule_bytes_equal": true,
+        "timesteps_equal": true,
+        "replay_times_equal": true
+      },
+      "8": {
+        "schedule_bytes_equal": true,
+        "timesteps_equal": true,
+        "replay_times_equal": true
+      },
+      "10": {
+        "schedule_bytes_equal": true,
+        "timesteps_equal": true,
+        "replay_times_equal": true
+      }
+    },
+    "k1_only_new_explicit_behavior": true,
+    "k1_warm_start_refused": true
+  },
+  "outcome_reads": 0,
+  "servers": 0,
+  "gpu_calls": 0,
+  "limitations": "CPU deterministic forward stubs; real-weight smoke remains coordinator work"
+}
