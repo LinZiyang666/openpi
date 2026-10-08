@@ -1,0 +1,56 @@
+{
+  "package_id": "20261008_132449_a32ab1",
+  "config_sha256": "76ceba13335f6c0cc1c1c01942746e570339995e995d992143da9bda8b728455",
+  "config_path": "/home/weiland/projects/openpi_decouple/exp/decouple/benchmark.local.json",
+  "gates": {
+    "pi05_k1_b1": {
+      "passed": true,
+      "path": "/home/weiland/projects/openpi_decouple/exp/decouple/results/gpu_comparison/pi05_k1_b1.json",
+      "k": 1,
+      "batch_size": 1
+    },
+    "pi05_k2_b1": {
+      "passed": true,
+      "path": "/home/weiland/projects/openpi_decouple/exp/decouple/results/gpu_comparison/pi05_k2_b1.json",
+      "k": 2,
+      "batch_size": 1
+    },
+    "groot_k1_b1": {
+      "passed": true,
+      "path": "/home/weiland/projects/openpi_decouple/exp/decouple/results/gpu_comparison/groot_k1_b1.json",
+      "k": 1,
+      "batch_size": 1
+    },
+    "groot_k2_b1": {
+      "passed": true,
+      "path": "/home/weiland/projects/openpi_decouple/exp/decouple/results/gpu_comparison/groot_k2_b1.json",
+      "k": 2,
+      "batch_size": 1
+    }
+  },
+  "completed": {},
+  "selected": {},
+  "status": "failed",
+  "skipped_deadline": {},
+  "deadline": {
+    "wall": "2026-10-08T15:15:00-05:00",
+    "shutdown_reserve_s": 120,
+    "window_s": 7200,
+    "effective_hard_end": "2026-10-08T15:14:59.999999-05:00"
+  },
+  "attempts": {
+    "groot/initial/current_1": 1
+  },
+  "active": {
+    "key": "groot/initial/current_1",
+    "out": "/home/weiland/trace_runs/os_closed_loop/decouple_bench_20261008_132449_a32ab1_groot_initial_current_1_try01"
+  },
+  "failed_attempts": [
+    {
+      "key": "groot/initial/current_1",
+      "out": "/home/weiland/trace_runs/os_closed_loop/decouple_bench_20261008_132449_a32ab1_groot_initial_current_1_try01",
+      "error": "benchmark has no complete episodes/latencies/utilization samples"
+    }
+  ],
+  "failure": "groot_initial_current_1: benchmark has no complete episodes/latencies/utilization samples"
+}

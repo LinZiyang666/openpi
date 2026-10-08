@@ -1,0 +1,102 @@
+{
+  "passed": true,
+  "model": "pi05",
+  "fronts": 8,
+  "fresh_children": 9,
+  "children_reaped": true,
+  "runtime_path_bytes": 247,
+  "endpoint": "/run/user/1000/opi-1346aee24d-ry5k4q29/stages.sock",
+  "socket_cleaned": true,
+  "fronts_report": [
+    {
+      "pid": 113332,
+      "endpoint": "/run/user/1000/opi-1346aee24d-ry5k4q29/stages.sock",
+      "host": "127.0.0.1",
+      "port": 23401,
+      "cuda_visible_devices": "",
+      "stage_epoch": "05c4b3be777c4254aed79b5ec8b473d2",
+      "blueprint_kind": "pi05",
+      "jax_imported": true,
+      "memfd_tensor_equal": true
+    },
+    {
+      "pid": 113333,
+      "endpoint": "/run/user/1000/opi-1346aee24d-ry5k4q29/stages.sock",
+      "host": "127.0.0.1",
+      "port": 23402,
+      "cuda_visible_devices": "",
+      "stage_epoch": "05c4b3be777c4254aed79b5ec8b473d2",
+      "blueprint_kind": "pi05",
+      "jax_imported": true,
+      "memfd_tensor_equal": true
+    },
+    {
+      "pid": 113334,
+      "endpoint": "/run/user/1000/opi-1346aee24d-ry5k4q29/stages.sock",
+      "host": "127.0.0.1",
+      "port": 23403,
+      "cuda_visible_devices": "",
+      "stage_epoch": "05c4b3be777c4254aed79b5ec8b473d2",
+      "blueprint_kind": "pi05",
+      "jax_imported": true,
+      "memfd_tensor_equal": true
+    },
+    {
+      "pid": 113335,
+      "endpoint": "/run/user/1000/opi-1346aee24d-ry5k4q29/stages.sock",
+      "host": "127.0.0.1",
+      "port": 23404,
+      "cuda_visible_devices": "",
+      "stage_epoch": "05c4b3be777c4254aed79b5ec8b473d2",
+      "blueprint_kind": "pi05",
+      "jax_imported": true,
+      "memfd_tensor_equal": true
+    },
+    {
+      "pid": 113336,
+      "endpoint": "/run/user/1000/opi-1346aee24d-ry5k4q29/stages.sock",
+      "host": "127.0.0.1",
+      "port": 23405,
+      "cuda_visible_devices": "",
+      "stage_epoch": "05c4b3be777c4254aed79b5ec8b473d2",
+      "blueprint_kind": "pi05",
+      "jax_imported": true,
+      "memfd_tensor_equal": true
+    },
+    {
+      "pid": 113337,
+      "endpoint": "/run/user/1000/opi-1346aee24d-ry5k4q29/stages.sock",
+      "host": "127.0.0.1",
+      "port": 23406,
+      "cuda_visible_devices": "",
+      "stage_epoch": "05c4b3be777c4254aed79b5ec8b473d2",
+      "blueprint_kind": "pi05",
+      "jax_imported": true,
+      "memfd_tensor_equal": true
+    },
+    {
+      "pid": 113338,
+      "endpoint": "/run/user/1000/opi-1346aee24d-ry5k4q29/stages.sock",
+      "host": "127.0.0.1",
+      "port": 23407,
+      "cuda_visible_devices": "",
+      "stage_epoch": "05c4b3be777c4254aed79b5ec8b473d2",
+      "blueprint_kind": "pi05",
+      "jax_imported": true,
+      "memfd_tensor_equal": true
+    },
+    {
+      "pid": 113339,
+      "endpoint": "/run/user/1000/opi-1346aee24d-ry5k4q29/stages.sock",
+      "host": "127.0.0.1",
+      "port": 23408,
+      "cuda_visible_devices": "",
+      "stage_epoch": "05c4b3be777c4254aed79b5ec8b473d2",
+      "blueprint_kind": "pi05",
+      "jax_imported": true,
+      "memfd_tensor_equal": true
+    }
+  ],
+  "evidence": "exp/decouple/results/cpu_startup_initial/pi05/run-mcgmfzp9",
+  "tcp_listeners": 0
+}

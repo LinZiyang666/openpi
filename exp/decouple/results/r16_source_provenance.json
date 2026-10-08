@@ -1,0 +1,42 @@
+{
+  "exp/offline_search/rounds/r16/CONDUCTOR_AMENDMENT.json": {
+    "source_sha256": "795603f2dedde9a97eaf61a0c68eaeabb34a082d30102352432653cc9db3b330",
+    "worktree_sha256": "795603f2dedde9a97eaf61a0c68eaeabb34a082d30102352432653cc9db3b330",
+    "equal": true
+  },
+  "exp/offline_search/rounds/r16/prepare.py": {
+    "source_sha256": "da9587567243b7286db3f22b84c5ea8e45e0ae521fa06bcddba9758698eaeb17",
+    "worktree_sha256": "da9587567243b7286db3f22b84c5ea8e45e0ae521fa06bcddba9758698eaeb17",
+    "equal": true
+  },
+  "exp/offline_search/rounds/r16/conductor.py": {
+    "source_sha256": "9e3152694d9f0959817b6ee6a06cc6bc663cfd2b641f74f83c1a3575c42af0c4",
+    "worktree_sha256": "9e3152694d9f0959817b6ee6a06cc6bc663cfd2b641f74f83c1a3575c42af0c4",
+    "equal": true
+  },
+  "exp/offline_search/rounds/r16/resident.py": {
+    "source_sha256": "466c76b65eac7c62fae88c7658b7d91f05d61b8289bdb77b992f3edbe1423025",
+    "worktree_sha256": "1ec0226e2f5d30908737c6318069cc4ce2514994a415312acec4869c1e88aee6",
+    "equal": false
+  },
+  "exp/offline_search/rounds/r16/__init__.py": {
+    "source_sha256": "4a6468af649e9990fe8ff1f53d6ad6d67dc1810808b54e85a721821bb2507b8d",
+    "worktree_sha256": "4a6468af649e9990fe8ff1f53d6ad6d67dc1810808b54e85a721821bb2507b8d",
+    "equal": true
+  },
+  "exp/offline_search/rounds/r16/cost.py": {
+    "source_sha256": "a3f568559f68c437915d2751f98c4c09124011b6ae25d19fb9a6c53c3ef4b3cd",
+    "worktree_sha256": "a3f568559f68c437915d2751f98c4c09124011b6ae25d19fb9a6c53c3ef4b3cd",
+    "equal": true
+  },
+  "exp/offline_search/rounds/r16/design.json": {
+    "source_sha256": "835f382b01458d08f09e00eebcfee5718326a4bee6b4f0cc64d5ba4d131d1a0e",
+    "worktree_sha256": "835f382b01458d08f09e00eebcfee5718326a4bee6b4f0cc64d5ba4d131d1a0e",
+    "equal": true
+  },
+  "exp/offline_search/rounds/r16/PROTOCOL.md": {
+    "source_sha256": "80b2f25eeffef6b7d68d4e5117c924e9d49abcdb2ad0d9e8a837268455610c79",
+    "worktree_sha256": "80b2f25eeffef6b7d68d4e5117c924e9d49abcdb2ad0d9e8a837268455610c79",
+    "equal": true
+  }
+}

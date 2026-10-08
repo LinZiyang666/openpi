@@ -1,0 +1,159 @@
+{
+  "package_id": "20261008_172020_ae91da",
+  "config_sha256": "105e9401fb2828cc2106d9df5afe107003349c2ab9eed6cf429e7e2f6dba88b8",
+  "config_path": "/home/weiland/projects/openpi_decouple/exp/decouple/benchmark.smoke.local.json",
+  "gates": {
+    "pi05_k1_b1": {
+      "passed": true,
+      "path": "/home/weiland/projects/openpi_decouple/exp/decouple/results/gate_cache/proofs/pi05_k1_b1_2bba67bc5c7d5db8be3db4b184de23eaac5470bbbbb75fb29e067cb0572f8e40_9e8d211b03ac.json",
+      "k": 1,
+      "batch_size": 1,
+      "input_sha256": "2bba67bc5c7d5db8be3db4b184de23eaac5470bbbbb75fb29e067cb0572f8e40",
+      "gpu_identity": {
+        "host": "weilandserver",
+        "index": 0,
+        "name": "NVIDIA GeForce RTX 4090",
+        "uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9",
+        "driver": "595.71.05"
+      },
+      "cached": true
+    },
+    "pi05_k2_b1": {
+      "passed": true,
+      "path": "/home/weiland/projects/openpi_decouple/exp/decouple/results/gate_cache/proofs/pi05_k2_b1_7e6805e6baec7a1f9ead18605e8f74625e1e73e3691e562f0558ffc86aac17b4_9e8d211b03ac.json",
+      "k": 2,
+      "batch_size": 1,
+      "input_sha256": "7e6805e6baec7a1f9ead18605e8f74625e1e73e3691e562f0558ffc86aac17b4",
+      "gpu_identity": {
+        "host": "weilandserver",
+        "index": 0,
+        "name": "NVIDIA GeForce RTX 4090",
+        "uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9",
+        "driver": "595.71.05"
+      },
+      "cached": true
+    },
+    "groot_k1_b1": {
+      "passed": true,
+      "path": "/home/weiland/projects/openpi_decouple/exp/decouple/results/gate_cache/proofs/groot_k1_b1_ad136b6ff437bc7d4411f56f3f21e37aba22f86013eb527f865bdb9904cac012_9e8d211b03ac.json",
+      "k": 1,
+      "batch_size": 1,
+      "input_sha256": "ad136b6ff437bc7d4411f56f3f21e37aba22f86013eb527f865bdb9904cac012",
+      "gpu_identity": {
+        "host": "weilandserver",
+        "index": 0,
+        "name": "NVIDIA GeForce RTX 4090",
+        "uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9",
+        "driver": "595.71.05"
+      },
+      "cached": true
+    },
+    "groot_k2_b1": {
+      "passed": true,
+      "path": "/home/weiland/projects/openpi_decouple/exp/decouple/results/gate_cache/proofs/groot_k2_b1_e3aee5b12e548456bd48d93ba410bc07d78891074b1b7241b36200d08674f1d7_9e8d211b03ac.json",
+      "k": 2,
+      "batch_size": 1,
+      "input_sha256": "e3aee5b12e548456bd48d93ba410bc07d78891074b1b7241b36200d08674f1d7",
+      "gpu_identity": {
+        "host": "weilandserver",
+        "index": 0,
+        "name": "NVIDIA GeForce RTX 4090",
+        "uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9",
+        "driver": "595.71.05"
+      },
+      "cached": true
+    }
+  },
+  "completed": {
+    "groot/initial/current_1": {
+      "name": "decouple_bench_20261008_172020_ae91da_groot_initial_current_1_try01",
+      "logical_arm": "current_1",
+      "model": "groot",
+      "model_processes": 1,
+      "fronts": null,
+      "split": false,
+      "out": "/home/weiland/trace_runs/os_closed_loop/decouple_bench_20261008_172020_ae91da_groot_initial_current_1_try01",
+      "elapsed_s": 51.913556258004974,
+      "episodes_completed": 20,
+      "episodes_per_min": 23.115349563727147,
+      "manifest_sha256": "3726faa4bdd46513e8fa59b27515b7abd0d61d34701fdd8e4e323ec22128148f",
+      "warmup_excluded": true,
+      "measurement_window": {
+        "manifest_sha256": "3726faa4bdd46513e8fa59b27515b7abd0d61d34701fdd8e4e323ec22128148f",
+        "measured_uids": [
+          "decouple_groot_spatial_100_k1_frozen:eval:0:0",
+          "decouple_groot_spatial_100_k1_frozen:eval:0:2",
+          "decouple_groot_spatial_100_k1_frozen:eval:1:1",
+          "decouple_groot_spatial_100_k1_frozen:eval:1:2",
+          "decouple_groot_spatial_100_k1_frozen:eval:2:0",
+          "decouple_groot_spatial_100_k1_frozen:eval:2:1",
+          "decouple_groot_spatial_100_k1_frozen:eval:3:6",
+          "decouple_groot_spatial_100_k1_frozen:eval:3:7",
+          "decouple_groot_spatial_100_k1_frozen:eval:4:0",
+          "decouple_groot_spatial_100_k1_frozen:eval:4:1",
+          "decouple_groot_spatial_100_k1_frozen:eval:5:0",
+          "decouple_groot_spatial_100_k1_frozen:eval:5:1",
+          "decouple_groot_spatial_100_k1_frozen:eval:6:0",
+          "decouple_groot_spatial_100_k1_frozen:eval:6:1",
+          "decouple_groot_spatial_100_k1_frozen:eval:7:1",
+          "decouple_groot_spatial_100_k1_frozen:eval:7:2",
+          "decouple_groot_spatial_100_k1_frozen:eval:8:0",
+          "decouple_groot_spatial_100_k1_frozen:eval:8:1",
+          "decouple_groot_spatial_100_k1_frozen:eval:9:1",
+          "decouple_groot_spatial_100_k1_frozen:eval:9:2"
+        ],
+        "warmup_episodes": 10,
+        "start": 80488.719487385,
+        "end": 80540.633043643
+      },
+      "episode_failures": 2,
+      "episode_error_records": 0,
+      "latency_count": 473,
+      "latency_p50_ms": 341.164248,
+      "latency_p99_ms": 1265.0076679599986,
+      "latency_scope": "benchmark relay ingress-to-response-send; worker network excluded",
+      "latency_missing_identity_rows": 0,
+      "legacy_unattributed_relay": null,
+      "gpu_util_mean_pct": 5.614583333333333,
+      "cpu_proc_mean_pct": 85.77395833333333,
+      "system_cpu_mean_pct": 5.905208333333333,
+      "gpu_memory_peak_mb": 6876.1875,
+      "gpu_memory_peak_lower_bound_mb": 6618.1875,
+      "gpu_memory_budget_mb": 46000,
+      "within_budget": true,
+      "gpu_name": "NVIDIA GeForce RTX 4090",
+      "collection_warnings": [],
+      "resource_sample_count": 96,
+      "recovery": false,
+      "total_wall_s": 151.24455000601301
+    }
+  },
+  "selected": {},
+  "status": "failed",
+  "mode": "smoke",
+  "expected_episodes": 20,
+  "screening_arms": 2,
+  "skipped_deadline": {},
+  "deadline": {
+    "wall": "2026-10-08T17:32:16-05:00",
+    "shutdown_reserve_s": 120,
+    "window_s": 600,
+    "effective_hard_end": "2026-10-08T17:30:20.521832-05:00"
+  },
+  "attempts": {
+    "groot/initial/current_1": 1,
+    "groot/initial/split_8": 1
+  },
+  "active": {
+    "key": "groot/initial/split_8",
+    "out": "/home/weiland/trace_runs/os_closed_loop/decouple_bench_20261008_172020_ae91da_groot_initial_split_8_try01"
+  },
+  "failed_attempts": [
+    {
+      "key": "groot/initial/split_8",
+      "out": "/home/weiland/trace_runs/os_closed_loop/decouple_bench_20261008_172020_ae91da_groot_initial_split_8_try01",
+      "error": "server exited during startup (1)"
+    }
+  ],
+  "failure": "groot_initial_split_8: server exited during startup (1)"
+}

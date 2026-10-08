@@ -1,0 +1,10 @@
+{
+  "model": "pi05",
+  "calls": 64,
+  "scope": "CPU echo; input/output copies, no CUDA transfer",
+  "bytes_per_direction": 3301376,
+  "front_cpu_ms_per_call": 1.560476453125001,
+  "latency_mean_ms": 2.855892703125,
+  "latency_p50_ms": 2.8809734999999996,
+  "latency_p99_ms": 4.008946669999996
+}

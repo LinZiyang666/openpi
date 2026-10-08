@@ -1,0 +1,10 @@
+{
+  "model": "groot",
+  "calls": 64,
+  "scope": "CPU echo; input/output copies, no CUDA transfer",
+  "bytes_per_direction": 3301376,
+  "front_cpu_ms_per_call": 1.6480219218749994,
+  "latency_mean_ms": 2.98073503125,
+  "latency_p50_ms": 2.9686675,
+  "latency_p99_ms": 4.157150169999996
+}

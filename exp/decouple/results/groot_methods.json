@@ -1,0 +1,26 @@
+{
+  "model": "groot",
+  "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_groot_spatial_100_ir25.pkl",
+  "source": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all",
+  "pool": "B",
+  "decisions": {
+    "n": 64,
+    "mean_ms": 8.671761703124998,
+    "p50_ms": 5.194725,
+    "p99_ms": 43.629313499999846
+  },
+  "retrieval_corrector_including_plugin_glue": {
+    "n": 32,
+    "mean_ms": 7.670721437499999,
+    "p50_ms": 5.551662500000001,
+    "p99_ms": 53.35941337000009
+  },
+  "logging_write": {
+    "n": 66,
+    "mean_ms": 0.9440392727272727,
+    "p50_ms": 0.950178,
+    "p99_ms": 1.3374595499999997
+  },
+  "stage1_calls": 32,
+  "policy_calls": 12
+}

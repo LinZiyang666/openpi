@@ -1,0 +1,51 @@
+{
+  "model": "pi05",
+  "rows": 32,
+  "source": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs",
+  "pool": "B",
+  "image_source": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs",
+  "image_note": "recorded model-input images; state keys are normalized, not reconstructed simulator state",
+  "groot_image_adaptation": null,
+  "python": "/home/weiland/projects/openpi/.venv/bin/python",
+  "torch": "2.7.1+cu126",
+  "numpy": "1.26.4",
+  "components": {
+    "websocket_pack_ms": {
+      "mean_ms": 0.15878346875,
+      "p50_ms": 0.12035499999999999,
+      "p99_ms": 0.5705813700000001
+    },
+    "websocket_unpack_ms": {
+      "mean_ms": 0.051987624999999996,
+      "p50_ms": 0.0466685,
+      "p99_ms": 0.09109164000000003
+    },
+    "transforms_excluding_token_prep_ms": {
+      "mean_ms": 0.24386640625,
+      "p50_ms": 0.22793950000000002,
+      "p99_ms": 0.42135519000000016
+    },
+    "token_prep_ms": {
+      "mean_ms": 0.129152875,
+      "p50_ms": 0.12637500000000002,
+      "p99_ms": 0.1616401
+    },
+    "input_total_ms": {
+      "mean_ms": 0.44206121875,
+      "p50_ms": 0.420603,
+      "p99_ms": 0.7099205700000003
+    },
+    "model_stage_cpu_glue_ms": {
+      "mean_ms": 0.12865209375,
+      "p50_ms": 0.111582,
+      "p99_ms": 0.43358551000000056
+    },
+    "output_transforms_ms": {
+      "mean_ms": 0.1401439375,
+      "p50_ms": 0.1290395,
+      "p99_ms": 0.25796562
+    }
+  },
+  "glue_note": "original recursive interceptor CPU tensor conversion",
+  "token_note": "TokenizePrompt includes SentencePiece and state prompt construction"
+}

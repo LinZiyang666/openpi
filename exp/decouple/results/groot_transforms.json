@@ -1,0 +1,61 @@
+{
+  "model": "groot",
+  "rows": 32,
+  "source": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all",
+  "pool": "B",
+  "image_source": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs",
+  "image_note": "recorded model-input images; state keys are normalized, not reconstructed simulator state",
+  "groot_image_adaptation": "224px B frames resized to 256px outside timed transforms",
+  "python": "/home/weiland/projects/openpi/.venv/bin/python",
+  "torch": "2.5.1+cu124",
+  "numpy": "1.26.4",
+  "components": {
+    "websocket_pack_ms": {
+      "mean_ms": 0.14409075,
+      "p50_ms": 0.141593,
+      "p99_ms": 0.19650637
+    },
+    "websocket_unpack_ms": {
+      "mean_ms": 0.056307156250000004,
+      "p50_ms": 0.054228,
+      "p99_ms": 0.07500006000000001
+    },
+    "transforms_excluding_token_prep_ms": {
+      "mean_ms": 6.2947968125,
+      "p50_ms": 6.272882999999999,
+      "p99_ms": 7.192984750000001
+    },
+    "token_prep_ms": {
+      "mean_ms": 7.78369078125,
+      "p50_ms": 7.797212,
+      "p99_ms": 8.841393250000001
+    },
+    "image_processor_only_ms": {
+      "mean_ms": 2.4604296249999997,
+      "p50_ms": 2.4848285,
+      "p99_ms": 2.7502008200000003
+    },
+    "tokenizer_only_ms": {
+      "mean_ms": 1.4607720312499999,
+      "p50_ms": 1.465665,
+      "p99_ms": 1.6783551399999999
+    },
+    "input_total_ms": {
+      "mean_ms": 14.81872515625,
+      "p50_ms": 14.795166,
+      "p99_ms": 16.845089350000002
+    },
+    "model_stage_cpu_glue_ms": {
+      "mean_ms": 0.50117078125,
+      "p50_ms": 0.4897455,
+      "p99_ms": 0.7430849200000003
+    },
+    "output_transforms_ms": {
+      "mean_ms": 0.6177448125,
+      "p50_ms": 0.593206,
+      "p99_ms": 0.8438362700000002
+    }
+  },
+  "glue_note": "actual GR00T prepare_input body with CPU device and bf16 casts; CUDA transfers/launches excluded",
+  "token_note": "GR00TTransform includes tokenizer, image processor, padding and collate"
+}

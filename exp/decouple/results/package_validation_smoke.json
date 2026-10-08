@@ -1,0 +1,328 @@
+{
+  "passed": true,
+  "models": [
+    "groot",
+    "pi05"
+  ],
+  "mode": "smoke",
+  "accepted_episodes_per_arm": 20,
+  "assets_checked": {
+    "path": "/home/weiland/projects/openpi_decouple/assets/pi05_libero/physical-intelligence/libero/norm_stats.json",
+    "sha256": "c0ee3c1a6ca5f1414d31180af3bc333dca1d78cf912f341943191b393fe68707"
+  },
+  "warmup_episodes_per_arm": 10,
+  "workers": 64,
+  "manifest_identity_per_model": true,
+  "remote_contacted": false,
+  "gpu_used": false,
+  "listeners_created": true,
+  "remote_paths": "checked against sealed R16 deployment manifest; live SHA checks deferred to GPU package",
+  "ports": [
+    23100,
+    23400,
+    23179,
+    23401,
+    23402,
+    23403,
+    23404,
+    23405,
+    23406,
+    23407,
+    23408,
+    23409,
+    23410,
+    23411,
+    23412,
+    23413,
+    23414,
+    23415,
+    23416
+  ],
+  "expected_wall_minutes": 8,
+  "wall_deadline": "2026-10-08T15:15:00-05:00",
+  "shutdown_reserve_s": 120,
+  "initial_arm_order": [
+    "current_1",
+    "split_8"
+  ],
+  "repeat_placement": "after both models screening",
+  "bash_syntax": true,
+  "help_checked": [
+    "exp.decouple.package_config --help",
+    "exp.decouple.gpu_package --help",
+    "exp.decouple.package_driver --help",
+    "exp.decouple.current_fleet --help",
+    "exp.decouple.benchmark_gpu --help",
+    "exp.decouple.qualify_gpu --help",
+    "exp.decouple.summarize_gpu --help",
+    "exp.decouple.latency_proxy --help",
+    "openpi.serving.split --help",
+    "exp.offline_search.rounds.r16.conductor --help",
+    "exp.decouple.collect_gpu --help",
+    "exp.decouple.gate_cache --help"
+  ],
+  "resident_argv_parsed": [
+    "groot",
+    "pi05"
+  ],
+  "bundled_cloudpickle": "3.1.2; isolated main-Python -S roundtrip passed",
+  "worker_wire_sha256": {
+    "src/openpi/conductor/task.py": "b175d54d8a47b30e74611d4519088eb328bd815bf7b9bc5013e8e16a0a0d84ca",
+    "src/openpi/conductor/protocol.py": "d538297a2f951b829e77d1aeab399e6838fd7f7b4dfdd9edcdd6c9fe80c0c683",
+    "examples/libero/episode_runner.py": "cedc3c6726ca2de16cf27dc1f1cdc24c94e1bc99384ee61c38e8f15b8426be32",
+    "packages/openpi-client/src/openpi_client/websocket_client_policy.py": "62eca22b061bc9971212a691bd24466faa8d7cde2cec964a8b2254ba30e76889",
+    "packages/openpi-client/src/openpi_client/msgpack_numpy.py": "c04568948fcee52b691e3be4b6cffb759f7e79ad67530fcd5d23095a0d13c057"
+  },
+  "task_graph_checked": true,
+  "expanded_argv": "/home/weiland/projects/openpi_decouple/exp/decouple/results/package_dry_run_smoke/argv.json",
+  "groot_qualifier_imports_no_jax": true,
+  "cpu_collection": {
+    "passed": true,
+    "models": [
+      "groot",
+      "pi05"
+    ],
+    "recorded_worker_frames": true,
+    "interleaved_connections": 2,
+    "warmup_excluded": true,
+    "rejected_attempt_excluded": true,
+    "collector": "same as run_arm and offline re-analysis",
+    "summary": "/home/weiland/projects/openpi_decouple/exp/decouple/results/package_dry_run_smoke/cpu_collection/SUMMARY.md",
+    "gpu_used": false,
+    "listeners_created": false,
+    "remote_operations": 0
+  },
+  "cpu_split_startup": {
+    "groot": {
+      "passed": true,
+      "model": "groot",
+      "fronts": 8,
+      "fresh_children": 9,
+      "children_reaped": true,
+      "runtime_path_bytes": 301,
+      "endpoint": "/run/user/1000/opi-8532474d51-fa5ppps0/stages.sock",
+      "socket_cleaned": true,
+      "fronts_report": [
+        {
+          "pid": 186019,
+          "endpoint": "/run/user/1000/opi-8532474d51-fa5ppps0/stages.sock",
+          "host": "127.0.0.1",
+          "port": 23401,
+          "cuda_visible_devices": "",
+          "stage_epoch": "11b07764118b4dc9beb5f68b43fe752b",
+          "blueprint_kind": "groot",
+          "dynamic_processor_imported": true,
+          "jax_imported": false,
+          "memfd_tensor_equal": true
+        },
+        {
+          "pid": 186020,
+          "endpoint": "/run/user/1000/opi-8532474d51-fa5ppps0/stages.sock",
+          "host": "127.0.0.1",
+          "port": 23402,
+          "cuda_visible_devices": "",
+          "stage_epoch": "11b07764118b4dc9beb5f68b43fe752b",
+          "blueprint_kind": "groot",
+          "dynamic_processor_imported": true,
+          "jax_imported": false,
+          "memfd_tensor_equal": true
+        },
+        {
+          "pid": 186021,
+          "endpoint": "/run/user/1000/opi-8532474d51-fa5ppps0/stages.sock",
+          "host": "127.0.0.1",
+          "port": 23403,
+          "cuda_visible_devices": "",
+          "stage_epoch": "11b07764118b4dc9beb5f68b43fe752b",
+          "blueprint_kind": "groot",
+          "dynamic_processor_imported": true,
+          "jax_imported": false,
+          "memfd_tensor_equal": true
+        },
+        {
+          "pid": 186022,
+          "endpoint": "/run/user/1000/opi-8532474d51-fa5ppps0/stages.sock",
+          "host": "127.0.0.1",
+          "port": 23404,
+          "cuda_visible_devices": "",
+          "stage_epoch": "11b07764118b4dc9beb5f68b43fe752b",
+          "blueprint_kind": "groot",
+          "dynamic_processor_imported": true,
+          "jax_imported": false,
+          "memfd_tensor_equal": true
+        },
+        {
+          "pid": 186023,
+          "endpoint": "/run/user/1000/opi-8532474d51-fa5ppps0/stages.sock",
+          "host": "127.0.0.1",
+          "port": 23405,
+          "cuda_visible_devices": "",
+          "stage_epoch": "11b07764118b4dc9beb5f68b43fe752b",
+          "blueprint_kind": "groot",
+          "dynamic_processor_imported": true,
+          "jax_imported": false,
+          "memfd_tensor_equal": true
+        },
+        {
+          "pid": 186024,
+          "endpoint": "/run/user/1000/opi-8532474d51-fa5ppps0/stages.sock",
+          "host": "127.0.0.1",
+          "port": 23406,
+          "cuda_visible_devices": "",
+          "stage_epoch": "11b07764118b4dc9beb5f68b43fe752b",
+          "blueprint_kind": "groot",
+          "dynamic_processor_imported": true,
+          "jax_imported": false,
+          "memfd_tensor_equal": true
+        },
+        {
+          "pid": 186025,
+          "endpoint": "/run/user/1000/opi-8532474d51-fa5ppps0/stages.sock",
+          "host": "127.0.0.1",
+          "port": 23407,
+          "cuda_visible_devices": "",
+          "stage_epoch": "11b07764118b4dc9beb5f68b43fe752b",
+          "blueprint_kind": "groot",
+          "dynamic_processor_imported": true,
+          "jax_imported": false,
+          "memfd_tensor_equal": true
+        },
+        {
+          "pid": 186026,
+          "endpoint": "/run/user/1000/opi-8532474d51-fa5ppps0/stages.sock",
+          "host": "127.0.0.1",
+          "port": 23408,
+          "cuda_visible_devices": "",
+          "stage_epoch": "11b07764118b4dc9beb5f68b43fe752b",
+          "blueprint_kind": "groot",
+          "dynamic_processor_imported": true,
+          "jax_imported": false,
+          "memfd_tensor_equal": true
+        }
+      ],
+      "evidence": "/home/weiland/projects/openpi_decouple/exp/decouple/results/package_dry_run_smoke/cpu_startup/groot/run-ncptfx06",
+      "tcp_listeners": 0
+    },
+    "pi05": {
+      "passed": true,
+      "model": "pi05",
+      "fronts": 8,
+      "fresh_children": 9,
+      "children_reaped": true,
+      "runtime_path_bytes": 300,
+      "endpoint": "/run/user/1000/opi-c7a2a053ee-j8y6sptx/stages.sock",
+      "socket_cleaned": true,
+      "fronts_report": [
+        {
+          "pid": 187335,
+          "endpoint": "/run/user/1000/opi-c7a2a053ee-j8y6sptx/stages.sock",
+          "host": "127.0.0.1",
+          "port": 23401,
+          "cuda_visible_devices": "",
+          "stage_epoch": "a4d49917512c4b2b90d2c47236d4a67d",
+          "blueprint_kind": "pi05",
+          "dynamic_processor_imported": false,
+          "jax_imported": true,
+          "memfd_tensor_equal": true
+        },
+        {
+          "pid": 187336,
+          "endpoint": "/run/user/1000/opi-c7a2a053ee-j8y6sptx/stages.sock",
+          "host": "127.0.0.1",
+          "port": 23402,
+          "cuda_visible_devices": "",
+          "stage_epoch": "a4d49917512c4b2b90d2c47236d4a67d",
+          "blueprint_kind": "pi05",
+          "dynamic_processor_imported": false,
+          "jax_imported": true,
+          "memfd_tensor_equal": true
+        },
+        {
+          "pid": 187337,
+          "endpoint": "/run/user/1000/opi-c7a2a053ee-j8y6sptx/stages.sock",
+          "host": "127.0.0.1",
+          "port": 23403,
+          "cuda_visible_devices": "",
+          "stage_epoch": "a4d49917512c4b2b90d2c47236d4a67d",
+          "blueprint_kind": "pi05",
+          "dynamic_processor_imported": false,
+          "jax_imported": true,
+          "memfd_tensor_equal": true
+        },
+        {
+          "pid": 187338,
+          "endpoint": "/run/user/1000/opi-c7a2a053ee-j8y6sptx/stages.sock",
+          "host": "127.0.0.1",
+          "port": 23404,
+          "cuda_visible_devices": "",
+          "stage_epoch": "a4d49917512c4b2b90d2c47236d4a67d",
+          "blueprint_kind": "pi05",
+          "dynamic_processor_imported": false,
+          "jax_imported": true,
+          "memfd_tensor_equal": true
+        },
+        {
+          "pid": 187339,
+          "endpoint": "/run/user/1000/opi-c7a2a053ee-j8y6sptx/stages.sock",
+          "host": "127.0.0.1",
+          "port": 23405,
+          "cuda_visible_devices": "",
+          "stage_epoch": "a4d49917512c4b2b90d2c47236d4a67d",
+          "blueprint_kind": "pi05",
+          "dynamic_processor_imported": false,
+          "jax_imported": true,
+          "memfd_tensor_equal": true
+        },
+        {
+          "pid": 187340,
+          "endpoint": "/run/user/1000/opi-c7a2a053ee-j8y6sptx/stages.sock",
+          "host": "127.0.0.1",
+          "port": 23406,
+          "cuda_visible_devices": "",
+          "stage_epoch": "a4d49917512c4b2b90d2c47236d4a67d",
+          "blueprint_kind": "pi05",
+          "dynamic_processor_imported": false,
+          "jax_imported": true,
+          "memfd_tensor_equal": true
+        },
+        {
+          "pid": 187341,
+          "endpoint": "/run/user/1000/opi-c7a2a053ee-j8y6sptx/stages.sock",
+          "host": "127.0.0.1",
+          "port": 23407,
+          "cuda_visible_devices": "",
+          "stage_epoch": "a4d49917512c4b2b90d2c47236d4a67d",
+          "blueprint_kind": "pi05",
+          "dynamic_processor_imported": false,
+          "jax_imported": true,
+          "memfd_tensor_equal": true
+        },
+        {
+          "pid": 187342,
+          "endpoint": "/run/user/1000/opi-c7a2a053ee-j8y6sptx/stages.sock",
+          "host": "127.0.0.1",
+          "port": 23408,
+          "cuda_visible_devices": "",
+          "stage_epoch": "a4d49917512c4b2b90d2c47236d4a67d",
+          "blueprint_kind": "pi05",
+          "dynamic_processor_imported": false,
+          "jax_imported": true,
+          "memfd_tensor_equal": true
+        }
+      ],
+      "evidence": "/home/weiland/projects/openpi_decouple/exp/decouple/results/package_dry_run_smoke/cpu_startup/pi05/run-bezruin8",
+      "tcp_listeners": 0
+    }
+  },
+  "gate_cache_available": {
+    "groot_k1_b1": true,
+    "groot_k2_b1": true,
+    "pi05_k1_b1": true,
+    "pi05_k2_b1": true
+  },
+  "remote_operations": 0,
+  "model_loads": 0,
+  "tcp_listeners": 0,
+  "private_unix_listeners": 2,
+  "processes_launched": "CLI help/parser/import checks; 18 fresh CPU-stub split children, private AF_UNIX IPC; in-memory worker replay"
+}

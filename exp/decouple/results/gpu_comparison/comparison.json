@@ -1,0 +1,13 @@
+{
+  "package_id": "20261008_132449_a32ab1",
+  "status": "failed",
+  "deadline": {
+    "wall": "2026-10-08T15:15:00-05:00",
+    "shutdown_reserve_s": 120,
+    "window_s": 7200,
+    "effective_hard_end": "2026-10-08T15:14:59.999999-05:00"
+  },
+  "skipped_deadline": {},
+  "arms": {},
+  "paired": {}
+}

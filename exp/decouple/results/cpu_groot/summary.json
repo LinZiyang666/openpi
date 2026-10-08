@@ -1,0 +1,26 @@
+{
+  "model": "groot",
+  "scope": "method/corrector/plugin/log/serialization with inline stage stubs; transforms excluded",
+  "rows": [
+    {
+      "fronts": 1,
+      "decisions": 64,
+      "elapsed_s": 0.23901734999526525,
+      "decisions_per_s": 267.76298875904945,
+      "cpu_s": 0.2387277439999993,
+      "cpu_ms_per_decision": 3.730120999999989,
+      "latency_p50_ms": 3.138558,
+      "latency_p99_ms": 9.711724419999996
+    },
+    {
+      "fronts": 2,
+      "decisions": 128,
+      "elapsed_s": 0.4071818890006398,
+      "decisions_per_s": 314.3558283354761,
+      "cpu_s": 0.7051533669999994,
+      "cpu_ms_per_decision": 5.509010679687496,
+      "latency_p50_ms": 3.8004429999999996,
+      "latency_p99_ms": 13.23058888
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "model": "groot",
+  "checkpoint": "/data/ckpt/n15_libero_spatial",
+  "k": 1,
+  "batch_size": 1,
+  "rows": 16,
+  "bounds": {
+    "max_abs": null,
+    "max_rel": null
+  },
+  "fields": {
+    "key:vision_0": {
+      "bit_exact": true,
+      "max_abs": 0.0,
+      "max_rel": 0.0
+    },
+    "key:vision_1": {
+      "bit_exact": true,
+      "max_abs": 0.0,
+      "max_rel": 0.0
+    },
+    "key:robot_state": {
+      "bit_exact": true,
+      "max_abs": 0.0,
+      "max_rel": 0.0
+    },
+    "action": {
+      "bit_exact": true,
+      "max_abs": 0.0,
+      "max_rel": 0.0
+    }
+  },
+  "donor_order_equal": true,
+  "passed": true,
+  "torch": "2.5.1+cu124",
+  "gpu": "NVIDIA GeForce RTX 4090",
+  "image_source": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs",
+  "limitations": "stage qualification only; GR00T uses adapted Pi0.5 B image fixtures; complete launcher/decision replay still required"
+}

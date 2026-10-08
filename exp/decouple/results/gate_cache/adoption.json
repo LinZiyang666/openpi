@@ -1,0 +1,10 @@
+{
+  "adopted": [
+    "groot_k1_b1",
+    "groot_k2_b1",
+    "pi05_k1_b1",
+    "pi05_k2_b1"
+  ],
+  "source": "owner report; original window config and strict GPU result files",
+  "gpu_used": false
+}

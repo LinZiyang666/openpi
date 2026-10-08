@@ -1,0 +1,53 @@
+{
+  "input_sha256": "26b9bdb1e64387a28398ca9778348ac79be12672ce964a693306e3245c0f2db3",
+  "proof": {
+    "model": "pi05",
+    "checkpoint": "/home/weiland/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch",
+    "k": 2,
+    "batch_size": 1,
+    "rows": 16,
+    "bounds": {
+      "max_abs": null,
+      "max_rel": null
+    },
+    "fields": {
+      "key:vision_0": {
+        "bit_exact": true,
+        "max_abs": 0.0,
+        "max_rel": 0.0
+      },
+      "key:vision_1": {
+        "bit_exact": true,
+        "max_abs": 0.0,
+        "max_rel": 0.0
+      },
+      "key:robot_state": {
+        "bit_exact": true,
+        "max_abs": 0.0,
+        "max_rel": 0.0
+      },
+      "action": {
+        "bit_exact": true,
+        "max_abs": 0.0,
+        "max_rel": 0.0
+      }
+    },
+    "donor_order_equal": true,
+    "passed": true,
+    "torch": "2.7.1+cu126",
+    "gpu": "NVIDIA GeForce RTX 4090",
+    "image_source": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs",
+    "limitations": "stage qualification only; GR00T uses adapted Pi0.5 B image fixtures; complete launcher/decision replay still required"
+  },
+  "proof_sha256": "a84e405224583cfaaac70c628d56a01b16040b4f09efea1e8d9aa39ce4891973",
+  "gpu_identity": {
+    "host": "weilandserver",
+    "index": 0,
+    "name": "NVIDIA GeForce RTX 4090",
+    "uuid": null,
+    "driver": null
+  },
+  "owner_attested": true,
+  "original_path": "exp/decouple/results/gpu_comparison/pi05_k2_b1.json",
+  "cached_path": "/home/weiland/projects/openpi_decouple/exp/decouple/results/gate_cache/proofs/pi05_k2_b1_26b9bdb1e64387a28398ca9778348ac79be12672ce964a693306e3245c0f2db3_9e8d211b03ac.json"
+}

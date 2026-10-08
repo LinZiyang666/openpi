@@ -1,0 +1,447 @@
+{
+  "pi05": [
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/closed_loop/plugin.py",
+      "line": 1070,
+      "name": "on_search",
+      "calls": 32,
+      "self_ms": 2.083733,
+      "cumulative_ms": 225.111532,
+      "mean_ms": 7.034735375
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r13/knob/recipe.py",
+      "line": 80,
+      "name": "query",
+      "calls": 32,
+      "self_ms": 0.183572,
+      "cumulative_ms": 139.275111,
+      "mean_ms": 4.35234721875
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r11/knob/recipe.py",
+      "line": 129,
+      "name": "query",
+      "calls": 32,
+      "self_ms": 1.324967,
+      "cumulative_ms": 139.091539,
+      "mean_ms": 4.34661059375
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r10/recipe/recipe.py",
+      "line": 125,
+      "name": "query",
+      "calls": 32,
+      "self_ms": 0.214314,
+      "cumulative_ms": 125.73672500000002,
+      "mean_ms": 3.9292726562500007
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r06/p2_ablations/judge.py",
+      "line": 32,
+      "name": "query",
+      "calls": 32,
+      "self_ms": 0.13009500000000002,
+      "cumulative_ms": 125.50283,
+      "mean_ms": 3.9219634375
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r04/k10_policy_tail/judge.py",
+      "line": 35,
+      "name": "query",
+      "calls": 32,
+      "self_ms": 0.23334900000000003,
+      "cumulative_ms": 125.37161300000002,
+      "mean_ms": 3.9178629062500008
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r04/k7_guard/judge.py",
+      "line": 76,
+      "name": "query",
+      "calls": 32,
+      "self_ms": 2.870628,
+      "cumulative_ms": 122.77716500000001,
+      "mean_ms": 3.8367864062500003
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r02/g3_recovery/wrappers.py",
+      "line": 359,
+      "name": "query",
+      "calls": 32,
+      "self_ms": 3.391537,
+      "cumulative_ms": 112.94591100000001,
+      "mean_ms": 3.5295597187500003
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/closed_loop/plugin.py",
+      "line": 726,
+      "name": "emit",
+      "calls": 66,
+      "self_ms": 1.124478,
+      "cumulative_ms": 65.89886,
+      "mean_ms": 0.9984675757575757
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r02/g1_awm/awm.py",
+      "line": 478,
+      "name": "_dist",
+      "calls": 62,
+      "self_ms": 49.356215,
+      "cumulative_ms": 56.953587000000006,
+      "mean_ms": 0.918606241935484
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r10/recipe/recipe.py",
+      "line": 38,
+      "name": "_correction",
+      "calls": 32,
+      "self_ms": 19.86694,
+      "cumulative_ms": 50.834385000000005,
+      "mean_ms": 1.5885745312500001
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r10/recipe/recipe.py",
+      "line": 135,
+      "name": "blind_step",
+      "calls": 38,
+      "self_ms": 0.158309,
+      "cumulative_ms": 8.675766,
+      "mean_ms": 0.22830963157894735
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r06/p2_ablations/judge.py",
+      "line": 46,
+      "name": "blind_step",
+      "calls": 38,
+      "self_ms": 0.12710600000000002,
+      "cumulative_ms": 8.388679000000002,
+      "mean_ms": 0.22075471052631582
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r04/k1_blind/judge.py",
+      "line": 41,
+      "name": "blind_step",
+      "calls": 38,
+      "self_ms": 0.260747,
+      "cumulative_ms": 8.261573000000002,
+      "mean_ms": 0.21740981578947374
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r03/h3_judge/judge.py",
+      "line": 210,
+      "name": "query",
+      "calls": 2,
+      "self_ms": 0.185958,
+      "cumulative_ms": 7.74396,
+      "mean_ms": 3.87198
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r04/k1_blind/blind_awm.py",
+      "line": 164,
+      "name": "blind_step",
+      "calls": 38,
+      "self_ms": 2.8929790000000004,
+      "cumulative_ms": 7.317170000000001,
+      "mean_ms": 0.19255710526315792
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r04/k1_blind/judge.py",
+      "line": 66,
+      "name": "_features",
+      "calls": 32,
+      "self_ms": 0.211721,
+      "cumulative_ms": 6.783046,
+      "mean_ms": 0.2119701875
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r03/h3_judge/judge.py",
+      "line": 184,
+      "name": "_features",
+      "calls": 32,
+      "self_ms": 0.11173100000000001,
+      "cumulative_ms": 6.550459000000001,
+      "mean_ms": 0.20470184375000003
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r02/g3_recovery/wrappers.py",
+      "line": 334,
+      "name": "_features",
+      "calls": 32,
+      "self_ms": 1.255372,
+      "cumulative_ms": 6.438728,
+      "mean_ms": 0.20121025
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r10/recipe/recipe.py",
+      "line": 20,
+      "name": "predict",
+      "calls": 30,
+      "self_ms": 2.630833,
+      "cumulative_ms": 3.114421,
+      "mean_ms": 0.10381403333333333
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r02/g3_recovery/g3_core.py",
+      "line": 99,
+      "name": "topk_pos",
+      "calls": 32,
+      "self_ms": 0.88748,
+      "cumulative_ms": 2.1422559999999997,
+      "mean_ms": 0.06694549999999999
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r10/recipe/recipe.py",
+      "line": 32,
+      "name": "_features",
+      "calls": 30,
+      "self_ms": 0.694392,
+      "cumulative_ms": 1.226986,
+      "mean_ms": 0.04089953333333333
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r02/g3_recovery/g3_core.py",
+      "line": 117,
+      "name": "kernel_weights",
+      "calls": 64,
+      "self_ms": 0.8598700000000001,
+      "cumulative_ms": 0.9070840000000001,
+      "mean_ms": 0.014173187500000002
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r10/recipe/recipe.py",
+      "line": 60,
+      "name": "_apply",
+      "calls": 32,
+      "self_ms": 0.501996,
+      "cumulative_ms": 0.595524,
+      "mean_ms": 0.018610125
+    }
+  ],
+  "groot": [
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/closed_loop/plugin.py",
+      "line": 1070,
+      "name": "on_search",
+      "calls": 32,
+      "self_ms": 2.395814,
+      "cumulative_ms": 245.270375,
+      "mean_ms": 7.66469921875
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r13/knob/recipe.py",
+      "line": 80,
+      "name": "query",
+      "calls": 32,
+      "self_ms": 0.181102,
+      "cumulative_ms": 159.221265,
+      "mean_ms": 4.97566453125
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r11/knob/recipe.py",
+      "line": 129,
+      "name": "query",
+      "calls": 32,
+      "self_ms": 1.743949,
+      "cumulative_ms": 159.040163,
+      "mean_ms": 4.97000509375
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r10/recipe/recipe.py",
+      "line": 125,
+      "name": "query",
+      "calls": 32,
+      "self_ms": 0.23587300000000003,
+      "cumulative_ms": 144.431927,
+      "mean_ms": 4.51349771875
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r06/p2_ablations/judge.py",
+      "line": 32,
+      "name": "query",
+      "calls": 32,
+      "self_ms": 0.14349,
+      "cumulative_ms": 144.17713700000002,
+      "mean_ms": 4.5055355312500005
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r06/p1_groot_commit/judge.py",
+      "line": 80,
+      "name": "query",
+      "calls": 32,
+      "self_ms": 0.23615200000000003,
+      "cumulative_ms": 144.033647,
+      "mean_ms": 4.50105146875
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r04/k10_policy_tail/judge.py",
+      "line": 35,
+      "name": "query",
+      "calls": 32,
+      "self_ms": 0.284148,
+      "cumulative_ms": 142.89268400000003,
+      "mean_ms": 4.465396375000001
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r04/k7_guard/judge.py",
+      "line": 76,
+      "name": "query",
+      "calls": 32,
+      "self_ms": 2.8731720000000003,
+      "cumulative_ms": 140.194348,
+      "mean_ms": 4.381073375
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r02/g3_recovery/wrappers.py",
+      "line": 359,
+      "name": "query",
+      "calls": 32,
+      "self_ms": 3.852598,
+      "cumulative_ms": 129.998013,
+      "mean_ms": 4.06243790625
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r02/g1_awm/awm.py",
+      "line": 478,
+      "name": "_dist",
+      "calls": 62,
+      "self_ms": 59.352428,
+      "cumulative_ms": 67.82415600000002,
+      "mean_ms": 1.0939380000000003
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/closed_loop/plugin.py",
+      "line": 726,
+      "name": "emit",
+      "calls": 66,
+      "self_ms": 1.257668,
+      "cumulative_ms": 62.100052000000005,
+      "mean_ms": 0.9409098787878789
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r10/recipe/recipe.py",
+      "line": 38,
+      "name": "_correction",
+      "calls": 32,
+      "self_ms": 20.480428000000003,
+      "cumulative_ms": 55.471724,
+      "mean_ms": 1.733491375
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r10/recipe/recipe.py",
+      "line": 135,
+      "name": "blind_step",
+      "calls": 40,
+      "self_ms": 0.144313,
+      "cumulative_ms": 9.004197,
+      "mean_ms": 0.22510492499999998
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r06/p2_ablations/judge.py",
+      "line": 46,
+      "name": "blind_step",
+      "calls": 40,
+      "self_ms": 0.13683900000000002,
+      "cumulative_ms": 8.729785,
+      "mean_ms": 0.218244625
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r04/k1_blind/judge.py",
+      "line": 41,
+      "name": "blind_step",
+      "calls": 40,
+      "self_ms": 0.24013900000000002,
+      "cumulative_ms": 8.592946000000001,
+      "mean_ms": 0.21482365000000003
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r03/h3_judge/judge.py",
+      "line": 210,
+      "name": "query",
+      "calls": 2,
+      "self_ms": 0.21598300000000004,
+      "cumulative_ms": 8.248864,
+      "mean_ms": 4.124432
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r04/k1_blind/judge.py",
+      "line": 66,
+      "name": "_features",
+      "calls": 32,
+      "self_ms": 0.26684100000000005,
+      "cumulative_ms": 7.910086000000001,
+      "mean_ms": 0.24719018750000002
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r04/k1_blind/blind_awm.py",
+      "line": 164,
+      "name": "blind_step",
+      "calls": 40,
+      "self_ms": 3.067167,
+      "cumulative_ms": 7.640059,
+      "mean_ms": 0.191001475
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r03/h3_judge/judge.py",
+      "line": 184,
+      "name": "_features",
+      "calls": 32,
+      "self_ms": 0.140908,
+      "cumulative_ms": 7.614210000000001,
+      "mean_ms": 0.23794406250000003
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r02/g3_recovery/wrappers.py",
+      "line": 334,
+      "name": "_features",
+      "calls": 32,
+      "self_ms": 1.6149220000000002,
+      "cumulative_ms": 7.473302,
+      "mean_ms": 0.2335406875
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r10/recipe/recipe.py",
+      "line": 20,
+      "name": "predict",
+      "calls": 30,
+      "self_ms": 3.2869650000000004,
+      "cumulative_ms": 3.7954890000000003,
+      "mean_ms": 0.1265163
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r02/g3_recovery/g3_core.py",
+      "line": 99,
+      "name": "topk_pos",
+      "calls": 32,
+      "self_ms": 1.099699,
+      "cumulative_ms": 2.514196,
+      "mean_ms": 0.078568625
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r10/recipe/recipe.py",
+      "line": 32,
+      "name": "_features",
+      "calls": 30,
+      "self_ms": 0.7633640000000002,
+      "cumulative_ms": 1.373471,
+      "mean_ms": 0.04578236666666667
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r02/g3_recovery/g3_core.py",
+      "line": 117,
+      "name": "kernel_weights",
+      "calls": 64,
+      "self_ms": 0.8920200000000001,
+      "cumulative_ms": 0.9403310000000001,
+      "mean_ms": 0.014692671875000002
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/offline_search/rounds/r10/recipe/recipe.py",
+      "line": 60,
+      "name": "_apply",
+      "calls": 32,
+      "self_ms": 0.587932,
+      "cumulative_ms": 0.6991860000000001,
+      "mean_ms": 0.021849562500000003
+    }
+  ]
+}

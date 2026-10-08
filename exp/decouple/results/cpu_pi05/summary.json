@@ -1,0 +1,26 @@
+{
+  "model": "pi05",
+  "scope": "method/corrector/plugin/log/serialization with inline stage stubs; transforms excluded",
+  "rows": [
+    {
+      "fronts": 1,
+      "decisions": 64,
+      "elapsed_s": 0.24921206499857362,
+      "decisions_per_s": 256.8093964486282,
+      "cpu_s": 0.24919578699999967,
+      "cpu_ms_per_decision": 3.8936841718749946,
+      "latency_p50_ms": 3.2949850000000005,
+      "latency_p99_ms": 11.054516529999997
+    },
+    {
+      "fronts": 2,
+      "decisions": 128,
+      "elapsed_s": 0.36069209500419674,
+      "decisions_per_s": 354.87331652918726,
+      "cpu_s": 0.713235855999999,
+      "cpu_ms_per_decision": 5.572155124999992,
+      "latency_p50_ms": 3.9934625,
+      "latency_p99_ms": 13.37734855
+    }
+  ]
+}
