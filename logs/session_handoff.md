@@ -52,40 +52,74 @@ owner 的常驻指令，逐字有效：
 
 
 
-## 1. 现在在哪（2026-10-07 19:1x CDT；最先读；R16 在跑）
+## 1. 现在在哪（2026-10-08 10:1x CDT；最先读；R16 测试集 GR00T 段在跑 + 重跑工具 + 解耦两条 sol 在跑）
 
-### 1.R16 正在做：纯减步融入闭环（owner 10-07 目标"融入纯减步并实验"）
-- **决定**：见 `rounds/r16/COORDINATOR_DECISIONS.md`（D1–D7）。
-  - 所有大模型调用都改成 k 步去噪，k = 1 或 2；包括守卫触发、旋钮定期调用和纯推理。库、度量、修正器都沿用现有冻结的那一套。
-  - 执行段用现行的 10 步，旧的 9-15 减步数据不能拿来对比。
-  - 第一步：纯减步推理 8 组 × 500 局。
-  - 第二步：库大小 50/100/200/500 × 两个模型 × 两类任务 × k，共 32 格。开发集上重做逐任务下降，参照用满步纯推理；然后冻结，32 格各跑测试集 500 局。
-  - IR：π0.5 是 .152V + c·M，c = .454（k = 1）/ .498（k = 2）；GR00T 是 .148V + c·M，c = .258 / .343。
-- **设备（owner 规定 + 协议 M6）**：只用本机 4090（28 GB）作 server，worker 在 timan107。实验期间 h100 整张归沙堆实验。**结束后立刻停掉 4090 上我方全部进程，并书面告诉沙堆实验两张卡整台归它。**
-- **实现**：sol 线程 `01a117c6-8ffa-7083-b715-df7eb642bbcc`，交回说明 `rounds/r16/HANDBACK.md`，运行手册 `RUNBOOK.md`。共享代码只改了 `src/openpi/cache/types.py`（放行 GR00T 一步去噪）。
-- **跑法**：`openpi_ext/scratch/r16_ops/`
-  - 运行器 `run_r16.sh`：按模型选服务数和显存预检，π0.5 3 个服务、GR00T 4 个，每个服务 16 个 worker。
-  - 每组跑完用 `r16_check.py` 检查 `miss_k`；监控 `line_watch.sh`；显存峰值采样 `gpu_peak.sh`（tmux `r16_gpupeak`）。
-  - 线：tmux `r16q_local`，日志 `/tmp/r8_coord/r16_q_local_timan107.log`。
-- **进度**：
-  - 4 组真机冒烟全部通过；实测峰值 π0.5 9.9 GB（三个服务稳定在约 27 GB，所以签了 M7：π0.5 组期间 30 / 18 GB）、GR00T 6.0 GB。
-  - 第一步 8/8 已完成，结果在 `rounds/r16/phase1_results/PHASE1.md`：8 格成功率都和满步数分不开（−0.8 到 +1.4 个点），开销 π0.5 −35~40%、GR00T −51~59%。
-- **10-07 19:13 已恢复**（owner："你可以继续工作"）：本机 19:00 左右重启过；已通知沙堆实验收回 4090，台账已更新；运行器、采样器、监控和巡检 cron 都已重新挂上。
-- **（历史）10-07 18:03 owner 要关闭本机运维，R16 暂停**：
-  - 停下的东西：运行器、chain、本机 3 个服务（用 `control abort` 停的）、timan107 worker（为 0）、采样器、监控、巡检定时任务。我方没有在跑的 codex。
-  - 开发集完成 1/176（`r16d_pi05_l10_50_k1_pure_c10`）。被打断的 `r16d_pi05_l10_50_k2_pure_c10` 已放回 `r16_ops/queue.txt` 队首（队列共 175 行）；它的半截运行目录挪到了 `r16_dev_c10_pi05_l10_50_k2/aborted/`。
-  - 台账已写空闲声明，沙堆实验已通知。**恢复前 30 分钟要先通知沙堆实验收回 4090**；R16 还没结束，不要发"整台归你"的结束通知。
-- **恢复步骤**：
-  1. 给沙堆实验发收回通知，30 分钟后开始；
-  2. `tmux new -d -s r16q_local "bash /home/weiland/projects/openpi_ext/scratch/r16_ops/run_r16.sh local timan107 23100,23101,23102,23103 16"`；
-  3. `tmux new -d -s r16_gpupeak "bash .../r16_ops/gpu_peak.sh"`；
-  4. 用 Monitor 挂 `r16_ops/line_watch.sh`，再加 30 分钟一次的巡检 cron。
-  - 开发集还剩约 36–42 小时，之后是测试集 32 组。
-- **之后**：
-  1. `analyze phase1`；
-  2. 开发集跑完后依次 `analyze dev` → `analyze freeze` → `prepare emit-test` → `audit deployment-test` → 跑测试集队列 → `analyze test`；
-  3. 写报告，归还 4090 并通知沙堆实验。
-  - 命令前缀见 RUNBOOK。
+### 1.R16 正在做：纯减步融入闭环（owner 10-07 目标"融入纯减步并实验"，会话 goal 仍挂着）
+
+**10-08 17:3x 最终状态（先读这段）**：
+- R16 全部完成，**报告定稿 `rounds/r16/REPORT.md`（三批重跑合并，`retest_v1_v2_v3_results/`）**：四种库 × k 与满步纯推理持平（−0.3 到 +0.7），开销 .153–.212 对 .506；跨库合并比满步逐任务下降 k=1 +1.1 [+0.4,+1.7]、k=2 +1.3 [+0.6,+1.9]，开销 .171/.188 对 .291。−10 个点边界 7 个任务已按 c10 补跑（v3，`retest_superseding.py`，16:40–17:20，收回 R1）。
+- 4090：收回 R1（16:40–17:23）已结束，整卡归 I018，台账已写。我方无 GPU 作业。
+- 解耦：冒烟测试现行组通过（GR00T 1 份 23.1 局/分钟），拆分组启动失败 `AF_UNIX path too long`；sol 17:42 已修（短私有 socket 路径 + HF 导入 + 回环绑定 + 就绪等待上限，100 测试通过，4 道门证明仍可复用）。下次要 4090 先跑冒烟：`bash /home/weiland/projects/openpi_decouple/exp/decouple/run_gpu_package.sh --smoke --new --deadline "$(TZ=America/Chicago date -Iseconds -d '+10 minutes')"`，通过再跑整包（约 2 h，需整卡）。
+- /archive：第一批 6 项已搬完（含 2 条 relink），在搬三个旧轨迹目录；结束后通知沙堆实验并向 owner 汇报。
+- 提交 R16 仍待 owner 授权。
+
+**10-08 14:4x 状态（已被上一段覆盖）**：
+- R16 全部跑完：v2 补跑 7 个 −6 个点边界任务 13:48–14:27 完成（350 局，全部变好）；两批合并分析 `rounds/r16/retest_v1_v2_results/`；**REPORT.md 已更新为最终数字**：四种库 × k 与满步纯推理持平（−0.4 到 +0.5），跨库合并比满步逐任务下降 k=1 +1.0 [+0.4,+1.7]、k=2 +1.2 [+0.5,+1.9]，开销 .171/.187 对 .291。
+- **待补**：恰好 −10 个点的 7 个任务因同一浮点 bug 提到了 ir45（规则应 c10），清单见 REPORT.md 第三节。要补需 v3（这 7 个按 c10 重跑，约 350 局、25 分钟 GPU）；combined 分析器现在拒绝与 v1 重叠的代际，补跑前要让 sol 加"后一代覆盖前一代"的支持。等下一个 4090 时段。
+- **4090 已于 14:27 整卡交还 I018**（台账已写 S1 实际起止、峰值约 29.8 GB；B2/M6/M7 失效）。h100 也是 I018 的。我方现在没有 GPU 作业。
+- 解耦基准：sol 已修（延迟归属、复算、门复用、`--smoke` 模式，`run_gpu_package.sh` 绑核已改 2-43,46-87）；已跑完那组复算：GR00T 现行 1 份 31.0 局/分钟。下次拿到 4090 先 `run_gpu_package.sh --smoke --new --deadline ...`（约 10 分钟），通过再跑整包（约 2 小时）。命令见 `openpi_decouple/exp/decouple/GPU_PACKAGE.md`。
+- /archive 搬迁 14:27 开跑（tmux `archive_mv`，9 项 1.67 TiB，`move_list_all.txt`/`relink_all.tsv`；mover 已去掉逐文件 fsync 和复制时 --checksum，删源前仍有 sync -f + rsync -rlcn 全量校验）。日志 `archive_plan/mover.log`；巡检 cron 47ef23ad（每小时 :17）。结束后通知沙堆实验（它推迟了 /archive 删除）。
+- 提交 R16 仍待 owner 授权。
+
+**10-08 13:1x 状态**：
+- 测试集 32 格 11:42 跑完；按 owner 规则提档 46 个任务、重跑 2,300 局（11:43–12:52，`r16_conductor_retest_*_v1`），合并分析 `rounds/r16/retest_v1/results/RETEST.md`。**报告已写：`rounds/r16/REPORT.md`**。
+- 结果：提档后四种库大小 × k 全部与满步纯推理持平（−0.8 到 +0.5 个点），开销 .149–.205 对 .506；跨库合并比满步逐任务下降 k=1 +0.8 [+0.1,+1.4]、k=2 +1.1 [+0.4,+1.7]，开销 .166/.186 对 .291。
+- **漏了 7 个任务**：per_task.py 浮点比较把恰好 −6 个点算成 −5.999999，没进清单（已改为取整）。清单 `r16_ops/retest_changes_v2_boundary.json`。sol（R16 线程 01a117c6，日志 `r16_ops/sol_retest_v2.log`，tmux `cx_r16_rt`）在做 v2 增量重跑 + v1/v2 合并分析。350 局约 15 分钟 GPU，等下一个 4090 时段。
+- 4090：R16 12:52 结束，借用 B2 结束；12:52 起是时段 S1（台账"时段 S1"），跑解耦 GPU 基准，**最迟 15:15 交还 I018**，交还时写台账实际起止时间和显存峰值、书面通知；之后 I018 起整卡计时队列一天多。
+- 解耦基准：tmux `decouple_gpu`，命令见 tmux 历史（不用包里的 run_gpu_package.sh：它绑 16 核；我改为 taskset 2-43,46-87）。前两次门失败已修（worktree 补 `assets` 软链；`qualify_gpu.py` 把 jax 依赖的导入移进 π0.5 分支；重生成 `benchmark.local.json` 哈希），13:07 用 `--new` 重开。**日志在 `gpu_comparison/archive_20261008_125227_23dcdb/package_run.log`**（--new 把 tee 的文件挪进了归档目录）。结果 `gpu_comparison/SUMMARY.md`。
+- /archive 搬迁：owner 12:5x 让研究 /data 哪些能搬 /archive 并改软链（"astra 是土豪用法，用 sol 或 sonnet"）。sol 新线程 `01a11ca6-96ca-7753-9b5f-c25c17eae853`，任务 `openpi_ext/scratch/archive_plan/sol_archive_plan.md`，只读调研 + 写搬迁脚本，交回 PLAN.md / move_list.txt / relink.tsv / archive_mover.sh（dry-run）。我审后在 tmux 里单流搬。/data 上 openpi 约 2.5 TiB（i018、idea_sprint 不是我们的）。
+- owner 10-08 还说：视觉头显存不测（"不测视觉头，不管他"）。
+- **/archive 搬迁（13:3x 更新）**：sol 交回第一批 6 项 509 GiB（`archive_plan/PLAN.md`、`move_list.txt`、`relink.tsv`、`archive_mover.sh`，dry-run 通过）。owner 13:3x 选"旧轮次原始轨迹也搬"（`/data/trace_runs/dual_20260923`、`os_closed_loop/r08_main`、`r06_p3_pilot`，共 1.16 TiB）；dp/xwam/其他旧线不搬。sol 同线程在补第二批清单 `move_list_all.txt` / `relink_all.tsv` + dry-run（日志 `archive_plan/sol_archive_batch2.log`）。**I018 同意 15:15 起我方独占 /archive 写入**（它推迟 archive_cold.sh 和 /archive 删除，等我们通知结束）。跑法：tmux `archive_mv`，`cd archive_plan && ./archive_mover.sh move_list_all.txt relink_all.tsv`，看 `mover.log`；结束后通知沙堆实验。
+- **13:50 现状**：解耦基准第 3 次又失败（GR00T 现行 1 份那组 300 局其实跑完了，但 relay 延迟行 uid 全是 null，汇总判空）。决定：今天不再跑基准；13:48 起在 S1 内先跑 R16 v2 补跑（tmux `r16_retest_v2`，队列 `r16_ops/queue_retest_v2_ordered.txt`，日志 `r16_ops/retest_loop.log`），**跑完即提前交还 4090**（I018 请求）；硬停守护 tmux `s1_guard`（15:10:30）。sol 同线程修基准（`prompts/sol_decouple_bench_fix2.md`，日志 `r16_ops/sol_decouple_bench_fix2.log`）：延迟归属、已完成组复算、不重跑已过的门、10 分钟真机冒烟模式。**教训：下个 GPU 时段先跑冒烟，不要直接放整包。**
+- v2 跑完后：`retest_combined analyze --plan retest_v1/plan.json --plan retest_v2/plan.json --output retest_v1_v2_results`（命令见 HANDBACK_RETEST.md 附录），更新 REPORT.md 第三节。
+- 解耦基准第 3 次重开（13:24，`--new`）：GR00T 现行组起 worker 时 tether 30 s 超时且只试 1 次 → 改 `package_driver.py:119` 用默认 4 次重试（与 R16 运行器一致），重生成配置。**日志现在是 `openpi_ext/scratch/r16_ops/pkg_run3.log`**。巡检 cron e902f7a1。
+**内容**：所有大模型调用（守卫触发、旋钮定期调用、纯推理）改成动作头只跑 k 步去噪，k = 1 或 2。库、度量、修正器都沿用现有冻结的那一套。执行段是现行的 10 步。决定见 `rounds/r16/COORDINATOR_DECISIONS.md`。
+- IR：π0.5 是 .152V + c·M，c = .454（k = 1）/ .498（k = 2）；GR00T 是 .148V + c·M，c = .258 / .343。
+
+**结果到目前为止**：
+- **第一步（纯减步推理，测试集 8 组 × 500 局）**：8 格都和满步分不开（−0.8 到 +1.4 个点）。开销 π0.5 .30–.33（满步 .50），GR00T .20–.25。结果在 `rounds/r16/phase1_results/PHASE1.md`。
+- **开发集（B 池，逐任务下降，5 个点容差，按局自适应）**：4 个分组全部完成。档位表已冻结，在 `rounds/r16/dev_results_conductor/`：`levels.json`、`DESCENT.md`、`TABLE_FREEZE.json`，另有 `levels_tol0pp.json` / `levels_tol2pp.json`。
+- **测试集（32 格 × 500 局）**：π0.5 两组已完成，GR00T k = 1 在跑（10:00 约 1,900/4,000），预计 11:40 前后全部跑完。π0.5 粗算（8 格平均）：k = 2 是 94.0% @ .17，k = 1 是 92.6% @ .15；满步纯推理 94.7% @ .51，原逐任务下降 94.1% @ ≈.24。
+  - 粗算脚本：`r16_ops/quick_test.py`；逐任务对比满步纯推理：`r16_ops/per_task.py`，输出写到 `per_task_test.json`。
+- **owner 10-08 10:0x 的指示**：直接用这次的结果，成功率低的任务把 IR 档位提上去，只重跑这些任务；"不要多嘴"，不写方法论口径（已记进记忆 feedback_tune_knob_without_caveats）。
+  - 规则：比满步纯推理低 ≥ 10 个点 → c10（k 步纯推理）；低 6–8 个点 → ir45，本来已是 ir45 或更高的 → c10；本来就是 c10 的不动。
+  - π0.5 有 27 个任务低 ≥ 6 个点。
+  - sol 正在写重跑工具（线程 `01a117c6…`，日志 `r16_ops/sol_retest.log`，交回说明 `rounds/r16/HANDBACK_RETEST.md`）：输入调整清单 JSON，生成只跑这些任务的 conductor 组 `r16_conductor_retest_*`，再做合并分析，替换任务后重算各格的成功率和开销并配对比较。
+
+**跑法（conductor：常驻多方法服务 + yaml 热切换 + 按局派发，零气泡，利用率约 0.95–0.99）**：
+- 实现与运行手册：`rounds/r16/HANDBACK_CONDUCTOR.md`、`RUNBOOK_CONDUCTOR.md`、`HANDBACK_GROOT_SERVERS.md`（GR00T 服务数可配置、组尾停服务的修复）。
+- 循环：`openpi_ext/scratch/r16_ops/cond_loop2.sh <dev|test>`，在 tmux 里跑（测试集是 `r16_cond_test`），日志 `r16_ops/cond_<mode>.log`。它直接调运行器，跳过有 DONE 的组。**不要用 conductor_commands.sh**：运行器被 Ctrl-C 后它会接着起下一组。
+- GR00T 每类任务的服务数读 `r16_ops/groot_sps`，现在是 3，共 6 个服务，用的是借用 B2 的显存。要退回时写 2，中断运行器，等 worker 租约释放，再起循环。
+- 残留服务：`r16_ops/stop_group.py <分组目录>` 按收据停。
+- 监控：`cond_watch_test.sh`（LIMIT=41984 是 GR00T 段 B2 的上限，π0.5 段用 30720）。速度和利用率：`util_window.py <journal> 64 10`。
+- 巡检 cron 只活在本会话；压缩或重开后要重新挂。
+- worker 包已部署到 timan107 `/scratch/zixuans8/openpi_r16_conductor_v1`，哈希都核对过。driver 端口 23179 已登记台账。
+
+**收尾（按顺序）**：
+1. 测试集跑完 → 跑 per_task.py → 写调整清单 → 用 retest 工具重跑这些任务 → 合并分析。
+2. 写 R16 报告 `rounds/r16/REPORT.md`，中文、给 owner 看的口径。
+3. 停掉 4090 上我方全部进程 → 台账写 4090 整张控制权归 I018、借用 B2 结束 → 书面通知沙堆实验，它会马上起整卡计时队列。
+4. 删巡检 cron。提交 R16 要 owner 授权。
+
+### 1.D 框架层 CPU/GPU 解耦（owner 10-08 09:3x 批准："最好在框架层面就可以解耦"）
+- 背景：缓存太好用，GPU 活少；吞吐卡在每个服务进程的单个 Python 线程上（GR00T 服务各 100% CPU，GPU 29–55%，本机 88 线程几乎闲着），而每个进程都要装一整份模型，显存限制了进程数。
+- 目标：很多个不带权重的 CPU 前端进程负责连接、检索、修正器、预处理、日志；每个模型只留一两个 GPU 进程，成批执行模型阶段。默认关闭；开启后每个决策逐个一致。
+- sol 新线程 `01a11bef-165f-77f0-b334-7ef92a072444`，任务说明 `rounds/r16/prompts/sol_decouple.md`，日志 `r16_ops/sol_decouple.log`。**只在工作树 `/home/weiland/projects/openpi_decouple`（分支 `decouple-cpu-gpu`）里改，不碰主目录。**
+  - 10:0x 进展：B 池录下的输入回放逐字节一致，正在做 CPU 时间剖析。
+- 交回后：先核对 `HANDBACK_DECOUPLE.md`；等 4090 空出来再跑 GPU 对比基准（现行跑法对拆分后，同显存下的每分钟局数、GPU 和 CPU 利用率）。
+- **10:54 已交回**（124 个 CPU 测试通过；`openpi_decouple/HANDBACK_DECOUPLE.md`、`docs/DECOUPLE.md`）。剖析：GR00T 每次请求输入预处理 14.8 ms（π0.5 0.44 ms），检索 + 插件约 7.7 ms，日志约 1 ms → GR00T 服务卡在单线程 CPU 上。GPU 数值门和吞吐对比都还没跑。
+- 10:55 同线程派 sol 做"一键 GPU 包"（`prompts/sol_decouple_bench.md`，日志 `r16_ops/sol_decouple_bench.log`，tmux `cx_decouple`）：`exp/decouple/run_gpu_package.sh` = 数值门（B=1 逐位一致）→ GR00T、π0.5 现行 1 份 / 显存装满 / 拆分 N=4/8/16 → 汇总 SUMMARY.md，约 2 h。
+- **跑法**：R16 收尾后 4090 先按约定整卡交还 I018；包准备好后再按"要用时要回来"提前通知沙堆实验要整卡时段来跑。
 
 ### 1.0 会话与环境
 - **重开会话请先 `cd /home/weiland/projects/openpi` 再 `claude --resume <会话号> --dangerously-skip-permissions`**。本会话 14:52 起误在 `/home/weiland/idea-sprint`（沙堆实验的目录）里打开，加载的是 idea-sprint 的记忆；openpi 的记忆在 `~/.claude/projects/-home-weiland-projects-openpi/memory/`，需要时用绝对路径读写。
@@ -150,25 +184,27 @@ owner 的常驻指令，逐字有效：
   - 我方 `/data/oscl_h100/runs` 约 16 GB，全部已拉回本地，删除要 owner 定。
 
 ### 1.3 GPU 与沙堆实验
-- 规则成文 `/home/weiland/gpu_share/RULES.md`（v5），台账 `LEDGER.md` 是唯一依据，任一方可发动议。
-- 现份额：
-  - h100：我方 36 GB（4 服务档）/ I018 44 GB；
-  - 4090：我方 28 GB（已报空，借给 I018 做离线分析）/ I018 20 GB。
-- 沙堆实验地址 `uds:/run/user/1000/cc-socks/839194.sock`（它现在是 bypass 模式，本会话也是，消息不再被扣）。
-- 开跑前后：在台账更新我方行；我方没活就报空；收回提前通知，30 分钟内生效。
-- h100 /data 余约 40 GB，正好在底线上。删已回收的旧运行目录被权限审查拦过，要 owner 定。
+- 规则 `/home/weiland/gpu_share/RULES.md`（v5），台账 `LEDGER.md` 是唯一依据。沙堆实验的会话名叫"沙堆实验"，用 ListAgents 找最新的会话地址。
+- **h100：10-07 23:0x 起整张控制权归 I018**（owner："你都不用了当然整个的控制权都给他，你要用的时候再要回来"）。我方要用时提前 30 分钟通知收回。
+- **4090**：R16 期间我方 28 GB / I018 20 GB（M6）。
+  - π0.5 组期间按 M7 是 30 / 18。
+  - 测试集的 GR00T 段用借用 B2：我方约 39 GB，6 个服务。I018 要回时发消息，我方 5 分钟内退回 28 GB。
+  - **R16 结束后：停掉我方全部进程，书面通知 I018，4090 整张归它。**
+- 长期规则（记忆 feedback_idle_devices_full_control）：我方不用的卡整张交给沙堆实验，要用时再要回来。
+- h100 /data 的旧运行目录要不要清，仍待 owner 定（M5 底线临时 30 GB）。
 
 ### 1.4 codex
-- **⛔ owner 10-05 23:4x："以后不准在发 agent 的时候带 credential"**。`codex exec` / `exec resume` 和 companion 自带的 app-server 都会自己读凭据，不再使用。
-- **一律用共享守护进程**：`python3 /home/weiland/idea-sprint/dynamical_system/runs/i018-control/bin/codex_daemon_run.py --model <gpt-6.1-sol|gpt-6-astra> --effort xhigh --sandbox danger-full-access --cwd /home/weiland/projects/openpi --prompt <文件> --log <日志> [--thread <线程号>]`。
-  - 日志第一行是 `session id: <线程>`，跑完退出码为 0。
-  - 后台或 tmux 里跑，用 Monitor 等它结束。
-  - 加 `--thread` 即可续聊，以前由 exec 开的线程也能续。
-- 开跑前用 `acct codex` 看额度；禁止 CODEX_HOME、搬动 auth.json、传 token、`codex login/logout`。
-- 已有线程：astra `01a10c95-6967-7b92-89c3-ed96ab4c5fdb`（R15-B）；sol `01a10f17-518c-7492-af21-a5610a2191f2`（纯缓存 + 修正器）。
+- **⛔ 不准带凭据**：不用 `codex exec` 和 companion。一律用守护进程：`python3 /home/weiland/idea-sprint/dynamical_system/runs/i018-control/bin/codex_daemon_run.py --model <gpt-6.1-sol|gpt-6-astra> --effort xhigh --sandbox danger-full-access --cwd <目录> --prompt <文件> --log <日志> [--thread <线程号>]`。
+  - 放在 tmux 里跑；用 `r16_ops/daemon_watch.sh <日志>`（环境变量 SESS=<tmux 名>）挂 Monitor。
+  - 开跑前用 `acct codex` 看额度。
+- **线程**：
+  - sol R16：`01a117c6-8ffa-7083-b715-df7eb642bbcc`（R16 全部实现，含 conductor、服务数可配置、重跑工具）；
+  - sol 解耦：`01a11bef-165f-77f0-b334-7ef92a072444`；
+  - astra R15-B：`01a10c95-6967-7b92-89c3-ed96ab4c5fdb`。
+- owner 点名时可以派 Sonnet，比如清理工作区那次。
 
 ### 1.5 未提交
-- R12–R15 的代码和报告都没提交。提交要 owner 当次授权；英文 commit、不加 AI 署名、json 要 `add -f`、画图脚本不入库。
+- R12–R15 已于 10-07 20:4x 提交并推到 `origin/Ziyang`（e877ddd6…05a32800，owner："该commit push就做，该ignore就ignore"）。未提交的只剩 `rounds/r16/`，等 R16 结束再提交。惯例：英文 commit、不加 AI 署名、json 要 `add -f`、画图脚本不入库。
 
 ## 1z. （历史）2026-10-05 09:4x CDT—— R13、R14 都已收口；无在跑实验；待 owner 答复是否补 100/200 集
 
