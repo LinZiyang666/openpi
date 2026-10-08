@@ -1,0 +1,204 @@
+--- before/analyze_test_a.py
++++ after/analyze_test_a.py
+@@ -1,7 +1,8 @@
+ """Read-only confirmation of frozen B tables; writes only beside this script.
+ 
+ Run with the CPU command in HANDBACK.md. No fitting, selection, launch, GPU,
+-pickle execution, or mutation of B files. A is measurement only.
++or mutation of B files. Frozen fit relocation uses the existing CPU-only
++hash verifier. A is measurement only.
+ """
+ from __future__ import annotations
+ 
+@@ -12,10 +13,11 @@
+ from datetime import datetime
+ from pathlib import Path
+ import sys
++import subprocess
+ 
+ import numpy as np
+ 
+-from .analyze import (Reader, Episodes, require, sha, verify_protocol as _verify_protocol, paired,
++from .analyze import (Reader, Episodes, ServedFitVerifier, require, sha, verify_protocol as _verify_protocol, paired,
+                      uid_pair, markdown_table, cell_name, write_outputs)
+ 
+ HERE = Path(__file__).resolve().parent
+@@ -26,7 +28,7 @@
+ ARMS = ('pure_c10', 'uniform', 'task_descent')
+ SEED, DRAWS = 20261005, 5000
+ EXPECTED = [(t, i) for t in range(10) for i in range(50)]
+-UNCHANGED_FUNCTIONS = ('load_a', 'sum_sample', 'ci', 'paired_boot', 'ir_savings',
++UNCHANGED_FUNCTIONS = ('sum_sample', 'ci', 'paired_boot', 'ir_savings',
+                        'pool_stats', 'optimism', '_calculate_group', 'calculate',
+                        'f', 'interval_text')
+ 
+@@ -53,6 +55,18 @@
+         require(before[name] == after[name] and
+                 sha(before[name].encode()) == adapter['unchanged_function_ast_sha256'][name],
+                 f'Frozen test-A measurement/loader function changed: {name}')
++    fix = adapter['served_fit_loader_fix']
++    baseline = reader.read(HERE / 'analyze_test_a.before_served_fit_fix.py.txt')
++    require(sha(baseline) == fix['before_source_sha256'] and
++            functions(baseline)['load_a'] == before['load_a'] and
++            sha(before['load_a'].encode()) == adapter['unchanged_function_ast_sha256']['load_a'] and
++            sha(after['load_a'].encode()) == fix['load_a_ast_sha256'],
++            'Unregistered test-A served-fit loader change')
++    require(fix['hash_verifier_source'] == 'exp/offline_search/rounds/r15/descent/analyze.py' and
++            sha(reader.read(REPO / fix['hash_verifier_source'])) == fix['hash_verifier_source_sha256'] and
++            fix['relocation_source'] == 'exp/offline_search/closed_loop/ops/h100/assets.py' and
++            sha(reader.read(REPO / fix['relocation_source'])) == fix['relocation_source_sha256'],
++            'Test-A served-fit verification implementation changed')
+ 
+     class FrozenSourceView:
+         # Only this already-validated source is projected to its frozen bytes.
+@@ -125,6 +139,114 @@
+     suffix = '_' + scope['models'][0] if scope['partial'] else ''
+     return {name: Path(name).stem + suffix + Path(name).suffix for name in
+             ('test_a.json', 'TEST_A.md', 'REPORT.md', 'ANALYSIS_TEST_A_HANDBACK.md')}
++
++
++class AServedFitVerifier(ServedFitVerifier):
++    """Bind startup paths and decision hashes to one exact frozen fit."""
++    def __init__(self, root, row, source_sha256, reader):
++        from exp.offline_search.closed_loop.ops.h100.assets import flag
++        super().__init__(root, row, source_sha256, reader)
++        self.fit = Path(flag(row['plugin_args'], '--os-fit-artifact'))
++        require(sha(reader.read(self.fit)) == source_sha256, 'Fit bytes changed')
++        self.relocated_path = None
++        self.observed_paths = {}
++        self.active_path_branch = None
++        self.relocation_arm_order = None
++
++    def relocated_hash(self):
++        from exp.offline_search.closed_loop.ops.h100.assets import flag
++        # The inherited branch verifies the exact source, sealed H100 host,
++        # actual remote root and source store before any batch replay.
++        expected = super().relocated_hash()
++        plan = self.reader.json(self.root / 'h100_sync/plan.json')
++        order = [r['arm'] for r in plan.get('arms', [])]
++        require(len(order) == len(set(order)), 'Duplicate H100 sync arms')
++        if len(order) <= 1:
++            self.relocation_arm_order = [self.row['arm']]
++            return expected
++        frozen = {r['arm']: r for r in self.reader.json(self.root / 'arms.json')}
++        require(self.row['arm'] in order and set(order) <= set(frozen), 'Unsealed H100 sync arm order')
++        prefix = order[:order.index(self.row['arm']) + 1]
++        self.relocation_arm_order = prefix
++        if len(prefix) == 1:
++            return expected
++        seal = self.reader.json(self.root / 'ROOT.json')
++        store = Path(flag(self.row['plugin_args'], '--os-root'))
++        sources = []
++        for name in prefix:
++            row = frozen[name]
++            require(row.get('intended_host') == 'h100' and Path(flag(row['plugin_args'], '--os-root')) == store,
++                    'H100 batch source settings differ')
++            fit = flag(row['plugin_args'], '--os-fit-artifact')
++            source = self.reader.read(fit)
++            require(sha(source) == seal['fit_sha256'][fit], 'H100 batch source fit changed')
++            sources.append(source)
++        self.relocated_sha256 = h100_relocated_batch_sha256(sources, self.root, store,
++                                                           Path(self.remote_run).parent.parent)
++        return self.relocated_sha256
++
++    def check_path(self, observed):
++        from exp.offline_search.closed_loop.ops.h100.assets import flag, remap
++        path = Path(observed)
++        if path == self.fit:
++            branch = 'frozen_source'
++        else:
++            if self.relocated_sha256 is None:
++                self.relocated_hash()
++            expected = Path(remap(str(self.fit), self.root,
++                                 Path(flag(self.row['plugin_args'], '--os-root')),
++                                 Path(self.remote_run).parent.parent))
++            require(path == expected, 'Wrong served artifact: neither frozen source nor deterministic H100 path')
++            self.relocated_path = str(expected)
++            branch = 'h100_relocated'
++        self.observed_paths[str(path)] = branch
++        self.active_path_branch = branch
++        return branch
++
++    def check(self, observed):
++        branch = super().check(observed)
++        if self.active_path_branch is not None:
++            expected = self.source_sha256 if self.active_path_branch == 'frozen_source' else self.relocated_sha256
++            require(observed == expected, 'Served fit path/hash branch mismatch')
++            # An unchanged pickle can have identical source/remote hashes.
++            branch = self.active_path_branch
++            self.observed[observed] = branch
++        return branch
++
++    def audit(self):
++        return dict(super().audit(), source_path=str(self.fit), relocated_path=self.relocated_path,
++                    observed_path_branches=dict(sorted(self.observed_paths.items())),
++                    relocation_arm_order=self.relocation_arm_order)
++
++
++def h100_relocated_batch_sha256(sources, root, store, base):
++    """Match assets.build_plan's ordered unpickle/relocate/pickle CPU process."""
++    code = '''import hashlib, pickle, sys
++from pathlib import Path
++from exp.offline_search.closed_loop.ops.h100.assets import relocated_fit
++root, store, base = (Path(p) for p in sys.argv[1:])
++while True:
++    header = sys.stdin.buffer.read(8)
++    if not header:
++        break
++    size = int.from_bytes(header, 'big')
++    source = sys.stdin.buffer.read(size)
++    assert len(header) == 8 and len(source) == size
++    blob = pickle.loads(source)
++    blob, changed = relocated_fit(blob, root, store, base)
++    content = pickle.dumps(blob, protocol=4) if changed else source
++    digest = hashlib.sha256(content).hexdigest()
++print(digest)
++'''
++    env = dict(os.environ, CUDA_VISIBLE_DEVICES='', OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1',
++               MKL_NUM_THREADS='1', PYTHONDONTWRITEBYTECODE='1', PYTHONPATH=str(REPO) + ':' + str(REPO / 'src'))
++    data = b''.join(len(source).to_bytes(8, 'big') + source for source in sources)
++    result = subprocess.run(['taskset', '-c', '2-9,46-53', sys.executable, '-c', code,
++                             str(root), str(store), str(base)], input=data,
++                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env, check=True)
++    digest = result.stdout.decode().strip()
++    require(len(digest) == 64 and all(c in '0123456789abcdef' for c in digest), 'Invalid H100 batch hash result')
++    return digest
+ 
+ 
+ def load_a(cell, levels, uniform, p, caps, reader, template):
+@@ -178,6 +300,7 @@
+             require(table['fit']['sha256'] == fit_digest and Path(table['fit']['path']) == fit, 'Wrong adapter fit')
+         else:
+             require(fit_digest == (caps['cells'][cell]['test_fit_sha256_by_level'][level] if arm != 'pure_c10' else shared['fit_sha256']), 'Wrong frozen reference fit')
++        fit_verifier = AServedFitVerifier(root, row, fit_digest, reader)
+ 
+         accepted, errors, journal_count, duplicate_accepted = {}, 0, 0, 0
+         for r in reader.jsonl(run / 'client/journal.jsonl'):
+@@ -214,7 +337,7 @@
+                     hosts.add(d['host'])
+                     require(d['kwargs'] == row['kwargs'] and d['method_spec'] == row['method'], 'Wrong served method')
+                     args = d['argv']
+-                    require(Path(args[args.index('--os-fit-artifact') + 1]) == fit, 'Wrong served artifact')
++                    fit_verifier.check_path(args[args.index('--os-fit-artifact') + 1])
+                     continue
+                 if d.get('ev') != 'dec':
+                     continue
+@@ -234,7 +357,7 @@
+                 diag = d.get('r14')
+                 if diag:
+                     audit_rows += 1
+-                    require(diag['fit_sha256'] == fit_digest, 'Served fit hash mismatch')
++                    fit_verifier.check(diag['fit_sha256'])
+                     if arm == 'task_descent' and 'descent_level' in diag:
+                         require(diag['descent_level'] == levels[str(uid_pair(uid)[0])], 'Served task level mismatch')
+                 key = (uid, step)
+@@ -268,7 +391,8 @@
+             selection_pool_field_present='init_pool' in selected,
+             earliest_accepted_terminal_ts=min(r['ts'] for r in accepted.values()),
+             hosts=sorted(hosts), decision_shards=len(shards), r14_audit_rows=audit_rows,
+-            summary_stage_ir=stage_ir, full_stage_costs=full, frozen_fit_sha256=fit_digest))
++            summary_stage_ir=stage_ir, full_stage_costs=full, frozen_fit_sha256=fit_digest,
++            fit_hash_verification=fit_verifier.audit()))
+     return arms
+ 
+ 

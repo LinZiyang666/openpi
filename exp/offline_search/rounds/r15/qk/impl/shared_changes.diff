@@ -1,0 +1,227 @@
+--- before/exp/offline_search/closed_loop/plugin.py
++++ exp/offline_search/closed_loop/plugin.py
+@@ -141,6 +141,7 @@
+     ap.add_argument("--os-gpu-retrieval", choices=("shadow", "serve"), default=None,
+                     help="opt-in K9 CUDA graph retrieval; shadow keeps CPU actions, serve replaces retrieval")
+     ap.add_argument("--os-rollout-seed", type=int, default=None, help="opt-in policy process RNG seed; independent of knob coins")
++    ap.add_argument("--os-light-key", action="store_true", help="R15 opt-in CPU light key before policy stage one")
+     ap.add_argument("--os-record-look-raw-distance", action="store_true")
+     ap.add_argument("--os-record-look-cache-proposal", action="store_true")
+     ap.add_argument("--os-r14-audit", action="store_true", help="versioned R14 side diagnostics; default off")
+@@ -496,7 +497,10 @@
+         self.opts = opts
+         self.looks = None
+         if getattr(opts, "os_record_looks", False):
+-            from .look_recording import LookWriter
++            if getattr(opts, 'os_light_key', False):
++                from exp.offline_search.rounds.r15.qk.impl.recording import LightLookWriter as LookWriter
++            else:
++                from .look_recording import LookWriter
+             self.looks = LookWriter(opts, model)
+         self.oracle = bool(getattr(opts, "os_oracle", False))
+         self.debug = None
+@@ -549,7 +553,7 @@
+             raise SystemExit(f"library action shape {self.cur_action.shape} != (L, {self.H}, 32)")
+         self.ep_index = {}
+         epj = self.root / "queries" / self.cell / "episodes.json"
+-        if self.looks is None and epj.exists():
++        if self.looks is None and not getattr(opts, 'os_light_key', False) and epj.exists():
+             for i, e in enumerate(json.loads(epj.read_text())):
+                 self.ep_index[(int(e["task_id"]), int(e["init"]))] = i
+         self.log_dir = pathlib.Path(opts.os_log_dir)
+@@ -579,6 +583,9 @@
+             self.ctrl = QuantileController(self.judge.h, self.judge.W, self.judge.tau0)
+         if not self.native_mode:
+             self._load_and_fit()
++        if getattr(opts, 'os_light_key', False):
++            from exp.offline_search.rounds.r15.qk.impl.runtime import initialize
++            initialize(self)
+         from .lookhalf_config import validate_fitted
+         validate_fitted(self.method, self.lookhalf)
+         from .cache_ablate_config import validate_fitted as validate_ablate_fitted
+@@ -597,7 +604,7 @@
+                "method": self.method_name, "native_mode": self.native_mode, "shadow_native": self.shadow_native,
+                "tokens": opts.os_tokens, "log_inputs": bool(opts.os_log_inputs), "seed": opts.os_seed,
+                "H": self.H, "L": self.L, "lib_sizes": self.lib_sizes, "expected_pkl": self.expected_pkl,
+-               "git_head": None if self.looks is not None or self.cache_ablate is not None else _git_head(), **self.fit_info}
++               "git_head": None if self.looks is not None or self.cache_ablate is not None or getattr(opts, 'os_light_key', False) else _git_head(), **self.fit_info}
+         if self.judge is not None:
+             row["judge"] = self.judge.as_dict()
+         if self.r4:
+@@ -628,6 +635,11 @@
+         if getattr(opts, "os_rollout_seed", None) is not None:
+             from .rollout_seed import seed_policy_process
+             row["rollout_seed"] = seed_policy_process(opts.os_rollout_seed)
++        if getattr(opts, 'os_light_key', False):
++            spec = self.method.light_key_spec
++            row['light_key'] = dict(key_kind=spec['feature_kind'],representation_sha256=spec['representation_sha256'],
++                epsilon=spec['epsilon'],device='cpu',threads=1,cpu_affinity=spec.get('cpu_affinity',list(range(2,10))+list(range(46,54))),
++                IR_new='(epsilon*Q+M)/N; T=M',logical_vision_history_alias=True)
+         self.emit(row)
+         if getattr(opts, "os_debug_dir", ""):
+             from exp.offline_search.debug.server import ServerObserver
+@@ -936,7 +948,7 @@
+         H = rt.H
+         drs = int(ctx.query_keys["robot_state"].numel()) if hasattr(ctx.query_keys["robot_state"], "numel") else \
+             int(np.asarray(ctx.query_keys["robot_state"]).size)
+-        kd = rt.dims.KEY_DIM
++        kd = 64 if getattr(rt.opts, 'os_light_key', False) else rt.dims.KEY_DIM
+         self.b_v0 = _Buf((kd,), np.float32)
+         self.b_v1 = _Buf((kd,), np.float32)
+         self.b_rs = _Buf((drs,), np.float32)
+@@ -949,6 +961,10 @@
+         self._policy_tail = None
+         self._policy_tail_step = -2
+         self._recs = []
++        if getattr(rt.opts, 'os_light_key', False):
++            self._qk_looks = []
++            self._qk_last_policy = self._qk_last_policy_wire = None
++            self._qk_counts = dict(Q=0, T=0, M=0, N=0)
+         self.step = 0
+         self.burst_left = 0
+         self.ep_count += 1
+@@ -1033,7 +1049,10 @@
+         if self.b_aex.n != self.step:
+             raise RuntimeError(f"osplug: executed chunks recorded {self.b_aex.n} != decisions {self.step}")
+         qk = ctx.query_keys
+-        if self.rt.gpu is not None and self.rt.opts.os_gpu_retrieval == "serve":
++        if getattr(self.rt.opts, 'os_light_key', False):
++            self.b_v0.append(qk['light_features'][0])
++            self.b_v1.append(qk['light_features'][1])
++        elif self.rt.gpu is not None and self.rt.opts.os_gpu_retrieval == "serve":
+             self.b_v0.append(np.full(self.rt.dims.KEY_DIM, np.nan, np.float32))
+             self.b_v1.append(np.full(self.rt.dims.KEY_DIM, np.nan, np.float32))
+         else:
+@@ -1052,6 +1071,11 @@
+         """Method mode: build the online QueryView, run the method, return the served winner as one result."""
+         from openpi.cache.storage_types import SearchResultLite
+ 
++        if getattr(self, '_qk_full', False):
++            if not np.array_equal(_np32(ctx.query_keys['robot_state']).reshape(-1), self.b_rs.a[self._dec['step']]):
++                raise RuntimeError('QK CPU state differs from the full policy key builder')
++            return [SearchResultLite(id=self._dec['winner'], score=0., checkpoint_id=ctx.checkpoint_id)]
++
+         rt, api = self.rt, self.rt.api
+         t_all = time.perf_counter_ns()
+         if rt.gpu is not None and ctx.current_step == 0 and self.step > 0:
+@@ -1060,7 +1084,11 @@
+         if rt.gpu is not None:
+             self._gpu_host_keys_ms = (time.perf_counter_ns() - t_all) / 1e6
+         step = self.step
+-        view = OnlineQueryView(self, step, self.ep.task_id, self.ep)
++        if getattr(rt.opts, 'os_light_key', False):
++            from exp.offline_search.rounds.r15.qk.impl.runtime import LightQueryView
++            view = LightQueryView(self, step, self.ep.task_id, self.ep)
++        else:
++            view = OnlineQueryView(self, step, self.ep.task_id, self.ep)
+         t0 = time.perf_counter_ns()
+         gpu_diag = None
+         if rt.gpu is None:
+@@ -1117,8 +1145,13 @@
+                      "served": served, "extras": ex, "act": None if act is None else served}
+         if getattr(rt.opts, "os_r14_audit", False):
+             from exp.offline_search.rounds.r14.knob.recipe import reference_diagnostics
++            if getattr(rt.opts, 'os_light_key', False):
++                from exp.offline_search.rounds.r15.qk.impl.recipe import FeatureGeometry
++                audit_view = FeatureGeometry(view)
++            else:
++                audit_view = view
+             self._dec["r14"] = copy.deepcopy(getattr(self.method, "r14_diagnostics", None)
+-                or reference_diagnostics(self.method, view, res))
++                or reference_diagnostics(self.method, audit_view, res))
+             self._dec["r14"].update(schema="offline_search.r14.v1", fit_sha256=rt.r14_fit_sha256,
+                 retrieval_correction_ms=t_q / 1e6, step=step, task_id=int(view.task_id))
+         if getattr(rt, "looks", None) is not None and getattr(rt, 'lookhalf', None) is None:
+@@ -1201,6 +1234,8 @@
+             else:
+                 d["exec_ok"] = None          # policy chunk executed: nothing to compare with the served payload
+                 d["policy"] = a
++                if getattr(self.rt.opts, 'os_light_key', False):
++                    self._qk_last_policy = _ro(a.copy())
+                 if self.rt.blind and callable(getattr(self.method, "invalidate_anchor", None)):
+                     hook = getattr(self.method, 'on_policy_executed', None) if getattr(self.rt, 'lookhalf', None) is not None else None
+                     hook() if callable(hook) else self.method.invalidate_anchor()
+@@ -1227,6 +1262,8 @@
+         self._prepare_ms = None
+         self._output_ms = None
+         self._age_before = self.blind_age
++        if getattr(self.rt.opts, 'os_light_key', False):
++            self._qk_tower_before = self.stage1_calls
+ 
+     def after_infer(self, infer_ms: float, ok: bool, err: str | None = None) -> None:
+         t_done = time.perf_counter_ns()
+@@ -1339,6 +1376,9 @@
+             if "rows" in d:
+                 row.update(rows=d["rows"], weights=d["weights"])
+             self.blind_age = 0 if vision else self._age_before + 1
++        if getattr(rt.opts, 'os_light_key', False):
++            from exp.offline_search.rounds.r15.qk.impl.runtime import ledger
++            ledger(row, d, self, ok)
+         if rt.randomized:
+             row.update(d["randomization"])
+         if getattr(rt, "request_cameras", False):
+@@ -1419,6 +1459,12 @@
+         if rt.judge is not None:
+             m.update({"n_hit": int(sum(1 for f in self.hits if f == 1)), "n_miss": int(sum(1 for f in self.hits if f == 0)),
+                       "ctrl": rt.ctrl.state() if rt.ctrl is not None else None})
++        if getattr(rt.opts, 'os_light_key', False):
++            counts = self._qk_counts
++            epsilon = float(self.method.light_key_spec['epsilon'])
++            m.update(counts, epsilon=epsilon,
++                IR_new=(epsilon*counts['Q']+counts['M'])/counts['N'] if counts['N'] else None,
++                nominal_controls=5*counts['N'], actual_terminal_controls='client journal n_steps')
+         if rt.randomized:
+             m.update(exposed=self.randomization.exposed, baseline_miss_opportunities=self.randomization.opportunities)
+         rt.emit(m)
+@@ -2020,8 +2066,9 @@
+     now = time.perf_counter_ns()
+     winner = f"{SYNTH_PREFIX}blind:{s.rt.tag}:{s.conn}:{s.n_synth}"
+     s.n_synth += 1
+-    s.b_v0.append(np.full(s.rt.dims.KEY_DIM, np.nan, np.float32))
+-    s.b_v1.append(np.full(s.rt.dims.KEY_DIM, np.nan, np.float32))
++    kd = 64 if getattr(s.rt.opts, 'os_light_key', False) else s.rt.dims.KEY_DIM
++    s.b_v0.append(np.full(kd, np.nan, np.float32))
++    s.b_v1.append(np.full(kd, np.nan, np.float32))
+     s.b_rs.append(rs)
+     s.b_raw.append(s._raw_state())
+     s.has_vision.append(False)
+@@ -2188,9 +2235,16 @@
+                 # Reservations are never reused after failures: another connection
+                 # may already have reserved the following index.
+                 out = None
++                if getattr(s.rt.opts, 'os_light_key', False) and not (obs.get('__extra__') or {}).get('exec_ok', True):
++                    s.method.invalidate_anchor()
++                    s._policy_tail = None
+                 if s.rt.blind:
+                     with adapter.lock:
+                         out = _try_blind(s, adapter, obs)
++                if out is None and getattr(s.rt.opts, 'os_light_key', False):
++                    from exp.offline_search.rounds.r15.qk.impl.runtime import infer
++                    with adapter.lock:
++                        out = infer(s, adapter, obs, lambda: self._osp_inner.infer(obs, *a, **kw))
+                 if out is None:
+                     if getattr(s.rt, 'lookhalf', None) is not None:
+                         extra = obs.get('__extra__') or {}
+--- before/exp/offline_search/closed_loop/ops/h100/assets.py
++++ exp/offline_search/closed_loop/ops/h100/assets.py
+@@ -220,7 +220,7 @@
+                     content = json.dumps(mapper(json.loads(path.read_text()), run, store, base), indent=1).encode()
+                 add(path, name + ": PluginRuntime current", content=content)
+             epj = store / "queries" / row["cell"] / "episodes.json"
+-            if not record_looks and epj.exists():
++            if not record_looks and '--os-light-key' not in args and epj.exists():
+                 add(epj, name + ": episode identity map")
+             if row["mode"] == "plugin":
+                 artifact = flag(args, "--os-fit-artifact")
+--- before/exp/offline_search/rounds/r04/k4_eval/cost_ledger.py
++++ exp/offline_search/rounds/r04/k4_eval/cost_ledger.py
+@@ -66,6 +66,9 @@
+ 
+ 
+ def ledger(meta, rows, starts=(), comp=None, table=None):
++    if any('qk_work' in r for r in rows):
++        from exp.offline_search.rounds.r15.qk.impl.accounting import aggregate
++        return aggregate(meta, rows, starts, comp)
+     model = meta.get("model") or (starts[0].get("model") if starts else "pi05")
+     legacy = not r4_enabled(meta, rows, starts)
+     # Historical outcomes retain their original owner pricing even after a new

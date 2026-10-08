@@ -1,0 +1,219 @@
+--- frozen/analyze_test_a.py
++++ adapted/analyze_test_a.py
+@@ -5,6 +5,7 @@
+ """
+ from __future__ import annotations
+ 
++import ast
+ import json
+ import math
+ import os
+@@ -14,7 +15,7 @@
+ 
+ import numpy as np
+ 
+-from .analyze import (Reader, Episodes, require, sha, verify_protocol, paired,
++from .analyze import (Reader, Episodes, require, sha, verify_protocol as _verify_protocol, paired,
+                      uid_pair, markdown_table, cell_name, write_outputs)
+ 
+ HERE = Path(__file__).resolve().parent
+@@ -25,6 +26,105 @@
+ ARMS = ('pure_c10', 'uniform', 'task_descent')
+ SEED, DRAWS = 20261005, 5000
+ EXPECTED = [(t, i) for t in range(10) for i in range(50)]
++UNCHANGED_FUNCTIONS = ('load_a', 'sum_sample', 'ci', 'paired_boot', 'ir_savings',
++                       'pool_stats', 'optimism', '_calculate_group', 'calculate',
++                       'f', 'interval_text')
++
++
++def verify_protocol(reader):
++    """Verify the registered stage adapter, retaining actual-byte input audits."""
++    source = Path(__file__).resolve()
++    current = reader.read(source)
++    original = reader.read(HERE / 'test_a_stage_original_analyze_test_a.py.txt')
++    adapter = reader.json(HERE / 'test_a_stage_adapter.json')
++    protocol_bytes = reader.read(HERE / 'protocol.json')
++    source_name = str(source.relative_to(REPO))
++    require(adapter['schema'] == 'r15.descent.test_a_stage_adapter.v1' and
++            adapter['source'] == source_name and adapter['protocol_sha256'] == sha(protocol_bytes),
++            'Wrong test-A stage adapter registration')
++    require(adapter['frozen_sha256'] == json.loads(protocol_bytes)['input_sha256'][source_name] and
++            sha(original) == adapter['frozen_sha256'] and sha(current) == adapter['adapted_sha256'],
++            'Unregistered test-A source change')
++    def functions(data):
++        return {n.name: ast.dump(n, include_attributes=False) for n in ast.parse(data).body
++                if isinstance(n, ast.FunctionDef)}
++    before, after = functions(original), functions(current)
++    for name in UNCHANGED_FUNCTIONS:
++        require(before[name] == after[name] and
++                sha(before[name].encode()) == adapter['unchanged_function_ast_sha256'][name],
++                f'Frozen test-A measurement/loader function changed: {name}')
++
++    class FrozenSourceView:
++        # Only this already-validated source is projected to its frozen bytes.
++        # The underlying Reader still records and rehashes the current file.
++        def read(self, path):
++            data = reader.read(path)
++            return original if Path(path).resolve() == source else data
++
++        def json(self, path):
++            return json.loads(self.read(path))
++
++    return _verify_protocol(FrozenSourceView())
++
++
++def stage_cells(stage, levels, uniforms, reader):
++    """Accept a complete model stage or the legacy complete twelve-cell stage."""
++    stage = Path(stage).resolve()
++    require(stage.is_relative_to(HERE.resolve()), 'Stage must remain under R15 descent')
++    staged = reader.json(stage / 'input.json')
++    require(set(staged) == {'levels', 'uniform'} and
++            isinstance(staged['levels'], dict) and isinstance(staged['uniform'], dict),
++            'Invalid emitter input')
++    cells = set(staged['levels'])
++    require(cells == set(staged['uniform']), 'Stage level/uniform cells differ')
++    model_sets = [set(c for c in CELLS if c.split('_')[0] == model) for model in ('pi05', 'groot')]
++    require(cells == set(CELLS) or any(cells == model_cells for model_cells in model_sets),
++            'Stage must contain one complete model cell set or all registered cells')
++    selected = tuple(c for c in CELLS if c in cells)
++    expected = dict(levels={c: levels[c] for c in selected}, uniform={c: uniforms[c] for c in selected})
++    require(staged == expected, 'Emitter input differs from B for stage cells')
++    return selected
++
++
++def stage_scope(stages, levels, uniforms, reader, combined=False):
++    require(len(stages) == (2 if combined else 1), 'Use two model stages for combine; one stage for apply')
++    stage_sets = [stage_cells(stage, levels, uniforms, reader) for stage in stages]
++    if combined:
++        require(all(len(cells) == 6 for cells in stage_sets) and
++                set(stage_sets[0]).isdisjoint(stage_sets[1]) and
++                set(stage_sets[0]) | set(stage_sets[1]) == set(CELLS),
++                'Combine requires disjoint complete pi05 and groot stages')
++    cells = tuple(c for c in CELLS if any(c in subset for subset in stage_sets))
++    return dict(cells=list(cells), models=sorted({c.split('_')[0] for c in cells}),
++                partial=set(cells) != set(CELLS), combined=combined,
++                stages=[str(Path(stage).resolve()) for stage in stages])
++
++
++def calculate_scope(all_arms, b, p, levels, uniforms, scope):
++    """Scope the unchanged size-group measurement; preserve its frozen family."""
++    global CELLS
++    complete = CELLS
++    selected = tuple(scope['cells'])
++    try:
++        CELLS = selected
++        result = calculate(all_arms, b, p, {c: levels[c] for c in selected},
++                           {c: uniforms[c] for c in selected})
++    finally:
++        CELLS = complete
++    result['analysis_scope'] = scope
++    if scope['partial']:
++        for group in result['groups_by_library_size'].values():
++            group['partial'] = True
++            group['methods']['pooled_sr'] = (
++                'partial single-model x suite x task mixture, 1000 episode outcomes per arm; '
++                '1000 original suite/task/init clusters; all-cell pooling deferred to combine')
++    return result
++
++
++def output_names(scope):
++    suffix = '_' + scope['models'][0] if scope['partial'] else ''
++    return {name: Path(name).stem + suffix + Path(name).suffix for name in
++            ('test_a.json', 'TEST_A.md', 'REPORT.md', 'ANALYSIS_TEST_A_HANDBACK.md')}
+ 
+ 
+ def load_a(cell, levels, uniform, p, caps, reader, template):
+@@ -337,8 +437,12 @@
+ 
+ 
+ def _render_test_group(r):
++    scope_text = (
++        'Partial measurement: this library-size group uses the two suite cells of one complete model. '
++        'Pooled rows include only that model; combine both stages for the frozen all-cell summary. '
++        if r.get('partial') else 'Each library-size group uses four model/suite cells. ')
+     lines=['# Frozen test-A measurement','',
+-        'Each library-size group uses four model/suite cells. Two new 500-episode arms per cell are measured against the existing R14 pure C10 reference. No A selection or refitting. GR00T intended host is local; pi05 intended host is h100. Startup hosts are retained in JSON.','',
++        scope_text+'Two new 500-episode arms per cell are measured against the existing R14 pure C10 reference. No A selection or refitting. GR00T intended host is local; pi05 intended host is h100. Startup hosts are retained in JSON.','',
+         stats_table(r),'',
+         markdown_table(['Cell','Contrast','Gains / losses','SR delta pp','Paired bootstrap 95% CI pp'],[
+             [cell,label,f"{v['gains']}/{v['losses']}",f(v['delta'],100),interval_text(v['bootstrap_ci95'])]
+@@ -385,7 +489,7 @@
+ def render_handback(result):return _render_groups(result,_render_handback_group)
+ 
+ 
+-def apply():
++def apply(stages=None, combined=False):
+     require(set(os.sched_getaffinity(0)) <= set(range(2,10)) | set(range(46,54)), 'Use required CPU affinity')
+     require(os.environ.get('CUDA_VISIBLE_DEVICES') == '', 'Hide GPUs')
+     reader = Reader(); reader.read(__file__); reader.read(HERE / 'analyze.py')
+@@ -396,7 +500,7 @@
+     b = reader.json(HERE / 'analysis.json')
+     levels = reader.json(HERE / 'levels.json'); uniforms = reader.json(HERE / 'uniform.json')
+     require(set(levels) == set(uniforms) == set(CELLS), 'Incomplete frozen tables')
+-    require(reader.json(EMITTER / 'input.json') == dict(levels=levels, uniform=uniforms), 'Emitter input differs from B')
++    scope = stage_scope([EMITTER] if stages is None else stages, levels, uniforms, reader, combined)
+     for cell in CELLS:
+         require(b['cells'][cell]['tolerances']['5']['levels'] == levels[cell] and
+                 b['cells'][cell]['tolerances']['5']['uniform'] == uniforms[cell], 'B table mismatch')
+@@ -404,37 +508,49 @@
+     templates = [reader.read(TRACE / f'r11_knob_{i}/eval500.json') for i in range(1,5)]
+     require(len(set(templates)) == 1, 'R11 A templates differ')
+     all_arms = {}
+-    for cell in CELLS:
++    for cell in scope['cells']:
+         print('Read and audit A:', cell, flush=True)
+         all_arms[cell] = load_a(cell, levels[cell], uniforms[cell], p, caps, reader, templates[0])
+     btime = datetime.fromisoformat(prov['analyzed_at_utc']).timestamp()
+     require(all(btime < ep.audit['earliest_accepted_terminal_ts'] for a in all_arms.values() for label,ep in a.items() if label != 'pure_c10'),
+             'B analysis not earlier than A completion records')
+-    result = calculate(all_arms, b, p, levels, uniforms)
++    result = calculate_scope(all_arms, b, p, levels, uniforms, scope)
+     result['episode_data'] = {c: {a: {k:getattr(ep,k).tolist() for k in ('y','n','v','m','cost')} for a,ep in arms.items()} for c,arms in all_arms.items()}
+     result['provenance'] = dict(protocol_frozen_at_utc=p['frozen_at_utc'], inputs=reader.inputs,
+         decision_shards=reader.shards, cpu_affinity=sorted(os.sched_getaffinity(0)), python=sys.version,
+         numpy=np.__version__, bootstrap_draws=DRAWS, bootstrap_seed=SEED, pool='A', reselection=False,
+-        frozen_b_output_sha256=prov['selected_output_sha256'])
++        frozen_b_output_sha256=prov['selected_output_sha256'], analysis_scope=scope)
+     print('Rehash inputs and verify stable shard sets', flush=True)
+     reader.stable()
+-    write_outputs({'test_a.json': result, 'TEST_A.md': render_test(result),
+-                   'REPORT.md': render_report(result), 'ANALYSIS_TEST_A_HANDBACK.md': render_handback(result)}, HERE)
++    names = output_names(scope)
++    files = {names['test_a.json']: result}
++    for name, render in (('TEST_A.md', render_test), ('REPORT.md', render_report),
++                         ('ANALYSIS_TEST_A_HANDBACK.md', render_handback)):
++        files[names[name]] = render(result).replace('test_a.json', names['test_a.json']).replace('TEST_A.md', names['TEST_A.md'])
++    write_outputs(files, HERE)
+     print(json.dumps({c: dict(sr={a:s['sr'] for a,s in x['arms'].items()},
+         ir={a:s['ir'] for a,s in x['arms'].items()}, violations=x['task_tolerance']['task_descent']['below_minus_5pp'])
+         for c,x in scopes(result)}, ensure_ascii=False, indent=2))
+-
+-
+-def main():
++    return result
++
++
++def main(argv=None):
+     global EMITTER
+     import argparse
+     parser=argparse.ArgumentParser(description=__doc__)
+-    parser.add_argument('action',choices=('verify-protocol','apply'),nargs='?',default='verify-protocol')
+-    parser.add_argument('--stage',type=Path,default=EMITTER)
+-    args=parser.parse_args()
+-    EMITTER=args.stage.resolve()
++    parser.add_argument('action',choices=('verify-protocol','apply','combine'),nargs='?',default='verify-protocol')
++    stage_args = parser.add_mutually_exclusive_group()
++    stage_args.add_argument('--stage',type=Path,help='One complete model stage, or a legacy full stage')
++    stage_args.add_argument('--stages',type=Path,nargs=2,help='Complete pi05 and groot stages to combine')
++    args=parser.parse_args(argv)
++    if args.action == 'combine' and args.stages is None:
++        parser.error('combine requires --stages PI05_STAGE GROOT_STAGE')
++    if args.action != 'combine' and args.stages is not None:
++        parser.error('--stages requires combine')
++    EMITTER=(args.stage or EMITTER).resolve()
+     require(EMITTER.is_relative_to(HERE), 'Stage must remain under R15 descent')
+     if args.action=='apply':apply()
++    elif args.action=='combine':apply(args.stages, combined=True)
+     else:
+         reader=Reader();verify_protocol(reader);reader.stable()
+         print('Frozen protocol verified; zero A outcome reads')

@@ -1,0 +1,23 @@
+{
+  "PASS": true,
+  "dev_roots": 16,
+  "dev_arms": 64,
+  "planned_B_episodes": 19200,
+  "staged_A_roots": 12,
+  "staged_A_arms": 24,
+  "planned_new_A_episodes": 12000,
+  "passing_tests": 66,
+  "shared_runtime_edits": [
+    "exp/offline_search/closed_loop/devset.py",
+    "exp/offline_search/closed_loop/worker_pool.py"
+  ],
+  "r14_sources_unchanged": true,
+  "protocol_verified": true,
+  "all_fit_SHAs_verified": true,
+  "all_fleet_plans_verified": true,
+  "test_A_outcome_reads": 0,
+  "test_A_installed": false,
+  "servers": 0,
+  "remote_operations": 0,
+  "GPU_operations": 0
+}

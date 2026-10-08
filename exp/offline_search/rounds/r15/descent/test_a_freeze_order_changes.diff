@@ -1,0 +1,100 @@
+--- before/analyze_test_a.py
++++ after/analyze_test_a.py
+@@ -139,6 +139,70 @@
+     suffix = '_' + scope['models'][0] if scope['partial'] else ''
+     return {name: Path(name).stem + suffix + Path(name).suffix for name in
+             ('test_a.json', 'TEST_A.md', 'REPORT.md', 'ANALYSIS_TEST_A_HANDBACK.md')}
++
++
++def stage_freezes(scope, full_provenance, levels, uniforms, reader):
++    """Bind each model stage to the provenance that actually froze its tables."""
++    full_time = datetime.fromisoformat(full_provenance['analyzed_at_utc']).timestamp()
++    if not (scope['partial'] or scope['combined']):
++        # Preserve the original chronology source for a legacy full stage.
++        return {'full': dict(source=str(HERE / 'provenance.json'),
++                             analyzed_at_utc=full_provenance['analyzed_at_utc'],
++                             timestamp=full_time, equivalence_required=False)}
++    freezes = {}
++    for model in scope['models']:
++        path = HERE / f'provenance_{model}.json'
++        require(path.is_file(), f'Missing model freeze provenance: {model}')
++        partial = reader.json(path)
++        cells = [c for c in CELLS if c.split('_')[0] == model]
++        partial_scope = partial['analysis_scope']
++        require(partial['outcome_pool'] == 'B' and partial_scope['partial'] is True and
++                partial_scope['models'] == [model] and partial_scope['cells'] == cells,
++                f'Wrong model freeze provenance: {model}')
++        table_hashes = {}
++        for kind, table in (('levels', levels), ('uniform', uniforms)):
++            name = f'{kind}_{model}.json'
++            data = reader.read(HERE / name)
++            require(sha(data) == partial['selected_output_sha256'][name],
++                    f'Frozen partial B output changed: {name}')
++            require(json.loads(data) == {c: table[c] for c in cells},
++                    f'Partial freeze table differs from full B: {name}')
++            table_hashes[name] = sha(data)
++        timestamp = datetime.fromisoformat(partial['analyzed_at_utc']).timestamp()
++        equivalence_required = full_time > timestamp
++        if equivalence_required:
++            eq_path = HERE / 'partial_equivalence.json'
++            require(eq_path.is_file(), f'Missing partial/full equivalence: {model}')
++            eq_bytes = reader.read(eq_path)
++            require(full_provenance['selected_output_sha256'].get(eq_path.name) == sha(eq_bytes),
++                    f'Partial/full equivalence is not bound to full B provenance: {model}')
++            equivalence = json.loads(eq_bytes)
++            require(equivalence.get('PASS') is True and model in equivalence.get('checked_models', []),
++                    f'Partial/full equivalence did not PASS for model: {model}')
++            for name, digest in table_hashes.items():
++                checks = [c for c in equivalence.get('checks', []) if c.get('model') == model and c.get('file') == name]
++                require(len(checks) == 1 and checks[0].get('byte_identical') is True and
++                        checks[0].get('sha256') == digest,
++                        f'Missing/mismatched partial/full equivalence check: {name}')
++        freezes[model] = dict(source=str(path), source_sha256=sha(reader.read(path)),
++            analyzed_at_utc=partial['analyzed_at_utc'], timestamp=timestamp,
++            frozen_partial_table_sha256=table_hashes, equivalence_required=equivalence_required,
++            equivalence_sha256=sha(eq_bytes) if equivalence_required else None)
++    return freezes
++
++
++def check_freeze_order(all_arms, freezes):
++    """Require each stage's own freeze to precede every new-arm completion."""
++    evidence = {}
++    for model, freeze in freezes.items():
++        terminals = [ep.audit['earliest_accepted_terminal_ts']
++                     for cell, arms in all_arms.items() if model == 'full' or cell.split('_')[0] == model
++                     for label, ep in arms.items() if label != 'pure_c10']
++        require(all(freeze['timestamp'] < ts for ts in terminals),
++                f'B analysis not earlier than A completion records: {model}')
++        first = min(terminals)
++        evidence[model] = dict(freeze, earliest_new_arm_completion_ts=first, strict_freeze_before_test=True)
++    return evidence
+ 
+ 
+ class AServedFitVerifier(ServedFitVerifier):
+@@ -628,6 +692,7 @@
+     for cell in CELLS:
+         require(b['cells'][cell]['tolerances']['5']['levels'] == levels[cell] and
+                 b['cells'][cell]['tolerances']['5']['uniform'] == uniforms[cell], 'B table mismatch')
++    freezes = stage_freezes(scope, prov, levels, uniforms, reader)
+     caps = reader.json(HERE / 'cap_tables.json')
+     templates = [reader.read(TRACE / f'r11_knob_{i}/eval500.json') for i in range(1,5)]
+     require(len(set(templates)) == 1, 'R11 A templates differ')
+@@ -635,15 +700,14 @@
+     for cell in scope['cells']:
+         print('Read and audit A:', cell, flush=True)
+         all_arms[cell] = load_a(cell, levels[cell], uniforms[cell], p, caps, reader, templates[0])
+-    btime = datetime.fromisoformat(prov['analyzed_at_utc']).timestamp()
+-    require(all(btime < ep.audit['earliest_accepted_terminal_ts'] for a in all_arms.values() for label,ep in a.items() if label != 'pure_c10'),
+-            'B analysis not earlier than A completion records')
++    freeze_order = check_freeze_order(all_arms, freezes)
+     result = calculate_scope(all_arms, b, p, levels, uniforms, scope)
+     result['episode_data'] = {c: {a: {k:getattr(ep,k).tolist() for k in ('y','n','v','m','cost')} for a,ep in arms.items()} for c,arms in all_arms.items()}
+     result['provenance'] = dict(protocol_frozen_at_utc=p['frozen_at_utc'], inputs=reader.inputs,
+         decision_shards=reader.shards, cpu_affinity=sorted(os.sched_getaffinity(0)), python=sys.version,
+         numpy=np.__version__, bootstrap_draws=DRAWS, bootstrap_seed=SEED, pool='A', reselection=False,
+-        frozen_b_output_sha256=prov['selected_output_sha256'], analysis_scope=scope)
++        frozen_b_output_sha256=prov['selected_output_sha256'], analysis_scope=scope,
++        freeze_before_test=freeze_order)
+     print('Rehash inputs and verify stable shard sets', flush=True)
+     reader.stable()
+     names = output_names(scope)

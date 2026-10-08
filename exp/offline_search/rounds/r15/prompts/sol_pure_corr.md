@@ -1,0 +1,17 @@
+<task>
+Owner request (2026-10-05 21:0x): the cleanest ablation of the layer-3 in-library corrector is "pure cache + corrector" versus "pure cache", with no guard. R10 (exp/offline_search/rounds/r10/REPORT.md, HANDBACK.md) ran on official test A, 500 episodes per arm, per model × suite × library size {50,100,200,300,400,500}: A (pure cache), G (only-no-progress guard), GC_loeo, GC_pair, GC_dist (G + distance-attenuated LOEO corrector; the deployed layer 3). There is no A + corrector arm. Build it.
+</task>
+<key_points>
+1. New arm per model × suite × size (24 arms): A + the deployed corrector exactly as in GC_dist (same frozen R10 heads, strength .5 × clip((2 − r)/1.25, 0, 1), same distance scale, same library-only fits), with the guard disabled. Everything else identical to R10's A arm for that cell (retrieval, synthesis, commit, seeds, rollout template, A identities, episode count 500, recording off). Reuse R10 artifacts; refit nothing. If the corrector code path needs the guard object, make the guard an explicit no-op without changing any other behaviour; keep any shared runtime change default-off, atomic and tested.
+2. Prove on CPU: (a) with the corrector switched off, the new arm is decision-for-decision identical to R10's A arm (replay on recorded or synthetic inputs); (b) with the guard switched on, it reproduces R10 GC_dist decisions; (c) corrector engagement is visible in decision logs (a field or counter I can check after the first arm, as with the knob's reason codes).
+3. Pairing: same A identities, rollout seeds and template as the R10 A arms, so each new arm pairs init-for-init with R10 A (and G, GC_dist). Record the R10 A/G/GC_dist reference arm paths and hashes per cell.
+4. Hosts: R10 ran all servers on H100 (startup host vla-cache). GR00T has a 4090-vs-H100 host effect, so the 12 GR00T arms must be @h100. π0.5 has no host effect: put the 12 π0.5 arms @local (4090) to run in parallel. Roots: /home/weiland/trace_runs/os_closed_loop/r15_purecorr_<model>_<suite> (one root per model × suite, six arms each, never bind a fleet inside a root). Queue file exp/offline_search/rounds/r15/pure_corr/queue.txt in my runner format (`@h100 /abs/root|arm` or `@local /abs/root|arm`, one arm per line, smaller libraries first).
+5. A small analysis script (CPU) that, after the runs, prints per cell and size: SR of R10 A, new A+C, R10 G, R10 GC_dist, the paired gains/losses and two-sided exact p for A+C vs A, and IR; plus the six-size pooled pairing per cell, same style as the R10 report tables. Test it on synthetic data only. Test A is measure-only: no selection or refitting from these outcomes.
+6. List any runtime file to deploy (with hashes) for h100, timan107 and timan108.
+</key_points>
+<constraints>
+CPU only: taskset -c 2-9,46-53 env CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONPATH=.:src PYTHONDONTWRITEBYTECODE=1 .venv/bin/python. No servers, GPU, tether/remote ops, sync/chain, git, pkill, rm -rf. No symlinks under exp/offline_search; pytest with -p no:cacheprovider and scratch outside the repo. Write under exp/offline_search/rounds/r15/pure_corr/ and the new roots; minimal default-off shared edits only if unavoidable. Do not read test-A outcomes beyond R10 summary files needed for pairing metadata.
+</constraints>
+<done>
+exp/offline_search/rounds/r15/pure_corr/HANDBACK.md (short): roots and arms, proofs, engagement field, analysis command, files to deploy with hashes.
+</done>

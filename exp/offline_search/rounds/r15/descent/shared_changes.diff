@@ -1,0 +1,46 @@
+--- before/exp/offline_search/closed_loop/devset.py
++++ exp/offline_search/closed_loop/devset.py
+@@ -219,9 +219,21 @@
+     actual = {str(t): list(v) for t, v in info['episode_ids_by_task'].items()}
+     if {t: sorted(v) for t, v in actual.items()} != {t: sorted(v) for t, v in subset['episode_ids_by_task'].items()}:
+         raise ValueError('dev fitted episode selection differs from arm')
+-    require_disjoint(manifest, subset)
++    loeo = row.get('r15_leave_own_episode_out', False)
++    if type(loeo) is not bool:
++        raise ValueError('leave-own-out opt-in must be a boolean')
++    if loeo:
++        from exp.offline_search.rounds.r15.descent.recipe import R15Knob
++        if (not isinstance(method, R15Knob) or kwargs.get('leave_own_episode_out') is not True
++                or len([e for ids in actual.values() for e in ids]) != 500):
++            raise ValueError('leave-own-out requires an attested R15 500-episode prefit')
++        method.validate_leave_own_episode_out(subset)
++    else:
++        require_disjoint(manifest, subset)
+     return dict(dev=True, init_pool='B', arm=row['arm'], model=row['model'], suite=suite_long(row['suite']),
+-                manifest_sha256=manifest['sha256'], subset=subset, fit_sha256=sha(path))
++                manifest_sha256=manifest['sha256'], subset=subset, fit_sha256=sha(path),
++                **(dict(leave_own_episode_out=True, query_pool='B',
++                        exclusion='original_task_init_identity', fits_include_own_episode=True) if loeo else {}))
+ 
+ 
+ def pure_reference(manifest, store=STORE):
+--- before/exp/offline_search/closed_loop/worker_pool.py
++++ exp/offline_search/closed_loop/worker_pool.py
+@@ -67,7 +67,16 @@
+         matrix = yaml.safe_load(Path(arg(args, '--arm-matrix')).read_text())
+         if [r['arm'] for r in matrix['arms']] != [contract['arm']]:
+             raise ValueError('dev contract arm differs from matrix')
+-        require_disjoint(manifest, contract['subset'])
++        if contract.get('leave_own_episode_out', False):
++            if (contract.get('leave_own_episode_out') is not True
++                    or contract.get('query_pool') != 'B'
++                    or contract.get('exclusion') != 'original_task_init_identity'
++                    or contract.get('fits_include_own_episode') is not True
++                    or not contract['arm'].startswith('r15d_')
++                    or sum(map(len, contract['subset']['episode_ids_by_task'].values())) != 500):
++                raise ValueError('invalid R15 leave-own-out serving contract')
++        else:
++            require_disjoint(manifest, contract['subset'])
+     journal = Path(arg(args, '--journal'))
+     if journal.exists():
+         rows = []
