@@ -1,0 +1,119 @@
+{
+  "cpu_only": true,
+  "cpu_affinity": "22-37,66-81",
+  "cuda_visible_devices": "",
+  "tests": {
+    "CPU_HALF.xml": {
+      "tests": 59,
+      "failures": 0,
+      "errors": 0,
+      "groups": {
+        "exp.offline_search.rounds.r12.half.test_half": 59
+      }
+    },
+    "CPU_REGRESSION.xml": {
+      "tests": 272,
+      "failures": 0,
+      "errors": 0,
+      "groups": {
+        "exp.offline_search.closed_loop.test_cache_ablate": 71,
+        "exp.offline_search.closed_loop.test_r12_pipeline": 50,
+        "exp.offline_search.closed_loop.test_r12_test_a": 26,
+        "exp.offline_search.closed_loop.test_look_recording": 25,
+        "exp.offline_search.rounds.r12.lookhalf.selftest.LibraryTests": 7,
+        "exp.offline_search.rounds.r12.lookhalf.selftest.GateLedgerTests": 4,
+        "exp.offline_search.rounds.r12.lookhalf.selftest.EncoderTests": 3,
+        "exp.offline_search.rounds.r12.guard.selftest.GuardTests": 13,
+        "exp.offline_search.closed_loop.test_devset": 38,
+        "exp.offline_search.rounds.r07.c2_wrist.test_dispatch.DispatchTests": 8,
+        "exp.offline_search.closed_loop.ops.h100.test_collect_split": 27
+      }
+    }
+  },
+  "fits": {
+    "pi05_l10_50": {
+      "sha256": "449ffe7d8016fd9d438a87bd91d3912a74cedd5575d4fbd06aafb987651ad4b9",
+      "heads": 10,
+      "scales": 10,
+      "loeo_rows": 2925,
+      "fit_read_count": 10,
+      "own_episode_excluded": true,
+      "library_only": true
+    },
+    "pi05_spatial_50": {
+      "sha256": "5f73566c12b8fa31add366b9b940b171f21f835bae838158434bbd633768a3d2",
+      "heads": 10,
+      "scales": 10,
+      "loeo_rows": 1161,
+      "fit_read_count": 10,
+      "own_episode_excluded": true,
+      "library_only": true
+    },
+    "pi05_spatial_200": {
+      "sha256": "1388be58e0e8e81423adfe70d2c3bc2807ff701ca6c62e98b5e6830838f5b247",
+      "heads": 10,
+      "scales": 10,
+      "loeo_rows": 4424,
+      "fit_read_count": 10,
+      "own_episode_excluded": true,
+      "library_only": true
+    },
+    "groot_spatial_50": {
+      "sha256": "c57f8eeb9daf5ee2d0ccf3a50972af585b3f83c0162893421be48a53b0316062",
+      "heads": 10,
+      "scales": 10,
+      "loeo_rows": 1201,
+      "fit_read_count": 10,
+      "own_episode_excluded": true,
+      "library_only": true
+    },
+    "groot_l10_50": {
+      "sha256": "90fca6e68731817aa46d7a764e5aa85bbc1a8efab464c4d9f47ea5b04035710d",
+      "heads": 10,
+      "scales": 10,
+      "loeo_rows": 2955,
+      "fit_read_count": 10,
+      "own_episode_excluded": true,
+      "library_only": true
+    }
+  },
+  "source_hashes_preserved": {
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/guard/artifacts/pi05_l10_50/h2.pkl": "cab909755e361c47b9d997884b80c1060a9695e0d5663b9021f01ce02158cfad",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/ablate/artifacts/pi05_l10_50/wrist_sub.pkl": "264a4782ce403484b87329d128423d53f50600863064a1b0ed51d6e61c031ea6",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/guard/artifacts/pi05_spatial_50/h2.pkl": "a1994d1a563e7d620bf13ecf44fdc1d3d9f4d3fec17fac01193f7197ebb88b80",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/ablate/artifacts/pi05_spatial_50/wrist_sub.pkl": "1576f8563b70b8a48a07c043f89bc46e49d3fa14e322eb709e8eedb3af105342",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/guard/artifacts/pi05_spatial_200/h2.pkl": "d3814b22cdb0880a1b6987a282c319d796ee25acd3d9eff76c4d0cfb4db8c285",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/ablate/artifacts/pi05_spatial_200/wrist_sub.pkl": "27a73e2546fb272b57f40a56daf5b8e303bde0869d22b4c9462df608bc01e126",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/guard/artifacts/groot_spatial_50/h2.pkl": "6710146bc0f2f558dad48deca9f22742e98b8784795885a87f4b75c2d3ae614c",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/ablate/artifacts/groot_spatial_50/wrist_sub.pkl": "d6284534c4fcff70c24ac7ed98a220f4d10ae93d557881ce6c1b7394a13ced44",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/guard/artifacts/groot_l10_50/h2.pkl": "ac9639d5fd09c1226a3a5d7de16f0916efb5135cffa84eab6249008989c07504",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/ablate/artifacts/groot_l10_50/wrist_sub.pkl": "cb7d80933f2ea99d301bd577c13497e0379049ea2cd659e4475314094cf0b037"
+  },
+  "exact_final_argv": 24,
+  "provisional_gap": 1.0164,
+  "all_both_R11_gaps": [
+    2.6125,
+    1.0657,
+    0.4386
+  ],
+  "launches": 0,
+  "remote_operations": 0,
+  "transport": "mocked only; plans in /tmp; existing roots snapshotted",
+  "runtime_source_sha256": {
+    "exp/offline_search/closed_loop/half_everywhere.py": "beec446262b12f74846be33da3cd8cb0cc06fa47bde79c90f4cb030d1feb1865",
+    "exp/offline_search/closed_loop/half_everywhere_config.py": "cd71eed4a310c454c7a43b4ef3c1ab3c45898e52602d44e7e65ef39effcaf55e",
+    "exp/offline_search/closed_loop/half_everywhere_cameras.py": "94abb5b5ada7a99c2485ba5e39a8b053d97952d03e2aecbddad5e139ef882da0",
+    "exp/offline_search/closed_loop/half_everywhere_ledger.py": "4ea7795076f7d83f75df85b8e78d985b5cf85ce22c1640f20593b07179cff9d0",
+    "exp/offline_search/closed_loop/plugin.py": "00c890d8fa77e524d8fed0f33c821536abe8b59fcc9d3d72ab12e731ce7afd84",
+    "exp/offline_search/closed_loop/lookhalf_config.py": "d146ec98dee04210758469931963dd326683475ad7bbaff555efd5408d2cc9f5",
+    "exp/offline_search/closed_loop/ops/collect.py": "e205699b22f17877f2bb376a016c11097a1bfd274bd3fd3e251ba4530a1adcc5",
+    "exp/offline_search/closed_loop/ops/h100/assets.py": "a106f0f5adcd120996725b28c5326abf24b9db7618d32fbe2ec78389a0ca8770",
+    "exp/offline_search/closed_loop/ops/h100/node.py": "d9608a02f0f7df7f04ed29d59b9c9ae124beff1701ae054f5e65f64e51eef480"
+  },
+  "final_followup_checks": {
+    "library_binding_immutability_and_remote_validator": 7,
+    "cold_acquisition_transaction": 4,
+    "deployed_byte_equivalence_after_diagnostic_logging": 6,
+    "actual_session_log_schema": 1
+  }
+}

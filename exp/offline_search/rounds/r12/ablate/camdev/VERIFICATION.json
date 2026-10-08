@@ -1,0 +1,163 @@
+{
+  "passed": 267,
+  "failures": 0,
+  "skipped": 0,
+  "runs": [
+    {
+      "evidence": "CPU_CAMDEV.xml",
+      "passed": 30,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "evidence": "CPU_REGRESSION.xml",
+      "passed": 237,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "by_module": {
+    "exp.offline_search.rounds.r12.ablate.camdev.test_camera_dev": 30,
+    "exp.offline_search.closed_loop.test_cache_ablate": 71,
+    "exp.offline_search.closed_loop.test_r12_pipeline": 50,
+    "exp.offline_search.closed_loop.test_r12_test_a": 26,
+    "exp.offline_search.closed_loop.test_look_recording": 25,
+    "exp.offline_search.rounds.r12.lookhalf.selftest.LibraryTests": 7,
+    "exp.offline_search.rounds.r12.lookhalf.selftest.GateLedgerTests": 4,
+    "exp.offline_search.rounds.r12.lookhalf.selftest.EncoderTests": 3,
+    "exp.offline_search.rounds.r12.guard.selftest.GuardTests": 13,
+    "exp.offline_search.closed_loop.test_devset": 38
+  },
+  "category_counts": {
+    "camdev": 30,
+    "ablation": 71,
+    "R12": 128,
+    "devset": 38
+  },
+  "roots": [
+    {
+      "root": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/ablate/camdev/r12_camdev_pi05_l10_50",
+      "per_task_counts": {
+        "0": 27,
+        "1": 28,
+        "2": 31,
+        "3": 28,
+        "4": 32,
+        "5": 27,
+        "6": 28,
+        "7": 29,
+        "8": 28,
+        "9": 28
+      },
+      "episodes_per_arm": 286,
+      "selection_sha256": "320210e284bb2610be9ad243bab629de0e2601ddd71f1855d955d925a0efe966",
+      "selection_file_sha256": "6476c180cc2cbe5b70b2304a7092e1dc02468354d8c18fe71da06616947b66db",
+      "previous_screen_overlap": 0,
+      "served_library_overlap": 0
+    },
+    {
+      "root": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/ablate/camdev/r12_camdev_pi05_spatial_50",
+      "per_task_counts": {
+        "0": 27,
+        "1": 28,
+        "2": 31,
+        "3": 28,
+        "4": 32,
+        "5": 27,
+        "6": 28,
+        "7": 29,
+        "8": 28,
+        "9": 28
+      },
+      "episodes_per_arm": 286,
+      "selection_sha256": "320210e284bb2610be9ad243bab629de0e2601ddd71f1855d955d925a0efe966",
+      "selection_file_sha256": "6b4c2669934425c553113e4b3b1703d3f9cd3c66235696ac603ef886eee7c2e0",
+      "previous_screen_overlap": 0,
+      "served_library_overlap": 0
+    },
+    {
+      "root": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/ablate/camdev/r12_camdev_pi05_spatial_200",
+      "per_task_counts": {
+        "0": 15,
+        "1": 15,
+        "2": 18,
+        "3": 16,
+        "4": 19,
+        "5": 16,
+        "6": 15,
+        "7": 17,
+        "8": 16,
+        "9": 16
+      },
+      "episodes_per_arm": 163,
+      "selection_sha256": "5d4a4adea64f78101e02d12a13d2677992eed027ce253e2b350ebad7a90ff97b",
+      "selection_file_sha256": "b560a472526ba37b88741cf9029ad5a5397d2c6a9ae9c18ba164dcb3bac7ba9e",
+      "previous_screen_overlap": 0,
+      "served_library_overlap": 0
+    },
+    {
+      "root": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/ablate/camdev/r12_camdev_groot_spatial_50",
+      "per_task_counts": {
+        "0": 27,
+        "1": 28,
+        "2": 31,
+        "3": 28,
+        "4": 32,
+        "5": 27,
+        "6": 28,
+        "7": 29,
+        "8": 28,
+        "9": 28
+      },
+      "episodes_per_arm": 286,
+      "selection_sha256": "320210e284bb2610be9ad243bab629de0e2601ddd71f1855d955d925a0efe966",
+      "selection_file_sha256": "5490880db3a4d686a24e603ff209d1dbc7af7fe5f48d385d7e76fa93fa8aa4eb",
+      "previous_screen_overlap": 0,
+      "served_library_overlap": 0
+    },
+    {
+      "root": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/ablate/camdev/r12_camdev_groot_l10_50",
+      "per_task_counts": {
+        "0": 27,
+        "1": 28,
+        "2": 31,
+        "3": 28,
+        "4": 32,
+        "5": 27,
+        "6": 28,
+        "7": 29,
+        "8": 28,
+        "9": 28
+      },
+      "episodes_per_arm": 286,
+      "selection_sha256": "320210e284bb2610be9ad243bab629de0e2601ddd71f1855d955d925a0efe966",
+      "selection_file_sha256": "a8b1fdcff53877924eb347ba18d395282a363455ef02b4e1aaa914656cae1410",
+      "previous_screen_overlap": 0,
+      "served_library_overlap": 0
+    }
+  ],
+  "arms": 10,
+  "frozen_artifacts_reused": 10,
+  "episodes_all_arms": 2614,
+  "excluded_previous_screens": [
+    "r11_dev_k10_size50",
+    "r11_dev_k10_size200"
+  ],
+  "exclusion_rule": "union of matching model/suite selections from both sizes, plus actual served library subset",
+  "roots_unchanged_by_plan_sync": true,
+  "preserved_input_files": 153,
+  "all_preserved_input_hashes_match": true,
+  "a_used_for_camdev": false,
+  "refits": 0,
+  "launches": 0,
+  "remote_operations": 0,
+  "transport_mocked": true,
+  "argv_checks": 20,
+  "cpu_affinity": "22-37,66-81",
+  "cuda_visible_devices": "",
+  "omp_threads": 1,
+  "sources_sha256": "SOURCES_SHA256.json",
+  "existing_warning": "pynvml deprecation"
+}

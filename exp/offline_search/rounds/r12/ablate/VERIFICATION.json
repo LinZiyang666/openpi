@@ -1,0 +1,68 @@
+{
+  "unique_tests": {
+    "passed": 440
+  },
+  "by_module": {
+    "exp.offline_search.closed_loop.ops.h100.test_h100": 21,
+    "exp.offline_search.closed_loop.ops.h100.test_robustness": 107,
+    "exp.offline_search.closed_loop.ops.h100.test_local": 32,
+    "exp.offline_search.closed_loop.ops.h100.test_local_port_release": 24,
+    "exp.offline_search.closed_loop.ops.h100.test_local_receipt_race": 11,
+    "exp.offline_search.closed_loop.test_devset": 38,
+    "exp.offline_search.closed_loop.test_r12_pipeline": 50,
+    "exp.offline_search.closed_loop.test_r12_test_a": 26,
+    "exp.offline_search.closed_loop.test_look_recording": 25,
+    "exp.offline_search.rounds.r12.lookhalf.selftest.LibraryTests": 7,
+    "exp.offline_search.rounds.r12.lookhalf.selftest.GateLedgerTests": 4,
+    "exp.offline_search.rounds.r12.lookhalf.selftest.EncoderTests": 3,
+    "exp.offline_search.rounds.r12.guard.selftest.GuardTests": 13,
+    "exp.offline_search.closed_loop.test_cache_ablate": 71,
+    "exp.offline_search.rounds.r07.c2_wrist.test_dispatch.DispatchTests": 8
+  },
+  "runs": [
+    {
+      "evidence": "CPU_ALL.xml",
+      "passed": 429
+    },
+    {
+      "evidence": "CPU_FINAL_ADDITIONS.xml",
+      "passed": 6
+    },
+    {
+      "evidence": "CPU_DEPLOYED.xml",
+      "passed": 5
+    },
+    {
+      "evidence": "CPU_COLLECTION.xml",
+      "passed": 14
+    }
+  ],
+  "pilots": 25,
+  "staged_test_A": 25,
+  "frozen_artifacts": 25,
+  "launches": 0,
+  "remote_operations": 0,
+  "compute_share": {
+    "pi05": {
+      "two_camera": 0.152,
+      "one_camera": 0.076
+    },
+    "groot": {
+      "two_camera": 0.148,
+      "one_camera": 0.074
+    },
+    "policy": 0
+  },
+  "exclusions": [
+    "test_detached_fake_process_lifecycle_idempotency_and_foreign_receipt",
+    "test_supervisor_records_natural_completion",
+    "test_resumable_daemon_pull_checks_exact_content"
+  ],
+  "exclusion_reason": "Would start a real listener, supervisor, or rsync daemon; excluded under no-launch directive.",
+  "transport_mocked": true,
+  "cpu_affinity": "22-37,66-81",
+  "cuda_visible_devices": "",
+  "omp_threads": 1,
+  "legacy_r12_checks": 128,
+  "source_hashes": "SOURCES_SHA256.json"
+}

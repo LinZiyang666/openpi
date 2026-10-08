@@ -1,0 +1,67 @@
+{
+  "passed": 128,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "elapsed_seconds": 182.39,
+  "counts": {
+    "exp.offline_search.closed_loop.test_r12_pipeline": 50,
+    "exp.offline_search.closed_loop.test_r12_test_a": 26,
+    "exp.offline_search.closed_loop.test_look_recording": 25,
+    "exp.offline_search.rounds.r12.lookhalf.selftest": 14,
+    "exp.offline_search.rounds.r12.guard.selftest": 13
+  },
+  "additional_receipt_regression_passes": 3,
+  "frozen_artifacts_verified": 35,
+  "frozen_artifacts_changed": 0,
+  "final_A_placement": "pending: trace_runs is outside the session writable roots",
+  "test_A_staged_roots": [
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/test_a_staged/r12_test_pi05_l10_50",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/test_a_staged/r12_test_pi05_spatial_50",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/test_a_staged/r12_test_groot_spatial_50",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/test_a_staged/r12_test_groot_l10_50",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/test_a_staged/r12_test_pi05_spatial_200",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/test_a_staged/r12_test_pi05_spatial_200_guard_pending",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/test_a_staged/r12_test_pi05_l10_50_periodic_ir32"
+  ],
+  "test_A_final_roots": [
+    "/home/weiland/trace_runs/os_closed_loop/r12_test_pi05_l10_50",
+    "/home/weiland/trace_runs/os_closed_loop/r12_test_pi05_spatial_50",
+    "/home/weiland/trace_runs/os_closed_loop/r12_test_groot_spatial_50",
+    "/home/weiland/trace_runs/os_closed_loop/r12_test_groot_l10_50",
+    "/home/weiland/trace_runs/os_closed_loop/r12_test_pi05_spatial_200",
+    "/home/weiland/trace_runs/os_closed_loop/r12_test_pi05_spatial_200_guard_pending",
+    "/home/weiland/trace_runs/os_closed_loop/r12_test_pi05_l10_50_periodic_ir32"
+  ],
+  "B_screen_root": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/guard/pilots/r12_guard_fix2_pi05_spatial_200",
+  "test_A_arms": 23,
+  "B_screen_arms": 2,
+  "active_A_worker": "exp.offline_search.closed_loop.execution_worker",
+  "off_worker": "examples.libero.worker_entry",
+  "recording_A": false,
+  "recording_B": true,
+  "launches": 0,
+  "real_plan_sync_chain": 0,
+  "remote_operations": 0,
+  "git_commands": 0,
+  "source_files": [
+    "exp/offline_search/closed_loop/worker_pool.py",
+    "exp/offline_search/closed_loop/ops/h100/control.py",
+    "exp/offline_search/closed_loop/lookhalf_ledger.py",
+    "exp/offline_search/closed_loop/ops/collect.py",
+    "exp/offline_search/closed_loop/test_r12_pipeline.py",
+    "exp/offline_search/closed_loop/test_r12_test_a.py",
+    "exp/offline_search/rounds/r12/guard/selftest.py",
+    "exp/offline_search/rounds/r12/prepare_test_a.py"
+  ],
+  "CPU_affinity": "22-37,66-81",
+  "CUDA_VISIBLE_DEVICES": "",
+  "OMP_NUM_THREADS": 1,
+  "commands_syntax_checked": true,
+  "logs": [
+    "TEST_A_CPU.log",
+    "TEST_A_CPU.xml",
+    "TEST_A_RECEIPTS.log",
+    "TEST_A_FROZEN_SHA256.json"
+  ]
+}

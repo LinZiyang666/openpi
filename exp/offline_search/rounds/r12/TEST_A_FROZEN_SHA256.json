@@ -1,0 +1,146 @@
+{
+  "artifacts": [
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/guard/artifacts/groot_l10_50/off.pkl",
+      "sha256": "ed2cbd725ed3816265ffeefa52973543e5b245be3cf9ea68826ee9261ba32d68"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/guard/artifacts/groot_l10_50/h2.pkl",
+      "sha256": "ac9639d5fd09c1226a3a5d7de16f0916efb5135cffa84eab6249008989c07504"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/guard/artifacts/groot_l10_50/m2.pkl",
+      "sha256": "f019c407c06383341d479aaf6c5c49fc84359bc4f90009263f4590ffddfe1706"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/guard/artifacts/groot_spatial_50/off.pkl",
+      "sha256": "c9097860a33c39397c87050be1bbd4fd9b5e873b80a24f66ab21ace91499ad13"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/guard/artifacts/groot_spatial_50/h2.pkl",
+      "sha256": "6710146bc0f2f558dad48deca9f22742e98b8784795885a87f4b75c2d3ae614c"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/guard/artifacts/groot_spatial_50/m2.pkl",
+      "sha256": "f171fbcd7da2b647a708677c8f02738f2dd28240236c4310edbcf0eff5c03c5c"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/guard/artifacts/pi05_l10_50/off.pkl",
+      "sha256": "798ae1855347df16017d046bcd75af803d4dfa0bfa324ec54d591a12826effa9"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/guard/artifacts/pi05_l10_50/h2.pkl",
+      "sha256": "cab909755e361c47b9d997884b80c1060a9695e0d5663b9021f01ce02158cfad"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/guard/artifacts/pi05_l10_50/m2.pkl",
+      "sha256": "0312d59428861e9c9cbb2dfad7ef4c7f9f42440a05da0e80c5a90bf1282e004b"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/guard/artifacts/pi05_l10_50_periodic_ir32/off.pkl",
+      "sha256": "c6f0c3a6e0ef644768f08c298be7ecda3596b7e6e158164e7c7aaac3acda0775"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/guard/artifacts/pi05_l10_50_periodic_ir32/h2.pkl",
+      "sha256": "88b4b472393059ada71535f1055726379f393fdf3b80914c80a76ca10e169502"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/guard/artifacts/pi05_l10_50_periodic_ir32/m2.pkl",
+      "sha256": "ebb555e3e4ef74720e6c9e3c4b540413da61980b76b0935fef2f1953855674b3"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/guard/artifacts/pi05_spatial_200/off.pkl",
+      "sha256": "2f135fb16e37a8f016bf015b226454f59b4923dd6d057918775f234668fc24d0"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/guard/artifacts/pi05_spatial_200/h2.pkl",
+      "sha256": "d3814b22cdb0880a1b6987a282c319d796ee25acd3d9eff76c4d0cfb4db8c285"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/guard/artifacts/pi05_spatial_200/m2.pkl",
+      "sha256": "da74d15ad468a1726289bb08f449dca57b2dda2ce78b084d61eb212c39f94eeb"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/guard/artifacts/pi05_spatial_50/off.pkl",
+      "sha256": "401c6ef57a50034ec8e9b0733560eb175aef6ff0186fe971e56f43cb65b1e4c1"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/guard/artifacts/pi05_spatial_50/h2.pkl",
+      "sha256": "a1994d1a563e7d620bf13ecf44fdc1d3d9f4d3fec17fac01193f7197ebb88b80"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/guard/artifacts/pi05_spatial_50/m2.pkl",
+      "sha256": "e5b034e2df248f81a778ce1dfbc92203349cc34d9e774bd0e60ab00b7f603787"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/lookhalf/artifacts/groot_l10_50/off.pkl",
+      "sha256": "6a899ea88d3bc87ef9e355efdb6c14bc094b9b86182015ea92cde5d3e32f7549"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/lookhalf/artifacts/groot_l10_50/opus_m1.pkl",
+      "sha256": "1308710d790b08941b4e9d6ab75ab241edefc05de355a8f0ff61024c25c2c2e2"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/lookhalf/artifacts/groot_l10_50/astra_consensus2.pkl",
+      "sha256": "b6de6e0bd593ec1a5ecb132ae0b68960e4f7b7d34c321ca6caec50fb2b96b178"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/lookhalf/artifacts/groot_spatial_50/off.pkl",
+      "sha256": "96edf30b42533e5bd4c94f72faa70618433c42fa59f0b165faaa49f0c4cec38b"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/lookhalf/artifacts/groot_spatial_50/opus_m1.pkl",
+      "sha256": "2d7b81f702a62b183a61a58da135acf17f47080f571aaaa59fea0b7d21430796"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/lookhalf/artifacts/groot_spatial_50/astra_consensus2.pkl",
+      "sha256": "a074bc957bd5f1460ea677b487efec26a220a176fc9388ea414093579b31b2d9"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/lookhalf/artifacts/pi05_l10_50/off.pkl",
+      "sha256": "9e4472568c44c1bdeb17b6b00d36f37df9b8836a902f70e1ce5b22c2ba885b0a"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/lookhalf/artifacts/pi05_l10_50/opus_m1.pkl",
+      "sha256": "e90c2a1c953020563eef589e87b4bbb81ced8f1cb00a1de24c118ebe69cc1755"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/lookhalf/artifacts/pi05_l10_50/astra_consensus2.pkl",
+      "sha256": "4448d0b3ee4a15c7d8d283d73ce6cde066a28f62a4baf313c8f5125133007fd2"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/lookhalf/artifacts/pi05_l10_50/astra_strict.pkl",
+      "sha256": "a3a2ac2d193b3368d196250aa963e8593602e504a98fc47de1f4ad33a632ae91"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/lookhalf/artifacts/pi05_spatial_200/off.pkl",
+      "sha256": "e7c63677d907143cd69f8bddd23f0b0e87a53261eb108701cb893b18527f7ff9"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/lookhalf/artifacts/pi05_spatial_200/opus_m1.pkl",
+      "sha256": "c6b75f758c8199c1efdcb912848bf85db9f154206d24b4441612489795b2cada"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/lookhalf/artifacts/pi05_spatial_200/astra_consensus2.pkl",
+      "sha256": "34cf3e52ab9fdbfb0d3447d731f6e4249bccd3e3b2347f2f0e56a87b9a1786fc"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/lookhalf/artifacts/pi05_spatial_50/off.pkl",
+      "sha256": "9c9cb2471cd82be83dfa4c15ad33860349f96693b840939efb890929608053de"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/lookhalf/artifacts/pi05_spatial_50/opus_m1.pkl",
+      "sha256": "f826cba3b638660d0d5d55f4812fbd466036b830cbd03563254e3526e71fd44f"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/lookhalf/artifacts/pi05_spatial_50/astra_consensus2.pkl",
+      "sha256": "ffb9495f4db850f6dba420ca1fe8ea51ea78f05d795baf4037147446b44fc746"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/lookhalf/artifacts/pi05_spatial_50/astra_strict.pkl",
+      "sha256": "1a24701ac5bee9d12bb416410084a79dc59abadd0e79e86651d49d09656c5349"
+    }
+  ],
+  "verified": 35,
+  "changed": 0
+}

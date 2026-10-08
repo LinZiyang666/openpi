@@ -1,0 +1,1080 @@
+{
+  "cpu_affinity": [
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    66,
+    67,
+    68,
+    69,
+    70,
+    71,
+    72,
+    73,
+    74,
+    75,
+    76,
+    77,
+    78,
+    79,
+    80,
+    81
+  ],
+  "cuda_visible_devices": "",
+  "scope": "Accepted B dev episodes only; local threshold counts freeze actual history, not SR predictions",
+  "results": [
+    {
+      "cell": "pi05_l10_50",
+      "method": "astra_consensus2",
+      "looks": 3031,
+      "episodes": 100,
+      "decisions": 6016,
+      "sr": 0.83,
+      "ledger": {
+        "schema": "offline_search.r12_compute_share.v1",
+        "decisions": 6016,
+        "vision_decisions": 3031,
+        "misses": 647,
+        "blind_decisions": 2985,
+        "full_looks": 2836,
+        "one_camera_looks": 195,
+        "wrist_first_looks": 990,
+        "completions": 795,
+        "encoded_cameras": 5867,
+        "half_to_policy_completions": 123,
+        "work": 994.548000000036,
+        "ir_per_five_controls": 0.16531715425532514,
+        "legacy_work": 953.1965700000301,
+        "legacy_ir_per_five_controls": 0.15844357878989862,
+        "completion_reasons": {
+          "consensus": 795
+        },
+        "cost_basis": "camera compute share; policy remainder full price",
+        "diagnostics_excluded": true
+      },
+      "buckets": {
+        "full_lifecycle_or_due": 1016,
+        "complete_consensus": 795,
+        "full_atlas_or_state": 1025,
+        "one_camera": 195
+      },
+      "prelook_failures": {
+        "safe_mass": 857,
+        "support": 142,
+        "state_error": 240
+      },
+      "lifecycle": {
+        "warmup_step_lt4": 200,
+        "previous_positive_span": 621,
+        "after_accepted_half": 195
+      },
+      "witness_attempts": 990,
+      "witness_failures": {
+        "progress": 498,
+        "motion": 652,
+        "gripper": 54,
+        "advance": 94
+      },
+      "exclusive_witness_failures": {
+        "progress": 113,
+        "motion": 249,
+        "gripper": 3,
+        "advance": 11
+      },
+      "per_witness": {
+        "wrist_progress": 332,
+        "imputed_full_progress": 372,
+        "imputed_full_motion": 463,
+        "wrist_motion": 511,
+        "wrist_gripper": 41,
+        "imputed_full_gripper": 42
+      },
+      "combinations": {
+        "progress": 113,
+        "motion+progress": 293,
+        "motion": 249,
+        "pass": 195,
+        "motion+gripper": 12,
+        "motion+progress+advance": 43,
+        "motion+advance": 20,
+        "motion+gripper+progress": 28,
+        "motion+gripper+progress+advance": 5,
+        "gripper": 3,
+        "advance": 11,
+        "gripper+progress": 3,
+        "progress+advance": 12,
+        "motion+gripper+advance": 2,
+        "gripper+progress+advance": 1
+      },
+      "threshold_local_ceiling": {
+        "0.05": {
+          "passes": 16,
+          "noncall_passes": 16,
+          "share": 0.005278785879247773,
+          "fixed_history_saving": 0.0002021276595744681
+        },
+        "0.1": {
+          "passes": 195,
+          "noncall_passes": 195,
+          "share": 0.06433520290333224,
+          "fixed_history_saving": 0.00246343085106383
+        },
+        "0.15": {
+          "passes": 335,
+          "noncall_passes": 331,
+          "share": 0.1092048828769383,
+          "fixed_history_saving": 0.004181515957446809
+        },
+        "0.2": {
+          "passes": 403,
+          "noncall_passes": 396,
+          "share": 0.1306499505113824,
+          "fixed_history_saving": 0.0050026595744680855
+        },
+        "0.3": {
+          "passes": 432,
+          "noncall_passes": 424,
+          "share": 0.13988782580006598,
+          "fixed_history_saving": 0.005356382978723403
+        },
+        "inf": {
+          "passes": 444,
+          "noncall_passes": 435,
+          "share": 0.14351699109204882,
+          "fixed_history_saving": 0.005495345744680851
+        }
+      },
+      "ablation_noncall_local_ceiling": {
+        "drop_witnesses": 867,
+        "motion_only_0.1": 311,
+        "motion_grip_0.1": 305,
+        "grip_progress_advance_only": 435,
+        "wrist_only_0.1": 313,
+        "imputed_only_0.1": 331
+      },
+      "provenance": {
+        "manifests": [
+          {
+            "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/lookhalf/pilots/r12_lookhalf_fix1_pi05_l10_50/runs/r12_lh_pi05_l10_50_astra_consensus2/server_23100/looks/manifest_1b6ac93b9f1d40a7b8945ad8504bafe6.json",
+            "sha256": "06c20c0520b4bc6e2b24c69c3c4e2c565425582e0ef4d14e73e91281d0e9e32f"
+          },
+          {
+            "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/lookhalf/pilots/r12_lookhalf_fix1_pi05_l10_50/runs/r12_lh_pi05_l10_50_astra_consensus2/server_23101/looks/manifest_b2ea9971ece7440ea9d55c36f691d72a.json",
+            "sha256": "44995839a166b910807eadbf09336f0bc8df44d60323d801fc6e698e943dc94a"
+          },
+          {
+            "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/lookhalf/pilots/r12_lookhalf_fix1_pi05_l10_50/runs/r12_lh_pi05_l10_50_astra_consensus2/server_23102/looks/manifest_0dc837b7e8ba406884861f3ebcc6afb6.json",
+            "sha256": "4865103ffd88c1ef4371d456b5d46edff4be8e8db3f457b24bf870e6043db581"
+          },
+          {
+            "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/lookhalf/pilots/r12_lookhalf_fix1_pi05_l10_50/runs/r12_lh_pi05_l10_50_astra_consensus2/server_23103/looks/manifest_7bb24ad08b1046489235dd56625a27a2.json",
+            "sha256": "1a14cf8836bcf40a3b76cdbb68f39800bb1265f8c0e5a2d041585dc69bc88463"
+          }
+        ],
+        "skipped_attempt_shards": 0,
+        "journal_sha256": "0e4d03cdc0be9665975c94902f087dedbc2b9fc89f61f3565d99e13f472fbd5b",
+        "summary_sha256": "4512fbefecb8dc2328540b696d8fa60a4930712514894c0b6e3b4750ef015908"
+      }
+    },
+    {
+      "cell": "pi05_l10_50",
+      "method": "astra_strict",
+      "looks": 3063,
+      "episodes": 100,
+      "decisions": 6084,
+      "sr": 0.85,
+      "ledger": {
+        "schema": "offline_search.r12_compute_share.v1",
+        "decisions": 6084,
+        "vision_decisions": 3063,
+        "misses": 640,
+        "blind_decisions": 3021,
+        "full_looks": 3037,
+        "one_camera_looks": 26,
+        "wrist_first_looks": 1116,
+        "completions": 1090,
+        "encoded_cameras": 6100,
+        "half_to_policy_completions": 129,
+        "work": 1006.3200000000422,
+        "ir_per_five_controls": 0.16540433925050005,
+        "legacy_work": 954.6450680000385,
+        "legacy_ir_per_five_controls": 0.156910760683767,
+        "completion_reasons": {
+          "consensus": 1090
+        },
+        "cost_basis": "camera compute share; policy remainder full price",
+        "diagnostics_excluded": true
+      },
+      "buckets": {
+        "full_lifecycle_or_due": 840,
+        "complete_consensus": 1090,
+        "full_atlas_or_state": 1107,
+        "one_camera": 26
+      },
+      "prelook_failures": {
+        "safe_mass": 898,
+        "state_error": 271,
+        "support": 153
+      },
+      "lifecycle": {
+        "warmup_step_lt4": 200,
+        "previous_positive_span": 614,
+        "after_accepted_half": 26
+      },
+      "witness_attempts": 1116,
+      "witness_failures": {
+        "motion": 1078,
+        "progress": 558,
+        "gripper": 59,
+        "advance": 98
+      },
+      "exclusive_witness_failures": {
+        "motion": 471,
+        "progress": 10,
+        "advance": 1
+      },
+      "per_witness": {
+        "wrist_motion": 1010,
+        "wrist_progress": 397,
+        "imputed_full_progress": 411,
+        "imputed_full_motion": 965,
+        "wrist_gripper": 46,
+        "imputed_full_gripper": 42
+      },
+      "combinations": {
+        "motion+progress": 460,
+        "motion": 471,
+        "motion+gripper": 27,
+        "motion+progress+advance": 59,
+        "motion+advance": 30,
+        "motion+gripper+progress": 23,
+        "progress": 10,
+        "pass": 26,
+        "motion+gripper+progress+advance": 5,
+        "motion+gripper+advance": 3,
+        "advance": 1,
+        "gripper+progress": 1
+      },
+      "threshold_local_ceiling": {
+        "0.05": {
+          "passes": 26,
+          "noncall_passes": 26,
+          "share": 0.008488410055501142,
+          "fixed_history_saving": 0.00032478632478632476
+        },
+        "0.1": {
+          "passes": 240,
+          "noncall_passes": 236,
+          "share": 0.07704864511916422,
+          "fixed_history_saving": 0.002948060486522025
+        },
+        "0.15": {
+          "passes": 384,
+          "noncall_passes": 380,
+          "share": 0.12406137773424747,
+          "fixed_history_saving": 0.004746877054569362
+        },
+        "0.2": {
+          "passes": 447,
+          "noncall_passes": 442,
+          "share": 0.14430297094351943,
+          "fixed_history_saving": 0.005521367521367521
+        },
+        "0.3": {
+          "passes": 485,
+          "noncall_passes": 479,
+          "share": 0.1563826314071172,
+          "fixed_history_saving": 0.005983563445101906
+        },
+        "inf": {
+          "passes": 497,
+          "noncall_passes": 489,
+          "share": 0.15964740450538686,
+          "fixed_history_saving": 0.0061084812623274165
+        }
+      },
+      "ablation_noncall_local_ceiling": {
+        "drop_witnesses": 987,
+        "motion_only_0.1": 388,
+        "motion_grip_0.1": 380,
+        "grip_progress_advance_only": 489,
+        "wrist_only_0.1": 360,
+        "imputed_only_0.1": 405
+      },
+      "provenance": {
+        "manifests": [
+          {
+            "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/lookhalf/pilots/r12_lookhalf_fix1_pi05_l10_50/runs/r12_lh_pi05_l10_50_astra_strict/server_23100/looks/manifest_6820a679c95845568d0077cbcab9e300.json",
+            "sha256": "4774d66f359cf07ce30d5c0d33ef43cc09c0f33520864fa21632db012b895482"
+          },
+          {
+            "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/lookhalf/pilots/r12_lookhalf_fix1_pi05_l10_50/runs/r12_lh_pi05_l10_50_astra_strict/server_23101/looks/manifest_7031e8626cc74fd3b9c68b590ec0f825.json",
+            "sha256": "ba3e0f9b5c52ff70a9f4a3caf59bf66a0e10056d68e02eca20afcaa970c5e753"
+          },
+          {
+            "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/lookhalf/pilots/r12_lookhalf_fix1_pi05_l10_50/runs/r12_lh_pi05_l10_50_astra_strict/server_23102/looks/manifest_ef20ed43ad1a493486b9a697823a1a4e.json",
+            "sha256": "8c6549ccf116492edc14275b4068c3dff30cbc74f9cddf4cf49b838dea32cd46"
+          },
+          {
+            "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/lookhalf/pilots/r12_lookhalf_fix1_pi05_l10_50/runs/r12_lh_pi05_l10_50_astra_strict/server_23103/looks/manifest_182e698326fe42648b5dd3654ea5fdb5.json",
+            "sha256": "f13e81cfcdf7b65d4f049311ec6aad4e13a2a66d92d83f64fb7363dc318197bb"
+          }
+        ],
+        "skipped_attempt_shards": 0,
+        "journal_sha256": "9d46d55481e4af1b86f72e98ea29b980404aa23d52dccaae20c48d90eff1c95e",
+        "summary_sha256": "25897fb39b0b270c8a30b14a82c505bcb9b682c2e0301a3f482f505aabc708cd"
+      }
+    },
+    {
+      "cell": "pi05_spatial_50",
+      "method": "astra_consensus2",
+      "looks": 1256,
+      "episodes": 100,
+      "decisions": 2468,
+      "sr": 0.87,
+      "ledger": {
+        "schema": "offline_search.r12_compute_share.v1",
+        "decisions": 2468,
+        "vision_decisions": 1256,
+        "misses": 218,
+        "blind_decisions": 1212,
+        "full_looks": 1169,
+        "one_camera_looks": 87,
+        "wrist_first_looks": 460,
+        "completions": 373,
+        "encoded_cameras": 2425,
+        "half_to_policy_completions": 37,
+        "work": 369.16399999999214,
+        "ir_per_five_controls": 0.14958022690437284,
+        "legacy_work": 349.85604999999697,
+        "legacy_ir_per_five_controls": 0.14175690842787558,
+        "completion_reasons": {
+          "consensus": 373
+        },
+        "cost_basis": "camera compute share; policy remainder full price",
+        "diagnostics_excluded": true
+      },
+      "buckets": {
+        "full_lifecycle_or_due": 479,
+        "full_atlas_or_state": 317,
+        "complete_consensus": 373,
+        "one_camera": 87
+      },
+      "prelook_failures": {
+        "safe_mass": 222,
+        "state_error": 123,
+        "support": 117
+      },
+      "lifecycle": {
+        "warmup_step_lt4": 200,
+        "previous_positive_span": 194,
+        "after_accepted_half": 85
+      },
+      "witness_attempts": 460,
+      "witness_failures": {
+        "motion": 331,
+        "advance": 33,
+        "progress": 210,
+        "gripper": 32
+      },
+      "exclusive_witness_failures": {
+        "motion": 131,
+        "advance": 3,
+        "progress": 29,
+        "gripper": 4
+      },
+      "per_witness": {
+        "wrist_motion": 283,
+        "imputed_full_motion": 257,
+        "imputed_full_progress": 158,
+        "wrist_progress": 143,
+        "wrist_gripper": 20,
+        "imputed_full_gripper": 20
+      },
+      "combinations": {
+        "motion+advance": 9,
+        "motion+progress": 150,
+        "motion+gripper+progress": 10,
+        "motion+progress+advance": 14,
+        "motion": 131,
+        "pass": 87,
+        "motion+gripper": 15,
+        "advance": 3,
+        "progress": 29,
+        "gripper": 4,
+        "gripper+progress": 1,
+        "progress+advance": 5,
+        "motion+gripper+advance": 1,
+        "motion+gripper+progress+advance": 1
+      },
+      "threshold_local_ceiling": {
+        "0.05": {
+          "passes": 6,
+          "noncall_passes": 6,
+          "share": 0.004777070063694267,
+          "fixed_history_saving": 0.00018476499189627228
+        },
+        "0.1": {
+          "passes": 87,
+          "noncall_passes": 87,
+          "share": 0.06926751592356688,
+          "fixed_history_saving": 0.002679092382495948
+        },
+        "0.15": {
+          "passes": 143,
+          "noncall_passes": 142,
+          "share": 0.11305732484076433,
+          "fixed_history_saving": 0.004372771474878444
+        },
+        "0.2": {
+          "passes": 183,
+          "noncall_passes": 182,
+          "share": 0.1449044585987261,
+          "fixed_history_saving": 0.005604538087520259
+        },
+        "0.3": {
+          "passes": 203,
+          "noncall_passes": 202,
+          "share": 0.160828025477707,
+          "fixed_history_saving": 0.006220421393841167
+        },
+        "inf": {
+          "passes": 218,
+          "noncall_passes": 217,
+          "share": 0.17277070063694266,
+          "fixed_history_saving": 0.006682333873581848
+        }
+      },
+      "ablation_noncall_local_ceiling": {
+        "drop_witnesses": 423,
+        "motion_only_0.1": 119,
+        "motion_grip_0.1": 114,
+        "grip_progress_advance_only": 217,
+        "wrist_only_0.1": 126,
+        "imputed_only_0.1": 143
+      },
+      "provenance": {
+        "manifests": [
+          {
+            "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/lookhalf/pilots/r12_lookhalf_fix1_pi05_spatial_50/runs/r12_lh_pi05_spatial_50_astra_consensus2/server_23230/looks/manifest_f451b13ecf6046d18ffcd1b9b5dd5bd5.json",
+            "sha256": "e901a3fbac46a44eb7266794d2e98aba3276399a2438520c27db030b2ad91776"
+          },
+          {
+            "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/lookhalf/pilots/r12_lookhalf_fix1_pi05_spatial_50/runs/r12_lh_pi05_spatial_50_astra_consensus2/server_23231/looks/manifest_0e57b313d53844409ef7b52fc68725c1.json",
+            "sha256": "8b533ff9d28673b355b39b7b0aaaa6bde7e7a102f12ebcaf3a300d2dc48ace9f"
+          },
+          {
+            "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/lookhalf/pilots/r12_lookhalf_fix1_pi05_spatial_50/runs/r12_lh_pi05_spatial_50_astra_consensus2/server_23232/looks/manifest_e2c76d2fa1cf4b5bbd644a2dc1f1dfea.json",
+            "sha256": "5bb6fb35d76d776336303690ea5592729a0df8aeb77e112ad6cdc2d8957adfcd"
+          }
+        ],
+        "skipped_attempt_shards": 3,
+        "journal_sha256": "a936094099c67448ad5d7cec6b2ad4a29158fdb3bb099f8dc199ee25ca210c09",
+        "summary_sha256": "4a7a89b126a903fa638b0ec530cb44f7cb644a639d39b5b623a4031c26db4e81"
+      }
+    },
+    {
+      "cell": "pi05_spatial_50",
+      "method": "astra_strict",
+      "looks": 1243,
+      "episodes": 100,
+      "decisions": 2439,
+      "sr": 0.89,
+      "ledger": {
+        "schema": "offline_search.r12_compute_share.v1",
+        "decisions": 2439,
+        "vision_decisions": 1243,
+        "misses": 210,
+        "blind_decisions": 1196,
+        "full_looks": 1235,
+        "one_camera_looks": 8,
+        "wrist_first_looks": 521,
+        "completions": 513,
+        "encoded_cameras": 2478,
+        "half_to_policy_completions": 45,
+        "work": 366.4079999999914,
+        "ir_per_five_controls": 0.15022878228781933,
+        "legacy_work": 342.1757279999976,
+        "legacy_ir_per_five_controls": 0.14029345141451316,
+        "completion_reasons": {
+          "consensus": 513
+        },
+        "cost_basis": "camera compute share; policy remainder full price",
+        "diagnostics_excluded": true
+      },
+      "buckets": {
+        "full_lifecycle_or_due": 396,
+        "full_atlas_or_state": 326,
+        "complete_consensus": 513,
+        "one_camera": 8
+      },
+      "prelook_failures": {
+        "safe_mass": 213,
+        "state_error": 131,
+        "support": 118
+      },
+      "lifecycle": {
+        "warmup_step_lt4": 200,
+        "previous_positive_span": 188,
+        "after_accepted_half": 8
+      },
+      "witness_attempts": 521,
+      "witness_failures": {
+        "motion": 513,
+        "advance": 31,
+        "progress": 227,
+        "gripper": 34
+      },
+      "exclusive_witness_failures": {
+        "motion": 253
+      },
+      "per_witness": {
+        "wrist_motion": 499,
+        "imputed_full_motion": 475,
+        "imputed_full_progress": 171,
+        "wrist_progress": 153,
+        "wrist_gripper": 22,
+        "imputed_full_gripper": 20
+      },
+      "combinations": {
+        "motion+advance": 14,
+        "motion+progress": 197,
+        "motion+gripper+progress": 14,
+        "motion+progress+advance": 15,
+        "motion": 253,
+        "motion+gripper": 18,
+        "pass": 8,
+        "motion+gripper+advance": 1,
+        "motion+gripper+progress+advance": 1
+      },
+      "threshold_local_ceiling": {
+        "0.05": {
+          "passes": 8,
+          "noncall_passes": 8,
+          "share": 0.006436041834271922,
+          "fixed_history_saving": 0.00024928249282492825
+        },
+        "0.1": {
+          "passes": 100,
+          "noncall_passes": 99,
+          "share": 0.07964601769911504,
+          "fixed_history_saving": 0.003084870848708487
+        },
+        "0.15": {
+          "passes": 170,
+          "noncall_passes": 167,
+          "share": 0.13435237329042637,
+          "fixed_history_saving": 0.005203772037720377
+        },
+        "0.2": {
+          "passes": 222,
+          "noncall_passes": 218,
+          "share": 0.1753821399839099,
+          "fixed_history_saving": 0.006792947929479294
+        },
+        "0.3": {
+          "passes": 249,
+          "noncall_passes": 245,
+          "share": 0.19710378117457764,
+          "fixed_history_saving": 0.007634276342763428
+        },
+        "inf": {
+          "passes": 261,
+          "noncall_passes": 257,
+          "share": 0.2067578439259855,
+          "fixed_history_saving": 0.00800820008200082
+        }
+      },
+      "ablation_noncall_local_ceiling": {
+        "drop_witnesses": 476,
+        "motion_only_0.1": 142,
+        "motion_grip_0.1": 137,
+        "grip_progress_advance_only": 257,
+        "wrist_only_0.1": 148,
+        "imputed_only_0.1": 168
+      },
+      "provenance": {
+        "manifests": [
+          {
+            "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/lookhalf/pilots/r12_lookhalf_fix1_pi05_spatial_50/runs/r12_lh_pi05_spatial_50_astra_strict/server_23230/looks/manifest_af0de8a87c784071af5d43c3af89d17d.json",
+            "sha256": "678d0fcfd24edd0e17fc2768021361f36c0de8456319becab36411e2b3307339"
+          },
+          {
+            "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/lookhalf/pilots/r12_lookhalf_fix1_pi05_spatial_50/runs/r12_lh_pi05_spatial_50_astra_strict/server_23231/looks/manifest_2302aec06f764b4aac83162b77bdefe5.json",
+            "sha256": "5ffa5188d80e867df15890b8b5dae97d20bec7db9043ffc8d8ab2da70082f0b2"
+          },
+          {
+            "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/lookhalf/pilots/r12_lookhalf_fix1_pi05_spatial_50/runs/r12_lh_pi05_spatial_50_astra_strict/server_23232/looks/manifest_cab69621fff040ec8a0bb06ef39a0ac8.json",
+            "sha256": "8a5bbecd8c5cef7306a4be8a7dbabf07f6e01426531ca9fb195007239207568b"
+          }
+        ],
+        "skipped_attempt_shards": 3,
+        "journal_sha256": "61438d1545ba7ba8cd311b7df65550afe4d1c8f14553d5abc7a6dec9316d94b3",
+        "summary_sha256": "791ac7d99c78ee8048d6616eb293246218f20f2a262258f1e68a2cece10c417d"
+      }
+    },
+    {
+      "cell": "pi05_spatial_200",
+      "method": "astra_consensus2",
+      "looks": 1088,
+      "episodes": 100,
+      "decisions": 2124,
+      "sr": 0.99,
+      "ledger": {
+        "schema": "offline_search.r12_compute_share.v1",
+        "decisions": 2124,
+        "vision_decisions": 1088,
+        "misses": 52,
+        "blind_decisions": 1036,
+        "full_looks": 955,
+        "one_camera_looks": 133,
+        "wrist_first_looks": 466,
+        "completions": 333,
+        "encoded_cameras": 2043,
+        "half_to_policy_completions": 19,
+        "work": 199.3639999999959,
+        "ir_per_five_controls": 0.09386252354048771,
+        "legacy_work": 180.97563799999733,
+        "legacy_ir_per_five_controls": 0.08520510263653358,
+        "completion_reasons": {
+          "consensus": 333
+        },
+        "cost_basis": "camera compute share; policy remainder full price",
+        "diagnostics_excluded": true
+      },
+      "buckets": {
+        "full_lifecycle_or_due": 376,
+        "complete_consensus": 333,
+        "full_atlas_or_state": 246,
+        "one_camera": 133
+      },
+      "prelook_failures": {
+        "safe_mass": 225,
+        "support": 59,
+        "state_error": 34
+      },
+      "lifecycle": {
+        "warmup_step_lt4": 200,
+        "previous_positive_span": 51,
+        "after_accepted_half": 125
+      },
+      "witness_attempts": 466,
+      "witness_failures": {
+        "motion": 260,
+        "progress": 157,
+        "advance": 18,
+        "gripper": 20
+      },
+      "exclusive_witness_failures": {
+        "motion": 160,
+        "progress": 59,
+        "gripper": 7,
+        "advance": 1
+      },
+      "per_witness": {
+        "wrist_motion": 216,
+        "imputed_full_motion": 144,
+        "wrist_progress": 105,
+        "imputed_full_progress": 97,
+        "imputed_full_gripper": 10,
+        "wrist_gripper": 13
+      },
+      "combinations": {
+        "motion": 160,
+        "motion+progress": 78,
+        "motion+progress+advance": 10,
+        "pass": 133,
+        "progress": 59,
+        "motion+gripper": 5,
+        "gripper": 7,
+        "progress+advance": 3,
+        "gripper+progress": 3,
+        "advance": 1,
+        "motion+gripper+advance": 1,
+        "motion+advance": 2,
+        "motion+gripper+progress": 3,
+        "motion+gripper+progress+advance": 1
+      },
+      "threshold_local_ceiling": {
+        "0.05": {
+          "passes": 9,
+          "noncall_passes": 9,
+          "share": 0.008272058823529412,
+          "fixed_history_saving": 0.0003220338983050847
+        },
+        "0.1": {
+          "passes": 133,
+          "noncall_passes": 133,
+          "share": 0.12224264705882353,
+          "fixed_history_saving": 0.00475894538606403
+        },
+        "0.15": {
+          "passes": 236,
+          "noncall_passes": 234,
+          "share": 0.21507352941176472,
+          "fixed_history_saving": 0.008372881355932203
+        },
+        "0.2": {
+          "passes": 277,
+          "noncall_passes": 275,
+          "share": 0.25275735294117646,
+          "fixed_history_saving": 0.009839924670433145
+        },
+        "0.3": {
+          "passes": 289,
+          "noncall_passes": 287,
+          "share": 0.26378676470588236,
+          "fixed_history_saving": 0.010269303201506591
+        },
+        "inf": {
+          "passes": 293,
+          "noncall_passes": 291,
+          "share": 0.26746323529411764,
+          "fixed_history_saving": 0.010412429378531074
+        }
+      },
+      "ablation_noncall_local_ceiling": {
+        "drop_witnesses": 447,
+        "motion_only_0.1": 201,
+        "motion_grip_0.1": 191,
+        "grip_progress_advance_only": 291,
+        "wrist_only_0.1": 190,
+        "imputed_only_0.1": 253
+      },
+      "provenance": {
+        "manifests": [
+          {
+            "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/lookhalf/pilots/r12_lookhalf_fix1_pi05_spatial_200/runs/r12_lh_pi05_spatial_200_astra_consensus2/server_23230/looks/manifest_85a2a7e6d7f6490c8d07d47d41c976af.json",
+            "sha256": "ac44e6dc12d14b2ad3111df01b85f9a66e6d9dca157eda697b47b16df0e3f96b"
+          },
+          {
+            "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/lookhalf/pilots/r12_lookhalf_fix1_pi05_spatial_200/runs/r12_lh_pi05_spatial_200_astra_consensus2/server_23231/looks/manifest_4443e82483d2489dafc3b6111010198c.json",
+            "sha256": "b527600fcf30ba9b8f5a6dcf21f32789e2c45ab14a54f217d2fea5abfb8cbc29"
+          },
+          {
+            "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/lookhalf/pilots/r12_lookhalf_fix1_pi05_spatial_200/runs/r12_lh_pi05_spatial_200_astra_consensus2/server_23232/looks/manifest_803cdb311bb24fe193cca36d54a53919.json",
+            "sha256": "4f2e27a43ae57bdf43c5f09f17a9a40ad2043aec48ff802d37f65124a135b99d"
+          }
+        ],
+        "skipped_attempt_shards": 0,
+        "journal_sha256": "a48a875e789cf65e76449c86e02548a913c2181860a0ddb9701536fad29c40f2",
+        "summary_sha256": "e731de057193ee2ceef703b8d2d08c35dd642c2fb924d2f173adc0f6b504bfec"
+      }
+    },
+    {
+      "cell": "groot_spatial_50",
+      "method": "astra_consensus2",
+      "looks": 1239,
+      "episodes": 100,
+      "decisions": 2440,
+      "sr": 0.86,
+      "ledger": {
+        "schema": "offline_search.r12_compute_share.v1",
+        "decisions": 2440,
+        "vision_decisions": 1239,
+        "misses": 175,
+        "blind_decisions": 1201,
+        "full_looks": 1185,
+        "one_camera_looks": 54,
+        "wrist_first_looks": 448,
+        "completions": 394,
+        "encoded_cameras": 2424,
+        "half_to_policy_completions": 21,
+        "work": 328.4760000000037,
+        "ir_per_five_controls": 0.13462131147541134,
+        "legacy_work": 328.4760000000037,
+        "legacy_ir_per_five_controls": 0.13462131147541134,
+        "completion_reasons": {
+          "consensus": 394
+        },
+        "cost_basis": "camera compute share; policy remainder full price",
+        "diagnostics_excluded": true
+      },
+      "buckets": {
+        "full_lifecycle_or_due": 405,
+        "complete_consensus": 394,
+        "full_atlas_or_state": 386,
+        "one_camera": 54
+      },
+      "prelook_failures": {
+        "safe_mass": 317,
+        "state_error": 107,
+        "support": 107
+      },
+      "lifecycle": {
+        "warmup_step_lt4": 200,
+        "previous_positive_span": 152,
+        "after_accepted_half": 53
+      },
+      "witness_attempts": 448,
+      "witness_failures": {
+        "motion": 351,
+        "gripper": 31,
+        "progress": 189,
+        "advance": 18
+      },
+      "exclusive_witness_failures": {
+        "motion": 180,
+        "progress": 38,
+        "gripper": 2
+      },
+      "per_witness": {
+        "wrist_motion": 283,
+        "imputed_full_motion": 262,
+        "wrist_gripper": 25,
+        "wrist_progress": 129,
+        "imputed_full_gripper": 16,
+        "imputed_full_progress": 139
+      },
+      "combinations": {
+        "motion": 180,
+        "motion+gripper+progress": 11,
+        "motion+progress": 130,
+        "motion+advance": 7,
+        "motion+gripper": 14,
+        "pass": 54,
+        "motion+progress+advance": 7,
+        "progress": 38,
+        "gripper+progress": 1,
+        "gripper": 2,
+        "gripper+progress+advance": 1,
+        "motion+gripper+advance": 2,
+        "progress+advance": 1
+      },
+      "threshold_local_ceiling": {
+        "0.05": {
+          "passes": 5,
+          "noncall_passes": 5,
+          "share": 0.004035512510088781,
+          "fixed_history_saving": 0.0001516393442622951
+        },
+        "0.1": {
+          "passes": 54,
+          "noncall_passes": 54,
+          "share": 0.043583535108958835,
+          "fixed_history_saving": 0.001637704918032787
+        },
+        "0.15": {
+          "passes": 146,
+          "noncall_passes": 146,
+          "share": 0.11783696529459241,
+          "fixed_history_saving": 0.004427868852459016
+        },
+        "0.2": {
+          "passes": 197,
+          "noncall_passes": 197,
+          "share": 0.15899919289749798,
+          "fixed_history_saving": 0.005974590163934426
+        },
+        "0.3": {
+          "passes": 226,
+          "noncall_passes": 226,
+          "share": 0.1824051654560129,
+          "fixed_history_saving": 0.006854098360655737
+        },
+        "inf": {
+          "passes": 234,
+          "noncall_passes": 234,
+          "share": 0.18886198547215496,
+          "fixed_history_saving": 0.007096721311475409
+        }
+      },
+      "ablation_noncall_local_ceiling": {
+        "drop_witnesses": 427,
+        "motion_only_0.1": 96,
+        "motion_grip_0.1": 93,
+        "grip_progress_advance_only": 234,
+        "wrist_only_0.1": 116,
+        "imputed_only_0.1": 128
+      },
+      "provenance": {
+        "manifests": [
+          {
+            "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/lookhalf/pilots/r12_lookhalf_fix1_groot_spatial_50/runs/r12_lh_groot_spatial_50_astra_consensus2/server_23230/looks/manifest_52763bddae8840c5a6e9774dcf3f6164.json",
+            "sha256": "b82abfd3c899e0af1bda241ee1181e45d52af1aeaea9f526678b97b9c54c7e39"
+          },
+          {
+            "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/lookhalf/pilots/r12_lookhalf_fix1_groot_spatial_50/runs/r12_lh_groot_spatial_50_astra_consensus2/server_23231/looks/manifest_b7cdbd0f7daf4efba1f498a5ed555f80.json",
+            "sha256": "ca753cf556d4f3e543d4279a7934b45b604005101a839efee54cbaf46f47dda1"
+          },
+          {
+            "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/lookhalf/pilots/r12_lookhalf_fix1_groot_spatial_50/runs/r12_lh_groot_spatial_50_astra_consensus2/server_23232/looks/manifest_50403a42a2264799b2f7de8a5ada8866.json",
+            "sha256": "bae64e0e75a16b54bfebb18419bddcef193022de8c850e88df19772cd01d3620"
+          },
+          {
+            "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/lookhalf/pilots/r12_lookhalf_fix1_groot_spatial_50/runs/r12_lh_groot_spatial_50_astra_consensus2/server_23233/looks/manifest_d37c5b5aab4446dab2c00384cb545fd8.json",
+            "sha256": "d1225c59b893400c5e882e58dddee8e85d0d7ea94492568477e34230f146b306"
+          }
+        ],
+        "skipped_attempt_shards": 0,
+        "journal_sha256": "452e91514edaa6d4f0f9ca804bfa044180fbec8115b3f3342af3c49329ec4a30",
+        "summary_sha256": "12329434a83f7a05671fecf61ec4f9871dd3831821e7b38404edba3a5ddfcf19"
+      }
+    },
+    {
+      "cell": "groot_l10_50",
+      "method": "astra_consensus2",
+      "looks": 3416,
+      "episodes": 100,
+      "decisions": 6803,
+      "sr": 0.7,
+      "ledger": {
+        "schema": "offline_search.r12_compute_share.v1",
+        "decisions": 6803,
+        "vision_decisions": 3416,
+        "misses": 1173,
+        "blind_decisions": 3387,
+        "full_looks": 3354,
+        "one_camera_looks": 62,
+        "wrist_first_looks": 566,
+        "completions": 504,
+        "encoded_cameras": 6770,
+        "half_to_policy_completions": 107,
+        "work": 1500.375999999972,
+        "ir_per_five_controls": 0.2205462296045821,
+        "legacy_work": 1500.375999999972,
+        "legacy_ir_per_five_controls": 0.2205462296045821,
+        "completion_reasons": {
+          "consensus": 504
+        },
+        "cost_basis": "camera compute share; policy remainder full price",
+        "diagnostics_excluded": true
+      },
+      "buckets": {
+        "full_lifecycle_or_due": 1397,
+        "full_atlas_or_state": 1453,
+        "complete_consensus": 504,
+        "one_camera": 62
+      },
+      "prelook_failures": {
+        "safe_mass": 1330,
+        "state_error": 369,
+        "support": 175
+      },
+      "lifecycle": {
+        "warmup_step_lt4": 200,
+        "previous_positive_span": 1135,
+        "after_accepted_half": 62
+      },
+      "witness_attempts": 566,
+      "witness_failures": {
+        "motion": 431,
+        "progress": 321,
+        "gripper": 27,
+        "advance": 86
+      },
+      "exclusive_witness_failures": {
+        "motion": 150,
+        "progress": 53,
+        "advance": 9,
+        "gripper": 1
+      },
+      "per_witness": {
+        "imputed_full_motion": 336,
+        "imputed_full_progress": 235,
+        "wrist_motion": 347,
+        "wrist_gripper": 21,
+        "wrist_progress": 238,
+        "imputed_full_gripper": 20
+      },
+      "combinations": {
+        "motion+progress": 195,
+        "motion": 150,
+        "motion+gripper+progress": 12,
+        "motion+gripper": 3,
+        "motion+gripper+progress+advance": 4,
+        "motion+progress+advance": 47,
+        "progress": 53,
+        "gripper+progress": 4,
+        "pass": 62,
+        "progress+advance": 6,
+        "advance": 9,
+        "motion+advance": 17,
+        "motion+gripper+advance": 3,
+        "gripper": 1
+      },
+      "threshold_local_ceiling": {
+        "0.05": {
+          "passes": 1,
+          "noncall_passes": 1,
+          "share": 0.0002927400468384075,
+          "fixed_history_saving": 1.0877554020285168e-05
+        },
+        "0.1": {
+          "passes": 62,
+          "noncall_passes": 62,
+          "share": 0.018149882903981264,
+          "fixed_history_saving": 0.0006744083492576804
+        },
+        "0.15": {
+          "passes": 139,
+          "noncall_passes": 138,
+          "share": 0.04039812646370024,
+          "fixed_history_saving": 0.0015011024547993532
+        },
+        "0.2": {
+          "passes": 178,
+          "noncall_passes": 177,
+          "share": 0.05181498829039813,
+          "fixed_history_saving": 0.0019253270615904746
+        },
+        "0.3": {
+          "passes": 207,
+          "noncall_passes": 205,
+          "share": 0.060011709601873534,
+          "fixed_history_saving": 0.0022298985741584596
+        },
+        "inf": {
+          "passes": 212,
+          "noncall_passes": 209,
+          "share": 0.061182669789227165,
+          "fixed_history_saving": 0.0022734087902396
+        }
+      },
+      "ablation_noncall_local_ceiling": {
+        "drop_witnesses": 459,
+        "motion_only_0.1": 117,
+        "motion_grip_0.1": 112,
+        "grip_progress_advance_only": 209,
+        "wrist_only_0.1": 131,
+        "imputed_only_0.1": 129
+      },
+      "provenance": {
+        "manifests": [
+          {
+            "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/lookhalf/pilots/r12_lookhalf_fix1_groot_l10_50/runs/r12_lh_groot_l10_50_astra_consensus2/server_23100/looks/manifest_ee844c32966b476db0e5bd641290471c.json",
+            "sha256": "c13071f1b0a7e91e0af53805ab10c4e3e9c8b4b91f217e7fcb78f817d2d26522"
+          },
+          {
+            "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/lookhalf/pilots/r12_lookhalf_fix1_groot_l10_50/runs/r12_lh_groot_l10_50_astra_consensus2/server_23101/looks/manifest_0e641d818b8047d5a4567e3639ec809d.json",
+            "sha256": "8d52be48b383c53defdd792fc1d89688725d60a224e9ee34c641106ce137b6a6"
+          },
+          {
+            "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/lookhalf/pilots/r12_lookhalf_fix1_groot_l10_50/runs/r12_lh_groot_l10_50_astra_consensus2/server_23102/looks/manifest_db4090d8503042a89d09ae35e54fec3d.json",
+            "sha256": "e63238ccfefb54791312cc460df7e8ace9c94c7e248833d47cdb565738d9b68c"
+          },
+          {
+            "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r12/lookhalf/pilots/r12_lookhalf_fix1_groot_l10_50/runs/r12_lh_groot_l10_50_astra_consensus2/server_23103/looks/manifest_ca73ebb90dce4f2b88a7120ba48bcc4f.json",
+            "sha256": "d006f7194da47dc363635c7f1e4d880d0b20e62ce55fc50d900cde3c52f5b5d3"
+          }
+        ],
+        "skipped_attempt_shards": 0,
+        "journal_sha256": "cdeda9944e9c45f32b7c55fc9f8438fcf03eb9dd747fdf6ec48f811fbd67c38b",
+        "summary_sha256": "8666e328c23d57eb1f82cf9e9b1f35ceb8f229dc2b2b7f1dc99ede9f6f559c15"
+      }
+    }
+  ]
+}
