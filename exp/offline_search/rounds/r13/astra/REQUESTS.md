@@ -1,0 +1,28 @@
+# Early B-dev requests
+
+Written 2026-10-04T16:22:29.095237+00:00, before examining new R13 variant results. These are requested coordinator jobs, not launches. Exact controller arithmetic and immutable arm files will follow in SPEC.md. Prioritize the controller implementation and its independent validation over more frozen-distance recordings.
+
+The BRIEF recording set is useful for calibrating a fixed distance threshold and testing signal quality on knob-off states. It cannot validate a new feedback controller on its own induced states, and knob-off shadows alone cannot measure wasted calls on the new method.
+
+1. **Independent size-50 validation:** all 4 cells (pi05_l10_50, pi05_spatial_50, groot_l10_50, groot_spatial_50); `distance_feedback` and R11 `periodic`, each at 0.25, 0.32, 0.4, 0.45; 100 B episodes per arm, identical selected pairs within each cell. This is 32 arms. Use a new K=10/task selection disjoint from the coordinator's calibration K=10 set and from every older B init used in our calibration tables. Stratify by task; record the pair lists and hashes. Never call overlapping old inits independent validation. Look recordings on. Once the frozen algorithm passes, these data assess target delivery and engagement; SR does not select doses or cells.
+
+2. **Size-200 calibration/validation:** pi05_l10_200, groot_l10_200. First off + frozen R11 periodic/distance at .32, 100 paired B episodes per arm (six arms), with looks; reuse existing complete, correctly labeled recordings where possible. Then the same new distance/periodic validation doses as above, 100 disjoint B episodes per arm (sixteen arms). Existing K=10 recording selections may supply calibration. Keep their union disjoint from validation. There is room for these sets in the stated complement, but the actual pair manifest must prove it.
+
+3. **Shadow labels on active methods:** on the validation `.32` arms in the four size-50 cells, enable shadows for both methods on **every** look. Knob-off shadows in the coordinator's set are already requested. Also retain the corrected cache proposal before a MISS replaces it with the served policy action: normalized first ten controls, or enough immutable donor/metric/corrector state to reproduce it exactly. Record the cache proposal for guard calls too. A MISS shadow equals the served policy and is not by itself a policy-versus-cache label. Shadows must preserve actions/RNG and must not enter the executed IR ledger.
+
+4. **Fixed-threshold checkpoint (conditional, lower priority):** after fitting one cell-wide threshold per target from calibration B only, run `distance_static_b` at .32 and .40 in all four size-50 cells, on the same independent validation selection, 100 episodes per arm (eight arms). This distinguishes better calibration from online feedback. Skip this branch if replay already shows major path-dependent cost failure; retain its offline evidence. No repeated tuning on the validation set. SPEC will freeze this decision before validation.
+
+Size 500 has no B complement: request no fictitious same-library dev run. Use a fully specified library-only initialization and label its A measurement a transfer test. Neither smaller-library validation nor replay is proof of closed-loop target delivery at size 500. If that transfer fails, report the failure without adjusting from A.
+
+All arms of a GR00T model/suite/library cell, including controls, belong on one host. Reuse the same host for its calibration and validation when available. Paired original task/init identities and exact N/V/M ledgers are required. Preserve failed episodes and all attempted/accepted history distinctions.
+
+Open dependency: the exact new recording root and selection manifests are awaited in ../DATA.md. This does not block CPU analysis of the explicitly allowed older B roots.
+
+
+# Frozen-request addendum — 2026-10-04T16:40:30.172320+00:00
+
+This supersedes provisional counts/algorithm references above. Exact new jobs: `pilot_grid.json` (56 primary validation/replicate arms) and `static_pilot_grid.json` (8 static diagnostic arms), all `100` episodes each. Primary release gates are in SPEC.md. The static checkpoint is retained for B diagnosis even though its fixed-path transfer is worse. The added size-50 `.32` duplicate is for replicate-correlation/power assessment. Do not use it to pick an SR winner.
+
+Pin GR00T validation to local 4090 and pi05 validation to H100, matching the frozen test host. Fresh B validation must exclude the complete old-identity union in `used_b_identities.json` as well as the actual served subset. Reusing the existing R11/R12 K=10 selection is not independent validation. The extra size-200 calibration recordings in the initial request are optional diagnostics now; sol can build immediately from the frozen current scalar payload. No scalar changes are authorized by these new recordings within this freeze.
+
+The exact feasible fresh B pair lists are frozen in `validation_selection.json`; use them to create normal validated contracts. They are common across models/tested sizes within each suite and exclude the complete cross-model old-identity union. The root announced in ../DATA.md is `r13_devrec_50`, containing frozen methods, and was not read for this freeze. The old recorder's `distances` field is transformed Result score; retain raw geometric `_dist` minimum explicitly if practical, otherwise saved keys permit exact CPU reconstruction. Active `.32` shadows must preserve/reconstruct the corrected cache proposal on every look, including MISSes. Existing L10 off shadows already support the initial signal-quality analysis; Spatial/active-method shadows remain useful.

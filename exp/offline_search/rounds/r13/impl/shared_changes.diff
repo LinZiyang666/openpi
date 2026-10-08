@@ -1,0 +1,135 @@
+--- /home/weiland/projects/openpi/exp/offline_search/rounds/r13/impl/before/plugin.py
++++ /home/weiland/projects/openpi/exp/offline_search/closed_loop/plugin.py
+@@ -140,6 +140,9 @@
+                     help="replicate 2 complements replicate 1 for each (task, original init)")
+     ap.add_argument("--os-gpu-retrieval", choices=("shadow", "serve"), default=None,
+                     help="opt-in K9 CUDA graph retrieval; shadow keeps CPU actions, serve replaces retrieval")
++    ap.add_argument("--os-rollout-seed", type=int, default=None, help="opt-in policy process RNG seed; independent of knob coins")
++    ap.add_argument("--os-record-look-raw-distance", action="store_true")
++    ap.add_argument("--os-record-look-cache-proposal", action="store_true")
+     ap.add_argument("--os-record-looks", action="store_true", help="record real looks on attested B dev roots only")
+     ap.add_argument("--os-record-look-tokens", action="store_true")
+     ap.add_argument("--os-record-look-images", type=int, default=0, help="wire RGB downsample size (0=off, 1..256)")
+@@ -202,7 +205,12 @@
+         raise SystemExit("--os-policy-tail-blocks requires --os-policy-tail")
+     if not 0 <= opts.os_record_look_images <= 256:
+         raise SystemExit("--os-record-look-images must be 0..256")
+-    if (opts.os_record_look_tokens or opts.os_record_look_images or opts.os_record_look_shadow
++    if opts.os_rollout_seed is not None and not 0 <= opts.os_rollout_seed < 2**32:
++        raise SystemExit("--os-rollout-seed must be in [0,2**32)")
++    if opts.os_record_look_cache_proposal and not opts.os_record_look_shadow:
++        raise SystemExit("cache proposal recording requires look shadows")
++    if (opts.os_record_look_raw_distance or opts.os_record_look_cache_proposal
++            or opts.os_record_look_tokens or opts.os_record_look_images or opts.os_record_look_shadow
+             or opts.os_look_contract or opts.os_look_contract_sha256) and not opts.os_record_looks:
+         raise SystemExit("look recording options require --os-record-looks")
+     if opts.os_record_looks and (opts.os_method == "native" or not opts.os_look_contract or not opts.os_look_contract_sha256):
+@@ -616,6 +624,9 @@
+                        camera_cost_basis='R12 saturated-serving compute share',
+                        camera_prices=dict(full=.152 if m == 'pi05' else .148,
+                                           single=.076 if m == 'pi05' else .074, policy=0., completion=0.))
++        if getattr(opts, "os_rollout_seed", None) is not None:
++            from .rollout_seed import seed_policy_process
++            row["rollout_seed"] = seed_policy_process(opts.os_rollout_seed)
+         self.emit(row)
+         if getattr(opts, "os_debug_dir", ""):
+             from exp.offline_search.debug.server import ServerObserver
+--- /home/weiland/projects/openpi/exp/offline_search/rounds/r13/impl/before/look_recording.py
++++ /home/weiland/projects/openpi/exp/offline_search/closed_loop/look_recording.py
+@@ -20,7 +20,8 @@
+ from . import devset
+ 
+ SCHEMA = 'offline_search.dev_looks.v1'
+-FLAGS = ('--os-record-looks', '--os-record-look-tokens', '--os-record-look-images', '--os-record-look-shadow')
++FLAGS = ('--os-record-looks', '--os-record-look-tokens', '--os-record-look-images', '--os-record-look-shadow',
++         '--os-record-look-raw-distance', '--os-record-look-cache-proposal')
+ CONTRACT_FLAGS = ('--os-look-contract', '--os-look-contract-sha256')
+ 
+ 
+@@ -174,6 +175,12 @@
+                                      weights='actual AWM donor weights, NaN when unavailable'),
+                          options=dict(tokens=opts.os_record_look_tokens, image_size=opts.os_record_look_images,
+                                       shadow=self.shadow))
++        if getattr(opts, "os_record_look_raw_distance", False):
++            self.data["options"]["raw_distance"] = True
++            self.data["fields"]["raw_distance"] = "minimum geometric inner.base._dist(q)[7]; float64"
++        if getattr(opts, "os_record_look_cache_proposal", False):
++            self.data["options"]["cache_proposal"] = True
++            self.data["fields"]["cache_proposal"] = "corrected normalized cache proposal before policy replacement; first ten controls"
+         self._flush()
+ 
+     def _flush(self):
+@@ -188,6 +195,17 @@
+ 
+     def capture(self, session, ctx, topk, scores, extras):
+         out = retrieval_snapshot(session.method, topk, scores, extras)
++        if getattr(self.opts, "os_record_look_raw_distance", False):
++            if "os_r13_raw_distance" in (extras or {}):
++                distance = extras["os_r13_raw_distance"]
++            else:
++                from .plugin import OnlineQueryView
++                view = OnlineQueryView(session, session.step, session.ep.task_id, session.ep)
++                base = session.method.inner.base
++                distance = np.min(np.asarray(base._dist(view)[7], np.float64))
++            out["raw_distance"] = np.array(distance, np.float64)
++        if getattr(self.opts, "os_record_look_cache_proposal", False):
++            out["cache_proposal"] = np.array(session._dec["served"][:10], np.float32, copy=True)
+         for name, field in (('key_v0', 'vision_0'), ('key_v1', 'vision_1'), ('rs', 'robot_state')):
+             out[name] = as_numpy(ctx.query_keys[field]).reshape(-1)
+         if any(out[k].shape != (32768,) for k in ('key_v0', 'key_v1')):
+--- /home/weiland/projects/openpi/exp/offline_search/rounds/r13/impl/before/worker_pool.py
++++ /home/weiland/projects/openpi/exp/offline_search/closed_loop/worker_pool.py
+@@ -104,14 +104,7 @@
+ def install(run_gtp, args, manifest):
+     """Attest either pool before selecting the opt-in execution receipt worker."""
+     pool, contract = validate(args, manifest)
+-    if os.environ.get('OSCL_EXECUTION_AUDIT') == '1':
+-        original_spec = run_gtp.WorkerSpec
+-
+-        def worker_spec(*args, **kwargs):
+-            kwargs['worker_module'] = 'exp.offline_search.closed_loop.execution_worker'
+-            return original_spec(*args, **kwargs)
+-
+-        run_gtp.WorkerSpec = worker_spec
++    install_worker_options(run_gtp)
+     # Run the existing attestor against the exact selected file paths before
+     # run_gtp can create a driver or workers; run_gtp repeats this at launch.
+     from .devset import pool_record
+@@ -122,3 +115,26 @@
+         from .look_recording import stamp_tasks
+         stamp_tasks(run_gtp, pool, contract)
+     print(f'INIT_POOL_OK pool={pool} suite={record["suite"]} sha={record["rollup_sha256"]}', flush=True)
++
++
++def install_worker_options(run_gtp):
++    """Default-off worker seed and execution worker adapter, before launch."""
++    audit = os.environ.get('OSCL_EXECUTION_AUDIT') == '1'
++    value = os.environ.get('OSCL_ROLLOUT_SEED')
++    seed = int(value) if value is not None else None
++    if seed is not None and not 0 <= seed < 2**32:
++        raise ValueError('OSCL_ROLLOUT_SEED must be in [0,2**32)')
++    if not audit and seed is None:
++        return
++    original_spec = run_gtp.WorkerSpec
++
++    def worker_spec(*args, **kwargs):
++        if audit:
++            kwargs['worker_module'] = 'exp.offline_search.closed_loop.execution_worker'
++        if seed is not None:
++            kwargs['seed'] = seed
++        return original_spec(*args, **kwargs)
++
++    run_gtp.WorkerSpec = worker_spec
++    if seed is not None:
++        print(f'OSCL_SIMULATOR_SEED seed={seed}', flush=True)
+--- /home/weiland/projects/openpi/exp/offline_search/rounds/r13/impl/before/control.py
++++ /home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/h100/control.py
+@@ -667,6 +667,8 @@
+         env['OSCL_EXECUTION_AUDIT'] = '1'
+     if row.get('replan_steps'):
+         env['OSCL_REPLAN_STEPS'] = str(row['replan_steps'])
++    if row.get('rollout_replicate_seed') is not None:
++        env['OSCL_ROLLOUT_SEED'] = str(row['rollout_replicate_seed'])
+     return env
+ 
+ 
