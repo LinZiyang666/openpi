@@ -217,9 +217,12 @@ class KnobTests(unittest.TestCase):
             lane(root / "controls" / c.CONTROL_NAMES["DP"][0], "DP", "A",
                  [(t, "pure", i, True) for t in range(10) for i in range(50)], control=True)
             lane(root / "test", "DP", "A", [(0, "k10", 0, True), (0, "k20", 1, True)])
-            with self.assertRaisesRegex(ValueError, "one frozen level"), contextlib.redirect_stdout(io.StringIO()):
-                a.main(["--lane", str(root / "test"), "--control-root", str(root / "controls"),
-                        "--out", str(root / "out")])
+            # Retest rounds only raise levels; the highest observed level is used.
+            with contextlib.redirect_stdout(io.StringIO()):
+                result = a.main(["--lane", str(root / "test"), "--control-root", str(root / "controls"),
+                                 "--out", str(root / "out")])
+            task = sorted(result["cells"][0]["tasks"])[0]
+            self.assertEqual(result["cells"][0]["tasks"][task]["level"], "k20")
 
 
 if __name__ == "__main__":

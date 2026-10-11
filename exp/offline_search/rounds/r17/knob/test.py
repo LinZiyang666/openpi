@@ -88,9 +88,8 @@ def main(argv=None):
                    "|---|---|---:|---:|---:|---:|---:|---|---|"]
         for task in names:
             choices = planned[cell].get(task, set())
-            if len(choices) > 1:
-                raise ValueError(f"{cell}/{task}: TEST requires one frozen level, got {sorted(choices)}")
-            level = next(iter(choices), None)
+            # Retest rounds only raise levels: the highest level is the latest round for this task.
+            level = min(choices, key=c.LEVELS.index) if choices else None
             observed = {k: e for k, e in arms.get(level, {}).items() if k[1] == task}
             control = {k: e for k, e in ref.items() if k[1] == task and 0 <= k[2] < 50}
             matched = observed.keys() & control.keys()

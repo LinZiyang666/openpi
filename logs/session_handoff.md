@@ -82,7 +82,12 @@ owner 的常驻指令，逐字有效：
     - timan1 的 worker 上限统一为 40（`ops/timan1_workers.py`）；
     - Fast-WAM `library_compatibility.validate` 只留 LIBERO、K10、协议三项（原来十几道源码、权重指纹门，当前代码打包的运行时过不了）；
     - `search/cache_recipe.validate_teacher` 不再要求回执里有证据。
-  - `knobdevfw`/`fw2`/`fw3` 是失败的半成品目录，不用。Cosmos 开发集还没准备，H100 等 Fast-WAM 跑完再上；Cosmos 用旧式 driver，要放 NVMe。
+  - `knobdevfw`/`fw2`/`fw3`、`knobdevdp` 都是失败的半成品目录，不用。在跑的是 `knobdevdp2`（15:32 起，4090）和 `knobdevfw4`（15:27 起，H100）。监控用 `r17_ops/knob/watch_knob.sh`（formal_watch14 里写死了旧批次名单，看不到旋钮批次）。
+  - **owner 16:0x 定的验收标准**：每个任务的 IR 档位都要调到成功率与纯推理相近或相等（已记入记忆）。执行办法：
+    - A 集上每任务 50 局，最多比纯推理低 4 个点（少成功 2 局）算达标；
+    - 低 10 个点及以上直接提到 pure，低 6–8 个点升一档；
+    - 只重跑提档的任务，反复进行，直到全部达标或已到 pure。
+    - `test.py` 已支持多轮：同一任务取最高的档位，也就是最新一轮。Cosmos 开发集还没准备，H100 等 Fast-WAM 跑完再上；Cosmos 用旧式 driver，要放 NVMe。
   - 收齐后的分析：`.venv/bin/python exp/offline_search/rounds/r17/knob/descent.py --lane <dev lane>... --out exp/offline_search/rounds/r17/knob/dev_results`，再用 `cache_knob test --model M --table levels.json` 生成测试批次。
 
 **10-11 12:3x compact 前交接（只读这一段即可）**
