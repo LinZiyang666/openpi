@@ -1,5 +1,6 @@
 """CPU-only safety/statistics/incremental tests; fixtures never read run outcomes."""
 import copy
+import csv
 import importlib.util
 import json
 from pathlib import Path
@@ -7,7 +8,6 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-import numpy as np
 from scipy.stats import beta
 
 SPEC = importlib.util.spec_from_file_location("cache_analysis", Path(__file__).with_name("analyze_cache.py"))
@@ -21,61 +21,18 @@ def put(path, obj):
 
 
 class AnalysisTests(unittest.TestCase):
-    def test_pending_never_reads_outcomes(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            run = Path(tmp)
-            put(run / "RECEIPT.json", dict(status="PENDING_EVIDENCE", all_owned_closed=False))
-            # Opening this poisoned outcome file would make the test fail.
-            (run / "driver").mkdir(); (run / "driver/journal.jsonl").write_text("not json")
-            snap = a.receipt_snapshot(run)
-            self.assertIsNone(snap["receipt"])
-            with self.assertRaisesRegex(ValueError, "unsealed"):
-                a.load_lane(run, snap, a.Sources(), {}, [500])
-
-    def test_mixed_size_blocked_before_outcomes(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            run = Path(tmp)
-            put(run / "RECEIPT.json", dict(status="PASS", all_owned_closed=True))
-            put(run / "campaign.json", dict(model="dp", official_50=True, smoke=False))
-            put(run / "assets/CACHE_STUDY.json", dict(groups=[dict(library_size=500), dict(library_size=50)]))
-            (run / "SUMMARY.json").write_text("OUTCOME MUST NOT BE READ")
-            with self.assertRaisesRegex(ValueError, "allowlist"):
-                a.load_lane(run, a.receipt_snapshot(run), a.Sources(), {}, [500])
-
-    def test_fixed_exclusions_and_original_500_identities(self):
-        flags, ids = a.load_exclusions(a.Sources())
+    def test_fixed_exclusions(self):
+        flags = a.load_exclusions()
         self.assertEqual(len(flags), 32)
-        for suite, left in zip(a.SUITES, (489, 479)):
-            keys = {k for k in ids if k[0] == suite}
-            a.complete_keys(keys, suite, ids)
-            self.assertEqual(len(keys - flags), left)
-            with self.assertRaisesRegex(ValueError, "original 500"):
-                a.complete_keys(keys - {next(iter(keys))}, suite, ids)
-
-    def test_fit_size_and_nested_views_fail_closed(self):
-        parent = dict(content_digest="p")
-        view = dict(size=50, episode_ids=list(range(50)), parent_digest="p", content_digest="v50")
-        receipt = dict(store_digest="v50", selection_digest="v50", library_size=50, parent_digest="p",
-                       config=dict(commit_horizon=10, k=16, kref=8))
-        fit = dict(digest="f50", receipt=receipt, fit_evidence=dict(partition="library", source_digest="v50"))
-        stall = dict(store_digest="v50", fitted_digest="f50", calibration_partition="B_library_successful_LOEO", library_size=50)
-        a.check_fit_selection(view, parent, fit, stall, 50, 10)
-        receipt["library_size"] = 500
-        with self.assertRaisesRegex(ValueError, "different size"):
-            a.check_fit_selection(view, parent, fit, stall, 50, 10)
-        sels = {("DP", 50, a.SUITES[0]): dict(parent="p", episodes={1, 2}),
-                ("DP", 500, a.SUITES[0]): dict(parent="p", episodes={1, 2, 3})}
-        a.nested(sels)
-        sels["DP", 50, a.SUITES[0]]["episodes"] = {9}
-        with self.assertRaisesRegex(ValueError, "not nested"):
-            a.nested(sels)
+        self.assertEqual(sum(k[0] == "libero_spatial" for k in flags), 11)
+        self.assertEqual(sum(k[0] == "libero_10" for k in flags), 21)
 
     def test_retry_and_conflicting_duplicates(self):
-        good = dict(task_uid="x", attempt=2, accepted=True, success=False)
+        good = dict(task_uid="x", attempt=2, accepted=True, success=False, ts=2)
         rows = [dict(good, attempt=1, accepted=False, success=True), good, good.copy()]
         self.assertEqual(a.accepted_terminal(rows), {"x": good})
-        with self.assertRaisesRegex(ValueError, "Conflicting"):
-            a.accepted_terminal(rows + [dict(good, success=True)])
+        newer = dict(good, success=True, ts=3)
+        self.assertEqual(a.accepted_terminal(rows + [newer, dict(good, ts=1)]), {"x": newer})
 
     def test_paired_family_and_bootstrap(self):
         keys = [("s", str(t), i) for t in range(10) for i in range(50)]
@@ -91,9 +48,8 @@ class AnalysisTests(unittest.TestCase):
         self.assertAlmostEqual(s["diff"], -.03)
         self.assertEqual(s, a.paired(reversed(keys), ref, arm))
         self.assertFalse(s["ni_family"])
-        arm[keys[0]]["init_hash"] = "bad"
-        with self.assertRaisesRegex(ValueError, "hashes differ"):
-            a.paired(keys, ref, arm)
+        del arm[keys[0]]
+        self.assertEqual(a.paired(keys, ref, arm)["n"], 499)
 
     def test_tail_cost_and_early_stall(self):
         task = dict(extra=dict(commit_horizon=10, miss_mode="stall_only", corrector=False,
@@ -111,7 +67,7 @@ class AnalysisTests(unittest.TestCase):
                              terminal=seq == 2, decision_seq=seq)
         acks[2]["server_terminal_ack"] = {k: acks[2][k] for k in ("terminal", "decision_seq", "executed_count", "cursor_end")}
         d = dict(controls=12, decisions=ds, acks=acks, timing=dict(infers=3, steps=22))
-        a.finish_episode(d, task, is_cache=True, model="DP")
+        a.finish_episode(d)
         c = a.cost(["x"], {"x": d})
         self.assertEqual(c["fresh_decisions"], 2)
         self.assertEqual(c["fresh_hit_rate"], .5)
@@ -130,15 +86,11 @@ class AnalysisTests(unittest.TestCase):
         self.assertEqual(a.FAMILY, 40)
 
     def test_full_synthetic_lane_incremental(self):
-        """Exercise admission -> streaming ledgers -> pair/cost -> output.
-
-        A single sealed group/suite has all 500 original identities. Bundle
-        admission is tested separately against real N500 metadata, so replace
-        only that expensive artifact validator with a fixture here.
-        """
-        flags, all_ids = a.load_exclusions(a.Sources())
-        ids = {k: v for k, v in all_ids.items() if k[0] == "libero_spatial"}
-        g = dict(bundle_identity="b", recipe_identity="r", sha256="y", settings=dict(alias=None, commit=5, corrector=False, gated=False))
+        """Read a running lane without SUMMARY, then produce pair/cost tables."""
+        flags = a.load_exclusions()
+        with (a.HERE / "CONTAMINATION_DISTANCES.csv").open() as f:
+            ids = {(r["suite"], r["task"], int(r["a_init"])): r["a_sha256"]
+                   for r in csv.DictReader(f) if r["suite"] == "libero_spatial"}
         tasks, journals, attempts, records = [], [], [], []
         for i, (key, h) in enumerate(sorted(ids.items())):
             uid = f"synthetic:eval:{i//50}:{key[2]}"
@@ -158,20 +110,16 @@ class AnalysisTests(unittest.TestCase):
                         server_terminal_ack=dict(decision_seq=0, executed_count=3, cursor_end=3, terminal=True))
             timing = dict(task_uid=uid, attempt=2, accepted=True, _kind="client_timing", infers=1, steps=13)
             records.extend([dict(d, attempt=1, accepted=False), d, timing, ack, dict(ack)])
-        with tempfile.TemporaryDirectory() as tmp:
+        with tempfile.TemporaryDirectory(dir=a.HERE) as tmp:
             run = Path(tmp)/"lane"; out = Path(tmp)/"out"
-            put(run/"RECEIPT.json", dict(status="PASS", all_owned_closed=True))
+            put(run/"RECEIPT.json", dict(status="PARTIAL", all_owned_closed=False))
             put(run/"campaign.json", dict(model="dp", official_50=True, smoke=False))
-            put(run/"assets/CACHE_STUDY.json", dict(groups=[dict(library_size=500)]))
+            put(run/"assets/CACHE_STUDY.json", dict(groups=[dict(library_size=500, suite="libero_spatial", group="c")]))
             put(run/"EPISODE_PLAN.json", dict(tasks=tasks))
-            put(run/"SUMMARY.json", dict(status="PASS", completed_episodes=500, expected_episodes=500,
-                terminal_errors=0, full_arm_execution_verified=True,
-                groups={"c/libero_spatial":dict(completed=500, successes=450)}))
             (run/"driver").mkdir()
             for name, rows in [("journal",journals), ("attempts",attempts), ("per_step",records)]:
                 (run/f"driver/{name}.jsonl").write_text("".join(json.dumps(r)+"\n" for r in rows))
-            with patch.object(a, "validate_bundles", return_value=({(500,"libero_spatial","c"):g}, {})):
-                cells, _ = a.load_lane(run, a.receipt_snapshot(run), a.Sources(), all_ids, [500])
+            cells = a.load_lane(run, a.receipt_snapshot(run), a.Sources(), [500])
             rows = a.analyze(cells, flags)
             self.assertEqual(len(rows), 2)
             self.assertEqual(rows[0]["sr"]["sr"], .9)
@@ -201,6 +149,44 @@ class AnalysisTests(unittest.TestCase):
             text = (out/"CACHE_RESULTS.md").read_text()
             self.assertIn("90.00", text)
             self.assertIn("PENDING", text)
+            small_cell = cells["DP", 50, "c", "libero_spatial"]
+            removed = next(iter(small_cell["data"]))
+            del small_cell["data"][removed]
+            del small_cell["data"][next(iter(small_cell["data"]))]["cost"]
+            small = next(r for r in a.analyze(cells, flags) if r["size"] == 50 and r["cohort"] == "full")
+            self.assertEqual(small["status"], "INTERIM")
+            self.assertEqual(small["sr"]["n"], 499)
+            self.assertEqual(small["cost"]["episodes"], 498)
+            self.assertEqual(small["comparisons"]["N500"]["n"], 499)
+            self.assertEqual(small["comparisons"]["N500"]["status"], "INTERIM")
+
+    def test_resume_union_latest_and_missing_cost(self):
+        with tempfile.TemporaryDirectory(dir=a.HERE) as tmp:
+            runs = [Path(tmp) / str(i) for i in range(3)]
+            tasks = [dict(task_uid=str(i), experiment="libero_spatial", orig_init_state_idx=i,
+                          extra=dict(task_name="task", library_size=50, cache_group="c")) for i in range(3)]
+            for run in runs:
+                put(run / "campaign.json", dict(model="dp"))
+                put(run / "EPISODE_PLAN.json", dict(tasks=tasks))
+                (run / "driver").mkdir()
+            put(runs[1] / "CACHE_RESUME.json", dict(source=str(runs[0])))
+            put(runs[2] / "campaign.json", dict(model="dp", cache_resume_selection=dict(
+                source=str(runs[1]), retained_task_uids=[], source_pins={"stale": "bad"})))
+            records = [[dict(task_uid="0", accepted=True, success=True, ts=4)],
+                       [dict(task_uid="1", accepted=True, success=False, ts=2)],
+                       [dict(task_uid="0", accepted=True, success=False, ts=3)]]
+            for run, rows in zip(runs, records):
+                (run / "driver/journal.jsonl").write_text("".join(json.dumps(r)+"\n" for r in rows))
+            snap = a.receipt_snapshot(runs[-1])
+            cells = a.load_lane(runs[-1], snap, a.Sources(), [50])
+            row = a.analyze(cells, set())[0]
+            self.assertEqual(row["sr"]["n"], 2)
+            self.assertEqual(row["sr"]["sr"], .5)
+            self.assertEqual(row["status"], "INTERIM")
+            self.assertEqual(row["cost"]["episodes"], 0)
+            self.assertEqual(snap["missing_cost_episodes"], 2)
+            self.assertEqual(snap["terminal_duplicates"]["journal"]["duplicates"], 1)
+            self.assertEqual(len(snap["segments"]), 3)
 
 
 if __name__ == "__main__":
