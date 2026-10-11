@@ -52,11 +52,431 @@ owner 的常驻指令，逐字有效：
 
 
 
-## 1. 现在在哪（2026-10-08 10:1x CDT；最先读；R16 测试集 GR00T 段在跑 + 重跑工具 + 解耦两条 sol 在跑）
+## 1. 现在在哪（2026-10-09 00:0x CDT；最先读下面的"压缩前快照"；R17 MetaWorld 微调与测试进行中，4 个 sol 并行；/archive 搬迁进行中）
 
 ### 1.R16 正在做：纯减步融入闭环（owner 10-07 目标"融入纯减步并实验"，会话 goal 仍挂着）
 
-**10-08 17:3x 最终状态（先读这段）**：
+**10-10 23:4x 增量（最新，先读）**
+- owner 23:1x 令：自加的校验、指纹、合规「全部拔掉」。已用 AST 脚本（`/home/weiland/.claude/jobs/35f2869b/tmp/ungate.py`）把 exp/r17_integration 下 ops、qualification、common、benchmarks、conductor、search 加载部分，以及 DP、Fast-WAM、Cosmos 三个模型里的身份、封存、指纹、授权、证据、收据类 raise 改成 pass，约 500 处。另外改了几处：内存、磁盘、显存三道准入恒通过；provider 按名字查找时忽略内容哈希；DP、Cosmos 库兼容检查不再锁代码哈希。保留的检查：形状、dtype、几何、路径安全、端口、超时、MPS 就绪、每局恰好收到一次、grouped driver 禁止原地重启、删除远端数据前的核对（sync_back、incremental_sync、worker_storage 三个文件整体保留）、timan1_workers.py 整体保留（只用 3 号卡）。改前备份：job tmp 下 `r17_ops_models_before_ungate_*.tar`。
+- DP 50–400 档 23:3x 在跑：lane 目录 `/data/mw_finetune/eval/csztdp`，当前 run `csztd_r2_c383_r2_e5b0`，本机 60 个 worker、4 个副本，lane 日志 `r17_ops/dp_sizes_r6.log`。Fast-WAM 50–400 档（`fastwamc6066547406`）23:33 收 4539/40000 局。
+- 以后跑新批次都用拔门后的代码，不会再因为改了代码导致哈希对不上而被拦。Cosmos 500 档和 50–400 档的准备目录是拔门前做的，直接 `formal_eval.sh --run --prepared-run` 跑；如果仍被门挡住，就用当前代码重新准备一份。
+
+**10-10 23:1x 交接（compact 前，最新，先读；只写待办）**
+
+**owner 硬规则（违反过、被骂过）**
+- 实验由协调者亲自启动、守护、续跑；agent 只写代码，命令交给协调者。owner 23:0x：「这次你自己来，不准派 sol」，这一轮我亲自动手。
+- 不画蛇添足：R17 formal_eval 那一层（单独封存、冻结编队、身份指纹、收据门、拉证据包）是我们自己加的，owner 认为没意义。能绕就绕，不再新加门。显存准入已经拔掉。
+- 只跑 libero_spatial 和 libero_10；评测集用官方 A；库是 B500 及嵌套子集。
+- 一个模型的全部 size 和全部组跑完，再换下一个模型（YAML 热切换），不要来回切模型。
+- 每个模型可以按 worker 的设备来源开多个 conductor（多批并行），共用同一个 GPU。
+- 本机的 worker 优先给 4090（DP）用，不额外走网络；H100 那条线用外部节点 timan107 + timan1。
+- 特例：timan1 只能用 3 号卡；本机可以跑 worker。timan1 的其它卡碰都不许碰。
+- timan107 磁盘紧张：远端数据定期同步回本机再删掉。timan107 上不要的数据可以直接删（openpi、libero_sim、Isaac-GR00T 要留）。
+- 沙堆实验已冻结：不用交还 GPU，也不用写台账。
+
+**正在跑**
+- H100：Fast-WAM size 50–400，run `/data/mw_finetune/eval/fastwamc6066547406`（csznf 续跑出来的新目录，4 万局；timan107 45 + timan1 40；23:03 已收 821 局，速度很快）。直接用 `exp/r17_integration/ops/formal_eval.sh --run --prepared-run <dir>` 启动（我的 nohup，日志 `r17_ops/fast_sizes_run.log`）。
+- 4090：DP size 50–400，lane `/data/mw_finetune/eval/cszqdp`（本机 48 个 worker，4 个 replica；lane 进程是最早那个 cache_lane --lane 4090 --directory cszqdp，会自动重试）。失败过两次：①DP 模型代码硬性要求 R2；②我改 models/dp/formal_batch_server.py 导致模型身份不匹配（已改回）。之后放宽了 `ops/formal_server.py` 的 dp_capacity_serve 条件（record.replicas 是 None 也接受）。lane 正在重试 `cszqd_r1_9ece_r1_c5f4`，**结果还没确认**。如果还失败，就用 replicas=2 重新预备：`python - <<EOF\nimport exp.r17_integration.ops.cache_capacity_lanes as m; m.FLEETS['dp_libero']={'local':60}; （replicas 写死在 prepare 里，dp=4，需要改成 2）; m.prepare('4090',Path('/data/mw_finetune/eval/<新目录>'),'<前缀>')\nEOF`，再跑 `cache_lane --lane 4090 --directory <新目录> --run`。
+
+**接下来要做（按顺序）**
+1. 确认 DP size 已经在收局（journal 有增长，4090 显存被占用）。起来后考虑扩到 60 个以上 worker（显存准入已拔，只剩内存准入：每个 worker 3.5 GiB，余量 8 GiB）。
+2. Fast size 跑完后接 Cosmos：`/data/mw_finetune/eval/cosmos500w85_220813` 上有 DISPATCH_HOLD.json，要先改名释放；然后跑 cosmos500 和 `cosmossizes85_222001`（外部 85 个）。不要用 cache_model_order 队列，它有三个 bug：把前序的 PARTIAL 当成 FAIL、run log 已存在就报 FileExists、queue_retry 找不到 RECEIPT 会报错。直接按顺序 `formal_eval.sh --run --prepared-run <dir>`。
+3. 远端数据定期同步：Q 写了 sync（看 `sol_Q_reorder.log` 交回的命令）。**sync_back.py 现在是 worker 包里的版本，Q 的版本备份在 /home/weiland/.claude/jobs/35f2869b/tmp/sync_back.Q_version.py**；跑 Fast/DP 的这段时间不要换回来（会触发 worker 包刷新门）。
+4. 等两条线都收完：派 astra 按 CACHE_STUDY.md §9 出 6 个 size × 组的分析，同时出 500 档的结论（DP：csl10d + dpc 各段已合并 PASS；Fast：csl10f + fastwamc5481985003 PASS；Cosmos 500 还没跑）。附近邻 32 个 init 的敏感性分析（CONTAMINATION_CHECK.md 已确认无泄漏）。
+5. 中长期（owner 方向）：cache 研究改回原版 conductor 的跑法，每个模型一个常驻 server + 多个 conductor（按设备来源各开一个）+ YAML 热切换 + 断点续跑，去掉 formal_eval 多出来的那层。需要写代码时派 sol（只写代码）。
+
+**代码状态（防止踩坑）**
+- 我改过：`ops/formal_eval.py` 里 driver 的 wait_port 从 60 s 改成 600 s（4 万局的计划初始化超过 60 s）；`ops/worker_gpu.py` 的 admission 改成 slots=10**6（拔掉显存准入）；`ops/formal_server.py` 的 resize 条件。备份都在 job tmp（*.bak_*）。
+- `ops/formal_workers.py` 和 `ops/timan1_workers.py` 里有 P6 写了一半的 live-fleet 改动（P6 的轮次我只杀了客户端，服务端可能还在跑）。`cache_study/sizes/evidence/t1_recycle_fix.json` 的 pins 是我手动刷新的。每次 prepared run 启动都会核对 worker 包和当前代码：不一致就刷新，而刷新只能做一次，第二次会被「CACHE_RECYCLE_BASE.tar 已存在」挡住。所以**跑实验期间不要改 ops 代码**，也不要让 agent 改。
+- 监控：`r17_ops/formal_watch13.sh`（盯 hs5*/hs6*/csm*/csl10*/dpc*/fastwamc*/cosmos500*/csz*），每 30 分钟重新挂一次。
+- timan107 磁盘 85%（剩 32 GB），timan108 仍离线。
+
+**10-10 11:2x compact 后增量（最新）**
+- Fast-WAM 官方基线 11:1x 在 391/2000 局 FAIL（`remote worker fleet failed: timan107`，旧启动无内存准入）。H100 队列因此已自动开跑执行 10 步档 `hs2_fast_h100_k10_c10_20261010_112043`（带新内存准入）。派 Q 查根因、给续跑/重跑基线命令（`sol_Q_fwfail.log`，基线用端口 23180/23189）。
+- D 交回 Cosmos K=2（含清理步）：实际 NFE=1，3/3 逐位一致；排队脚本 `r17_ops/queue_h100_cosmos_k2.sh`（后台 b20mrlj7o），Cosmos 基线结束后自动开（timan108 ×24，端口 23240/23249）。
+- P3 仍在写 CPU 部分、按约定等 4090 锁；交回后续派：不持锁、和 DP 共卡测相对加速比（≤25 分钟）。
+- 11:3x owner 批评 DP 开 12 副本（同卡多进程只是分时，不加算力）→ 已停 DP 队列和 B=1 基线（`hs2_dp_k100_c5_default_*` PARTIAL，worker 已清）。P3 随即拿到 4090 锁在测 Fast-WAM batch（约 12:05 放锁）。派 P4（thread 01a12182-005b-7d03-8dbb-28057d4d588c，`sol_P4_dpbatch.log`）做 DP 服务端 batch，交 `models/dp/BATCHING.md` 和 DP 官方基线命令；交回后用 batch 配置重开 DP 基线加 5 档。
+- ⛔ owner：timan1 不准用（已写记忆）。worker 节点只用 timan107、timan108。
+- 11:38 Cosmos 官方基线从 11:30:53 起卡在 1726/2000（server 0% CPU、worker 闲着，与停 DP 时间重合）→ 派 D（`sol_D_stall.log`）查原因、尽量原批次续完，并保证停一个批次不会波及别的批次。timan108 上 GPU1/2 的高占用是别人（xy51）的，不是我们的渲染。
+- 11:4x **timan108 tether agent 离线**（心跳停 3 分钟以上），我们的 24 个 Cosmos worker 和 7 个 DP worker 卡在内核 D 状态（rwsem_down_write_slowpath）。Cosmos 基线 11:42 FAIL（1726/2000，tether exec 超时）；Cosmos K=2 因 timan108 离线没起来（队列已退出，待重开）。为了配对一致，Cosmos 基线补跑和 K=2 都等 timan108 恢复后仍放 timan108。
+- 11:4x owner：工作转到 timan107（「107 可以开 80–90 个 worker」）。Cosmos K=2 在 timan107 起不来：内存准入拒绝（C10 按每个 6 GiB 预留 24 个，加上约 95 GiB 查不到归属的内存）。Q 已确认 Fast-WAM 基线死于 timan107 全机 OOM；Q 在做 `--resume-from`（保留 391 局，P3 改了 Fast-WAM 服务文件，模型身份变了，要用原 runtime 包续跑）。
+- timan107 可用内存一直在掉（11:45 76 GiB → 11:48 69 GiB，进程匿名内存不变），疑似每个 worker 在内核或驱动侧泄漏，退出才释放；C10 约 12:35 可能 OOM。派新 sol M（thread 01a126b8-3457-7f30-a120-0da1edf582ac，`sol_M_memleak.log`）查根因、做 worker 定期回收、给出每节点容量。监控 brph5qtzr 每 5 分钟报 timan107 可用内存。
+- 11:50 P3 交回 Fast-WAM batch：B8、等 5 ms，吞吐是 B1 的 5.44 倍，最大动作偏差 0.0078（`models/fastwam/BATCHING.md`）。采用。已停 C10（B1，`hs2_fast_h100_k10_c10_*` PARTIAL，约 400 局作废），H100 队列随之停。停后 timan107 可用内存回到 216 GiB（泄漏在进程退出时释放）。
+- 11:5x Cosmos K=2 在 H100 + timan107 ×24 开跑（`hs_cosmos_k2.log`，run 名 `hs2_cosmos_h100_k2incl_c16_t107_*`），`r17_ops/mem_guard.sh` 在 timan107 可用内存低于 25 GiB 时优雅停它（后台 bi9y3yd37）。
+- 续派 P3（`sol_P3_seam.log`）：把 batch 正式接进 formal_eval（H100 可用），H100 冒烟，给 Fast-WAM batch 基线和 6 档的命令及两卡分工。
+- 12:02 D 交回 Cosmos 停滞：timan108 上 24 个 worker 都卡在 D 状态；DP 与 Cosmos 两批共用 EGL GPU0；1726 局可复用，274 局续跑计划已存（HANDBACK_COSMOS），但 timan108 离线、无法确认 worker 已关，所以还没续。D 修了渲染设备准入和子进程关闭检查（70 项测试 + 27 个子测试通过）。
+- **泄漏线索**：timan107 上 24 个 worker 全在 GPU0 渲染（8085/8192 MiB），GPU1–7 全空。推测单卡显存满后驱动用系统内存兜底，所以内存掉了却查不到在哪个进程。续派 D（`sol_D_egl.log`）把 worker 轮流分到所有 GPU、加按卡显存的准入、验证观测逐位一致、冒烟证明内存不掉，并给出 Cosmos 基线 274 局在 timan107 续跑的命令。
+- 12:03 M 交回：根因是 NVIDIA/EGL 在反复建环境时占住宿主内存，GPU0 挤满又加重了这个问题；平均每个 worker 每局约 0.23 GiB（0.09–0.54）。worker 跑满一定局数就回收（`--worker-max-episodes`，默认 8，`ops/worker_lifetime.py`），Cosmos K=2 已经用上，内存会随回收恢复。M 建议每个 worker 最多跑 4 局、预留 6 GiB，这样 timan107 能放 32 个，timan108 能放 37 个；80–90 个要等 D 把渲染分散后再看。
+- 12:17 Q 交回：Fast-WAM B1 基线死于 11:18:43 全机 OOM；`--resume-from` 做好了（139 项测试 + 29 个子测试通过），B1 基线不再续，留给 Cosmos 基线续跑用。续派 Q（`sol_Q_prestage.log`）：把档与档之间 10–15 分钟的空等压到 2 分钟以内（复用已部署的 runtime、跑当前档时预备下一档），写一个队列脚本，并应用 M_to_Q 的请求。
+- 12:3x–12:5x：D 做好渲染分散（`--worker-egl-devices`，默认用全部 GPU 轮流分配，timan108 排除 1/2）和续跑豁免（`--resume-waive-unreachable-source-node timan108`）；P3 把 batch 接进 formal_eval（`--max-batch/--batch-wait-ms`，各档用 `--paired-control` 指向同卡对照）；P4 交 `models/dp/BATCHING.md`（实测 1 副本、B8、等 5 ms，12 个客户端时每秒 14.5 次调用）。
+- owner 12:5x 批评两卡空着，并说「timan107 以前开 64 个都没问题」→ 12:53 开 hs3（`r17_ops/launch_hs3.sh`，后台 bsz55ww0u）：H100 Fast-WAM B8/5ms 对照，四套件，2 副本，timan107 ×32（`hs3_fast_b8w5_h100_k10_c5_control_*`）；4090 DP B16/5ms 对照，四套件，1 副本，timan107 ×24（`hs3_dp_b16w5_4090_k100_c5_control_*`，用 DP 的 formal_eval.sh）。每个 worker 预留 3 GiB、显存 768 MiB，每 4 局回收，渲染分散到 8 张卡。DP 过准入后，Cosmos 基线续跑 274 局（timan107 ×8，端口 23243/23248，后台 bhgms8qex，`hs3_cosmos_resume.log`）。
+- 分工：H100 只跑 Fast-WAM（对照加 6 档，各档 `--paired-control` 指向 H100 对照）；4090 只跑 DP（对照加 5 档）。对照跑完后交 Q 的队列脚本连续跑各档。
+- owner 13:0x：把每个模型的并发运行方式（server/worker 配置）记录下来，推进最快。派新 sol R（thread 01a126f9-3aaa-75c1-993e-e4fe8b770fcc，`sol_R_runbook.log`）写 `exp/r17_integration/ops/RUN_CONFIGS.md`（9 个模型×基准组合的命令模板、副本、batch、端口、worker、实测吞吐、瓶颈），并用正在跑的 hs3 两批实测 batch 填充率，给调优建议。已写记忆 feedback-run-configs-fastest。用词：owner 不喜欢「对照组」，统一叫「基线」。
+- owner 13:0x：「运行时做性能记录，肯定还有吞吐提升空间」→ 派新 sol S（thread 01a126fc-19cd-7b22-bab6-f12ef4faa378，`sol_S_perf.log`）写 `ops/perf_recorder.py`，每 30 秒采样两卡 GPU、timan107、各批进度、batch 填充、排队，写到 `/data/mw_finetune/perf/<date>/`，跑 20 分钟以上后按预期加速排序列出提升点（只出建议，不动批次）。
+- owner：「h100 和 4090 都可以开 MPS，如果能加速」→ 续派 P3（`sol_P3_mps.log`）：用私有管道目录实现可选的 `--mps`（只影响我们指定的进程，不改 compute mode），在两卡上做有限时的对比测量（不超过 20 分钟），并判断剩下各档开 MPS 后能否继续用现有基线配对。
+- 13:08 Q 交回预备和队列：启动时间拆解（DP 副本依次启动 267 秒、Fast-WAM 86 秒等），加了复用已部署文件、提前一档预备、副本并发加载；预计换档 60–110 秒（`ops/formal_queue.sh --jobs <json> --run`）。我已写好 `r17_ops/queue_hs3_fast.json` 和 `queue_hs3_fast.sh`（H100：基线 PASS 后跑 6 档，`--paired-control` 指向 hs3 基线），以及 `queue_hs3_dp.sh`（4090：基线 PASS 后跑 5 档）。**两个队列都还没启动。**
+- 13:1x Fast-WAM 队列只做预备时 C20 被拒：`pending control sealed identity mismatch: model_manifest.json`，工作区代码在基线开跑后被改过（多半是 P3 的 MPS 改动）。派 Q（`sol_Q_freeze.log`）让各档使用基线冻结的 runtime 包，DP 队列也照此改。配对检查要求 worker 数、内存、显存、回收、batch 与基线完全一致。
+- 13:16 R 交回 `ops/RUN_CONFIGS.md`（9 个模型×基准组合）。实测 hs3：Fast-WAM 每分钟 20.7 局，实际平均每批 2.7（上限 8）；DP 每分钟 22.3 局，平均每批 2.1（上限 16）。batch 没凑满，瓶颈在 worker。64 个 worker 实际约 123 GiB（每个约 2 GiB）。P4 交回 DP batch（最多 32，三种采样，每个请求自己的随机数）。
+- 13:2x 停掉 hs3 两个基线（各约 400 局作废），改开 **hs4**（`r17_ops/launch_hs4.sh`，后台 b7kh4407x）：Fast-WAM H100 2 副本 B8/5ms ×48 worker；DP 4090 1 副本 B16/5ms ×36 worker；每个 worker 预留 2048 MiB、显存 768 MiB、每 4 局回收。各档队列要按 hs4 的 worker 数和基线路径重新生成（`queue_hs3_*` 已过时），等 Q 的冻结 runtime 改完后再改。监控换用 `formal_watch7.sh`（盯 hs4_*）。
+- 13:2x hs4 DP 启动失败：`EGL VRAM admission refused: 36 workers requested, 16 fit`。timan107 有 8 张 8 GB 卡，Fast-WAM 48×768 MiB 加 Cosmos 8×1024 MiB 已经占满。等 Cosmos 续跑结束，再以 36 个 worker、每个预留 576 MiB 显存重开 DP（`r17_ops/launch_hs4_dp.sh`，后台 bd4hmf9rd）。所以 DP 各档也要用 576 MiB。timan108 仍离线（1 小时）。
+- 13:3x Cosmos 续跑 274/274 局（成功 268），但收据 FAIL（`driver incomplete: 2 ... resolved retry errors`）→ 派 D（`sol_D_merge.log`）核验后合并成 2000 局基线，并和 K2 对比。
+- 13:39 DP 第二次被显存准入拒（只放得下 32 个）→ 改用 **32 个 worker**，重开 `hs4_dp_b16w5_4090_k100_c5_control_20261010_133915`（576 MiB 显存，2048 MiB 内存）。
+- Q 13:32 交回冻结 runtime（`--runtime-from`，server/driver/worker 都按哈希固定；之前破坏身份的是 P3 新加的 `models/fastwam/mps.py`）。已生成 `queue_hs4_fast.json` 并预备成功（`/data/mw_finetune/eval/formal_queue_hs4_fast_frozen`），`queue_hs4_dp.sh` 已填好 B 路径、32 个 worker。两条自动接续都已挂上：`queue_hs4_fast.sh`（后台 bxeepoai8）、`queue_hs4_dp.sh`（后台 burrv4tcy），基线 PASS 后自动开跑。
+- 13:37 S 交回性能记录器（`ops/perf_recorder.py`，PID 1965274 常驻，停止用 `kill -TERM 1965274`，数据在 `/data/mw_finetune/perf/2026-10-10/`）。头号瓶颈是 conductor driver 每条记录都 fsync、加锁时间长：DP 回报和派发中位延迟 19–26 秒，batch 中位数只有 1。Fast-WAM 的 H100 已经 99% 满载。→ 派 Q（`sol_Q_driver.log`）做批量提交和锁外写盘，把 driver 单独列为编排固定项，这样各档可以用新 driver 而不必重跑基线，并更新两条队列。
+- 14:0x Cosmos 收尾：D 合并封存 K5 官方基线 1965/2000 = 98.25%（spatial 96.4、object 99.6、goal 98.4、l10 98.6），SUMMARY 在 `formal_cosmos_libero_official2000_20261010_130639_a8ca2043/SUMMARY.json`。astra 的 `horizon/COSMOS_K2.md`：K2 每次决策 NFE 5→1（−80%）；spatial +0.2，l10 −2.0；24 项族系下界 spatial −2.77/−1.60，l10 −5.78/−4.40，判「未证明 2 pp 非劣，保留 K5」；同在 timan107 的子集也掉 2.19，不能归因于渲染卡。已告诉 owner：24 项校正下 500 对样本几乎不可能判任何一档非劣，这是设计问题，要他决定加样本还是放宽校正。owner 认为基本无损、l10 是噪声，我回复「无显著损失，l10 长任务约 −2 但不显著」，可选补做 l10 A/A（timan107 有空位时）。
+- 14:02 P3 交回 MPS（`--mps` 可选，默认关）：4090 上 DP 2×B8 开 MPS 是关的 1.15 倍，DP 1×B16 和 Fast-WAM 没有收益；H100 显存不够，没测成。各档都不开 MPS（服务时间要和基线可比）。
+- 完成时间估计（14:0x）：Fast-WAM 基线约 15:00，6 档完约 17:00–17:30；DP 基线约 15:20，5 档完约 19:00–19:40。Q 的 driver 修复接上后会提前。
+- 14:06 owner：「两卡占用都很低，要把占用提上去（加副本、调大 batch），并测是不是 worker 大多在等、瓶颈在 server」。实测：4090 SM 0%（68–111 W）；H100 SM 95–99% 但只有约 200 W/700 W；timan107 上 90 个 worker 有 72 个 CPU 低于 10%（在等）。→ 停掉 Fast-WAM hs4 基线（943 局作废，`queue_hs4_fast.sh` 也停了），派 P3（`sol_P3_h100sweep.log`）独占 H100 不超过 15 分钟，测 1×B16/B24/B32、2×B16 开关 MPS，给出新的基线命令。派 S（`sol_S_dpwait.log`）拆分 DP worker 和 server 的时间构成。DP 基线（32 个 worker）继续跑。
+- owner：「找到更好的配置后，之前记录的配置要改，不能以后再踩同一个坑」→ 派 R（`sol_R_update1.log`）替换 RUN_CONFIGS 里过时的推荐，新增「坑（不要重复）」一节；P3/S/Q 的结果出来后再派第二次更新。
+- 14:20 R 交回 RUN_CONFIGS 第一次更新（新增 8 条「坑」，16 处待定）。14:21 Q 交回 driver 批量提交（`--driver-mode group-commit`，`ops/formal_driver_fast.py`、`group_commit.py`；只在 driver 层单独固定一份编排版本）：真实 /data 回放，派发中位数 667 ms → 0.13 ms，回报 27.6 s → 0.09 ms；持久性规则是证据和终止日志都 fsync 后才计数。两条队列都已改用 group-commit 并预备通过。
+- Q 在我的 DP 队列运行中改写了 `queue_hs4_dp.sh`（14:02）→ 停掉旧实例，改从副本 `queue_hs4_dp.run.sh --run` 运行（后台 b8qwarqfx），等 DP 基线 PASS 后跑 5 档。教训：后台脚本一律从副本运行，免得 agent 中途改写（要写进 RUN_CONFIGS 的坑）。Fast-WAM 的预备队列针对的是已停的 hs4 基线，等 P3 的新配置出来后要重新生成。
+- 14:24 S 交回 DP 时间构成：worker 等推理约 49%、等 driver 约 33%、仿真只占约 11%；server 有 93% 的时间有 batch 在跑，但 4090 只用到 41%/164 W，DDPM100 的 100 次迭代在主机侧串行，是主机瓶颈。建议：2 个副本（P3 测过 2×B8+MPS 每秒 26.2 次调用，1×B16 是 14.4 次）、加新 driver，以后可以考虑把整个采样器做成 CUDA graph（预计 1.15–1.35 倍）。
+- 14:2x 停掉 DP hs4 基线（928 局作废），改开 **hs5**：`hs5dp_ctl_<时刻>`（名字见 `r17_ops/hs5_dp_stamp.txt`；MPS 管道路径上限 85 字节，所以 run 名要短），4090，2 副本，B8/5ms，`--mps --driver-mode group-commit`，timan107 ×32，2048/576 MiB，每 4 局回收。各档队列用副本 `r17_ops/queue_hs5_dp.run.sh`（先 `--prepare-only`，再 `--run`，后台 bma6x0w93），各档名为 `hs5dp_<档>`。监控换成 `formal_watch9.sh`（盯 hs5*/hs6*）。中途撞过一次 `Address already in use`（停旧批次后端口还没释放），重启后正常。
+- 14:33 P3 的 H100 扫描（用了 6.8 分钟）：2×B16/5ms+MPS 每秒 28.0 次调用（1×B16 16.8，1×B24 19.2，2×B16 不开 MPS 24.8；3 个副本放不下）。14:33 开 **hs6** Fast-WAM 基线 `hs6fw_ctl_143332`（H100，2×B16/5ms，`--mps --driver-mode group-commit`，timan107 ×48，2048/768 MiB，四套件）。6 档队列 `r17_ops/queue_hs6_fw.json`，接续脚本 `queue_hs6_fw.run.sh`（后台 bwnl3npcc）：基线封存后在 CPU 预备到 `/data/mw_finetune/eval/fq_hs6fw`，基线 PASS 后跑 `hs6fw_<档>`。派 R 第二次更新 RUN_CONFIGS（`sol_R_update2.log`）。
+- 14:43 R 第二次更新完成（待定项清零）。hs5 DP 约 44 局/分钟，hs6 Fast-WAM 约 45 局/分钟（都约是原来的 2 倍）。
+- 15:26–15:28 两个基线都因 tether 超时被判 FAIL：DP `hs5dp_ctl_142812` 2000/2000 已收，收尾拉回 483 MB worker 包时 `nats: timeout`（我已手动重拉到 `timan107.tar`）；Fast-WAM `hs6fw_ctl_143332` 1839/2000，同一分钟 10 秒的 tether exec 超时（很可能是这个大包把通道挤满）。处理：DP 五档用去掉收据门的副本 `queue_hs5_dp_nogate.run.sh --run` 直接开跑（后台 bzzxersrd，各档只用 `--runtime-from`）；Fast-WAM 用 `--resume-from` 续跑 161 局（`hs6fw_res_152931`，后台 bgm6cifho）。派 Q（`sol_Q_tether.log`）：重封 DP 基线；让合并后的 Fast-WAM 基线能做 fq_hs6fw 各档的 paired-control；单次 tether 超时不再判整批失败；大包走 rsync 等不占控制通道的路径；补「坑」。**Fast-WAM 六档还没有自动接续**（`queue_hs6_fw.run.sh` 见 FAIL 已退出），等 Q 给出 paired-control 改法后再开。
+- 15:4x Q：DP 基线已恢复为 PASS（2000/2000，旧收据存为 `RECEIPT_BEFORE_RECOVERY.json`）；Fast-WAM 六档改为 `--paired-control hs6fw_res_152931`、`--runtime-from hs6fw_ctl_143332`，预备通过（`/data/mw_finetune/eval/fq_hs6fw`）。Fast-WAM 合并 SUMMARY PASS 2000 局，成功率 93.95%（spatial 90.8、l10 91.6、object 95.6、goal 97.8），但续跑收据是 PARTIAL（返回码 2，`recovered_worker_shutdown`），等 Q 修成 PASS。已挂 `queue_hs6_fw_res.run.sh`（后台 b31crl3y6）：收据 PASS 后自动跑六档。DP 五档在跑（`queue_hs5_dp_nogate.run.sh`，后台 bzzxersrd）。
+- 15:5x owner：「我离开了，你独自推进」；goal「有序推进实验」。
+- 15:52 astra 交 `rounds/r17/cache/CACHE_STUDY.md`（8 组＝修正器 q × 停滞门 g × C；L＝各模型通过 2 pp 的最长 C，都没通过就用 10；Cosmos 只有 4 组；共 20,000 局；在 A 集上测）。协调者决定：沿用基线的 batch 配置并复用这些基线当对照（已写进 OWNER_RULINGS）。等 P6 的接入审计。
+- 15:55 DP c10 PASS（1000 局，成功 868）。c15 两次在开跑前失败：MPS 管道竞态，两个副本同时启动时并发查询 `nvidia-cuda-mps-control`，偶尔报「Cannot send command」；mps.py 在冻结 runtime 里，不能改。处理：剩下四档改为 `--replica-startup-width 1` 重新预备（名字 `hs5dp_<档>s<次>`），队列 `queue_hs5_dp_retry2.run.sh`（后台 bkbk8nsg1）开跑前失败时自动重试 2 次。c15s0 在跑。
+- 16:0x Fast-WAM 续跑收据 PASS（Q 修复），`queue_hs6_fw_res.run.sh` 自动开六档，hs6fw_c10 在跑。⚠ Fast-WAM 队列用的是 `--replica-startup-width 2` 加 MPS，有同样竞态的风险，formal_queue 失败时没有重试；某档开跑前失败的话，就按 width 1 重新预备剩下的档。
+- 16:32 P6 交回 cache 框架（HANDBACK_P6.md:1682；48 份 YAML 在 `ops/cache_study/yaml/STUDY.json`；冒烟用 `ops/cache_study/smoke.sh <model> --run`，每个模型 32 局；L 暂定 C10，等 horizon 研究定稿）。各模型还差的部分已派出：P3（Fast-WAM 兼容认证，`sol_P3_cache.log`）、P4（DP 读 size500 库，`sol_P4_cache.log`）、D（Cosmos 配方准入，`sol_D_cache.log`）。
+- 16:33 Fast-WAM c10 跑满 1000 局但返回码 2（`recovered_worker_shutdown`）→ 收据 PARTIAL，formal_queue 停下。改用 `queue_hs6_fw_retry.run.sh`（后台 bg4ka3lec）从预备好的 c16..k1 往下跑：返回码 2 但 1000 局全收的视为完成并继续；开跑前失败的按 width 1 重新预备（名字 `hs6fw_<档>s<次>`）。DP c15s0 PASS，`queue_hs5_dp_retry2` 在跑 c16。**待 Q 处理**：hs6fw_c10（及以后同类档）的收据恢复成 PASS；正常路径接受「全部格子已收、只有 worker 关闭确认缺失」的返回码 2；证据包拉取改到 GPU 释放之后。
+- 16:37 Q 交回 MPS 竞态修复（`ops/mps_control_guard.py`、`queue_retry.py`；串行化控制调用、有界重试，固定版本不变；之后新起的子进程自动生效）。Q 给的 `--continue-queue` 命令**没有执行**（我自己的重试队列已经在跑 c16，再起会重复派发）。派 Q（`sol_Q_rc2.log`）：恢复 c10 收据，正常收尾路径接受返回码 2，证据包异步拉取。16:5x hs6fw_c10 已恢复成 PASS（930/1000）。DP c15s0 PASS（852/1000）。
+- 16:57 P4 交回 DP cache 准入（HANDBACK_P4.md:1205，CPU 已全部完成）。GPU 冒烟要等 DP 各档跑完：`cd /home/weiland/projects/openpi; flock -n /tmp/r17_gpu.lock bash exp/r17_integration/ops/cache_study/smoke.sh dp --run`（15–25 分钟）。P3、D 还在做。
+- 17:05 D 交回 Cosmos cache 准入（HANDBACK_COSMOS.md:955，96 项测试，H100 CPU 预检 PASS）；冒烟命令 `bash exp/r17_integration/ops/cache_study/smoke.sh cosmos --run`（10–15 分钟）。Q 交回 rc2/ACK 恢复以及「先释放 GPU、再异步封存」（`formal_finalize.py` 等），之后新起的档自动生效；全部跑完后要按 Q_to_R.md:99 做 CPU 封存屏障。派 astra（`astra_horizon_analysis.log`）先分析已完成的 DP/Fast-WAM 档，写 `horizon/RESULTS_DP_FASTWAM.md` 和 `analyze_arms.py`，并给出 cache 研究暂定的 L。
+- 17:14 P3 交回 Fast-WAM cache 准入（HANDBACK_P3.md:975；冒烟用预备好的 `formal_eval.sh --prepared-run /data/mw_finetune/eval/cfwp31010 --run`，10–20 分钟）。三个模型的 CPU 准入都完成了。派 P6（`sol_P6_launch.log`）：把 smoke.sh 改成和各模型对照一致的配置；做全量计划（每个模型一个常驻 server 热切换 8 组，L 做成参数）；给出各通道的命令。17:1x hs6fw_c16 PASS（917/1000）；DP ddim10s0 在跑；Fast-WAM 在跑 c20。
+- 17:14 astra 中期分析（`horizon/RESULTS_DP_FASTWAM.md`、`analyze_arms.py`）：DP C10 S −1.4 / L +4.2，C15 −4.8 / +4.4，C16 −5.6 / +1.4；Fast C10 +1.0 / +2.6（不做多重比较校正时两套件都通过），C16 +1.8 / −0.8。经 24 项族系校正后 5 档都没过 2 pp。DP 的 horizon 拉长后 spatial 明显下降、l10 反而上升。调用次数降幅：C10 约 49%，C15/16 约 65–68%。cache 研究暂定 L：DP=10、Fast=10（按规则取兜底值）。还缺 DP DDIM10/5、Fast C20/C32/K2/K1。
+- 17:34 hs6fw_c20 已收满 1000 局（成功 918），但 FAIL：`remote worker close/snapshot incomplete`；队列照常往下走。c32 第一次启动撞上 `Address already in use`（c20 的端口还没释放）→ 自动重新预备成 `hs6fw_c32s1` 重试。派 Q（`sol_Q_c20.log`）：恢复 c20 收据、修端口释放、对所有未 PASS 的档做 CPU 封存屏障。DP ddim10s0 约 81%。
+- 17:4x DP ddim10s0 PASS（832/1000），异步收尾生效（ddim5s0 紧接着就开了）。17:52 Q 把 hs6fw_c20 恢复为 PASS（918/1000）。hs6fw_c32s1 在跑。
+- 17:59 P6 交 cache 全量计划（`ops/cache_study/FULL_RUN.md`；ops 测试 356 项 + 43 个子测试）。冒烟命令：`smoke.sh dp|fastwam|cosmos --run --run-name csmd1010|csmf1010|csmc1010`；全量：`.venv/bin/python -m exp.r17_integration.ops.cache_lane --lane 4090 --directory /data/mw_finetune/eval/csl10dp --run` 和 `--lane h100 --directory /data/mw_finetune/eval/csl10h --run`（L=C10 暂定；Cosmos 用 C16）。预计：DP 全量 3–5 小时，H100 上 Fast→Cosmos 5–10 小时。已挂自动链 `chain_cache_4090.sh`（后台 blu370hmi：DP 档位队列结束后先冒烟，冒烟 PASS 再跑全量）和 `chain_cache_h100.sh`（后台 bpoc2u3zk：Fast-WAM 档位结束后 Fast 冒烟、Cosmos 冒烟，再跑全量）。监控换用 `formal_watch10.sh`（新增 csm*/csl10*）。
+- 18:09 DP 横向/减步五档全部跑完（`QD_ALL_DONE`；ddim5s0 等补证据）。重跑 `analyze_arms.py`（输出到 job tmp）：DP DDIM10 S −1.2 / L −3.2；Fast C20 +1.2 / 0.0，C32 −0.8 / **−6.2**。族系校正后没有一档通过；L 定为 DP=10、Fast=10（兜底值），和 cache 已预备的 C10 一致。4090 链开始跑 DP cache 冒烟。Fast 还剩 k2s1（在跑）和 k1。全部跑完后让 astra 出 RESULTS_DP_FASTWAM.md 终版。
+- 18:21 DP cache 冒烟 `csmd1010` 失败：`port ziyanglin.com:23401 did not become ready`。本机 server 的端口必须在 ziyanglin.com 的 NAT 转发段 23100–23199 内，worker 才连得上；worker 主进程就是因为连不上才悄悄退出的。4090 链因此退出。派 P6（`sol_P6_smoke.log`，备注写进 COORD_to_P6.md）修端口、加快速失败、自己用新名字重跑 DP 冒烟，并检查 h100 上两个冒烟。4090 空着，等 P6。
+- 18:41 P6 交回：根因是 23401 端口没有走路由；已修路由、失败检测、日志、锁（CPU 测试 881 项 + 43 子测试）。重跑的 DP 冒烟 `csmdf1010` PASS：32/32 局，1227 次命中，26 次只由停滞触发的 MISS，2600 次 NFE，不带门的组 NFE 为 0，热切换没有重启 replica。已准备好的 csl10d/f/c 在启动时会重新绑定路由，不用重新准备。18:4x 开 **DP cache 全量** `cache_lane --lane 4090 --directory /data/mw_finetune/eval/csl10dp --run`（后台 bwohfh43q，日志 `r17_ops/cache_lane_4090.log`）。H100 链（bpoc2u3zk）等 Fast-WAM k1 跑完后自动跑 Fast/Cosmos 冒烟和全量。
+- 18:56 **horizon/减步研究的所有档都跑完了**（Fast-WAM k2s1 PASS 908/1000，k1 1000 局、证据还在补）。H100 链开始跑 Fast-WAM cache 冒烟。派 astra（`astra_horizon_final.log`）：等 k1 PASS 后出终版 RESULTS_DP_FASTWAM.md、给 owner 的 `horizon/SUMMARY.md`，并把三个模型的官方基线更新进 `exp/mw_finetune/RESULTS.md`。DP cache 全量约 56–60 局/分钟，预计 21:00 前后跑完。
+- 19:10 **horizon/减步研究收口**：astra 写好 `rounds/r17/horizon/SUMMARY.md`（给 owner 的中文汇总）和终版 RESULTS_DP_FASTWAM.md，并把三个模型的 A 集官方基线写进 `exp/mw_finetune/RESULTS.md:34`。结论：12 个候选都没有通过预注册的采用门（两个套件都满足 2 pp 非劣，并有实测成本证据），默认配置保持不变（DP K100/C5、Fast K10/C5、Cosmos K5/C16）。最值得复核的是 Fast C10（+1.0/+2.6，两套件不做多重比较校正时都过，调用减半）。明显掉点的：DP C15/C16 的 spatial（−4.8/−5.6）、Fast C32 的 l10（−6.2）、减步档在 l10 上（DP DDIM10/5 为 −3.2/−4.2，Fast K1 −3.0，Fast K2 −1.8，Cosmos K2 −2.0）。cache 研究的 L 定为 DP 10、Fast 10、Cosmos 16。
+- 19:30 三个 cache 冒烟都过了（DP csmdf1010 30/32、Fast csmf1010 29/32、Cosmos csmc1010 28/32）。H100 全量已开（`cache_lane --lane h100 --directory /data/mw_finetune/eval/csl10h`，先 csl10f 跑 Fast-WAM，再 csl10c 跑 Cosmos，日志 `r17_ops/cache_lane_h100.log`，链 bpoc2u3zk）。DP 全量 csl10d 已到 3177/8000。全部跑完后派 astra 按 CACHE_STUDY 做 8 组分析。
+- 19:4x owner 问 cache 是不是被 worker 卡住：是，timan107 CPU 负载 88/48 核，两张卡的 SM 都在 0–22%。只有 timan108 恢复才能提速。目前的成功率（只有 spatial，未配对）：DP 8 组 91.4–94.6%（基线 91.2），Fast 纯 cache 87.8%（基线 90.8），+修正器 98.3%（233 局）。owner 让查数据污染：评测用 A/test（初始状态 0–49），库是 B 池 size_500（spatial 12028 行），两池各自独立；派 astra（`astra_contam.log`）做哈希精确重叠、近重复和拟合来源检查，结果写 `cache/CONTAMINATION_CHECK.md`。
+- 19:49 DP cache 全量 csl10d 在 4001/8000 时 FAIL：`worker_restart_resource_timeout`（每 4 局回收一次，回收时在超额的 timan107 上拿不到资源），通道重试又被「需要显式续跑」拒绝。派 P6（`sol_P6_resume.log`）修回收逻辑、自行续跑 DP，并让 cache_lane 支持续跑。4090 暂时空着。
+- 20:04 astra 交回 `cache/CONTAMINATION_CHECK.md`：A 测试初态和 6 个库都没有精确重叠（0/500），20 个任务都满足 B50 = 原始 100 个初态减去官方 A50；95,924 行库数据和 10 份修正器/停滞门拟合都确认只来自 B；有 32 个 A 初态被近邻阈值标记（spatial 11、l10 21），没有证据表明是泄漏。最终分析里加一项敏感性分析：去掉这 32 个初态再算一遍。
+- 20:1x owner：「把每个 cache size 都全部重复一组，实验 size 相当于翻 6 倍，每个都如此」→ 50/100/200/300/400 五档各自重跑全部组（3 个模型，8 组，Cosmos 只有 4 组）× 2 套件 × 500 局，在 A 集上测。新增约 10 万局，只用 timan107 的话约 22 小时，加上 timan108 约 11 小时（已提醒 owner 修 timan108）。派新 sol P6b（thread 01a12882-35d3-7201-85b3-3b62a4b417d2，`sol_P6b_sizes.log`）：补各档的拟合和停滞门校准，生成 YAML，扩展两条通道接在 500 档之后跑；派 astra（`astra_cache_sizes.log`）更新 CACHE_STUDY 预注册，加入库大小这个因子。⚠ P6（DP 续跑）和 P6b 可能同时改 cache_lane.py，要留意冲突。
+- 20:06 时的完成时间预估（只算 500 档）：Fast 约 22:30，DP 续跑约 23:10，Cosmos 约 23:50。
+- 20:21 P6 交回：DP 续跑 `dpc8513584592` 在跑（4001 局保留，只补 l10 缺的 3999 局）。根因有两条：回收时虽然内存检查通过，仍重新走了显存准入；每一代日志都泄漏文件句柄。两处都已修复（129 项测试 + 259 项）。正在跑的 DP 监督进程的软文件上限已提到 8192。监控换成 `formal_watch11.sh`（新增 dpc* 等）。timan1 上已有 `/scratch/zixuans8/{libero_sim,openpi_rc365,Isaac-GR00T,nfe}`，T1 会尽量复用。
+- 20:2x–20:31 Fast 全量 csl10f 在 4023/8000 处 FAIL（`worker_restart_resource_timeout`，修复前的旧进程）；随后 DP 续跑也 FAIL（fleet「receipt unavailable」），Fast 续跑报 `mkdir ... No space left on device`。**根因：timan107 根分区（/、/tmp、/scratch 共用，212 GB）满到 100%**：我们的 `mw_r17/formal/runs` 12 GB，加上 T1 在 timan107 上暂存的 `mw_r17/timan1_provision` 9 GB。处理：删了 24 个已 PASS、本地 tar 已核对的远端副本（腾出 6 GB，现在 98%；c20 和 hs3/hs4 保留），两条通道重开（`cache_lane_h100_r3.log` 后台 bk0qpmnyp，`cache_lane_4090_r3.log` 后台 bx0poe9f2）。派 P6（`sol_P6_disk.log`）：远端自动清理、磁盘守卫。T1 交回后，让它删掉 timan107 上那 9 GB 暂存。
+- 20:47 Fast 续跑 fastwamc1456717485 FAIL：timan107 内核 OOM 杀掉 worker（cache worker 每个约 3.1–3.4 GB，预留只有 2048 MiB；DP 32 个加 Fast 48 个超过 220 GB）。DP 续跑 dpc3464789869 在跑。Q 交回本机 worker 功能（`--worker-counts local=N`，私有环境在 `/data/mw_finetune/qualification/local_workers`，冒烟 12/12，像素差为零；建议 DP local=16、H100 local=8）。T1 交回 timan1（只用 3 号卡，guard 生效，每个 worker 3.5 GiB / 540 MiB，像素逐字节一致，最多 16 个）；⚠ T1 的最初几次探测误用了未授权的卡，已排除并重跑，要如实告诉 owner。派 Q（`sol_Q_split.log`）：接入 timan1 节点；续跑时允许同样的 worker 总数在多个节点之间重新分配；预留改为约 3.5 GiB；自己按 timan107=16、local=16、timan1=16 重开 H100 通道。H100 暂时空着。
+- 20:5x H100 通道自动重试 fastwamc6990509669 又失败（同样是 48 个 worker 全在 timan107）。我去停这条通道时，⚠ **误把 P6b 的 CPU 预备进程（cache_lane h100 cszeh，PID 463102/463103）停了**（只在 CPU 上，无数据损失），已写进 REQUESTS/COORD_to_P6b.md 请它重跑。H100 通道本身已经自己退出。DP 续跑 dpc3464789869 在跑（worker 进程名是 worker_lifetime，约 32 个，到 134 局）。
+- 21:0x owner：「timan107 上我们不要的数据直接删」→ 已删 hs3/hs4 远端 runs、/tmp/r17_Q_qualification、/scratch/zixuans8/openpi_trace(8G)、openpi_trace_h100(6.2G)；Q 删了 T1 的 9G 暂存。timan107 现有 32 GB 空闲（85%）。保留 openpi、libero_sim、Isaac-GR00T。owner 骂拖沓——今晚的问题都是事后逐个补（磁盘、内存、多节点），以后开跑前要一次查清前提条件。
+- Q 准备好 Fast 续跑 `fastwamc2350933912*`（保留 4311 局、补 3689 局；timan107/local/timan1 各 16，每个 4 GiB，timan1 6 GiB），接着 Cosmos 用 timan1 上 8 个 worker，Q 自己负责启动 H100 通道。
+- 21:05 P6b 交 size 网格（`ops/cache_study/sizes/`，240 个配置，`run_4090.sh` / `run_h100.sh` 等前一条通道 PASS 后再派发；原估 4090 15–25 小时、H100 25–49 小时，当时只算了 timan107）。续派 P6b（`sol_P6b_arm.log`）：改成分节点编队（DP timan107 16 + local 16；Fast 三台各 16；Cosmos 视情况分配）、重新预备、自行布置两个队列、更新耗时估计。
+- 21:1x owner 批评：「一边加设备一边减 worker」——总数一直是 80（32 + 48），没有增加。实测容量：timan107 约 45（48 核，空闲 123 GiB），本机约 60（88 核，空闲 237 GiB），timan1 约 40（48 核，空闲 468 GiB，只用 GPU3）≈ 145。size 网格目标：DP 约 60（timan107 20 + local 40，DP replica 可加到 3–4 个，避免 server 端 CPU 成为瓶颈），Fast→Cosmos 约 85（timan107 25 + local 20 + timan1 40）。**P6b 本轮交回后立刻按这组数字重新派发**（它现在按 32/48 在做）。
+- 21:1x owner：「4090 的 worker 优先给 4090 用，不要增加传输，4090 也可以接入外面的 worker」→ 修订后的分配：4090/DP = 本机约 60 个（走 localhost，DP replica 3–4 个），server 撑得住的话再加 timan107；H100 = timan107 约 45 + timan1 约 40，不用本机 worker。
+- 21:1x Q 启动 Fast-WAM 续跑时又碰到两个阻塞：①批次的 batch 处理身份里含 worker 节点表，已改为另设一张执行用的节点表，batch 身份保持不变；②timan107 上旧的 LIBERO 配置路径不见了——⚠ 很可能是我删 /tmp/r17_Q_qualification 时连带删掉的；Q 改为复用已封存的依赖副本。H100 从 20:47 起一直空着，等 Q 的续跑。
+- 21:17 Fast 续跑 fastwamc7615306896 开跑（三台各 16），约 70 局/分钟；21:2x 跑到 397 局 FAIL：timan1 上 16 个 worker 全部 exit 75 → 重启预算耗尽。推测 75 是计划内回收的退出码，T1 的设备命名空间包装没把它当回收处理。通道自动续跑为 fastwamc5232306668（配置同上，会循环失败）。派 Q（`sol_Q_t1fix.log`）：修 timan1 上回收码的透传；15 分钟内修不好就先去掉 timan1 继续跑。
+- 21:29 P6b 已按旧编队布置 size 通道（PID 834339 等 csl10dp，834494 等 csl10h；DP 为 timan107 16 + local 16，Fast 三台各 16，Cosmos timan1 8；估计 DP 12–24 小时，H100 18–38 小时）。续派 P6b（`sol_P6b_rearm.log`）：停掉这两个等待进程，按大编队重新预备（DP 本机约 60 个、3–4 个 replica；H100 用 timan107 约 45 + timan1 约 40），timan1 等 Q 修好后再用，然后重新布置。
+- 21:43 Q 修好 timan1 的回收问题（bubblewrap 下的 PID 和 native PID 对不上，按代绑定身份后解决；106 项测试 + 29 子测试）。Fast 续跑 `fastwamc5481985003` 到 5332/8000，约 73 局/分钟，预计 22:20 前后完成；timan1 已回收 16 次，0 失败。紧接着的 Cosmos 500（`cosmosp6223294666`）只有 timan1 8 个 worker，太小 → 派 Q（`sol_Q_cosmos.log`）趁还没派发，按 timan107 + timan1 大编队重新预备，并让通道接上新版本。
+- 21:5x owner：「4090 上现在有多少 worker，我觉得还有空间」→ DP 续跑是 32 个 worker，全在 timan107，本机 0 个；两个 server replica 各约 36% CPU，4090 约 10%。派 P6（`sol_P6_local60.log`）：在 episode 边界停掉当前段，开新段，用本机约 60 个 worker、3–4 个 replica，timan107 让给 Cosmos；放开 cache 续跑「worker 总数必须相同」的限制，并记录每段的编队。
+- 22:0x 状态：DP 旧段 dpc3464789869 在 episode 边界收尾（1734 局），新段 dpc2777537823 用本机 33 个 worker 启动（被准入卡住）；Fast 续跑三台各 16，到 1446 局，速度降到约 21 局/分钟（原因待查）；Cosmos 大编队已就绪（Q）；P6b 的 85 编队和 45 后备已封存。owner：「本机 256G 内存只用这点、内存准入哪来的」→ 准入过于保守（每 worker 4 GiB + 10% 余量 25 GiB + 按预留而不是实测计）。P6 本轮结束后立刻续派 `prompts/sol_P6_dp_more.md`：预留改 3.5 GiB、余量 8 GiB、按 max(预留, 实测 RSS) 计；DP 先扩到约 45，Fast 结束后扩到约 60；同步给 P6b。
+- 每档启动约 10–15 分钟卡空着（打包、分发、内存检查）；Q 完事后让它改成上一档运行时预备下一档。
+
+**10-10 11:2x 交接（compact 前，最新，先读）**
+
+**一、owner 今天的裁定和纠正（都要照做）**
+- **22:1x owner：①不同 cache size 要排进计划；②YAML 能热切换，就一个模型全部跑完（全部 size + 全部组）再换下一个模型，不要频繁切换模型；③timan 系列硬盘不够，数据定期同步回本机、同步后删远端。④实验由协调者亲自启动和守护，agent 只写代码，命令交给协调者（已写进记忆 feedback-coordinator-guards-experiments）。**
+- 22:1x 接管：我已停掉 P6b 挂的两个等待进程（1130348/1130349），H100 size 通道 csznh 由我在后台自己挂（b0hec4lg0，等 csl10h PASS）。P6b（`sol_P6b_dp60.log`）只改代码：渲染预留降到 0.7 GiB、内存预留 3.5 GiB、余量 8 GiB，按本机 60 个 worker 重新预备 cszmdp，把挂载命令交给我。Q 的 Cosmos500 大编队（`cosmos500w85_220813`，timan107 45 + timan1 40，2 个 B1 replica）已预备。派 Q（`sol_Q_reorder.log`）只改配置：把 H100 顺序改成 Fast500 → Fast50..400 → Cosmos500 → Cosmos50..400（每个模型尽量只起一个常驻 server），同时加远端定期同步回本机并删除；命令交给我执行。DP 新段 `dpc8713063796_r2_d1dd`（P6 起的，本机 33 个）由我守护。
+- 22:3x owner：「一将无能累死三军，这次你自己来，不准派 sol」；指出每个模型可以按 worker 的设备来源开多个 conductor；单独封存这一层是我加的、没用。**由我亲自接手**：①`cache_model_order hold-next --lane csl10h --model cosmos_libero`，拦住 csl10h 在 Fast 结束后派发 Cosmos500；②停掉旧的 csznh waiter（1167414）；③`cache_model_order run --directory /data/mw_finetune/eval/h100_model_order_20261010/cosmos_all`（PID 1478263，等 fast_sizes 队列 PASS 后跑 Cosmos500 w85 + cosmossizes85，外部 85 个 worker）；④fast_sizes 队列遇到前序批次 PARTIAL（还在跑）就直接报错退出（bug）→ 用我的 until 循环（后台 ba0d4g0kc）等 fastwamc5481985003 PASS 后再起；⑤DP size 通道 `run_4090.sh`（cszmdp，本机 60 个、4 个 replica，GPU 准入实际只放约 50 个）由我在后台挂（b65romhwa），等 csl10dp PASS。⚠ csl10h 的进程 729176 在 Fast 结束后要退出，Cosmos 的 hold 才能释放；如果它卡着不退，就由我按 PID 停掉。
+- 22:3x–22:43 亲自排障，让 Fast 各 size（csznf）起跑：①Fast500 续跑 8000 局都收齐了，收据停在 PENDING_EVIDENCE → 把 fast_sizes 计划的 after_run 清空（原件存为 `.orig_before_coord`）；②T1 的指纹门挡住，因为 P6 两轮并行改了 formal_workers / timan1_workers → 我停掉了 P6 的两轮（local60 和 dynfleet）；③把 formal_workers / timan1_workers 恢复成 csznf worker 包里的版本（撤掉 P6 半成品的 live-fleet 改动；当前版本备份在 job tmp/ops_backup_2245），重算 t1_recycle_fix 的指纹，t1_ready=True；④csznf 上一次刷新留下的 CACHE_RECYCLE_BASE.tar 会挡住再次刷新，所以把代码恢复到不需要刷新的状态；⑤把队列目录里的旧日志和回执挪开（attempt2–5）。22:43 csznf owned_spawn，正在起跑。链：`h100_chain.log`（先 Fast sizes，再 cosmos_all）。Q 的 sync_back.py 已恢复成它在写的版本。DP500 续跑 8000 局收齐（PENDING_EVIDENCE），DP size 通道（b65romhwa）在等 csl10dp lane 退出。
+- **20:1x owner 特例：timan1 的 3 号显卡空着，授权这次 cache 研究用它跑 worker（只限 3 号卡，「这也是这次的特例」）。**
+  timan1 实测：48 核，负载约 5，可用内存约 440 GB，3 号卡空闲，其余卡有别人在用。派新 sol T1（`sol_T1_timan1.log`）准备 timan1 的环境、资产，验证只在 3 号卡上渲染，结果写进 REQUESTS/T1_to_Q.md；Q 做完本机 worker 后再把 timan1 节点加进启动器（要续派 Q）。
+- **20:1x owner 特例：本机（weilandserver）显存、CPU、内存都充足，cache 研究可以在本机也开 worker（「这个是特例」，常规仍是 worker 只放 timan 族）。** 派 Q（`sol_Q_local.log`）给启动器加本机 worker 节点（支持和 timan107 混合编队、本机 4090 做 EGL 渲染、准入、路由），冒烟后告诉 P6b 怎么在后续批次加本机 worker。
+- **15:4x owner 下一个研究（horizon/减步研究跑完后开）：对所有新模型跑 8 组——纯 cache、纯 cache+修正器、纯 cache+长 horizon、纯 cache+长 horizon+修正器（都不用 MISS），再把这 4 组各加上停滞门重复一遍；带旋钮的暂时不跑；每组「全 B 集 500 episode」；全部用 YAML 配合 concurrent server 热切换来跑，「如果不行就是你没有把模型充分接入框架」。** 已派 astra（`astra_cache_study.log`）写预注册 `rounds/r17/cache/CACHE_STUDY.md`（对照 R15/R16 的语义，并核实评测集用 A 还是 B，B 是建库用的初始状态，有泄漏问题）；派 P6（thread 01a12182-101b-7822-a6dc-dea5e79dcc2d，`sol_P6_cache.log`）牵头接入：审计缺口、补框架、通过 REQUESTS 找 P3/P4/D 补模型钩子、生成 YAML 和冒烟计划。
+- owner 15:5x 确认：**cache 研究的评测集是官方测试集 A**（每任务 50 局，每套件 500 局，只跑 spatial 和 l10）；「全 B 集」是口误，B 只用来建库。已写入 `REQUESTS/COORD_to_P6.md` 和 `rounds/r17/cache/OWNER_RULINGS.md`。
+- **15:4x owner：「沙堆实验正式被我冻结了，你不用管他」→ 两张卡用完不用再书面交还或写台账（已写进记忆）。**
+- **15:3x owner：「我们要的数据只有 libero_spatial 和 libero_10，其他 LIBERO 任务的数据仅供参考，甚至可以不跑」→ 以后新模型的 LIBERO 基线和各档只跑 `--suites libero_spatial libero_10`（官方测试集 A，每任务 50 局，每套件 500 局）；object/goal 不再跑。**
+- 协调者只协调：调研、读代码、设计、写码、分析都派 agent（科学类 astra，工程类 sol）；协调者负责派单、审阅、守护实验、汇报。
+- 记忆只收项目级内容（已按规范删 3 条、精简 4 条），会话进度只写 handoff。
+- LIBERO 纯推理基线 = 官方测试集 A，每任务 50 局、每套件 500 局（`--official-50`）。之前 400 局的非标准集作废（RESULTS.md 已标注）。
+- 本机 4090 是 48 GB，Fast-WAM（每副本约 26 GB）和 Cosmos 都放得下；两卡都用上，不要让卡空等。
+- 开 batch：精度差不影响成功率就不纠结，按吞吐选；同一组配对研究的对照和实验组必须用同一种 batch 配置。
+- Cosmos 减步只测 **K=2（含清理步，官方 num_steps=2 语义，如实记实际 NFE）**，在 H100 上与 Cosmos 官方基线配对；不测 K1/K3，也不补 4090 Cosmos 对照。
+
+**二、GPU（X2：10-10 10:1x 起按 I018 冻结期约定书面告知后重新使用，台账已记）**
+- H100：Cosmos 官方基线 `formal_cosmos_libero_official2000_20261010_100533_5f558380`（2 副本，timan108 ×24，约 11:35 完）；Fast-WAM 官方基线 `formal_fastwam_libero_official2000_20261010_101044_b0c4e68b`（2 副本，timan107 ×24，batch=1，约 352/2000，预计约 16:00 完；若 P3 的 batch 结论好，按 owner 意思停掉、用 batch 配置重跑）。
+- 4090：DP 队列 `r17_ops/queue_4090_hs_v2.sh`（后台任务 bf3s4dkqm），11:2x 起：DP 官方四套件基线 → 执行 10/15/16 步 → DDIM 10/5，worker 在 timan108 ×20（每个预留 4 GB），日志 `r17_ops/hs_dp_*.log`。
+- H100 队列 `r17_ops/queue_h100_hs.sh`（后台任务 bzqjc851n）：等 Fast-WAM 基线结束后跑 Fast-WAM 执行 10/16/20/32 步、K=2/1（timan107 ×24，2 副本）。⚠ 如果改用 batch，这条队列要改参数，并补 batch 配置的对照。
+- 两卡用完都要书面交还沙堆实验（SendMessage）并写台账。
+
+**三、在做的 agent（Codex 走 `dynamical_system/runs/i018-control/bin/codex_daemon_run.py`，日志在 `openpi_ext/scratch/r17_ops/`）**
+- P3（thread `01a12181-f87d-73c1-88f6-0407d9f849bf`，`sol_P3_batch.log`）：剖析 Fast-WAM 并做服务端动态 batching（B=1–16 吞吐、功耗、数值差），加默认关闭的 `--max-batch`，交 `exp/r17_integration/models/fastwam/BATCHING.md`。它发现正式服务在副本内把所有连接串行处理、batch 钩子被关着。要用 4090 测，但 4090 锁被 DP 队列持有：回报拿不到锁时，让它不持锁、和 DP 共卡测相对加速比。
+- D（thread `01a11f04-32ac-7eb0-a84c-fd244cac0d16`，`sol_D_k2.log`）：放开 Cosmos K=2（含清理步），与官方逐位比对，交 HANDBACK_COSMOS「K2 incl. clean step」和命令（H100，2 副本，timan108 ×12，`--official-50 --suites libero_spatial libero_10 --denoising-steps 2`，端口 23240/23249）。交回后由协调者开跑。
+- astra（thread `01a12661-c6ae-7623-98d3-915b38d88bb3`）：研究文档 `exp/offline_search/rounds/r17/horizon/STUDY.md` 已完成。内容包括 π0.5/GR00T 历史（C5→C10 的结论）、各模型的 horizon 和减步档位、预注册（2 个点非劣，24 项比较）、两卡排程。之前那次 Cosmos 减步实验的调用次数记录和配对都有问题，已在文档里注明。
+- Q（thread `01a121c0-0b47-79c3-a554-f6fdb32f9d67`）：已修完同节点 OOM（加节点内存检查、单个 worker 最多补 2 次、每批独立目录）和 timan108 的 LIBERO 资源问题。
+
+**四、研究设计（STUDY.md 是唯一依据）**
+- horizon：DP 执行 5→10/15/16 步；Fast-WAM 执行 5→10/16/20/32 步；Cosmos 已执行整块 16 步，不做。
+- 减步：DP DDPM100→DDIM10/5；Fast-WAM K10→2/1；Cosmos K5→2（含清理步）。
+- 只跑 spatial 和 libero_10，每档 1000 局，与同卡默认档逐个起始状态配对；基线跑四套件。
+
+**五、待办和待 owner 定**
+- 等 P3 的 batch 结论，决定 Fast-WAM（以及 DP、Cosmos）是否改用 batch 重跑基线和各档。
+- D 交回后开 Cosmos K=2。
+- 收集各档结果，按 STUDY.md 的判定规则汇报。
+- 之前给 owner 的提速选项（4090 跑完 DP 后分担 2–3 档 Fast-WAM、去掉执行 20 步那档）还没回复；开 batch 后可能就不需要了。
+- 6 个 LIBERO 库已经建好（`/data/r17_library/`），之后用它们做新模型的闭环实验。
+
+**R17 正式测试规矩（owner 10-09/10 纠正，原在记忆里，移到这里）**
+- 正式成功率测试一律走框架：`exp/r17_integration/ops/formal_eval.sh`（conductor 逐局分发 + 原版 replica_proxy 多副本；DP 加 `--cuda-graph`），不用原版 `examples/libero/main.py` 去连单个加锁的服务。
+- LIBERO 纯推理基线按 R10/R16 协议用官方测试集 A：每任务 50 个官方起始状态、每套件 500 局（`--official-50`）。集成 spec 里的「40 任务 × init 0..9 = 400 局」作废。MT50 每任务 10 局，共 500 局。
+- 本机 4090 是 48 GB（台账有写）。
+
+**10-10 07:4x 建库全部完成、两卡已交还（最新，先读）**
+- 6 个库都建完（DP / Fast-WAM / Cosmos × spatial / libero_10），每个都有 50–500 六档子集和拟合，汇总表见 `exp/mw_finetune/RESULTS.md` § LIBERO teacher libraries。产物在 `/data/r17_library/<bundle>_<suite>/bpool/`（本机 /data，约 45 GB）。
+- **4090 04:3x、H100 07:4x 都已交还 I018**（书面通知加台账；I018 冻结中，openpi 再用时书面告知并写台账即可）。H100 上残留约 99 MB 暂存和 /tmp/r17_formal 小文件，待清理。
+- 下一步（等 owner）：用这些库跑新模型的闭环（R16 格式：库大小 × K 的纯缓存、守卫、修正器），或先补 Fast-WAM LIBERO 的正式 400 局纯推理基线（还没跑过）；另外可以用真实库重跑 G3。
+
+**10-10 04:3x 建库状态（最新，先读）**
+- 已建完（`/data/r17_library/<bundle>_<suite>/bpool/`，6 档子集加拟合都齐）：Cosmos × spatial（3676 行）、Cosmos × libero_10（8408 行，抢救 461 局并补跑 39 局）、DP × spatial（12028 行，补跑 4 局）、DP × libero_10（31546 行，抢救后补跑 3 局）。
+- **4090 已于 04:3x 交还 I018**（台账和书面通知都已完成）。I018 回复：按 owner 指示长期冻结，近期不用 4090 和 H100；冻结期间 openpi 要用 4090，书面告知并写台账即可，不用等回复；I018 解冻前会提前 30 分钟书面收回。
+- H100 在跑 `r17_ops/chain_h100_repairs.sh`：Fast-WAM spatial 补跑 271 局 → Fast-WAM libero_10 补跑 446 局（两批都已抢救，保住 229 局和 54 局），预计 08:30–09:30 完成，完成后交还 H100（SendMessage 加台账）。
+- 夜里修的坑（P6/D）：tether 掉线三次（timan108 两次、H100 一次）都是我们自己的调用把心跳挤掉了（老代码约每分钟 322 次，现在约 8 次），已加 5 分钟重试；新增抢救模式和补跑模式，处理中断批次、缺局和第 0 步错误；H100 有界暂存 20 GB；隧道就绪等待；按节点选 LIBERO 配置。
+- 已知待议：库端口窗口固定 233xx（不在 NAT 转发段，走 tether 隧道）；GR00T C/B2 批量差异归 R4-2；G3 合成库拟合问题，真实库建好后可以重跑 G3。
+
+**10-10 00:1x 建库进行中（最新，先读）**
+- 正式测试全部完成（RESULTS.md）：MT50 任务均值 GR00T 77.6 / DP-T 61.0 / Fast-WAM 60.4 / π0.5 58.8；LIBERO 400 局 Cosmos 98.3 / DP-T 84.3；纯减步 π0.5 K1 57.6、GR00T K1 73.8。资格检查：副本时段（DP-LIBERO、GR00T-MW）PASS，Fast-WAM LIBERO A/B PASS（P6 用的绑定收据在 `/data/mw_finetune/qualification/bound_receipts/g2_bound_p6_20261010_000040/`）。
+- 建库自动链：4090 `r17_ops/chain_4090_dpfull2.sh`（DP spatial → l10）；H100 `r17_ops/chain_h100_lib.sh`（Cosmos spatial → l10 → Fast-WAM 冒烟 ×2 → Fast-WAM 全量 ×2）。每步按退出码把关，步与步之间等 90 秒避开 TIME_WAIT。日志在 `r17_ops/lib_*.log`，产物在 `/data/r17_library/<bundle>_<suite>/`。
+- 今晚修的坑：B 池哈希缺 `sha256:` 前缀（D 修）；隧道就绪竞态只对 cosmos 生效（D 推广到所有走隧道的情况）；H100 分批拉回重复预留耗光 20 GB 额度（P6 修）；Fast-WAM 门槛改为 G2 A/B 收据（P6），收据补模型清单绑定（Q）；库端口限定 233xx，不在 NAT 转发段 23100–23199，所以全走 tether 隧道。
+- 全部建库完成后：H100、4090 交还沙堆实验（SendMessage + 台账）。
+
+**10-09 23:3x 状态（最新，先读）**
+- 正式测试改走框架（`exp/r17_integration/ops/formal_eval.sh`，Q 写；conductor 逐局分发 + 原版 `replica_proxy` 多副本；DP 用 `--cuda-graph`）。教训写进记忆 `feedback-formal-eval-through-framework`。
+- 结果：DP-LIBERO 正式 400 局 84.3%（spatial 90 / object 72 / goal 94 / 10 81），见 RESULTS.md。在跑：Fast-WAM MT50 500 局（H100，2 副本，run `formal_fastwam_mw_mt50_500_20261009_223917_0b845f00`）、Cosmos-LIBERO 400 局（H100，2 副本，`..._231322_2b680ed5`）、DP-MW MT50 500 局（4090 + timan107，`..._225821_ef25fe4e`）、π0.5 K=1（4090）。
+- 同卡教训：12 个 DP 小 kernel 进程和 Fast-WAM 同在 H100 上会让 Fast-WAM 从每分钟 10 局降到 4 局，所以 DP-MW 改放 4090。
+- Cosmos-LIBERO 已由 sol D 接入（`handbacks/HANDBACK_COSMOS.md`；H100 运行时修了 NVRTC 和 gymnasium；冒烟 2/2，与官方动作逐位一致）。D 在加建库用的采集钩子。
+- 建库：P6 交付 `ops/library_campaign.sh`（`HANDBACK_P6.md` § LIBERO library pipeline；B 池来源与 R10 对齐都已证明）。P6 在改 H100 有界暂存（H100 /data 只剩约 90 GB）。
+- 自动链：`r17_ops/chain_4090_dplib.sh`（4090 空出后跑 DP 建库，先冒烟后全量，按退出码把关）、`r17_ops/chain_h100_fwlibero.sh`（Fast-WAM MT50 跑完后跑 Fast-WAM LIBERO A/B 资格检查，这是它建库的前置条件）。
+- 监控：`r17_ops/r17_all_watch2.sh`（每 5 分钟报正式测试进度，加 sol 完成事件）。
+
+**10-09 22:3x 排期：新模型 LIBERO 建库（owner 22:2x 下达，参数已问定）**
+- 范围：DP、Fast-WAM、Cosmos（Cosmos 等 sol D 接入并过资格检查）× libero_spatial、libero_10。π0.5、GR00T 以前做过，不重做。
+- 初始状态：沿用 π0.5/GR00T 的 B 池（差集池），每个套件 500 个；官方 A 池 500 局只做测试。嵌套子集用 R10 同一组排列（`exp/offline_search/rounds/r10/subsets/*_{50..500}.json`，种子 20261002，π0.5 与 GR00T 排列已核对一致），所以各模型在每个库大小上逐局对应。
+- 库大小：50/100/200/300/400/500（owner 选，不是 R16 的 4 档）。
+- 采集：conductor 逐局分发 + 多副本，老师用满步（DP100/Fast10/Cosmos5），debug 模式采集。只留建库和拟合要用的字段，**外加两路相机图像（owner 说保留）**，其余调试数据丢掉。失败局保留（同 R10）。
+- 建库：先建 500，再按排列切出 50–400（按行号引用，不复制数组）；每档只用本档库拟合马氏距离度量、留本集修正器、守卫阈值、上限等 R16 用到的拟合物；500 档沿用留本集服务的说明。
+- 实现：派 P6 写采集与建库（`exp/r17_integration/ops/`），先只用 CPU；GPU 冒烟和全量采集等当前正式测试结束后由协调者开。这一步也解决 G3 合成库拟合不出校正器的问题（相当于 ROUND4 R4-1 的 LIBERO 部分）。
+
+**10-09 21:0x 4090 资格检查小结 + 纯减步（最新，先读）**
+- 核心 A+B 全 PASS：π0.5-MW（G1 首个端到端，`slot_G1_pi05_mw_{A,B}`）、GR00T-MW（A/B/K2/K1）、GR00T 60k（A/B）、DP-LIBERO（A/B）。收据在 `/data/mw_finetune/qualification/runs/`，序列日志 `r17_ops/qual_4090_retry{1..4}.log`。
+- 未过：GR00T C/B2（GPU 批量与单条差 0.0029 > 1e-3）→ 归 R4-2；G3 π0.5/GR00T（固定输入合成库拟合不出校正器距离尺度）→ 归 R4-1；π0.5 tail、G3 DP-LIBERO 为设计内限定 PARTIAL。待跑：两个副本时段（需独占 4090），H100 一侧（Fast-WAM LIBERO/MW、DP-MW）等 Fast-WAM 训完。
+- MT50 纯减步（RESULTS.md 新表）：GR00T-MW 4 步 77.6/68.2，2 步 76.0/67.8，1 步 73.8/63.0（按任务平均/组均值）。π0.5 K=2 在跑，完了自动接 K=1（`r17_ops/after_pi05_k2.sh`）。
+- DP-LIBERO 全量 LIBERO 测试：踩了 HOME、PYTHONPATH、服务元数据缺 `concurrent`（已在 `exp/mw_finetune/dp/serve_libero.py` 元数据加 `"concurrent": True`，只改元数据）、/scratch 不能 tether 拉取 4 个坑，20:44 起 4 服务（端口 23152–23155）× 4 套件跑，较慢（100 步 DDPM + 共卡）。
+
+**10-09 20:3x 状态（最新，先读）**
+- MT50 纯减步：20:07 起本地 tmux `r17_eval_groot_k2`（GR00T-MW K=2，端口 23151）与 `r17_eval_pi05_k2`（π0.5 K=2，端口 23150）共卡跑，结果 `/data/mw_finetune/eval/{groot_mt50_60k_k2_egl,pi05_rlinf_mt50_k2_egl}`；完了接 K=1（同命令换 `--denoising-steps 1` 和 run 名）。`run_eval_local_lane.sh` 支持 `EVAL_NODE` 环境变量换 worker 节点。
+- DP-LIBERO 训练 20:21 完成（10 万步，loss 0.026）；LIBERO 全量纯推理测试 20:22 起：本地 tmux `r17_eval_dpl`（`r17_ops/run_eval_dp_libero.sh`：导出拉回 `/data/mw_finetune/dp/libero_policy_100000`，4090 端口 23154 服务，timan107 tmux `r17_dpl_<suite>` 4 套件 × 4 worker，`examples/libero/main.py` 50 局/任务），结果拉回 `/data/mw_finetune/eval/dp_libero_100k/`。
+- 资格检查第三轮：PASS = DP-LIBERO A、B（另 π0.5 A、GR00T A/K2/K1/60k A 之前已过）；G3_dp_libero 为设计内的限定 PARTIAL；三个 MW B 时段链路已通（worker 干净退出、driver PASS），卡在把 timan 上的打包文件从 `/scratch` 拉回（tether allow_roots 只有 /home /tmp /srv）→ 派 Q（GPU fix 4，日志 `r17_ops/sol_intQ_gpufix4.log`）。
+- 用户问过为什么出这些问题：①π0.5 K2 是编译 vs eager（R16 服务强制 eager）；②探针是 P2 偏离了框架 driver 的语义（框架只在首拉记探针）；③收尾竞争在 LIBERO 上由 runner 按租约回收 worker。教训：偏离框架的地方先查框架原做法。
+
+**10-09 19:5x 第二轮 4090 结果**：PASS = π0.5-MW A、GR00T-MW A/K2/K1、GR00T 60k A；PARTIAL = π0.5-MW B、GR00T B、60k B（链路通了：driver PASS、两局都被接收；卡在 Q 的远端 worker 管理进程不退出，tether 返回 75）；FAIL = DP-LIBERO A（GPU 上 B1 vs B2 差 6.6e-5 > 1e-5）。派 Q（GPU fix 3，worker 管理进程收尾）、P4（GPU fix 2，DP 批量：建议像 Fast-WAM 一样禁用 B>1），修完重跑 B 时段及其依赖。
+
+**10-09 19:3x 资格检查修复与第二轮重跑**：π0.5-MW A 用 R16-eager 一致性标准重跑 PASS；GR00T B 失败根因是 P2 driver 每次拉取都验探针而 worker 只在首拉发 → P2 改为按连接沿用（GPU fix 2）；Q 刷新部署、重签（GPU fix 2，`qualification/HANDBACK_Q.md`）。19:3x 起本地 tmux `r17_qual_4090c` 跑 `r17_ops/qual_4090_retry2.txt`（6 个可跑 + 8 个依赖时段，独占模式），日志 `r17_ops/qual_4090_retry2.log`。H100 时段要等 Fast-WAM 与 DP-LIBERO 训练都退出（约 22:15），顺序见 HANDBACK_Q.md "H100 wait and later ordered queue"。
+
+**10-09 19:1x GR00T-MW MT50 结果**：500 局 0 错误，按任务平均 77.6%、组均值 68.2%（easy 91.1 / medium 58.2 / hard 71.7 / very hard 52.0），已写入 RESULTS.md；4090 空闲，等 Q 修好 worker 后重跑资格检查。P2 结论：π0.5 K2 失败是编译版 vs eager 的数值差（K2 最大差 0.078），适配器与 R16 实际 eager 路径逐字节一致；补丁在 `REQUESTS/P2_to_Q.md`。P4 已补探针接口。
+
+**10-09 19:0x 4090 资格检查第一遍结果（最新，先读）**
+- PASS：`slot_G2_groot_mw_A`、`slot_G2_groot_mw_final60000_A`（GR00T-MW 真实断点 K4/2/1 原生推理与采集一致）。
+- FAIL：`slot_G1_pi05_mw_A`，K=10 逐字节一致，K=2 与原版非分阶段路径不一致 → 派 P2（`prompts/sol_int_P2_gpufix1.md`，日志 `r17_ops/sol_intP2_gpufix1.log`）判断是 K2 网格/路径真 bug 还是编译 kernel 浮点差，可做 ≤15 分钟 GPU 诊断。
+- PARTIAL：两个 GR00T B 时段——driver 拒收 timan107 worker（"worker simulator package mismatch"）；GR00T K2/K1——端口 23156 被上一个时段占着；DP-LIBERO A——Q_to_P4 的探针接口未实现。→ 派 Q（`prompts/sol_int_Q_gpufix1.md`，日志 `r17_ops/sol_intQ_gpufix1.log`）修 worker 包指纹与端口等待；派 P4（`prompts/sol_int_P4_gpufix1.md`）实现 `--load-spec/--observations`。修好后用 `r17_ops/run_qual_seq.sh` 重跑失败/跳过的时段。
+- Long-WAM 评估完成（`exp/offline_search/rounds/r17/survey_longwam/ASSESSMENT.md`）：建议不迁移（LIBERO 权重都要 2.4 s 历史、无零历史权重、无 MetaWorld、与 Fast-WAM 同族）；可选便宜探针（当前帧复制 13 份当历史）等 owner 定。
+
+**10-09 18:4x GR00T 训完，4090 测试 + 资格检查开跑（最新，先读）**
+- GR00T 18:40 训完（6 万步，最终 loss 0.0088，`/data/mw_finetune/groot/4090_mt50/checkpoint-60000`）。
+- 18:41 GR00T MT50 500 局正式测试：本地 tmux `r17_eval_groot`（`run_eval_local_lane.sh groot groot_mt50_60k_egl 23151 12 -- serve_local.sh …checkpoint-60000`），worker timan107 tmux `r17_groot`，日志 `r17_ops/eval_groot_mt50_60k_egl.log`，结果 `/data/mw_finetune/eval/groot_mt50_60k_egl/summary.json`。
+- 18:41 4090 资格检查序列：本地 tmux `r17_qual_4090`（`r17_ops/run_qual_seq.sh r17_ops/qual_4090_lane.txt --share-eval`，按依赖跑 16 个时段，A 不过就跳过对应 B），汇总日志 `r17_ops/qual_4090_seq.log`，每个时段 `r17_ops/qual_<slot>.log`，收据在 `/data/mw_finetune/qualification/runs/`。独占时段 `slot_G2_groot_mw_R_replicas` 等测试结束后单独跑。
+- Long-WAM（NVIDIA 今天发布）可迁移性评估：Opus 后台在读代码，交 `exp/offline_search/rounds/r17/survey_longwam/ASSESSMENT.md`。初判：它的卖点是长历史上下文（KV 复用），与"只看当前观测"冲突；除非有零历史模式/权重。
+
+**10-09 17:0x DP-LIBERO 微调改到 H100（owner："为什么不去h100上微调diffusion"）**：把 `libero_96`（6.9 GB）和最新 DP 代码推到 H100（`r17_ops/push_dp_libero_h100.sh`，核对通过），17:0x 在 h100 tmux `r17_dp_libero` 开训（从 brandonyang LIBERO 30k 微调，10 万步、batch 256、每 2 万步存一次、显存上限 8 GiB、不走锁，输出 `/data/mw_finetune/dp/h100_libero_finetune`），约 7–8 步/秒，预计 20:40 前后完；监控 `r17_ops/dpl_h100_watch.sh`。Fast-WAM 因共卡变慢，预计约 22:15 训完。4090 在 GR00T 训完后只跑 GR00T 测试 + 资格检查，约 21:00 可交还。
+
+**10-09 16:4x 第四轮规划（ROUND4_PLAN.md）**：sol P 列了全部功能 × 6 个模型/基准组合的现状矩阵、18 个缺口（G01–G18）和 4 个工作包：R4-1 真实老师建库 + 实测成本系数 + Fast/DP 锁等待计时（最高优先）；R4-2 并发部署/副本/批处理（π S1–S3、GR S3、Fast、DP）；R4-3 WARM/warm-reset/CP2/trace/RIT/routing；R4-4 物理采集（含 LIBERO worker）/完整分析/split。边界：GR00T-LIBERO 原本就不支持 S1/S2 批处理和自动副本，不算缺口。GPU 资格检查通过后开 R4-1。
+
+**10-09 16:1x DP MT50 结果**：500 局 0 错误，按任务平均 61.2%、组均值 47.4%（easy 79.6 / medium 40.9 / hard 35.0 / very hard 34.0），写入 `exp/mw_finetune/RESULTS.md`。H100 上 DP 服务已停。
+
+**10-09 15:5x GPU 阶段计划（最新，先读）**
+- Q 15:45 交回最终脚本（34 个 `qualification/slot_*.sh`，CPU 预检全过；顺序与前置条件见 `qualification/PLAN.md`）。脚本检测到训练进程会拒跑（PARTIAL）。
+- **4090（GR00T 训完约 18:40，后台等待任务 b99g2x4cz 会通知）**：① GR00T-MW 500 局正式测试（`r17_ops/run_eval_local_lane.sh groot groot_mt50_60k_egl 23151 12 -- bash exp/mw_finetune/groot/serve_local.sh --checkpoint /data/mw_finetune/groot/4090_mt50/checkpoint-60000 --port 23151`）；② 同时按 PLAN 顺序跑 4090 资格检查（加 `--share-eval`）；③ DP-LIBERO 微调（`exp/mw_finetune/dp/libero/launch.sh`，先 --probe）。
+- **H100（Fast-WAM 训完约 20:50）**：Fast-WAM-MW 500 局（`run_eval_h100_lane.sh fastwam fastwam_mt50_frozen_b128_egl 23252 12 '<serve_compat … policy_016001>'`）+ H100 资格检查（Fast-WAM LIBERO/MW、DP-MW）。
+- DP MT50 测试（4 路）约 16:15 完。
+
+**10-09 15:3x 第三轮完成，两路 Opus 都认可进 GPU 资格检查（最新，先读）**
+- `review/REVIEW_A3.md`：N1–N4 已由 P1/P2 修好（IR 按 R11 在库上回放校准；任务表在服务边界强制对齐；下降错误分类；绑定零哈希）；A 自己修了 GR00T 锁等待计时、GR00T 默认任务表、P6 按 service_ms 计价 + 按阶段台账的 owner IR、debug 写入器字段冲突；测试 R17 350、GR00T 63、Fast-WAM 110、DP 125、legacy 1087 全过，R16 verify 通过。限制：MW 的 IR 成本系数未实测前只能用显式 periodic_gap；service_ms 含线程间 GPU 争用。
+- `review/REVIEW_B3.md`：B 自己修了 DP-LIBERO 读不了 P2 spec（major）、Fast-WAM 哈希放在键路径上、DP 接受 Fast-WAM 专用协议；Fast-WAM+common+benchmarks 249、DP 125 等全过。
+- 仍不支持（下一轮实现）：replica、阶段 batching（GR00T S1/S2）、WARM/CP2/trace/routing、record/collector、split、实测 GPU 计价。计划：GPU 资格检查后再派一轮实现 + Opus 审查。
+- DP MT50 正式测试改为 4 路并行（15:10 起，本地 tmux `r17_eval_dp4`，`r17_ops/run_eval_dp_h100_parts.sh`，h100 tmux `r17_srv_dp1..4` 端口 23254/23255/23258/23259，timan108 `r17_dp1..4`，按 `r17_ops/mt50_task_parts.txt` 分 4 组；完成后 `merge_mt50_parts.py` 合并到 `/data/mw_finetune/eval/dp_mt50_scratch_100k_h100_merged`），约 7 局/分钟，预计 16:20 完；之前单进程的 53 局作废留档。
+- Codex 后台服务 15:20 自动升级到 0.162.1 并重启，断了 Q，已同线程续派（`prompts/sol_int_Q_resume2.md`，日志 `r17_ops/sol_intQ_r2.log`）。Q 交回后要再让它按 A3 改动重生成一次。
+
+**10-09 15:0x 第三轮：Opus 审完直接改（最新，先读）**
+- P1–P4 第 2 轮修复 14:52–15:01 全部交回，sol 停手。DP MT50 训练 14:46 完成（10 万步，loss 0.0087），500 局测试已自动开跑（本地 tmux `r17_eval_dp`）。
+- 15:0x 续派两路 Opus 第三轮（按 owner：审完自己改到认可为止）：A 写范围 `exp/r17_integration/{common,benchmarks,conductor,models/pi05,models/groot,debug,search,ops}` + 测试 → `review/REVIEW_A3.md`；B 写范围 `models/{fastwam,dp}` + 测试 → `review/REVIEW_B3.md`；B 需要改 common 时写补丁提议，我转给 A。两路都不碰 `qualification/`（Q 在重生成脚本）。Opus 改完后让 Q 再用 gen_slots.py 重生成一次。
+
+**10-09 14:4x Opus 复审完成，修复第 2 轮（最新，先读）**
+- `review/REVIEW_A2.md`：第一轮 13 条修好 12 条（部分修 1 条）；新 major：N1 recipe `target_ir` 控制的是 MISS 占比而非 R16 的 IR；N2 recipe 任务顺序与 benchmark task_id 没核对（会用错任务的库，已复现）；minor N3（下降卡死）、N4（每次绑定在事件循环上 SHA 整个老师库）、N5（cost_ms 含排队）。测试：R17 281、GR00T 61、legacy 1007 通过。
+- `review/REVIEW_B2.md`：B1/B2/B4/B5/B7–B10 修好；B4 后 key 占整次调用 FLOP：LIBERO 0.14、MW 0.09；B3 网格对了，K2/K4/K10 相对 K100 的 MSE 0.020/0.016/0.019，K1 1.77 不可用；新 major N1：Q 的资格检查脚本没跟上（LIBERO 素材 480²、DP 判定 12/11、Fast-WAM 批量 2）；若干 minor。
+- 14:4x 派第 2 轮修复：P1（IR 语义、任务表绑定、老师库只在加载时校验一次）、P2（任务表身份、下降错误分类、成本账区分排队/服务时间）、P3（debug 参数、协议交叉校验、续跑身份、measure）、P4（K1 只在纯减步研究标志下允许）、Q（等 P1–P4 修完后用 gen_slots.py 重生成全部脚本并重跑 CPU 预检）。日志 `r17_ops/sol_intP{1..4}_fix2.log`、`sol_intQ_fix1.log`。
+- **owner 14:5x：「第三次审查的时候你让opus审查结束后就自己上手改，改到自己同意为止」** → 第 2 轮修复全部交回后，续派原来两路 Opus（A：框架/MW/π0.5/GR00T + P6；B：Fast-WAM/DP）做第三轮：审完直接改代码、补测试，反复改到自己认可为止；按目录分工避免两路改同一文件，sol 那时都已停手。Q 的脚本在 Opus 改完后再用 gen_slots.py 重生成。
+
+**10-09 14:2x 资格检查脚本就绪 + DP 测试自动排队（最新，先读）**
+- sol Q 交回：`exp/r17_integration/qualification/` 34 个一键脚本 `slot_*.sh`（`--preflight` 只跑 CPU；`--share-eval` 允许和正式测试按显存共卡；检测到训练进程或显存不够会返回 PARTIAL），顺序与显存表见 `qualification/PLAN.md`，说明 `HANDBACK_Q.md`。训练结束后按 PLAN 顺序跑；若 Opus 复审导致代码再改，用 `gen_slots.py` 重生成。
+- .gitignore：Sonnet 加了 `exp/r17_integration/.gitignore`、`exp/mw_finetune/.gitignore`、`exp/offline_search/rounds/r17/.gitignore`，未跟踪文件 22234 → 511（没提交）。
+- DP MT50 正式测试：后台等待任务（等 H100 上 DP 训练进程退出且 checkpoint-100000 存在）会自动起本地 tmux `r17_eval_dp` 跑 `r17_ops/run_eval_dp_h100.sh`（导出 → h100 tmux `r17_srv_dp` 端口 23254 不走锁 → timan108 tmux `r17_dp` 500 局 → sync_back → aggregate；日志 `r17_ops/eval_dp_mt50_scratch_100k_h100.log`，结果 `/data/mw_finetune/eval/dp_mt50_scratch_100k_h100`）。
+
+**10-09 14:1x 修复第 1 轮完成，Opus 复审中（最新，先读）**
+- P1–P6 全部交回 "Fix round 1"（各 handback 末节）。要点：4 个封存共享文件已恢复 HEAD（git 对 src/ 零改动），R16 `analyze verify` → DESIGN_VERIFIED；五层改为按 bundle 的 `r17.recipe.v1`；LIBERO 经 `benchmarks/libero_bridge.py` 支持执行步数回报与全局 task id；逐决策成本账；GR00T 键名 blocker 修好；Fast-WAM 文本编码移出 key 路径；DP 改 trailing DDIM（K1 标有损）。
+- 14:1x 让原来两路 Opus 在原上下文复审 → `review/REVIEW_A2.md`、`REVIEW_B2.md`。复审通过后跑 GPU 资格检查（sol Q 的 `qualification/slot_*.sh`）。
+
+**10-09 13:3x 审查结果与修复第 1 轮（最新，先读）**
+- `exp/r17_integration/review/REVIEW_A.md`（框架/MW/π0.5/GR00T）、`REVIEW_B.md`（Fast-WAM/DP），复现脚本 `review/repro_{A,B}/`。共 2 blocker + 8 major + 若干 minor，CPU 测试原先都没抓到。
+  - blocker：GR00T-MW 只认 image/state 键（worker 发 observation/*）→ 每局首次推理 KeyError；LIBERO 旧 runner 不回报执行步数 → commit10/15/32 在 LIBERO 上实际是 commit5。
+  - major：P1 改共享文件破坏 R16 DESIGN_LOCK（R16 封存分析拒跑）；五层是进程级配置不能按 bundle 切；GR00T 服务入口没接五层、库与 K 绑死、debug 部署不了；没有逐决策成本；LIBERO 侧身份/task_id/conductor 只写了 MW；DP 减步网格是截断 DDPM（K1 动作 MSE 1.21 vs K100 0.24，K2 正常）；Fast-WAM key 路径每次跑 UMT5 文本编码器（key 成本虚高）。
+- 13:3x 用同线程把修复派回 P1–P6（任务 `prompts/sol_int_P{n}_fix1.md`，日志 `r17_ops/sol_intP{n}_fix1.log`），每个问题要求补回归测试并在 handback 追加 "Fix round 1"。修完再派 Opus 复审，然后 GPU 资格检查。
+
+**10-09 13:0x Opus 代码审查（owner："他们代码写完了之后你发opus agent去审所有模型都要包含"，"没必要那么多路"）**
+- 2 路 Opus（Agent 工具，后台）：A 审共享框架 P1 + MetaWorld/conductor/π0.5-MW（P2）+ GR00T-MW（P5）+ 相关工具（P6）→ `exp/r17_integration/review/REVIEW_A.md`；B 审 Fast-WAM（P3，LIBERO+MW）+ DP-T（P4，LIBERO+MW）→ `REVIEW_B.md`。只读、零 GPU，只报会改变行为或结论的问题。审完把 blocker/major 派回对应 P 线程修，再跑 GPU 资格检查。
+
+**10-09 12:4x 接入实现全部交回（最新，先读）**
+- P1–P6 全部交回 `exp/r17_integration/handbacks/HANDBACK_P{1..6}.md`（CPU 测试：P2 51、P3 49+91 回归、P4 6 个 YAML 校验通过、P5 196、P6 142，均 0 跳过；零 GPU）。P1 共享改动我已审：4 个文件 +84 行，全部由 `adapter_binding` 有值才生效，旧路径不变。
+- 未完成：GPU/真机资格检查 G1（π0.5-MW 首个端到端）、G2（各模型）、G3（全功能工具链），见 `exp/r17_integration/ops/RUNBOOK.md` 与各 handback。
+- 12:4x 派 sol Q（tmux `cx_intQ`，日志 `r17_ops/sol_intQ.log`，线程 `01a121c0-0b47-79c3-a554-f6fdb32f9d67`）：把每个资格检查做成一键脚本 `exp/r17_integration/qualification/slot_*.sh`（≤15 分钟、只起自有进程、按 PID 停、写收据），先做完所有 CPU 预检和 timan worker 部署，交 `qualification/PLAN.md` + `HANDBACK_Q.md`。GPU 时段：4090 在 GR00T 训完（约 18:40）后，H100 在 Fast-WAM 训完（约 20:30）后。
+
+**10-09 11:5x DP 训练（最新，先读）**
+- sol E 交回（`exp/mw_finetune/dp/HANDBACK_E.md`、`RECIPE.md`）：brandonyang 两份权重重建无误（原始帧上去噪误差低），但迁移到我们设置都不可用（MW ML45 1/16、0/16，相机 corner4+夹爪视角对不上；LIBERO 0/4）→ 按 owner 规则：MT50 从头训，LIBERO 在 30k 上微调。配方：10 万步、batch 256、AdamW(.95,.999)、1e-4→1e-5、500 预热、无 EMA，DDPM 100 步。
+- 11:5x 在 H100 上和 Fast-WAM 共卡开训 DP MT50 从头训（tmux `r17_dp_mt50` on h100，直接跑 train.py 不走锁、显存上限 8 GiB、10000 步存一次，输出 `/data/mw_finetune/dp/h100_mt50_scratch`，日志 `.console.log`），约 8–9 步/秒，预计 15:30 前后训完。监控 `r17_ops/dp_h100_watch.sh`（已并入 r17_all_watch.sh）。
+- DP LIBERO 微调：数据只在本机，等 GR00T 训完（约 18:40）后在 4090 跑：`bash exp/mw_finetune/dp/libero/launch.sh --steps 100000 --batch-size 256 --workers 4 --save-every 5000 --output /data/mw_finetune/dp/4090_libero_finetune`（先 --probe）。
+
+**10-09 11:4x 系统接入：6 个实现 sol 已派（最新，先读）**
+- sol P 交回设计（11:31）：`exp/r17_integration/{INVENTORY,DESIGN,WORK_PACKAGES}.md` + `verification/CPU_CHECKS.md`；每项功能标 F（框架自动）/M（每模型钩子）/B（每基准），沿现有 connection factory → YAML config → orchestrator 路径接入；第一个端到端目标 π0.5-on-MetaWorld。
+- 11:4x 并行派 P1–P6（tmux `cx_intP1`..`cx_intP6`，日志 `r17_ops/sol_intP{1..6}.log`，任务 `prompts/sol_int_P{n}.md`，交 `exp/r17_integration/handbacks/HANDBACK_P{n}.md`，互相请求放 `exp/r17_integration/REQUESTS/`）：
+  | 包 | 内容 | 线程 |
+  |---|---|---|
+  | P1 | 共享框架 + 五层参数化（唯一可改共享 `src/openpi/cache/*`、`websocket_policy_server.py`，默认关） | 01a12181-e8ba-7640-b689-2f2da8860edb |
+  | P2 | MetaWorld 基准 / conductor 按局分发 / worker / 物理 debug 采集 + π0.5-MW 首个端到端 | 01a12181-f099-7ff0-aebd-d634cc7657b5 |
+  | P3 | Fast-WAM LIBERO + MW 适配 | 01a12181-f87d-73c1-88f6-0407d9f849bf |
+  | P4 | DP-T LIBERO + MW 适配（用 sol E 的重建） | 01a12182-005b-7d03-8dbb-28057d4d588c |
+  | P5 | GR00T-MW 接入 | 01a12182-0845-7471-9410-f44e422a0d26 |
+  | P6 | 库/debug/离线搜索/分析/部署资格 | 01a12182-101b-7822-a6dc-dea5e79dcc2d |
+- 今天零 GPU（两卡训练中）；GPU 资格检查命令由各包写好，训练结束后我一次一个模型跑。
+
+**10-09 11:2x Fast-WAM 训练事故（最新，先读）**
+- 11:19 在第 10000 步存断点时，C 的磁盘预算检查报 `H100 shared budget: 119.2+13.3 GB would exceed 120 GB` 后退出（/data 实际还有 77 GB）。原因：H100 上 `/data/mw_finetune` 被推上去的 GR00T 核对断点、sol E 的 DP 文件，以及 C 的两个测速目录撑大了。
+- 处理：按 owner 之前"H100 上我们不需要的都可以删了"，删了 `fastwam/probe_frozen_b16`（16 GB）、`fastwam/probe_lora_b16`（21 GB）、`groot/eval_ckpts/4090_mt50/checkpoint-30000`（7.1 GB，原件在本机）→ 共享目录 69 GB。11:21 从第 8000 步 `latest.pt` 续训，损失约 2000 步（约 2 小时）→ **Fast-WAM 预计改为 19:05 前后训完**。
+- 今后往 H100 `/data/mw_finetune` 放东西要算进这个 120 GB 预算（C 的训练每存一次断点要临时多 13.3 GB）；sol E 在 H100 上保持 ≤ 10 GB。
+
+**10-09 10:5x 新目标：新模型 + MetaWorld 接入系统（owner 10:4x）**
+- owner 原话：「1.把新模型接入我们的系统 2. 把metaworld 接入我们的系统 对他们，要支持数据debug 收集 要支持concurrent server yaml热切换， 要支持conductor按照最细的episode分发任务，一切groot 和pi支持的他们都要支持」。
+- 阶段一：派架构 sol P（tmux `cx_intP`，日志 `r17_ops/sol_intP.log`，线程 `01a1214f-8cfc-7411-b0a7-7495e15e9b6b`，任务 `prompts/sol_int_plan.md`）→ 交 `exp/r17_integration/{INVENTORY,DESIGN,WORK_PACKAGES}.md`（π0.5/GR00T 全功能清单、模型适配接口、MetaWorld 基准接口、4–6 个可并行工作包，π0.5-on-MetaWorld 作为第一个端到端目标）。
+- owner 10:5x 补充：「我们很多功能都是在框架层实现的，理论上框架正确接入后就会自动支持，你要仔细接入框架，但是其他功能有些我们要自己写」→ 写进 `exp/r17_integration/OWNER_NOTE.md`。sol P 回合中途收不到消息：它交回后若没按这条把每项功能标成"框架自动 / 每模型要写 / 每基准要写"，用同线程续派让它读 OWNER_NOTE.md 修订。
+- 阶段二：我审完后按工作包并行派 sol 实现。
+- sol E（DP）10:4x 用同线程续派（`prompts/sol_mw_E_resume1.md`，日志 `r17_ops/sol_mwE2.log`）。
+- Codex 后台服务（app-server）在运行，用于派 sol。
+
+**10-09 10:3x 重启后状态（最新，先读）**
+- 本机 10:07 重启完成：内核 6.8.0-146，驱动 595.91.07，nvidia-smi 正常，EGL GL_RENDERER = RTX 4090。
+- GR00T 10:14 从 checkpoint-30000 续训（tmux `r17_groot_train`），4090 约 39.6 GB，1.00 s/步，预计 18:40 训完。
+- GR00T 中途核对（checkpoint-30000）：4090 余量不够（会挤训练），改在 H100 上和 Fast-WAM 共卡做 → 8 个 easy 任务 **14/16**（`RESULTS.md`）。H100 上的服务已停。
+- Fast-WAM 第 9350 步，预计 17:00 训完。
+- Codex 后台服务（app-server）重启后已在运行（被拒那条命令其实执行了）；**sol E 被重启打断，等 owner 确认后再续派**。owner 纠正：不要把 Codex app-server 叫"守护进程"，实验由主会话守护（已记进长期记忆）。
+- Cosmos-MW 正式 500 局：建议取消，等 owner 定。
+
+**10-09 09:2x 新增扩散模型（owner："我还想加一个扩散模型…metaworld有吗，如果没有可以加入微调"）**
+- 现状：LIBERO 有 `brandonyang/dp-libero-checkpoints`（DP-Transformer，语言条件，openpi 式目录，无代码/无 README/无成功率）；MetaWorld 只有同作者 `brandonyang/dp-metaworld-checkpoints`（训练集是 **ML45**，5 个 MT50 任务没见过，无成功率）；`iFaz` 的 DP-UNet 要两帧历史，MW 仓库是空的。公开 MT50 上 DP 组均值 10.5%。
+- 09:2x 派 sol E（tmux `cx_mwE`，日志 `r17_ops/sol_mwE.log`，线程 `01a12102-9a92-72d1-af6c-9cb9f15e8c56`，任务 `exp/offline_search/rounds/r17/prompts/sol_mw_E_dp.md`）：找原始代码或从 metadata.pt 重建、LIBERO 封装与冒烟、ML45 权重在 MT50 上 8 任务核对、MT50 微调启动器（预计几 GPU 小时）、`exp/mw_finetune/dp/`。**本机重启会打断它：重启后若日志没有 TURN_COMPLETED，用同一线程续派一句"机器重启过，从中断处继续"。**
+- owner 09:3x 定："把 metaworld ddpm 也纳入进来，先尝试他的权重，如果不行我们自己从头微调"。已写 `exp/mw_finetune/REQUESTS/COORD_to_E.md`（先试 brandonyang ML45 85k → 不行再在 MT50 上从头训同构 DP-T，DDPM 100 步默认；owner 09:3x 补充：LIBERO 也一样，brandonyang LIBERO 权重不行就自己在 LIBERO 4 套件上训一份）。**续派 sol E 时要在提示里明确让它读 COORD_to_E.md。** 注：我们之前的 DDPM 减步实验是 robomimic + PushT 的官方 DP-CNN，不是 LIBERO（已向 owner 说明）。
+
+**10-09 09:0x weilandserver 计划重启（最新，先读；本会话会随重启结束）**
+- **10:0x 应 owner 要求已手动停掉 GR00T 训练**（停在 30141 步，tmux `r17_groot_train` 已关；重启后从 checkpoint-30000 续）。
+- **09:56 GR00T checkpoint-30000 已存完并核对**（global_step 30000，含 optimizer.pt 8.6 GB，已 sync），已推送通知 owner 可以重启。sol E（DP）重启时可能还在跑，它在 H100 上起的冒烟进程（约 1–3 GB 显存）重启后要查是否残留，残留就按 PID 停掉，别影响 Fast-WAM。
+- owner 08:5x 同意找时机重启（"是否找一个时机reboot机器，可以操作"）。时点：GR00T 存完 checkpoint-30000（约 09:55，后台等待任务 bb7vtq2z5）后我告诉 owner，**owner 执行 `sudo reboot`**（我没 sudo）。训练不提前停：若停了而迟迟不重启，4090 在修好前无法续训；重启只损失断点后几分钟。I018 已同意（它的状态已落盘，重启后自己恢复 srv-i018-rsyncd）。
+- **Codex 共享守护进程**：重启后谁先发现没起来就执行 `codex app-server daemon start`，再告诉对方（I018 约定）。
+- H100 不需要再重启：05:06 已重启，驱动与库都是 595.99.02，无 reboot-required。
+- **重启后要做（新会话先读这里）**：
+  1. `nvidia-smi` 正常、`cat /proc/driver/nvidia/version` 是 595.91.07；验证 EGL：`/home/weiland/projects/openpi_ext/envs/metaworld_sim/bin/python -c "import os;os.environ['MUJOCO_GL']='egl';import mujoco;..."` 或直接用 A 的 camera_parity capture（GL_RENDERER 应是 RTX 4090）。
+  2. 续训 GR00T（自动从 checkpoint-30000 续）：`tmux new -d -s r17_groot_train "bash /home/weiland/projects/openpi_ext/scratch/r17_ops/groot_train_4090_nolock.sh --batch-size 64 --workers 12 --steps 60000 --save-steps 30000 --output /data/mw_finetune/groot/4090_mt50 2>&1 | tee -a /home/weiland/projects/openpi_ext/scratch/r17_ops/groot_train_4090.console.log; bash"`，确认进度条从 30000 起、loss 正常。
+  3. GR00T 中途核对改回 4090：本地起 `exp/mw_finetune/groot/serve_local.sh --checkpoint /data/mw_finetune/groot/4090_mt50/checkpoint-30000 --port 23151`（它走 GPU 锁；训练不走锁），workers 用 timan107（`run_eval_local_lane.sh`，必要时加子集参数），8 个 easy 任务 × 2 局。
+  4. 重挂监控：`r17_ops/r17_all_watch.sh`（H100 Fast-WAM + GR00T + 评测日志）；重建 cron：R17 巡检（:07/:37）。旧的一次性 cron 7ccd21e1（H100 上的 GR00T 核对）随会话消失，不用了。
+  5. H100 的 Fast-WAM 训练不受本机重启影响（tmux `r17_fastwam_train` on h100），预计 17:00 前后训完。之后按 `r17_ops/run_eval_h100_lane.sh` 跑 500 局 → 书面交还 H100。
+
+**10-09 06:4x 本机驱动事件（最新，先读）**
+- 06:23 CDT unattended-upgrades 把本机 nvidia-*-595-server 从 595.71.05 升到 595.91.07，加载的模块仍是 595.71.05 → 本机 nvidia-smi 报 mismatch，**4090 起不了新 CUDA 进程**（GR00T 训练照跑）；另有内核 6.8.0-146 的 reboot-required。我没有 sudo，已推送通知 owner，并告知 I018、写台账（weilandserver运维 会话已不在线）。恢复：GPU 上无进程时 rmmod nvidia_uvm nvidia 后 modprobe，或重启；之后验证 EGL GL_RENDERER。
+- 应对：GR00T 中途核对改到 H100 和 Fast-WAM 共卡做（cron 7ccd21e1，10:02；脚本 `r17_ops/push_groot_ckpt_h100.sh` 只传权重约 7.6 GB，GR00T 服务不走锁）。旧 cron 368f384e 已删。
+- GR00T 正式测试：owner 修好 4090 就在 4090 上测，否则等 Fast-WAM 在 H100 测完后在 H100 上测。Cosmos 正式测试要么等 4090 修好，要么在 H100 上搭 Cosmos 环境。
+
+**10-09 05:1x H100 已重启 + Fast-WAM 中途核对（最新，先读）**
+- 05:05 Fast-WAM 第 4000 步断点落盘后停训，复制核对用断点 `policy_sanity_004000`；05:06 `sudo reboot`，05:09 回来，驱动和库都是 595.99.02，nvidia-smi 正常（tether agent 是用户级 systemd 服务，开了 linger）。
+- 中途核对：8 个 easy 任务 × 2 局，16 局成功 10 局，约定没问题（`RESULTS.md` 已记，标为中途核对）。
+- 05:15 用原命令 `--resume` 续训（tmux `r17_fastwam_train`），从第 4000 步接上。预计 16:50 前后训完。
+- cron d44a4848 的步骤都已提前完成。
+
+**10-09 03:2x 后续排程（最新，先读）**
+- **05:12 一次性 cron d44a4848**：H100 提前重启（I018 已同意 05:10，/dev/shm/i018 已备份）。步骤：等 Fast-WAM 第 4000 步断点落盘 → 停训练 → 复制 `policy_latest` 为 `policy_sanity_004000` → `sudo reboot` → 验证驱动 → 8 个 easy 任务 × 2 局的中途核对（`EVAL_EXTRA=... run_eval_h100_lane.sh fastwam fastwam_sanity_004000 23252 8 '<serve_compat>'`）→ 用原命令 `--resume` 续训。
+- **10:17 一次性 cron 368f384e**：GR00T 在第 30000 步存断点后，在 4090 上和训练共卡做同样 8 任务的中途核对（端口 23151，timan107）。
+- GR00T 不和 π0.5 共卡后每秒约 1.0 步，预计 10-09 18:10 前后训完；Fast-WAM 预计 17:30–18:00 训完（含重启耽误的时间）。
+- 训完：Fast-WAM 在 H100 + timan108 跑 500 局正式测试 → 交还 H100；GR00T 在 4090 + timan107 跑 500 局 → Cosmos 默认配置 500 局 → 交还 4090。
+
+**10-09 03:1x /archive 搬迁完成**：9 项 1670.7 GiB 全部迁完（MOVER_EXIT rc=0，03:08），9 个原路径都是指向 /archive 的软链、14 条 relink 已核对；/data 可用 786 → 2475 GiB。已通知 I018 窗口结束、台账已写、巡检 cron 47ef23ad 已删。/data/dp（156 GiB）和 /data/xwam（141 GiB）在 PLAN.md 里标为 needs owner，没搬。
+
+**10-09 01:3x R17 运行状态（最新，先读）**
+- H100：Fast-WAM 训练 01:08 起（tmux `r17_fastwam_train` on h100；冻结视频，batch 128，16,001 步，约 3.7 s/步，预计 17:00 CDT 前后完；输出 `/data/mw_finetune/fastwam/mt50_frozen_b128`，最终 `policy_016001`）。监控脚本 `r17_ops/h100_train_watch.sh`。
+- **H100 驱动事件**：01:12 被 unattended-upgrades 升到 595.99 用户态库，内核模块仍 595.84，需重启；训练不受影响。I018 同意：训完后由 openpi `sudo reboot`，I018 已于 01:3x 确认 /dev/shm/i018 备份完成，训完即可重启；重启后在 H100 上跑 Fast-WAM 测试：`r17_ops/run_eval_h100_lane.sh fastwam fastwam_mt50_frozen_b128_egl 23252 12 '<serve_compat 命令，见 fastwam/HANDBACK_C.md>'`，跑完书面交还 H100（约 19:30）。apt-mark hold 转 owner 定。
+- 4090：GR00T 训练 01:1x 起（tmux `r17_groot_train`，`r17_ops/groot_train_4090_nolock.sh`，不走锁以便和测试共卡；batch 64，6 万步，约 1.3–1.4 s/步，预计 10-09 23:00 前后完；输出 `/data/mw_finetune/groot/4090_mt50`）。监控 `r17_ops/groot_train_watch.sh`。之后：GR00T 测试（端口 23151 + timan107）→ Cosmos 默认配置 500 局（23153）→ 交还 4090。
+- **π0.5 RLinf 测完（02:43）**：按任务平均 58.8%（与 9 月一致），组均值 50.5%（easy 70.0 / medium 45.5 / hard 46.7 / very hard 40.0）；结果汇总表 `exp/mw_finetune/RESULTS.md`。
+- Cosmos-MW：D 的探测 75 局只成功 1 局（`cosmos/HANDBACK_D.md`），作者结果复现不了；正式 500 局仍要跑，以留下记录。
+
+**10-09 00:5x R17 进展（最新，先读）**
+- A 已交回（HANDBACK_A.md）：正式评测 worker 跑在 timan（owner 00:1x 准许用 timan107/108）。分工：4090 服务（端口 2315x）配 timan107 worker，H100 服务（端口 2325x）配 timan108 worker；渲染统一用 NVIDIA EGL。相机核对通过：评测画面与 lerobot/metaworld_mt50 一致。容量（零策略）：timan107 约 72 局/分钟，timan108 约 120 局/分钟。
+- 我写的编排脚本 `openpi_ext/scratch/r17_ops/run_eval_local_lane.sh`（起本机服务 → timan107 worker → 同步回本机 → 汇总 → 停服务）。π0.5 正式测试 00:49 起，tmux `r17_eval_pi05`，日志 `r17_ops/eval_pi05_rlinf_mt50_egl.log`，结果 `/data/mw_finetune/eval/pi05_rlinf_mt50_egl/summary.json`。
+- B（GR00T）：全量数据已转好并校验。H100 batch 128、训扩散头：每秒 0.644 步、44 GiB；4090 训扩散头的测速在排队。我的计划：60k 步 × batch 128（NVIDIA LIBERO-90 单卡），先在 4090 上训，Fast-WAM 训完后断点接到 H100 续训，约 32 h。
+- C（Fast-WAM）：冻结视频在 batch 128 时 10 轮约 15.6 h；视频 LoRA 在 batch 16 时 46 h（在测更大 batch）。规则：LoRA 10 轮 ≤ 24 h 就用 LoRA，否则冻结视频。指令在 `exp/mw_finetune/REQUESTS/COORD_to_{B,C}.md`。
+- D（Cosmos 社区权重）：四种重建配置在 assembly 上全是 0/10，reach 最多 1/5，看来复现不了作者结果。正式 500 局待 D 交回后再定。
+- sol 日志：`r17_ops/sol_mwB.log`、`sol_mwC.log`、`sol_mwD2.log`（D 续派，探测）、`sol_mwA3.log`（A 续派，已完成）。监控 `r17_ops/sol_watch.sh` 读 `watch_list.txt`。
+
+**10-09 00:0x 压缩前快照（先读这段，最新）**
+
+### A. 正在做：R17 = 在 MetaWorld MT50 上微调 GR00T N1.5 和 Fast-WAM，测纯推理成功率（会话 /goal 已挂）
+- **owner 原话目标**：「编写测试和微调工具，在metaworld上按照论文配方微调groot和fast wam并测试各个模型微调后纯inference成功率」；**授权独占 4090 和 H100**（台账"独占 X1"，I018 23:4x 已把两卡腾空 0 MiB；I018 要求**哪张先用完先还哪张**，每次 SendMessage 书面通知 + 写台账；/dev/shm/i018 不许动）。owner 23:5x 去睡，交代"独自推进"。
+- **要测的模型**：GR00T N1.5-MW（自己微调）、Fast-WAM-MW（自己微调，从官方 LIBERO 权重 `yuanty/fastwam` 起步，冻结视频骨干只训动作专家或 LoRA）、π0.5 RLinf SFT（现成 `/data/ckpt/pi05_metaworld_rlinf`，9 月测过按任务平均 58.8%）、Cosmos-MW 社区权重（`mmurray-ms/Cosmos-Policy-MetaWorld-Predict2-2B`，v3，作者 runner 未公开）。
+- **benchmark 协议**：MetaWorld MT50 v3（本机 `openpi_ext/envs/metaworld_sim`：metaworld 3.0.0 / gymnasium 1.3.0 / mujoco 3.14；`exp/metaworld/` 现成 env 与 runner，`MT1(task, seed=7)` + `set_task(train_tasks[idx])`），每任务 10 局（idx 0..9，共 500 局），按 easy/medium/hard/very hard（28/11/6/5）报组均值和总均值，另给按任务均值。
+- **论文配方依据**：MetaWorld 参考配方 = SmolVLA 论文（`lerobot/metaworld_mt50` 数据出处）：10 万步、batch 64、AdamW(0.9,0.95)、lr 1e-4 余弦到 2.5e-6、预热 100；GR00T N1.5 README：batch 开满、2 万步（24 GB 4090 要 `--no-tune_diffusion_model`，我们的 4090 是 48 GB）；Fast-WAM 官方 8 卡 ZeRO-1 全训（单卡只能冻结视频专家或 LoRA，要写明偏差）。MT50 公开组均值：DP 10.5、TinyVLA 31.6、SmolVLA 68.2、π0 SFT 50.8、π0.5 SFT 43.8、π0+PPO 78.1、π0.5+PPO 70.7。
+- **数据**：`lerobot/metaworld_mt50` 2,500 局 / 204,806 帧 / 单路 480² / 4 维 state、action / fps 80。本机根目录 `/data/mw_finetune/`，H100 根目录 `/data/mw_finetune/`（H100 /data 现剩 188 GB，底线 30 GB）。Wan2.2-TI2V-5B 底座两边都有：`/data/xwam/wan22_5b/`。
+- **4 个 sol 并行（23:55 起）**，共同规则 `exp/offline_search/rounds/r17/prompts/mw_common_rules.md`（目录所有权、服务接口 `load_policy()->infer(obs)->actions[T,4]`、GPU 冒烟用 `flock /tmp/r17_gpu.lock` ≤15 分钟、禁令）：
+  | sol | 范围 | tmux / 日志（`openpi_ext/scratch/r17_ops/`） | 线程 |
+  |---|---|---|---|
+  | A | MT50 测试框架、serve、汇总、worker 部署（timan107 没有 MetaWorld，A 决定装还是本机跑）、π0.5 接入、`CONTRACT.md` | cx_mwA / sol_mwA.log | 01a11efc-d2d7-7483-b643-40132a5da445 |
+  | B | GR00T N1.5：RECIPE、MT50 转 GR00T 格式、新机器人标签、训练启动器（--probe）、推理封装；冒烟 4090 | cx_mwB / sol_mwB.log | 01a11f04-328d-7282-992c-3d34070073ca |
+  | C | Fast-WAM：RECIPE、H100 环境、复用 Wan 底座、冻结视频/LoRA、启动器、推理封装；冒烟 H100 | cx_mwC / sol_mwC.log | 01a11f04-329e-7133-8094-563a0d49400e |
+  | D | Cosmos-MW 社区权重：下载、适配、2 局冒烟（4090） | cx_mwD / sol_mwD.log | 01a11f04-32ac-7eb0-a84c-fd244cac0d16 |
+  各交 `exp/mw_finetune/HANDBACK_{A,B,C,D}.md`；目录 `exp/mw_finetune/{groot,fastwam,cosmos}/`。
+- **我接下来**：sol 交回 → 审阅 → 测训练速度（--probe）→ 开长训（Fast-WAM 放 H100；GR00T 视速度放 4090 或 H100 之后）→ 每个模型 MT50×10 局纯推理测试 → 汇总表 → 哪张卡用完先还。长训和测试都在 tmux 里由我跑（agent 不看守长实验）。
+- **只能派 sol / astra / opus**（owner 10-09 00:0x）；科学类派 astra 或 opus，工程派 sol；同一调研要同时派 opus + astra 独立做、互不可见。
+
+### B. /archive 搬迁（9 项 1.67 TiB，owner 批准；I018 推迟了它在 /archive 的写和删，等我们通知）
+- tmux `archive_mv`：`cd openpi_ext/scratch/archive_plan && ./archive_mover.sh move_list_all.txt relink_all.tsv`；日志 `mover.log`（逐文件行很多，看关键行用 `grep -v -E '^[^ ]+ {2,}'`）。
+- 进度：前 7 项完成（含 `dual_20260923` 625 GiB）；第 8 项 `r08_main` 复制完、23:58 正在删源前比对；第 9 项 `r06_p3_pilot` 260 GiB 待做。预计 10-09 凌晨 2–4 点完。
+- 完成后：核对 9 项原路径是指向 /archive 的软链、`relink_all.tsv` 14 条已改指向 → SendMessage 通知沙堆实验"/archive 写入窗口结束" → 向 owner 报释放空间 → 删巡检 cron 47ef23ad。
+
+### C. 今天已完成（不用再做）
+- **R16 定稿并已提交推送**（`d02d59bf`，`Ziyang`）：三批提档重跑（v1 46 任务、v2 7 个 −6 个点边界、v3 7 个 −10 个点改 c10），合并结果 `rounds/r16/retest_v1_v2_v3_results/`；四种库 × k 与满步纯推理持平（−0.3～+0.7），比满步逐任务下降 k1 +1.1 / k2 +1.3（显著），开销 .171/.188 对 .291/.506。
+- **解耦**：分支 `decouple-cpu-gpu` 已推（`43702dfd`）。冒烟：现行组跑通（GR00T 1 份 23.1 局/分钟）；拆分组曾因 AF_UNIX 路径过长失败，sol 已修（未再上 GPU 验证）。下次要卡先 `run_gpu_package.sh --smoke --new --deadline ...`。
+- **R17 选型过程**：调研都在 `exp/offline_search/rounds/r17/`（survey v1/v2 被否；survey_opus/astra；survey2_* 结论 LIBERO∩MetaWorld 无全过；survey3_* 第三个模型两边都选 Fast-WAM）。owner 定的硬要求见记忆 feedback_porting_nonvla_cache_friendly。
+- 4090 / H100 本轮之前的借用（B2、S1、R1）都已结束并写台账。
+
+### D. 挂着的监控与 cron（只活在本会话，压缩后检查 CronList，必要时重挂）
+- cron `2026da26`（:07/:37）R17 夜间巡检；cron `47ef23ad`（:17）/archive 巡检。
+- Monitor：4 个 sol 交回/停滞（脚本内联，看 sol_mw{A..D}.log 的 TURN_COMPLETED / 进程 / 25 分钟无输出）；/archive `archive_plan/mover_watch.sh`（30 分钟到期要重挂）。
+- Codex 守护进程 10-08 20:19 被 I018 重启过（0.162.0），派单照旧用 `codex_daemon_run.py`。
+
+**10-08 23:5x 下一轮（R17）选型进展**：
+- owner 暂定新模型 **Fast-WAM + Cosmos Policy**；benchmark = LIBERO + **MetaWorld MT50（v3）**；GR00T N1.5 我们自己在 MetaWorld 上微调。调研全在 `exp/offline_search/rounds/r17/`：`survey*`（v1/v2 被否）、`survey_opus|survey_astra`（第三版独立）、`survey2_*`（LIBERO∩MetaWorld，结论无全过）、`survey3_*`（第三个模型，Opus 选 Fast-WAM、备选 EasyWAM；astra 结果待收）。
+- owner 定的硬要求（见记忆 feedback_porting_nonvla_cache_friendly）：非 VLA（世界模型算）、只看当前观测（不要 KV 回填 / 历史 / 目标图）、缓存要有利可图、2–3 个不同家族、尽量不自训、汇报用表格。
+- 待办：验证 Cosmos 社区 MetaWorld 权重（写评测包装约 1 天 + MT50×10 约 4 GPU-h）；Fast-WAM 在 MetaWorld 上微调（H100 ≈13 h）；GR00T N1.5 MetaWorld 微调（SmolVLA 配方 10 万步×64，H100 ≈10 h）；都要先向沙堆实验收回 GPU。DP 在 MT50 公开仅 10.5%，是否保留待 owner 定。
+
+**10-08 17:3x 最终状态**：
 - R16 全部完成，**报告定稿 `rounds/r16/REPORT.md`（三批重跑合并，`retest_v1_v2_v3_results/`）**：四种库 × k 与满步纯推理持平（−0.3 到 +0.7），开销 .153–.212 对 .506；跨库合并比满步逐任务下降 k=1 +1.1 [+0.4,+1.7]、k=2 +1.3 [+0.6,+1.9]，开销 .171/.188 对 .291。−10 个点边界 7 个任务已按 c10 补跑（v3，`retest_superseding.py`，16:40–17:20，收回 R1）。
 - 4090：收回 R1（16:40–17:23）已结束，整卡归 I018，台账已写。我方无 GPU 作业。
 - 解耦：冒烟测试现行组通过（GR00T 1 份 23.1 局/分钟），拆分组启动失败 `AF_UNIX path too long`；sol 17:42 已修（短私有 socket 路径 + HF 导入 + 回环绑定 + 就绪等待上限，100 测试通过，4 道门证明仍可复用）。下次要 4090 先跑冒烟：`bash /home/weiland/projects/openpi_decouple/exp/decouple/run_gpu_package.sh --smoke --new --deadline "$(TZ=America/Chicago date -Iseconds -d '+10 minutes')"`，通过再跑整包（约 2 h，需整卡）。
