@@ -393,7 +393,8 @@ def launch_prepared(directory):
                 if dependency:
                     code=('from exp.r17_integration.ops.worker_installs import verify_dependencies; '
                         'verify_dependencies('+repr(dependency)+')')
-                    launch.remote(node,['env','PYTHONPATH='+launch.pythonpath(item['payload']),item['python'],'-c',code],replay_safe=True)
+                    # Hashing the dependency release can take minutes on the busy /data disk.
+                    launch.remote(node,['env','PYTHONPATH='+launch.pythonpath(item['payload']),item['python'],'-c',code],600,replay_safe=True)
                 config=item.get('private_config')
                 pins={item['stage']+'/benchmark.json':sha(Path(campaign['local_assets'])/'benchmark.json')}
                 if config:

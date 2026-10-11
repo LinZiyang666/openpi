@@ -1,6 +1,6 @@
 # R17 cache study: accepted episode snapshot
 
-UTC: 2026-10-11T12:27:54.807434+00:00. Selected sizes: [50, 100, 200, 300, 400, 500].
+UTC: 2026-10-11T20:40:58.824016+00:00. Selected sizes: [50, 100, 200, 300, 400, 500].
 
 F500 与 Fsize 各固定40比较/5%；不随已到达 lane 缩小族，不声称合并族5%。中间尺寸与敏感性均为描述性。
 Cosmos ch/chr/chg/chrg 分别复用 c/cr/cg/crg。CI为逐点双侧95% CP；差值LB为单侧。
@@ -19,9 +19,10 @@ Receipt status is information only. Cells with fewer than 500 accepted episodes 
 | /data/mw_finetune/eval/formal_cosmos_libero_official2000_20261010_130639_a8ca2043 | PASS | RECEIPT.json:FAIL; RECOVERED_RECEIPT.json:PASS | 1000 | 1000 | 0 |
 | /data/mw_finetune/eval/fastwamc6066547406 | FAIL | RECEIPT.json:FAIL | 40000 | 40000 | 0 |
 | /data/mw_finetune/eval/csztd_r3_l48 | FAIL | RECEIPT.json:FAIL | 40000 | 40000 | 0 |
-| /data/mw_finetune/eval/cosmos500w85_220813 | PARTIAL | RECEIPT.json:PARTIAL | 2687 | 2687 | 0 |
+| /data/mw_finetune/eval/cosmos500w85_220813 | PASS | RECEIPT.json:PASS | 4000 | 4000 | 0 |
+| /data/mw_finetune/eval/cosmossizes145_r8c | FAIL | RECEIPT.json:FAIL | 20000 | 20000 | 0 |
 
-198/240 cells have accepted outcomes; 197/240 have all 500 episodes.
+240/240 cells have accepted outcomes; 240/240 have all 500 episodes.
 
 ## N500 vs inference control (full cohort)
 
@@ -29,11 +30,11 @@ Receipt status is information only. Cells with fewer than 500 accepted episodes 
 |---|---|---|---:|---:|---:|---:|---|---:|---|
 | Cosmos | c | libero_10 | 500 | 75.20 | 500 | -23.40 | 5/122 | -30.91 | COMPLETE |
 | Cosmos | c | libero_spatial | 500 | 95.00 | 500 | -1.40 | 12/19 | -6.61 | COMPLETE |
-| Cosmos | cg | libero_10 | 0 | — | 0 | — | —/— | — | INTERIM |
+| Cosmos | cg | libero_10 | 500 | 80.00 | 500 | -18.60 | 5/98 | -25.72 | COMPLETE |
 | Cosmos | cg | libero_spatial | 500 | 95.80 | 500 | -0.60 | 13/16 | -5.70 | COMPLETE |
-| Cosmos | cr | libero_10 | 187 | 85.03 | 187 | -14.44 | 0/27 | -24.34 | INTERIM |
+| Cosmos | cr | libero_10 | 500 | 79.80 | 500 | -18.80 | 6/100 | -26.09 | COMPLETE |
 | Cosmos | cr | libero_spatial | 500 | 95.40 | 500 | -1.00 | 12/17 | -6.08 | COMPLETE |
-| Cosmos | crg | libero_10 | 0 | — | 0 | — | —/— | — | INTERIM |
+| Cosmos | crg | libero_10 | 500 | 85.60 | 500 | -13.00 | 7/72 | -19.80 | COMPLETE |
 | Cosmos | crg | libero_spatial | 500 | 95.80 | 500 | -0.60 | 13/16 | -5.70 | COMPLETE |
 | DP | c | libero_10 | 500 | 64.80 | 500 | -14.80 | 46/120 | -25.08 | COMPLETE |
 | DP | c | libero_spatial | 500 | 94.60 | 500 | 3.40 | 30/13 | -2.64 | COMPLETE |
@@ -104,25 +105,113 @@ Receipt status is information only. Cells with fewer than 500 accepted episodes 
 | Fast-WAM | chg | libero_10 | 500 / 63.20 | 500 / 66.40 | 500 / 70.40 | 500 / 75.60 | 500 / 79.20 |
 | Fast-WAM | chrg | libero_spatial | 500 / 87.00 | 500 / 87.40 | 500 / 88.60 | 500 / 88.40 | 500 / 89.20 |
 | Fast-WAM | chrg | libero_10 | 500 / 64.60 | 500 / 69.40 | 500 / 75.00 | 500 / 79.20 | 500 / 81.80 |
+| Cosmos | c | libero_spatial | 500 / 11.20 | 500 / 85.60 | 500 / 93.60 | 500 / 95.20 | 500 / 94.00 |
+| Cosmos | c | libero_10 | 500 / 12.00 | 500 / 45.00 | 500 / 66.00 | 500 / 70.60 | 500 / 77.20 |
+| Cosmos | cr | libero_spatial | 500 / 36.80 | 500 / 90.60 | 500 / 96.00 | 500 / 96.00 | 500 / 95.60 |
+| Cosmos | cr | libero_10 | 500 / 29.80 | 500 / 60.20 | 500 / 71.40 | 500 / 75.60 | 500 / 81.40 |
+| Cosmos | cg | libero_spatial | 500 / 25.60 | 500 / 86.60 | 500 / 92.80 | 500 / 94.60 | 500 / 94.60 |
+| Cosmos | cg | libero_10 | 500 / 22.40 | 500 / 54.00 | 500 / 74.40 | 500 / 77.00 | 500 / 84.40 |
+| Cosmos | crg | libero_spatial | 500 / 45.20 | 500 / 91.80 | 500 / 94.80 | 500 / 96.20 | 500 / 95.20 |
+| Cosmos | crg | libero_10 | 500 / 38.40 | 500 / 65.20 | 500 / 76.40 | 500 / 83.60 | 500 / 84.00 |
 
 ## SR and costs
 
 | model | N | group | suite | cohort | status | n | SR% [CP95%] | cost n | fresh hit% | MISS/control | NFE/control | calls/ep |
 |---|---:|---|---|---|---|---:|---|---:|---:|---:|---:|---:|
+| Cosmos | 50 | c | libero_10 | full | COMPLETE | 500 | 12.00 [9.28,15.18] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
+| Cosmos | 50 | c | libero_10 | sensitivity | COMPLETE | 479 | 12.53 [9.70,15.83] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
+| Cosmos | 50 | c | libero_spatial | full | COMPLETE | 500 | 11.20 [8.57,14.30] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
+| Cosmos | 50 | c | libero_spatial | sensitivity | COMPLETE | 489 | 11.25 [8.59,14.39] | 489 | 100.00 | 0.00000 | 0.00000 | 0.00 |
+| Cosmos | 50 | cg | libero_10 | full | COMPLETE | 500 | 22.40 [18.82,26.31] | 500 | 74.85 | 0.01599 | 0.07995 | 7.45 |
+| Cosmos | 50 | cg | libero_10 | sensitivity | COMPLETE | 479 | 23.38 [19.66,27.43] | 479 | 74.83 | 0.01601 | 0.08003 | 7.42 |
+| Cosmos | 50 | cg | libero_spatial | full | COMPLETE | 500 | 25.60 [21.83,29.66] | 500 | 76.49 | 0.01508 | 0.07539 | 2.98 |
+| Cosmos | 50 | cg | libero_spatial | sensitivity | COMPLETE | 489 | 25.97 [22.14,30.10] | 489 | 76.42 | 0.01513 | 0.07564 | 2.99 |
+| Cosmos | 50 | cr | libero_10 | full | COMPLETE | 500 | 29.80 [25.82,34.02] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
+| Cosmos | 50 | cr | libero_10 | sensitivity | COMPLETE | 479 | 30.48 [26.38,34.82] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
+| Cosmos | 50 | cr | libero_spatial | full | COMPLETE | 500 | 36.80 [32.56,41.20] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
+| Cosmos | 50 | cr | libero_spatial | sensitivity | COMPLETE | 489 | 37.01 [32.72,41.46] | 489 | 100.00 | 0.00000 | 0.00000 | 0.00 |
+| Cosmos | 50 | crg | libero_10 | full | COMPLETE | 500 | 38.40 [34.12,42.82] | 500 | 77.94 | 0.01404 | 0.07022 | 5.94 |
+| Cosmos | 50 | crg | libero_10 | sensitivity | COMPLETE | 479 | 39.04 [34.65,43.57] | 479 | 78.03 | 0.01399 | 0.06994 | 5.88 |
+| Cosmos | 50 | crg | libero_spatial | full | COMPLETE | 500 | 45.20 [40.78,49.68] | 500 | 80.56 | 0.01253 | 0.06266 | 2.16 |
+| Cosmos | 50 | crg | libero_spatial | sensitivity | COMPLETE | 489 | 45.60 [41.12,50.14] | 489 | 80.57 | 0.01253 | 0.06265 | 2.15 |
+| Cosmos | 100 | c | libero_10 | full | COMPLETE | 500 | 45.00 [40.58,49.48] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
+| Cosmos | 100 | c | libero_10 | sensitivity | COMPLETE | 479 | 45.51 [40.99,50.09] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
+| Cosmos | 100 | c | libero_spatial | full | COMPLETE | 500 | 85.60 [82.21,88.56] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
+| Cosmos | 100 | c | libero_spatial | sensitivity | COMPLETE | 489 | 85.69 [82.26,88.67] | 489 | 100.00 | 0.00000 | 0.00000 | 0.00 |
+| Cosmos | 100 | cg | libero_10 | full | COMPLETE | 500 | 54.00 [49.52,58.43] | 500 | 85.11 | 0.00949 | 0.04747 | 3.68 |
+| Cosmos | 100 | cg | libero_10 | sensitivity | COMPLETE | 479 | 54.28 [49.70,58.81] | 479 | 85.10 | 0.00950 | 0.04752 | 3.67 |
+| Cosmos | 100 | cg | libero_spatial | full | COMPLETE | 500 | 86.60 [83.30,89.46] | 500 | 92.84 | 0.00469 | 0.02344 | 0.57 |
+| Cosmos | 100 | cg | libero_spatial | sensitivity | COMPLETE | 489 | 86.50 [83.15,89.41] | 489 | 92.93 | 0.00463 | 0.02314 | 0.56 |
+| Cosmos | 100 | cr | libero_10 | full | COMPLETE | 500 | 60.20 [55.76,64.52] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
+| Cosmos | 100 | cr | libero_10 | sensitivity | COMPLETE | 479 | 60.54 [56.01,64.95] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
+| Cosmos | 100 | cr | libero_spatial | full | COMPLETE | 500 | 90.60 [87.70,93.01] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
+| Cosmos | 100 | cr | libero_spatial | sensitivity | COMPLETE | 489 | 90.59 [87.65,93.03] | 489 | 100.00 | 0.00000 | 0.00000 | 0.00 |
+| Cosmos | 100 | crg | libero_10 | full | COMPLETE | 500 | 65.20 [60.84,69.37] | 500 | 87.59 | 0.00792 | 0.03960 | 2.80 |
+| Cosmos | 100 | crg | libero_10 | sensitivity | COMPLETE | 479 | 65.55 [61.11,69.81] | 479 | 87.59 | 0.00792 | 0.03961 | 2.79 |
+| Cosmos | 100 | crg | libero_spatial | full | COMPLETE | 500 | 91.80 [89.04,94.05] | 500 | 95.13 | 0.00322 | 0.01612 | 0.37 |
+| Cosmos | 100 | crg | libero_spatial | sensitivity | COMPLETE | 489 | 91.82 [89.03,94.09] | 489 | 95.28 | 0.00312 | 0.01561 | 0.35 |
+| Cosmos | 200 | c | libero_10 | full | COMPLETE | 500 | 66.00 [61.66,70.15] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
+| Cosmos | 200 | c | libero_10 | sensitivity | COMPLETE | 479 | 66.81 [62.39,71.01] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
+| Cosmos | 200 | c | libero_spatial | full | COMPLETE | 500 | 93.60 [91.08,95.58] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
+| Cosmos | 200 | c | libero_spatial | sensitivity | COMPLETE | 489 | 93.46 [90.89,95.48] | 489 | 100.00 | 0.00000 | 0.00000 | 0.00 |
+| Cosmos | 200 | cg | libero_10 | full | COMPLETE | 500 | 74.40 [70.34,78.17] | 500 | 89.20 | 0.00691 | 0.03455 | 2.24 |
+| Cosmos | 200 | cg | libero_10 | sensitivity | COMPLETE | 479 | 74.74 [70.60,78.57] | 479 | 89.29 | 0.00685 | 0.03426 | 2.21 |
+| Cosmos | 200 | cg | libero_spatial | full | COMPLETE | 500 | 92.80 [90.17,94.91] | 500 | 96.01 | 0.00263 | 0.01314 | 0.29 |
+| Cosmos | 200 | cg | libero_spatial | sensitivity | COMPLETE | 489 | 92.64 [89.95,94.79] | 489 | 95.94 | 0.00268 | 0.01339 | 0.29 |
+| Cosmos | 200 | cr | libero_10 | full | COMPLETE | 500 | 71.40 [67.22,75.32] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
+| Cosmos | 200 | cr | libero_10 | sensitivity | COMPLETE | 479 | 71.82 [67.56,75.80] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
+| Cosmos | 200 | cr | libero_spatial | full | COMPLETE | 500 | 96.00 [93.89,97.54] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
+| Cosmos | 200 | cr | libero_spatial | sensitivity | COMPLETE | 489 | 95.91 [93.75,97.48] | 489 | 100.00 | 0.00000 | 0.00000 | 0.00 |
+| Cosmos | 200 | crg | libero_10 | full | COMPLETE | 500 | 76.40 [72.43,80.06] | 500 | 90.78 | 0.00590 | 0.02950 | 1.86 |
+| Cosmos | 200 | crg | libero_10 | sensitivity | COMPLETE | 479 | 76.83 [72.78,80.53] | 479 | 90.92 | 0.00581 | 0.02903 | 1.82 |
+| Cosmos | 200 | crg | libero_spatial | full | COMPLETE | 500 | 94.80 [92.47,96.58] | 500 | 96.68 | 0.00221 | 0.01107 | 0.24 |
+| Cosmos | 200 | crg | libero_spatial | sensitivity | COMPLETE | 489 | 94.68 [92.31,96.50] | 489 | 96.61 | 0.00226 | 0.01129 | 0.24 |
+| Cosmos | 300 | c | libero_10 | full | COMPLETE | 500 | 70.60 [66.39,74.56] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
+| Cosmos | 300 | c | libero_10 | sensitivity | COMPLETE | 479 | 71.40 [67.12,75.41] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
+| Cosmos | 300 | c | libero_spatial | full | COMPLETE | 500 | 95.20 [92.94,96.90] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
+| Cosmos | 300 | c | libero_spatial | sensitivity | COMPLETE | 489 | 95.30 [93.03,97.00] | 489 | 100.00 | 0.00000 | 0.00000 | 0.00 |
+| Cosmos | 300 | cg | libero_10 | full | COMPLETE | 500 | 77.00 [73.06,80.62] | 500 | 89.79 | 0.00653 | 0.03266 | 2.06 |
+| Cosmos | 300 | cg | libero_10 | sensitivity | COMPLETE | 479 | 77.45 [73.44,81.12] | 479 | 89.90 | 0.00647 | 0.03233 | 2.03 |
+| Cosmos | 300 | cg | libero_spatial | full | COMPLETE | 500 | 94.60 [92.24,96.41] | 500 | 96.20 | 0.00253 | 0.01263 | 0.27 |
+| Cosmos | 300 | cg | libero_spatial | sensitivity | COMPLETE | 489 | 94.48 [92.07,96.33] | 489 | 96.15 | 0.00256 | 0.01279 | 0.28 |
+| Cosmos | 300 | cr | libero_10 | full | COMPLETE | 500 | 75.60 [71.59,79.30] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
+| Cosmos | 300 | cr | libero_10 | sensitivity | COMPLETE | 479 | 76.62 [72.57,80.34] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
+| Cosmos | 300 | cr | libero_spatial | full | COMPLETE | 500 | 96.00 [93.89,97.54] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
+| Cosmos | 300 | cr | libero_spatial | sensitivity | COMPLETE | 489 | 96.11 [94.00,97.64] | 489 | 100.00 | 0.00000 | 0.00000 | 0.00 |
+| Cosmos | 300 | crg | libero_10 | full | COMPLETE | 500 | 83.60 [80.06,86.74] | 500 | 92.08 | 0.00507 | 0.02536 | 1.51 |
+| Cosmos | 300 | crg | libero_10 | sensitivity | COMPLETE | 479 | 84.13 [80.55,87.29] | 479 | 92.28 | 0.00494 | 0.02472 | 1.47 |
+| Cosmos | 300 | crg | libero_spatial | full | COMPLETE | 500 | 96.20 [94.13,97.70] | 500 | 97.30 | 0.00180 | 0.00898 | 0.19 |
+| Cosmos | 300 | crg | libero_spatial | sensitivity | COMPLETE | 489 | 96.11 [94.00,97.64] | 489 | 97.33 | 0.00178 | 0.00889 | 0.19 |
+| Cosmos | 400 | c | libero_10 | full | COMPLETE | 500 | 77.20 [73.27,80.81] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
+| Cosmos | 400 | c | libero_10 | sensitivity | COMPLETE | 479 | 77.66 [73.66,81.32] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
+| Cosmos | 400 | c | libero_spatial | full | COMPLETE | 500 | 94.00 [91.55,95.92] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
+| Cosmos | 400 | c | libero_spatial | sensitivity | COMPLETE | 489 | 93.87 [91.36,95.82] | 489 | 100.00 | 0.00000 | 0.00000 | 0.00 |
+| Cosmos | 400 | cg | libero_10 | full | COMPLETE | 500 | 84.40 [80.92,87.47] | 500 | 92.08 | 0.00508 | 0.02539 | 1.51 |
+| Cosmos | 400 | cg | libero_10 | sensitivity | COMPLETE | 479 | 84.55 [81.00,87.67] | 479 | 92.23 | 0.00499 | 0.02493 | 1.47 |
+| Cosmos | 400 | cg | libero_spatial | full | COMPLETE | 500 | 94.60 [92.24,96.41] | 500 | 96.06 | 0.00262 | 0.01312 | 0.28 |
+| Cosmos | 400 | cg | libero_spatial | sensitivity | COMPLETE | 489 | 94.48 [92.07,96.33] | 489 | 95.98 | 0.00267 | 0.01337 | 0.29 |
+| Cosmos | 400 | cr | libero_10 | full | COMPLETE | 500 | 81.40 [77.71,84.72] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
+| Cosmos | 400 | cr | libero_10 | sensitivity | COMPLETE | 479 | 81.42 [77.64,84.80] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
+| Cosmos | 400 | cr | libero_spatial | full | COMPLETE | 500 | 95.60 [93.41,97.22] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
+| Cosmos | 400 | cr | libero_spatial | sensitivity | COMPLETE | 489 | 95.71 [93.51,97.32] | 489 | 100.00 | 0.00000 | 0.00000 | 0.00 |
+| Cosmos | 400 | crg | libero_10 | full | COMPLETE | 500 | 84.00 [80.49,87.10] | 500 | 92.28 | 0.00495 | 0.02473 | 1.46 |
+| Cosmos | 400 | crg | libero_10 | sensitivity | COMPLETE | 479 | 84.13 [80.55,87.29] | 479 | 92.39 | 0.00488 | 0.02438 | 1.43 |
+| Cosmos | 400 | crg | libero_spatial | full | COMPLETE | 500 | 95.20 [92.94,96.90] | 500 | 96.57 | 0.00228 | 0.01140 | 0.24 |
+| Cosmos | 400 | crg | libero_spatial | sensitivity | COMPLETE | 489 | 95.30 [93.03,97.00] | 489 | 96.61 | 0.00226 | 0.01128 | 0.24 |
 | Cosmos | 500 | c | libero_10 | full | COMPLETE | 500 | 75.20 [71.17,78.93] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
 | Cosmos | 500 | c | libero_10 | sensitivity | COMPLETE | 479 | 75.78 [71.69,79.55] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
 | Cosmos | 500 | c | libero_spatial | full | COMPLETE | 500 | 95.00 [92.71,96.74] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
 | Cosmos | 500 | c | libero_spatial | sensitivity | COMPLETE | 489 | 94.89 [92.55,96.66] | 489 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Cosmos | 500 | cg | libero_10 | full | INTERIM | 0 | — [—,—] | 0 | — | — | — | — |
-| Cosmos | 500 | cg | libero_10 | sensitivity | INTERIM | 0 | — [—,—] | 0 | — | — | — | — |
+| Cosmos | 500 | cg | libero_10 | full | COMPLETE | 500 | 80.00 [76.22,83.42] | 500 | 90.62 | 0.00601 | 0.03004 | 1.84 |
+| Cosmos | 500 | cg | libero_10 | sensitivity | COMPLETE | 479 | 80.58 [76.75,84.03] | 479 | 90.79 | 0.00590 | 0.02952 | 1.80 |
 | Cosmos | 500 | cg | libero_spatial | full | COMPLETE | 500 | 95.80 [93.65,97.38] | 500 | 96.63 | 0.00223 | 0.01116 | 0.24 |
 | Cosmos | 500 | cg | libero_spatial | sensitivity | COMPLETE | 489 | 95.71 [93.51,97.32] | 489 | 96.57 | 0.00228 | 0.01138 | 0.24 |
-| Cosmos | 500 | cr | libero_10 | full | INTERIM | 187 | 85.03 [79.09,89.81] | 187 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Cosmos | 500 | cr | libero_10 | sensitivity | INTERIM | 182 | 85.71 [79.77,90.45] | 182 | 100.00 | 0.00000 | 0.00000 | 0.00 |
+| Cosmos | 500 | cr | libero_10 | full | COMPLETE | 500 | 79.80 [76.01,83.23] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
+| Cosmos | 500 | cr | libero_10 | sensitivity | COMPLETE | 479 | 80.17 [76.31,83.65] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
 | Cosmos | 500 | cr | libero_spatial | full | COMPLETE | 500 | 95.40 [93.18,97.06] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
 | Cosmos | 500 | cr | libero_spatial | sensitivity | COMPLETE | 489 | 95.30 [93.03,97.00] | 489 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Cosmos | 500 | crg | libero_10 | full | INTERIM | 0 | — [—,—] | 0 | — | — | — | — |
-| Cosmos | 500 | crg | libero_10 | sensitivity | INTERIM | 0 | — [—,—] | 0 | — | — | — | — |
+| Cosmos | 500 | crg | libero_10 | full | COMPLETE | 500 | 85.60 [82.21,88.56] | 500 | 92.67 | 0.00470 | 0.02348 | 1.37 |
+| Cosmos | 500 | crg | libero_10 | sensitivity | COMPLETE | 479 | 85.59 [82.13,88.62] | 479 | 92.77 | 0.00463 | 0.02316 | 1.35 |
 | Cosmos | 500 | crg | libero_spatial | full | COMPLETE | 500 | 95.80 [93.65,97.38] | 500 | 96.96 | 0.00201 | 0.01005 | 0.21 |
 | Cosmos | 500 | crg | libero_spatial | sensitivity | COMPLETE | 489 | 95.71 [93.51,97.32] | 489 | 96.90 | 0.00205 | 0.01025 | 0.22 |
 | DP | 50 | c | libero_10 | full | COMPLETE | 500 | 24.20 [20.51,28.20] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
@@ -514,32 +603,272 @@ Receipt status is information only. Cells with fewer than 500 accepted episodes 
 
 | model/N/group/suite | cohort | reference | family | status | pairs | cost pairs | Δ | g/l | CP LB family | boot LB family | CP/boot LB pointwise | NI |
 |---|---|---|---|---|---:|---:|---:|---|---:|---:|---|---|
+| Cosmos/50/c/libero_10 | full | control | — | PAIRED | 500 | 500 | -86.60 | 0/433 | — | — | -89.46/-88.60 | 描述性 |
+| Cosmos/50/c/libero_10 | full | N500 | Fsize | PAIRED | 500 | 500 | -63.20 | 2/318 | -70.40 | -69.20 | -67.78/-66.40 | 未证明 |
+| Cosmos/50/c/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -86.22 | 0/413 | — | — | -89.18/-88.31 | 描述性 |
+| Cosmos/50/c/libero_10 | sensitivity | N500 | Fsize | PAIRED | 479 | 479 | -63.26 | 2/305 | -70.61 | -69.52 | -67.94/-66.60 | 描述性 |
+| Cosmos/50/c/libero_spatial | full | control | — | PAIRED | 500 | 500 | -85.20 | 1/427 | — | — | -88.37/-87.00 | 描述性 |
+| Cosmos/50/c/libero_spatial | full | N500 | Fsize | PAIRED | 500 | 500 | -83.80 | 2/421 | -89.03 | -87.60 | -87.24/-85.80 | 未证明 |
+| Cosmos/50/c/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -85.28 | 1/418 | — | — | -88.48/-87.12 | 描述性 |
+| Cosmos/50/c/libero_spatial | sensitivity | N500 | Fsize | PAIRED | 489 | 489 | -83.64 | 2/411 | -88.95 | -87.32 | -87.13/-85.69 | 描述性 |
+| Cosmos/50/cg/libero_10 | full | control | — | PAIRED | 500 | 500 | -76.20 | 1/382 | — | — | -80.05/-79.00 | 描述性 |
+| Cosmos/50/cg/libero_10 | full | N500 | Fsize | PAIRED | 500 | 500 | -57.60 | 13/301 | -66.29 | -64.40 | -63.13/-61.40 | 未证明 |
+| Cosmos/50/cg/libero_10 | full | gate_ablation | — | PAIRED | 500 | 500 | 10.40 | 56/4 | — | — | 6.54/8.00 | 描述性 |
+| Cosmos/50/cg/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -75.37 | 1/362 | — | — | -79.35/-78.29 | 描述性 |
+| Cosmos/50/cg/libero_10 | sensitivity | N500 | Fsize | PAIRED | 479 | 479 | -57.20 | 13/287 | -66.13 | -64.51 | -62.88/-61.17 | 描述性 |
+| Cosmos/50/cg/libero_10 | sensitivity | gate_ablation | — | PAIRED | 479 | 479 | 10.86 | 56/4 | — | — | 6.83/8.56 | 描述性 |
+| Cosmos/50/cg/libero_spatial | full | control | — | PAIRED | 500 | 500 | -70.80 | 2/356 | — | — | -75.09/-73.60 | 描述性 |
+| Cosmos/50/cg/libero_spatial | full | N500 | Fsize | PAIRED | 500 | 500 | -70.20 | 3/354 | -77.09 | -75.40 | -74.63/-73.00 | 未证明 |
+| Cosmos/50/cg/libero_spatial | full | gate_ablation | — | PAIRED | 500 | 500 | 14.40 | 76/4 | — | — | 10.13/12.00 | 描述性 |
+| Cosmos/50/cg/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -70.55 | 2/347 | — | — | -74.90/-73.42 | 描述性 |
+| Cosmos/50/cg/libero_spatial | sensitivity | N500 | Fsize | PAIRED | 489 | 489 | -69.73 | 3/344 | -76.74 | -74.85 | -74.24/-72.60 | 描述性 |
+| Cosmos/50/cg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | 14.72 | 76/4 | — | — | 10.36/12.27 | 描述性 |
+| Cosmos/50/cr/libero_10 | full | control | — | PAIRED | 500 | 500 | -68.80 | 0/344 | — | — | -72.84/-71.60 | 描述性 |
+| Cosmos/50/cr/libero_10 | full | N500 | Fsize | PAIRED | 500 | 500 | -50.00 | 8/258 | -58.48 | -57.20 | -55.37/-53.80 | 未证明 |
+| Cosmos/50/cr/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 17.80 | 105/16 | — | — | 12.37/14.60 | 描述性 |
+| Cosmos/50/cr/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -68.27 | 0/327 | — | — | -72.42/-71.19 | 描述性 |
+| Cosmos/50/cr/libero_10 | sensitivity | N500 | Fsize | PAIRED | 479 | 479 | -49.69 | 8/246 | -58.38 | -56.78 | -55.19/-53.44 | 描述性 |
+| Cosmos/50/cr/libero_10 | sensitivity | corrector_ablation | — | PAIRED | 479 | 479 | 17.95 | 102/16 | — | — | 12.34/14.61 | 描述性 |
+| Cosmos/50/cr/libero_spatial | full | control | — | PAIRED | 500 | 500 | -59.60 | 4/302 | — | — | -64.50/-62.20 | 描述性 |
+| Cosmos/50/cr/libero_spatial | full | N500 | Fsize | PAIRED | 500 | 500 | -58.60 | 2/295 | -66.02 | -63.50 | -63.30/-61.20 | 未证明 |
+| Cosmos/50/cr/libero_spatial | full | corrector_ablation | — | PAIRED | 500 | 500 | 25.60 | 138/10 | — | — | 20.08/23.00 | 描述性 |
+| Cosmos/50/cr/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -59.51 | 4/295 | — | — | -64.47/-62.17 | 描述性 |
+| Cosmos/50/cr/libero_spatial | sensitivity | N500 | Fsize | PAIRED | 489 | 489 | -58.28 | 2/287 | -65.80 | -63.60 | -63.04/-60.94 | 描述性 |
+| Cosmos/50/cr/libero_spatial | sensitivity | corrector_ablation | — | PAIRED | 489 | 489 | 25.77 | 136/10 | — | — | 20.15/23.11 | 描述性 |
+| Cosmos/50/crg/libero_10 | full | control | — | PAIRED | 500 | 500 | -60.20 | 1/302 | — | — | -64.71/-63.20 | 描述性 |
+| Cosmos/50/crg/libero_10 | full | N500 | Fsize | PAIRED | 500 | 500 | -47.20 | 14/250 | -56.28 | -54.20 | -52.93/-51.00 | 未证明 |
+| Cosmos/50/crg/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 16.00 | 121/41 | — | — | 9.55/12.20 | 描述性 |
+| Cosmos/50/crg/libero_10 | full | gate_ablation | — | PAIRED | 500 | 500 | 8.60 | 57/14 | — | — | 4.10/6.00 | 描述性 |
+| Cosmos/50/crg/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -59.71 | 0/286 | — | — | -64.13/-62.84 | 描述性 |
+| Cosmos/50/crg/libero_10 | sensitivity | N500 | Fsize | PAIRED | 479 | 479 | -46.56 | 13/236 | -55.79 | -53.44 | -52.39/-50.52 | 描述性 |
+| Cosmos/50/crg/libero_10 | sensitivity | corrector_ablation | — | PAIRED | 479 | 479 | 15.66 | 116/41 | — | — | 9.01/11.69 | 描述性 |
+| Cosmos/50/crg/libero_10 | sensitivity | gate_ablation | — | PAIRED | 479 | 479 | 8.56 | 54/13 | — | — | 3.99/5.85 | 描述性 |
+| Cosmos/50/crg/libero_spatial | full | control | — | PAIRED | 500 | 500 | -51.20 | 6/262 | — | — | -56.41/-54.00 | 描述性 |
+| Cosmos/50/crg/libero_spatial | full | N500 | Fsize | PAIRED | 500 | 500 | -50.60 | 4/257 | -58.57 | -55.50 | -55.64/-53.40 | 未证明 |
+| Cosmos/50/crg/libero_spatial | full | corrector_ablation | — | PAIRED | 500 | 500 | 19.60 | 126/28 | — | — | 13.46/16.60 | 描述性 |
+| Cosmos/50/crg/libero_spatial | full | gate_ablation | — | PAIRED | 500 | 500 | 8.40 | 53/11 | — | — | 4.14/6.00 | 描述性 |
+| Cosmos/50/crg/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -50.92 | 6/255 | — | — | -56.20/-53.78 | 描述性 |
+| Cosmos/50/crg/libero_spatial | sensitivity | N500 | Fsize | PAIRED | 489 | 489 | -50.10 | 4/249 | -58.18 | -55.32 | -55.21/-52.97 | 描述性 |
+| Cosmos/50/crg/libero_spatial | sensitivity | corrector_ablation | — | PAIRED | 489 | 489 | 19.63 | 124/28 | — | — | 13.39/16.56 | 描述性 |
+| Cosmos/50/crg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | 8.59 | 53/11 | — | — | 4.24/6.13 | 描述性 |
+| Cosmos/100/c/libero_10 | full | control | — | PAIRED | 500 | 500 | -53.60 | 1/269 | — | — | -58.23/-56.60 | 描述性 |
+| Cosmos/100/c/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -30.20 | 19/170 | — | — | -36.03/-34.20 | 描述性 |
+| Cosmos/100/c/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -53.24 | 1/256 | — | — | -57.98/-56.37 | 描述性 |
+| Cosmos/100/c/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | -30.27 | 17/162 | — | — | -36.17/-34.03 | 描述性 |
+| Cosmos/100/c/libero_spatial | full | control | — | PAIRED | 500 | 500 | -10.80 | 13/67 | — | — | -15.31/-13.40 | 描述性 |
+| Cosmos/100/c/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | -9.40 | 13/60 | — | — | -13.78/-12.00 | 描述性 |
+| Cosmos/100/c/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -10.84 | 13/66 | — | — | -15.43/-13.50 | 描述性 |
+| Cosmos/100/c/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | -9.20 | 13/58 | — | — | -13.64/-11.66 | 描述性 |
+| Cosmos/100/cg/libero_10 | full | control | — | PAIRED | 500 | 500 | -44.60 | 1/224 | — | — | -49.27/-47.80 | 描述性 |
+| Cosmos/100/cg/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -26.00 | 27/157 | — | — | -32.08/-30.00 | 描述性 |
+| Cosmos/100/cg/libero_10 | full | gate_ablation | — | PAIRED | 500 | 500 | 9.00 | 64/19 | — | — | 4.13/6.40 | 描述性 |
+| Cosmos/100/cg/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -44.47 | 1/214 | — | — | -49.25/-47.81 | 描述性 |
+| Cosmos/100/cg/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | -26.30 | 25/151 | — | — | -32.49/-30.27 | 描述性 |
+| Cosmos/100/cg/libero_10 | sensitivity | gate_ablation | — | PAIRED | 479 | 479 | 8.77 | 60/18 | — | — | 3.82/6.05 | 描述性 |
+| Cosmos/100/cg/libero_spatial | full | control | — | PAIRED | 500 | 500 | -9.80 | 15/64 | — | — | -14.36/-12.40 | 描述性 |
+| Cosmos/100/cg/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | -9.20 | 9/55 | — | — | -13.25/-11.60 | 描述性 |
+| Cosmos/100/cg/libero_spatial | full | gate_ablation | — | PAIRED | 500 | 500 | 1.00 | 19/14 | — | — | -2.35/-0.80 | 描述性 |
+| Cosmos/100/cg/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -10.02 | 14/63 | — | — | -14.61/-12.68 | 描述性 |
+| Cosmos/100/cg/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | -9.20 | 9/54 | — | — | -13.32/-11.66 | 描述性 |
+| Cosmos/100/cg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | 0.82 | 18/14 | — | — | -2.56/-1.02 | 描述性 |
+| Cosmos/100/cr/libero_10 | full | control | — | PAIRED | 500 | 500 | -38.40 | 1/193 | — | — | -43.02/-41.40 | 描述性 |
+| Cosmos/100/cr/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -19.60 | 24/122 | — | — | -25.31/-23.20 | 描述性 |
+| Cosmos/100/cr/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 15.20 | 99/23 | — | — | 9.57/12.00 | 描述性 |
+| Cosmos/100/cr/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -38.20 | 1/184 | — | — | -42.93/-41.34 | 描述性 |
+| Cosmos/100/cr/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | -19.62 | 22/116 | — | — | -25.41/-23.38 | 描述性 |
+| Cosmos/100/cr/libero_10 | sensitivity | corrector_ablation | — | PAIRED | 479 | 479 | 15.03 | 94/22 | — | — | 9.29/11.69 | 描述性 |
+| Cosmos/100/cr/libero_spatial | full | control | — | PAIRED | 500 | 500 | -5.80 | 14/43 | — | — | -9.87/-8.20 | 描述性 |
+| Cosmos/100/cr/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | -4.80 | 15/39 | — | — | -8.82/-7.00 | 描述性 |
+| Cosmos/100/cr/libero_spatial | full | corrector_ablation | — | PAIRED | 500 | 500 | 5.00 | 40/15 | — | — | 0.88/2.60 | 描述性 |
+| Cosmos/100/cr/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -5.93 | 13/42 | — | — | -10.01/-8.38 | 描述性 |
+| Cosmos/100/cr/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | -4.70 | 15/38 | — | — | -8.78/-6.95 | 描述性 |
+| Cosmos/100/cr/libero_spatial | sensitivity | corrector_ablation | — | PAIRED | 489 | 489 | 4.91 | 39/15 | — | — | 0.72/2.45 | 描述性 |
+| Cosmos/100/crg/libero_10 | full | control | — | PAIRED | 500 | 500 | -33.40 | 1/168 | — | — | -37.92/-36.60 | 描述性 |
+| Cosmos/100/crg/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -20.40 | 23/125 | — | — | -26.10/-24.00 | 描述性 |
+| Cosmos/100/crg/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 11.20 | 93/37 | — | — | 5.23/7.60 | 描述性 |
+| Cosmos/100/crg/libero_10 | full | gate_ablation | — | PAIRED | 500 | 500 | 5.00 | 37/12 | — | — | 1.11/2.80 | 描述性 |
+| Cosmos/100/crg/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -33.19 | 1/160 | — | — | -37.82/-36.53 | 描述性 |
+| Cosmos/100/crg/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | -20.04 | 22/118 | — | — | -25.85/-23.59 | 描述性 |
+| Cosmos/100/crg/libero_10 | sensitivity | corrector_ablation | — | PAIRED | 479 | 479 | 11.27 | 89/35 | — | — | 5.18/7.72 | 描述性 |
+| Cosmos/100/crg/libero_10 | sensitivity | gate_ablation | — | PAIRED | 479 | 479 | 5.01 | 36/12 | — | — | 0.98/2.71 | 描述性 |
+| Cosmos/100/crg/libero_spatial | full | control | — | PAIRED | 500 | 500 | -4.60 | 14/37 | — | — | -8.52/-6.80 | 描述性 |
+| Cosmos/100/crg/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | -4.00 | 13/33 | — | — | -7.75/-6.20 | 描述性 |
+| Cosmos/100/crg/libero_spatial | full | corrector_ablation | — | PAIRED | 500 | 500 | 5.20 | 41/15 | — | — | 1.05/2.80 | 描述性 |
+| Cosmos/100/crg/libero_spatial | full | gate_ablation | — | PAIRED | 500 | 500 | 1.20 | 17/11 | — | — | -1.91/-0.40 | 描述性 |
+| Cosmos/100/crg/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -4.70 | 13/36 | — | — | -8.62/-6.95 | 描述性 |
+| Cosmos/100/crg/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | -3.89 | 13/32 | — | — | -7.69/-6.13 | 描述性 |
+| Cosmos/100/crg/libero_spatial | sensitivity | corrector_ablation | — | PAIRED | 489 | 489 | 5.32 | 40/14 | — | — | 1.15/2.86 | 描述性 |
+| Cosmos/100/crg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | 1.23 | 16/10 | — | — | -1.85/-0.41 | 描述性 |
+| Cosmos/200/c/libero_10 | full | control | — | PAIRED | 500 | 500 | -32.60 | 2/165 | — | — | -37.26/-35.60 | 描述性 |
+| Cosmos/200/c/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -9.20 | 33/79 | — | — | -14.71/-12.60 | 描述性 |
+| Cosmos/200/c/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -31.94 | 2/155 | — | — | -36.70/-35.07 | 描述性 |
+| Cosmos/200/c/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | -8.98 | 30/73 | — | — | -14.51/-12.32 | 描述性 |
+| Cosmos/200/c/libero_spatial | full | control | — | PAIRED | 500 | 500 | -2.80 | 14/28 | — | — | -6.45/-4.80 | 描述性 |
+| Cosmos/200/c/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | -1.40 | 14/21 | — | — | -4.81/-3.20 | 描述性 |
+| Cosmos/200/c/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -3.07 | 13/28 | — | — | -6.75/-5.11 | 描述性 |
+| Cosmos/200/c/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | -1.43 | 14/21 | — | — | -4.92/-3.48 | 描述性 |
+| Cosmos/200/cg/libero_10 | full | control | — | PAIRED | 500 | 500 | -24.20 | 3/124 | — | — | -28.70/-27.20 | 描述性 |
+| Cosmos/200/cg/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -5.60 | 46/74 | — | — | -11.41/-9.20 | 描述性 |
+| Cosmos/200/cg/libero_10 | full | gate_ablation | — | PAIRED | 500 | 500 | 8.40 | 51/9 | — | — | 4.30/6.00 | 描述性 |
+| Cosmos/200/cg/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -24.01 | 3/118 | — | — | -28.62/-27.14 | 描述性 |
+| Cosmos/200/cg/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | -5.85 | 42/70 | — | — | -11.71/-9.60 | 描述性 |
+| Cosmos/200/cg/libero_10 | sensitivity | gate_ablation | — | PAIRED | 479 | 479 | 7.93 | 47/9 | — | — | 3.76/5.64 | 描述性 |
+| Cosmos/200/cg/libero_spatial | full | control | — | PAIRED | 500 | 500 | -3.60 | 14/32 | — | — | -7.38/-5.80 | 描述性 |
+| Cosmos/200/cg/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | -3.00 | 11/26 | — | — | -6.42/-5.00 | 描述性 |
+| Cosmos/200/cg/libero_spatial | full | gate_ablation | — | PAIRED | 500 | 500 | -0.80 | 3/7 | — | — | -2.74/-1.80 | 描述性 |
+| Cosmos/200/cg/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -3.89 | 13/32 | — | — | -7.69/-6.13 | 描述性 |
+| Cosmos/200/cg/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | -3.07 | 11/26 | — | — | -6.57/-5.11 | 描述性 |
+| Cosmos/200/cg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | -0.82 | 3/7 | — | — | -2.80/-1.84 | 描述性 |
+| Cosmos/200/cr/libero_10 | full | control | — | PAIRED | 500 | 500 | -27.20 | 5/141 | — | — | -32.04/-30.20 | 描述性 |
+| Cosmos/200/cr/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -8.40 | 34/76 | — | — | -13.90/-11.60 | 描述性 |
+| Cosmos/200/cr/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 5.40 | 60/33 | — | — | 0.14/2.40 | 描述性 |
+| Cosmos/200/cr/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -26.93 | 4/133 | — | — | -31.78/-30.06 | 描述性 |
+| Cosmos/200/cr/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | -8.35 | 31/71 | — | — | -13.89/-11.69 | 描述性 |
+| Cosmos/200/cr/libero_10 | sensitivity | corrector_ablation | — | PAIRED | 479 | 479 | 5.01 | 56/32 | — | — | -0.35/1.88 | 描述性 |
+| Cosmos/200/cr/libero_spatial | full | control | — | PAIRED | 500 | 500 | -0.40 | 14/16 | — | — | -3.61/-2.20 | 描述性 |
+| Cosmos/200/cr/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | 0.60 | 13/10 | — | — | -2.26/-1.00 | 描述性 |
+| Cosmos/200/cr/libero_spatial | full | corrector_ablation | — | PAIRED | 500 | 500 | 2.40 | 20/8 | — | — | -0.67/0.60 | 描述性 |
+| Cosmos/200/cr/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -0.61 | 13/16 | — | — | -3.84/-2.45 | 描述性 |
+| Cosmos/200/cr/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | 0.61 | 13/10 | — | — | -2.31/-1.02 | 描述性 |
+| Cosmos/200/cr/libero_spatial | sensitivity | corrector_ablation | — | PAIRED | 489 | 489 | 2.45 | 20/8 | — | — | -0.68/0.82 | 描述性 |
+| Cosmos/200/crg/libero_10 | full | control | — | PAIRED | 500 | 500 | -22.20 | 3/114 | — | — | -26.61/-25.01 | 描述性 |
+| Cosmos/200/crg/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -9.20 | 35/81 | — | — | -14.80/-12.60 | 描述性 |
+| Cosmos/200/crg/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 2.00 | 49/39 | — | — | -3.17/-1.00 | 描述性 |
+| Cosmos/200/crg/libero_10 | full | gate_ablation | — | PAIRED | 500 | 500 | 5.00 | 36/11 | — | — | 1.19/2.80 | 描述性 |
+| Cosmos/200/crg/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -21.92 | 3/108 | — | — | -26.43/-24.84 | 描述性 |
+| Cosmos/200/crg/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | -8.77 | 33/75 | — | — | -14.44/-12.11 | 描述性 |
+| Cosmos/200/crg/libero_10 | sensitivity | corrector_ablation | — | PAIRED | 479 | 479 | 2.09 | 47/37 | — | — | -3.19/-1.04 | 描述性 |
+| Cosmos/200/crg/libero_10 | sensitivity | gate_ablation | — | PAIRED | 479 | 479 | 5.01 | 34/10 | — | — | 1.16/2.92 | 描述性 |
+| Cosmos/200/crg/libero_spatial | full | control | — | PAIRED | 500 | 500 | -1.60 | 14/22 | — | — | -5.05/-3.60 | 描述性 |
+| Cosmos/200/crg/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | -1.00 | 11/16 | — | — | -4.04/-2.60 | 描述性 |
+| Cosmos/200/crg/libero_spatial | full | corrector_ablation | — | PAIRED | 500 | 500 | 2.00 | 21/11 | — | — | -1.28/0.20 | 描述性 |
+| Cosmos/200/crg/libero_spatial | full | gate_ablation | — | PAIRED | 500 | 500 | -1.20 | 3/9 | — | — | -3.27/-2.40 | 描述性 |
+| Cosmos/200/crg/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -1.84 | 13/22 | — | — | -5.31/-3.68 | 描述性 |
+| Cosmos/200/crg/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | -1.02 | 11/16 | — | — | -4.13/-2.86 | 描述性 |
+| Cosmos/200/crg/libero_spatial | sensitivity | corrector_ablation | — | PAIRED | 489 | 489 | 2.04 | 21/11 | — | — | -1.31/0.20 | 描述性 |
+| Cosmos/200/crg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | -1.23 | 3/9 | — | — | -3.34/-2.45 | 描述性 |
+| Cosmos/300/c/libero_10 | full | control | — | PAIRED | 500 | 500 | -28.00 | 3/143 | — | — | -32.66/-31.00 | 描述性 |
+| Cosmos/300/c/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -4.60 | 36/59 | — | — | -9.86/-7.60 | 描述性 |
+| Cosmos/300/c/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -27.35 | 3/134 | — | — | -32.10/-30.48 | 描述性 |
+| Cosmos/300/c/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | -4.38 | 34/55 | — | — | -9.72/-7.52 | 描述性 |
+| Cosmos/300/c/libero_spatial | full | control | — | PAIRED | 500 | 500 | -1.20 | 13/19 | — | — | -4.48/-3.00 | 描述性 |
+| Cosmos/300/c/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | 0.20 | 13/12 | — | — | -2.76/-1.40 | 描述性 |
+| Cosmos/300/c/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -1.23 | 12/18 | — | — | -4.48/-3.07 | 描述性 |
+| Cosmos/300/c/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | 0.41 | 13/11 | — | — | -2.57/-1.23 | 描述性 |
+| Cosmos/300/cg/libero_10 | full | control | — | PAIRED | 500 | 500 | -21.60 | 4/112 | — | — | -26.09/-24.60 | 描述性 |
+| Cosmos/300/cg/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -3.00 | 46/61 | — | — | -8.58/-6.40 | 描述性 |
+| Cosmos/300/cg/libero_10 | full | gate_ablation | — | PAIRED | 500 | 500 | 6.40 | 46/14 | — | — | 2.16/4.00 | 描述性 |
+| Cosmos/300/cg/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -21.29 | 3/105 | — | — | -25.77/-24.22 | 描述性 |
+| Cosmos/300/cg/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | -3.13 | 42/57 | — | — | -8.75/-6.47 | 描述性 |
+| Cosmos/300/cg/libero_10 | sensitivity | gate_ablation | — | PAIRED | 479 | 479 | 6.05 | 42/13 | — | — | 1.80/3.55 | 描述性 |
+| Cosmos/300/cg/libero_spatial | full | control | — | PAIRED | 500 | 500 | -1.80 | 13/22 | — | — | -5.19/-3.60 | 描述性 |
+| Cosmos/300/cg/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | -1.20 | 9/15 | — | — | -4.07/-2.80 | 描述性 |
+| Cosmos/300/cg/libero_spatial | full | gate_ablation | — | PAIRED | 500 | 500 | -0.60 | 3/6 | — | — | -2.47/-1.60 | 描述性 |
+| Cosmos/300/cg/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -2.04 | 12/22 | — | — | -5.46/-3.89 | 描述性 |
+| Cosmos/300/cg/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | -1.23 | 9/15 | — | — | -4.16/-2.86 | 描述性 |
+| Cosmos/300/cg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | -0.82 | 2/6 | — | — | -2.60/-1.64 | 描述性 |
+| Cosmos/300/cr/libero_10 | full | control | — | PAIRED | 500 | 500 | -23.00 | 5/120 | — | — | -27.67/-26.00 | 描述性 |
+| Cosmos/300/cr/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -4.20 | 35/56 | — | — | -9.37/-7.20 | 描述性 |
+| Cosmos/300/cr/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 5.00 | 47/22 | — | — | 0.40/2.40 | 描述性 |
+| Cosmos/300/cr/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -22.13 | 4/110 | — | — | -26.77/-25.05 | 描述性 |
+| Cosmos/300/cr/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | -3.55 | 33/50 | — | — | -8.74/-6.68 | 描述性 |
+| Cosmos/300/cr/libero_10 | sensitivity | corrector_ablation | — | PAIRED | 479 | 479 | 5.22 | 43/18 | — | — | 0.70/2.51 | 描述性 |
+| Cosmos/300/cr/libero_spatial | full | control | — | PAIRED | 500 | 500 | -0.40 | 12/14 | — | — | -3.41/-2.00 | 描述性 |
+| Cosmos/300/cr/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | 0.60 | 11/8 | — | — | -2.02/-0.80 | 描述性 |
+| Cosmos/300/cr/libero_spatial | full | corrector_ablation | — | PAIRED | 500 | 500 | 0.80 | 10/6 | — | — | -1.63/-0.40 | 描述性 |
+| Cosmos/300/cr/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -0.41 | 11/13 | — | — | -3.38/-2.04 | 描述性 |
+| Cosmos/300/cr/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | 0.82 | 11/7 | — | — | -1.80/-0.61 | 描述性 |
+| Cosmos/300/cr/libero_spatial | sensitivity | corrector_ablation | — | PAIRED | 489 | 489 | 0.82 | 10/6 | — | — | -1.67/-0.41 | 描述性 |
+| Cosmos/300/crg/libero_10 | full | control | — | PAIRED | 500 | 500 | -15.00 | 5/80 | — | — | -19.19/-17.80 | 描述性 |
+| Cosmos/300/crg/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -2.00 | 32/42 | — | — | -6.77/-4.80 | 描述性 |
+| Cosmos/300/crg/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 6.60 | 54/21 | — | — | 1.87/3.80 | 描述性 |
+| Cosmos/300/crg/libero_10 | full | gate_ablation | — | PAIRED | 500 | 500 | 8.00 | 43/3 | — | — | 4.55/6.00 | 描述性 |
+| Cosmos/300/crg/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -14.61 | 4/74 | — | — | -18.77/-17.33 | 描述性 |
+| Cosmos/300/crg/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | -1.46 | 31/38 | — | — | -6.29/-4.38 | 描述性 |
+| Cosmos/300/crg/libero_10 | sensitivity | corrector_ablation | — | PAIRED | 479 | 479 | 6.68 | 51/19 | — | — | 1.91/3.97 | 描述性 |
+| Cosmos/300/crg/libero_10 | sensitivity | gate_ablation | — | PAIRED | 479 | 479 | 7.52 | 39/3 | — | — | 4.03/5.43 | 描述性 |
+| Cosmos/300/crg/libero_spatial | full | control | — | PAIRED | 500 | 500 | -0.20 | 12/13 | — | — | -3.16/-1.80 | 描述性 |
+| Cosmos/300/crg/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | 0.40 | 9/7 | — | — | -2.04/-0.80 | 描述性 |
+| Cosmos/300/crg/libero_spatial | full | corrector_ablation | — | PAIRED | 500 | 500 | 1.60 | 15/7 | — | — | -1.17/0.00 | 描述性 |
+| Cosmos/300/crg/libero_spatial | full | gate_ablation | — | PAIRED | 500 | 500 | 0.20 | 3/2 | — | — | -1.31/-0.60 | 描述性 |
+| Cosmos/300/crg/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -0.41 | 11/13 | — | — | -3.38/-2.04 | 描述性 |
+| Cosmos/300/crg/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | 0.41 | 9/7 | — | — | -2.08/-0.82 | 描述性 |
+| Cosmos/300/crg/libero_spatial | sensitivity | corrector_ablation | — | PAIRED | 489 | 489 | 1.64 | 15/7 | — | — | -1.20/0.00 | 描述性 |
+| Cosmos/300/crg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | 0.00 | 2/2 | — | — | -1.42/-0.61 | 描述性 |
+| Cosmos/400/c/libero_10 | full | control | — | PAIRED | 500 | 500 | -21.40 | 4/111 | — | — | -25.88/-24.40 | 描述性 |
+| Cosmos/400/c/libero_10 | full | N500 | — | PAIRED | 500 | 500 | 2.00 | 34/24 | — | — | -2.30/-0.60 | 描述性 |
+| Cosmos/400/c/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -21.09 | 4/105 | — | — | -25.67/-24.01 | 描述性 |
+| Cosmos/400/c/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | 1.88 | 32/23 | — | — | -2.50/-0.63 | 描述性 |
+| Cosmos/400/c/libero_spatial | full | control | — | PAIRED | 500 | 500 | -2.40 | 11/23 | — | — | -5.72/-4.20 | 描述性 |
+| Cosmos/400/c/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | -1.00 | 10/15 | — | — | -3.94/-2.60 | 描述性 |
+| Cosmos/400/c/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -2.66 | 10/23 | — | — | -5.99/-4.50 | 描述性 |
+| Cosmos/400/c/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | -1.02 | 10/15 | — | — | -4.02/-2.66 | 描述性 |
+| Cosmos/400/cg/libero_10 | full | control | — | PAIRED | 500 | 500 | -14.20 | 5/76 | — | — | -18.33/-17.00 | 描述性 |
+| Cosmos/400/cg/libero_10 | full | N500 | — | PAIRED | 500 | 500 | 4.40 | 42/20 | — | — | 0.01/1.80 | 描述性 |
+| Cosmos/400/cg/libero_10 | full | gate_ablation | — | PAIRED | 500 | 500 | 7.20 | 42/6 | — | — | 3.53/5.20 | 描述性 |
+| Cosmos/400/cg/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -14.20 | 5/73 | — | — | -18.44/-17.12 | 描述性 |
+| Cosmos/400/cg/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | 3.97 | 38/19 | — | — | -0.45/1.46 | 描述性 |
+| Cosmos/400/cg/libero_10 | sensitivity | gate_ablation | — | PAIRED | 479 | 479 | 6.89 | 39/6 | — | — | 3.15/4.80 | 描述性 |
+| Cosmos/400/cg/libero_spatial | full | control | — | PAIRED | 500 | 500 | -1.80 | 11/20 | — | — | -5.01/-3.60 | 描述性 |
+| Cosmos/400/cg/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | -1.20 | 9/15 | — | — | -4.07/-2.80 | 描述性 |
+| Cosmos/400/cg/libero_spatial | full | gate_ablation | — | PAIRED | 500 | 500 | 0.60 | 6/3 | — | — | -1.30/-0.40 | 描述性 |
+| Cosmos/400/cg/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -2.04 | 10/20 | — | — | -5.26/-3.89 | 描述性 |
+| Cosmos/400/cg/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | -1.23 | 9/15 | — | — | -4.16/-2.86 | 描述性 |
+| Cosmos/400/cg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | 0.61 | 6/3 | — | — | -1.33/-0.41 | 描述性 |
+| Cosmos/400/cr/libero_10 | full | control | — | PAIRED | 500 | 500 | -17.20 | 5/91 | — | — | -21.54/-20.00 | 描述性 |
+| Cosmos/400/cr/libero_10 | full | N500 | — | PAIRED | 500 | 500 | 1.60 | 40/32 | — | — | -3.14/-1.20 | 描述性 |
+| Cosmos/400/cr/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 4.20 | 46/25 | — | — | -0.48/1.40 | 描述性 |
+| Cosmos/400/cr/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -17.33 | 5/88 | — | — | -21.80/-20.04 | 描述性 |
+| Cosmos/400/cr/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | 1.25 | 37/31 | — | — | -3.56/-1.67 | 描述性 |
+| Cosmos/400/cr/libero_10 | sensitivity | corrector_ablation | — | PAIRED | 479 | 479 | 3.76 | 43/25 | — | — | -1.04/1.04 | 描述性 |
+| Cosmos/400/cr/libero_spatial | full | control | — | PAIRED | 500 | 500 | -0.80 | 12/16 | — | — | -3.90/-2.40 | 描述性 |
+| Cosmos/400/cr/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | 0.20 | 9/8 | — | — | -2.30/-1.20 | 描述性 |
+| Cosmos/400/cr/libero_spatial | full | corrector_ablation | — | PAIRED | 500 | 500 | 1.60 | 16/8 | — | — | -1.29/0.00 | 描述性 |
+| Cosmos/400/cr/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -0.82 | 11/15 | — | — | -3.88/-2.45 | 描述性 |
+| Cosmos/400/cr/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | 0.41 | 9/7 | — | — | -2.08/-0.82 | 描述性 |
+| Cosmos/400/cr/libero_spatial | sensitivity | corrector_ablation | — | PAIRED | 489 | 489 | 1.84 | 16/7 | — | — | -1.05/0.20 | 描述性 |
+| Cosmos/400/crg/libero_10 | full | control | — | PAIRED | 500 | 500 | -14.60 | 5/78 | — | — | -18.76/-17.20 | 描述性 |
+| Cosmos/400/crg/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -1.60 | 27/35 | — | — | -6.01/-4.20 | 描述性 |
+| Cosmos/400/crg/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | -0.40 | 24/26 | — | — | -4.43/-2.60 | 描述性 |
+| Cosmos/400/crg/libero_10 | full | gate_ablation | — | PAIRED | 500 | 500 | 2.60 | 26/13 | — | — | -0.98/0.60 | 描述性 |
+| Cosmos/400/crg/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -14.61 | 5/75 | — | — | -18.89/-17.33 | 描述性 |
+| Cosmos/400/crg/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | -1.46 | 26/33 | — | — | -5.96/-4.18 | 描述性 |
+| Cosmos/400/crg/libero_10 | sensitivity | corrector_ablation | — | PAIRED | 479 | 479 | -0.42 | 23/25 | — | — | -4.54/-2.71 | 描述性 |
+| Cosmos/400/crg/libero_10 | sensitivity | gate_ablation | — | PAIRED | 479 | 479 | 2.71 | 26/13 | — | — | -1.02/0.63 | 描述性 |
+| Cosmos/400/crg/libero_spatial | full | control | — | PAIRED | 500 | 500 | -1.20 | 12/18 | — | — | -4.38/-3.00 | 描述性 |
+| Cosmos/400/crg/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | -0.60 | 8/11 | — | — | -3.21/-2.00 | 描述性 |
+| Cosmos/400/crg/libero_spatial | full | corrector_ablation | — | PAIRED | 500 | 500 | 0.60 | 13/10 | — | — | -2.26/-1.00 | 描述性 |
+| Cosmos/400/crg/libero_spatial | full | gate_ablation | — | PAIRED | 500 | 500 | -0.40 | 3/5 | — | — | -2.19/-1.40 | 描述性 |
+| Cosmos/400/crg/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -1.23 | 11/17 | — | — | -4.38/-3.07 | 描述性 |
+| Cosmos/400/crg/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | -0.41 | 8/10 | — | — | -3.02/-1.84 | 描述性 |
+| Cosmos/400/crg/libero_spatial | sensitivity | corrector_ablation | — | PAIRED | 489 | 489 | 0.82 | 13/9 | — | — | -2.04/-0.82 | 描述性 |
+| Cosmos/400/crg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | -0.41 | 3/5 | — | — | -2.24/-1.43 | 描述性 |
 | Cosmos/500/c/libero_10 | full | control | F500 | PAIRED | 500 | 500 | -23.40 | 5/122 | -30.91 | -28.80 | -28.08/-26.40 | 未证明 |
 | Cosmos/500/c/libero_10 | sensitivity | control | F500 | PAIRED | 479 | 479 | -22.96 | 5/115 | -30.64 | -28.60 | -27.75/-26.10 | 描述性 |
 | Cosmos/500/c/libero_spatial | full | control | F500 | PAIRED | 500 | 500 | -1.40 | 12/19 | -6.61 | -4.60 | -4.62/-3.20 | 未证明 |
 | Cosmos/500/c/libero_spatial | sensitivity | control | F500 | PAIRED | 489 | 489 | -1.64 | 11/19 | -6.87 | -4.91 | -4.87/-3.48 | 描述性 |
-| Cosmos/500/cg/libero_10 | full | control | F500 | PENDING_PAIRS | 0 | 0 | — | — | — | — | — | PENDING |
-| Cosmos/500/cg/libero_10 | full | gate_ablation | — | PENDING_PAIRS | 0 | 0 | — | — | — | — | — | PENDING |
-| Cosmos/500/cg/libero_10 | sensitivity | control | F500 | PENDING_PAIRS | 0 | 0 | — | — | — | — | — | PENDING |
-| Cosmos/500/cg/libero_10 | sensitivity | gate_ablation | — | PENDING_PAIRS | 0 | 0 | — | — | — | — | — | PENDING |
+| Cosmos/500/cg/libero_10 | full | control | F500 | PAIRED | 500 | 500 | -18.60 | 5/98 | -25.72 | -23.80 | -23.03/-21.60 | 未证明 |
+| Cosmos/500/cg/libero_10 | full | gate_ablation | — | PAIRED | 500 | 500 | 4.80 | 34/10 | — | — | 1.11/2.80 | 描述性 |
+| Cosmos/500/cg/libero_10 | sensitivity | control | F500 | PAIRED | 479 | 479 | -18.16 | 5/92 | -25.43 | -23.80 | -22.69/-21.09 | 描述性 |
+| Cosmos/500/cg/libero_10 | sensitivity | gate_ablation | — | PAIRED | 479 | 479 | 4.80 | 32/9 | — | — | 1.08/2.71 | 描述性 |
 | Cosmos/500/cg/libero_spatial | full | control | F500 | PAIRED | 500 | 500 | -0.60 | 13/16 | -5.70 | -3.80 | -3.75/-2.40 | 未证明 |
 | Cosmos/500/cg/libero_spatial | full | gate_ablation | — | PAIRED | 500 | 500 | 0.80 | 7/3 | — | — | -1.18/-0.20 | 描述性 |
 | Cosmos/500/cg/libero_spatial | sensitivity | control | F500 | PAIRED | 489 | 489 | -0.82 | 12/16 | -5.94 | -4.09 | -3.98/-2.66 | 描述性 |
 | Cosmos/500/cg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | 0.82 | 7/3 | — | — | -1.20/-0.20 | 描述性 |
-| Cosmos/500/cr/libero_10 | full | control | F500 | INTERIM | 187 | 187 | -14.44 | 0/27 | -24.34 | -21.93 | -20.31/-18.18 | INTERIM |
-| Cosmos/500/cr/libero_10 | full | corrector_ablation | — | INTERIM | 187 | 187 | 5.88 | 14/3 | — | — | -0.46/2.67 | INTERIM |
-| Cosmos/500/cr/libero_10 | sensitivity | control | F500 | INTERIM | 182 | 182 | -13.74 | 0/25 | -23.66 | -20.33 | -19.61/-17.58 | INTERIM |
-| Cosmos/500/cr/libero_10 | sensitivity | corrector_ablation | — | INTERIM | 182 | 182 | 5.49 | 13/3 | — | — | -0.88/2.20 | INTERIM |
+| Cosmos/500/cr/libero_10 | full | control | F500 | PAIRED | 500 | 500 | -18.80 | 6/100 | -26.09 | -24.00 | -23.34/-21.60 | 未证明 |
+| Cosmos/500/cr/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 4.60 | 46/23 | — | — | -0.01/1.80 | 描述性 |
+| Cosmos/500/cr/libero_10 | sensitivity | control | F500 | PAIRED | 479 | 479 | -18.58 | 5/94 | -25.89 | -23.90 | -23.13/-21.50 | 描述性 |
+| Cosmos/500/cr/libero_10 | sensitivity | corrector_ablation | — | PAIRED | 479 | 479 | 4.38 | 43/22 | — | — | -0.30/1.67 | 描述性 |
 | Cosmos/500/cr/libero_spatial | full | control | F500 | PAIRED | 500 | 500 | -1.00 | 12/17 | -6.08 | -4.20 | -4.14/-2.80 | 未证明 |
 | Cosmos/500/cr/libero_spatial | full | corrector_ablation | — | PAIRED | 500 | 500 | 0.40 | 10/8 | — | — | -2.17/-1.00 | 描述性 |
 | Cosmos/500/cr/libero_spatial | sensitivity | control | F500 | PAIRED | 489 | 489 | -1.23 | 11/17 | -6.33 | -4.50 | -4.38/-3.07 | 描述性 |
 | Cosmos/500/cr/libero_spatial | sensitivity | corrector_ablation | — | PAIRED | 489 | 489 | 0.41 | 10/8 | — | — | -2.21/-1.02 | 描述性 |
-| Cosmos/500/crg/libero_10 | full | control | F500 | PENDING_PAIRS | 0 | 0 | — | — | — | — | — | PENDING |
-| Cosmos/500/crg/libero_10 | full | corrector_ablation | — | PENDING_PAIRS | 0 | 0 | — | — | — | — | — | PENDING |
-| Cosmos/500/crg/libero_10 | full | gate_ablation | — | PENDING_PAIRS | 0 | 0 | — | — | — | — | — | PENDING |
-| Cosmos/500/crg/libero_10 | sensitivity | control | F500 | PENDING_PAIRS | 0 | 0 | — | — | — | — | — | PENDING |
-| Cosmos/500/crg/libero_10 | sensitivity | corrector_ablation | — | PENDING_PAIRS | 0 | 0 | — | — | — | — | — | PENDING |
-| Cosmos/500/crg/libero_10 | sensitivity | gate_ablation | — | PENDING_PAIRS | 0 | 0 | — | — | — | — | — | PENDING |
+| Cosmos/500/crg/libero_10 | full | control | F500 | PAIRED | 500 | 500 | -13.00 | 7/72 | -19.80 | -18.00 | -17.22/-15.60 | 未证明 |
+| Cosmos/500/crg/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 5.60 | 48/20 | — | — | 1.05/3.00 | 描述性 |
+| Cosmos/500/crg/libero_10 | full | gate_ablation | — | PAIRED | 500 | 500 | 5.80 | 33/4 | — | — | 2.55/4.00 | 描述性 |
+| Cosmos/500/crg/libero_10 | sensitivity | control | F500 | PAIRED | 479 | 479 | -13.15 | 6/69 | -20.01 | -18.16 | -17.41/-15.87 | 描述性 |
+| Cosmos/500/crg/libero_10 | sensitivity | corrector_ablation | — | PAIRED | 479 | 479 | 5.01 | 44/20 | — | — | 0.38/2.30 | 描述性 |
+| Cosmos/500/crg/libero_10 | sensitivity | gate_ablation | — | PAIRED | 479 | 479 | 5.43 | 30/4 | — | — | 2.14/3.55 | 描述性 |
 | Cosmos/500/crg/libero_spatial | full | control | F500 | PAIRED | 500 | 500 | -0.60 | 13/16 | -5.70 | -3.80 | -3.75/-2.40 | 未证明 |
 | Cosmos/500/crg/libero_spatial | full | corrector_ablation | — | PAIRED | 500 | 500 | 0.00 | 10/10 | — | — | -2.68/-1.40 | 描述性 |
 | Cosmos/500/crg/libero_spatial | full | gate_ablation | — | PAIRED | 500 | 500 | 0.40 | 3/1 | — | — | -0.99/-0.20 | 描述性 |
@@ -1848,9 +2177,9 @@ Receipt status is information only. Cells with fewer than 500 accepted episodes 
 | F500 | Fast-WAM | chg | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
 | F500 | Fast-WAM | chrg | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
 | F500 | Cosmos | c | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
-| F500 | Cosmos | cr | INTERIM | INTERIM |
-| F500 | Cosmos | cg | INTERIM | INTERIM |
-| F500 | Cosmos | crg | INTERIM | INTERIM |
+| F500 | Cosmos | cr | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
+| F500 | Cosmos | cg | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
+| F500 | Cosmos | crg | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
 | Fsize | DP | c | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
 | Fsize | DP | cr | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
 | Fsize | DP | ch | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
@@ -1867,10 +2196,10 @@ Receipt status is information only. Cells with fewer than 500 accepted episodes 
 | Fsize | Fast-WAM | crg | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
 | Fsize | Fast-WAM | chg | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
 | Fsize | Fast-WAM | chrg | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
-| Fsize | Cosmos | c | PENDING | PENDING |
-| Fsize | Cosmos | cr | PENDING | PENDING |
-| Fsize | Cosmos | cg | PENDING | PENDING |
-| Fsize | Cosmos | crg | PENDING | PENDING |
+| Fsize | Cosmos | c | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
+| Fsize | Cosmos | cr | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
+| Fsize | Cosmos | cg | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
+| Fsize | Cosmos | crg | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
 
 ## 限制与待到达
 

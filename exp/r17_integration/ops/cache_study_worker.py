@@ -12,6 +12,8 @@ def extend_cost_row(base):
         if identity.get('cache_study') is True:
             hit = result.get('__hit_meta__', {})
             row.update({key:hit.get(key) for key in FIELDS})
+            if 'knob_call' in hit:
+                row['knob_call'] = hit['knob_call']
         return row
     return cost_row
 

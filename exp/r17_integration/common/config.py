@@ -35,6 +35,7 @@ class RecipeConfig:
     stall_path: str | None = None
     stall_digest: str | None = None
     library_benchmark: dict | None = None
+    serve_loeo: bool = False
 
 
 @dataclass

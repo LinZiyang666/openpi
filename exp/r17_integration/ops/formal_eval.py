@@ -405,7 +405,7 @@ def prepare_workers(campaign, directory, *, payload_override=None):
         names.append('exp/r17_integration/ops/timan1_workers.py')
     if campaign.get('domain') == 'libero' or not execution_nodes:
         names += ['exp/r17_integration/qualification/specs/libero_original_assets.json']
-    if campaign.get('library'):
+    if campaign.get('library') or campaign.get('cache_study') and campaign.get('eval_pool')=='B':
         names += ['exp/r17_integration/ops/library_init.py']
     if payload_override is not None:
         from .build_client_bundle import verified_members
@@ -435,6 +435,9 @@ def prepare_workers(campaign, directory, *, payload_override=None):
         write_json(Path(directory)/'LIVE_WORKER_PROTOCOL.json',check_payload_protocol(Path(directory)/'workers.tar'))
     report = {}
     inherited_path=directory/'WORKER_DEPLOYMENT.json'
+    if not inherited_path.exists() and os.environ.get('R17_INHERIT_WORKER_DEPLOYMENT'):
+        # Fresh campaign: reuse a sealed dependency release/config from an earlier deployment.
+        inherited_path=Path(os.environ['R17_INHERIT_WORKER_DEPLOYMENT'])
     inherited_deployment=json.loads(inherited_path.read_text()) if inherited_path.exists() else {}
     for node, count in execution_nodes.items():
         paths = worker_paths(campaign, node)
@@ -540,7 +543,7 @@ def prepare_workers(campaign, directory, *, payload_override=None):
             write_json(directory/(node+'_GPU_ADMISSION.json'),gpu)
             if not gpu['admitted'] and not deferred:
                 pass
-        if campaign.get('library'):
+        if campaign.get('library') or campaign.get('cache_study') and campaign.get('eval_pool')=='B':
             init_digest = campaign['bpool_transfer']['archive_sha256']
             transfer(['tether','push',campaign['bpool_archive'],node+':'+stage+'/bpool_inputs.tar'])
             code = ('from exp.r17_integration.ops.library_init import install_init_archive; import json; '
@@ -698,6 +701,7 @@ def prepare(campaign, directory):
     if campaign.get('cache_study'):
         from .cache_study import stage_inputs
         stage_inputs(campaign, directory, sys.modules[__name__])
+        write_json(directory / 'campaign.json', campaign)
     if campaign['server_node'] == 'local':
         env = {**os.environ, **server_env(campaign, root), 'CUDA_VISIBLE_DEVICES': '', 'JAX_PLATFORMS': 'cpu'}
         with phase(directory, 'model_cpu_seal'):

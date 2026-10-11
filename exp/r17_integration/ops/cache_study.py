@@ -64,14 +64,15 @@ def profiles(bundle, parent):
 
 
 def group_settings(bundle, group, long):
+    base, _, level = group.partition('_')
     native = 16 if bundle == "cosmos_libero" else 5
-    return dict(corrector="r" in group, gated="g" in group,
-                commit=long if "h" in group else native,
-                alias=ALIASES.get(group) if bundle == "cosmos_libero" else None)
+    return dict(corrector="r" in base, gated="g" in base,
+                commit=long if "h" in base else native,
+                alias=ALIASES.get(base) if bundle == "cosmos_libero" and not level else None)
 
 
 def config_document(provider, serving, source, parent, selected, *, store_path, fit_path, fit_digest,
-                    stall_path, stall_digest, settings):
+                    stall_path, stall_digest, settings, periodic_gap=None, serve_loeo=False):
     from exp.r17_integration.common.qualification import config_for_probe
     from exp.r17_integration.common.provider import binding_for
     from exp.r17_integration.common.config import RecipeConfig
@@ -86,7 +87,7 @@ def config_document(provider, serving, source, parent, selected, *, store_path, 
         store_digest=selected["content_digest"], teacher_sampler_identity=digest(parent["binding"]["sampler"]),
         fitted_path=str(fit_path), fitted_digest=fit_digest,
         miss_mode="stall_only" if settings["gated"] else "never", corrector=settings["corrector"],
-        guard=False, periodic_gap=None, target_ir=None, k=16, kref=8, early=True,
+        guard=False, periodic_gap=periodic_gap, serve_loeo=serve_loeo, target_ir=None, k=16, kref=8, early=True,
         stall_path=str(stall_path) if settings["gated"] else None,
         stall_digest=stall_digest if settings["gated"] else None,
         ordered_tasks=list(serving.ordered_tasks), task_table_identity=serving.task_table_identity,
@@ -169,20 +170,29 @@ def generate(output, *, library_root="/data/r17_library", long_dp=10, long_fast=
 
 def validate_manifest(path):
     value = read(path)
+    knobs = value.get('knobs', False)
     if (value.get("schema") != "r17.cache_study.v1" or value.get("digest") !=
-            digest({k:v for k,v in value.items() if k!="digest"}) or value.get("eval_pool")!="A" or
-            value.get("ordinary_miss") is not False or value.get("knobs") is not False or
+            digest({k:v for k,v in value.items() if k!="digest"}) or value.get("eval_pool", "A") not in ("A", "B") or
+            value.get("ordinary_miss") is not False or
             value.get("inits")!=50 or value.get("suites")!=list(SUITES) or value.get("groups")!=list(GROUPS)):
         pass
     root = Path(path).parent
     sizes=value.get("library_sizes",[500])
     if (not sizes or len(set(sizes))!=len(sizes) or any(type(n)!=int or n not in (50,100,200,300,400,500) for n in sizes)
-            or set(value["models"])!=set(MODELS)):
+            or not value['models'] or not set(value['models']) <= set(MODELS)
+            or not knobs and set(value["models"])!=set(MODELS)):
         raise ValueError("invalid cache-study size/model cohort")
     import yaml
     views={}
     for bundle, rows in value["models"].items():
-        if {(library_size(r),r["suite"],r["group"]) for r in rows} != {(n,s,g) for n in sizes for s in SUITES for g in GROUPS} or len(rows)!=16*len(sizes):
+        cells = {(library_size(r),r['suite'],r['group']) for r in rows}
+        if knobs:
+            allowed = {('crg' if bundle=='cosmos_libero' else 'chrg')+'_'+level
+                       for level in ('k50','k40','k30','k20','k10','koff','pure')}
+            if not rows or len(cells)!=len(rows) or any(
+                    n not in sizes or s not in SUITES or g not in allowed for n,s,g in cells):
+                raise ValueError('invalid cache-knob rows')
+        elif cells != {(n,s,g) for n in sizes for s in SUITES for g in GROUPS} or len(rows)!=16*len(sizes):
             raise ValueError("cache-study cohort is not the complete eight groups/two suites")
         for row in rows:
             if row["settings"]!=group_settings(bundle,row["group"],value["horizon_selection"][{"dp_libero":"dp","fastwam_libero":"fastwam","cosmos_libero":"cosmos"}[bundle]]):
@@ -199,7 +209,7 @@ def validate_manifest(path):
                     recipe['fitted_path']!=row['fit'] or recipe['fitted_digest']!=row['fit_digest'] or
                     recipe['corrector']!=settings['corrector'] or
                     recipe['miss_mode']!=('stall_only' if settings['gated'] else 'never') or
-                    recipe['guard'] is not False or recipe['periodic_gap'] is not None or recipe['target_ir'] is not None or
+                    recipe['guard'] is not False or not knobs and recipe['periodic_gap'] is not None or recipe['target_ir'] is not None or
                     document['adapter_binding']['commit_horizon']!=settings['commit'] or
                     settings['gated'] and (recipe['stall_path']!=row['stall'] or recipe['stall_digest']!=row['stall_digest'])):
                 pass
@@ -325,9 +335,25 @@ def refresh(path):
 
 def stage_inputs(campaign, directory, launch):
     """SHA-checked /tmp transport of fits + metadata only, never teacher RGB."""
+    import yaml
     from .sync_back import snapshot_run, install_snapshot
     manifest = validate_manifest(campaign['cache_study'])
     bundle = campaign['model']+'_libero'
+    pool = manifest.get('eval_pool', 'A')
+    if pool == 'B':
+        import tarfile
+        archives = sorted(Path('/data/r17_library').glob(bundle+'_libero_spatial/campaigns/teacher_*/bpool_inputs.tar'))
+        if not archives:
+            raise FileNotFoundError('no teacher B init archive for '+bundle)
+        archive = archives[0]
+        with tarfile.open(archive) as tar:
+            init_manifest = json.load(tar.extractfile('INIT_FILES.json'))
+        if init_manifest.get('init_pool')!='B' or any(
+                suite not in init_manifest['alignment_digests'] or
+                sum(name.startswith(suite+'/') for name in init_manifest['files'])!=10 for suite in SUITES):
+            raise ValueError('teacher B init archive must cover both ten-task suites')
+        campaign.update(eval_pool='B', bpool_archive=str(archive),
+                        bpool_transfer=dict(archive_sha256=file_sha(archive), manifest=init_manifest))
     selected = [r for r in manifest['models'][bundle]
                 if r['suite'] in campaign.get('suites', SUITES)]
     if any(r['fit_digest'].startswith('PENDING') or r['settings']['gated'] and
@@ -336,7 +362,7 @@ def stage_inputs(campaign, directory, launch):
     root = Path(directory)/'study_inputs'
     root.mkdir(exist_ok=False)
     inputs = dict(schema='r17.cache_inputs.v1', source_study_digest=manifest['digest'],
-        model=bundle, groups=[], prereg_sha256=manifest['prereg_sha256'],
+        model=bundle, groups=[], eval_pool=pool, prereg_sha256=manifest['prereg_sha256'],
         rulings_sha256=manifest['rulings_sha256'], horizon_selection=manifest['horizon_selection'])
     copied = {}
     def copy_file(source, relative):
@@ -364,8 +390,10 @@ def stage_inputs(campaign, directory, launch):
             ready=read(Path(row['stall'])/'READY.json')
             for name in ('READY.json', *ready['files']):
                 copy_file(Path(row['stall'])/name,stall_rel+'/'+name)
+        recipe = yaml.safe_load((Path(campaign['cache_study']).parent/row['file']).read_text())['recipe']
+        options = {key:recipe[key] for key in ('periodic_gap','serve_loeo') if key in recipe}
         inputs['groups'].append(dict(row,view_rel=prefix+'/subsets/size_'+str(library_size(row)),
-                                    fit_rel=fit_rel,stall_rel=stall_rel))
+                                    fit_rel=fit_rel,stall_rel=stall_rel, **options))
     inputs['files']=copied
     inputs['digest']=digest(inputs)
     atomic_json(root/'manifest.json',inputs)
@@ -465,7 +493,8 @@ def seal(provider, campaign, benchmark):
             raise ValueError('study suite requires all ten tasks from its complete selected B view')
         document=config_document(provider,serving,source,descriptor.parent.manifest,descriptor.manifest,
             store_path=root/row['view_rel'],fit_path=root/row['fit_rel'],fit_digest=row['fit_digest'],
-            stall_path=root/row['stall_rel'],stall_digest=row['stall_digest'],settings=row['settings'])
+            stall_path=root/row['stall_rel'],stall_digest=row['stall_digest'],settings=row['settings'],
+            periodic_gap=row.get('periodic_gap'), serve_loeo=row.get('serve_loeo',False))
         config=config_from_dict(document)
         if checked.config_validator is not None:checked.config_validator(config)
         make_bundle_validator(provider,recipe_factory=make_recipe_factory(checked))(config,build_shared_storage(config))
@@ -476,7 +505,7 @@ def seal(provider, campaign, benchmark):
             bundle_id='r17cs_'+short+'_'+identity[:12],bundle_identity=identity,
             recipe_identity=recipe_identity(config)))
     sealed=dict(schema='r17.cache_sealed.v1',inputs_digest=inputs['digest'],model=asdict(provider.model_spec),
-                groups=groups,benchmark_protocol=benchmark.identity,eval_pool='A',debug_capture=False,
+                groups=groups,benchmark_protocol=benchmark.identity,eval_pool=inputs.get('eval_pool','A'),debug_capture=False,
                 source_study_digest=inputs['source_study_digest'],horizon_selection=inputs['horizon_selection'])
     sealed['digest']=digest(sealed);atomic_json(Path(campaign['assets'])/'CACHE_STUDY.json',sealed)
 
@@ -488,7 +517,7 @@ def selected_groups(campaign):
     wanted=campaign.get('suites') or SUITES
     rows=[r for r in seal['groups'] if r['suite'] in wanted]
     if not campaign.get('smoke'):
-        rows=[r for r in rows if not r['settings']['alias']]
+        rows=[r for r in rows if not r['settings']['alias'] or '_' in r['group']]
     return seal,rows
 
 
@@ -516,6 +545,15 @@ def plan(campaign):
     if seal['model']!=model or seal['benchmark_protocol']!=benchmark.identity:
         pass
     endpoint=ServerEndpoint(campaign['endpoint_host'],campaign.get('endpoint_port',campaign['public_port']))
+    pool=seal.get('eval_pool','A')
+    planning_spec=benchmark
+    if pool=='B':
+        from types import SimpleNamespace
+        # B is a separate materialised pool. Its DEV indices do not change the
+        # official A serving identity or the benchmark returned to the driver.
+        planning_spec=SimpleNamespace(**vars(benchmark),identity=benchmark.identity,
+            task_table_identity=benchmark.task_table_identity,max_policy_controls=benchmark.max_policy_controls)
+        planning_spec.dev_indices=tuple(range(50))
     tasks=[]
     for row in rows:
         path=Path(campaign['local_assets'])/row['file']
@@ -523,20 +561,24 @@ def plan(campaign):
         config=load_plan_config(path)
         if bundle_identity(config)!=row['bundle_identity'] or config.recipe.miss_mode not in ('never','stall_only'):
             pass
-        names=[r[0] for r in benchmark.tasks if r[2]==row['suite']]
+        suite_names=[r[0] for r in benchmark.tasks if r[2]==row['suite']]
+        names=row.get('tasks',suite_names)
+        if not names or not set(names)<=set(suite_names):raise ValueError('row tasks must belong to its suite')
         if campaign.get('smoke'):names=names[:2]
         episodes=episode_tasks(campaign=campaign.get('cache_plan_name',campaign['run_name']),arm=size_label(row)+row['group'],bundle_id=row['bundle_id'],
             endpoint=endpoint,model_identity=model['checkpoint_identity'],norm_identity=model['norm_identity'],
             layout_identity=digest(model['layout']),num_steps=model['default_sampler']['num_steps'],
-            spec=benchmark,partition='smoke' if campaign.get('smoke') else 'test',names=names,
-            indices=[0] if campaign.get('smoke') else list(range(50)),yaml_identity=row['sha256'],
+            spec=planning_spec,partition='smoke' if campaign.get('smoke') else 'dev' if pool=='B' else 'test',names=names,
+            indices=[0] if campaign.get('smoke') else row.get('indices',list(range(50))),yaml_identity=row['sha256'],
             bundle_generation=row['bundle_id'],bundle_identity=row['bundle_identity'],
             recipe_identity=row['recipe_identity'],commit_horizon=config.adapter_binding['commit_horizon'])
         for task in episodes:
-            task.extra.update(cache_group=row['group'],init_pool='A',cache_study=True,
+            task.extra.update(cache_group=row['group'],init_pool=pool,cache_study=True,
                 miss_mode=config.recipe.miss_mode,corrector=config.recipe.corrector,
                 logical_alias=row['settings']['alias'])
             if 'library_size' in row:task.extra['library_size']=library_size(row)
+            if '_' in row['group']:
+                task.extra.update(periodic_gap=config.recipe.periodic_gap,serve_loeo=config.recipe.serve_loeo)
         tasks.extend(episodes)
     endpoint_spec=EndpointSpec(endpoint,model['checkpoint_identity'],model['norm_identity'],digest(model['layout']),
         benchmark.identity,allowed_k=(model['default_sampler']['num_steps'],),capacity=campaign.get('execution_workers',campaign['workers']),
@@ -566,13 +608,14 @@ def run_driver(campaign,directory):
             (r['bundle_id'],r['bundle_identity']) for r in acks['rows']}!=expected:
         raise ValueError('not every cache-study bundle was acknowledged before dispatch')
     benchmark,model,tasks,endpoints=plan(campaign)
+    group_order=list(GROUPS)+[g['group'] for g in groups if g['group'] not in GROUPS]
     class Strategy(BenchmarkStrategy):
         def plan(self,yamls,assignment):
             graph=super().plan(yamls,assignment)
             # Qualification really switches groups; the full study preserves
             # the preregistered suite/group order on one resident fleet.
             ordered=sorted(graph.stages.values(),key=lambda s:(
-                s.episodes[0].extra.get('library_size',500),SUITES.index(s.episodes[0].experiment),GROUPS.index(s.episodes[0].extra['cache_group'])))
+                s.episodes[0].extra.get('library_size',500),SUITES.index(s.episodes[0].experiment),group_order.index(s.episodes[0].extra['cache_group'])))
             for before,after in zip(ordered,ordered[1:]):graph.add_dependency(before.stage_id,after.stage_id)
             return graph
     strategy=Strategy(tasks,endpoints=endpoints,bundles={g['bundle_id']:Path(campaign['local_assets'])/g['file'] for g in groups})
@@ -656,7 +699,8 @@ def aggregate(directory, *, driver_returncode=None):
                 violations.append(dict(uid=task['task_uid'],step=seq,reason='binding/commit/capture mismatch'))
             if source not in ('library','library_tail','policy','policy_tail'):
                 violations.append(dict(uid=task['task_uid'],step=seq,reason='non-study source'))
-            if source=='policy' and (ex['miss_mode']!='stall_only' or row.get('stall_call') is not True):
+            if source=='policy' and (ex['miss_mode']!='stall_only' or not (
+                    row.get('stall_call') is True or ex.get('periodic_gap') is not None and row.get('knob_call') is True)):
                 violations.append(dict(uid=task['task_uid'],step=seq,reason='ordinary MISS forbidden'))
             if source!='policy' and (row.get('actual_nfe')!=0 or calls not in ([1,0,0],[0,0,0])):
                 violations.append(dict(uid=task['task_uid'],step=seq,reason='cache executed action head'))
@@ -719,7 +763,8 @@ def aggregate(directory, *, driver_returncode=None):
         no_replica_restart_verified=lifetime_ok,
         resume_segments=len(segments),resume=campaign.get('cache_resume_selection'),
         library_sizes=sorted({t['extra'].get('library_size',500) for t in planned}),
-        alias_results=ALIASES if campaign['model']=='cosmos' and not campaign.get('smoke') else {})
+        alias_results=ALIASES if campaign['model']=='cosmos' and not campaign.get('smoke') and
+            all(t['extra']['cache_group'] in GROUPS for t in planned) else {})
     from .cache_resume import segment_resources
     summary['segment_resources']=segment_resources(campaign,directory)
     atomic_json(directory/'SUMMARY.json',summary)

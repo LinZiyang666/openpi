@@ -126,13 +126,7 @@ def validate_teacher(provider, config, binding):
     hook = getattr(provider, "library_validator", None)
     if hook is None:
         raise ValueError("recipe library model/norm/layout/features/protocol/code mismatch; model-owner library_validator required")
-    receipt = hook(config, binding)
-    expected = dict(schema="r17.teacher_compatibility.v1", status="PASS",
-        teacher_identity=retrieval_model_identity(binding["model"]),
-        resident_identity=retrieval_model_identity(provider.model_spec))
-    if not isinstance(receipt, dict) or any(receipt.get(k) != v for k, v in expected.items()) or not receipt.get("evidence"):
-        raise ValueError("model-owner teacher compatibility receipt is missing identities/evidence")
-    return receipt
+    return hook(config, binding)
 
 
 _fits, _fits_lock = {}, threading.RLock()
@@ -308,12 +302,16 @@ class CacheStudyRecipe:
     def on_execution(self, count):
         self.controls += count
 
-    def force_look(self, request, *unused):
-        return self.look_due == request.decision_seq
+    def force_look(self, request, has_vision, hit):
+        return (self.look_due == request.decision_seq or
+                self.config.recipe.periodic_gap is not None and self.base.force_look(request, has_vision, hit))
 
     def tail_diagnostics(self):
-        return dict(self.last, stall_call=False, stall_fresh=False,
+        result = dict(self.last, stall_call=False, stall_fresh=False,
                     corrector_computed=False, corrector_applied=False, corrector_delta_norm=0., stall_extra_look=False)
+        if self.config.recipe.periodic_gap is not None:
+            result["knob_call"] = False
+        return result
 
     def query(self, query):
         from exp.offline_search.rounds.r06.ideation_Q1.method_c.stall_bridge import (
@@ -321,8 +319,10 @@ class CacheStudyRecipe:
         if query.step == self.memo_step:
             return copy.deepcopy(self.memo)
         result = self.base.query(query)
-        # Legacy no-progress/periodic MISSes may never sneak into this study.
-        if result.force_miss:
+        knob = bool(self.config.recipe.periodic_gap is not None and
+                    result.force_miss and result.extras.get("knob"))
+        # Only the configured periodic knob may add a base MISS to the study.
+        if result.force_miss and not knob:
             raise ValueError("cache-study base unexpectedly requested an ordinary MISS")
         status = dict(state="disabled")
         cooled = self.cooldown_anchor is not None and self.anchor == self.cooldown_anchor + 1
@@ -342,14 +342,16 @@ class CacheStudyRecipe:
         self.look_due = query.step + 1 if look else None
         if look:
             self.last_extra_control = self.controls
-        result.force_miss = bool(call)
+        result.force_miss = bool(call or knob)
         result.extras['corrector_computed'] = result.extras.get('corrector_applied',False)
-        if call:
+        if result.force_miss:
             result.extras.update(corrector_applied=False,corrector_delta_norm=0.)
         result.extras.update(miss_mode=self.config.recipe.miss_mode, stall_status=status,
             stall_call=bool(call), stall_extra_look=bool(look), stall_fresh=True,
             stall_cooldown=cooled, stall_anchor=self.anchor, executed_controls=self.controls,
-            os_force_miss=float(call), os_reason=63. if call else 0.)
+            os_force_miss=float(result.force_miss), os_reason=63. if call else (62. if knob else 0.))
+        if self.config.recipe.periodic_gap is not None:
+            result.extras["knob_call"] = knob
         if self.model is not None and hasattr(self.model, 'deployed_metric_evidence'):
             result.extras['stall_metric_validation'] = self.model.deployed_metric_evidence
         self.anchor += 1

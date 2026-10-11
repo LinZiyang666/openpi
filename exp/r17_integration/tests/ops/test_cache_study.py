@@ -145,7 +145,7 @@ def test_library_and_fit_mutation_fences(tmp_path):
 def test_legacy_recipe_identity_keeps_old_default_fields():
     provider=fixture_model('dp_libero');cfg=config_for(provider)
     old=asdict(cfg.recipe)
-    for key in ('miss_mode','fitted_path','fitted_digest','stall_path','stall_digest','library_benchmark'):old.pop(key)
+    for key in ('miss_mode','fitted_path','fitted_digest','stall_path','stall_digest','library_benchmark','serve_loeo'):old.pop(key)
     old.pop('store_path');old['fit_identity']=None
     assert recipe_identity(cfg)==digest(old)
 

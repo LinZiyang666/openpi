@@ -29,8 +29,8 @@ def validate_recipe(config):
         if bool(path) != bool(identity):
             pass
     if recipe.miss_mode != "legacy":
-        if not recipe.enabled or recipe.guard or recipe.periodic_gap is not None or recipe.target_ir is not None:
-            raise ValueError("cache study requires recipe enabled, legacy guard and knobs off")
+        if not recipe.enabled or recipe.guard or recipe.target_ir is not None:
+            raise ValueError("cache study requires recipe enabled, guard and target_ir off")
         if recipe.miss_mode == "stall_only" and not recipe.stall_path:
             pass
         if recipe.miss_mode == "never" and recipe.stall_path:
@@ -89,6 +89,8 @@ def recipe_identity(config):
     value = asdict(config.recipe)
     value.pop("store_path")
     # Preserve existing bundle identities when the new hooks are absent.
+    if not value["serve_loeo"]:
+        value.pop("serve_loeo")
     if value.pop("miss_mode") != "legacy":
         value["miss_mode"] = config.recipe.miss_mode
     for name in ("fitted_path", "stall_path"):
@@ -120,7 +122,7 @@ def retrieval_model_identity(spec):
     return digest(value)
 
 
-_verified_stores, _fitted_recipes, _calibrations = {}, {}, {}
+_verified_stores, _fitted_recipes, _calibrations, _serve_loeo_maps = {}, {}, {}, {}
 _cache_lock = threading.RLock()
 
 
@@ -210,6 +212,15 @@ def make_recipe_factory(provider):
                     _calibrations[calibration_key] = calibration
                 calibration = _calibrations[calibration_key]
             result = fitted.fork()
+            if r.serve_loeo:
+                map_key = str(Path(r.store_path).resolve()), r.store_digest, tuple(r.ordered_tasks)
+                if map_key not in _serve_loeo_maps:
+                    parent = getattr(store, "parent", store)
+                    task_ids = {name: i for i, name in enumerate(r.ordered_tasks)}
+                    _serve_loeo_maps[map_key] = {
+                        (task_ids[row["task_name"]], row["orig_init_idx"]): row["library_episode_id"]
+                        for row in parent.manifest["rows"]}
+                result.serve_loeo_episodes = _serve_loeo_maps[map_key]
         result.use_guard = r.guard
         result.use_corrector = r.corrector
         result.periodic_gap = calibration["setting"] if calibration is not None else r.periodic_gap

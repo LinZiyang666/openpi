@@ -1,0 +1,159 @@
+{
+ "artifacts_pending": [],
+ "controls": {
+  "cosmos_libero": "formal_cosmos_libero_official2000_20261010_130639_a8ca2043",
+  "dp_libero": "hs5dp_ctl_142812",
+  "fastwam_libero": "hs6fw_res_152931"
+ },
+ "eval_pool": "B",
+ "groups": [
+  "chrg_k50",
+  "chrg_k40",
+  "chrg_k30",
+  "chrg_k20",
+  "chrg_k10",
+  "chrg_koff",
+  "crg_k50",
+  "crg_k40",
+  "crg_k30",
+  "crg_k20",
+  "crg_k10",
+  "crg_koff"
+ ],
+ "horizon_selection": {
+  "cosmos": 16,
+  "dp": 10,
+  "fastwam": 10,
+  "status": "fallback_C10_pending_horizon_NI_freeze"
+ },
+ "inits": 30,
+ "knobs": true,
+ "library_sizes": [
+  50
+ ],
+ "models": {
+  "dp_libero": [
+   {
+    "file": "dp_libero/sp/n50_chrg_k30.yaml",
+    "fit": "/data/r17_library/dp_libero_libero_spatial/bpool/fits/size_50",
+    "fit_digest": "b8be064da38686ea0049bcb521a8dc6bb8050cb1de471770493e156187d9b47b",
+    "group": "chrg_k30",
+    "indices": [
+     0
+    ],
+    "library": "/data/r17_library/dp_libero_libero_spatial/bpool",
+    "library_size": 50,
+    "periodic_gap": 1.1643,
+    "serve_loeo": true,
+    "settings": {
+     "alias": null,
+     "commit": 10,
+     "corrector": true,
+     "gated": true
+    },
+    "sha256": "340f3e3ae2239fc7821541c6379c64060bd0f7935d294750136724463aa3c91c",
+    "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n50/dp_libero_libero_spatial/C10/stall",
+    "stall_digest": "ba45384fa850e10378799e8c579ed4972d8565a25e438dcdb79423ef97d38858",
+    "status": "ARTIFACTS_READY_MODEL_ADMISSION_PENDING",
+    "suite": "libero_spatial",
+    "tasks": [
+     "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+     "libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate"
+    ]
+   },
+   {
+    "file": "dp_libero/sp/n50_chrg_koff.yaml",
+    "fit": "/data/r17_library/dp_libero_libero_spatial/bpool/fits/size_50",
+    "fit_digest": "b8be064da38686ea0049bcb521a8dc6bb8050cb1de471770493e156187d9b47b",
+    "group": "chrg_koff",
+    "indices": [
+     0
+    ],
+    "library": "/data/r17_library/dp_libero_libero_spatial/bpool",
+    "library_size": 50,
+    "periodic_gap": null,
+    "serve_loeo": true,
+    "settings": {
+     "alias": null,
+     "commit": 10,
+     "corrector": true,
+     "gated": true
+    },
+    "sha256": "1daa0020d79c5112f7daebd06922c1ea7a76032f27bd091369323fef2289a760",
+    "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n50/dp_libero_libero_spatial/C10/stall",
+    "stall_digest": "ba45384fa850e10378799e8c579ed4972d8565a25e438dcdb79423ef97d38858",
+    "status": "ARTIFACTS_READY_MODEL_ADMISSION_PENDING",
+    "suite": "libero_spatial",
+    "tasks": [
+     "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+     "libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate"
+    ]
+   },
+   {
+    "file": "dp_libero/l10/n50_chrg_k30.yaml",
+    "fit": "/data/r17_library/dp_libero_libero_10/bpool/fits/size_50",
+    "fit_digest": "55f38996f90a2fbce7c5370e7d2a6ffce316e4fd0d1e2b884521292bf1249212",
+    "group": "chrg_k30",
+    "indices": [
+     0
+    ],
+    "library": "/data/r17_library/dp_libero_libero_10/bpool",
+    "library_size": 50,
+    "periodic_gap": 1.1637,
+    "serve_loeo": true,
+    "settings": {
+     "alias": null,
+     "commit": 10,
+     "corrector": true,
+     "gated": true
+    },
+    "sha256": "0dd1f51f03e7fde4311a659ad29b744f213c5f7c2fe81dc5e188585d8f6df2c6",
+    "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n50/dp_libero_libero_10/C10/stall",
+    "stall_digest": "30889eff70fb32d9e23bcb757aa78f97027206c6651e9d0a512e3968ae8fe296",
+    "status": "ARTIFACTS_READY_MODEL_ADMISSION_PENDING",
+    "suite": "libero_10",
+    "tasks": [
+     "libero_10/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket",
+     "libero_10/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket"
+    ]
+   },
+   {
+    "file": "dp_libero/l10/n50_chrg_koff.yaml",
+    "fit": "/data/r17_library/dp_libero_libero_10/bpool/fits/size_50",
+    "fit_digest": "55f38996f90a2fbce7c5370e7d2a6ffce316e4fd0d1e2b884521292bf1249212",
+    "group": "chrg_koff",
+    "indices": [
+     0
+    ],
+    "library": "/data/r17_library/dp_libero_libero_10/bpool",
+    "library_size": 50,
+    "periodic_gap": null,
+    "serve_loeo": true,
+    "settings": {
+     "alias": null,
+     "commit": 10,
+     "corrector": true,
+     "gated": true
+    },
+    "sha256": "c1736ce79fc20ce768fa90a26931c25cd5e2d6068d712ecb83f1cb3804029437",
+    "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n50/dp_libero_libero_10/C10/stall",
+    "stall_digest": "30889eff70fb32d9e23bcb757aa78f97027206c6651e9d0a512e3968ae8fe296",
+    "status": "ARTIFACTS_READY_MODEL_ADMISSION_PENDING",
+    "suite": "libero_10",
+    "tasks": [
+     "libero_10/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket",
+     "libero_10/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket"
+    ]
+   }
+  ]
+ },
+ "ordinary_miss": false,
+ "prereg_sha256": "1b733bec5da41d90b234caf27bd5282833699519d6049039b0be3e055c63b06e",
+ "rulings_sha256": "9c852a063cf5531d4412380245a29b7e75289e571b6298486d77fbb9482b28fb",
+ "schema": "r17.cache_study.v1",
+ "suites": [
+  "libero_spatial",
+  "libero_10"
+ ],
+ "digest": "003a1b920f69109226ba1fdcf73887f4b786d6b8e5cbba4355bb415845f1ab45"
+}

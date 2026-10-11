@@ -19,7 +19,7 @@ def authorize(campaign):
     number = campaign.get('execution_worker_nodes',campaign.get('worker_nodes',{})).get('timan1',0)
     if not number:
         return None
-    maximum=16
+    maximum=40
     live=None
     if campaign.get('live_fleet_authorization'):
         from .live_fleet_worker import authorization
@@ -30,7 +30,7 @@ def authorize(campaign):
         validate_authorization(campaign)
         maximum=40
     if campaign.get('domain') != 'libero' or not (campaign.get('cache_study') or live) or not 1 <= number <= maximum:
-        raise ValueError('timan1 owner lease requires LIBERO cache workers, maximum16, GPU3 only')
+        raise ValueError('timan1 owner lease requires LIBERO cache workers, maximum 40, GPU3 only')
     return dict(schema='r17.timan1_gpu3_lease.v1',workers=number,device=3,device_minor=0,
                 uuid=UUID,pci=PCI,excluded_devices=[0,1,2],pins=PINS,
                 worker_memory_mib=6144,worker_vram_mib=1024,worker_max_episodes=4)

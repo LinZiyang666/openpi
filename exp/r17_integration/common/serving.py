@@ -347,7 +347,8 @@ class ConnectionPolicy:
                     diagnostics = dict(proposal.extras)
                 miss_mode = self.config.recipe.miss_mode
                 if miss_mode != "legacy" and (proposal is None or proposal.force_miss and
-                        not (miss_mode == "stall_only" and diagnostics.get("stall_call") is True)):
+                        not (miss_mode == "stall_only" and diagnostics.get("stall_call") is True or
+                             diagnostics.get("knob_call") is True)):
                     raise ValueError("ordinary MISS forbidden by cache-study YAML; no teacher fallback")
                 if proposal is not None and not proposal.force_miss:
                     normalized, source, calls = _array(proposal.action), "library", (1, 0, 0)

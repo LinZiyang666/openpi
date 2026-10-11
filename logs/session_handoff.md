@@ -56,7 +56,36 @@ owner 的常驻指令，逐字有效：
 
 ### 1.R16 正在做：纯减步融入闭环（owner 10-07 目标"融入纯减步并实验"，会话 goal 仍挂着）
 
-**10-11 12:3x compact 前交接（最新，只读这一段即可）**
+**10-11 13:0x 新任务：第 5 层逐任务 IR 旋钮下降（owner 12:5x 指示；先读这段，再读下面 12:3x 交接）**
+- owner 原话要点：在每个新模型的「纯缓存 + 长执行段 + 修正器 + 停滞门」上加按任务下降的 IR 旋钮；目标是达到纯推理成功率、用最少的 IR；新模型没有开销 profile，IR 先用 miss 比例代替；参照以前的逐任务下降；每个库大小都要探索。
+- 设定（我定的）：
+  - 基础组：DP、Fast-WAM 用 chrg（C=10），Cosmos 用 crg（C=16）。
+  - IR 代理 = 模型调用次数 /（已执行控制步数 / C0），C0 为 DP/Fast 5、Cosmos 16，纯推理 = 1.0。
+  - 档位从高到低：pure（周期间隔 0，每次决策都调模型）→ k50 → k40 → k30 → k20 → k10（按 miss 比例用库回放标定周期间隔）→ koff（只有停滞门）。
+  - 标定：`r17_ops/calibrate_knob.py`、`r17_ops/knob/calibrate_all.sh` → `r17_ops/knob/gaps.jsonl`（36 格）。
+  - 开发集：B 池起点 0..29，每任务每档 30 局，服务端 LOEO（排除查询自身那条库轨迹）。B 上的纯推理参照用建库 teacher 轨迹的成败，不重跑。每模型 12 格 × 10 任务 × 6 档 × 30 = 21,600 局，一个批次跑全网格。
+  - 判定：沿用 R14/R16 冻结规则，5 个点容差（另出 0、2 个点表），第一次失败即停。
+  - 测试：冻结档位表后在官方 A 上每格 500 局，对照纯推理控制组。然后按 R16 提档规则：低 ≥10 个点 → pure；低 6–9 个点 → 升一档，已是 k50 的 → pure。
+- 派出的 sol（13:00，日志在 `r17_ops/`）：
+  - `sol_knob_serving.log`：缓存研究放开周期旋钮调用，新增 `serve_loeo`（只改 common/、search/）。
+  - `sol_knob_campaign.log`：knob STUDY、plan 支持按行任务/起点/B 池、worker 装 B 池初态、`ops/cache_knob.py`（只改 ops/）。
+  - `sol_knob_analysis.log`：`rounds/r17/knob/descent.py`、`test.py`。
+  - 任务书都在 `rounds/r17/prompts/sol_knob_*.md`。
+- 跑法：DP 开发集放 4090，Fast-WAM、Cosmos 等 H100 上 Cosmos 50–400 收齐后再上。
+- 14:1x 进展：
+  - 三个 sol 已交回，diff 我审过：服务端 36 行、ops 约 90 行 + `ops/cache_knob.py`、分析 `rounds/r17/knob/{common,descent,test}.py`。Cosmos provider 拦周期间隔那一条我删了。
+  - 我加了 `R17_INHERIT_WORKER_DEPLOYMENT` 环境变量（formal_eval.prepare_workers），用来指定从哪个批次继承依赖和配置。原因：timan107 上旧 LIBERO 配置 `/scratch/zixuans8/openpi_trace_h100` 已被删，全新准备的批次会失败；续跑批次不受影响。
+  - 冒烟 `knobsmokedp1355`（8 局）验证通过：B 池起点、k30 的旋钮调用比例约 0.32、LOEO 排除了自身轨迹。
+  - 开发集清单 `exp/r17_integration/ops/cache_study/knob/dev/STUDY.json`（每模型 72 个 YAML、21,600 局）。准备脚本 `r17_ops/knob/prepare_dev.sh`（DP 用 R4、本机 48 个 worker；Fast-WAM 用 R2/B16、timan107 45 + timan1 40）。
+  - 接续脚本 `r17_ops/knob/chain_after_cosmos.sh`（14:25 挂上，PID 1353909）：等 r8c 退出后起 `knobdevdp`、`knobdevfw4`（两者都已准备好），日志 `r17_ops/knob/chain.log`。
+  - 准备 Fast-WAM 时又拔了三道旧门：
+    - timan1 的 worker 上限统一为 40（`ops/timan1_workers.py`）；
+    - Fast-WAM `library_compatibility.validate` 只留 LIBERO、K10、协议三项（原来十几道源码、权重指纹门，当前代码打包的运行时过不了）；
+    - `search/cache_recipe.validate_teacher` 不再要求回执里有证据。
+  - `knobdevfw`/`fw2`/`fw3` 是失败的半成品目录，不用。Cosmos 开发集还没准备，H100 等 Fast-WAM 跑完再上；Cosmos 用旧式 driver，要放 NVMe。
+  - 收齐后的分析：`.venv/bin/python exp/offline_search/rounds/r17/knob/descent.py --lane <dev lane>... --out exp/offline_search/rounds/r17/knob/dev_results`，再用 `cache_knob test --model M --table levels.json` 生成测试批次。
+
+**10-11 12:3x compact 前交接（只读这一段即可）**
 
 **owner 规则（违反过）**
 - 实验由我亲自起停和守护；agent 只写代码，派单前我先亲自读一线代码；功能不过度实现，不加门。

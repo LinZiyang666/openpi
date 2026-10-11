@@ -12,7 +12,7 @@ def validate_config(config):
                 b['num_steps'] != 5 or b['sampler_identity'] != make_sampler(5).identity or
                 b['commit_horizon'] != 16 or b.get('allow_partial_commit', False) or
                 r.teacher_sampler_identity != make_sampler(5).identity or
-                r.guard or r.periodic_gap is not None or r.target_ir is not None or r.ir_costs is not None or
+                r.guard or r.target_ir is not None or r.ir_costs is not None or
                 (r.k, r.kref, r.early) != (16, 8, True) or not r.fitted_path or not r.fitted_digest or
                 (r.miss_mode == 'stall_only') != bool(r.stall_path and r.stall_digest)):
             raise ValueError('Cosmos recipe supports only the sealed native K5/C16 cache study; ordinary MISS unsupported')

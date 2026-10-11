@@ -51,6 +51,7 @@ class LayoutRecipe:
         self.k, self.kref = k, kref
         self.use_corrector, self.use_guard = corrector, guard
         self.periodic_gap, self.early = periodic_gap, early
+        self.serve_loeo_episodes = {}
         self.reset(None)
 
     def reset(self, episode):
@@ -284,7 +285,8 @@ class LayoutRecipe:
             return copy.deepcopy(self._memo)
         if q.step < self._memo_step:
             raise ValueError("reset recipe before a new episode")
-        result, xv, rs = self._retrieve(q)
+        exclude_episode = self.serve_loeo_episodes.get((q.request.task_id, q.request.original_init_idx))
+        result, xv, rs = self._retrieve(q, exclude_episode=exclude_episode)
         top = result.rows[0]
         length = int(np.count_nonzero(self.episode == self.episode[top]))
         progress = self.step[top] / max(length - 1, 1)

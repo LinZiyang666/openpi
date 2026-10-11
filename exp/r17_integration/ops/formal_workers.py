@@ -70,7 +70,7 @@ def worker_command(campaign, index, python=sys.executable):
             argv += ['--cache-study']
     elif campaign.get('cache_study'):
         argv[argv.index('-m')+1] = 'exp.r17_integration.ops.cache_study_worker'
-    if campaign.get('library'):
+    if campaign.get('library') or campaign.get('cache_study') and campaign.get('eval_pool')=='B':
         argv += ['--init-states-dir',campaign['worker_init_states_dir']]
     if campaign.get('worker_node') == 'local':
         argv[argv.index('-m')+1] = 'exp.r17_integration.ops.local_worker_entry'
