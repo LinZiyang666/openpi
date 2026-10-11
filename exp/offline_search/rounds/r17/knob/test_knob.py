@@ -34,7 +34,7 @@ def teacher(root, model, suite="libero_spatial"):
     return path
 
 
-def lane(path, model, pool, entries, *, control=False, parent=None, missing_cost=None):
+def lane(path, model, pool, entries, *, control=False, parent=None, missing_cost=None, pure_size=None):
     """Entries are (task index, level, init, success) in the spatial suite."""
     campaign = dict(model=c.MODEL_IDS[model])
     if parent:
@@ -48,7 +48,7 @@ def lane(path, model, pool, entries, *, control=False, parent=None, missing_cost
         uid = f"synthetic:{group}:eval:{task}:{init}"
         extra = dict(task_name=name("libero_spatial", task), init_pool=pool)
         if not control:
-            extra.update(cache_group=group, library_size=50)
+            extra.update(cache_group=group, library_size=pure_size if level == 'pure' and pure_size is not None else 50)
         tasks.append(dict(task_uid=uid, experiment="libero_spatial", orig_init_state_idx=init, extra=extra))
         groups.add(group)
         terminal = dict(task_uid=uid, accepted=True, attempt=2, success=success, ts=2,
@@ -71,6 +71,49 @@ def lane(path, model, pool, entries, *, control=False, parent=None, missing_cost
 
 
 class KnobTests(unittest.TestCase):
+    def test_reduced_descent_uses_same_lane_size500_pure_for_other_sizes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            # This teacher succeeds everywhere except task5/init0,1. The
+            # reduced pure arm fails init0..5, so k50 passes only against pure.
+            teacher(root/'library', 'DP')
+            entries = [(t, level, i, i >= 6) for t in range(10) for level in c.LEVELS
+                       for i in range(30) if not (t == 9 and level == 'pure' and i == 29)]
+            run = root/'dev'
+            lane(run, 'DP', 'B', entries, pure_size=500)
+            with contextlib.redirect_stdout(io.StringIO()):
+                result = descent.main(['--lane', str(run), '--reference', 'pure-arm',
+                    '--library-root', str(root/'library'), '--out', str(root/'out')])
+            cell = next(row for row in result['cells'] if row['size'] == 50)
+            task = cell['tasks'][name('libero_spatial', 0)]
+            self.assertEqual(task['levels']['pure']['successes'], 24)
+            self.assertEqual(task['levels']['k50']['paired_pure_successes'], 24)
+            self.assertEqual(task['selected'], 'koff')
+            incomplete = cell['tasks'][name('libero_spatial', 9)]
+            self.assertTrue(incomplete['incomplete'])
+            self.assertIsNone(incomplete['selected'])
+            self.assertEqual(incomplete['levels']['pure']['missing_inits'], [29])
+
+    def test_reduced_test_controls_use_step_study_runs(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            runs = []
+            for model in c.C0:
+                entries = [(t, 'pure', i, i >= 5) for t in range(10) for i in range(50)]
+                lane(root/'controls'/c.REDUCED_CONTROL_NAMES[model][-1], model, 'A', entries, control=True)
+                lane(root/model, model, 'A', [(t, 'k30', i, i >= 8) for t in range(10) for i in range(50)])
+                runs += ['--lane', str(root/model)]
+            with contextlib.redirect_stdout(io.StringIO()):
+                result = a.main([*runs, '--controls', 'reduced', '--control-root', str(root/'controls'),
+                                 '--out', str(root/'out')])
+            self.assertEqual(len(result['cells']), 3)
+            for cell in result['cells']:
+                task = cell['tasks'][name('libero_spatial', 0)]
+                self.assertEqual(task['control']['successes'], 45)
+                self.assertEqual(task['successes'], 42)
+                self.assertEqual(task['retest_level'], 'k40')
+            self.assertEqual(result['controls'], c.REDUCED_CONTROL_NAMES)
+
     def test_descent_synthetic_lanes_and_cli(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

@@ -72,17 +72,17 @@ def group_settings(bundle, group, long):
 
 
 def config_document(provider, serving, source, parent, selected, *, store_path, fit_path, fit_digest,
-                    stall_path, stall_digest, settings, periodic_gap=None, serve_loeo=False):
+                    stall_path, stall_digest, settings, periodic_gap=None, serve_loeo=False, num_steps=None):
     from exp.r17_integration.common.qualification import config_for_probe
     from exp.r17_integration.common.provider import binding_for
     from exp.r17_integration.common.config import RecipeConfig
     from exp.r17_integration.common.recipe import fit_identity
-    config = config_for_probe(provider, provider.model_spec.default_sampler.num_steps,
-                              settings["commit"])
+    k = provider.model_spec.default_sampler.num_steps if num_steps is None else num_steps
+    config = config_for_probe(provider, k, settings["commit"])
     config.enabled = True
     config.checkpoints = {}
     config.adapter_binding = binding_for(provider, serving.identity,
-        commit_horizon=settings["commit"], allow_partial_commit=bool(settings["commit"] % provider.model_spec.layout.replan_steps))
+        num_steps=k, commit_horizon=settings["commit"], allow_partial_commit=bool(settings["commit"] % provider.model_spec.layout.replan_steps))
     config.recipe = RecipeConfig(enabled=True, store_path=str(store_path),
         store_digest=selected["content_digest"], teacher_sampler_identity=digest(parent["binding"]["sampler"]),
         fitted_path=str(fit_path), fitted_digest=fit_digest,
@@ -390,8 +390,14 @@ def stage_inputs(campaign, directory, launch):
             ready=read(Path(row['stall'])/'READY.json')
             for name in ('READY.json', *ready['files']):
                 copy_file(Path(row['stall'])/name,stall_rel+'/'+name)
-        recipe = yaml.safe_load((Path(campaign['cache_study']).parent/row['file']).read_text())['recipe']
+        document = yaml.safe_load((Path(campaign['cache_study']).parent/row['file']).read_text())
+        recipe = document['recipe']
         options = {key:recipe[key] for key in ('periodic_gap','serve_loeo') if key in recipe}
+        # Historical full-step staged inputs remain byte-identical. Reduced
+        # YAMLs must carry their K through the resident-provider rebind.
+        k = document['adapter_binding']['num_steps']
+        if k != read(library/'READY.json')['binding']['model']['default_sampler']['num_steps']:
+            options['num_steps'] = k
         inputs['groups'].append(dict(row,view_rel=prefix+'/subsets/size_'+str(library_size(row)),
                                     fit_rel=fit_rel,stall_rel=stall_rel, **options))
     inputs['files']=copied
@@ -494,7 +500,7 @@ def seal(provider, campaign, benchmark):
         document=config_document(provider,serving,source,descriptor.parent.manifest,descriptor.manifest,
             store_path=root/row['view_rel'],fit_path=root/row['fit_rel'],fit_digest=row['fit_digest'],
             stall_path=root/row['stall_rel'],stall_digest=row['stall_digest'],settings=row['settings'],
-            periodic_gap=row.get('periodic_gap'), serve_loeo=row.get('serve_loeo',False))
+            periodic_gap=row.get('periodic_gap'), serve_loeo=row.get('serve_loeo',False), num_steps=row.get('num_steps'))
         config=config_from_dict(document)
         if checked.config_validator is not None:checked.config_validator(config)
         make_bundle_validator(provider,recipe_factory=make_recipe_factory(checked))(config,build_shared_storage(config))
@@ -554,11 +560,16 @@ def plan(campaign):
         planning_spec=SimpleNamespace(**vars(benchmark),identity=benchmark.identity,
             task_table_identity=benchmark.task_table_identity,max_policy_controls=benchmark.max_policy_controls)
         planning_spec.dev_indices=tuple(range(50))
-    tasks=[]
+    tasks=[];steps=set()
     for row in rows:
         path=Path(campaign['local_assets'])/row['file']
         if file_sha(path)!=row['sha256']:pass
         config=load_plan_config(path)
+        k=config.adapter_binding['num_steps'];steps.add(k)
+        expected_nfe=k
+        if campaign['model']=='cosmos':
+            from exp.r17_integration.models.cosmos.manifest import make_sampler
+            expected_nfe=make_sampler(k).config.get('expected_nfe',k)
         if bundle_identity(config)!=row['bundle_identity'] or config.recipe.miss_mode not in ('never','stall_only'):
             pass
         suite_names=[r[0] for r in benchmark.tasks if r[2]==row['suite']]
@@ -567,12 +578,13 @@ def plan(campaign):
         if campaign.get('smoke'):names=names[:2]
         episodes=episode_tasks(campaign=campaign.get('cache_plan_name',campaign['run_name']),arm=size_label(row)+row['group'],bundle_id=row['bundle_id'],
             endpoint=endpoint,model_identity=model['checkpoint_identity'],norm_identity=model['norm_identity'],
-            layout_identity=digest(model['layout']),num_steps=model['default_sampler']['num_steps'],
+            layout_identity=digest(model['layout']),num_steps=k,
             spec=planning_spec,partition='smoke' if campaign.get('smoke') else 'dev' if pool=='B' else 'test',names=names,
             indices=[0] if campaign.get('smoke') else row.get('indices',list(range(50))),yaml_identity=row['sha256'],
             bundle_generation=row['bundle_id'],bundle_identity=row['bundle_identity'],
             recipe_identity=row['recipe_identity'],commit_horizon=config.adapter_binding['commit_horizon'])
         for task in episodes:
+            if expected_nfe != k:task.extra['expected_nfe']=expected_nfe
             task.extra.update(cache_group=row['group'],init_pool=pool,cache_study=True,
                 miss_mode=config.recipe.miss_mode,corrector=config.recipe.corrector,
                 logical_alias=row['settings']['alias'])
@@ -581,7 +593,7 @@ def plan(campaign):
                 task.extra.update(periodic_gap=config.recipe.periodic_gap,serve_loeo=config.recipe.serve_loeo)
         tasks.extend(episodes)
     endpoint_spec=EndpointSpec(endpoint,model['checkpoint_identity'],model['norm_identity'],digest(model['layout']),
-        benchmark.identity,allowed_k=(model['default_sampler']['num_steps'],),capacity=campaign.get('execution_workers',campaign['workers']),
+        benchmark.identity,allowed_k=tuple(sorted(steps)),capacity=campaign.get('execution_workers',campaign['workers']),
         bundle_identities=tuple(r['bundle_identity'] for r in rows))
     if campaign.get('cache_resume_selection'):
         from .cache_resume import check
@@ -616,7 +628,10 @@ def run_driver(campaign,directory):
             # the preregistered suite/group order on one resident fleet.
             ordered=sorted(graph.stages.values(),key=lambda s:(
                 s.episodes[0].extra.get('library_size',500),SUITES.index(s.episodes[0].experiment),group_order.index(s.episodes[0].extra['cache_group'])))
-            for before,after in zip(ordered,ordered[1:]):graph.add_dependency(before.stage_id,after.stage_id)
+            # Knob studies have no preregistered order: leave stages unchained so the next
+            # YAML's episodes fill workers while the previous stage drains (no tail bubble).
+            if all(g['group'] in GROUPS for g in groups):
+                for before,after in zip(ordered,ordered[1:]):graph.add_dependency(before.stage_id,after.stage_id)
             return graph
     strategy=Strategy(tasks,endpoints=endpoints,bundles={g['bundle_id']:Path(campaign['local_assets'])/g['file'] for g in groups})
     lock=(directory/'.eval.lock').open('a');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
@@ -704,8 +719,9 @@ def aggregate(directory, *, driver_returncode=None):
                 violations.append(dict(uid=task['task_uid'],step=seq,reason='ordinary MISS forbidden'))
             if source!='policy' and (row.get('actual_nfe')!=0 or calls not in ([1,0,0],[0,0,0])):
                 violations.append(dict(uid=task['task_uid'],step=seq,reason='cache executed action head'))
-            if source=='policy' and (calls != [1,1,ex['num_steps']] or row.get('actual_nfe')!=ex['num_steps']):
-                violations.append(dict(uid=task['task_uid'],step=seq,reason='stall MISS is not native full sampler'))
+            expected_nfe=ex.get('expected_nfe',ex['num_steps'])
+            if source=='policy' and (calls != [1,1,expected_nfe] or row.get('actual_nfe')!=expected_nfe):
+                violations.append(dict(uid=task['task_uid'],step=seq,reason='MISS differs from bound sampler NFE'))
             if source=='library' and (row.get('corrector_enabled') is not ex['corrector'] or
                     row.get('miss_mode')!=ex['miss_mode']):
                 violations.append(dict(uid=task['task_uid'],step=seq,reason='cache arm settings missing/mismatched'))

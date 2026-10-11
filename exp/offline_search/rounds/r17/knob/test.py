@@ -20,11 +20,12 @@ def raised_level(level, successes, control_successes, n):
     return "pure" if deficit >= 10*n else c.LEVELS[c.LEVELS.index(level)-1]
 
 
-def load_controls(root, models):
+def load_controls(root, models, controls="full"):
     references = {}
+    names = c.REDUCED_CONTROL_NAMES if controls == "reduced" else c.CONTROL_NAMES
     for model in sorted(models):
         # Both Cosmos segments (and the Fast-WAM ancestor) are read by load_lane.
-        lane = Path(root) / c.CONTROL_NAMES[model][-1]
+        lane = Path(root) / names[model][-1]
         loaded = c.cache.load_lane(lane, c.cache.receipt_snapshot(lane), c.cache.Sources(), c.cache.SIZES)
         for (actual_model, _, group, suite), result in loaded.items():
             if actual_model != model or group != "control":
@@ -60,14 +61,17 @@ def main(argv=None):
     parser.add_argument("--lane", type=Path, action="append", required=True)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--control-root", type=Path, default=c.CONTROL_ROOT)
+    parser.add_argument("--controls", choices=("full", "reduced"), default="full")
     args = parser.parse_args(argv)
     cells, planned = c.load_knob(args.lane, "A")
-    references = load_controls(args.control_root, {m for m, _, _ in cells})
+    references = load_controls(args.control_root, {m for m, _, _ in cells}, args.controls)
     rng = np.random.default_rng(SEED)
     indices = {suite: rng.integers(0, 50, size=(BOOT, 10, 50))
                for suite in ("libero_10", "libero_spatial")}
     result = dict(bootstrap=dict(draws=BOOT, seed=SEED, method="within-task paired init resampling"), cells=[])
     raises = {}
+    if args.controls == "reduced":
+        result["controls"] = c.REDUCED_CONTROL_NAMES
     lines = ["# 逐任务旋钮测试", "", "使用 A 集官方起点 0–49，每任务固定一个档位，与同起点纯推理对照配对。",
              "推理开销代理按模型调用数除以执行控制数折算的决策数计算；DP 和 Fast-WAM 每 5 步折算一次，Cosmos 每 16 步折算一次，纯推理按一计。",
              "成功率差的95% 区间在每个任务内按起点配对重采样5,000 次，随机种子为20261005。",
@@ -75,6 +79,8 @@ def main(argv=None):
              "缺局只报告已有配对，不补齐、不按部分结果提档；缺少完整执行计数时开销记为暂无。提档清单供后续复测，当前结果仍是提档前的测量。", "",
              "| 模型 | 任务套件 | 库集数 | 已有局数 | 配对局数 | 成功率 | 同起点纯推理成功率 | 差（个点） | 95% 区间（个点） | 新增成功 | 丢失成功 | 推理开销代理 | 完整性 |",
              "|---|---|---:|---:|---:|---:|---:|---:|---|---:|---:|---:|---|"]
+    if args.controls == "reduced":
+        lines.insert(3, "纯推理对照为DP DDIM10 eta0、Fast-WAM K1、Cosmos K2含清理步（NFE1）的10-10 A 集运行；按逐任务提档表复测，迭代到每个任务差距不超过4 个点。")
     detail = []
     for cell, arms in sorted(cells.items()):
         model, suite, size = cell

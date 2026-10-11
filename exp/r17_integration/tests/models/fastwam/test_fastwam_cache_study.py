@@ -18,6 +18,31 @@ from exp.r17_integration.models.fastwam.ops.library_evidence import EVIDENCE
 from exp.r17_integration.models.fastwam.ops.cache_preflight import current_manifest
 
 
+def test_cache_reduced_miss_payload_runs_native_k1_at_b16(tmp_path):
+    import torch
+    from exp.r17_integration.common.contracts import RequestContext
+    from exp.r17_integration.models.fastwam.batch_runtime import create_runtime
+    from exp.r17_integration.tests.models.fastwam.conftest import make_adapter, observation
+    from openpi.serving.batching_core import Stage3MissPayload
+    adapter = make_adapter('libero', allow_unqualified_batch=False)
+    request = RequestContext('cpu', adapter.metadata().allowed_benchmark_protocols[0], 'reach', 0, 0)
+    stage2 = adapter.run_stage2(adapter.run_stage1(adapter.prepare(observation('libero'), request)))
+    runtime = create_runtime(adapter, 16, 5, tmp_path/'batch.jsonl')
+    try:
+        batcher = adapter.make_stage_batcher()
+        sampler = adapter.sampler_for_steps(1)
+        assert sampler.family == 'shifted_flow' and sampler.config['shift'] == 5.0
+        stages = [replace(stage2, data=dict(stage2.data, batch_member=dict(connection_id=str(i), request_id=str(i),
+                          request=asdict(request)), batching={})) for i in range(16)]
+        payloads = [Stage3MissPayload(stage, torch.randn(32,7), 1, None) for stage in stages]
+        outputs = batcher.run_stage3_miss(payloads, num_steps=1, save_timesteps_per_request=[None]*16)
+        assert len(outputs) == 16 and adapter.model.calls['head'] == [16]
+        assert all(out.actual_nfe == 1 and out.sampler == sampler for out in outputs)
+        assert all(out.native_result.capture['batching']['stage3']['size'] == 16 for out in outputs)
+    finally:
+        runtime.close()
+
+
 def published():
     from exp.r17_integration.ops.formal_eval import benchmark
     from exp.r17_integration.common.benchmarks import register_benchmark

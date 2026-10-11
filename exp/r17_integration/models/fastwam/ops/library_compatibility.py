@@ -83,8 +83,8 @@ def library_validator(model_spec, *, manifest=None):
         teacher = _mapping(binding['model'])
         if teacher['model_id'] != 'fastwam_libero' or resident['model_id'] != 'fastwam_libero':
             raise ValueError('Fast-WAM published B500 compatibility is LIBERO-only')
-        if config.adapter_binding['num_steps'] != 10:
-            raise ValueError('Fast-WAM cache-study stall MISS must use native K10')
+        if config.adapter_binding['num_steps'] not in (1, 10):
+            raise ValueError('Fast-WAM cache-study MISS must use native K1 or K10')
         validate_protocol_bridge(config, binding)
         # Owner ruling 2026-10-10: no source/weight fingerprint gates.
         return dict(schema='r17.teacher_compatibility.v1', status='PASS',

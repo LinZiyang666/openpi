@@ -17,6 +17,11 @@ CONTROL_NAMES = {
     "Cosmos": ("formal_cosmos_libero_official2000_20261010_100533_5f558380",
                "formal_cosmos_libero_official2000_20261010_130639_a8ca2043"),
 }
+REDUCED_CONTROL_NAMES = {
+    "DP": ("hs5dp_ddim10s0",),
+    "Fast-WAM": ("hs6fw_k1",),
+    "Cosmos": ("hs2_cosmos_h100_k2incl_c16_t107_20261010_115120",),
+}
 LABELS = dict(zip(LEVELS, ("纯推理", "0.5 档", "0.4 档", "0.3 档", "0.2 档", "0.1 档", "关（只有停滞门）")))
 SUITE_LABELS = {"libero_spatial": "空间任务", "libero_10": "长任务"}
 MODEL_LABELS = {"DP": "DP", "Fast-WAM": "Fast-WAM", "Cosmos": "Cosmos"}

@@ -12,7 +12,7 @@ from exp.offline_search.rounds.r17.knob import common as c
 def descend(levels, tolerance):
     first = next((level for level in c.LEVELS[1:]
                   if levels[level]["passes"][str(tolerance)] is False), None)
-    incomplete = any(levels[level]["n"] != 30 for level in c.LEVELS[1:])
+    incomplete = any(levels[level]["n"] != 30 for level in c.LEVELS)
     recoveries = [level for level in c.LEVELS[c.LEVELS.index(first)+1:]
                   if levels[level]["passes"][str(tolerance)] is True] if first else []
     # Report all available outcomes; incomplete tasks have no frozen choice.
@@ -26,9 +26,11 @@ def main(argv=None):
     parser.add_argument("--lane", type=Path, action="append", required=True)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--library-root", type=Path, default=c.LIBRARY_ROOT)
+    parser.add_argument("--reference", choices=("teacher", "pure-arm"), default="teacher")
     args = parser.parse_args(argv)
     cells, planned = c.load_knob(args.lane, "B")
-    references = {(model, suite): c.teacher_reference(args.library_root, model, suite)
+    references = {(model, suite): (cells.get((model, suite, 500), {}).get("pure", {})
+                  if args.reference == "pure-arm" else c.teacher_reference(args.library_root, model, suite))
                   for model, suite in sorted({(m, s) for m, s, _ in cells})}
     tables = {tol: {} for tol in (0, 2, 5)}
     result = dict(primary_tolerance_pp=5, cells=[], references=[])
@@ -37,6 +39,9 @@ def main(argv=None):
              "推理开销代理为模型调用数除以执行控制数折算的决策数；DP 和 Fast-WAM 每 5 步折算一次，Cosmos 每 16 步折算一次。纯推理参考按一计；拼接开销由所选轨迹的总调用数和总执行控制数计算。",
              "缺少完整执行计数时开销记为暂无。开发集拼接结果用于选择，尚未独立测试。", "",
              "档位数字是标定的目标 miss 比例，表中开销是实测值。", ""]
+    if args.reference == "pure-arm":
+        result["reference"] = "pure-arm"
+        lines[2] = "开发集使用B 池每任务起点0–29，参考为同一lane 库500 行的减步pure 档，同模型、套件、任务、起点配对。主容差为5 个点，另给0 和 2 个点表。"
     for (model, suite), ref in references.items():
         result["references"].append(dict(model=model, suite=suite,
             inits_0_29=c.stats({k: e for k, e in ref.items() if k[2] < 30}, model),
@@ -46,7 +51,9 @@ def main(argv=None):
         model, suite, size = cell
         ref = {k: e for k, e in references[model, suite].items() if k[2] < 30}
         names = sorted({k[1] for k in ref})
-        if set(planned[cell]) - set(names):
+        if args.reference == "pure-arm":
+            names = sorted(set(names) | set(planned[cell]))
+        elif set(planned[cell]) - set(names):
             raise ValueError(f"{cell}: lane task names absent from teacher reference")
         tasks, selected_rows, selected_ref = {}, {}, {}
         model_label = c.MODEL_LABELS[model]
@@ -56,7 +63,8 @@ def main(argv=None):
         for task in names:
             pure = {k: e for k, e in ref.items() if k[1] == task}
             pure_stats = c.stats(pure, model)
-            levels = {"pure": dict(pure_stats, missing_inits=[], passes={str(t): True for t in tables})}
+            levels = {"pure": dict(pure_stats, missing_inits=sorted(set(range(30)) - {k[2] for k in pure}),
+                                   passes={str(t): True if pure_stats["n"] == 30 else None for t in tables})}
             for level in c.LEVELS[1:]:
                 data = {k: e for k, e in arms.get(level, {}).items() if k in pure}
                 st = c.stats(data, model)
@@ -64,9 +72,9 @@ def main(argv=None):
                 gains = sum(e["success"] and not pure[k]["success"] for k, e in data.items())
                 losses = sum(pure[k]["success"] and not e["success"] for k, e in data.items())
                 levels[level] = dict(st, paired_pure_successes=paired_pure, gains=gains, losses=losses,
-                    missing_inits=sorted(k[2] for k in pure if k not in data),
+                    missing_inits=sorted(set(range(30)) - {k[2] for k in data}),
                     passes={str(t): 100*(st["successes"]-pure_stats["successes"]) >= -t*30
-                            if st["n"] == 30 else None for t in tables})
+                            if st["n"] == pure_stats["n"] == 30 else None for t in tables})
             decisions = {str(t): descend(levels, t) for t in tables}
             tasks[task] = dict(levels=levels, tolerances=decisions, **decisions["5"])
             for tol in tables:

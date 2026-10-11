@@ -1,6 +1,6 @@
 """Opt-in native batch config: private RNG, mixed K, real queues, commits."""
 from concurrent.futures import ThreadPoolExecutor
-from dataclasses import replace
+from dataclasses import asdict, replace
 import json
 
 import pytest
@@ -52,6 +52,26 @@ def test_native_vector_sample_RNG_independent_of_order(make_adapter, req_context
         assert two.actual_nfe == steps
         torch.testing.assert_close(one.normalized_chunk, two.normalized_chunk, rtol=1e-3, atol=1e-4)
         torch.testing.assert_close(two.normalized_chunk, reversed_two.normalized_chunk, rtol=1e-3, atol=1e-4)
+
+
+def test_cache_reduced_miss_payload_runs_trailing_ddim10_at_b8(make_adapter, req_context, tmp_path):
+    adapter = make_adapter('libero')
+    stage2 = adapter.run_stage2(adapter.run_stage1(adapter.prepare(observation('libero'), req_context)))
+    sampler = SamplerProfile(num_steps=10).to_spec(adapter.model.cfg)
+    assert sampler.family == 'ddim' and sampler.config['eta'] == 0
+    assert sampler.native_timesteps == tuple(range(99, -1, -10))
+    runtime = create_runtime(adapter, 8, 5, tmp_path/'batch.jsonl')
+    try:
+        batcher = adapter.make_stage_batcher()
+        stages = [replace(stage2, data=dict(stage2.data, batch_member=dict(connection_id=str(i), request_id=str(i),
+                          request=asdict(req_context)), batching={})) for i in range(8)]
+        payloads = [batcher.miss_payload(stage, sampler, RequestNoise(i), CaptureSpec()) for i, stage in enumerate(stages)]
+        outputs = batcher.run_stage3_miss(payloads, num_steps=10, save_timesteps_per_request=[None]*8)
+        assert len(outputs) == 8
+        assert all(out.actual_nfe == 10 and out.result.sampler == sampler for out in outputs)
+        assert all(out.result.capture['batching']['stage3']['size'] == 8 for out in outputs)
+    finally:
+        runtime.close()
 
 
 def test_default_off_and_runtime_restores_resident(make_adapter, tmp_path):

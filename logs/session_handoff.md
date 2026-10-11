@@ -88,6 +88,11 @@ owner 的常驻指令，逐字有效：
     - 跑完要把 driver 拷回 /data（同 r8c 的 `driver_back_r8c.sh` 做法）。
     - 准备时又拔了 Cosmos `library_admission.compatibility` 的源码/AST 指纹门（`3ce79e98`）。`knobdevcos` 是失败的半成品目录。
   - 网页第 9 版新增「纯推理减步」一节（数据集 `steps`，数据来自 `rounds/r17/horizon/RESULTS_DP_FASTWAM.json` 和 `COSMOS_K2_ANALYSIS.json`）。
+  - **owner 16:4x 命令（已记入记忆）**：
+    - 新模型默认减步数：DP 10 步（DDIM）、Fast-WAM 1 次、Cosmos 2 次（实算 1 次）。
+    - 当前全步数旋钮实验做完后，仿 R16：缓存系统里所有模型调用（停滞门、周期旋钮、pure 档）都改成减步，重做一遍逐任务旋钮。
+    - 目标成功率 = 同起点减步纯推理（A 集对照：`hs5dp_ddim10s0`、`hs6fw_k1`、Cosmos `hs2_cosmos_h100_k2incl_c16_*`）。
+    - 16:43 派 sol 准备代码和输入（任务书 `rounds/r17/prompts/sol_knob_reduced_steps.md`，日志 `r17_ops/sol_knob_reduced.log`）：减步 YAML、放开三个模型校验里写死的原生步数、plan/aggregate 按 YAML 步数、开发集加 pure 行（B 上的减步纯推理参照）、descent `--reference pure-arm`、test `--controls reduced`。
   - **owner 16:0x 定的验收标准**：每个任务的 IR 档位都要调到成功率与纯推理相近或相等（已记入记忆）。执行办法：
     - A 集上每任务 50 局，最多比纯推理低 4 个点（少成功 2 局）算达标；
     - 低 10 个点及以上直接提到 pure，低 6–8 个点升一档；
