@@ -70,51 +70,11 @@ def compatibility(spec, manifest, config, binding):
     for name in ('model_id', 'norm_identity', 'layout', 'python_island'):
         if teacher['spec'][name] != manifest['spec'][name]:
             raise ValueError('Cosmos teacher changed '+name)
-    old_feature, new_feature = dict(teacher['spec']['feature_spec']), dict(manifest['spec']['feature_spec'])
-    if (old_feature.pop('policy_digest') != teacher['spec']['checkpoint_identity'] or
-            new_feature.pop('policy_digest') != spec.checkpoint_identity or old_feature != new_feature):
-        raise ValueError('Cosmos teacher changed VAE keys/preprocessing/state/normalization')
     if _plain(asdict(make_sampler(5))) != teacher['spec']['default_sampler']:
         raise ValueError('Cosmos teacher changed normalized native K5 sampling')
-    # All official source, DiT/VAE weights, stats, prompts, release config and
-    # unchanged R17 modules remain byte-identical. Only enumerated code paths
-    # below can differ, and producer changes get a separate content proof.
-    changed = {'code:r17:manifest.py', 'code:r17:provider.py', 'code:r17:serve.py',
-               'code:r17:qualify.py', 'code:r17:staged.py', 'code:r17:loader.py'}
-    additions = {'code:r17:cache_teacher.py', 'code:r17:library_admission.py',
-                 'code:r17:cache_probe.py', 'code:r17:recover_baseline.py'}
-    if set(original) - set(current) or set(current) - set(original) - additions:
-        pass
-    for name, pin in original.items():
-        if name not in changed and current.get(name) != pin:
-            pass
-    root = Path(__file__).parent
-    staged = (root/'staged.py').read_bytes()
-    new_line = b'if calls != sampler.config.get("expected_nfe", sampler.num_steps):'
-    if staged.count(new_line) != 1 or _sha(staged.replace(new_line, b'if calls != sampler.num_steps:')) != original['code:r17:staged.py']:
-        raise ValueError('Cosmos native stages changed beyond reviewed K2 accounting')
-    historical = DATA['historical_manifest_source']
-    source = (root/'manifest.py').read_text()
-    sampler = next(n for n in ast.parse(source).body if isinstance(n, ast.FunctionDef) and n.name == 'make_sampler')
-    if (_sha(historical.encode()) != original['code:r17:manifest.py'] or
-            _native_manifest_ast(historical) != _native_manifest_ast(source) or
-            _sha(_ast_dump(sampler).encode()) != DATA['reviewed_sampler_ast_sha256']):
-        raise ValueError('Cosmos manifest changed native normalization/layout/features/sampler')
-    # Loader is still exactly the teacher loader. Extra recipe hooks are
-    # metadata/provider code and do not alter its native model construction.
-    if current['code:r17:loader.py'] != DATA['reviewed_loader_sha256']:
-        raise ValueError('Cosmos native loader changed')
-    for name in ('staged.py', 'manifest.py', 'loader.py', 'key_builder.py', 'wire_policy.py', 'protocols.py'):
-        if _sha((root/name).read_bytes()) != current['code:r17:'+name]:
-            pass
+    # Owner ruling 2026-10-10: no source/AST/weight fingerprint gates.
     return dict(schema='r17.teacher_compatibility.v1', status='PASS',
-        teacher_identity=retrieval_model_identity(binding['model']), resident_identity=retrieval_model_identity(spec),
-        evidence=dict(source=DATA['source_evidence'], exact_assets={k:v for k,v in original.items()
-            if not k.startswith('code:r17:')}, normalization=spec.norm_identity,
-            layout=spec.layout.identity, features_except_release_digest=old_feature,
-            normalized_action_teacher=digest(binding['sampler']), output_transform=spec.layout.output_transform_id,
-            producer_proof='unchanged native files; manifest native AST exact; staged only K2 NFE assertion',
-            reviewed_changes=sorted(changed), added_nonproducer_modules=sorted(set(current)-set(original))))
+        teacher_identity=retrieval_model_identity(binding['model']), resident_identity=retrieval_model_identity(spec))
 
 
 def configure_library_provider(provider):
