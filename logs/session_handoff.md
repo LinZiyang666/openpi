@@ -56,6 +56,59 @@ owner 的常驻指令，逐字有效：
 
 ### 1.R16 正在做：纯减步融入闭环（owner 10-07 目标"融入纯减步并实验"，会话 goal 仍挂着）
 
+**10-11 12:3x compact 前交接（最新，只读这一段即可）**
+
+**owner 规则（违反过）**
+- 实验由我亲自起停和守护；agent 只写代码，派单前我先亲自读一线代码；功能不过度实现，不加门。
+- 网页和图交付前，必须本地渲染截图看一遍（见下文「网页」）。
+- 只跑 libero_spatial 和 libero_10，评测用官方 A 集；一个模型跑完再换下一个。
+
+**现状**
+- DP、Fast-WAM：缓存库 500 和 50–400 全部完成，各 8000 + 40000 局。
+- Cosmos 500 档完成（`cosmos500w85_220813`）。
+- Cosmos 50–400 档在跑，批次 `/data/mw_finetune/eval/cosmossizes145_r8c`：
+  - 配置：H100 上 8 副本 + MPS（memory_budget_gib 76），145 个 worker（timan107 45、timan1 3 号卡 40、本机 60）。
+  - `driver/` 是软链接，实际在 `/tmp/r17_driver/cosmossizes145_r8c/driver`。原因：/data 机械盘 fsync 一次 71 ms，旧式 driver 被拖慢。
+  - 续跑链：145 → r4 → r8b → r8c（每段的 CACHE_RESUME.json 记着上一段）。
+  - 12:23 时累计约 7200 / 20000 局，每分钟约 40–50 局，预计 16:00–17:00 收齐。
+  - 启动脚本 `r17_ops/cosmos_r8c_nvme.sh`，日志 `r17_ops/h100_chain.log`。
+- 监控：`bash r17_ops/formal_watch14.sh`（含出错重跑数和 OOM），用 Monitor 挂，每 30 分钟到期后重挂，过滤掉已结束的批次。
+
+**收齐后要做**
+1. 把 `/tmp/r17_driver/cosmossizes145_r8c/driver` 拷回 /data：删掉软链接，换成实体目录，内容逐字节核对后再删 /tmp 副本。
+2. 重跑分析：
+   ```
+   .venv/bin/python exp/offline_search/rounds/r17/cache/analyze_cache.py --sizes 50 100 200 300 400 500 \
+     --lane /data/mw_finetune/eval/{dpc8713063796_r2_d1dd,fastwamc5481985003,hs5dp_ctl_142812,hs6fw_res_152931,\
+   formal_cosmos_libero_official2000_20261010_100533_5f558380,formal_cosmos_libero_official2000_20261010_130639_a8ca2043,\
+   fastwamc6066547406,csztd_r3_l48,cosmos500w85_220813,cosmossizes145_r8c}
+   ```
+   每个 --lane 单独写一个参数，大括号只是简写。约需 20 分钟，后台跑。
+3. 更新网页数据（用 Cosmos 完整结果），提交 CACHE_RESULTS 和 handoff。
+
+**网页** https://claude.ai/artifact/To18VP3TyzS5SXY3MmmUCp（Dashboard 类型）
+- 源文件在 `/home/weiland/.claude/jobs/35f2869b/tmp/dash/`：`index.html`、`cells.json`、`baselines.json`、`progress.json`、`architecture.json`。
+- 更新流程：
+  1. 用 `Artifact publish asset:true` 上传 json，得到 `/_blob/<id>`；
+  2. 用 `ArtifactData update` 改 `datasets/<id>` 的 `source.url`（要带 if_version）；
+  3. 页面写成 `files/index.html` 的 `{text}`（当前版本 7）。
+- 数据集文档当前版本：cells v2、progress v2、baselines v1、architecture v3。
+- 本地检查：`harness.html` 是本地模拟页（stub dash，数据全转成字符串，加载了 Noto Sans SC）。用 `~/.cache/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell --screenshot` 渲染，再用 openpi venv 的 PIL 裁图后看。
+- 页面结构：进度 → 要点 → 模型结构（每个模型上方数据流图 + 下方 Figure 1 风格结构图，标 ×100/×10/×5 循环）→ 成功率曲线 → 透视表（首行纯推理，每格「成功率 + 差值」）→ 说明。
+- 页面运行错误看 `data/users/me/runs`。
+
+**已知结论**
+- DP：库够大时，带长执行段、修正器、停滞门的组达到或超过纯推理（libero_10 在 500 时最高 +9.2）。
+- Fast-WAM：所有组都低于纯推理。
+- Cosmos：缓存库 50 差，原因是每 16 步才检索一次、每个任务只有 38 行，k=16 个近邻占了 42% 的行；缓存库 500 时 spatial 为 95.0%，好于 Fast-WAM。
+
+**坑**
+- 旧式 driver 目录必须放 NVMe。
+- 4090 上 DP + 本机 worker 最多 48 个（显存）。
+- Cosmos 副本加载峰值约 8 GB，memory_budget_gib 会按副本平分。
+- 收尾时 formal_eval 可能空挂，确认远端进程都关了再 SIGTERM。
+- 不要用 `pgrep -f` 去 kill 含有自身命令行的进程。
+
 **10-11 12:2x 增量（最新，先读）**
 - Cosmos 50–400 档切到 `cosmossizes145_r8c`（8 副本 + MPS，145 个 worker），`driver/` 用软链接放在 `/tmp/r17_driver/cosmossizes145_r8c/driver`（NVMe）。原因：旧式 driver 每行都 fsync，/data 正忙，每次 71 ms，worker 只有 11% 的时间在干活；改到 NVMe 后 worker 忙碌比例到 95%，速度约每分钟 50 局。保留 6434 局，还剩 13566 局，预计 16:00 左右收齐。**收齐后把 /tmp 下的 driver 目录拷回 /data 留底**。
 - 网页：https://claude.ai/artifact/To18VP3TyzS5SXY3MmmUCp（dashboard 类型，数据在 job tmp 的 dash/*.json，上传成附件再更新 datasets）。Cosmos 收齐后，用完整分析更新 cells.json。
