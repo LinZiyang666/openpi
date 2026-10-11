@@ -1,6 +1,6 @@
 # R17 concurrent launch reference
 
-Last verified: **2026-10-10, after the 14:33 CDT launches and P3/S/Q receipts**.
+Last verified: **2026-10-11 00:1x CDT** (cache-study topology section); other sections 2026-10-10 14:33.
 Coordinator launch decisions belong here. **Replace a recommendation immediately
 when better evidence invalidates it; do not leave obsolete advice as an alternative.**
 Refresh after each completed campaign, qualification, or resource change.
@@ -13,6 +13,8 @@ group-commit, timan107 x48**, baseline `hs6fw_ctl_143332`. DP LIBERO on the
 `hs5dp_ctl_142812`. Their campaign/orchestration records verify these settings;
 startup PARTIAL receipts are not completed baselines. The stopped hs3/hs4
 controls and their queues are superseded and cannot authorize these arms.
+
+**Cache study (current runs):** see [Cache-study topology in use](#cache-study-topology-in-use-2026-10-11) at the end.
 
 P3/S/Q inputs are resolved. Fixes address host sampler/launch gaps and conductor
 durability stalls, not a shortage of nominal workers. Replicas share GPU compute,
@@ -854,18 +856,14 @@ Evidence: [Q durability/replay](../qualification/HANDBACK_Q.md#grouped-driver-or
 [replay results](/data/mw_finetune/qualification/driver_replay_20261010_group_commit_final/RESULTS.json),
 [S old-driver waits](../REQUESTS/S_to_R.md), [orchestration implementation](driver_release.py).
 
-### Worker cap is renderer VRAM admission; spread EGL and recycle
+### Spread EGL rendering across GPUs and recycle workers
 
-All workers onGPU0 exhausted8 GiB whileGPU1..7 were empty; spreading plus
-N4 recycling mitigated host-memory growth. The timan108 failure also had shared
-GPU0/D-state workers; its healthy-RAM receipt does not prove node OOM.
-Current Fast48 x768 +DP32 x576 =54 GiB reserved across eight8 GiB GPUs,
-6912 MiB/card before physical occupancy/headroom. This fills allocatable slots:
-DP36 failed twice before32 fit. **RAM availability is not permission for another
-worker**, and recycle gaps retain reservations. Spread over all eligible GPUs,
-recycle every4 episodes, preserve actual EGL/reservation pins. Historical
-64/~123 GiB and sampled532 MiB renderer peak are observations, not all-task
-memory guarantees or a32-worker RAM ceiling.
+All workers rendering on GPU0 exhausted its 8 GiB while GPU1..7 sat empty, and the
+host memory leaked until the node OOMed. Spread workers over all eligible GPUs
+(`--worker-egl-devices`) and recycle every 4 episodes (`--worker-max-episodes 4`).
+There are no RAM/VRAM/disk admission gates any more (owner 2026-10-10); size
+fleets from measured node capacity (see the cache-study topology section), not
+from reservation arithmetic.
 
 Evidence: [GPU0 overload](../REQUESTS/D_to_M.md),
 [D spreading/timan108 receipt](../handbacks/HANDBACK_COSMOS.md),
@@ -1047,19 +1045,43 @@ All worker placements below use timan107 for new campaigns; timan108 is offline.
 | DP MT50 |4090;H100 capacity option |fresh/sharedR1;historicalR12 |B1/inactive |off |legacy |t10724 solo/12 shared |15.45 ep/min/5.489 calls/s atR12/W24;R1 unmeasured |small kernels/host/context scheduling |
 | Fast-WAM MT50 |H100;4090R1 capacity option |fresh/sharedR1;historicalR2 |B1/inactive |off |legacy |t10724 solo/12 shared;historicalt10824 |8.68 ep/min/3.041 calls/s atR2/W24;R1 unmeasured |K10 head, shared GPU/driver scheduling |
 
-## Cache-study matched resident lanes — P6, 2026-10-10
+## Cache-study topology in use (2026-10-11)
 
-The cache study keeps DP localR2/B8/5ms/MPS/GroupCommit with32 timan107
-workers2048/576MiB/N4; cache startup width1 is the owner's serialized-load
-instruction. Fast-WAM keeps H100R2/B16/5ms/MPS/GroupCommit with48 workers
-2048/768MiB/N4 and explicit EGL0..7. Cosmos keeps the **merged K5 control**,
-H100R2/B1/MPSoff/legacy,8 timan107 workers3072/768MiB/N4, automatic EGL list.
-This Cosmos topology is distinct from the fresh R1/12 baseline template above.
-Cosmos follows Fast-WAM on H100; its8-worker renderer fleet fits next to DP32
-subject to fresh per-card and RAM admission. No4090 flock wraps an H100 run.
+One resident model per GPU; all groups and library sizes of a model hot-switch by
+YAML inside one campaign. Identity/seal checks and RAM/VRAM/disk admission were
+removed on 2026-10-10 (owner ruling). Worker counts below are measured capacity.
 
-One fleet/model hot-switches every group over spatial+LIBERO-10 A500;8,000
-episodes each for DP/Fast and4,000 distinct Cosmos cells. See
-[full commands, control pins, L selection, resume and estimates](cache_study/FULL_RUN.md).
-Full lanes retain Q's private MPS guard/bounded startup retry, rc2 ACK recovery
-and GPU-first CPU finalization. No new GPU runs were launched during this edit.
+| Lane | Server GPU | Replicas / batch | MPS / driver | Workers | Per worker | Ports |
+|---|---|---|---|---|---|---|
+| DP, sizes 50–400 (`csztdp` lane) | local RTX 4090 48 GB | R4, B8 / 5 ms | on / group-commit | local × 60 | RAM 3584 MiB, renderer 717 MiB, recycle N4 | 23400–23404, driver 23419 |
+| Fast-WAM, sizes 50–400 (`fastwamc6066547406`) | H100 80 GB | R2, B16 / 5 ms | on / group-commit | timan107 × 45 (EGL 0–7) + timan1 × 40 (GPU 3 only) | 2048 / 768 MiB, N4 | 23420–23422, driver 23439 |
+| Cosmos, size 500 (`cosmos500w85_220813`) | H100 | R2, B1 | off / legacy | timan107 × 45 + timan1 × 40 | 3072 / 768 MiB, N4 | 23440–23442, driver 23459 |
+| Cosmos, sizes 50–400 (`cosmossizes145`; fallback `cosmossizes85_222001`) | H100 | R2, B1 | off / legacy | timan107 × 45 + timan1 × 40 + local × 60 | 3072 / 768; local 4096 / 1024; N4 | same as Cosmos 500 |
+
+**Node capacity.**
+- timan107: 45 workers in use; 64 have run before.
+- timan1: GPU 3 only, 40 workers, inside the bwrap device namespace; its other GPUs are forbidden.
+- Local weilandserver: 60 workers. They serve the 4090 lane first, and join an H100 lane only while the 4090 lane is idle. 60 DP plus 60 Cosmos local workers at once would exhaust the 251 GB of RAM.
+
+**Measured.**
+- DP: 100–115 episodes/min; the 4090 runs at 100% and about 26 GB.
+- Fast-WAM: the H100 sits at about 23% and 51–59 GB, so the lane is bound by workers and latency, not by the GPU. Per-group 500-episode spans at N50:
+
+  | Suite | Ungated groups | Gated groups |
+  |---|---|---|
+  | spatial | 2.4–2.7 min | 2.9–4.4 min |
+  | LIBERO-10 | 4.2–6.2 min | about 12 min (stall MISS calls) |
+
+  That makes about 80–85 min per library size.
+- Cosmos: about 5–6 GB per replica.
+- Worker output on timan107: about 0.24 MB per episode under `/scratch/zixuans8/mw_r17/formal/runs`.
+
+**Prepare (CPU only).**
+- DP: `cache_capacity_lanes.prepare('4090', <lane dir>, <prefix>)`, which uses `FLEETS['dp_libero']`.
+- H100 models: `queue_retry.clone(snapshot, name, ..., worker_counts=nodes, ...)`. Example: [prepare_cosmos145.py](/home/weiland/projects/openpi_ext/scratch/r17_ops/prepare_cosmos145.py); run it with `PYTHONPATH=<repo>`.
+
+**Run.**
+- `exp/r17_integration/ops/formal_eval.sh --run --prepared-run /data/mw_finetune/eval/<run>`.
+- The DP lane is `python -m exp.r17_integration.ops.cache_lane --lane 4090 --directory <lane dir> --run`; it resumes failed segments as `<run>_rN_xxxx`. If it gives up, move `LANE_RECEIPT.json` aside and rerun the same command.
+- The H100 order runs from [chain_h100_cosmos.sh](/home/weiland/projects/openpi_ext/scratch/r17_ops/chain_h100_cosmos.sh): Fast sizes, then Cosmos 500, then Cosmos sizes.
+- Do not use the `cache_model_order` or `queue_retry` queue runners. They treat a running predecessor's PARTIAL receipt as a failure and refuse existing run logs.

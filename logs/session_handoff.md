@@ -56,6 +56,13 @@ owner 的常驻指令，逐字有效：
 
 ### 1.R16 正在做：纯减步融入闭环（owner 10-07 目标"融入纯减步并实验"，会话 goal 仍挂着）
 
+**10-11 00:0x 夜间推进（owner 睡觉，agent 限制解除；最新，先读）**
+- H100 链 `r17_ops/chain_h100_cosmos.sh`（PID 2282671，日志 `r17_ops/h100_chain.log`）：等 Fast size（启动进程 1637628）退出、确认收到 ≥40000 局 → 释放 `cosmos500w85_220813` 的 DISPATCH_HOLD → 跑 Cosmos 500 档（4000 局）→ 等 4090 DP lane 退出，最多 60 分钟 → 跑 `cosmossizes145`（145 个 worker：timan107 45 + timan1 40 + 本机 60，20000 局）；如果 DP 还没结束，就改跑 `cosmossizes85_222001`（只用外部 85 个 worker）。145 批次由 `/home/weiland/.claude/jobs/35f2869b/tmp/prepare_cosmos145.py` 准备，H100 server 加本机 worker 的混合组合还没有实跑过。
+- 预计完成：Fast size 约 06:00，DP size 约 06:00–06:30，Cosmos 全部约 09:00–10:30。
+- 分析：sol A（`r17_ops/sol_A_analysis.log`，任务书 `rounds/r17/prompts/sol_A_analysis_simplify.md`）在去掉 `analyze_cache.py` 的封存/PASS/身份门，并支持续跑链合并和中间结果，然后跑出 N500 与中间尺寸的表。
+- 已提交（Sonnet）：openpi Ziyang 分支 5 个提交（3e5352f9..af46cf20），工作区干净；生成数据留在磁盘上、已 ignore。
+- 记忆已精简到 19 条；新规则：派单前协调者亲自熟悉一线代码；功能不过度实现。
+
 **10-10 23:4x 增量（最新，先读）**
 - owner 23:1x 令：自加的校验、指纹、合规「全部拔掉」。已用 AST 脚本（`/home/weiland/.claude/jobs/35f2869b/tmp/ungate.py`）把 exp/r17_integration 下 ops、qualification、common、benchmarks、conductor、search 加载部分，以及 DP、Fast-WAM、Cosmos 三个模型里的身份、封存、指纹、授权、证据、收据类 raise 改成 pass，约 500 处。另外改了几处：内存、磁盘、显存三道准入恒通过；provider 按名字查找时忽略内容哈希；DP、Cosmos 库兼容检查不再锁代码哈希。保留的检查：形状、dtype、几何、路径安全、端口、超时、MPS 就绪、每局恰好收到一次、grouped driver 禁止原地重启、删除远端数据前的核对（sync_back、incremental_sync、worker_storage 三个文件整体保留）、timan1_workers.py 整体保留（只用 3 号卡）。改前备份：job tmp 下 `r17_ops_models_before_ungate_*.tar`。
 - DP 50–400 档 23:3x 在跑：lane 目录 `/data/mw_finetune/eval/csztdp`，当前 run `csztd_r2_c383_r2_e5b0`，本机 60 个 worker、4 个副本，lane 日志 `r17_ops/dp_sizes_r6.log`。Fast-WAM 50–400 档（`fastwamc6066547406`）23:33 收 4539/40000 局。
