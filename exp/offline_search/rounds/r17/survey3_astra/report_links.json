@@ -1,0 +1,19 @@
+{
+  "sha": {
+    "huggingface__lerobot": "b9cb121cb7d4e3e26ec5c906d08dda68d151ba52",
+    "yuantianyuan01__FastWAM": "7faa71108368fbb3b6885649f112af607427a2d4",
+    "L1ziang__Light-WAM": "db7d05e724f3eac2d4f0c9c3ac727fe93a44d727",
+    "ShuangLI59__unified_video_action": "fe3dec81af565fbb2d686072722f12340be31293",
+    "WEIRDLabUW__unified-world-model": "b7d4067c8859775e5b08f681e76d538015cdd445",
+    "OpenRobotLab__Seer": "ee228e110e098beefa23f94d558dfa8492259e6e",
+    "ChushanZhang__RIFT": "cc5fce8d6f89210765e02c73ba692f01bc5b4b41",
+    "intuitive-robots__MoDE_Diffusion_Policy": "72cf8a25eafa54316f0c6c961b620e4b6c9c3e6b"
+  },
+  "links": {
+    "fw_code": "https://github.com/huggingface/lerobot/blob/b9cb121cb7d4e3e26ec5c906d08dda68d151ba52/src/lerobot/policies/fastwam/modeling_fastwam.py#L80",
+    "fw_doc": "https://github.com/huggingface/lerobot/blob/b9cb121cb7d4e3e26ec5c906d08dda68d151ba52/docs/source/fastwam.mdx#L149",
+    "fw_infer": "https://github.com/huggingface/lerobot/blob/b9cb121cb7d4e3e26ec5c906d08dda68d151ba52/src/lerobot/policies/fastwam/wan/modular.py#L1788",
+    "lw_freeze": "https://github.com/L1ziang/Light-WAM/blob/db7d05e724f3eac2d4f0c9c3ac727fe93a44d727/src/lightwam/models/wan22/lightwam.py#L364",
+    "lw_infer": "https://github.com/L1ziang/Light-WAM/blob/db7d05e724f3eac2d4f0c9c3ac727fe93a44d727/src/lightwam/models/wan22/lightwam.py#L2263"
+  }
+}

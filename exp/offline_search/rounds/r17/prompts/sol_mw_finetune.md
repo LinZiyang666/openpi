@@ -1,0 +1,32 @@
+<task>
+Owner goal (2026-10-08 23:4x): build the evaluation and fine-tuning tools, fine-tune **GR00T N1.5** and **Fast-WAM** on **MetaWorld MT50** following the papers' recipes, and measure each model's pure-inference success rate after fine-tuning. The owner authorized exclusive use of the local RTX 4090 (48 GB, this machine `weilandserver`) and the H100 80 GB (tether node `h100`) during training, effective 2026-10-09 00:30 CDT. You build and verify the tools; the coordinator (me) runs the long training and evaluation jobs.
+</task>
+
+<context>
+- Repo: `/home/weiland/projects/openpi` (branch `Ziyang`). Existing MetaWorld pieces (π0.5 RLinf SFT on MT50, Sept): `exp/metaworld/{tasks,env,episode_runner,worker_entry,warm_reset_env}.py`, `src/openpi/policies/metaworld_policy.py`, `pi05_metaworld` config, record `logs/metaworld_warm_reset.log.md`. Local MetaWorld venv: `/home/weiland/projects/openpi_ext/envs/metaworld_sim` (metaworld 3.0.0, gymnasium 1.3.0, mujoco 3.14). Bench protocol used then: `MT1(task, seed=7)` + `set_task(train_tasks[idx])`, 50 tasks, difficulty groups 28/11/6/5, max steps, settle steps — see `exp/metaworld/tasks.py`/`env.py`.
+- timan107 has **no** MetaWorld install (checked); either install a matching venv there or run workers on weilandserver (88 threads). Decide and document.
+- GR00T N1.5: existing LIBERO serving path `exp/libero_groot/serve_groot_libero.py`, GR00T island venv `openpi_ext/envs/gr00t_n15_venv`, code `openpi_ext/third_party/gr00t_n15`, base/LIBERO checkpoints `/data/ckpt/n15_*`; `nvidia/GR00T-N1.5-3B` base on HF.
+- Fast-WAM: paper arXiv 2603.16666; code https://github.com/yuantianyuan01/FastWAM ; LIBERO weights `yuanty/fastwam` (`libero_uncond_2cam224.pt`), LeRobot port `lerobot/fastwam_libero_uncond_2cam224` (LeRobot `policy.type=fastwam`, supports `freeze_video_expert`, `lambda_video`; reads `lerobot/metaworld_mt50`, evals with `env.type=metaworld`); base video model from `Wan-AI/Wan2.2-TI2V-5B`; fallback EasyWAM-MoT-Wan22 (LoRA recipe). 6B params: full fine-tune needs ~96 GB optimizer state (8-GPU recipe) → on our single GPUs use the action-expert-only (frozen video expert) or LoRA route, documented as a deviation.
+- MetaWorld MT50 data: `lerobot/metaworld_mt50` — 2,500 episodes (50/task), 204,806 frames, one 480² camera, 4-D state/action, fps 80. Paper protocol (SmolVLA paper, the dataset's source): evaluate 10 trials per task (500 episodes), binary success, report the four difficulty groups (easy/medium/hard/very hard) and the average; MetaWorld fine-tune recipe in that paper: 100k steps, batch 64, AdamW (0.9, 0.95), lr 1e-4 cosine → 2.5e-6, 100 warmup. Reference numbers (group-average): DP 10.5, TinyVLA 31.6, SmolVLA 68.2, π0 SFT 50.8, π0.5 SFT 43.8 (RLinf docs).
+- Cosmos Policy MetaWorld community checkpoint `mmurray-ms/Cosmos-Policy-MetaWorld-Predict2-2B` (v3; gripper proprio `[g,-g]`; 50 cached T5 prompt embeddings; author's runner not public). Our Cosmos server: `exp/cosmos_nfe/serve_cosmos.py`, env `openpi_ext/lines/cosmos-policy`. Evaluating it is a secondary goal (do it if the adapter is cheap).
+</context>
+
+<deliverables>
+1. `exp/mw_finetune/RECIPES.md`: exact recipes taken from the papers/official repos (cite file/line or paper section) for GR00T N1.5 fine-tuning and Fast-WAM fine-tuning, the MetaWorld reference recipe (SmolVLA paper), and the concrete per-model plan for our hardware (which GPU, trainable parts, batch/accumulation, steps, lr schedule, checkpoint cadence) with every deviation from the paper recipe stated and justified. Include a throughput-probe mode so I can measure it/s before committing.
+2. Data prep: download `lerobot/metaworld_mt50` (to weilandserver `/data/mw_finetune/` and, if training there, the H100's free space — see disk note), convert/configure for GR00T N1.5 (modality config, a new embodiment tag, 1 camera, 4-D state/action, normalization stats) and for Fast-WAM (its LeRobot/official loader). Verify a few samples round-trip (image, state, action, task text).
+3. Training launchers (resumable, logging, periodic checkpoints, a `--probe N` mode) for GR00T N1.5 and Fast-WAM on the 4090 and on the H100 (via tether; the H100 has 20 CPUs, 230 GB RAM; GPU will be exclusive).
+4. Evaluation harness for MT50 (10 trials/task = idx 0..9 at bench seed 7, 500 episodes; per-task and per-difficulty-group SR plus overall per-task mean; same env conventions as the π0.5 runs so numbers are comparable), with policy servers/adapters for: GR00T N1.5-MW checkpoint, Fast-WAM-MW checkpoint, π0.5 RLinf (existing), and Cosmos-MW community checkpoint if cheap. Parallel workers (CPU MuJoCo, offscreen) against one GPU server; resumable; a 2-episode smoke mode.
+5. CPU tests (adapters, action/state conventions, task table, aggregation), short GPU smoke checks (≤ 15 min total GPU, only after 00:30 CDT, on the 4090), and `exp/mw_finetune/HANDBACK.md` with exact commands: data prep, probe, train (per model/GPU), serve, eval, aggregate.
+</deliverables>
+
+<constraints>
+- Do not modify existing R16/offline_search frozen files or results; new code under `exp/mw_finetune/` (small adapters elsewhere only if necessary, default-off).
+- H100 disk: `/data` has only ~34 GB free with an agreed 30 GB floor; do NOT write more than 4 GB there and do NOT delete anything; report how much space each model needs — I am asking the owner to free our old run directories. You may use H100 `/home` root FS sparingly (27 GB free) for code/venvs. Never touch `/dev/shm/i018` or other projects' files.
+- weilandserver: put large data/checkpoints under `/data/mw_finetune/` (≈2 TB free); not under /home.
+- Remote ops via tether are allowed for setup on h100/timan107 (venvs, downloads, code sync); no long GPU jobs (I run those). No git commit/push, no pkill, no rm -rf. Don't touch running processes (a /archive migration and other sessions are running), `/archive`, `/data/i018`, `/data/idea_sprint`, `/home/weiland/idea-sprint`.
+- Prefer existing interfaces (our websocket msgpack policy protocol and conductor/worker path) so the eval harness matches past MetaWorld runs.
+</constraints>
+
+<default_follow_through_policy>
+Don't stop for routine questions; record choices in RECIPES.md/HANDBACK.md. Stop and report only if a paper recipe cannot be followed at all on our hardware and the choice between alternatives (e.g. Fast-WAM frozen-video vs LoRA) materially changes results — give your recommendation.
+</default_follow_through_policy>

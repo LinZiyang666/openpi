@@ -1,0 +1,65 @@
+{
+  "pi05": {
+    "full_ms": 68,
+    "hit_ms": 10.303030303030303,
+    "full_hit_ratio": 6.6,
+    "saved_ms": 57.696969696969695
+  },
+  "fastwam_4090_published": {
+    "full_ms": 404.62,
+    "vae_ms": 11.3,
+    "visual_ms": 36.0,
+    "action_ms": 356.8,
+    "hit_ms": 47.81999999999999,
+    "full_hit_ratio": 8.461313258051026,
+    "saved_ms": 356.8
+  },
+  "fastwam_h100_issue34_text_cached": {
+    "full_ms": 345.90000000000003,
+    "hit_ms": 35.900000000000034,
+    "full_hit_ratio": 9.635097493036204,
+    "saved_ms": 310.0
+  },
+  "fastwam_4090_nfe1_LINEAR_ESTIMATE_NOT_MEASURED": {
+    "full_ms": 83.5,
+    "hit_ms": 47.81999999999999,
+    "full_hit_ratio": 1.7461313258051028,
+    "saved_ms": 35.68
+  },
+  "lightwam_deep_key": {
+    "full_ms": 72.03,
+    "hit_ms": 69.93,
+    "full_hit_ratio": 1.03003003003003,
+    "saved_ms": 2.1
+  },
+  "lightwam_vae_key_PROPOSED": {
+    "full_ms": 72.03,
+    "hit_ms": 13.430000000000001,
+    "full_hit_ratio": 5.363365599404318,
+    "saved_ms": 58.6
+  },
+  "training_estimates_NOT_MEASURED": {
+    "fastwam_h100_reference_samples_s": 7.9,
+    "fastwam_20k_updates_batch16_samples": 320000,
+    "fastwam_20k_updates_batch16_frame_equivalent_passes": 1.5624542249738778,
+    "fastwam_20k_train_hours_at_5_to_8_samples_s": [
+      11.11111111111111,
+      17.77777777777778
+    ],
+    "fastwam_30k_train_hours_at_5_to_8_samples_s": [
+      16.666666666666668,
+      26.666666666666668
+    ],
+    "lightwam_h100_cached_reference_samples_s": 33.325,
+    "lightwam_30k_train_hours_at_20_to_33_325_samples_s": [
+      4.001000250062516,
+      6.666666666666667
+    ],
+    "lightwam_30k_no_cache_reference_hours": 14.939309056956116,
+    "lightwam_30k_online_train_hours_at_6_to_9_samples_s": [
+      14.814814814814815,
+      22.22222222222222
+    ]
+  },
+  "scope": "All cache hit costs omit unmeasured pooling/retrieval/correction cost delta; ratios are upper bounds. Published hardware and input protocols differ from MT50. No local GPU measurement."
+}

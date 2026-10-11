@@ -1,0 +1,122 @@
+{
+  "retrieved_date": "2026-10-10",
+  "stage_samples": [
+    {
+      "model": "dp",
+      "path": "/data/mw_finetune/eval/formal_dp_libero_formal400_20261009_220843_8dca4316/driver/per_step.jsonl",
+      "first_policy_rows": 100,
+      "sample_lines_sha256": "e02de5676d8e9bf207727119f676ad1e8f04340ac6c08a55cd541a7854071a24",
+      "mean_stage3_fraction": 0.8212585139667711,
+      "limit": "host stage wall, not GPU kernel time; debug/queue/co-load may affect it"
+    },
+    {
+      "model": "cosmos",
+      "path": "/data/mw_finetune/eval/formal_cosmos_libero_formal400_20261009_231322_2b680ed5/driver/per_step.jsonl",
+      "first_policy_rows": 100,
+      "sample_lines_sha256": "c835b2a667682c5db7e74a9efa60550c4dd2b1cbcc02163f785723942148aab2",
+      "mean_stage3_fraction": 0.6358819064739635,
+      "limit": "host stage wall, not GPU kernel time; debug/queue/co-load may affect it"
+    },
+    {
+      "model": "fastwam",
+      "path": "/data/r17_library/fastwam_libero_libero_spatial/campaigns/teacher_fastwam_libero_libero_spatial_repair_20261010_042146_2430f3da/driver/per_step.jsonl",
+      "first_policy_rows": 100,
+      "sample_lines_sha256": "a1f563b05c7d24d902cc139707c74a089b1cd8af2ce9cd4cda63f6bc9a33b406",
+      "mean_stage3_fraction": 0.6888203220998573,
+      "limit": "host stage wall, not GPU kernel time; debug/queue/co-load may affect it"
+    },
+    {
+      "model": "fastwam",
+      "path": "/data/r17_library/fastwam_libero_libero_10/campaigns/teacher_fastwam_libero_libero_10_repair_20261010_051512_d6ee8099/driver/per_step.jsonl",
+      "first_policy_rows": 100,
+      "sample_lines_sha256": "aa75ce0e705f2fe65b19a7a92a0e6dc82b6440df8ebc9d4df8864de5793c3d1d",
+      "mean_stage3_fraction": 0.688135490804877,
+      "limit": "host stage wall, not GPU kernel time; debug/queue/co-load may affect it"
+    }
+  ],
+  "cosmos_parity": [
+    {
+      "path": "/data/mw_finetune/eval/cosmos_libero_smoke2_release_v5/servers/replica_0/native_parity.json",
+      "sha256": "8dbc04cb2471e984010f6838f95c71157e4466ee9486ff19f660b8ec06ef1c62",
+      "gpu": "NVIDIA GeForce RTX 4090",
+      "checks": [
+        {
+          "k": 5,
+          "actual_nfe": 5,
+          "staged_seconds": 1.250604093002039
+        },
+        {
+          "k": 3,
+          "actual_nfe": 3,
+          "staged_seconds": 0.7921437289987807
+        },
+        {
+          "k": 1,
+          "actual_nfe": 1,
+          "staged_seconds": 0.5867457230051514
+        }
+      ]
+    },
+    {
+      "path": "/data/mw_finetune/eval/cosmos_libero_h100_smoke2_nvrtc_v2/servers/replica_0/native_parity.json",
+      "sha256": "facbdd4a8bc41ab5fc750af2df56abfe926c442b2c15b1d4d7c0d2a2788403ef",
+      "gpu": "NVIDIA H100 80GB HBM3",
+      "checks": [
+        {
+          "k": 5,
+          "actual_nfe": 5,
+          "staged_seconds": 0.48416313499910757
+        },
+        {
+          "k": 3,
+          "actual_nfe": 3,
+          "staged_seconds": 0.3542941650011926
+        },
+        {
+          "k": 1,
+          "actual_nfe": 1,
+          "staged_seconds": 0.2345196530004614
+        }
+      ]
+    }
+  ],
+  "current_control_campaigns": [
+    {
+      "path": "/data/mw_finetune/eval/formal_cosmos_libero_official2000_20261010_100533_5f558380/campaign.json",
+      "sha256": "358a79ea507fcf88ce6443edc5d2f52aff693981c351ba01ac6600b080435844",
+      "model": "cosmos",
+      "checkpoint": "/data/mw_finetune/models/cosmos_libero",
+      "server_node": "h100",
+      "worker_nodes": {
+        "timan108": 24
+      },
+      "workers": 24,
+      "replicas": 2,
+      "memory_budget_gib": 18.0,
+      "official_50": true
+    },
+    {
+      "path": "/data/mw_finetune/eval/formal_fastwam_libero_official2000_20261010_101044_b0c4e68b/campaign.json",
+      "sha256": "1ff292a3b4f05b670ec2e38c72222875d6b10e033681d1a65eb893c73119c5f1",
+      "model": "fastwam",
+      "checkpoint": "/data/mw_finetune/models/fastwam_libero",
+      "server_node": "h100",
+      "worker_nodes": {
+        "timan107": 24
+      },
+      "workers": 24,
+      "replicas": 2,
+      "memory_budget_gib": 64.0,
+      "official_50": true
+    }
+  ],
+  "owner_device_gb": {
+    "4090": 48,
+    "H100": 80
+  },
+  "owner_measured_replica_gb": {
+    "fastwam": 26,
+    "cosmos": "6-8",
+    "dp": 0.9
+  }
+}

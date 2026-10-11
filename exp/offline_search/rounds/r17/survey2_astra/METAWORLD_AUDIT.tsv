@@ -1,0 +1,111 @@
+id	family_screen	full_file_metadata_saved
+A999baby/metaworld-pick-place-v3-10k	未确立双基准完整策略	True
+A999baby/metaworld-test-egl	未确立双基准完整策略	False
+AIRLab-POLIMI/CRT_MetaWorld	CRT（修复器）	True
+DrainpipeAI/metaworld-smolvla	SmolVLA / 派生	False
+Hosheaaa/svla_metaworld_0122	SmolVLA / 派生	False
+Jiaxin1234/metaworld-test	未确立双基准完整策略	True
+JunnDooChoi/slurm_pi05_mlp_metaworld_260707	π 家族 / 派生	False
+JunnDooChoi/slurm_pi05_ufos_f128_metaworld_260630	π 家族 / 派生	False
+JunnDooChoi/slurm_pi05_ufos_f256_metaworld_260630	π 家族 / 派生	False
+JunnDooChoi/slurm_pi05_ufos_f32_metaworld_260630	π 家族 / 派生	False
+JunnDooChoi/slurm_pi05_ufos_f512_metaworld_260705	π 家族 / 派生	False
+JunnDooChoi/slurm_pi05_ufos_f64_metaworld_260630	π 家族 / 派生	False
+JunnDooChoi/slurm_pi05_ufos_f64_metaworld_260702	π 家族 / 派生	False
+JunnDooChoi/slurm_smolvla_full_finetune_metaworld_260616	SmolVLA / 派生	False
+JunnDooChoi/slurm_smolvla_ours_finetune_metaworld_260610	SmolVLA / 派生	False
+JunnDooChoi/slurm_smolvla_ours_finetune_metaworld_260613	SmolVLA / 派生	False
+JunnDooChoi/slurm_smolvla_ours_finetune_metaworld_260615	SmolVLA / 派生	False
+JunnDooChoi/slurm_smolvla_ours_full_finetune_metaworld_260615	SmolVLA / 派生	False
+JunnDooChoi/slurm_smolvla_ufos_dont_pretrain_metaworld_260620	SmolVLA / 派生	False
+JunnDooChoi/slurm_smolvla_ufos_f32_metaworld_260630	SmolVLA / 派生	False
+JunnDooChoi/slurm_smolvla_ufos_f512_metaworld_260705	SmolVLA / 派生	False
+JunnDooChoi/slurm_smolvla_ufos_f64_metaworld_260625	SmolVLA / 派生	False
+JunnDooChoi/slurm_smolvla_ufos_f64_metaworld_260630	SmolVLA / 派生	False
+JunnDooChoi/slurm_smolvla_ufos_finetune_metaworld_260617	SmolVLA / 派生	False
+JunnDooChoi/slurm_smolvla_ufos_finetune_metaworld_260617_100K	SmolVLA / 派生	False
+JunnDooChoi/slurm_smolvla_ufos_finetune_metaworld_260617_80K	SmolVLA / 派生	False
+JunnDooChoi/slurm_smolvla_ufos_max_full_state_finetune_metaworld_260619	SmolVLA / 派生	False
+JunnDooChoi/slurm_smolvla_ufos_max_state_f256_metaworld_260628	SmolVLA / 派生	False
+JunnDooChoi/slurm_smolvla_ufos_max_state_f256_metaworld_260628_30K	SmolVLA / 派生	False
+JunnDooChoi/slurm_smolvla_ufos_max_state_finetune_metaworld_260619	SmolVLA / 派生	False
+JunnDooChoi/slurm_smolvla_ufos_max_state_finetune_metaworld_260619_60K	SmolVLA / 派生	False
+JunnDooChoi/slurm_smolvla_ufos_max_state_finetune_metaworld_260619_80K	SmolVLA / 派生	False
+JunnDooChoi/slurm_smolvla_ufos_state8_f256_metaworld_260625	SmolVLA / 派生	False
+JunnDooChoi/slurm_smolvla_ufos_state8_f256_metaworld_260625_30K	SmolVLA / 派生	False
+JunnDooChoi/slurm_smolvla_ufos_suffix_finetune_metaworld_260617	SmolVLA / 派生	False
+JunnDooChoi/slurm_smolvla_ufos_suffix_finetune_metaworld_260617_20K	SmolVLA / 派生	False
+JunnDooChoi/slurm_smolvla_ufos_suffix_finetune_metaworld_260617_40K	SmolVLA / 派生	False
+JunnDooChoi/slurm_smolvla_ufos_suffix_vlmweight_finetune_metaworld_260617_20K	SmolVLA / 派生	False
+JunnDooChoi/slurm_smolvla_ufos_suffix_vlmweight_finetune_metaworld_260617_40K	SmolVLA / 派生	False
+JunnDooChoi/slurm_smolvla_ufos_suffix_vlmweight_finetune_metaworld_260617_60K	SmolVLA / 派生	False
+JunnDooChoi/slurm_smolvla_ufos_suffix_vlmweight_finetune_metaworld_260618	SmolVLA / 派生	False
+JunnDooChoi/slurm_smolvla_ufos_suffix_vlmweight_finetune_metaworld_260618_20K	SmolVLA / 派生	False
+JunnDooChoi/slurm_smolvla_ufos_suffix_vlmweight_finetune_metaworld_260618_60K	SmolVLA / 派生	False
+MINT-SJTU/EVO-Depth-MetaWorld	Evo / InternVL VLA	True
+MINT-SJTU/Evo-World-Metaworld	Evo / InternVL VLA	True
+MINT-SJTU/Evo1_MetaWorld	Evo / InternVL VLA	True
+MINT-SJTU/starvla_metaworld_qwenpiv3_baseline_finetune	其他 VLA	False
+MINT-SJTU/starvla_metaworld_qwenpiv3_la_finetune	其他 VLA	False
+Mark-ZJTang/alam_plus_pi_metaworld_mt50	π 家族 / 派生	True
+Master210/MT10	仅 MW，未建立 LIBERO 家族对应	True
+Master210/MT50	仅 MW，未建立 LIBERO 家族对应	True
+Master210/MT50-12-15	仅 MW，未建立 LIBERO 家族对应	False
+Maverick2803/act_metaworld-reach-v3	ACT	False
+MikeDaisy/zmax_hybrid_metaworld_push_v0.1	未确立双基准完整策略	True
+Muhammad241198/metaworld-push	ACT	True
+OpenRAL/rskill-smolvla-sawyer-metaworld-bf16	SmolVLA / 派生	False
+RLinf/RLinf-OpenVLAOFT-Metaworld-SFT	OpenVLA	True
+RLinf/RLinf-Pi0-MetaWorld-RL-FlowNoise	π 家族 / 派生	False
+RLinf/RLinf-Pi0-MetaWorld-RL-FlowSDE	π 家族 / 派生	False
+RLinf/RLinf-Pi0-MetaWorld-SFT	π 家族 / 派生	False
+RLinf/RLinf-Pi05-MetaWorld-RL-FlowNoise	π 家族 / 派生	False
+RLinf/RLinf-Pi05-MetaWorld-RL-FlowSDE	π 家族 / 派生	False
+RLinf/RLinf-Pi05-MetaWorld-SFT	π 家族 / 派生	True
+Rhx11111/metaworld-256	未确立双基准完整策略	True
+RoboHP/metaworld_mt50_act	ACT	True
+RoboHP/metaworld_mt50_pi0	π 家族 / 派生	False
+TaherFattahi/MetaWorld-VLA-openai-clip-vit	其他 VLA	False
+TongheZhangTH/Pi05-Metaworld-ML45-SFT	π 家族 / 派生	False
+TongheZhangTH/pi05_stateless_metaworld_80HZ_train_random_annnotate_10000	π 家族 / 派生	False
+TongheZhangTH/pi05_stateless_metaworld_80HZ_train_random_annnotate_5000	π 家族 / 派生	False
+Yi0304/pi05_mt50_060000	π 家族 / 派生	False
+aadarshram/act_metaworld-reach-v3	ACT	False
+abraranwar/spur_metaworld	其他 VLA	True
+aryannzzz/act-metaworld-shelf-modified	ACT	False
+aryannzzz/act-metaworld-shelf-standard	ACT	False
+brandonyang/dp-metaworld-checkpoints	Diffusion Policy	True
+brandonyang/openpi-metaworld-25000	未确立双基准完整策略	False
+brandonyang/openpi-metaworld-5000	未确立双基准完整策略	False
+brandonyang/pi0_fast_metaworld_b200_bs512	π 家族 / 派生	False
+brandonyang/pi0fast-metaworld-checkpoints	π 家族 / 派生	False
+hjlkhjkl/metaworld	未确立双基准完整策略	True
+hz1919810/TinyVLA-droid_diffusion_metaworld	其他 VLA	False
+iFaz/diffusion-metaworld_medium-seed42-half	Diffusion Policy	True
+jadechoghari/smolvla-metaworld-keys	SmolVLA / 派生	False
+jadechoghari/smolvla_metaworld	SmolVLA / 派生	False
+junbrro/gr1-mt100k-native-off-60k-mlxp-20260925	未确立双基准完整策略	False
+ksb21st/metaworld45_100demos_hf	π / Orbax 格式；无新增非 VLA 证据	True
+ksb21st/openpi_sae_metaworld	π / Orbax 格式；无新增非 VLA 证据	False
+kunhsiang/act-metaworld-mt10-baseline	ACT	True
+kunhsiang/act-metaworld-mt10-rabc-kappa01	ACT	False
+kunhsiang/fb-act-metaworld-mt10	ACT	False
+kunhsiang/fb-act-metaworld-mt10-concat	ACT	False
+lerobot/smolvla_metaworld	SmolVLA / 派生	True
+limiqsqsqdq/metaworld-test	未确立双基准完整策略	True
+mmurray-ms/Cosmos-Policy-MetaWorld-Predict2-2B	Cosmos Policy	True
+mmurray-ms/pi05-metaworld	π 家族 / 派生	False
+msv6/smolvla_metaworld_20k	SmolVLA / 派生	False
+mt10/adana-travel-guide	未确立双基准完整策略	False
+namenu/gr00t17-lerobot-metaworld_mt50	GR00T	True
+nikriz/smolvla_metaworld_mt50	SmolVLA / 派生	False
+nikriz/smolvla_metaworld_mt50_scratch	SmolVLA / 派生	False
+rinabuoy/nllb-200-600M-2ways-MT10-ECCC-512	未确立双基准完整策略	False
+rishiad/kinitro-metaworld-agent	未确立双基准完整策略	True
+skaliush/act-metaworld-push	ACT	False
+tiantianx/pi05_metaworld	π 家族 / 派生	False
+tyh382596868/smolvla_metaworld_mt50	SmolVLA / 派生	False
+xnxjiu/pi05_metaworld-smoke	π 家族 / 派生	False
+xnxjiu/pi05_v2_deepseek_metaworld_stage1	π 家族 / 派生	False
+yinxinyuchen/evo1_metaworld	Evo / InternVL VLA	False
+zhongweihong/xvla-wu-libero70k-metaworld82k	X-VLA	True

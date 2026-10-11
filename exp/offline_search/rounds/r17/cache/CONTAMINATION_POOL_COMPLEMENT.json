@@ -1,0 +1,282 @@
+[
+  {
+    "suite": "libero_spatial",
+    "task_id": 0,
+    "task": "pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+    "full": 100,
+    "A": 50,
+    "B": 50,
+    "B_equals_full_minus_A": true,
+    "source_sha256": {
+      "/home/weiland/projects/openpi_ext/envs/libero_sim/lib/python3.8/site-packages/libero/libero/init_files/libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate.init": "c3a6a01fdc53ae1914fe24c8935088d723baee8f6ee3cd5f8d68e86aea3e2f1c",
+      "/home/weiland/projects/openpi_ext/envs/libero_sim/lib/python3.8/site-packages/libero/libero/init_files/libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate.pruned_init": "cbbc73792ce546c9bec181fd328a411d3183074840b282671dee481511381d0a",
+      "/home/weiland/projects/openpi/exp/common/data/db_init/libero/libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate.init": "d65cb432c2926fb882c3beaaaa0ca6c27969068b668c61fc1c0a62b41f599a26"
+    }
+  },
+  {
+    "suite": "libero_spatial",
+    "task_id": 1,
+    "task": "pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate",
+    "full": 100,
+    "A": 50,
+    "B": 50,
+    "B_equals_full_minus_A": true,
+    "source_sha256": {
+      "/home/weiland/projects/openpi_ext/envs/libero_sim/lib/python3.8/site-packages/libero/libero/init_files/libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate.init": "3f66ccb2c58a0f290baed02513fd106514723f5d509f51113fb05fc1821ca7c9",
+      "/home/weiland/projects/openpi_ext/envs/libero_sim/lib/python3.8/site-packages/libero/libero/init_files/libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate.pruned_init": "9b6927b6ef03460ab055141e1a1154ad85e5e290058d8ed3a8a314aff911f864",
+      "/home/weiland/projects/openpi/exp/common/data/db_init/libero/libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate.init": "fb0b30bd16ea3f94f3b1d00951536d63526a9ccd0787446d54db6ae11d01e07e"
+    }
+  },
+  {
+    "suite": "libero_spatial",
+    "task_id": 2,
+    "task": "pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate",
+    "full": 100,
+    "A": 50,
+    "B": 50,
+    "B_equals_full_minus_A": true,
+    "source_sha256": {
+      "/home/weiland/projects/openpi_ext/envs/libero_sim/lib/python3.8/site-packages/libero/libero/init_files/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate.init": "ea75a120adadfd7d265d98b34c71bd1a0207422e8d0715f6230995522b9a6ea6",
+      "/home/weiland/projects/openpi_ext/envs/libero_sim/lib/python3.8/site-packages/libero/libero/init_files/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate.pruned_init": "27d5b81d739f969e40c72b6c88699e57a91ea61209946b21c593aae5990689cb",
+      "/home/weiland/projects/openpi/exp/common/data/db_init/libero/libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate.init": "c7c4ec1f8fa9be4acf3d94574d63b99b60dceb154106f4d6b96ce2a54e715230"
+    }
+  },
+  {
+    "suite": "libero_spatial",
+    "task_id": 3,
+    "task": "pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate",
+    "full": 100,
+    "A": 50,
+    "B": 50,
+    "B_equals_full_minus_A": true,
+    "source_sha256": {
+      "/home/weiland/projects/openpi_ext/envs/libero_sim/lib/python3.8/site-packages/libero/libero/init_files/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate.init": "04e67508a45434720b696d87354cc9510280b544ca602e62270857b5640565b7",
+      "/home/weiland/projects/openpi_ext/envs/libero_sim/lib/python3.8/site-packages/libero/libero/init_files/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate.pruned_init": "0627f5f5ce3ef23be546571012be8ef603d93bcb4032bc80feb34937ba580140",
+      "/home/weiland/projects/openpi/exp/common/data/db_init/libero/libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate.init": "3e2b5651877534fab010ca196528c38f4bdd9f71990153c08f981bcfd6b3821b"
+    }
+  },
+  {
+    "suite": "libero_spatial",
+    "task_id": 4,
+    "task": "pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate",
+    "full": 100,
+    "A": 50,
+    "B": 50,
+    "B_equals_full_minus_A": true,
+    "source_sha256": {
+      "/home/weiland/projects/openpi_ext/envs/libero_sim/lib/python3.8/site-packages/libero/libero/init_files/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate.init": "04023b4637f314b07479e856117769895cac379f29f111124005261647fdc4b9",
+      "/home/weiland/projects/openpi_ext/envs/libero_sim/lib/python3.8/site-packages/libero/libero/init_files/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate.pruned_init": "deef3df529e0bb57658b973bbb3baf02b02922db065c025a73ebfcd11eb54d46",
+      "/home/weiland/projects/openpi/exp/common/data/db_init/libero/libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate.init": "2ae136eb4d74581125bd41c7ee9a2de52830cbf580720ac517883cca27835200"
+    }
+  },
+  {
+    "suite": "libero_spatial",
+    "task_id": 5,
+    "task": "pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate",
+    "full": 100,
+    "A": 50,
+    "B": 50,
+    "B_equals_full_minus_A": true,
+    "source_sha256": {
+      "/home/weiland/projects/openpi_ext/envs/libero_sim/lib/python3.8/site-packages/libero/libero/init_files/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate.init": "72451b06150b6a33b3e3274b0185f5169e55eb49fdc9508f09efe4c3e980ec0a",
+      "/home/weiland/projects/openpi_ext/envs/libero_sim/lib/python3.8/site-packages/libero/libero/init_files/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate.pruned_init": "2d2c50b7dcbf861fffa94d576f217ed34153e57487010d7a109a220d4d97189b",
+      "/home/weiland/projects/openpi/exp/common/data/db_init/libero/libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate.init": "273f04e805d0385150cffe64789c48ab7bcee60415984dfec1490f3a86be3c6c"
+    }
+  },
+  {
+    "suite": "libero_spatial",
+    "task_id": 6,
+    "task": "pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate",
+    "full": 100,
+    "A": 50,
+    "B": 50,
+    "B_equals_full_minus_A": true,
+    "source_sha256": {
+      "/home/weiland/projects/openpi_ext/envs/libero_sim/lib/python3.8/site-packages/libero/libero/init_files/libero_spatial/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate.init": "7e26118c95fb611fe5f7f084de671edeba7a7eb75f84edf1e7cd6016b0f6d2d9",
+      "/home/weiland/projects/openpi_ext/envs/libero_sim/lib/python3.8/site-packages/libero/libero/init_files/libero_spatial/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate.pruned_init": "ab86fb7b5942dc0fec762eae57e72bf636106b1c10ad8ce57227723d8eb9a81b",
+      "/home/weiland/projects/openpi/exp/common/data/db_init/libero/libero_spatial/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate.init": "649b401f4ec9d7be19f3a9a84822942cbcb1332d28ae9501bef0c898f1b9a838"
+    }
+  },
+  {
+    "suite": "libero_spatial",
+    "task_id": 7,
+    "task": "pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate",
+    "full": 100,
+    "A": 50,
+    "B": 50,
+    "B_equals_full_minus_A": true,
+    "source_sha256": {
+      "/home/weiland/projects/openpi_ext/envs/libero_sim/lib/python3.8/site-packages/libero/libero/init_files/libero_spatial/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate.init": "963c9b8d88d13e1fc22d07b3303751f5c6c7e8c6f5b979cd52e4598286a04fd7",
+      "/home/weiland/projects/openpi_ext/envs/libero_sim/lib/python3.8/site-packages/libero/libero/init_files/libero_spatial/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate.pruned_init": "ea9cba2814bc166f3682f3f5a97329467839bcf584069cd419191b6c17adae25",
+      "/home/weiland/projects/openpi/exp/common/data/db_init/libero/libero_spatial/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate.init": "539fe2c8cf45d1d840f1bf38feb7e2aa8dc18c1866cb595787c9d2ca0ca81856"
+    }
+  },
+  {
+    "suite": "libero_spatial",
+    "task_id": 8,
+    "task": "pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate",
+    "full": 100,
+    "A": 50,
+    "B": 50,
+    "B_equals_full_minus_A": true,
+    "source_sha256": {
+      "/home/weiland/projects/openpi_ext/envs/libero_sim/lib/python3.8/site-packages/libero/libero/init_files/libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate.init": "413c46c3fe978eaa7f5a879b3d092c54bc171ed7cf5fdd196fb82ec854d2d864",
+      "/home/weiland/projects/openpi_ext/envs/libero_sim/lib/python3.8/site-packages/libero/libero/init_files/libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate.pruned_init": "f43df2d80042130ac8770590d83f1a1e6fd4df7479aebc392aa2ed6e3bd0b83e",
+      "/home/weiland/projects/openpi/exp/common/data/db_init/libero/libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate.init": "fed66b1655ac2e30298d7d534186837b339a04259a76e867b6b366f36ae08d03"
+    }
+  },
+  {
+    "suite": "libero_spatial",
+    "task_id": 9,
+    "task": "pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate",
+    "full": 100,
+    "A": 50,
+    "B": 50,
+    "B_equals_full_minus_A": true,
+    "source_sha256": {
+      "/home/weiland/projects/openpi_ext/envs/libero_sim/lib/python3.8/site-packages/libero/libero/init_files/libero_spatial/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate.init": "cf88d880ab359681b7ca07df895738221e8cc19f68efaba0e332669b3b1e3fe2",
+      "/home/weiland/projects/openpi_ext/envs/libero_sim/lib/python3.8/site-packages/libero/libero/init_files/libero_spatial/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate.pruned_init": "08b0ac928dcc524a66d963851a6a4eece9aeb782b38466006e403a70e3287867",
+      "/home/weiland/projects/openpi/exp/common/data/db_init/libero/libero_spatial/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate.init": "58a3e16df63782123d33abc3e510f39ca8c91a16adec5616824ccd5d20da42a6"
+    }
+  },
+  {
+    "suite": "libero_10",
+    "task_id": 0,
+    "task": "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket",
+    "full": 100,
+    "A": 50,
+    "B": 50,
+    "B_equals_full_minus_A": true,
+    "source_sha256": {
+      "/home/weiland/projects/openpi_ext/envs/libero_sim/lib/python3.8/site-packages/libero/libero/init_files/libero_10/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket.init": "7cef6cd0973d5c125d3cba94469ee58b116825a8d1df32693fd48119647348c8",
+      "/home/weiland/projects/openpi_ext/envs/libero_sim/lib/python3.8/site-packages/libero/libero/init_files/libero_10/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket.pruned_init": "1899fe54c51e24a41d5f9e32254730d6777f4894ab68e0e873f1fa7ae2062030",
+      "/home/weiland/projects/openpi/exp/common/data/db_init/libero/libero_10/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket.init": "9dbddf81d5c4140d330b4305e1d40b1c1980c7588efe7cb12ddc88924ebe58a5"
+    }
+  },
+  {
+    "suite": "libero_10",
+    "task_id": 1,
+    "task": "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket",
+    "full": 100,
+    "A": 50,
+    "B": 50,
+    "B_equals_full_minus_A": true,
+    "source_sha256": {
+      "/home/weiland/projects/openpi_ext/envs/libero_sim/lib/python3.8/site-packages/libero/libero/init_files/libero_10/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket.init": "a2357ab3a089b11c99a932f3e05fb33252f564f9ad66d39a61984156c04e288f",
+      "/home/weiland/projects/openpi_ext/envs/libero_sim/lib/python3.8/site-packages/libero/libero/init_files/libero_10/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket.pruned_init": "f8ac06ea8f43bb328d40cba1e6a9767da2f8f5386fd7ff3f845c64a96bf6d2ce",
+      "/home/weiland/projects/openpi/exp/common/data/db_init/libero/libero_10/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket.init": "73e76c16d3d9aa86ba604f64e92d62255027de5baad148b2754201a5bde40883"
+    }
+  },
+  {
+    "suite": "libero_10",
+    "task_id": 2,
+    "task": "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it",
+    "full": 100,
+    "A": 50,
+    "B": 50,
+    "B_equals_full_minus_A": true,
+    "source_sha256": {
+      "/home/weiland/projects/openpi_ext/envs/libero_sim/lib/python3.8/site-packages/libero/libero/init_files/libero_10/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it.init": "8519d4638868ce661a20d331495d97e0521f8e1535479dd26ba875d5cc06b88f",
+      "/home/weiland/projects/openpi_ext/envs/libero_sim/lib/python3.8/site-packages/libero/libero/init_files/libero_10/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it.pruned_init": "02a8401f8d59f5447fc8c5a16f4c158dd8c426c3eaed6779927a2a53e9abf3c5",
+      "/home/weiland/projects/openpi/exp/common/data/db_init/libero/libero_10/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it.init": "293f0fb6eac3168adfe881bd0b8a532a399af33321f019ed08d61d513306c5db"
+    }
+  },
+  {
+    "suite": "libero_10",
+    "task_id": 3,
+    "task": "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it",
+    "full": 100,
+    "A": 50,
+    "B": 50,
+    "B_equals_full_minus_A": true,
+    "source_sha256": {
+      "/home/weiland/projects/openpi_ext/envs/libero_sim/lib/python3.8/site-packages/libero/libero/init_files/libero_10/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it.init": "7eba1f68f9d3a553b14e99a437356fbcc91ba1a531ac2475fc858c1e9bcbe2fc",
+      "/home/weiland/projects/openpi_ext/envs/libero_sim/lib/python3.8/site-packages/libero/libero/init_files/libero_10/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it.pruned_init": "e98ded151f64a036c74c872336dd09b968c379f3c9db7bc333aba37e7c235b86",
+      "/home/weiland/projects/openpi/exp/common/data/db_init/libero/libero_10/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it.init": "d54f9a19f68810d5b15d7812e37f303a0f0fe48570229ce1ada3dc712493d918"
+    }
+  },
+  {
+    "suite": "libero_10",
+    "task_id": 4,
+    "task": "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate",
+    "full": 100,
+    "A": 50,
+    "B": 50,
+    "B_equals_full_minus_A": true,
+    "source_sha256": {
+      "/home/weiland/projects/openpi_ext/envs/libero_sim/lib/python3.8/site-packages/libero/libero/init_files/libero_10/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate.init": "13269d4d8b2738111d6d2df1949c9b361536d2d3f9e294e472fdbbaaf20eb1c2",
+      "/home/weiland/projects/openpi_ext/envs/libero_sim/lib/python3.8/site-packages/libero/libero/init_files/libero_10/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate.pruned_init": "b6f20784b381c75d715f4fdaadda1fb460cbe24adcbad76f381a009419b8474e",
+      "/home/weiland/projects/openpi/exp/common/data/db_init/libero/libero_10/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate.init": "80d340e2e5d02a88c1f3db193508ba21f68e652b54b608617f786527128ec00c"
+    }
+  },
+  {
+    "suite": "libero_10",
+    "task_id": 5,
+    "task": "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy",
+    "full": 100,
+    "A": 50,
+    "B": 50,
+    "B_equals_full_minus_A": true,
+    "source_sha256": {
+      "/home/weiland/projects/openpi_ext/envs/libero_sim/lib/python3.8/site-packages/libero/libero/init_files/libero_10/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy.init": "98f00fb67ffc25888fc89349daec00dcf686209e09cf0a1b92f8b87f4617244b",
+      "/home/weiland/projects/openpi_ext/envs/libero_sim/lib/python3.8/site-packages/libero/libero/init_files/libero_10/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy.pruned_init": "6cd3937ba18d64e72223222af36888d26ea201840415adbc4dae590454d0a5a8",
+      "/home/weiland/projects/openpi/exp/common/data/db_init/libero/libero_10/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy.init": "deba1516ea4ee240bd012753adccac48604dc277e4bfedf78c456895e1f086ce"
+    }
+  },
+  {
+    "suite": "libero_10",
+    "task_id": 6,
+    "task": "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate",
+    "full": 100,
+    "A": 50,
+    "B": 50,
+    "B_equals_full_minus_A": true,
+    "source_sha256": {
+      "/home/weiland/projects/openpi_ext/envs/libero_sim/lib/python3.8/site-packages/libero/libero/init_files/libero_10/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate.init": "96e6a59d8a2db8752526dde1ef66c03b09e86a9c601c97f672c862c4d5aa483f",
+      "/home/weiland/projects/openpi_ext/envs/libero_sim/lib/python3.8/site-packages/libero/libero/init_files/libero_10/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate.pruned_init": "6e811394c4ff9a43ae23515d8512e9b657c04344b94dd5baed121b595490514f",
+      "/home/weiland/projects/openpi/exp/common/data/db_init/libero/libero_10/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate.init": "775462e1179a912579786b47873fabc3b72fb5df4336c876e78b0580a6b41c78"
+    }
+  },
+  {
+    "suite": "libero_10",
+    "task_id": 7,
+    "task": "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket",
+    "full": 100,
+    "A": 50,
+    "B": 50,
+    "B_equals_full_minus_A": true,
+    "source_sha256": {
+      "/home/weiland/projects/openpi_ext/envs/libero_sim/lib/python3.8/site-packages/libero/libero/init_files/libero_10/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket.init": "75f99004a33c2d4f6c543e471e1798b75e6609f6727326611b0368f5abb85af0",
+      "/home/weiland/projects/openpi_ext/envs/libero_sim/lib/python3.8/site-packages/libero/libero/init_files/libero_10/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket.pruned_init": "2113ea5923fcbbe1b57b428383934496072f062729d0b72d3021573d55d25abc",
+      "/home/weiland/projects/openpi/exp/common/data/db_init/libero/libero_10/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket.init": "5a8dbb5a971ec5f0bdcd16ec6d6cd1b7e09b4d98cc69154e7bf0a40e63304a07"
+    }
+  },
+  {
+    "suite": "libero_10",
+    "task_id": 8,
+    "task": "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove",
+    "full": 100,
+    "A": 50,
+    "B": 50,
+    "B_equals_full_minus_A": true,
+    "source_sha256": {
+      "/home/weiland/projects/openpi_ext/envs/libero_sim/lib/python3.8/site-packages/libero/libero/init_files/libero_10/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove.init": "4d4dcf9bd3930bc560143fbdcf8e6ffc519544ce6d4fa6034cefda34ac1bbe6c",
+      "/home/weiland/projects/openpi_ext/envs/libero_sim/lib/python3.8/site-packages/libero/libero/init_files/libero_10/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove.pruned_init": "44f992e911c84a1340589510ecdaf947a4872966f7678c8364d8bb5d13dc4dac",
+      "/home/weiland/projects/openpi/exp/common/data/db_init/libero/libero_10/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove.init": "e9900fb2a7bd567329bfa82e1628e9df6b62819ad683431ff716103785d415cd"
+    }
+  },
+  {
+    "suite": "libero_10",
+    "task_id": 9,
+    "task": "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it",
+    "full": 100,
+    "A": 50,
+    "B": 50,
+    "B_equals_full_minus_A": true,
+    "source_sha256": {
+      "/home/weiland/projects/openpi_ext/envs/libero_sim/lib/python3.8/site-packages/libero/libero/init_files/libero_10/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it.init": "b8efe4c7a74062ed6732ac47f65611a8b39afe60b635cb43ab0942f99d47c1b6",
+      "/home/weiland/projects/openpi_ext/envs/libero_sim/lib/python3.8/site-packages/libero/libero/init_files/libero_10/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it.pruned_init": "6b75c8d4d1e1c40b5d99c78ceea380d99ccffb0a484a4cb2d3153488a0afbbe2",
+      "/home/weiland/projects/openpi/exp/common/data/db_init/libero/libero_10/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it.init": "ac0956a5af7742be2b59932096e4e658c8e4e0d0de45064882cbf146d0716f6b"
+    }
+  }
+]

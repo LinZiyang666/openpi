@@ -1,0 +1,29 @@
+# Independent model + benchmark selection (round 3)
+
+You are one of two independent researchers given the same brief. **Work independently**: do not read `exp/offline_search/rounds/r17/survey/`, `exp/offline_search/rounds/r17/survey_opus/` or `exp/offline_search/rounds/r17/survey_astra/` except your own output directory, and do not look for other agents' work. Earlier attempts were rejected by the owner; form your own judgement from primary sources.
+
+## What we built (read for context)
+An inference-cost reduction system for robot policies, aimed at an **MLSys** paper. Layers: (1) retrieval cache keyed on the policy's own vision features (spatially pooled, PCA, per-task Mahalanobis), replaying cached action chunks with a fixed commit horizon; (2) no-progress guard that falls back to a real policy call; (3) library corrector (RFF + ridge) on cached chunks; (4) periodic cost knob; (5) per-task knob descent. Plus plain step reduction of iterative action heads (flow/diffusion k = 1–2) and extended commit horizons for chunking policies. Validated on two VLAs (π0.5, GR00T N1.5) on LIBERO: full system matches full-step pure inference at ~30–40% of its cost. Details: `exp/offline_search/rounds/r16/REPORT.md`, `exp/offline_search/rounds/r15/REPORT.md`, `logs/session_handoff.md` §1.
+
+Families on which we already ran plain step reduction (read these logs; they also contain measured per-query latencies and infra lessons): Cosmos Policy (video-diffusion world-model policy, `logs/cosmos_nfe_plan.log.md`), X-WAM (Wan2.2-based world-action model, `logs/xwam_dp_nfe_plan.log.md`), Diffusion Policy ε/x₀ heads (`logs/xwam_dp_nfe_plan.log.md`, `logs/x0_multimodal_plan.log.md`), π0.5/GR00T on LIBERO/RoboCasa/MetaWorld (`logs/nfe_baseline_plan.log.md`, `logs/nfe_baseline_rc365_plan.log.md`, `logs/metaworld_warm_reset.log.md`), plus surveys in `logs/cache_transfer/`.
+
+## Owner requirements (verbatim quotes, binding — weigh them yourself)
+1. Cache must be profitable: 「我们的cache需要有利可图」「至少我们的cache要有利可图」. Owner rejected ACT: 「你找的act是什么，他cpu都可以算了」. A hit still pays for the vision features used as the retrieval key, retrieval and the corrector; a full call must be expensive enough, and the part after feature extraction large enough, that hits save substantial GPU time per decision.
+2. 2–3 models, varied: 「2 到3个吧各种各样的」; not two of the same kind (owner: 「你有两个diffusion是什么意思」). 「我们单纯减步试了那么多种你怎么就找不到呢，同族内选比较新的，但是得有权重」 — consider the families we already worked with, pick newer members within a family, and they must have released weights.
+3. 「我说的非vla robot policy，世界模型肯定算」 — non-VLA robot policies; world models / world-action / video-policy models count. We already have two VLAs (π0.5, GR00T); do not add VLAs (no π0, OpenVLA, X-VLA, GR00T, SmolVLA, …).
+4. Training: 「我们没有180个小时给你训练模型，你要嘛换模型，要么用其他benchmark」 and 「我们可以尝试自己微调，但是能不我们自己来就不我们自己来」 — use released weights; at most a small fine-tune as last resort.
+5. Benchmark (one, in addition to LIBERO which we keep): 「一定要那种适合我们的benchmark的，又有一定影响力，比较新一点，且这些模型都要有权重」; π0.5 support is mandatory; must be light (we run thousands of episodes; CPU worker processes with MuJoCo/PyBullet-class sims, offscreen EGL/OSMesa; one GPU server); must be cache-friendly — owner rejected RoboCasa365: 「这个上面有很多场景变换，以及物体变换，不利于我们构建cache」. 「metaworld可能可以用你不要刨除了」 — MetaWorld must be evaluated, not excluded. RoboTwin 2.0 and BEHAVIOR are too heavy; GPU-rendering simulators are out.
+6. 「不能交笑话」 — no cheap models, no duplicated families, no unverifiable checkpoints, no hand-waving.
+
+## Deliverables
+In your output directory (given in your task message): `DECISION.md` (Chinese, owner-facing, concise, no internal codenames) and `EVIDENCE.md`.
+- Recommend 2–3 non-VLA models and one benchmark (plus at most one fallback each). For every model: family and why it is the newest worthwhile member with weights; architecture (vision encoder → what feature serves as retrieval key; backbone; action head, default steps; chunk length); **profitability analysis** — per-call cost breakdown (feature extraction vs the rest) from published latencies/FLOPs and our own measured numbers in the logs, the resulting full-call : hit-path ratio, and absolute ms/s saved per hit on a 4090/H100-class GPU; which of our layers apply (step reduction? extended horizon?); released checkpoints on LIBERO and on the chosen benchmark with exact links and verified file listings; licenses/gating; reproduction risk.
+- Benchmark: recency/influence evidence, cache-friendliness (within-task scene/object variation), per-episode CPU cost (cite or measure CPU-only), π0.5 checkpoint, which chosen models have weights there.
+- One-line reasons for each rejected candidate. State explicitly anything you could not verify.
+
+## Constraints
+Web and local reading are fine. CPU-only probes are fine. No GPU, no servers on public ports, no remote/tether, no git commit, no pkill, no rm -rf; do not touch /data/i018, /data/idea_sprint, /home/weiland/idea-sprint, /archive, or running processes. No multi-GB downloads (configs/metadata/small files fine). Write only inside your output directory.
+
+## Your output directory
+`/home/weiland/projects/openpi/exp/offline_search/rounds/r17/survey_astra/`
+CPU-only probes: `taskset -c 18-25,62-69 env CUDA_VISIBLE_DEVICES=`. A light benchmark may be installed for a CPU timing probe only under a new dir in `/home/weiland/projects/openpi_ext/lines/` (say what you installed).

@@ -1,0 +1,8 @@
+<update>
+Plan round 4 (design only, read-only on code — the GPU qualification of the current code starts ~18:40 CDT and must not see code changes). Since your DESIGN, P1–P6 implemented the core integration, two Opus reviewers ran three rounds (`exp/r17_integration/review/REVIEW_{A,B}{,2,3}.md`), and both now accept the core for GPU qualification. Their remaining "still unsupported" lists (end of REVIEW_A3.md and REVIEW_B3.md): replica proxy, stage batching (π S1–S3, GR00T S1/S2), WARM / CP2 / trace / routing paths, record/collector, split, physical-semantic analysis, measured GPU pricing. Owner's requirement stands: "一切groot和pi支持的他们都要支持".
+Deliver `exp/r17_integration/ROUND4_PLAN.md`:
+1. A matrix: every INVENTORY feature ID × {π0.5-MW, GR00T-MW, Fast-WAM-LIBERO, Fast-WAM-MW, DP-LIBERO, DP-MW} with status now (supported+CPU-tested / implemented_unverified / unsupported), and for the legacy π0.5-LIBERO and GR00T-LIBERO what they actually support today (so we do not "add" something GR00T itself never had — e.g. check whether GR00T-LIBERO really supports S1/S2 batching or replicas), and whether R16's main experiment path actually uses the feature.
+2. For each real gap: what must be written (model hook vs framework vs benchmark), effort, risk to the qualified core, and whether it is physically meaningful for that model (e.g. WARM/CP2 for a DDPM policy) — with a recommendation (implement / implement later / not applicable, with reason).
+3. 2–4 work packages (owned dirs, interfaces, acceptance tests) to run after GPU qualification passes, ordered by what the cache experiments need first.
+Same rules: no code edits, zero GPU, no commit/push, no pkill, no rm -rf, do not touch running processes.
+</update>

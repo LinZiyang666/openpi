@@ -1,0 +1,6 @@
+<update>
+Fix round 2. The two Opus reviewers re-checked fix round 1: `exp/r17_integration/review/REVIEW_A2.md` (repros `review/repro_A2/`) and `exp/r17_integration/review/REVIEW_B2.md` (repros `review/repro_B2/`). Read both, fix the findings assigned to you below (plus anything else in your owned area), add a regression test per finding (from the repro where possible), re-run your suite and the legacy/default-off checks, and append a "Fix round 2" section to your handback (finding → change → test → status). Same rules: owned dirs only (cross-package via REQUESTS), zero GPU (trainings until ~18:40/~20:30 CDT), no commit/push, no pkill, no rm -rf, no frozen R16/harness edits, do not touch running processes.
+</update>
+Your assigned findings:
+- REVIEW_B2 minors for Fast-WAM: add `--debug-directory` (per-connection debug capture through the P1/P6 seam) to the Fast-WAM serve entry; cross-validate the model execution protocol against P2's LIBERO/MW benchmark spec at load; native snapshot resume must check the observation/conditioning identity, not only the prompt; `measure.py` key share must include the prepare stage.
+- REVIEW_B2 B6 (partial): add a CPU-checkable equivalence test between our raw-Wan loader path and the released-loader path on the published LIBERO checkpoint config/headers where possible, and prepare the GPU parity command for qualification.

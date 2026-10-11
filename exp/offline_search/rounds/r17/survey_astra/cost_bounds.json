@@ -1,0 +1,45 @@
+{
+  "status": "Analytic compute lower bounds only; no GPU timing for JEPA-WM or PAD",
+  "flop_convention": "2 floating point operations per multiply-add; dense matmul; ignores attention and other overhead",
+  "jepa_full_horizon_flops": 146767085568000,
+  "pad_50_step_flops": 11459808460800,
+  "gpu_dense_bf16_fp32acc_tflops": {
+    "RTX4090": 165.2,
+    "H100_SXM": 989.5
+  },
+  "hypothetical_encoder_ms": [
+    10,
+    30
+  ],
+  "borrowed_unverified_lookup_corrector_ms": 8,
+  "results": {
+    "RTX4090": {
+      "JEPA-WM": {
+        "D_ms_lower_bound": 888.420614818402,
+        "D_minus_R_ms_under_R8_assumption": 880.420614818402,
+        "conditional_full_hit_ratio_E10": 49.91225637880011,
+        "conditional_full_hit_ratio_E30": 24.168963547852684
+      },
+      "PAD-XL2": {
+        "D_ms_lower_bound": 69.36930061016949,
+        "D_minus_R_ms_under_R8_assumption": 61.36930061016949,
+        "conditional_full_hit_ratio_E10": 4.40940558945386,
+        "conditional_full_hit_ratio_E30": 2.61498159500446
+      }
+    },
+    "H100_SXM": {
+      "JEPA-WM": {
+        "D_ms_lower_bound": 148.32449274178876,
+        "D_minus_R_ms_under_R8_assumption": 140.32449274178876,
+        "conditional_full_hit_ratio_E10": 8.795805152321599,
+        "conditional_full_hit_ratio_E30": 4.692749808994441
+      },
+      "PAD-XL2": {
+        "D_ms_lower_bound": 11.581413300454775,
+        "D_minus_R_ms_under_R8_assumption": 3.5814133004547752,
+        "conditional_full_hit_ratio_E10": 1.198967405580821,
+        "conditional_full_hit_ratio_E30": 1.0942477184330204
+      }
+    }
+  }
+}

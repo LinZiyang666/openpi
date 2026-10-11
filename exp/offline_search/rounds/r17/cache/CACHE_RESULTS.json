@@ -1,0 +1,1944 @@
+{
+  "schema": "r17.cache_size_analysis.v1",
+  "as_of_utc": "2026-10-11T01:25:29.627427+00:00",
+  "allowed_sizes": [
+    500
+  ],
+  "families": {
+    "F500": 40,
+    "Fsize": 40
+  },
+  "bootstrap": 10000,
+  "seed": 20261010,
+  "lanes": [
+    {
+      "lane": "/data/mw_finetune/eval/csl10d",
+      "observed_utc": "2026-10-11T01:25:29.611462+00:00",
+      "receipt": null,
+      "statuses": {
+        "RECEIPT.json": {
+          "status": "FAIL",
+          "closed": true,
+          "sha256": "05ae7d672cffd241a463016e8a57bee4d304da2300f6fa28b93c349d2f63d94f"
+        }
+      },
+      "status": "PENDING_SEAL"
+    },
+    {
+      "lane": "/data/mw_finetune/eval/csl10f",
+      "observed_utc": "2026-10-11T01:25:29.626690+00:00",
+      "receipt": null,
+      "statuses": {
+        "RECEIPT.json": {
+          "status": "PARTIAL",
+          "closed": null,
+          "sha256": "aebab45c9bab09162193dafcaa30e968ea12441d718ee7494ef16b9f93859dbf"
+        }
+      },
+      "status": "PENDING_SEAL"
+    },
+    {
+      "lane": "/data/mw_finetune/eval/csl10c",
+      "observed_utc": "2026-10-11T01:25:29.627281+00:00",
+      "receipt": null,
+      "statuses": {},
+      "status": "PENDING_SEAL"
+    }
+  ],
+  "rows": [],
+  "controls": {},
+  "claims": [
+    {
+      "family": "F500",
+      "model": "DP",
+      "group": "c",
+      "both_suites": "PENDING",
+      "adoption": "PENDING"
+    },
+    {
+      "family": "F500",
+      "model": "DP",
+      "group": "cr",
+      "both_suites": "PENDING",
+      "adoption": "PENDING"
+    },
+    {
+      "family": "F500",
+      "model": "DP",
+      "group": "ch",
+      "both_suites": "PENDING",
+      "adoption": "PENDING"
+    },
+    {
+      "family": "F500",
+      "model": "DP",
+      "group": "chr",
+      "both_suites": "PENDING",
+      "adoption": "PENDING"
+    },
+    {
+      "family": "F500",
+      "model": "DP",
+      "group": "cg",
+      "both_suites": "PENDING",
+      "adoption": "PENDING"
+    },
+    {
+      "family": "F500",
+      "model": "DP",
+      "group": "crg",
+      "both_suites": "PENDING",
+      "adoption": "PENDING"
+    },
+    {
+      "family": "F500",
+      "model": "DP",
+      "group": "chg",
+      "both_suites": "PENDING",
+      "adoption": "PENDING"
+    },
+    {
+      "family": "F500",
+      "model": "DP",
+      "group": "chrg",
+      "both_suites": "PENDING",
+      "adoption": "PENDING"
+    },
+    {
+      "family": "F500",
+      "model": "Fast-WAM",
+      "group": "c",
+      "both_suites": "PENDING",
+      "adoption": "PENDING"
+    },
+    {
+      "family": "F500",
+      "model": "Fast-WAM",
+      "group": "cr",
+      "both_suites": "PENDING",
+      "adoption": "PENDING"
+    },
+    {
+      "family": "F500",
+      "model": "Fast-WAM",
+      "group": "ch",
+      "both_suites": "PENDING",
+      "adoption": "PENDING"
+    },
+    {
+      "family": "F500",
+      "model": "Fast-WAM",
+      "group": "chr",
+      "both_suites": "PENDING",
+      "adoption": "PENDING"
+    },
+    {
+      "family": "F500",
+      "model": "Fast-WAM",
+      "group": "cg",
+      "both_suites": "PENDING",
+      "adoption": "PENDING"
+    },
+    {
+      "family": "F500",
+      "model": "Fast-WAM",
+      "group": "crg",
+      "both_suites": "PENDING",
+      "adoption": "PENDING"
+    },
+    {
+      "family": "F500",
+      "model": "Fast-WAM",
+      "group": "chg",
+      "both_suites": "PENDING",
+      "adoption": "PENDING"
+    },
+    {
+      "family": "F500",
+      "model": "Fast-WAM",
+      "group": "chrg",
+      "both_suites": "PENDING",
+      "adoption": "PENDING"
+    },
+    {
+      "family": "F500",
+      "model": "Cosmos",
+      "group": "c",
+      "both_suites": "PENDING",
+      "adoption": "PENDING"
+    },
+    {
+      "family": "F500",
+      "model": "Cosmos",
+      "group": "cr",
+      "both_suites": "PENDING",
+      "adoption": "PENDING"
+    },
+    {
+      "family": "F500",
+      "model": "Cosmos",
+      "group": "cg",
+      "both_suites": "PENDING",
+      "adoption": "PENDING"
+    },
+    {
+      "family": "F500",
+      "model": "Cosmos",
+      "group": "crg",
+      "both_suites": "PENDING",
+      "adoption": "PENDING"
+    },
+    {
+      "family": "Fsize",
+      "model": "DP",
+      "group": "c",
+      "both_suites": "PENDING",
+      "adoption": "PENDING"
+    },
+    {
+      "family": "Fsize",
+      "model": "DP",
+      "group": "cr",
+      "both_suites": "PENDING",
+      "adoption": "PENDING"
+    },
+    {
+      "family": "Fsize",
+      "model": "DP",
+      "group": "ch",
+      "both_suites": "PENDING",
+      "adoption": "PENDING"
+    },
+    {
+      "family": "Fsize",
+      "model": "DP",
+      "group": "chr",
+      "both_suites": "PENDING",
+      "adoption": "PENDING"
+    },
+    {
+      "family": "Fsize",
+      "model": "DP",
+      "group": "cg",
+      "both_suites": "PENDING",
+      "adoption": "PENDING"
+    },
+    {
+      "family": "Fsize",
+      "model": "DP",
+      "group": "crg",
+      "both_suites": "PENDING",
+      "adoption": "PENDING"
+    },
+    {
+      "family": "Fsize",
+      "model": "DP",
+      "group": "chg",
+      "both_suites": "PENDING",
+      "adoption": "PENDING"
+    },
+    {
+      "family": "Fsize",
+      "model": "DP",
+      "group": "chrg",
+      "both_suites": "PENDING",
+      "adoption": "PENDING"
+    },
+    {
+      "family": "Fsize",
+      "model": "Fast-WAM",
+      "group": "c",
+      "both_suites": "PENDING",
+      "adoption": "PENDING"
+    },
+    {
+      "family": "Fsize",
+      "model": "Fast-WAM",
+      "group": "cr",
+      "both_suites": "PENDING",
+      "adoption": "PENDING"
+    },
+    {
+      "family": "Fsize",
+      "model": "Fast-WAM",
+      "group": "ch",
+      "both_suites": "PENDING",
+      "adoption": "PENDING"
+    },
+    {
+      "family": "Fsize",
+      "model": "Fast-WAM",
+      "group": "chr",
+      "both_suites": "PENDING",
+      "adoption": "PENDING"
+    },
+    {
+      "family": "Fsize",
+      "model": "Fast-WAM",
+      "group": "cg",
+      "both_suites": "PENDING",
+      "adoption": "PENDING"
+    },
+    {
+      "family": "Fsize",
+      "model": "Fast-WAM",
+      "group": "crg",
+      "both_suites": "PENDING",
+      "adoption": "PENDING"
+    },
+    {
+      "family": "Fsize",
+      "model": "Fast-WAM",
+      "group": "chg",
+      "both_suites": "PENDING",
+      "adoption": "PENDING"
+    },
+    {
+      "family": "Fsize",
+      "model": "Fast-WAM",
+      "group": "chrg",
+      "both_suites": "PENDING",
+      "adoption": "PENDING"
+    },
+    {
+      "family": "Fsize",
+      "model": "Cosmos",
+      "group": "c",
+      "both_suites": "PENDING",
+      "adoption": "PENDING"
+    },
+    {
+      "family": "Fsize",
+      "model": "Cosmos",
+      "group": "cr",
+      "both_suites": "PENDING",
+      "adoption": "PENDING"
+    },
+    {
+      "family": "Fsize",
+      "model": "Cosmos",
+      "group": "cg",
+      "both_suites": "PENDING",
+      "adoption": "PENDING"
+    },
+    {
+      "family": "Fsize",
+      "model": "Cosmos",
+      "group": "crg",
+      "both_suites": "PENDING",
+      "adoption": "PENDING"
+    }
+  ],
+  "pending_cells": [
+    {
+      "model": "DP",
+      "size": 50,
+      "group": "c",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 50,
+      "group": "c",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 50,
+      "group": "cr",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 50,
+      "group": "cr",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 50,
+      "group": "ch",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 50,
+      "group": "ch",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 50,
+      "group": "chr",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 50,
+      "group": "chr",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 50,
+      "group": "cg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 50,
+      "group": "cg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 50,
+      "group": "crg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 50,
+      "group": "crg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 50,
+      "group": "chg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 50,
+      "group": "chg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 50,
+      "group": "chrg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 50,
+      "group": "chrg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 100,
+      "group": "c",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 100,
+      "group": "c",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 100,
+      "group": "cr",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 100,
+      "group": "cr",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 100,
+      "group": "ch",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 100,
+      "group": "ch",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 100,
+      "group": "chr",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 100,
+      "group": "chr",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 100,
+      "group": "cg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 100,
+      "group": "cg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 100,
+      "group": "crg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 100,
+      "group": "crg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 100,
+      "group": "chg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 100,
+      "group": "chg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 100,
+      "group": "chrg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 100,
+      "group": "chrg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 200,
+      "group": "c",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 200,
+      "group": "c",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 200,
+      "group": "cr",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 200,
+      "group": "cr",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 200,
+      "group": "ch",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 200,
+      "group": "ch",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 200,
+      "group": "chr",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 200,
+      "group": "chr",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 200,
+      "group": "cg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 200,
+      "group": "cg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 200,
+      "group": "crg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 200,
+      "group": "crg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 200,
+      "group": "chg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 200,
+      "group": "chg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 200,
+      "group": "chrg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 200,
+      "group": "chrg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 300,
+      "group": "c",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 300,
+      "group": "c",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 300,
+      "group": "cr",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 300,
+      "group": "cr",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 300,
+      "group": "ch",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 300,
+      "group": "ch",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 300,
+      "group": "chr",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 300,
+      "group": "chr",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 300,
+      "group": "cg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 300,
+      "group": "cg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 300,
+      "group": "crg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 300,
+      "group": "crg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 300,
+      "group": "chg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 300,
+      "group": "chg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 300,
+      "group": "chrg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 300,
+      "group": "chrg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 400,
+      "group": "c",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 400,
+      "group": "c",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 400,
+      "group": "cr",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 400,
+      "group": "cr",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 400,
+      "group": "ch",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 400,
+      "group": "ch",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 400,
+      "group": "chr",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 400,
+      "group": "chr",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 400,
+      "group": "cg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 400,
+      "group": "cg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 400,
+      "group": "crg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 400,
+      "group": "crg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 400,
+      "group": "chg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 400,
+      "group": "chg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 400,
+      "group": "chrg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 400,
+      "group": "chrg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 500,
+      "group": "c",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 500,
+      "group": "c",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 500,
+      "group": "cr",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 500,
+      "group": "cr",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 500,
+      "group": "ch",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 500,
+      "group": "ch",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 500,
+      "group": "chr",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 500,
+      "group": "chr",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 500,
+      "group": "cg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 500,
+      "group": "cg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 500,
+      "group": "crg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 500,
+      "group": "crg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 500,
+      "group": "chg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 500,
+      "group": "chg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "DP",
+      "size": 500,
+      "group": "chrg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "DP",
+      "size": 500,
+      "group": "chrg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 50,
+      "group": "c",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 50,
+      "group": "c",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 50,
+      "group": "cr",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 50,
+      "group": "cr",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 50,
+      "group": "ch",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 50,
+      "group": "ch",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 50,
+      "group": "chr",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 50,
+      "group": "chr",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 50,
+      "group": "cg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 50,
+      "group": "cg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 50,
+      "group": "crg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 50,
+      "group": "crg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 50,
+      "group": "chg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 50,
+      "group": "chg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 50,
+      "group": "chrg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 50,
+      "group": "chrg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 100,
+      "group": "c",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 100,
+      "group": "c",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 100,
+      "group": "cr",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 100,
+      "group": "cr",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 100,
+      "group": "ch",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 100,
+      "group": "ch",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 100,
+      "group": "chr",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 100,
+      "group": "chr",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 100,
+      "group": "cg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 100,
+      "group": "cg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 100,
+      "group": "crg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 100,
+      "group": "crg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 100,
+      "group": "chg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 100,
+      "group": "chg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 100,
+      "group": "chrg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 100,
+      "group": "chrg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 200,
+      "group": "c",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 200,
+      "group": "c",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 200,
+      "group": "cr",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 200,
+      "group": "cr",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 200,
+      "group": "ch",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 200,
+      "group": "ch",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 200,
+      "group": "chr",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 200,
+      "group": "chr",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 200,
+      "group": "cg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 200,
+      "group": "cg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 200,
+      "group": "crg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 200,
+      "group": "crg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 200,
+      "group": "chg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 200,
+      "group": "chg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 200,
+      "group": "chrg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 200,
+      "group": "chrg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 300,
+      "group": "c",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 300,
+      "group": "c",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 300,
+      "group": "cr",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 300,
+      "group": "cr",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 300,
+      "group": "ch",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 300,
+      "group": "ch",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 300,
+      "group": "chr",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 300,
+      "group": "chr",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 300,
+      "group": "cg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 300,
+      "group": "cg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 300,
+      "group": "crg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 300,
+      "group": "crg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 300,
+      "group": "chg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 300,
+      "group": "chg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 300,
+      "group": "chrg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 300,
+      "group": "chrg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 400,
+      "group": "c",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 400,
+      "group": "c",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 400,
+      "group": "cr",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 400,
+      "group": "cr",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 400,
+      "group": "ch",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 400,
+      "group": "ch",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 400,
+      "group": "chr",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 400,
+      "group": "chr",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 400,
+      "group": "cg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 400,
+      "group": "cg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 400,
+      "group": "crg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 400,
+      "group": "crg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 400,
+      "group": "chg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 400,
+      "group": "chg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 400,
+      "group": "chrg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 400,
+      "group": "chrg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 500,
+      "group": "c",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 500,
+      "group": "c",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 500,
+      "group": "cr",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 500,
+      "group": "cr",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 500,
+      "group": "ch",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 500,
+      "group": "ch",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 500,
+      "group": "chr",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 500,
+      "group": "chr",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 500,
+      "group": "cg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 500,
+      "group": "cg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 500,
+      "group": "crg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 500,
+      "group": "crg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 500,
+      "group": "chg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 500,
+      "group": "chg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 500,
+      "group": "chrg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Fast-WAM",
+      "size": 500,
+      "group": "chrg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Cosmos",
+      "size": 50,
+      "group": "c",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Cosmos",
+      "size": 50,
+      "group": "c",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Cosmos",
+      "size": 50,
+      "group": "cr",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Cosmos",
+      "size": 50,
+      "group": "cr",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Cosmos",
+      "size": 50,
+      "group": "cg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Cosmos",
+      "size": 50,
+      "group": "cg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Cosmos",
+      "size": 50,
+      "group": "crg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Cosmos",
+      "size": 50,
+      "group": "crg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Cosmos",
+      "size": 100,
+      "group": "c",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Cosmos",
+      "size": 100,
+      "group": "c",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Cosmos",
+      "size": 100,
+      "group": "cr",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Cosmos",
+      "size": 100,
+      "group": "cr",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Cosmos",
+      "size": 100,
+      "group": "cg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Cosmos",
+      "size": 100,
+      "group": "cg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Cosmos",
+      "size": 100,
+      "group": "crg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Cosmos",
+      "size": 100,
+      "group": "crg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Cosmos",
+      "size": 200,
+      "group": "c",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Cosmos",
+      "size": 200,
+      "group": "c",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Cosmos",
+      "size": 200,
+      "group": "cr",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Cosmos",
+      "size": 200,
+      "group": "cr",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Cosmos",
+      "size": 200,
+      "group": "cg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Cosmos",
+      "size": 200,
+      "group": "cg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Cosmos",
+      "size": 200,
+      "group": "crg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Cosmos",
+      "size": 200,
+      "group": "crg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Cosmos",
+      "size": 300,
+      "group": "c",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Cosmos",
+      "size": 300,
+      "group": "c",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Cosmos",
+      "size": 300,
+      "group": "cr",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Cosmos",
+      "size": 300,
+      "group": "cr",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Cosmos",
+      "size": 300,
+      "group": "cg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Cosmos",
+      "size": 300,
+      "group": "cg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Cosmos",
+      "size": 300,
+      "group": "crg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Cosmos",
+      "size": 300,
+      "group": "crg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Cosmos",
+      "size": 400,
+      "group": "c",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Cosmos",
+      "size": 400,
+      "group": "c",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Cosmos",
+      "size": 400,
+      "group": "cr",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Cosmos",
+      "size": 400,
+      "group": "cr",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Cosmos",
+      "size": 400,
+      "group": "cg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Cosmos",
+      "size": 400,
+      "group": "cg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Cosmos",
+      "size": 400,
+      "group": "crg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Cosmos",
+      "size": 400,
+      "group": "crg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Cosmos",
+      "size": 500,
+      "group": "c",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Cosmos",
+      "size": 500,
+      "group": "c",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Cosmos",
+      "size": 500,
+      "group": "cr",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Cosmos",
+      "size": 500,
+      "group": "cr",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Cosmos",
+      "size": 500,
+      "group": "cg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Cosmos",
+      "size": 500,
+      "group": "cg",
+      "suite": "libero_10"
+    },
+    {
+      "model": "Cosmos",
+      "size": 500,
+      "group": "crg",
+      "suite": "libero_spatial"
+    },
+    {
+      "model": "Cosmos",
+      "size": 500,
+      "group": "crg",
+      "suite": "libero_10"
+    }
+  ],
+  "source_sha256": {
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/cache/CONTAMINATION_DISTANCES.csv": "35bc907a6da58891e206ac19d12b6fcf42eee4cef77e62f9ddf1df09924337c8",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/cache/CONTAMINATION_CHECK.json": "e695537620daad6665ee282c1c5808f9b59639f9183f2a2e76dacfc8b3bfa30a",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/cache/CACHE_STUDY.md": "1b733bec5da41d90b234caf27bd5282833699519d6049039b0be3e055c63b06e",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/cache/OWNER_RULINGS.md": "9c852a063cf5531d4412380245a29b7e75289e571b6298486d77fbb9482b28fb",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/cache/analyze_cache.py": "497e9b041c2b8479140149558cc2c8360f91547d5c2badd03a31606aa6d70444"
+  },
+  "exclusions": [
+    [
+      "libero_10",
+      "libero_10/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it",
+      40
+    ],
+    [
+      "libero_10",
+      "libero_10/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove",
+      5
+    ],
+    [
+      "libero_10",
+      "libero_10/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove",
+      6
+    ],
+    [
+      "libero_10",
+      "libero_10/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove",
+      42
+    ],
+    [
+      "libero_10",
+      "libero_10/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove",
+      48
+    ],
+    [
+      "libero_10",
+      "libero_10/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket",
+      42
+    ],
+    [
+      "libero_10",
+      "libero_10/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket",
+      14
+    ],
+    [
+      "libero_10",
+      "libero_10/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket",
+      37
+    ],
+    [
+      "libero_10",
+      "libero_10/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket",
+      46
+    ],
+    [
+      "libero_10",
+      "libero_10/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket",
+      36
+    ],
+    [
+      "libero_10",
+      "libero_10/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket",
+      46
+    ],
+    [
+      "libero_10",
+      "libero_10/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate",
+      41
+    ],
+    [
+      "libero_10",
+      "libero_10/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate",
+      43
+    ],
+    [
+      "libero_10",
+      "libero_10/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate",
+      1
+    ],
+    [
+      "libero_10",
+      "libero_10/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate",
+      2
+    ],
+    [
+      "libero_10",
+      "libero_10/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate",
+      3
+    ],
+    [
+      "libero_10",
+      "libero_10/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate",
+      12
+    ],
+    [
+      "libero_10",
+      "libero_10/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate",
+      19
+    ],
+    [
+      "libero_10",
+      "libero_10/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate",
+      38
+    ],
+    [
+      "libero_10",
+      "libero_10/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate",
+      47
+    ],
+    [
+      "libero_10",
+      "libero_10/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy",
+      16
+    ],
+    [
+      "libero_spatial",
+      "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+      24
+    ],
+    [
+      "libero_spatial",
+      "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+      48
+    ],
+    [
+      "libero_spatial",
+      "libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate",
+      6
+    ],
+    [
+      "libero_spatial",
+      "libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate",
+      14
+    ],
+    [
+      "libero_spatial",
+      "libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate",
+      31
+    ],
+    [
+      "libero_spatial",
+      "libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate",
+      5
+    ],
+    [
+      "libero_spatial",
+      "libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate",
+      6
+    ],
+    [
+      "libero_spatial",
+      "libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate",
+      10
+    ],
+    [
+      "libero_spatial",
+      "libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate",
+      20
+    ],
+    [
+      "libero_spatial",
+      "libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate",
+      43
+    ],
+    [
+      "libero_spatial",
+      "libero_spatial/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate",
+      11
+    ]
+  ],
+  "selections": {}
+}

@@ -1,0 +1,93 @@
+{
+  "assumptions": {
+    "not_measured_horizon_results": true,
+    "fixed_fraction": 0.25,
+    "inference_fraction": 0.75,
+    "startup_minutes_per_suite": 5,
+    "startup_minutes_per_campaign": 10,
+    "fastwam_object_goal_minutes_each": 111.09377697018184,
+    "planning_uncertainty_relative": 0.5
+  },
+  "arms": [
+    {
+      "model": "dp",
+      "commit_horizon": 5,
+      "spatial_500_minutes": 37.4,
+      "libero10_500_minutes": 90.0,
+      "four_suite_2000_gpu_hours": 3.47,
+      "model_calls_per_control_ratio_to_r17_default": 1.0
+    },
+    {
+      "model": "dp",
+      "commit_horizon": 10,
+      "spatial_500_minutes": 25.3,
+      "libero10_500_minutes": 58.1,
+      "four_suite_2000_gpu_hours": 2.23,
+      "model_calls_per_control_ratio_to_r17_default": 0.5
+    },
+    {
+      "model": "dp",
+      "commit_horizon": 15,
+      "spatial_500_minutes": 21.2,
+      "libero10_500_minutes": 47.5,
+      "four_suite_2000_gpu_hours": 1.82,
+      "model_calls_per_control_ratio_to_r17_default": 0.3333
+    },
+    {
+      "model": "dp",
+      "commit_horizon": 16,
+      "spatial_500_minutes": 20.7,
+      "libero10_500_minutes": 46.2,
+      "four_suite_2000_gpu_hours": 1.76,
+      "model_calls_per_control_ratio_to_r17_default": 0.3125
+    },
+    {
+      "model": "fastwam",
+      "commit_horizon": 5,
+      "spatial_500_minutes": 78.6,
+      "libero10_500_minutes": 153.6,
+      "four_suite_2000_gpu_hours": 7.57,
+      "model_calls_per_control_ratio_to_r17_default": 1.0
+    },
+    {
+      "model": "fastwam",
+      "commit_horizon": 10,
+      "spatial_500_minutes": 51.0,
+      "libero10_500_minutes": 97.9,
+      "four_suite_2000_gpu_hours": 4.8,
+      "model_calls_per_control_ratio_to_r17_default": 0.5
+    },
+    {
+      "model": "fastwam",
+      "commit_horizon": 16,
+      "spatial_500_minutes": 40.7,
+      "libero10_500_minutes": 77.0,
+      "four_suite_2000_gpu_hours": 3.75,
+      "model_calls_per_control_ratio_to_r17_default": 0.3125
+    },
+    {
+      "model": "fastwam",
+      "commit_horizon": 20,
+      "spatial_500_minutes": 37.2,
+      "libero10_500_minutes": 70.0,
+      "four_suite_2000_gpu_hours": 3.41,
+      "model_calls_per_control_ratio_to_r17_default": 0.25
+    },
+    {
+      "model": "fastwam",
+      "commit_horizon": 32,
+      "spatial_500_minutes": 32.0,
+      "libero10_500_minutes": 59.6,
+      "four_suite_2000_gpu_hours": 2.89,
+      "model_calls_per_control_ratio_to_r17_default": 0.1562
+    },
+    {
+      "model": "cosmos",
+      "commit_horizon": 16,
+      "spatial_500_minutes": 25.9,
+      "libero10_500_minutes": 52.8,
+      "four_suite_2000_gpu_hours": 2.06,
+      "model_calls_per_control_ratio_to_r17_default": 1.0
+    }
+  ]
+}

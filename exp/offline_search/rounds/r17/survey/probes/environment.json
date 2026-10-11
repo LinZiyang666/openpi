@@ -1,0 +1,26 @@
+{
+  "time_utc": "2026-10-09T01:00:11.849771+00:00",
+  "files": [
+    {
+      "path": "/home/weiland/projects/openpi_ext/third_party/Isaac-GR00T/external_dependencies/robocasa365/robocasa/utils/env_utils.py",
+      "sha256": "2543d593897008b104c0fa7bb83c987675b4e583ae519b324de98f99c71a5fcd"
+    },
+    {
+      "path": "/home/weiland/projects/openpi_ext/third_party/Isaac-GR00T/external_dependencies/robocasa365/robocasa/utils/dataset_registry.py",
+      "sha256": "23e8e31bb56bae80de86c34eafadfe32dd1e1eba6608376152ba9fdda5532a4b"
+    },
+    {
+      "path": "/home/weiland/projects/openpi_ext/third_party/Isaac-GR00T/external_dependencies/robocasa365/robocasa/wrappers/gym_wrapper.py",
+      "sha256": "356d61ca9e4b777ca0515323d38167cb7560b837cb37ea460f16ba01b4cf2d49"
+    },
+    {
+      "path": "/home/weiland/projects/openpi_ext/third_party/Isaac-GR00T/gr00t/eval/sim/robocasa365/robocasa365_uv/.venv/lib/python3.12/site-packages/robosuite/utils/observables.py",
+      "sha256": "83e7bc67745477d207c09c4a5eb86e280909b06531ab7346595a45a84200dcfd"
+    }
+  ],
+  "cpu": "Architecture:                            x86_64\nCPU op-mode(s):                          32-bit, 64-bit\nAddress sizes:                           46 bits physical, 48 bits virtual\nByte Order:                              Little Endian\nCPU(s):                                  88\nOn-line CPU(s) list:                     0-87\nVendor ID:                               GenuineIntel\nModel name:                              Intel(R) Xeon(R) CPU E5-2696 v4 @ 2.20GHz\nCPU family:                              6\nModel:                                   79\nThread(s) per core:                      2\nCore(s) per socket:                      22\nSocket(s):                               2\nStepping:                                1\nCPU(s) scaling MHz:                      38%\nCPU max MHz:                             3700.0000\nCPU min MHz:                             1200.0000\nBogoMIPS:                                4389.40\nFlags:                                   fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch cpuid_fault epb cat_l3 cdp_l3 pti intel_ppin ssbd ibrs ibpb stibp tpr_shadow flexpriority ept vpid ept_ad fsgsbase tsc_adjust bmi1 hle avx2 smep bmi2 erms invpcid rtm cqm rdt_a rdseed adx smap intel_pt xsaveopt cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local dtherm ida arat pln pts vnmi md_clear flush_l1d ibpb_exit_to_user\nVirtualization:                          VT-x\nL1d cache:                               1.4 MiB (44 instances)\nL1i cache:                               1.4 MiB (44 instances)\nL2 cache:                                11 MiB (44 instances)\nL3 cache:                                110 MiB (2 instances)\nNUMA node(s):                            2\nNUMA node0 CPU(s):                       0-21,44-65\nNUMA node1 CPU(s):                       22-43,66-87\nVulnerability Gather data sampling:      Not affected\nVulnerability Indirect target selection: Not affected\nVulnerability Itlb multihit:             KVM: Mitigation: VMX disabled\nVulnerability L1tf:                      Mitigation; PTE Inversion; VMX conditional cache flushes, SMT vulnerable\nVulnerability Mds:                       Mitigation; Clear CPU buffers; SMT vulnerable\nVulnerability Meltdown:                  Mitigation; PTI\nVulnerability Mmio stale data:           Mitigation; Clear CPU buffers; SMT vulnerable\nVulnerability Reg file data sampling:    Not affected\nVulnerability Retbleed:                  Not affected\nVulnerability Spec rstack overflow:      Not affected\nVulnerability Spec store bypass:         Mitigation; Speculative Store Bypass disabled via prctl\nVulnerability Spectre v1:                Mitigation; usercopy/swapgs barriers and __user pointer sanitization\nVulnerability Spectre v2:                Mitigation; Retpolines; IBPB conditional; IBRS_FW; STIBP conditional; RSB filling; PBRSB-eIBRS Not affected; BHI Not affected\nVulnerability Srbds:                     Not affected\nVulnerability Tsa:                       Not affected\nVulnerability Tsx async abort:           Mitigation; Clear CPU buffers; SMT vulnerable\nVulnerability Vmscape:                   Mitigation; IBPB before exit to userspace\n",
+  "installed_by_this_research": [],
+  "enclosing_checkout_git": "376ba890cff8c9de64d71d982772a9c36185fdd7",
+  "robocasa_version": "1.0.1",
+  "robocasa_checkout_note": "Vendor directory under Isaac-GR00T; enclosing git SHA is not an upstream robocasa SHA; use file hashes."
+}

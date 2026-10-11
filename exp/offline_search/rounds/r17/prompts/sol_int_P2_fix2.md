@@ -1,0 +1,7 @@
+<update>
+Fix round 2. The two Opus reviewers re-checked fix round 1: `exp/r17_integration/review/REVIEW_A2.md` (repros `review/repro_A2/`) and `exp/r17_integration/review/REVIEW_B2.md` (repros `review/repro_B2/`). Read both, fix the findings assigned to you below (plus anything else in your owned area), add a regression test per finding (from the repro where possible), re-run your suite and the legacy/default-off checks, and append a "Fix round 2" section to your handback (finding → change → test → status). Same rules: owned dirs only (cross-package via REQUESTS), zero GPU (trainings until ~18:40/~20:30 CDT), no commit/push, no pkill, no rm -rf, no frozen R16/harness edits, do not touch running processes.
+</update>
+Your assigned findings:
+- REVIEW_A2 N2 major (benchmark/runner side, with P1): ensure the MetaWorld and LIBERO benchmark specs publish the canonical task table identity the recipe must match; emitted π/GR configs must carry it.
+- REVIEW_A2 N3 minor: descent stalls when a non-retryable error other than FatalEpisodeError (e.g. ConfigValidationError) happens; classify all non-retryable errors as terminal for that task/level so the next level proceeds and freeze remains possible.
+- REVIEW_A2 N5 minor: cost_ms is host wall time including model-lock queueing; record queue wait separately from service/GPU time in the ledger so pricing can use the service time, and document which field pricing uses.

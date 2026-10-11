@@ -1,0 +1,114 @@
+[
+  {
+    "root": "/data/mw_finetune/eval/formal_dp_libero_formal400_20261009_220843_8dca4316",
+    "sources": [
+      {
+        "path": "/data/mw_finetune/eval/formal_dp_libero_formal400_20261009_220843_8dca4316/campaign.json",
+        "sha256": "bf0b6e66167219f22427275837009385e2cd17855575ce2727661bbceab65bf8"
+      },
+      {
+        "path": "/data/mw_finetune/eval/formal_dp_libero_formal400_20261009_220843_8dca4316/driver/DRIVER_RECEIPT.json",
+        "sha256": "3490b806047040da7c5e98a301d26758710c57b56c8e9de63cbba724fc35b093"
+      },
+      {
+        "path": "/data/mw_finetune/eval/formal_dp_libero_formal400_20261009_220843_8dca4316/RECEIPT.json",
+        "sha256": "9eba8cbd4c72936398519ecff7b7be0b3a9728f348ccf7b82b9182bc6474693c"
+      }
+    ],
+    "model": "dp",
+    "replicas": 12,
+    "workers": 24,
+    "server_node": "local",
+    "driver_seconds": 2375.0065441199986,
+    "measured_episodes": 400,
+    "includes_debug_capture": false,
+    "source_status": "PARTIAL",
+    "calls": 14687,
+    "effective_calls_per_second": 6.183982960536184,
+    "library_note": "Superseded 400-episode cohort: timing only, not paired SR baseline"
+  },
+  {
+    "root": "/data/mw_finetune/eval/formal_cosmos_libero_formal400_20261009_231322_2b680ed5",
+    "sources": [
+      {
+        "path": "/data/mw_finetune/eval/formal_cosmos_libero_formal400_20261009_231322_2b680ed5/campaign.json",
+        "sha256": "f7641820be5615f9c91932df8b04ed5dc37251d471dabaa56ffaabf8cbd8393d"
+      },
+      {
+        "path": "/data/mw_finetune/eval/formal_cosmos_libero_formal400_20261009_231322_2b680ed5/driver/DRIVER_RECEIPT.json",
+        "sha256": "3db4427a61f50ef062176b5e044f0e17fb1522a767fd5497df511dabd680101f"
+      },
+      {
+        "path": "/data/mw_finetune/eval/formal_cosmos_libero_formal400_20261009_231322_2b680ed5/RECEIPT.json",
+        "sha256": "0db552a7512ce80d25439107fcf09cfe68b674cd92314bd34f498ca315534a3f"
+      }
+    ],
+    "model": "cosmos",
+    "replicas": 2,
+    "workers": 24,
+    "server_node": "h100",
+    "driver_seconds": 1362.3264361160036,
+    "measured_episodes": 400,
+    "includes_debug_capture": false,
+    "source_status": "PASS",
+    "calls": 3991,
+    "effective_calls_per_second": 2.9295474962508634,
+    "library_note": "Superseded 400-episode cohort: timing only, not paired SR baseline"
+  },
+  {
+    "root": "/data/r17_library/fastwam_libero_libero_spatial/campaigns/teacher_fastwam_libero_libero_spatial_repair_20261010_042146_2430f3da",
+    "sources": [
+      {
+        "path": "/data/r17_library/fastwam_libero_libero_spatial/campaigns/teacher_fastwam_libero_libero_spatial_repair_20261010_042146_2430f3da/campaign.json",
+        "sha256": "0825a98ccf1c78c86090eee11083078d62065ca0fe61274c1f7053788501f659"
+      },
+      {
+        "path": "/data/r17_library/fastwam_libero_libero_spatial/campaigns/teacher_fastwam_libero_libero_spatial_repair_20261010_042146_2430f3da/driver/DRIVER_RECEIPT.json",
+        "sha256": "8ab3a45a6677b572757e5df6e92e25d153709075dfaca0335c57a8efce80ff51"
+      },
+      {
+        "path": "/data/r17_library/fastwam_libero_libero_spatial/campaigns/teacher_fastwam_libero_libero_spatial_repair_20261010_042146_2430f3da/RECEIPT.json",
+        "sha256": "d280b6565a163a47df7412734de2efecc2ad3d3cf0ee69e85f8b8d13e73197e0"
+      }
+    ],
+    "model": "fastwam",
+    "replicas": 2,
+    "workers": 24,
+    "server_node": "h100",
+    "driver_seconds": 2393.898441872996,
+    "measured_episodes": 271,
+    "includes_debug_capture": true,
+    "source_status": "PASS",
+    "calls": 7391,
+    "effective_calls_per_second": 3.087432562183904,
+    "library_note": "B-pool repaired cohort; debug+images+transfer; not official-A SR"
+  },
+  {
+    "root": "/data/r17_library/fastwam_libero_libero_10/campaigns/teacher_fastwam_libero_libero_10_repair_20261010_051512_d6ee8099",
+    "sources": [
+      {
+        "path": "/data/r17_library/fastwam_libero_libero_10/campaigns/teacher_fastwam_libero_libero_10_repair_20261010_051512_d6ee8099/campaign.json",
+        "sha256": "9a7119c50e5a6e9ba7f0e0e68013285bc3bfcd4415e73500bd6e5ebcb689d661"
+      },
+      {
+        "path": "/data/r17_library/fastwam_libero_libero_10/campaigns/teacher_fastwam_libero_libero_10_repair_20261010_051512_d6ee8099/driver/DRIVER_RECEIPT.json",
+        "sha256": "8ddf86195a9defb6d26aa96bc7723ee490a7bf6adc497b2e672ecde0808d4540"
+      },
+      {
+        "path": "/data/r17_library/fastwam_libero_libero_10/campaigns/teacher_fastwam_libero_libero_10_repair_20261010_051512_d6ee8099/RECEIPT.json",
+        "sha256": "b4f1cacb5aff583caa636e00b89230385648e3db6079788809ee9eb99d5b9429"
+      }
+    ],
+    "model": "fastwam",
+    "replicas": 2,
+    "workers": 24,
+    "server_node": "h100",
+    "driver_seconds": 7951.704067422004,
+    "measured_episodes": 446,
+    "includes_debug_capture": true,
+    "source_status": "PASS",
+    "calls": 24573,
+    "effective_calls_per_second": 3.090281000355026,
+    "library_note": "B-pool repaired cohort; debug+images+transfer; not official-A SR"
+  }
+]

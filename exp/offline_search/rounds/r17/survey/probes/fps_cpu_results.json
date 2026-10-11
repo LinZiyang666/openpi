@@ -1,0 +1,23 @@
+{
+  "note": "synthetic points, pure numpy exact greedy FPS, start index 0; not full DP3 frontend",
+  "rows": [
+    {
+      "input_points": 1024,
+      "output_points": 512,
+      "mean_s": 0.01287955287625664,
+      "p95_s": 0.014543025254533859
+    },
+    {
+      "input_points": 4096,
+      "output_points": 512,
+      "mean_s": 0.041934667498935596,
+      "p95_s": 0.04403174705512356
+    },
+    {
+      "input_points": 16384,
+      "output_points": 512,
+      "mean_s": 0.13982975962790078,
+      "p95_s": 0.1458855155542551
+    }
+  ]
+}

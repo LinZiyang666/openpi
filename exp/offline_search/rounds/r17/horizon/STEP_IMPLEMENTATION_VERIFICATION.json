@@ -1,0 +1,14 @@
+{
+  "date": "2026-10-10",
+  "gpu_runs_launched": false,
+  "remote_processes_touched": false,
+  "test_result": "120 passed, 1 warning, 27 subtests passed in 106.09s (0:01:46)",
+  "cpu_cuda_visible_devices": "",
+  "files": {
+    "exp/r17_integration/ops/formal_eval.py": "7f5f88983348c2c5c730dcd4ed59b63c67969f3152f062d4080288fe48c57f36",
+    "exp/r17_integration/ops/formal_driver.py": "f492505582ca04a29f06f0cda8468fedf789e358336798cef8ea2a5e6e4a88e7",
+    "exp/r17_integration/ops/formal_server.py": "f7442b44a40d159150a3fe8d17b11a27fa400e435712090ffc1ba9877878a2db",
+    "exp/r17_integration/ops/tests/test_formal_steps_suites.py": "abd512c3aab52cc556f5c9ff05d1a1a3e54359080739c58925276f5373e5201d",
+    "exp/offline_search/rounds/r17/horizon/CPU_TESTS_STEPS_REGRESSION.log": "e4a017aaf5633d80c66c140983758bbdbd81bd0ae77250b5a960227df275e9cc"
+  }
+}

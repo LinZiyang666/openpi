@@ -1,0 +1,131 @@
+{
+  "note": "Linear extrapolation of microprobe, zero actions; reset process CPU approximated by reset wall; no policy inference; observation-history collection must match policy. ACT two camera IDs are a cost proxy, not verified checkpoint camera mapping.",
+  "rows": [
+    {
+      "label": "MW_RGB128_L200_H5",
+      "task": "assembly-v3",
+      "L": 200,
+      "H": 5,
+      "observations": 40,
+      "wall_s": 7.266525834056665,
+      "cpu_core_s_approx": 8.039020869007832
+    },
+    {
+      "label": "MW_RGB128_L200_H5",
+      "task": "button-press-wall-v3",
+      "L": 200,
+      "H": 5,
+      "observations": 40,
+      "wall_s": 6.730978876264999,
+      "cpu_core_s_approx": 7.509340830007687
+    },
+    {
+      "label": "MW_RGB128_L200_H5",
+      "task": "box-close-v3",
+      "L": 200,
+      "H": 5,
+      "observations": 40,
+      "wall_s": 7.229087952247937,
+      "cpu_core_s_approx": 7.989075026001217
+    },
+    {
+      "label": "MW_DP_RGB128_L500_H2",
+      "task": "assembly-v3",
+      "L": 500,
+      "H": 2,
+      "observations": 250,
+      "wall_s": 44.80198972087965,
+      "cpu_core_s_approx": 49.63345420800781
+    },
+    {
+      "label": "MW_DP_RGB128_L500_H2",
+      "task": "button-press-wall-v3",
+      "L": 500,
+      "H": 2,
+      "observations": 250,
+      "wall_s": 41.71621903280902,
+      "cpu_core_s_approx": 46.58027836350838
+    },
+    {
+      "label": "MW_DP_RGB128_L500_H2",
+      "task": "box-close-v3",
+      "L": 500,
+      "H": 2,
+      "observations": 250,
+      "wall_s": 44.59714922013518,
+      "cpu_core_s_approx": 49.3462844570022
+    },
+    {
+      "label": "MW_pi05_RGB480_L160_H5",
+      "task": "assembly-v3",
+      "L": 160,
+      "H": 5,
+      "observations": 32,
+      "wall_s": 8.95968643138185,
+      "cpu_core_s_approx": 9.64732477400113
+    },
+    {
+      "label": "MW_pi05_RGB480_L160_H5",
+      "task": "button-press-wall-v3",
+      "L": 160,
+      "H": 5,
+      "observations": 32,
+      "wall_s": 8.44681354278291,
+      "cpu_core_s_approx": 9.133896236393365
+    },
+    {
+      "label": "MW_pi05_RGB480_L160_H5",
+      "task": "box-close-v3",
+      "L": 160,
+      "H": 5,
+      "observations": 32,
+      "wall_s": 8.410454988008132,
+      "cpu_core_s_approx": 9.094627164791337
+    },
+    {
+      "label": "MW_ACT_proxy_2RGB512_L200_H100",
+      "task": "assembly-v3",
+      "L": 200,
+      "H": 100,
+      "observations": 2,
+      "wall_s": 1.3858376927302742,
+      "cpu_core_s_approx": 1.4704179643428588
+    },
+    {
+      "label": "MW_ACT_proxy_2RGB512_L200_H100",
+      "task": "button-press-wall-v3",
+      "L": 200,
+      "H": 100,
+      "observations": 2,
+      "wall_s": 1.300115502240078,
+      "cpu_core_s_approx": 1.382349889407473
+    },
+    {
+      "label": "MW_ACT_proxy_2RGB512_L200_H100",
+      "task": "box-close-v3",
+      "L": 200,
+      "H": 100,
+      "observations": 2,
+      "wall_s": 1.3176678150659427,
+      "cpu_core_s_approx": 1.3996343093478316
+    },
+    {
+      "label": "LIBERO_2RGB256_L200_H5",
+      "task": "pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+      "L": 200,
+      "H": 5,
+      "observations": 40,
+      "wall_s": 23.570499825116713,
+      "cpu_core_s_approx": 24.1753503849948
+    },
+    {
+      "label": "LIBERO_2RGB256_L200_H5",
+      "task": "pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate",
+      "L": 200,
+      "H": 5,
+      "observations": 40,
+      "wall_s": 23.841840131848585,
+      "cpu_core_s_approx": 24.434720243993667
+    }
+  ]
+}
