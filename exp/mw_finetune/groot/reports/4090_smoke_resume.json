@@ -1,0 +1,46 @@
+{
+  "hardware": "4090",
+  "dataset": "/data/mw_finetune/datasets/metaworld_mt50_groot_smoke",
+  "base_model": "/data/mw_finetune/models/groot_base",
+  "batch_size": 2,
+  "gradient_accumulation_steps": 1,
+  "max_steps": 20000,
+  "learning_rate": 0.0001,
+  "tune_llm": false,
+  "tune_visual": false,
+  "tune_projector": true,
+  "tune_diffusion_model": false,
+  "embodiment": "metaworld_sawyer",
+  "save_steps": 10000,
+  "mode": "smoke",
+  "stop_after_updates": 2,
+  "host": "weilandserver",
+  "gpu": "NVIDIA GeForce RTX 4090",
+  "completed_updates": 2,
+  "final_global_step": 4,
+  "warmup_updates_excluded": 1,
+  "optimizer_it_per_s": 5.1163536328888455,
+  "microbatch_it_per_s": 5.1163536328888455,
+  "samples_per_s": 10.232707265777691,
+  "peak_allocated_gib": 14.819518566131592,
+  "peak_reserved_gib": 15.857421875,
+  "elapsed_seconds": 37.590432198005146,
+  "parameters": {
+    "total": 2724163520,
+    "trainable": 518419456
+  },
+  "trainable_groups": {
+    "action_head.state_encoder": 52510720,
+    "action_head.action_encoder": 228212736,
+    "action_head.action_decoder": 34636800,
+    "action_head.future_tokens": 49152,
+    "action_head.vlln": 4096,
+    "action_head.vl_self_attention": 201433088,
+    "action_head.position_embedding": 1572864
+  },
+  "step_seconds": [
+    2.1633411689981585,
+    0.19545169699995313
+  ],
+  "success": true
+}

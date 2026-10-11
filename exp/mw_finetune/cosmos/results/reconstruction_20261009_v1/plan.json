@@ -1,0 +1,47 @@
+{
+  "runtime": {
+    "gpu_free_mib_before_start": 48511,
+    "budget_s": 1170,
+    "workers_per_config": 5,
+    "concurrent_A_servers": 4,
+    "denoising_steps": 5,
+    "pure_inference": true,
+    "configs": [],
+    "source_sha256": {
+      "policy.py": "2f279f691557ac48a131138bd4e464d76c9069723b04a30fe42d64a9d59655e3",
+      "probe_server.py": "14ee73ab94d45692bbcb6887fcef1fc56f50d539695069a049baf26b2218e8af",
+      "probe_evaluate.py": "75dacccbd395a77f84aa7b83b69d004a0d49a6797e7e5cabc1cf2cdf2a1b2b1f",
+      "reconstruction_probe.py": "636eb80769e378d959e9d808dd212a30f6114c3d6ddc9f6aa825d151fcd3d99a"
+    }
+  },
+  "configs": [
+    {
+      "name": "01_default",
+      "layout": "single",
+      "chunk_size": 16,
+      "corner3": false,
+      "port": 8064
+    },
+    {
+      "name": "02_libero_duplicate",
+      "layout": "libero_duplicate",
+      "chunk_size": 16,
+      "corner3": false,
+      "port": 8065
+    },
+    {
+      "name": "03_flowdagger_view_300",
+      "layout": "single",
+      "chunk_size": 16,
+      "corner3": true,
+      "port": 8066
+    },
+    {
+      "name": "04_chunk32",
+      "layout": "single",
+      "chunk_size": 32,
+      "corner3": false,
+      "port": 8067
+    }
+  ]
+}

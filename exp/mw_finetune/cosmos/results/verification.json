@@ -1,0 +1,72 @@
+{
+  "checkpoint": {
+    "repo_id": "mmurray-ms/Cosmos-Policy-MetaWorld-Predict2-2B",
+    "revision": "6546ab82a1d302e4a947bc7b03880ec6031a6109",
+    "weight_size": 3913050026,
+    "expected_weight_sha256": "c8562afc4ee58c20e4c43b8128e72f1e75d9dc1df5a429cde2d112bf6c6436b6",
+    "observed_weight_sha256": "c8562afc4ee58c20e4c43b8128e72f1e75d9dc1df5a429cde2d112bf6c6436b6"
+  },
+  "cpu_tests_passed": 9,
+  "upstream_batch_fields_equal": 19,
+  "smoke_wall_s": 104.68437765999988,
+  "gpu_free_mib_before_start": 48511,
+  "synthetic_probe": {
+    "shape": [
+      16,
+      4
+    ],
+    "dtype": "float32",
+    "finite": true,
+    "latency_s": [
+      1.8770875729969703,
+      0.7177268140076194
+    ],
+    "repeat_max_abs_diff": 0.0,
+    "per_channel_min": [
+      0.22353267669677734,
+      0.08649539947509766,
+      -0.2039203643798828,
+      0.5921738147735596
+    ],
+    "per_channel_max": [
+      0.4331703186035156,
+      0.28084754943847656,
+      0.40695762634277344,
+      0.5983216762542725
+    ]
+  },
+  "weight_audit": {
+    "missing_parameters": [],
+    "unexpected_net": [],
+    "ignored_fp8_extra_states": 113
+  },
+  "episodes": [
+    {
+      "task": "assembly-v3",
+      "idx": 0,
+      "seed": 7,
+      "success": false,
+      "n_steps": 160,
+      "error": null,
+      "duration_s": 37.7237464159989,
+      "n_decisions": 32,
+      "end_reason": "step_cap",
+      "infer_s": 22.9299,
+      "mean_query_ms": 716.559375
+    },
+    {
+      "task": "reach-v3",
+      "idx": 0,
+      "seed": 7,
+      "success": false,
+      "n_steps": 160,
+      "error": null,
+      "duration_s": 36.005077273992356,
+      "n_decisions": 32,
+      "end_reason": "step_cap",
+      "infer_s": 22.7979,
+      "mean_query_ms": 712.4343749999999
+    }
+  ],
+  "scope": "two-episode serving smoke, reconstructed single-camera/16-action configuration; not formal MT50 SR"
+}

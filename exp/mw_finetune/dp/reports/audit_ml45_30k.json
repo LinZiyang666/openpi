@@ -1,0 +1,111 @@
+{
+  "domain": "metaworld",
+  "checkpoint": "/data/mw_finetune/dp/checkpoints/metaworld30k",
+  "source_episode": "/data/mw_finetune/dp/ml45_source/data/chunk-000/episode_000000.parquet",
+  "frames": [
+    0,
+    11,
+    23,
+    35,
+    46,
+    58,
+    70,
+    82
+  ],
+  "native_pair_physical_actions_finite": true,
+  "action_shape": [
+    8,
+    16,
+    4
+  ],
+  "native_pair_quantile_action_mse": 0.0042715296149253845,
+  "variants": [
+    {
+      "external_normalization": "quantile",
+      "view": "source_pair",
+      "epsilon_mse": 0.015992604196071625
+    },
+    {
+      "external_normalization": "quantile",
+      "view": "zero",
+      "epsilon_mse": 0.20925699174404144
+    },
+    {
+      "external_normalization": "quantile",
+      "view": "duplicate",
+      "epsilon_mse": 0.2032909393310547
+    },
+    {
+      "external_normalization": "quantile",
+      "view": "swapped",
+      "epsilon_mse": 0.2430284172296524
+    },
+    {
+      "external_normalization": "zscore",
+      "view": "source_pair",
+      "epsilon_mse": 0.6106088161468506
+    },
+    {
+      "external_normalization": "zscore",
+      "view": "zero",
+      "epsilon_mse": 0.6596400141716003
+    },
+    {
+      "external_normalization": "zscore",
+      "view": "duplicate",
+      "epsilon_mse": 0.7173285484313965
+    },
+    {
+      "external_normalization": "zscore",
+      "view": "swapped",
+      "epsilon_mse": 0.8035134077072144
+    },
+    {
+      "external_normalization": "none",
+      "view": "source_pair",
+      "epsilon_mse": 0.9276477098464966
+    },
+    {
+      "external_normalization": "none",
+      "view": "zero",
+      "epsilon_mse": 1.2338836193084717
+    },
+    {
+      "external_normalization": "none",
+      "view": "duplicate",
+      "epsilon_mse": 1.20087468624115
+    },
+    {
+      "external_normalization": "none",
+      "view": "swapped",
+      "epsilon_mse": 1.3231815099716187
+    }
+  ],
+  "policy_metadata": {
+    "architecture": "dp-transformer-film-resnet18",
+    "n_obs_steps": 1,
+    "horizon": 16,
+    "denoising_steps": 100,
+    "scheduler": "DDPM/squaredcos_cap_v2/epsilon",
+    "domain": "metaworld",
+    "language_kind": "projected",
+    "feature_order": [
+      "base_0_rgb",
+      "left_wrist_0_rgb",
+      "state",
+      "lang_emb"
+    ],
+    "second_camera": "zero",
+    "external_normalization": "quantile",
+    "internal_normalization": "checkpoint affine",
+    "strict_load": {
+      "missing": [],
+      "unexpected": [],
+      "keys": 475
+    },
+    "policy_rng": "fresh private generator from obs.seed; missing seed defaults to0",
+    "architecture_sha256": "e8570dd11fe4402b533f3669e32b3117dd9a0264320322e1e9b3ef0fd7b105e9",
+    "reconstruction": "checkpoint-exact tensors; wrapper conventions reconstructed (see RECIPE)"
+  },
+  "limitation": "Eight source frames from one demonstration; teacher-forced noise check is not SR or proof of unpublished wrapper identity"
+}

@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "frames": 204806,
+  "episodes": 2500,
+  "tasks": 50,
+  "fps": 80,
+  "image_size": [
+    224,
+    224
+  ],
+  "shards": 492,
+  "state_action_dim": 4,
+  "index_sha256": "7bd1c896d574117c4d8d7db3ba5c97c6b131b1824e97fb6d4a10b96130bf70f1",
+  "bytes": 12133230228
+}

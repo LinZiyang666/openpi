@@ -1,0 +1,3 @@
+name, memory.free [MiB]
+NVIDIA H100 80GB HBM3, 81081 MiB
+{"passed": true, "server": "A exp.mw_finetune.serve", "wire": "msgpack WebSocket; select_bundle/episode_start/infer/episode_end", "actions_shape": [32, 4], "actions_dtype": "float32", "finite": true, "episode_restart_same_seed_exact": true, "request_s": [1.1439472130150534, 0.433251251000911], "wall_s": 15.210915750009008, "scope": "serving mechanics on a training observation; not an SR evaluation"}

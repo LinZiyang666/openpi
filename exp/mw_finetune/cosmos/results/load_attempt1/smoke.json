@@ -1,0 +1,27 @@
+{
+  "server_command": [
+    "/home/weiland/projects/openpi_ext/lines/cosmos-policy/.venv/bin/python",
+    "-m",
+    "exp.mw_finetune.serve",
+    "--model",
+    "cosmos",
+    "--checkpoint",
+    "/data/mw_finetune/models/cosmos_metaworld",
+    "--host",
+    "127.0.0.1",
+    "--port",
+    "8054",
+    "--denoising-steps",
+    "5",
+    "--policy-option",
+    "camera_layout=\"single\""
+  ],
+  "tasks": [
+    "assembly-v3",
+    "reach-v3"
+  ],
+  "trials": 1,
+  "gpu_free_mib_before_start": 48511,
+  "error": "RuntimeError('server exited with 1; see server.log')",
+  "wall_s": 102.08302927900513
+}

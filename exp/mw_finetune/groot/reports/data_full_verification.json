@@ -1,0 +1,249 @@
+{
+  "dataset": "/data/mw_finetune/datasets/metaworld_mt50_groot",
+  "frames": 204806,
+  "episodes": 2500,
+  "samples": [
+    {
+      "episode": 0,
+      "frame": 0,
+      "prompt": "Pick up a nut and place it onto a peg"
+    },
+    {
+      "episode": 0,
+      "frame": 44,
+      "prompt": "Pick up a nut and place it onto a peg"
+    },
+    {
+      "episode": 0,
+      "frame": 87,
+      "prompt": "Pick up a nut and place it onto a peg"
+    },
+    {
+      "episode": 227,
+      "frame": 0,
+      "prompt": "Press a button from the top"
+    },
+    {
+      "episode": 227,
+      "frame": 35,
+      "prompt": "Press a button from the top"
+    },
+    {
+      "episode": 227,
+      "frame": 69,
+      "prompt": "Press a button from the top"
+    },
+    {
+      "episode": 454,
+      "frame": 0,
+      "prompt": "Pull a mug from a coffee machine"
+    },
+    {
+      "episode": 454,
+      "frame": 42,
+      "prompt": "Pull a mug from a coffee machine"
+    },
+    {
+      "episode": 454,
+      "frame": 84,
+      "prompt": "Pull a mug from a coffee machine"
+    },
+    {
+      "episode": 681,
+      "frame": 0,
+      "prompt": "Close a door with a revolving joint"
+    },
+    {
+      "episode": 681,
+      "frame": 35,
+      "prompt": "Close a door with a revolving joint"
+    },
+    {
+      "episode": 681,
+      "frame": 70,
+      "prompt": "Close a door with a revolving joint"
+    },
+    {
+      "episode": 908,
+      "frame": 0,
+      "prompt": "Push and close a drawer"
+    },
+    {
+      "episode": 908,
+      "frame": 39,
+      "prompt": "Push and close a drawer"
+    },
+    {
+      "episode": 908,
+      "frame": 77,
+      "prompt": "Push and close a drawer"
+    },
+    {
+      "episode": 1135,
+      "frame": 0,
+      "prompt": "Hammer a screw on the wall"
+    },
+    {
+      "episode": 1135,
+      "frame": 32,
+      "prompt": "Hammer a screw on the wall"
+    },
+    {
+      "episode": 1135,
+      "frame": 63,
+      "prompt": "Hammer a screw on the wall"
+    },
+    {
+      "episode": 1363,
+      "frame": 0,
+      "prompt": "Pull a lever down 90 degrees"
+    },
+    {
+      "episode": 1363,
+      "frame": 44,
+      "prompt": "Pull a lever down 90 degrees"
+    },
+    {
+      "episode": 1363,
+      "frame": 88,
+      "prompt": "Pull a lever down 90 degrees"
+    },
+    {
+      "episode": 1590,
+      "frame": 0,
+      "prompt": "Slide a plate into a cabinet"
+    },
+    {
+      "episode": 1590,
+      "frame": 25,
+      "prompt": "Slide a plate into a cabinet"
+    },
+    {
+      "episode": 1590,
+      "frame": 49,
+      "prompt": "Slide a plate into a cabinet"
+    },
+    {
+      "episode": 1817,
+      "frame": 0,
+      "prompt": "Unplug a peg sideways"
+    },
+    {
+      "episode": 1817,
+      "frame": 71,
+      "prompt": "Unplug a peg sideways"
+    },
+    {
+      "episode": 1817,
+      "frame": 141,
+      "prompt": "Unplug a peg sideways"
+    },
+    {
+      "episode": 2044,
+      "frame": 0,
+      "prompt": "Push the puck to a goal"
+    },
+    {
+      "episode": 2044,
+      "frame": 29,
+      "prompt": "Push the puck to a goal"
+    },
+    {
+      "episode": 2044,
+      "frame": 58,
+      "prompt": "Push the puck to a goal"
+    },
+    {
+      "episode": 2271,
+      "frame": 0,
+      "prompt": "Pick and place a puck onto a shelf"
+    },
+    {
+      "episode": 2271,
+      "frame": 45,
+      "prompt": "Pick and place a puck onto a shelf"
+    },
+    {
+      "episode": 2271,
+      "frame": 90,
+      "prompt": "Pick and place a puck onto a shelf"
+    },
+    {
+      "episode": 2499,
+      "frame": 0,
+      "prompt": "Push and close a window"
+    },
+    {
+      "episode": 2499,
+      "frame": 39,
+      "prompt": "Push and close a window"
+    },
+    {
+      "episode": 2499,
+      "frame": 78,
+      "prompt": "Push and close a window"
+    }
+  ],
+  "lossless_source_equality": true,
+  "passed": true,
+  "statistics_recomputed_and_equal": true,
+  "parquet_vectors_float32": true,
+  "normalization_roundtrip": true,
+  "episodes_per_task_index": {
+    "0": 50,
+    "1": 50,
+    "2": 50,
+    "3": 50,
+    "4": 50,
+    "5": 50,
+    "6": 50,
+    "7": 50,
+    "8": 50,
+    "9": 50,
+    "10": 50,
+    "11": 50,
+    "12": 50,
+    "13": 50,
+    "14": 50,
+    "15": 50,
+    "16": 50,
+    "17": 50,
+    "18": 50,
+    "19": 50,
+    "20": 50,
+    "21": 50,
+    "22": 50,
+    "23": 50,
+    "24": 50,
+    "25": 50,
+    "26": 50,
+    "27": 50,
+    "28": 50,
+    "29": 50,
+    "30": 50,
+    "31": 50,
+    "32": 50,
+    "33": 50,
+    "34": 50,
+    "35": 50,
+    "36": 50,
+    "37": 50,
+    "38": 50,
+    "39": 50,
+    "40": 50,
+    "41": 50,
+    "42": 50,
+    "43": 50,
+    "44": 50,
+    "45": 50,
+    "46": 50,
+    "47": 50,
+    "48": 50,
+    "49": 50
+  },
+  "metadata_sha256": {
+    "info.json": "b20d36ee6f5cdd33515568a298d3790192994d2adc1f47401e5c3a6ecc60f32f",
+    "stats.json": "c9f899a7d1a678382f114f561e0e5f3304c226cbb029fe62a2aba9024547824d",
+    "modality.json": "703d6bcab5f1e266be2f20ce8f5e1c5483323d3a7751f9939ea5bf34d4e98513"
+  }
+}

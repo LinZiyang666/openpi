@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "actions_shape": [
+    32,
+    4
+  ],
+  "actions_dtype": "float32",
+  "finite": true,
+  "same_seed_exact": true,
+  "inference_s": [
+    1.210099296993576,
+    0.4549116489943117
+  ],
+  "peak_allocated_gb": 25.752861184,
+  "peak_reserved_gb": 26.19342848,
+  "wall_s": 13.6488731399877,
+  "scope": "checkpoint reload and serving mechanics; not an SR evaluation"
+}

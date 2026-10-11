@@ -1,0 +1,577 @@
+{
+  "runtime": {
+    "gpu_free_mib_before_start": 48511,
+    "budget_s": 1170,
+    "workers_per_config": 5,
+    "concurrent_A_servers": 4,
+    "denoising_steps": 5,
+    "pure_inference": true,
+    "configs": [
+      {
+        "name": "01_default",
+        "stage": "done",
+        "error": null
+      },
+      {
+        "name": "02_libero_duplicate",
+        "stage": "done",
+        "error": null
+      },
+      {
+        "name": "03_flowdagger_view_300",
+        "stage": "done",
+        "error": null
+      },
+      {
+        "name": "04_chunk32",
+        "stage": "done",
+        "error": null
+      }
+    ],
+    "source_sha256": {
+      "policy.py": "2f279f691557ac48a131138bd4e464d76c9069723b04a30fe42d64a9d59655e3",
+      "probe_server.py": "14ee73ab94d45692bbcb6887fcef1fc56f50d539695069a049baf26b2218e8af",
+      "probe_evaluate.py": "75dacccbd395a77f84aa7b83b69d004a0d49a6797e7e5cabc1cf2cdf2a1b2b1f",
+      "reconstruction_probe.py": "636eb80769e378d959e9d808dd212a30f6114c3d6ddc9f6aa825d151fcd3d99a"
+    },
+    "wall_s": 757.8735676630022
+  },
+  "configs": [
+    {
+      "name": "01_default",
+      "layout": "single",
+      "chunk_size": 16,
+      "corner3": false,
+      "port": 8064,
+      "tasks": {
+        "assembly-v3": {
+          "completed": 10,
+          "successes": 0,
+          "errors": 0,
+          "n_queries": 320,
+          "first_160_successes": 0,
+          "mean_roundtrip_ms": 6590.6715625,
+          "mean_service_ms": 1403.8495931715715,
+          "episodes": [
+            {
+              "idx": 4,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 214.22292804899917
+            },
+            {
+              "idx": 0,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 218.61816822798573
+            },
+            {
+              "idx": 3,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 222.87790030799806
+            },
+            {
+              "idx": 2,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 227.20491530001163
+            },
+            {
+              "idx": 1,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 231.46666538799764
+            },
+            {
+              "idx": 5,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 228.99144874399644
+            },
+            {
+              "idx": 6,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 229.0306965839991
+            },
+            {
+              "idx": 7,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 227.14877252400038
+            },
+            {
+              "idx": 8,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 225.00056600599783
+            },
+            {
+              "idx": 9,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 221.81035477499245
+            }
+          ]
+        },
+        "reach-v3": {
+          "completed": 5,
+          "successes": 0,
+          "errors": 0,
+          "n_queries": 160,
+          "first_160_successes": 0,
+          "mean_roundtrip_ms": 6259.85375,
+          "mean_service_ms": 1341.7297787002099,
+          "episodes": [
+            {
+              "idx": 0,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 211.20726535200083
+            },
+            {
+              "idx": 1,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 213.31590579899785
+            },
+            {
+              "idx": 3,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 215.41926793199673
+            },
+            {
+              "idx": 2,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 216.57778858600068
+            },
+            {
+              "idx": 4,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 217.6173008839978
+            }
+          ]
+        }
+      },
+      "cuda_graph_parity": {
+        "eager_s": 2.605714277990046,
+        "graph_s": [
+          2.3189178520115092,
+          1.1870099130028393
+        ],
+        "max_abs_differences": [
+          0.0,
+          0.0
+        ],
+        "bitwise_equal": true,
+        "seed": 2026
+      }
+    },
+    {
+      "name": "02_libero_duplicate",
+      "layout": "libero_duplicate",
+      "chunk_size": 16,
+      "corner3": false,
+      "port": 8065,
+      "tasks": {
+        "assembly-v3": {
+          "completed": 10,
+          "successes": 0,
+          "errors": 0,
+          "n_queries": 320,
+          "first_160_successes": 0,
+          "mean_roundtrip_ms": 8169.03875,
+          "mean_service_ms": 1721.970647372018,
+          "episodes": [
+            {
+              "idx": 3,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 275.53052443198976
+            },
+            {
+              "idx": 0,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 279.10843983599625
+            },
+            {
+              "idx": 4,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 282.4680833379971
+            },
+            {
+              "idx": 1,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 286.01709192800627
+            },
+            {
+              "idx": 2,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 289.52736143498623
+            },
+            {
+              "idx": 5,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 273.51483229000587
+            },
+            {
+              "idx": 6,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 273.4906806020008
+            },
+            {
+              "idx": 7,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 273.5664704480005
+            },
+            {
+              "idx": 8,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 271.81539257800614
+            },
+            {
+              "idx": 9,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 270.02373203499883
+            }
+          ]
+        },
+        "reach-v3": {
+          "completed": 5,
+          "successes": 0,
+          "errors": 0,
+          "n_queries": 160,
+          "first_160_successes": 0,
+          "mean_roundtrip_ms": 4427.431875,
+          "mean_service_ms": 960.8882032928705,
+          "episodes": [
+            {
+              "idx": 1,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 154.16023782500997
+            },
+            {
+              "idx": 2,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 155.56680740701267
+            },
+            {
+              "idx": 3,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 156.01520157500636
+            },
+            {
+              "idx": 4,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 156.46852247300558
+            },
+            {
+              "idx": 0,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 157.0144442939927
+            }
+          ]
+        }
+      },
+      "cuda_graph_parity": {
+        "eager_s": 2.7621889719885075,
+        "graph_s": [
+          2.6167359270039015,
+          1.0917882209905656
+        ],
+        "max_abs_differences": [
+          0.0,
+          0.0
+        ],
+        "bitwise_equal": true,
+        "seed": 2026
+      }
+    },
+    {
+      "name": "03_flowdagger_view_300",
+      "layout": "single",
+      "chunk_size": 16,
+      "corner3": true,
+      "port": 8066,
+      "tasks": {
+        "assembly-v3": {
+          "completed": 10,
+          "successes": 0,
+          "errors": 0,
+          "n_queries": 320,
+          "first_160_successes": 0,
+          "mean_roundtrip_ms": 6584.689374999999,
+          "mean_service_ms": 1392.432277528087,
+          "episodes": [
+            {
+              "idx": 1,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 215.243301451992
+            },
+            {
+              "idx": 4,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 216.65585413201188
+            },
+            {
+              "idx": 2,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 218.07443620999402
+            },
+            {
+              "idx": 3,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 219.52351202799764
+            },
+            {
+              "idx": 0,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 220.9258759330114
+            },
+            {
+              "idx": 5,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 228.1326277890039
+            },
+            {
+              "idx": 6,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 228.13213835799252
+            },
+            {
+              "idx": 7,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 228.12689000599494
+            },
+            {
+              "idx": 8,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 228.11050885199802
+            },
+            {
+              "idx": 9,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 228.13586782000493
+            }
+          ]
+        },
+        "reach-v3": {
+          "completed": 5,
+          "successes": 1,
+          "errors": 0,
+          "n_queries": 138,
+          "first_160_successes": 1,
+          "mean_roundtrip_ms": 5597.926086956521,
+          "mean_service_ms": 1382.9680676667983,
+          "episodes": [
+            {
+              "idx": 3,
+              "success": true,
+              "n_steps": 49,
+              "duration_s": 64.70517194099375
+            },
+            {
+              "idx": 4,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 189.45974010399368
+            },
+            {
+              "idx": 1,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 190.89612283100723
+            },
+            {
+              "idx": 0,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 192.37673363000795
+            },
+            {
+              "idx": 2,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 193.77417103700282
+            }
+          ]
+        }
+      },
+      "cuda_graph_parity": {
+        "eager_s": 2.537672443999327,
+        "graph_s": [
+          1.9563878789922455,
+          0.9135054310027044
+        ],
+        "max_abs_differences": [
+          0.0,
+          0.0
+        ],
+        "bitwise_equal": true,
+        "seed": 2026
+      }
+    },
+    {
+      "name": "04_chunk32",
+      "layout": "single",
+      "chunk_size": 32,
+      "corner3": false,
+      "port": 8067,
+      "tasks": {
+        "assembly-v3": {
+          "completed": 10,
+          "successes": 0,
+          "errors": 0,
+          "n_queries": 320,
+          "first_160_successes": 0,
+          "mean_roundtrip_ms": 6642.290312499999,
+          "mean_service_ms": 1414.170579422671,
+          "episodes": [
+            {
+              "idx": 4,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 229.66384285100503
+            },
+            {
+              "idx": 3,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 234.00716984299652
+            },
+            {
+              "idx": 1,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 238.32613624099758
+            },
+            {
+              "idx": 0,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 239.7779384789901
+            },
+            {
+              "idx": 2,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 242.57025318000524
+            },
+            {
+              "idx": 5,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 225.49181904800935
+            },
+            {
+              "idx": 6,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 225.25247656399733
+            },
+            {
+              "idx": 7,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 223.3593628600065
+            },
+            {
+              "idx": 8,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 222.96501965798961
+            },
+            {
+              "idx": 9,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 221.5615276030003
+            }
+          ]
+        },
+        "reach-v3": {
+          "completed": 5,
+          "successes": 0,
+          "errors": 0,
+          "n_queries": 160,
+          "first_160_successes": 0,
+          "mean_roundtrip_ms": 6122.875000000001,
+          "mean_service_ms": 1312.5797466248514,
+          "episodes": [
+            {
+              "idx": 3,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 207.63857017799455
+            },
+            {
+              "idx": 2,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 209.83125943299092
+            },
+            {
+              "idx": 1,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 211.30924373799644
+            },
+            {
+              "idx": 4,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 212.00034178199712
+            },
+            {
+              "idx": 0,
+              "success": false,
+              "n_steps": 160,
+              "duration_s": 212.8162638460053
+            }
+          ]
+        }
+      },
+      "cuda_graph_parity": {
+        "eager_s": 2.588007923011901,
+        "graph_s": [
+          2.8439009149878984,
+          1.008141557991621
+        ],
+        "max_abs_differences": [
+          0.0,
+          0.0
+        ],
+        "bitwise_equal": true,
+        "seed": 2026
+      }
+    }
+  ]
+}

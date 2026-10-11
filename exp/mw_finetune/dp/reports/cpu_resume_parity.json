@@ -1,0 +1,7 @@
+{
+  "total_tensors": 475,
+  "unequal_tensors": 0,
+  "model_bitwise_equal": true,
+  "status": "pass",
+  "release_recipe": "cached language; LR endpoint99500; atomic snapshots"
+}

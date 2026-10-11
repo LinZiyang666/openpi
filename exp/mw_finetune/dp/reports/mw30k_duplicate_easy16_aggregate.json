@@ -1,0 +1,50 @@
+{
+  "complete": true,
+  "completed_episodes": 16,
+  "expected_episodes": 16,
+  "error_attempts": 0,
+  "per_group": {
+    "easy": {
+      "tasks": 8,
+      "episodes": 16,
+      "sr": 0.0
+    },
+    "medium": {
+      "tasks": 0,
+      "episodes": 0,
+      "sr": null
+    },
+    "hard": {
+      "tasks": 0,
+      "episodes": 0,
+      "sr": null
+    },
+    "very_hard": {
+      "tasks": 0,
+      "episodes": 0,
+      "sr": null
+    }
+  },
+  "overall_per_task_mean": 0.0,
+  "equal_group_mean": 0.0,
+  "formal_mt50": false,
+  "rate_scope": "complete selection; nonstandard MT50 protocol",
+  "units": "fraction; multiply by 100 for percent",
+  "last_invocation": {
+    "workers": 2,
+    "hostname": "timan108",
+    "endpoint": "149.165.153.233:23254",
+    "renderer": "egl",
+    "egl_devices": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "seconds": 487.0263909570058,
+    "new_completed_episodes": 16,
+    "error_attempts": 0,
+    "episodes_per_second": 0.032852429143644626,
+    "episodes_per_minute": 1.9711457486186776
+  }
+}

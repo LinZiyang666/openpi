@@ -1,0 +1,72 @@
+{
+  "state": {
+    "x": {
+      "start": 0,
+      "end": 1,
+      "original_key": "observation.state",
+      "absolute": true,
+      "dtype": "float32"
+    },
+    "y": {
+      "start": 1,
+      "end": 2,
+      "original_key": "observation.state",
+      "absolute": true,
+      "dtype": "float32"
+    },
+    "z": {
+      "start": 2,
+      "end": 3,
+      "original_key": "observation.state",
+      "absolute": true,
+      "dtype": "float32"
+    },
+    "gripper": {
+      "start": 3,
+      "end": 4,
+      "original_key": "observation.state",
+      "absolute": true,
+      "dtype": "float32"
+    }
+  },
+  "action": {
+    "x": {
+      "start": 0,
+      "end": 1,
+      "original_key": "action",
+      "absolute": false,
+      "dtype": "float32"
+    },
+    "y": {
+      "start": 1,
+      "end": 2,
+      "original_key": "action",
+      "absolute": false,
+      "dtype": "float32"
+    },
+    "z": {
+      "start": 2,
+      "end": 3,
+      "original_key": "action",
+      "absolute": false,
+      "dtype": "float32"
+    },
+    "gripper": {
+      "start": 3,
+      "end": 4,
+      "original_key": "action",
+      "absolute": false,
+      "dtype": "float32"
+    }
+  },
+  "video": {
+    "image": {
+      "original_key": "observation.image"
+    }
+  },
+  "annotation": {
+    "human.action.task_description": {
+      "original_key": "task_index"
+    }
+  }
+}

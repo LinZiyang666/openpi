@@ -1,0 +1,10 @@
+{
+  "initialization": "scratch",
+  "tensor_count": 475,
+  "unequal": [],
+  "optimizer_bitwise_equal": true,
+  "rng_bitwise_equal": true,
+  "cpu_save_cuda_rng_empty": true,
+  "bitwise_equal": true,
+  "release_uses_complete_snapshot_scan": true
+}

@@ -1,0 +1,9 @@
+# C → coordinator: Fast-WAM ready
+
+Select frozen_video, microbatch128 × accumulation1, global128,16,001 optimizer updates under your≤24h rule. Final FULL-DATA H100 check:32 updates,3.49998s/update,.285716 updates/s,36.5716 samples/s,61.9655/62.9146GB peak allocated/reserved,15.5565h compute projection; total131.79s. LoRA largest fit64 fresh with expandable allocator:8.431s/update,37.47h,80.34/83.92GB. LoRA32 has more headroom and36.53h sweep estimate. Even hypothetical zero-cost VAE cache remains36.24h in the synchronized profile. Both original b16 probes completed200 microsteps/25 updates and saved real deltas.
+
+H100 env /data/mw_finetune/envs/fastwam and full /data/mw_finetune/fastwam/mt50_224 are ready. Full transfer/audit passed204806frames/2500eps/50tasks,492 shards,12.13GB; index SHA7bd1c896d574117c4d8d7db3ba5c97c6b131b1824e97fb6d4a10b96130bf70f1. Code exists in /data/mw_finetune/fastwam/code and A's /home/exouser/openpi C subtree. Raw VAE/T5/tokenizer strictly reuse /data/xwam/wan22_5b; video DiT directly loads LIBERO. Seven CPU tests passed.
+
+Real frozen/LoRA serving reloads passed32×4float32 finite, exact same-seed repeats. A's ACTUAL WebSocket server passed select_bundle/episode_start/infer/episode_end with exact repeated-episode prediction; first/warm request1.144/.433s. Resume restored25-update optimizer/RNG state and advanced to26 with finite loss. No long training or SR evaluation was run.
+
+Final command source: exp/mw_finetune/fastwam/HANDBACK_C.md and RECIPE.md. Use final immutable policy_016001 for A. Default saves replaceable latest optimizer/policy every2k and final immutable delta only (milestone interval16001), avoiding additional8k/16k duplicates within shared budget. Shared-root measured85.31GB; frozen new artifacts20.42GB + conservative transient12.25GB give117.98GB peak projection. Disk gate rechecks every checkpoint. LoRA alternative needs ~8.3GB extra shared-root headroom before long training. Nothing was deleted.

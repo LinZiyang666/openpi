@@ -1,0 +1,27 @@
+{
+  "runtime": {
+    "gpu_free_mib_before_start": 48511,
+    "budget_s": 422,
+    "workers_per_config": 5,
+    "concurrent_A_servers": 1,
+    "denoising_steps": 5,
+    "pure_inference": true,
+    "assembly_only": true,
+    "configs": [],
+    "source_sha256": {
+      "policy.py": "2f279f691557ac48a131138bd4e464d76c9069723b04a30fe42d64a9d59655e3",
+      "probe_server.py": "14ee73ab94d45692bbcb6887fcef1fc56f50d539695069a049baf26b2218e8af",
+      "probe_evaluate.py": "cc95b7801f99c8ca90599bead27b7a956877cd62b21b91f1ad2c7600fa117af8",
+      "reconstruction_probe.py": "e3d038c21c009771e913118c952a81672f454476d4e223cce66d7589e175ec9e"
+    }
+  },
+  "configs": [
+    {
+      "name": "03_flowdagger_view_300",
+      "layout": "single",
+      "chunk_size": 16,
+      "corner3": true,
+      "port": 8074
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+name, memory.free [MiB]
+NVIDIA H100 80GB HBM3, 81081 MiB
+/data/mw_finetune/envs/fastwam/lib/python3.12/site-packages/draccus/parsers/decoding.py:177: FutureWarning: `torch_dtype` is deprecated; use `--policy.dtype` instead.
+  instance = origin(**init_args)
+WARNING:lerobot.configs.policies:Device 'None' is not available. Switching to 'cuda'.
+{"passed": true, "actions_shape": [32, 4], "actions_dtype": "float32", "finite": true, "same_seed_exact": true, "inference_s": [1.210099296993576, 0.4549116489943117], "peak_allocated_gb": 25.752861184, "peak_reserved_gb": 26.19342848, "wall_s": 13.6488731399877, "scope": "checkpoint reload and serving mechanics; not an SR evaluation"}

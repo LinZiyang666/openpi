@@ -1,0 +1,39 @@
+{
+  "source": "/data/mw_finetune/datasets/metaworld_mt50",
+  "output": "/data/mw_finetune/datasets/metaworld_mt50_groot",
+  "source_revision": "b46a1c185a2368660650a82ac5a5083a56722f48",
+  "episodes": 2500,
+  "frames": 204806,
+  "tasks": 50,
+  "fps": 80,
+  "action_horizon": 16,
+  "embodiment": "metaworld_sawyer",
+  "smoke_only": false,
+  "seconds": 1153.7358225360076,
+  "state_min": [
+    -0.5055355429649353,
+    0.3866003155708313,
+    0.043383073061704636,
+    0.2562655508518219
+  ],
+  "state_max": [
+    0.4868811070919037,
+    0.9038298726081848,
+    0.5081701874732971,
+    1.0
+  ],
+  "action_min": [
+    -11.47459888458252,
+    -14.927048683166504,
+    -17.279014587402344,
+    -1.0
+  ],
+  "action_max": [
+    19.455713272094727,
+    12.468914985656738,
+    24.625469207763672,
+    1.0
+  ],
+  "codec": "lossless RGB H.264 (libx264rgb, crf=0)",
+  "complete": true
+}

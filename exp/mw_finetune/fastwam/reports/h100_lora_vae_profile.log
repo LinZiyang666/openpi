@@ -1,0 +1,6 @@
+name, memory.free [MiB]
+NVIDIA H100 80GB HBM3, 81081 MiB
+/data/mw_finetune/envs/fastwam/lib/python3.12/site-packages/draccus/parsers/decoding.py:177: FutureWarning: `torch_dtype` is deprecated; use `--policy.dtype` instead.
+  instance = origin(**init_args)
+WARNING:lerobot.configs.policies:Device 'None' is not available. Switching to 'cuda'.
+{"status": "fits", "mode": "video_lora", "micro_batch": 32, "accumulation": 4, "global_batch": 128, "microsteps": 12, "microstep_s": 2.3192638966211234, "microstep_it_s": 0.43117128734546967, "optimizer_step_s": 9.277055586484494, "samples_s": 13.79748119505503, "projected_ten_epoch_hours": 41.23393512203844, "peak_allocated_gb": 58.41054976, "peak_reserved_gb": 62.04424192, "vae_mean_s": 0.2808647122583352, "ideal_zero_cost_vae_cache_ten_epoch_hours": 36.24047260998775}

@@ -1,0 +1,64 @@
+{
+  "metadata": {
+    "model": "dp-libero-30k",
+    "pure_inference": true,
+    "architecture": "dp-transformer-film-resnet18",
+    "n_obs_steps": 1,
+    "horizon": 16,
+    "denoising_steps": 100,
+    "scheduler": "DDPM/squaredcos_cap_v2/epsilon",
+    "domain": "libero",
+    "language_kind": "projected",
+    "feature_order": [
+      "base_0_rgb",
+      "left_wrist_0_rgb",
+      "state",
+      "lang_emb"
+    ],
+    "second_camera": "wire wrist",
+    "external_normalization": "quantile",
+    "internal_normalization": "checkpoint affine",
+    "strict_load": {
+      "missing": [],
+      "unexpected": [],
+      "keys": 475
+    },
+    "policy_rng": "obs.seed private Torch generator, otherwise caller RNG",
+    "architecture_sha256": "e8570dd11fe4402b533f3669e32b3117dd9a0264320322e1e9b3ef0fd7b105e9",
+    "reconstruction": "checkpoint-exact tensors; wrapper conventions reconstructed (see RECIPE)"
+  },
+  "episodes": [
+    {
+      "suite": "libero_spatial",
+      "task_id": 0,
+      "task": "pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+      "idx": 0,
+      "success": false,
+      "final_env_timestep": 230,
+      "duration_s": 156.67052399698878,
+      "renderer": {
+        "GL_RENDERER": "llvmpipe (LLVM 20.1.2, 256 bits)",
+        "GL_VENDOR": "Mesa",
+        "GL_VERSION": "4.5 (Compatibility Profile) Mesa 25.1.7-1ubuntu2~24.04.2"
+      }
+    },
+    {
+      "suite": "libero_spatial",
+      "task_id": 1,
+      "task": "pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate",
+      "idx": 0,
+      "success": false,
+      "final_env_timestep": 230,
+      "duration_s": 148.5772913810215,
+      "renderer": {
+        "GL_RENDERER": "llvmpipe (LLVM 20.1.2, 256 bits)",
+        "GL_VENDOR": "Mesa",
+        "GL_VERSION": "4.5 (Compatibility Profile) Mesa 25.1.7-1ubuntu2~24.04.2"
+      }
+    }
+  ],
+  "smoke_only": true,
+  "resize": 96,
+  "replan_steps": 5,
+  "seed": 7
+}

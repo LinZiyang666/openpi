@@ -1,0 +1,53 @@
+{
+  "original_wrapper_found": false,
+  "openpi_eval_commits_scanned": 287,
+  "repository_trees": [
+    "branyang02__openpi-cuda_main_tree.json",
+    "branyang02__openpi-eval_codex_openpi-eval-release_tree.json",
+    "branyang02__openpi-eval_codex_world-model-metaworld_tree.json",
+    "branyang02__openpi-eval_main_tree.json",
+    "branyang02__openpi-trajectory_main_tree.json",
+    "branyang02__sim-evals_main_tree.json",
+    "ricl-vla__ricl_openpi_main_tree.json"
+  ],
+  "architecture_upstreams": {
+    "diffusion_policy": "5ba07ac6661db573af695b419a7947ecb704690f",
+    "robomimic": "d309eaecc18acf4152a830a895a6984b8ac71b05"
+  },
+  "weights": {
+    "libero": {
+      "repo": "brandonyang/dp-libero-checkpoints",
+      "revision": "3c48ffaab98faacb119beaf2ee12f943503e6492",
+      "subdir": "dp_libero_lang_v1/30000",
+      "sha256": {
+        "metadata.pt": "e73fd9ede6e59407d89d7b3cd1d0a357b5ef40ca6fe7e003571b7cedab73c668",
+        "model.safetensors": "3ab4fb34d819bf1bb3e20b78dc2e41560ef47fe663213b17120d23ef2cf78103",
+        "norm_stats.json": "1464992ae5c68e6b74c8a3ed736b19321340593534e715243ea6b5d9578dcbe6"
+      }
+    },
+    "metaworld": {
+      "repo": "brandonyang/dp-metaworld-checkpoints",
+      "revision": "46c26c0630024f7645f19398cc5be105870ca96f",
+      "subdir": "dp_metaworld_lang_v1/85000",
+      "sha256": {
+        "metadata.pt": "77f0796842ba3bc6a73c68604aaf6f23b4d412697f5c0c68f378231e0416628c",
+        "model.safetensors": "98353004131950a0a087a65270414e67067719e4ef7d701b9da77711ba136c16",
+        "norm_stats.json": "b8833553bfee0171c64355cc802082296783d4a438f371cfc8c03f6e31715d94"
+      }
+    },
+    "metaworld30k": {
+      "repo": "brandonyang/dp-metaworld-checkpoints",
+      "revision": "46c26c0630024f7645f19398cc5be105870ca96f",
+      "subdir": "dp_metaworld_lang_v1/30000",
+      "sha256": {
+        "metadata.pt": "c92d22763f435f9f7c79c26a0c27018dc421b6bfe203402431860820f0d80815",
+        "model.safetensors": "01dc8518d1066b6f856a1e3fd651987f8e185919ebff062d602bf6eef85ac19d",
+        "norm_stats.json": "b8833553bfee0171c64355cc802082296783d4a438f371cfc8c03f6e31715d94"
+      }
+    }
+  },
+  "clip_revision": "32bd64288804d66eefd0ccbe215aa642df71cc41",
+  "ml45_data_revision": "7c3ffbc972fc6b1b0f701882841c2d17009b71b8",
+  "mt50_data_revision": "b46a1c185a2368660650a82ac5a5083a56722f48",
+  "libero_data_revision": "a4336d589d589045d1c56423ffdf3b88a0e19b1f"
+}

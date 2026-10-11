@@ -1,0 +1,21 @@
+{
+  "mode": "frozen_video",
+  "attempts": [
+    {
+      "status": "fits",
+      "mode": "frozen_video",
+      "micro_batch": 128,
+      "accumulation": 1,
+      "global_batch": 128,
+      "microsteps": 3,
+      "microstep_s": 3.511125118515338,
+      "microstep_it_s": 0.2848089903508893,
+      "optimizer_step_s": 3.511125118515338,
+      "samples_s": 36.45555076491383,
+      "projected_ten_epoch_hours": 15.605975839267757,
+      "peak_allocated_gb": 61.964673536,
+      "peak_reserved_gb": 62.916657152
+    }
+  ],
+  "wall_s": 31.253890708001563
+}

@@ -1,0 +1,402 @@
+{
+  "Bypass a wall and press a button": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Bypass a wall and press a button from the top": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Bypass a wall and push a puck to a goal": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Bypass a wall and reach a goal": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Close a door with a revolving joint": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Dunk the basketball into the basket": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Get a plate from the cabinet": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Get a plate from the cabinet sideways": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Grasp a stick and pull a box with the stick": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Grasp a stick and push a box using the stick": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Grasp the cover and close the box with it": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Grasp the puck from one bin and place it into another bin": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Hammer a screw on the wall": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Insert a peg sideways": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Insert the gripper into a hole": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Kick a soccer into the goal": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Lock the door by rotating the lock clockwise": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Open a door with a revolving joint": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Open a drawer": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Pick a nut out of a peg": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Pick a puck, bypass a wall and place the puck": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Pick and place a puck onto a shelf": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Pick and place a puck to a goal": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Pick up a nut and place it onto a peg": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Pick up a puck from a hole": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Press a button": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Press a button from the top": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Press a handle down": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Press a handle down sideways": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Pull a handle up": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Pull a handle up sideways": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Pull a lever down 90 degrees": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Pull a mug from a coffee machine": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Push a button on the coffee machine": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Push a mug under a coffee machine": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Push a puck back to a target behind it": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Push and close a drawer": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Push and close a window": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Push and open a window": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Push the puck to a goal": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Reach a goal position": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Rotate a dial 180 degrees": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Rotate the faucet clockwise": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Rotate the faucet counter-clockwise": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Slide a plate into a cabinet": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Slide a plate into a cabinet sideways": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Sweep a puck into a hole": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Sweep a puck off the table": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Unlock the door by rotating the lock counter-clockwise": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  },
+  "Unplug a peg sideways": {
+    "shape": [
+      1,
+      512,
+      1024
+    ],
+    "dtype": "torch.bfloat16"
+  }
+}

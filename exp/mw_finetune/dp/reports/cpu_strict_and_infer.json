@@ -1,0 +1,38 @@
+{
+  "libero": {
+    "strict_load": {
+      "missing": [],
+      "unexpected": [],
+      "keys": 475
+    },
+    "shape": [
+      16,
+      7
+    ],
+    "finite": true,
+    "stateless_same_seed": true,
+    "two_infer_s": 8.822444221994374,
+    "range": [
+      -1.0,
+      0.9999998807907104
+    ]
+  },
+  "metaworld": {
+    "strict_load": {
+      "missing": [],
+      "unexpected": [],
+      "keys": 475
+    },
+    "shape": [
+      16,
+      4
+    ],
+    "finite": true,
+    "stateless_same_seed": true,
+    "two_infer_s": 7.487728561012773,
+    "range": [
+      -1.9936676025390625,
+      0.6047999858856201
+    ]
+  }
+}

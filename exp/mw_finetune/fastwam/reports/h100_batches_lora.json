@@ -1,0 +1,37 @@
+{
+  "mode": "video_lora",
+  "attempts": [
+    {
+      "status": "oom",
+      "mode": "video_lora",
+      "micro_batch": 128,
+      "peak_allocated_gb": 83.6551296,
+      "peak_reserved_gb": 84.219527168,
+      "error": "CUDA out of memory. Tried to allocate 270.00 MiB. GPU 0 has a total capacity of 79.18 GiB of which 202.19 MiB is free. Including non-PyTorch memory, this process has 78.97 GiB memory in use. Of the allocated memory 77.51 GiB is allocated by PyTorch, and 810.35 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"
+    },
+    {
+      "status": "oom",
+      "mode": "video_lora",
+      "micro_batch": 64,
+      "peak_allocated_gb": 75.22084352,
+      "peak_reserved_gb": 83.741376512,
+      "error": "CUDA out of memory. Tried to allocate 2.97 GiB. GPU 0 has a total capacity of 79.18 GiB of which 456.19 MiB is free. Including non-PyTorch memory, this process has 78.73 GiB memory in use. Of the allocated memory 44.58 GiB is allocated by PyTorch, and 33.41 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"
+    },
+    {
+      "status": "fits",
+      "mode": "video_lora",
+      "micro_batch": 32,
+      "accumulation": 4,
+      "global_batch": 128,
+      "microsteps": 12,
+      "microstep_s": 2.054644987631036,
+      "microstep_it_s": 0.48670208528480613,
+      "optimizer_step_s": 8.218579950524145,
+      "samples_s": 15.574466729113796,
+      "projected_ten_epoch_hours": 36.52930494120467,
+      "peak_allocated_gb": 58.393518592,
+      "peak_reserved_gb": 63.510151168
+    }
+  ],
+  "wall_s": 64.13816075699287
+}

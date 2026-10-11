@@ -1,0 +1,9 @@
+name, memory.free [MiB]
+NVIDIA H100 80GB HBM3, 81081 MiB
+/data/mw_finetune/envs/fastwam/lib/python3.12/site-packages/draccus/parsers/decoding.py:177: FutureWarning: `torch_dtype` is deprecated; use `--policy.dtype` instead.
+  instance = origin(**init_args)
+WARNING:lerobot.configs.policies:Device 'None' is not available. Switching to 'cuda'.
+{"load_audit": {"reset": ["model.mot.mixtures.action.action_encoder.bias", "model.mot.mixtures.action.action_encoder.weight", "model.mot.mixtures.action.head.bias", "model.mot.mixtures.action.head.weight", "model.proprio_encoder.bias", "model.proprio_encoder.weight"], "loaded_unique_tensors": 1645, "trainable_parameters": 1020900356, "frozen_parameters": 4999787712, "lora": null, "mode": "frozen_video"}}
+{"gradient_audit": {"video_gradient_tensors": 0, "video_lora_gradient_tensors": 0, "action_gradient_tensors": 824, "proprio_gradient_norm": 0.019723858684301376}}
+{"micro": 201, "update": 25, "loss": 1.5110399723052979, "loss_action": 1.5110399723052979, "loss_video": 0.0, "microstep_s": 1.1020782889972907, "lr": 3.2500000000000002e-06, "peak_allocated_gb": 30.329014784, "peak_reserved_gb": 30.677139456}
+{"summary": {"requested_microsteps": 8, "completed_microsteps": 8, "optimizer_updates": 26, "stop_reason": "target", "microstep_it_s": 1.306054324349563, "microstep_mean_s": 0.7656649354903493, "microstep_p50_s": 0.7096489419927821, "estimated_optimizer_it_s": 0.16325679054369538, "samples_s": 20.89686918959301, "optimizer_step_s": 6.1253194839227945, "projected_ten_epoch_hours": 27.2253436284024, "peak_allocated_gb": 34.475040256, "peak_reserved_gb": 35.175530496, "wall_s": 33.64446948299883, "train_wall_s": 6.1270088180026505, "first_loss": 1.5110399723052979, "last_loss": 1.1017634868621826, "micro_batch": 16, "accumulation": 8, "total_wall_s": 33.64447309199022}}

@@ -1,0 +1,3097 @@
+{
+  "_policy._dummy_variable": {
+    "shape": [
+      0
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.mask_generator._dummy_variable": {
+    "shape": [
+      0
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model._dummy_variable": {
+    "shape": [
+      0
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.cond_obs_emb.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.cond_obs_emb.weight": {
+    "shape": [
+      512,
+      900
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.cond_pos_emb": {
+    "shape": [
+      1,
+      2,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.0.linear1.bias": {
+    "shape": [
+      2048
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.0.linear1.weight": {
+    "shape": [
+      2048,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.0.linear2.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.0.linear2.weight": {
+    "shape": [
+      512,
+      2048
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.0.multihead_attn.in_proj_bias": {
+    "shape": [
+      1536
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.0.multihead_attn.in_proj_weight": {
+    "shape": [
+      1536,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.0.multihead_attn.out_proj.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.0.multihead_attn.out_proj.weight": {
+    "shape": [
+      512,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.0.norm1.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.0.norm1.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.0.norm2.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.0.norm2.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.0.norm3.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.0.norm3.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.0.self_attn.in_proj_bias": {
+    "shape": [
+      1536
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.0.self_attn.in_proj_weight": {
+    "shape": [
+      1536,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.0.self_attn.out_proj.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.0.self_attn.out_proj.weight": {
+    "shape": [
+      512,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.1.linear1.bias": {
+    "shape": [
+      2048
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.1.linear1.weight": {
+    "shape": [
+      2048,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.1.linear2.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.1.linear2.weight": {
+    "shape": [
+      512,
+      2048
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.1.multihead_attn.in_proj_bias": {
+    "shape": [
+      1536
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.1.multihead_attn.in_proj_weight": {
+    "shape": [
+      1536,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.1.multihead_attn.out_proj.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.1.multihead_attn.out_proj.weight": {
+    "shape": [
+      512,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.1.norm1.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.1.norm1.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.1.norm2.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.1.norm2.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.1.norm3.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.1.norm3.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.1.self_attn.in_proj_bias": {
+    "shape": [
+      1536
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.1.self_attn.in_proj_weight": {
+    "shape": [
+      1536,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.1.self_attn.out_proj.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.1.self_attn.out_proj.weight": {
+    "shape": [
+      512,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.10.linear1.bias": {
+    "shape": [
+      2048
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.10.linear1.weight": {
+    "shape": [
+      2048,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.10.linear2.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.10.linear2.weight": {
+    "shape": [
+      512,
+      2048
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.10.multihead_attn.in_proj_bias": {
+    "shape": [
+      1536
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.10.multihead_attn.in_proj_weight": {
+    "shape": [
+      1536,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.10.multihead_attn.out_proj.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.10.multihead_attn.out_proj.weight": {
+    "shape": [
+      512,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.10.norm1.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.10.norm1.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.10.norm2.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.10.norm2.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.10.norm3.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.10.norm3.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.10.self_attn.in_proj_bias": {
+    "shape": [
+      1536
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.10.self_attn.in_proj_weight": {
+    "shape": [
+      1536,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.10.self_attn.out_proj.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.10.self_attn.out_proj.weight": {
+    "shape": [
+      512,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.11.linear1.bias": {
+    "shape": [
+      2048
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.11.linear1.weight": {
+    "shape": [
+      2048,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.11.linear2.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.11.linear2.weight": {
+    "shape": [
+      512,
+      2048
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.11.multihead_attn.in_proj_bias": {
+    "shape": [
+      1536
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.11.multihead_attn.in_proj_weight": {
+    "shape": [
+      1536,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.11.multihead_attn.out_proj.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.11.multihead_attn.out_proj.weight": {
+    "shape": [
+      512,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.11.norm1.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.11.norm1.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.11.norm2.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.11.norm2.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.11.norm3.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.11.norm3.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.11.self_attn.in_proj_bias": {
+    "shape": [
+      1536
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.11.self_attn.in_proj_weight": {
+    "shape": [
+      1536,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.11.self_attn.out_proj.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.11.self_attn.out_proj.weight": {
+    "shape": [
+      512,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.2.linear1.bias": {
+    "shape": [
+      2048
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.2.linear1.weight": {
+    "shape": [
+      2048,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.2.linear2.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.2.linear2.weight": {
+    "shape": [
+      512,
+      2048
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.2.multihead_attn.in_proj_bias": {
+    "shape": [
+      1536
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.2.multihead_attn.in_proj_weight": {
+    "shape": [
+      1536,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.2.multihead_attn.out_proj.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.2.multihead_attn.out_proj.weight": {
+    "shape": [
+      512,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.2.norm1.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.2.norm1.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.2.norm2.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.2.norm2.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.2.norm3.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.2.norm3.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.2.self_attn.in_proj_bias": {
+    "shape": [
+      1536
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.2.self_attn.in_proj_weight": {
+    "shape": [
+      1536,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.2.self_attn.out_proj.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.2.self_attn.out_proj.weight": {
+    "shape": [
+      512,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.3.linear1.bias": {
+    "shape": [
+      2048
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.3.linear1.weight": {
+    "shape": [
+      2048,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.3.linear2.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.3.linear2.weight": {
+    "shape": [
+      512,
+      2048
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.3.multihead_attn.in_proj_bias": {
+    "shape": [
+      1536
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.3.multihead_attn.in_proj_weight": {
+    "shape": [
+      1536,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.3.multihead_attn.out_proj.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.3.multihead_attn.out_proj.weight": {
+    "shape": [
+      512,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.3.norm1.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.3.norm1.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.3.norm2.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.3.norm2.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.3.norm3.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.3.norm3.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.3.self_attn.in_proj_bias": {
+    "shape": [
+      1536
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.3.self_attn.in_proj_weight": {
+    "shape": [
+      1536,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.3.self_attn.out_proj.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.3.self_attn.out_proj.weight": {
+    "shape": [
+      512,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.4.linear1.bias": {
+    "shape": [
+      2048
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.4.linear1.weight": {
+    "shape": [
+      2048,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.4.linear2.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.4.linear2.weight": {
+    "shape": [
+      512,
+      2048
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.4.multihead_attn.in_proj_bias": {
+    "shape": [
+      1536
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.4.multihead_attn.in_proj_weight": {
+    "shape": [
+      1536,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.4.multihead_attn.out_proj.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.4.multihead_attn.out_proj.weight": {
+    "shape": [
+      512,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.4.norm1.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.4.norm1.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.4.norm2.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.4.norm2.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.4.norm3.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.4.norm3.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.4.self_attn.in_proj_bias": {
+    "shape": [
+      1536
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.4.self_attn.in_proj_weight": {
+    "shape": [
+      1536,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.4.self_attn.out_proj.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.4.self_attn.out_proj.weight": {
+    "shape": [
+      512,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.5.linear1.bias": {
+    "shape": [
+      2048
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.5.linear1.weight": {
+    "shape": [
+      2048,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.5.linear2.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.5.linear2.weight": {
+    "shape": [
+      512,
+      2048
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.5.multihead_attn.in_proj_bias": {
+    "shape": [
+      1536
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.5.multihead_attn.in_proj_weight": {
+    "shape": [
+      1536,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.5.multihead_attn.out_proj.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.5.multihead_attn.out_proj.weight": {
+    "shape": [
+      512,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.5.norm1.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.5.norm1.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.5.norm2.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.5.norm2.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.5.norm3.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.5.norm3.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.5.self_attn.in_proj_bias": {
+    "shape": [
+      1536
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.5.self_attn.in_proj_weight": {
+    "shape": [
+      1536,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.5.self_attn.out_proj.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.5.self_attn.out_proj.weight": {
+    "shape": [
+      512,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.6.linear1.bias": {
+    "shape": [
+      2048
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.6.linear1.weight": {
+    "shape": [
+      2048,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.6.linear2.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.6.linear2.weight": {
+    "shape": [
+      512,
+      2048
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.6.multihead_attn.in_proj_bias": {
+    "shape": [
+      1536
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.6.multihead_attn.in_proj_weight": {
+    "shape": [
+      1536,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.6.multihead_attn.out_proj.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.6.multihead_attn.out_proj.weight": {
+    "shape": [
+      512,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.6.norm1.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.6.norm1.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.6.norm2.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.6.norm2.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.6.norm3.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.6.norm3.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.6.self_attn.in_proj_bias": {
+    "shape": [
+      1536
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.6.self_attn.in_proj_weight": {
+    "shape": [
+      1536,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.6.self_attn.out_proj.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.6.self_attn.out_proj.weight": {
+    "shape": [
+      512,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.7.linear1.bias": {
+    "shape": [
+      2048
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.7.linear1.weight": {
+    "shape": [
+      2048,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.7.linear2.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.7.linear2.weight": {
+    "shape": [
+      512,
+      2048
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.7.multihead_attn.in_proj_bias": {
+    "shape": [
+      1536
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.7.multihead_attn.in_proj_weight": {
+    "shape": [
+      1536,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.7.multihead_attn.out_proj.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.7.multihead_attn.out_proj.weight": {
+    "shape": [
+      512,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.7.norm1.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.7.norm1.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.7.norm2.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.7.norm2.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.7.norm3.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.7.norm3.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.7.self_attn.in_proj_bias": {
+    "shape": [
+      1536
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.7.self_attn.in_proj_weight": {
+    "shape": [
+      1536,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.7.self_attn.out_proj.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.7.self_attn.out_proj.weight": {
+    "shape": [
+      512,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.8.linear1.bias": {
+    "shape": [
+      2048
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.8.linear1.weight": {
+    "shape": [
+      2048,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.8.linear2.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.8.linear2.weight": {
+    "shape": [
+      512,
+      2048
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.8.multihead_attn.in_proj_bias": {
+    "shape": [
+      1536
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.8.multihead_attn.in_proj_weight": {
+    "shape": [
+      1536,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.8.multihead_attn.out_proj.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.8.multihead_attn.out_proj.weight": {
+    "shape": [
+      512,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.8.norm1.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.8.norm1.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.8.norm2.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.8.norm2.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.8.norm3.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.8.norm3.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.8.self_attn.in_proj_bias": {
+    "shape": [
+      1536
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.8.self_attn.in_proj_weight": {
+    "shape": [
+      1536,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.8.self_attn.out_proj.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.8.self_attn.out_proj.weight": {
+    "shape": [
+      512,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.9.linear1.bias": {
+    "shape": [
+      2048
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.9.linear1.weight": {
+    "shape": [
+      2048,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.9.linear2.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.9.linear2.weight": {
+    "shape": [
+      512,
+      2048
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.9.multihead_attn.in_proj_bias": {
+    "shape": [
+      1536
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.9.multihead_attn.in_proj_weight": {
+    "shape": [
+      1536,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.9.multihead_attn.out_proj.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.9.multihead_attn.out_proj.weight": {
+    "shape": [
+      512,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.9.norm1.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.9.norm1.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.9.norm2.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.9.norm2.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.9.norm3.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.9.norm3.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.9.self_attn.in_proj_bias": {
+    "shape": [
+      1536
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.9.self_attn.in_proj_weight": {
+    "shape": [
+      1536,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.9.self_attn.out_proj.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.decoder.layers.9.self_attn.out_proj.weight": {
+    "shape": [
+      512,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.0.linear1.bias": {
+    "shape": [
+      2048
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.0.linear1.weight": {
+    "shape": [
+      2048,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.0.linear2.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.0.linear2.weight": {
+    "shape": [
+      512,
+      2048
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.0.norm1.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.0.norm1.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.0.norm2.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.0.norm2.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.0.self_attn.in_proj_bias": {
+    "shape": [
+      1536
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.0.self_attn.in_proj_weight": {
+    "shape": [
+      1536,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.0.self_attn.out_proj.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.0.self_attn.out_proj.weight": {
+    "shape": [
+      512,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.1.linear1.bias": {
+    "shape": [
+      2048
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.1.linear1.weight": {
+    "shape": [
+      2048,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.1.linear2.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.1.linear2.weight": {
+    "shape": [
+      512,
+      2048
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.1.norm1.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.1.norm1.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.1.norm2.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.1.norm2.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.1.self_attn.in_proj_bias": {
+    "shape": [
+      1536
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.1.self_attn.in_proj_weight": {
+    "shape": [
+      1536,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.1.self_attn.out_proj.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.1.self_attn.out_proj.weight": {
+    "shape": [
+      512,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.2.linear1.bias": {
+    "shape": [
+      2048
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.2.linear1.weight": {
+    "shape": [
+      2048,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.2.linear2.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.2.linear2.weight": {
+    "shape": [
+      512,
+      2048
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.2.norm1.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.2.norm1.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.2.norm2.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.2.norm2.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.2.self_attn.in_proj_bias": {
+    "shape": [
+      1536
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.2.self_attn.in_proj_weight": {
+    "shape": [
+      1536,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.2.self_attn.out_proj.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.2.self_attn.out_proj.weight": {
+    "shape": [
+      512,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.3.linear1.bias": {
+    "shape": [
+      2048
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.3.linear1.weight": {
+    "shape": [
+      2048,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.3.linear2.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.3.linear2.weight": {
+    "shape": [
+      512,
+      2048
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.3.norm1.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.3.norm1.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.3.norm2.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.3.norm2.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.3.self_attn.in_proj_bias": {
+    "shape": [
+      1536
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.3.self_attn.in_proj_weight": {
+    "shape": [
+      1536,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.3.self_attn.out_proj.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.encoder.layers.3.self_attn.out_proj.weight": {
+    "shape": [
+      512,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.head.bias": {
+    "shape": [
+      4
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.head.weight": {
+    "shape": [
+      4,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.input_emb.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.input_emb.weight": {
+    "shape": [
+      512,
+      4
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.ln_f.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.ln_f.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.mask": {
+    "shape": [
+      16,
+      16
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.memory_mask": {
+    "shape": [
+      16,
+      2
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.model.pos_emb": {
+    "shape": [
+      1,
+      16,
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.normalizer.params_dict.action.input_stats.max": {
+    "shape": [
+      4
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.normalizer.params_dict.action.input_stats.mean": {
+    "shape": [
+      4
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.normalizer.params_dict.action.input_stats.min": {
+    "shape": [
+      4
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.normalizer.params_dict.action.input_stats.std": {
+    "shape": [
+      4
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.normalizer.params_dict.action.offset": {
+    "shape": [
+      4
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.normalizer.params_dict.action.scale": {
+    "shape": [
+      4
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.normalizer.params_dict.base_0_rgb.input_stats.max": {
+    "shape": [
+      96
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.normalizer.params_dict.base_0_rgb.input_stats.mean": {
+    "shape": [
+      96
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.normalizer.params_dict.base_0_rgb.input_stats.min": {
+    "shape": [
+      96
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.normalizer.params_dict.base_0_rgb.input_stats.std": {
+    "shape": [
+      96
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.normalizer.params_dict.base_0_rgb.offset": {
+    "shape": [
+      96
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.normalizer.params_dict.base_0_rgb.scale": {
+    "shape": [
+      96
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.normalizer.params_dict.lang_emb.input_stats.max": {
+    "shape": [
+      768
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.normalizer.params_dict.lang_emb.input_stats.mean": {
+    "shape": [
+      768
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.normalizer.params_dict.lang_emb.input_stats.min": {
+    "shape": [
+      768
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.normalizer.params_dict.lang_emb.input_stats.std": {
+    "shape": [
+      768
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.normalizer.params_dict.lang_emb.offset": {
+    "shape": [
+      768
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.normalizer.params_dict.lang_emb.scale": {
+    "shape": [
+      768
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.normalizer.params_dict.left_wrist_0_rgb.input_stats.max": {
+    "shape": [
+      96
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.normalizer.params_dict.left_wrist_0_rgb.input_stats.mean": {
+    "shape": [
+      96
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.normalizer.params_dict.left_wrist_0_rgb.input_stats.min": {
+    "shape": [
+      96
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.normalizer.params_dict.left_wrist_0_rgb.input_stats.std": {
+    "shape": [
+      96
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.normalizer.params_dict.left_wrist_0_rgb.offset": {
+    "shape": [
+      96
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.normalizer.params_dict.left_wrist_0_rgb.scale": {
+    "shape": [
+      96
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.normalizer.params_dict.state.input_stats.max": {
+    "shape": [
+      4
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.normalizer.params_dict.state.input_stats.mean": {
+    "shape": [
+      4
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.normalizer.params_dict.state.input_stats.min": {
+    "shape": [
+      4
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.normalizer.params_dict.state.input_stats.std": {
+    "shape": [
+      4
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.normalizer.params_dict.state.offset": {
+    "shape": [
+      4
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.normalizer.params_dict.state.scale": {
+    "shape": [
+      4
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._base_block.0.weight": {
+    "shape": [
+      64,
+      3,
+      7,
+      7
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._base_block.1.bias": {
+    "shape": [
+      64
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._base_block.1.weight": {
+    "shape": [
+      64
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.0.bn1.bias": {
+    "shape": [
+      64
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.0.bn1.weight": {
+    "shape": [
+      64
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.0.bn2.bias": {
+    "shape": [
+      64
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.0.bn2.weight": {
+    "shape": [
+      64
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.0.conv1.weight": {
+    "shape": [
+      64,
+      64,
+      3,
+      3
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.0.conv2.weight": {
+    "shape": [
+      64,
+      64,
+      3,
+      3
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.1.bn1.bias": {
+    "shape": [
+      64
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.1.bn1.weight": {
+    "shape": [
+      64
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.1.bn2.bias": {
+    "shape": [
+      64
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.1.bn2.weight": {
+    "shape": [
+      64
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.1.conv1.weight": {
+    "shape": [
+      64,
+      64,
+      3,
+      3
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.1.conv2.weight": {
+    "shape": [
+      64,
+      64,
+      3,
+      3
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.2.bn1.bias": {
+    "shape": [
+      128
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.2.bn1.weight": {
+    "shape": [
+      128
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.2.bn2.bias": {
+    "shape": [
+      128
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.2.bn2.weight": {
+    "shape": [
+      128
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.2.conv1.weight": {
+    "shape": [
+      128,
+      64,
+      3,
+      3
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.2.conv2.weight": {
+    "shape": [
+      128,
+      128,
+      3,
+      3
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.2.downsample.0.weight": {
+    "shape": [
+      128,
+      64,
+      1,
+      1
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.2.downsample.1.bias": {
+    "shape": [
+      128
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.2.downsample.1.weight": {
+    "shape": [
+      128
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.3.bn1.bias": {
+    "shape": [
+      128
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.3.bn1.weight": {
+    "shape": [
+      128
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.3.bn2.bias": {
+    "shape": [
+      128
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.3.bn2.weight": {
+    "shape": [
+      128
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.3.conv1.weight": {
+    "shape": [
+      128,
+      128,
+      3,
+      3
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.3.conv2.weight": {
+    "shape": [
+      128,
+      128,
+      3,
+      3
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.4.bn1.bias": {
+    "shape": [
+      256
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.4.bn1.weight": {
+    "shape": [
+      256
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.4.bn2.bias": {
+    "shape": [
+      256
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.4.bn2.weight": {
+    "shape": [
+      256
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.4.conv1.weight": {
+    "shape": [
+      256,
+      128,
+      3,
+      3
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.4.conv2.weight": {
+    "shape": [
+      256,
+      256,
+      3,
+      3
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.4.downsample.0.weight": {
+    "shape": [
+      256,
+      128,
+      1,
+      1
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.4.downsample.1.bias": {
+    "shape": [
+      256
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.4.downsample.1.weight": {
+    "shape": [
+      256
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.5.bn1.bias": {
+    "shape": [
+      256
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.5.bn1.weight": {
+    "shape": [
+      256
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.5.bn2.bias": {
+    "shape": [
+      256
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.5.bn2.weight": {
+    "shape": [
+      256
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.5.conv1.weight": {
+    "shape": [
+      256,
+      256,
+      3,
+      3
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.5.conv2.weight": {
+    "shape": [
+      256,
+      256,
+      3,
+      3
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.6.bn1.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.6.bn1.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.6.bn2.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.6.bn2.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.6.conv1.weight": {
+    "shape": [
+      512,
+      256,
+      3,
+      3
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.6.conv2.weight": {
+    "shape": [
+      512,
+      512,
+      3,
+      3
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.6.downsample.0.weight": {
+    "shape": [
+      512,
+      256,
+      1,
+      1
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.6.downsample.1.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.6.downsample.1.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.7.bn1.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.7.bn1.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.7.bn2.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.7.bn2.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.7.conv1.weight": {
+    "shape": [
+      512,
+      512,
+      3,
+      3
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._conv_blocks.7.conv2.weight": {
+    "shape": [
+      512,
+      512,
+      3,
+      3
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._film_layers.0.lang_proj.bias": {
+    "shape": [
+      128
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._film_layers.0.lang_proj.weight": {
+    "shape": [
+      128,
+      768
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._film_layers.1.lang_proj.bias": {
+    "shape": [
+      128
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._film_layers.1.lang_proj.weight": {
+    "shape": [
+      128,
+      768
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._film_layers.2.lang_proj.bias": {
+    "shape": [
+      256
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._film_layers.2.lang_proj.weight": {
+    "shape": [
+      256,
+      768
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._film_layers.3.lang_proj.bias": {
+    "shape": [
+      256
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._film_layers.3.lang_proj.weight": {
+    "shape": [
+      256,
+      768
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._film_layers.4.lang_proj.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._film_layers.4.lang_proj.weight": {
+    "shape": [
+      512,
+      768
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._film_layers.5.lang_proj.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._film_layers.5.lang_proj.weight": {
+    "shape": [
+      512,
+      768
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._film_layers.6.lang_proj.bias": {
+    "shape": [
+      1024
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._film_layers.6.lang_proj.weight": {
+    "shape": [
+      1024,
+      768
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._film_layers.7.lang_proj.bias": {
+    "shape": [
+      1024
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.backbone._film_layers.7.lang_proj.weight": {
+    "shape": [
+      1024,
+      768
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.nets.0.nets.bias": {
+    "shape": [
+      32
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.nets.0.nets.weight": {
+    "shape": [
+      32,
+      512,
+      1,
+      1
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.nets.0.pos_x": {
+    "shape": [
+      1,
+      9
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.nets.0.pos_y": {
+    "shape": [
+      1,
+      9
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.nets.0.temperature": {
+    "shape": [
+      1
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.nets.2.bias": {
+    "shape": [
+      64
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.base_0_rgb.nets.2.weight": {
+    "shape": [
+      64,
+      64
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._base_block.0.weight": {
+    "shape": [
+      64,
+      3,
+      7,
+      7
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._base_block.1.bias": {
+    "shape": [
+      64
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._base_block.1.weight": {
+    "shape": [
+      64
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.0.bn1.bias": {
+    "shape": [
+      64
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.0.bn1.weight": {
+    "shape": [
+      64
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.0.bn2.bias": {
+    "shape": [
+      64
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.0.bn2.weight": {
+    "shape": [
+      64
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.0.conv1.weight": {
+    "shape": [
+      64,
+      64,
+      3,
+      3
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.0.conv2.weight": {
+    "shape": [
+      64,
+      64,
+      3,
+      3
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.1.bn1.bias": {
+    "shape": [
+      64
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.1.bn1.weight": {
+    "shape": [
+      64
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.1.bn2.bias": {
+    "shape": [
+      64
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.1.bn2.weight": {
+    "shape": [
+      64
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.1.conv1.weight": {
+    "shape": [
+      64,
+      64,
+      3,
+      3
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.1.conv2.weight": {
+    "shape": [
+      64,
+      64,
+      3,
+      3
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.2.bn1.bias": {
+    "shape": [
+      128
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.2.bn1.weight": {
+    "shape": [
+      128
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.2.bn2.bias": {
+    "shape": [
+      128
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.2.bn2.weight": {
+    "shape": [
+      128
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.2.conv1.weight": {
+    "shape": [
+      128,
+      64,
+      3,
+      3
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.2.conv2.weight": {
+    "shape": [
+      128,
+      128,
+      3,
+      3
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.2.downsample.0.weight": {
+    "shape": [
+      128,
+      64,
+      1,
+      1
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.2.downsample.1.bias": {
+    "shape": [
+      128
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.2.downsample.1.weight": {
+    "shape": [
+      128
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.3.bn1.bias": {
+    "shape": [
+      128
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.3.bn1.weight": {
+    "shape": [
+      128
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.3.bn2.bias": {
+    "shape": [
+      128
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.3.bn2.weight": {
+    "shape": [
+      128
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.3.conv1.weight": {
+    "shape": [
+      128,
+      128,
+      3,
+      3
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.3.conv2.weight": {
+    "shape": [
+      128,
+      128,
+      3,
+      3
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.4.bn1.bias": {
+    "shape": [
+      256
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.4.bn1.weight": {
+    "shape": [
+      256
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.4.bn2.bias": {
+    "shape": [
+      256
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.4.bn2.weight": {
+    "shape": [
+      256
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.4.conv1.weight": {
+    "shape": [
+      256,
+      128,
+      3,
+      3
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.4.conv2.weight": {
+    "shape": [
+      256,
+      256,
+      3,
+      3
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.4.downsample.0.weight": {
+    "shape": [
+      256,
+      128,
+      1,
+      1
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.4.downsample.1.bias": {
+    "shape": [
+      256
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.4.downsample.1.weight": {
+    "shape": [
+      256
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.5.bn1.bias": {
+    "shape": [
+      256
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.5.bn1.weight": {
+    "shape": [
+      256
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.5.bn2.bias": {
+    "shape": [
+      256
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.5.bn2.weight": {
+    "shape": [
+      256
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.5.conv1.weight": {
+    "shape": [
+      256,
+      256,
+      3,
+      3
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.5.conv2.weight": {
+    "shape": [
+      256,
+      256,
+      3,
+      3
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.6.bn1.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.6.bn1.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.6.bn2.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.6.bn2.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.6.conv1.weight": {
+    "shape": [
+      512,
+      256,
+      3,
+      3
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.6.conv2.weight": {
+    "shape": [
+      512,
+      512,
+      3,
+      3
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.6.downsample.0.weight": {
+    "shape": [
+      512,
+      256,
+      1,
+      1
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.6.downsample.1.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.6.downsample.1.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.7.bn1.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.7.bn1.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.7.bn2.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.7.bn2.weight": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.7.conv1.weight": {
+    "shape": [
+      512,
+      512,
+      3,
+      3
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._conv_blocks.7.conv2.weight": {
+    "shape": [
+      512,
+      512,
+      3,
+      3
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._film_layers.0.lang_proj.bias": {
+    "shape": [
+      128
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._film_layers.0.lang_proj.weight": {
+    "shape": [
+      128,
+      768
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._film_layers.1.lang_proj.bias": {
+    "shape": [
+      128
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._film_layers.1.lang_proj.weight": {
+    "shape": [
+      128,
+      768
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._film_layers.2.lang_proj.bias": {
+    "shape": [
+      256
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._film_layers.2.lang_proj.weight": {
+    "shape": [
+      256,
+      768
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._film_layers.3.lang_proj.bias": {
+    "shape": [
+      256
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._film_layers.3.lang_proj.weight": {
+    "shape": [
+      256,
+      768
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._film_layers.4.lang_proj.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._film_layers.4.lang_proj.weight": {
+    "shape": [
+      512,
+      768
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._film_layers.5.lang_proj.bias": {
+    "shape": [
+      512
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._film_layers.5.lang_proj.weight": {
+    "shape": [
+      512,
+      768
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._film_layers.6.lang_proj.bias": {
+    "shape": [
+      1024
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._film_layers.6.lang_proj.weight": {
+    "shape": [
+      1024,
+      768
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._film_layers.7.lang_proj.bias": {
+    "shape": [
+      1024
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.backbone._film_layers.7.lang_proj.weight": {
+    "shape": [
+      1024,
+      768
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.nets.0.nets.bias": {
+    "shape": [
+      32
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.nets.0.nets.weight": {
+    "shape": [
+      32,
+      512,
+      1,
+      1
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.nets.0.pos_x": {
+    "shape": [
+      1,
+      9
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.nets.0.pos_y": {
+    "shape": [
+      1,
+      9
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.nets.0.temperature": {
+    "shape": [
+      1
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.nets.2.bias": {
+    "shape": [
+      64
+    ],
+    "dtype": "torch.float32"
+  },
+  "_policy.obs_encoder.obs_nets.left_wrist_0_rgb.nets.2.weight": {
+    "shape": [
+      64,
+      64
+    ],
+    "dtype": "torch.float32"
+  }
+}

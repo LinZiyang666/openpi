@@ -1,0 +1,47 @@
+{
+  "language": {
+    "model": "openai/clip-vit-large-patch14",
+    "kind": "projected",
+    "tasks": 44,
+    "min": {
+      "mae": 1.6418077564139821e-07,
+      "max_abs": 1.9073486328125e-06
+    },
+    "max": {
+      "mae": 1.547450665384531e-07,
+      "max_abs": 1.9073486328125e-06
+    }
+  },
+  "libero": {
+    "strict_load": {
+      "missing": [],
+      "unexpected": [],
+      "keys": 475
+    },
+    "shape": [
+      16,
+      7
+    ],
+    "finite": true,
+    "stateless_same_seed": true,
+    "language_changes_output": true,
+    "three_calls_s": 9.38871656000265,
+    "checkpoint_sha256": "3ab4fb34d819bf1bb3e20b78dc2e41560ef47fe663213b17120d23ef2cf78103"
+  },
+  "metaworld": {
+    "strict_load": {
+      "missing": [],
+      "unexpected": [],
+      "keys": 475
+    },
+    "shape": [
+      16,
+      4
+    ],
+    "finite": true,
+    "stateless_same_seed": true,
+    "language_changes_output": true,
+    "three_calls_s": 8.910091754019959,
+    "checkpoint_sha256": "98353004131950a0a087a65270414e67067719e4ef7d701b9da77711ba136c16"
+  }
+}

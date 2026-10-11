@@ -1,0 +1,24 @@
+{
+  "frames": 204806,
+  "episodes": 2500,
+  "tasks": 50,
+  "shards": 492,
+  "index_sha256": "7bd1c896d574117c4d8d7db3ba5c97c6b131b1824e97fb6d4a10b96130bf70f1",
+  "exact_source_samples": [
+    0,
+    18618,
+    37237,
+    55855,
+    74474,
+    93093,
+    111711,
+    130330,
+    148949,
+    167567,
+    186186,
+    204805
+  ],
+  "raw_state_action_preserved": true,
+  "resize": "480 to96 bilinear",
+  "fps": 80
+}

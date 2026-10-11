@@ -1,0 +1,9 @@
+{
+  "host": "vla-cache",
+  "torch": "2.5.1+cu124",
+  "cuda": "12.4",
+  "gpu": "NVIDIA H100 80GB HBM3",
+  "vendor_commit": "4af2b622892f7dcb5aae5a3fb70bcb02dc217b96",
+  "free_mib_before": 81081,
+  "python": "3.11.16 (main, Sep  1 2026, 14:18:37) [Clang 22.1.3 ]"
+}

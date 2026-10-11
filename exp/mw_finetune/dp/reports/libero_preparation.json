@@ -1,0 +1,10 @@
+{
+  "frames": 273465,
+  "episodes": 1693,
+  "tasks": 40,
+  "partial": false,
+  "source_revision": "a4336d589d589045d1c56423ffdf3b88a0e19b1f",
+  "manifest_sha256": "e87f861455cd4566bd171ea5541d8afa949f03d346fc04c84fe2e82eb20625c7",
+  "index_sha256": "6f14eaaa9db22cc146fd65a6c972453d6598cfbf6b5ff34c072f24d9bc52cdac",
+  "language_sha256": "45ad4a898350d164c767665088b3ed511751d0e371fe58dec375c5b492240986"
+}

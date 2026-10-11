@@ -1,0 +1,93 @@
+{
+  "frames": 273465,
+  "episodes": 1693,
+  "tasks": 40,
+  "sqlite_checks": "all pass",
+  "samples": [
+    {
+      "frame": 0,
+      "episode": 0,
+      "task": 0,
+      "raw_vectors_exact": true,
+      "paired_pixels_exact": true
+    },
+    {
+      "frame": 24860,
+      "episode": 88,
+      "task": 0,
+      "raw_vectors_exact": true,
+      "paired_pixels_exact": true
+    },
+    {
+      "frame": 49720,
+      "episode": 183,
+      "task": 7,
+      "raw_vectors_exact": true,
+      "paired_pixels_exact": true
+    },
+    {
+      "frame": 74581,
+      "episode": 277,
+      "task": 3,
+      "raw_vectors_exact": true,
+      "paired_pixels_exact": true
+    },
+    {
+      "frame": 99441,
+      "episode": 371,
+      "task": 8,
+      "raw_vectors_exact": true,
+      "paired_pixels_exact": true
+    },
+    {
+      "frame": 124301,
+      "episode": 562,
+      "task": 13,
+      "raw_vectors_exact": true,
+      "paired_pixels_exact": true
+    },
+    {
+      "frame": 149162,
+      "episode": 770,
+      "task": 10,
+      "raw_vectors_exact": true,
+      "paired_pixels_exact": true
+    },
+    {
+      "frame": 174022,
+      "episode": 946,
+      "task": 25,
+      "raw_vectors_exact": true,
+      "paired_pixels_exact": true
+    },
+    {
+      "frame": 198882,
+      "episode": 1114,
+      "task": 20,
+      "raw_vectors_exact": true,
+      "paired_pixels_exact": true
+    },
+    {
+      "frame": 223743,
+      "episode": 1289,
+      "task": 38,
+      "raw_vectors_exact": true,
+      "paired_pixels_exact": true
+    },
+    {
+      "frame": 248603,
+      "episode": 1488,
+      "task": 36,
+      "raw_vectors_exact": true,
+      "paired_pixels_exact": true
+    },
+    {
+      "frame": 273464,
+      "episode": 1692,
+      "task": 32,
+      "raw_vectors_exact": true,
+      "paired_pixels_exact": true
+    }
+  ],
+  "source_revision": "a4336d589d589045d1c56423ffdf3b88a0e19b1f"
+}

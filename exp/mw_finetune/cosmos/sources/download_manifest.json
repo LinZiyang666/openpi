@@ -1,0 +1,7 @@
+{
+  "repo_id": "mmurray-ms/Cosmos-Policy-MetaWorld-Predict2-2B",
+  "revision": "6546ab82a1d302e4a947bc7b03880ec6031a6109",
+  "weight_size": 3913050026,
+  "expected_weight_sha256": "c8562afc4ee58c20e4c43b8128e72f1e75d9dc1df5a429cde2d112bf6c6436b6",
+  "observed_weight_sha256": "c8562afc4ee58c20e4c43b8128e72f1e75d9dc1df5a429cde2d112bf6c6436b6"
+}

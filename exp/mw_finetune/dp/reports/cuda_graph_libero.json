@@ -1,0 +1,63 @@
+{
+  "checkpoint": "/data/mw_finetune/dp/libero_policy_100000",
+  "domain": "libero",
+  "device": "cuda:0",
+  "batch": 1,
+  "steps": 100,
+  "seeds": [
+    11,
+    37,
+    101
+  ],
+  "prompts": [
+    "pick up the black bowl and place it on the plate",
+    "open the middle drawer",
+    "put the white mug on the left plate"
+  ],
+  "eager": {
+    "median_ms": 1764.8062610023771,
+    "samples_ms": [
+      1758.6734229989816,
+      1764.8062610023771,
+      1806.9796700001461,
+      1762.3071359994356,
+      1770.040187999257
+    ]
+  },
+  "default_off_bit_exact": true,
+  "default_off_metadata_identical": true,
+  "graph_bit_exact_observations": 3,
+  "graph": {
+    "median_ms": 404.973169999721,
+    "samples_ms": [
+      408.7451300001703,
+      378.2164020012715,
+      395.2692230013781,
+      429.097152002214,
+      404.973169999721
+    ]
+  },
+  "cuda_graph_self_check": {
+    "passed": true,
+    "comparison": "torch.equal(final physical actions)",
+    "observations": [
+      {
+        "seed": 11,
+        "prompt": "pick up the black bowl and place it on the plate"
+      },
+      {
+        "seed": 37,
+        "prompt": "open the middle drawer"
+      },
+      {
+        "seed": 101,
+        "prompt": "put the white mug on the left plate"
+      }
+    ]
+  },
+  "peak_allocated_mib": 380.15380859375,
+  "peak_reserved_mib": 426.0,
+  "process_gpu_mib": [
+    910
+  ]
+}

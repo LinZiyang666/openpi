@@ -1,0 +1,630 @@
+{
+  "runs": [
+    {
+      "path": "exp/mw_finetune/cosmos/results/reconstruction_20261009_v1",
+      "wall_s": 757.8735676630022
+    },
+    {
+      "path": "exp/mw_finetune/cosmos/results/reconstruction_20261009_flow300_v2",
+      "wall_s": 244.87237454700517
+    }
+  ],
+  "total_gpu_lock_s": 1002.7459422100073,
+  "unique_completed_episodes": 70,
+  "unique_successes": 1,
+  "errors": 0,
+  "first_160_repetition_parity": {
+    "matched_prefix_queries": 320,
+    "max_abs_differences": {
+      "state": 0.0,
+      "first_action": 0.0,
+      "action_min": 0.0,
+      "action_max": 0.0
+    }
+  },
+  "metadata_correction": {
+    "run": "exp/mw_finetune/cosmos/results/reconstruction_20261009_v1/03_flowdagger_view_300/assembly",
+    "manifest_max_steps": 300,
+    "actual_max_steps": 160,
+    "preserved_source": "exp/mw_finetune/cosmos/sources/reconstruction_v1_probe_evaluate.py"
+  },
+  "table": [
+    {
+      "config": "Default: corner2/480/rot180, single, chunk16, 160",
+      "run": "exp/mw_finetune/cosmos/results/reconstruction_20261009_v1/01_default",
+      "assembly": {
+        "completed": 10,
+        "successes": 0,
+        "errors": 0,
+        "n_queries": 320,
+        "first_160_successes": 0,
+        "mean_roundtrip_ms": 6590.6715625,
+        "mean_service_ms": 1403.8495931715715,
+        "episodes": [
+          {
+            "idx": 4,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 214.22292804899917
+          },
+          {
+            "idx": 0,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 218.61816822798573
+          },
+          {
+            "idx": 3,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 222.87790030799806
+          },
+          {
+            "idx": 2,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 227.20491530001163
+          },
+          {
+            "idx": 1,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 231.46666538799764
+          },
+          {
+            "idx": 5,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 228.99144874399644
+          },
+          {
+            "idx": 6,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 229.0306965839991
+          },
+          {
+            "idx": 7,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 227.14877252400038
+          },
+          {
+            "idx": 8,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 225.00056600599783
+          },
+          {
+            "idx": 9,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 221.81035477499245
+          }
+        ]
+      },
+      "reach": {
+        "completed": 5,
+        "successes": 0,
+        "errors": 0,
+        "n_queries": 160,
+        "first_160_successes": 0,
+        "mean_roundtrip_ms": 6259.85375,
+        "mean_service_ms": 1341.7297787002099,
+        "episodes": [
+          {
+            "idx": 0,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 211.20726535200083
+          },
+          {
+            "idx": 1,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 213.31590579899785
+          },
+          {
+            "idx": 3,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 215.41926793199673
+          },
+          {
+            "idx": 2,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 216.57778858600068
+          },
+          {
+            "idx": 4,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 217.6173008839978
+          }
+        ]
+      },
+      "mean_service_ms": 1383.1429883477842,
+      "query_count": 480,
+      "concurrent_servers": 4
+    },
+    {
+      "config": "LIBERO duplicate, chunk16, 160",
+      "run": "exp/mw_finetune/cosmos/results/reconstruction_20261009_v1/02_libero_duplicate",
+      "assembly": {
+        "completed": 10,
+        "successes": 0,
+        "errors": 0,
+        "n_queries": 320,
+        "first_160_successes": 0,
+        "mean_roundtrip_ms": 8169.03875,
+        "mean_service_ms": 1721.970647372018,
+        "episodes": [
+          {
+            "idx": 3,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 275.53052443198976
+          },
+          {
+            "idx": 0,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 279.10843983599625
+          },
+          {
+            "idx": 4,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 282.4680833379971
+          },
+          {
+            "idx": 1,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 286.01709192800627
+          },
+          {
+            "idx": 2,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 289.52736143498623
+          },
+          {
+            "idx": 5,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 273.51483229000587
+          },
+          {
+            "idx": 6,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 273.4906806020008
+          },
+          {
+            "idx": 7,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 273.5664704480005
+          },
+          {
+            "idx": 8,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 271.81539257800614
+          },
+          {
+            "idx": 9,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 270.02373203499883
+          }
+        ]
+      },
+      "reach": {
+        "completed": 5,
+        "successes": 0,
+        "errors": 0,
+        "n_queries": 160,
+        "first_160_successes": 0,
+        "mean_roundtrip_ms": 4427.431875,
+        "mean_service_ms": 960.8882032928705,
+        "episodes": [
+          {
+            "idx": 1,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 154.16023782500997
+          },
+          {
+            "idx": 2,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 155.56680740701267
+          },
+          {
+            "idx": 3,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 156.01520157500636
+          },
+          {
+            "idx": 4,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 156.46852247300558
+          },
+          {
+            "idx": 0,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 157.0144442939927
+          }
+        ]
+      },
+      "mean_service_ms": 1468.2764993456356,
+      "query_count": 480,
+      "concurrent_servers": 4
+    },
+    {
+      "config": "FlowDAgger corner3/raw256, single, chunk16, 160 (v1 actual)",
+      "run": "exp/mw_finetune/cosmos/results/reconstruction_20261009_v1/03_flowdagger_view_300",
+      "assembly": {
+        "completed": 10,
+        "successes": 0,
+        "errors": 0,
+        "n_queries": 320,
+        "first_160_successes": 0,
+        "mean_roundtrip_ms": 6584.689374999999,
+        "mean_service_ms": 1392.432277528087,
+        "episodes": [
+          {
+            "idx": 1,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 215.243301451992
+          },
+          {
+            "idx": 4,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 216.65585413201188
+          },
+          {
+            "idx": 2,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 218.07443620999402
+          },
+          {
+            "idx": 3,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 219.52351202799764
+          },
+          {
+            "idx": 0,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 220.9258759330114
+          },
+          {
+            "idx": 5,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 228.1326277890039
+          },
+          {
+            "idx": 6,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 228.13213835799252
+          },
+          {
+            "idx": 7,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 228.12689000599494
+          },
+          {
+            "idx": 8,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 228.11050885199802
+          },
+          {
+            "idx": 9,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 228.13586782000493
+          }
+        ]
+      },
+      "reach": {
+        "completed": 5,
+        "successes": 1,
+        "errors": 0,
+        "n_queries": 138,
+        "first_160_successes": 1,
+        "mean_roundtrip_ms": 5597.926086956521,
+        "mean_service_ms": 1382.9680676667983,
+        "episodes": [
+          {
+            "idx": 3,
+            "success": true,
+            "n_steps": 49,
+            "duration_s": 64.70517194099375
+          },
+          {
+            "idx": 4,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 189.45974010399368
+          },
+          {
+            "idx": 1,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 190.89612283100723
+          },
+          {
+            "idx": 0,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 192.37673363000795
+          },
+          {
+            "idx": 2,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 193.77417103700282
+          }
+        ]
+      },
+      "mean_service_ms": 1389.580616041498,
+      "query_count": 458,
+      "concurrent_servers": 4
+    },
+    {
+      "config": "Chunk32: corner2/480/rot180, single, 160",
+      "run": "exp/mw_finetune/cosmos/results/reconstruction_20261009_v1/04_chunk32",
+      "assembly": {
+        "completed": 10,
+        "successes": 0,
+        "errors": 0,
+        "n_queries": 320,
+        "first_160_successes": 0,
+        "mean_roundtrip_ms": 6642.290312499999,
+        "mean_service_ms": 1414.170579422671,
+        "episodes": [
+          {
+            "idx": 4,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 229.66384285100503
+          },
+          {
+            "idx": 3,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 234.00716984299652
+          },
+          {
+            "idx": 1,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 238.32613624099758
+          },
+          {
+            "idx": 0,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 239.7779384789901
+          },
+          {
+            "idx": 2,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 242.57025318000524
+          },
+          {
+            "idx": 5,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 225.49181904800935
+          },
+          {
+            "idx": 6,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 225.25247656399733
+          },
+          {
+            "idx": 7,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 223.3593628600065
+          },
+          {
+            "idx": 8,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 222.96501965798961
+          },
+          {
+            "idx": 9,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 221.5615276030003
+          }
+        ]
+      },
+      "reach": {
+        "completed": 5,
+        "successes": 0,
+        "errors": 0,
+        "n_queries": 160,
+        "first_160_successes": 0,
+        "mean_roundtrip_ms": 6122.875000000001,
+        "mean_service_ms": 1312.5797466248514,
+        "episodes": [
+          {
+            "idx": 3,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 207.63857017799455
+          },
+          {
+            "idx": 2,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 209.83125943299092
+          },
+          {
+            "idx": 1,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 211.30924373799644
+          },
+          {
+            "idx": 4,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 212.00034178199712
+          },
+          {
+            "idx": 0,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 212.8162638460053
+          }
+        ]
+      },
+      "mean_service_ms": 1380.3069684900645,
+      "query_count": 480,
+      "concurrent_servers": 4
+    },
+    {
+      "config": "FlowDAgger corner3/raw256, single, chunk16, 300 (corrected)",
+      "run": "exp/mw_finetune/cosmos/results/reconstruction_20261009_flow300_v2/03_flowdagger_view_300",
+      "assembly": {
+        "completed": 10,
+        "successes": 0,
+        "errors": 0,
+        "n_queries": 600,
+        "first_160_successes": 0,
+        "mean_roundtrip_ms": 1471.8533333333335,
+        "mean_service_ms": 357.0495641220623,
+        "episodes": [
+          {
+            "idx": 1,
+            "success": false,
+            "n_steps": 300,
+            "duration_s": 108.75012608699035
+          },
+          {
+            "idx": 4,
+            "success": false,
+            "n_steps": 300,
+            "duration_s": 109.01923715199518
+          },
+          {
+            "idx": 0,
+            "success": false,
+            "n_steps": 300,
+            "duration_s": 109.46740691400191
+          },
+          {
+            "idx": 2,
+            "success": false,
+            "n_steps": 300,
+            "duration_s": 109.8119661439996
+          },
+          {
+            "idx": 3,
+            "success": false,
+            "n_steps": 300,
+            "duration_s": 110.15385865001008
+          },
+          {
+            "idx": 5,
+            "success": false,
+            "n_steps": 300,
+            "duration_s": 106.82939888199326
+          },
+          {
+            "idx": 6,
+            "success": false,
+            "n_steps": 300,
+            "duration_s": 107.17830996699922
+          },
+          {
+            "idx": 7,
+            "success": false,
+            "n_steps": 300,
+            "duration_s": 107.18718918699597
+          },
+          {
+            "idx": 8,
+            "success": false,
+            "n_steps": 300,
+            "duration_s": 107.17157306599256
+          },
+          {
+            "idx": 9,
+            "success": false,
+            "n_steps": 300,
+            "duration_s": 107.17989544500597
+          }
+        ]
+      },
+      "reach": {
+        "completed": 5,
+        "successes": 1,
+        "errors": 0,
+        "n_queries": 138,
+        "first_160_successes": 1,
+        "mean_roundtrip_ms": 5597.926086956521,
+        "mean_service_ms": 1382.9680676667983,
+        "episodes": [
+          {
+            "idx": 3,
+            "success": true,
+            "n_steps": 49,
+            "duration_s": 64.70517194099375
+          },
+          {
+            "idx": 4,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 189.45974010399368
+          },
+          {
+            "idx": 1,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 190.89612283100723
+          },
+          {
+            "idx": 0,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 192.37673363000795
+          },
+          {
+            "idx": 2,
+            "success": false,
+            "n_steps": 160,
+            "duration_s": 193.77417103700282
+          }
+        ]
+      },
+      "reach_reused_from": "exp/mw_finetune/cosmos/results/reconstruction_20261009_v1/03_flowdagger_view_300/reach",
+      "mean_service_ms": 357.0495641220623,
+      "query_count": 600,
+      "concurrent_servers": 1
+    }
+  ],
+  "timing_scope": "server service_ms excludes WebSocket queue; first four rows had four concurrent servers, corrected 300 row was isolated; not comparable isolated model latency"
+}

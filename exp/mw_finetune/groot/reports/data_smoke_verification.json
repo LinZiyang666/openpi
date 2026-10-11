@@ -1,0 +1,80 @@
+{
+  "dataset": "/data/mw_finetune/datasets/metaworld_mt50_groot_smoke",
+  "frames": 2852,
+  "episodes": 32,
+  "samples": [
+    {
+      "episode": 0,
+      "frame": 0,
+      "prompt": "Pick up a nut and place it onto a peg"
+    },
+    {
+      "episode": 0,
+      "frame": 44,
+      "prompt": "Pick up a nut and place it onto a peg"
+    },
+    {
+      "episode": 0,
+      "frame": 87,
+      "prompt": "Pick up a nut and place it onto a peg"
+    },
+    {
+      "episode": 10,
+      "frame": 0,
+      "prompt": "Pick up a nut and place it onto a peg"
+    },
+    {
+      "episode": 10,
+      "frame": 44,
+      "prompt": "Pick up a nut and place it onto a peg"
+    },
+    {
+      "episode": 10,
+      "frame": 87,
+      "prompt": "Pick up a nut and place it onto a peg"
+    },
+    {
+      "episode": 20,
+      "frame": 0,
+      "prompt": "Pick up a nut and place it onto a peg"
+    },
+    {
+      "episode": 20,
+      "frame": 42,
+      "prompt": "Pick up a nut and place it onto a peg"
+    },
+    {
+      "episode": 20,
+      "frame": 84,
+      "prompt": "Pick up a nut and place it onto a peg"
+    },
+    {
+      "episode": 31,
+      "frame": 0,
+      "prompt": "Pick up a nut and place it onto a peg"
+    },
+    {
+      "episode": 31,
+      "frame": 44,
+      "prompt": "Pick up a nut and place it onto a peg"
+    },
+    {
+      "episode": 31,
+      "frame": 88,
+      "prompt": "Pick up a nut and place it onto a peg"
+    }
+  ],
+  "lossless_source_equality": true,
+  "passed": true,
+  "statistics_recomputed_and_equal": true,
+  "parquet_vectors_float32": true,
+  "normalization_roundtrip": true,
+  "episodes_per_task_index": {
+    "0": 32
+  },
+  "metadata_sha256": {
+    "info.json": "1a1289ef7b630cf69fade02a17f949844e05b51d7d4c6853f45453fd1f78912a",
+    "stats.json": "b398efaa99e2232ee5d7d4994ff55bc253103f42a1f07a55bfc8bd01334b03c8",
+    "modality.json": "703d6bcab5f1e266be2f20ce8f5e1c5483323d3a7751f9939ea5bf34d4e98513"
+  }
+}

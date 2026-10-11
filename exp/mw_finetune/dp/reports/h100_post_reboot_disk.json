@@ -1,0 +1,1 @@
+{"du_bytes": 5870243085, "cleanup": {"authorization": "Owner reboot update: clean up only your own leftovers", "removed_transfer_archives": {"sync_assets.tar": 1234831360, "sync_data.tar.part00": 1400000000, "sync_data.tar.part01": 1306718720}, "local_sha256_parity_verified": true}}

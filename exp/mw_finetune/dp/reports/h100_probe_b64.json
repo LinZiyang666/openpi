@@ -1,0 +1,20 @@
+{
+  "start_step": 0,
+  "completed_updates": 32,
+  "end_step": 32,
+  "timed_updates": 27,
+  "warmup_excluded": 5,
+  "optimizer_it_per_s": 2.4893033544642242,
+  "seconds_per_update": 0.4017188175184182,
+  "projection_hours": 11.158856042178284,
+  "wall_s": 15.705905319999147,
+  "batch": 64,
+  "accumulation": 4,
+  "global_batch": 256,
+  "loss_first": 0.2840188294649124,
+  "loss_last": 0.1499838475137949,
+  "device": "cuda:0",
+  "memory_limit_gib": 8.0,
+  "allocated_gib": 2.540095806121826,
+  "reserved_gib": 2.5703125
+}

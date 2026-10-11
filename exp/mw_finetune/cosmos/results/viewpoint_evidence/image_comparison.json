@@ -1,0 +1,17 @@
+{
+  "metric": "RGB [0,1], different episode initialization; pose is not controlled against training frame",
+  "views": {
+    "corner2_canonical480": {
+      "mae": 0.010878580622375011,
+      "rmse": 0.04083818197250366
+    },
+    "corner2_raw480": {
+      "mae": 0.21770067512989044,
+      "rmse": 0.2775181829929352
+    },
+    "corner3_raw256": {
+      "mae": 0.2887951135635376,
+      "rmse": 0.3675217926502228
+    }
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "checkpoint": "/data/mw_finetune/dp/checkpoints/metaworld",
+  "domain": "metaworld",
+  "device": "cuda:0",
+  "batch": 1,
+  "steps": 100,
+  "seeds": [
+    11,
+    37,
+    101
+  ],
+  "prompts": [
+    "reach the target",
+    "press the button",
+    "close the door"
+  ],
+  "eager": {
+    "median_ms": 1718.6267649958609,
+    "samples_ms": [
+      1722.482774996024,
+      1761.5073660053895,
+      1689.5357699977467,
+      1718.6267649958609,
+      1701.9373619987164
+    ]
+  },
+  "default_off_bit_exact": true,
+  "default_off_metadata_identical": true,
+  "graph_bit_exact_observations": 3,
+  "graph": {
+    "median_ms": 331.39994299563114,
+    "samples_ms": [
+      314.1975610051304,
+      331.39994299563114,
+      362.7101109959767,
+      312.203570996644,
+      370.3731609930401
+    ]
+  },
+  "cuda_graph_self_check": {
+    "passed": true,
+    "comparison": "torch.equal(final physical actions)",
+    "observations": [
+      {
+        "seed": 11,
+        "prompt": "reach the target"
+      },
+      {
+        "seed": 37,
+        "prompt": "press the button"
+      },
+      {
+        "seed": 101,
+        "prompt": "close the door"
+      }
+    ]
+  },
+  "peak_allocated_mib": 380.13427734375,
+  "peak_reserved_mib": 426.0,
+  "process_gpu_mib": [
+    910
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "weilandserver:4056562": {
+    "hostname": "weilandserver",
+    "pid": 4056562,
+    "renderer": "osmesa",
+    "egl_device_id": null,
+    "GL_RENDERER": "llvmpipe (LLVM 20.1.2, 256 bits)",
+    "GL_VENDOR": "Mesa",
+    "GL_VERSION": "4.5 (Compatibility Profile) Mesa 25.1.7-1ubuntu2~24.04.2"
+  },
+  "weilandserver:4056564": {
+    "hostname": "weilandserver",
+    "pid": 4056564,
+    "renderer": "osmesa",
+    "egl_device_id": null,
+    "GL_RENDERER": "llvmpipe (LLVM 20.1.2, 256 bits)",
+    "GL_VENDOR": "Mesa",
+    "GL_VERSION": "4.5 (Compatibility Profile) Mesa 25.1.7-1ubuntu2~24.04.2"
+  },
+  "weilandserver:4056563": {
+    "hostname": "weilandserver",
+    "pid": 4056563,
+    "renderer": "osmesa",
+    "egl_device_id": null,
+    "GL_RENDERER": "llvmpipe (LLVM 20.1.2, 256 bits)",
+    "GL_VENDOR": "Mesa",
+    "GL_VERSION": "4.5 (Compatibility Profile) Mesa 25.1.7-1ubuntu2~24.04.2"
+  },
+  "weilandserver:4056558": {
+    "hostname": "weilandserver",
+    "pid": 4056558,
+    "renderer": "osmesa",
+    "egl_device_id": null,
+    "GL_RENDERER": "llvmpipe (LLVM 20.1.2, 256 bits)",
+    "GL_VENDOR": "Mesa",
+    "GL_VERSION": "4.5 (Compatibility Profile) Mesa 25.1.7-1ubuntu2~24.04.2"
+  },
+  "weilandserver:4056561": {
+    "hostname": "weilandserver",
+    "pid": 4056561,
+    "renderer": "osmesa",
+    "egl_device_id": null,
+    "GL_RENDERER": "llvmpipe (LLVM 20.1.2, 256 bits)",
+    "GL_VENDOR": "Mesa",
+    "GL_VERSION": "4.5 (Compatibility Profile) Mesa 25.1.7-1ubuntu2~24.04.2"
+  }
+}

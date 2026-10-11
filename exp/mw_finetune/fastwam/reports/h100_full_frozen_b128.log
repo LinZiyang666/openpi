@@ -1,0 +1,13 @@
+{"passed": true, "frames": 204806, "episodes": 2500, "tasks": 50, "fps": 80, "image_size": [224, 224], "shards": 492, "state_action_dim": 4, "index_sha256": "7bd1c896d574117c4d8d7db3ba5c97c6b131b1824e97fb6d4a10b96130bf70f1", "bytes": 12133230228}
+name, memory.free [MiB]
+NVIDIA H100 80GB HBM3, 81081 MiB
+/data/mw_finetune/envs/fastwam/lib/python3.12/site-packages/draccus/parsers/decoding.py:177: FutureWarning: `torch_dtype` is deprecated; use `--policy.dtype` instead.
+  instance = origin(**init_args)
+WARNING:lerobot.configs.policies:Device 'None' is not available. Switching to 'cuda'.
+{"load_audit": {"reset": ["model.mot.mixtures.action.action_encoder.bias", "model.mot.mixtures.action.action_encoder.weight", "model.mot.mixtures.action.head.bias", "model.mot.mixtures.action.head.weight", "model.proprio_encoder.bias", "model.proprio_encoder.weight"], "loaded_unique_tensors": 1645, "trainable_parameters": 1020900356, "frozen_parameters": 4999787712, "lora": null, "mode": "frozen_video"}}
+{"gradient_audit": {"video_gradient_tensors": 0, "video_lora_gradient_tensors": 0, "action_gradient_tensors": 824, "proprio_gradient_norm": 1.8887048363685608}}
+{"micro": 1, "update": 1, "loss": 12.1033353805542, "loss_action": 12.1033353805542, "loss_video": 0.0, "microstep_s": 3.9520271870133, "lr": 1.25e-07, "peak_allocated_gb": 53.769731072, "peak_reserved_gb": 54.689529856}
+{"micro": 10, "update": 10, "loss": 12.324776649475098, "loss_action": 12.324776649475098, "loss_video": 0.0, "microstep_s": 3.431738918996416, "lr": 1.25e-06, "peak_allocated_gb": 61.965509632, "peak_reserved_gb": 62.91456}
+{"micro": 20, "update": 20, "loss": 4.37516975402832, "loss_action": 4.37516975402832, "loss_video": 0.0, "microstep_s": 3.4683232009992935, "lr": 2.5e-06, "peak_allocated_gb": 61.965509632, "peak_reserved_gb": 62.91456}
+{"micro": 30, "update": 30, "loss": 1.1913670301437378, "loss_action": 1.1913670301437378, "loss_video": 0.0, "microstep_s": 3.472845784999663, "lr": 3.75e-06, "peak_allocated_gb": 61.965509632, "peak_reserved_gb": 62.91456}
+{"summary": {"requested_microsteps": 32, "completed_microsteps": 32, "optimizer_updates": 32, "stop_reason": "target", "microstep_it_s": 0.28571560793347145, "microstep_mean_s": 3.4999838028899313, "microstep_p50_s": 3.4771411159890704, "estimated_optimizer_it_s": 0.28571560793347145, "samples_s": 36.571597815484346, "optimizer_step_s": 3.4999838028899313, "projected_ten_epoch_hours": 15.556455786122719, "peak_allocated_gb": 61.965509632, "peak_reserved_gb": 62.91456, "wall_s": 131.7883924540074, "train_wall_s": 112.29419127700385, "first_loss": 12.1033353805542, "last_loss": 1.139438271522522, "micro_batch": 128, "accumulation": 1, "total_wall_s": 131.78839580499334}}

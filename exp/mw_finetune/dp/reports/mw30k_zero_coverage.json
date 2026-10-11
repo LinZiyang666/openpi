@@ -1,0 +1,123 @@
+{
+  "groups": {
+    "nominal_ml45_held_out_5": {
+      "tasks": [
+        "bin-picking-v3",
+        "box-close-v3",
+        "door-lock-v3",
+        "door-unlock-v3",
+        "hand-insert-v3"
+      ],
+      "completed_episodes": 0,
+      "per_task_mean": null,
+      "missing_tasks": [
+        "bin-picking-v3",
+        "box-close-v3",
+        "door-lock-v3",
+        "door-unlock-v3",
+        "hand-insert-v3"
+      ]
+    },
+    "additional_unannotated_dial": {
+      "tasks": [
+        "dial-turn-v3"
+      ],
+      "completed_episodes": 0,
+      "per_task_mean": null,
+      "missing_tasks": [
+        "dial-turn-v3"
+      ]
+    },
+    "source_annotated_44": {
+      "tasks": [
+        "assembly-v3",
+        "basketball-v3",
+        "button-press-topdown-v3",
+        "button-press-topdown-wall-v3",
+        "button-press-v3",
+        "button-press-wall-v3",
+        "coffee-button-v3",
+        "coffee-pull-v3",
+        "coffee-push-v3",
+        "disassemble-v3",
+        "door-close-v3",
+        "door-open-v3",
+        "drawer-close-v3",
+        "drawer-open-v3",
+        "faucet-close-v3",
+        "faucet-open-v3",
+        "hammer-v3",
+        "handle-press-side-v3",
+        "handle-press-v3",
+        "handle-pull-side-v3",
+        "handle-pull-v3",
+        "lever-pull-v3",
+        "peg-insert-side-v3",
+        "peg-unplug-side-v3",
+        "pick-out-of-hole-v3",
+        "pick-place-v3",
+        "pick-place-wall-v3",
+        "plate-slide-back-side-v3",
+        "plate-slide-back-v3",
+        "plate-slide-side-v3",
+        "plate-slide-v3",
+        "push-back-v3",
+        "push-v3",
+        "push-wall-v3",
+        "reach-v3",
+        "reach-wall-v3",
+        "shelf-place-v3",
+        "soccer-v3",
+        "stick-pull-v3",
+        "stick-push-v3",
+        "sweep-into-v3",
+        "sweep-v3",
+        "window-close-v3",
+        "window-open-v3"
+      ],
+      "completed_episodes": 16,
+      "per_task_mean": 0.0,
+      "missing_tasks": [
+        "assembly-v3",
+        "basketball-v3",
+        "button-press-topdown-v3",
+        "button-press-topdown-wall-v3",
+        "button-press-wall-v3",
+        "coffee-button-v3",
+        "coffee-pull-v3",
+        "coffee-push-v3",
+        "disassemble-v3",
+        "door-open-v3",
+        "drawer-open-v3",
+        "faucet-close-v3",
+        "hammer-v3",
+        "handle-press-side-v3",
+        "handle-pull-side-v3",
+        "handle-pull-v3",
+        "lever-pull-v3",
+        "peg-insert-side-v3",
+        "peg-unplug-side-v3",
+        "pick-out-of-hole-v3",
+        "pick-place-v3",
+        "pick-place-wall-v3",
+        "plate-slide-back-side-v3",
+        "plate-slide-back-v3",
+        "plate-slide-v3",
+        "push-back-v3",
+        "push-v3",
+        "push-wall-v3",
+        "reach-v3",
+        "shelf-place-v3",
+        "soccer-v3",
+        "stick-pull-v3",
+        "stick-push-v3",
+        "sweep-into-v3",
+        "sweep-v3",
+        "window-open-v3"
+      ]
+    }
+  },
+  "overall_per_task_mean": 0.0,
+  "limitation": "Source44 mapping inferred from published task descriptions, not proof of checkpoint training coverage",
+  "source": "https://github.com/Farama-Foundation/Metaworld/blob/main/metaworld/env_dict.py"
+}

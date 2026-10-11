@@ -1,0 +1,41 @@
+85306273792	/data/mw_finetune
+Filesystem         1B-blocks         Used    Available Use% Mounted on
+/dev/sdb       1081101176832 964550606848 116533792768  90% /data
+"""Single-GPU frozen-video or video-LoRA tuning, resumable at update boundaries.
+
+Probe counts microsteps and uses the real accumulation/optimizer configuration.
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import os
+from pathlib import Path
+import time
+
+import numpy as np
+
+from .common import BASE_REVISION, disk_gate, lr_at
+from .data import Dataset
+from .model import BASE, WAN, build_model, canonical_key, delta_state, save_delta
+
+
+def main():
+    p = argparse.ArgumentParser()
+    p.add_argument("--data", default="/data/mw_finetune/fastwam/mt50_224")
+    p.add_argument("--base", default=BASE)
+    p.add_argument("--wan-root", default=WAN)
+    p.add_argument("--output", default="/data/mw_finetune/fastwam/run")
+    p.add_argument("--device", default="cuda:0")
+    p.add_argument("--mode", choices=["video_lora", "frozen_video"], default="frozen_video")
+    p.add_argument("--steps", type=int, default=16001, help="ceil(204806*10/128); ten epoch-equivalent updates")
+    p.add_argument("--micro-batch", type=int, default=None, help="default128 frozen or32 LoRA; override with measured batch")
+    p.add_argument("--global-batch", type=int, default=128)
+    p.add_argument("--accumulation", type=int, help="default global-batch/micro-batch")
+    p.add_argument("--checkpoint-every", type=int, default=2000)
+    p.add_argument("--milestone-every", type=int, default=8000)
+    p.add_argument("--probe", type=int, default=0, help="timed training microsteps, e.g. --probe 200")
+    p.add_argument("--probe-warmup", type=int, default=10)
+    p.add_argument("--max-seconds", type=float, default=840, help="probe-only time cap including model load")
+    p.add_argument("--resume", nargs="?", const="auto")
+    p.add_argument("--seed", type=int, default=42)
