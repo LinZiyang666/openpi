@@ -56,6 +56,18 @@ owner 的常驻指令，逐字有效：
 
 ### 1.R16 正在做：纯减步融入闭环（owner 10-07 目标"融入纯减步并实验"，会话 goal 仍挂着）
 
+**10-11 07:3x 增量（最新，先读）**
+- Fast-WAM 50–400 档（`fastwamc6066547406`）06:21 收齐 40000 局；DP 50–400 档（`csztd_r3_l48`，再加 `csztd_r2_c383_r2_e5b0` 保留的 6350 局）07:16 收齐。两批收据都是 FAIL（`remote worker close/snapshot incomplete`），这是收尾打包 worker 快照那一步失败，数据完整。收尾之后启动进程空挂不退，我手动 SIGTERM 结束了。
+- Cosmos 500 档（`cosmos500w85_220813`）06:28 起跑，07:26 收到 2667/4000。之后链用 145 个 worker 跑 `cosmossizes145`（DP 已经结束）。Cosmos 带停滞门的组受 server 限制（H100 约 91%），预计 13:00–14:00 全部收齐。
+- 分析：`analyze_cache.py` 已含 DP 和 Fast 全尺寸，只差 Cosmos，命令见 `r17_ops/analysis_0720.log` 的上一级调用（lane 列表：dpc8713063796_r2_d1dd、fastwamc5481985003、三个控制组、fastwamc6066547406、csztd_r3_l48、cosmos500w85_220813，Cosmos sizes 跑完后再加 cosmossizes145）。
+
+**10-11 00:5x 增量（最新，先读）**
+- 4090 OOM：本机 worker 的 EGL 渲染和 DP server 在同一张 4090 上，每个渲染进程约 706 MiB。60 个 worker 把 48 GB 占满，DP 副本在 batch 推理时 CUDA OOM；出错的 26 局都已重跑，没有被记成失败。之前的显存准入挡的正是这个，48 个就是上限。
+- 已停掉 `csztd_r2_c383_r2_e5b0`（保留 6350 局），改用 `r17_ops/dp_resume_l48.sh` 以 48 个本机 worker 续跑，新批次 `csztd_r3_l48`，00:55 开始收局，显存 36.7 GB。DP lane 进程已经停掉，以后 DP 不再由 lane 管，失败要手动续跑（用 `cache_resume.prepare`，写法见该脚本）。
+- H100 链判断 DP 是否结束，改成看 `prepared-run .../csztd*` 进程是否还在（链 PID 2954987）。
+- 监控换成 `r17_ops/formal_watch14.sh`：同时报出错重跑数（`ERRORS_UP`）和本机副本 OOM 次数。
+- RUN_CONFIGS 拓扑一节已写入 4090 显存约束。
+
 **10-11 00:0x 夜间推进（owner 睡觉，agent 限制解除；最新，先读）**
 - H100 链 `r17_ops/chain_h100_cosmos.sh`（PID 2282671，日志 `r17_ops/h100_chain.log`）：等 Fast size（启动进程 1637628）退出、确认收到 ≥40000 局 → 释放 `cosmos500w85_220813` 的 DISPATCH_HOLD → 跑 Cosmos 500 档（4000 局）→ 等 4090 DP lane 退出，最多 60 分钟 → 跑 `cosmossizes145`（145 个 worker：timan107 45 + timan1 40 + 本机 60，20000 局）；如果 DP 还没结束，就改跑 `cosmossizes85_222001`（只用外部 85 个 worker）。145 批次由 `/home/weiland/.claude/jobs/35f2869b/tmp/prepare_cosmos145.py` 准备，H100 server 加本机 worker 的混合组合还没有实跑过。
 - 预计完成：Fast size 约 06:00，DP size 约 06:00–06:30，Cosmos 全部约 09:00–10:30。

@@ -1053,7 +1053,7 @@ removed on 2026-10-10 (owner ruling). Worker counts below are measured capacity.
 
 | Lane | Server GPU | Replicas / batch | MPS / driver | Workers | Per worker | Ports |
 |---|---|---|---|---|---|---|
-| DP, sizes 50–400 (`csztdp` lane) | local RTX 4090 48 GB | R4, B8 / 5 ms | on / group-commit | local × 60 | RAM 3584 MiB, renderer 717 MiB, recycle N4 | 23400–23404, driver 23419 |
+| DP, sizes 50–400 (`csztd_r3_l48`, resumed) | local RTX 4090 48 GB | R4, B8 / 5 ms | on / group-commit | local × 48 | RAM 3584 MiB, renderer ~706 MiB on the same 4090, recycle N4 | 23400–23404, driver 23419 |
 | Fast-WAM, sizes 50–400 (`fastwamc6066547406`) | H100 80 GB | R2, B16 / 5 ms | on / group-commit | timan107 × 45 (EGL 0–7) + timan1 × 40 (GPU 3 only) | 2048 / 768 MiB, N4 | 23420–23422, driver 23439 |
 | Cosmos, size 500 (`cosmos500w85_220813`) | H100 | R2, B1 | off / legacy | timan107 × 45 + timan1 × 40 | 3072 / 768 MiB, N4 | 23440–23442, driver 23459 |
 | Cosmos, sizes 50–400 (`cosmossizes145`; fallback `cosmossizes85_222001`) | H100 | R2, B1 | off / legacy | timan107 × 45 + timan1 × 40 + local × 60 | 3072 / 768; local 4096 / 1024; N4 | same as Cosmos 500 |
@@ -1061,7 +1061,10 @@ removed on 2026-10-10 (owner ruling). Worker counts below are measured capacity.
 **Node capacity.**
 - timan107: 45 workers in use; 64 have run before.
 - timan1: GPU 3 only, 40 workers, inside the bwrap device namespace; its other GPUs are forbidden.
-- Local weilandserver: 60 workers. They serve the 4090 lane first, and join an H100 lane only while the 4090 lane is idle. 60 DP plus 60 Cosmos local workers at once would exhaust the 251 GB of RAM.
+- Local weilandserver: local workers render (EGL) on the local 4090, about 706 MiB each, on the same card as a local server.
+  - With the DP server (4 replicas) on that 4090, the limit is **48 local workers**. On 2026-10-11, 60 workers (54 renderers, 37.5 GB) filled the 48 GB card, and the DP replicas hit CUDA OOM in batched inference; the errored episodes were retried.
+  - When the 4090 has no server, 60 local workers fit (about 42 GB of renderers).
+  - Local workers serve the 4090 lane first, and join an H100 lane only while the 4090 lane is idle. 60 DP plus 60 Cosmos local workers at once would also exhaust the 251 GB of RAM (about 3 GB RSS each).
 
 **Measured.**
 - DP: 100–115 episodes/min; the 4090 runs at 100% and about 26 GB.
