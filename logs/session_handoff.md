@@ -56,6 +56,11 @@ owner 的常驻指令，逐字有效：
 
 ### 1.R16 正在做：纯减步融入闭环（owner 10-07 目标"融入纯减步并实验"，会话 goal 仍挂着）
 
+**10-11 12:2x 增量（最新，先读）**
+- Cosmos 50–400 档切到 `cosmossizes145_r8c`（8 副本 + MPS，145 个 worker），`driver/` 用软链接放在 `/tmp/r17_driver/cosmossizes145_r8c/driver`（NVMe）。原因：旧式 driver 每行都 fsync，/data 正忙，每次 71 ms，worker 只有 11% 的时间在干活；改到 NVMe 后 worker 忙碌比例到 95%，速度约每分钟 50 局。保留 6434 局，还剩 13566 局，预计 16:00 左右收齐。**收齐后把 /tmp 下的 driver 目录拷回 /data 留底**。
+- 网页：https://claude.ai/artifact/To18VP3TyzS5SXY3MmmUCp（dashboard 类型，数据在 job tmp 的 dash/*.json，上传成附件再更新 datasets）。Cosmos 收齐后，用完整分析更新 cells.json。
+- Cosmos 在缓存库 50 表现差的原因：每 16 步检索一次，每个任务只有 38 行，固定取 k=16 个近邻、权重近乎平均，相当于把该任务 42% 的行混在一起；Fast-WAM 每个任务 124 行，只混 13%。缓存库到 500 时 Cosmos 为 95.0%，比 Fast-WAM 的 87.8% 还好。
+
 **10-11 09:3x 增量（最新，先读）**
 - Cosmos 500 档（`cosmos500w85_220813`）08:10 收齐 4000 局。
 - Cosmos 50–400 档受 server 限制：每次决策都要先跑 stage-1 编码器生成检索 key，2 个副本时排队中位 8.9 秒。处理经过：

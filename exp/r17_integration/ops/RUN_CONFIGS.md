@@ -1056,7 +1056,7 @@ removed on 2026-10-10 (owner ruling). Worker counts below are measured capacity.
 | DP, sizes 50–400 (`csztd_r3_l48`, resumed) | local RTX 4090 48 GB | R4, B8 / 5 ms | on / group-commit | local × 48 | RAM 3584 MiB, renderer ~706 MiB on the same 4090, recycle N4 | 23400–23404, driver 23419 |
 | Fast-WAM, sizes 50–400 (`fastwamc6066547406`) | H100 80 GB | R2, B16 / 5 ms | on / group-commit | timan107 × 45 (EGL 0–7) + timan1 × 40 (GPU 3 only) | 2048 / 768 MiB, N4 | 23420–23422, driver 23439 |
 | Cosmos, size 500 (`cosmos500w85_220813`) | H100 | R2, B1 | off / legacy | timan107 × 45 + timan1 × 40 | 3072 / 768 MiB, N4 | 23440–23442, driver 23459 |
-| Cosmos, sizes 50–400 (`cosmossizes145_r8b`, resumed) | H100 | **R8, B1, memory budget 76 GiB** | **on (private MPS)** / legacy | timan107 × 45 + timan1 × 40 + local × 60 | 3072 / 768; local 4096 / 1024; N4 | 23440, backends 23441–23448, driver 23459 |
+| Cosmos, sizes 50–400 (`cosmossizes145_r8c`, resumed; `driver/` on NVMe) | H100 | **R8, B1, memory budget 76 GiB** | **on (private MPS)** / legacy | timan107 × 45 + timan1 × 40 + local × 60 | 3072 / 768; local 4096 / 1024; N4 | 23440, backends 23441–23448, driver 23459 |
 
 **Node capacity.**
 - timan107: 45 workers in use; 64 have run before.
@@ -1081,6 +1081,11 @@ removed on 2026-10-10 (owner ruling). Worker counts below are measured capacity.
   - After R8 the lane is bound by workers and episode length. Groups with the stall gate are still slower because each stall runs a full K5 call.
   - A replica peaks at about 8 GB while loading. `memory_budget_gib` is split evenly across replicas, so R8 needs at least about 72 GiB (60 GiB OOMed at load). Steady state is about 5–8 GB per replica.
 - Worker output on timan107: about 0.24 MB per episode under `/scratch/zixuans8/mw_r17/formal/runs`.
+
+- **Driver storage.** The `legacy` driver fsyncs every journal, per-step and attempt row under its scheduler lock.
+  - On 2026-10-11 /data (a busy HDD, 97% utilized) cost 71 ms per fsync. Cosmos cache episodes write about 33 per-step rows each, so the driver handed out only 10–20 episodes/min and the 145 workers were busy 11% of the time.
+  - Moving the campaign's `driver/` directory to NVMe `/tmp` (a symlink created before launch; 6.7 ms per fsync) raised throughput to about 50 episodes/min with workers 95% busy.
+  - For `legacy` campaigns, put `driver/` on NVMe or use `group-commit`; copy the directory back to /data afterwards.
 
 **Prepare (CPU only).**
 - DP: `cache_capacity_lanes.prepare('4090', <lane dir>, <prefix>)`, which uses `FLEETS['dp_libero']`.
