@@ -1,0 +1,130 @@
+{
+  "global_step": 30000,
+  "config": {
+    "name": "dp_libero",
+    "project_name": "openpi",
+    "exp_name": "dp_libero_lang_v1",
+    "model": {
+      "action_dim": 7,
+      "action_horizon": 16,
+      "max_token_len": 1,
+      "images": [
+        {
+          "key": "base_0_rgb",
+          "channels": 3,
+          "height": 96,
+          "width": 96
+        },
+        {
+          "key": "left_wrist_0_rgb",
+          "channels": 3,
+          "height": 96,
+          "width": 96
+        }
+      ],
+      "lowdims": [
+        {
+          "key": "state",
+          "dim": 8
+        }
+      ],
+      "lang_emb_dim": 768,
+      "horizon": 16,
+      "n_obs_steps": 1,
+      "n_action_steps": 16,
+      "num_inference_steps": 100,
+      "num_train_timesteps": 100,
+      "beta_schedule": "squaredcos_cap_v2",
+      "beta_start": 0.0001,
+      "beta_end": 0.02,
+      "variance_type": "fixed_small",
+      "prediction_type": "epsilon",
+      "clip_sample": true,
+      "clip_sample_range": 1.0,
+      "vision_backbone": "resnet18",
+      "crop_shape": [
+        84,
+        84
+      ],
+      "obs_encoder_group_norm": true,
+      "eval_fixed_crop": true,
+      "n_layer": 12,
+      "n_cond_layers": 4,
+      "n_head": 8,
+      "n_emb": 512,
+      "p_drop_emb": 0.0,
+      "p_drop_attn": 0.3,
+      "causal_attn": true,
+      "time_as_cond": true,
+      "obs_as_cond": true
+    },
+    "weight_loader": {},
+    "pytorch_weight_path": null,
+    "pytorch_training_precision": "bfloat16",
+    "lr_schedule": {
+      "warmup_steps": 500,
+      "peak_lr": 0.0001,
+      "decay_steps": 99500,
+      "decay_lr": 1e-05
+    },
+    "optimizer": {
+      "b1": 0.95,
+      "b2": 0.999,
+      "eps": 1e-08,
+      "weight_decay": 1e-06,
+      "clip_gradient_norm": 10.0
+    },
+    "ema_decay": null,
+    "freeze_filter": {
+      "__class__": "flax.nnx.filterlib.Nothing"
+    },
+    "data": {
+      "repo_id": "physical-intelligence/libero",
+      "assets": {
+        "assets_dir": null,
+        "asset_id": null
+      },
+      "base_config": {
+        "repo_id": null,
+        "asset_id": null,
+        "norm_stats": null,
+        "repack_transforms": {
+          "inputs": [],
+          "outputs": []
+        },
+        "data_transforms": {
+          "inputs": [],
+          "outputs": []
+        },
+        "model_transforms": {
+          "inputs": [],
+          "outputs": []
+        },
+        "use_quantile_norm": false,
+        "action_sequence_keys": [
+          "actions"
+        ],
+        "prompt_from_task": true,
+        "rlds_data_dir": null,
+        "action_space": null,
+        "datasets": []
+      },
+      "extra_delta_transform": false
+    },
+    "assets_base_dir": "./assets",
+    "checkpoint_base_dir": "./checkpoints",
+    "seed": 42,
+    "batch_size": 256,
+    "num_workers": 4,
+    "num_train_steps": 100000,
+    "log_interval": 100,
+    "save_interval": 5000,
+    "keep_period": 10000,
+    "overwrite": false,
+    "resume": false,
+    "wandb_enabled": true,
+    "policy_metadata": null,
+    "fsdp_devices": 1
+  },
+  "timestamp": 1776825222.2561452
+}

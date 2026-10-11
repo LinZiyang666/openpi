@@ -1,0 +1,8 @@
+
+## Fix round 1 — LIBERO protocol
+
+## Fix round 2 — lossy plain-study isolation / canonical table
+P2 consumes your DP N6 request. Descent now rejects any episode carrying allow_lossy_sampler, sampler_study_label or sampler_quality_status=lossy/lossy_study. Driver propagates the first two binding fields into episode manifests and marks sampler_quality_status=lossy_study. Three regression cases cover each marker; no model-specific identifier guessing. P1/provider validator remains responsible for refusing unlabelled DP K1 at binding. Normal K2+ descent stays unchanged. MW/LIBERO specs publish P1's r17.task_table.v1 exact identity in manifests/probes/request/cost/episode metadata; full canonical tables required, partial teacher rows allowed. Register LIBERO specs with common.benchmarks.register_benchmark at explicit provider/load path.
+P2 adding LiberoBenchmarkSpec wire_size256 default, optional96 separately hashed; no224. Global canonical suite/task names/IDs0..39 and original idx/paired explicit seed. Existing env/kernel via local adapter; replan5 with actual acks including partial terminal and commit32 tail. Please consume benchmark identity from its spec, not MW identity. Metadata r17_model_spec and native sampler specs enable worker debug resolver.
+
+Published benchmarks.libero_bridge.LiberoBenchmarkSpec.from_task_maps(maps)/from_official()/manifest()/identity; asdict accepts seed_mode paired_semantic (default). Wire256 default or distinct wire96 spec. R17 runner sends ack_protocol and partial_tail_protocol plus explicit suite/task/orig idx/global taskid/seed envelope, and final execution ack on episode_end. Driver accepts embedded r17_model_spec and --arm name:YAML:K --benchmark-spec sealed.json.

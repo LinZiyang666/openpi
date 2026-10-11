@@ -1,0 +1,73 @@
+{
+  "schema": "r17.cache_startup_diagnosis.v1",
+  "campaign": "/data/mw_finetune/eval/csmd1010",
+  "error": "TimeoutError('port ziyanglin.com:23401 did not become ready')",
+  "receipt_sha256": "54c3bcc4d5992ca7482218050b34120fd238f759fd668cbb9ff478522f5fed1c",
+  "ready_file": "/data/mw_finetune/eval/csmd1010/servers/replica_0/ready.json",
+  "ready_sha256": "4ba83203c6ef6010b08d633013f361c85ce14b043820a0358cd2929f69b05042",
+  "ready_mtime": 1791673889.8565588,
+  "backend_wait_address": [
+    "ziyanglin.com",
+    23401
+  ],
+  "default_backend_host_absent": true,
+  "all_owned_closed": true,
+  "closure": [
+    {
+      "node": "timan107",
+      "label": "workers",
+      "status": "CLOSED",
+      "exit_code": 2,
+      "alive": false,
+      "child_alive": false,
+      "owned_worker_survivors": [],
+      "closure_confirmed": true
+    },
+    {
+      "node": null,
+      "label": "replica_0",
+      "status": "closed",
+      "exit_code": null,
+      "alive": null,
+      "child_alive": null,
+      "owned_worker_survivors": null,
+      "closure_confirmed": true
+    },
+    {
+      "node": null,
+      "label": "mps_guard",
+      "status": "closed",
+      "exit_code": null,
+      "alive": null,
+      "child_alive": null,
+      "owned_worker_survivors": null,
+      "closure_confirmed": true
+    },
+    {
+      "node": null,
+      "label": "mps_daemon",
+      "status": null,
+      "exit_code": null,
+      "alive": null,
+      "child_alive": null,
+      "owned_worker_survivors": null,
+      "closure_confirmed": true
+    }
+  ],
+  "worker_evidence": {
+    "receipt": "/scratch/zixuans8/mw_r17/formal/runs/csmd1010_timan107/receipt.json",
+    "node": "timan107",
+    "workers": 32,
+    "worker_failures": [],
+    "reason": "interrupted",
+    "elapsed_seconds": 601.7562001361512,
+    "all_worker_exit_codes": -15,
+    "transport_log": "Errno110 Connection timed out; exponential backoff; driver never started"
+  },
+  "cleanup_actions": {
+    "signals_sent": 0,
+    "reason": "campaign already closed; original PID birth identities checked"
+  },
+  "replacement": "csmdf1010",
+  "scope": "local DP smoke only; other fleets untouched"
+}

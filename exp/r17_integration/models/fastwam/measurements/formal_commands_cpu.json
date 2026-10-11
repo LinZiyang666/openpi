@@ -1,0 +1,163 @@
+{
+  "status": "PASS",
+  "commands": 8,
+  "campaigns": [
+    {
+      "name": "R17_FW_B8W5_H100_official50_control",
+      "node": "h100",
+      "batch": 8,
+      "window": 5.0,
+      "workers": 16,
+      "renderer_gpus": [
+        1,
+        2,
+        3
+      ],
+      "recycle": 4,
+      "steps": 10,
+      "commit": 5,
+      "suites": "all4",
+      "control": null
+    },
+    {
+      "name": "R17_FW_B8W5_H100_C16_K10",
+      "node": "h100",
+      "batch": 8,
+      "window": 5.0,
+      "workers": 16,
+      "renderer_gpus": [
+        1,
+        2,
+        3
+      ],
+      "recycle": 4,
+      "steps": 10,
+      "commit": 16,
+      "suites": [
+        "libero_spatial",
+        "libero_10"
+      ],
+      "control": "/data/mw_finetune/eval/R17_FW_B8W5_H100_official50_control"
+    },
+    {
+      "name": "R17_FW_B8W5_4090_spatial10_control",
+      "node": "local",
+      "batch": 8,
+      "window": 5.0,
+      "workers": 16,
+      "renderer_gpus": [
+        4,
+        5,
+        6
+      ],
+      "recycle": 4,
+      "steps": 10,
+      "commit": 5,
+      "suites": [
+        "libero_spatial",
+        "libero_10"
+      ],
+      "control": null
+    },
+    {
+      "name": "R17_FW_B8W5_4090_C10_K10",
+      "node": "local",
+      "batch": 8,
+      "window": 5.0,
+      "workers": 16,
+      "renderer_gpus": [
+        4,
+        5,
+        6
+      ],
+      "recycle": 4,
+      "steps": 10,
+      "commit": 10,
+      "suites": [
+        "libero_spatial",
+        "libero_10"
+      ],
+      "control": "/data/mw_finetune/eval/R17_FW_B8W5_4090_spatial10_control"
+    },
+    {
+      "name": "R17_FW_B8W5_4090_C20_K10",
+      "node": "local",
+      "batch": 8,
+      "window": 5.0,
+      "workers": 16,
+      "renderer_gpus": [
+        4,
+        5,
+        6
+      ],
+      "recycle": 4,
+      "steps": 10,
+      "commit": 20,
+      "suites": [
+        "libero_spatial",
+        "libero_10"
+      ],
+      "control": "/data/mw_finetune/eval/R17_FW_B8W5_4090_spatial10_control"
+    },
+    {
+      "name": "R17_FW_B8W5_4090_C32_K10",
+      "node": "local",
+      "batch": 8,
+      "window": 5.0,
+      "workers": 16,
+      "renderer_gpus": [
+        4,
+        5,
+        6
+      ],
+      "recycle": 4,
+      "steps": 10,
+      "commit": 32,
+      "suites": [
+        "libero_spatial",
+        "libero_10"
+      ],
+      "control": "/data/mw_finetune/eval/R17_FW_B8W5_4090_spatial10_control"
+    },
+    {
+      "name": "R17_FW_B8W5_4090_K2_C5",
+      "node": "local",
+      "batch": 8,
+      "window": 5.0,
+      "workers": 16,
+      "renderer_gpus": [
+        4,
+        5,
+        6
+      ],
+      "recycle": 4,
+      "steps": 2,
+      "commit": 5,
+      "suites": [
+        "libero_spatial",
+        "libero_10"
+      ],
+      "control": "/data/mw_finetune/eval/R17_FW_B8W5_4090_spatial10_control"
+    },
+    {
+      "name": "R17_FW_B8W5_4090_K1_C5",
+      "node": "local",
+      "batch": 8,
+      "window": 5.0,
+      "workers": 16,
+      "renderer_gpus": [
+        4,
+        5,
+        6
+      ],
+      "recycle": 4,
+      "steps": 1,
+      "commit": 5,
+      "suites": [
+        "libero_spatial",
+        "libero_10"
+      ],
+      "control": "/data/mw_finetune/eval/R17_FW_B8W5_4090_spatial10_control"
+    }
+  ]
+}

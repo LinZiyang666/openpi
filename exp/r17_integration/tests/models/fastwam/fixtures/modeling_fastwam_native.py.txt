@@ -1,0 +1,59 @@
+def _resize_frames(frames: Tensor, size: tuple[int, int]) -> Tensor:
+    """Resize a frame tensor to `size` (H, W), tolerating a leading temporal/batch stack.
+
+    `interpolate` only accepts a single leading batch dim (`[N, C, H, W]`), but FastWAM camera
+    tensors arrive as `[B, C, H, W]` (live eval) or `[B, T, C, H, W]` (temporal stack), so flatten
+    any leading dims into the batch, resize, then restore. A no-op when already at `size`.
+    """
+    if tuple(frames.shape[-2:]) == size:
+        return frames
+    lead = frames.shape[:-3]
+    flat = frames.reshape(-1, *frames.shape[-3:])
+    flat = torch.nn.functional.interpolate(
+        flat, size=size, mode="bilinear", align_corners=False, antialias=True
+    )
+    return flat.reshape(*lead, *flat.shape[-3:])
+
+def _stack_video_from_images(batch: dict[str, Tensor], config: FastWAMConfig) -> Tensor:
+    # Exclude the `*_is_pad` companion tensors that delta-timestamp loading adds alongside
+    # each camera (shape [B, T]); they share the `observation.images.` prefix but are not frames.
+    image_keys = sorted(k for k in batch if k.startswith("observation.images.") and not k.endswith("_is_pad"))
+    if not image_keys:
+        raise KeyError("FastWAM batch must contain `video` or `observation.images.*` keys.")
+    per_cam = (int(config.image_size[0]), int(config.image_size[1]) // len(image_keys))
+    images = [_resize_frames(batch[key], per_cam) for key in image_keys]
+    # Cameras concatenate along width (last dim) in both the single-frame and temporal case.
+    image = torch.cat(images, dim=-1) if len(images) > 1 else images[0]
+    if image.ndim == 4:
+        # [B, C, H, W]: a single frame (e.g. the live eval observation) -> repeat across time.
+        image = image.unsqueeze(2).repeat(1, 1, config.model_video_frames, 1, 1)
+    elif image.ndim == 5:
+        # [B, T, C, H, W]: temporal stack from delta-timestamp loading -> [B, C, T, H, W].
+        image = image.permute(0, 2, 1, 3, 4)
+    else:
+        raise ValueError(f"Expected image batch [B,C,H,W] or temporal [B,T,C,H,W], got {tuple(image.shape)}.")
+    return image
+
+def _prepare_infer_image(image: Tensor, config: FastWAMConfig) -> Tensor:
+    if image.ndim == 3:
+        image = image.unsqueeze(0)
+    if image.ndim != 4:
+        raise ValueError(f"Expected image tensor [B,C,H,W] or [C,H,W], got {tuple(image.shape)}.")
+
+    # Resize to the full configured resolution (no-op when the video path already produced it, but
+    # also covers a directly-supplied `input_image`). The model owns its input resolution — see
+    # `_stack_video_from_images` — so we resize rather than assert on a mismatch.
+    target_h, target_w = int(config.image_size[0]), int(config.image_size[1])
+    return _resize_frames(image, (target_h, target_w))
+
+def _input_image_from_batch(batch: dict[str, Tensor], config: FastWAMConfig) -> Tensor:
+    if "input_image" in batch:
+        return _prepare_infer_image(batch["input_image"], config)
+    video = batch.get("video")
+    if video is None:
+        video = _stack_video_from_images(batch, config)
+    if video.ndim == 5:
+        return _prepare_infer_image(video[:, :, 0], config)
+    if video.ndim == 4:
+        return _prepare_infer_image(video, config)
+    raise ValueError(f"Cannot build input image from tensor with shape {tuple(video.shape)}.")

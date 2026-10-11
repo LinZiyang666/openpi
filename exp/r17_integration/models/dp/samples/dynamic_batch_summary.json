@@ -1,0 +1,299 @@
+{
+  "status": "PARTIAL",
+  "measured_configurations": 35,
+  "requested_configurations": 36,
+  "missing": [
+    [
+      5,
+      2,
+      32
+    ]
+  ],
+  "aggregate_GPU_seconds": 1199.5891150590032,
+  "budget_seconds": 1200,
+  "GPU_lock": "/tmp/r17_gpu.lock",
+  "GPU": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9",
+  "phase_receipts": {
+    "dynamic_batch_gpu_20261010": {
+      "status": "FAIL",
+      "error": "RuntimeError(['RuntimeError(\\'Traceback (most recent call last):\\\\n  File \"/home/weiland/projects/openpi/src/openpi/serving/websocket_policy_server.py\", line 1006, in _handler\\\\n    action = await asyncio.to_thread(conn_policy.infer, obs)\\\\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\\\n  File \"/home/weiland/.local/share/uv/python/cpython-3.11.15-linux-x86_64-gnu/lib/python3.11/asyncio/threads.py\", line 25, in to_thread\\\\n    return await loop.run_in_executor(None, func_call)\\\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\\\n  File \"/home/weiland/.local/share/uv/python/cpython-3.11.15-linux-x86_64-gnu/lib/python3.11/concurrent/futures/thread.py\", line 58, in run\\\\n    result = self.fn(*self.args, **self.kwargs)\\\\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\\\n  File \"/home/weiland/projects/openpi/exp/r17_integration/models/dp/formal_batch_server.py\", line 73, in infer\\\\n    result = original(obs)\\\\n             ^^^^^^^^^^^^^\\\\n  File \"/home/weiland/projects/openpi/exp/r17_integration/models/dp/batch_runtime.py\", line 123, in infer\\\\n    result = original(obs)\\\\n             ^^^^^^^^^^^^^\\\\n  File \"/home/weiland/projects/openpi/exp/r17_integration/common/serving.py\", line 328, in infer\\\\n    s1 = measured(\"stage1\", lambda: self.adapter.run_stage1(prepared))\\\\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\\\n  File \"/home/weiland/projects/openpi/exp/r17_integration/common/serving.py\", line 282, in measured\\\\n    return call()\\\\n           ^^^^^^\\\\n  File \"/home/weiland/projects/openpi/exp/r17_integration/common/serving.py\", line 328, in <lambda>\\\\n    s1 = measured(\"stage1\", lambda: self.adapter.run_stage1(prepared))\\\\n                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\\\n  File \"/home/weiland/projects/openpi/exp/r17_integration/models/dp/provider.py\", line 85, in run_stage1\\\\n    out = self.core.submit_to_stage(1, \"dp_shared\", prepared)\\\\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\\\n  File \"/home/weiland/projects/openpi/src/openpi/serving/batching_core.py\", line 667, in submit_to_stage\\\\n    return self.wait_for(req, timeout=timeout)\\\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\\\n  File \"/home/weiland/projects/openpi/src/openpi/serving/batching_core.py\", line 640, in wait_for\\\\n    raise req.error\\\\n  File \"/home/weiland/.local/share/uv/python/cpython-3.11.15-linux-x86_64-gnu/lib/python3.11/concurrent/futures/thread.py\", line 58, in run\\\\n    result = self.fn(*self.args, **self.kwargs)\\\\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\\\n  File \"/home/weiland/projects/openpi/exp/r17_integration/models/dp/formal_batch_server.py\", line 73, in infer\\\\n    result = original(obs)\\\\n             ^^^^^^^^^^^^^\\\\n  File \"/home/weiland/projects/openpi/exp/r17_integration/models/dp/batch_runtime.py\", line 123, in infer\\\\n    result = original(obs)\\\\n             ^^^^^^^^^^^^^\\\\n  File \"/home/weiland/projects/openpi/exp/r17_integration/common/serving.py\", line 328, in infer\\\\n    s1 = measured(\"stage1\", lambda: self.adapter.run_stage1(prepared))\\\\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\\\n  File \"/home/weiland/projects/openpi/exp/r17_integration/common/serving.py\", line 282, in measured\\\\n    return call()\\\\n           ^^^^^^\\\\n  File \"/home/weiland/projects/openpi/exp/r17_integration/common/serving.py\", line 328, in <lambda>\\\\n    s1 = measured(\"stage1\", lambda: self.adapter.run_stage1(prepared))\\\\n                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\\\n  File \"/home/weiland/projects/openpi/exp/r17_integration/models/dp/provider.py\", line 85, in run_stage1\\\\n    out = self.core.submit_to_stage(1, \"dp_shared\", prepared)\\\\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\\\n  File \"/home/weiland/projects/openpi/src/openpi/serving/batching_core.py\", line 667, in submit_to_stage\\\\n    return self.wait_for(req, timeout=timeout)\\\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\\\n  File \"/home/weiland/projects/openpi/src/openpi/serving/batching_core.py\", line 640, in wait_for\\\\n    raise req.error\\\\n  File \"/home/weiland/.local/share/uv/python/cpython-3.11.15-linux-x86_64-gnu/lib/python3.11/concurrent/futures/thread.py\", line 58, in run\\\\n    result = self.fn(*self.args, **self.kwargs)\\\\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\\\n  File \"/home/weiland/projects/openpi/exp/r17_integration/models/dp/formal_batch_server.py\", line 73, in infer\\\\n    result = original(obs)\\\\n             ^^^^^^^^^^^^^\\\\n  File \"/home/weiland/projects/openpi/exp/r17_integration/models/dp/batch_runtime.py\", line 123, in infer\\\\n    result = original(obs)\\\\n             ^^^^^^^^^^^^^\\\\n  File \"/home/weiland/projects/openpi/exp/r17_integration/common/serving.py\", line 328, in infer\\\\n    s1 = measured(\"stage1\", lambda: self.adapter.run_stage1(prepared))\\\\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\\\n  File \"/home/weiland/projects/openpi/exp/r17_integration/common/serving.py\", line 282, in measured\\\\n    return call()\\\\n           ^^^^^^\\\\n  File \"/home/weiland/projects/openpi/exp/r17_integration/common/serving.py\", line 328, in <lambda>\\\\n    s1 = measured(\"stage1\", lambda: self.adapter.run_stage1(prepared))\\\\n                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\\\n  File \"/home/weiland/projects/openpi/exp/r17_integration/models/dp/provider.py\", line 85, in run_stage1\\\\n    out = self.core.submit_to_stage(1, \"dp_shared\", prepared)\\\\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\\\n  File \"/home/weiland/projects/openpi/src/openpi/serving/batching_core.py\", line 667, in submit_to_stage\\\\n    return self.wait_for(req, timeout=timeout)\\\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\\\n  File \"/home/weiland/projects/openpi/src/openpi/serving/batching_core.py\", line 640, in wait_for\\\\n    raise req.error\\\\n  File \"/home/weiland/projects/openpi/src/openpi/serving/batching_core.py\", line 916, in _stage_loop_inner\\\\n    self._run_batch(stage_id, batch)\\\\n  File \"/home/weiland/projects/openpi/src/openpi/serving/batching_core.py\", line 1067, in _run_batch\\\\n    shards = self._batcher.run_stage1_batch([r.payload for r in batch])\\\\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\\\n  File \"/home/weiland/projects/openpi/exp/r17_integration/models/dp/batcher.py\", line 69, in run_stage1_batch\\\\n    outputs = self.adapter.run_stage1_batch(payloads)\\\\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\\\n  File \"/home/weiland/projects/openpi/.venv/lib/python3.11/site-packages/torch/utils/_contextlib.py\", line 116, in decorate_context\\\\n    return func(*args, **kwargs)\\\\n           ^^^^^^^^^^^^^^^^^^^^^\\\\n  File \"/home/weiland/projects/openpi/exp/r17_integration/models/dp/staged.py\", line 195, in run_stage1_batch\\\\n    fields = {\"vision_0\": own_features[\"base_0_rgb\"][0].float().cpu().numpy().copy(),\\\\n                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\\\nRuntimeError: CUDA error: operation not permitted when stream is capturing\\\\nCUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\\\\nFor debugging consider passing CUDA_LAUNCH_BLOCKING=1\\\\nCompile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\\\\n\\\\n\\')', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()', 'CancelledError()'])",
+      "rows": 1,
+      "GPU_seconds": 92.26014091201068,
+      "own_children_closed": true
+    },
+    "dynamic_batch_gpu_final_20261010": {
+      "status": "FAIL",
+      "error": "TimeoutError('owned measurement interrupted; closing only owned children')",
+      "rows": 7,
+      "GPU_seconds": 367.8289501580002,
+      "own_children_closed": true
+    },
+    "dynamic_batch_gpu_persistent_20261010": {
+      "status": "FAIL",
+      "error": "TimeoutError('closing only owned residents')",
+      "rows": 13,
+      "GPU_seconds": 408.4629887409974,
+      "own_children_closed": true
+    },
+    "dynamic_batch_gpu_admission_20261010": {
+      "status": "FAIL",
+      "error": "TimeoutError('GPU budget reached')",
+      "rows": 30,
+      "GPU_seconds": 290.60993666500144,
+      "own_children_closed": true
+    },
+    "dynamic_batch_gpu_k5_completion_20261010": {
+      "status": "FAIL",
+      "error": "TimeoutError('GPU budget reached')",
+      "rows": 5,
+      "GPU_seconds": 35.3394054560049,
+      "own_children_closed": true
+    },
+    "dynamic_batch_gpu_cap32_final_20261010": {
+      "GPU_seconds": 5.087693126988597,
+      "hard_cutoff_seconds": 4.8,
+      "lock": "/tmp/r17_gpu.lock",
+      "own_children_closed": true
+    }
+  },
+  "tests": {
+    "cpu_dynamic_batch_full.xml": {
+      "tests": 185,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    },
+    "cpu_dynamic_batch_legacy.xml": {
+      "tests": 49,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    }
+  },
+  "B1_graph_exact_comparisons": 15,
+  "B32_exact_private_rng_requests": 352,
+  "native_B32_audits": [
+    {
+      "K": 100,
+      "batch": 32,
+      "checked_requests": 32,
+      "full_horizon": 16,
+      "max_wire_diff": 2.384185791015625e-07,
+      "private_rng_exact": true,
+      "receipt": "exp/r17_integration/models/dp/samples/dynamic_batch_gpu_admission_20261010/k100_r1_b1_c12/replica0/ready.json"
+    },
+    {
+      "K": 10,
+      "batch": 32,
+      "checked_requests": 32,
+      "full_horizon": 16,
+      "max_wire_diff": 7.152557373046875e-07,
+      "private_rng_exact": true,
+      "receipt": "exp/r17_integration/models/dp/samples/dynamic_batch_gpu_admission_20261010/k100_r1_b1_c12/replica0/ready.json"
+    },
+    {
+      "K": 5,
+      "batch": 32,
+      "checked_requests": 32,
+      "full_horizon": 16,
+      "max_wire_diff": 1.3262033462524414e-06,
+      "private_rng_exact": true,
+      "receipt": "exp/r17_integration/models/dp/samples/dynamic_batch_gpu_admission_20261010/k100_r1_b1_c12/replica0/ready.json"
+    },
+    {
+      "K": 100,
+      "batch": 32,
+      "checked_requests": 32,
+      "full_horizon": 16,
+      "max_wire_diff": 2.384185791015625e-07,
+      "private_rng_exact": true,
+      "receipt": "exp/r17_integration/models/dp/samples/dynamic_batch_gpu_admission_20261010/k100_r2_b1_c12/replica0/ready.json"
+    },
+    {
+      "K": 10,
+      "batch": 32,
+      "checked_requests": 32,
+      "full_horizon": 16,
+      "max_wire_diff": 7.152557373046875e-07,
+      "private_rng_exact": true,
+      "receipt": "exp/r17_integration/models/dp/samples/dynamic_batch_gpu_admission_20261010/k100_r2_b1_c12/replica0/ready.json"
+    },
+    {
+      "K": 5,
+      "batch": 32,
+      "checked_requests": 32,
+      "full_horizon": 16,
+      "max_wire_diff": 1.3262033462524414e-06,
+      "private_rng_exact": true,
+      "receipt": "exp/r17_integration/models/dp/samples/dynamic_batch_gpu_admission_20261010/k100_r2_b1_c12/replica0/ready.json"
+    },
+    {
+      "K": 100,
+      "batch": 32,
+      "checked_requests": 32,
+      "full_horizon": 16,
+      "max_wire_diff": 2.384185791015625e-07,
+      "private_rng_exact": true,
+      "receipt": "exp/r17_integration/models/dp/samples/dynamic_batch_gpu_admission_20261010/k100_r2_b1_c12/replica1/ready.json"
+    },
+    {
+      "K": 10,
+      "batch": 32,
+      "checked_requests": 32,
+      "full_horizon": 16,
+      "max_wire_diff": 7.152557373046875e-07,
+      "private_rng_exact": true,
+      "receipt": "exp/r17_integration/models/dp/samples/dynamic_batch_gpu_admission_20261010/k100_r2_b1_c12/replica1/ready.json"
+    },
+    {
+      "K": 5,
+      "batch": 32,
+      "checked_requests": 32,
+      "full_horizon": 16,
+      "max_wire_diff": 1.3262033462524414e-06,
+      "private_rng_exact": true,
+      "receipt": "exp/r17_integration/models/dp/samples/dynamic_batch_gpu_admission_20261010/k100_r2_b1_c12/replica1/ready.json"
+    },
+    {
+      "K": 5,
+      "batch": 32,
+      "checked_requests": 32,
+      "full_horizon": 16,
+      "max_wire_diff": 1.3262033462524414e-06,
+      "private_rng_exact": true,
+      "receipt": "exp/r17_integration/models/dp/samples/dynamic_batch_gpu_k5_completion_20261010/k5_r2_b1_c12/replica0/ready.json"
+    },
+    {
+      "K": 5,
+      "batch": 32,
+      "checked_requests": 32,
+      "full_horizon": 16,
+      "max_wire_diff": 1.3262033462524414e-06,
+      "private_rng_exact": true,
+      "receipt": "exp/r17_integration/models/dp/samples/dynamic_batch_gpu_k5_completion_20261010/k5_r2_b1_c12/replica1/ready.json"
+    }
+  ],
+  "emitted_requests_with_latency": 3563,
+  "measured_completions": 3194,
+  "quality_sr_claim": false,
+  "max_server_committed_action_diff": 0.0003457069396972656,
+  "recommended": {
+    "replicas": 1,
+    "max_batch": 8,
+    "batch_wait_ms": 5,
+    "workers": 12,
+    "worker_memory_mib": 4096,
+    "actual_max_stage3_batch": 8,
+    "mean_stage3_batch": 6.685714285714286,
+    "measured": {
+      "K": 100,
+      "replicas": 1,
+      "max_batch": 8,
+      "batch_wait_ms": 5,
+      "clients": 12,
+      "calls": 58,
+      "latency_samples": 70,
+      "measurement_seconds": 4.0,
+      "drain_seconds": 1.3207961800071644,
+      "calls_per_second": 14.5,
+      "actions_per_second": 72.5,
+      "p50_ms": 708.4132630043314,
+      "p90_ms": 1248.0172773095546,
+      "watts": 155.32466666666667,
+      "max_diff": 0.0003145933151245117,
+      "mean_stage3_batch": 6.685714285714286,
+      "max_stage3_batch": 8,
+      "mean_util": 44.8,
+      "peak_board_memory_mib": 2441.0,
+      "scope": "actual formal WebSocket + S07; completions/board power in fixed window; latency of all window-started calls including drain",
+      "numerics_reference": "three real paired frames/seeds501,502,503/default B1 eager physical actions",
+      "quality_sr_claim": false,
+      "receipt": "exp/r17_integration/models/dp/samples/dynamic_batch_gpu_admission_20261010/k100_r1_b8_c12/result.json",
+      "status": "measured"
+    },
+    "latency_speedup_vs_1409_ms": 1.9889520334847048,
+    "inferred_old_capacity_calls_s": 8.516678495386799,
+    "provisional_capacity_speedup": 1.7025416666666666
+  },
+  "sealed_model": {
+    "status": "pass",
+    "device": "cpu",
+    "gpu_executed": false,
+    "diagnostic": false,
+    "checkpoint": "/data/mw_finetune/dp/libero_policy_100000",
+    "strict_load": {
+      "missing": [],
+      "unexpected": [],
+      "keys": 475
+    },
+    "passed": 1,
+    "skipped": 0,
+    "observation_source": "/data/mw_finetune/qualification/assets/dp_libero_gpu_fix1_v1/wire_observations.npz",
+    "observations_sha256": "sha256:4c480ecbb04193a38da09d85c24431547537cdf1150243d6067c019c8170db4a",
+    "official_50": true,
+    "suites": 4,
+    "tasks": 40,
+    "formal_episodes": 2000,
+    "model_sources": {
+      "exp/mw_finetune/dp/model.py": "sha256:e8570dd11fe4402b533f3669e32b3117dd9a0264320322e1e9b3ef0fd7b105e9",
+      "exp/mw_finetune/dp/policy.py": "sha256:aa0ad73351b6ee353b0ca5408247e8827e40138e147bcc5cd48c83f88fdd32ac",
+      "exp/mw_finetune/dp/preprocess.py": "sha256:fb8d0d62bd3c74675116b20f00cef7cacd5290e488afcd5c27eba3a0ced5d12d",
+      "exp/mw_finetune/dp/checkpoint.py": "sha256:c4a95d3f476dd21d83b7867f626eced40fb4d6674bfc8377a8913e95ff1a0544",
+      "exp/mw_finetune/dp/RECIPE.md": "sha256:b128adcdc01b3758bf970829d4ea031e69e54bca77110473d6bfa89ef5f700db",
+      "exp/mw_finetune/dp/vendor/module_attr_mixin.py": "sha256:658dececa20f7628960fc1a8db89e4be3693e1bba47f63d1ff8a4faa2d481e45",
+      "exp/mw_finetune/dp/vendor/positional_embedding.py": "sha256:2266c75ecc9c9ac8ca126839d39a7bafbdd7af8800d6de903f66815e64cc366c",
+      "exp/mw_finetune/dp/vendor/transformer.py": "sha256:516e8626408b4329a3accb89bf5c0da06fb4df486bf2d520b82ee81f35891351",
+      "exp/r17_integration/models/dp/__init__.py": "sha256:3a6c4872915e5875db1f60c65b737c922bdd4de1aac580d27488e4e704c25cbe",
+      "exp/r17_integration/models/dp/admission.py": "sha256:3a0f84efe56cbc43ef08ddffd955baa233d9b5b6cb50e675109739d68e1b65b8",
+      "exp/r17_integration/models/dp/batch_graph.py": "sha256:05261609d4540251d1cdf028456d82680dc084ae120229e5b3df36dd57d8a8d2",
+      "exp/r17_integration/models/dp/batch_runtime.py": "sha256:a670f3cd8bfeadb6a6e0aab5af19d30abe4450d9618a0058eb54ada2065b4e9a",
+      "exp/r17_integration/models/dp/batcher.py": "sha256:23a394e99bc0fdb463666a6af6941d9c7e1b02806d423e963f6a8aecf3200118",
+      "exp/r17_integration/models/dp/config.py": "sha256:ba4122cfa251e051f1b3f7ac34f1ba04bb0aee67a6c875e90909764335f3502d",
+      "exp/r17_integration/models/dp/fixtures.py": "sha256:8966ab74aed62ff3a33d12705f3ef1c411042ab801bc7e1a3ffe2db708d92d38",
+      "exp/r17_integration/models/dp/formal_batch_server.py": "sha256:e376bed3c2af718a9d347468aca7b7dba2a3f24e552e2ea02b6035f7e52aa70a",
+      "exp/r17_integration/models/dp/formal_launch.py": "sha256:812ab687489d41f6aad31e1b42a35fb3f7c33b258ba742e2412c64d2b1c6180e",
+      "exp/r17_integration/models/dp/key_builder.py": "sha256:7f9330a87682c28c3ebcdc5305f3b073d5bf78cc463486208a57f2754c029330",
+      "exp/r17_integration/models/dp/loader.py": "sha256:6d97ee1d862a15fffff2ecdf7f473f6c347ab4c034cf52e5a53e6d9d8aaae23c",
+      "exp/r17_integration/models/dp/manifest.py": "sha256:70dc03e58bca50fa22eb286a21e81790fb00254d7351c96474b081d2b2ff3575",
+      "exp/r17_integration/models/dp/normalization.py": "sha256:5a38bf8755b444da917c5b567e669405d5bb6d58b271b940de48055fae456d06",
+      "exp/r17_integration/models/dp/probe.py": "sha256:2f2faa570e4ab6fe4f360f836d3b117639e37667388348ccaa1ee3c0de47980c",
+      "exp/r17_integration/models/dp/protocols.py": "sha256:04b16028b6574624c079cba34b65d8b30d5891a75b29901d09dab8914d6843ba",
+      "exp/r17_integration/models/dp/provider.py": "sha256:0d72b20cca85178664eb8e51e8a21c15b1e909c5fadf49f706d47ce862688b56",
+      "exp/r17_integration/models/dp/quality.py": "sha256:150938fe6d26d16460bed3c9d1474555b9825dc61f545a016e7cbf43f3f47fe9",
+      "exp/r17_integration/models/dp/request_noise.py": "sha256:cab13e2439c74e4c1844bfc5cb82087fac4ecab4002458eb74a04c2403d1893e",
+      "exp/r17_integration/models/dp/sampler.py": "sha256:277f56f9b184b0602976a8c8f13b94881df495efd7bf8e5002c76f7dfebb7962",
+      "exp/r17_integration/models/dp/serve.py": "sha256:e9e45891cc85c4401026be1df606bdb7c909a33388302bd18341afba4476f65b",
+      "exp/r17_integration/models/dp/staged.py": "sha256:597219bb1e0eb933ec9de711450da56c3ec4cf3bb93402e37a5083ac58563430",
+      "exp/r17_integration/models/dp/trace.py": "sha256:8502c780ac4bf1d6bad9fe616a95d8fd1c23cc7330f94e5d6d579781b707aa3b",
+      "exp/r17_integration/models/dp/wire_policy.py": "sha256:7231f6ee0ee75d5c5495365838d72e57af5c6dc7652eeb6edd1e8a22fced482c",
+      "exp/r17_integration/common/contracts.py": "sha256:db72207d1762c8d904ffe5e9695ab1ec54b4a1ca73402ad4b0e243d5d9bb9737",
+      "exp/r17_integration/common/request_rng.py": "sha256:e6f1e5c13c2bd8f9d2f4aae688ab6639d0400a45be9a5bcb5af95a0ae29f85dd"
+    },
+    "framework_sources": {
+      "exp/r17_integration/common/provider.py": "sha256:60930c2c3c3ba9075db3fb8b8284a2219bcfae86a790cdd317905e7b1f1cdb0a",
+      "exp/r17_integration/common/serving.py": "sha256:86c16a1d967c9da9d75231d3011cdf7618ab38202457cd97b39fb9ee90e1ebd7",
+      "exp/r17_integration/common/config.py": "sha256:c70c5e98cef5d03bdb4d8242081aae85537e72c7284b39942bea41a12bfbd2ec",
+      "exp/r17_integration/common/recipe.py": "sha256:bee9ad04445037eab903a7c7c42c1aa109bdbed0c3afd6f532558435e2ef4ce0",
+      "exp/r17_integration/common/websocket_policy_server.py": "sha256:2b615116603dedb55b115d7954d488a7fe1fba49a8a18273dd2417052b3a7c94",
+      "src/openpi/cache/config.py": "sha256:5020cecac9eff37e379091a7e9defbf5569f3475156b801afc002dee6e1551c8",
+      "src/openpi/cache/types.py": "sha256:46c89e1305dcd5309bad587fe196df4ce14796da78389cfc78ee201547efe630",
+      "src/openpi/cache/storage_types.py": "sha256:4d5aa90c9f159eb65beb95918a1e3f706e42b2bc88259a6a46d2beeb6ce3d4f4",
+      "src/openpi/serving/batching_core.py": "sha256:d39b9e0adb7f0828c28cebacc4dee4e4063a670ad3fbe8eb9939f0b3450341e5",
+      "src/openpi/serving/websocket_policy_server.py": "sha256:e64e61c6bebb627240559043ef3473af5c9ba6bc84b2cf09d4613f5ba172f766"
+    },
+    "model_identity": "sha256:ed3ae8c67f9686d81227ccd5de627391a7b3ef37f7f302ae8a3f8214b7a16229",
+    "weight_identity": "sha256:e460ae1e705b8f9c071f481ac33a8da7ceb56faa8aa9f83752ca3a6736acd269"
+  },
+  "extra_runtime_sources": {
+    "exp/mw_finetune/dp/cuda_graph.py": "sha256:39c2e00b81b70f6f00567ccadeae56847e6451f39c554e05db588e4f787c4084",
+    "exp/r17_integration/models/dp/formal_eval.sh": "sha256:836129dbbe1c0bde49d95b901d27e89e1b888b510e4f034aa1b5674aba7e3c81",
+    "exp/r17_integration/models/dp/formal_python.sh": "sha256:c72e45aacb928cb8472ae6cd00b31e30f0623b4c100c7d203214fc2e18a476f9",
+    "exp/r17_integration/models/dp/samples/dynamic_batch_measure.py": "sha256:dfd7bf44b492edc274b7f07485595e511edd2947c0720c773c78ccfa95243af2",
+    "exp/r17_integration/models/dp/samples/dynamic_batch_persistent.py": "sha256:f9e4ae26303c22db74f5805cbb3edaf9e11da57641f36d094867d3b06492d23c",
+    "exp/r17_integration/models/dp/samples/node_ram_preflight.py": "sha256:1910d028bce89b7bfb1e0cd7f6cd215f6af4734872fbaeafb35bb71469703b38",
+    "exp/r17_integration/models/dp/samples/cap32_completion.py": "sha256:7b56ec04a5d3e3ccb9d448cfc847b7bfd205f2dea1aac703eba5a98c08a304ec",
+    "exp/r17_integration/ops/formal_eval.py": "sha256:270c6164bb8e4bb90d6014a8fec778115e673cc1f775f9723e2c24e98c536229",
+    "exp/r17_integration/ops/formal_eval.sh": "sha256:5f323bd6dae612e80656e503eeda186ee13494bd060c3b193d6c5de1332a5134",
+    "exp/r17_integration/ops/formal_server.py": "sha256:99c0bc00165d116847ba0353e6ea605c2faad940ca1ad522dffd8a8ff793bb43"
+  }
+}

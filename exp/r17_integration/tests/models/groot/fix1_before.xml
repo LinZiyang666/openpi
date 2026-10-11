@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="6" skipped="0" tests="6" time="0.535" timestamp="2026-10-09T13:27:33.557529-05:00" hostname="weilandserver"><testcase classname="exp.r17_integration.tests.models.groot.test_fix_round1" name="test_review_a1_real_p2_runner_worker_wire_reaches_groot" time="0.076"><failure message="KeyError: 'state'">exp/r17_integration/tests/models/groot/test_fix_round1.py:78: in test_review_a1_real_p2_runner_worker_wire_reaches_groot
+    result = runner.run(task, lambda *a: None)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+exp/r17_integration/benchmarks/metaworld.py:128: in run
+    result = super().run(task, report)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+exp/metaworld/episode_runner.py:158: in run
+    return self._run(task, report)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+exp/metaworld/episode_runner.py:197: in _run
+    outcome = self._run_episode_fn(
+exp/r17_integration/benchmarks/metaworld.py:201: in _kernel
+    outcome = kernel.run_episode(observed, checked_infer, prompt, **kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+exp/metaworld/env.py:132: in run_episode
+    result = infer(request)
+             ^^^^^^^^^^^^^^
+exp/r17_integration/benchmarks/metaworld.py:184: in checked_infer
+    result = infer(obs)
+             ^^^^^^^^^^
+exp/r17_integration/tests/models/groot/test_fix_round1.py:56: in infer
+    return self.policy.infer(observation)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+exp/r17_integration/common/serving.py:217: in infer
+    state_view = self.adapter.extract_state_only(clean)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+exp/r17_integration/models/groot/provider.py:157: in extract_state_only
+    state = np.asarray(wire_obs["state"], dtype=np.float32)
+                       ^^^^^^^^^^^^^^^^^
+E   KeyError: 'state'</failure></testcase><testcase classname="exp.r17_integration.tests.models.groot.test_fix_round1" name="test_review_a1_both_wire_key_sets_have_exact_actions" time="0.045"><failure message="KeyError: 'state'">exp/r17_integration/tests/models/groot/test_fix_round1.py:97: in test_review_a1_both_wire_key_sets_have_exact_actions
+    worker = factory().infer({"observation/image": obs["image"], "observation/state": obs["state"], "prompt": obs["prompt"]})
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+exp/r17_integration/common/serving.py:217: in infer
+    state_view = self.adapter.extract_state_only(clean)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+exp/r17_integration/models/groot/provider.py:157: in extract_state_only
+    state = np.asarray(wire_obs["state"], dtype=np.float32)
+                       ^^^^^^^^^^^^^^^^^
+E   KeyError: 'state'</failure></testcase><testcase classname="exp.r17_integration.tests.models.groot.test_fix_round1" name="test_review_a4_k4_teacher_full_actions_compatible_with_reduced_miss[2]" time="0.002"><failure message="ValueError: library sampler_identity differs from served GR00T-MW endpoint">exp/r17_integration/tests/models/groot/test_fix_round1.py:106: in test_review_a4_k4_teacher_full_actions_compatible_with_reduced_miss
+    validate_library(teacher, endpoint)
+exp/r17_integration/models/groot/manifest.py:171: in validate_library
+    raise ValueError(f"library {key} differs from served GR00T-MW endpoint")
+E   ValueError: library sampler_identity differs from served GR00T-MW endpoint</failure></testcase><testcase classname="exp.r17_integration.tests.models.groot.test_fix_round1" name="test_review_a4_k4_teacher_full_actions_compatible_with_reduced_miss[1]" time="0.002"><failure message="ValueError: library sampler_identity differs from served GR00T-MW endpoint">exp/r17_integration/tests/models/groot/test_fix_round1.py:106: in test_review_a4_k4_teacher_full_actions_compatible_with_reduced_miss
+    validate_library(teacher, endpoint)
+exp/r17_integration/models/groot/manifest.py:171: in validate_library
+    raise ValueError(f"library {key} differs from served GR00T-MW endpoint")
+E   ValueError: library sampler_identity differs from served GR00T-MW endpoint</failure></testcase><testcase classname="exp.r17_integration.tests.models.groot.test_fix_round1" name="test_review_a5_metadata_is_real_p2_worker_model_binding" time="0.003"><failure message="KeyError: 'r17_model_spec'">exp/r17_integration/tests/models/groot/test_fix_round1.py:112: in test_review_a5_metadata_is_real_p2_worker_model_binding
+    actual = model_binding(metadata["r17_model_spec"], manifest.benchmark_protocol)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'r17_model_spec'</failure></testcase><testcase classname="exp.r17_integration.tests.models.groot.test_fix_round1" name="test_review_a12_direct_hooks_not_advertised_as_deployed" time="0.002"><failure message="AssertionError: trace&#10;assert 'supported' == 'implemented_unverified'&#10;  &#10;  - implemented_unverified&#10;  + supported">exp/r17_integration/tests/models/groot/test_fix_round1.py:119: in test_review_a12_direct_hooks_not_advertised_as_deployed
+    assert features[hook].status == "implemented_unverified", hook
+E   AssertionError: trace
+E   assert 'supported' == 'implemented_unverified'
+E     
+E     - implemented_unverified
+E     + supported</failure></testcase></testsuite></testsuites>

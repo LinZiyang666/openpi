@@ -1,0 +1,2 @@
+P2 emitted manifest (libero_bridge --output): ACCEPTED, allowed protocols=1, layout replan=5
+P2 released-reference spec (Fast-WAM-only protocol): ValueError: LIBERO benchmark execution parameters differ from DP-T evaluation profile: ['max_steps_by_suite', 'replan_steps', 'seed', 'seed_mode']

@@ -1,0 +1,45 @@
+{
+  "expected": 8000,
+  "h100_lane_untouched": true,
+  "keep_running": true,
+  "missing": 3999,
+  "no_signals_sent": true,
+  "retained": 4001,
+  "run": "/data/mw_finetune/eval/dpc8513584592",
+  "runtime_archive_unchanged": true,
+  "settings_unchanged": [
+    "checkpoint",
+    "replicas",
+    "replica_startup_width",
+    "workers",
+    "worker_memory_mib",
+    "worker_vram_mib",
+    "worker_max_episodes",
+    "worker_restart_limit",
+    "dp_batching",
+    "mps",
+    "cache_study",
+    "cache_control",
+    "cache_control_runtime"
+  ],
+  "source": "/data/mw_finetune/eval/csl10d",
+  "source_failure": {
+    "gpu_admitted": false,
+    "last_recycle": {
+      "exit_code": 75,
+      "generation": 32,
+      "index": 27,
+      "pid": 2399925,
+      "signal": null
+    },
+    "ram_admitted": true,
+    "reason": "worker_restart_resource_timeout",
+    "worker_failures": []
+  },
+  "source_readonly": true,
+  "source_receipt_sha256": "05ae7d672cffd241a463016e8a57bee4d304da2300f6fa28b93c349d2f63d94f",
+  "worker_changed_files": [
+    "exp/r17_integration/ops/formal_workers.py",
+    "exp/r17_integration/ops/worker_gpu.py"
+  ]
+}

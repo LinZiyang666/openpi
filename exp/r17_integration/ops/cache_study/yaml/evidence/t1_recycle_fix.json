@@ -1,0 +1,14 @@
+{
+  "actual_wrapper_proof": "/home/weiland/projects/openpi/exp/r17_integration/qualification/preflight/timan1_recycle_20261010/T1_WRAPPER_CPU_PROOF.json",
+  "cpu_only": true,
+  "cpu_test_log": "/home/weiland/projects/openpi/exp/r17_integration/qualification/preflight/cosmos_capacity_20261010/CAPACITY_TESTS.log",
+  "files": {
+    "exp/r17_integration/ops/cache_capacity.py": "beafad40b42ef05cba2c659eaf37ee6e2b04a36fc19f99bf905b1d779350ca40",
+    "exp/r17_integration/ops/formal_workers.py": "4714c13965dd12218160a20e5ea7ae33ac5dcf54e93b8a946b48a4ff4ead79af",
+    "exp/r17_integration/ops/timan1_workers.py": "75c22e2c3680ba9ced7eb0ecbd939c64fde98312e4d697a404f0959fe4f3e611"
+  },
+  "restart_limit": 0,
+  "status": "PASS",
+  "worker_failures": 0,
+  "wrapped_recycles": 4
+}

@@ -1,0 +1,36 @@
+{
+  "status": "PASS",
+  "cpu_only": true,
+  "dispatch_started": false,
+  "campaign": "/data/mw_finetune/eval/mps_dp_libero_1010_164432_2c1f7e32",
+  "preflight": {
+    "cpu_only": true,
+    "episodes": 32,
+    "memory_admissible": false,
+    "model_identity": "sha256:bd1dd4c1b2e1bfbb4c660ed8ec0a50362f461dc8a631c16edfa9d3097879d0c5",
+    "ports": [
+      23400,
+      23401,
+      23402,
+      23419
+    ],
+    "protocol": "87e3a7dce0d452269383ea20c144848987c393df7bde4c22628abf8a084f21bf",
+    "replicas": 2,
+    "status": "PASS",
+    "worker_nodes": [
+      "timan107"
+    ]
+  },
+  "sealed_yaml_count": 16,
+  "cache_study_digest": "4d133772324866b76cc8907eb0eee9ba321c806c7e10faf8da1d6eb99ba97154",
+  "worker_ram_admitted": false,
+  "worker_ram_reason": "node worker memory admission refused: requested 32 workers at 6144 MiB each; available after fleet reservations/headroom 0 MiB; reduce --workers or use another node",
+  "replicas": 2,
+  "max_batch": 8,
+  "batch_window_ms": 5,
+  "mps": true,
+  "driver_mode": "group-commit",
+  "workers": 32,
+  "worker_memory_mib": 6144,
+  "gpu_executed": false
+}

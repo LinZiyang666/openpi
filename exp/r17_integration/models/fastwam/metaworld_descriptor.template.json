@@ -1,0 +1,12 @@
+{
+  "wan_root": "/data/xwam/wan22_5b",
+  "base": "/data/mw_finetune/models/fastwam_libero",
+  "expected_digests": {},
+  "diagnostic": true,
+  "benchmark": "metaworld",
+  "checkpoint": "<COORDINATOR_IMMUTABLE_MT50_EXPORT>",
+  "benchmark_protocols": [
+    "fake_fastwam_metaworld_fixed_observations_v1"
+  ],
+  "benchmark_specs": []
+}

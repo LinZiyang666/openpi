@@ -1,0 +1,58 @@
+{
+  "status": "PASS",
+  "device": "cpu",
+  "gpu_model_loads": 0,
+  "checks": 6,
+  "receipt_sha256": "f42160f8d843d2aef227f2ba01d367563b0b7444c79804dd637a228fe935ef5f",
+  "rows": [
+    {
+      "k": 2,
+      "max_abs_diff": 0.07767835076159457,
+      "mean_abs_diff_all_60": 0.014633875234252419,
+      "grids": {
+        "compiled_grid_evidence": "source plus execution of original CPU loop; no compiled graph instrumentation",
+        "cpu_native_loop_exact": true,
+        "dt_float32": -0.5,
+        "r16_staged": [
+          1.0,
+          0.5
+        ],
+        "stock": [
+          1.0,
+          0.5
+        ]
+      },
+      "limits": {
+        "max_abs_diff": 0.08,
+        "mean_abs_diff": 0.02,
+        "rtol": 0,
+        "scope": "Q.pi05_mw_fix2_b3a3_v1.three_saved_observations.decision_seed_reach_init0_seq0_to2",
+        "quality_claim": false
+      }
+    },
+    {
+      "k": 1,
+      "max_abs_diff": 0.12213263194465185,
+      "mean_abs_diff_all_60": 0.020499740996412243,
+      "grids": {
+        "compiled_grid_evidence": "source plus execution of original CPU loop; no compiled graph instrumentation",
+        "cpu_native_loop_exact": true,
+        "dt_float32": -1.0,
+        "r16_staged": [
+          1.0
+        ],
+        "stock": [
+          1.0
+        ]
+      },
+      "limits": {
+        "max_abs_diff": 0.13,
+        "mean_abs_diff": 0.03,
+        "rtol": 0,
+        "scope": "Q.pi05_mw_fix2_b3a3_v1.three_saved_observations.decision_seed_reach_init0_seq0_to2",
+        "quality_claim": false
+      }
+    }
+  ],
+  "scope": "post-run check of recorded real GPU rows and sealed fixture bounds"
+}

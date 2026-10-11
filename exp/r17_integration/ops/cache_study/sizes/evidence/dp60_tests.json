@@ -1,0 +1,18 @@
+{
+  "checks": [
+    "RAM per-worker maxima and recycling slots",
+    "fixed8GiB RAM headroom",
+    "reservation binding and tamper rejection",
+    "CPU preparation/deferred admission",
+    "strict predecessor PASS wait and closure gates",
+    "frozen controls and node routing",
+    "T1 GPU3 restrictions and wrapped recycling",
+    "immutable releases and native A episode plans"
+  ],
+  "cpu_only": true,
+  "log": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/evidence/dp60_tests.log",
+  "sha256": "ef44ff56087a5e13b08fc9ef71d703feaef1a15e1cd7ec4ad36624500e81aaeb",
+  "status": "PASS",
+  "subtests": 29,
+  "tests": 182
+}

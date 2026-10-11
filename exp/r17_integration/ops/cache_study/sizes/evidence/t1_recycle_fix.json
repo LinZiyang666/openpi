@@ -1,0 +1,15 @@
+{
+  "actual_wrapper_proof": "/home/weiland/projects/openpi/exp/r17_integration/qualification/preflight/timan1_recycle_20261010/T1_WRAPPER_CPU_PROOF.json",
+  "cpu_only": true,
+  "cpu_test_log": "/home/weiland/projects/openpi/exp/r17_integration/qualification/preflight/cosmos_capacity_20261010/CPU_TESTS_FINAL.log",
+  "files": {
+    "exp/r17_integration/ops/cache_capacity.py": "beafad40b42ef05cba2c659eaf37ee6e2b04a36fc19f99bf905b1d779350ca40",
+    "exp/r17_integration/ops/formal_workers.py": "eaa4b8ca2989675ef600cefe3b97cb2e45e85cec90d3f97d0a68681daf28207d",
+    "exp/r17_integration/ops/timan1_workers.py": "3fdccf8365d98060b9e757e6d4f667eaf205eec070bb0ea68c941f87b3814e48"
+  },
+  "restart_limit": 0,
+  "status": "PASS",
+  "worker_failures": 0,
+  "wrapped_recycles": 4,
+  "coordinator_refresh": "22:5x pins = current files (P6 server-side turn re-applied live-fleet edits at 22:42)"
+}

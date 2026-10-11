@@ -1,0 +1,128 @@
+"""Local/H100 batched resident entry; P1 factory/S07, P6 loader/receipts.
+
+Pure-inference Fast-WAM LIBERO only. Library campaigns use the P6-owned entry.
+"""
+from __future__ import annotations
+
+import argparse
+from dataclasses import asdict
+import json
+import os
+from pathlib import Path
+import signal
+import threading
+import time
+
+
+def serve(campaign,port,directory):
+    if campaign['model']!='fastwam' or campaign['domain']!='libero' or campaign.get('library'):
+        raise ValueError('batched resident supports pure-inference fastwam_libero only')
+    config_doc=campaign.get('fastwam_batching')
+    if not config_doc or config_doc['max_batch']<=1:
+        pass
+    from exp.r17_integration.common.config import load_cache_config,build_shared_storage
+    from exp.r17_integration.common.serving import make_connection_factory,make_bundle_validator
+    from exp.r17_integration.common.websocket_policy_server import WebsocketPolicyServer
+    from exp.r17_integration.qualification.model_runtime import load
+    from exp.r17_integration.ops.formal_process import write_json
+    from .batch_runtime import create_runtime,BatchConfig
+    from .batcher import FastWAMBatchedAdapter
+    from .serve import serve_metadata
+    from .formal_batching import validate_runtime
+    config=BatchConfig(config_doc['max_batch'],config_doc['batch_wait_ms'],config_doc['numerics_policy'])
+    if config.metadata()!=config_doc:
+        pass
+    directory=Path(directory)
+    directory.mkdir(parents=True,exist_ok=True)
+    # Same closed-run transfer contract as the ordinary resident entry.
+    if not (directory.parent/'manifest.json').exists():
+        write_json(directory.parent/'manifest.json',campaign)
+    started=time.monotonic()
+    treatment = validate_runtime(campaign) if campaign.get('fastwam_batch_treatment') else None
+    if treatment:
+        for stage in (1,2,3):
+            if os.environ.get(f'BATCHING_STAGE{stage}_WORKERS','1') != '1':
+                raise ValueError('formal batch treatment requires one worker per stage')
+        if os.environ.get('OPENPI_DISABLE_STAGE_STREAMS') == '1':
+            raise ValueError('formal batch treatment requires stage streams')
+    import torch
+    if treatment:
+        free,total=torch.cuda.mem_get_info(campaign['device'])
+        budget=campaign['memory_budget_gib']*2**30/campaign['replicas']
+        if free < budget:
+            raise ValueError('insufficient free VRAM; existing residents are untouched')
+        torch.cuda.set_per_process_memory_fraction(budget/total,campaign['device'])
+        if torch.cuda.get_device_name(campaign['device']) != treatment['gpu_family']:
+            pass
+    adapter,original_provider=load(dict(campaign,benchmark_spec=str(Path(campaign['assets'])/'benchmark.json')),campaign['device'])
+    total=torch.cuda.get_device_properties(campaign['device']).total_memory
+    torch.cuda.set_per_process_memory_fraction(campaign['memory_budget_gib']*2**30/campaign['replicas']/total,campaign['device'])
+    qualification = None
+    if campaign.get('batch_qualification_observations'):
+        from .formal_qualification import qualify
+        qualification=qualify(adapter,campaign,directory)
+    runtime=create_runtime(adapter,config.max_batch,config.batch_wait_ms,directory/'batching.jsonl')
+    try:
+        provider=original_provider
+        cache_config=load_cache_config(Path(campaign['assets'])/'full.yaml')
+        if cache_config.enabled or cache_config.checkpoints or cache_config.recipe.enabled:
+            raise ValueError('formal batch campaign requires cache/checkpoints/recipe disabled')
+        storage=build_shared_storage(cache_config)
+        # Preserve the sealed provider/YAML identity for worker hot-switches.
+        # The existing factory accepts a connection-local adapter constructor.
+        base=runtime.wrap_connection_factory(make_connection_factory(provider,cache_config,storage,
+            adapter_factory=lambda:FastWAMBatchedAdapter(provider.load_adapter(),runtime.core)))
+        evidence_lock=threading.Lock()
+        def factory(*args,**kwargs):
+            core=base(*args,**kwargs)
+            original=core.infer
+            def infer(obs):
+                begin=time.monotonic()
+                result=original(obs)
+                elapsed=time.monotonic()-begin
+                hit=result['__hit_meta__']
+                row=dict(replica_port=port,task_uid=core._episode.get('task_uid'),task_name=core._episode.get('task_name'),
+                    decision_seq=hit['decision_seq'],source=hit['source'],nfe=hit['actual_nfe'],elapsed_seconds=elapsed,
+                    service_seconds=elapsed,queue_seconds=None,time=time.time(),batching=hit['batching'],
+                    timing_scope='end_to_end_including_stage_queue_wait; service_seconds_is_not_kernel_time')
+                if treatment:
+                    row['fastwam_batch_treatment_identity'] = campaign['fastwam_batch_treatment_identity']
+                with evidence_lock,(directory/'serving.jsonl').open('a') as handle:
+                    handle.write(json.dumps(row,sort_keys=True,allow_nan=False)+'\n')
+                return result
+            core.infer=infer
+            return core
+        metadata=serve_metadata(adapter)
+        active=provider.sampler_for_steps(cache_config.adapter_binding['num_steps'])
+        metadata.update(formal_pure_inference=True,cache_enabled=False,debug_capture=False,cuda_graph=False,
+            resident_execution='S07 cross-connection native batches; one worker per stage',replica_port=port,
+            execution_sampler=asdict(active),execution_commit_horizon=cache_config.adapter_binding['commit_horizon'])
+        if treatment:
+            metadata.update(fastwam_batch_treatment_identity=campaign['fastwam_batch_treatment_identity'],
+                            gpu_family=torch.cuda.get_device_name(campaign['device']))
+        if qualification:
+            metadata['batching_self_check'] = qualification
+        server=WebsocketPolicyServer(factory(),host='0.0.0.0',port=port,metadata=metadata,concurrent=True,
+            connection_policy_factory=factory,bundle_validator=make_bundle_validator(provider),
+            ready_callback=lambda:write_json(directory/'ready.json',dict(metadata,pid=os.getpid(),
+                elapsed_load_seconds=time.monotonic()-started)))
+        signal.signal(signal.SIGTERM,lambda *unused:server.request_stop())
+        server.serve_forever(stop_on_request=True)
+    finally:
+        runtime.close()
+        write_json(directory/'closed.json',dict(status='CLOSED',pid=os.getpid(),
+            elapsed_seconds=time.monotonic()-started,peak_allocated_mib=torch.cuda.max_memory_allocated()/2**20,
+            peak_reserved_mib=torch.cuda.max_memory_reserved()/2**20,batching=config.metadata()))
+
+
+def main():
+    p=argparse.ArgumentParser(description=__doc__)
+    p.add_argument('--campaign',required=True)
+    p.add_argument('--port',required=True,type=int)
+    p.add_argument('--directory',required=True)
+    a=p.parse_args()
+    serve(json.loads(Path(a.campaign).read_text()),a.port,a.directory)
+
+
+if __name__=='__main__':
+    main()

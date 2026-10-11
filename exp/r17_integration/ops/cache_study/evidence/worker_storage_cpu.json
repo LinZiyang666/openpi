@@ -1,0 +1,53 @@
+{
+  "gpu_executed": false,
+  "production_deletions": 0,
+  "receipts": [
+    {
+      "cleanup": {
+        "timan107": {
+          "archive_sha256": "15d2fd43e21a56d153e439430588d4b1c5f7689c3524e6fd86437734c431255b",
+          "archive_size_bytes": 582,
+          "bytes_removed": 1334,
+          "files_removed": 6,
+          "free_bytes_after": 748911177728,
+          "free_bytes_before": 748911153152,
+          "local_archive_retained": "/tmp/p6_storage_finalstable/test_automatic_cleanup_only_af0/local/timan107.tar",
+          "manifest_digest": "f7cd32ac6c538dce756145404bbbcbcdbfea5841b781255029dd7091db50c977",
+          "removed_paths": [
+            "/tmp/p6_storage_finalstable/test_automatic_cleanup_only_af0/runs/closed_timan107",
+            "/tmp/p6_storage_finalstable/test_automatic_cleanup_only_af0/runs/closed_timan107.tar",
+            "/tmp/p6_storage_finalstable/test_automatic_cleanup_only_af0/runs/closed_timan107.transfer.json"
+          ],
+          "status": "REMOVED"
+        }
+      },
+      "sha256": "5fdae311e372ebef772b9892c9c65738eba68167c764191410b5ce4e6a6fbd45",
+      "source": "/tmp/p6_storage_finalstable/test_automatic_cleanup_only_af0/local/RECEIPT.json",
+      "synthetic": true
+    },
+    {
+      "cleanup": {
+        "timan107": {
+          "archive_sha256": "15d2fd43e21a56d153e439430588d4b1c5f7689c3524e6fd86437734c431255b",
+          "archive_size_bytes": 582,
+          "bytes_removed": 1334,
+          "files_removed": 6,
+          "free_bytes_after": 748911124480,
+          "free_bytes_before": 748911099904,
+          "local_archive_retained": "/tmp/p6_storage_finalstable/test_automatic_cleanup_only_af1/local/timan107.tar",
+          "manifest_digest": "f7cd32ac6c538dce756145404bbbcbcdbfea5841b781255029dd7091db50c977",
+          "removed_paths": [
+            "/tmp/p6_storage_finalstable/test_automatic_cleanup_only_af1/runs/closed_timan107",
+            "/tmp/p6_storage_finalstable/test_automatic_cleanup_only_af1/runs/closed_timan107.tar",
+            "/tmp/p6_storage_finalstable/test_automatic_cleanup_only_af1/runs/closed_timan107.transfer.json"
+          ],
+          "status": "REMOVED"
+        }
+      },
+      "sha256": "01f344b34a71ba55b9778c1a811128f3350fdd6a22e08b421dd4249f9fdc0e1e",
+      "source": "/tmp/p6_storage_finalstable/test_automatic_cleanup_only_af1/local/RECEIPT.json",
+      "synthetic": true
+    }
+  ],
+  "schema": "r17.worker_storage_cpu_evidence.v1"
+}

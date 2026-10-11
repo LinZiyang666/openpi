@@ -1,0 +1,391 @@
+{
+  "baseline_sample_time": 1791687496.3804913,
+  "before_accepted_per_min": 17.8,
+  "before_window_seconds": 300,
+  "external_workers": 0,
+  "gpu": {
+    "admitted": false,
+    "assignments": [
+      {
+        "device": 0,
+        "index": 0,
+        "uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9",
+        "worker_vram_mib": 576
+      },
+      {
+        "device": 0,
+        "index": 1,
+        "uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9",
+        "worker_vram_mib": 576
+      },
+      {
+        "device": 0,
+        "index": 2,
+        "uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9",
+        "worker_vram_mib": 576
+      },
+      {
+        "device": 0,
+        "index": 3,
+        "uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9",
+        "worker_vram_mib": 576
+      },
+      {
+        "device": 0,
+        "index": 4,
+        "uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9",
+        "worker_vram_mib": 576
+      },
+      {
+        "device": 0,
+        "index": 5,
+        "uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9",
+        "worker_vram_mib": 576
+      },
+      {
+        "device": 0,
+        "index": 6,
+        "uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9",
+        "worker_vram_mib": 576
+      },
+      {
+        "device": 0,
+        "index": 7,
+        "uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9",
+        "worker_vram_mib": 576
+      },
+      {
+        "device": 0,
+        "index": 8,
+        "uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9",
+        "worker_vram_mib": 576
+      },
+      {
+        "device": 0,
+        "index": 9,
+        "uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9",
+        "worker_vram_mib": 576
+      },
+      {
+        "device": 0,
+        "index": 10,
+        "uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9",
+        "worker_vram_mib": 576
+      },
+      {
+        "device": 0,
+        "index": 11,
+        "uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9",
+        "worker_vram_mib": 576
+      },
+      {
+        "device": 0,
+        "index": 12,
+        "uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9",
+        "worker_vram_mib": 576
+      },
+      {
+        "device": 0,
+        "index": 13,
+        "uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9",
+        "worker_vram_mib": 576
+      },
+      {
+        "device": 0,
+        "index": 14,
+        "uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9",
+        "worker_vram_mib": 576
+      },
+      {
+        "device": 0,
+        "index": 15,
+        "uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9",
+        "worker_vram_mib": 576
+      },
+      {
+        "device": 0,
+        "index": 16,
+        "uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9",
+        "worker_vram_mib": 576
+      },
+      {
+        "device": 0,
+        "index": 17,
+        "uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9",
+        "worker_vram_mib": 576
+      },
+      {
+        "device": 0,
+        "index": 18,
+        "uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9",
+        "worker_vram_mib": 576
+      },
+      {
+        "device": 0,
+        "index": 19,
+        "uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9",
+        "worker_vram_mib": 576
+      },
+      {
+        "device": 0,
+        "index": 20,
+        "uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9",
+        "worker_vram_mib": 576
+      },
+      {
+        "device": 0,
+        "index": 21,
+        "uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9",
+        "worker_vram_mib": 576
+      },
+      {
+        "device": 0,
+        "index": 22,
+        "uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9",
+        "worker_vram_mib": 576
+      },
+      {
+        "device": 0,
+        "index": 23,
+        "uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9",
+        "worker_vram_mib": 576
+      },
+      {
+        "device": 0,
+        "index": 24,
+        "uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9",
+        "worker_vram_mib": 576
+      },
+      {
+        "device": 0,
+        "index": 25,
+        "uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9",
+        "worker_vram_mib": 576
+      },
+      {
+        "device": 0,
+        "index": 26,
+        "uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9",
+        "worker_vram_mib": 576
+      },
+      {
+        "device": 0,
+        "index": 27,
+        "uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9",
+        "worker_vram_mib": 576
+      },
+      {
+        "device": 0,
+        "index": 28,
+        "uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9",
+        "worker_vram_mib": 576
+      },
+      {
+        "device": 0,
+        "index": 29,
+        "uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9",
+        "worker_vram_mib": 576
+      },
+      {
+        "device": 0,
+        "index": 30,
+        "uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9",
+        "worker_vram_mib": 576
+      },
+      {
+        "device": 0,
+        "index": 31,
+        "uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9",
+        "worker_vram_mib": 576
+      },
+      {
+        "device": 0,
+        "index": 32,
+        "uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9",
+        "worker_vram_mib": 576
+      }
+    ],
+    "cards": [
+      {
+        "device": 0,
+        "headroom_mib": 13106,
+        "name": "NVIDIA GeForce RTX 4090",
+        "pending_mib": 12632,
+        "processes": [
+          {
+            "pid": 1070095,
+            "system_display": false,
+            "uid": 1000,
+            "used_mib": 280
+          },
+          {
+            "pid": 1080632,
+            "system_display": false,
+            "uid": 1000,
+            "used_mib": 434
+          },
+          {
+            "pid": 1081974,
+            "system_display": false,
+            "uid": 1000,
+            "used_mib": 434
+          },
+          {
+            "pid": 1090808,
+            "system_display": false,
+            "uid": 1000,
+            "used_mib": 434
+          },
+          {
+            "pid": 1096959,
+            "system_display": false,
+            "uid": 1000,
+            "used_mib": 434
+          },
+          {
+            "pid": 1097451,
+            "system_display": false,
+            "uid": 1000,
+            "used_mib": 434
+          },
+          {
+            "pid": 1101870,
+            "system_display": false,
+            "uid": 1000,
+            "used_mib": 434
+          },
+          {
+            "pid": 1102320,
+            "system_display": false,
+            "uid": 1000,
+            "used_mib": 434
+          },
+          {
+            "pid": 1104965,
+            "system_display": false,
+            "uid": 1000,
+            "used_mib": 434
+          }
+        ],
+        "server_headroom_mib": 8192,
+        "total_mib": 49140,
+        "usable": true,
+        "used_mib": 3846,
+        "uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9"
+      }
+    ],
+    "excluded_devices": [],
+    "observed": [
+      {
+        "device": 0,
+        "name": "NVIDIA GeForce RTX 4090",
+        "processes": [
+          {
+            "pid": 1070095,
+            "system_display": false,
+            "uid": 1000,
+            "used_mib": 280
+          },
+          {
+            "pid": 1080632,
+            "system_display": false,
+            "uid": 1000,
+            "used_mib": 434
+          },
+          {
+            "pid": 1081974,
+            "system_display": false,
+            "uid": 1000,
+            "used_mib": 434
+          },
+          {
+            "pid": 1090808,
+            "system_display": false,
+            "uid": 1000,
+            "used_mib": 434
+          },
+          {
+            "pid": 1096959,
+            "system_display": false,
+            "uid": 1000,
+            "used_mib": 434
+          },
+          {
+            "pid": 1097451,
+            "system_display": false,
+            "uid": 1000,
+            "used_mib": 434
+          },
+          {
+            "pid": 1101870,
+            "system_display": false,
+            "uid": 1000,
+            "used_mib": 434
+          },
+          {
+            "pid": 1102320,
+            "system_display": false,
+            "uid": 1000,
+            "used_mib": 434
+          },
+          {
+            "pid": 1104965,
+            "system_display": false,
+            "uid": 1000,
+            "used_mib": 434
+          }
+        ],
+        "total_mib": 49140,
+        "usable": true,
+        "used_mib": 3846,
+        "uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9"
+      }
+    ],
+    "other_fleets": [
+      {
+        "device": 0,
+        "observed_mib": 3752,
+        "pending_mib": 12632,
+        "reservation_mib": 16384,
+        "run": "fastwamc5481985003_local",
+        "workers": 16
+      }
+    ],
+    "reason": "EGL VRAM admission refused: 60 workers requested, 33 fit; includes global GPU use, live fleet reservations, 10%/512MiB headroom and server growth reserve",
+    "requested_workers": 60,
+    "worker_vram_mib": 576
+  },
+  "gpu_fit": 33,
+  "local_server_growth_mib": 8192,
+  "other_fleets_untouched": true,
+  "ram": {
+    "admitted": false,
+    "available_bytes": 221959729152,
+    "headroom_bytes": 34359738368,
+    "other_fleets": [
+      {
+        "own_fleet": false,
+        "pending_bytes": 27036856320,
+        "receipt": "/data/mw_finetune/qualification/local_workers/runs/fastwamc5481985003_local/receipt.json",
+        "rss_bytes": 41682620416,
+        "workers": 16
+      }
+    ],
+    "other_pending_bytes": 27036856320,
+    "reason": "node worker memory admission refused: requested 60 workers at 4096 MiB each; available after fleet reservations/headroom 153124 MiB; reduce --workers or use another node",
+    "requested_bytes": 257698037760,
+    "total_bytes": 270315008000,
+    "worker_memory_mib": 4096
+  },
+  "ram_fit": 37,
+  "replicas": 4,
+  "requested_workers": 60,
+  "schema": "r17.dp_capacity_selection.v1",
+  "selected_workers": 33,
+  "source": "/data/mw_finetune/eval/dpc3464789869",
+  "source_accepted": 1734,
+  "source_errors": 0,
+  "time": 1791687809.3397844,
+  "worker_memory_mib": 4096,
+  "worker_vram_mib": 576
+}

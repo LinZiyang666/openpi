@@ -1,0 +1,9 @@
+{
+  "checkpoint": "/data/mw_finetune/dp/checkpoints/libero",
+  "domain": "libero",
+  "device": "cpu",
+  "diagnostic": true,
+  "expected_weight_sha256": "sha256:3ab4fb34d819bf1bb3e20b78dc2e41560ef47fe663213b17120d23ef2cf78103",
+  "expected_norm_identity": "sha256:c0a8814c4875289345598c512b32e1ff2c6bda613f05257779b15ff818d24451",
+  "expected_model_identity": "sha256:4d00494588c4b1581aee473799c28fdb3c74bf42ef86105af1749609bc78ca20"
+}

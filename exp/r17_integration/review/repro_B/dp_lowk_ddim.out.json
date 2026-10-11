@@ -1,0 +1,72 @@
+{
+ "strict": 0,
+ "frames": 48,
+ "ddim_leading_K10": {
+  "grid": [
+   90,
+   80,
+   70,
+   60,
+   50,
+   40,
+   30,
+   20,
+   10,
+   0
+  ],
+  "mse_vs_dataset_first5": 0.23917555809020996,
+  "mse_vs_K100_first5": 0.018239708617329597,
+  "internal_clip_fraction": 0.115699402987957
+ },
+ "ddim_leading_K2": {
+  "grid": [
+   50,
+   0
+  ],
+  "mse_vs_dataset_first5": 0.2345253825187683,
+  "mse_vs_K100_first5": 0.025590768083930016,
+  "internal_clip_fraction": 0.0734747052192688
+ },
+ "ddim_leading_K1": {
+  "grid": [
+   0
+  ],
+  "mse_vs_dataset_first5": 1.214361548423767,
+  "mse_vs_K100_first5": 1.110944151878357,
+  "internal_clip_fraction": 0.2864583432674408
+ },
+ "ddim_trailing_K10": {
+  "grid": [
+   99,
+   89,
+   79,
+   69,
+   59,
+   49,
+   39,
+   29,
+   19,
+   9
+  ],
+  "mse_vs_dataset_first5": 0.2399001121520996,
+  "mse_vs_K100_first5": 0.018993597477674484,
+  "internal_clip_fraction": 0.1004464253783226
+ },
+ "ddim_trailing_K2": {
+  "grid": [
+   99,
+   49
+  ],
+  "mse_vs_dataset_first5": 0.22804038226604462,
+  "mse_vs_K100_first5": 0.020039798691868782,
+  "internal_clip_fraction": 0.0565476194024086
+ },
+ "ddim_trailing_K1": {
+  "grid": [
+   99
+  ],
+  "mse_vs_dataset_first5": 1.948036551475525,
+  "mse_vs_K100_first5": 1.767129898071289,
+  "internal_clip_fraction": 0.9834449291229248
+ }
+}

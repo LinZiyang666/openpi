@@ -1,0 +1,119 @@
+{
+  "schema": "r17.p4.bundle_load_receipt.v2",
+  "device": "cpu",
+  "gpu_executed": false,
+  "exit_code": 0,
+  "passed": 18,
+  "skipped": 0,
+  "checks": [
+    {
+      "check": "actual_pinned_loader",
+      "domain": "libero",
+      "status": "pass",
+      "model_identity": "2e2a7217b28e71ea10c30a64401ce470916cc9c533f636348e699f033591641c"
+    },
+    {
+      "check": "bound_yaml_actual_resident",
+      "domain": "libero",
+      "K": 1,
+      "status": "pass"
+    },
+    {
+      "check": "bound_yaml_actual_resident",
+      "domain": "libero",
+      "K": 2,
+      "status": "pass"
+    },
+    {
+      "check": "bound_yaml_actual_resident",
+      "domain": "libero",
+      "K": 4,
+      "status": "pass"
+    },
+    {
+      "check": "bound_yaml_actual_resident",
+      "domain": "libero",
+      "K": 10,
+      "status": "pass"
+    },
+    {
+      "check": "bound_yaml_actual_resident",
+      "domain": "libero",
+      "K": 100,
+      "status": "pass"
+    },
+    {
+      "check": "K1_without_study_rejected",
+      "domain": "libero",
+      "status": "pass",
+      "rejection": "DP K1 is lossy; only an explicitly labelled plain step-reduction study is allowed"
+    },
+    {
+      "check": "K1_cache_MISS_rejected",
+      "domain": "libero",
+      "status": "pass",
+      "rejection": "DP K1 study is plain step reduction only; cache MISS/recipe/teacher roles are forbidden"
+    },
+    {
+      "check": "K1_teacher_K2_MISS_rejected",
+      "domain": "libero",
+      "status": "pass",
+      "rejection": "DP K1 cannot be a library/teacher sampler"
+    },
+    {
+      "check": "actual_pinned_loader",
+      "domain": "metaworld",
+      "status": "pass",
+      "model_identity": "4dc993fbcdc2e23d4bc826416ad6f3ab3b44a449959e0ae0adea98e6189669db"
+    },
+    {
+      "check": "bound_yaml_actual_resident",
+      "domain": "metaworld",
+      "K": 1,
+      "status": "pass"
+    },
+    {
+      "check": "bound_yaml_actual_resident",
+      "domain": "metaworld",
+      "K": 2,
+      "status": "pass"
+    },
+    {
+      "check": "bound_yaml_actual_resident",
+      "domain": "metaworld",
+      "K": 4,
+      "status": "pass"
+    },
+    {
+      "check": "bound_yaml_actual_resident",
+      "domain": "metaworld",
+      "K": 10,
+      "status": "pass"
+    },
+    {
+      "check": "bound_yaml_actual_resident",
+      "domain": "metaworld",
+      "K": 100,
+      "status": "pass"
+    },
+    {
+      "check": "K1_without_study_rejected",
+      "domain": "metaworld",
+      "status": "pass",
+      "rejection": "DP K1 is lossy; only an explicitly labelled plain step-reduction study is allowed"
+    },
+    {
+      "check": "K1_cache_MISS_rejected",
+      "domain": "metaworld",
+      "status": "pass",
+      "rejection": "DP K1 study is plain step reduction only; cache MISS/recipe/teacher roles are forbidden"
+    },
+    {
+      "check": "K1_teacher_K2_MISS_rejected",
+      "domain": "metaworld",
+      "status": "pass",
+      "rejection": "DP K1 cannot be a library/teacher sampler"
+    }
+  ],
+  "elapsed_seconds": 16.067654911999853
+}

@@ -1,0 +1,1461 @@
+{
+  "schema": "r17_integration_source_snapshot.v1",
+  "review_date": "2026-10-09",
+  "branch": "Ziyang",
+  "scope": "Cited source code/document files and CPU XML; local model tensors not loaded; final review content snapshot",
+  "sources": [
+    {
+      "path": "/data/mw_finetune/models/fastwam_libero/config.json",
+      "sha256": "e5682b69d27af9a884fe7279e1e9f18855495bdb83a0372c75d59fc21a5f4eb2",
+      "bytes": 2966,
+      "line_count": 123,
+      "cited_lines": {
+        "3": "    \"input_features\": {",
+        "42": "    \"action_dim\": 7,",
+        "47": "    \"image_size\": [",
+        "111": "    \"normalization_mapping\": {"
+      }
+    },
+    {
+      "path": "/data/mw_finetune/vendor/lerobot/src/lerobot/policies/fastwam/configuration_fastwam.py",
+      "sha256": "ca94512bf9a2fd3b988b686e80d777901b8b4bd732b23409db4dbe4ea07bcd9e",
+      "bytes": 18793,
+      "line_count": 427,
+      "cited_lines": {
+        "216": "    num_inference_steps: int = 10"
+      }
+    },
+    {
+      "path": "/data/mw_finetune/vendor/lerobot/src/lerobot/policies/fastwam/modeling_fastwam.py",
+      "sha256": "9cd54f5443cfefb67190d02418a619a2e4562d1a36e488f3ca6ebd1e36f8de09",
+      "bytes": 20948,
+      "line_count": 445,
+      "cited_lines": {
+        "310": "def _batch_to_infer_kwargs(batch: dict[str, Tensor], config: FastWAMConfig) -> dict[str, Any]:",
+        "401": "def _stack_video_from_images(batch: dict[str, Tensor], config: FastWAMConfig) -> Tensor:"
+      }
+    },
+    {
+      "path": "/data/mw_finetune/vendor/lerobot/src/lerobot/policies/fastwam/processor_fastwam.py",
+      "sha256": "b229c5e10a81dc087c0828e8457c6b766609f0261a426c92125c8857e8e2c566",
+      "bytes": 4958,
+      "line_count": 116,
+      "cited_lines": {
+        "43": "    def action(self, action: PolicyAction) -> PolicyAction:",
+        "108": "    output_steps: list[ProcessorStep] = ["
+      }
+    },
+    {
+      "path": "/data/mw_finetune/vendor/lerobot/src/lerobot/policies/fastwam/wan/modular.py",
+      "sha256": "4ae4daacee42945aa66c3a19ed418960646af39a4488d6074a71039e8ce93056",
+      "bytes": 82974,
+      "line_count": 1945,
+      "cited_lines": {
+        "1799": "        num_inference_steps: int = 20,",
+        "1810": "        input_image, _, _ = self._normalize_infer_input_image(input_image)",
+        "1815": "        first_frame_latents = self._encode_input_image_latents_tensor(input_image=input_image, tiled=tiled)",
+        "1825": "        video_pre = self.video_expert.pre_dit(",
+        "1860": "        video_kv_cache = video_prefiller(",
+        "1870": "        if compile_action_infer:",
+        "1879": "        infer_timesteps_action, infer_deltas_action = self.infer_action_scheduler.build_inference_schedule(",
+        "1902": "        return {"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/dist_experiment_control/docs/devices.md",
+      "sha256": "d0024e392fbc1a4acc4ec91eedfa662d50f2ec6e1779f75e0dcd64b866a09a0c",
+      "bytes": 37400,
+      "line_count": 550,
+      "cited_lines": {
+        "16": "## 1. 拓扑总览",
+        "80": "### ⛔ 角色硬规则：timan 族只能当 worker（owner 裁定 2026-09-10）"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/conftest.py",
+      "sha256": "de5376b56d9a8976b1c21dde21a747ab0bcac1561342586593565e80d3b54335",
+      "bytes": 3977,
+      "line_count": 86,
+      "cited_lines": {
+        "45": "def pytest_collection_modifyitems(config, items):"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/examples/libero/episode_runner.py",
+      "sha256": "cedc3c6726ca2de16cf27dc1f1cdc24c94e1bc99384ee61c38e8f15b8426be32",
+      "bytes": 17426,
+      "line_count": 351,
+      "cited_lines": {
+        "158": "class LiberoEpisodeRunner(EpisodeRunner):"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/examples/libero/main.py",
+      "sha256": "5b8698867dfe1b19ea5af7a2880540ddfc17b644ccadd29fbbc267882c38cb02",
+      "bytes": 59362,
+      "line_count": 1267,
+      "cited_lines": {
+        "124": "    # Gate-research per-step collection (canonical). Enables the recorder in",
+        "136": "def _get_max_steps(task_suite_name: str) -> int:",
+        "197": "def _run_episode(env, client, initial_state, task_description, args, max_steps,",
+        "309": "                    (",
+        "606": "    # the four-field identity metadata (subset + split) to episode_start."
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/common/build_in_memory_cache_artifact.py",
+      "sha256": "3a6503057255aa04dc3cc8c7712c7c2af9076686e11b788c656274b0d6e7fe3d",
+      "bytes": 77000,
+      "line_count": 1927,
+      "cited_lines": {
+        "22": "Input: HDF5 episode files with vision_0/1/2, prompt_emb, robot_state fields",
+        "55": "_VECTOR_DIMS: dict[str, dict[str, int]] = {",
+        "90": "# GR00T pools reuse the Pi0.5 pooling code: the HDF5 stores each field",
+        "107": "# Geometry is carried by the builder NAME, not by CLI flags: `_reshape_dims`"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/cosmos_nfe/run_libero_shard.py",
+      "sha256": "f888b128452f47cbb50564526320af22bc026acdc25ff1fa9fd05822303c34cd",
+      "bytes": 9298,
+      "line_count": 216,
+      "cited_lines": {
+        "6": "``run_task`` so a process only evaluates ``--task-ids``, and records per-episode"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/cosmos_nfe/serve_cosmos.py",
+      "sha256": "41dca62426bdf0ba8ee9d61abc804473072b1c7ad5db9a942282bfeff99b8b3e",
+      "bytes": 9006,
+      "line_count": 196,
+      "cited_lines": {
+        "1": "\"\"\"Websocket server that exposes the upstream Cosmos Policy ``get_action`` to remote LIBERO clients.",
+        "11": "Protocol (msgpack + msgpack_numpy over websockets, one request per message)::",
+        "26": "``--no-future-decode 1`` skips the future-image VAE decode (policy-only serving, bitwise-identical actions);",
+        "117": "    if no_future:",
+        "128": "    # warm up (and, with --cuda-graph, capture) before listening so the first client never waits on it",
+        "138": "    lock = threading.Lock()"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/libero_groot/serve_groot_libero.py",
+      "sha256": "508be131a5bb994b732910cfecbd3732805916195fecfd54bc2d049731a9701d",
+      "bytes": 49663,
+      "line_count": 1080,
+      "cited_lines": {
+        "1": "\"\"\"Serve GR00T N1.5 on the LIBERO wire protocol, optionally collecting embeddings.",
+        "77": "class _InferLockedPolicy:",
+        "200": "def _check_libero_builder(builder_type: str, fail) -> None:",
+        "503": "def _build_concurrent_factory(policy: Any, args: Any) -> tuple[Any, str]:",
+        "616": "    def cache_factory(shared_base_policy: Any, bundle_id: str = \"default\") -> Any:",
+        "702": "def _unload_stages_2_and_3(model: Any) -> None:",
+        "783": "        help=\"torch.compile the vision tower (mode=reduce-overhead / CUDA graphs), \""
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/metaworld/env.py",
+      "sha256": "f9b493aacb833a7e4decd93f555394b779713e40762c1fb8d0763c024954c730",
+      "bytes": 5976,
+      "line_count": 165,
+      "cited_lines": {
+        "47": "@functools.lru_cache(maxsize=64)",
+        "56": "def make_env(task: str, idx: int, seed: int = T.BENCH_SEED) -> Any:",
+        "72": "def place_camera(env: Any) -> None:",
+        "87": "def observation(env: Any, obs: np.ndarray, prompt: str) -> dict:",
+        "96": "def reset_and_settle(env: Any) -> np.ndarray:",
+        "105": "def run_episode(",
+        "143": "            decisions += 1",
+        "153": "        if info.get(\"success\", 0):"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/metaworld/episode_runner.py",
+      "sha256": "c363022eab30632d04f5f07ab87e0843f6d4872e29417b30a1c6d4097be4b01b",
+      "bytes": 9149,
+      "line_count": 243,
+      "cited_lines": {
+        "73": "def decision_row(",
+        "106": "class MetaworldEpisodeRunner(EpisodeRunner):",
+        "187": "            def on_decision(step_idx: int, result: dict) -> None:",
+        "212": "        per_step.append("
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/metaworld/tasks.py",
+      "sha256": "66ab765260a97e527b91eef500aed350c536cb2df6268427073b6254566851f8",
+      "bytes": 7157,
+      "line_count": 151,
+      "cited_lines": {
+        "3": "The table is RLinf's ``metaworld_config.json`` (prompt text verbatim, case kept;",
+        "25": "BENCHMARK = \"metaworld_mt50\"",
+        "29": "N_TRAIN_TASKS = 50",
+        "31": "SETTLE_STEPS = 15",
+        "36": "CAMERA_NAME = \"corner2\"",
+        "41": "EPISODES_PER_TASK = 20",
+        "107": "    (\"push-back-v3\", \"Push the puck to a goal\", \"hard\"),"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/metaworld/warm_reset_env.py",
+      "sha256": "1063ab4de486ddac696a7c02f4b78c9496697f30da3787e106440fc436dce151",
+      "bytes": 8126,
+      "line_count": 219,
+      "cited_lines": {
+        "38": "ENV_ID = \"pi05_metaworld\"",
+        "124": "@dataclasses.dataclass(frozen=True)",
+        "186": "    def worker_agent(",
+        "208": "ENV = register_env("
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/mw_finetune/CONTRACT.md",
+      "sha256": "f25c9c366f69623ef2c2dcb570ac66261fb0cd078292430ea3804d662658698c",
+      "bytes": 7192,
+      "line_count": 129,
+      "cited_lines": {
+        "21": "```",
+        "35": "obs = {",
+        "55": "`seed = uint32_le(SHA256(\"mt50:7:<task_name>:<idx>:<decision_index>\")[:4])`.",
+        "69": "Formal drivers/workers run on timan nodes in the new",
+        "76": "| Policy server | Driver and workers | Direct client endpoint |",
+        "84": "The harness reuses `exp.metaworld.episode_runner.MetaworldEpisodeRunner` and",
+        "91": "The driver fsyncs its journal to timan-local disk. `sync_back.py` acquires its",
+        "104": "Formal protocol: all 50 tasks, `MT1(task, seed=7)` plus",
+        "111": "labeled alternative, not the historical π0.5 protocol. The SmolVLA paper's",
+        "116": "command skips completed identities and retries errors. A validates the server",
+        "124": "Every GPU command, including serving and smoke/probe runs, must hold"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/mw_finetune/HANDBACK_A.md",
+      "sha256": "e3d77e44457fc5b41fafe47206ffcb0fca9e1d259685539ec5f76cd4ab20c03b",
+      "bytes": 15993,
+      "line_count": 288,
+      "cited_lines": {
+        "203": "|Lane|Workers|Seconds|Episodes/min|",
+        "228": "Fast-WAM venv; root venv lacks lerobot.policies for its causal-equivalence test."
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/mw_finetune/RESULTS.md",
+      "sha256": "78f1af9df6e057b00da4a4eb694c52801902ac0978d5a6d21e539405cd4568d2",
+      "bytes": 1655,
+      "line_count": 19,
+      "cited_lines": {
+        "3": "Protocol: MetaWorld 3.0.0 MT50 v3, `MT1(task, seed=7)` + `train_tasks[idx]`, idx 0..9 per task (500 episodes),",
+        "14": "## Mid-training sanity checks (not formal results)"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/mw_finetune/cosmos/HANDBACK_D.md",
+      "sha256": "cc676bb922da3098e53474a3662b27aefa3f82b92b0577bbc7622398029c4684",
+      "bytes": 22714,
+      "line_count": 360,
+      "cited_lines": {
+        "9": "**Follow-up decision:** hold the 500-episode Cosmos-MW evaluation. The",
+        "39": "## Input reconstruction and confidence"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/mw_finetune/dp/HANDBACK_E.md",
+      "sha256": "2261c6d41331709ecaec316c5a0bcc0d7f3c97a6d6d706864f9926a533117a03",
+      "bytes": 13493,
+      "line_count": 237,
+      "cited_lines": {
+        "13": "| LIBERO multi-suite smoke |0/4 complete (spatial/object/goal/10 task0 idx0), current two views, OSMesa; no interface errors |",
+        "15": "| LIBERO partial-data200-update backward probe |7.19309 updates/s;4.80617/5.00586 GiB;3.86173h projection on one cached episode only |",
+        "21": "A's MT50 camera is one corner2 view. Zero/duplicate fills degrade native-source",
+        "22": "denoising and neither transferred policy is clearly usable. Owner fallback is",
+        "25": "check supports the reconstruction, while0/4 supplies no useful four-suite SR.",
+        "49": "The architect handoff is [../REQUESTS/E_to_integration_dp.md](../REQUESTS/E_to_integration_dp.md).",
+        "59": "",
+        "139": "",
+        "228": "    --replan-steps 5 --seed 7 \\"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/mw_finetune/dp/RECIPE.md",
+      "sha256": "967dd48b4a5bd637627e69cb492da6a463bad30d6acee0d46e8eb3c269f9351c",
+      "bytes": 19335,
+      "line_count": 275,
+      "cited_lines": {
+        "35": "Both models strictly load **all 475 tensors**, with zero missing/unexpected keys.",
+        "60": "There are two normalization layers. External openpi **quantile** normalization",
+        "71": "Default inference uses **100-step DDPM**, squaredcos_cap_v2, epsilon prediction,"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/mw_finetune/dp/model.py",
+      "sha256": "e8570dd11fe4402b533f3669e32b3117dd9a0264320322e1e9b3ef0fd7b105e9",
+      "bytes": 7652,
+      "line_count": 163,
+      "cited_lines": {
+        "25": "class FiLMResNet(nn.Module):",
+        "40": "class SpatialSoftmax(nn.Module):",
+        "77": "class ObsEncoder(nn.Module):",
+        "90": "class LinearNormalizer(nn.Module):",
+        "134": "    def scheduler(self, steps=None):",
+        "141": "    def condition(self, obs):",
+        "148": "        noise = torch.randn_like(action)",
+        "154": "    def sample(self, obs, generator=None, steps=None):",
+        "157": "        trajectory = torch.randn((len(cond), 16, self.cfg[\"action_dim\"]), dtype=cond.dtype,",
+        "162": "            trajectory = scheduler.step(noise, t, trajectory, generator=generator).prev_sample"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/mw_finetune/dp/policy.py",
+      "sha256": "8eb98407d959fbec0afa03930dd972644cc3dcb77031e9bf37fef34ff731c686",
+      "bytes": 5211,
+      "line_count": 91,
+      "cited_lines": {
+        "21": "    def __init__(self, checkpoint, device, *, domain=\"metaworld\", denoising_steps=100,",
+        "53": "",
+        "63": "        if state.shape != (self.model.cfg[\"lowdims\"][0][\"dim\"],) or not np.isfinite(state).all():"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/mw_finetune/fastwam/HANDBACK_C.md",
+      "sha256": "9fc37b370b93c52933072c74a79e86bbe678d47a0137854f8e58683c275469be",
+      "bytes": 13481,
+      "line_count": 114,
+      "cited_lines": {
+        "9": "| H100 Python 3.12 environment | `/data/mw_finetune/envs/fastwam` |",
+        "61": "`latest.pt` contains trainable tensors, optimizer, CPU/CUDA RNG and exact sampler offset; `--resume` auto-loads it if present. Recipe/data/seed/batch mismatches fail. Every 2k updates save the replaceable serving `policy_latest` and optimizer snapshot. Final immutable `policy_016001` is saved automatically; use it for A's evaluator. Default `--milestone-every 16001` preserves shared disk headroom; additional immutable snapshots require more room. A frozen resume snapshot is about 12.25 GB and serving delta 4.08 GB; LoRA 16.12 GB/5.37 GB. The frozen run adds about 20.42 GB total and needs 12.25 GB transient atomic-write headroom; do not copy raw Wan/T5 into checkpoints.",
+        "67": "`exp.mw_finetune.fastwam.policy.load_policy(checkpoint, device, **kw)` returns a stateless`infer/reset` object. It consumes the 480² RGB frame, raw 4-D state, canonical prompt and per-decision seed; returns 32×4 finite float32 denormalized commands. Ten action steps / CFG1; no gripper inversion, output clipping, queue, cross-request cache or online adaptation. Optional`base`, `wan_root`, `denoising_steps` override metadata paths/defaults. Checkpoint schema is`fastwam-mt50-delta-v1` with strict parameter/shape auditing.",
+        "103": "- Seven CPU tests passed, including min/max inversion outside training range, episode padding, deterministic stateless wrapper, strict deltas/alias mapping, LoRA gradients, and frozen-path loss/proprio-gradient equivalence to full causal attention. Run:`/data/mw_finetune/envs/fastwam/bin/python -m pytest exp/mw_finetune/fastwam/tests -q`."
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/mw_finetune/fastwam/model.py",
+      "sha256": "829c4cd8c1c6c59ef25d2809db5637abdcbd3241e98ece089342b2f36b6e6ff8",
+      "bytes": 6882,
+      "line_count": 154,
+      "cited_lines": {
+        "42": "def make_config(base=BASE, device=\"cuda\", wan_root=WAN, checkpointing=True):",
+        "75": "def build_model(base=BASE, device=\"cuda\", wan_root=WAN, checkpointing=True, fp32_trainable=False, mode=\"frozen_video\"):",
+        "133": "def load_delta(policy, checkpoint):"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/mw_finetune/fastwam/policy.py",
+      "sha256": "585cd2d34124d28439b1ec73ab68031dad261b98765411cc18f054d7c868c244",
+      "bytes": 2948,
+      "line_count": 64,
+      "cited_lines": {
+        "23": "    def get_metadata(self):",
+        "29": "    def infer(self, obs):",
+        "38": "            result = model.infer_action(prompt=prompt, input_image=pixels,"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/mw_finetune/groot/HANDBACK_B.md",
+      "sha256": "b537629c17a339090e86a8c529f006f9c97f08a0c91bd3505f11ce0931ca38f1",
+      "bytes": 8086,
+      "line_count": 147,
+      "cited_lines": {
+        "48": "`/home/exouser/gr00t_n15`, both pinned commit 4af2b622892f7dcb5aae5a3fb70bcb02dc217b96.",
+        "125": "## A's serving contract",
+        "145": "the robot to the goal`; A keeps RLinf's `Push the puck to a goal` for that task."
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/mw_finetune/groot/conventions.py",
+      "sha256": "b8852322f44c3fd62812ad4b8d1bdc8f519b47d93e86e3d18cc4434ae9723c00",
+      "bytes": 3285,
+      "line_count": 75,
+      "cited_lines": {
+        "6": "CHANNELS = (\"x\", \"y\", \"z\", \"gripper\")",
+        "23": "def to_groot_observation(obs):",
+        "39": "def from_groot_actions(result):"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/mw_finetune/groot/policy.py",
+      "sha256": "3c4b9f1b377d8d47b491076a71ff0d24221eb69aa0f62a3c4588b6db85333d45",
+      "bytes": 2342,
+      "line_count": 53,
+      "cited_lines": {
+        "32": "def load_policy(checkpoint, device=\"cuda:0\", **kw):"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/mw_finetune/runtime.py",
+      "sha256": "c76d730d6b42c1d9faad50903ac5fb3c4502f96132effc78e7cab28e72cadf16",
+      "bytes": 2225,
+      "line_count": 51,
+      "cited_lines": {
+        "13": "def tether_transfer(argv):"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/mw_finetune/serve.py",
+      "sha256": "082e088c4b523771a6fe4d97c5b155acb00ec51d2d5cbcad8a2cb10b643a1d80",
+      "bytes": 6577,
+      "line_count": 155,
+      "cited_lines": {
+        "21": "class ConnectionPolicy:",
+        "46": "    def infer(self, obs):",
+        "65": "def checkpoint_identity(path):",
+        "143": "    def factory(base, bundle_id=\"default\"):"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/mw_finetune/tests/test_workers.py",
+      "sha256": "a42fe182731a11da6400ec5278cc82f4f584fcbaa028af335dcbf6a92afad6cb",
+      "bytes": 2948,
+      "line_count": 75,
+      "cited_lines": {
+        "18": "def test_context_lifecycle_is_locked_without_changing_frames(monkeypatch):",
+        "46": "def test_snapshot_verifies_files_and_remains_resumable(tmp_path):"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/README.md",
+      "sha256": "06d1ac3f88739dbe0f62cbf197c2a6334a1e0735682c73da5af8d707da9f1111",
+      "bytes": 29735,
+      "line_count": 312,
+      "cited_lines": {
+        "14": "* `openpi.cache.config.build_per_connection_components` is wrapped: on every connection the freshly built CP1",
+        "55": "--os-log-dir DIR --os-tag TAG          decisions_<tag>.jsonl (one row per decision + episode / startup rows)",
+        "64": "## Ops (`ops/`)",
+        "77": "* `selftest.py` — CPU: real per-connection stack (patched builder, CacheOrchestrator, plugin strategy / judge /",
+        "119": "## Mixed HIT/MISS mode (R3 H2): `--os-judge`"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/guard.py",
+      "sha256": "e2f2e1708a29ee94dc88984a6fb82525b8271c7306081436afc0a99dc5d61285",
+      "bytes": 11909,
+      "line_count": 249,
+      "cited_lines": {
+        "17": "METHODS = ('off', 'h2', 'm2')"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/look_recording.py",
+      "sha256": "9a2070aa30608583b2d812f6fa8ee5a5e1300a075e798a4d33887f00939efc12",
+      "bytes": 23091,
+      "line_count": 413,
+      "cited_lines": {
+        "140": "class LookWriter:",
+        "209": "        for name, field in (('key_v0', 'vision_0'), ('key_v1', 'vision_1'), ('rs', 'robot_state')):",
+        "260": "            arrays['lookhalf'] = np.array(json.dumps(json_value(decision.get('lookhalf', {})), sort_keys=True))",
+        "289": "def shadow_chunk(session, adapter):"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/h100/local_server.py",
+      "sha256": "39f872b8e628c0ca2326fe50c92cfaeca500ee642ef43f3a5a8a485cda2d1b2c",
+      "bytes": 18416,
+      "line_count": 444,
+      "cited_lines": {
+        "247": "def start(spec):",
+        "356": "def stop(spec, timeout_s=PORT_RELEASE_TIMEOUT):"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/plugin.py",
+      "sha256": "d5b00e4ef58ec140f0a714bf809b3d0357c4848fd0a7bad74b97560b5910766b",
+      "bytes": 128488,
+      "line_count": 2444,
+      "cited_lines": {
+        "84": "def build_parser() -> argparse.ArgumentParser:",
+        "131": "    ap.add_argument(\"--os-policy-tail\", action=\"store_true\",",
+        "515": "        if self.policy_tail and (not self.blind or model not in (\"pi05\", \"groot\")):",
+        "909": "    def client_episode_start(self, kw: dict) -> None:",
+        "1510": "            \"topk\": topk, \"scores\": scores, \"conf\": np.array([r[\"conf\"] for r in recs], np.float64),",
+        "1959": "def _try_blind(s, adapter, obs):",
+        "1991": "    use_tail = bool(s.rt.policy_tail and s.step and",
+        "2003": "    if J is not None and J.mode == \"periodic\" and s._decision_index % J.k == J.k - 1:",
+        "2284": "                            s._policy_tail = None"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/serve_groot.py",
+      "sha256": "3e6bb9946660631186de3ad2b91b2ef509980eacec4e26db81cf1f1f6d8f06ea",
+      "bytes": 2663,
+      "line_count": 55,
+      "cited_lines": {
+        "32": "    if \"--concurrent\" not in rest:"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/serve_pi05.py",
+      "sha256": "8d7dbb8e0f376376650a69fb267190a56d9c574f16d22b23549e38547527a401",
+      "bytes": 2877,
+      "line_count": 59,
+      "cited_lines": {
+        "40": "    if args.replicas != 1:"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/debug/SCHEMA.md",
+      "sha256": "d94c41075a1219315ceac77d3c0801f667720d5a2d7a8bb1f007505b5efa0506",
+      "bytes": 13006,
+      "line_count": 174,
+      "cited_lines": {
+        "9": "- **Observe, never act.** Debug code copies data after the live decision is fixed. It never calls the policy, the",
+        "18": "## 1. Identity",
+        "38": "## 2. On-disk layout (weilandserver, under the arm's run dir)",
+        "74": "- identity: `decision_id`, `episode_key`, `decision_seq`, `dispatch_gen`, `task_uid`, `attempt`, `task_id`, `init`,",
+        "116": "### 4.1 `episode.json`",
+        "152": "## 5. Deferred augmentation (`aug/<kind>/part_*.npz`, keyed by `decision_id`)",
+        "164": "## 6. Library catalog (`<RUN>/catalog/<cell>/rows.parquet` + `rows.json` sha)"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/debug/aug/models.py",
+      "sha256": "f886180f7fe6132dc359ef5033f93e65655e83263d2a7a5fd11629a273fe8be0",
+      "bytes": 19607,
+      "line_count": 378,
+      "cited_lines": {
+        "1": "\"\"\"Model adapters using the same transforms/stages as closed_loop/serve_*."
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/debug/backfill/replay.py",
+      "sha256": "5fba364707e84b3d96ae2de092a5ef1a562f515294e22d7f0a6b5fcd3bc75acd",
+      "bytes": 15107,
+      "line_count": 254,
+      "cited_lines": {
+        "1": "\"\"\"Library physics backfill, admitted only with exact executed-control provenance."
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/debug/client/adapter.py",
+      "sha256": "e2ad3a571b8fca7a8fcb0e38576bb6b66f1ff9e240155fa334486a8c23fd3371",
+      "bytes": 16882,
+      "line_count": 311,
+      "cited_lines": {
+        "61": "class MujocoAdapter:",
+        "94": "    def _catalog(self):"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/debug/server/dispatch.py",
+      "sha256": "e1b3a69cba82f5da14e6be4aeab5d1242b17a01f542281acfa93960dfc192709",
+      "bytes": 2318,
+      "line_count": 55,
+      "cited_lines": {
+        "22": "    elif session.rt.model == \"pi05\":"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/debug/tests/test_server_parity.py",
+      "sha256": "36b4a5e157c28260a53ef72eeef1da43faa26537302e3e3f454e70b9d6f9578e",
+      "bytes": 14155,
+      "line_count": 278,
+      "cited_lines": {
+        "1": "\"\"\"Recorded keys + actual serving methods; no model, socket or simulator."
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/debug/tools/decision/README.md",
+      "sha256": "5b3705a2898eadab5642df8b21f235428039ed7423ac6bacb01670228cfeced4",
+      "bytes": 10514,
+      "line_count": 158,
+      "cited_lines": {
+        "35": ".venv/bin/python -m exp.offline_search.debug.tools.decision.provenance \\"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/debug/tools/physical/README.md",
+      "sha256": "2e51343ff9b7d80d3b0697504e972ee42aaf529d60451b195183b80c6638c5c4",
+      "bytes": 10406,
+      "line_count": 151,
+      "cited_lines": {
+        "20": "All ten entry points accept `--run-root`, `--arms`, `--out`, `--procs`,",
+        "44": "## Environment contract",
+        "61": "RoboCasa/MetaWorld adapters can provide `entities.goal_objects` records:"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/debug/transport/dispatch_fence.py",
+      "sha256": "e9cdc632b741973977779aae6eb0e3c412f435ea532e21c7a16cb35a09abd84a",
+      "bytes": 3553,
+      "line_count": 83,
+      "cited_lines": {
+        "1": "# Adapted from rounds/r06/p3_profiling/dispatch_fence.py; offset ACK/durable receipt semantics retained."
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/debug/transport/validation.py",
+      "sha256": "1c21f48cc00a78213b6cfd53511487d53e2dfe35659b752c86e40d4727685a55",
+      "bytes": 5512,
+      "line_count": 97,
+      "cited_lines": {
+        "1": "\"\"\"Client payload validation, shared by receiver and journal reconciliation.\"\"\""
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/harness/README.md",
+      "sha256": "c34cbf6c78cafae4c61aadd5fcf37aa1211e9192201e487e7353fe49ec7f1194",
+      "bytes": 21967,
+      "line_count": 279,
+      "cited_lines": {
+        "3": "Evaluation harness of the offline retrieval-method exploration (`logs/offline_search_exploration.log.md`)."
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/harness/api.py",
+      "sha256": "6e43c98f7026636ecf44e624f6af11b47c9f7a43695605dabee9ecb0d5540996",
+      "bytes": 21067,
+      "line_count": 485,
+      "cited_lines": {
+        "1": "\"\"\"Method API of the offline evaluation harness (frozen after R0).",
+        "192": "class QueryArrays:",
+        "343": "class Context:"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/harness/dims.py",
+      "sha256": "d7d62822231401eb0a6bad7afeef88eedc937e1b4a27992b346c8b5b5ca16a19",
+      "bytes": 2240,
+      "line_count": 48,
+      "cited_lines": {
+        "3": "Action chunks are (H, 32) in the model-normalized action space, but"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/harness/metrics.py",
+      "sha256": "408b5274dffc929c51802430793654f0f592daf3c8520ac2e131bea6138e449c",
+      "bytes": 18278,
+      "line_count": 401,
+      "cited_lines": {
+        "37": "def seg(a) -> np.ndarray:",
+        "233": "def risk_coverage(err: np.ndarray, conf: np.ndarray, bad: np.ndarray | None = None) -> dict:"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/harness/run.py",
+      "sha256": "91903c99846cd4a4a5bfdfe7e2404613b9ad1f1082d9e5c839ec03bb4fc397d8",
+      "bytes": 36750,
+      "line_count": 725,
+      "cited_lines": {
+        "403": "def run_cell(cls, kwargs, cell, *, root, out_dir: pathlib.Path, workers, subsample=None, seed=0, profile=False,",
+        "597": "def run(method_spec, kwargs=None, cells=\"all\", *, root, out, workers=CPU_COUNT, subsample=None, seed=0, profile=False,"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/profile/README.md",
+      "sha256": "4abd80df1568fff47808fb32818cbc2fb8c8a77f8a1006cbf49f5a99a0cd29d6",
+      "bytes": 11745,
+      "line_count": 162,
+      "cited_lines": {
+        "1": "# offline_search profile tools",
+        "18": "All metric definitions come from the frozen harness: `harness/dims.py` (only `[:5, :7]` of an action chunk,",
+        "27": "| tool | answers | main outputs |"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/r0/build_library_store.py",
+      "sha256": "69e490327d4e2f3f176389ed99b3d737d6e4cfaa215538639cf366aa7ba8b3dd",
+      "bytes": 56447,
+      "line_count": 987,
+      "cited_lines": {
+        "3": "Layout written per library (other agents code against it; see logs/offline_search_exploration.log.md §5.1):",
+        "41": "Build flow: each library is written into `<name>.partial/` and renamed to `<name>/` only when every",
+        "97": "FACTS = dict(act_valid_dims=7, exec_steps=5, rs_valid_dims=8, gripper_dim=6)"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r02/g1_awm/awm.py",
+      "sha256": "baca90675366eeca94692e3cc5467e11040230782f07b1a97548f323e177b028",
+      "bytes": 36108,
+      "line_count": 625,
+      "cited_lines": {
+        "4": "Representation (per library row / query):"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r04/k7_guard/judge.py",
+      "sha256": "b812faaded941e4c34a3a3c96323ebecdeda4c3a6681fb5d1e58bb7ef07183a4",
+      "bytes": 7586,
+      "line_count": 153,
+      "cited_lines": {
+        "96": "        # The following is K1's span guard, replacing ONLY its stuck count and",
+        "103": "        gexec = 0. if not step or pa is None else (1. if pa[4, 6] >= 0 else -1.)"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r05/q1_commit/judge.py",
+      "sha256": "8edc216b317d04465c4f383673b274e75673f0974559ef0dc849b07a26410925",
+      "bytes": 10434,
+      "line_count": 213,
+      "cited_lines": {
+        "112": "    def policy_tail_step(self, bq):"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r06/p2_ablations/judge.py",
+      "sha256": "e7ee92a71e208cc6c557207c274fc712c8923f2117fbfa8fd25b0a120c4bfd63",
+      "bytes": 2757,
+      "line_count": 57,
+      "cited_lines": {
+        "12": "BITS = {\"stuck\": 1, \"terminal\": 2, \"overtime\": 4, \"no_progress\": 8}"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r10/recipe/fitting.py",
+      "sha256": "735b3156a10a39321bf7f8937dcd3f25a3d899485bdc86626f1e6ffcba7284ed",
+      "bytes": 12742,
+      "line_count": 262,
+      "cited_lines": {
+        "24": "def fit_path(path, root, library=None):",
+        "66": "def episode_selection(episode, task, selected=None):",
+        "210": "def fit_recipe(recipe, ctx):",
+        "217": "        kref = 5 if all(len(es) == 5 for es in lib.chosen.values()) else 8",
+        "219": "        judge = cls(base_kwargs=dict(lib='current', kref=kref, serving='anchor_tail', budget=1, gates='budget_only'),",
+        "234": "        heads, counts = loeo_heads(lib, base, judge.C)",
+        "241": "        corrected.blend, corrected.chans, corrected.correct_gripper = .5, 6, False"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r10/recipe/recipe.py",
+      "sha256": "4d9b1c017897bd9db51dc57eda6c19fedd796bd936e088a7b70867b6d11f7591",
+      "bytes": 6381,
+      "line_count": 147,
+      "cited_lines": {
+        "16": "ONLY_NO_PROGRESS = ('stuck', 'terminal', 'overtime')",
+        "20": "def predict(head, X):",
+        "32": "    def _features(self, q, xv, rs8, action):"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/recipe.py",
+      "sha256": "5290012abb68724997b1df942c942e5d20a7b129d07f9ce9c89e9c04fa228a7d",
+      "bytes": 9607,
+      "line_count": 187,
+      "cited_lines": {
+        "67": "class R11Knob(R10Recipe):",
+        "129": "    def query(self, q):",
+        "145": "        if guard:"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r13/knob/recipe.py",
+      "sha256": "34b27ad9c9b5522689e63c2b2dd821e64e95609d1e347edaa94fe798c56837b3",
+      "bytes": 7162,
+      "line_count": 135,
+      "cited_lines": {
+        "1": "\"\"\"R13 distance feedback on the unchanged R10/R11 serving lifecycle."
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/ADAPTER.md",
+      "sha256": "2972041dc3b26b63faa6adbadab46c9a5e79c8d4095e15728b677b5f4b5863f4",
+      "bytes": 4594,
+      "line_count": 16,
+      "cited_lines": {
+        "3": "D1–D6 in `COORDINATOR_DECISIONS.md` govern this implementation. `PROTOCOL.md` is a byte-for-byte copy of R14's frozen protocol. This adapter records the required layout and cost changes, following R15's five-arm adapter; it does not revise the parent registration.",
+        "7": "- Only `miss.num_steps` and matching GR00T live-head K change in each inherited dev/phase-1 arm. All client flags, seeds, fits, libraries, caps, guards and correctors remain unchanged. `replan_steps=5` plus one policy tail still commits controls 0–9 of each policy chunk. Size 500 retains the existing LOEO wrapper and its `r15d_` B UID prefix; fits still include the query episode.",
+        "8": "- The full-step C10 construction-pass sentinel is distinct from the executed k-step C10 fallback. Lower levels always compare against full-step C10. If ir45 fails, fallback is k-step pure inference without another qualification test. Its measured SR may itself fail the full-reference tolerance; disclose this. Sixteen shared k-C10 B arms (two init designs × two models × two suites × two k values) are necessary for the parent protocol's stitched fallback SR/IR estimates. They do not affect descent selection.",
+        "11": "- Phase 1 uses the original R14 A templates and pure C10 fits, with 500 exact identities per arm. Test A emission needs all 32 primary task/uniform tables and an immutable `TABLE_FREEZE.json`, and verifies registered source hashes before writing any roots. It emits one mixed-task arm per cell (32 arms), with no refit and no test-driven selection. `queue_test.txt` stays empty until that emission.",
+        "14": "- One unavoidable shared edit permits the explicitly requested `groot_n15_k1_v1` schedule, with no recoverable warm-start points. Existing schedules are unchanged. Original bytes and the atomic edit's diff are archived here. The CPU proof uses deterministic forward stubs; real-weight and environment checks are left to the coordinator's isolated two-episode smoke roots."
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/HANDBACK_CONDUCTOR.md",
+      "sha256": "1aaf3a4c1fd765fab6d52d1e5fd89214d088045242648f144e0e34a01286da5b",
+      "bytes": 4282,
+      "line_count": 17,
+      "cited_lines": {
+        "9": "CPU proof: all 176 dev methods, 4,224 decisions, two interleaved connections each; saved action bytes and decision semantics match standalone execution. It covers 656 guard MISSes, 494 periodic MISSes, 1,296 blind tails and 192 pure policy calls (`conductor_runtime_proof.json`). The expert forwards are synthetic; lower layers and frozen methods are real, with recorded B observations. Original default-step replay remains sealed. All 184 synthetic/regression tests pass (`conductor_tests.xml`); they cover cohort gating, first-failure equivalence, cross-endpoint dispatch, error exclusion, resume/stale-result fencing and mocked coordinator lifecycle/agent leases."
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/HANDBACK_GROOT_SERVERS.md",
+      "sha256": "cf45ea24d554954a7c51cbdae4a89f91c3089a947fd7044f7939bd3e9779fc6b",
+      "bytes": 4178,
+      "line_count": 28,
+      "cited_lines": {
+        "26": "The supplied measurement implies six processes need **37.2–40.8 GB**, versus **24.8–27.2 GB** for four. Six exceeds the original 28 GB planning allocation and needs the coordinator's temporary larger allocation; returning to two per suite releases about 12.4–13.6 GB. Startup keeps the existing free-memory checks. CPU-limited ideal scaling from four to six would be ~38→57 episodes/min; real throughput is unmeasured here."
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/REPORT.md",
+      "sha256": "068d3b357b03f7ee3527cd6ecfe962caddaf2132902507d16a05a766ba4296a0",
+      "bytes": 8583,
+      "line_count": 108,
+      "cited_lines": {
+        "3": "2026-10-08。所有大模型调用（守卫触发、旋钮定期调用、纯推理）只跑 k 步动作头去噪（k = 1 或 2），缓存库、度量、修正器、守卫都沿用现有冻结的那一套，执行段为现行的 10 步。",
+        "14": "owner IR 保留视觉系数，大模型调用按 k 步的实测阶段开销计价：",
+        "35": "## 二、完整系统 + 逐任务档位（32 格 = 2 模型 × 2 任务 × 库 50/100/200/500 × k = 1/2，每格 500 局）"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/RUNBOOK_CONDUCTOR.md",
+      "sha256": "97d2f17262c08476c7f90affac988a386d9aaa1db66298f34d657ee00426cdca",
+      "bytes": 10612,
+      "line_count": 94,
+      "cited_lines": {
+        "7": "The policy horizon is five controls per client call, with the original ten-control MISS commitment and blind tail. Simulator/rollout seed is 2026101401; original `(arm:eval:task:init)` UIDs, init indices, pool bytes, resize sizes, 10 settling steps, and 220/520 step limits remain unchanged. Recording stays off. A worker probe must attest timan107, both frozen pool digests and these settings before receiving work.",
+        "25": "The isolated transfer archive and SHA lists are in `conductor_deployment/`. The worker island is `/scratch/zixuans8/openpi_r16_conductor_v1`, separate from the running line's tree. The local server tree is this checkout; `local.sha256` includes code, frozen fits and group definitions. Worker code includes regular `src/openpi_client` copies so the existing conda worker resolves this client after resetting PYTHONPATH.",
+        "27": "Coordinator deployment, using the existing tether transport:"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/analyze.py",
+      "sha256": "4549952b436b1ef32598e4742e35a3e7ac76375f94fa550b125c5ebc8f3b8827",
+      "bytes": 27315,
+      "line_count": 429,
+      "cited_lines": {
+        "236": "def calculate_test(all_arms,*,draws=5000):"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/conductor.py",
+      "sha256": "9e3152694d9f0959817b6ee6a06cc6bc663cfd2b641f74f83c1a3575c42af0c4",
+      "bytes": 33361,
+      "line_count": 598,
+      "cited_lines": {
+        "256": "class QueueScheduler(EpisodeScheduler):",
+        "304": "    def next_task(self, worker_server_key):",
+        "321": "            task=dataclasses.replace(ep,server_host=host,server_port=int(port),attempt=gen)",
+        "346": "    def plan(self, yamls, server_assignment):",
+        "373": "    def on_stage_complete(self, stage, ctl, ctx):",
+        "379": "        if len(cohort)!=30 or any(r is None or r.get('error') for r in cohort):",
+        "413": "    def _record_pull(self,payload,peer):",
+        "419": "        expected_size=256 if group['model']=='groot' else 224",
+        "432": "    def drive_stages_once(self):"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/conductor_analysis.py",
+      "sha256": "6664affdfe7a6feea95196afaaa38f23076689fb36a0206f0edada9b8a3c85cf",
+      "bytes": 17148,
+      "line_count": 258,
+      "cited_lines": {
+        "32": "def load_entry(group,entry,reader,*,freeze=None):",
+        "102": "        rows=sorted((d for (u,s),d in decisions.items() if u==uid),key=lambda d:d['step'])",
+        "219": "def freeze(output):"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/conductor_replay.py",
+      "sha256": "c538b24bab0310a18eb0ceeb8c0972a2604d31de7fc7f2281d7930c342474b7c",
+      "bytes": 10785,
+      "line_count": 179,
+      "cited_lines": {
+        "1": "\"\"\"CPU replay of every dev resident method against its standalone runtime."
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/conductor_runner.py",
+      "sha256": "e0edfeeb003d0e4f6d01d120efe68cdfa597158fb66995595aa85de60e52f977",
+      "bytes": 14227,
+      "line_count": 264,
+      "cited_lines": {
+        "18": "def server_count(group, groot_servers_per_suite=None):",
+        "178": "            # Models start one at a time; startup peaks do not overlap.",
+        "181": "    py='/scratch/zixuans8/openpi/.venv/bin/python'"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/prepare.py",
+      "sha256": "da9587567243b7286db3f22b84c5ea8e45e0ae521fa06bcddba9758698eaeb17",
+      "bytes": 18115,
+      "line_count": 336,
+      "cited_lines": {
+        "27": "CELLS = tuple(f'{m}_{s}_{n}_k{k}' for n in (50,100,200,500)",
+        "58": "def reference(root, row):",
+        "78": "    spec['yaml_patch'] = {**spec.get('yaml_patch',{}), 'miss':dict(num_steps=k)}",
+        "89": "                  arm_count=len(rows),episodes_per_arm=300 if pool=='B' else 500,"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/resident.py",
+      "sha256": "466c76b65eac7c62fae88c7658b7d91f05d61b8289bdb77b992f3edbe1423025",
+      "bytes": 6851,
+      "line_count": 167,
+      "cited_lines": {
+        "20": "class ArrayPool:"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/test_conductor.py",
+      "sha256": "87fc3f317ebc9a90a25231ae13b188620539a42139f40078ef5a079c008171b7",
+      "bytes": 17404,
+      "line_count": 311,
+      "cited_lines": {
+        "1": "\"\"\"CPU mechanism tests; synthetic outcomes only, scratch outside the repository.\"\"\""
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/r17_integration/OWNER_NOTE.md",
+      "sha256": "8a6228f207c9645cc3763eb0181739b5a5df216791b4c0397102a4976c3d71d6",
+      "bytes": 1150,
+      "line_count": 8,
+      "cited_lines": {
+        "3": "「我们很多功能都是在框架层实现的，理论上框架正确接入后就会自动支持，你要仔细接入框架，但是其他功能有些我们要自己写」"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/r17_integration/verification/conductor_tests.xml",
+      "sha256": "33a5a8b4c68012ef344deae6ca0a77d7dea35d62969d4c9619a5e1d8a68b9299",
+      "bytes": 18943,
+      "line_count": 1,
+      "cited_lines": {
+        "1": "<?xml version=\"1.0\" encoding=\"utf-8\"?><testsuites name=\"pytest tests\"><testsuite name=\"pytest\" errors=\"0\" failures=\"0\" skipped=\"0\" tests=\"152\" time=\"12.615\" timestamp=\"2026-10-09T10:50:40.379491-05:00\" hostname=\"weilandserver\"><testcase classname=\"tests.conductor.test_agent\" name=\"test_agent_spawns_all_workers\" time=\"0.002\" /><testcase classname=\"tests.conductor.test_agent\" name=\"test_agent_respawns_dead_worker\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_agent\" name=\"test_agent_stop_terminates_handles\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_agent\" name=\"test_default_spawn_conda_env_builds_conda_cmd\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_agent\" name=\"test_default_spawn_no_conda_uses_plain_python\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_agent\" name=\"test_default_spawn_forwards_the_init_states_dir\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_agent\" name=\"test_default_spawn_omits_the_flag_when_the_pool_is_unset\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_agent\" name=\"test_default_spawn_forwards_materialised_subset_identity_and_seed\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_agent\" name=\"test_rollout_knobs_are_forwarded_only_when_set\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_census\" name=\"test_census_records_every_worker_with_its_probe_and_peer\" time=\"0.420\" /><testcase classname=\"tests.conductor.test_census\" name=\"test_worker_without_probe_is_still_counted_and_conflicts_are_flagged\" time=\"0.112\" /><testcase classname=\"tests.conductor.test_census\" name=\"test_probe_rides_on_the_first_pull_of_every_connection\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_driver\" name=\"test_assign_servers_balances_by_weight\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_driver\" name=\"test_assign_servers_colocation_same_server\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_driver\" name=\"test_is_retriable_error\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_driver\" name=\"test_handle_pull_none_when_nothing_ready\" time=\"0.003\" /><testcase classname=\"tests.conductor.test_driver\" name=\"test_handle_result_journals_terminal\" time=\"0.003\" /><testcase classname=\"tests.conductor.test_driver\" name=\"test_handle_result_stamps_per_step_rows_and_preserves_stale\" time=\"0.003\" /><testcase classname=\"tests.conductor.test_driver\" name=\"test_cross_fs_central_recovery_of_collect_rows\" time=\"0.003\" /><testcase classname=\"tests.conductor.test_driver\" name=\"test_stage_lifecycle_warmup_then_eval\" time=\"0.004\" /><testcase classname=\"tests.conductor.test_driver\" name=\"test_eval_preload_before_load\" time=\"0.003\" /><testcase classname=\"tests.conductor.test_driver\" name=\"test_calibration_fanout_across_servers\" time=\"0.004\" /><testcase classname=\"tests.conductor.test_driver\" name=\"test_setup_hook_exception_rolls_back_and_retries\" time=\"0.009\" /><testcase classname=\"tests.conductor.test_driver\" name=\"test_resume_triggers_on_resume_for_eval\" time=\"0.004\" /><testcase classname=\"tests.conductor.test_driver\" name=\"test_uid_meta_handles_colon_in_yaml_id\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_driver\" name=\"test_fatal_setup_hook_error_fails_fast_not_infinite_retry\" time=\"0.003\" /><testcase classname=\"tests.conductor.test_driver\" name=\"test_flush_does_not_delete_rows_that_arrive_while_the_writer_runs\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_driver\" name=\"test_flush_restores_rows_when_the_writer_raises\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_driver\" name=\"test_terminal_result_persists_per_step_before_the_journal_line\" time=\"0.002\" /><testcase classname=\"tests.conductor.test_driver\" name=\"test_rows_from_a_fenced_report_are_stamped_not_accepted\" time=\"0.002\" /><testcase classname=\"tests.conductor.test_driver\" name=\"test_writer_failure_withholds_the_terminal_journal_line\" time=\"0.002\" /><testcase classname=\"tests.conductor.test_driver\" name=\"test_scheduler_acceptance_overrides_a_client_claim\" time=\"0.002\" /><testcase classname=\"tests.conductor.test_driver\" name=\"test_rows_carry_the_run_id_so_a_restart_tie_is_separable\" time=\"0.002\" /><testcase classname=\"tests.conductor.test_episode_runner\" name=\"test_run_collects_per_step_and_result\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_episode_runner\" name=\"test_episode_lifecycle_and_bundle_bind\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_episode_runner\" name=\"test_client_reused_same_server_bundle\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_episode_runner\" name=\"test_bundle_reselect_on_change\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_health_monitor\" name=\"test_health_progress_then_result\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_health_monitor\" name=\"test_health_stale_detection\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_health_monitor\" name=\"test_health_on_result_unknown_task_is_noop\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_health_monitor\" name=\"test_monitor_render_aggregate\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_health_monitor\" name=\"test_monitor_no_scheduler_still_renders\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_integration\" name=\"test_end_to_end_multi_worker_completes\" time=\"0.540\" /><testcase classname=\"tests.conductor.test_integration\" name=\"test_end_to_end_resume_skips_journaled_eval\" time=\"0.499\" /><testcase classname=\"tests.conductor.test_integration\" name=\"test_end_to_end_transient_failure_retried\" time=\"0.579\" /><testcase classname=\"tests.conductor.test_journal\" name=\"test_record_and_replay\" time=\"0.002\" /><testcase classname=\"tests.conductor.test_journal\" name=\"test_failed_status_is_terminal\" time=\"0.002\" /><testcase classname=\"tests.conductor.test_journal\" name=\"test_replay_missing_file_is_empty\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_journal\" name=\"test_torn_last_line_tolerated\" time=\"0.002\" /><testcase classname=\"tests.conductor.test_journal\" name=\"test_record_is_appendonly_across_instances\" time=\"0.002\" /><testcase classname=\"tests.conductor.test_journal\" name=\"test_duration_is_persisted_and_omitted_when_absent\" time=\"0.002\" /><testcase classname=\"tests.conductor.test_journal\" name=\"test_fenced_stale_record_does_not_count_as_done\" time=\"0.002\" /><testcase classname=\"tests.conductor.test_journal\" name=\"test_a_rejected_line_cannot_cancel_an_accepted_one\" time=\"0.002\" /><testcase classname=\"tests.conductor.test_journal\" name=\"test_records_predating_the_accepted_field_still_replay\" time=\"0.002\" /><testcase classname=\"tests.conductor.test_protocol\" name=\"test_encode_decode_roundtrip\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_protocol\" name=\"test_version_mismatch_raises\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_protocol\" name=\"test_task_wire_roundtrip\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_protocol\" name=\"test_result_wire_roundtrip\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_protocol\" name=\"test_framed_send_recv_over_socketpair\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_protocol\" name=\"test_recv_exact_raises_on_short_close\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_protocol\" name=\"test_recv_message_rejects_oversized_frame\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_protocol\" name=\"test_decode_rejects_malformed_message\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_protocol\" name=\"test_result_from_wire_ignores_fields_this_build_does_not_know\" time=\"0.000\" /><testcase classname=\"tests.conductor.test_rl_router_accepted\" name=\"test_live_dispatch_result_is_accepted\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_rl_router_accepted\" name=\"test_stale_attempt_is_rejected\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_rl_router_accepted\" name=\"test_duplicate_result_is_rejected\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_rl_router_accepted\" name=\"test_unknown_uid_is_rejected\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_rl_router_accepted\" name=\"test_retriable_failure_is_accepted_but_not_terminal\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_rl_router_accepted\" name=\"test_fatal_failure_is_accepted\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_rl_router_accepted\" name=\"test_timeout_requeue_still_works_ignoring_the_return_value\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_rl_router_accepted\" name=\"test_legacy_journal_record_is_byte_identical\" time=\"0.002\" /><testcase classname=\"tests.conductor.test_rl_router_accepted\" name=\"test_journal_records_attempt_accepted_and_error\" time=\"0.002\" /><testcase classname=\"tests.conductor.test_rl_router_accepted\" name=\"test_replay_done_uids_ignores_attempt_and_error_but_not_accepted\" time=\"0.002\" /><testcase classname=\"tests.conductor.test_rl_router_accepted\" name=\"test_driver_journals_accepted_true_for_a_live_result\" time=\"0.002\" /><testcase classname=\"tests.conductor.test_rl_router_accepted\" name=\"test_driver_journals_accepted_false_for_a_stale_result\" time=\"0.002\" /><testcase classname=\"tests.conductor.test_rl_router_accepted\" name=\"test_driver_journals_the_error_on_a_fatal_result\" time=\"0.002\" /><testcase classname=\"tests.conductor.test_rl_router_accepted\" name=\"test_retriable_failure_is_not_journaled\" time=\"0.002\" /><testcase classname=\"tests.conductor.test_rl_router_accepted\" name=\"test_real_sidecar_error_is_classified_fatal\" time=\"2.871\" /><testcase classname=\"tests.conductor.test_rl_router_accepted\" name=\"test_sidecar_failure_reaches_the_journal_with_its_error\" time=\"0.002\" /><testcase classname=\"tests.conductor.test_rl_router_accepted\" name=\"test_a_sidecar_failed_episode_is_rejected_by_the_manifest\" time=\"0.006\" /><testcase classname=\"tests.conductor.test_scheduler\" name=\"test_eval_blocked_until_warmup_done\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_scheduler\" name=\"test_never_idle_returns_ready_episode\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_scheduler\" name=\"test_no_task_when_nothing_ready\" time=\"0.000\" /><testcase classname=\"tests.conductor.test_scheduler\" name=\"test_warmup_concurrency_cap\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_scheduler\" name=\"test_eval_concurrency_cap_is_one\" time=\"0.000\" /><testcase classname=\"tests.conductor.test_scheduler\" name=\"test_warmup_failure_invalidates_whole_stage\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_scheduler\" name=\"test_eval_failure_requeues_single_episode\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_scheduler\" name=\"test_eval_retry_exhaustion_marks_fatal\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_scheduler\" name=\"test_warmup_stage_retry_exhaustion_fails\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_scheduler\" name=\"test_resume_skips_done_eval_but_not_warmup\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_scheduler\" name=\"test_full_warmup_eval_flow_reaches_all_done\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_scheduler\" name=\"test_all_predone_eval_stage_completes_not_stalls\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_scheduler\" name=\"test_mark_result_idempotent_on_non_dispatched\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_scheduler\" name=\"test_stale_warmup_inflight_result_ignored_after_invalidation\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_scheduler\" name=\"test_warmup_failure_cascades_to_downstream_eval\" time=\"0.000\" /><testcase classname=\"tests.conductor.test_scheduler\" name=\"test_eval_concurrency_releases_next_yaml_after_done\" time=\"0.002\" /><testcase classname=\"tests.conductor.test_scheduler\" name=\"test_requeue_timed_out_requeues_stuck_episode\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_scheduler\" name=\"test_setup_retry_exhaustion_fails_stage\" time=\"0.000\" /><testcase classname=\"tests.conductor.test_scheduler\" name=\"test_stale_attempt_result_fenced_after_requeue\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_sharding\" name=\"test_stride_partition_is_a_partition[500-6]\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_sharding\" name=\"test_stride_partition_is_a_partition[7-6]\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_sharding\" name=\"test_stride_partition_is_a_partition[6-6]\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_sharding\" name=\"test_stride_partition_is_a_partition[3-6]\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_sharding\" name=\"test_stride_partition_is_a_partition[0-6]\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_sharding\" name=\"test_stride_partition_is_a_partition[1-1]\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_sharding\" name=\"test_stride_partition_rejects_zero_shards\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_sharding\" name=\"test_warmup_episodes_are_refused\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_sharding\" name=\"test_no_servers_is_refused\" time=\"0.000\" /><testcase classname=\"tests.conductor.test_sharding\" name=\"test_each_shard_is_retargeted_to_its_own_server\" time=\"0.005\" /><testcase classname=\"tests.conductor.test_sharding\" name=\"test_empty_shards_are_kept_and_reach_done\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_sharding\" name=\"test_every_server_can_pull_from_one_sharded_arm\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_sharding\" name=\"test_resume_is_idempotent_across_a_reshard\" time=\"0.002\" /><testcase classname=\"tests.conductor.test_sharding\" name=\"test_a_caller_that_does_not_assert_idempotence_is_refused\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_task\" name=\"test_make_task_uid_deterministic\" time=\"0.000\" /><testcase classname=\"tests.conductor.test_task\" name=\"test_episode_task_server_property\" time=\"0.000\" /><testcase classname=\"tests.conductor.test_task\" name=\"test_calibration_warmup_requires_cleanup_id\" time=\"0.000\" /><testcase classname=\"tests.conductor.test_task\" name=\"test_calibration_historical_requires_path\" time=\"0.000\" /><testcase classname=\"tests.conductor.test_task\" name=\"test_calibration_dump_name_shape\" time=\"0.000\" /><testcase classname=\"tests.conductor.test_task\" name=\"test_duplicate_stage_rejected\" time=\"0.000\" /><testcase classname=\"tests.conductor.test_task\" name=\"test_dependency_unknown_stage_rejected\" time=\"0.000\" /><testcase classname=\"tests.conductor.test_task\" name=\"test_upstreams_downstreams\" time=\"0.000\" /><testcase classname=\"tests.conductor.test_task\" name=\"test_validate_dangling_calib_rejected\" time=\"0.000\" /><testcase classname=\"tests.conductor.test_task\" name=\"test_validate_cycle_detected\" time=\"0.000\" /><testcase classname=\"tests.conductor.test_task\" name=\"test_validate_ok_warmup_eval_chain\" time=\"0.000\" /><testcase classname=\"tests.conductor.test_task\" name=\"test_validate_rejects_an_episode_owned_by_two_stages\" time=\"0.001\" /><testcase classname=\"tests.conductor.test_task\" name=\"test_validate_allows_the_same_uid_shape_in_disjoint_stages\" time=\"0.000\" /><testcase classname=\"tests.conductor.test_task\" name=\"test_validate_rejects_a_uid_repeated_inside_one_stage\" time=\"0.001\" /><testcase classname=\"exp.offline_search.rounds.r16.test_conductor\" name=\"test_adaptive_matches_full_ladder_and_skips_recovery\" time=\"2.344\" /><testcase classname=\"exp.offline_search.rounds.r16.test_conductor\" name=\"test_thirty_episode_gate_and_restart_fence\" time=\"0.855\" /><testcase classname=\"exp.offline_search.rounds.r16.test_conductor\" name=\"test_transport_error_is_retried_not_sr_failure\" time=\"0.750\" /><testcase classname=\"exp.offline_search.rounds.r16.test_conductor\" name=\"test_sparse_analysis_primary_identical_and_unknown_not_imputed\" time=\"0.456\" /><testcase classname=\"exp.offline_search.rounds.r16.test_conductor\" name=\"test_array_interning_byte_exact_and_containers_isolated\" time=\"0.001\" /><testcase classname=\"exp.offline_search.rounds.r16.test_conductor\" name=\"test_gr_checkpoint_capability_and_runner_argv\" time=\"0.008\" /><testcase classname=\"exp.offline_search.rounds.r16.test_conductor\" name=\"test_adaptive_freeze_refuses_tamper_and_missing_cells\" time=\"0.062\" /><testcase classname=\"exp.offline_search.rounds.r16.test_conductor\" name=\"test_resident_loader_matches_legacy_and_rejects_cross_arm[pi05]\" time=\"0.117\" /><testcase classname=\"exp.offline_search.rounds.r16.test_conductor\" name=\"test_resident_loader_matches_legacy_and_rejects_cross_arm[groot]\" time=\"0.103\" /><testcase classname=\"exp.offline_search.rounds.r16.test_conductor\" name=\"test_collector_summary_rounding_only\" time=\"0.052\" /><testcase classname=\"exp.offline_search.rounds.r16.test_conductor\" name=\"test_legacy_pure_receipts_recover_whole_episode_gap_only\" time=\"0.176\" /><testcase classname=\"exp.offline_search.rounds.r16.test_conductor\" name=\"test_detached_agent_lease_expires_and_rejects_old_controller\" time=\"0.006\" /><testcase classname=\"exp.offline_search.rounds.r16.test_conductor\" name=\"test_coordinator_owned_lifecycle_and_lease_without_launches[False]\" time=\"0.018\" /><testcase classname=\"exp.offline_search.rounds.r16.test_conductor\" name=\"test_coordinator_owned_lifecycle_and_lease_without_launches[True]\" time=\"0.022\" /><testcase classname=\"exp.offline_search.rounds.r16.test_groot_servers\" name=\"test_resident_specs_per_suite_ports_and_checkpoints[3]\" time=\"0.003\" /><testcase classname=\"exp.offline_search.rounds.r16.test_groot_servers\" name=\"test_resident_specs_per_suite_ports_and_checkpoints[4]\" time=\"0.003\" /><testcase classname=\"exp.offline_search.rounds.r16.test_groot_servers\" name=\"test_resize_keeps_receipts_and_shrink_stops_only_surplus[False-3]\" time=\"0.021\" /><testcase classname=\"exp.offline_search.rounds.r16.test_groot_servers\" name=\"test_resize_keeps_receipts_and_shrink_stops_only_surplus[False-4]\" time=\"0.021\" /><testcase classname=\"exp.offline_search.rounds.r16.test_groot_servers\" name=\"test_resize_keeps_receipts_and_shrink_stops_only_surplus[True-3]\" time=\"0.020\" /><testcase classname=\"exp.offline_search.rounds.r16.test_groot_servers\" name=\"test_resize_keeps_receipts_and_shrink_stops_only_surplus[True-4]\" time=\"0.023\" /><testcase classname=\"exp.offline_search.rounds.r16.test_groot_servers\" name=\"test_resize_failure_keeps_retirement_receipts_for_resume\" time=\"0.013\" /><testcase classname=\"exp.offline_search.rounds.r16.test_groot_servers\" name=\"test_stop_attempts_all_servers_before_timeout_wait[True]\" time=\"0.002\" /><testcase classname=\"exp.offline_search.rounds.r16.test_groot_servers\" name=\"test_stop_attempts_all_servers_before_timeout_wait[False]\" time=\"0.002\" /><testcase classname=\"exp.offline_search.rounds.r16.test_groot_servers\" name=\"test_changed_endpoint_count_keeps_completed_and_fences_inflight\" time=\"0.696\" /><testcase classname=\"exp.offline_search.rounds.r16.test_groot_servers\" name=\"test_operational_registration_accepts_runner_and_rejects_measurement_tamper\" time=\"0.079\" /></testsuite></testsuites>"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/r17_integration/verification/cpu_tests.xml",
+      "sha256": "493ddaa8868dc2b0a720c245c8c1ea110466637ac7baf4a17db9cf6ac6dd758e",
+      "bytes": 13266,
+      "line_count": 1,
+      "cited_lines": {
+        "1": "<?xml version=\"1.0\" encoding=\"utf-8\"?><testsuites name=\"pytest tests\"><testsuite name=\"pytest\" errors=\"0\" failures=\"0\" skipped=\"6\" tests=\"95\" time=\"9.773\" timestamp=\"2026-10-09T10:49:57.151224-05:00\" hostname=\"weilandserver\"><testcase classname=\"tests.serving.test_policy_identity\" name=\"test_fingerprint_is_content_sensitive_at_equal_size\" time=\"0.003\" /><testcase classname=\"tests.serving.test_policy_identity\" name=\"test_fingerprint_depends_on_config_name\" time=\"0.002\" /><testcase classname=\"tests.serving.test_policy_identity\" name=\"test_fingerprint_rejects_empty_root\" time=\"0.001\" /><testcase classname=\"tests.serving.test_policy_identity\" name=\"test_fingerprint_rejects_escaping_symlink\" time=\"0.002\" /><testcase classname=\"tests.serving.test_policy_identity\" name=\"test_resolve_effective_policy_spec_branches\" time=\"6.630\" /><testcase classname=\"tests.serving.test_per_step_recorder\" name=\"test_summarize_gate_log_excludes_episode_summary_row\" time=\"0.001\" /><testcase classname=\"tests.serving.test_per_step_recorder\" name=\"test_summarize_gate_log_missing_dir_is_zero\" time=\"0.001\" /><testcase classname=\"tests.serving.test_per_step_recorder\" name=\"test_shim_mode_never_injects_success\" time=\"0.001\" /><testcase classname=\"tests.serving.test_per_step_recorder\" name=\"test_gate_mode_stamps_success\" time=\"0.001\" /><testcase classname=\"tests.serving.test_per_step_recorder\" name=\"test_gate_mode_tail_flush_null_on_crash\" time=\"0.001\" /><testcase classname=\"tests.serving.test_per_step_recorder\" name=\"test_pool_finalize_merges_sorted\" time=\"0.002\" /><testcase classname=\"tests.serving.test_per_step_recorder\" name=\"test_filter_searched\" time=\"0.000\" /><testcase classname=\"tests.serving.test_per_step_recorder\" name=\"test_pool_gate_mode_finalize_drops_searched_false\" time=\"0.002\" /><testcase classname=\"tests.serving.test_per_step_recorder\" name=\"test_pool_default_keeps_all_rows\" time=\"0.001\" /><testcase classname=\"tests.serving.test_replica_proxy\" name=\"test_proxy_public_server_uses_finite_frame_cap\" time=\"0.001\" /><testcase classname=\"tests.serving.test_replica_proxy\" name=\"test_classify_infer_obs_is_sticky\" time=\"0.001\" /><testcase classname=\"tests.serving.test_replica_proxy\" name=\"test_classify_per_connection_ctrls_are_sticky\" time=\"0.000\" /><testcase classname=\"tests.serving.test_replica_proxy\" name=\"test_classify_broadcast_ctrls\" time=\"0.000\" /><testcase classname=\"tests.serving.test_replica_proxy\" name=\"test_classify_aggregate_ctrls\" time=\"0.000\" /><testcase classname=\"tests.serving.test_replica_proxy\" name=\"test_classify_non_dict_and_garbage_are_sticky\" time=\"0.000\" /><testcase classname=\"tests.serving.test_replica_proxy\" name=\"test_merge_dump_replies_concatenates_slices\" time=\"0.000\" /><testcase classname=\"tests.serving.test_replica_proxy\" name=\"test_merge_dump_replies_skips_benign_missing_replicas\" time=\"0.001\" /><testcase classname=\"tests.serving.test_replica_proxy\" name=\"test_merge_dump_replies_all_benign_missing_surfaces_error\" time=\"0.000\" /><testcase classname=\"tests.serving.test_replica_proxy\" name=\"test_merge_dump_replies_fatal_error_is_not_skipped\" time=\"0.000\" /><testcase classname=\"tests.serving.test_replica_proxy\" name=\"test_merge_dump_replies_dropped_backend_is_partial_error\" time=\"0.000\" /><testcase classname=\"tests.serving.test_replica_proxy\" name=\"test_merge_dump_replies_malformed_reply_is_error\" time=\"0.000\" /><testcase classname=\"tests.serving.test_replica_proxy\" name=\"test_fetch_dump_not_found_msg_matches_server_contract\" time=\"0.001\" /><testcase classname=\"tests.serving.test_replica_proxy\" name=\"test_merge_metrics_empty\" time=\"0.000\" /><testcase classname=\"tests.serving.test_replica_proxy\" name=\"test_merge_metrics_concatenates_and_tags_replica\" time=\"0.000\" /><testcase classname=\"tests.serving.test_replica_proxy\" name=\"test_merge_metrics_handles_missing_key_in_some_replicas\" time=\"0.000\" /><testcase classname=\"tests.serving.test_replica_proxy\" name=\"test_proxy_end_to_end_routing\" time=\"0.000\"><skipped type=\"pytest.skip\" message=\"needs --run-manual (manual/env_dependent)\">/home/weiland/projects/openpi/tests/serving/test_replica_proxy.py:305: needs --run-manual (manual/env_dependent)</skipped></testcase><testcase classname=\"tests.serving.test_replica_proxy\" name=\"test_proxy_fetch_dump_dropped_backend_is_error\" time=\"0.000\"><skipped type=\"pytest.skip\" message=\"needs --run-manual (manual/env_dependent)\">/home/weiland/projects/openpi/tests/serving/test_replica_proxy.py:336: needs --run-manual (manual/env_dependent)</skipped></testcase><testcase classname=\"tests.serving.test_replica_proxy\" name=\"test_proxy_sticky_backend_down_sends_error_frame\" time=\"0.000\"><skipped type=\"pytest.skip\" message=\"needs --run-manual (manual/env_dependent)\">/home/weiland/projects/openpi/tests/serving/test_replica_proxy.py:368: needs --run-manual (manual/env_dependent)</skipped></testcase><testcase classname=\"tests.serving.test_replica_proxy\" name=\"test_proxy_broadcast_partial_failure_surfaces_error\" time=\"0.000\"><skipped type=\"pytest.skip\" message=\"needs --run-manual (manual/env_dependent)\">/home/weiland/projects/openpi/tests/serving/test_replica_proxy.py:402: needs --run-manual (manual/env_dependent)</skipped></testcase><testcase classname=\"tests.serving.test_replica_proxy\" name=\"test_proxy_prime_metadata_gives_up_when_backend_down\" time=\"0.000\"><skipped type=\"pytest.skip\" message=\"needs --run-manual (manual/env_dependent)\">/home/weiland/projects/openpi/tests/serving/test_replica_proxy.py:409: needs --run-manual (manual/env_dependent)</skipped></testcase><testcase classname=\"tests.serving.test_replica_proxy\" name=\"test_merge_throughput_summary_preserves_schema_and_aggregates\" time=\"0.001\" /><testcase classname=\"tests.serving.test_replica_proxy\" name=\"test_merge_throughput_summary_partial_surfaces_status\" time=\"0.000\" /><testcase classname=\"tests.serving.test_replica_proxy\" name=\"test_merge_throughput_summary_all_insufficient\" time=\"0.000\" /><testcase classname=\"tests.serving.test_replica_proxy\" name=\"test_merge_throughput_summary_all_errored_is_error_not_insufficient\" time=\"0.000\" /><testcase classname=\"tests.serving.test_replica_proxy\" name=\"test_merge_throughput_summary_dropped_reply_is_error\" time=\"0.000\" /><testcase classname=\"tests.serving.test_replica_proxy\" name=\"test_merge_throughput_summary_aggregates_cleared_totals\" time=\"0.000\" /><testcase classname=\"tests.serving.test_replica_proxy\" name=\"test_proxy_control_then_sticky_handoff\" time=\"0.000\"><skipped type=\"pytest.skip\" message=\"needs --run-manual (manual/env_dependent)\">/home/weiland/projects/openpi/tests/serving/test_replica_proxy.py:545: needs --run-manual (manual/env_dependent)</skipped></testcase><testcase classname=\"tests.serving.test_replica_proxy\" name=\"test_merge_throughput_summary_multistage_max_and_empty\" time=\"0.000\" /><testcase classname=\"tests.serving.test_router_bundle_rebind\" name=\"test_two_bundle_versions_build_judges_from_their_own_weights\" time=\"0.021\" /><testcase classname=\"tests.serving.test_router_bundle_rebind\" name=\"test_rebinding_a_bundle_yields_a_fresh_judge\" time=\"0.006\" /><testcase classname=\"tests.serving.test_router_bundle_rebind\" name=\"test_verdicts_carry_the_bundle_weights_version\" time=\"0.011\" /><testcase classname=\"tests.serving.test_router_bundle_rebind\" name=\"test_unknown_bundle_id_is_not_silently_defaulted\" time=\"0.001\" /><testcase classname=\"tests.exp.metaworld.test_env\" name=\"test_task_table_matches_rlinf\" time=\"0.001\" /><testcase classname=\"tests.exp.metaworld.test_env\" name=\"test_export_tasks_is_entry_compatible\" time=\"0.001\" /><testcase classname=\"tests.exp.metaworld.test_env\" name=\"test_export_tasks_rejects_bad_requests[names0-0-0]\" time=\"0.001\" /><testcase classname=\"tests.exp.metaworld.test_env\" name=\"test_export_tasks_rejects_bad_requests[names1-51-0]\" time=\"0.001\" /><testcase classname=\"tests.exp.metaworld.test_env\" name=\"test_export_tasks_rejects_bad_requests[names2-2-49]\" time=\"0.001\" /><testcase classname=\"tests.exp.metaworld.test_env\" name=\"test_export_tasks_rejects_bad_requests[names3-1-0]\" time=\"0.001\" /><testcase classname=\"tests.exp.metaworld.test_env\" name=\"test_export_tasks_rejects_bad_requests[names4-1-0]\" time=\"0.001\" /><testcase classname=\"tests.exp.metaworld.test_env\" name=\"test_unknown_task_name\" time=\"0.000\" /><testcase classname=\"tests.exp.metaworld.test_env\" name=\"test_place_camera_asserts_corner2_id\" time=\"0.001\" /><testcase classname=\"tests.exp.metaworld.test_env\" name=\"test_render_rotated_and_contiguous\" time=\"0.001\" /><testcase classname=\"tests.exp.metaworld.test_env\" name=\"test_observation_request_format\" time=\"0.002\" /><testcase classname=\"tests.exp.metaworld.test_env\" name=\"test_settle_steps_are_zero_actions\" time=\"0.001\" /><testcase classname=\"tests.exp.metaworld.test_env\" name=\"test_step_cap_and_replan_spacing\" time=\"0.008\" /><testcase classname=\"tests.exp.metaworld.test_env\" name=\"test_success_stops_mid_chunk\" time=\"0.001\" /><testcase classname=\"tests.exp.metaworld.test_env\" name=\"test_terminated_is_not_success\" time=\"0.001\" /><testcase classname=\"tests.exp.metaworld.test_env\" name=\"test_bad_action_chunk_and_replan_rejected\" time=\"0.001\" /><testcase classname=\"tests.exp.metaworld.test_runner\" name=\"test_episode_identity_rows_and_outcome\" time=\"0.001\" /><testcase classname=\"tests.exp.metaworld.test_runner\" name=\"test_rows_without_hit_meta_still_count_decisions\" time=\"0.002\" /><testcase classname=\"tests.exp.metaworld.test_runner\" name=\"test_connection_reuse_bundle_switch_and_reconnect\" time=\"0.001\" /><testcase classname=\"tests.exp.metaworld.test_runner\" name=\"test_failure_drops_connection_and_ends_episode\" time=\"0.002\" /><testcase classname=\"tests.exp.metaworld.test_runner\" name=\"test_task_name_cross_check\" time=\"0.001\" /><testcase classname=\"tests.exp.metaworld.test_runner\" name=\"test_decision_row_drops_non_scalars\" time=\"0.000\" /><testcase classname=\"tests.exp.metaworld.test_runner\" name=\"test_worker_spawn_command_and_environment\" time=\"0.001\" /><testcase classname=\"tests.exp.metaworld.test_runner\" name=\"test_worker_entry_imports_without_simulator\" time=\"0.002\" /><testcase classname=\"exp.mw_finetune.tests.test_contract\" name=\"test_task_roster_and_formal_episode_identities\" time=\"0.001\" /><testcase classname=\"exp.mw_finetune.tests.test_contract\" name=\"test_wire_canonical_round_trip_preserves_pixels_state_and_prompt\" time=\"0.001\" /><testcase classname=\"exp.mw_finetune.tests.test_contract\" name=\"test_malformed_observations_are_rejected[change0]\" time=\"0.001\" /><testcase classname=\"exp.mw_finetune.tests.test_contract\" name=\"test_malformed_observations_are_rejected[change1]\" time=\"0.001\" /><testcase classname=\"exp.mw_finetune.tests.test_contract\" name=\"test_malformed_observations_are_rejected[change2]\" time=\"0.001\" /><testcase classname=\"exp.mw_finetune.tests.test_contract\" name=\"test_malformed_observations_are_rejected[change3]\" time=\"0.001\" /><testcase classname=\"exp.mw_finetune.tests.test_contract\" name=\"test_malformed_observations_are_rejected[change4]\" time=\"0.001\" /><testcase classname=\"exp.mw_finetune.tests.test_contract\" name=\"test_physical_actions_are_not_clipped_or_gripper_inverted\" time=\"0.001\" /><testcase classname=\"exp.mw_finetune.tests.test_contract\" name=\"test_groot_four_channel_mapping\" time=\"0.001\" /><testcase classname=\"exp.mw_finetune.tests.test_contract\" name=\"test_connection_rng_and_reset_are_independent_of_interleaving\" time=\"0.001\" /><testcase classname=\"exp.mw_finetune.tests.test_contract\" name=\"test_connection_rejects_wrong_prompt_and_benchmark_seed\" time=\"0.001\" /><testcase classname=\"exp.mw_finetune.tests.test_contract\" name=\"test_aggregation_distinguishes_task_and_group_weighting\" time=\"0.002\" /><testcase classname=\"exp.mw_finetune.tests.test_contract\" name=\"test_errors_are_missing_and_retry_then_completes_without_double_counting\" time=\"0.003\" /><testcase classname=\"exp.mw_finetune.tests.test_contract\" name=\"test_pi05_uses_existing_wire_keys_and_explicit_repeatable_noise\" time=\"0.001\" /><testcase classname=\"exp.mw_finetune.tests.test_contract\" name=\"test_checkpoint_identity_detects_changed_config_and_weights\" time=\"0.002\" /><testcase classname=\"exp.mw_finetune.tests.test_contract\" name=\"test_h100_disk_floor_and_shared_budget\" time=\"0.001\" /><testcase classname=\"exp.mw_finetune.tests.test_contract\" name=\"test_journal_recovers_only_torn_tail_and_preserves_original\" time=\"0.005\" /><testcase classname=\"exp.mw_finetune.tests.test_contract\" name=\"test_valid_final_journal_record_without_newline_can_resume\" time=\"0.003\" /><testcase classname=\"exp.mw_finetune.tests.test_contract\" name=\"test_env_conventions_rotation_settle_replan_early_success\" time=\"0.024\" /><testcase classname=\"exp.mw_finetune.tests.test_workers\" name=\"test_context_lifecycle_is_locked_without_changing_frames\" time=\"0.001\" /><testcase classname=\"exp.mw_finetune.tests.test_workers\" name=\"test_context_lock_cannot_be_disabled\" time=\"0.001\" /><testcase classname=\"exp.mw_finetune.tests.test_workers\" name=\"test_snapshot_verifies_files_and_remains_resumable\" time=\"0.090\" /><testcase classname=\"exp.mw_finetune.tests.test_workers\" name=\"test_snapshot_rejects_running_driver\" time=\"0.074\" /><testcase classname=\"exp.mw_finetune.tests.test_workers\" name=\"test_snapshot_rejects_tampered_bytes\" time=\"0.005\" /></testsuite></testsuites>"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/r17_integration/verification/proxy_socket_tests.xml",
+      "sha256": "8568e575c2a9f5076e9bb0335ef945ab8f3fdeb019c961e709317946e4c4cd92",
+      "bytes": 981,
+      "line_count": 1,
+      "cited_lines": {
+        "1": "<?xml version=\"1.0\" encoding=\"utf-8\"?><testsuites name=\"pytest tests\"><testsuite name=\"pytest\" errors=\"0\" failures=\"0\" skipped=\"0\" tests=\"6\" time=\"0.153\" timestamp=\"2026-10-09T11:21:47.222017-05:00\" hostname=\"weilandserver\"><testcase classname=\"tests.serving.test_replica_proxy\" name=\"test_proxy_end_to_end_routing\" time=\"0.034\" /><testcase classname=\"tests.serving.test_replica_proxy\" name=\"test_proxy_fetch_dump_dropped_backend_is_error\" time=\"0.008\" /><testcase classname=\"tests.serving.test_replica_proxy\" name=\"test_proxy_sticky_backend_down_sends_error_frame\" time=\"0.006\" /><testcase classname=\"tests.serving.test_replica_proxy\" name=\"test_proxy_broadcast_partial_failure_surfaces_error\" time=\"0.010\" /><testcase classname=\"tests.serving.test_replica_proxy\" name=\"test_proxy_prime_metadata_gives_up_when_backend_down\" time=\"0.022\" /><testcase classname=\"tests.serving.test_replica_proxy\" name=\"test_proxy_control_then_sticky_handoff\" time=\"0.012\" /></testsuite></testsuites>"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/logs/cosmos_nfe_plan.log.md",
+      "sha256": "b920abda51609756e9cc89acff1dbb6a3868d40f6ab39b9a10a862f927ecca90",
+      "bytes": 18882,
+      "line_count": 72,
+      "cited_lines": {
+        "8": "Cosmos-Policy-LIBERO-Predict2-2B（EDM 视频扩散共去噪，整模循环，默认 5 步）在 libero_10 / libero_spatial 官方 50 init × 10 任务 = 500 集上，`--num_denoising_steps_action k`，k ∈ {5（复现）, 3, 2, 1}（有余力加 4），得到 SR(k)；与论文 97.6 / 98.1（H100，seed 195/196/197 均值）对照。判据：k=1 是否掉点（EDM 未蒸馏 vs 我们 π0.5/GR00T 流匹配的\"一步无损\"）。成本：单卡 4090 实测 1/2/3/5 步的每 chunk 延迟，IR(k) = 实测延迟比（无前缀/头分工，c_pre = VAE + T5 查表）。",
+        "14": "- 官方 eval：`cosmos_policy.experiments.robot.libero.run_libero_eval`，**串行**跑 10 任务 × 50 集（并行只用于 best-of-N 查询跨 GPU）；chunk 16 整段执行；`--deterministic True --seed 195`；显存 6.8 GB。"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/packages/openpi-client/src/openpi_client/websocket_client_policy.py",
+      "sha256": "62eca22b061bc9971212a691bd24466faa8d7cde2cec964a8b2254ba30e76889",
+      "bytes": 13114,
+      "line_count": 297,
+      "cited_lines": {
+        "60": "        episode_id: int = -1,",
+        "147": "    def reset(self) -> None:"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/scripts/serve_policy.py",
+      "sha256": "91d6695619296f4e11a0a7ade10a760cae7ff98782cace20b2e1384304d6b8d8",
+      "bytes": 48562,
+      "line_count": 1127,
+      "cited_lines": {
+        "150": "    # Enable concurrent multi-client mode (default).  When True, each WebSocket",
+        "172": "    # Per-stage device placement. Default: None (no override, legacy behavior).",
+        "179": "    # verdict_factor_judge B2: filesystem root for warmup dump JSONL files.",
+        "213": "def _disable_compile_for_serving(train_config: \"_config.TrainConfig\") -> \"_config.TrainConfig\":",
+        "549": "def _wrap_policy(",
+        "785": "    if args.record:",
+        "840": "def main(args: Args) -> None:",
+        "1021": "    if args.concurrent:"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/src/openpi/cache/components/key_builder.py",
+      "sha256": "9d8aa22325e998389dd282b0eb456ccaf41483525a4cd8fb6726cee2b3ef9073",
+      "bytes": 32924,
+      "line_count": 807,
+      "cited_lines": {
+        "159": "# SigLIP: image_resolution=224, patch_size=14 -> (224/14)^2 = 256 tokens per image",
+        "252": "class _CP1BaseKeyBuilder:",
+        "279": "    def collect(self, checkpoint_id: CheckpointID, **stage_outputs) -> None:",
+        "299": "    def build(self, checkpoint_id: CheckpointID) -> dict[str, torch.Tensor]:",
+        "432": "class CP1MeanPoolKeyBuilder(_CP1BaseKeyBuilder):",
+        "639": "class CP1TemporalPruneKeyBuilder:"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/src/openpi/cache/config.py",
+      "sha256": "5020cecac9eff37e379091a7e9defbf5569f3475156b801afc002dee6e1551c8",
+      "bytes": 242868,
+      "line_count": 5548,
+      "cited_lines": {
+        "461": "class SearchStrategyConfig:",
+        "539": "class BackendConfig:",
+        "737": "class ShadowTeacherConfig:",
+        "798": "class WarmResetStartConfig:",
+        "873": "class MissConfig:",
+        "890": "class CacheConfig:",
+        "937": "def effective_denoise_schedule(config: \"CacheConfig\") -> DenoiseSchedule:",
+        "962": "_CP2_KEY_BUILDER_TYPE = \"cp2_vlm_ternary\"",
+        "975": "_GATE_TYPES = frozenset(",
+        "1001": "def compute_surface_retrieval_contract(config: \"CacheConfig\") -> dict:",
+        "1043": "def _keys_iter(keys: KeysConfig) -> Iterator[tuple[str, KeyFieldConfig]]:",
+        "1330": "def load_cache_config(path: str | Path, *, check_files: bool = True) -> CacheConfig:",
+        "3705": "    wr = getattr(config, \"warm_reset\", None)",
+        "3858": "def _miss_errors(config: CacheConfig, check_files: bool) -> list[str]:",
+        "3899": "def build_shared_storage(config: CacheConfig):",
+        "4384": "def build_per_connection_components(",
+        "4392": "    \"\"\"Build per-connection cache components, reusing only the backend.",
+        "4420": "    # Wrap the shared backend in a fresh facade for this connection. The",
+        "4646": "def _build_key_builder("
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/src/openpi/cache/groot/batcher.py",
+      "sha256": "d07f1122182e3b24a3c727c625b9ee39241ef84301430e5d30ca3b8861e100d3",
+      "bytes": 13404,
+      "line_count": 364,
+      "cited_lines": {
+        "240": "class GrootStageBatcher:",
+        "249": "    def bucket_key(payload: Any) -> Hashable:",
+        "291": "    def run_stage1_batch(self, payloads: list) -> list:",
+        "299": "    def _schedule_for(self, num_steps: int) -> DenoiseSchedule:"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/src/openpi/cache/groot/interceptor.py",
+      "sha256": "152d310966f22f4c89821e2aaaf0134b21af784a06a0f7345b97ff3248d253b9",
+      "bytes": 62311,
+      "line_count": 1306,
+      "cited_lines": {
+        "126": "class GrootCacheInterceptor:",
+        "248": "    def _require_miss_steps(self, num_steps: int) -> int:",
+        "260": "    def on_task_begin(self) -> None:",
+        "449": "            normalized_input = self._policy.apply_transforms(obs_copy)",
+        "494": "                elif hit_type == HitType.FULL_HIT:",
+        "496": "                elif hit_type == HitType.WARM_START:",
+        "554": "                    if self._miss_num_steps is not None:",
+        "566": "                action_cpu = self._to_storage_tensor(chunk)",
+        "578": "            unnormalized = self._policy.unapply_transforms(",
+        "595": "    def _continuation_feedback(self, spec, stage2, payload, schedule, *, executed) -> dict:",
+        "632": "    def _get_action_cp2(self, normalized_input: dict, is_batch: bool) -> dict[str, Any]:"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/src/openpi/cache/groot/key_builder.py",
+      "sha256": "0e7b175029d50e255a097aad28e85b06f47590ea59554179ecb64f756869fba2",
+      "bytes": 10398,
+      "line_count": 263,
+      "cited_lines": {
+        "79": "def slice_groot_cp1_fields(",
+        "152": "class _GrootCP1BaseKeyBuilder(_CP1BaseKeyBuilder):",
+        "260": "class GrootLiberoCP1SpatialPool16KeyBuilder(GrootCP1SpatialPool16KeyBuilder):"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/src/openpi/cache/groot/staged.py",
+      "sha256": "b762bf7d6d469f47a9d4c560abb8ddd16d1f6fc020770618a3a24056ef18442b",
+      "bytes": 50457,
+      "line_count": 1085,
+      "cited_lines": {
+        "1": "\"\"\"Split one GR00T N1.5 forward pass into three cacheable stages.",
+        "99": "# sha256 of inspect.getsource(Eagle2_5_VLForConditionalGeneration.forward) for",
+        "263": "class GrootStagedRunner:",
+        "284": "    def __init__(",
+        "317": "        if verify_upstream:",
+        "334": "        # Optional compiled vision tower (owner directive 2026-08-22): the"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/src/openpi/cache/orchestrator.py",
+      "sha256": "0b781cdb76b62d64db389ea77cb33f52c10dadc2e0bffd74abca052cc3776b94",
+      "bytes": 64913,
+      "line_count": 1472,
+      "cited_lines": {
+        "7": "Data flow overview:",
+        "14": "Coupling map:",
+        "127": "class CheckResult:",
+        "169": "class CacheOrchestrator:"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/src/openpi/cache/storage_types.py",
+      "sha256": "4d5aa90c9f159eb65beb95918a1e3f706e42b2bc88259a6a46d2beeb6ce3d4f4",
+      "bytes": 20483,
+      "line_count": 483,
+      "cited_lines": {
+        "61": "class CachePayload:",
+        "65": "      CP1 FULL_HIT   : action_chunk required; intermediates / denoising_num_steps optional.",
+        "105": "    action_chunk: torch.Tensor  # [50, 32] CPU float32",
+        "122": "    def validate_for_warm_start("
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/src/openpi/cache/timing.py",
+      "sha256": "297649511524a8499efd0151e69a81bb5af889106f0f23c1e2426e89b8a35926",
+      "bytes": 41831,
+      "line_count": 1046,
+      "cited_lines": {
+        "195": "class CudaEventBackend:",
+        "253": "class PerfCounterBackend:"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/src/openpi/cache/trace/h5_sink.py",
+      "sha256": "8a3267be8b195ed39d7876efdcfb6cd97ddb86e7594fdadd45e74c0789b75df6",
+      "bytes": 40309,
+      "line_count": 977,
+      "cited_lines": {
+        "1": "\"\"\"HDF5 trace writer and per-connection sink (plan §7.1, §7.2, §7.4).",
+        "630": "        final_path = resolve_episode_path("
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/src/openpi/cache/trace/runtime.py",
+      "sha256": "be79ed5294e5736ce4b7c6a812597763dd0340dff3199817967b0e7367630628",
+      "bytes": 14846,
+      "line_count": 385,
+      "cited_lines": {
+        "255": "def build_trace_runtime(",
+        "336": "def build_groot_trace_runtime("
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/src/openpi/cache/trace/types.py",
+      "sha256": "caacc1d8ae3f9f9be7be8701537c120f54be1ce8da5490f36d05693a25f89db6",
+      "bytes": 12001,
+      "line_count": 350,
+      "cited_lines": {
+        "73": "@dataclass(frozen=True)"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/src/openpi/cache/types.py",
+      "sha256": "46c89e1305dcd5309bad587fe196df4ce14796da78389cfc78ee201547efe630",
+      "bytes": 9952,
+      "line_count": 239,
+      "cited_lines": {
+        "82": "class DenoiseSchedule:",
+        "154": "    def remaining_steps(self, t: float) -> int:",
+        "179": "# The Pi0.5 schedule every pre-existing artifact, HDF5 file and yaml implicitly",
+        "184": "def groot_n15_schedule(num_inference_timesteps: int) -> DenoiseSchedule:",
+        "202": "def schedule_from_id(schedule_id: str) -> DenoiseSchedule:"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/src/openpi/cache/warmup_pool.py",
+      "sha256": "29c2c331131aa66ba6b979eec87ea9479fd46bae678ba27cdeee0aba92a43ed5",
+      "bytes": 3805,
+      "line_count": 93,
+      "cited_lines": {
+        "1": "\"\"\"Process-wide warmup buffer pool keyed by eval yaml id."
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/src/openpi/collect/data_collector.py",
+      "sha256": "30a71d3014f046a0c968b2316b5c233c8260ef756917541218a624db0a5dd506",
+      "bytes": 9834,
+      "line_count": 261,
+      "cited_lines": {
+        "38": "def resolve_episode_path(",
+        "73": "def write_episode_attrs(",
+        "100": "def write_step_group(grp: h5py.Group, embs: \"InferenceEmbeddings\") -> None:"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/src/openpi/collect/h5_intermediates.py",
+      "sha256": "23db7f662f5ba123f73e6e6d46e5479bd25bf8e36abe5514a121db83dac2dd2e",
+      "bytes": 4963,
+      "line_count": 122,
+      "cited_lines": {
+        "1": "\"\"\"Read denoise-loop snapshots out of collected HDF5 episodes."
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/src/openpi/conductor/agent.py",
+      "sha256": "9e39391d7c1412446abee160f6d0280be940150293dd0399ee769a5e6072d3d2",
+      "bytes": 11955,
+      "line_count": 258,
+      "cited_lines": {
+        "186": "class WorkerAgent:"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/src/openpi/conductor/driver.py",
+      "sha256": "fb50124bee79924591cb690dcf31a6e4a24a771b8beb6f3515ad21b2d040ba8a",
+      "bytes": 28599,
+      "line_count": 581,
+      "cited_lines": {
+        "199": "    def _setup_stage(self, stage: _task.Stage) -> None:",
+        "323": "    def handle_result(self, payload: dict[str, Any]) -> None:",
+        "471": "    def _record_pull(self, payload: dict[str, Any], peer: Any) -> str | None:"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/src/openpi/conductor/journal.py",
+      "sha256": "5b2aea9600f54424cdfa9dabbf7262edef4b613ab58c3df3070f03f5efc0b9ae",
+      "bytes": 6760,
+      "line_count": 153,
+      "cited_lines": {
+        "97": "    def record_counts_as_done(rec: dict) -> bool:"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/src/openpi/conductor/scheduler.py",
+      "sha256": "80ede7fb1b8c474d9b4c710694e1de7d420d07750a09fc3e80938e2b0d2c934f",
+      "bytes": 17511,
+      "line_count": 384,
+      "cited_lines": {
+        "260": "    def mark_result(self, task_uid: str, *, success: bool, retriable: bool, attempt: int | None = None) -> bool:"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/src/openpi/conductor/task.py",
+      "sha256": "b175d54d8a47b30e74611d4519088eb328bd815bf7b9bc5013e8e16a0a0d84ca",
+      "bytes": 14254,
+      "line_count": 318,
+      "cited_lines": {
+        "1": "\"\"\"Core data structures for the two-layer experiment conductor framework.",
+        "3": "These are the pure-data types exchanged across the worker / agent / driver",
+        "26": "",
+        "38": "@dataclasses.dataclass(frozen=True)",
+        "66": "def make_task_uid(yaml_id: str, phase: str, task_id: int, episode_idx: int) -> str:",
+        "81": "@dataclasses.dataclass(frozen=True)",
+        "95": "    attempt: int = 1  # per-dispatch generation; fences stale results after a requeue (G2R3)",
+        "139": "@dataclasses.dataclass(frozen=True)"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/src/openpi/conductor/worker.py",
+      "sha256": "74b8cea7a870b9ce2473f69aaa77071d6697b0da74009e7bea5fc20c3c6d23e7",
+      "bytes": 9350,
+      "line_count": 201,
+      "cited_lines": {
+        "44": "class EpisodeRunner(abc.ABC):"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/src/openpi/models_pytorch/pi0_pytorch.py",
+      "sha256": "11f855b02edc860850149cb63f590c99aa162c07f810d0d26441f44ffa5b5c38",
+      "bytes": 37949,
+      "line_count": 871,
+      "cited_lines": {
+        "358": "        # Process images",
+        "469": "        att_masks += [1] + ([0] * (self.config.action_horizon - 1))",
+        "592": "    def run_stage1(self, observation) -> Stage1Output:",
+        "680": "            actions_shape = (bsize, self.config.action_horizon, self.config.action_dim)",
+        "704": "    def run_stage3_from("
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/src/openpi/policies/metaworld_policy.py",
+      "sha256": "4d041e7c80247811e661126f1902566f996b7e1f028d5cce2f1e6d1d5c9bdbbf",
+      "bytes": 3077,
+      "line_count": 83,
+      "cited_lines": {
+        "1": "\"\"\"MetaWorld MT50 input/output transforms for the RLinf pi0.5 SFT checkpoint.",
+        "55": "    def __call__(self, data: dict) -> dict:",
+        "79": "class MetaworldOutputs(transforms.DataTransformFn):"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/src/openpi/policies/policy.py",
+      "sha256": "103797c6e8ef11b91898fee67d5a0ff0c3036a5b68f97cacce4049dc8636c4ed",
+      "bytes": 11941,
+      "line_count": 280,
+      "cited_lines": {
+        "111": "                state, prefix_embs, prefix_pad_masks, prefix_att_2d_masks_4d, prefix_position_ids = self._model._stage1_token_prep(observation)",
+        "212": "class PolicyRecorder(_base_policy.BasePolicy):",
+        "224": "    def infer(self, obs: dict) -> dict:  # type: ignore[misc]",
+        "253": "    def on_episode_start("
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/src/openpi/serving/batching_coordinator.py",
+      "sha256": "7ccf2d9b3a157b403198962c4272032885fbcaebc5139df8e3a54f7f0383ebfa",
+      "bytes": 13176,
+      "line_count": 315,
+      "cited_lines": {
+        "84": "class Pi05StageBatcher:"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/src/openpi/serving/batching_core.py",
+      "sha256": "d39b9e0adb7f0828c28cebacc4dee4e4063a670ad3fbe8eb9939f0b3450341e5",
+      "bytes": 54455,
+      "line_count": 1190,
+      "cited_lines": {
+        "3": "Everything ``BatchingCoordinator`` did that is not Pi0.5-specific lives here:",
+        "13": "Trace additions (all additive): ``Stage3MissPayload.save_timesteps`` (per",
+        "25": "This module imports torch and the serving monitor only — never jax, the",
+        "192": "class StageRequest:",
+        "221": "class StageBatcher(Protocol):",
+        "304": "        # Per-stage CUDA streams (Phase-7 throughput fix). All three stage"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/src/openpi/serving/monitor.py",
+      "sha256": "57615e7ed82829f9415d913cc692f765f6c1a7b5b3fcb534478bca42b6ba6ba2",
+      "bytes": 31701,
+      "line_count": 798,
+      "cited_lines": {
+        "1": "\"\"\"Server-wide monitoring configuration and in-memory event recorder.",
+        "11": "``OFF`` *(default)*",
+        "37": "---------------------"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/src/openpi/serving/per_step_recorder.py",
+      "sha256": "b72702cd931109654d05f0fc33c2f3e4463d47851d50030bc76d496e3bb7b432",
+      "bytes": 14338,
+      "line_count": 358,
+      "cited_lines": {
+        "1": "\"\"\"Generalized per-step JSONL recorder for observability / gate-research collection."
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/src/openpi/serving/policy_identity.py",
+      "sha256": "63c5fdf2b360aeff81aa9ba6332a0881a4e150698c8134a21165e9fd9e4ff02d",
+      "bytes": 4087,
+      "line_count": 95,
+      "cited_lines": {
+        "53": "def compute_policy_fingerprint(resolved_checkpoint_root: str, config_name: str) -> str:"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/src/openpi/serving/replica_proxy.py",
+      "sha256": "e9538eb3025d3ca215407f79a61c775e0c62a47523fd724e8d4a6c1b7c11c1b8",
+      "bytes": 25593,
+      "line_count": 536,
+      "cited_lines": {
+        "1": "\"\"\"In-process WebSocket router fronting N serving replicas behind one port.",
+        "63": "# Ctrls that mutate shared per-replica state -> must reach every backend.",
+        "114": "def merge_dump_replies(replies: list[dict], *, n_expected: int) -> dict:",
+        "437": "    async def _broadcast(self, frame) -> bytes:"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/src/openpi/serving/stage_io.py",
+      "sha256": "ed919101176f23e51e4ea0caf20903b4962d0e52e8ece0be241e970b640542f5",
+      "bytes": 9956,
+      "line_count": 243,
+      "cited_lines": {
+        "9": "* ``stack_observation`` consumes **unbatched** per-request obs (no batch dim)",
+        "17": "  list of length N. For Stage2, ``DynamicCache`` is split with",
+        "29": "import jax"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/src/openpi/serving/trace_serving.py",
+      "sha256": "c246a055af16690d681f38fe89efd59cd7255c5654b4a4dc0ccb3c203a7caac8",
+      "bytes": 5400,
+      "line_count": 139,
+      "cited_lines": {
+        "1": "\"\"\"Trace-mode server lifecycle shared by every serving entry point (plan §7.4-5).",
+        "27": "TRACE_SHUTDOWN_BUDGET_S = 30.0"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/src/openpi/serving/websocket_policy_server.py",
+      "sha256": "e64e61c6bebb627240559043ef3473af5c9ba6bc84b2cf09d4613f5ba172f766",
+      "bytes": 55932,
+      "line_count": 1098,
+      "cited_lines": {
+        "272": "def _handle_dump_metrics(payload: dict) -> dict:",
+        "329": "def _handle_snapshot_mem(payload: dict) -> dict:",
+        "378": "def _handle_set_batch_params(payload: dict) -> dict:",
+        "600": "        def _bind_bundle(bundle_id: str) -> None:",
+        "664": "                    if ctrl == \"episode_start\":",
+        "748": "                        if not self._allow_dynamic_bundles:",
+        "782": "                                from openpi.cache.config import build_shared_storage",
+        "797": "                                try:",
+        "827": "                                global _current_bundle, _bundle_version",
+        "858": "                    elif ctrl == \"select_bundle\":",
+        "983": "                # M2 (lazy lifecycle, G2 R1 Item 2): concurrent connections",
+        "1009": "                # server_timing: wall-clock time spent in policy.infer(),",
+        "1029": "                if not self._concurrent:",
+        "1093": "def _health_check(connection: _server.ServerConnection, request: _server.Request) -> _server.Response | None:"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/src/openpi/training/config.py",
+      "sha256": "02ef2f85a0a635723dce5890bccf714e8985f7f20be64b85120ff144c2cd215e",
+      "bytes": 49115,
+      "line_count": 1089,
+      "cited_lines": {
+        "836": "    # MetaWorld MT50 inference config (no training entry point)."
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/tests/conductor/conftest.py",
+      "sha256": "84f0dd8857ff215d1197cfac8e5d9cf57416795bcf917ead4ce3755d09b3dd12",
+      "bytes": 4973,
+      "line_count": 144,
+      "cited_lines": {
+        "1": "\"\"\"Shared fakes for conductor integration tests.\"\"\""
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/tests/exp/metaworld/test_env.py",
+      "sha256": "08c77e075c02d1e31ca48ab0963b0ff0e40a3b87c2e672047f13ebf059034c73",
+      "bytes": 8929,
+      "line_count": 280,
+      "cited_lines": {
+        "1": "\"\"\"MetaWorld task table and simulator conventions (fake environments + one real cross-process check).\"\"\"",
+        "28": "def test_task_table_matches_rlinf():",
+        "243": "def _probe(pairs):"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/tests/exp/metaworld/test_runner.py",
+      "sha256": "d7b5f5142ffde4233c6472620af48410719875416aa9cff6f674c3735b501e28",
+      "bytes": 9130,
+      "line_count": 275,
+      "cited_lines": {
+        "1": "\"\"\"MetaWorld conductor runner, worker entry and warm reset env spec (fake client / env).\"\"\""
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/tests/libero_groot/test_dynamic_bundle_guards.py",
+      "sha256": "a96844cf4b4f5efad3c64f51def2c5843c057e74d1035cea10e7bfcb843ed5f8",
+      "bytes": 7162,
+      "line_count": 199,
+      "cited_lines": {
+        "1": "\"\"\"Hot-swapped cache bundles on the GR00T LIBERO server."
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/tests/serving/test_policy_identity.py",
+      "sha256": "afed1216b1612abe7368fbbc1e9a6306e51afe4a970c78463992d11a5071f641",
+      "bytes": 2259,
+      "line_count": 68,
+      "cited_lines": {
+        "1": "\"\"\"Tests for the policy attestation seam (content fingerprint + spec resolution).\"\"\""
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/tests/serving/test_replica_proxy.py",
+      "sha256": "e603fe2af46537dca78c6d44cc4fd183f912df443f685705f299569146ecf328",
+      "bytes": 25796,
+      "line_count": 575,
+      "cited_lines": {
+        "1": "\"\"\"Unit tests for the replica router's pure helpers (no GPU / no sockets).\"\"\"",
+        "302": "# Binds real localhost sockets + runs a full websocket round trip; hangs on socket"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi/tests/serving/test_router_bundle_rebind.py",
+      "sha256": "61d3dfe460a6fe3fee1837189cd8b779c9c4973ad79806d30cac0186fcc22753",
+      "bytes": 6271,
+      "line_count": 166,
+      "cited_lines": {
+        "1": "\"\"\"Router weight hot-swap across bundle versions (X14 §3.7).",
+        "3": "Between training batches the trainer writes a new checkpoint and the conductor"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/exp/decouple/GPU_PACKAGE.md",
+      "sha256": "f454949136568b3fa78f7a455c8560c991ffd553422ef8da2db0d52fed7bd0bb",
+      "bytes": 15534,
+      "line_count": 245,
+      "cited_lines": {
+        "3": "The owner's 17:20 smoke reused all four strict B=1 gates and completed GR00T",
+        "89": "Four `qualify_gpu` proofs cover π0.5 k=1/2 and GR00T k=1/2 at B=1, 16 rows,"
+      }
+    },
+    {
+      "path": "/home/weiland/projects/openpi_decouple/src/openpi/serving/split_runtime.py",
+      "sha256": "a4b44a890be5313b84894fc43738081b877495d61e9af72138f5235c9f31bf56",
+      "bytes": 13292,
+      "line_count": 278,
+      "cited_lines": {
+        "25": "def _assert_cpu_blueprint(obj, seen=None):",
+        "211": "def validate_split_config(config):"
+      }
+    }
+  ]
+}

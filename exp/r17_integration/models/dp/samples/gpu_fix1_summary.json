@@ -1,0 +1,244 @@
+{
+  "schema": "r17.p4.gpu_fix1.summary.v1",
+  "device": "cpu",
+  "gpu_executed": false,
+  "pytest": {
+    "full": {
+      "tests": 134,
+      "failures": 0,
+      "skipped": 0,
+      "errors": 0,
+      "passed": 134,
+      "seconds": 84.951,
+      "expected_exit_code": 0
+    },
+    "legacy": {
+      "tests": 49,
+      "failures": 0,
+      "skipped": 0,
+      "errors": 0,
+      "passed": 49,
+      "seconds": 15.641,
+      "expected_exit_code": 0
+    },
+    "targeted": {
+      "tests": 9,
+      "failures": 0,
+      "skipped": 0,
+      "errors": 0,
+      "passed": 9,
+      "seconds": 33.469,
+      "expected_exit_code": 0
+    },
+    "negative": {
+      "tests": 1,
+      "failures": 1,
+      "skipped": 0,
+      "errors": 0,
+      "passed": 0,
+      "seconds": 0.169,
+      "expected_exit_code": 1
+    }
+  },
+  "distinct_accepted_pytest_passed": 183,
+  "negative_note": "One expected failure from scoped missing-option mutation; not historical checkout",
+  "model_sources": {
+    "exp/mw_finetune/dp/model.py": "sha256:e8570dd11fe4402b533f3669e32b3117dd9a0264320322e1e9b3ef0fd7b105e9",
+    "exp/mw_finetune/dp/policy.py": "sha256:8eb98407d959fbec0afa03930dd972644cc3dcb77031e9bf37fef34ff731c686",
+    "exp/mw_finetune/dp/preprocess.py": "sha256:fb8d0d62bd3c74675116b20f00cef7cacd5290e488afcd5c27eba3a0ced5d12d",
+    "exp/mw_finetune/dp/checkpoint.py": "sha256:c4a95d3f476dd21d83b7867f626eced40fb4d6674bfc8377a8913e95ff1a0544",
+    "exp/mw_finetune/dp/RECIPE.md": "sha256:b128adcdc01b3758bf970829d4ea031e69e54bca77110473d6bfa89ef5f700db",
+    "exp/mw_finetune/dp/vendor/module_attr_mixin.py": "sha256:658dececa20f7628960fc1a8db89e4be3693e1bba47f63d1ff8a4faa2d481e45",
+    "exp/mw_finetune/dp/vendor/positional_embedding.py": "sha256:2266c75ecc9c9ac8ca126839d39a7bafbdd7af8800d6de903f66815e64cc366c",
+    "exp/mw_finetune/dp/vendor/transformer.py": "sha256:516e8626408b4329a3accb89bf5c0da06fb4df486bf2d520b82ee81f35891351",
+    "exp/r17_integration/models/dp/__init__.py": "sha256:3a6c4872915e5875db1f60c65b737c922bdd4de1aac580d27488e4e704c25cbe",
+    "exp/r17_integration/models/dp/admission.py": "sha256:3a0f84efe56cbc43ef08ddffd955baa233d9b5b6cb50e675109739d68e1b65b8",
+    "exp/r17_integration/models/dp/batcher.py": "sha256:9ee91260bd95a02ec008e1020bd32c5ce4631fc2c488fc2611ff95b027cef598",
+    "exp/r17_integration/models/dp/config.py": "sha256:ba4122cfa251e051f1b3f7ac34f1ba04bb0aee67a6c875e90909764335f3502d",
+    "exp/r17_integration/models/dp/fixtures.py": "sha256:8966ab74aed62ff3a33d12705f3ef1c411042ab801bc7e1a3ffe2db708d92d38",
+    "exp/r17_integration/models/dp/key_builder.py": "sha256:7f9330a87682c28c3ebcdc5305f3b073d5bf78cc463486208a57f2754c029330",
+    "exp/r17_integration/models/dp/loader.py": "sha256:6d97ee1d862a15fffff2ecdf7f473f6c347ab4c034cf52e5a53e6d9d8aaae23c",
+    "exp/r17_integration/models/dp/manifest.py": "sha256:70dc03e58bca50fa22eb286a21e81790fb00254d7351c96474b081d2b2ff3575",
+    "exp/r17_integration/models/dp/normalization.py": "sha256:5a38bf8755b444da917c5b567e669405d5bb6d58b271b940de48055fae456d06",
+    "exp/r17_integration/models/dp/probe.py": "sha256:e9ea4be4b7b3bb9e5485ad43e437dbb57140f3e0d170d3f1595bd02b4e7fa12d",
+    "exp/r17_integration/models/dp/protocols.py": "sha256:04b16028b6574624c079cba34b65d8b30d5891a75b29901d09dab8914d6843ba",
+    "exp/r17_integration/models/dp/provider.py": "sha256:0c96751d75dc50dfb106e8fcf097f7ee818c764131b17eeb51790b2f219dff12",
+    "exp/r17_integration/models/dp/quality.py": "sha256:04bf244c9a9dcbde7ee26880247886a636082079bc3b2ef8db41e959bbb274d1",
+    "exp/r17_integration/models/dp/request_noise.py": "sha256:cab13e2439c74e4c1844bfc5cb82087fac4ecab4002458eb74a04c2403d1893e",
+    "exp/r17_integration/models/dp/sampler.py": "sha256:277f56f9b184b0602976a8c8f13b94881df495efd7bf8e5002c76f7dfebb7962",
+    "exp/r17_integration/models/dp/serve.py": "sha256:f206772336cb011a3d176c392d4bc018e555f299673fcfcbec3d67e1ccdbc9d7",
+    "exp/r17_integration/models/dp/staged.py": "sha256:1b206f38112dc9e186759e7c3079862131cb91135cb6a454458888beb4ba27d1",
+    "exp/r17_integration/models/dp/trace.py": "sha256:8502c780ac4bf1d6bad9fe616a95d8fd1c23cc7330f94e5d6d579781b707aa3b",
+    "exp/r17_integration/models/dp/wire_policy.py": "sha256:eacc1e10a99b656f0eeb40791853d6c3b1ac560b71bf07e34ea0ee91af1bb55c",
+    "exp/r17_integration/common/contracts.py": "sha256:db72207d1762c8d904ffe5e9695ab1ec54b4a1ca73402ad4b0e243d5d9bb9737",
+    "exp/r17_integration/common/request_rng.py": "sha256:e6f1e5c13c2bd8f9d2f4aae688ab6639d0400a45be9a5bcb5af95a0ae29f85dd"
+  },
+  "framework_sources": {
+    "exp/r17_integration/common/provider.py": "sha256:60930c2c3c3ba9075db3fb8b8284a2219bcfae86a790cdd317905e7b1f1cdb0a",
+    "exp/r17_integration/common/serving.py": "sha256:86c16a1d967c9da9d75231d3011cdf7618ab38202457cd97b39fb9ee90e1ebd7",
+    "exp/r17_integration/common/config.py": "sha256:c70c5e98cef5d03bdb4d8242081aae85537e72c7284b39942bea41a12bfbd2ec",
+    "exp/r17_integration/common/recipe.py": "sha256:bee9ad04445037eab903a7c7c42c1aa109bdbed0c3afd6f532558435e2ef4ce0",
+    "exp/r17_integration/common/websocket_policy_server.py": "sha256:2b615116603dedb55b115d7954d488a7fe1fba49a8a18273dd2417052b3a7c94",
+    "src/openpi/cache/config.py": "sha256:5020cecac9eff37e379091a7e9defbf5569f3475156b801afc002dee6e1551c8",
+    "src/openpi/cache/types.py": "sha256:46c89e1305dcd5309bad587fe196df4ce14796da78389cfc78ee201547efe630",
+    "src/openpi/cache/storage_types.py": "sha256:4d5aa90c9f159eb65beb95918a1e3f706e42b2bc88259a6a46d2beeb6ce3d4f4",
+    "src/openpi/serving/batching_core.py": "sha256:d39b9e0adb7f0828c28cebacc4dee4e4063a670ad3fbe8eb9939f0b3450341e5",
+    "src/openpi/serving/websocket_policy_server.py": "sha256:e64e61c6bebb627240559043ef3473af5c9ba6bc84b2cf09d4613f5ba172f766"
+  },
+  "model_source_drift": {},
+  "framework_source_drift": {},
+  "probes": {
+    "q_libero": {
+      "passed": 13,
+      "skipped": 0,
+      "diagnostic": true,
+      "device": "cpu",
+      "elapsed_seconds": 28.213578443999722,
+      "model_identity": "sha256:777919b5255dcb6bfa6f071fedfefd48d200659ebe0e26956c81fbabb45b8d69"
+    },
+    "release_libero": {
+      "passed": 13,
+      "skipped": 0,
+      "diagnostic": true,
+      "device": "cpu",
+      "elapsed_seconds": 29.969490941002732,
+      "model_identity": "sha256:777919b5255dcb6bfa6f071fedfefd48d200659ebe0e26956c81fbabb45b8d69"
+    },
+    "release_metaworld": {
+      "passed": 13,
+      "skipped": 0,
+      "diagnostic": true,
+      "device": "cpu",
+      "elapsed_seconds": 27.963889292001113,
+      "model_identity": "sha256:4130f0bdb96c0355e66bef24b07c54fa490807bc0f1948856086cb925c0057bc"
+    },
+    "mw_canonical": {
+      "passed": 13,
+      "skipped": 0,
+      "diagnostic": true,
+      "device": "cpu",
+      "elapsed_seconds": 28.91557554800238,
+      "model_identity": "sha256:4130f0bdb96c0355e66bef24b07c54fa490807bc0f1948856086cb925c0057bc"
+    }
+  },
+  "probe_check_total": 52,
+  "pinned_bundle_checks": {
+    "passed": 18,
+    "skipped": 0,
+    "exit_code": 0,
+    "seconds": 12.356887154001015
+  },
+  "q_input": {
+    "path": "/data/mw_finetune/qualification/assets/dp_libero_fix2_b3a3_v1/wire_observations.npz",
+    "npz_sha256": "sha256:4c480ecbb04193a38da09d85c24431547537cdf1150243d6067c019c8170db4a",
+    "available_rows": 3,
+    "native_check_row": 0,
+    "batch_prompt_variant": "row0 prompt + carefully",
+    "image_shapes": {
+      "observation/image": [
+        256,
+        256,
+        3
+      ],
+      "observation/wrist_image": [
+        256,
+        256,
+        3
+      ]
+    },
+    "views": "provided camera arrays verbatim; no synthetic wrist"
+  },
+  "q_reseal": {
+    "schema": "r17.p4.q_cpu_reseal.v1",
+    "device": "cpu",
+    "gpu_executed": false,
+    "passed": 1,
+    "skipped": 0,
+    "source_load": "/data/mw_finetune/qualification/assets/dp_libero_fix2_b3a3_v1/load.json",
+    "source_sha256": "sha256:7e32a3d95b3fc4a9bb0ba81ebdba8faca0da2255c2a0a5f11b354304ea91930b",
+    "changed_fields": [
+      "expected_model_identity"
+    ],
+    "old_model_identity": "sha256:39dc0508df8a85071826dbdc2f145b4b71a0ca6ff624195e174935566bc5fa63",
+    "new_model_identity": "sha256:777919b5255dcb6bfa6f071fedfefd48d200659ebe0e26956c81fbabb45b8d69",
+    "strict_load": {
+      "missing": [],
+      "unexpected": [],
+      "keys": 475
+    },
+    "protocols": [
+      "589fd0293f29d91fe3f011121b5855d550b9d06288ee67ce12aeae50e0d3afd0"
+    ]
+  },
+  "frozen_stock_HEAD_byte_parity": [
+    "src/openpi/cache/config.py",
+    "src/openpi/cache/types.py",
+    "src/openpi/cache/storage_types.py",
+    "src/openpi/serving/websocket_policy_server.py"
+  ],
+  "parsed_source_count": 32,
+  "artifacts": {
+    "exp/r17_integration/REQUESTS/P4_to_P1.md": "sha256:c076415a804ca4d2949a3e9c872eafab9db0fcf1543f448c0efcf6a656a90070",
+    "exp/r17_integration/REQUESTS/P4_to_P6.md": "sha256:b5702809e998dcd7dbd321e770d9373c2cbd8e6542d152b115d8e237d16d26ad",
+    "exp/r17_integration/handbacks/HANDBACK_P4.md": "sha256:e3d6ed815f2a91642abf15577d72c6392715c4658b3b4d3a5c122cebb1747d5b",
+    "exp/r17_integration/models/dp/README.md": "sha256:85fdb0e6761e58b41eab2df088ed2e19f760e073f9b11948879853ea3e1addd4",
+    "exp/r17_integration/models/dp/cpu_gpu_fix1_full.xml": "sha256:6f5650673bcec6cef843fb652233f477ee9f358db60b1976e9810a3783f88dda",
+    "exp/r17_integration/models/dp/cpu_gpu_fix1_legacy.xml": "sha256:4fce9744623bac4996f48dcc856e68f288e8b1b171b3c7a7cec11181db5b4e93",
+    "exp/r17_integration/models/dp/cpu_gpu_fix1_negative.xml": "sha256:5dab15744793d31d75666b6c3542f242c2889e59256f53a0a77d02efe5785920",
+    "exp/r17_integration/models/dp/cpu_gpu_fix1_targeted.xml": "sha256:82189851eae1292abc03bb2499536bd91a7972154b72fbf68184c30215bd3cdf",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_finalize.py": "sha256:60a62f7ab81afd5930740b20dc12c15feadbe0b0ddd7baaea5384878e52071ec",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_mw_canonical_cpu/capture/capture.json": "sha256:6b0cbfe4fe003c763ba8f38053bc2b2bb1bab10058a2857cf2a144e91fcb6ff2",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_mw_canonical_cpu/capture/capture.npz": "sha256:2781895c3b8f72799b0d4e800676f51965e49881fffb2f22d707ad7481238f49",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_mw_canonical_cpu/k1.yaml": "sha256:cbd57e15c9a196f844ce8eba07c0c4d1619398889e60ecd5f02f45f14d747fb0",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_mw_canonical_cpu/k10.yaml": "sha256:b0a026352169755fb65d57ddf9dd46b1139c2e41c536e29728f70b3edfa9af69",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_mw_canonical_cpu/k100.yaml": "sha256:c8a44925390af6b4a845098954a0ea1e362632a9482043ea942ea4233e187c20",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_mw_canonical_cpu/k2.yaml": "sha256:d61fc09e90df9a9d4cd9f652b44890413bb83062d0f5eaf0712872dfe5667529",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_mw_canonical_cpu/k4.yaml": "sha256:0ea3bee2ee77074fa5d17a8811bc79816e830c381804825051aa8b37a4564e3f",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_mw_canonical_cpu/load_cpu.json": "sha256:d92ef715f0e7f184528ff0664761f22767baef2d2958b277990d5b14d90fcf74",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_mw_canonical_cpu/receipt.json": "sha256:41e2e55f8cf002cb69ef223e814078ec6b5d23eda81138732221264b223e6544",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_mw_canonical_fixture/receipt.json": "sha256:0535b07bf146963f2ffe432eadb203edf77634187d81830a21ec85fda0e7f0ec",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_mw_canonical_fixture/wire_observations.npz": "sha256:03dbded34eb771d4beadd63626f4d52aa051345ef230c3690cae2bbd3aee33db",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_q_libero_cpu/capture/capture.json": "sha256:87771f80fb9a9c30d519234909d0125cd982d97c4443eb395f312f7706a920f4",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_q_libero_cpu/capture/capture.npz": "sha256:76a15886ff49426c8141d251bfdf08d0a257719f4c5cb8dda6459f1eec3a0097",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_q_libero_cpu/k1.yaml": "sha256:aec1a2684146a7b53077f4a3d841bd0134653d2f4753e3b21455a8198eb761dc",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_q_libero_cpu/k10.yaml": "sha256:771c254c2c5c3717bd102e6af41722aae7fb827709ed4ea10f7fa95cba6b30ef",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_q_libero_cpu/k100.yaml": "sha256:2290d27b9d920563a8e3b74486a8ef756ae09db10bd9131f2d483255a2b3f7a5",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_q_libero_cpu/k2.yaml": "sha256:56e63920d4cc407b990ee14154e9ff22e5ba8bb5d49f29ce2f3a3d4894af27ef",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_q_libero_cpu/k4.yaml": "sha256:6172d426a493d1655ead06e2e4bd4a610ce8f19824520845e28d3f9119a77af8",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_q_libero_cpu/load_cpu.json": "sha256:6ead8339f95f422271290f274090d05e9f6890768a813910246c1943f5fec6c0",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_q_libero_cpu/receipt.json": "sha256:013fa4e734c7c1a02ccf5806054f00b34456deecb9c7c878d2110d8dc8402397",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_q_libero_seal/load.json": "sha256:1cd2b7f6bd87c3340dd3dfd21cf23ce21597834084e7b8c6ef69f3e69817dab0",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_q_libero_seal/model_spec.json": "sha256:35d5cc4f7d405b05a97f2f8a1c8471e219cff5fa569ecbe1b135886e11060a1c",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_q_libero_seal/receipt.json": "sha256:e00a89215f6dcae22897977f1b6b351571ee430428c4a5e3801f8621235d68bb",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_release_libero_cpu/capture/capture.json": "sha256:224a068223598a6a77a00925ecc9c99190e3273f5ab86b7a2e91ff3b5e8d0a46",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_release_libero_cpu/capture/capture.npz": "sha256:ecb3d6938151df1ec9e4572454fc7bcb61f4002b0f07a6ec7e0ed2a939935f65",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_release_libero_cpu/k1.yaml": "sha256:bf17c0c00354716e8244c6889e8ad7ea8d0da26892224299802709fec766b590",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_release_libero_cpu/k10.yaml": "sha256:6ecfcfaf6e41129ae374c1c537b98e85461c15ccdb29d070c55a277eb7bdb621",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_release_libero_cpu/k100.yaml": "sha256:b02d54b4a5ebf07aa128d0c1f9c048b1a22efda26b3fad05e70a2aaa1e15fa0e",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_release_libero_cpu/k2.yaml": "sha256:017cc013935802423dd343ec1fef417c00a9ed59a445fc43d73a83c3597ba0d5",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_release_libero_cpu/k4.yaml": "sha256:1f4a74ab14028c67a494d28fa00765981d97bd0655ff7317601088c720acae6c",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_release_libero_cpu/load_cpu.json": "sha256:779e82d5735a45adf1f2c48638f39a73075b1959e49968adef2a4dd63dc041cb",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_release_libero_cpu/receipt.json": "sha256:e722576d8e58c3a96f1489f76814db38222040373e749001c102c87f3ed7a921",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_release_loader_bundle_receipt.json": "sha256:a19ccf6ec71c793a793eedae4d6277fa7bc9887c2e83f955f53ce132e11e2079",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_release_metaworld_cpu/capture/capture.json": "sha256:6b0cbfe4fe003c763ba8f38053bc2b2bb1bab10058a2857cf2a144e91fcb6ff2",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_release_metaworld_cpu/capture/capture.npz": "sha256:2781895c3b8f72799b0d4e800676f51965e49881fffb2f22d707ad7481238f49",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_release_metaworld_cpu/k1.yaml": "sha256:cbd57e15c9a196f844ce8eba07c0c4d1619398889e60ecd5f02f45f14d747fb0",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_release_metaworld_cpu/k10.yaml": "sha256:b0a026352169755fb65d57ddf9dd46b1139c2e41c536e29728f70b3edfa9af69",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_release_metaworld_cpu/k100.yaml": "sha256:c8a44925390af6b4a845098954a0ea1e362632a9482043ea942ea4233e187c20",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_release_metaworld_cpu/k2.yaml": "sha256:d61fc09e90df9a9d4cd9f652b44890413bb83062d0f5eaf0712872dfe5667529",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_release_metaworld_cpu/k4.yaml": "sha256:0ea3bee2ee77074fa5d17a8811bc79816e830c381804825051aa8b37a4564e3f",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_release_metaworld_cpu/load_cpu.json": "sha256:d92ef715f0e7f184528ff0664761f22767baef2d2958b277990d5b14d90fcf74",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_release_metaworld_cpu/receipt.json": "sha256:544583ec6ea560468826e9afb00dbc0c7be9e5952b2d447e19d18011d2bd24c2",
+    "exp/r17_integration/models/dp/samples/gpu_fix1_runtime_under_test.json": "sha256:40e22e0b076d96ceb9372d167c0dbd72e549e8729dbe24ebb4b716e0e3ad37e6",
+    "exp/r17_integration/tests/models/dp/run_gpu_fix1_negative.py": "sha256:c3fc6d379969e23684502e5c707371ea4ad0fc231304a34f07028d0072953f17",
+    "exp/r17_integration/tests/models/dp/test_dp_gpu_fix1.py": "sha256:e08b26445cd45d4d0a61e05a4d9d9c9a95c619d3c34afe17382e654b812b9cd8"
+  },
+  "formal_mt50_export_local": false,
+  "limits": [
+    "Only row0 plus existing B2 prompt variant tested by bounded native probe",
+    "Formal diagnostic=False test stops at descriptor/receipt boundary; no local formal weight qualification",
+    "MW examples use diagnostic ML45; canonical MW NPZ is explicitly synthetic",
+    "Q must reseal asset/runtime/payload before GPU retry; qualification files untouched",
+    "No GPU, renderer, SR or new quality/cost qualification"
+  ]
+}

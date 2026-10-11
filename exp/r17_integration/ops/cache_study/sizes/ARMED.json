@@ -1,0 +1,52 @@
+{
+  "cpu_validation": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/CAPACITY_FLEETS.json",
+  "lanes": {
+    "4090": {
+      "additional_condition": "Protect predecessor H100 local-worker reservations until they release naturally",
+      "after_lane": {
+        "directory": "/data/mw_finetune/eval/csl10dp",
+        "plan_sha256": "27e96523b1b8984a001b193b305a17fe1e360bef924e8bad372538e8e01cd606",
+        "processes": [
+          {
+            "pid": 473414,
+            "start_ticks": "12403042"
+          }
+        ]
+      },
+      "directory": "/data/mw_finetune/eval/cszmdp",
+      "log": "/data/mw_finetune/eval/cszmdp/ARMED.log",
+      "pid": 1130348,
+      "script": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/run_4090.sh",
+      "script_sha256": "7bd6935af6a662eb956d14801f87691fc610700427c55e43cc310482d360ffaf",
+      "start_ticks": "12952633",
+      "wait_condition": "Predecessor exact PID generations exit, exclusive lane lock releases, lane and every campaign seal PASS/all-owned-closed; then CPU disk>=8GiB/RAM/renderer admission before any GPU launch",
+      "wait_for_pass": true
+    },
+    "h100": {
+      "additional_condition": "T1 pinned helper regression and real namespace exit75 must verify; otherwise prestaged timan10745/local0 fallback; reconsider T1 at Cosmos boundary",
+      "after_lane": {
+        "directory": "/data/mw_finetune/eval/csl10h",
+        "plan_sha256": "533a720d3a4925df16ea0415b7f83726d7065b31d04bc934e534f04d4ab4873d",
+        "processes": [
+          {
+            "pid": 729176,
+            "start_ticks": "12632676"
+          }
+        ]
+      },
+      "directory": "/data/mw_finetune/eval/csznh",
+      "log": "/data/mw_finetune/eval/csznh/ARMED.log",
+      "pid": 1130349,
+      "script": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/run_h100.sh",
+      "script_sha256": "0a0cc3473f378d2cf32919d4294037163ed4c5407a02e409e7726ca8ceddfa19",
+      "start_ticks": "12952636",
+      "wait_condition": "Predecessor exact PID generations exit, exclusive lane lock releases, lane and every campaign seal PASS/all-owned-closed; then CPU disk>=8GiB/RAM/renderer admission before any GPU launch",
+      "wait_for_pass": true
+    }
+  },
+  "status": "ARMED_WAITING",
+  "superseded_waiting_pids": [
+    834339,
+    834494
+  ]
+}

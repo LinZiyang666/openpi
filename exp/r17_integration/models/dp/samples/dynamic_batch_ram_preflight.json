@@ -1,0 +1,7 @@
+{
+  "admitted": false,
+  "node": "timan108",
+  "time": 1791651693.2966409,
+  "exit_code": 64,
+  "error": "error: exec: the agent is OFFLINE (no recent heartbeat); start it with `tether agent --session <sid> --nid <nid>`. (node_offline: status=OFFLINE)"
+}

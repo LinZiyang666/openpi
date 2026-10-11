@@ -1,0 +1,16 @@
+{
+  "asset_id": "fastwam_mw",
+  "assets": "/data/mw_finetune/qualification/assets/fastwam_mw_fix2_b3a3_v1",
+  "checkpoint": "/data/mw_finetune/fastwam/mt50_frozen_b128/policy_sanity_004000",
+  "domain": "metaworld",
+  "driver_port": 23257,
+  "endpoint_host": "149.165.153.233",
+  "host": "h100",
+  "lerobot_vendor": "/data/mw_finetune/vendor/lerobot/src",
+  "model": "fastwam",
+  "python": "/data/mw_finetune/envs/fastwam/bin/python",
+  "runtime": "/data/mw_finetune/qualification/runtime_q1",
+  "server_port": 23256,
+  "vendor": "/data/mw_finetune/vendor/FastWAM/src",
+  "worker_node": "timan108"
+}

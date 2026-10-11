@@ -1,0 +1,2 @@
+P2 emitted manifest (libero_bridge --output): TypeError: LiberoBenchmarkSpec.__init__() got an unexpected keyword argument 'protocol_identity'
+P2 released-reference spec (Fast-WAM-only protocol): ACCEPTED, allowed protocols=1, layout replan=5

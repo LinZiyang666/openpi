@@ -1,0 +1,79 @@
+{
+  "status": "PASS",
+  "campaign": "P3_h100_fastwam_B8_smoke_20261010_1209",
+  "receipt": "/data/mw_finetune/eval/P3_h100_fastwam_B8_smoke_20261010_1209/RECOVERED_RECEIPT.json",
+  "original_receipt": "/data/mw_finetune/eval/P3_h100_fastwam_B8_smoke_20261010_1209/RECEIPT.json",
+  "runtime_archive_sha256": "cbb0ae522682ad12f87f086a696a94e13398d822a28c360595f0a34f153f4bd1",
+  "episodes": 4,
+  "successes": 4,
+  "error_attempts": 0,
+  "decisions": 153,
+  "driver_seconds": 192.20821722100663,
+  "physical_decisions_per_second": 0.7960117533584744,
+  "native_qualification": {
+    "status": "PASS",
+    "receipt": "/data/mw_finetune/eval/P3_h100_fastwam_B8_smoke_20261010_1209/servers/replica_0/batch_qualification.json",
+    "receipt_sha256": "b1c8a2d2912607c584a46f17e3f6071ea1f713c2e131ce766c48f31581486bba",
+    "recorded_observations": "/data/mw_finetune/qualification/observations/libero_original256_fix2_v1/fastwam_observations.npz",
+    "observations_sha256": "403187908f0bbbbbc6196b2e7f6d1224acc382ce99dee34d4199dba33cadb3d2",
+    "max_batch": 8,
+    "batch_wait_ms": 5,
+    "decisions_per_second": 4.95186756559213,
+    "b1_decisions_per_second": 1.3083729084998452,
+    "throughput_multiplier": 3.7847524458985045,
+    "numerics": {
+      "max_abs": 0.015625,
+      "median_abs": 0.0,
+      "p95_abs": 0.00390625,
+      "mean_abs": 0.0012295927153900266
+    },
+    "mean_actual_batch_size": {
+      "stage1": 4.25,
+      "stage2": 4.25,
+      "stage3": 4.25
+    },
+    "quality_equivalence": "four-episode smoke is not success-rate equivalence evidence",
+    "board_power_scope": "whole GPU including preexisting Cosmos; not Fast-WAM-only power"
+  },
+  "batching_audit": {
+    "decisions": 153,
+    "max_actual_batch_size": {
+      "stage1": 2,
+      "stage2": 2,
+      "stage3": 3
+    },
+    "mean_actual_batch_size": {
+      "stage1": 1.1045751633986929,
+      "stage2": 1.1437908496732025,
+      "stage3": 1.4967320261437909
+    },
+    "status": "PASS",
+    "treatment_identity": "3bbc2ae68bb9fcdbed14eb2d37626448aea1bad0b15e3e599c716fc06abcba95"
+  },
+  "closed": {
+    "batching": {
+      "batch_wait_ms": 5.0,
+      "byte_identical_to_b1": false,
+      "default_off": true,
+      "hardware_qualification": "see BATCHING.md and measurement receipt",
+      "identity": "fb2b8651b0d2b245a7d82675b90a9dbee1f24656970df9fdb363d6dbe37e3d02",
+      "max_batch": 8,
+      "numerics_policy": "native_bf16_batch_study_v1",
+      "quality_equivalence": "unverified; matched batched control required",
+      "stage_workers": [
+        1,
+        1,
+        1
+      ]
+    },
+    "elapsed_seconds": 284.3533237810043,
+    "peak_allocated_mib": 24750.86474609375,
+    "peak_reserved_mib": 28260.0,
+    "pid": 193555,
+    "status": "CLOSED"
+  },
+  "all_owned_closed": true,
+  "gpu_resident_process_seconds": 287.0027448549954,
+  "cpu_recovery": true,
+  "gpu_reexecuted": false
+}

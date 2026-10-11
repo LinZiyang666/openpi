@@ -1,0 +1,119 @@
+{
+  "compile": {
+    "passed": 29,
+    "pyc_written": false,
+    "skipped": 0
+  },
+  "expected_old_red": {
+    "ledger_old_red": {
+      "exit_code": 1,
+      "expected_failures": 1,
+      "sha256": "4c29866216b3b44489861498f4fa151fb90001d3bf24777ff14896efe682913a",
+      "xml": "exp/r17_integration/tests/conductor/cpu_fix2_ledger_old_red.xml"
+    },
+    "preload_old_red": {
+      "exit_code": 1,
+      "expected_failures": 1,
+      "sha256": "6bd295916dbb1351e1efcf2715b268d5818b3cb0fcbf4045dcdf94e1f1be1351",
+      "xml": "exp/r17_integration/tests/conductor/cpu_fix2_preload_old_red.xml"
+    },
+    "table_old_red": {
+      "exit_code": 1,
+      "expected_failures": 3,
+      "sha256": "c51ed349b3376fd937bc0c95453199aabbde0294e47b7bec15c4a047e8f323ad",
+      "xml": "exp/r17_integration/tests/conductor/cpu_fix2_table_old_red.xml"
+    },
+    "terminal_old_red": {
+      "exit_code": 1,
+      "expected_failures": 12,
+      "sha256": "f4353bb7ecc9e3d47a75cf94cb567d4cab444bc6e0e3614a2d34ba29dd270327",
+      "xml": "exp/r17_integration/tests/conductor/cpu_fix2_terminal_old_red.xml"
+    }
+  },
+  "git_commit_or_push": false,
+  "gpu_commands_executed": false,
+  "interface_version": "r17.contracts.v1",
+  "limitations": [
+    "CPU fake model/environment boundaries; no real renderer/checkpoint/GPU/pricing receipt",
+    "Counts overlap; do not sum runs",
+    "Post-test snapshot; shared packages can change"
+  ],
+  "r16_verify_command": "env CUDA_VISIBLE_DEVICES='' JAX_PLATFORMS=cpu PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONPATH=.:src:packages/openpi-client/src .venv/bin/python -m exp.offline_search.rounds.r16.analyze verify",
+  "r16_verify_exit": 0,
+  "r16_verify_stdout": "DESIGN_VERIFIED; no outcome reads",
+  "runs": [
+    {
+      "command": "env CUDA_VISIBLE_DEVICES='' JAX_PLATFORMS=cpu PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONPATH=.:src:packages/openpi-client/src .venv/bin/python -m pytest exp/r17_integration/tests/benchmarks exp/r17_integration/tests/conductor exp/r17_integration/tests/models/pi05  -p no:cacheprovider --basetemp=exp/r17_integration/tests/conductor/scratch_fix2_full5 --junitxml=exp/r17_integration/tests/conductor/cpu_fix2_full5.xml -q --tb=short",
+      "deselected": 0,
+      "device": "cpu",
+      "duration_seconds": 41.409,
+      "exit_code": 0,
+      "failed": 0,
+      "junit_sha256": "a70ee7c1d9f151788c1ee3ac2fabbcbdeb9db7080b2c2457655c19d339115858",
+      "passed": 108,
+      "skipped": 0,
+      "xml": "exp/r17_integration/tests/conductor/cpu_fix2_full5.xml"
+    },
+    {
+      "command": "env CUDA_VISIBLE_DEVICES='' JAX_PLATFORMS=cpu PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONPATH=.:src:packages/openpi-client/src .venv/bin/python -m pytest exp/r17_integration/tests/common exp/r17_integration/tests/benchmarks exp/r17_integration/tests/conductor exp/r17_integration/tests/models/pi05 exp/r17_integration/tests/debug exp/r17_integration/tests/search exp/r17_integration/tests/ops  -p no:cacheprovider --basetemp=exp/r17_integration/tests/conductor/scratch_fix2_cross4 --junitxml=exp/r17_integration/tests/conductor/cpu_fix2_cross4.xml -q --tb=short",
+      "deselected": 0,
+      "device": "cpu",
+      "duration_seconds": 74.954,
+      "exit_code": 0,
+      "failed": 0,
+      "junit_sha256": "b9855662d3aaa34d15b17abc436a924d1219057791f44b70e5f6535b35705a1a",
+      "passed": 346,
+      "skipped": 0,
+      "xml": "exp/r17_integration/tests/conductor/cpu_fix2_cross4.xml"
+    },
+    {
+      "command": "env CUDA_VISIBLE_DEVICES='' JAX_PLATFORMS=cpu PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONPATH=.:src:packages/openpi-client/src .venv/bin/python -m pytest tests/serving/test_policy_identity.py tests/serving/test_per_step_recorder.py tests/serving/test_replica_proxy.py tests/serving/test_router_bundle_rebind.py tests/exp/metaworld/test_env.py tests/exp/metaworld/test_runner.py tests/conductor exp/mw_finetune/tests exp/offline_search/rounds/r16/test_conductor.py exp/offline_search/rounds/r16/test_groot_servers.py exp/r17_integration/tests/common/test_default_off.py tests/cache/test_config.py tests/cache/test_denoise_schedule_config.py tests/cache/test_cache_storage.py -k 'not same_identity_same_initial_state_across_processes' -p no:cacheprovider --basetemp=exp/r17_integration/tests/conductor/scratch_fix2_legacy1 --junitxml=exp/r17_integration/tests/conductor/cpu_fix2_legacy1.xml -q --tb=short",
+      "deselected": 1,
+      "device": "cpu",
+      "duration_seconds": 30.874,
+      "exit_code": 0,
+      "failed": 0,
+      "junit_sha256": "28e72febd1254c7e8fc7ade034224efb8210cdadb74745338c6db8aafaec01c6",
+      "passed": 451,
+      "skipped": 6,
+      "xml": "exp/r17_integration/tests/conductor/cpu_fix2_legacy1.xml"
+    },
+    {
+      "command": "env CUDA_VISIBLE_DEVICES='' JAX_PLATFORMS=cpu PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONPATH=.:src:packages/openpi-client/src .venv/bin/python -m pytest tests/serving/test_replica_proxy.py -m env_dependent --run-manual -p no:cacheprovider --basetemp=exp/r17_integration/tests/conductor/scratch_fix2_proxy --junitxml=exp/r17_integration/tests/conductor/cpu_fix2_proxy.xml -q --tb=short",
+      "deselected": 23,
+      "device": "cpu",
+      "duration_seconds": 0.179,
+      "exit_code": 0,
+      "failed": 0,
+      "junit_sha256": "bff40e1445ab1dd50c31f129073c713b88a94720327a5d67d1a22dad1c94711d",
+      "passed": 6,
+      "skipped": 0,
+      "xml": "exp/r17_integration/tests/conductor/cpu_fix2_proxy.xml"
+    }
+  ],
+  "sample_command": "env CUDA_VISIBLE_DEVICES='' JAX_PLATFORMS=cpu PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONPATH=.:src:packages/openpi-client/src .venv/bin/python -m exp.r17_integration.tests.models.pi05.build_fix2_samples",
+  "sample_generation_exit": 0,
+  "sample_hashes": {
+    "exp/r17_integration/tests/models/pi05/samples/fix_round2/gap3_k2.yaml": "7e398699720a997dde2f27d3a8b1d53f1bd82f8c6d0fac7e2835d5a8ebb96e78",
+    "exp/r17_integration/tests/models/pi05/samples/fix_round2/libero_fixture_protocol.json": "da7ff7bd1e188764966fe7513e7d64f850966e8768e3cc12819d2f07b29cf859",
+    "exp/r17_integration/tests/models/pi05/samples/fix_round2/mw_protocol.json": "ee5031db99661246e69c89ca0d3b564564e51a272a7c4d3c8ffaa442ccc57f95",
+    "exp/r17_integration/tests/models/pi05/samples/fix_round2/plain1.yaml": "457c6f85cb385dab1adffd2c1dcab86ec6287104ae3dac086dbe6afac6f936f0",
+    "exp/r17_integration/tests/models/pi05/samples/fix_round2/plain10.yaml": "69aaca75b3be9da369e662a653e0b375bdca92744e4ebc9fb42f418925d5121f",
+    "exp/r17_integration/tests/models/pi05/samples/fix_round2/plain2.yaml": "cff596afaafa064e479878e9c002740fcb78d8f1625cfbaca2d823f1b19330d4",
+    "exp/r17_integration/tests/models/pi05/samples/fix_round2/recipe10.yaml": "c893271d6cc6f11a13dca31653524d636cfaad6a76c6bb64c04f5d8f424a9fae",
+    "exp/r17_integration/tests/models/pi05/samples/fix_round2/sample_manifest.json": "a381244d9cc60a1d885a7295cb0e30828ab3b8cd20eb394b3484e9aa949d4819",
+    "exp/r17_integration/tests/models/pi05/samples/fix_round2/service_ledger.json": "f26fe1250ea0aab9170c00522f2f38da27fb03d7e1bcc7d29d50dde20d287e60",
+    "exp/r17_integration/tests/models/pi05/samples/fix_round2/teacher/PARTIAL.json": "482d4af60abeec7aaa7c0cda830b87ef6f2c847daed661fc23453ca3cd99501e",
+    "exp/r17_integration/tests/models/pi05/samples/fix_round2/teacher/READY.json": "9921eb447d3cc90e7f844ad1ef3c2b6b955d6e8b3423e0e5c9ff9d4b41e2ef5d",
+    "exp/r17_integration/tests/models/pi05/samples/fix_round2/teacher/key_vision_0.npy": "ce554605635ab699b499acaf00edcdd7fdb961b7aa7f80568627bd2402891963",
+    "exp/r17_integration/tests/models/pi05/samples/fix_round2/teacher/normalized_actions.npy": "737edac06219f3b17e77324b3cba0f904a3a326bc3934cf957af2097501f966e",
+    "exp/r17_integration/tests/models/pi05/samples/fix_round2/teacher/state.npy": "b8f7ec86d66ed64f3b0f77c675c16b386cfcf8d959a8ae699908cd6c5600b789"
+  },
+  "sample_idempotent_readback_exit": 0,
+  "schema": "r17.p2.fix2.receipts.v1",
+  "source_parity": {
+    "passed": 19,
+    "skipped": 0
+  },
+  "source_snapshot": "exp/r17_integration/tests/conductor/SOURCES_P2_FIX2.json"
+}

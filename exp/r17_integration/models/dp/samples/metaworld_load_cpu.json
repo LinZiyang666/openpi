@@ -1,0 +1,9 @@
+{
+  "checkpoint": "/data/mw_finetune/dp/checkpoints/metaworld",
+  "domain": "metaworld",
+  "device": "cpu",
+  "diagnostic": true,
+  "expected_weight_sha256": "sha256:98353004131950a0a087a65270414e67067719e4ef7d701b9da77711ba136c16",
+  "expected_norm_identity": "sha256:d1e2198e6afb8da8263c96f53ec075461b32af7ded4d9c1d595c7a6a55d3d880",
+  "expected_model_identity": "sha256:c27b79ff5a3a33d61a5280001076907f246dbd8381d79b724438a71f688e130d"
+}

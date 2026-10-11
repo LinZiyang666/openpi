@@ -1,0 +1,343 @@
+{
+  "armed": {
+    "lanes": {
+      "4090": {
+        "after_lane": {
+          "directory": "/data/mw_finetune/eval/csl10dp",
+          "plan_sha256": "27e96523b1b8984a001b193b305a17fe1e360bef924e8bad372538e8e01cd606",
+          "processes": [
+            {
+              "pid": 473414,
+              "start_ticks": "12403042"
+            }
+          ]
+        },
+        "directory": "/data/mw_finetune/eval/cszsdp",
+        "log": "/data/mw_finetune/eval/cszsdp/ARMED.log",
+        "pid": 834339,
+        "script": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/run_4090.sh",
+        "script_sha256": "25d2c1808a40fc0d6def05f93ca055c30293c2674e60093abde7bfdf72fbd85b",
+        "start_ticks": "12723405",
+        "wait_condition": "Predecessor PID generations exit, exclusive lane ownership releases, lane and all campaigns seal PASS with all owned processes closed; disk/RAM/GPU admission repeated before dispatch",
+        "wait_for_pass": true
+      },
+      "h100": {
+        "after_lane": {
+          "directory": "/data/mw_finetune/eval/csl10h",
+          "plan_sha256": "533a720d3a4925df16ea0415b7f83726d7065b31d04bc934e534f04d4ab4873d",
+          "processes": [
+            {
+              "pid": 729176,
+              "start_ticks": "12632676"
+            }
+          ]
+        },
+        "directory": "/data/mw_finetune/eval/cszsh",
+        "log": "/data/mw_finetune/eval/cszsh/ARMED.log",
+        "pid": 834494,
+        "script": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/run_h100.sh",
+        "script_sha256": "adca1d61551d837f17bc0b9094e41cf13c0fc29c2f85bed8989264ab00ca9a9a",
+        "start_ticks": "12723508",
+        "wait_condition": "Predecessor PID generations exit, exclusive lane ownership releases, lane and all campaigns seal PASS with all owned processes closed; disk/RAM/GPU admission repeated before dispatch",
+        "wait_for_pass": true
+      }
+    },
+    "path": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/ARMED.json"
+  },
+  "concurrent_capacity": {
+    "local_additional_server_growth_mib": 8192,
+    "local_available_ram_bytes": 251399757824,
+    "local_gpu_10pct_headroom_mib": 4914,
+    "local_gpu_total_mib": 49140,
+    "local_observed_gpu_mib": 2282,
+    "local_projected_gpu_margin_mib": 984,
+    "local_ram_headroom_mib": 32768,
+    "local_renderer_reserved_mib": 32768,
+    "local_workers": 32,
+    "native_dp_growth_basis": {
+      "csl10d": {
+        "budget_mib": 40960.0,
+        "owned_pids": [
+          4001888,
+          4003360
+        ],
+        "owned_total_mib": 2202.0,
+        "per_pid_mib": {
+          "4001888": 1086.0,
+          "4002467": 30.0,
+          "4003360": 1086.0
+        }
+      },
+      "hs5dp_c10": {
+        "budget_mib": 40960.0,
+        "owned_pids": [
+          2713302,
+          2713303
+        ],
+        "owned_total_mib": 2202.0,
+        "per_pid_mib": {
+          "2713302": 1086.0,
+          "2713303": 1086.0,
+          "2713911": 30.0
+        }
+      },
+      "hs5dp_ctl_142812": {
+        "budget_mib": 40960.0,
+        "owned_pids": [
+          2338659,
+          2338660
+        ],
+        "owned_total_mib": 2202.0,
+        "per_pid_mib": {
+          "2338659": 1086.0,
+          "2338660": 1086.0,
+          "2339265": 30.0
+        }
+      }
+    },
+    "scope": "Projected post-predecessor fleet; actual admission repeated at dispatch",
+    "timan107_workers": 32,
+    "timan1_workers": 16,
+    "worker_ram_gib": {
+      "local": 128,
+      "timan1": 96,
+      "timan107": 128
+    }
+  },
+  "cpu_only": true,
+  "digest": "d8c7aaaaea4d30db28873d3aee1da45130342c93501f8bbf66f488a3a47a6ac7",
+  "durations": {
+    "basis": "Same worker totals; timan107 combined load falls from80 to32; T1 warm loop rates are not model throughput estimates",
+    "cosmos_hours": [
+      6,
+      14
+    ],
+    "fastwam_hours": [
+      12,
+      24
+    ],
+    "lane_4090_hours": [
+      12,
+      24
+    ],
+    "lane_h100_hours": [
+      18,
+      38
+    ],
+    "scope": "Planning ranges after predecessor PASS; startup/sealing/retry overhead can extend these estimates"
+  },
+  "fleets": {
+    "cosmos_libero": {
+      "timan1": 8
+    },
+    "dp_libero": {
+      "local": 16,
+      "timan107": 16
+    },
+    "fastwam_libero": {
+      "local": 16,
+      "timan1": 16,
+      "timan107": 16
+    }
+  },
+  "generated_at": "2026-10-11T02:24:34.697954+00:00",
+  "gpu_launched_by_preparation": false,
+  "lanes": {
+    "4090": {
+      "after_lane": {
+        "directory": "/data/mw_finetune/eval/csl10dp",
+        "plan_sha256": "27e96523b1b8984a001b193b305a17fe1e360bef924e8bad372538e8e01cd606",
+        "processes": [
+          {
+            "pid": 473414,
+            "start_ticks": "12403042"
+          }
+        ]
+      },
+      "command": "bash /home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/run_4090.sh",
+      "directory": "/data/mw_finetune/eval/cszsdp",
+      "models": [
+        {
+          "episodes": 40000,
+          "model": "dp_libero",
+          "native_files_verified": 234,
+          "native_pins_digest": "6b7687d138e2b17a8fda07a2ec570f45367ad5a724928a885a56f4c116c780b8",
+          "nodes": {
+            "local": {
+              "egl_devices": [
+                0
+              ],
+              "original_assets_digest": "3eb6e3e7ee3a03663dba84ccc6d6cf9dbb4ae21fb20558ca4097abc066be57dc",
+              "renderer_vram_mib": 1024,
+              "worker_ram_mib": 4096,
+              "workers": 16
+            },
+            "timan107": {
+              "egl_devices": null,
+              "original_assets_digest": "3eb6e3e7ee3a03663dba84ccc6d6cf9dbb4ae21fb20558ca4097abc066be57dc",
+              "renderer_vram_mib": 576,
+              "worker_ram_mib": 4096,
+              "workers": 16
+            }
+          },
+          "prepared_sha256": "22460c26d8588bf1e065c25210007ab9204992e0623e0d3dca0179aea371a7de",
+          "roster": "/data/mw_finetune/eval/cszsd/WORKER_ROSTER.json",
+          "roster_sha256": "dbc258f976674cb225deba6f381b8e7a4853583712437b5b480b0fd7c2fca699",
+          "run": "/data/mw_finetune/eval/cszsd"
+        }
+      ],
+      "size_order": [
+        50,
+        100,
+        200,
+        300,
+        400
+      ]
+    },
+    "h100": {
+      "after_lane": {
+        "directory": "/data/mw_finetune/eval/csl10h",
+        "plan_sha256": "533a720d3a4925df16ea0415b7f83726d7065b31d04bc934e534f04d4ab4873d",
+        "processes": [
+          {
+            "pid": 729176,
+            "start_ticks": "12632676"
+          }
+        ]
+      },
+      "command": "bash /home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/run_h100.sh",
+      "directory": "/data/mw_finetune/eval/cszsh",
+      "models": [
+        {
+          "episodes": 40000,
+          "model": "fastwam_libero",
+          "native_files_verified": 238,
+          "native_pins_digest": "1ec52343e90aefe8c5f680d472dd58133717ac19108c409fd0d11cba47311834",
+          "nodes": {
+            "local": {
+              "egl_devices": [
+                0
+              ],
+              "original_assets_digest": "3eb6e3e7ee3a03663dba84ccc6d6cf9dbb4ae21fb20558ca4097abc066be57dc",
+              "renderer_vram_mib": 1024,
+              "worker_ram_mib": 4096,
+              "workers": 16
+            },
+            "timan1": {
+              "egl_devices": [
+                3
+              ],
+              "original_assets_digest": "3eb6e3e7ee3a03663dba84ccc6d6cf9dbb4ae21fb20558ca4097abc066be57dc",
+              "renderer_vram_mib": 1024,
+              "worker_ram_mib": 6144,
+              "workers": 16
+            },
+            "timan107": {
+              "egl_devices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+              ],
+              "original_assets_digest": "3eb6e3e7ee3a03663dba84ccc6d6cf9dbb4ae21fb20558ca4097abc066be57dc",
+              "renderer_vram_mib": 768,
+              "worker_ram_mib": 4096,
+              "workers": 16
+            }
+          },
+          "prepared_sha256": "5ca3be1bcbcf1c596bdc5b5ffbbdc11b83f48901ecc6925088292f521703ad10",
+          "roster": "/data/mw_finetune/eval/cszsf/WORKER_ROSTER.json",
+          "roster_sha256": "60c9da886e15650b6170238086b36fcabc7fb60a7f30566cc072db5565015363",
+          "run": "/data/mw_finetune/eval/cszsf"
+        },
+        {
+          "episodes": 20000,
+          "model": "cosmos_libero",
+          "native_files_verified": 177,
+          "native_pins_digest": "ed35ca9f142f993ded7f65210e0b95649e6dc1c51c16bbc95a6c4744faa9e402",
+          "nodes": {
+            "timan1": {
+              "egl_devices": [
+                3
+              ],
+              "original_assets_digest": "3eb6e3e7ee3a03663dba84ccc6d6cf9dbb4ae21fb20558ca4097abc066be57dc",
+              "renderer_vram_mib": 1024,
+              "worker_ram_mib": 6144,
+              "workers": 8
+            }
+          },
+          "prepared_sha256": "5eeaddf7fc8413ebd00e4d80ec7ad04d5bc6d30c82d726283255ed2bbd470692",
+          "roster": "/data/mw_finetune/eval/cszsc2/WORKER_ROSTER.json",
+          "roster_sha256": "3d1b29907b71ae6308ed9e0b09abf1a8f9d3b8920c670218315200fa6d55008b",
+          "run": "/data/mw_finetune/eval/cszsc2"
+        }
+      ],
+      "size_order": [
+        50,
+        100,
+        200,
+        300,
+        400
+      ]
+    }
+  },
+  "observation_parity": {
+    "evidence": [
+      {
+        "path": "/data/mw_finetune/eval/q_local_worker_smoke3_1791681965/PIXEL_COMPARISON.json",
+        "sha256": "489d5ab562b45514e640e4da8333af3bd1a0fd667865232ed5a1d8a75611ac95"
+      },
+      {
+        "path": "/home/weiland/projects/openpi/exp/r17_integration/diagnostics/timan1_provision/PIXEL_COMPARISON.json",
+        "sha256": "944ff5e03f0379b38f8ec18c75d68f49a69f6c59ffb13bd4e26b5edc57ed412d"
+      }
+    ],
+    "scope": "Existing Q local smoke and T1 672-array check; no new GPU render run"
+  },
+  "old_preparations": {
+    "cszedp": {
+      "originals_preserved": true,
+      "seals": {
+        "/data/mw_finetune/eval/cszed": "ef4b1bf02d527b5dae55818b89788420c26b619e1c393c069392665173c73201"
+      },
+      "status": "PREPARED"
+    },
+    "cszeh": {
+      "originals_preserved": true,
+      "seals": {
+        "/data/mw_finetune/eval/cszec": "e1d4ccbd86171e2fb1da12717b87d91170f2bf973abcb9998ebd16a57ef75b54",
+        "/data/mw_finetune/eval/cszef": "1a8736150edbf66229cd7e17a6967368ec2335220ed7ac8e39c35752a3ec679e"
+      },
+      "status": "PREPARED"
+    }
+  },
+  "preserved_cpu_copy_failure": {
+    "reason": "Missing server_campaign in recovered source; clone fixed, new cszsc2 passed",
+    "run": "/data/mw_finetune/eval/cszsc"
+  },
+  "schema": "r17.cache_size_split_fleets.v1",
+  "source_code_sha256": {
+    "exp/r17_integration/ops/cache_lane.py": "f64deadd234596543a0c7f1190ec7c5da6db84b51c4763306ee164c3124597bf",
+    "exp/r17_integration/ops/cache_split_lanes.py": "b059ed0ef0331e3f38c186464f31c1a74960d9525e93db6a6c8a87f5d9eded86",
+    "exp/r17_integration/ops/local_workers.py": "2f7e04df61aadde2c946db311fa331e67c74f937c940a6d724b106439172becf",
+    "exp/r17_integration/ops/queue_retry.py": "ffdcc60e3c4ddf5e0babe87f3f60846a02badfe9fbd42b8edb4494c64f53da24",
+    "exp/r17_integration/ops/tests/test_cache_size_fleets.py": "f1856155610d6ebaf9b8e7871a947c36cb8f15a2db45e7e9665e90fd4cd4a4b2"
+  },
+  "status": "SUPERSEDED_STOPPED",
+  "study_digest": "faed819959444110dc2c8a5ed24a728be35fd73fb6678fd3f03f1c223f788b75",
+  "study_sha256": "3c48b845a25ba30e5fc09094d9fe9509a7028bc67ab41e0f2bcf36b0179fc743",
+  "superseded_by": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/CAPACITY_FLEETS.json",
+  "tests": {
+    "arm_gate_log": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/evidence/sizes_tests/split_arm_gate.log",
+    "arm_gate_log_sha256": "dddbb12b6c98e62134ffc1cd91cac31ee4235c56f6517333f487d2871ced5c00",
+    "arm_gate_passed": 34,
+    "log": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/evidence/sizes_tests/split_fleets.log",
+    "log_sha256": "4ad3a499246cf46c4888289694a58ca3d54507e02728f7e4b9f4a13fc28f2149",
+    "passed": 90,
+    "unique_passed": 93
+  }
+}

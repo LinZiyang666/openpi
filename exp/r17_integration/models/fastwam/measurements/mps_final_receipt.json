@@ -1,0 +1,75 @@
+{
+  "conservative_probe_seconds": 1071.6843722226477,
+  "under_20_minutes": true,
+  "local_daemons": [
+    {
+      "path": "/data/mw_finetune/eval/p3mps_ab_1010/05_dp_on/mps_closed.json",
+      "daemon_closed": true,
+      "daemon_alive_now": false
+    },
+    {
+      "path": "/data/mw_finetune/eval/p3mps_ab_1010/03_dp_on/mps_closed.json",
+      "daemon_closed": true,
+      "daemon_alive_now": false
+    },
+    {
+      "path": "/data/mw_finetune/eval/p3mps_ab_1010/07_dp_on/mps_closed.json",
+      "daemon_closed": true,
+      "daemon_alive_now": false
+    },
+    {
+      "path": "/data/mw_finetune/eval/p3mps_ab_1010/01_dp_on/mps_closed.json",
+      "daemon_closed": true,
+      "daemon_alive_now": false
+    },
+    {
+      "path": "/data/mw_finetune/eval/p3mps_fw3_1010/02_fastwam_on/mps_closed.json",
+      "daemon_closed": true,
+      "daemon_alive_now": false
+    },
+    {
+      "path": "/data/mw_finetune/eval/p3mps_fw3_1010/00_fastwam_on/mps_closed.json",
+      "daemon_closed": true,
+      "daemon_alive_now": false
+    },
+    {
+      "path": "/data/mw_finetune/eval/p3mps_exec_1010/receipt.json",
+      "daemon_closed": true,
+      "daemon_alive_now": false
+    },
+    {
+      "path": "/data/mw_finetune/eval/p3mps_preflight_20261010/mps/e5681f/state.json",
+      "daemon_closed": true,
+      "daemon_alive_now": false
+    }
+  ],
+  "source_sha256": {
+    "exp/r17_integration/models/fastwam/ops/mps_exec_check.py": "8daf33c36c06c99a5ba9b54bac203726c38bc92da17d24cf55f55bdb1b987915",
+    "exp/r17_integration/models/fastwam/ops/mps_h100_probe.py": "ddd017cd1e039345efb69a0824cda0a01906448226ae5c830790650ec2722f90",
+    "exp/r17_integration/models/fastwam/ops/mps_h100_check.py": "42eafb5649d527e49f3e06bf9e2b5c3ddbdf9d2dfc74938572192064b5aff9d9",
+    "exp/r17_integration/models/fastwam/ops/mps_probe.py": "71762f1aa23b41d40c546329ba724f32171f95b93ba5b511e72e33e0101c7bcc",
+    "exp/r17_integration/models/fastwam/ops/mps.py": "c4d31d88b117e5d5cba2ff6b15d217e11a16239ec3d3a5b39dfd8e58f88977ac",
+    "exp/r17_integration/ops/formal_eval.py": "47df12947b8950f21b8274f6d6bb3a4d7c1b4bc10b20621a1f17207a4d818240",
+    "exp/r17_integration/ops/formal_eval.sh": "5f323bd6dae612e80656e503eeda186ee13494bd060c3b193d6c5de1332a5134",
+    "exp/r17_integration/tests/models/fastwam/test_mps.py": "161f2ab09b2022a996c8b61ba21df268a5598432a4217d4878a14e75befb2d0e"
+  },
+  "cuda_compute_mode_changed": false,
+  "cpu_full": {
+    "passed": 495,
+    "subtests": 40,
+    "skipped": 0,
+    "receipt": "mps_full_cpu_complete.xml"
+  },
+  "cpu_final_focused": {
+    "passed": 52,
+    "subtests": 29,
+    "skipped": 0,
+    "receipt": "mps_cpu_verified.xml"
+  },
+  "legacy": {
+    "passed": 89,
+    "initial_socket_skips": 6,
+    "resolved_socket_skips": 6,
+    "egl_deselected": 1
+  }
+}

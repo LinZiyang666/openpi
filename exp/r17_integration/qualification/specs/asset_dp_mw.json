@@ -1,0 +1,17 @@
+{
+  "asset_id": "dp_mw",
+  "assets": "/data/mw_finetune/qualification/assets/dp_mw_gpu_fix3_v3",
+  "checkpoint": "/data/mw_finetune/dp/mt50_policy_100000",
+  "diagnostic": false,
+  "domain": "metaworld",
+  "driver_port": 23257,
+  "endpoint_host": "149.165.153.233",
+  "host": "h100",
+  "model": "dp",
+  "python": "/data/mw_finetune/dp/env/bin/python",
+  "runtime": "/data/mw_finetune/qualification/runtime_q1",
+  "server_port": 23256,
+  "training_snapshot": "/data/mw_finetune/dp/h100_mt50_scratch/checkpoint-100000",
+  "vendor": "/home/weiland/projects/openpi_ext/third_party/gr00t_n15",
+  "worker_node": "timan108"
+}

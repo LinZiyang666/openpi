@@ -1,0 +1,17 @@
+alpha_bar[t] t=0,50,99: [0.99937, 0.47826, 0.0]
+target data: mean 0.400 std 0.200
+ddpm leading  K=100 grid=[99, 98, 97]... -> mean +0.400 std 0.185
+ddpm leading  K= 10 grid=[90, 80, 70, 60, 50, 40, 30, 20, 10, 0] -> mean +0.400 std 0.129
+ddpm leading  K=  2 grid=[50, 0] -> mean +0.386 std 0.057
+ddpm leading  K=  1 grid=[0] -> mean +0.004 std 0.714
+ddpm trailing K=100 grid=[99, 98, 97]... -> mean +0.400 std 0.185
+ddpm trailing K= 10 grid=[99, 89, 79, 69, 59, 49, 39, 29, 19, 9] -> mean +0.400 std 0.129
+ddpm trailing K=  2 grid=[99, 49] -> mean +0.400 std 0.038
+ddpm trailing K=  1 grid=[99] -> mean +0.400 std 0.000
+ddim leading  K=100 grid=[99, 98, 97]... -> mean +0.400 std 0.193
+ddim leading  K= 10 grid=[90, 80, 70, 60, 50, 40, 30, 20, 10, 0] -> mean +0.391 std 0.151
+ddim leading  K=  2 grid=[50, 0] -> mean +0.377 std 0.083
+ddim leading  K=  1 grid=[0] -> mean +0.004 std 0.714
+ddim trailing K= 10 grid=[99, 89, 79, 69, 59, 49, 39, 29, 19, 9] -> mean +0.400 std 0.141
+ddim trailing K=  2 grid=[99, 49] -> mean +0.400 std 0.038
+ddim trailing K=  1 grid=[99] -> mean +0.400 std 0.000

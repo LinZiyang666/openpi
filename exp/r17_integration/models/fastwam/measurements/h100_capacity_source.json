@@ -1,0 +1,64 @@
+{
+  "schema": "r17.fastwam.h100_capacity.source.v1",
+  "source_sha256": {
+    "exp/r17_integration/models/fastwam/batch_runtime.py": "bab9c6e830a8bc0c17240483ae286aad6a2f39bfc927ed6858bc08dc49be7b87",
+    "exp/r17_integration/models/fastwam/ops/h100_capacity.py": "7f108cd70874eb2144cdf3e02cf58038da10d49fd2667cbc8725f87cc7db9047",
+    "src/openpi/serving/batching_core.py": "d39b9e0adb7f0828c28cebacc4dee4e4063a670ad3fbe8eb9939f0b3450341e5",
+    "exp/r17_integration/tests/models/fastwam/test_h100_capacity.py": "2757df8285e0f30da43ca6b530903398b5fb5d678026ca51a3cdd01ad328924a",
+    "exp/r17_integration/tests/models/fastwam/test_fastwam_batched_serving.py": "adbbd38ee39c0701fbcdc683f7189a06bcb1242a3338dd36ca80bf2b7067e610",
+    "exp/r17_integration/tests/models/fastwam/test_fastwam_formal_batching.py": "c18c7667dfeba5f7970d38957955c987fe54ce683ec6327ec6bc1c6ac0a149d4",
+    "exp/r17_integration/tests/models/fastwam/test_mps.py": "9a3d1715470ecb0b6738f2ec5f9752bd1b8b4e4a179a28de7739a39d76b9066e"
+  },
+  "cpu_receipts": {
+    "h100_capacity_full_cpu_final.xml": {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "582",
+      "time": "237.930",
+      "timestamp": "2026-10-10T14:21:41.034717-05:00",
+      "hostname": "weilandserver"
+    },
+    "h100_capacity_legacy.xml": {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "71",
+      "time": "7.327",
+      "timestamp": "2026-10-10T14:21:40.556451-05:00",
+      "hostname": "weilandserver"
+    },
+    "h100_capacity_regressions.xml": {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "72",
+      "time": "2.765",
+      "timestamp": "2026-10-10T14:19:45.263351-05:00",
+      "hostname": "weilandserver"
+    },
+    "h100_capacity_cli_mps.xml": {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "71",
+      "time": "0.458",
+      "timestamp": "2026-10-10T14:17:22.895107-05:00",
+      "hostname": "weilandserver"
+    }
+  },
+  "GPU_receipt": "h100_capacity_results.json",
+  "GPU_probe_wall_seconds": 410.1666967830097,
+  "GPU_after": {
+    "compute_mode": "Default",
+    "memory_used_mib": 0,
+    "utilization_gpu": 0,
+    "contexts": []
+  },
+  "formal_campaign_launched": false,
+  "launch_commands_cpu_parse": 7
+}

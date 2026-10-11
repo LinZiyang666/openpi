@@ -1,0 +1,620 @@
+{
+  "schema": "r17.coverage.v1",
+  "gpu_executed": false,
+  "applicability": {
+    "single_real_camera_second_camera_ablation": {
+      "status": "not_applicable",
+      "reason": "MW has one real view; cannot fabricate a wrist"
+    },
+    "pi05_mw_formal_commit10": {
+      "status": "not_applicable",
+      "reason": "native H5 and replan5 only permit commit<=5; a different protocol needs separate certification"
+    },
+    "groot_k1_warm_snapshot": {
+      "status": "not_applicable",
+      "reason": "one-step loop has no interior recoverable point"
+    },
+    "dp_k1_formal_descent": {
+      "status": "pending owner",
+      "owner": "P4/coordinator",
+      "reason": "K1 remains a lossy research profile; trailing DDIM math does not qualify quality/descent"
+    },
+    "cosmos_mw": {
+      "status": "pending owner",
+      "owner": "coordinator/D",
+      "reason": "current checkpoint unusable; not an MT50 comparison target"
+    },
+    "new_model_split": {
+      "status": "pending owner",
+      "owner": "P1/model owners/coordinator",
+      "reason": "CPU blueprint/path only; existing advanced restrictions retained"
+    }
+  },
+  "rows": [
+    {
+      "id": "S01",
+      "feature": "\u5355\u8fde\u63a5 baseline",
+      "classification": "F+M\uff1a`WebsocketPolicyServer`\u3001`--non-concurrent`\u3001policy `infer`",
+      "status": "reuse tested",
+      "gpu_qualified": false,
+      "pending_owner": "P1/P2/P3/P4/P5",
+      "evidence_scope": "CPU fake policy baseline/stock WS; real model G2 pending"
+    },
+    {
+      "id": "S02",
+      "feature": "concurrent connection isolation",
+      "classification": "F+M\uff1a`connection_policy_factory(base,bundle_id)`\uff1bWS `asyncio.to_thread`\uff1b\u6bcf\u8fde\u63a5 components\u3001timer\u3001facade",
+      "status": "reuse tested",
+      "gpu_qualified": false,
+      "pending_owner": "P1/P2/P3/P4/P5",
+      "evidence_scope": "two actual WS clients; same-bundle CPU threads use connection-local CaptureFactory sinks"
+    },
+    {
+      "id": "S03",
+      "feature": "\u591a\u72ec\u7acb\u5e38\u9a7b\u670d\u52a1 / endpoint",
+      "classification": "F+M+B\uff1aR16 runner `server_specs`\u3001resident registry",
+      "status": "pending owner",
+      "gpu_qualified": false,
+      "pending_owner": "P1 + P2/P3/P4/P5",
+      "evidence_scope": "no P6 passing receipt for entire capability; see owner G0/G1/G2 handback"
+    },
+    {
+      "id": "S04",
+      "feature": "replica proxy",
+      "classification": "F+M\uff1a`replica_proxy.run_proxy`\uff1bsticky least-connections\uff1bcontrol broadcast/aggregate\uff1b\u03c0 `--replicas` supervisor",
+      "status": "pending owner",
+      "gpu_qualified": false,
+      "pending_owner": "P1 + P2/P3/P4/P5",
+      "evidence_scope": "no P6 passing receipt for entire capability; see owner G0/G1/G2 handback"
+    },
+    {
+      "id": "S05",
+      "feature": "replica \u63a7\u5236\u4e00\u81f4\u6027\u4e0e\u6570\u636e\u6c47\u603b",
+      "classification": "F\uff1abroadcast\u6240\u6709backend\u6210\u529f\u624dack\uff1b`fetch_dump`\u5408\u5e76\uff1bmetrics/throughput\u5e26replica\u6765\u6e90\u548cpartial",
+      "status": "pending owner",
+      "gpu_qualified": false,
+      "pending_owner": "P1 + P2/P3/P4/P5",
+      "evidence_scope": "no P6 passing receipt for entire capability; see owner G0/G1/G2 handback"
+    },
+    {
+      "id": "S06",
+      "feature": "\u52a8\u6001\u9636\u6bb5 batching",
+      "classification": "F+M\uff1a`BatchingCore` + `StageBatcher`\uff0cmax_batch_size / batch_wait_ms\uff1bstage\u961f\u5217/worker/metrics",
+      "status": "pending owner",
+      "gpu_qualified": false,
+      "pending_owner": "P1 + P2/P3/P4/P5",
+      "evidence_scope": "no P6 passing receipt for entire capability; see owner G0/G1/G2 handback"
+    },
+    {
+      "id": "S07",
+      "feature": "batch stack/split\u3001\u6d41\u548c\u6545\u969c",
+      "classification": "F+M\uff1astage bucket\u3001producer ready events\u3001\u4e09\u9636\u6bb5worker\u3001\u5b50bucket\u6545\u969c\u9694\u79bb\uff1b`BATCHING_STAGE*_WORKERS` / `OPENPI_DISABLE_STAGE_STREAMS`",
+      "status": "pending owner",
+      "gpu_qualified": false,
+      "pending_owner": "P1 + P2/P3/P4/P5",
+      "evidence_scope": "no P6 passing receipt for entire capability; see owner G0/G1/G2 handback"
+    },
+    {
+      "id": "S08",
+      "feature": "\u5728\u7ebf batch \u53c2\u6570\u4e0e\u76d1\u63a7\u63a7\u5236",
+      "classification": "F\uff1a`set_batching_params`\u3001`dump_throughput`\u3001`dump_metrics`\u3001memory snapshot/history\uff1b`OPENPI_MONITOR_LEVEL`",
+      "status": "pending owner",
+      "gpu_qualified": false,
+      "pending_owner": "P1 + P2/P3/P4/P5",
+      "evidence_scope": "no P6 passing receipt for entire capability; see owner G0/G1/G2 handback"
+    },
+    {
+      "id": "S09",
+      "feature": "YAML registry \u70ed\u52a0\u8f7d",
+      "classification": "F+M\uff1aWS `load_cache_config` \u2192 `load_cache_config`\u9a8c\u8bc1 \u2192 `build_shared_storage` \u2192 `CurrentCacheBundle`\u539f\u5b50\u6ce8\u518c",
+      "status": "reuse tested",
+      "gpu_qualified": false,
+      "pending_owner": "P1",
+      "evidence_scope": "actual WS YAML registration; native artifact admission checked separately"
+    },
+    {
+      "id": "S10",
+      "feature": "\u6bcf\u8fde\u63a5 `select_bundle`",
+      "classification": "F+M\uff1afactory\u5148\u521b\u5efa\u6210\u529f\u518d\u65e7stack `on_task_end`\u3001\u65b0 `on_task_begin`\uff1bunknown/error ack",
+      "status": "reuse tested",
+      "gpu_qualified": false,
+      "pending_owner": "P1",
+      "evidence_scope": "actual WS separate per-client bundle bindings"
+    },
+    {
+      "id": "S11",
+      "feature": "episode \u63a7\u5236\u4e0e\u65ad\u8fde",
+      "classification": "F+M+B\uff1a`episode_start/end`\u3001`on_task_begin/end`\u3001extra_metadata\u3001trace\u5173\u95ed/\u8fde\u63a5\u6e05\u7406",
+      "status": "reuse tested",
+      "gpu_qualified": false,
+      "pending_owner": "P1/P2",
+      "evidence_scope": "stock lifecycle regression and own WS disconnect; real renderer pending"
+    },
+    {
+      "id": "S12",
+      "feature": "\u5185\u5bb9\u8eab\u4efd\u4e0e\u6570\u503c\u8def\u5f84",
+      "classification": "F+M\uff1a`policy_identity` checkpoint\u6587\u4ef6\u5185\u5bb9SHA + trainconfig\uff1bserve metadata\u548cartifact\u7ed1\u5b9a",
+      "status": "hook implemented",
+      "gpu_qualified": false,
+      "pending_owner": "P6 + model owners",
+      "evidence_scope": "sealed binding/content SHA tests; no checkpoint loader qualification"
+    },
+    {
+      "id": "S13",
+      "feature": "stage1-only / compile / device placement",
+      "classification": "F+M\uff1a\u03c0 `stage*_device`\uff1bGR `--stage1-only`\u5378\u8f7dS2/S3\u3001`--compile-stage1`\u9010\u6b21\u521d\u9a8c",
+      "status": "pending owner",
+      "gpu_qualified": false,
+      "pending_owner": "P1 + P2/P3/P4/P5",
+      "evidence_scope": "no P6 passing receipt for entire capability; see owner G0/G1/G2 handback"
+    },
+    {
+      "id": "S14",
+      "feature": "health\u3001wire timing\u3001client controls\u3001monitor levels",
+      "classification": "F\uff1aHTTP `/healthz` 200\uff1bresponse `server_timing`\uff1b\u540csocket\u7684client `episode_start/end`\u3001bundle/warmup/prefill controls",
+      "status": "pending owner",
+      "gpu_qualified": false,
+      "pending_owner": "P1 + P2/P3/P4/P5",
+      "evidence_scope": "no P6 passing receipt for entire capability; see owner G0/G1/G2 handback"
+    },
+    {
+      "id": "P01",
+      "feature": "staged\u6a21\u578b\u5207\u5206\u4e0ekey\u6765\u6e90",
+      "classification": "M\uff1a\u03c0 `Policy`\u51c6\u5907obs \u2192 `PI0Pytorch.run_stage1/2/3/from`\uff1bGR `GrootStagedRunner`",
+      "status": "pending owner",
+      "gpu_qualified": false,
+      "pending_owner": "P1 + P2/P3/P4/P5",
+      "evidence_scope": "no P6 passing receipt for entire capability; see owner G0/G1/G2 handback"
+    },
+    {
+      "id": "P02",
+      "feature": "key builders / representation ablations",
+      "classification": "F+M\uff1a`QueryKeyBuilder.collect/build/clear`\u3001CP1 mean/max/spatial16/spatial4/full-original/temporal-prune\u3001projection\u3001LLM-layer/CP2\u3001CLIP",
+      "status": "pending owner",
+      "gpu_qualified": false,
+      "pending_owner": "P1 + P2/P3/P4/P5",
+      "evidence_scope": "no P6 passing receipt for entire capability; see owner G0/G1/G2 handback"
+    },
+    {
+      "id": "P03",
+      "feature": "cache orchestration / HIT / MISS",
+      "classification": "F+M\uff1a`CacheOrchestrator.check`\u2192key\u2192gate\u2192search\u2192judge\u2192`CheckResult`\uff1binterceptor\u8d1f\u8d23\u6267\u884c\uff1b`broadcast_action`\u3001clear\u3001episode writes",
+      "status": "pending owner",
+      "gpu_qualified": false,
+      "pending_owner": "P1 + P2/P3/P4/P5",
+      "evidence_scope": "no P6 passing receipt for entire capability; see owner G0/G1/G2 handback"
+    },
+    {
+      "id": "P04",
+      "feature": "backend/search/gates/judges\u5168\u914d\u7f6e\u65cf",
+      "classification": "F(+M/B\u53c2\u6570)\uff1ain-memory/Qdrant\u3001\u591afield similarity/score normalization\u3001weighted score/RRF\u3001step-window/trajectory\u7b56\u7565\uff1bgate always_search/skip/client/random/periodic/hysteresis/follow_winner\uff1bjudge threshold/always_hit/always_warm/composite/failure-aware/MLP/risk/dispatch-surface/online-RIT",
+      "status": "pending owner",
+      "gpu_qualified": false,
+      "pending_owner": "P1 + P2/P3/P4/P5",
+      "evidence_scope": "no P6 passing receipt for entire capability; see owner G0/G1/G2 handback"
+    },
+    {
+      "id": "P05",
+      "feature": "\u7b2c1\u5c42 AWM retrieval",
+      "classification": "F\u7b97\u6cd5 + M/B\u5e03\u5c40\uff1aR2 `AWM`\uff1bR10recipe selected-library\u91cd\u65b0fit",
+      "status": "hook implemented",
+      "gpu_qualified": false,
+      "pending_owner": "P1/P6",
+      "evidence_scope": "P1 array math fit/reload with exact action/donor parity"
+    },
+    {
+      "id": "P06",
+      "feature": "\u7b2c2\u5c42 only-no-progress guard",
+      "classification": "F\u7b97\u6cd5 + M/B history\uff1aR10\u9009R8 TriggerCommitJudge\uff0c`progress_guard=noprog_span`\uff1bno_progress flags8",
+      "status": "pending owner",
+      "gpu_qualified": false,
+      "pending_owner": "P1",
+      "evidence_scope": "guard callback captured; no exhaustive P6 guard equivalence receipt"
+    },
+    {
+      "id": "P07",
+      "feature": "\u7b2c3\u5c42 library corrector",
+      "classification": "F\u7b97\u6cd5 + M/B channel\u5e03\u5c40\uff1aR10 RFF ridge correction\uff1blibrary-only LOEO",
+      "status": "hook implemented",
+      "gpu_qualified": false,
+      "pending_owner": "P1/P6",
+      "evidence_scope": "shared corrector fit, whole-episode LOEO, >=3 episodes/task, gripper preservation"
+    },
+    {
+      "id": "P08",
+      "feature": "\u7b2c4\u5c42 periodic knob",
+      "classification": "F\u7b97\u6cd5 + M ledger\uff1aR11 deterministic period\uff0c`target_ir`\u3001IR45/40/32/25/off",
+      "status": "pending owner",
+      "gpu_qualified": false,
+      "pending_owner": "P1",
+      "evidence_scope": "knob/guard replay metadata; periodic gate belongs to P1"
+    },
+    {
+      "id": "P09",
+      "feature": "\u7b2c5\u5c42 per-task descent",
+      "classification": "F conductor + B experiment strategy\uff1aR16 task-stage DAG\uff0cir45\u2192ir40\u2192ir32\u2192ir25\u2192off\uff0c\u9996\u5931\u8d25\u505c\u6b62\uff1bfull-C10 reference",
+      "status": "pending owner",
+      "gpu_qualified": false,
+      "pending_owner": "P1 + P2/P3/P4/P5",
+      "evidence_scope": "no P6 passing receipt for entire capability; see owner G0/G1/G2 handback"
+    },
+    {
+      "id": "P10",
+      "feature": "plain / mixed MISS k1/2",
+      "classification": "M sampler + F config\uff1a`miss.num_steps`\u3001\u03c0stage3 perrequest K\uff1bGR livehead K\u4e0econfig\u5fc5\u987b\u4e00\u81f4",
+      "status": "pending owner",
+      "gpu_qualified": false,
+      "pending_owner": "P1 + P2/P3/P4/P5",
+      "evidence_scope": "no P6 passing receipt for entire capability; see owner G0/G1/G2 handback"
+    },
+    {
+      "id": "P11",
+      "feature": "extended commit / cache blind tail",
+      "classification": "F controller + M/B action/execution\uff1aR4 anchor_tail + policy-tail\uff1b`--os-policy-tail-blocks`1/2\uff0c\u6bcfblock5",
+      "status": "reuse tested",
+      "gpu_qualified": false,
+      "pending_owner": "P1/P2 + model owners",
+      "evidence_scope": "fake actual-cursor tail with zero forward; pi-MW H5 cap retained"
+    },
+    {
+      "id": "P12",
+      "feature": "commit lifecycle / no-progress override",
+      "classification": "F+M+B\uff1a\u771f\u5b9e\u6267\u884cack/\u9ed8\u8ba4L5\u3001\u540cepisode/task\u3001anchor\u3001finite\u68c0\u67e5\uff1bperiodic\u53ef\u4ee5\u5f3a\u5236look\uff0cguard veto",
+      "status": "pending owner",
+      "gpu_qualified": false,
+      "pending_owner": "P1 + P2/P3/P4/P5",
+      "evidence_scope": "no P6 passing receipt for entire capability; see owner G0/G1/G2 handback"
+    },
+    {
+      "id": "P13",
+      "feature": "WARM_START continuation",
+      "classification": "F\u63a7\u5236/\u5b58\u50a8 + M sampler\uff1aCP1/CP2 verdict warm\uff0c`run_stage3_from(start_x,start_t)`\uff0cschedule\u7ed1\u5b9a",
+      "status": "pending owner",
+      "gpu_qualified": false,
+      "pending_owner": "P1 + P2/P3/P4/P5",
+      "evidence_scope": "no P6 passing receipt for entire capability; see owner G0/G1/G2 handback"
+    },
+    {
+      "id": "P14",
+      "feature": "warm-reset/self-start experiments",
+      "classification": "F config/executor + M sampler + B EntryEnv\uff1acache/self\u6e90\u3001init/final\u3001reset/shoot\u3001remaining/\u56fa\u5b9aN\u3001\u81ea\u6709seed namespace",
+      "status": "pending owner",
+      "gpu_qualified": false,
+      "pending_owner": "P1 + P2/P3/P4/P5",
+      "evidence_scope": "no P6 passing receipt for entire capability; see owner G0/G1/G2 handback"
+    },
+    {
+      "id": "P15",
+      "feature": "CP2 / online-RIT / shadow / routing extras",
+      "classification": "F mechanism + M stage2/key/resume/sidecar\uff1aCP2 post-backbone key\uff1bRIT\u53cd\u9988\uff1bshadow_teacher\u3001loto/rit\u65e5\u5fd7\uff1bstudent sidecar/router",
+      "status": "pending owner",
+      "gpu_qualified": false,
+      "pending_owner": "P1 + P2/P3/P4/P5",
+      "evidence_scope": "no P6 passing receipt for entire capability; see owner G0/G1/G2 handback"
+    },
+    {
+      "id": "P16",
+      "feature": "R12 H2/M2\u3001camera/\u8f7b\u91cfkey\u53d8\u4f53",
+      "classification": "M/B\uff1aclosed-loop guard / `--os-*` representation flags\u3001look recording",
+      "status": "pending owner",
+      "gpu_qualified": false,
+      "pending_owner": "P1 + P2/P3/P4/P5",
+      "evidence_scope": "no P6 passing receipt for entire capability; see owner G0/G1/G2 handback"
+    },
+    {
+      "id": "D01",
+      "feature": "PolicyRecorder",
+      "classification": "F+M\uff1a\u03c0 `--record`\uff0c`policy_records/step_N.npy`\uff0cflattened obs/results object ndarray\uff1b\u751f\u547d\u5468\u671f\u900f\u4f20",
+      "status": "pending owner",
+      "gpu_qualified": false,
+      "pending_owner": "P1 + P2/P3/P4/P5",
+      "evidence_scope": "no P6 passing receipt for entire capability; see owner G0/G1/G2 handback"
+    },
+    {
+      "id": "D02",
+      "feature": "legacy HDF5 embeddings/library collection",
+      "classification": "F sink + M capture + B metadata\uff1a`DataCollector` `<base_dir>/<experiment>/<episode_name>.h5`\uff08episode_name\u53ef\u4e3atask_N/episode_M\uff1b\u7a7a\u540d\u7528episodeID+timestamp\uff09\uff0cattrs experiment/task/id/steps/success/extras\uff1bgroups `vision_i,prompt_emb,robot_state,noise_action_0..N,clean_action,input_images`\uff0clzf",
+      "status": "hook implemented",
+      "gpu_qualified": false,
+      "pending_owner": "P6 + model owners",
+      "evidence_scope": "stock DataCollector H5 read via model-owned feature callback; source attestation required"
+    },
+    {
+      "id": "D03",
+      "feature": "staged trace serving",
+      "classification": "F sink/twins + M stages/snapshots\uff1a`--trace-out DIR`\u3001`--trace-build-cache`\uff1b`<trace_out>/<experiment>/<episode_name>.h5`\u53ca\u540cstem `.trace.jsonl`\uff0c`.tmp`\u2192terminal rename\uff0c`trace_closed_ok`\uff0cbounded async writer",
+      "status": "pending owner",
+      "gpu_qualified": false,
+      "pending_owner": "P1 + model owners",
+      "evidence_scope": "shared StepTrace forwarding seam exists; full native twins/bundle runtime unqualified"
+    },
+    {
+      "id": "D04",
+      "feature": "trace shutdown / completeness",
+      "classification": "F\uff1a`serve_with_trace_shutdown`\u4fe1\u53f7\u5904\u7406\u3001writer drain\uff0ctimeout\u9000\u51fa3\uff1b\u6b63\u5f0fbuild\u8981\u6c42closed_ok\uff0c\u672a\u95ed\u5408\u4e0d\u80fd\u5165\u5e93",
+      "status": "reuse tested",
+      "gpu_qualified": false,
+      "pending_owner": "P6",
+      "evidence_scope": "BlockWriter drain/error/partial/torn-line tests; shared H5 shutdown still model-owner gate"
+    },
+    {
+      "id": "D05",
+      "feature": "per-step collection / terminal success stamping",
+      "classification": "F writer + M `__hit_meta__/__collect_meta__` + B identity\uff1a`PerStepRecorder/WriterPool`\u3001JSONL merge\uff1b searched\u8fc7\u6ee4\u3001episode\u672bsuccess stamp\uff0cinterruptedNone",
+      "status": "reuse tested",
+      "gpu_qualified": false,
+      "pending_owner": "P6/P2",
+      "evidence_scope": "shared PerStepRecorder regression; accepted-attempt/manifest join tested"
+    },
+    {
+      "id": "D06",
+      "feature": "closed-loop decisions / inputs",
+      "classification": "F writer + M method capture\uff1a`--os-log-dir --os-tag --os-log-inputs`\uff1b`decisions_TAG.jsonl`\u3001perdecision NPZ\u3001fit pickle\uff1b`arm/yaml/bundle/uid/attempt/step/hit/vision/source/miss_k/donor/guard/knob`",
+      "status": "hook implemented",
+      "gpu_qualified": false,
+      "pending_owner": "P6/P1/P2/P5",
+      "evidence_scope": "core-aware server/isolated worker capture; actual sampler and full identity; terminal ack tested on CPU"
+    },
+    {
+      "id": "D07",
+      "feature": "B-pool look recordings",
+      "classification": "F writer + M keys/tokens/same-obs private-noise shadow + B split\uff1aLookWriter\uff0ccontract/hash\uff0cNPZ\u2192offline_store",
+      "status": "pending owner",
+      "gpu_qualified": false,
+      "pending_owner": "P1 + P2/P3/P4/P5",
+      "evidence_scope": "no P6 passing receipt for entire capability; see owner G0/G1/G2 handback"
+    },
+    {
+      "id": "D08",
+      "feature": "`osdebug.v1` server observe-only",
+      "classification": "F writer/schema + M capture\uff1a`<RUN>/runs/<arm>/debug/server_<port>/meta_<PID>.json,decisions_<PID>.jsonl,blocks/d_*.npz,rawkeys/k_*.npz,writer_stats`",
+      "status": "reuse tested",
+      "gpu_qualified": false,
+      "pending_owner": "P6 + model owners",
+      "evidence_scope": "shared BlockWriter, actual two-client WS debug parity, P4 actual saved CPU products"
+    },
+    {
+      "id": "D09",
+      "feature": "`osdebug.v1` client physical",
+      "classification": "F writer + B envadapter\uff1a`client/<episode_key>/{episode.json,events.jsonl,controls64.npz,snap_*}`\uff1b\u8eab\u4efd\u542battempt / dispatch_gen\uff1bfloat64qpos/qvel/objects/act/contact/force/predicates/substeps",
+      "status": "hook implemented",
+      "gpu_qualified": false,
+      "pending_owner": "P6/P2",
+      "evidence_scope": "sampler-bound native float64 arrays and full model/physical identity; real MT50 semantics pending P2"
+    },
+    {
+      "id": "D10",
+      "feature": "deferred augmentation / oracle shadows",
+      "classification": "F offlinejobs + M full/k/camera adapter + B same-episode inputs\uff1a`debug/aug`\u3001`receipts/aug/derived`",
+      "status": "pending owner",
+      "gpu_qualified": false,
+      "pending_owner": "P1 + P2/P3/P4/P5",
+      "evidence_scope": "no P6 passing receipt for entire capability; see owner G0/G1/G2 handback"
+    },
+    {
+      "id": "D11",
+      "feature": "transport\u3001dispatch fence\u3001backfill",
+      "classification": "F protocol/hash/archive receiver + B identity/physical adapter\uff1btransport artifacts/receipts\u3001dispatch_fence\uff1bbackfill reconstructoldtrajectory",
+      "status": "reuse tested",
+      "gpu_qualified": false,
+      "pending_owner": "P6/P2",
+      "evidence_scope": "shared stream offset/ACK/spill/fence regression; native file-name adapter tested"
+    },
+    {
+      "id": "D12",
+      "feature": "warmup factor dump / calibration",
+      "classification": "F+M\uff1a`--warmup-dump-root`\uff0c`dump.deferred`\u3001`fetch_dump`\u3001`preload_normalizer_buffer`\u3001`unload_warmup_buffer`\uff1b`<yaml_id>__warmup.jsonl`\uff0cWarmupPool LRU100 thread-safe",
+      "status": "pending owner",
+      "gpu_qualified": false,
+      "pending_owner": "P1 + model owners",
+      "evidence_scope": "three warmup/teacher recipes separated; factor calibration execution unqualified"
+    },
+    {
+      "id": "D13",
+      "feature": "library artifact build",
+      "classification": "F format/backend + M key builder/capture + B episode/taskmap\uff1a`exp/common/build_in_memory_cache_artifact.py`H5\u2192pickle\u3001optionalfactors/library_stats\uff1bgeometry\u7531builder\u540d\u7ed1\u5b9a",
+      "status": "hook implemented",
+      "gpu_qualified": false,
+      "pending_owner": "P6",
+      "evidence_scope": "dynamic key fields/action widths -> stock backend entries; native warm explicitly disabled"
+    },
+    {
+      "id": "D14",
+      "feature": "library/query offline memmap stores",
+      "classification": "F dataformat + M/B schema\uff1a`r0/build_library_store.py`\u3001harness store\uff1bnpy keys/state/actions/metadata/prev/next/progress\u3001JSON episodes/ids/manifest\uff0ctok images/tokenarrays",
+      "status": "hook implemented",
+      "gpu_qualified": false,
+      "pending_owner": "P6",
+      "evidence_scope": "READY dense/ragged memmaps, source SHA, active channels, checksum rejection"
+    },
+    {
+      "id": "D15",
+      "feature": "library-only fit\u3001LOEO\u3001\u9632\u6cc4\u9732",
+      "classification": "F fitpolicy + M/B dimensions\uff1aselectedepisodes/task\u3001PCA\u3001metric\u3001guard\u3001corrector\uff0c\u4ec5library reads\uff1bsize500LOEO donorexclusion",
+      "status": "hook implemented",
+      "gpu_qualified": false,
+      "pending_owner": "P6/P1",
+      "evidence_scope": "library read allowlist, nested episode quotas, source split/LOEO tested"
+    },
+    {
+      "id": "O01",
+      "feature": "frozen harness method API",
+      "classification": "F interface + M/B layout\uff1a`Method.fit(lib,ctx)/reset(episode)/query(QueryView)\u2192Result`\uff1bContext/LibraryView/QueryCell",
+      "status": "hook implemented",
+      "gpu_qualified": false,
+      "pending_owner": "P6/P1",
+      "evidence_scope": "fit/reset/query interface bridge; frozen harness unchanged"
+    },
+    {
+      "id": "O02",
+      "feature": "search sweeps / scoring / risk coverage",
+      "classification": "F harness execution + M/B metrics\uff1a`harness.run`fit/replay/timing/processpool\u3001decisionmetrics/riskcoverage/oracle/scoreboard",
+      "status": "hook implemented",
+      "gpu_qualified": false,
+      "pending_owner": "P6/P1",
+      "evidence_scope": "active-channel motion/gripper offline action scores and injected sweep; risk/oracle advanced tools pending"
+    },
+    {
+      "id": "O03",
+      "feature": "replay / regression",
+      "classification": "F replayrunner + M fake/exactstage + B recordedobs\uff1aclosed-loop selftest/replay_client/verify_logs\uff1bR16 replay/conductor_replay",
+      "status": "reuse tested",
+      "gpu_qualified": false,
+      "pending_owner": "P6/P1",
+      "evidence_scope": "exact fit reload and generic replay; real WS staged actions/debug bytes compared"
+    },
+    {
+      "id": "C01",
+      "feature": "conductor framework episode\u7c92\u5ea6",
+      "classification": "F+B\uff1a`EpisodeTask/EpisodeResult/TaskGraph/ExperimentStrategy`\u3001`WorkerLoop(EpisodeRunner)`\u3001`ConductorDriver`",
+      "status": "pending owner",
+      "gpu_qualified": false,
+      "pending_owner": "P1 + P2/P3/P4/P5",
+      "evidence_scope": "no P6 passing receipt for entire capability; see owner G0/G1/G2 handback"
+    },
+    {
+      "id": "C02",
+      "feature": "global queue / endpoint work-stealing",
+      "classification": "F scheduler + B compat\u7b56\u7565\uff1aR16QueueScheduler\uff0cleast-busy compatibleendpoint\uff0cstagebarriers",
+      "status": "hook implemented",
+      "gpu_qualified": false,
+      "pending_owner": "P2/P6",
+      "evidence_scope": "endpoint compatibility helper tested; scheduler qualification P2"
+    },
+    {
+      "id": "C03",
+      "feature": "retry/resume/journal/fences",
+      "classification": "F\uff1adriverresult accepted/attempt\u3001scheduler retries/timeouts\u3001journal replay\uff1bR16\u5148fsync dispatch\u518d\u53d1\u4efb\u52a1",
+      "status": "hook implemented",
+      "gpu_qualified": false,
+      "pending_owner": "P2/P6",
+      "evidence_scope": "done/failed/error/late accepted-join and sealed manifests; driver gate P2"
+    },
+    {
+      "id": "C04",
+      "feature": "warmup/calibration DAG",
+      "classification": "F strategyhooks + M factors + B tasklist\uff1aCalibrationArtifact warmup_stage/shared/historical source\uff0cstage\u539f\u5b50retry\uff0cevalepisode\u539f\u5b50retry",
+      "status": "pending owner",
+      "gpu_qualified": false,
+      "pending_owner": "P1 + P2/P3/P4/P5",
+      "evidence_scope": "no P6 passing receipt for entire capability; see owner G0/G1/G2 handback"
+    },
+    {
+      "id": "C05",
+      "feature": "fleet attestation/health/lease",
+      "classification": "F agent/health/census + B expectedprobe\uff1aWorkerAgent own subprocess\uff0cprogress/workeridentity\u3001lease15s/90s",
+      "status": "pending owner",
+      "gpu_qualified": false,
+      "pending_owner": "P1 + P2/P3/P4/P5",
+      "evidence_scope": "no P6 passing receipt for entire capability; see owner G0/G1/G2 handback"
+    },
+    {
+      "id": "C06",
+      "feature": "definitions\u3001seal\u3001freeze\u3001test",
+      "classification": "F hashes/operations + B cohortstrategy\uff1aprepare-dev/test\u3001definition/fit/YAML/manifestSHA\u3001dev\u9009\u62e9freezehash\u540eemittest",
+      "status": "hook implemented",
+      "gpu_qualified": false,
+      "pending_owner": "P2/P6",
+      "evidence_scope": "all YAML/model/norm/layout/sampler/fit/library/protocol/split/code changes fail audit"
+    },
+    {
+      "id": "W01",
+      "feature": "LIBERO runner / officialenv",
+      "classification": "B+M wire\uff1a`examples/libero/main.py`\u3001`LiberoEpisodeRunner`\uff1bGR\u63d0\u4f9bsameLIBEROwire\u7684policy",
+      "status": "pending owner",
+      "gpu_qualified": false,
+      "pending_owner": "P1 + P2/P3/P4/P5",
+      "evidence_scope": "no P6 passing receipt for entire capability; see owner G0/G1/G2 handback"
+    },
+    {
+      "id": "W02",
+      "feature": "legacy worker shard/ops",
+      "classification": "F lifecycle/transport + B runner\uff1a`closed_loop/ops` emit/sync/start/chain/collect\u3001remote subsetworker\uff1blocal_server receipts\u3001chosenports\u3001ownedstop",
+      "status": "pending owner",
+      "gpu_qualified": false,
+      "pending_owner": "P1 + P2/P3/P4/P5",
+      "evidence_scope": "no P6 passing receipt for entire capability; see owner G0/G1/G2 handback"
+    },
+    {
+      "id": "W03",
+      "feature": "R16 worker payload deployment",
+      "classification": "F SHA transport + B dependencies\uff1a`conductor_deploy`/seal\uff1bisolatedR16island\u3001Python3.8client imports\u3001seed/envassets\u5305",
+      "status": "hook implemented",
+      "gpu_qualified": false,
+      "pending_owner": "P6/P2",
+      "evidence_scope": "actual published P2 worker payload imported in isolated Python3.11; no model islands"
+    },
+    {
+      "id": "W04",
+      "feature": "deployment/tether\u53cclane",
+      "classification": "F ops + M islands + B renderer\uff1awls\u2192timan107\u3001h100\u2192timan108\uff1bGPU\u63a8\u7406\u5728server\u3001CPUphysics+EGL\u5728workers\uff0cNATpublic\u6bb5/\u7aef\u53e3\u68c0\u67e5",
+      "status": "hook implemented",
+      "gpu_qualified": false,
+      "pending_owner": "P6",
+      "evidence_scope": "explicit lane + bounded exit75 retry, held free ports and owned stop mocked; no deployment"
+    },
+    {
+      "id": "W05",
+      "feature": "EGL\u751f\u547d\u5468\u671f\u4e0e\u5bb9\u91cf",
+      "classification": "F renderlock/workerpool + B env\uff1aR17 `LockedEnv` cross-process `/tmp/rc365_env_build.lock`\uff0cfirst-render/close\uff1bworkerroundrobin",
+      "status": "reuse tested",
+      "gpu_qualified": false,
+      "pending_owner": "P2/P6",
+      "evidence_scope": "existing EGL build/close lock CPU fake tests; real capacity/GPU renderer pending"
+    },
+    {
+      "id": "W06",
+      "feature": "sync-back / durability",
+      "classification": "F transport+hash + B runmanifest\uff1aremote journalfsync\u3001\u505cdriver\u4e00\u81f4snapshot\u2192tetherpull\u2192localverifiedinstall",
+      "status": "hook implemented",
+      "gpu_qualified": false,
+      "pending_owner": "P6",
+      "evidence_scope": "quiescent lock, fsync/hash snapshot, verify-before-install, idempotence/busy/tamper tests"
+    },
+    {
+      "id": "A01",
+      "feature": "R16 pairedcost / SR / bootstrap / audit",
+      "classification": "F analysis + M price + B identity\uff1a`cost.py/analyze.py/conductor_analysis.py/audit.py`\uff1bNlooks/Vvision/Mmiss\u30015000pairedbootstrap\u3001per-taskfreeze",
+      "status": "hook implemented",
+      "gpu_qualified": false,
+      "pending_owner": "P6/P1/P2/coordinator",
+      "evidence_scope": "real P1/P2 CPU wall ledger/final ack consumed; capture timing excluded from pricing; GPU costs/G4 pending"
+    },
+    {
+      "id": "A02",
+      "feature": "CPU profiler / representationtools",
+      "classification": "F tooling + M/B dims\uff1a`profile`coverage/explain/breakdown/compare/timeline/repr/runprof\uff1bJSON/CSV/MD\u3001RAM/cache/stepbins",
+      "status": "pending owner",
+      "gpu_qualified": false,
+      "pending_owner": "P1 + P2/P3/P4/P5",
+      "evidence_scope": "no P6 passing receipt for entire capability; see owner G0/G1/G2 handback"
+    },
+    {
+      "id": "A03",
+      "feature": "debug decision analysis",
+      "classification": "F reader/aggregation + M/B adapter\uff1aprovenance/library/kernels/outcomes/churn/follow_vs_look/divergence/call_value/stage_ledger/exposure_hazard/trigger_vs_onset/camera_shadow",
+      "status": "hook implemented",
+      "gpu_qualified": false,
+      "pending_owner": "P6",
+      "evidence_scope": "dynamic widths/gripper/units/schedules -> JSON/CSV/PNG/HTML; advanced forensic analyzers pending"
+    },
+    {
+      "id": "A04",
+      "feature": "physical analysis / cards",
+      "classification": "F tools + B semantics\uff1aselfcheck/forensics/grasp/drop/paired_diverge/twin_divergence/blind_drift/segmentation/episode_card/arm_rollup\uff0cHTML/PNG/CSV",
+      "status": "hook implemented",
+      "gpu_qualified": false,
+      "pending_owner": "P6/P2",
+      "evidence_scope": "native raw cards; absent goal/grasp/drop predicates explicit unsupported"
+    },
+    {
+      "id": "X01",
+      "feature": "decouple-cpu-gpu branch",
+      "classification": "F splittransport + M stageRPC + B ops\uff1a`split_runtime` CPUfront\u3001Unixsocket/memfd\u3001GPUstageworker\uff0cblueprintCPUonly",
+      "status": "hook implemented",
+      "gpu_qualified": false,
+      "pending_owner": "P6/P1 + model owners",
+      "evidence_scope": "config-only CPU blueprint and short Unix path tests; split execution unqualified"
+    }
+  ]
+}

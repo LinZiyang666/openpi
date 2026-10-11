@@ -1,0 +1,19 @@
+{
+  "slot": "slot_G2_cosmos_libero_B",
+  "asset_id": "cosmos_libero",
+  "model": "cosmos",
+  "domain": "libero",
+  "phase": "formal_smoke",
+  "host": "h100",
+  "worker_node": "timan108",
+  "checkpoint": "/data/mw_finetune/models/cosmos_libero",
+  "deadline_seconds": 600,
+  "pass_criteria": [
+    "Stock replica proxy publishes CPU-sealed ModelSpec and immutable full bundle",
+    "Startup official/staged byte parity certificate is required before admitting traffic",
+    "Two accepted error-free original LIBERO episodes through formal conductor dispatch",
+    "NFE5, stage calls [1,1,5], current two views and raw quaternion proprio, replan16",
+    "Closed SHA-attested worker evidence and owned-process cleanup"
+  ],
+  "unsupported": ["recipe/library quality", "debug capture", "CP2", "warm resume/reset", "B>1", "split"]
+}

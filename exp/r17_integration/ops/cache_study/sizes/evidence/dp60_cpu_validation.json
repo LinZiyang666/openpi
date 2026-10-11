@@ -1,0 +1,794 @@
+{
+  "after_lane": {
+    "directory": "/data/mw_finetune/eval/csl10dp",
+    "plan_sha256": "27e96523b1b8984a001b193b305a17fe1e360bef924e8bad372538e8e01cd606",
+    "processes": [
+      {
+        "pid": 1111941,
+        "start_ticks": "12938569"
+      }
+    ]
+  },
+  "arm_command": "nohup bash /home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/run_4090.sh > /data/mw_finetune/eval/cszmdp/COORD_ARMED_60.log 2>&1 < /dev/null &",
+  "armed": false,
+  "audit_source": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/evidence/dp60_audit.py",
+  "audit_source_sha256": "18baec70ce3d7c07ee81d87a4fe33d17046d2e9c42c903dfa2a17a3a51424c07",
+  "coordinator_owns_process_control": true,
+  "cpu_only": true,
+  "episode_plan_sha256": "31e47096d0ce9c652438373228cb727ee28d4dd844cff8b9817d6224f3172bba",
+  "files": [
+    "/home/weiland/projects/openpi/exp/r17_integration/ops/worker_memory.py",
+    "/home/weiland/projects/openpi/exp/r17_integration/ops/local_workers.py",
+    "/home/weiland/projects/openpi/exp/r17_integration/ops/formal_eval.py",
+    "/home/weiland/projects/openpi/exp/r17_integration/ops/formal_prestage.py",
+    "/home/weiland/projects/openpi/exp/r17_integration/ops/queue_retry.py",
+    "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_capacity_lanes.py"
+  ],
+  "fleet": {
+    "local": 60
+  },
+  "generated_at": "2026-10-11T03:22:41.785989+00:00",
+  "gpu_remaining_limit": {
+    "absolute_idle_worker_upper_bound": 50,
+    "gpu_headroom_mib": 4914,
+    "physical_mib": 49140,
+    "renderer_total_mib": 43020,
+    "required_mib_even_without_current_use": 56126,
+    "server_growth_mib": 8192,
+    "sixty_can_admit": false
+  },
+  "handoff": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/DP60_HANDOFF.md",
+  "immutable_native_files_verified": 233,
+  "lane": "/data/mw_finetune/eval/cszmdp",
+  "launched": false,
+  "live_admission_preview": {
+    "disk": {
+      "admitted": true,
+      "filesystems": [
+        {
+          "admitted": true,
+          "checked_at": 1791688638.978286,
+          "filesystem_device": 2049,
+          "filesystem_probe": "/data/mw_finetune/qualification/local_workers/runs",
+          "free_bytes": 2386672447488,
+          "free_inodes": 243126077,
+          "minimum_free_bytes": 8589934592,
+          "path": "/data/mw_finetune/qualification/local_workers/runs/cszpd_local",
+          "reason": null,
+          "schema": "r17.worker_disk.v1",
+          "total_bytes": 3936819662848
+        },
+        {
+          "admitted": true,
+          "checked_at": 1791688638.9783988,
+          "filesystem_device": 64512,
+          "filesystem_probe": "/tmp/r17_formal",
+          "free_bytes": 747634692096,
+          "free_inodes": 57792580,
+          "minimum_free_bytes": 8589934592,
+          "path": "/tmp/r17_formal/cszpd/local",
+          "reason": null,
+          "schema": "r17.worker_disk.v1",
+          "total_bytes": 979639799808
+        }
+      ],
+      "node": "local",
+      "phase": "prepare"
+    },
+    "gpu": {
+      "admitted": false,
+      "assignments": [],
+      "cards": [
+        {
+          "device": 0,
+          "headroom_mib": 13106,
+          "name": "NVIDIA GeForce RTX 4090",
+          "pending_mib": 6776,
+          "processes": [
+            {
+              "pid": 1107950,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1154628,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1164731,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1168086,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 1126
+            },
+            {
+              "pid": 1170593,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 30
+            },
+            {
+              "pid": 1172130,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 1130
+            },
+            {
+              "pid": 1172405,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 245
+            },
+            {
+              "pid": 1174444,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 1128
+            },
+            {
+              "pid": 1176156,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 1126
+            },
+            {
+              "pid": 1180017,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1180224,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1214001,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1216997,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1220497,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1221393,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1221394,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1224222,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1225502,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1225841,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1232169,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1232996,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1233749,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1233750,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1233995,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1234268,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1234280,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1234420,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1234907,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1235160,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1235492,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1235633,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1235882,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1236362,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1236554,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1237423,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1237424,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1237632,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1237644,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1237647,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1237859,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1238280,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1238566,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1239159,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1239937,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1248347,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 393
+            },
+            {
+              "pid": 1248392,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 649
+            },
+            {
+              "pid": 1248393,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1248922,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 653
+            }
+          ],
+          "server_headroom_mib": 8192,
+          "total_mib": 49140,
+          "usable": true,
+          "used_mib": 33584,
+          "uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9"
+        }
+      ],
+      "excluded_devices": [],
+      "observed": [
+        {
+          "device": 0,
+          "name": "NVIDIA GeForce RTX 4090",
+          "processes": [
+            {
+              "pid": 1107950,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1154628,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1164731,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1168086,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 1126
+            },
+            {
+              "pid": 1170593,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 30
+            },
+            {
+              "pid": 1172130,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 1130
+            },
+            {
+              "pid": 1172405,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 245
+            },
+            {
+              "pid": 1174444,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 1128
+            },
+            {
+              "pid": 1176156,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 1126
+            },
+            {
+              "pid": 1180017,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1180224,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1214001,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1216997,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1220497,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1221393,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1221394,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1224222,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1225502,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1225841,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1232169,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1232996,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1233749,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1233750,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1233995,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1234268,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1234280,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1234420,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1234907,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1235160,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1235492,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1235633,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1235882,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1236362,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1236554,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1237423,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1237424,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1237632,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1237644,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1237647,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1237859,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1238280,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1238566,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1239159,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1239937,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1248347,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 393
+            },
+            {
+              "pid": 1248392,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 649
+            },
+            {
+              "pid": 1248393,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 684
+            },
+            {
+              "pid": 1248922,
+              "system_display": false,
+              "uid": 1000,
+              "used_mib": 653
+            }
+          ],
+          "total_mib": 49140,
+          "usable": true,
+          "used_mib": 33584,
+          "uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9"
+        }
+      ],
+      "other_fleets": [
+        {
+          "device": 0,
+          "observed_mib": 18795,
+          "pending_mib": 213,
+          "reservation_mib": 19008,
+          "run": "dpc8713063796_r2_d1dd_local",
+          "workers": 33
+        },
+        {
+          "device": 0,
+          "observed_mib": 9821,
+          "pending_mib": 6563,
+          "reservation_mib": 16384,
+          "run": "fastwamc5481985003_local",
+          "workers": 16
+        }
+      ],
+      "reason": "EGL VRAM admission refused: 60 workers requested, 0 fit; includes global GPU use, live fleet reservations, 10%/512MiB headroom and server growth reserve",
+      "requested_workers": 60,
+      "worker_vram_mib": 717
+    },
+    "memory": {
+      "admitted": false,
+      "available_bytes": 98886451200,
+      "headroom_bytes": 8589934592,
+      "other_fleets": [
+        {
+          "accounted_bytes": 141733920768,
+          "own_fleet": false,
+          "pending_bytes": 32951484416,
+          "receipt": "/data/mw_finetune/qualification/local_workers/runs/dpc8713063796_r2_d1dd_local/receipt.json",
+          "reservation_bytes": 141733920768,
+          "rss_bytes": 108782436352,
+          "worker_memory_mib": 4096,
+          "workers": 33
+        },
+        {
+          "accounted_bytes": 68719476736,
+          "own_fleet": false,
+          "pending_bytes": 10659274752,
+          "receipt": "/data/mw_finetune/qualification/local_workers/runs/fastwamc5481985003_local/receipt.json",
+          "reservation_bytes": 68719476736,
+          "rss_bytes": 58060201984,
+          "worker_memory_mib": 4096,
+          "workers": 16
+        }
+      ],
+      "other_pending_bytes": 43610759168,
+      "reason": "node worker memory admission refused: requested 60 workers at 3584 MiB each; available after fleet reservations/headroom 44523 MiB; reduce --workers or use another node",
+      "requested_bytes": 225485783040,
+      "total_bytes": 270315008000,
+      "worker_memory_mib": 3584
+    }
+  },
+  "native_worker_payload_files_verified": 54,
+  "original_A_episode_cells": 40000,
+  "prepared_sha256": "1e2c6a44aabe75babbebb9e151e8f5f6937da42d024b7a5121384d001e71ef8e",
+  "real_library_audit": {
+    "configs": 240,
+    "path": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/evidence/sizes_cpu_audit.json",
+    "queries": 960,
+    "reused_unchanged_scientific_inputs": true,
+    "sha256": "9d8a7b0feb5989be243db495016bc86309cea5890ec1b6d6ad6ae57571a59f5a",
+    "status": "PASS"
+  },
+  "replicas": 4,
+  "reservations": {
+    "global_ram_headroom_mib": 8192,
+    "ram_accounting": "sum(max(per-worker reservation, measured RSS)); charge only reservation shortfall beyond MemAvailable",
+    "ram_mib": 3584,
+    "renderer_gib_requested": 0.7,
+    "renderer_mib": 717
+  },
+  "run": "/data/mw_finetune/eval/cszpd",
+  "same_reservations_for_other_new_lanes": {
+    "global_ram_headroom_gib": 8,
+    "ram_gib": 3.5,
+    "renderer_gib": 0.7
+  },
+  "schema": "r17.dp60_cpu_preparation.v1",
+  "status": "PASS",
+  "study_digest": "faed819959444110dc2c8a5ed24a728be35fd73fb6678fd3f03f1c223f788b75",
+  "study_sha256": "3c48b845a25ba30e5fc09094d9fe9509a7028bc67ab41e0f2bcf36b0179fc743",
+  "tests": {
+    "checks": [
+      "RAM per-worker maxima and recycling slots",
+      "fixed8GiB RAM headroom",
+      "reservation binding and tamper rejection",
+      "CPU preparation/deferred admission",
+      "strict predecessor PASS wait and closure gates",
+      "frozen controls and node routing",
+      "T1 GPU3 restrictions and wrapped recycling",
+      "immutable releases and native A episode plans"
+    ],
+    "cpu_only": true,
+    "log": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/evidence/dp60_tests.log",
+    "sha256": "ef44ff56087a5e13b08fc9ef71d703feaef1a15e1cd7ec4ad36624500e81aaeb",
+    "status": "PASS",
+    "subtests": 29,
+    "tests": 182
+  },
+  "unchanged_Q_recycle_helper_pins": {
+    "cache_capacity": "beafad40b42ef05cba2c659eaf37ee6e2b04a36fc19f99bf905b1d779350ca40",
+    "formal_workers": "4714c13965dd12218160a20e5ea7ae33ac5dcf54e93b8a946b48a4ff4ead79af",
+    "timan1_workers": "75c22e2c3680ba9ced7eb0ecbd939c64fde98312e4d697a404f0959fe4f3e611"
+  },
+  "wait_for_pass": true,
+  "worker_roster_sha256": "146c67f1bb67bcc503ccaa100fbd9c7a61bdfef6050bf148e26fc52edbace729"
+}

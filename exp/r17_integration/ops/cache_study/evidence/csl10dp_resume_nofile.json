@@ -1,0 +1,15 @@
+{
+  "campaign": "dpc8513584592",
+  "new": [
+    8192,
+    1048576
+  ],
+  "no_signals": true,
+  "observed_open_fds": 81,
+  "old": [
+    1024,
+    1048576
+  ],
+  "pid": 2520110,
+  "start_ticks": "339828082"
+}

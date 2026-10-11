@@ -1,0 +1,52 @@
+{
+  "accepted": 26,
+  "error": null,
+  "errors": 0,
+  "latest": [
+    {
+      "accepted": true,
+      "attempt": 1,
+      "duration_s": 12.849,
+      "phase": "eval",
+      "run_id": "20772896056f",
+      "status": "done",
+      "success": true,
+      "task_uid": "r17_25500ed82868a519e45c_cg:eval:35:31",
+      "ts": 1791688399.9046562,
+      "yaml_id": "r17_25500ed82868a519e45c_cg"
+    }
+  ],
+  "replicas": [
+    {
+      "cpu_ticks": 7901,
+      "label": "replica_0",
+      "pid": 1168086,
+      "start_ticks": "12977621"
+    },
+    {
+      "cpu_ticks": 7912,
+      "label": "replica_1",
+      "pid": 1172130,
+      "start_ticks": "12979918"
+    },
+    {
+      "cpu_ticks": 7284,
+      "label": "replica_2",
+      "pid": 1174444,
+      "start_ticks": "12981566"
+    },
+    {
+      "cpu_ticks": 7917,
+      "label": "replica_3",
+      "pid": 1176156,
+      "start_ticks": "12983106"
+    }
+  ],
+  "run": "dpc8713063796_r2_d1dd",
+  "status": "PARTIAL",
+  "time": 1791688400.878781,
+  "worker_failures": 0,
+  "worker_processes": 33,
+  "worker_recycles": 0,
+  "worker_status": "RUNNING"
+}

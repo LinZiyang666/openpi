@@ -1,0 +1,357 @@
+{
+  "actual_fleets": {
+    "cosmos_libero": {
+      "timan1": 40,
+      "timan107": 45
+    },
+    "dp_libero": {
+      "local": 32
+    },
+    "fastwam_libero": {
+      "timan1": 40,
+      "timan107": 45
+    }
+  },
+  "armed": {
+    "cpu_validation": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/CAPACITY_FLEETS.json",
+    "lanes": {
+      "4090": {
+        "additional_condition": "Protect predecessor H100 local-worker reservations until they release naturally",
+        "after_lane": {
+          "directory": "/data/mw_finetune/eval/csl10dp",
+          "plan_sha256": "27e96523b1b8984a001b193b305a17fe1e360bef924e8bad372538e8e01cd606",
+          "processes": [
+            {
+              "pid": 473414,
+              "start_ticks": "12403042"
+            }
+          ]
+        },
+        "directory": "/data/mw_finetune/eval/cszmdp",
+        "log": "/data/mw_finetune/eval/cszmdp/ARMED.log",
+        "pid": 1130348,
+        "script": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/run_4090.sh",
+        "script_sha256": "7bd6935af6a662eb956d14801f87691fc610700427c55e43cc310482d360ffaf",
+        "start_ticks": "12952633",
+        "wait_condition": "Predecessor exact PID generations exit, exclusive lane lock releases, lane and every campaign seal PASS/all-owned-closed; then CPU disk>=8GiB/RAM/renderer admission before any GPU launch",
+        "wait_for_pass": true
+      },
+      "h100": {
+        "additional_condition": "T1 pinned helper regression and real namespace exit75 must verify; otherwise prestaged timan10745/local0 fallback; reconsider T1 at Cosmos boundary",
+        "after_lane": {
+          "directory": "/data/mw_finetune/eval/csl10h",
+          "plan_sha256": "533a720d3a4925df16ea0415b7f83726d7065b31d04bc934e534f04d4ab4873d",
+          "processes": [
+            {
+              "pid": 729176,
+              "start_ticks": "12632676"
+            }
+          ]
+        },
+        "directory": "/data/mw_finetune/eval/csznh",
+        "log": "/data/mw_finetune/eval/csznh/ARMED.log",
+        "pid": 1130349,
+        "script": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/run_h100.sh",
+        "script_sha256": "0a0cc3473f378d2cf32919d4294037163ed4c5407a02e409e7726ca8ceddfa19",
+        "start_ticks": "12952636",
+        "wait_condition": "Predecessor exact PID generations exit, exclusive lane lock releases, lane and every campaign seal PASS/all-owned-closed; then CPU disk>=8GiB/RAM/renderer admission before any GPU launch",
+        "wait_for_pass": true
+      }
+    },
+    "status": "ARMED_WAITING",
+    "superseded_waiting_pids": [
+      834339,
+      834494
+    ]
+  },
+  "cpu_only": true,
+  "desired_fleets": {
+    "cosmos_libero": {
+      "timan1": 40,
+      "timan107": 45
+    },
+    "dp_libero": {
+      "local": 60
+    },
+    "fastwam_libero": {
+      "timan1": 40,
+      "timan107": 45
+    }
+  },
+  "digest": "ad539faed863b7b2f668e0e7e628d8e807bad790065f0352b0ab7807d4d169f5",
+  "dp_admission_limit": "60*1024MiB renderer VRAM exceeds49140MiB even before server/headroom; retain1024MiB slots,8192MiB server growth and10% physical headroom;32 fit after old local fleet releases",
+  "dp_replica_cpu_target": {
+    "reason": "Requires GPU-run measurement after predecessor PASS",
+    "target_pct": 70,
+    "verified": false
+  },
+  "durations": {
+    "basis": "DP32 uses local loopback and4 replicas; H10085 splits CPU load45/40; server/MISS/stall/initialization/sealing can dominate; timan10745 is near48-core capacity",
+    "cosmos_hours": [
+      4,
+      10
+    ],
+    "dp_hours": [
+      12,
+      24
+    ],
+    "fastwam_hours": [
+      8,
+      18
+    ],
+    "h100_hours": [
+      12,
+      28
+    ],
+    "h100_t1_fallback_hours": [
+      18,
+      36
+    ],
+    "scope": "Planning ranges after predecessor PASS and live resource admission; no linear85/8 Cosmos speedup assumed"
+  },
+  "generated_at": "2026-10-11T03:03:48.008540+00:00",
+  "gpu_launched_by_preparation": false,
+  "lanes": {
+    "4090": {
+      "after_lane": {
+        "directory": "/data/mw_finetune/eval/csl10dp",
+        "plan_sha256": "27e96523b1b8984a001b193b305a17fe1e360bef924e8bad372538e8e01cd606",
+        "processes": [
+          {
+            "pid": 473414,
+            "start_ticks": "12403042"
+          }
+        ]
+      },
+      "directory": "/data/mw_finetune/eval/cszmdp",
+      "fallbacks": null,
+      "models": [
+        {
+          "canonical_workers": 32,
+          "driver_identity": "586c964e1e7ab81954ea4349b06444fbcfb7109009eee70a0928a0c8168d05b6",
+          "episode_plan_sha256": "31e47096d0ce9c652438373228cb727ee28d4dd844cff8b9817d6224f3172bba",
+          "episodes": 40000,
+          "execution_workers": 32,
+          "model": "dp_libero",
+          "native_files_verified": 233,
+          "nodes": {
+            "local": {
+              "disk_preview_admitted": true,
+              "memory_preview_admitted": true,
+              "ram_mib": 4096,
+              "renderer_mib": 1024,
+              "renderer_preview_admitted": false,
+              "workers": 32
+            }
+          },
+          "prepared_sha256": "c3792fd086cc8ca615a5bf64b4e4e177fa46a860cbd4f7a3d3edf93241a8ef2f",
+          "replicas": 4,
+          "roster_sha256": "b1d65a3b148754734ad440c1feb90e19232d2c07731b03ed843c1ba65e7fbf3c",
+          "run": "/data/mw_finetune/eval/cszmd"
+        }
+      ],
+      "resource_wait": "All live disk>=8GiB,RAM,renderer reservations must admit before any GPU or worker launch",
+      "size_order": [
+        50,
+        100,
+        200,
+        300,
+        400
+      ],
+      "wait_for_pass": true
+    },
+    "h100": {
+      "after_lane": {
+        "directory": "/data/mw_finetune/eval/csl10h",
+        "plan_sha256": "533a720d3a4925df16ea0415b7f83726d7065b31d04bc934e534f04d4ab4873d",
+        "processes": [
+          {
+            "pid": 729176,
+            "start_ticks": "12632676"
+          }
+        ]
+      },
+      "directory": "/data/mw_finetune/eval/csznh",
+      "fallbacks": {
+        "cosmos_libero": "/data/mw_finetune/eval/csznc0",
+        "fastwam_libero": "/data/mw_finetune/eval/csznf0"
+      },
+      "models": [
+        {
+          "canonical_workers": 48,
+          "driver_identity": "586c964e1e7ab81954ea4349b06444fbcfb7109009eee70a0928a0c8168d05b6",
+          "episode_plan_sha256": "4ed2f13f97a1dee915912e699850f12de6ba1a0039ed0cbac26a0c70d8a3ccbf",
+          "episodes": 40000,
+          "execution_workers": 85,
+          "model": "fastwam_libero",
+          "native_files_verified": 237,
+          "nodes": {
+            "timan1": {
+              "disk_preview_admitted": true,
+              "memory_preview_admitted": true,
+              "ram_mib": 6144,
+              "renderer_mib": 1024,
+              "renderer_preview_admitted": false,
+              "workers": 40
+            },
+            "timan107": {
+              "disk_preview_admitted": true,
+              "memory_preview_admitted": false,
+              "ram_mib": 4096,
+              "renderer_mib": 768,
+              "renderer_preview_admitted": false,
+              "workers": 45
+            }
+          },
+          "prepared_sha256": "df06e41fbdb862c445763f4afdbe2498e71ba5c614d48dab03fe3d73aa90c303",
+          "replicas": 2,
+          "roster_sha256": "c052fa6b1b0e845c10cfc30fbe9acaabe3c98d7d77b11c0068c38cc41bec849d",
+          "run": "/data/mw_finetune/eval/csznf"
+        },
+        {
+          "canonical_workers": 48,
+          "driver_identity": "586c964e1e7ab81954ea4349b06444fbcfb7109009eee70a0928a0c8168d05b6",
+          "episode_plan_sha256": "4ed2f13f97a1dee915912e699850f12de6ba1a0039ed0cbac26a0c70d8a3ccbf",
+          "episodes": 40000,
+          "execution_workers": 45,
+          "model": "fastwam_libero",
+          "native_files_verified": 237,
+          "nodes": {
+            "timan107": {
+              "disk_preview_admitted": true,
+              "memory_preview_admitted": false,
+              "ram_mib": 4096,
+              "renderer_mib": 768,
+              "renderer_preview_admitted": false,
+              "workers": 45
+            }
+          },
+          "prepared_sha256": "e05578c6ef68804408250cdbb41ca2cb1f21dcdf704af873ce15dc4fd53eb6f0",
+          "replicas": 2,
+          "roster_sha256": "bf9020153742a8a8815b568c9ab005639f7c3c657790787091a7e439afd03549",
+          "run": "/data/mw_finetune/eval/csznf0"
+        },
+        {
+          "canonical_workers": 8,
+          "driver_identity": "439b99f0a68c742589f21fb5d39fd2d1e4b1a7088d5f7cedf098c57fc1a8c557",
+          "episode_plan_sha256": "5d131d8009b1e82cc92a6e6fc19afe1388c2897e49b458e5292b472042572f08",
+          "episodes": 20000,
+          "execution_workers": 85,
+          "model": "cosmos_libero",
+          "native_files_verified": 176,
+          "nodes": {
+            "timan1": {
+              "disk_preview_admitted": true,
+              "memory_preview_admitted": true,
+              "ram_mib": 6144,
+              "renderer_mib": 1024,
+              "renderer_preview_admitted": false,
+              "workers": 40
+            },
+            "timan107": {
+              "disk_preview_admitted": true,
+              "memory_preview_admitted": false,
+              "ram_mib": 4096,
+              "renderer_mib": 768,
+              "renderer_preview_admitted": false,
+              "workers": 45
+            }
+          },
+          "prepared_sha256": "46362c6d484a035a254671cbcf11b85d57ece83a87c29a70d0fe089148769393",
+          "replicas": 2,
+          "roster_sha256": "02d5aac1a30fe9cb1037690ebea5dea1c3c03f7af2e218bff314083c040e82cf",
+          "run": "/data/mw_finetune/eval/csznc"
+        },
+        {
+          "canonical_workers": 8,
+          "driver_identity": "439b99f0a68c742589f21fb5d39fd2d1e4b1a7088d5f7cedf098c57fc1a8c557",
+          "episode_plan_sha256": "5d131d8009b1e82cc92a6e6fc19afe1388c2897e49b458e5292b472042572f08",
+          "episodes": 20000,
+          "execution_workers": 45,
+          "model": "cosmos_libero",
+          "native_files_verified": 176,
+          "nodes": {
+            "timan107": {
+              "disk_preview_admitted": true,
+              "memory_preview_admitted": false,
+              "ram_mib": 4096,
+              "renderer_mib": 768,
+              "renderer_preview_admitted": false,
+              "workers": 45
+            }
+          },
+          "prepared_sha256": "e25b87acb463144d9d0ef4cf79ca1c31c5b6f9b588a0e18534431949e710cf80",
+          "replicas": 2,
+          "roster_sha256": "74c5d41d14f30c22ffab089abd8954b503a0137b268664a59f11d4305e68f427",
+          "run": "/data/mw_finetune/eval/csznc0"
+        }
+      ],
+      "resource_wait": "All live disk>=8GiB,RAM,renderer reservations must admit before any GPU or worker launch",
+      "size_order": [
+        50,
+        100,
+        200,
+        300,
+        400
+      ],
+      "wait_for_pass": true
+    }
+  },
+  "observation_parity": [
+    {
+      "path": "/data/mw_finetune/eval/q_local_worker_smoke3_1791681965/PIXEL_COMPARISON.json",
+      "sha256": "489d5ab562b45514e640e4da8333af3bd1a0fd667865232ed5a1d8a75611ac95",
+      "status": "PASS"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/r17_integration/diagnostics/timan1_provision/PIXEL_COMPARISON.json",
+      "sha256": "944ff5e03f0379b38f8ec18c75d68f49a69f6c59ffb13bd4e26b5edc57ed412d",
+      "status": "PASS"
+    }
+  ],
+  "original_preparations": {
+    "cszedp": {
+      "seals": {
+        "/data/mw_finetune/eval/cszed": "ef4b1bf02d527b5dae55818b89788420c26b619e1c393c069392665173c73201"
+      },
+      "status": "PREPARED",
+      "untouched": true
+    },
+    "cszeh": {
+      "seals": {
+        "/data/mw_finetune/eval/cszec": "e1d4ccbd86171e2fb1da12717b87d91170f2bf973abcb9998ebd16a57ef75b54",
+        "/data/mw_finetune/eval/cszef": "1a8736150edbf66229cd7e17a6967368ec2335220ed7ac8e39c35752a3ec679e"
+      },
+      "status": "PREPARED",
+      "untouched": true
+    }
+  },
+  "real_library_audit": {
+    "configs": 240,
+    "path": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/evidence/sizes_cpu_audit.json",
+    "queries": 960,
+    "sha256": "9d8a7b0feb5989be243db495016bc86309cea5890ec1b6d6ad6ae57571a59f5a",
+    "status": "PASS"
+  },
+  "replicas": {
+    "cosmos_libero": 2,
+    "dp_libero": 4,
+    "fastwam_libero": 2
+  },
+  "schema": "r17.cache_size_capacity_fleets.v1",
+  "status": "ARMED_WAITING",
+  "study_digest": "faed819959444110dc2c8a5ed24a728be35fd73fb6678fd3f03f1c223f788b75",
+  "study_sha256": "3c48b845a25ba30e5fc09094d9fe9509a7028bc67ab41e0f2bcf36b0179fc743",
+  "tests": [
+    {
+      "path": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/evidence/capacity_broad.log",
+      "result": "124 passed, 1 warning in 732.20s (0:12:12)",
+      "sha256": "a0a27d8714ce626bd9a28cd0392a1122b76525a196c4e1adf028dd3a983e1eb0"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/evidence/capacity_gates.log",
+      "result": "38 passed, 2 subtests passed in 5.29s",
+      "sha256": "f9b876373fd016ce180645211a228d99e0577543ca6a126541a90dca08bd4423"
+    }
+  ]
+}

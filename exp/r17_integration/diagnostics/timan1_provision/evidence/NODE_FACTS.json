@@ -1,0 +1,13 @@
+{
+  "observed_at_utc": "2026-10-11T01:39:43Z",
+  "hostname": "timan1.cs.illinois.edu",
+  "cpus": 48,
+  "load": [
+    6.86669921875,
+    6.62353515625,
+    5.82373046875
+  ],
+  "cpu_model": "AMD EPYC 7413 24-Core Processor",
+  "gpu3_info": "Model: \t\t NVIDIA RTX A6000\nIRQ:   \t\t 151\nGPU UUID: \t GPU-ba276422-a0b1-e371-8327-f744be942f15\nVideo BIOS: \t 94.02.5c.00.02\nBus Type: \t PCIe\nDMA Size: \t 47 bits\nDMA Mask: \t 0x7fffffffffff\nBus Location: \t 0000:c1:00.0\nDevice Minor: \t 0\nGPU Excluded:\t No\n",
+  "gpu3_query": "3, GPU-ba276422-a0b1-e371-8327-f744be942f15, 00000000:C1:00.0, 49140 MiB, 10 MiB\n"
+}

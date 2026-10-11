@@ -1,0 +1,9 @@
+K=  1 kind=ddim n_points=1 first=99 last=99 -> mean +0.400 std 0.000
+K=  2 kind=ddim n_points=2 first=99 last=49 -> mean +0.400 std 0.038
+K=  3 kind=ddim n_points=3 first=99 last=32 -> mean +0.400 std 0.063
+K=  7 kind=ddim n_points=7 first=99 last=13 -> mean +0.400 std 0.121
+K= 10 kind=ddim n_points=10 first=99 last=9 -> mean +0.400 std 0.141
+K= 13 kind=ddim n_points=13 first=99 last=7 -> mean +0.400 std 0.152
+K= 29 kind=ddim n_points=29 first=99 last=2 -> mean +0.400 std 0.178
+K= 99 kind=ddim n_points=99 first=99 last=0 -> mean +0.400 std 0.193
+K=100 kind=ddpm n_points=100 first=99 last=0 -> mean +0.400 std 0.185

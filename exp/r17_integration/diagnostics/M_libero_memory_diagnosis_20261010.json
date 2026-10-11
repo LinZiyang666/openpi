@@ -1,0 +1,104 @@
+{
+  "schema": "r17.libero_memory_diagnosis.v1",
+  "created_utc": "2026-10-10T17:03:00Z",
+  "author": "M",
+  "safety": {
+    "signals_sent": 0,
+    "deployments": 0,
+    "gpu_work": 0,
+    "timan108_exec_calls": 0
+  },
+  "root_cause": {
+    "finding": "Worker-lifetime kernel/driver host allocation growth associated with repeated LIBERO environment/EGL construction and reset; GPU0 framebuffer exhaustion.",
+    "certainty": "NVIDIA EGL host backing/retention is the leading inference; exact driver allocation class/pinned bytes were unavailable.",
+    "nvidia_kernel": "535.183.01",
+    "timan107_gpus": "8 GTX1080 devices; campaign used only device0",
+    "evidence": [
+      "AnonPages flat while MemAvailable fell",
+      "Worker exit released ~160 GiB, ~105 GiB outside AnonPages",
+      "Slab/VmallocUsed/PageTables together account for under3 GiB of released memory",
+      "14 C10 framebuffer infrastructure errors; partial MjRenderContextOffscreen destructors",
+      "Already-running N8 Cosmos fleet completed24 planned recycles with0 failures and recovered host memory"
+    ]
+  },
+  "memory": {
+    "gib_per_worker_episode": {
+      "early": 0.091,
+      "task9_burst": 0.544,
+      "fleet_average": 0.227,
+      "conservative_bound": 0.6
+    },
+    "interpretation": "Node memory depletion / new episode dispatches; task-dependent estimate, not direct per-PID NVIDIA allocation accounting.",
+    "resident_residual_gib_per_worker": 4.43,
+    "observed_pss_gib": [
+      2.14,
+      2.4
+    ],
+    "locked_kib": 0,
+    "recommended_flags": [
+      "--worker-max-episodes",
+      "4",
+      "--worker-memory-mib",
+      "6144"
+    ],
+    "budget_formula_gib": "2.4 Pss + 4 * 0.6 host growth + 0.8 transient/driver allowance = 5.6, rounded to6"
+  },
+  "mitigation": {
+    "implementation": "exp/r17_integration/ops/worker_lifetime.py (Q)",
+    "launcher": "exp/r17_integration/ops/formal_workers.py (Q)",
+    "formal_default_on": true,
+    "current_formal_max_episodes": 8,
+    "requested_formal_default_max_episodes": 4,
+    "disable_value": 0,
+    "requested_default_memory_mib": 6144,
+    "ops_handoff": "exp/r17_integration/REQUESTS/M_to_Q.md",
+    "tests": "21 passed; native kernel CPU fixtures and real wire/subprocess fleet lifetime tests. No real GPU parity claimed.",
+    "new_files": [
+      "exp/r17_integration/diagnostics/libero_memory.py",
+      "exp/r17_integration/tests/benchmarks/test_libero_memory.py",
+      "exp/r17_integration/tests/benchmarks/test_libero_worker_recycle.py"
+    ]
+  },
+  "capacity": {
+    "timan107": {
+      "total_gib": 220.2766,
+      "clean_available_gib": 216.2763,
+      "headroom_gib": 22.0277,
+      "host_workers_at_6gib": 32,
+      "single_gpu_recommendation": 16
+    },
+    "timan108": {
+      "total_gib": 251.6318,
+      "headroom_gib": 25.1632,
+      "clean_host_upper_bound_at_6gib": 37,
+      "current_admissible_workers": 0,
+      "reason": "offline; driver/D-state recovery and GPU capacity unverified"
+    },
+    "conditions": "RAM planning bounds with empty node and four-episode recycling. timan107 >16 requires spreading across cards; no80–90-worker configuration validated.",
+    "eight_episode_alternative": {
+      "worker_memory_mib": 9216,
+      "timan107_host_workers": 21,
+      "timan108_clean_host_upper_bound": 24
+    }
+  },
+  "c10": {
+    "completed_episodes": 439,
+    "renderer_error_attempts": 14,
+    "status": "PARTIAL",
+    "exit_reason": "TimeoutError('campaign stopped or hard deadline exceeded'); supervisor forced launcher cleanup",
+    "confirmed_node_oom": false,
+    "last_accepted_result_utc": "2026-10-10T16:50:35.624313Z",
+    "workers_absent_utc": "2026-10-10T16:51:15Z",
+    "historical_oom_projection_cdt": {
+      "supplied_slope": "12:28",
+      "last_burst_slope": "11:56"
+    },
+    "projection_condition": "Counterfactual if depletion persisted. Campaign ended independently around11:51; no active C10 OOM forecast remains."
+  },
+  "evidence_files": [
+    "/tmp/M_libero_post_exit.json",
+    "/tmp/M_libero_remote_sources.json",
+    "/tmp/M_libero_cosmos_snapshot_2.json",
+    "/tmp/M_libero_recycle_evidence.json"
+  ]
+}

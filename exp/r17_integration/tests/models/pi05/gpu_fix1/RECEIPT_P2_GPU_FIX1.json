@@ -1,0 +1,141 @@
+{
+  "artifacts_sha256": {
+    "exp/r17_integration/tests/models/pi05/gpu_fix1/command.json": "a6f2e30c3a3673aef7934cdec82abfbb07658dd9d9cfabd58c8dda215f6989f3",
+    "exp/r17_integration/tests/models/pi05/gpu_fix1/diagnostic.json": "f42160f8d843d2aef227f2ba01d367563b0b7444c79804dd637a228fe935ef5f",
+    "exp/r17_integration/tests/models/pi05/gpu_fix1/diagnostic.log": "8ffe852c6bcfa42db2e9915ccea3d7e7670819cbce67b7c7b58bfb3cdaf4620b",
+    "exp/r17_integration/tests/models/pi05/gpu_fix1/exit.json": "c993535d506bdfe30b9631ee49cd2e5c1a0c2bf84f1be65bdee275b25118bc6f",
+    "exp/r17_integration/tests/models/pi05/gpu_fix1/profile_validation.json": "a32f753ecf8b17a4be16266dbebb55a02455af7620daa09c9d8804afde58f3b6",
+    "exp/r17_integration/tests/models/pi05/gpu_fix1/source_parity.json": "ba513f4d6617e444ea9c7f84a056fa2b650510f981b258d375e11c1160a07f66"
+  },
+  "captured_utc": "2026-10-10T00:03:01.121085+00:00",
+  "classification": "b: whole-call compilation dependent numerical behavior; exact R16 eager reference",
+  "compile": {
+    "passed": 32,
+    "pyc_written": false,
+    "skipped": 0
+  },
+  "cpu_runs": [
+    {
+      "command": "env CUDA_VISIBLE_DEVICES='' JAX_PLATFORMS=cpu PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONPATH=.:src:packages/openpi-client/src .venv/bin/python -m pytest exp/r17_integration/tests/benchmarks exp/r17_integration/tests/conductor exp/r17_integration/tests/models/pi05  -p no:cacheprovider --basetemp=exp/r17_integration/tests/models/pi05/gpu_fix1/scratch_full --junitxml=exp/r17_integration/tests/models/pi05/gpu_fix1/cpu_full.xml -q --tb=short",
+      "deselected": 0,
+      "duration_seconds": 36.2,
+      "exit_code": 0,
+      "failed": 0,
+      "junit_sha256": "0cc43e700d478f719dd8b2766b201e1ae1fe11681c13936230523fed5484c4f2",
+      "junit_xml": "exp/r17_integration/tests/models/pi05/gpu_fix1/cpu_full.xml",
+      "passed": 117,
+      "scope": "final",
+      "skipped": 0
+    },
+    {
+      "command": "env CUDA_VISIBLE_DEVICES='' JAX_PLATFORMS=cpu PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONPATH=.:src:packages/openpi-client/src .venv/bin/python -m pytest tests/serving/test_policy_identity.py tests/serving/test_per_step_recorder.py tests/serving/test_replica_proxy.py tests/serving/test_router_bundle_rebind.py tests/exp/metaworld/test_env.py tests/exp/metaworld/test_runner.py tests/conductor exp/mw_finetune/tests exp/offline_search/rounds/r16/test_conductor.py exp/offline_search/rounds/r16/test_groot_servers.py exp/r17_integration/tests/common/test_default_off.py tests/cache/test_config.py tests/cache/test_denoise_schedule_config.py tests/cache/test_cache_storage.py -k 'not same_identity_same_initial_state_across_processes' -p no:cacheprovider --basetemp=exp/r17_integration/tests/models/pi05/gpu_fix1/scratch_legacy --junitxml=exp/r17_integration/tests/models/pi05/gpu_fix1/cpu_legacy.xml -q --tb=short",
+      "deselected": 1,
+      "duration_seconds": 25.215,
+      "exit_code": 0,
+      "failed": 0,
+      "junit_sha256": "42bf08436ccd966a2e6cbf058e2585ee579d1ec50a0885fcd102dbbc3b1373e0",
+      "junit_xml": "exp/r17_integration/tests/models/pi05/gpu_fix1/cpu_legacy.xml",
+      "passed": 451,
+      "scope": "final",
+      "skipped": 6
+    },
+    {
+      "command": "env CUDA_VISIBLE_DEVICES='' JAX_PLATFORMS=cpu PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONPATH=.:src:packages/openpi-client/src .venv/bin/python -m pytest tests/serving/test_replica_proxy.py -m env_dependent --run-manual -p no:cacheprovider --basetemp=exp/r17_integration/tests/models/pi05/gpu_fix1/scratch_proxy --junitxml=exp/r17_integration/tests/models/pi05/gpu_fix1/cpu_proxy.xml -q --tb=short",
+      "deselected": 23,
+      "duration_seconds": 0.122,
+      "exit_code": 0,
+      "failed": 0,
+      "junit_sha256": "633a9753fdcb78a6d3586400bad345f022afdb683e41c5ed5dc70c3d320fb4ca",
+      "junit_xml": "exp/r17_integration/tests/models/pi05/gpu_fix1/cpu_proxy.xml",
+      "passed": 6,
+      "scope": "final",
+      "skipped": 0
+    },
+    {
+      "command": "env CUDA_VISIBLE_DEVICES='' JAX_PLATFORMS=cpu PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONPATH=.:src:packages/openpi-client/src .venv/bin/python -m pytest exp/r17_integration/tests/models/pi05/test_pi05_gpu_fix1.py  -p no:cacheprovider --basetemp=exp/r17_integration/tests/models/pi05/gpu_fix1/scratch_targeted --junitxml=exp/r17_integration/tests/models/pi05/gpu_fix1/cpu_targeted.xml -q --tb=short",
+      "deselected": 0,
+      "duration_seconds": 6.644,
+      "exit_code": 0,
+      "failed": 0,
+      "junit_sha256": "199be2d7607e38bc70fdc696b8c9541c55a59d0bd5ec4ce618f53d067038590e",
+      "junit_xml": "exp/r17_integration/tests/models/pi05/gpu_fix1/cpu_targeted.xml",
+      "passed": 6,
+      "scope": "pre-final three new contract cases",
+      "skipped": 0
+    }
+  ],
+  "git_commit_or_push": false,
+  "gpu": {
+    "diagnostic_elapsed_seconds": 273.89935424899886,
+    "diagnostic_status": "PASS",
+    "full_Q_G1_rerun": false,
+    "loads": 1,
+    "outer_timeout_seconds": 885,
+    "peak_process_gpu_mib": 8156,
+    "qualified_scope": "K2/K1 three fixed Q inputs; original eager reference/debug/three K2 suffixes exact",
+    "shared_gpu_lock_taken": false,
+    "subprocess_wall_seconds": 278.49363470499884
+  },
+  "historical_failed_Q_native": {
+    "modified": false,
+    "path": "/data/mw_finetune/qualification/runs/slot_G1_pi05_mw_A_20261009_184115_360523/native.json",
+    "sha256": "2a3129e0c0d78733aa3198a60d4eef89daa2d0285b9ee9c45f96f7c1cda41d9b",
+    "status": "FAIL"
+  },
+  "interface": "r17.contracts.v1",
+  "limitations": [
+    "No real env/renderer/conductor/framework probe or SR/pricing qualification in this diagnostic",
+    "Compiled grid source/CPU loop evidence; not invasive compiled graph tracing",
+    "Alternate max/mean tolerance only for sealed checkpoint/norm/archive and declared seeds",
+    "CPU test run counts overlap; do not sum"
+  ],
+  "owned_source_sha256": {
+    "exp/r17_integration/REQUESTS/P2_to_Q.md": "7b9f06e044548d673fbe7ae1287fca406bc027d383830abb0af6137c161d39fb",
+    "exp/r17_integration/benchmarks/execution.py": "ed68c98e7d1f24c5f72cad8d6ba435d9e4ac6ef0e2877ea24760a58bcb130757",
+    "exp/r17_integration/benchmarks/libero_bridge.py": "89fd2e0d507d0eaf0b4e0bcf40daa9e67b73884173a372e49d5148ff174aff8c",
+    "exp/r17_integration/benchmarks/metaworld.py": "a84fcccf42337c66d8bf89f0ec3af6296938195658d43c6c0f482af9853200b7",
+    "exp/r17_integration/benchmarks/physical_mt50.py": "bb5d3fc6bc90cd43f9fbb275b24acb1c182046f4e113433f8ff8f1ad0371df57",
+    "exp/r17_integration/benchmarks/spec.py": "6e8548f1dbf8ade34a3d9f0eb6c553655caef7e91f248276f3492548adbd72b7",
+    "exp/r17_integration/conductor/driver.py": "224193c36fc6a3713aa5e918673b220b8799bfc04293154c8da4b8373513e09f",
+    "exp/r17_integration/conductor/manifest.py": "c2a195389c3d7a294d5ab91ff9a63a922463e36bd52117c76b76fecdeea6df0f",
+    "exp/r17_integration/conductor/queue.py": "be495f6bcde979266c6bd06ed1dec5163f5c0324cba2f2d1e335bb04c90bd3a2",
+    "exp/r17_integration/conductor/strategy.py": "32831669bd69d83edee46a9e8936c3967477adc1294ae994c4b2d27d850c85ce",
+    "exp/r17_integration/conductor/worker_entry.py": "5d6f3d940a35743a1452a1fece0f4b3f9a5f17110957a842a5efed30d875846c",
+    "exp/r17_integration/handbacks/HANDBACK_P2.md": "871934e0415f50c64168db0fd03f3ebf03da302246ab22e343a270398e28bdef",
+    "exp/r17_integration/models/pi05/adapter.py": "287f421cacac53b6855917aad5c262fe6ef3249e6726d081e62781b50a73b451",
+    "exp/r17_integration/models/pi05/gpu_diagnostic.py": "487f61334856c03d12673b4bb200c38afe5e74e5abbbfdd43fd3e2fcc450ca54",
+    "exp/r17_integration/models/pi05/parity.py": "d8afea0a20796009f57c9b48a1e427d167157473f3b54b9f09c9fd5982475bc5",
+    "exp/r17_integration/models/pi05/provider.py": "e7dce746d4a4af241604b9c6f6c26982ae5e1921efbe9e1acedd9831c599de36",
+    "exp/r17_integration/models/pi05/serve.py": "b9e3cd1c2ceaff3fd888290442a21f7c5c761afa5f02a450313dc599ea9fb34e",
+    "exp/r17_integration/tests/benchmarks/test_libero.py": "23bfb1958f370ae5a20fc7fef7e479004dfbd51130dc49fa9f6eef4834fc68a6",
+    "exp/r17_integration/tests/benchmarks/test_metaworld.py": "5650bde9a9b17fe3c39e25a7d2b51c76d87e988a2f70defddda8d87a0883ae2a",
+    "exp/r17_integration/tests/benchmarks/test_task_table.py": "6f398ec059215a7a419b9fd4facba67b0b92a0096f5f08ae28632e42717295c7",
+    "exp/r17_integration/tests/conductor/prove_old_regressions.py": "ad23a3657ad7445728641f54b4ad9b65322f96f9138235c90a371d74544b76b5",
+    "exp/r17_integration/tests/conductor/seal_fix2.py": "9f0d65eea508b6df26d2e3fc5e177341681d987d82a2519a1732a795e15356f7",
+    "exp/r17_integration/tests/conductor/seal_handback.py": "1087e20d7bd9ba2dcc83c63488f5efe2842da257c3f417795941bf9c93232e8a",
+    "exp/r17_integration/tests/conductor/test_dispatch.py": "550b624c2c6232d3a2466669e1783eeb481872138a2e2fe380d9c7c3741daa15",
+    "exp/r17_integration/tests/conductor/test_fix_round1.py": "ce798e202f3d7a5d7d3f2f2277bc3d08dff1fee513333e84f91a21f50992d280",
+    "exp/r17_integration/tests/conductor/test_p2_fix_round2.py": "bd94fe7f32fd7170d2c10aa89bfda6a64861784252aabd0f02dd696944bc54a0",
+    "exp/r17_integration/tests/models/pi05/build_fix1_samples.py": "113c5b7d0f978e5fc0efd5ade9b3fb6f82e0e58b59851010d432b835716f6717",
+    "exp/r17_integration/tests/models/pi05/build_fix2_samples.py": "04e0a682b7f0f9e09a1e4f321551b6f2f0f802527dd46730ed1ca710802ec2cd",
+    "exp/r17_integration/tests/models/pi05/build_samples.py": "3b60e135d0798b2436d100f16a3bb3a382a7c8572f2d1f52c146898b5e50d453",
+    "exp/r17_integration/tests/models/pi05/test_pi05.py": "fdf68e39599c0661b2e26911c418a80fa7065e7128e0ac9bfff91a51d191ce50",
+    "exp/r17_integration/tests/models/pi05/test_pi05_e2e.py": "c21a812d1fdd60210126fdcb2dd51213eca01a584c6d6826019808c876f05a73",
+    "exp/r17_integration/tests/models/pi05/test_pi05_fix_round1.py": "becc3cba4d37b68c76fcaf1867c66776e0c5c01ca2934317ee0d934e922b09ba",
+    "exp/r17_integration/tests/models/pi05/test_pi05_fix_round2.py": "9ca49fcbdf5b072d965377cd63931b921516fd0188d7cc18b9b76cc63fac188b",
+    "exp/r17_integration/tests/models/pi05/test_pi05_gpu_fix1.py": "7c52a0fda780e6c18f9a28020454e06db625979471620d615f27804806d08060"
+  },
+  "parity_contract": "r17.pi05.parity.r16_eager.v1",
+  "pending_owner": "Q: apply concrete REQUESTS/P2_to_Q patch, refresh payload/source seal, schedule complete native/framework G1 A",
+  "r16_verify": {
+    "command": "env CUDA_VISIBLE_DEVICES='' JAX_PLATFORMS=cpu PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONPATH=.:src:packages/openpi-client/src .venv/bin/python -m exp.offline_search.rounds.r16.analyze verify",
+    "exit_code": 0,
+    "stdout": "DESIGN_VERIFIED; no outcome reads"
+  },
+  "schema": "r17.p2.gpu_fix1.receipts.v1",
+  "source_parity": {
+    "passed": 19,
+    "skipped": 0
+  },
+  "source_snapshot_timing": "post-test; no new source changes between final full suite and seal"
+}

@@ -1,0 +1,203 @@
+{
+  "cpu_only": true,
+  "gpu_executed": false,
+  "models": {
+    "cosmos": {
+      "control": "/data/mw_finetune/eval/formal_cosmos_libero_official2000_20261010_130639_a8ca2043",
+      "control_recovery": {
+        "cpu_merged_completion": {
+          "accepted_episodes": 2000,
+          "error_attempts": 0,
+          "recovered_retried_errors": false,
+          "recovered_worker_shutdown": false,
+          "resolved_retry_errors": [],
+          "returncode": 0,
+          "verified_completion": true
+        },
+        "merge_sha256": "ab634c90fd127fddc90b115032cf15185f2ae5c25ef660d38bca4283e051c97b",
+        "original_error": "RuntimeError('driver incomplete: 2 is not a completed campaign with resolved retry errors')",
+        "original_status": "FAIL"
+      },
+      "control_runtime": "/data/mw_finetune/eval/formal_cosmos_libero_official2000_20261010_130639_a8ca2043",
+      "driver_mode": "legacy",
+      "episodes": 4000,
+      "groups": 8,
+      "groups_500": {
+        "libero_10/c": 500,
+        "libero_10/cg": 500,
+        "libero_10/cr": 500,
+        "libero_10/crg": 500,
+        "libero_spatial/c": 500,
+        "libero_spatial/cg": 500,
+        "libero_spatial/cr": 500,
+        "libero_spatial/crg": 500
+      },
+      "no_dispatch_receipt": true,
+      "orchestration": "12a129f94cc3d67af4c729c9e8a6c6ff9bdf01cf361426700bb4fffe24035bda",
+      "prepared_sha256": "8c2e0a015f70bdfd524107244cd53f4305c006b62b7d5998a605b535ada1ddec",
+      "run": "/data/mw_finetune/eval/csl10c",
+      "runtime_identity": "5318b07bfd914c17e284569600167aa3284ba3329aa9941333eef7a1f1b90b9e",
+      "sealed_yamls": 16,
+      "topology": {
+        "dp_batching": null,
+        "fastwam_batching": null,
+        "mps": null,
+        "replica_startup_width": 1,
+        "replicas": 2,
+        "server_node": "h100",
+        "worker_egl_devices": null,
+        "worker_max_episodes": 4,
+        "worker_memory_mib": 3072,
+        "worker_vram_mib": 768,
+        "workers": 8
+      }
+    },
+    "dp": {
+      "control": "/data/mw_finetune/eval/hs5dp_ctl_142812",
+      "control_recovery": null,
+      "control_runtime": "/data/mw_finetune/eval/hs5dp_ctl_142812",
+      "driver_mode": "group-commit",
+      "episodes": 8000,
+      "groups": 16,
+      "groups_500": {
+        "libero_10/c": 500,
+        "libero_10/cg": 500,
+        "libero_10/ch": 500,
+        "libero_10/chg": 500,
+        "libero_10/chr": 500,
+        "libero_10/chrg": 500,
+        "libero_10/cr": 500,
+        "libero_10/crg": 500,
+        "libero_spatial/c": 500,
+        "libero_spatial/cg": 500,
+        "libero_spatial/ch": 500,
+        "libero_spatial/chg": 500,
+        "libero_spatial/chr": 500,
+        "libero_spatial/chrg": 500,
+        "libero_spatial/cr": 500,
+        "libero_spatial/crg": 500
+      },
+      "no_dispatch_receipt": true,
+      "orchestration": "a9d2ffff678b0b98d839d70daa32a78c456f9e30e38c5131b26fb64836f2213d",
+      "prepared_sha256": "87a4a9913b292b9571312613ec0c9ed4d6700d3a8cb008693e051c924c352a11",
+      "run": "/data/mw_finetune/eval/csl10d",
+      "runtime_identity": "211cb3c92204e134f1414ee563d6b24586c6a3e6c0a8f5ceaaa9689d8077c8e4",
+      "sealed_yamls": 16,
+      "topology": {
+        "dp_batching": {
+          "arm_steps": [
+            100,
+            10,
+            5
+          ],
+          "batch_wait_ms": 5.0,
+          "byte_identical_to_b1": false,
+          "default_off": true,
+          "identity": "196635a760a15128de6771da718c7ade5612ba79cad9802eefec2e3a3239949a",
+          "language_policy": "frozen CPU B1 prompt embeddings memoized by exact text; 128-entry bound",
+          "max_batch": 8,
+          "noise_policy": "per-request sequential B1 initial/posterior draws; independent of members/order",
+          "numerics_policy": "dp_private_rng_vector_v1",
+          "quality_equivalence": "requires matched-batch control SR; not established by throughput",
+          "stage_workers": [
+            1,
+            1,
+            1
+          ]
+        },
+        "fastwam_batching": null,
+        "mps": {
+          "active_thread_percentage": 100,
+          "compute_mode_change": false,
+          "enabled": true,
+          "private_per_campaign_gpu": true,
+          "schema": "r17.mps.v1"
+        },
+        "replica_startup_width": 1,
+        "replicas": 2,
+        "server_node": "local",
+        "worker_egl_devices": null,
+        "worker_max_episodes": 4,
+        "worker_memory_mib": 2048,
+        "worker_vram_mib": 576,
+        "workers": 32
+      }
+    },
+    "fastwam": {
+      "control": "/data/mw_finetune/eval/hs6fw_res_152931",
+      "control_recovery": null,
+      "control_runtime": "/data/mw_finetune/eval/hs6fw_ctl_143332",
+      "driver_mode": "group-commit",
+      "episodes": 8000,
+      "groups": 16,
+      "groups_500": {
+        "libero_10/c": 500,
+        "libero_10/cg": 500,
+        "libero_10/ch": 500,
+        "libero_10/chg": 500,
+        "libero_10/chr": 500,
+        "libero_10/chrg": 500,
+        "libero_10/cr": 500,
+        "libero_10/crg": 500,
+        "libero_spatial/c": 500,
+        "libero_spatial/cg": 500,
+        "libero_spatial/ch": 500,
+        "libero_spatial/chg": 500,
+        "libero_spatial/chr": 500,
+        "libero_spatial/chrg": 500,
+        "libero_spatial/cr": 500,
+        "libero_spatial/crg": 500
+      },
+      "no_dispatch_receipt": true,
+      "orchestration": "a9d2ffff678b0b98d839d70daa32a78c456f9e30e38c5131b26fb64836f2213d",
+      "prepared_sha256": "8878493cfac975fd8af56129ebc90f458f9b7ebddbd9f3cc6511ea566e003bb5",
+      "run": "/data/mw_finetune/eval/csl10f",
+      "runtime_identity": "211cb3c92204e134f1414ee563d6b24586c6a3e6c0a8f5ceaaa9689d8077c8e4",
+      "sealed_yamls": 16,
+      "topology": {
+        "dp_batching": null,
+        "fastwam_batching": {
+          "batch_wait_ms": 5.0,
+          "byte_identical_to_b1": false,
+          "default_off": true,
+          "hardware_qualification": "see BATCHING.md and measurement receipt",
+          "identity": "c4a95a1a3acb492c6ad6798cb879cb86f78a0d9156dd2e65f296cb11edf7f3ff",
+          "max_batch": 16,
+          "numerics_policy": "native_bf16_batch_study_v1",
+          "quality_equivalence": "unverified; matched batched control required",
+          "stage_workers": [
+            1,
+            1,
+            1
+          ]
+        },
+        "mps": {
+          "active_thread_percentage": 100,
+          "compute_mode_change": false,
+          "enabled": true,
+          "private_per_campaign_gpu": true,
+          "schema": "r17.mps.v1"
+        },
+        "replica_startup_width": 2,
+        "replicas": 2,
+        "server_node": "h100",
+        "worker_egl_devices": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "worker_max_episodes": 4,
+        "worker_memory_mib": 2048,
+        "worker_vram_mib": 768,
+        "workers": 48
+      }
+    }
+  },
+  "schema": "r17.cache_lane_cpu_ready.v1",
+  "status": "PASS"
+}

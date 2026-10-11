@@ -1,0 +1,14 @@
+{
+  "errors": 0,
+  "expected": 8000,
+  "final_result_pending": true,
+  "keep_running": true,
+  "lane_alive": true,
+  "merged_accepted": 4348,
+  "new_accepted": 347,
+  "nofile_proof": "csl10dp_resume_nofile.json",
+  "observed": 1791681640.8050373,
+  "recycle_snapshot": "csl10dp_resume_progress.json",
+  "retained": 4001,
+  "run": "/data/mw_finetune/eval/dpc8513584592"
+}

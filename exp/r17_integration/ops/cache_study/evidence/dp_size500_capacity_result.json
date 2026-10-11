@@ -1,0 +1,54 @@
+{
+  "accepted_per_min": 56.81703197663161,
+  "accepted_since_sample": 359,
+  "admitted_workers": 33,
+  "before_accepted_per_min": 17.8,
+  "capacity_limit_reason": "untouched H100 fleet owns16 local RAM/EGL reservations; GPU permits33 and RAM37",
+  "cpu_target_met": false,
+  "error": null,
+  "errors": 0,
+  "expected": 8000,
+  "gpu_lock_held": true,
+  "group_completions": {
+    "r17_25500ed82868a519e45c_cg": 252,
+    "r17_fd216996bbb3060fe494_crg": 133
+  },
+  "measurement_seconds": 379.11167216300964,
+  "merged_accepted": 6633,
+  "replica_cpu": [
+    {
+      "cpu_pct": 103.61590761866495,
+      "label": "replica_0",
+      "same_pid_alive": true
+    },
+    {
+      "cpu_pct": 110.11794957885051,
+      "label": "replica_1",
+      "same_pid_alive": true
+    },
+    {
+      "cpu_pct": 111.69004572825034,
+      "label": "replica_2",
+      "same_pid_alive": true
+    },
+    {
+      "cpu_pct": 107.84685094691551,
+      "label": "replica_3",
+      "same_pid_alive": true
+    }
+  ],
+  "replicas": 4,
+  "requested_workers": 60,
+  "retained": 6248,
+  "run": "dpc8713063796_r2_d1dd",
+  "segment_accepted": 385,
+  "speedup": 3.1919680885748094,
+  "status": "PARTIAL",
+  "time": 1791688779.9904532,
+  "worker_failures": [],
+  "worker_nodes": {
+    "local": 33
+  },
+  "worker_ram_mib": 4096,
+  "worker_recycles": 89
+}

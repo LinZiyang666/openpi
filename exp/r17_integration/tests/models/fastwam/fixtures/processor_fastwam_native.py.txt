@@ -1,0 +1,30 @@
+@dataclass
+@ProcessorStepRegistry.register(name="fastwam_action_toggle_processor")
+class FastWAMActionToggleProcessorStep(ActionProcessorStep):
+    """Apply FastWAM LIBERO toggle semantics to configured action dimensions."""
+
+    toggle_dimensions: list[int]
+
+    def action(self, action: PolicyAction) -> PolicyAction:
+        if not self.toggle_dimensions:
+            return action
+        processed_action = action.clone()
+        action_dim = int(processed_action.shape[-1])
+        for dim in self.toggle_dimensions:
+            resolved_dim = dim if dim >= 0 else action_dim + dim
+            if resolved_dim < 0 or resolved_dim >= action_dim:
+                raise ValueError(
+                    f"FastWAM action toggle dimension {dim} is out of bounds for action dim {action_dim}."
+                )
+            value = processed_action[..., resolved_dim]
+            value = value * 2.0 - 1.0
+            processed_action[..., resolved_dim] = torch.sign(-value)
+        return processed_action
+
+    def get_config(self) -> dict[str, Any]:
+        return {"toggle_dimensions": self.toggle_dimensions}
+
+    def transform_features(
+        self, features: dict[PipelineFeatureType, dict[str, PolicyFeature]]
+    ) -> dict[PipelineFeatureType, dict[str, PolicyFeature]]:
+        return features

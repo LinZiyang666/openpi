@@ -1,0 +1,115 @@
+enabled: true
+timer:
+  enabled: true
+  buffer_size: 10000
+  output_csv_dir: null
+keys:
+  vision_0:
+    enabled: true
+    weight: 1.0
+  vision_1:
+    enabled: false
+    weight: 1.0
+  vision_2:
+    enabled: false
+    weight: 1.0
+  prompt_emb:
+    enabled: false
+    weight: 1.0
+  robot_state:
+    enabled: true
+    weight: 1.0
+  vlm_out:
+    enabled: false
+    weight: 1.0
+key_builder:
+  type: adapter_native
+  prune_window_size: 4
+  temporal_keep_ratio: 0.5
+  reducer:
+    type: mean_pool
+    output_tokens: 16
+    select_k: 32
+    temperature: 1.0
+  extract_layer: 0
+  prefix_reducer:
+    type: prefix_mean_pool
+  projection:
+    inner_type: cp1_mean_pool
+    weights_path: null
+  cp2_vlm:
+    seed: 0
+    d: 500
+    p: 0.01
+    input_dim: 1982464
+  cp2_groot:
+    seed: 0
+    d: 500
+    p: 0.01
+    token_len: 640
+    feature_dim: 2048
+    state_feat_dim: 1536
+  prompt_masked_pool: false
+  prompt_instruction_span: false
+checkpoints: {}
+backend:
+  type: in_memory
+  vector_dims:
+    vision_0: 64
+    robot_state: 4
+  qdrant:
+    url: http://localhost:6333
+    collection_name: openpi_cache
+    prefer_grpc: false
+    grpc_port: 6334
+    request_timeout: 30
+  in_memory:
+    preload_path: null
+    index_type: brute_force
+    expected_pin_id: null
+    text_ivf:
+      field: prompt_emb
+      max_buckets: 1024
+write_policy:
+  type: never
+collection:
+  export_collect_meta: false
+  collect_fields:
+  - robot_state
+  wire_frame_cap_kib: 32
+shadow_teacher:
+  enabled: false
+  path: ''
+  action_sigma: null
+trace:
+  enabled: false
+  out_dir: ''
+  record_noise_actions: false
+  record_prefix_tokens: true
+  record_raw_images: true
+  record_model_images: false
+  record_query_keys: true
+  record_search: true
+  record_tokenized_prompt: true
+  raw_image_keys:
+  - observation/image
+  - observation/wrist_image
+  rng_isolation: verdict_aware
+  queue_steps: 256
+  sidecar_jsonl: true
+routing: null
+denoise_schedule: null
+warm_reset: null
+miss: null
+adapter_binding:
+  schema: r17.adapter_binding.v1
+  provider: r17_dp_metaworld_ddpm_ffe3f4c94e95_v1
+  model_id: dp_t_metaworld_diagnostic
+  checkpoint_identity: sha256:c27b79ff5a3a33d61a5280001076907f246dbd8381d79b724438a71f688e130d
+  norm_identity: sha256:d1e2198e6afb8da8263c96f53ec075461b32af7ded4d9c1d595c7a6a55d3d880
+  layout_identity: dda90d334511ad6cd2d2f6b5b62aa1a1599ef944b5a07da59724cc9063b4e9c3
+  feature_identity: 6b7b4c12c211b3a973200c95c4c2102327ed4c3dbcbb84486322661ccd9093cd
+  sampler_identity: b821668ffa8935766889e730b6d87145df25677c38ede4ee60be92b77550344c
+  benchmark_protocol: 3e84e999dc3d70662595e8dfb3ece7ac8e67cee8db1afb0294d85e9cd7dfc8d7
+  num_steps: 2
+  commit_horizon: 10

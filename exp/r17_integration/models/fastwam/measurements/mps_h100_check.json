@@ -1,0 +1,66 @@
+{
+  "code": 0,
+  "stdout": "8.0\n",
+  "stderr": "",
+  "elapsed_seconds": 3.4322425419959472,
+  "mps": {
+    "schema": "r17.mps.v1",
+    "enabled": true,
+    "private_per_campaign_gpu": true,
+    "active_thread_percentage": 100,
+    "compute_mode_change": false,
+    "gpu": {
+      "index": 0,
+      "uuid": "GPU-7ea0f760-d3aa-7023-c19b-95f49123311b",
+      "compute_mode": "Default",
+      "free_mib": 68151.0
+    },
+    "directory": "/data/mw_finetune/eval/p3mps_hcheck_1010/mps/e2823e",
+    "pipe_directory": "/data/mw_finetune/eval/p3mps_hcheck_1010/mps/e2823e/p",
+    "log_directory": "/data/mw_finetune/eval/p3mps_hcheck_1010/mps/e2823e/l",
+    "status": "CLOSED",
+    "uid": 1001,
+    "started": 1791656275.9499726,
+    "background_contexts": [
+      {
+        "pid": 196159,
+        "start_ticks": "11507392"
+      },
+      {
+        "pid": 196243,
+        "start_ticks": "11510576"
+      }
+    ],
+    "daemon": {
+      "pid": 196966,
+      "start_ticks": "11570622"
+    },
+    "initial": {
+      "servers": [],
+      "clients": {},
+      "daemon_alive": true
+    },
+    "before_close": {
+      "servers": [
+        196991
+      ],
+      "clients": {
+        "196991": []
+      },
+      "daemon_alive": true
+    },
+    "daemon_closed": true,
+    "closed": 1791656279.2907906,
+    "after_contexts": [
+      {
+        "pid": 196159,
+        "start_ticks": "11507392"
+      },
+      {
+        "pid": 196243,
+        "start_ticks": "11510576"
+      }
+    ],
+    "background_contexts_preserved": true
+  }
+}

@@ -1,0 +1,388 @@
+{
+  "diagnostic_fixture": true,
+  "real_checkpoint": false,
+  "gpu_qualified": false,
+  "model_manifest": {
+    "spec": {
+      "model_id": "groot_n15_metaworld_sawyer",
+      "checkpoint_identity": "sha256:0b04ca9542307a6fd26b5c2de605d2adfdb0e3587ffa4578c8d09a2b64842ead",
+      "norm_identity": "sha256:5e10978742f825ed7ebc8e3187a2aa7116c4191a7cdbd1a13b23935da306cffb",
+      "layout": {
+        "horizon": 16,
+        "replan_steps": 5,
+        "valid_action_dim": 4,
+        "valid_state_indices": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "motion_channels": [
+          0,
+          1,
+          2
+        ],
+        "gripper_channel": 3,
+        "gripper_closed_convention": "native_metaworld",
+        "raw_state_fields": [
+          "x",
+          "y",
+          "z",
+          "gripper"
+        ],
+        "action_space_name": "metaworld_sawyer_native4",
+        "units": "native controller; physical scale unverified",
+        "frame": "native_metaworld",
+        "output_transform_id": "sha256:bcfdb6a83208e9ed948782210a2533f46a872e15e4d72d60e69419e26c1f6c35",
+        "model_action_width": 32,
+        "valid_action_indices": []
+      },
+      "feature_spec": {
+        "source": "eagle_scatter_before_llm",
+        "real_cameras": [
+          "video.image"
+        ],
+        "fields": {
+          "vision_0": 128,
+          "robot_state": 4
+        },
+        "token_grid": [
+          16,
+          16
+        ],
+        "hidden_width": 8,
+        "pooling": "spatial4x4_float32_v1",
+        "missing_branch_policy": "reject",
+        "prompt_dependent": false,
+        "key_dtype": "float32",
+        "active_state_indices": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "policy_digest": "sha256:0b04ca9542307a6fd26b5c2de605d2adfdb0e3587ffa4578c8d09a2b64842ead",
+        "norm_digest": "sha256:5e10978742f825ed7ebc8e3187a2aa7116c4191a7cdbd1a13b23935da306cffb",
+        "preprocess_digest": "sha256:bcfdb6a83208e9ed948782210a2533f46a872e15e4d72d60e69419e26c1f6c35"
+      },
+      "default_sampler": {
+        "sampler_id": "groot_n15_k4_v1",
+        "family": "flow_euler",
+        "num_steps": 4,
+        "native_timesteps": [
+          0.0,
+          0.25,
+          0.5,
+          0.75
+        ],
+        "native_deltas": [
+          0.25,
+          0.25,
+          0.25,
+          0.25
+        ],
+        "config": {
+          "direction": "noise_to_clean_asc",
+          "endpoint_fixed_k": true
+        },
+        "point_kind": "flow_time"
+      },
+      "capabilities": {
+        "features": {
+          "full": {
+            "status": "supported",
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "evidence": []
+          },
+          "k_step": {
+            "status": "supported",
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "evidence": []
+          },
+          "cp1_retrieval": {
+            "status": "supported",
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "evidence": []
+          },
+          "concurrent": {
+            "status": "supported",
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "evidence": []
+          },
+          "bundle": {
+            "status": "supported",
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "evidence": []
+          },
+          "episode": {
+            "status": "supported",
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "evidence": []
+          },
+          "debug_capture": {
+            "status": "supported",
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "evidence": []
+          },
+          "library": {
+            "status": "implemented_unverified",
+            "reason": "Full-action CP1 subset only; complete library fit/replay/augmentation qualification pending",
+            "evidence": []
+          },
+          "native_resume": {
+            "status": "implemented_unverified",
+            "reason": "Direct adapter API only; generic warm-tier dispatcher rejects configuration",
+            "evidence": []
+          },
+          "trace": {
+            "status": "implemented_unverified",
+            "reason": "Direct stock trace hook only; generic trace executor rejects configuration",
+            "evidence": []
+          },
+          "batch_stage3": {
+            "status": "implemented_unverified",
+            "reason": "Direct stock S3 hook only; generic server does not submit through BatchingCore",
+            "evidence": []
+          },
+          "cp2_key_capture": {
+            "status": "implemented_unverified",
+            "reason": "Direct key hook only; generic CP2 execution rejects configuration",
+            "evidence": []
+          },
+          "warm_reset_hook": {
+            "status": "implemented_unverified",
+            "reason": "Direct stock hook only; generic warm-reset execution rejects configuration",
+            "evidence": []
+          },
+          "batch_stage1": {
+            "status": "unsupported",
+            "reason": "no MW qualification for this hook",
+            "evidence": []
+          },
+          "batch_stage2": {
+            "status": "unsupported",
+            "reason": "no MW qualification for this hook",
+            "evidence": []
+          },
+          "split": {
+            "status": "unsupported",
+            "reason": "no MW qualification for this hook",
+            "evidence": []
+          },
+          "cp2": {
+            "status": "unsupported",
+            "reason": "no MW qualification for this hook",
+            "evidence": []
+          },
+          "online_rit": {
+            "status": "unsupported",
+            "reason": "no MW qualification for this hook",
+            "evidence": []
+          },
+          "dual_camera_ablation": {
+            "status": "not_applicable",
+            "reason": "one real camera",
+            "evidence": []
+          }
+        }
+      },
+      "allowed_benchmark_protocols": [
+        "3e84e999dc3d70662595e8dfb3ece7ac8e67cee8db1afb0294d85e9cd7dfc8d7"
+      ],
+      "code_digest": "sha256:bf6e607eea716850b6ca4d8dfd47424ff418cf541394181ed2908645ccbc47a0",
+      "python_island": "GR00T vendor island"
+    },
+    "content_digests": {
+      "stub_source": "a761c9bff53966f5f6de7df95dde760f8898229d629becf37a1b3dca0a97f45c"
+    },
+    "schema": "r17.model_manifest.v1"
+  },
+  "library_metadata": {
+    "model_id": "groot_n15_metaworld_sawyer",
+    "checkpoint_identity": "sha256:0b04ca9542307a6fd26b5c2de605d2adfdb0e3587ffa4578c8d09a2b64842ead",
+    "norm_identity": "sha256:5e10978742f825ed7ebc8e3187a2aa7116c4191a7cdbd1a13b23935da306cffb",
+    "layout_identity": "a059d427c866ee9eebd62bdc2790f50e61efb34c39afd5da56ec665603c2abec",
+    "feature_identity": "1647a31fc0cf7ecd707af72e1f82662b74ed5af8f29e8997def9f9c58cd1aee2",
+    "sampler_identity": "40be0b1c806db0e419546bc6b0e45c2e9b5470bdc6dfd9fff3362ba0ee230f69",
+    "benchmark_protocol": "3e84e999dc3d70662595e8dfb3ece7ac8e67cee8db1afb0294d85e9cd7dfc8d7",
+    "interface_version": "r17.contracts.v1",
+    "key_builder_type": "r17_groot_mw_cp1_spatial16_v1",
+    "r17_binding": {
+      "model_id": "groot_n15_metaworld_sawyer",
+      "checkpoint_identity": "sha256:0b04ca9542307a6fd26b5c2de605d2adfdb0e3587ffa4578c8d09a2b64842ead",
+      "norm_identity": "sha256:5e10978742f825ed7ebc8e3187a2aa7116c4191a7cdbd1a13b23935da306cffb",
+      "layout_identity": "a059d427c866ee9eebd62bdc2790f50e61efb34c39afd5da56ec665603c2abec",
+      "feature_identity": "1647a31fc0cf7ecd707af72e1f82662b74ed5af8f29e8997def9f9c58cd1aee2",
+      "sampler_identity": "40be0b1c806db0e419546bc6b0e45c2e9b5470bdc6dfd9fff3362ba0ee230f69",
+      "benchmark_protocol": "3e84e999dc3d70662595e8dfb3ece7ac8e67cee8db1afb0294d85e9cd7dfc8d7",
+      "retrieval_model_identity": "1150e014b58676aa25004ed5f840bbe2f591b84c93ef5ba30074dddff4b24dfc"
+    },
+    "library_sampler_identity": "40be0b1c806db0e419546bc6b0e45c2e9b5470bdc6dfd9fff3362ba0ee230f69",
+    "library_sampler": {
+      "sampler_id": "groot_n15_k4_v1",
+      "family": "flow_euler",
+      "num_steps": 4,
+      "native_timesteps": [
+        0.0,
+        0.25,
+        0.5,
+        0.75
+      ],
+      "native_deltas": [
+        0.25,
+        0.25,
+        0.25,
+        0.25
+      ],
+      "config": {
+        "direction": "noise_to_clean_asc",
+        "endpoint_fixed_k": true
+      },
+      "point_kind": "flow_time"
+    },
+    "vector_dims": {
+      "vision_0": 128,
+      "robot_state": 4
+    },
+    "action_shape": [
+      16,
+      32
+    ],
+    "active_action_indices": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "real_cameras": [
+      "video.image"
+    ],
+    "denoise_schedule": "groot_n15_k4_v1"
+  },
+  "request": {
+    "campaign": "P5-CPU-stub",
+    "benchmark_protocol": "3e84e999dc3d70662595e8dfb3ece7ac8e67cee8db1afb0294d85e9cd7dfc8d7",
+    "task_name": "reach-v3",
+    "original_init_idx": 10,
+    "decision_seq": 0,
+    "seed": 7,
+    "arm": "",
+    "attempt": 0,
+    "bundle_generation": "",
+    "task_id": 0,
+    "namespace": "policy",
+    "explicit_seed": null
+  },
+  "native_grid": {
+    "schedule_id": "groot_n15_k4_v1",
+    "num_steps": 4,
+    "family": "flow_euler",
+    "native_points": [
+      0.0,
+      0.25,
+      0.5,
+      0.75
+    ],
+    "deltas": [
+      0.25,
+      0.25,
+      0.25,
+      0.25
+    ],
+    "direction": "noise_to_clean_asc",
+    "endpoint_fixed_k": true
+  },
+  "actual_nfe": 4,
+  "array_shapes": {
+    "vision_0": [
+      128
+    ],
+    "robot_state": [
+      4
+    ],
+    "normalized_actions": [
+      16,
+      32
+    ],
+    "wire_actions": [
+      16,
+      4
+    ],
+    "initial_noise": [
+      16,
+      32
+    ],
+    "snapshot_1": [
+      16,
+      32
+    ],
+    "snapshot_2": [
+      16,
+      32
+    ],
+    "snapshot_3": [
+      16,
+      32
+    ]
+  },
+  "array_dtypes": {
+    "vision_0": "float32",
+    "robot_state": "float32",
+    "normalized_actions": "float32",
+    "wire_actions": "float32",
+    "initial_noise": "float32",
+    "snapshot_1": "float32",
+    "snapshot_2": "float32",
+    "snapshot_3": "float32"
+  },
+  "snapshots": [
+    {
+      "model_identity": "sha256:0b04ca9542307a6fd26b5c2de605d2adfdb0e3587ffa4578c8d09a2b64842ead",
+      "norm_identity": "sha256:5e10978742f825ed7ebc8e3187a2aa7116c4191a7cdbd1a13b23935da306cffb",
+      "layout_identity": "a059d427c866ee9eebd62bdc2790f50e61efb34c39afd5da56ec665603c2abec",
+      "sampler_identity": "40be0b1c806db0e419546bc6b0e45c2e9b5470bdc6dfd9fff3362ba0ee230f69",
+      "schedule_digest": "40be0b1c806db0e419546bc6b0e45c2e9b5470bdc6dfd9fff3362ba0ee230f69",
+      "loop_index": 1,
+      "native_timestep": 0.25,
+      "noise_state": {
+        "native_dtype": "torch.float32",
+        "storage_dtype": "float32"
+      },
+      "conditioning_scope": "",
+      "schema": "r17.native_snapshot.v1",
+      "tensor_dtype": "float32"
+    },
+    {
+      "model_identity": "sha256:0b04ca9542307a6fd26b5c2de605d2adfdb0e3587ffa4578c8d09a2b64842ead",
+      "norm_identity": "sha256:5e10978742f825ed7ebc8e3187a2aa7116c4191a7cdbd1a13b23935da306cffb",
+      "layout_identity": "a059d427c866ee9eebd62bdc2790f50e61efb34c39afd5da56ec665603c2abec",
+      "sampler_identity": "40be0b1c806db0e419546bc6b0e45c2e9b5470bdc6dfd9fff3362ba0ee230f69",
+      "schedule_digest": "40be0b1c806db0e419546bc6b0e45c2e9b5470bdc6dfd9fff3362ba0ee230f69",
+      "loop_index": 2,
+      "native_timestep": 0.5,
+      "noise_state": {
+        "native_dtype": "torch.float32",
+        "storage_dtype": "float32"
+      },
+      "conditioning_scope": "",
+      "schema": "r17.native_snapshot.v1",
+      "tensor_dtype": "float32"
+    },
+    {
+      "model_identity": "sha256:0b04ca9542307a6fd26b5c2de605d2adfdb0e3587ffa4578c8d09a2b64842ead",
+      "norm_identity": "sha256:5e10978742f825ed7ebc8e3187a2aa7116c4191a7cdbd1a13b23935da306cffb",
+      "layout_identity": "a059d427c866ee9eebd62bdc2790f50e61efb34c39afd5da56ec665603c2abec",
+      "sampler_identity": "40be0b1c806db0e419546bc6b0e45c2e9b5470bdc6dfd9fff3362ba0ee230f69",
+      "schedule_digest": "40be0b1c806db0e419546bc6b0e45c2e9b5470bdc6dfd9fff3362ba0ee230f69",
+      "loop_index": 3,
+      "native_timestep": 0.75,
+      "noise_state": {
+        "native_dtype": "torch.float32",
+        "storage_dtype": "float32"
+      },
+      "conditioning_scope": "",
+      "schema": "r17.native_snapshot.v1",
+      "tensor_dtype": "float32"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "status": "GPU cost unmeasured; no borrowed pi05/GR ratios",
+  "Ckey_ms": null,
+  "S2_prefill_ms": null,
+  "S3_k10_ms": null,
+  "S3_k2_ms": null,
+  "S3_k1_ms": null,
+  "B2_gpu_qualified": false,
+  "checkpoint_quality_qualified": false,
+  "key_quality_qualified": false
+}

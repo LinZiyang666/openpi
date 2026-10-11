@@ -1,0 +1,2274 @@
+{
+  "active_armed_lanes": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/ARMED.json",
+  "active_capacity_fleet_report": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/CAPACITY_FLEETS.json",
+  "active_split_fleet_report": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/SPLIT_FLEETS.json",
+  "b_episode_counts": [
+    {
+      "library_size": 50,
+      "model_suite": "cosmos_libero_libero_10",
+      "tasks": {
+        "libero_10/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it": {
+          "episodes": 5,
+          "successful_episodes": 5
+        },
+        "libero_10/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it": {
+          "episodes": 5,
+          "successful_episodes": 5
+        },
+        "libero_10/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it": {
+          "episodes": 5,
+          "successful_episodes": 4
+        },
+        "libero_10/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove": {
+          "episodes": 5,
+          "successful_episodes": 5
+        },
+        "libero_10/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket": {
+          "episodes": 5,
+          "successful_episodes": 5
+        },
+        "libero_10/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket": {
+          "episodes": 5,
+          "successful_episodes": 5
+        },
+        "libero_10/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket": {
+          "episodes": 5,
+          "successful_episodes": 5
+        },
+        "libero_10/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate": {
+          "episodes": 5,
+          "successful_episodes": 5
+        },
+        "libero_10/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate": {
+          "episodes": 5,
+          "successful_episodes": 5
+        },
+        "libero_10/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy": {
+          "episodes": 5,
+          "successful_episodes": 5
+        }
+      }
+    },
+    {
+      "library_size": 100,
+      "model_suite": "cosmos_libero_libero_10",
+      "tasks": {
+        "libero_10/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it": {
+          "episodes": 10,
+          "successful_episodes": 10
+        },
+        "libero_10/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it": {
+          "episodes": 10,
+          "successful_episodes": 10
+        },
+        "libero_10/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it": {
+          "episodes": 10,
+          "successful_episodes": 9
+        },
+        "libero_10/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove": {
+          "episodes": 10,
+          "successful_episodes": 9
+        },
+        "libero_10/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket": {
+          "episodes": 10,
+          "successful_episodes": 10
+        },
+        "libero_10/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket": {
+          "episodes": 10,
+          "successful_episodes": 10
+        },
+        "libero_10/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket": {
+          "episodes": 10,
+          "successful_episodes": 10
+        },
+        "libero_10/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate": {
+          "episodes": 10,
+          "successful_episodes": 10
+        },
+        "libero_10/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate": {
+          "episodes": 10,
+          "successful_episodes": 10
+        },
+        "libero_10/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy": {
+          "episodes": 10,
+          "successful_episodes": 10
+        }
+      }
+    },
+    {
+      "library_size": 200,
+      "model_suite": "cosmos_libero_libero_10",
+      "tasks": {
+        "libero_10/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it": {
+          "episodes": 20,
+          "successful_episodes": 20
+        },
+        "libero_10/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it": {
+          "episodes": 20,
+          "successful_episodes": 20
+        },
+        "libero_10/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it": {
+          "episodes": 20,
+          "successful_episodes": 19
+        },
+        "libero_10/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove": {
+          "episodes": 20,
+          "successful_episodes": 16
+        },
+        "libero_10/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket": {
+          "episodes": 20,
+          "successful_episodes": 20
+        },
+        "libero_10/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket": {
+          "episodes": 20,
+          "successful_episodes": 20
+        },
+        "libero_10/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket": {
+          "episodes": 20,
+          "successful_episodes": 19
+        },
+        "libero_10/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate": {
+          "episodes": 20,
+          "successful_episodes": 20
+        },
+        "libero_10/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate": {
+          "episodes": 20,
+          "successful_episodes": 20
+        },
+        "libero_10/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy": {
+          "episodes": 20,
+          "successful_episodes": 20
+        }
+      }
+    },
+    {
+      "library_size": 300,
+      "model_suite": "cosmos_libero_libero_10",
+      "tasks": {
+        "libero_10/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it": {
+          "episodes": 30,
+          "successful_episodes": 30
+        },
+        "libero_10/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it": {
+          "episodes": 30,
+          "successful_episodes": 29
+        },
+        "libero_10/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it": {
+          "episodes": 30,
+          "successful_episodes": 28
+        },
+        "libero_10/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove": {
+          "episodes": 30,
+          "successful_episodes": 24
+        },
+        "libero_10/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket": {
+          "episodes": 30,
+          "successful_episodes": 29
+        },
+        "libero_10/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket": {
+          "episodes": 30,
+          "successful_episodes": 30
+        },
+        "libero_10/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket": {
+          "episodes": 30,
+          "successful_episodes": 29
+        },
+        "libero_10/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate": {
+          "episodes": 30,
+          "successful_episodes": 29
+        },
+        "libero_10/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate": {
+          "episodes": 30,
+          "successful_episodes": 29
+        },
+        "libero_10/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy": {
+          "episodes": 30,
+          "successful_episodes": 30
+        }
+      }
+    },
+    {
+      "library_size": 400,
+      "model_suite": "cosmos_libero_libero_10",
+      "tasks": {
+        "libero_10/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it": {
+          "episodes": 40,
+          "successful_episodes": 40
+        },
+        "libero_10/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it": {
+          "episodes": 40,
+          "successful_episodes": 39
+        },
+        "libero_10/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it": {
+          "episodes": 40,
+          "successful_episodes": 37
+        },
+        "libero_10/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove": {
+          "episodes": 40,
+          "successful_episodes": 33
+        },
+        "libero_10/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket": {
+          "episodes": 40,
+          "successful_episodes": 38
+        },
+        "libero_10/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket": {
+          "episodes": 40,
+          "successful_episodes": 39
+        },
+        "libero_10/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket": {
+          "episodes": 40,
+          "successful_episodes": 39
+        },
+        "libero_10/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate": {
+          "episodes": 40,
+          "successful_episodes": 39
+        },
+        "libero_10/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate": {
+          "episodes": 40,
+          "successful_episodes": 39
+        },
+        "libero_10/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy": {
+          "episodes": 40,
+          "successful_episodes": 40
+        }
+      }
+    },
+    {
+      "library_size": 50,
+      "model_suite": "cosmos_libero_libero_spatial",
+      "tasks": {
+        "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 5,
+          "successful_episodes": 2
+        },
+        "libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate": {
+          "episodes": 5,
+          "successful_episodes": 4
+        },
+        "libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate": {
+          "episodes": 5,
+          "successful_episodes": 5
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate": {
+          "episodes": 5,
+          "successful_episodes": 5
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate": {
+          "episodes": 5,
+          "successful_episodes": 4
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 5,
+          "successful_episodes": 5
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate": {
+          "episodes": 5,
+          "successful_episodes": 5
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 5,
+          "successful_episodes": 5
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate": {
+          "episodes": 5,
+          "successful_episodes": 5
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate": {
+          "episodes": 5,
+          "successful_episodes": 5
+        }
+      }
+    },
+    {
+      "library_size": 100,
+      "model_suite": "cosmos_libero_libero_spatial",
+      "tasks": {
+        "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 10,
+          "successful_episodes": 6
+        },
+        "libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate": {
+          "episodes": 10,
+          "successful_episodes": 9
+        },
+        "libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate": {
+          "episodes": 10,
+          "successful_episodes": 10
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate": {
+          "episodes": 10,
+          "successful_episodes": 10
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate": {
+          "episodes": 10,
+          "successful_episodes": 8
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 10,
+          "successful_episodes": 10
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate": {
+          "episodes": 10,
+          "successful_episodes": 10
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 10,
+          "successful_episodes": 10
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate": {
+          "episodes": 10,
+          "successful_episodes": 10
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate": {
+          "episodes": 10,
+          "successful_episodes": 9
+        }
+      }
+    },
+    {
+      "library_size": 200,
+      "model_suite": "cosmos_libero_libero_spatial",
+      "tasks": {
+        "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 20,
+          "successful_episodes": 15
+        },
+        "libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate": {
+          "episodes": 20,
+          "successful_episodes": 19
+        },
+        "libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate": {
+          "episodes": 20,
+          "successful_episodes": 20
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate": {
+          "episodes": 20,
+          "successful_episodes": 20
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate": {
+          "episodes": 20,
+          "successful_episodes": 18
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 20,
+          "successful_episodes": 20
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate": {
+          "episodes": 20,
+          "successful_episodes": 20
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 20,
+          "successful_episodes": 18
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate": {
+          "episodes": 20,
+          "successful_episodes": 20
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate": {
+          "episodes": 20,
+          "successful_episodes": 19
+        }
+      }
+    },
+    {
+      "library_size": 300,
+      "model_suite": "cosmos_libero_libero_spatial",
+      "tasks": {
+        "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 30,
+          "successful_episodes": 23
+        },
+        "libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate": {
+          "episodes": 30,
+          "successful_episodes": 29
+        },
+        "libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate": {
+          "episodes": 30,
+          "successful_episodes": 30
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate": {
+          "episodes": 30,
+          "successful_episodes": 30
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate": {
+          "episodes": 30,
+          "successful_episodes": 25
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 30,
+          "successful_episodes": 30
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate": {
+          "episodes": 30,
+          "successful_episodes": 30
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 30,
+          "successful_episodes": 25
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate": {
+          "episodes": 30,
+          "successful_episodes": 30
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate": {
+          "episodes": 30,
+          "successful_episodes": 29
+        }
+      }
+    },
+    {
+      "library_size": 400,
+      "model_suite": "cosmos_libero_libero_spatial",
+      "tasks": {
+        "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 40,
+          "successful_episodes": 30
+        },
+        "libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate": {
+          "episodes": 40,
+          "successful_episodes": 39
+        },
+        "libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate": {
+          "episodes": 40,
+          "successful_episodes": 40
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate": {
+          "episodes": 40,
+          "successful_episodes": 40
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate": {
+          "episodes": 40,
+          "successful_episodes": 34
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 40,
+          "successful_episodes": 40
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate": {
+          "episodes": 40,
+          "successful_episodes": 40
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 40,
+          "successful_episodes": 31
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate": {
+          "episodes": 40,
+          "successful_episodes": 40
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate": {
+          "episodes": 40,
+          "successful_episodes": 39
+        }
+      }
+    },
+    {
+      "library_size": 50,
+      "model_suite": "dp_libero_libero_10",
+      "tasks": {
+        "libero_10/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it": {
+          "episodes": 5,
+          "successful_episodes": 4
+        },
+        "libero_10/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it": {
+          "episodes": 5,
+          "successful_episodes": 5
+        },
+        "libero_10/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it": {
+          "episodes": 5,
+          "successful_episodes": 4
+        },
+        "libero_10/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove": {
+          "episodes": 5,
+          "successful_episodes": 3
+        },
+        "libero_10/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket": {
+          "episodes": 5,
+          "successful_episodes": 5
+        },
+        "libero_10/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket": {
+          "episodes": 5,
+          "successful_episodes": 3
+        },
+        "libero_10/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket": {
+          "episodes": 5,
+          "successful_episodes": 4
+        },
+        "libero_10/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate": {
+          "episodes": 5,
+          "successful_episodes": 5
+        },
+        "libero_10/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate": {
+          "episodes": 5,
+          "successful_episodes": 4
+        },
+        "libero_10/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy": {
+          "episodes": 5,
+          "successful_episodes": 5
+        }
+      }
+    },
+    {
+      "library_size": 100,
+      "model_suite": "dp_libero_libero_10",
+      "tasks": {
+        "libero_10/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it": {
+          "episodes": 10,
+          "successful_episodes": 9
+        },
+        "libero_10/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it": {
+          "episodes": 10,
+          "successful_episodes": 8
+        },
+        "libero_10/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it": {
+          "episodes": 10,
+          "successful_episodes": 8
+        },
+        "libero_10/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove": {
+          "episodes": 10,
+          "successful_episodes": 6
+        },
+        "libero_10/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket": {
+          "episodes": 10,
+          "successful_episodes": 10
+        },
+        "libero_10/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket": {
+          "episodes": 10,
+          "successful_episodes": 7
+        },
+        "libero_10/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket": {
+          "episodes": 10,
+          "successful_episodes": 9
+        },
+        "libero_10/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate": {
+          "episodes": 10,
+          "successful_episodes": 9
+        },
+        "libero_10/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate": {
+          "episodes": 10,
+          "successful_episodes": 6
+        },
+        "libero_10/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy": {
+          "episodes": 10,
+          "successful_episodes": 10
+        }
+      }
+    },
+    {
+      "library_size": 200,
+      "model_suite": "dp_libero_libero_10",
+      "tasks": {
+        "libero_10/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it": {
+          "episodes": 20,
+          "successful_episodes": 18
+        },
+        "libero_10/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it": {
+          "episodes": 20,
+          "successful_episodes": 18
+        },
+        "libero_10/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it": {
+          "episodes": 20,
+          "successful_episodes": 17
+        },
+        "libero_10/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove": {
+          "episodes": 20,
+          "successful_episodes": 12
+        },
+        "libero_10/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket": {
+          "episodes": 20,
+          "successful_episodes": 18
+        },
+        "libero_10/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket": {
+          "episodes": 20,
+          "successful_episodes": 14
+        },
+        "libero_10/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket": {
+          "episodes": 20,
+          "successful_episodes": 16
+        },
+        "libero_10/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate": {
+          "episodes": 20,
+          "successful_episodes": 18
+        },
+        "libero_10/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate": {
+          "episodes": 20,
+          "successful_episodes": 13
+        },
+        "libero_10/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy": {
+          "episodes": 20,
+          "successful_episodes": 20
+        }
+      }
+    },
+    {
+      "library_size": 300,
+      "model_suite": "dp_libero_libero_10",
+      "tasks": {
+        "libero_10/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it": {
+          "episodes": 30,
+          "successful_episodes": 28
+        },
+        "libero_10/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it": {
+          "episodes": 30,
+          "successful_episodes": 28
+        },
+        "libero_10/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it": {
+          "episodes": 30,
+          "successful_episodes": 27
+        },
+        "libero_10/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove": {
+          "episodes": 30,
+          "successful_episodes": 18
+        },
+        "libero_10/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket": {
+          "episodes": 30,
+          "successful_episodes": 25
+        },
+        "libero_10/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket": {
+          "episodes": 30,
+          "successful_episodes": 22
+        },
+        "libero_10/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket": {
+          "episodes": 30,
+          "successful_episodes": 25
+        },
+        "libero_10/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate": {
+          "episodes": 30,
+          "successful_episodes": 26
+        },
+        "libero_10/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate": {
+          "episodes": 30,
+          "successful_episodes": 16
+        },
+        "libero_10/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy": {
+          "episodes": 30,
+          "successful_episodes": 30
+        }
+      }
+    },
+    {
+      "library_size": 400,
+      "model_suite": "dp_libero_libero_10",
+      "tasks": {
+        "libero_10/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it": {
+          "episodes": 40,
+          "successful_episodes": 38
+        },
+        "libero_10/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it": {
+          "episodes": 40,
+          "successful_episodes": 38
+        },
+        "libero_10/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it": {
+          "episodes": 40,
+          "successful_episodes": 36
+        },
+        "libero_10/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove": {
+          "episodes": 40,
+          "successful_episodes": 23
+        },
+        "libero_10/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket": {
+          "episodes": 40,
+          "successful_episodes": 32
+        },
+        "libero_10/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket": {
+          "episodes": 40,
+          "successful_episodes": 31
+        },
+        "libero_10/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket": {
+          "episodes": 40,
+          "successful_episodes": 34
+        },
+        "libero_10/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate": {
+          "episodes": 40,
+          "successful_episodes": 34
+        },
+        "libero_10/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate": {
+          "episodes": 40,
+          "successful_episodes": 24
+        },
+        "libero_10/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy": {
+          "episodes": 40,
+          "successful_episodes": 40
+        }
+      }
+    },
+    {
+      "library_size": 50,
+      "model_suite": "dp_libero_libero_spatial",
+      "tasks": {
+        "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 5,
+          "successful_episodes": 3
+        },
+        "libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate": {
+          "episodes": 5,
+          "successful_episodes": 4
+        },
+        "libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate": {
+          "episodes": 5,
+          "successful_episodes": 5
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate": {
+          "episodes": 5,
+          "successful_episodes": 5
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate": {
+          "episodes": 5,
+          "successful_episodes": 4
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 5,
+          "successful_episodes": 5
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate": {
+          "episodes": 5,
+          "successful_episodes": 4
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 5,
+          "successful_episodes": 2
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate": {
+          "episodes": 5,
+          "successful_episodes": 5
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate": {
+          "episodes": 5,
+          "successful_episodes": 5
+        }
+      }
+    },
+    {
+      "library_size": 100,
+      "model_suite": "dp_libero_libero_spatial",
+      "tasks": {
+        "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 10,
+          "successful_episodes": 7
+        },
+        "libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate": {
+          "episodes": 10,
+          "successful_episodes": 8
+        },
+        "libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate": {
+          "episodes": 10,
+          "successful_episodes": 8
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate": {
+          "episodes": 10,
+          "successful_episodes": 10
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate": {
+          "episodes": 10,
+          "successful_episodes": 8
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 10,
+          "successful_episodes": 10
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate": {
+          "episodes": 10,
+          "successful_episodes": 9
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 10,
+          "successful_episodes": 4
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate": {
+          "episodes": 10,
+          "successful_episodes": 10
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate": {
+          "episodes": 10,
+          "successful_episodes": 10
+        }
+      }
+    },
+    {
+      "library_size": 200,
+      "model_suite": "dp_libero_libero_spatial",
+      "tasks": {
+        "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 20,
+          "successful_episodes": 16
+        },
+        "libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate": {
+          "episodes": 20,
+          "successful_episodes": 18
+        },
+        "libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate": {
+          "episodes": 20,
+          "successful_episodes": 17
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate": {
+          "episodes": 20,
+          "successful_episodes": 20
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate": {
+          "episodes": 20,
+          "successful_episodes": 18
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 20,
+          "successful_episodes": 19
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate": {
+          "episodes": 20,
+          "successful_episodes": 19
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 20,
+          "successful_episodes": 10
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate": {
+          "episodes": 20,
+          "successful_episodes": 20
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate": {
+          "episodes": 20,
+          "successful_episodes": 20
+        }
+      }
+    },
+    {
+      "library_size": 300,
+      "model_suite": "dp_libero_libero_spatial",
+      "tasks": {
+        "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 30,
+          "successful_episodes": 23
+        },
+        "libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate": {
+          "episodes": 30,
+          "successful_episodes": 28
+        },
+        "libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate": {
+          "episodes": 30,
+          "successful_episodes": 27
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate": {
+          "episodes": 30,
+          "successful_episodes": 30
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate": {
+          "episodes": 30,
+          "successful_episodes": 24
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 30,
+          "successful_episodes": 29
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate": {
+          "episodes": 30,
+          "successful_episodes": 29
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 30,
+          "successful_episodes": 16
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate": {
+          "episodes": 30,
+          "successful_episodes": 29
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate": {
+          "episodes": 30,
+          "successful_episodes": 30
+        }
+      }
+    },
+    {
+      "library_size": 400,
+      "model_suite": "dp_libero_libero_spatial",
+      "tasks": {
+        "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 40,
+          "successful_episodes": 30
+        },
+        "libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate": {
+          "episodes": 40,
+          "successful_episodes": 37
+        },
+        "libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate": {
+          "episodes": 40,
+          "successful_episodes": 37
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate": {
+          "episodes": 40,
+          "successful_episodes": 40
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate": {
+          "episodes": 40,
+          "successful_episodes": 31
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 40,
+          "successful_episodes": 38
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate": {
+          "episodes": 40,
+          "successful_episodes": 39
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 40,
+          "successful_episodes": 19
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate": {
+          "episodes": 40,
+          "successful_episodes": 39
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate": {
+          "episodes": 40,
+          "successful_episodes": 39
+        }
+      }
+    },
+    {
+      "library_size": 50,
+      "model_suite": "fastwam_libero_libero_10",
+      "tasks": {
+        "libero_10/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it": {
+          "episodes": 5,
+          "successful_episodes": 5
+        },
+        "libero_10/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it": {
+          "episodes": 5,
+          "successful_episodes": 5
+        },
+        "libero_10/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it": {
+          "episodes": 5,
+          "successful_episodes": 5
+        },
+        "libero_10/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove": {
+          "episodes": 5,
+          "successful_episodes": 4
+        },
+        "libero_10/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket": {
+          "episodes": 5,
+          "successful_episodes": 5
+        },
+        "libero_10/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket": {
+          "episodes": 5,
+          "successful_episodes": 5
+        },
+        "libero_10/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket": {
+          "episodes": 5,
+          "successful_episodes": 5
+        },
+        "libero_10/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate": {
+          "episodes": 5,
+          "successful_episodes": 5
+        },
+        "libero_10/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate": {
+          "episodes": 5,
+          "successful_episodes": 5
+        },
+        "libero_10/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy": {
+          "episodes": 5,
+          "successful_episodes": 5
+        }
+      }
+    },
+    {
+      "library_size": 100,
+      "model_suite": "fastwam_libero_libero_10",
+      "tasks": {
+        "libero_10/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it": {
+          "episodes": 10,
+          "successful_episodes": 10
+        },
+        "libero_10/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it": {
+          "episodes": 10,
+          "successful_episodes": 10
+        },
+        "libero_10/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it": {
+          "episodes": 10,
+          "successful_episodes": 10
+        },
+        "libero_10/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove": {
+          "episodes": 10,
+          "successful_episodes": 8
+        },
+        "libero_10/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket": {
+          "episodes": 10,
+          "successful_episodes": 9
+        },
+        "libero_10/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket": {
+          "episodes": 10,
+          "successful_episodes": 10
+        },
+        "libero_10/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket": {
+          "episodes": 10,
+          "successful_episodes": 10
+        },
+        "libero_10/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate": {
+          "episodes": 10,
+          "successful_episodes": 9
+        },
+        "libero_10/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate": {
+          "episodes": 10,
+          "successful_episodes": 9
+        },
+        "libero_10/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy": {
+          "episodes": 10,
+          "successful_episodes": 10
+        }
+      }
+    },
+    {
+      "library_size": 200,
+      "model_suite": "fastwam_libero_libero_10",
+      "tasks": {
+        "libero_10/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it": {
+          "episodes": 20,
+          "successful_episodes": 20
+        },
+        "libero_10/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it": {
+          "episodes": 20,
+          "successful_episodes": 19
+        },
+        "libero_10/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it": {
+          "episodes": 20,
+          "successful_episodes": 20
+        },
+        "libero_10/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove": {
+          "episodes": 20,
+          "successful_episodes": 16
+        },
+        "libero_10/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket": {
+          "episodes": 20,
+          "successful_episodes": 18
+        },
+        "libero_10/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket": {
+          "episodes": 20,
+          "successful_episodes": 19
+        },
+        "libero_10/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket": {
+          "episodes": 20,
+          "successful_episodes": 19
+        },
+        "libero_10/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate": {
+          "episodes": 20,
+          "successful_episodes": 19
+        },
+        "libero_10/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate": {
+          "episodes": 20,
+          "successful_episodes": 18
+        },
+        "libero_10/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy": {
+          "episodes": 20,
+          "successful_episodes": 20
+        }
+      }
+    },
+    {
+      "library_size": 300,
+      "model_suite": "fastwam_libero_libero_10",
+      "tasks": {
+        "libero_10/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it": {
+          "episodes": 30,
+          "successful_episodes": 29
+        },
+        "libero_10/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it": {
+          "episodes": 30,
+          "successful_episodes": 29
+        },
+        "libero_10/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it": {
+          "episodes": 30,
+          "successful_episodes": 30
+        },
+        "libero_10/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove": {
+          "episodes": 30,
+          "successful_episodes": 23
+        },
+        "libero_10/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket": {
+          "episodes": 30,
+          "successful_episodes": 28
+        },
+        "libero_10/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket": {
+          "episodes": 30,
+          "successful_episodes": 27
+        },
+        "libero_10/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket": {
+          "episodes": 30,
+          "successful_episodes": 29
+        },
+        "libero_10/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate": {
+          "episodes": 30,
+          "successful_episodes": 29
+        },
+        "libero_10/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate": {
+          "episodes": 30,
+          "successful_episodes": 26
+        },
+        "libero_10/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy": {
+          "episodes": 30,
+          "successful_episodes": 29
+        }
+      }
+    },
+    {
+      "library_size": 400,
+      "model_suite": "fastwam_libero_libero_10",
+      "tasks": {
+        "libero_10/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it": {
+          "episodes": 40,
+          "successful_episodes": 39
+        },
+        "libero_10/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it": {
+          "episodes": 40,
+          "successful_episodes": 39
+        },
+        "libero_10/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it": {
+          "episodes": 40,
+          "successful_episodes": 40
+        },
+        "libero_10/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove": {
+          "episodes": 40,
+          "successful_episodes": 31
+        },
+        "libero_10/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket": {
+          "episodes": 40,
+          "successful_episodes": 38
+        },
+        "libero_10/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket": {
+          "episodes": 40,
+          "successful_episodes": 37
+        },
+        "libero_10/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket": {
+          "episodes": 40,
+          "successful_episodes": 39
+        },
+        "libero_10/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate": {
+          "episodes": 40,
+          "successful_episodes": 37
+        },
+        "libero_10/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate": {
+          "episodes": 40,
+          "successful_episodes": 32
+        },
+        "libero_10/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy": {
+          "episodes": 40,
+          "successful_episodes": 39
+        }
+      }
+    },
+    {
+      "library_size": 50,
+      "model_suite": "fastwam_libero_libero_spatial",
+      "tasks": {
+        "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 5,
+          "successful_episodes": 3
+        },
+        "libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate": {
+          "episodes": 5,
+          "successful_episodes": 5
+        },
+        "libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate": {
+          "episodes": 5,
+          "successful_episodes": 5
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate": {
+          "episodes": 5,
+          "successful_episodes": 4
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate": {
+          "episodes": 5,
+          "successful_episodes": 4
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 5,
+          "successful_episodes": 5
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate": {
+          "episodes": 5,
+          "successful_episodes": 5
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 5,
+          "successful_episodes": 2
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate": {
+          "episodes": 5,
+          "successful_episodes": 5
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate": {
+          "episodes": 5,
+          "successful_episodes": 5
+        }
+      }
+    },
+    {
+      "library_size": 100,
+      "model_suite": "fastwam_libero_libero_spatial",
+      "tasks": {
+        "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 10,
+          "successful_episodes": 7
+        },
+        "libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate": {
+          "episodes": 10,
+          "successful_episodes": 9
+        },
+        "libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate": {
+          "episodes": 10,
+          "successful_episodes": 10
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate": {
+          "episodes": 10,
+          "successful_episodes": 9
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate": {
+          "episodes": 10,
+          "successful_episodes": 8
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 10,
+          "successful_episodes": 10
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate": {
+          "episodes": 10,
+          "successful_episodes": 10
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 10,
+          "successful_episodes": 3
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate": {
+          "episodes": 10,
+          "successful_episodes": 9
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate": {
+          "episodes": 10,
+          "successful_episodes": 10
+        }
+      }
+    },
+    {
+      "library_size": 200,
+      "model_suite": "fastwam_libero_libero_spatial",
+      "tasks": {
+        "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 20,
+          "successful_episodes": 16
+        },
+        "libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate": {
+          "episodes": 20,
+          "successful_episodes": 19
+        },
+        "libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate": {
+          "episodes": 20,
+          "successful_episodes": 19
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate": {
+          "episodes": 20,
+          "successful_episodes": 19
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate": {
+          "episodes": 20,
+          "successful_episodes": 16
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 20,
+          "successful_episodes": 20
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate": {
+          "episodes": 20,
+          "successful_episodes": 20
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 20,
+          "successful_episodes": 7
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate": {
+          "episodes": 20,
+          "successful_episodes": 19
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate": {
+          "episodes": 20,
+          "successful_episodes": 20
+        }
+      }
+    },
+    {
+      "library_size": 300,
+      "model_suite": "fastwam_libero_libero_spatial",
+      "tasks": {
+        "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 30,
+          "successful_episodes": 23
+        },
+        "libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate": {
+          "episodes": 30,
+          "successful_episodes": 29
+        },
+        "libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate": {
+          "episodes": 30,
+          "successful_episodes": 28
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate": {
+          "episodes": 30,
+          "successful_episodes": 29
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate": {
+          "episodes": 30,
+          "successful_episodes": 22
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 30,
+          "successful_episodes": 30
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate": {
+          "episodes": 30,
+          "successful_episodes": 30
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 30,
+          "successful_episodes": 10
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate": {
+          "episodes": 30,
+          "successful_episodes": 29
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate": {
+          "episodes": 30,
+          "successful_episodes": 29
+        }
+      }
+    },
+    {
+      "library_size": 400,
+      "model_suite": "fastwam_libero_libero_spatial",
+      "tasks": {
+        "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 40,
+          "successful_episodes": 30
+        },
+        "libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate": {
+          "episodes": 40,
+          "successful_episodes": 38
+        },
+        "libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate": {
+          "episodes": 40,
+          "successful_episodes": 37
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate": {
+          "episodes": 40,
+          "successful_episodes": 39
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate": {
+          "episodes": 40,
+          "successful_episodes": 31
+        },
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 40,
+          "successful_episodes": 40
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate": {
+          "episodes": 40,
+          "successful_episodes": 40
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate": {
+          "episodes": 40,
+          "successful_episodes": 12
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate": {
+          "episodes": 40,
+          "successful_episodes": 39
+        },
+        "libero_spatial/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate": {
+          "episodes": 40,
+          "successful_episodes": 39
+        }
+      }
+    }
+  ],
+  "checkout_source_code_sha256": {
+    "exp/r17_integration/ops/cache_cpu_prepare.py": "f0aba72e0e12bfcc399e2ae3c007616089eb95601e021cc3608d4427bdac043d",
+    "exp/r17_integration/ops/cache_lane.py": "c87429696c4684be42a8917899d0372f3620c8ac72e05f2bce93416f41832be5",
+    "exp/r17_integration/ops/cache_study.py": "35bec1fd491c2a8623a9b1a0c680ef941a14c581e6eb89766982d52cd5cf293d",
+    "exp/r17_integration/ops/formal_eval.py": "ce12cd809831c5ffd170497f7630731247962bd8403832b69419367834743e30",
+    "exp/r17_integration/tests/ops/test_cache_cpu_prepare.py": "c189bd452c5f676d9675993ddab33133135b165b8b86f84d99217e9c2c25d67d",
+    "exp/r17_integration/tests/ops/test_cache_sizes.py": "a06f1fbb83fb6029175c66857a9bd27c6ff148919514d0314806451772dcc06f"
+  },
+  "cpu_audit": {
+    "configurations": 240,
+    "digest": "65adff7611acf2959a5de03381041668ee8cf2f4fdacfe31c822b3602fc93f7e",
+    "path": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/evidence/sizes_cpu_audit.json",
+    "queries": 960
+  },
+  "cpu_only": true,
+  "digest": "9cc11214511a9aa1e697df3bc1e4994bed04981aed08117730b552d6c1a3f371",
+  "durations": {
+    "cosmos_minutes_per_size": [
+      120,
+      260
+    ],
+    "dp_minutes_per_size": [
+      180,
+      300
+    ],
+    "fastwam_minutes_per_size": [
+      180,
+      330
+    ],
+    "lane_4090_hours": [
+      15,
+      25
+    ],
+    "lane_h100_hours": [
+      25,
+      49.17
+    ],
+    "scope": "Planning ranges; timan107 simulation/render/setup bottleneck, fixed workers; plus remaining size500/cold load/sealing"
+  },
+  "generated_at": "2026-10-11T02:03:39.626981+00:00",
+  "gpu_launched": false,
+  "hot_switch": {
+    "configs_per_model": 80,
+    "expected_resident_fleets_per_model": 1,
+    "recovery": "A closed failure creates a fresh segment; retained accepted outcomes require full final ACK/pin checks",
+    "replicas_per_fleet": 2,
+    "scope": "CPU socket audit: actual frozen B fits/VIEWs, diagnostic stage1; native GPU smoke not repeated",
+    "size500_handoff": "Existing sealed size500 campaigns close normally; one new fleet per model for all five new sizes"
+  },
+  "lanes": {
+    "4090": {
+      "command": "bash exp/r17_integration/ops/cache_study/sizes/run_4090.sh",
+      "directory": "/data/mw_finetune/eval/cszedp",
+      "expected_episodes": 40000,
+      "model_order": [
+        "dp_libero"
+      ],
+      "predecessor": {
+        "directory": "/data/mw_finetune/eval/csl10dp",
+        "plan_sha256": "27e96523b1b8984a001b193b305a17fe1e360bef924e8bad372538e8e01cd606",
+        "processes": []
+      },
+      "prepared": [
+        {
+          "control": "hs5dp_ctl_142812",
+          "cpu_fully_prepared": true,
+          "cpu_sealed_groups": 80,
+          "episodes": 40000,
+          "model": "dp_libero",
+          "model_identity": "sha256:bd1dd4c1b2e1bfbb4c660ed8ec0a50362f461dc8a631c16edfa9d3097879d0c5",
+          "profile": {
+            "batch": 8,
+            "budget": 40,
+            "driver": 23419,
+            "mode": "group-commit",
+            "mps": true,
+            "node": "local",
+            "port": 23400,
+            "ram": 4096,
+            "startup": 1,
+            "vram": 576,
+            "workers": 32
+          },
+          "run": "/data/mw_finetune/eval/cszed",
+          "runtime_identity": "62692e198a28b32f9eece681d458d644e30b9ae5a1bd33f84eded015b5bff6c0",
+          "seal_digest": "342474c7839b8db65e27e378920cd0710428e711bd87425d2325724bad379642",
+          "worker_nodes": {
+            "timan107": 32
+          }
+        }
+      ],
+      "size_order": [
+        50,
+        100,
+        200,
+        300,
+        400
+      ]
+    },
+    "h100": {
+      "command": "bash exp/r17_integration/ops/cache_study/sizes/run_h100.sh",
+      "directory": "/data/mw_finetune/eval/cszeh",
+      "expected_episodes": 60000,
+      "model_order": [
+        "fastwam_libero",
+        "cosmos_libero"
+      ],
+      "predecessor": {
+        "directory": "/data/mw_finetune/eval/csl10h",
+        "plan_sha256": "533a720d3a4925df16ea0415b7f83726d7065b31d04bc934e534f04d4ab4873d",
+        "processes": [
+          {
+            "pid": 466639,
+            "start_ticks": "12396840"
+          }
+        ]
+      },
+      "prepared": [
+        {
+          "control": "hs6fw_res_152931",
+          "cpu_fully_prepared": true,
+          "cpu_sealed_groups": 80,
+          "episodes": 40000,
+          "model": "fastwam_libero",
+          "model_identity": "f436df1f43a096f67b668e7154865b22543ca6fd6c7ef356bca7a0bbca891743",
+          "profile": {
+            "batch": 16,
+            "budget": 70,
+            "driver": 23439,
+            "mode": "group-commit",
+            "mps": true,
+            "node": "h100",
+            "port": 23420,
+            "ram": 4096,
+            "startup": 2,
+            "vram": 768,
+            "workers": 48
+          },
+          "run": "/data/mw_finetune/eval/cszef",
+          "runtime_identity": "b29ef3db350bf6e4d0973813a81944eeac306abbc9f8e96197398432b15132a9",
+          "seal_digest": "bd486cf80c6a3bd07976f8624be211d893bf9429be41b2a919cf5f473897fb44",
+          "worker_nodes": {
+            "timan107": 48
+          }
+        },
+        {
+          "control": "formal_cosmos_libero_official2000_20261010_130639_a8ca2043",
+          "cpu_fully_prepared": true,
+          "cpu_sealed_groups": 80,
+          "episodes": 20000,
+          "model": "cosmos_libero",
+          "model_identity": "d234db6ddd2948c9db7982b203ae4f01a273f86c8c05cb5b92236037752da310",
+          "profile": {
+            "batch": 1,
+            "budget": 20,
+            "driver": 23459,
+            "mode": "legacy",
+            "mps": false,
+            "node": "h100",
+            "port": 23440,
+            "ram": 4096,
+            "startup": 1,
+            "vram": 768,
+            "workers": 8
+          },
+          "run": "/data/mw_finetune/eval/cszec",
+          "runtime_identity": "3ee418426f219145556760c56fc22eca757740f12575c253be35014e56c0a261",
+          "seal_digest": "48af0f8229f800150ce234c97379238e9e248e3801cd4e4ca94473ab172876dd",
+          "worker_nodes": {
+            "timan107": 8
+          }
+        }
+      ],
+      "size_order": [
+        50,
+        100,
+        200,
+        300,
+        400
+      ]
+    }
+  },
+  "library_sizes": [
+    50,
+    100,
+    200,
+    300,
+    400
+  ],
+  "new_episodes": 100000,
+  "new_yaml_count": 240,
+  "old_lane_topology_superseded": true,
+  "original_per_size_fits_unchanged": true,
+  "per_size": {
+    "100": {
+      "cohorts": {
+        "cosmos_libero": {
+          "libero_10": {
+            "C16": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/data/r17_library/cosmos_libero_libero_10/bpool/fits/size_100",
+              "fit_digest": "a595cfa4d3c9d5a2d4b017fc6df0e2aebb5d19d849f54c69474624263cfadc9e",
+              "fit_origin": "existing per-size B fit",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n100/cosmos_libero_libero_10/C16/stall",
+              "stall_digest": "020d5cbfd70962b6a88cd5c5b3758bad98bd2ced78a74232d0f3acb5e11517c1",
+              "unavailable_tasks": []
+            }
+          },
+          "libero_spatial": {
+            "C16": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/data/r17_library/cosmos_libero_libero_spatial/bpool/fits/size_100",
+              "fit_digest": "3d74712252fa76bb9a1ad9aaf0a3ef9da3a91829a474e9a50fca12cd20c2f6f5",
+              "fit_origin": "existing per-size B fit",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n100/cosmos_libero_libero_spatial/C16/stall",
+              "stall_digest": "748b1a4ac37df2fc61254462e6c58e2459df44d26ade8bb2df65487f9e3cdd03",
+              "unavailable_tasks": []
+            }
+          }
+        },
+        "dp_libero": {
+          "libero_10": {
+            "C10": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/data/r17_library/dp_libero_libero_10/bpool/fits/size_100",
+              "fit_digest": "7dd17b61a9a1e30793da8733172d38716f60bd76cf57a5163cdae181a9dcd215",
+              "fit_origin": "existing per-size B fit",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n100/dp_libero_libero_10/C10/stall",
+              "stall_digest": "9092527f5f3f12db1ae10f40c4739af58f8715b93b13f09c549c20fe6b44798f",
+              "unavailable_tasks": []
+            },
+            "C5": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n100/dp_libero_libero_10/C5/fit",
+              "fit_digest": "9b693b2e4ff0300a354f770ad06d41476e6f6f9963dec53099f5be1e6d31de36",
+              "fit_origin": "new selected-B C-specific head",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n100/dp_libero_libero_10/C5/stall",
+              "stall_digest": "fa758ecfe75e2287a33b62eee646207cf687ef9a87958d0fee61e1bbcb7ed5b0",
+              "unavailable_tasks": []
+            }
+          },
+          "libero_spatial": {
+            "C10": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/data/r17_library/dp_libero_libero_spatial/bpool/fits/size_100",
+              "fit_digest": "a1556650590edaf9b7264521db719a261e1f9bf3bc02045b3868d6e71e7b421d",
+              "fit_origin": "existing per-size B fit",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n100/dp_libero_libero_spatial/C10/stall",
+              "stall_digest": "7f2e70cd14fdf617d24084b67c6849c1bab290e792c8cbc37869f13c8cf84d3f",
+              "unavailable_tasks": []
+            },
+            "C5": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n100/dp_libero_libero_spatial/C5/fit",
+              "fit_digest": "dfcdb8bddfe3cea3b27596d3345a0c0c6f922b5e234392d67347b91284637a6f",
+              "fit_origin": "new selected-B C-specific head",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n100/dp_libero_libero_spatial/C5/stall",
+              "stall_digest": "1a4d19dc7185da6be0e9026e89080b6e8221c06d18166544b7cef84feffca6d6",
+              "unavailable_tasks": []
+            }
+          }
+        },
+        "fastwam_libero": {
+          "libero_10": {
+            "C10": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/data/r17_library/fastwam_libero_libero_10/bpool/fits/size_100",
+              "fit_digest": "676c417ce797ec880ad53285ad9fa83ce9cccbc76f01fd769d9b888067a80a74",
+              "fit_origin": "existing per-size B fit",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n100/fastwam_libero_libero_10/C10/stall",
+              "stall_digest": "d673998d333d4e7578f0cb14e8adeba937bd3d207c0704c02912218790acc1b0",
+              "unavailable_tasks": []
+            },
+            "C5": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n100/fastwam_libero_libero_10/C5/fit",
+              "fit_digest": "b6566c5db2b384e3508c94a98d9ecb0925c86563514009c2b2362c9fb3661fde",
+              "fit_origin": "new selected-B C-specific head",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n100/fastwam_libero_libero_10/C5/stall",
+              "stall_digest": "1020c777f3740eb55dda73c14719e50a23cd96ef576946b09ca9204e1d5d37ba",
+              "unavailable_tasks": []
+            }
+          },
+          "libero_spatial": {
+            "C10": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/data/r17_library/fastwam_libero_libero_spatial/bpool/fits/size_100",
+              "fit_digest": "a757cc82699f05856538f4bd6ed8bf6d0df1c12b3bfa560b2faec7d382197473",
+              "fit_origin": "existing per-size B fit",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n100/fastwam_libero_libero_spatial/C10/stall",
+              "stall_digest": "8566075c5d604d5f60669ace8557233972e5315e6f43f4df6a7285791cda503b",
+              "unavailable_tasks": [
+                "5"
+              ]
+            },
+            "C5": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n100/fastwam_libero_libero_spatial/C5/fit",
+              "fit_digest": "9f144725a365ead22f9d7c53d7a781b0d2655eb43d8b3c3abb30212934797951",
+              "fit_origin": "new selected-B C-specific head",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n100/fastwam_libero_libero_spatial/C5/stall",
+              "stall_digest": "16035c8dccd58d2e4e797d13e342ac277d1bc416c9d3c32568df8102add477a4",
+              "unavailable_tasks": [
+                "5"
+              ]
+            }
+          }
+        }
+      },
+      "fits_ready": 10,
+      "inactive_task_gates": [
+        [
+          "fastwam_libero",
+          "libero_spatial",
+          5
+        ]
+      ],
+      "stall_calibrations_ready": 10
+    },
+    "200": {
+      "cohorts": {
+        "cosmos_libero": {
+          "libero_10": {
+            "C16": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/data/r17_library/cosmos_libero_libero_10/bpool/fits/size_200",
+              "fit_digest": "56afa25e797643dd8a9388befcaf8f63d51458c588e3d2571f8e5e4a2f189b98",
+              "fit_origin": "existing per-size B fit",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n200/cosmos_libero_libero_10/C16/stall",
+              "stall_digest": "6f6377a7ee722ab352a52e0f782d3f4248658554a782d185f535939a43157fb3",
+              "unavailable_tasks": []
+            }
+          },
+          "libero_spatial": {
+            "C16": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/data/r17_library/cosmos_libero_libero_spatial/bpool/fits/size_200",
+              "fit_digest": "9824746c8864e08841f0df01cf8ea9072077374d455a823dca90f0da4d553f87",
+              "fit_origin": "existing per-size B fit",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n200/cosmos_libero_libero_spatial/C16/stall",
+              "stall_digest": "ed5615cfcb88f233402ae0d1400f7bdd55af526fc0710e1d57c47c64f4c428a0",
+              "unavailable_tasks": []
+            }
+          }
+        },
+        "dp_libero": {
+          "libero_10": {
+            "C10": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/data/r17_library/dp_libero_libero_10/bpool/fits/size_200",
+              "fit_digest": "1e5735fe3d13965da137f4a733f40d7d0aba10afc1c2cdaa115bb67af97592b4",
+              "fit_origin": "existing per-size B fit",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n200/dp_libero_libero_10/C10/stall",
+              "stall_digest": "5aced6331f6c997e19ae653d41a11a89ebbdb671563baad0d5c35f9048fce362",
+              "unavailable_tasks": []
+            },
+            "C5": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n200/dp_libero_libero_10/C5/fit",
+              "fit_digest": "e73b7e6408dbeb1bca664513c2ddfd43217a0a0ef62ec08bbc561fb3997e3724",
+              "fit_origin": "new selected-B C-specific head",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n200/dp_libero_libero_10/C5/stall",
+              "stall_digest": "3d9acbd26b7a84e8c437e9e588bb4147124e2157b3d6244aaba1733bb1e99d6c",
+              "unavailable_tasks": []
+            }
+          },
+          "libero_spatial": {
+            "C10": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/data/r17_library/dp_libero_libero_spatial/bpool/fits/size_200",
+              "fit_digest": "c3497d728eb15eb1827b17ff6d594e18a246572560d0c59ed22a05b594c565a2",
+              "fit_origin": "existing per-size B fit",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n200/dp_libero_libero_spatial/C10/stall",
+              "stall_digest": "bbd75d5c048bb1873fbd58b3440b073db239524750cbb95a2cf65f0fd9139a3c",
+              "unavailable_tasks": []
+            },
+            "C5": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n200/dp_libero_libero_spatial/C5/fit",
+              "fit_digest": "deffd3597a14e997be5006fce237ed837a58b89333483fad6ae47bbdd5ea881b",
+              "fit_origin": "new selected-B C-specific head",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n200/dp_libero_libero_spatial/C5/stall",
+              "stall_digest": "06dafc51153472cbb175b76a419b664fdcb725a66c4fd36564c204533d35feb5",
+              "unavailable_tasks": []
+            }
+          }
+        },
+        "fastwam_libero": {
+          "libero_10": {
+            "C10": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/data/r17_library/fastwam_libero_libero_10/bpool/fits/size_200",
+              "fit_digest": "a6ca12ac3958bba5f48e2c8267e6b0f79d16530cdd9d761c7356eee1d38bb5e2",
+              "fit_origin": "existing per-size B fit",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n200/fastwam_libero_libero_10/C10/stall",
+              "stall_digest": "af6613c387c9995a04225782a647fcb405da6a8d2c14686f4e5bafcd7d7297ec",
+              "unavailable_tasks": []
+            },
+            "C5": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n200/fastwam_libero_libero_10/C5/fit",
+              "fit_digest": "2ac7795d28ea986f3f5b3946dee9056c4ff2de2b3add5e6b46a7515ae219642e",
+              "fit_origin": "new selected-B C-specific head",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n200/fastwam_libero_libero_10/C5/stall",
+              "stall_digest": "3c05c8fa36138b1cfd854c680e89721efd7cb2d4317d4c11c6a6d333f061ce08",
+              "unavailable_tasks": []
+            }
+          },
+          "libero_spatial": {
+            "C10": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/data/r17_library/fastwam_libero_libero_spatial/bpool/fits/size_200",
+              "fit_digest": "472e7dfd680d3d4d954a86e07e6d4a9afb8e3121f7caa38e74de2dc8eda1496a",
+              "fit_origin": "existing per-size B fit",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n200/fastwam_libero_libero_spatial/C10/stall",
+              "stall_digest": "96e025280f9bddbe44e4adaeeffc6d20e08ae7903369cd12185c65d53faa1148",
+              "unavailable_tasks": []
+            },
+            "C5": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n200/fastwam_libero_libero_spatial/C5/fit",
+              "fit_digest": "b99629ca61a238149006eade1f21b8954c6cc399f7fdd412e11527f748bc29e7",
+              "fit_origin": "new selected-B C-specific head",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n200/fastwam_libero_libero_spatial/C5/stall",
+              "stall_digest": "894e33e3319b108d82ba4d1c9d2848096c06720e70ff59c3cad839e9233368b3",
+              "unavailable_tasks": []
+            }
+          }
+        }
+      },
+      "fits_ready": 10,
+      "inactive_task_gates": [],
+      "stall_calibrations_ready": 10
+    },
+    "300": {
+      "cohorts": {
+        "cosmos_libero": {
+          "libero_10": {
+            "C16": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/data/r17_library/cosmos_libero_libero_10/bpool/fits/size_300",
+              "fit_digest": "dab73bc5771f3e98aea0b39b12fdb075777b08433cd372c7f53796320d97579a",
+              "fit_origin": "existing per-size B fit",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n300/cosmos_libero_libero_10/C16/stall",
+              "stall_digest": "a6ee79675c4528e23136945a43dab10e539bb3085ac82b8062a7429a83dc128a",
+              "unavailable_tasks": []
+            }
+          },
+          "libero_spatial": {
+            "C16": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/data/r17_library/cosmos_libero_libero_spatial/bpool/fits/size_300",
+              "fit_digest": "def697ae5deb874e726616339f66edc5aa6ce15bf7f9c43b1d219eca7be4b5f3",
+              "fit_origin": "existing per-size B fit",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n300/cosmos_libero_libero_spatial/C16/stall",
+              "stall_digest": "aa50921216ba57ec172858b24231622d69f558eaba63001043ca63d2f0d9a714",
+              "unavailable_tasks": []
+            }
+          }
+        },
+        "dp_libero": {
+          "libero_10": {
+            "C10": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/data/r17_library/dp_libero_libero_10/bpool/fits/size_300",
+              "fit_digest": "5cee112d23bbc68557cd8299512cf7803d77109cf06e271ed5488fa4da190bcb",
+              "fit_origin": "existing per-size B fit",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n300/dp_libero_libero_10/C10/stall",
+              "stall_digest": "2b18cd3869fc615baafbbab0b78754364d4ce0cbcc696d5a1b65298447e04fab",
+              "unavailable_tasks": []
+            },
+            "C5": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n300/dp_libero_libero_10/C5/fit",
+              "fit_digest": "eb95677eb075a403499f4a30a14b00b76738d61a96d33fec3509c28afb321d87",
+              "fit_origin": "new selected-B C-specific head",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n300/dp_libero_libero_10/C5/stall",
+              "stall_digest": "fff567fb649e38ac2255a4066e35e319ab6696b865b687b9a1d3b005d7dc6b80",
+              "unavailable_tasks": []
+            }
+          },
+          "libero_spatial": {
+            "C10": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/data/r17_library/dp_libero_libero_spatial/bpool/fits/size_300",
+              "fit_digest": "04479ab496e0f765e8b5e87f599e5e6015b6e00717e8b550fe82a3c0e31a6d10",
+              "fit_origin": "existing per-size B fit",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n300/dp_libero_libero_spatial/C10/stall",
+              "stall_digest": "63ae0730480452adb6bf65901b1f3ab1b733c03246a9e7d2a72ccbf816da4a0a",
+              "unavailable_tasks": []
+            },
+            "C5": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n300/dp_libero_libero_spatial/C5/fit",
+              "fit_digest": "1331eea2e0507d7092f3b32f39ad9595e1a0df17e19b8540ebf3c0888dd89bbf",
+              "fit_origin": "new selected-B C-specific head",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n300/dp_libero_libero_spatial/C5/stall",
+              "stall_digest": "e28b03b3a486846a455d18540215b87d863058e6b0912f9e6d91fb267ba82f78",
+              "unavailable_tasks": []
+            }
+          }
+        },
+        "fastwam_libero": {
+          "libero_10": {
+            "C10": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/data/r17_library/fastwam_libero_libero_10/bpool/fits/size_300",
+              "fit_digest": "92affdba26561e77f7001954ad892fc59e4e4f950476038cccd86bbd4241fa56",
+              "fit_origin": "existing per-size B fit",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n300/fastwam_libero_libero_10/C10/stall",
+              "stall_digest": "5398986956112a54295aac16355f6e27930221397e5cef33b38381dde0a8d28b",
+              "unavailable_tasks": []
+            },
+            "C5": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n300/fastwam_libero_libero_10/C5/fit",
+              "fit_digest": "132d7b7586aff7c36a5adea431b041a655888029094b12e29823028b666aff1c",
+              "fit_origin": "new selected-B C-specific head",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n300/fastwam_libero_libero_10/C5/stall",
+              "stall_digest": "70e5db31613db7079886a512ca298ae410b90e20431083e2d11720513dc4c1b0",
+              "unavailable_tasks": []
+            }
+          },
+          "libero_spatial": {
+            "C10": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/data/r17_library/fastwam_libero_libero_spatial/bpool/fits/size_300",
+              "fit_digest": "ef98f04c09349d1a3de4e445291bade8eb2a35663a7cb96a01cc58b4a860d49d",
+              "fit_origin": "existing per-size B fit",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n300/fastwam_libero_libero_spatial/C10/stall",
+              "stall_digest": "ac77bd70dd052db759408967538061f0b64926b56674d0d2b3bade114abe61c5",
+              "unavailable_tasks": []
+            },
+            "C5": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n300/fastwam_libero_libero_spatial/C5/fit",
+              "fit_digest": "46d15c3f88592c640562b82949caaf97ef30388716303447ae868194507d5345",
+              "fit_origin": "new selected-B C-specific head",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n300/fastwam_libero_libero_spatial/C5/stall",
+              "stall_digest": "0c9965b1a1575047aec81460409cff5347f0001200c8fcd42cb27f9401af517b",
+              "unavailable_tasks": []
+            }
+          }
+        }
+      },
+      "fits_ready": 10,
+      "inactive_task_gates": [],
+      "stall_calibrations_ready": 10
+    },
+    "400": {
+      "cohorts": {
+        "cosmos_libero": {
+          "libero_10": {
+            "C16": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/data/r17_library/cosmos_libero_libero_10/bpool/fits/size_400",
+              "fit_digest": "bcabb792acd728ff2c11bf6414527d9d215dd07e262e4ee33e8c304a2219ad25",
+              "fit_origin": "existing per-size B fit",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n400/cosmos_libero_libero_10/C16/stall",
+              "stall_digest": "64a7b60e8e64757e3a2d5077c0e50948dfe8791720926b1729a77ca619a4df9f",
+              "unavailable_tasks": []
+            }
+          },
+          "libero_spatial": {
+            "C16": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/data/r17_library/cosmos_libero_libero_spatial/bpool/fits/size_400",
+              "fit_digest": "09d75138d4bbb44f325e3212448e34ad665e848181f2d84aacae1d62d5ae2ec4",
+              "fit_origin": "existing per-size B fit",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n400/cosmos_libero_libero_spatial/C16/stall",
+              "stall_digest": "20a310b7c4e51b7491c12b1ef94909ad533e7ff870820bad176daefcbc0f3154",
+              "unavailable_tasks": []
+            }
+          }
+        },
+        "dp_libero": {
+          "libero_10": {
+            "C10": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/data/r17_library/dp_libero_libero_10/bpool/fits/size_400",
+              "fit_digest": "270b90d204b6e2943060d0127d54ab4294280ef44d29291c4083feee8cde87a8",
+              "fit_origin": "existing per-size B fit",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n400/dp_libero_libero_10/C10/stall",
+              "stall_digest": "17639416af98f913754974cfb9f9c62123151c12265d2ad546db7b4a19b89e5f",
+              "unavailable_tasks": []
+            },
+            "C5": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n400/dp_libero_libero_10/C5/fit",
+              "fit_digest": "ca8080967974a0bbf32d9313bf89cd6b62bbc10c2d510b7cada99ea6d8ccd39a",
+              "fit_origin": "new selected-B C-specific head",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n400/dp_libero_libero_10/C5/stall",
+              "stall_digest": "cd29be06c88c840e77258f731a5d178317ff62100672a6fd23247a3428046a14",
+              "unavailable_tasks": []
+            }
+          },
+          "libero_spatial": {
+            "C10": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/data/r17_library/dp_libero_libero_spatial/bpool/fits/size_400",
+              "fit_digest": "7a274546e1e578297a6eac35656ccde92a667a9c37312d4a7ccfc6b7e2c49ded",
+              "fit_origin": "existing per-size B fit",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n400/dp_libero_libero_spatial/C10/stall",
+              "stall_digest": "575aae5cc6fc02cd6869f31fa32346151def8f9c151a82069003e3a404d9257c",
+              "unavailable_tasks": []
+            },
+            "C5": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n400/dp_libero_libero_spatial/C5/fit",
+              "fit_digest": "04dfc1a2f17da27902aadd21d3ff3f4afe729e55e1dcfc2855f00f1c2124d55e",
+              "fit_origin": "new selected-B C-specific head",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n400/dp_libero_libero_spatial/C5/stall",
+              "stall_digest": "ba7374ce0fb13ea5570690dc507fd586734915585ff1d0d72d8533b532c531e0",
+              "unavailable_tasks": []
+            }
+          }
+        },
+        "fastwam_libero": {
+          "libero_10": {
+            "C10": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/data/r17_library/fastwam_libero_libero_10/bpool/fits/size_400",
+              "fit_digest": "3a30862d38bb7ac48c10b03728be4f3ac327ad88b51ddec357070b0e5dd9e9df",
+              "fit_origin": "existing per-size B fit",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n400/fastwam_libero_libero_10/C10/stall",
+              "stall_digest": "b63f117e5613134744ea2b0f1d7072a67e9438ac17a29164b2f843321fba1b21",
+              "unavailable_tasks": []
+            },
+            "C5": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n400/fastwam_libero_libero_10/C5/fit",
+              "fit_digest": "2fca3bcb11e068bc8af54406739bf0647d77cdeebfcbbc0bfe367a445e1e6470",
+              "fit_origin": "new selected-B C-specific head",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n400/fastwam_libero_libero_10/C5/stall",
+              "stall_digest": "db4e0e18e2594f98e0fcf0519cfcd1c6f316c2eeeea14ef61994d17a52ccc754",
+              "unavailable_tasks": []
+            }
+          },
+          "libero_spatial": {
+            "C10": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/data/r17_library/fastwam_libero_libero_spatial/bpool/fits/size_400",
+              "fit_digest": "a2d349b6d01203d8daa6560e847db70d4ccd03ff828cda6c0bc7bc7140990042",
+              "fit_origin": "existing per-size B fit",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n400/fastwam_libero_libero_spatial/C10/stall",
+              "stall_digest": "b95ebf7389f9a381383451df93b11e873fedbaf4ceed23df7c43bf909bcc53fc",
+              "unavailable_tasks": []
+            },
+            "C5": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n400/fastwam_libero_libero_spatial/C5/fit",
+              "fit_digest": "baf7b6e61cfb07c5318acb49a64c88f5e6269b782f8990a20f4e109c2dbe1af7",
+              "fit_origin": "new selected-B C-specific head",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n400/fastwam_libero_libero_spatial/C5/stall",
+              "stall_digest": "f1fbb757e0b70128078627c2710648b3d1d432697131b95a77fe885f4c9292a0",
+              "unavailable_tasks": []
+            }
+          }
+        }
+      },
+      "fits_ready": 10,
+      "inactive_task_gates": [],
+      "stall_calibrations_ready": 10
+    },
+    "50": {
+      "cohorts": {
+        "cosmos_libero": {
+          "libero_10": {
+            "C16": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/data/r17_library/cosmos_libero_libero_10/bpool/fits/size_50",
+              "fit_digest": "b51a74823ccd8d2cdede08675eff215135f01e7124b37d646e6bc0987144d362",
+              "fit_origin": "existing per-size B fit",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n50/cosmos_libero_libero_10/C16/stall",
+              "stall_digest": "5147f4cd81e9f68d5afce4471dc91c6333a5cee43e37510ff13db13b1e8d1c40",
+              "unavailable_tasks": []
+            }
+          },
+          "libero_spatial": {
+            "C16": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/data/r17_library/cosmos_libero_libero_spatial/bpool/fits/size_50",
+              "fit_digest": "914477e3775713356557e03cae22f27f4762e28082530d09644c8f17d227b797",
+              "fit_origin": "existing per-size B fit",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n50/cosmos_libero_libero_spatial/C16/stall",
+              "stall_digest": "07f75bcdf0398129cebcc24149b59d1096b2331a464f72d50f62e9b4decfbcd8",
+              "unavailable_tasks": [
+                "0"
+              ]
+            }
+          }
+        },
+        "dp_libero": {
+          "libero_10": {
+            "C10": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/data/r17_library/dp_libero_libero_10/bpool/fits/size_50",
+              "fit_digest": "55f38996f90a2fbce7c5370e7d2a6ffce316e4fd0d1e2b884521292bf1249212",
+              "fit_origin": "existing per-size B fit",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n50/dp_libero_libero_10/C10/stall",
+              "stall_digest": "30889eff70fb32d9e23bcb757aa78f97027206c6651e9d0a512e3968ae8fe296",
+              "unavailable_tasks": [
+                "30",
+                "38"
+              ]
+            },
+            "C5": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n50/dp_libero_libero_10/C5/fit",
+              "fit_digest": "83a2667bb77f7588f7c57a338dd68c6249e32117e209dce65f7ff5558c3a38ca",
+              "fit_origin": "new selected-B C-specific head",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n50/dp_libero_libero_10/C5/stall",
+              "stall_digest": "b9dbd1f2ffefed47337e944c8734f13cdf1c99c359458561eb03aa3a3bfb42c8",
+              "unavailable_tasks": [
+                "30",
+                "38"
+              ]
+            }
+          },
+          "libero_spatial": {
+            "C10": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/data/r17_library/dp_libero_libero_spatial/bpool/fits/size_50",
+              "fit_digest": "b8be064da38686ea0049bcb521a8dc6bb8050cb1de471770493e156187d9b47b",
+              "fit_origin": "existing per-size B fit",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n50/dp_libero_libero_spatial/C10/stall",
+              "stall_digest": "ba45384fa850e10378799e8c579ed4972d8565a25e438dcdb79423ef97d38858",
+              "unavailable_tasks": [
+                "0",
+                "5"
+              ]
+            },
+            "C5": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n50/dp_libero_libero_spatial/C5/fit",
+              "fit_digest": "45e0d1e21fb0c2bc4df8c90ae5763ff81c4195f1a98123f426ae18b6815ae470",
+              "fit_origin": "new selected-B C-specific head",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n50/dp_libero_libero_spatial/C5/stall",
+              "stall_digest": "b906dcb45a0b974007eb1171233171c949a668132ef4b60240eb2f38ca28bd36",
+              "unavailable_tasks": [
+                "0",
+                "5"
+              ]
+            }
+          }
+        },
+        "fastwam_libero": {
+          "libero_10": {
+            "C10": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/data/r17_library/fastwam_libero_libero_10/bpool/fits/size_50",
+              "fit_digest": "5478de03b6c543b8f0e1a2706cfdea940c10e038bbfdb1e4e0161b07f42289ae",
+              "fit_origin": "existing per-size B fit",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n50/fastwam_libero_libero_10/C10/stall",
+              "stall_digest": "7fbcbd409b46eb0bc4ff6ffbb6ef11cbaa08b55ea893ff96c33100090f1ed71e",
+              "unavailable_tasks": []
+            },
+            "C5": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n50/fastwam_libero_libero_10/C5/fit",
+              "fit_digest": "1f03922e9640bacebedde8ad43778e09b60847e9a3b997359d0ad31e1a646171",
+              "fit_origin": "new selected-B C-specific head",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n50/fastwam_libero_libero_10/C5/stall",
+              "stall_digest": "343a33b12e1840b3844d106ec0ef0e55b42b473c0a7a7e81ee97dfcbbac6ab29",
+              "unavailable_tasks": []
+            }
+          },
+          "libero_spatial": {
+            "C10": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/data/r17_library/fastwam_libero_libero_spatial/bpool/fits/size_50",
+              "fit_digest": "722f9885de7e7630c2a6c3d101be8a71da5e836f7e0aeca5ccedfabc299c246f",
+              "fit_origin": "existing per-size B fit",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n50/fastwam_libero_libero_spatial/C10/stall",
+              "stall_digest": "7323d46c4d718d5c92da32153b9332083c144cb4f77569a5aa3afaa63f396974",
+              "unavailable_tasks": [
+                "0",
+                "5"
+              ]
+            },
+            "C5": {
+              "calibration_origin": "new selected-B Q3 LOEO",
+              "fit": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n50/fastwam_libero_libero_spatial/C5/fit",
+              "fit_digest": "7fa241ec39984e78831fb0cf36a49ecb43eb0bf36b25eecf0b3d0c497ac5d170",
+              "fit_origin": "new selected-B C-specific head",
+              "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n50/fastwam_libero_libero_spatial/C5/stall",
+              "stall_digest": "9aa88075d6afecb15ec76ee8770a43ec46790db39d34b95f31f57f740ca486fc",
+              "unavailable_tasks": [
+                "0",
+                "5"
+              ]
+            }
+          }
+        }
+      },
+      "fits_ready": 10,
+      "inactive_task_gates": [
+        [
+          "cosmos_libero",
+          "libero_spatial",
+          0
+        ],
+        [
+          "dp_libero",
+          "libero_spatial",
+          0
+        ],
+        [
+          "dp_libero",
+          "libero_spatial",
+          5
+        ],
+        [
+          "dp_libero",
+          "libero_10",
+          30
+        ],
+        [
+          "dp_libero",
+          "libero_10",
+          38
+        ],
+        [
+          "fastwam_libero",
+          "libero_spatial",
+          0
+        ],
+        [
+          "fastwam_libero",
+          "libero_spatial",
+          5
+        ]
+      ],
+      "stall_calibrations_ready": 10
+    }
+  },
+  "physical_bundle_count": 200,
+  "predecessor_states_at_completion": {
+    "csl10dp": "RUNNING",
+    "csl10h": "FAIL"
+  },
+  "prereg_current_sha256": "1b733bec5da41d90b234caf27bd5282833699519d6049039b0be3e055c63b06e",
+  "prereg_sha256": "1b733bec5da41d90b234caf27bd5282833699519d6049039b0be3e055c63b06e",
+  "schema": "r17.cache_size_extension.v1",
+  "size500_plan_compatibility": "All three original episode plans compare exactly to the current planner, with no added library_size key.",
+  "stall_rule": "Unchanged Q3 successful selected-B LOEO; fewer than four references => inactive, no threshold borrowing",
+  "status": "CPU_PREPARED",
+  "study": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/STUDY.json",
+  "study_digest": "faed819959444110dc2c8a5ed24a728be35fd73fb6678fd3f03f1c223f788b75",
+  "test_evidence": {
+    "cpu_recovery": {
+      "path": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/evidence/sizes_tests/cpu_recovery.log",
+      "sha256": "db37c5762291f79c375423e911aa8a1171d7f184efb3ca70b0a4e5a2389083ad"
+    },
+    "lane_final": {
+      "path": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/evidence/sizes_tests/lane_final.log",
+      "sha256": "21eab84f4a6d23bf23eef855940e52a6bfa284b66a81a4d655b0eb7d79d5d8e9"
+    },
+    "legacy_exact_plan": {
+      "path": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/evidence/sizes_tests/legacy_exact_plan.log",
+      "sha256": "b85cf1d2e56eb2de0acfcd15bfe100133589af7ed04f75a159756c25cc009370"
+    },
+    "real_socket": {
+      "path": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/evidence/sizes_tests/real_socket.log",
+      "sha256": "ddbb5b857c492562fa66e990521f7fdfcd877eae197571e45a8c9d14708e069b"
+    },
+    "regression": {
+      "path": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/evidence/sizes_tests/regression.log",
+      "sha256": "40902dd6bb005ddc88921e0eb5daccc9aafcd25a32eccc09216a1dbb5f647225"
+    },
+    "routing_recycle": {
+      "path": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/evidence/sizes_tests/routing_recycle.log",
+      "sha256": "ca74d7a7233d1151d5ac75f2c84cbd9eaf552476b1df12cce56b65b0c1ceb978"
+    },
+    "size_cells_and_fits": {
+      "path": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/evidence/sizes_tests/size_cells_and_fits.log",
+      "scope": "Seven non-socket size tests passed here; the three old socket fixture failures are superseded by real_socket PASS; CPU child recovery and seven tail-recovery tests passed in cpu_recovery.",
+      "sha256": "77b1fcd52d6f7cef5b3f1cb87a794cb68ff747b12e8990b2b81d6ba52ccfbd3a"
+    }
+  },
+  "tests": {
+    "cache_study_lane": 64,
+    "routing_recycling_group_commit": 44,
+    "size_extension": 21,
+    "total": 129
+  },
+  "total_including_size500": 120000
+}

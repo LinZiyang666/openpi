@@ -1,0 +1,43 @@
+{
+  "asset_id": "groot_mw",
+  "assets": "/data/mw_finetune/qualification/assets/groot_mw_fix2_b3a3_v1",
+  "backend_ports": [
+    23160,
+    23161
+  ],
+  "checkpoint": "/data/mw_finetune/groot/4090_mt50/checkpoint-30000",
+  "control_python": "/home/weiland/projects/openpi/.venv/bin/python",
+  "deadline_seconds": 890,
+  "domain": "metaworld",
+  "driver_port": 23157,
+  "endpoint_host": "ziyanglin.com",
+  "estimated_peak_mib": 36864,
+  "expected_minutes": "5\u201314",
+  "fit_store": "/data/mw_finetune/qualification/assets/groot_mw_fix2_b3a3_v1/synthetic_fit",
+  "formal_eval_budget_mib": 20480,
+  "host": "local",
+  "library_artifact": "/data/mw_finetune/qualification/assets/groot_mw_fix2_b3a3_v1/synthetic_library.pkl",
+  "model": "groot",
+  "observations_dir": "/data/mw_finetune/qualification/assets/groot_mw_fix2_b3a3_v1",
+  "pass_criteria": [
+    "two resident endpoints each attest exact sealed ModelSpec",
+    "stock sticky proxy routes two actual clients",
+    "hot bundle broadcast, full/debug bytes and synthetic HIT pass",
+    "both owned servers close/drain; no throughput claim"
+  ],
+  "phase": "replica",
+  "port_wait_seconds": 60,
+  "python": "/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python",
+  "required_free_mib": 40960,
+  "run_root": "/data/mw_finetune/qualification/runs",
+  "runtime": "/home/weiland/projects/openpi",
+  "server_port": 23156,
+  "share_eval_safe": false,
+  "slot": "slot_G2_groot_mw_R_replicas",
+  "synthetic_library": true,
+  "teacher_store": "/data/mw_finetune/qualification/assets/groot_mw_fix2_b3a3_v1/synthetic_teacher_store",
+  "vendor": "/home/weiland/projects/openpi_ext/third_party/gr00t_n15",
+  "worker_node": "timan107",
+  "worker_payload": "/scratch/zixuans8/mw_r17/qualification/payload_7b9bb3125b55dfe7f59ded1bdcfeae562925f20da9f5d8e2152f1b0e8645d799",
+  "worker_python": "/scratch/zixuans8/mw_r17/envs/sim/bin/python"
+}

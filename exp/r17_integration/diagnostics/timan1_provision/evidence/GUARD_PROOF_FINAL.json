@@ -1,0 +1,140 @@
+{
+  "lifecycle": {
+    "actual_child_closed": true,
+    "actual_pid": 4044035,
+    "wrapper_exit_code": -15,
+    "wrapper_pid": 4044034
+  },
+  "negative_cases": [
+    {
+      "env_key": "MUJOCO_EGL_DEVICE_ID",
+      "returncode": 78,
+      "stderr": "TIMAN1_GPU3_GUARD: physical EGL device must be 3; refusing before renderer import\n",
+      "stdout": "",
+      "value": "0"
+    },
+    {
+      "env_key": "MUJOCO_EGL_DEVICE_ID",
+      "returncode": 78,
+      "stderr": "TIMAN1_GPU3_GUARD: physical EGL device must be 3; refusing before renderer import\n",
+      "stdout": "",
+      "value": "1"
+    },
+    {
+      "env_key": "MUJOCO_EGL_DEVICE_ID",
+      "returncode": 78,
+      "stderr": "TIMAN1_GPU3_GUARD: physical EGL device must be 3; refusing before renderer import\n",
+      "stdout": "",
+      "value": "2"
+    },
+    {
+      "env_key": "MUJOCO_EGL_DEVICE_ID",
+      "returncode": 78,
+      "stderr": "TIMAN1_GPU3_GUARD: physical EGL device must be 3; refusing before renderer import\n",
+      "stdout": "",
+      "value": "4"
+    },
+    {
+      "env_key": "MUJOCO_EGL_DEVICE_ID",
+      "returncode": 78,
+      "stderr": "TIMAN1_GPU3_GUARD: physical EGL device must be 3; refusing before renderer import\n",
+      "stdout": "",
+      "value": ""
+    },
+    {
+      "env_key": "CUDA_VISIBLE_DEVICES",
+      "returncode": 78,
+      "stderr": "TIMAN1_GPU3_GUARD: CUDA visibility must be disabled or pinned to physical GPU 3; refusing before renderer import\n",
+      "stdout": "",
+      "value": "0"
+    },
+    {
+      "env_key": "CUDA_VISIBLE_DEVICES",
+      "returncode": 78,
+      "stderr": "TIMAN1_GPU3_GUARD: CUDA visibility must be disabled or pinned to physical GPU 3; refusing before renderer import\n",
+      "stdout": "",
+      "value": "1"
+    },
+    {
+      "env_key": "CUDA_VISIBLE_DEVICES",
+      "returncode": 78,
+      "stderr": "TIMAN1_GPU3_GUARD: CUDA visibility must be disabled or pinned to physical GPU 3; refusing before renderer import\n",
+      "stdout": "",
+      "value": "2"
+    },
+    {
+      "env_key": "CUDA_VISIBLE_DEVICES",
+      "returncode": 78,
+      "stderr": "TIMAN1_GPU3_GUARD: CUDA visibility must be disabled or pinned to physical GPU 3; refusing before renderer import\n",
+      "stdout": "",
+      "value": "3"
+    },
+    {
+      "env_key": "CUDA_VISIBLE_DEVICES",
+      "returncode": 78,
+      "stderr": "TIMAN1_GPU3_GUARD: CUDA visibility must be disabled or pinned to physical GPU 3; refusing before renderer import\n",
+      "stdout": "",
+      "value": "0,3"
+    },
+    {
+      "env_key": "CUDA_VISIBLE_DEVICES",
+      "returncode": 78,
+      "stderr": "TIMAN1_GPU3_GUARD: CUDA visibility must be disabled or pinned to physical GPU 3; refusing before renderer import\n",
+      "stdout": "",
+      "value": "GPU-wrong"
+    },
+    {
+      "cli_device": 0,
+      "returncode": 78,
+      "stderr": "TIMAN1_GPU3_GUARD: CLI physical EGL device must be 3; refusing before renderer import\n",
+      "stdout": ""
+    },
+    {
+      "cli_device": 1,
+      "returncode": 78,
+      "stderr": "TIMAN1_GPU3_GUARD: CLI physical EGL device must be 3; refusing before renderer import\n",
+      "stdout": ""
+    },
+    {
+      "cli_device": 2,
+      "returncode": 78,
+      "stderr": "TIMAN1_GPU3_GUARD: CLI physical EGL device must be 3; refusing before renderer import\n",
+      "stdout": ""
+    },
+    {
+      "campaign_devices": [
+        0
+      ],
+      "returncode": 78,
+      "stderr": "TIMAN1_GPU3_GUARD: campaign EGL allowlist must be exactly [3]; refusing before renderer import\n",
+      "stdout": ""
+    },
+    {
+      "campaign_devices": [
+        0,
+        3
+      ],
+      "returncode": 78,
+      "stderr": "TIMAN1_GPU3_GUARD: campaign EGL allowlist must be exactly [3]; refusing before renderer import\n",
+      "stdout": ""
+    },
+    {
+      "campaign_devices": null,
+      "returncode": 78,
+      "stderr": "TIMAN1_GPU3_GUARD: campaign EGL allowlist must be exactly [3]; refusing before renderer import\n",
+      "stdout": ""
+    },
+    {
+      "native_outside_namespace": true,
+      "returncode": 78,
+      "stderr": "TIMAN1_GPU3_GUARD: native imports require the GPU3 device namespace wrapper; refusing before renderer import\n",
+      "stdout": ""
+    }
+  ],
+  "positive_uuid": {
+    "returncode": 0,
+    "stderr": "",
+    "stdout": "{\"egl_uuid\": \"ba276422a0b1e3718327f744be942f15\", \"minor\": 0}\n"
+  },
+  "status": "PASS"
+}

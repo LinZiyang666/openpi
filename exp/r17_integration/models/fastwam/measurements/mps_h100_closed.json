@@ -1,0 +1,41 @@
+{
+  "after": {
+    "contexts": [
+      {
+        "gpu": "GPU-7ea0f760-d3aa-7023-c19b-95f49123311b",
+        "memory_mib": 6458.0,
+        "pid": 196159,
+        "start_ticks": "11507392"
+      },
+      {
+        "gpu": "GPU-7ea0f760-d3aa-7023-c19b-95f49123311b",
+        "memory_mib": 6458.0,
+        "pid": 196243,
+        "start_ticks": "11510576"
+      },
+      {
+        "gpu": "GPU-7ea0f760-d3aa-7023-c19b-95f49123311b",
+        "memory_mib": 27220.0,
+        "pid": 197083,
+        "start_ticks": "11576982"
+      },
+      {
+        "gpu": "GPU-7ea0f760-d3aa-7023-c19b-95f49123311b",
+        "memory_mib": 26512.0,
+        "pid": 197091,
+        "start_ticks": "11577024"
+      }
+    ],
+    "counts": {
+      "formal_cosmos_libero_official2000_20261010_130639_a8ca2043": {
+        "decisions": 3736,
+        "policy_calls": 3736
+      }
+    },
+    "time": 1791656986.1395926
+  },
+  "background_contexts_preserved": true,
+  "budget_seconds": 315.0,
+  "elapsed_seconds": 0.19555329899594653,
+  "results": 1
+}

@@ -1,0 +1,940 @@
+{
+  "benchmark": {
+    "benchmark": "metaworld_mt50",
+    "camera": "corner2",
+    "camera_id": 2,
+    "camera_pos": [
+      0.75,
+      0.075,
+      0.7
+    ],
+    "dev_indices": [
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49
+    ],
+    "expected_formal_episodes": 500,
+    "formal_indices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "init_source": "MT1(task, seed=7).train_tasks[original_idx]",
+    "interface_version": "r17.v1",
+    "library_indices": [
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29
+    ],
+    "max_policy_controls": 160,
+    "policy_rng": "sha256(mt50:7:task:idx:decision)[:4] little-endian; NumPy PCG64 standard_normal float32",
+    "protocol_id": "mt50_seed7_corner2_r17_v1",
+    "protocol_identity": "3e84e999dc3d70662595e8dfb3ece7ac8e67cee8db1afb0294d85e9cd7dfc8d7",
+    "render_size": 480,
+    "replan_steps": 5,
+    "rotation_degrees": 180,
+    "seed": 7,
+    "settle_steps": 15,
+    "success": "info.success at any policy control",
+    "tasks": [
+      [
+        "assembly-v3",
+        "Pick up a nut and place it onto a peg",
+        "hard"
+      ],
+      [
+        "basketball-v3",
+        "Dunk the basketball into the basket",
+        "medium"
+      ],
+      [
+        "bin-picking-v3",
+        "Grasp the puck from one bin and place it into another bin",
+        "medium"
+      ],
+      [
+        "box-close-v3",
+        "Grasp the cover and close the box with it",
+        "medium"
+      ],
+      [
+        "button-press-topdown-v3",
+        "Press a button from the top",
+        "easy"
+      ],
+      [
+        "button-press-topdown-wall-v3",
+        "Bypass a wall and press a button from the top",
+        "easy"
+      ],
+      [
+        "button-press-v3",
+        "Press a button",
+        "easy"
+      ],
+      [
+        "button-press-wall-v3",
+        "Bypass a wall and press a button",
+        "easy"
+      ],
+      [
+        "coffee-button-v3",
+        "Push a button on the coffee machine",
+        "easy"
+      ],
+      [
+        "coffee-pull-v3",
+        "Pull a mug from a coffee machine",
+        "medium"
+      ],
+      [
+        "coffee-push-v3",
+        "Push a mug under a coffee machine",
+        "medium"
+      ],
+      [
+        "dial-turn-v3",
+        "Rotate a dial 180 degrees",
+        "easy"
+      ],
+      [
+        "disassemble-v3",
+        "Pick a nut out of a peg",
+        "very_hard"
+      ],
+      [
+        "door-close-v3",
+        "Close a door with a revolving joint",
+        "easy"
+      ],
+      [
+        "door-lock-v3",
+        "Lock the door by rotating the lock clockwise",
+        "easy"
+      ],
+      [
+        "door-open-v3",
+        "Open a door with a revolving joint",
+        "easy"
+      ],
+      [
+        "door-unlock-v3",
+        "Unlock the door by rotating the lock counter-clockwise",
+        "easy"
+      ],
+      [
+        "hand-insert-v3",
+        "Insert the gripper into a hole",
+        "hard"
+      ],
+      [
+        "drawer-close-v3",
+        "Push and close a drawer",
+        "easy"
+      ],
+      [
+        "drawer-open-v3",
+        "Open a drawer",
+        "easy"
+      ],
+      [
+        "faucet-open-v3",
+        "Rotate the faucet counter-clockwise",
+        "easy"
+      ],
+      [
+        "faucet-close-v3",
+        "Rotate the faucet clockwise",
+        "easy"
+      ],
+      [
+        "hammer-v3",
+        "Hammer a screw on the wall",
+        "medium"
+      ],
+      [
+        "handle-press-side-v3",
+        "Press a handle down sideways",
+        "easy"
+      ],
+      [
+        "handle-press-v3",
+        "Press a handle down",
+        "easy"
+      ],
+      [
+        "handle-pull-side-v3",
+        "Pull a handle up sideways",
+        "easy"
+      ],
+      [
+        "handle-pull-v3",
+        "Pull a handle up",
+        "easy"
+      ],
+      [
+        "lever-pull-v3",
+        "Pull a lever down 90 degrees",
+        "easy"
+      ],
+      [
+        "pick-place-wall-v3",
+        "Pick a puck, bypass a wall and place the puck",
+        "very_hard"
+      ],
+      [
+        "pick-out-of-hole-v3",
+        "Pick up a puck from a hole",
+        "hard"
+      ],
+      [
+        "pick-place-v3",
+        "Pick and place a puck to a goal",
+        "hard"
+      ],
+      [
+        "plate-slide-v3",
+        "Slide a plate into a cabinet",
+        "easy"
+      ],
+      [
+        "plate-slide-side-v3",
+        "Slide a plate into a cabinet sideways",
+        "easy"
+      ],
+      [
+        "plate-slide-back-v3",
+        "Get a plate from the cabinet",
+        "easy"
+      ],
+      [
+        "plate-slide-back-side-v3",
+        "Get a plate from the cabinet sideways",
+        "easy"
+      ],
+      [
+        "peg-insert-side-v3",
+        "Insert a peg sideways",
+        "medium"
+      ],
+      [
+        "peg-unplug-side-v3",
+        "Unplug a peg sideways",
+        "easy"
+      ],
+      [
+        "soccer-v3",
+        "Kick a soccer into the goal",
+        "medium"
+      ],
+      [
+        "stick-push-v3",
+        "Grasp a stick and push a box using the stick",
+        "very_hard"
+      ],
+      [
+        "stick-pull-v3",
+        "Grasp a stick and pull a box with the stick",
+        "very_hard"
+      ],
+      [
+        "push-v3",
+        "Push the puck to a goal",
+        "hard"
+      ],
+      [
+        "push-wall-v3",
+        "Bypass a wall and push a puck to a goal",
+        "medium"
+      ],
+      [
+        "push-back-v3",
+        "Push the puck to a goal",
+        "hard"
+      ],
+      [
+        "reach-v3",
+        "Reach a goal position",
+        "easy"
+      ],
+      [
+        "reach-wall-v3",
+        "Bypass a wall and reach a goal",
+        "easy"
+      ],
+      [
+        "shelf-place-v3",
+        "Pick and place a puck onto a shelf",
+        "very_hard"
+      ],
+      [
+        "sweep-into-v3",
+        "Sweep a puck into a hole",
+        "medium"
+      ],
+      [
+        "sweep-v3",
+        "Sweep a puck off the table",
+        "medium"
+      ],
+      [
+        "window-open-v3",
+        "Push and open a window",
+        "easy"
+      ],
+      [
+        "window-close-v3",
+        "Push and close a window",
+        "easy"
+      ]
+    ],
+    "termination": "success | terminated | truncated | step_cap; exceptions are errors"
+  },
+  "checkpoint_loaded": false,
+  "decision": {
+    "actual_nfe": 2,
+    "normalized_shape": [
+      5,
+      32
+    ],
+    "request": {
+      "arm": "full_fixture",
+      "attempt": 1,
+      "benchmark_protocol": "3e84e999dc3d70662595e8dfb3ece7ac8e67cee8db1afb0294d85e9cd7dfc8d7",
+      "bundle_generation": "sample_gen1",
+      "campaign": "p2_synthetic_cpu_sample",
+      "decision_seq": 0,
+      "explicit_seed": 1683309483,
+      "namespace": "policy",
+      "original_init_idx": 0,
+      "seed": 7,
+      "task_id": 43,
+      "task_name": "reach-v3"
+    },
+    "sampler_identity": "f0ba393fa0b1bd317842e1391e831d502d45e94b4e38500b032fc884b07e5813",
+    "stage_calls": [
+      1,
+      1,
+      2
+    ],
+    "wire_dtype": "float64",
+    "wire_shape": [
+      5,
+      4
+    ]
+  },
+  "fixture_quantiles": {
+    "action_q01": [
+      -3,
+      -4,
+      -5,
+      -1
+    ],
+    "action_q99": [
+      2,
+      3,
+      4,
+      1
+    ],
+    "state_q01": [
+      -2,
+      -2,
+      -2,
+      -2
+    ],
+    "state_q99": [
+      3,
+      3,
+      3,
+      3
+    ]
+  },
+  "model_spec": {
+    "allowed_benchmark_protocols": [
+      "3e84e999dc3d70662595e8dfb3ece7ac8e67cee8db1afb0294d85e9cd7dfc8d7"
+    ],
+    "capabilities": {
+      "features": {
+        "analysis": {
+          "evidence": [],
+          "reason": "framework/benchmark tools require cross-package qualification",
+          "status": "implemented_unverified"
+        },
+        "batch_stage1": {
+          "evidence": [],
+          "reason": "generic R17 executor not yet wired/qualified for this feature",
+          "status": "unsupported"
+        },
+        "batch_stage2": {
+          "evidence": [],
+          "reason": "generic R17 executor not yet wired/qualified for this feature",
+          "status": "unsupported"
+        },
+        "batch_stage3": {
+          "evidence": [],
+          "reason": "generic R17 executor not yet wired/qualified for this feature",
+          "status": "unsupported"
+        },
+        "bundle": {
+          "evidence": [],
+          "reason": "CPU hook conformance; real checkpoint GPU qualification pending",
+          "status": "supported"
+        },
+        "concurrent": {
+          "evidence": [],
+          "reason": "CPU hook conformance; real checkpoint GPU qualification pending",
+          "status": "supported"
+        },
+        "conductor": {
+          "evidence": [],
+          "reason": "framework/benchmark tools require cross-package qualification",
+          "status": "implemented_unverified"
+        },
+        "cp1_retrieval": {
+          "evidence": [],
+          "reason": "CPU hook conformance; real checkpoint GPU qualification pending",
+          "status": "supported"
+        },
+        "cp2": {
+          "evidence": [],
+          "reason": "generic R17 executor not yet wired/qualified for this feature",
+          "status": "unsupported"
+        },
+        "debug_capture": {
+          "evidence": [],
+          "reason": "CPU hook conformance; real checkpoint GPU qualification pending",
+          "status": "supported"
+        },
+        "episode": {
+          "evidence": [],
+          "reason": "CPU hook conformance; real checkpoint GPU qualification pending",
+          "status": "supported"
+        },
+        "full": {
+          "evidence": [],
+          "reason": "CPU hook conformance; real checkpoint GPU qualification pending",
+          "status": "supported"
+        },
+        "k_step": {
+          "evidence": [],
+          "reason": "CPU hook conformance; real checkpoint GPU qualification pending",
+          "status": "supported"
+        },
+        "library": {
+          "evidence": [],
+          "reason": "framework/benchmark tools require cross-package qualification",
+          "status": "implemented_unverified"
+        },
+        "offline": {
+          "evidence": [],
+          "reason": "framework/benchmark tools require cross-package qualification",
+          "status": "implemented_unverified"
+        },
+        "recipe": {
+          "evidence": [],
+          "reason": "framework/benchmark tools require cross-package qualification",
+          "status": "implemented_unverified"
+        },
+        "replay": {
+          "evidence": [],
+          "reason": "framework/benchmark tools require cross-package qualification",
+          "status": "implemented_unverified"
+        },
+        "routing": {
+          "evidence": [],
+          "reason": "generic R17 executor not yet wired/qualified for this feature",
+          "status": "unsupported"
+        },
+        "split": {
+          "evidence": [],
+          "reason": "generic R17 executor not yet wired/qualified for this feature",
+          "status": "unsupported"
+        },
+        "trace_twins": {
+          "evidence": [],
+          "reason": "generic R17 executor not yet wired/qualified for this feature",
+          "status": "unsupported"
+        },
+        "warm_reset": {
+          "evidence": [],
+          "reason": "generic R17 executor not yet wired/qualified for this feature",
+          "status": "unsupported"
+        },
+        "warm_resume": {
+          "evidence": [],
+          "reason": "native suffix hook; GPU parity pending",
+          "status": "implemented_unverified"
+        },
+        "warmup": {
+          "evidence": [],
+          "reason": "framework/benchmark tools require cross-package qualification",
+          "status": "implemented_unverified"
+        },
+        "worker": {
+          "evidence": [],
+          "reason": "framework/benchmark tools require cross-package qualification",
+          "status": "implemented_unverified"
+        }
+      }
+    },
+    "checkpoint_identity": "cpu_fixture_weights",
+    "code_digest": "",
+    "default_sampler": {
+      "config": {
+        "direction": "descending",
+        "update": "native PI0Pytorch float32 accumulated Euler"
+      },
+      "family": "flow",
+      "native_deltas": [
+        -0.10000000149011612,
+        -0.10000000149011612,
+        -0.10000000149011612,
+        -0.10000000149011612,
+        -0.10000000149011612,
+        -0.10000000149011612,
+        -0.10000000149011612,
+        -0.10000000149011612,
+        -0.10000000149011612,
+        -0.10000000149011612
+      ],
+      "native_timesteps": [
+        1.0,
+        0.8999999761581421,
+        0.7999999523162842,
+        0.6999999284744263,
+        0.5999999046325684,
+        0.49999991059303284,
+        0.3999999165534973,
+        0.2999999225139618,
+        0.19999992847442627,
+        0.09999992698431015
+      ],
+      "num_steps": 10,
+      "point_kind": "native_time",
+      "sampler_id": "pi05_v1_k10"
+    },
+    "feature_spec": {
+      "active_state_indices": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "fields": {
+        "robot_state": 4,
+        "vision_0": 32768
+      },
+      "hidden_width": 2048,
+      "key_dtype": "float32",
+      "missing_branch_policy": "two masked zero wrists retain native compute",
+      "norm_digest": "cpu_fixture_stats",
+      "policy_digest": "cpu_fixture_weights",
+      "pooling": "spatial16.adaptive_avg_pool2d.v1",
+      "preprocess_digest": "",
+      "prompt_dependent": false,
+      "real_cameras": [
+        "corner2"
+      ],
+      "source": "PI0Pytorch.run_stage1.prefix_embs",
+      "token_grid": [
+        16,
+        16
+      ]
+    },
+    "layout": {
+      "action_space_name": "MetaWorld native Sawyer xyz delta + gripper",
+      "frame": "world",
+      "gripper_channel": 3,
+      "gripper_closed_convention": "positive native Sawyer close command",
+      "horizon": 5,
+      "model_action_width": 32,
+      "motion_channels": [
+        0,
+        1,
+        2
+      ],
+      "output_transform_id": "pi05_metaworld.quantile_inverse.v1",
+      "raw_state_fields": [
+        "hand_x",
+        "hand_y",
+        "hand_z",
+        "gripper_aperture"
+      ],
+      "replan_steps": 5,
+      "units": "native command; controller scale not calibrated here",
+      "valid_action_dim": 4,
+      "valid_action_indices": [],
+      "valid_state_indices": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "model_id": "pi05_rlinf_mt50",
+    "norm_identity": "cpu_fixture_stats",
+    "python_island": "openpi PyTorch"
+  },
+  "native_grids": [
+    {
+      "config": {
+        "direction": "descending",
+        "update": "native PI0Pytorch float32 accumulated Euler"
+      },
+      "family": "flow",
+      "native_deltas": [
+        -0.10000000149011612,
+        -0.10000000149011612,
+        -0.10000000149011612,
+        -0.10000000149011612,
+        -0.10000000149011612,
+        -0.10000000149011612,
+        -0.10000000149011612,
+        -0.10000000149011612,
+        -0.10000000149011612,
+        -0.10000000149011612
+      ],
+      "native_timesteps": [
+        1.0,
+        0.8999999761581421,
+        0.7999999523162842,
+        0.6999999284744263,
+        0.5999999046325684,
+        0.49999991059303284,
+        0.3999999165534973,
+        0.2999999225139618,
+        0.19999992847442627,
+        0.09999992698431015
+      ],
+      "num_steps": 10,
+      "point_kind": "native_time",
+      "sampler_id": "pi05_v1_k10"
+    },
+    {
+      "config": {
+        "direction": "descending",
+        "update": "native PI0Pytorch float32 accumulated Euler"
+      },
+      "family": "flow",
+      "native_deltas": [
+        -0.5,
+        -0.5
+      ],
+      "native_timesteps": [
+        1.0,
+        0.5
+      ],
+      "num_steps": 2,
+      "point_kind": "native_time",
+      "sampler_id": "pi05_v1_k2"
+    },
+    {
+      "config": {
+        "direction": "descending",
+        "update": "native PI0Pytorch float32 accumulated Euler"
+      },
+      "family": "flow",
+      "native_deltas": [
+        -1.0
+      ],
+      "native_timesteps": [
+        1.0
+      ],
+      "num_steps": 1,
+      "point_kind": "native_time",
+      "sampler_id": "pi05_v1_k1"
+    }
+  ],
+  "paths": {
+    "model_capture": "writer",
+    "physical": "physical_fixture.npz",
+    "wire_input": "wire_observation.npz"
+  },
+  "physical": {
+    "arrays": {
+      "act": {
+        "dtype": "float64",
+        "shape": [
+          0
+        ]
+      },
+      "applied_action": {
+        "dtype": "float64",
+        "shape": [
+          4
+        ]
+      },
+      "contact_dist": {
+        "dtype": "float64",
+        "shape": [
+          1
+        ]
+      },
+      "contact_force": {
+        "dtype": "float64",
+        "shape": [
+          1,
+          6
+        ]
+      },
+      "contact_frame": {
+        "dtype": "float64",
+        "shape": [
+          1,
+          9
+        ]
+      },
+      "contact_geom_ids": {
+        "dtype": "int64",
+        "shape": [
+          1,
+          2
+        ]
+      },
+      "contact_pos": {
+        "dtype": "float64",
+        "shape": [
+          1,
+          3
+        ]
+      },
+      "ctrl": {
+        "dtype": "float64",
+        "shape": [
+          4
+        ]
+      },
+      "cvel": {
+        "dtype": "float64",
+        "shape": [
+          2,
+          6
+        ]
+      },
+      "goal_position": {
+        "dtype": "float64",
+        "shape": [
+          3
+        ]
+      },
+      "qpos": {
+        "dtype": "float64",
+        "shape": [
+          7
+        ]
+      },
+      "qvel": {
+        "dtype": "float64",
+        "shape": [
+          6
+        ]
+      },
+      "raw_observation": {
+        "dtype": "float64",
+        "shape": [
+          39
+        ]
+      },
+      "requested_action": {
+        "dtype": "float64",
+        "shape": [
+          4
+        ]
+      },
+      "site_xpos": {
+        "dtype": "float64",
+        "shape": [
+          1,
+          3
+        ]
+      },
+      "xpos": {
+        "dtype": "float64",
+        "shape": [
+          2,
+          3
+        ]
+      },
+      "xquat": {
+        "dtype": "float64",
+        "shape": [
+          2,
+          4
+        ]
+      }
+    },
+    "capabilities": {
+      "act": {
+        "reason": "native data.act",
+        "status": "available"
+      },
+      "actuator_substeps": {
+        "reason": "control boundary only",
+        "status": "unsupported"
+      },
+      "contact_force": {
+        "reason": "native mj_contactForce",
+        "status": "available"
+      },
+      "contacts": {
+        "reason": "native data.contact",
+        "status": "available"
+      },
+      "ctrl": {
+        "reason": "native data.ctrl",
+        "status": "available"
+      },
+      "cvel": {
+        "reason": "native data.cvel",
+        "status": "available"
+      },
+      "eef_gripper_map": {
+        "reason": "raw site/joint state retained; task implementation mapping pending",
+        "status": "unsupported"
+      },
+      "goal": {
+        "reason": "explicit reach _target_pos map; real-env certification pending",
+        "status": "available"
+      },
+      "predicates": {
+        "reason": "MetaWorld info.success is authoritative; no LIBERO predicate evaluator",
+        "status": "unsupported"
+      },
+      "qpos": {
+        "reason": "native data.qpos",
+        "status": "available"
+      },
+      "qvel": {
+        "reason": "native data.qvel",
+        "status": "available"
+      },
+      "restore": {
+        "reason": "no task roundtrip certificate",
+        "status": "unsupported"
+      },
+      "robot_joint_map": {
+        "reason": "raw joint/body IDs retained; robot role map unqualified",
+        "status": "unsupported"
+      },
+      "sensordata": {
+        "reason": "native data.sensordata",
+        "status": "unsupported"
+      },
+      "site_xpos": {
+        "reason": "native data.site_xpos",
+        "status": "available"
+      },
+      "xpos": {
+        "reason": "native data.xpos",
+        "status": "available"
+      },
+      "xquat": {
+        "reason": "native data.xquat",
+        "status": "available"
+      }
+    },
+    "metadata": {
+      "catalog": {
+        "actuator_names": [
+          "actuator0",
+          "actuator1",
+          "actuator2",
+          "actuator3"
+        ],
+        "body_names": [
+          "body0",
+          "body1"
+        ],
+        "body_parentid": [
+          0,
+          0
+        ],
+        "entity_semantics": "native IDs; task object/robot roles require explicit mapping",
+        "free_joint_body_ids": [
+          1
+        ],
+        "geom_bodyid": [
+          0,
+          1
+        ],
+        "geom_names": [
+          "geom0",
+          "geom1"
+        ],
+        "jnt_bodyid": [
+          1
+        ],
+        "jnt_dofadr": [
+          0
+        ],
+        "jnt_qposadr": [
+          0
+        ],
+        "jnt_type": [
+          0
+        ],
+        "joint_names": [
+          "joint0"
+        ],
+        "site_names": [
+          "site0"
+        ],
+        "units": "native MuJoCo; world-frame xpos, wxyz xquat, cvel angular then linear"
+      },
+      "info": {
+        "success": false
+      },
+      "model_assets_digest": null,
+      "model_assets_status": "unsupported: asset bytes not provided",
+      "restore_certified": false,
+      "rng_state": null,
+      "task_name": "reach-v3",
+      "time": 0.0
+    }
+  },
+  "quality_sr_claim": false,
+  "renderer_used": false,
+  "schema": "r17.p2.samples.v1",
+  "synthetic_fixture": true
+}

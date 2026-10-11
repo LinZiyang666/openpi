@@ -1,0 +1,212 @@
+{
+  "accepted_per_min": 68.32289589693931,
+  "accepted_since_sample": 83,
+  "error": null,
+  "errors": 0,
+  "gpu": "24081 MiB, 74 %",
+  "measurement_seconds": 72.88918209075928,
+  "merged_accepted": 6357,
+  "replica_cpu": [
+    {
+      "alive": true,
+      "cpu_pct": 122.528470533246,
+      "label": "replica_0"
+    },
+    {
+      "alive": true,
+      "cpu_pct": 139.9796198466811,
+      "label": "replica_1"
+    },
+    {
+      "alive": true,
+      "cpu_pct": 141.3104071764006,
+      "label": "replica_2"
+    },
+    {
+      "alive": true,
+      "cpu_pct": 127.35771939985698,
+      "label": "replica_3"
+    }
+  ],
+  "resources": [
+    {
+      "batching": {
+        "arm_steps": [
+          100,
+          10,
+          5
+        ],
+        "batch_wait_ms": 5.0,
+        "byte_identical_to_b1": false,
+        "default_off": true,
+        "identity": "196635a760a15128de6771da718c7ade5612ba79cad9802eefec2e3a3239949a",
+        "language_policy": "frozen CPU B1 prompt embeddings memoized by exact text; 128-entry bound",
+        "max_batch": 8,
+        "noise_policy": "per-request sequential B1 initial/posterior draws; independent of members/order",
+        "numerics_policy": "dp_private_rng_vector_v1",
+        "quality_equivalence": "requires matched-batch control SR; not established by throughput",
+        "stage_workers": [
+          1,
+          1,
+          1
+        ]
+      },
+      "cached_actions_unchanged": true,
+      "canonical_worker_nodes": {
+        "timan107": 32
+      },
+      "canonical_workers": 32,
+      "gated_miss_batch_composition_may_change": true,
+      "local_worker_memory_mib": null,
+      "local_worker_vram_mib": null,
+      "model": "dp",
+      "orchestration": null,
+      "replicas": 2,
+      "segment": "/data/mw_finetune/eval/csl10d",
+      "worker_nodes": {
+        "timan107": 32
+      },
+      "workers": 32
+    },
+    {
+      "batching": {
+        "arm_steps": [
+          100,
+          10,
+          5
+        ],
+        "batch_wait_ms": 5.0,
+        "byte_identical_to_b1": false,
+        "default_off": true,
+        "identity": "196635a760a15128de6771da718c7ade5612ba79cad9802eefec2e3a3239949a",
+        "language_policy": "frozen CPU B1 prompt embeddings memoized by exact text; 128-entry bound",
+        "max_batch": 8,
+        "noise_policy": "per-request sequential B1 initial/posterior draws; independent of members/order",
+        "numerics_policy": "dp_private_rng_vector_v1",
+        "quality_equivalence": "requires matched-batch control SR; not established by throughput",
+        "stage_workers": [
+          1,
+          1,
+          1
+        ]
+      },
+      "cached_actions_unchanged": true,
+      "canonical_worker_nodes": {
+        "timan107": 32
+      },
+      "canonical_workers": 32,
+      "gated_miss_batch_composition_may_change": true,
+      "local_worker_memory_mib": null,
+      "local_worker_vram_mib": null,
+      "model": "dp",
+      "orchestration": null,
+      "replicas": 2,
+      "segment": "/data/mw_finetune/eval/dpc8513584592",
+      "worker_nodes": {
+        "timan107": 32
+      },
+      "workers": 32
+    },
+    {
+      "batching": {
+        "arm_steps": [
+          100,
+          10,
+          5
+        ],
+        "batch_wait_ms": 5.0,
+        "byte_identical_to_b1": false,
+        "default_off": true,
+        "identity": "196635a760a15128de6771da718c7ade5612ba79cad9802eefec2e3a3239949a",
+        "language_policy": "frozen CPU B1 prompt embeddings memoized by exact text; 128-entry bound",
+        "max_batch": 8,
+        "noise_policy": "per-request sequential B1 initial/posterior draws; independent of members/order",
+        "numerics_policy": "dp_private_rng_vector_v1",
+        "quality_equivalence": "requires matched-batch control SR; not established by throughput",
+        "stage_workers": [
+          1,
+          1,
+          1
+        ]
+      },
+      "cached_actions_unchanged": true,
+      "canonical_worker_nodes": {
+        "timan107": 32
+      },
+      "canonical_workers": 32,
+      "gated_miss_batch_composition_may_change": true,
+      "local_worker_memory_mib": null,
+      "local_worker_vram_mib": null,
+      "model": "dp",
+      "orchestration": null,
+      "replicas": 2,
+      "segment": "/data/mw_finetune/eval/dpc3464789869",
+      "worker_nodes": {
+        "timan107": 32
+      },
+      "workers": 32
+    },
+    {
+      "batching": {
+        "arm_steps": [
+          100,
+          10,
+          5
+        ],
+        "batch_wait_ms": 5.0,
+        "byte_identical_to_b1": false,
+        "default_off": true,
+        "identity": "196635a760a15128de6771da718c7ade5612ba79cad9802eefec2e3a3239949a",
+        "language_policy": "frozen CPU B1 prompt embeddings memoized by exact text; 128-entry bound",
+        "max_batch": 8,
+        "noise_policy": "per-request sequential B1 initial/posterior draws; independent of members/order",
+        "numerics_policy": "dp_private_rng_vector_v1",
+        "quality_equivalence": "requires matched-batch control SR; not established by throughput",
+        "stage_workers": [
+          1,
+          1,
+          1
+        ]
+      },
+      "cached_actions_unchanged": true,
+      "canonical_worker_nodes": {
+        "timan107": 32
+      },
+      "canonical_workers": 32,
+      "gated_miss_batch_composition_may_change": true,
+      "local_worker_memory_mib": 4096,
+      "local_worker_vram_mib": 576,
+      "model": "dp",
+      "orchestration": {
+        "cache_ram_floor_mib": 4096,
+        "cached_actions_unchanged": true,
+        "local_renderer_vram_mib": 576,
+        "local_server_growth_mib": 8192,
+        "miss_batch_composition_may_change": true,
+        "owner_authorized": true,
+        "replicas": 4,
+        "schema": "r17.cache_worker_orchestration.v1",
+        "scientific_settings_unchanged": true,
+        "source_nodes": {
+          "timan107": 32
+        },
+        "source_replicas": 2,
+        "source_total_workers": 32,
+        "total_workers": 33,
+        "worker_nodes": {
+          "local": 33
+        }
+      },
+      "replicas": 4,
+      "segment": "/data/mw_finetune/eval/dpc8713063796_r2_d1dd",
+      "worker_nodes": {
+        "local": 33
+      },
+      "workers": 33
+    }
+  ],
+  "run": "dpc8713063796_r2_d1dd",
+  "segment_accepted": 109,
+  "status": "PARTIAL",
+  "time": 1791688473.7679632
+}

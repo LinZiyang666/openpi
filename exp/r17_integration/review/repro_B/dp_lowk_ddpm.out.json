@@ -1,0 +1,78 @@
+{
+ "strict": 0,
+ "frames": 48,
+ "leading_K100": {
+  "grid": "99..0",
+  "mse_vs_dataset_first5": 0.2386350780725479,
+  "mse_vs_K100_first5": 0.0,
+  "internal_clip_fraction": 0.1060267835855484
+ },
+ "leading_K10": {
+  "grid": [
+   90,
+   80,
+   70,
+   60,
+   50,
+   40,
+   30,
+   20,
+   10,
+   0
+  ],
+  "mse_vs_dataset_first5": 0.23499637842178345,
+  "mse_vs_K100_first5": 0.014810603111982346,
+  "internal_clip_fraction": 0.1049107164144516
+ },
+ "leading_K2": {
+  "grid": [
+   50,
+   0
+  ],
+  "mse_vs_dataset_first5": 0.23255228996276855,
+  "mse_vs_K100_first5": 0.022293372079730034,
+  "internal_clip_fraction": 0.0788690447807312
+ },
+ "leading_K1": {
+  "grid": [
+   0
+  ],
+  "mse_vs_dataset_first5": 1.214361548423767,
+  "mse_vs_K100_first5": 1.110944151878357,
+  "internal_clip_fraction": 0.2864583432674408
+ },
+ "trailing_K10": {
+  "grid": [
+   99,
+   89,
+   79,
+   69,
+   59,
+   49,
+   39,
+   29,
+   19,
+   9
+  ],
+  "mse_vs_dataset_first5": 0.23580752313137054,
+  "mse_vs_K100_first5": 0.01679961383342743,
+  "internal_clip_fraction": 0.08203125
+ },
+ "trailing_K2": {
+  "grid": [
+   99,
+   49
+  ],
+  "mse_vs_dataset_first5": 0.22554762661457062,
+  "mse_vs_K100_first5": 0.022818604484200478,
+  "internal_clip_fraction": 0.0476190485060215
+ },
+ "trailing_K1": {
+  "grid": [
+   99
+  ],
+  "mse_vs_dataset_first5": 1.948036551475525,
+  "mse_vs_K100_first5": 1.767129898071289,
+  "internal_clip_fraction": 0.9834449291229248
+ }
+}

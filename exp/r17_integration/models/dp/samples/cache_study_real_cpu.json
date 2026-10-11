@@ -1,0 +1,1328 @@
+{
+  "baseline_campaign": "hs5dp_ctl_142812",
+  "baseline_native_producer_and_assets_exact": true,
+  "campaign": "/data/mw_finetune/eval/mps_dp_libero_1010_164432_2c1f7e32",
+  "checkpoint_identity": "sha256:bd1dd4c1b2e1bfbb4c660ed8ec0a50362f461dc8a631c16edfa9d3097879d0c5",
+  "cpu_only": true,
+  "cuda_initialized": false,
+  "gpu_executed": false,
+  "schema": "r17.dp.cache_cpu_receipt.v1",
+  "status": "PASS",
+  "strict_load": {
+    "keys": 475,
+    "missing": [],
+    "unexpected": []
+  },
+  "suites": [
+    {
+      "groups": [
+        {
+          "actual_nfe": 0,
+          "commit": 5,
+          "corrector_enabled": false,
+          "fitted_path": "/data/mw_finetune/eval/mps_dp_libero_1010_164432_2c1f7e32/assets/cache_inputs/libero_spatial/C5/fit",
+          "group": "c",
+          "library_rows": 12028,
+          "miss_mode": "never",
+          "stage_calls": [
+            1,
+            0,
+            0
+          ],
+          "stall_status": {
+            "state": "disabled"
+          },
+          "teacher_compatibility": {
+            "batch_numeric_policy": "owner-admitted matched R2/B8/5ms/MPS; SR remains campaign-qualified",
+            "byte_identical_native_producers": true,
+            "evidence": {
+              "dependencies": {
+                "diffusers": "0.37.1",
+                "numpy": "1.26.4",
+                "safetensors": "0.7.0",
+                "torch": "2.7.1",
+                "torchvision": "0.22.1",
+                "transformers": "4.53.2"
+              },
+              "evidence_scope": "Exact E feature/action/preprocessing/normalization bytes and native 475 weights; current B1 staged producer bound to CPU native-reference regression, vector numeric equivalence separately qualified; no SR claim",
+              "producer_sources": {
+                "exp/mw_finetune/dp/RECIPE.md": "sha256:b128adcdc01b3758bf970829d4ea031e69e54bca77110473d6bfa89ef5f700db",
+                "exp/mw_finetune/dp/checkpoint.py": "sha256:c4a95d3f476dd21d83b7867f626eced40fb4d6674bfc8377a8913e95ff1a0544",
+                "exp/mw_finetune/dp/model.py": "sha256:e8570dd11fe4402b533f3669e32b3117dd9a0264320322e1e9b3ef0fd7b105e9",
+                "exp/mw_finetune/dp/policy.py": "sha256:aa0ad73351b6ee353b0ca5408247e8827e40138e147bcc5cd48c83f88fdd32ac",
+                "exp/mw_finetune/dp/preprocess.py": "sha256:fb8d0d62bd3c74675116b20f00cef7cacd5290e488afcd5c27eba3a0ced5d12d",
+                "exp/mw_finetune/dp/vendor/module_attr_mixin.py": "sha256:658dececa20f7628960fc1a8db89e4be3693e1bba47f63d1ff8a4faa2d481e45",
+                "exp/mw_finetune/dp/vendor/positional_embedding.py": "sha256:2266c75ecc9c9ac8ca126839d39a7bafbdd7af8800d6de903f66815e64cc366c",
+                "exp/mw_finetune/dp/vendor/transformer.py": "sha256:516e8626408b4329a3accb89bf5c0da06fb4df486bf2d520b82ee81f35891351",
+                "exp/r17_integration/common/contracts.py": "sha256:db72207d1762c8d904ffe5e9695ab1ec54b4a1ca73402ad4b0e243d5d9bb9737",
+                "exp/r17_integration/common/request_rng.py": "sha256:e6f1e5c13c2bd8f9d2f4aae688ab6639d0400a45be9a5bcb5af95a0ae29f85dd",
+                "exp/r17_integration/models/dp/config.py": "sha256:ba4122cfa251e051f1b3f7ac34f1ba04bb0aee67a6c875e90909764335f3502d",
+                "exp/r17_integration/models/dp/key_builder.py": "sha256:7f9330a87682c28c3ebcdc5305f3b073d5bf78cc463486208a57f2754c029330",
+                "exp/r17_integration/models/dp/loader.py": "sha256:6d97ee1d862a15fffff2ecdf7f473f6c347ab4c034cf52e5a53e6d9d8aaae23c",
+                "exp/r17_integration/models/dp/manifest.py": "sha256:70dc03e58bca50fa22eb286a21e81790fb00254d7351c96474b081d2b2ff3575",
+                "exp/r17_integration/models/dp/normalization.py": "sha256:5a38bf8755b444da917c5b567e669405d5bb6d58b271b940de48055fae456d06",
+                "exp/r17_integration/models/dp/protocols.py": "sha256:04b16028b6574624c079cba34b65d8b30d5891a75b29901d09dab8914d6843ba",
+                "exp/r17_integration/models/dp/request_noise.py": "sha256:cab13e2439c74e4c1844bfc5cb82087fac4ecab4002458eb74a04c2403d1893e",
+                "exp/r17_integration/models/dp/sampler.py": "sha256:277f56f9b184b0602976a8c8f13b94881df495efd7bf8e5002c76f7dfebb7962",
+                "exp/r17_integration/models/dp/staged.py": "sha256:597219bb1e0eb933ec9de711450da56c3ec4cf3bb93402e37a5083ac58563430"
+              },
+              "resident_checkpoint": "sha256:bd1dd4c1b2e1bfbb4c660ed8ec0a50362f461dc8a631c16edfa9d3097879d0c5",
+              "resident_code": "sha256:6536008be9eb5f64188af8636a6b0a255c004adf6e418d6e0b976b6a362316d5",
+              "teacher_manifest": "/data/r17_library/dp_libero_libero_spatial/campaigns/teacher_dp_libero_libero_spatial_500_20261010_000311_bdd4f22f/assets/model_manifest.json",
+              "teacher_manifest_sha256": "sha256:760ca2aded9bf03dbe60a9a05110eb53ace2f6b921339a57731f78df04a8adb9",
+              "teacher_staged_sha256": "sha256:07a32591d44d299f55dfa0749eb85e5400c6a90797b4b4163e7d757cc0b93e6e",
+              "weight_language_norm_assets": {
+                "CLIP/config.json": "sha256:825481e895a6809b9c1e2c07bb856f70aed360484eda9172be6fecc235293666",
+                "CLIP/merges.txt": "sha256:9fd691f7c8039210e0fced15865466c65820d09b63988b0174bfe25de299051a",
+                "CLIP/model.safetensors": "sha256:dae0eabbb1fd83756ed9dd893c17ff2f6825c98555a1e1b96154e2df0739b9e2",
+                "CLIP/special_tokens_map.json": "sha256:2cdb3b8331a60c92fc1e55a13e9fd61fd2293c5a51275fdcccd62b780052530e",
+                "CLIP/tokenizer.json": "sha256:43d4281659ce30b6aca2c7485944b3d73925bb7f87c7234daf3b6b094a6d618c",
+                "CLIP/tokenizer_config.json": "sha256:39bae5313c2da6467866dee758e754d69f0e302a875027b142531cb9c51c7c28",
+                "CLIP/vocab.json": "sha256:5047b556ce86ccaf6aa22b3ffccfc52d391ea4accdab9c2f2407da5b742d4363",
+                "DP_weights": "sha256:e460ae1e705b8f9c071f481ac33a8da7ceb56faa8aa9f83752ca3a6736acd269",
+                "E_metadata": "sha256:1f1b4b87efe8d5b1edc12a5baa4f80fa1a178349cd502a269196721b5f3ce54f",
+                "norm_stats.json": "sha256:e11dc658688b5e688ad36dd4df8a0a36510d953d1707dd4b547bdaab72679a60"
+              }
+            },
+            "protocol_bridge": true,
+            "resident_identity": "46ade92303799c37832281561c3d3fbd98563294e51dc15f09ec25042cf9b03c",
+            "schema": "r17.teacher_compatibility.v1",
+            "status": "PASS",
+            "teacher_identity": "c5bf107353c6cbde909cc924f74dbf86802aa1147d682938d2d4c65620c66758"
+          }
+        },
+        {
+          "actual_nfe": 0,
+          "commit": 5,
+          "corrector_enabled": true,
+          "fitted_path": "/data/mw_finetune/eval/mps_dp_libero_1010_164432_2c1f7e32/assets/cache_inputs/libero_spatial/C5/fit",
+          "group": "cr",
+          "library_rows": 12028,
+          "miss_mode": "never",
+          "stage_calls": [
+            1,
+            0,
+            0
+          ],
+          "stall_status": {
+            "state": "disabled"
+          },
+          "teacher_compatibility": {
+            "batch_numeric_policy": "owner-admitted matched R2/B8/5ms/MPS; SR remains campaign-qualified",
+            "byte_identical_native_producers": true,
+            "evidence": {
+              "dependencies": {
+                "diffusers": "0.37.1",
+                "numpy": "1.26.4",
+                "safetensors": "0.7.0",
+                "torch": "2.7.1",
+                "torchvision": "0.22.1",
+                "transformers": "4.53.2"
+              },
+              "evidence_scope": "Exact E feature/action/preprocessing/normalization bytes and native 475 weights; current B1 staged producer bound to CPU native-reference regression, vector numeric equivalence separately qualified; no SR claim",
+              "producer_sources": {
+                "exp/mw_finetune/dp/RECIPE.md": "sha256:b128adcdc01b3758bf970829d4ea031e69e54bca77110473d6bfa89ef5f700db",
+                "exp/mw_finetune/dp/checkpoint.py": "sha256:c4a95d3f476dd21d83b7867f626eced40fb4d6674bfc8377a8913e95ff1a0544",
+                "exp/mw_finetune/dp/model.py": "sha256:e8570dd11fe4402b533f3669e32b3117dd9a0264320322e1e9b3ef0fd7b105e9",
+                "exp/mw_finetune/dp/policy.py": "sha256:aa0ad73351b6ee353b0ca5408247e8827e40138e147bcc5cd48c83f88fdd32ac",
+                "exp/mw_finetune/dp/preprocess.py": "sha256:fb8d0d62bd3c74675116b20f00cef7cacd5290e488afcd5c27eba3a0ced5d12d",
+                "exp/mw_finetune/dp/vendor/module_attr_mixin.py": "sha256:658dececa20f7628960fc1a8db89e4be3693e1bba47f63d1ff8a4faa2d481e45",
+                "exp/mw_finetune/dp/vendor/positional_embedding.py": "sha256:2266c75ecc9c9ac8ca126839d39a7bafbdd7af8800d6de903f66815e64cc366c",
+                "exp/mw_finetune/dp/vendor/transformer.py": "sha256:516e8626408b4329a3accb89bf5c0da06fb4df486bf2d520b82ee81f35891351",
+                "exp/r17_integration/common/contracts.py": "sha256:db72207d1762c8d904ffe5e9695ab1ec54b4a1ca73402ad4b0e243d5d9bb9737",
+                "exp/r17_integration/common/request_rng.py": "sha256:e6f1e5c13c2bd8f9d2f4aae688ab6639d0400a45be9a5bcb5af95a0ae29f85dd",
+                "exp/r17_integration/models/dp/config.py": "sha256:ba4122cfa251e051f1b3f7ac34f1ba04bb0aee67a6c875e90909764335f3502d",
+                "exp/r17_integration/models/dp/key_builder.py": "sha256:7f9330a87682c28c3ebcdc5305f3b073d5bf78cc463486208a57f2754c029330",
+                "exp/r17_integration/models/dp/loader.py": "sha256:6d97ee1d862a15fffff2ecdf7f473f6c347ab4c034cf52e5a53e6d9d8aaae23c",
+                "exp/r17_integration/models/dp/manifest.py": "sha256:70dc03e58bca50fa22eb286a21e81790fb00254d7351c96474b081d2b2ff3575",
+                "exp/r17_integration/models/dp/normalization.py": "sha256:5a38bf8755b444da917c5b567e669405d5bb6d58b271b940de48055fae456d06",
+                "exp/r17_integration/models/dp/protocols.py": "sha256:04b16028b6574624c079cba34b65d8b30d5891a75b29901d09dab8914d6843ba",
+                "exp/r17_integration/models/dp/request_noise.py": "sha256:cab13e2439c74e4c1844bfc5cb82087fac4ecab4002458eb74a04c2403d1893e",
+                "exp/r17_integration/models/dp/sampler.py": "sha256:277f56f9b184b0602976a8c8f13b94881df495efd7bf8e5002c76f7dfebb7962",
+                "exp/r17_integration/models/dp/staged.py": "sha256:597219bb1e0eb933ec9de711450da56c3ec4cf3bb93402e37a5083ac58563430"
+              },
+              "resident_checkpoint": "sha256:bd1dd4c1b2e1bfbb4c660ed8ec0a50362f461dc8a631c16edfa9d3097879d0c5",
+              "resident_code": "sha256:6536008be9eb5f64188af8636a6b0a255c004adf6e418d6e0b976b6a362316d5",
+              "teacher_manifest": "/data/r17_library/dp_libero_libero_spatial/campaigns/teacher_dp_libero_libero_spatial_500_20261010_000311_bdd4f22f/assets/model_manifest.json",
+              "teacher_manifest_sha256": "sha256:760ca2aded9bf03dbe60a9a05110eb53ace2f6b921339a57731f78df04a8adb9",
+              "teacher_staged_sha256": "sha256:07a32591d44d299f55dfa0749eb85e5400c6a90797b4b4163e7d757cc0b93e6e",
+              "weight_language_norm_assets": {
+                "CLIP/config.json": "sha256:825481e895a6809b9c1e2c07bb856f70aed360484eda9172be6fecc235293666",
+                "CLIP/merges.txt": "sha256:9fd691f7c8039210e0fced15865466c65820d09b63988b0174bfe25de299051a",
+                "CLIP/model.safetensors": "sha256:dae0eabbb1fd83756ed9dd893c17ff2f6825c98555a1e1b96154e2df0739b9e2",
+                "CLIP/special_tokens_map.json": "sha256:2cdb3b8331a60c92fc1e55a13e9fd61fd2293c5a51275fdcccd62b780052530e",
+                "CLIP/tokenizer.json": "sha256:43d4281659ce30b6aca2c7485944b3d73925bb7f87c7234daf3b6b094a6d618c",
+                "CLIP/tokenizer_config.json": "sha256:39bae5313c2da6467866dee758e754d69f0e302a875027b142531cb9c51c7c28",
+                "CLIP/vocab.json": "sha256:5047b556ce86ccaf6aa22b3ffccfc52d391ea4accdab9c2f2407da5b742d4363",
+                "DP_weights": "sha256:e460ae1e705b8f9c071f481ac33a8da7ceb56faa8aa9f83752ca3a6736acd269",
+                "E_metadata": "sha256:1f1b4b87efe8d5b1edc12a5baa4f80fa1a178349cd502a269196721b5f3ce54f",
+                "norm_stats.json": "sha256:e11dc658688b5e688ad36dd4df8a0a36510d953d1707dd4b547bdaab72679a60"
+              }
+            },
+            "protocol_bridge": true,
+            "resident_identity": "46ade92303799c37832281561c3d3fbd98563294e51dc15f09ec25042cf9b03c",
+            "schema": "r17.teacher_compatibility.v1",
+            "status": "PASS",
+            "teacher_identity": "c5bf107353c6cbde909cc924f74dbf86802aa1147d682938d2d4c65620c66758"
+          }
+        },
+        {
+          "actual_nfe": 0,
+          "commit": 10,
+          "corrector_enabled": false,
+          "fitted_path": "/data/mw_finetune/eval/mps_dp_libero_1010_164432_2c1f7e32/assets/cache_inputs/libero_spatial/C10/fit",
+          "group": "ch",
+          "library_rows": 12028,
+          "miss_mode": "never",
+          "stage_calls": [
+            1,
+            0,
+            0
+          ],
+          "stall_status": {
+            "state": "disabled"
+          },
+          "teacher_compatibility": {
+            "batch_numeric_policy": "owner-admitted matched R2/B8/5ms/MPS; SR remains campaign-qualified",
+            "byte_identical_native_producers": true,
+            "evidence": {
+              "dependencies": {
+                "diffusers": "0.37.1",
+                "numpy": "1.26.4",
+                "safetensors": "0.7.0",
+                "torch": "2.7.1",
+                "torchvision": "0.22.1",
+                "transformers": "4.53.2"
+              },
+              "evidence_scope": "Exact E feature/action/preprocessing/normalization bytes and native 475 weights; current B1 staged producer bound to CPU native-reference regression, vector numeric equivalence separately qualified; no SR claim",
+              "producer_sources": {
+                "exp/mw_finetune/dp/RECIPE.md": "sha256:b128adcdc01b3758bf970829d4ea031e69e54bca77110473d6bfa89ef5f700db",
+                "exp/mw_finetune/dp/checkpoint.py": "sha256:c4a95d3f476dd21d83b7867f626eced40fb4d6674bfc8377a8913e95ff1a0544",
+                "exp/mw_finetune/dp/model.py": "sha256:e8570dd11fe4402b533f3669e32b3117dd9a0264320322e1e9b3ef0fd7b105e9",
+                "exp/mw_finetune/dp/policy.py": "sha256:aa0ad73351b6ee353b0ca5408247e8827e40138e147bcc5cd48c83f88fdd32ac",
+                "exp/mw_finetune/dp/preprocess.py": "sha256:fb8d0d62bd3c74675116b20f00cef7cacd5290e488afcd5c27eba3a0ced5d12d",
+                "exp/mw_finetune/dp/vendor/module_attr_mixin.py": "sha256:658dececa20f7628960fc1a8db89e4be3693e1bba47f63d1ff8a4faa2d481e45",
+                "exp/mw_finetune/dp/vendor/positional_embedding.py": "sha256:2266c75ecc9c9ac8ca126839d39a7bafbdd7af8800d6de903f66815e64cc366c",
+                "exp/mw_finetune/dp/vendor/transformer.py": "sha256:516e8626408b4329a3accb89bf5c0da06fb4df486bf2d520b82ee81f35891351",
+                "exp/r17_integration/common/contracts.py": "sha256:db72207d1762c8d904ffe5e9695ab1ec54b4a1ca73402ad4b0e243d5d9bb9737",
+                "exp/r17_integration/common/request_rng.py": "sha256:e6f1e5c13c2bd8f9d2f4aae688ab6639d0400a45be9a5bcb5af95a0ae29f85dd",
+                "exp/r17_integration/models/dp/config.py": "sha256:ba4122cfa251e051f1b3f7ac34f1ba04bb0aee67a6c875e90909764335f3502d",
+                "exp/r17_integration/models/dp/key_builder.py": "sha256:7f9330a87682c28c3ebcdc5305f3b073d5bf78cc463486208a57f2754c029330",
+                "exp/r17_integration/models/dp/loader.py": "sha256:6d97ee1d862a15fffff2ecdf7f473f6c347ab4c034cf52e5a53e6d9d8aaae23c",
+                "exp/r17_integration/models/dp/manifest.py": "sha256:70dc03e58bca50fa22eb286a21e81790fb00254d7351c96474b081d2b2ff3575",
+                "exp/r17_integration/models/dp/normalization.py": "sha256:5a38bf8755b444da917c5b567e669405d5bb6d58b271b940de48055fae456d06",
+                "exp/r17_integration/models/dp/protocols.py": "sha256:04b16028b6574624c079cba34b65d8b30d5891a75b29901d09dab8914d6843ba",
+                "exp/r17_integration/models/dp/request_noise.py": "sha256:cab13e2439c74e4c1844bfc5cb82087fac4ecab4002458eb74a04c2403d1893e",
+                "exp/r17_integration/models/dp/sampler.py": "sha256:277f56f9b184b0602976a8c8f13b94881df495efd7bf8e5002c76f7dfebb7962",
+                "exp/r17_integration/models/dp/staged.py": "sha256:597219bb1e0eb933ec9de711450da56c3ec4cf3bb93402e37a5083ac58563430"
+              },
+              "resident_checkpoint": "sha256:bd1dd4c1b2e1bfbb4c660ed8ec0a50362f461dc8a631c16edfa9d3097879d0c5",
+              "resident_code": "sha256:6536008be9eb5f64188af8636a6b0a255c004adf6e418d6e0b976b6a362316d5",
+              "teacher_manifest": "/data/r17_library/dp_libero_libero_spatial/campaigns/teacher_dp_libero_libero_spatial_500_20261010_000311_bdd4f22f/assets/model_manifest.json",
+              "teacher_manifest_sha256": "sha256:760ca2aded9bf03dbe60a9a05110eb53ace2f6b921339a57731f78df04a8adb9",
+              "teacher_staged_sha256": "sha256:07a32591d44d299f55dfa0749eb85e5400c6a90797b4b4163e7d757cc0b93e6e",
+              "weight_language_norm_assets": {
+                "CLIP/config.json": "sha256:825481e895a6809b9c1e2c07bb856f70aed360484eda9172be6fecc235293666",
+                "CLIP/merges.txt": "sha256:9fd691f7c8039210e0fced15865466c65820d09b63988b0174bfe25de299051a",
+                "CLIP/model.safetensors": "sha256:dae0eabbb1fd83756ed9dd893c17ff2f6825c98555a1e1b96154e2df0739b9e2",
+                "CLIP/special_tokens_map.json": "sha256:2cdb3b8331a60c92fc1e55a13e9fd61fd2293c5a51275fdcccd62b780052530e",
+                "CLIP/tokenizer.json": "sha256:43d4281659ce30b6aca2c7485944b3d73925bb7f87c7234daf3b6b094a6d618c",
+                "CLIP/tokenizer_config.json": "sha256:39bae5313c2da6467866dee758e754d69f0e302a875027b142531cb9c51c7c28",
+                "CLIP/vocab.json": "sha256:5047b556ce86ccaf6aa22b3ffccfc52d391ea4accdab9c2f2407da5b742d4363",
+                "DP_weights": "sha256:e460ae1e705b8f9c071f481ac33a8da7ceb56faa8aa9f83752ca3a6736acd269",
+                "E_metadata": "sha256:1f1b4b87efe8d5b1edc12a5baa4f80fa1a178349cd502a269196721b5f3ce54f",
+                "norm_stats.json": "sha256:e11dc658688b5e688ad36dd4df8a0a36510d953d1707dd4b547bdaab72679a60"
+              }
+            },
+            "protocol_bridge": true,
+            "resident_identity": "46ade92303799c37832281561c3d3fbd98563294e51dc15f09ec25042cf9b03c",
+            "schema": "r17.teacher_compatibility.v1",
+            "status": "PASS",
+            "teacher_identity": "c5bf107353c6cbde909cc924f74dbf86802aa1147d682938d2d4c65620c66758"
+          }
+        },
+        {
+          "actual_nfe": 0,
+          "commit": 10,
+          "corrector_enabled": true,
+          "fitted_path": "/data/mw_finetune/eval/mps_dp_libero_1010_164432_2c1f7e32/assets/cache_inputs/libero_spatial/C10/fit",
+          "group": "chr",
+          "library_rows": 12028,
+          "miss_mode": "never",
+          "stage_calls": [
+            1,
+            0,
+            0
+          ],
+          "stall_status": {
+            "state": "disabled"
+          },
+          "teacher_compatibility": {
+            "batch_numeric_policy": "owner-admitted matched R2/B8/5ms/MPS; SR remains campaign-qualified",
+            "byte_identical_native_producers": true,
+            "evidence": {
+              "dependencies": {
+                "diffusers": "0.37.1",
+                "numpy": "1.26.4",
+                "safetensors": "0.7.0",
+                "torch": "2.7.1",
+                "torchvision": "0.22.1",
+                "transformers": "4.53.2"
+              },
+              "evidence_scope": "Exact E feature/action/preprocessing/normalization bytes and native 475 weights; current B1 staged producer bound to CPU native-reference regression, vector numeric equivalence separately qualified; no SR claim",
+              "producer_sources": {
+                "exp/mw_finetune/dp/RECIPE.md": "sha256:b128adcdc01b3758bf970829d4ea031e69e54bca77110473d6bfa89ef5f700db",
+                "exp/mw_finetune/dp/checkpoint.py": "sha256:c4a95d3f476dd21d83b7867f626eced40fb4d6674bfc8377a8913e95ff1a0544",
+                "exp/mw_finetune/dp/model.py": "sha256:e8570dd11fe4402b533f3669e32b3117dd9a0264320322e1e9b3ef0fd7b105e9",
+                "exp/mw_finetune/dp/policy.py": "sha256:aa0ad73351b6ee353b0ca5408247e8827e40138e147bcc5cd48c83f88fdd32ac",
+                "exp/mw_finetune/dp/preprocess.py": "sha256:fb8d0d62bd3c74675116b20f00cef7cacd5290e488afcd5c27eba3a0ced5d12d",
+                "exp/mw_finetune/dp/vendor/module_attr_mixin.py": "sha256:658dececa20f7628960fc1a8db89e4be3693e1bba47f63d1ff8a4faa2d481e45",
+                "exp/mw_finetune/dp/vendor/positional_embedding.py": "sha256:2266c75ecc9c9ac8ca126839d39a7bafbdd7af8800d6de903f66815e64cc366c",
+                "exp/mw_finetune/dp/vendor/transformer.py": "sha256:516e8626408b4329a3accb89bf5c0da06fb4df486bf2d520b82ee81f35891351",
+                "exp/r17_integration/common/contracts.py": "sha256:db72207d1762c8d904ffe5e9695ab1ec54b4a1ca73402ad4b0e243d5d9bb9737",
+                "exp/r17_integration/common/request_rng.py": "sha256:e6f1e5c13c2bd8f9d2f4aae688ab6639d0400a45be9a5bcb5af95a0ae29f85dd",
+                "exp/r17_integration/models/dp/config.py": "sha256:ba4122cfa251e051f1b3f7ac34f1ba04bb0aee67a6c875e90909764335f3502d",
+                "exp/r17_integration/models/dp/key_builder.py": "sha256:7f9330a87682c28c3ebcdc5305f3b073d5bf78cc463486208a57f2754c029330",
+                "exp/r17_integration/models/dp/loader.py": "sha256:6d97ee1d862a15fffff2ecdf7f473f6c347ab4c034cf52e5a53e6d9d8aaae23c",
+                "exp/r17_integration/models/dp/manifest.py": "sha256:70dc03e58bca50fa22eb286a21e81790fb00254d7351c96474b081d2b2ff3575",
+                "exp/r17_integration/models/dp/normalization.py": "sha256:5a38bf8755b444da917c5b567e669405d5bb6d58b271b940de48055fae456d06",
+                "exp/r17_integration/models/dp/protocols.py": "sha256:04b16028b6574624c079cba34b65d8b30d5891a75b29901d09dab8914d6843ba",
+                "exp/r17_integration/models/dp/request_noise.py": "sha256:cab13e2439c74e4c1844bfc5cb82087fac4ecab4002458eb74a04c2403d1893e",
+                "exp/r17_integration/models/dp/sampler.py": "sha256:277f56f9b184b0602976a8c8f13b94881df495efd7bf8e5002c76f7dfebb7962",
+                "exp/r17_integration/models/dp/staged.py": "sha256:597219bb1e0eb933ec9de711450da56c3ec4cf3bb93402e37a5083ac58563430"
+              },
+              "resident_checkpoint": "sha256:bd1dd4c1b2e1bfbb4c660ed8ec0a50362f461dc8a631c16edfa9d3097879d0c5",
+              "resident_code": "sha256:6536008be9eb5f64188af8636a6b0a255c004adf6e418d6e0b976b6a362316d5",
+              "teacher_manifest": "/data/r17_library/dp_libero_libero_spatial/campaigns/teacher_dp_libero_libero_spatial_500_20261010_000311_bdd4f22f/assets/model_manifest.json",
+              "teacher_manifest_sha256": "sha256:760ca2aded9bf03dbe60a9a05110eb53ace2f6b921339a57731f78df04a8adb9",
+              "teacher_staged_sha256": "sha256:07a32591d44d299f55dfa0749eb85e5400c6a90797b4b4163e7d757cc0b93e6e",
+              "weight_language_norm_assets": {
+                "CLIP/config.json": "sha256:825481e895a6809b9c1e2c07bb856f70aed360484eda9172be6fecc235293666",
+                "CLIP/merges.txt": "sha256:9fd691f7c8039210e0fced15865466c65820d09b63988b0174bfe25de299051a",
+                "CLIP/model.safetensors": "sha256:dae0eabbb1fd83756ed9dd893c17ff2f6825c98555a1e1b96154e2df0739b9e2",
+                "CLIP/special_tokens_map.json": "sha256:2cdb3b8331a60c92fc1e55a13e9fd61fd2293c5a51275fdcccd62b780052530e",
+                "CLIP/tokenizer.json": "sha256:43d4281659ce30b6aca2c7485944b3d73925bb7f87c7234daf3b6b094a6d618c",
+                "CLIP/tokenizer_config.json": "sha256:39bae5313c2da6467866dee758e754d69f0e302a875027b142531cb9c51c7c28",
+                "CLIP/vocab.json": "sha256:5047b556ce86ccaf6aa22b3ffccfc52d391ea4accdab9c2f2407da5b742d4363",
+                "DP_weights": "sha256:e460ae1e705b8f9c071f481ac33a8da7ceb56faa8aa9f83752ca3a6736acd269",
+                "E_metadata": "sha256:1f1b4b87efe8d5b1edc12a5baa4f80fa1a178349cd502a269196721b5f3ce54f",
+                "norm_stats.json": "sha256:e11dc658688b5e688ad36dd4df8a0a36510d953d1707dd4b547bdaab72679a60"
+              }
+            },
+            "protocol_bridge": true,
+            "resident_identity": "46ade92303799c37832281561c3d3fbd98563294e51dc15f09ec25042cf9b03c",
+            "schema": "r17.teacher_compatibility.v1",
+            "status": "PASS",
+            "teacher_identity": "c5bf107353c6cbde909cc924f74dbf86802aa1147d682938d2d4c65620c66758"
+          }
+        },
+        {
+          "actual_nfe": 0,
+          "commit": 5,
+          "corrector_enabled": false,
+          "fitted_path": "/data/mw_finetune/eval/mps_dp_libero_1010_164432_2c1f7e32/assets/cache_inputs/libero_spatial/C5/fit",
+          "group": "cg",
+          "library_rows": 12028,
+          "miss_mode": "stall_only",
+          "stage_calls": [
+            1,
+            0,
+            0
+          ],
+          "stall_status": {
+            "K": 5,
+            "W": 2,
+            "a10": null,
+            "delta_hat": null,
+            "e90": null,
+            "reason": "warming_up",
+            "reference_episodes": 38,
+            "state": "inactive",
+            "window_span": 0
+          },
+          "teacher_compatibility": {
+            "batch_numeric_policy": "owner-admitted matched R2/B8/5ms/MPS; SR remains campaign-qualified",
+            "byte_identical_native_producers": true,
+            "evidence": {
+              "dependencies": {
+                "diffusers": "0.37.1",
+                "numpy": "1.26.4",
+                "safetensors": "0.7.0",
+                "torch": "2.7.1",
+                "torchvision": "0.22.1",
+                "transformers": "4.53.2"
+              },
+              "evidence_scope": "Exact E feature/action/preprocessing/normalization bytes and native 475 weights; current B1 staged producer bound to CPU native-reference regression, vector numeric equivalence separately qualified; no SR claim",
+              "producer_sources": {
+                "exp/mw_finetune/dp/RECIPE.md": "sha256:b128adcdc01b3758bf970829d4ea031e69e54bca77110473d6bfa89ef5f700db",
+                "exp/mw_finetune/dp/checkpoint.py": "sha256:c4a95d3f476dd21d83b7867f626eced40fb4d6674bfc8377a8913e95ff1a0544",
+                "exp/mw_finetune/dp/model.py": "sha256:e8570dd11fe4402b533f3669e32b3117dd9a0264320322e1e9b3ef0fd7b105e9",
+                "exp/mw_finetune/dp/policy.py": "sha256:aa0ad73351b6ee353b0ca5408247e8827e40138e147bcc5cd48c83f88fdd32ac",
+                "exp/mw_finetune/dp/preprocess.py": "sha256:fb8d0d62bd3c74675116b20f00cef7cacd5290e488afcd5c27eba3a0ced5d12d",
+                "exp/mw_finetune/dp/vendor/module_attr_mixin.py": "sha256:658dececa20f7628960fc1a8db89e4be3693e1bba47f63d1ff8a4faa2d481e45",
+                "exp/mw_finetune/dp/vendor/positional_embedding.py": "sha256:2266c75ecc9c9ac8ca126839d39a7bafbdd7af8800d6de903f66815e64cc366c",
+                "exp/mw_finetune/dp/vendor/transformer.py": "sha256:516e8626408b4329a3accb89bf5c0da06fb4df486bf2d520b82ee81f35891351",
+                "exp/r17_integration/common/contracts.py": "sha256:db72207d1762c8d904ffe5e9695ab1ec54b4a1ca73402ad4b0e243d5d9bb9737",
+                "exp/r17_integration/common/request_rng.py": "sha256:e6f1e5c13c2bd8f9d2f4aae688ab6639d0400a45be9a5bcb5af95a0ae29f85dd",
+                "exp/r17_integration/models/dp/config.py": "sha256:ba4122cfa251e051f1b3f7ac34f1ba04bb0aee67a6c875e90909764335f3502d",
+                "exp/r17_integration/models/dp/key_builder.py": "sha256:7f9330a87682c28c3ebcdc5305f3b073d5bf78cc463486208a57f2754c029330",
+                "exp/r17_integration/models/dp/loader.py": "sha256:6d97ee1d862a15fffff2ecdf7f473f6c347ab4c034cf52e5a53e6d9d8aaae23c",
+                "exp/r17_integration/models/dp/manifest.py": "sha256:70dc03e58bca50fa22eb286a21e81790fb00254d7351c96474b081d2b2ff3575",
+                "exp/r17_integration/models/dp/normalization.py": "sha256:5a38bf8755b444da917c5b567e669405d5bb6d58b271b940de48055fae456d06",
+                "exp/r17_integration/models/dp/protocols.py": "sha256:04b16028b6574624c079cba34b65d8b30d5891a75b29901d09dab8914d6843ba",
+                "exp/r17_integration/models/dp/request_noise.py": "sha256:cab13e2439c74e4c1844bfc5cb82087fac4ecab4002458eb74a04c2403d1893e",
+                "exp/r17_integration/models/dp/sampler.py": "sha256:277f56f9b184b0602976a8c8f13b94881df495efd7bf8e5002c76f7dfebb7962",
+                "exp/r17_integration/models/dp/staged.py": "sha256:597219bb1e0eb933ec9de711450da56c3ec4cf3bb93402e37a5083ac58563430"
+              },
+              "resident_checkpoint": "sha256:bd1dd4c1b2e1bfbb4c660ed8ec0a50362f461dc8a631c16edfa9d3097879d0c5",
+              "resident_code": "sha256:6536008be9eb5f64188af8636a6b0a255c004adf6e418d6e0b976b6a362316d5",
+              "teacher_manifest": "/data/r17_library/dp_libero_libero_spatial/campaigns/teacher_dp_libero_libero_spatial_500_20261010_000311_bdd4f22f/assets/model_manifest.json",
+              "teacher_manifest_sha256": "sha256:760ca2aded9bf03dbe60a9a05110eb53ace2f6b921339a57731f78df04a8adb9",
+              "teacher_staged_sha256": "sha256:07a32591d44d299f55dfa0749eb85e5400c6a90797b4b4163e7d757cc0b93e6e",
+              "weight_language_norm_assets": {
+                "CLIP/config.json": "sha256:825481e895a6809b9c1e2c07bb856f70aed360484eda9172be6fecc235293666",
+                "CLIP/merges.txt": "sha256:9fd691f7c8039210e0fced15865466c65820d09b63988b0174bfe25de299051a",
+                "CLIP/model.safetensors": "sha256:dae0eabbb1fd83756ed9dd893c17ff2f6825c98555a1e1b96154e2df0739b9e2",
+                "CLIP/special_tokens_map.json": "sha256:2cdb3b8331a60c92fc1e55a13e9fd61fd2293c5a51275fdcccd62b780052530e",
+                "CLIP/tokenizer.json": "sha256:43d4281659ce30b6aca2c7485944b3d73925bb7f87c7234daf3b6b094a6d618c",
+                "CLIP/tokenizer_config.json": "sha256:39bae5313c2da6467866dee758e754d69f0e302a875027b142531cb9c51c7c28",
+                "CLIP/vocab.json": "sha256:5047b556ce86ccaf6aa22b3ffccfc52d391ea4accdab9c2f2407da5b742d4363",
+                "DP_weights": "sha256:e460ae1e705b8f9c071f481ac33a8da7ceb56faa8aa9f83752ca3a6736acd269",
+                "E_metadata": "sha256:1f1b4b87efe8d5b1edc12a5baa4f80fa1a178349cd502a269196721b5f3ce54f",
+                "norm_stats.json": "sha256:e11dc658688b5e688ad36dd4df8a0a36510d953d1707dd4b547bdaab72679a60"
+              }
+            },
+            "protocol_bridge": true,
+            "resident_identity": "46ade92303799c37832281561c3d3fbd98563294e51dc15f09ec25042cf9b03c",
+            "schema": "r17.teacher_compatibility.v1",
+            "status": "PASS",
+            "teacher_identity": "c5bf107353c6cbde909cc924f74dbf86802aa1147d682938d2d4c65620c66758"
+          }
+        },
+        {
+          "actual_nfe": 0,
+          "commit": 5,
+          "corrector_enabled": true,
+          "fitted_path": "/data/mw_finetune/eval/mps_dp_libero_1010_164432_2c1f7e32/assets/cache_inputs/libero_spatial/C5/fit",
+          "group": "crg",
+          "library_rows": 12028,
+          "miss_mode": "stall_only",
+          "stage_calls": [
+            1,
+            0,
+            0
+          ],
+          "stall_status": {
+            "K": 5,
+            "W": 2,
+            "a10": null,
+            "delta_hat": null,
+            "e90": null,
+            "reason": "warming_up",
+            "reference_episodes": 38,
+            "state": "inactive",
+            "window_span": 0
+          },
+          "teacher_compatibility": {
+            "batch_numeric_policy": "owner-admitted matched R2/B8/5ms/MPS; SR remains campaign-qualified",
+            "byte_identical_native_producers": true,
+            "evidence": {
+              "dependencies": {
+                "diffusers": "0.37.1",
+                "numpy": "1.26.4",
+                "safetensors": "0.7.0",
+                "torch": "2.7.1",
+                "torchvision": "0.22.1",
+                "transformers": "4.53.2"
+              },
+              "evidence_scope": "Exact E feature/action/preprocessing/normalization bytes and native 475 weights; current B1 staged producer bound to CPU native-reference regression, vector numeric equivalence separately qualified; no SR claim",
+              "producer_sources": {
+                "exp/mw_finetune/dp/RECIPE.md": "sha256:b128adcdc01b3758bf970829d4ea031e69e54bca77110473d6bfa89ef5f700db",
+                "exp/mw_finetune/dp/checkpoint.py": "sha256:c4a95d3f476dd21d83b7867f626eced40fb4d6674bfc8377a8913e95ff1a0544",
+                "exp/mw_finetune/dp/model.py": "sha256:e8570dd11fe4402b533f3669e32b3117dd9a0264320322e1e9b3ef0fd7b105e9",
+                "exp/mw_finetune/dp/policy.py": "sha256:aa0ad73351b6ee353b0ca5408247e8827e40138e147bcc5cd48c83f88fdd32ac",
+                "exp/mw_finetune/dp/preprocess.py": "sha256:fb8d0d62bd3c74675116b20f00cef7cacd5290e488afcd5c27eba3a0ced5d12d",
+                "exp/mw_finetune/dp/vendor/module_attr_mixin.py": "sha256:658dececa20f7628960fc1a8db89e4be3693e1bba47f63d1ff8a4faa2d481e45",
+                "exp/mw_finetune/dp/vendor/positional_embedding.py": "sha256:2266c75ecc9c9ac8ca126839d39a7bafbdd7af8800d6de903f66815e64cc366c",
+                "exp/mw_finetune/dp/vendor/transformer.py": "sha256:516e8626408b4329a3accb89bf5c0da06fb4df486bf2d520b82ee81f35891351",
+                "exp/r17_integration/common/contracts.py": "sha256:db72207d1762c8d904ffe5e9695ab1ec54b4a1ca73402ad4b0e243d5d9bb9737",
+                "exp/r17_integration/common/request_rng.py": "sha256:e6f1e5c13c2bd8f9d2f4aae688ab6639d0400a45be9a5bcb5af95a0ae29f85dd",
+                "exp/r17_integration/models/dp/config.py": "sha256:ba4122cfa251e051f1b3f7ac34f1ba04bb0aee67a6c875e90909764335f3502d",
+                "exp/r17_integration/models/dp/key_builder.py": "sha256:7f9330a87682c28c3ebcdc5305f3b073d5bf78cc463486208a57f2754c029330",
+                "exp/r17_integration/models/dp/loader.py": "sha256:6d97ee1d862a15fffff2ecdf7f473f6c347ab4c034cf52e5a53e6d9d8aaae23c",
+                "exp/r17_integration/models/dp/manifest.py": "sha256:70dc03e58bca50fa22eb286a21e81790fb00254d7351c96474b081d2b2ff3575",
+                "exp/r17_integration/models/dp/normalization.py": "sha256:5a38bf8755b444da917c5b567e669405d5bb6d58b271b940de48055fae456d06",
+                "exp/r17_integration/models/dp/protocols.py": "sha256:04b16028b6574624c079cba34b65d8b30d5891a75b29901d09dab8914d6843ba",
+                "exp/r17_integration/models/dp/request_noise.py": "sha256:cab13e2439c74e4c1844bfc5cb82087fac4ecab4002458eb74a04c2403d1893e",
+                "exp/r17_integration/models/dp/sampler.py": "sha256:277f56f9b184b0602976a8c8f13b94881df495efd7bf8e5002c76f7dfebb7962",
+                "exp/r17_integration/models/dp/staged.py": "sha256:597219bb1e0eb933ec9de711450da56c3ec4cf3bb93402e37a5083ac58563430"
+              },
+              "resident_checkpoint": "sha256:bd1dd4c1b2e1bfbb4c660ed8ec0a50362f461dc8a631c16edfa9d3097879d0c5",
+              "resident_code": "sha256:6536008be9eb5f64188af8636a6b0a255c004adf6e418d6e0b976b6a362316d5",
+              "teacher_manifest": "/data/r17_library/dp_libero_libero_spatial/campaigns/teacher_dp_libero_libero_spatial_500_20261010_000311_bdd4f22f/assets/model_manifest.json",
+              "teacher_manifest_sha256": "sha256:760ca2aded9bf03dbe60a9a05110eb53ace2f6b921339a57731f78df04a8adb9",
+              "teacher_staged_sha256": "sha256:07a32591d44d299f55dfa0749eb85e5400c6a90797b4b4163e7d757cc0b93e6e",
+              "weight_language_norm_assets": {
+                "CLIP/config.json": "sha256:825481e895a6809b9c1e2c07bb856f70aed360484eda9172be6fecc235293666",
+                "CLIP/merges.txt": "sha256:9fd691f7c8039210e0fced15865466c65820d09b63988b0174bfe25de299051a",
+                "CLIP/model.safetensors": "sha256:dae0eabbb1fd83756ed9dd893c17ff2f6825c98555a1e1b96154e2df0739b9e2",
+                "CLIP/special_tokens_map.json": "sha256:2cdb3b8331a60c92fc1e55a13e9fd61fd2293c5a51275fdcccd62b780052530e",
+                "CLIP/tokenizer.json": "sha256:43d4281659ce30b6aca2c7485944b3d73925bb7f87c7234daf3b6b094a6d618c",
+                "CLIP/tokenizer_config.json": "sha256:39bae5313c2da6467866dee758e754d69f0e302a875027b142531cb9c51c7c28",
+                "CLIP/vocab.json": "sha256:5047b556ce86ccaf6aa22b3ffccfc52d391ea4accdab9c2f2407da5b742d4363",
+                "DP_weights": "sha256:e460ae1e705b8f9c071f481ac33a8da7ceb56faa8aa9f83752ca3a6736acd269",
+                "E_metadata": "sha256:1f1b4b87efe8d5b1edc12a5baa4f80fa1a178349cd502a269196721b5f3ce54f",
+                "norm_stats.json": "sha256:e11dc658688b5e688ad36dd4df8a0a36510d953d1707dd4b547bdaab72679a60"
+              }
+            },
+            "protocol_bridge": true,
+            "resident_identity": "46ade92303799c37832281561c3d3fbd98563294e51dc15f09ec25042cf9b03c",
+            "schema": "r17.teacher_compatibility.v1",
+            "status": "PASS",
+            "teacher_identity": "c5bf107353c6cbde909cc924f74dbf86802aa1147d682938d2d4c65620c66758"
+          }
+        },
+        {
+          "actual_nfe": 0,
+          "commit": 10,
+          "corrector_enabled": false,
+          "fitted_path": "/data/mw_finetune/eval/mps_dp_libero_1010_164432_2c1f7e32/assets/cache_inputs/libero_spatial/C10/fit",
+          "group": "chg",
+          "library_rows": 12028,
+          "miss_mode": "stall_only",
+          "stage_calls": [
+            1,
+            0,
+            0
+          ],
+          "stall_status": {
+            "K": 5,
+            "W": 2,
+            "a10": null,
+            "delta_hat": null,
+            "e90": null,
+            "reason": "warming_up",
+            "reference_episodes": 38,
+            "state": "inactive",
+            "window_span": 0
+          },
+          "teacher_compatibility": {
+            "batch_numeric_policy": "owner-admitted matched R2/B8/5ms/MPS; SR remains campaign-qualified",
+            "byte_identical_native_producers": true,
+            "evidence": {
+              "dependencies": {
+                "diffusers": "0.37.1",
+                "numpy": "1.26.4",
+                "safetensors": "0.7.0",
+                "torch": "2.7.1",
+                "torchvision": "0.22.1",
+                "transformers": "4.53.2"
+              },
+              "evidence_scope": "Exact E feature/action/preprocessing/normalization bytes and native 475 weights; current B1 staged producer bound to CPU native-reference regression, vector numeric equivalence separately qualified; no SR claim",
+              "producer_sources": {
+                "exp/mw_finetune/dp/RECIPE.md": "sha256:b128adcdc01b3758bf970829d4ea031e69e54bca77110473d6bfa89ef5f700db",
+                "exp/mw_finetune/dp/checkpoint.py": "sha256:c4a95d3f476dd21d83b7867f626eced40fb4d6674bfc8377a8913e95ff1a0544",
+                "exp/mw_finetune/dp/model.py": "sha256:e8570dd11fe4402b533f3669e32b3117dd9a0264320322e1e9b3ef0fd7b105e9",
+                "exp/mw_finetune/dp/policy.py": "sha256:aa0ad73351b6ee353b0ca5408247e8827e40138e147bcc5cd48c83f88fdd32ac",
+                "exp/mw_finetune/dp/preprocess.py": "sha256:fb8d0d62bd3c74675116b20f00cef7cacd5290e488afcd5c27eba3a0ced5d12d",
+                "exp/mw_finetune/dp/vendor/module_attr_mixin.py": "sha256:658dececa20f7628960fc1a8db89e4be3693e1bba47f63d1ff8a4faa2d481e45",
+                "exp/mw_finetune/dp/vendor/positional_embedding.py": "sha256:2266c75ecc9c9ac8ca126839d39a7bafbdd7af8800d6de903f66815e64cc366c",
+                "exp/mw_finetune/dp/vendor/transformer.py": "sha256:516e8626408b4329a3accb89bf5c0da06fb4df486bf2d520b82ee81f35891351",
+                "exp/r17_integration/common/contracts.py": "sha256:db72207d1762c8d904ffe5e9695ab1ec54b4a1ca73402ad4b0e243d5d9bb9737",
+                "exp/r17_integration/common/request_rng.py": "sha256:e6f1e5c13c2bd8f9d2f4aae688ab6639d0400a45be9a5bcb5af95a0ae29f85dd",
+                "exp/r17_integration/models/dp/config.py": "sha256:ba4122cfa251e051f1b3f7ac34f1ba04bb0aee67a6c875e90909764335f3502d",
+                "exp/r17_integration/models/dp/key_builder.py": "sha256:7f9330a87682c28c3ebcdc5305f3b073d5bf78cc463486208a57f2754c029330",
+                "exp/r17_integration/models/dp/loader.py": "sha256:6d97ee1d862a15fffff2ecdf7f473f6c347ab4c034cf52e5a53e6d9d8aaae23c",
+                "exp/r17_integration/models/dp/manifest.py": "sha256:70dc03e58bca50fa22eb286a21e81790fb00254d7351c96474b081d2b2ff3575",
+                "exp/r17_integration/models/dp/normalization.py": "sha256:5a38bf8755b444da917c5b567e669405d5bb6d58b271b940de48055fae456d06",
+                "exp/r17_integration/models/dp/protocols.py": "sha256:04b16028b6574624c079cba34b65d8b30d5891a75b29901d09dab8914d6843ba",
+                "exp/r17_integration/models/dp/request_noise.py": "sha256:cab13e2439c74e4c1844bfc5cb82087fac4ecab4002458eb74a04c2403d1893e",
+                "exp/r17_integration/models/dp/sampler.py": "sha256:277f56f9b184b0602976a8c8f13b94881df495efd7bf8e5002c76f7dfebb7962",
+                "exp/r17_integration/models/dp/staged.py": "sha256:597219bb1e0eb933ec9de711450da56c3ec4cf3bb93402e37a5083ac58563430"
+              },
+              "resident_checkpoint": "sha256:bd1dd4c1b2e1bfbb4c660ed8ec0a50362f461dc8a631c16edfa9d3097879d0c5",
+              "resident_code": "sha256:6536008be9eb5f64188af8636a6b0a255c004adf6e418d6e0b976b6a362316d5",
+              "teacher_manifest": "/data/r17_library/dp_libero_libero_spatial/campaigns/teacher_dp_libero_libero_spatial_500_20261010_000311_bdd4f22f/assets/model_manifest.json",
+              "teacher_manifest_sha256": "sha256:760ca2aded9bf03dbe60a9a05110eb53ace2f6b921339a57731f78df04a8adb9",
+              "teacher_staged_sha256": "sha256:07a32591d44d299f55dfa0749eb85e5400c6a90797b4b4163e7d757cc0b93e6e",
+              "weight_language_norm_assets": {
+                "CLIP/config.json": "sha256:825481e895a6809b9c1e2c07bb856f70aed360484eda9172be6fecc235293666",
+                "CLIP/merges.txt": "sha256:9fd691f7c8039210e0fced15865466c65820d09b63988b0174bfe25de299051a",
+                "CLIP/model.safetensors": "sha256:dae0eabbb1fd83756ed9dd893c17ff2f6825c98555a1e1b96154e2df0739b9e2",
+                "CLIP/special_tokens_map.json": "sha256:2cdb3b8331a60c92fc1e55a13e9fd61fd2293c5a51275fdcccd62b780052530e",
+                "CLIP/tokenizer.json": "sha256:43d4281659ce30b6aca2c7485944b3d73925bb7f87c7234daf3b6b094a6d618c",
+                "CLIP/tokenizer_config.json": "sha256:39bae5313c2da6467866dee758e754d69f0e302a875027b142531cb9c51c7c28",
+                "CLIP/vocab.json": "sha256:5047b556ce86ccaf6aa22b3ffccfc52d391ea4accdab9c2f2407da5b742d4363",
+                "DP_weights": "sha256:e460ae1e705b8f9c071f481ac33a8da7ceb56faa8aa9f83752ca3a6736acd269",
+                "E_metadata": "sha256:1f1b4b87efe8d5b1edc12a5baa4f80fa1a178349cd502a269196721b5f3ce54f",
+                "norm_stats.json": "sha256:e11dc658688b5e688ad36dd4df8a0a36510d953d1707dd4b547bdaab72679a60"
+              }
+            },
+            "protocol_bridge": true,
+            "resident_identity": "46ade92303799c37832281561c3d3fbd98563294e51dc15f09ec25042cf9b03c",
+            "schema": "r17.teacher_compatibility.v1",
+            "status": "PASS",
+            "teacher_identity": "c5bf107353c6cbde909cc924f74dbf86802aa1147d682938d2d4c65620c66758"
+          }
+        },
+        {
+          "actual_nfe": 0,
+          "commit": 10,
+          "corrector_enabled": true,
+          "fitted_path": "/data/mw_finetune/eval/mps_dp_libero_1010_164432_2c1f7e32/assets/cache_inputs/libero_spatial/C10/fit",
+          "group": "chrg",
+          "library_rows": 12028,
+          "miss_mode": "stall_only",
+          "stage_calls": [
+            1,
+            0,
+            0
+          ],
+          "stall_status": {
+            "K": 5,
+            "W": 2,
+            "a10": null,
+            "delta_hat": null,
+            "e90": null,
+            "reason": "warming_up",
+            "reference_episodes": 38,
+            "state": "inactive",
+            "window_span": 0
+          },
+          "teacher_compatibility": {
+            "batch_numeric_policy": "owner-admitted matched R2/B8/5ms/MPS; SR remains campaign-qualified",
+            "byte_identical_native_producers": true,
+            "evidence": {
+              "dependencies": {
+                "diffusers": "0.37.1",
+                "numpy": "1.26.4",
+                "safetensors": "0.7.0",
+                "torch": "2.7.1",
+                "torchvision": "0.22.1",
+                "transformers": "4.53.2"
+              },
+              "evidence_scope": "Exact E feature/action/preprocessing/normalization bytes and native 475 weights; current B1 staged producer bound to CPU native-reference regression, vector numeric equivalence separately qualified; no SR claim",
+              "producer_sources": {
+                "exp/mw_finetune/dp/RECIPE.md": "sha256:b128adcdc01b3758bf970829d4ea031e69e54bca77110473d6bfa89ef5f700db",
+                "exp/mw_finetune/dp/checkpoint.py": "sha256:c4a95d3f476dd21d83b7867f626eced40fb4d6674bfc8377a8913e95ff1a0544",
+                "exp/mw_finetune/dp/model.py": "sha256:e8570dd11fe4402b533f3669e32b3117dd9a0264320322e1e9b3ef0fd7b105e9",
+                "exp/mw_finetune/dp/policy.py": "sha256:aa0ad73351b6ee353b0ca5408247e8827e40138e147bcc5cd48c83f88fdd32ac",
+                "exp/mw_finetune/dp/preprocess.py": "sha256:fb8d0d62bd3c74675116b20f00cef7cacd5290e488afcd5c27eba3a0ced5d12d",
+                "exp/mw_finetune/dp/vendor/module_attr_mixin.py": "sha256:658dececa20f7628960fc1a8db89e4be3693e1bba47f63d1ff8a4faa2d481e45",
+                "exp/mw_finetune/dp/vendor/positional_embedding.py": "sha256:2266c75ecc9c9ac8ca126839d39a7bafbdd7af8800d6de903f66815e64cc366c",
+                "exp/mw_finetune/dp/vendor/transformer.py": "sha256:516e8626408b4329a3accb89bf5c0da06fb4df486bf2d520b82ee81f35891351",
+                "exp/r17_integration/common/contracts.py": "sha256:db72207d1762c8d904ffe5e9695ab1ec54b4a1ca73402ad4b0e243d5d9bb9737",
+                "exp/r17_integration/common/request_rng.py": "sha256:e6f1e5c13c2bd8f9d2f4aae688ab6639d0400a45be9a5bcb5af95a0ae29f85dd",
+                "exp/r17_integration/models/dp/config.py": "sha256:ba4122cfa251e051f1b3f7ac34f1ba04bb0aee67a6c875e90909764335f3502d",
+                "exp/r17_integration/models/dp/key_builder.py": "sha256:7f9330a87682c28c3ebcdc5305f3b073d5bf78cc463486208a57f2754c029330",
+                "exp/r17_integration/models/dp/loader.py": "sha256:6d97ee1d862a15fffff2ecdf7f473f6c347ab4c034cf52e5a53e6d9d8aaae23c",
+                "exp/r17_integration/models/dp/manifest.py": "sha256:70dc03e58bca50fa22eb286a21e81790fb00254d7351c96474b081d2b2ff3575",
+                "exp/r17_integration/models/dp/normalization.py": "sha256:5a38bf8755b444da917c5b567e669405d5bb6d58b271b940de48055fae456d06",
+                "exp/r17_integration/models/dp/protocols.py": "sha256:04b16028b6574624c079cba34b65d8b30d5891a75b29901d09dab8914d6843ba",
+                "exp/r17_integration/models/dp/request_noise.py": "sha256:cab13e2439c74e4c1844bfc5cb82087fac4ecab4002458eb74a04c2403d1893e",
+                "exp/r17_integration/models/dp/sampler.py": "sha256:277f56f9b184b0602976a8c8f13b94881df495efd7bf8e5002c76f7dfebb7962",
+                "exp/r17_integration/models/dp/staged.py": "sha256:597219bb1e0eb933ec9de711450da56c3ec4cf3bb93402e37a5083ac58563430"
+              },
+              "resident_checkpoint": "sha256:bd1dd4c1b2e1bfbb4c660ed8ec0a50362f461dc8a631c16edfa9d3097879d0c5",
+              "resident_code": "sha256:6536008be9eb5f64188af8636a6b0a255c004adf6e418d6e0b976b6a362316d5",
+              "teacher_manifest": "/data/r17_library/dp_libero_libero_spatial/campaigns/teacher_dp_libero_libero_spatial_500_20261010_000311_bdd4f22f/assets/model_manifest.json",
+              "teacher_manifest_sha256": "sha256:760ca2aded9bf03dbe60a9a05110eb53ace2f6b921339a57731f78df04a8adb9",
+              "teacher_staged_sha256": "sha256:07a32591d44d299f55dfa0749eb85e5400c6a90797b4b4163e7d757cc0b93e6e",
+              "weight_language_norm_assets": {
+                "CLIP/config.json": "sha256:825481e895a6809b9c1e2c07bb856f70aed360484eda9172be6fecc235293666",
+                "CLIP/merges.txt": "sha256:9fd691f7c8039210e0fced15865466c65820d09b63988b0174bfe25de299051a",
+                "CLIP/model.safetensors": "sha256:dae0eabbb1fd83756ed9dd893c17ff2f6825c98555a1e1b96154e2df0739b9e2",
+                "CLIP/special_tokens_map.json": "sha256:2cdb3b8331a60c92fc1e55a13e9fd61fd2293c5a51275fdcccd62b780052530e",
+                "CLIP/tokenizer.json": "sha256:43d4281659ce30b6aca2c7485944b3d73925bb7f87c7234daf3b6b094a6d618c",
+                "CLIP/tokenizer_config.json": "sha256:39bae5313c2da6467866dee758e754d69f0e302a875027b142531cb9c51c7c28",
+                "CLIP/vocab.json": "sha256:5047b556ce86ccaf6aa22b3ffccfc52d391ea4accdab9c2f2407da5b742d4363",
+                "DP_weights": "sha256:e460ae1e705b8f9c071f481ac33a8da7ceb56faa8aa9f83752ca3a6736acd269",
+                "E_metadata": "sha256:1f1b4b87efe8d5b1edc12a5baa4f80fa1a178349cd502a269196721b5f3ce54f",
+                "norm_stats.json": "sha256:e11dc658688b5e688ad36dd4df8a0a36510d953d1707dd4b547bdaab72679a60"
+              }
+            },
+            "protocol_bridge": true,
+            "resident_identity": "46ade92303799c37832281561c3d3fbd98563294e51dc15f09ec25042cf9b03c",
+            "schema": "r17.teacher_compatibility.v1",
+            "status": "PASS",
+            "teacher_identity": "c5bf107353c6cbde909cc924f74dbf86802aa1147d682938d2d4c65620c66758"
+          }
+        }
+      ],
+      "images_shape": [
+        256,
+        256,
+        3
+      ],
+      "native_DDPM100_wire_exact": true,
+      "native_conditioning_exact": true,
+      "native_output_transform_exact": true,
+      "paired_real_views": true,
+      "sampled_real_row": "0ef89ce387927805d7740343463fbcb31c7e3d175d11e376ef64d759485ceebf",
+      "serving_protocol": "87e3a7dce0d452269383ea20c144848987c393df7bde4c22628abf8a084f21bf",
+      "source_protocol": "589fd0293f29d91fe3f011121b5855d550b9d06288ee67ce12aeae50e0d3afd0",
+      "stored_GPU_vs_CPU_key_max_abs": {
+        "robot_state": 0.0,
+        "vision_0": 0.000744163990020752,
+        "vision_1": 0.0008897185325622559
+      },
+      "suite": "libero_spatial",
+      "view_digest": "44ea45d9a2e1e6081e72fb198fb8e8801b25e732a00349832028353cfaf2bfa6"
+    },
+    {
+      "groups": [
+        {
+          "actual_nfe": 0,
+          "commit": 5,
+          "corrector_enabled": false,
+          "fitted_path": "/data/mw_finetune/eval/mps_dp_libero_1010_164432_2c1f7e32/assets/cache_inputs/libero_10/C5/fit",
+          "group": "c",
+          "library_rows": 31546,
+          "miss_mode": "never",
+          "stage_calls": [
+            1,
+            0,
+            0
+          ],
+          "stall_status": {
+            "state": "disabled"
+          },
+          "teacher_compatibility": {
+            "batch_numeric_policy": "owner-admitted matched R2/B8/5ms/MPS; SR remains campaign-qualified",
+            "byte_identical_native_producers": true,
+            "evidence": {
+              "dependencies": {
+                "diffusers": "0.37.1",
+                "numpy": "1.26.4",
+                "safetensors": "0.7.0",
+                "torch": "2.7.1",
+                "torchvision": "0.22.1",
+                "transformers": "4.53.2"
+              },
+              "evidence_scope": "Exact E feature/action/preprocessing/normalization bytes and native 475 weights; current B1 staged producer bound to CPU native-reference regression, vector numeric equivalence separately qualified; no SR claim",
+              "producer_sources": {
+                "exp/mw_finetune/dp/RECIPE.md": "sha256:b128adcdc01b3758bf970829d4ea031e69e54bca77110473d6bfa89ef5f700db",
+                "exp/mw_finetune/dp/checkpoint.py": "sha256:c4a95d3f476dd21d83b7867f626eced40fb4d6674bfc8377a8913e95ff1a0544",
+                "exp/mw_finetune/dp/model.py": "sha256:e8570dd11fe4402b533f3669e32b3117dd9a0264320322e1e9b3ef0fd7b105e9",
+                "exp/mw_finetune/dp/policy.py": "sha256:aa0ad73351b6ee353b0ca5408247e8827e40138e147bcc5cd48c83f88fdd32ac",
+                "exp/mw_finetune/dp/preprocess.py": "sha256:fb8d0d62bd3c74675116b20f00cef7cacd5290e488afcd5c27eba3a0ced5d12d",
+                "exp/mw_finetune/dp/vendor/module_attr_mixin.py": "sha256:658dececa20f7628960fc1a8db89e4be3693e1bba47f63d1ff8a4faa2d481e45",
+                "exp/mw_finetune/dp/vendor/positional_embedding.py": "sha256:2266c75ecc9c9ac8ca126839d39a7bafbdd7af8800d6de903f66815e64cc366c",
+                "exp/mw_finetune/dp/vendor/transformer.py": "sha256:516e8626408b4329a3accb89bf5c0da06fb4df486bf2d520b82ee81f35891351",
+                "exp/r17_integration/common/contracts.py": "sha256:db72207d1762c8d904ffe5e9695ab1ec54b4a1ca73402ad4b0e243d5d9bb9737",
+                "exp/r17_integration/common/request_rng.py": "sha256:e6f1e5c13c2bd8f9d2f4aae688ab6639d0400a45be9a5bcb5af95a0ae29f85dd",
+                "exp/r17_integration/models/dp/config.py": "sha256:ba4122cfa251e051f1b3f7ac34f1ba04bb0aee67a6c875e90909764335f3502d",
+                "exp/r17_integration/models/dp/key_builder.py": "sha256:7f9330a87682c28c3ebcdc5305f3b073d5bf78cc463486208a57f2754c029330",
+                "exp/r17_integration/models/dp/loader.py": "sha256:6d97ee1d862a15fffff2ecdf7f473f6c347ab4c034cf52e5a53e6d9d8aaae23c",
+                "exp/r17_integration/models/dp/manifest.py": "sha256:70dc03e58bca50fa22eb286a21e81790fb00254d7351c96474b081d2b2ff3575",
+                "exp/r17_integration/models/dp/normalization.py": "sha256:5a38bf8755b444da917c5b567e669405d5bb6d58b271b940de48055fae456d06",
+                "exp/r17_integration/models/dp/protocols.py": "sha256:04b16028b6574624c079cba34b65d8b30d5891a75b29901d09dab8914d6843ba",
+                "exp/r17_integration/models/dp/request_noise.py": "sha256:cab13e2439c74e4c1844bfc5cb82087fac4ecab4002458eb74a04c2403d1893e",
+                "exp/r17_integration/models/dp/sampler.py": "sha256:277f56f9b184b0602976a8c8f13b94881df495efd7bf8e5002c76f7dfebb7962",
+                "exp/r17_integration/models/dp/staged.py": "sha256:597219bb1e0eb933ec9de711450da56c3ec4cf3bb93402e37a5083ac58563430"
+              },
+              "resident_checkpoint": "sha256:bd1dd4c1b2e1bfbb4c660ed8ec0a50362f461dc8a631c16edfa9d3097879d0c5",
+              "resident_code": "sha256:6536008be9eb5f64188af8636a6b0a255c004adf6e418d6e0b976b6a362316d5",
+              "teacher_manifest": "/data/r17_library/dp_libero_libero_spatial/campaigns/teacher_dp_libero_libero_spatial_500_20261010_000311_bdd4f22f/assets/model_manifest.json",
+              "teacher_manifest_sha256": "sha256:760ca2aded9bf03dbe60a9a05110eb53ace2f6b921339a57731f78df04a8adb9",
+              "teacher_staged_sha256": "sha256:07a32591d44d299f55dfa0749eb85e5400c6a90797b4b4163e7d757cc0b93e6e",
+              "weight_language_norm_assets": {
+                "CLIP/config.json": "sha256:825481e895a6809b9c1e2c07bb856f70aed360484eda9172be6fecc235293666",
+                "CLIP/merges.txt": "sha256:9fd691f7c8039210e0fced15865466c65820d09b63988b0174bfe25de299051a",
+                "CLIP/model.safetensors": "sha256:dae0eabbb1fd83756ed9dd893c17ff2f6825c98555a1e1b96154e2df0739b9e2",
+                "CLIP/special_tokens_map.json": "sha256:2cdb3b8331a60c92fc1e55a13e9fd61fd2293c5a51275fdcccd62b780052530e",
+                "CLIP/tokenizer.json": "sha256:43d4281659ce30b6aca2c7485944b3d73925bb7f87c7234daf3b6b094a6d618c",
+                "CLIP/tokenizer_config.json": "sha256:39bae5313c2da6467866dee758e754d69f0e302a875027b142531cb9c51c7c28",
+                "CLIP/vocab.json": "sha256:5047b556ce86ccaf6aa22b3ffccfc52d391ea4accdab9c2f2407da5b742d4363",
+                "DP_weights": "sha256:e460ae1e705b8f9c071f481ac33a8da7ceb56faa8aa9f83752ca3a6736acd269",
+                "E_metadata": "sha256:1f1b4b87efe8d5b1edc12a5baa4f80fa1a178349cd502a269196721b5f3ce54f",
+                "norm_stats.json": "sha256:e11dc658688b5e688ad36dd4df8a0a36510d953d1707dd4b547bdaab72679a60"
+              }
+            },
+            "protocol_bridge": true,
+            "resident_identity": "46ade92303799c37832281561c3d3fbd98563294e51dc15f09ec25042cf9b03c",
+            "schema": "r17.teacher_compatibility.v1",
+            "status": "PASS",
+            "teacher_identity": "c5bf107353c6cbde909cc924f74dbf86802aa1147d682938d2d4c65620c66758"
+          }
+        },
+        {
+          "actual_nfe": 0,
+          "commit": 5,
+          "corrector_enabled": true,
+          "fitted_path": "/data/mw_finetune/eval/mps_dp_libero_1010_164432_2c1f7e32/assets/cache_inputs/libero_10/C5/fit",
+          "group": "cr",
+          "library_rows": 31546,
+          "miss_mode": "never",
+          "stage_calls": [
+            1,
+            0,
+            0
+          ],
+          "stall_status": {
+            "state": "disabled"
+          },
+          "teacher_compatibility": {
+            "batch_numeric_policy": "owner-admitted matched R2/B8/5ms/MPS; SR remains campaign-qualified",
+            "byte_identical_native_producers": true,
+            "evidence": {
+              "dependencies": {
+                "diffusers": "0.37.1",
+                "numpy": "1.26.4",
+                "safetensors": "0.7.0",
+                "torch": "2.7.1",
+                "torchvision": "0.22.1",
+                "transformers": "4.53.2"
+              },
+              "evidence_scope": "Exact E feature/action/preprocessing/normalization bytes and native 475 weights; current B1 staged producer bound to CPU native-reference regression, vector numeric equivalence separately qualified; no SR claim",
+              "producer_sources": {
+                "exp/mw_finetune/dp/RECIPE.md": "sha256:b128adcdc01b3758bf970829d4ea031e69e54bca77110473d6bfa89ef5f700db",
+                "exp/mw_finetune/dp/checkpoint.py": "sha256:c4a95d3f476dd21d83b7867f626eced40fb4d6674bfc8377a8913e95ff1a0544",
+                "exp/mw_finetune/dp/model.py": "sha256:e8570dd11fe4402b533f3669e32b3117dd9a0264320322e1e9b3ef0fd7b105e9",
+                "exp/mw_finetune/dp/policy.py": "sha256:aa0ad73351b6ee353b0ca5408247e8827e40138e147bcc5cd48c83f88fdd32ac",
+                "exp/mw_finetune/dp/preprocess.py": "sha256:fb8d0d62bd3c74675116b20f00cef7cacd5290e488afcd5c27eba3a0ced5d12d",
+                "exp/mw_finetune/dp/vendor/module_attr_mixin.py": "sha256:658dececa20f7628960fc1a8db89e4be3693e1bba47f63d1ff8a4faa2d481e45",
+                "exp/mw_finetune/dp/vendor/positional_embedding.py": "sha256:2266c75ecc9c9ac8ca126839d39a7bafbdd7af8800d6de903f66815e64cc366c",
+                "exp/mw_finetune/dp/vendor/transformer.py": "sha256:516e8626408b4329a3accb89bf5c0da06fb4df486bf2d520b82ee81f35891351",
+                "exp/r17_integration/common/contracts.py": "sha256:db72207d1762c8d904ffe5e9695ab1ec54b4a1ca73402ad4b0e243d5d9bb9737",
+                "exp/r17_integration/common/request_rng.py": "sha256:e6f1e5c13c2bd8f9d2f4aae688ab6639d0400a45be9a5bcb5af95a0ae29f85dd",
+                "exp/r17_integration/models/dp/config.py": "sha256:ba4122cfa251e051f1b3f7ac34f1ba04bb0aee67a6c875e90909764335f3502d",
+                "exp/r17_integration/models/dp/key_builder.py": "sha256:7f9330a87682c28c3ebcdc5305f3b073d5bf78cc463486208a57f2754c029330",
+                "exp/r17_integration/models/dp/loader.py": "sha256:6d97ee1d862a15fffff2ecdf7f473f6c347ab4c034cf52e5a53e6d9d8aaae23c",
+                "exp/r17_integration/models/dp/manifest.py": "sha256:70dc03e58bca50fa22eb286a21e81790fb00254d7351c96474b081d2b2ff3575",
+                "exp/r17_integration/models/dp/normalization.py": "sha256:5a38bf8755b444da917c5b567e669405d5bb6d58b271b940de48055fae456d06",
+                "exp/r17_integration/models/dp/protocols.py": "sha256:04b16028b6574624c079cba34b65d8b30d5891a75b29901d09dab8914d6843ba",
+                "exp/r17_integration/models/dp/request_noise.py": "sha256:cab13e2439c74e4c1844bfc5cb82087fac4ecab4002458eb74a04c2403d1893e",
+                "exp/r17_integration/models/dp/sampler.py": "sha256:277f56f9b184b0602976a8c8f13b94881df495efd7bf8e5002c76f7dfebb7962",
+                "exp/r17_integration/models/dp/staged.py": "sha256:597219bb1e0eb933ec9de711450da56c3ec4cf3bb93402e37a5083ac58563430"
+              },
+              "resident_checkpoint": "sha256:bd1dd4c1b2e1bfbb4c660ed8ec0a50362f461dc8a631c16edfa9d3097879d0c5",
+              "resident_code": "sha256:6536008be9eb5f64188af8636a6b0a255c004adf6e418d6e0b976b6a362316d5",
+              "teacher_manifest": "/data/r17_library/dp_libero_libero_spatial/campaigns/teacher_dp_libero_libero_spatial_500_20261010_000311_bdd4f22f/assets/model_manifest.json",
+              "teacher_manifest_sha256": "sha256:760ca2aded9bf03dbe60a9a05110eb53ace2f6b921339a57731f78df04a8adb9",
+              "teacher_staged_sha256": "sha256:07a32591d44d299f55dfa0749eb85e5400c6a90797b4b4163e7d757cc0b93e6e",
+              "weight_language_norm_assets": {
+                "CLIP/config.json": "sha256:825481e895a6809b9c1e2c07bb856f70aed360484eda9172be6fecc235293666",
+                "CLIP/merges.txt": "sha256:9fd691f7c8039210e0fced15865466c65820d09b63988b0174bfe25de299051a",
+                "CLIP/model.safetensors": "sha256:dae0eabbb1fd83756ed9dd893c17ff2f6825c98555a1e1b96154e2df0739b9e2",
+                "CLIP/special_tokens_map.json": "sha256:2cdb3b8331a60c92fc1e55a13e9fd61fd2293c5a51275fdcccd62b780052530e",
+                "CLIP/tokenizer.json": "sha256:43d4281659ce30b6aca2c7485944b3d73925bb7f87c7234daf3b6b094a6d618c",
+                "CLIP/tokenizer_config.json": "sha256:39bae5313c2da6467866dee758e754d69f0e302a875027b142531cb9c51c7c28",
+                "CLIP/vocab.json": "sha256:5047b556ce86ccaf6aa22b3ffccfc52d391ea4accdab9c2f2407da5b742d4363",
+                "DP_weights": "sha256:e460ae1e705b8f9c071f481ac33a8da7ceb56faa8aa9f83752ca3a6736acd269",
+                "E_metadata": "sha256:1f1b4b87efe8d5b1edc12a5baa4f80fa1a178349cd502a269196721b5f3ce54f",
+                "norm_stats.json": "sha256:e11dc658688b5e688ad36dd4df8a0a36510d953d1707dd4b547bdaab72679a60"
+              }
+            },
+            "protocol_bridge": true,
+            "resident_identity": "46ade92303799c37832281561c3d3fbd98563294e51dc15f09ec25042cf9b03c",
+            "schema": "r17.teacher_compatibility.v1",
+            "status": "PASS",
+            "teacher_identity": "c5bf107353c6cbde909cc924f74dbf86802aa1147d682938d2d4c65620c66758"
+          }
+        },
+        {
+          "actual_nfe": 0,
+          "commit": 10,
+          "corrector_enabled": false,
+          "fitted_path": "/data/mw_finetune/eval/mps_dp_libero_1010_164432_2c1f7e32/assets/cache_inputs/libero_10/C10/fit",
+          "group": "ch",
+          "library_rows": 31546,
+          "miss_mode": "never",
+          "stage_calls": [
+            1,
+            0,
+            0
+          ],
+          "stall_status": {
+            "state": "disabled"
+          },
+          "teacher_compatibility": {
+            "batch_numeric_policy": "owner-admitted matched R2/B8/5ms/MPS; SR remains campaign-qualified",
+            "byte_identical_native_producers": true,
+            "evidence": {
+              "dependencies": {
+                "diffusers": "0.37.1",
+                "numpy": "1.26.4",
+                "safetensors": "0.7.0",
+                "torch": "2.7.1",
+                "torchvision": "0.22.1",
+                "transformers": "4.53.2"
+              },
+              "evidence_scope": "Exact E feature/action/preprocessing/normalization bytes and native 475 weights; current B1 staged producer bound to CPU native-reference regression, vector numeric equivalence separately qualified; no SR claim",
+              "producer_sources": {
+                "exp/mw_finetune/dp/RECIPE.md": "sha256:b128adcdc01b3758bf970829d4ea031e69e54bca77110473d6bfa89ef5f700db",
+                "exp/mw_finetune/dp/checkpoint.py": "sha256:c4a95d3f476dd21d83b7867f626eced40fb4d6674bfc8377a8913e95ff1a0544",
+                "exp/mw_finetune/dp/model.py": "sha256:e8570dd11fe4402b533f3669e32b3117dd9a0264320322e1e9b3ef0fd7b105e9",
+                "exp/mw_finetune/dp/policy.py": "sha256:aa0ad73351b6ee353b0ca5408247e8827e40138e147bcc5cd48c83f88fdd32ac",
+                "exp/mw_finetune/dp/preprocess.py": "sha256:fb8d0d62bd3c74675116b20f00cef7cacd5290e488afcd5c27eba3a0ced5d12d",
+                "exp/mw_finetune/dp/vendor/module_attr_mixin.py": "sha256:658dececa20f7628960fc1a8db89e4be3693e1bba47f63d1ff8a4faa2d481e45",
+                "exp/mw_finetune/dp/vendor/positional_embedding.py": "sha256:2266c75ecc9c9ac8ca126839d39a7bafbdd7af8800d6de903f66815e64cc366c",
+                "exp/mw_finetune/dp/vendor/transformer.py": "sha256:516e8626408b4329a3accb89bf5c0da06fb4df486bf2d520b82ee81f35891351",
+                "exp/r17_integration/common/contracts.py": "sha256:db72207d1762c8d904ffe5e9695ab1ec54b4a1ca73402ad4b0e243d5d9bb9737",
+                "exp/r17_integration/common/request_rng.py": "sha256:e6f1e5c13c2bd8f9d2f4aae688ab6639d0400a45be9a5bcb5af95a0ae29f85dd",
+                "exp/r17_integration/models/dp/config.py": "sha256:ba4122cfa251e051f1b3f7ac34f1ba04bb0aee67a6c875e90909764335f3502d",
+                "exp/r17_integration/models/dp/key_builder.py": "sha256:7f9330a87682c28c3ebcdc5305f3b073d5bf78cc463486208a57f2754c029330",
+                "exp/r17_integration/models/dp/loader.py": "sha256:6d97ee1d862a15fffff2ecdf7f473f6c347ab4c034cf52e5a53e6d9d8aaae23c",
+                "exp/r17_integration/models/dp/manifest.py": "sha256:70dc03e58bca50fa22eb286a21e81790fb00254d7351c96474b081d2b2ff3575",
+                "exp/r17_integration/models/dp/normalization.py": "sha256:5a38bf8755b444da917c5b567e669405d5bb6d58b271b940de48055fae456d06",
+                "exp/r17_integration/models/dp/protocols.py": "sha256:04b16028b6574624c079cba34b65d8b30d5891a75b29901d09dab8914d6843ba",
+                "exp/r17_integration/models/dp/request_noise.py": "sha256:cab13e2439c74e4c1844bfc5cb82087fac4ecab4002458eb74a04c2403d1893e",
+                "exp/r17_integration/models/dp/sampler.py": "sha256:277f56f9b184b0602976a8c8f13b94881df495efd7bf8e5002c76f7dfebb7962",
+                "exp/r17_integration/models/dp/staged.py": "sha256:597219bb1e0eb933ec9de711450da56c3ec4cf3bb93402e37a5083ac58563430"
+              },
+              "resident_checkpoint": "sha256:bd1dd4c1b2e1bfbb4c660ed8ec0a50362f461dc8a631c16edfa9d3097879d0c5",
+              "resident_code": "sha256:6536008be9eb5f64188af8636a6b0a255c004adf6e418d6e0b976b6a362316d5",
+              "teacher_manifest": "/data/r17_library/dp_libero_libero_spatial/campaigns/teacher_dp_libero_libero_spatial_500_20261010_000311_bdd4f22f/assets/model_manifest.json",
+              "teacher_manifest_sha256": "sha256:760ca2aded9bf03dbe60a9a05110eb53ace2f6b921339a57731f78df04a8adb9",
+              "teacher_staged_sha256": "sha256:07a32591d44d299f55dfa0749eb85e5400c6a90797b4b4163e7d757cc0b93e6e",
+              "weight_language_norm_assets": {
+                "CLIP/config.json": "sha256:825481e895a6809b9c1e2c07bb856f70aed360484eda9172be6fecc235293666",
+                "CLIP/merges.txt": "sha256:9fd691f7c8039210e0fced15865466c65820d09b63988b0174bfe25de299051a",
+                "CLIP/model.safetensors": "sha256:dae0eabbb1fd83756ed9dd893c17ff2f6825c98555a1e1b96154e2df0739b9e2",
+                "CLIP/special_tokens_map.json": "sha256:2cdb3b8331a60c92fc1e55a13e9fd61fd2293c5a51275fdcccd62b780052530e",
+                "CLIP/tokenizer.json": "sha256:43d4281659ce30b6aca2c7485944b3d73925bb7f87c7234daf3b6b094a6d618c",
+                "CLIP/tokenizer_config.json": "sha256:39bae5313c2da6467866dee758e754d69f0e302a875027b142531cb9c51c7c28",
+                "CLIP/vocab.json": "sha256:5047b556ce86ccaf6aa22b3ffccfc52d391ea4accdab9c2f2407da5b742d4363",
+                "DP_weights": "sha256:e460ae1e705b8f9c071f481ac33a8da7ceb56faa8aa9f83752ca3a6736acd269",
+                "E_metadata": "sha256:1f1b4b87efe8d5b1edc12a5baa4f80fa1a178349cd502a269196721b5f3ce54f",
+                "norm_stats.json": "sha256:e11dc658688b5e688ad36dd4df8a0a36510d953d1707dd4b547bdaab72679a60"
+              }
+            },
+            "protocol_bridge": true,
+            "resident_identity": "46ade92303799c37832281561c3d3fbd98563294e51dc15f09ec25042cf9b03c",
+            "schema": "r17.teacher_compatibility.v1",
+            "status": "PASS",
+            "teacher_identity": "c5bf107353c6cbde909cc924f74dbf86802aa1147d682938d2d4c65620c66758"
+          }
+        },
+        {
+          "actual_nfe": 0,
+          "commit": 10,
+          "corrector_enabled": true,
+          "fitted_path": "/data/mw_finetune/eval/mps_dp_libero_1010_164432_2c1f7e32/assets/cache_inputs/libero_10/C10/fit",
+          "group": "chr",
+          "library_rows": 31546,
+          "miss_mode": "never",
+          "stage_calls": [
+            1,
+            0,
+            0
+          ],
+          "stall_status": {
+            "state": "disabled"
+          },
+          "teacher_compatibility": {
+            "batch_numeric_policy": "owner-admitted matched R2/B8/5ms/MPS; SR remains campaign-qualified",
+            "byte_identical_native_producers": true,
+            "evidence": {
+              "dependencies": {
+                "diffusers": "0.37.1",
+                "numpy": "1.26.4",
+                "safetensors": "0.7.0",
+                "torch": "2.7.1",
+                "torchvision": "0.22.1",
+                "transformers": "4.53.2"
+              },
+              "evidence_scope": "Exact E feature/action/preprocessing/normalization bytes and native 475 weights; current B1 staged producer bound to CPU native-reference regression, vector numeric equivalence separately qualified; no SR claim",
+              "producer_sources": {
+                "exp/mw_finetune/dp/RECIPE.md": "sha256:b128adcdc01b3758bf970829d4ea031e69e54bca77110473d6bfa89ef5f700db",
+                "exp/mw_finetune/dp/checkpoint.py": "sha256:c4a95d3f476dd21d83b7867f626eced40fb4d6674bfc8377a8913e95ff1a0544",
+                "exp/mw_finetune/dp/model.py": "sha256:e8570dd11fe4402b533f3669e32b3117dd9a0264320322e1e9b3ef0fd7b105e9",
+                "exp/mw_finetune/dp/policy.py": "sha256:aa0ad73351b6ee353b0ca5408247e8827e40138e147bcc5cd48c83f88fdd32ac",
+                "exp/mw_finetune/dp/preprocess.py": "sha256:fb8d0d62bd3c74675116b20f00cef7cacd5290e488afcd5c27eba3a0ced5d12d",
+                "exp/mw_finetune/dp/vendor/module_attr_mixin.py": "sha256:658dececa20f7628960fc1a8db89e4be3693e1bba47f63d1ff8a4faa2d481e45",
+                "exp/mw_finetune/dp/vendor/positional_embedding.py": "sha256:2266c75ecc9c9ac8ca126839d39a7bafbdd7af8800d6de903f66815e64cc366c",
+                "exp/mw_finetune/dp/vendor/transformer.py": "sha256:516e8626408b4329a3accb89bf5c0da06fb4df486bf2d520b82ee81f35891351",
+                "exp/r17_integration/common/contracts.py": "sha256:db72207d1762c8d904ffe5e9695ab1ec54b4a1ca73402ad4b0e243d5d9bb9737",
+                "exp/r17_integration/common/request_rng.py": "sha256:e6f1e5c13c2bd8f9d2f4aae688ab6639d0400a45be9a5bcb5af95a0ae29f85dd",
+                "exp/r17_integration/models/dp/config.py": "sha256:ba4122cfa251e051f1b3f7ac34f1ba04bb0aee67a6c875e90909764335f3502d",
+                "exp/r17_integration/models/dp/key_builder.py": "sha256:7f9330a87682c28c3ebcdc5305f3b073d5bf78cc463486208a57f2754c029330",
+                "exp/r17_integration/models/dp/loader.py": "sha256:6d97ee1d862a15fffff2ecdf7f473f6c347ab4c034cf52e5a53e6d9d8aaae23c",
+                "exp/r17_integration/models/dp/manifest.py": "sha256:70dc03e58bca50fa22eb286a21e81790fb00254d7351c96474b081d2b2ff3575",
+                "exp/r17_integration/models/dp/normalization.py": "sha256:5a38bf8755b444da917c5b567e669405d5bb6d58b271b940de48055fae456d06",
+                "exp/r17_integration/models/dp/protocols.py": "sha256:04b16028b6574624c079cba34b65d8b30d5891a75b29901d09dab8914d6843ba",
+                "exp/r17_integration/models/dp/request_noise.py": "sha256:cab13e2439c74e4c1844bfc5cb82087fac4ecab4002458eb74a04c2403d1893e",
+                "exp/r17_integration/models/dp/sampler.py": "sha256:277f56f9b184b0602976a8c8f13b94881df495efd7bf8e5002c76f7dfebb7962",
+                "exp/r17_integration/models/dp/staged.py": "sha256:597219bb1e0eb933ec9de711450da56c3ec4cf3bb93402e37a5083ac58563430"
+              },
+              "resident_checkpoint": "sha256:bd1dd4c1b2e1bfbb4c660ed8ec0a50362f461dc8a631c16edfa9d3097879d0c5",
+              "resident_code": "sha256:6536008be9eb5f64188af8636a6b0a255c004adf6e418d6e0b976b6a362316d5",
+              "teacher_manifest": "/data/r17_library/dp_libero_libero_spatial/campaigns/teacher_dp_libero_libero_spatial_500_20261010_000311_bdd4f22f/assets/model_manifest.json",
+              "teacher_manifest_sha256": "sha256:760ca2aded9bf03dbe60a9a05110eb53ace2f6b921339a57731f78df04a8adb9",
+              "teacher_staged_sha256": "sha256:07a32591d44d299f55dfa0749eb85e5400c6a90797b4b4163e7d757cc0b93e6e",
+              "weight_language_norm_assets": {
+                "CLIP/config.json": "sha256:825481e895a6809b9c1e2c07bb856f70aed360484eda9172be6fecc235293666",
+                "CLIP/merges.txt": "sha256:9fd691f7c8039210e0fced15865466c65820d09b63988b0174bfe25de299051a",
+                "CLIP/model.safetensors": "sha256:dae0eabbb1fd83756ed9dd893c17ff2f6825c98555a1e1b96154e2df0739b9e2",
+                "CLIP/special_tokens_map.json": "sha256:2cdb3b8331a60c92fc1e55a13e9fd61fd2293c5a51275fdcccd62b780052530e",
+                "CLIP/tokenizer.json": "sha256:43d4281659ce30b6aca2c7485944b3d73925bb7f87c7234daf3b6b094a6d618c",
+                "CLIP/tokenizer_config.json": "sha256:39bae5313c2da6467866dee758e754d69f0e302a875027b142531cb9c51c7c28",
+                "CLIP/vocab.json": "sha256:5047b556ce86ccaf6aa22b3ffccfc52d391ea4accdab9c2f2407da5b742d4363",
+                "DP_weights": "sha256:e460ae1e705b8f9c071f481ac33a8da7ceb56faa8aa9f83752ca3a6736acd269",
+                "E_metadata": "sha256:1f1b4b87efe8d5b1edc12a5baa4f80fa1a178349cd502a269196721b5f3ce54f",
+                "norm_stats.json": "sha256:e11dc658688b5e688ad36dd4df8a0a36510d953d1707dd4b547bdaab72679a60"
+              }
+            },
+            "protocol_bridge": true,
+            "resident_identity": "46ade92303799c37832281561c3d3fbd98563294e51dc15f09ec25042cf9b03c",
+            "schema": "r17.teacher_compatibility.v1",
+            "status": "PASS",
+            "teacher_identity": "c5bf107353c6cbde909cc924f74dbf86802aa1147d682938d2d4c65620c66758"
+          }
+        },
+        {
+          "actual_nfe": 0,
+          "commit": 5,
+          "corrector_enabled": false,
+          "fitted_path": "/data/mw_finetune/eval/mps_dp_libero_1010_164432_2c1f7e32/assets/cache_inputs/libero_10/C5/fit",
+          "group": "cg",
+          "library_rows": 31546,
+          "miss_mode": "stall_only",
+          "stage_calls": [
+            1,
+            0,
+            0
+          ],
+          "stall_status": {
+            "K": 5,
+            "W": 2,
+            "a10": null,
+            "delta_hat": null,
+            "e90": null,
+            "reason": "warming_up",
+            "reference_episodes": 38,
+            "state": "inactive",
+            "window_span": 0
+          },
+          "teacher_compatibility": {
+            "batch_numeric_policy": "owner-admitted matched R2/B8/5ms/MPS; SR remains campaign-qualified",
+            "byte_identical_native_producers": true,
+            "evidence": {
+              "dependencies": {
+                "diffusers": "0.37.1",
+                "numpy": "1.26.4",
+                "safetensors": "0.7.0",
+                "torch": "2.7.1",
+                "torchvision": "0.22.1",
+                "transformers": "4.53.2"
+              },
+              "evidence_scope": "Exact E feature/action/preprocessing/normalization bytes and native 475 weights; current B1 staged producer bound to CPU native-reference regression, vector numeric equivalence separately qualified; no SR claim",
+              "producer_sources": {
+                "exp/mw_finetune/dp/RECIPE.md": "sha256:b128adcdc01b3758bf970829d4ea031e69e54bca77110473d6bfa89ef5f700db",
+                "exp/mw_finetune/dp/checkpoint.py": "sha256:c4a95d3f476dd21d83b7867f626eced40fb4d6674bfc8377a8913e95ff1a0544",
+                "exp/mw_finetune/dp/model.py": "sha256:e8570dd11fe4402b533f3669e32b3117dd9a0264320322e1e9b3ef0fd7b105e9",
+                "exp/mw_finetune/dp/policy.py": "sha256:aa0ad73351b6ee353b0ca5408247e8827e40138e147bcc5cd48c83f88fdd32ac",
+                "exp/mw_finetune/dp/preprocess.py": "sha256:fb8d0d62bd3c74675116b20f00cef7cacd5290e488afcd5c27eba3a0ced5d12d",
+                "exp/mw_finetune/dp/vendor/module_attr_mixin.py": "sha256:658dececa20f7628960fc1a8db89e4be3693e1bba47f63d1ff8a4faa2d481e45",
+                "exp/mw_finetune/dp/vendor/positional_embedding.py": "sha256:2266c75ecc9c9ac8ca126839d39a7bafbdd7af8800d6de903f66815e64cc366c",
+                "exp/mw_finetune/dp/vendor/transformer.py": "sha256:516e8626408b4329a3accb89bf5c0da06fb4df486bf2d520b82ee81f35891351",
+                "exp/r17_integration/common/contracts.py": "sha256:db72207d1762c8d904ffe5e9695ab1ec54b4a1ca73402ad4b0e243d5d9bb9737",
+                "exp/r17_integration/common/request_rng.py": "sha256:e6f1e5c13c2bd8f9d2f4aae688ab6639d0400a45be9a5bcb5af95a0ae29f85dd",
+                "exp/r17_integration/models/dp/config.py": "sha256:ba4122cfa251e051f1b3f7ac34f1ba04bb0aee67a6c875e90909764335f3502d",
+                "exp/r17_integration/models/dp/key_builder.py": "sha256:7f9330a87682c28c3ebcdc5305f3b073d5bf78cc463486208a57f2754c029330",
+                "exp/r17_integration/models/dp/loader.py": "sha256:6d97ee1d862a15fffff2ecdf7f473f6c347ab4c034cf52e5a53e6d9d8aaae23c",
+                "exp/r17_integration/models/dp/manifest.py": "sha256:70dc03e58bca50fa22eb286a21e81790fb00254d7351c96474b081d2b2ff3575",
+                "exp/r17_integration/models/dp/normalization.py": "sha256:5a38bf8755b444da917c5b567e669405d5bb6d58b271b940de48055fae456d06",
+                "exp/r17_integration/models/dp/protocols.py": "sha256:04b16028b6574624c079cba34b65d8b30d5891a75b29901d09dab8914d6843ba",
+                "exp/r17_integration/models/dp/request_noise.py": "sha256:cab13e2439c74e4c1844bfc5cb82087fac4ecab4002458eb74a04c2403d1893e",
+                "exp/r17_integration/models/dp/sampler.py": "sha256:277f56f9b184b0602976a8c8f13b94881df495efd7bf8e5002c76f7dfebb7962",
+                "exp/r17_integration/models/dp/staged.py": "sha256:597219bb1e0eb933ec9de711450da56c3ec4cf3bb93402e37a5083ac58563430"
+              },
+              "resident_checkpoint": "sha256:bd1dd4c1b2e1bfbb4c660ed8ec0a50362f461dc8a631c16edfa9d3097879d0c5",
+              "resident_code": "sha256:6536008be9eb5f64188af8636a6b0a255c004adf6e418d6e0b976b6a362316d5",
+              "teacher_manifest": "/data/r17_library/dp_libero_libero_spatial/campaigns/teacher_dp_libero_libero_spatial_500_20261010_000311_bdd4f22f/assets/model_manifest.json",
+              "teacher_manifest_sha256": "sha256:760ca2aded9bf03dbe60a9a05110eb53ace2f6b921339a57731f78df04a8adb9",
+              "teacher_staged_sha256": "sha256:07a32591d44d299f55dfa0749eb85e5400c6a90797b4b4163e7d757cc0b93e6e",
+              "weight_language_norm_assets": {
+                "CLIP/config.json": "sha256:825481e895a6809b9c1e2c07bb856f70aed360484eda9172be6fecc235293666",
+                "CLIP/merges.txt": "sha256:9fd691f7c8039210e0fced15865466c65820d09b63988b0174bfe25de299051a",
+                "CLIP/model.safetensors": "sha256:dae0eabbb1fd83756ed9dd893c17ff2f6825c98555a1e1b96154e2df0739b9e2",
+                "CLIP/special_tokens_map.json": "sha256:2cdb3b8331a60c92fc1e55a13e9fd61fd2293c5a51275fdcccd62b780052530e",
+                "CLIP/tokenizer.json": "sha256:43d4281659ce30b6aca2c7485944b3d73925bb7f87c7234daf3b6b094a6d618c",
+                "CLIP/tokenizer_config.json": "sha256:39bae5313c2da6467866dee758e754d69f0e302a875027b142531cb9c51c7c28",
+                "CLIP/vocab.json": "sha256:5047b556ce86ccaf6aa22b3ffccfc52d391ea4accdab9c2f2407da5b742d4363",
+                "DP_weights": "sha256:e460ae1e705b8f9c071f481ac33a8da7ceb56faa8aa9f83752ca3a6736acd269",
+                "E_metadata": "sha256:1f1b4b87efe8d5b1edc12a5baa4f80fa1a178349cd502a269196721b5f3ce54f",
+                "norm_stats.json": "sha256:e11dc658688b5e688ad36dd4df8a0a36510d953d1707dd4b547bdaab72679a60"
+              }
+            },
+            "protocol_bridge": true,
+            "resident_identity": "46ade92303799c37832281561c3d3fbd98563294e51dc15f09ec25042cf9b03c",
+            "schema": "r17.teacher_compatibility.v1",
+            "status": "PASS",
+            "teacher_identity": "c5bf107353c6cbde909cc924f74dbf86802aa1147d682938d2d4c65620c66758"
+          }
+        },
+        {
+          "actual_nfe": 0,
+          "commit": 5,
+          "corrector_enabled": true,
+          "fitted_path": "/data/mw_finetune/eval/mps_dp_libero_1010_164432_2c1f7e32/assets/cache_inputs/libero_10/C5/fit",
+          "group": "crg",
+          "library_rows": 31546,
+          "miss_mode": "stall_only",
+          "stage_calls": [
+            1,
+            0,
+            0
+          ],
+          "stall_status": {
+            "K": 5,
+            "W": 2,
+            "a10": null,
+            "delta_hat": null,
+            "e90": null,
+            "reason": "warming_up",
+            "reference_episodes": 38,
+            "state": "inactive",
+            "window_span": 0
+          },
+          "teacher_compatibility": {
+            "batch_numeric_policy": "owner-admitted matched R2/B8/5ms/MPS; SR remains campaign-qualified",
+            "byte_identical_native_producers": true,
+            "evidence": {
+              "dependencies": {
+                "diffusers": "0.37.1",
+                "numpy": "1.26.4",
+                "safetensors": "0.7.0",
+                "torch": "2.7.1",
+                "torchvision": "0.22.1",
+                "transformers": "4.53.2"
+              },
+              "evidence_scope": "Exact E feature/action/preprocessing/normalization bytes and native 475 weights; current B1 staged producer bound to CPU native-reference regression, vector numeric equivalence separately qualified; no SR claim",
+              "producer_sources": {
+                "exp/mw_finetune/dp/RECIPE.md": "sha256:b128adcdc01b3758bf970829d4ea031e69e54bca77110473d6bfa89ef5f700db",
+                "exp/mw_finetune/dp/checkpoint.py": "sha256:c4a95d3f476dd21d83b7867f626eced40fb4d6674bfc8377a8913e95ff1a0544",
+                "exp/mw_finetune/dp/model.py": "sha256:e8570dd11fe4402b533f3669e32b3117dd9a0264320322e1e9b3ef0fd7b105e9",
+                "exp/mw_finetune/dp/policy.py": "sha256:aa0ad73351b6ee353b0ca5408247e8827e40138e147bcc5cd48c83f88fdd32ac",
+                "exp/mw_finetune/dp/preprocess.py": "sha256:fb8d0d62bd3c74675116b20f00cef7cacd5290e488afcd5c27eba3a0ced5d12d",
+                "exp/mw_finetune/dp/vendor/module_attr_mixin.py": "sha256:658dececa20f7628960fc1a8db89e4be3693e1bba47f63d1ff8a4faa2d481e45",
+                "exp/mw_finetune/dp/vendor/positional_embedding.py": "sha256:2266c75ecc9c9ac8ca126839d39a7bafbdd7af8800d6de903f66815e64cc366c",
+                "exp/mw_finetune/dp/vendor/transformer.py": "sha256:516e8626408b4329a3accb89bf5c0da06fb4df486bf2d520b82ee81f35891351",
+                "exp/r17_integration/common/contracts.py": "sha256:db72207d1762c8d904ffe5e9695ab1ec54b4a1ca73402ad4b0e243d5d9bb9737",
+                "exp/r17_integration/common/request_rng.py": "sha256:e6f1e5c13c2bd8f9d2f4aae688ab6639d0400a45be9a5bcb5af95a0ae29f85dd",
+                "exp/r17_integration/models/dp/config.py": "sha256:ba4122cfa251e051f1b3f7ac34f1ba04bb0aee67a6c875e90909764335f3502d",
+                "exp/r17_integration/models/dp/key_builder.py": "sha256:7f9330a87682c28c3ebcdc5305f3b073d5bf78cc463486208a57f2754c029330",
+                "exp/r17_integration/models/dp/loader.py": "sha256:6d97ee1d862a15fffff2ecdf7f473f6c347ab4c034cf52e5a53e6d9d8aaae23c",
+                "exp/r17_integration/models/dp/manifest.py": "sha256:70dc03e58bca50fa22eb286a21e81790fb00254d7351c96474b081d2b2ff3575",
+                "exp/r17_integration/models/dp/normalization.py": "sha256:5a38bf8755b444da917c5b567e669405d5bb6d58b271b940de48055fae456d06",
+                "exp/r17_integration/models/dp/protocols.py": "sha256:04b16028b6574624c079cba34b65d8b30d5891a75b29901d09dab8914d6843ba",
+                "exp/r17_integration/models/dp/request_noise.py": "sha256:cab13e2439c74e4c1844bfc5cb82087fac4ecab4002458eb74a04c2403d1893e",
+                "exp/r17_integration/models/dp/sampler.py": "sha256:277f56f9b184b0602976a8c8f13b94881df495efd7bf8e5002c76f7dfebb7962",
+                "exp/r17_integration/models/dp/staged.py": "sha256:597219bb1e0eb933ec9de711450da56c3ec4cf3bb93402e37a5083ac58563430"
+              },
+              "resident_checkpoint": "sha256:bd1dd4c1b2e1bfbb4c660ed8ec0a50362f461dc8a631c16edfa9d3097879d0c5",
+              "resident_code": "sha256:6536008be9eb5f64188af8636a6b0a255c004adf6e418d6e0b976b6a362316d5",
+              "teacher_manifest": "/data/r17_library/dp_libero_libero_spatial/campaigns/teacher_dp_libero_libero_spatial_500_20261010_000311_bdd4f22f/assets/model_manifest.json",
+              "teacher_manifest_sha256": "sha256:760ca2aded9bf03dbe60a9a05110eb53ace2f6b921339a57731f78df04a8adb9",
+              "teacher_staged_sha256": "sha256:07a32591d44d299f55dfa0749eb85e5400c6a90797b4b4163e7d757cc0b93e6e",
+              "weight_language_norm_assets": {
+                "CLIP/config.json": "sha256:825481e895a6809b9c1e2c07bb856f70aed360484eda9172be6fecc235293666",
+                "CLIP/merges.txt": "sha256:9fd691f7c8039210e0fced15865466c65820d09b63988b0174bfe25de299051a",
+                "CLIP/model.safetensors": "sha256:dae0eabbb1fd83756ed9dd893c17ff2f6825c98555a1e1b96154e2df0739b9e2",
+                "CLIP/special_tokens_map.json": "sha256:2cdb3b8331a60c92fc1e55a13e9fd61fd2293c5a51275fdcccd62b780052530e",
+                "CLIP/tokenizer.json": "sha256:43d4281659ce30b6aca2c7485944b3d73925bb7f87c7234daf3b6b094a6d618c",
+                "CLIP/tokenizer_config.json": "sha256:39bae5313c2da6467866dee758e754d69f0e302a875027b142531cb9c51c7c28",
+                "CLIP/vocab.json": "sha256:5047b556ce86ccaf6aa22b3ffccfc52d391ea4accdab9c2f2407da5b742d4363",
+                "DP_weights": "sha256:e460ae1e705b8f9c071f481ac33a8da7ceb56faa8aa9f83752ca3a6736acd269",
+                "E_metadata": "sha256:1f1b4b87efe8d5b1edc12a5baa4f80fa1a178349cd502a269196721b5f3ce54f",
+                "norm_stats.json": "sha256:e11dc658688b5e688ad36dd4df8a0a36510d953d1707dd4b547bdaab72679a60"
+              }
+            },
+            "protocol_bridge": true,
+            "resident_identity": "46ade92303799c37832281561c3d3fbd98563294e51dc15f09ec25042cf9b03c",
+            "schema": "r17.teacher_compatibility.v1",
+            "status": "PASS",
+            "teacher_identity": "c5bf107353c6cbde909cc924f74dbf86802aa1147d682938d2d4c65620c66758"
+          }
+        },
+        {
+          "actual_nfe": 0,
+          "commit": 10,
+          "corrector_enabled": false,
+          "fitted_path": "/data/mw_finetune/eval/mps_dp_libero_1010_164432_2c1f7e32/assets/cache_inputs/libero_10/C10/fit",
+          "group": "chg",
+          "library_rows": 31546,
+          "miss_mode": "stall_only",
+          "stage_calls": [
+            1,
+            0,
+            0
+          ],
+          "stall_status": {
+            "K": 5,
+            "W": 2,
+            "a10": null,
+            "delta_hat": null,
+            "e90": null,
+            "reason": "warming_up",
+            "reference_episodes": 38,
+            "state": "inactive",
+            "window_span": 0
+          },
+          "teacher_compatibility": {
+            "batch_numeric_policy": "owner-admitted matched R2/B8/5ms/MPS; SR remains campaign-qualified",
+            "byte_identical_native_producers": true,
+            "evidence": {
+              "dependencies": {
+                "diffusers": "0.37.1",
+                "numpy": "1.26.4",
+                "safetensors": "0.7.0",
+                "torch": "2.7.1",
+                "torchvision": "0.22.1",
+                "transformers": "4.53.2"
+              },
+              "evidence_scope": "Exact E feature/action/preprocessing/normalization bytes and native 475 weights; current B1 staged producer bound to CPU native-reference regression, vector numeric equivalence separately qualified; no SR claim",
+              "producer_sources": {
+                "exp/mw_finetune/dp/RECIPE.md": "sha256:b128adcdc01b3758bf970829d4ea031e69e54bca77110473d6bfa89ef5f700db",
+                "exp/mw_finetune/dp/checkpoint.py": "sha256:c4a95d3f476dd21d83b7867f626eced40fb4d6674bfc8377a8913e95ff1a0544",
+                "exp/mw_finetune/dp/model.py": "sha256:e8570dd11fe4402b533f3669e32b3117dd9a0264320322e1e9b3ef0fd7b105e9",
+                "exp/mw_finetune/dp/policy.py": "sha256:aa0ad73351b6ee353b0ca5408247e8827e40138e147bcc5cd48c83f88fdd32ac",
+                "exp/mw_finetune/dp/preprocess.py": "sha256:fb8d0d62bd3c74675116b20f00cef7cacd5290e488afcd5c27eba3a0ced5d12d",
+                "exp/mw_finetune/dp/vendor/module_attr_mixin.py": "sha256:658dececa20f7628960fc1a8db89e4be3693e1bba47f63d1ff8a4faa2d481e45",
+                "exp/mw_finetune/dp/vendor/positional_embedding.py": "sha256:2266c75ecc9c9ac8ca126839d39a7bafbdd7af8800d6de903f66815e64cc366c",
+                "exp/mw_finetune/dp/vendor/transformer.py": "sha256:516e8626408b4329a3accb89bf5c0da06fb4df486bf2d520b82ee81f35891351",
+                "exp/r17_integration/common/contracts.py": "sha256:db72207d1762c8d904ffe5e9695ab1ec54b4a1ca73402ad4b0e243d5d9bb9737",
+                "exp/r17_integration/common/request_rng.py": "sha256:e6f1e5c13c2bd8f9d2f4aae688ab6639d0400a45be9a5bcb5af95a0ae29f85dd",
+                "exp/r17_integration/models/dp/config.py": "sha256:ba4122cfa251e051f1b3f7ac34f1ba04bb0aee67a6c875e90909764335f3502d",
+                "exp/r17_integration/models/dp/key_builder.py": "sha256:7f9330a87682c28c3ebcdc5305f3b073d5bf78cc463486208a57f2754c029330",
+                "exp/r17_integration/models/dp/loader.py": "sha256:6d97ee1d862a15fffff2ecdf7f473f6c347ab4c034cf52e5a53e6d9d8aaae23c",
+                "exp/r17_integration/models/dp/manifest.py": "sha256:70dc03e58bca50fa22eb286a21e81790fb00254d7351c96474b081d2b2ff3575",
+                "exp/r17_integration/models/dp/normalization.py": "sha256:5a38bf8755b444da917c5b567e669405d5bb6d58b271b940de48055fae456d06",
+                "exp/r17_integration/models/dp/protocols.py": "sha256:04b16028b6574624c079cba34b65d8b30d5891a75b29901d09dab8914d6843ba",
+                "exp/r17_integration/models/dp/request_noise.py": "sha256:cab13e2439c74e4c1844bfc5cb82087fac4ecab4002458eb74a04c2403d1893e",
+                "exp/r17_integration/models/dp/sampler.py": "sha256:277f56f9b184b0602976a8c8f13b94881df495efd7bf8e5002c76f7dfebb7962",
+                "exp/r17_integration/models/dp/staged.py": "sha256:597219bb1e0eb933ec9de711450da56c3ec4cf3bb93402e37a5083ac58563430"
+              },
+              "resident_checkpoint": "sha256:bd1dd4c1b2e1bfbb4c660ed8ec0a50362f461dc8a631c16edfa9d3097879d0c5",
+              "resident_code": "sha256:6536008be9eb5f64188af8636a6b0a255c004adf6e418d6e0b976b6a362316d5",
+              "teacher_manifest": "/data/r17_library/dp_libero_libero_spatial/campaigns/teacher_dp_libero_libero_spatial_500_20261010_000311_bdd4f22f/assets/model_manifest.json",
+              "teacher_manifest_sha256": "sha256:760ca2aded9bf03dbe60a9a05110eb53ace2f6b921339a57731f78df04a8adb9",
+              "teacher_staged_sha256": "sha256:07a32591d44d299f55dfa0749eb85e5400c6a90797b4b4163e7d757cc0b93e6e",
+              "weight_language_norm_assets": {
+                "CLIP/config.json": "sha256:825481e895a6809b9c1e2c07bb856f70aed360484eda9172be6fecc235293666",
+                "CLIP/merges.txt": "sha256:9fd691f7c8039210e0fced15865466c65820d09b63988b0174bfe25de299051a",
+                "CLIP/model.safetensors": "sha256:dae0eabbb1fd83756ed9dd893c17ff2f6825c98555a1e1b96154e2df0739b9e2",
+                "CLIP/special_tokens_map.json": "sha256:2cdb3b8331a60c92fc1e55a13e9fd61fd2293c5a51275fdcccd62b780052530e",
+                "CLIP/tokenizer.json": "sha256:43d4281659ce30b6aca2c7485944b3d73925bb7f87c7234daf3b6b094a6d618c",
+                "CLIP/tokenizer_config.json": "sha256:39bae5313c2da6467866dee758e754d69f0e302a875027b142531cb9c51c7c28",
+                "CLIP/vocab.json": "sha256:5047b556ce86ccaf6aa22b3ffccfc52d391ea4accdab9c2f2407da5b742d4363",
+                "DP_weights": "sha256:e460ae1e705b8f9c071f481ac33a8da7ceb56faa8aa9f83752ca3a6736acd269",
+                "E_metadata": "sha256:1f1b4b87efe8d5b1edc12a5baa4f80fa1a178349cd502a269196721b5f3ce54f",
+                "norm_stats.json": "sha256:e11dc658688b5e688ad36dd4df8a0a36510d953d1707dd4b547bdaab72679a60"
+              }
+            },
+            "protocol_bridge": true,
+            "resident_identity": "46ade92303799c37832281561c3d3fbd98563294e51dc15f09ec25042cf9b03c",
+            "schema": "r17.teacher_compatibility.v1",
+            "status": "PASS",
+            "teacher_identity": "c5bf107353c6cbde909cc924f74dbf86802aa1147d682938d2d4c65620c66758"
+          }
+        },
+        {
+          "actual_nfe": 0,
+          "commit": 10,
+          "corrector_enabled": true,
+          "fitted_path": "/data/mw_finetune/eval/mps_dp_libero_1010_164432_2c1f7e32/assets/cache_inputs/libero_10/C10/fit",
+          "group": "chrg",
+          "library_rows": 31546,
+          "miss_mode": "stall_only",
+          "stage_calls": [
+            1,
+            0,
+            0
+          ],
+          "stall_status": {
+            "K": 5,
+            "W": 2,
+            "a10": null,
+            "delta_hat": null,
+            "e90": null,
+            "reason": "warming_up",
+            "reference_episodes": 38,
+            "state": "inactive",
+            "window_span": 0
+          },
+          "teacher_compatibility": {
+            "batch_numeric_policy": "owner-admitted matched R2/B8/5ms/MPS; SR remains campaign-qualified",
+            "byte_identical_native_producers": true,
+            "evidence": {
+              "dependencies": {
+                "diffusers": "0.37.1",
+                "numpy": "1.26.4",
+                "safetensors": "0.7.0",
+                "torch": "2.7.1",
+                "torchvision": "0.22.1",
+                "transformers": "4.53.2"
+              },
+              "evidence_scope": "Exact E feature/action/preprocessing/normalization bytes and native 475 weights; current B1 staged producer bound to CPU native-reference regression, vector numeric equivalence separately qualified; no SR claim",
+              "producer_sources": {
+                "exp/mw_finetune/dp/RECIPE.md": "sha256:b128adcdc01b3758bf970829d4ea031e69e54bca77110473d6bfa89ef5f700db",
+                "exp/mw_finetune/dp/checkpoint.py": "sha256:c4a95d3f476dd21d83b7867f626eced40fb4d6674bfc8377a8913e95ff1a0544",
+                "exp/mw_finetune/dp/model.py": "sha256:e8570dd11fe4402b533f3669e32b3117dd9a0264320322e1e9b3ef0fd7b105e9",
+                "exp/mw_finetune/dp/policy.py": "sha256:aa0ad73351b6ee353b0ca5408247e8827e40138e147bcc5cd48c83f88fdd32ac",
+                "exp/mw_finetune/dp/preprocess.py": "sha256:fb8d0d62bd3c74675116b20f00cef7cacd5290e488afcd5c27eba3a0ced5d12d",
+                "exp/mw_finetune/dp/vendor/module_attr_mixin.py": "sha256:658dececa20f7628960fc1a8db89e4be3693e1bba47f63d1ff8a4faa2d481e45",
+                "exp/mw_finetune/dp/vendor/positional_embedding.py": "sha256:2266c75ecc9c9ac8ca126839d39a7bafbdd7af8800d6de903f66815e64cc366c",
+                "exp/mw_finetune/dp/vendor/transformer.py": "sha256:516e8626408b4329a3accb89bf5c0da06fb4df486bf2d520b82ee81f35891351",
+                "exp/r17_integration/common/contracts.py": "sha256:db72207d1762c8d904ffe5e9695ab1ec54b4a1ca73402ad4b0e243d5d9bb9737",
+                "exp/r17_integration/common/request_rng.py": "sha256:e6f1e5c13c2bd8f9d2f4aae688ab6639d0400a45be9a5bcb5af95a0ae29f85dd",
+                "exp/r17_integration/models/dp/config.py": "sha256:ba4122cfa251e051f1b3f7ac34f1ba04bb0aee67a6c875e90909764335f3502d",
+                "exp/r17_integration/models/dp/key_builder.py": "sha256:7f9330a87682c28c3ebcdc5305f3b073d5bf78cc463486208a57f2754c029330",
+                "exp/r17_integration/models/dp/loader.py": "sha256:6d97ee1d862a15fffff2ecdf7f473f6c347ab4c034cf52e5a53e6d9d8aaae23c",
+                "exp/r17_integration/models/dp/manifest.py": "sha256:70dc03e58bca50fa22eb286a21e81790fb00254d7351c96474b081d2b2ff3575",
+                "exp/r17_integration/models/dp/normalization.py": "sha256:5a38bf8755b444da917c5b567e669405d5bb6d58b271b940de48055fae456d06",
+                "exp/r17_integration/models/dp/protocols.py": "sha256:04b16028b6574624c079cba34b65d8b30d5891a75b29901d09dab8914d6843ba",
+                "exp/r17_integration/models/dp/request_noise.py": "sha256:cab13e2439c74e4c1844bfc5cb82087fac4ecab4002458eb74a04c2403d1893e",
+                "exp/r17_integration/models/dp/sampler.py": "sha256:277f56f9b184b0602976a8c8f13b94881df495efd7bf8e5002c76f7dfebb7962",
+                "exp/r17_integration/models/dp/staged.py": "sha256:597219bb1e0eb933ec9de711450da56c3ec4cf3bb93402e37a5083ac58563430"
+              },
+              "resident_checkpoint": "sha256:bd1dd4c1b2e1bfbb4c660ed8ec0a50362f461dc8a631c16edfa9d3097879d0c5",
+              "resident_code": "sha256:6536008be9eb5f64188af8636a6b0a255c004adf6e418d6e0b976b6a362316d5",
+              "teacher_manifest": "/data/r17_library/dp_libero_libero_spatial/campaigns/teacher_dp_libero_libero_spatial_500_20261010_000311_bdd4f22f/assets/model_manifest.json",
+              "teacher_manifest_sha256": "sha256:760ca2aded9bf03dbe60a9a05110eb53ace2f6b921339a57731f78df04a8adb9",
+              "teacher_staged_sha256": "sha256:07a32591d44d299f55dfa0749eb85e5400c6a90797b4b4163e7d757cc0b93e6e",
+              "weight_language_norm_assets": {
+                "CLIP/config.json": "sha256:825481e895a6809b9c1e2c07bb856f70aed360484eda9172be6fecc235293666",
+                "CLIP/merges.txt": "sha256:9fd691f7c8039210e0fced15865466c65820d09b63988b0174bfe25de299051a",
+                "CLIP/model.safetensors": "sha256:dae0eabbb1fd83756ed9dd893c17ff2f6825c98555a1e1b96154e2df0739b9e2",
+                "CLIP/special_tokens_map.json": "sha256:2cdb3b8331a60c92fc1e55a13e9fd61fd2293c5a51275fdcccd62b780052530e",
+                "CLIP/tokenizer.json": "sha256:43d4281659ce30b6aca2c7485944b3d73925bb7f87c7234daf3b6b094a6d618c",
+                "CLIP/tokenizer_config.json": "sha256:39bae5313c2da6467866dee758e754d69f0e302a875027b142531cb9c51c7c28",
+                "CLIP/vocab.json": "sha256:5047b556ce86ccaf6aa22b3ffccfc52d391ea4accdab9c2f2407da5b742d4363",
+                "DP_weights": "sha256:e460ae1e705b8f9c071f481ac33a8da7ceb56faa8aa9f83752ca3a6736acd269",
+                "E_metadata": "sha256:1f1b4b87efe8d5b1edc12a5baa4f80fa1a178349cd502a269196721b5f3ce54f",
+                "norm_stats.json": "sha256:e11dc658688b5e688ad36dd4df8a0a36510d953d1707dd4b547bdaab72679a60"
+              }
+            },
+            "protocol_bridge": true,
+            "resident_identity": "46ade92303799c37832281561c3d3fbd98563294e51dc15f09ec25042cf9b03c",
+            "schema": "r17.teacher_compatibility.v1",
+            "status": "PASS",
+            "teacher_identity": "c5bf107353c6cbde909cc924f74dbf86802aa1147d682938d2d4c65620c66758"
+          }
+        }
+      ],
+      "images_shape": [
+        256,
+        256,
+        3
+      ],
+      "native_DDPM100_wire_exact": true,
+      "native_conditioning_exact": true,
+      "native_output_transform_exact": true,
+      "paired_real_views": true,
+      "sampled_real_row": "c0b11cd39cd917136025af686faec5fef4119b9a08612129c7ccb505313ca72d",
+      "serving_protocol": "87e3a7dce0d452269383ea20c144848987c393df7bde4c22628abf8a084f21bf",
+      "source_protocol": "589fd0293f29d91fe3f011121b5855d550b9d06288ee67ce12aeae50e0d3afd0",
+      "stored_GPU_vs_CPU_key_max_abs": {
+        "robot_state": 0.0,
+        "vision_0": 0.0001977086067199707,
+        "vision_1": 0.0006698369979858398
+      },
+      "suite": "libero_10",
+      "view_digest": "0ff3a35e1196c3aa659c462a86ad7968b5483205e1039682959da01988249348"
+    }
+  ]
+}

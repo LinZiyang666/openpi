@@ -1,0 +1,217 @@
+adapter_binding:
+  benchmark_protocol: fake_mw.v1
+  checkpoint_identity: fake.weights.sha256
+  commit_horizon: 5
+  feature_identity: 2542438f6e0cc99b37a667f033129ad5442d2109e52aa59f6d504de94e9b695a
+  layout_identity: 2660783dc26fde17faf93f8ddf0f14ee307e800a3454d763dafd737c735a3e47
+  model_id: fake_mw
+  norm_identity: fake.norm.sha256
+  num_steps: 4
+  provider: r17.fix2.ir25.sample
+  sampler_identity: 5101226fb86d5231d1fb950a3baf0649d1e22eed994dd403dcf9eee19b266476
+  schema: r17.adapter_binding.v1
+backend:
+  in_memory:
+    expected_pin_id: null
+    index_type: brute_force
+    preload_path: null
+    text_ivf:
+      field: prompt_emb
+      max_buckets: 1024
+  qdrant:
+    collection_name: openpi_cache
+    grpc_port: 6334
+    prefer_grpc: false
+    request_timeout: 30
+    url: http://localhost:6333
+  type: in_memory
+  vector_dims:
+    robot_state: 4
+    vision_0: 4
+checkpoints:
+  cp1:
+    enabled: true
+    gate:
+      L: null
+      budget: null
+      cache_len: null
+      include_ws: null
+      inference_len: null
+      j: null
+      lock_streak: null
+      p_inference: null
+      probe_interval: null
+      seed: null
+      theta_high: null
+      theta_low: null
+      type: always_search
+    judge:
+      alpha: null
+      arms: null
+      calibration: null
+      composer: null
+      constant_arm: null
+      delta: null
+      dump: null
+      dump_dir: null
+      dwell: null
+      export_factor_outputs: false
+      factors: null
+      feature_fields: null
+      feedback_mode: null
+      gate_betas: null
+      h_exec: null
+      hidden: null
+      init_state_path: null
+      knots: null
+      library_replan_steps: null
+      mode: null
+      n_min: null
+      normalization: null
+      replan_steps: null
+      risk_model_path: null
+      seed: null
+      snapshot_every: null
+      source_library_sha256: null
+      start_t: null
+      state_log_dir: null
+      surface_artifact_path: null
+      task_index: null
+      tau: null
+      temperature: null
+      threshold: 0.98
+      tiers: null
+      type: always_hit
+      u_t_factor: null
+      update_enabled: null
+      update_scales_path: null
+      warm_tiers: null
+      weights_path: null
+      window: null
+    search_strategy:
+      allowed_depths: null
+      base_fusion: null
+      candidate_multiplier: 5
+      depth_policy: null
+      enable_dual: false
+      field_similarity: null
+      margin_lambda: 0.0
+      rrf_k: 60
+      score_normalization: null
+      step_filter: all
+      step_window: 5
+      task_scoped: true
+      top_k: 1
+      trajectory_depth: 1
+      trajectory_weights: null
+      type: weighted_rrf_knn
+collection:
+  collect_fields:
+  - robot_state
+  export_collect_meta: false
+  wire_frame_cap_kib: 32
+denoise_schedule: null
+diagnostic_context: true
+enabled: true
+key_builder:
+  cp2_groot:
+    d: 500
+    feature_dim: 2048
+    p: 0.01
+    seed: 0
+    state_feat_dim: 1536
+    token_len: 640
+  cp2_vlm:
+    d: 500
+    input_dim: 1982464
+    p: 0.01
+    seed: 0
+  extract_layer: 0
+  prefix_reducer:
+    type: prefix_mean_pool
+  projection:
+    inner_type: cp1_mean_pool
+    weights_path: null
+  prompt_instruction_span: false
+  prompt_masked_pool: false
+  prune_window_size: 4
+  reducer:
+    output_tokens: 16
+    select_k: 32
+    temperature: 1.0
+    type: mean_pool
+  temporal_keep_ratio: 0.5
+  type: adapter_native
+keys:
+  prompt_emb:
+    enabled: false
+    weight: 1.0
+  robot_state:
+    enabled: true
+    weight: 1.0
+  vision_0:
+    enabled: true
+    weight: 1.0
+  vision_1:
+    enabled: false
+    weight: 1.0
+  vision_2:
+    enabled: false
+    weight: 1.0
+  vlm_out:
+    enabled: false
+    weight: 1.0
+miss: null
+recipe:
+  corrector: false
+  early: true
+  enabled: true
+  fit_identity: a34553559893f8a3db655fc8fc2d615dc762125230ae1e0de4dd5100d4820b25
+  guard: false
+  ir_costs:
+    benchmark_protocol: fake_mw.v1
+    miss: 0.85
+    retrieval_model_identity: 971e78ddc225731b832af9a95d5e63bdcbada4687d85d3f942301ed625e5d477
+    sampler_identity: 5101226fb86d5231d1fb950a3baf0649d1e22eed994dd403dcf9eee19b266476
+    schema: r17.ir_costs.v1
+    source_identity: diagnostic.fake.declared_coefficients.v1
+    vision: 0.15
+  k: 3
+  kref: 2
+  ordered_tasks:
+  - reach
+  periodic_gap: null
+  schema: r17.recipe.v1
+  store_digest: 312dc8545313ba48356b930aab15e9f1f21e2da6df69ce55eaa4cbc134803385
+  store_path: exp/r17_integration/tests/common/artifacts/fix2_ir25_sample_library/library
+  target_ir: 0.25
+  task_table_identity: 0267ec3fd39c7eb6bf3764621385c8e7780638aa95c6745d7b09390dcf4fb326
+  teacher_sampler_identity: 5101226fb86d5231d1fb950a3baf0649d1e22eed994dd403dcf9eee19b266476
+routing: null
+shadow_teacher:
+  action_sigma: null
+  enabled: false
+  path: ''
+timer:
+  buffer_size: 10000
+  enabled: true
+  output_csv_dir: null
+trace:
+  enabled: false
+  out_dir: ''
+  queue_steps: 256
+  raw_image_keys:
+  - observation/image
+  - observation/wrist_image
+  record_model_images: false
+  record_noise_actions: false
+  record_prefix_tokens: true
+  record_query_keys: true
+  record_raw_images: true
+  record_search: true
+  record_tokenized_prompt: true
+  rng_isolation: verdict_aware
+  sidecar_jsonl: true
+warm_reset: null
+write_policy:
+  type: never

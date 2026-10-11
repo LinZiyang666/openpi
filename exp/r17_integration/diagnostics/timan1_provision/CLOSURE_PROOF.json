@@ -1,0 +1,91 @@
+{
+  "cpu_topology": {
+    "logical_cpus": 48,
+    "physical_cores": 24,
+    "sockets": 1
+  },
+  "gpu3": "3, GPU-ba276422-a0b1-e371-8327-f744be942f15, 10 MiB\n",
+  "probe_pids": [
+    {
+      "owned_probe_alive": false,
+      "pid": 4021611,
+      "run": "render_2"
+    },
+    {
+      "owned_probe_alive": false,
+      "pid": 4021609,
+      "run": "render_2"
+    },
+    {
+      "owned_probe_alive": false,
+      "pid": 4021608,
+      "run": "render_2"
+    },
+    {
+      "owned_probe_alive": false,
+      "pid": 4021610,
+      "run": "render_2"
+    },
+    {
+      "owned_probe_alive": false,
+      "pid": 4030845,
+      "run": "render_3"
+    },
+    {
+      "owned_probe_alive": false,
+      "pid": 4030844,
+      "run": "render_3"
+    },
+    {
+      "owned_probe_alive": false,
+      "pid": 4030842,
+      "run": "render_3"
+    },
+    {
+      "owned_probe_alive": false,
+      "pid": 4030843,
+      "run": "render_3"
+    },
+    {
+      "owned_probe_alive": false,
+      "pid": 4019325,
+      "run": "render_1"
+    },
+    {
+      "owned_probe_alive": false,
+      "pid": 4019323,
+      "run": "render_1"
+    },
+    {
+      "owned_probe_alive": false,
+      "pid": 4019322,
+      "run": "render_1"
+    },
+    {
+      "owned_probe_alive": false,
+      "pid": 4019324,
+      "run": "render_1"
+    },
+    {
+      "owned_probe_alive": false,
+      "pid": 4041166,
+      "run": "render_gpu3_final"
+    },
+    {
+      "owned_probe_alive": false,
+      "pid": 4041164,
+      "run": "render_gpu3_final"
+    },
+    {
+      "owned_probe_alive": false,
+      "pid": 4041165,
+      "run": "render_gpu3_final"
+    },
+    {
+      "owned_probe_alive": false,
+      "pid": 4041167,
+      "run": "render_gpu3_final"
+    }
+  ],
+  "status": "PASS"
+}

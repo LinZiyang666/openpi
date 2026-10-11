@@ -1,0 +1,128 @@
+{
+  "schema": "r17.fastwam.loader_header_equivalence.v1",
+  "status": "passed",
+  "checkpoint": "/data/mw_finetune/models/fastwam_libero",
+  "device": "meta",
+  "tensor_body_reads": 0,
+  "matched_unique_parameters": 1651,
+  "matched_shapes": true,
+  "matched_inference_config_fields": [
+    "action_dim",
+    "proprio_dim",
+    "action_horizon",
+    "n_action_steps",
+    "n_obs_steps",
+    "image_size",
+    "num_video_frames",
+    "action_video_freq_ratio",
+    "prompt_template",
+    "tokenizer_max_len",
+    "num_inference_steps",
+    "inference_seed",
+    "rand_device",
+    "text_cfg_scale",
+    "negative_prompt",
+    "sigma_shift",
+    "tiled",
+    "compile_action_infer",
+    "toggle_action_dimensions",
+    "normalization_mapping",
+    "video_scheduler",
+    "action_scheduler",
+    "video_dit_config",
+    "action_dit_config"
+  ],
+  "matched_parameter_dtypes": true,
+  "released_serialization": {
+    "original_key_sets_equal": false,
+    "renamed_checkpoint_keys": 1620,
+    "canonical_state_dict_shapes_match": true,
+    "GPU_comparison_shim": "canonical alias rename only; strict current native load_state_dict"
+  },
+  "published_geometry": {
+    "image_size": [
+      224,
+      448
+    ],
+    "action_dim": 7,
+    "proprio_dim": 8,
+    "action_horizon": 32
+  },
+  "sampler": {
+    "sampler_id": "fastwam_shifted_flow_v1",
+    "family": "shifted_flow",
+    "num_steps": 10,
+    "native_timesteps": [
+      1000.0,
+      980.0,
+      952.0,
+      920.0,
+      884.0,
+      832.0,
+      768.0,
+      680.0,
+      556.0,
+      358.0
+    ],
+    "native_deltas": [
+      -0.021728515625,
+      -0.02587890625,
+      -0.03125,
+      -0.038818359375,
+      -0.049072265625,
+      -0.06396484375,
+      -0.08740234375,
+      -0.1259765625,
+      -0.1982421875,
+      -0.357421875
+    ],
+    "config": {
+      "shift": 5.0,
+      "num_train_timesteps": 1000,
+      "dtype": "bfloat16",
+      "cfg": 1.0,
+      "update": "native_scheduler.step",
+      "snapshot_semantics": "before_update"
+    },
+    "point_kind": "index_encoding"
+  },
+  "selected_raw_loaders": {
+    "load_pretrained_wan_vae": "install_raw_loaders.<locals>.load_vae",
+    "load_pretrained_wan_text_encoder": "install_raw_loaders.<locals>.load_text"
+  },
+  "raw_loader_scope_restored": true,
+  "frozen_loader_calls": [
+    {
+      "model_id": "Wan-AI/Wan2.2-TI2V-5B-Diffusers",
+      "torch_dtype": "torch.bfloat16",
+      "device": "meta"
+    },
+    {
+      "torch_dtype": "torch.bfloat16",
+      "device": "meta"
+    },
+    {
+      "model_id": "/data/xwam/wan22_5b/google/umt5-xxl",
+      "tokenizer_max_len": "128"
+    },
+    {
+      "model_id": "Wan-AI/Wan2.2-TI2V-5B-Diffusers",
+      "torch_dtype": "torch.bfloat16",
+      "device": "meta"
+    },
+    {
+      "torch_dtype": "torch.bfloat16",
+      "device": "meta"
+    },
+    {
+      "model_id": "google/umt5-xxl",
+      "tokenizer_max_len": "128"
+    }
+  ],
+  "limits": [
+    "VAE/T5/tokenizer substituted; frozen sidecar numerical parity NOT established",
+    "meta shapes and strict canonical header mapping only; trained tensor values NOT loaded",
+    "unmodified released serialization loader is NOT certified; published aliases need normalization"
+  ],
+  "elapsed_seconds": 8.81255057800081
+}

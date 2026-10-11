@@ -1,0 +1,702 @@
+{
+  "allocator_cap_mib": 12288,
+  "checks": [
+    {
+      "actual_nfe": 2,
+      "debug_vs_plain": {
+        "dtype": "float64",
+        "exact": true,
+        "max_abs_diff": 0.0,
+        "mean_abs_diff": 0.0,
+        "shape": [
+          5,
+          4
+        ]
+      },
+      "grid": {
+        "compiled_grid_evidence": "source plus execution of original CPU loop; no compiled graph instrumentation",
+        "cpu_native_loop_exact": true,
+        "dt_float32": -0.5,
+        "r16_staged": [
+          1.0,
+          0.5
+        ],
+        "stock": [
+          1.0,
+          0.5
+        ]
+      },
+      "k": 2,
+      "observation": 0,
+      "peak_allocated_mib": 7273.8525390625,
+      "peak_reserved_mib": 7476.0,
+      "r16_normalized_vs_adapter": {
+        "dtype": "float32",
+        "exact": true,
+        "max_abs_diff": 0.0,
+        "mean_abs_diff": 0.0,
+        "shape": [
+          5,
+          32
+        ]
+      },
+      "r16_vs_adapter": {
+        "dtype": "float64",
+        "exact": true,
+        "max_abs_diff": 0.0,
+        "mean_abs_diff": 0.0,
+        "shape": [
+          5,
+          4
+        ]
+      },
+      "stock_compiled_vs_adapter": {
+        "dtype": "float64",
+        "exact": false,
+        "max_abs_diff": 0.036358082119333446,
+        "mean_abs_diff": 0.015922299039836506,
+        "shape": [
+          5,
+          4
+        ]
+      },
+      "stock_eager_vs_adapter": {
+        "dtype": "float64",
+        "exact": true,
+        "max_abs_diff": 0.0,
+        "mean_abs_diff": 0.0,
+        "shape": [
+          5,
+          4
+        ]
+      },
+      "suffixes": [
+        {
+          "dtype": "float32",
+          "exact": true,
+          "max_abs_diff": 0.0,
+          "mean_abs_diff": 0.0,
+          "shape": [
+            5,
+            32
+          ]
+        }
+      ]
+    },
+    {
+      "actual_nfe": 2,
+      "debug_vs_plain": {
+        "dtype": "float64",
+        "exact": true,
+        "max_abs_diff": 0.0,
+        "mean_abs_diff": 0.0,
+        "shape": [
+          5,
+          4
+        ]
+      },
+      "grid": {
+        "compiled_grid_evidence": "source plus execution of original CPU loop; no compiled graph instrumentation",
+        "cpu_native_loop_exact": true,
+        "dt_float32": -0.5,
+        "r16_staged": [
+          1.0,
+          0.5
+        ],
+        "stock": [
+          1.0,
+          0.5
+        ]
+      },
+      "k": 2,
+      "observation": 1,
+      "peak_allocated_mib": 7273.8525390625,
+      "peak_reserved_mib": 7476.0,
+      "r16_normalized_vs_adapter": {
+        "dtype": "float32",
+        "exact": true,
+        "max_abs_diff": 0.0,
+        "mean_abs_diff": 0.0,
+        "shape": [
+          5,
+          32
+        ]
+      },
+      "r16_vs_adapter": {
+        "dtype": "float64",
+        "exact": true,
+        "max_abs_diff": 0.0,
+        "mean_abs_diff": 0.0,
+        "shape": [
+          5,
+          4
+        ]
+      },
+      "stock_compiled_vs_adapter": {
+        "dtype": "float64",
+        "exact": false,
+        "max_abs_diff": 0.07767835076159457,
+        "mean_abs_diff": 0.014446943970606484,
+        "shape": [
+          5,
+          4
+        ]
+      },
+      "stock_eager_vs_adapter": {
+        "dtype": "float64",
+        "exact": true,
+        "max_abs_diff": 0.0,
+        "mean_abs_diff": 0.0,
+        "shape": [
+          5,
+          4
+        ]
+      },
+      "suffixes": [
+        {
+          "dtype": "float32",
+          "exact": true,
+          "max_abs_diff": 0.0,
+          "mean_abs_diff": 0.0,
+          "shape": [
+            5,
+            32
+          ]
+        }
+      ]
+    },
+    {
+      "actual_nfe": 2,
+      "debug_vs_plain": {
+        "dtype": "float64",
+        "exact": true,
+        "max_abs_diff": 0.0,
+        "mean_abs_diff": 0.0,
+        "shape": [
+          5,
+          4
+        ]
+      },
+      "grid": {
+        "compiled_grid_evidence": "source plus execution of original CPU loop; no compiled graph instrumentation",
+        "cpu_native_loop_exact": true,
+        "dt_float32": -0.5,
+        "r16_staged": [
+          1.0,
+          0.5
+        ],
+        "stock": [
+          1.0,
+          0.5
+        ]
+      },
+      "k": 2,
+      "observation": 2,
+      "peak_allocated_mib": 7273.8525390625,
+      "peak_reserved_mib": 7476.0,
+      "r16_normalized_vs_adapter": {
+        "dtype": "float32",
+        "exact": true,
+        "max_abs_diff": 0.0,
+        "mean_abs_diff": 0.0,
+        "shape": [
+          5,
+          32
+        ]
+      },
+      "r16_vs_adapter": {
+        "dtype": "float64",
+        "exact": true,
+        "max_abs_diff": 0.0,
+        "mean_abs_diff": 0.0,
+        "shape": [
+          5,
+          4
+        ]
+      },
+      "stock_compiled_vs_adapter": {
+        "dtype": "float64",
+        "exact": false,
+        "max_abs_diff": 0.07010040637584147,
+        "mean_abs_diff": 0.01353238269231426,
+        "shape": [
+          5,
+          4
+        ]
+      },
+      "stock_eager_vs_adapter": {
+        "dtype": "float64",
+        "exact": true,
+        "max_abs_diff": 0.0,
+        "mean_abs_diff": 0.0,
+        "shape": [
+          5,
+          4
+        ]
+      },
+      "suffixes": [
+        {
+          "dtype": "float32",
+          "exact": true,
+          "max_abs_diff": 0.0,
+          "mean_abs_diff": 0.0,
+          "shape": [
+            5,
+            32
+          ]
+        }
+      ]
+    },
+    {
+      "actual_nfe": 1,
+      "debug_vs_plain": {
+        "dtype": "float64",
+        "exact": true,
+        "max_abs_diff": 0.0,
+        "mean_abs_diff": 0.0,
+        "shape": [
+          5,
+          4
+        ]
+      },
+      "grid": {
+        "compiled_grid_evidence": "source plus execution of original CPU loop; no compiled graph instrumentation",
+        "cpu_native_loop_exact": true,
+        "dt_float32": -1.0,
+        "r16_staged": [
+          1.0
+        ],
+        "stock": [
+          1.0
+        ]
+      },
+      "k": 1,
+      "observation": 0,
+      "peak_allocated_mib": 7335.6494140625,
+      "peak_reserved_mib": 7652.0,
+      "r16_normalized_vs_adapter": {
+        "dtype": "float32",
+        "exact": true,
+        "max_abs_diff": 0.0,
+        "mean_abs_diff": 0.0,
+        "shape": [
+          5,
+          32
+        ]
+      },
+      "r16_vs_adapter": {
+        "dtype": "float64",
+        "exact": true,
+        "max_abs_diff": 0.0,
+        "mean_abs_diff": 0.0,
+        "shape": [
+          5,
+          4
+        ]
+      },
+      "stock_compiled_vs_adapter": {
+        "dtype": "float64",
+        "exact": false,
+        "max_abs_diff": 0.060158350099502655,
+        "mean_abs_diff": 0.01818399040747959,
+        "shape": [
+          5,
+          4
+        ]
+      },
+      "stock_eager_vs_adapter": {
+        "dtype": "float64",
+        "exact": true,
+        "max_abs_diff": 0.0,
+        "mean_abs_diff": 0.0,
+        "shape": [
+          5,
+          4
+        ]
+      },
+      "suffixes": []
+    },
+    {
+      "actual_nfe": 1,
+      "debug_vs_plain": {
+        "dtype": "float64",
+        "exact": true,
+        "max_abs_diff": 0.0,
+        "mean_abs_diff": 0.0,
+        "shape": [
+          5,
+          4
+        ]
+      },
+      "grid": {
+        "compiled_grid_evidence": "source plus execution of original CPU loop; no compiled graph instrumentation",
+        "cpu_native_loop_exact": true,
+        "dt_float32": -1.0,
+        "r16_staged": [
+          1.0
+        ],
+        "stock": [
+          1.0
+        ]
+      },
+      "k": 1,
+      "observation": 1,
+      "peak_allocated_mib": 7335.6494140625,
+      "peak_reserved_mib": 7652.0,
+      "r16_normalized_vs_adapter": {
+        "dtype": "float32",
+        "exact": true,
+        "max_abs_diff": 0.0,
+        "mean_abs_diff": 0.0,
+        "shape": [
+          5,
+          32
+        ]
+      },
+      "r16_vs_adapter": {
+        "dtype": "float64",
+        "exact": true,
+        "max_abs_diff": 0.0,
+        "mean_abs_diff": 0.0,
+        "shape": [
+          5,
+          4
+        ]
+      },
+      "stock_compiled_vs_adapter": {
+        "dtype": "float64",
+        "exact": false,
+        "max_abs_diff": 0.12213263194465185,
+        "mean_abs_diff": 0.029349409226851687,
+        "shape": [
+          5,
+          4
+        ]
+      },
+      "stock_eager_vs_adapter": {
+        "dtype": "float64",
+        "exact": true,
+        "max_abs_diff": 0.0,
+        "mean_abs_diff": 0.0,
+        "shape": [
+          5,
+          4
+        ]
+      },
+      "suffixes": []
+    },
+    {
+      "actual_nfe": 1,
+      "debug_vs_plain": {
+        "dtype": "float64",
+        "exact": true,
+        "max_abs_diff": 0.0,
+        "mean_abs_diff": 0.0,
+        "shape": [
+          5,
+          4
+        ]
+      },
+      "grid": {
+        "compiled_grid_evidence": "source plus execution of original CPU loop; no compiled graph instrumentation",
+        "cpu_native_loop_exact": true,
+        "dt_float32": -1.0,
+        "r16_staged": [
+          1.0
+        ],
+        "stock": [
+          1.0
+        ]
+      },
+      "k": 1,
+      "observation": 2,
+      "peak_allocated_mib": 7335.6494140625,
+      "peak_reserved_mib": 7652.0,
+      "r16_normalized_vs_adapter": {
+        "dtype": "float32",
+        "exact": true,
+        "max_abs_diff": 0.0,
+        "mean_abs_diff": 0.0,
+        "shape": [
+          5,
+          32
+        ]
+      },
+      "r16_vs_adapter": {
+        "dtype": "float64",
+        "exact": true,
+        "max_abs_diff": 0.0,
+        "mean_abs_diff": 0.0,
+        "shape": [
+          5,
+          4
+        ]
+      },
+      "stock_compiled_vs_adapter": {
+        "dtype": "float64",
+        "exact": false,
+        "max_abs_diff": 0.04791883410901576,
+        "mean_abs_diff": 0.01396582335490546,
+        "shape": [
+          5,
+          4
+        ]
+      },
+      "stock_eager_vs_adapter": {
+        "dtype": "float64",
+        "exact": true,
+        "max_abs_diff": 0.0,
+        "mean_abs_diff": 0.0,
+        "shape": [
+          5,
+          4
+        ]
+      },
+      "suffixes": []
+    }
+  ],
+  "deadline_seconds": 870,
+  "elapsed_seconds": 273.89935424899886,
+  "gpu_lock_taken": false,
+  "job": "/data/mw_finetune/qualification/runs/slot_G1_pi05_mw_A_20261009_184115_360523/job.json",
+  "max_process_gpu_mib": 8156,
+  "model_loads": 1,
+  "model_spec": {
+    "allowed_benchmark_protocols": [
+      "3e84e999dc3d70662595e8dfb3ece7ac8e67cee8db1afb0294d85e9cd7dfc8d7"
+    ],
+    "capabilities": {
+      "features": {
+        "analysis": {
+          "evidence": [],
+          "reason": "framework/benchmark tools require cross-package qualification",
+          "status": "implemented_unverified"
+        },
+        "batch_stage1": {
+          "evidence": [],
+          "reason": "generic R17 executor not yet wired/qualified for this feature",
+          "status": "unsupported"
+        },
+        "batch_stage2": {
+          "evidence": [],
+          "reason": "generic R17 executor not yet wired/qualified for this feature",
+          "status": "unsupported"
+        },
+        "batch_stage3": {
+          "evidence": [],
+          "reason": "generic R17 executor not yet wired/qualified for this feature",
+          "status": "unsupported"
+        },
+        "bundle": {
+          "evidence": [],
+          "reason": "CPU hook conformance; real checkpoint GPU qualification pending",
+          "status": "supported"
+        },
+        "concurrent": {
+          "evidence": [],
+          "reason": "CPU hook conformance; real checkpoint GPU qualification pending",
+          "status": "supported"
+        },
+        "conductor": {
+          "evidence": [],
+          "reason": "framework/benchmark tools require cross-package qualification",
+          "status": "implemented_unverified"
+        },
+        "cp1_retrieval": {
+          "evidence": [],
+          "reason": "CPU hook conformance; real checkpoint GPU qualification pending",
+          "status": "supported"
+        },
+        "cp2": {
+          "evidence": [],
+          "reason": "generic R17 executor not yet wired/qualified for this feature",
+          "status": "unsupported"
+        },
+        "debug_capture": {
+          "evidence": [],
+          "reason": "CPU hook conformance; real checkpoint GPU qualification pending",
+          "status": "supported"
+        },
+        "episode": {
+          "evidence": [],
+          "reason": "CPU hook conformance; real checkpoint GPU qualification pending",
+          "status": "supported"
+        },
+        "full": {
+          "evidence": [],
+          "reason": "CPU hook conformance; real checkpoint GPU qualification pending",
+          "status": "supported"
+        },
+        "k_step": {
+          "evidence": [],
+          "reason": "CPU hook conformance; real checkpoint GPU qualification pending",
+          "status": "supported"
+        },
+        "library": {
+          "evidence": [],
+          "reason": "framework/benchmark tools require cross-package qualification",
+          "status": "implemented_unverified"
+        },
+        "offline": {
+          "evidence": [],
+          "reason": "framework/benchmark tools require cross-package qualification",
+          "status": "implemented_unverified"
+        },
+        "recipe": {
+          "evidence": [],
+          "reason": "framework/benchmark tools require cross-package qualification",
+          "status": "implemented_unverified"
+        },
+        "replay": {
+          "evidence": [],
+          "reason": "framework/benchmark tools require cross-package qualification",
+          "status": "implemented_unverified"
+        },
+        "routing": {
+          "evidence": [],
+          "reason": "generic R17 executor not yet wired/qualified for this feature",
+          "status": "unsupported"
+        },
+        "split": {
+          "evidence": [],
+          "reason": "generic R17 executor not yet wired/qualified for this feature",
+          "status": "unsupported"
+        },
+        "trace_twins": {
+          "evidence": [],
+          "reason": "generic R17 executor not yet wired/qualified for this feature",
+          "status": "unsupported"
+        },
+        "warm_reset": {
+          "evidence": [],
+          "reason": "generic R17 executor not yet wired/qualified for this feature",
+          "status": "unsupported"
+        },
+        "warm_resume": {
+          "evidence": [],
+          "reason": "native suffix hook; GPU parity pending",
+          "status": "implemented_unverified"
+        },
+        "warmup": {
+          "evidence": [],
+          "reason": "framework/benchmark tools require cross-package qualification",
+          "status": "implemented_unverified"
+        },
+        "worker": {
+          "evidence": [],
+          "reason": "framework/benchmark tools require cross-package qualification",
+          "status": "implemented_unverified"
+        }
+      }
+    },
+    "checkpoint_identity": "4008289bc944015dbf3eba6cea0a701f6ef9dbb53e0bfd47dea7b55585d8b62e",
+    "code_digest": "c21774a383f49b8f1f7f5f52d4dfdb7f6249533e4b20866f678d7ed645ccd738",
+    "default_sampler": {
+      "config": {
+        "direction": "descending",
+        "update": "native PI0Pytorch float32 accumulated Euler"
+      },
+      "family": "flow",
+      "native_deltas": [
+        -0.10000000149011612,
+        -0.10000000149011612,
+        -0.10000000149011612,
+        -0.10000000149011612,
+        -0.10000000149011612,
+        -0.10000000149011612,
+        -0.10000000149011612,
+        -0.10000000149011612,
+        -0.10000000149011612,
+        -0.10000000149011612
+      ],
+      "native_timesteps": [
+        1.0,
+        0.8999999761581421,
+        0.7999999523162842,
+        0.6999999284744263,
+        0.5999999046325684,
+        0.49999991059303284,
+        0.3999999165534973,
+        0.2999999225139618,
+        0.19999992847442627,
+        0.09999992698431015
+      ],
+      "num_steps": 10,
+      "point_kind": "native_time",
+      "sampler_id": "pi05_v1_k10"
+    },
+    "feature_spec": {
+      "active_state_indices": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "fields": {
+        "robot_state": 4,
+        "vision_0": 32768
+      },
+      "hidden_width": 2048,
+      "key_dtype": "float32",
+      "missing_branch_policy": "two masked zero wrists retain native compute",
+      "norm_digest": "ab3e2f7380ccbd0967fe391e07d4bc67492ceb7e3e06a9c03397aa6c28309220",
+      "policy_digest": "4008289bc944015dbf3eba6cea0a701f6ef9dbb53e0bfd47dea7b55585d8b62e",
+      "pooling": "spatial16.adaptive_avg_pool2d.v1",
+      "preprocess_digest": "c21774a383f49b8f1f7f5f52d4dfdb7f6249533e4b20866f678d7ed645ccd738",
+      "prompt_dependent": false,
+      "real_cameras": [
+        "corner2"
+      ],
+      "source": "PI0Pytorch.run_stage1.prefix_embs",
+      "token_grid": [
+        16,
+        16
+      ]
+    },
+    "layout": {
+      "action_space_name": "MetaWorld native Sawyer xyz delta + gripper",
+      "frame": "world",
+      "gripper_channel": 3,
+      "gripper_closed_convention": "positive native Sawyer close command",
+      "horizon": 5,
+      "model_action_width": 32,
+      "motion_channels": [
+        0,
+        1,
+        2
+      ],
+      "output_transform_id": "pi05_metaworld.quantile_inverse.v1",
+      "raw_state_fields": [
+        "hand_x",
+        "hand_y",
+        "hand_z",
+        "gripper_aperture"
+      ],
+      "replan_steps": 5,
+      "units": "native command; controller scale not calibrated here",
+      "valid_action_dim": 4,
+      "valid_action_indices": [],
+      "valid_state_indices": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "model_id": "pi05_rlinf_mt50",
+    "norm_identity": "ab3e2f7380ccbd0967fe391e07d4bc67492ceb7e3e06a9c03397aa6c28309220",
+    "python_island": "openpi PyTorch"
+  },
+  "pricing_claim": false,
+  "quality_claim": false,
+  "source_digests": {
+    "/home/weiland/projects/openpi/exp/r17_integration/models/pi05/gpu_diagnostic.py": "487f61334856c03d12673b4bb200c38afe5e74e5abbbfdd43fd3e2fcc450ca54",
+    "exp/offline_search/rounds/r16/replay.py": "6ac8cfafcc0f925b7f17b947df3a96ce59cc7db2f114d78e6c80923ae5b6fa90",
+    "scripts/serve_policy.py": "91d6695619296f4e11a0a7ade10a760cae7ff98782cace20b2e1384304d6b8d8",
+    "src/openpi/cache/interceptor.py": "c017b5c9e2e17a7385b213b224eb8d6cb1a7f4664a3d005be683262fada35322",
+    "src/openpi/models_pytorch/pi0_pytorch.py": "11f855b02edc860850149cb63f590c99aa162c07f810d0d26441f44ffa5b5c38",
+    "src/openpi/policies/policy.py": "103797c6e8ef11b91898fee67d5a0ff0c3036a5b68f97cacce4049dc8636c4ed"
+  },
+  "status": "PASS",
+  "synthetic_input": true
+}

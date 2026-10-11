@@ -1,0 +1,138 @@
+{
+  "diagnostic_only": true,
+  "model": {
+    "model_id": "fake_mw",
+    "checkpoint_identity": "fake.weights.sha256",
+    "norm_identity": "fake.norm.sha256",
+    "layout": {
+      "horizon": 16,
+      "replan_steps": 5,
+      "valid_action_dim": 4,
+      "valid_state_indices": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "motion_channels": [
+        0,
+        1,
+        2
+      ],
+      "gripper_channel": 3,
+      "gripper_closed_convention": "unspecified",
+      "raw_state_fields": [],
+      "action_space_name": "normalized",
+      "units": "unknown",
+      "frame": "unknown",
+      "output_transform_id": "fake_scale2.v1",
+      "model_action_width": null,
+      "valid_action_indices": []
+    },
+    "feature_spec": {
+      "source": "fake.policy.stage1",
+      "real_cameras": [
+        "camera0"
+      ],
+      "fields": {
+        "vision_0": 4,
+        "robot_state": 4
+      },
+      "token_grid": [],
+      "hidden_width": 0,
+      "pooling": "native.v1",
+      "missing_branch_policy": "reject",
+      "prompt_dependent": false,
+      "key_dtype": "float32",
+      "active_state_indices": [],
+      "policy_digest": "",
+      "norm_digest": "",
+      "preprocess_digest": ""
+    },
+    "default_sampler": {
+      "sampler_id": "fake_flow_k4.v1",
+      "family": "diagnostic_flow",
+      "num_steps": 4,
+      "native_timesteps": [
+        1.0,
+        0.75,
+        0.5,
+        0.25
+      ],
+      "native_deltas": [
+        -0.25,
+        -0.25,
+        -0.25,
+        -0.25
+      ],
+      "config": {},
+      "point_kind": "index_encoding"
+    },
+    "capabilities": {
+      "features": {
+        "full": {
+          "status": "supported",
+          "reason": "",
+          "evidence": [
+            "tests/common"
+          ]
+        },
+        "k_step": {
+          "status": "supported",
+          "reason": "",
+          "evidence": [
+            "tests/common"
+          ]
+        },
+        "concurrent": {
+          "status": "supported",
+          "reason": "",
+          "evidence": [
+            "tests/common"
+          ]
+        },
+        "bundle": {
+          "status": "supported",
+          "reason": "",
+          "evidence": [
+            "tests/common"
+          ]
+        },
+        "episode": {
+          "status": "supported",
+          "reason": "",
+          "evidence": [
+            "tests/common"
+          ]
+        },
+        "cp1_retrieval": {
+          "status": "supported",
+          "reason": "",
+          "evidence": [
+            "tests/common"
+          ]
+        },
+        "debug_capture": {
+          "status": "supported",
+          "reason": "",
+          "evidence": [
+            "tests/common"
+          ]
+        },
+        "native_resume": {
+          "status": "supported",
+          "reason": "",
+          "evidence": [
+            "tests/common"
+          ]
+        }
+      }
+    },
+    "allowed_benchmark_protocols": [
+      "fake_mw.v1",
+      "fake_libero.v1"
+    ],
+    "code_digest": "diagnostic",
+    "python_island": ""
+  }
+}

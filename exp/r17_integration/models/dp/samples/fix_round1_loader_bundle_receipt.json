@@ -1,0 +1,83 @@
+{
+  "schema": "r17.p4.bundle_load_receipt.v1",
+  "device": "cpu",
+  "gpu_executed": false,
+  "exit_code": 0,
+  "passed": 12,
+  "skipped": 0,
+  "checks": [
+    {
+      "check": "actual_pinned_loader",
+      "domain": "libero",
+      "status": "pass",
+      "model_identity": "841a37853518b9556d6cad6df0fbe1e3c5e53916d08a3aa4de30f6a9836870a8"
+    },
+    {
+      "check": "bound_yaml_actual_resident",
+      "domain": "libero",
+      "K": 1,
+      "status": "pass"
+    },
+    {
+      "check": "bound_yaml_actual_resident",
+      "domain": "libero",
+      "K": 2,
+      "status": "pass"
+    },
+    {
+      "check": "bound_yaml_actual_resident",
+      "domain": "libero",
+      "K": 4,
+      "status": "pass"
+    },
+    {
+      "check": "bound_yaml_actual_resident",
+      "domain": "libero",
+      "K": 10,
+      "status": "pass"
+    },
+    {
+      "check": "bound_yaml_actual_resident",
+      "domain": "libero",
+      "K": 100,
+      "status": "pass"
+    },
+    {
+      "check": "actual_pinned_loader",
+      "domain": "metaworld",
+      "status": "pass",
+      "model_identity": "1b105406482df44b3c1bfdb59ea9089b165045be19b4fe86a682f8cc6ba7cae8"
+    },
+    {
+      "check": "bound_yaml_actual_resident",
+      "domain": "metaworld",
+      "K": 1,
+      "status": "pass"
+    },
+    {
+      "check": "bound_yaml_actual_resident",
+      "domain": "metaworld",
+      "K": 2,
+      "status": "pass"
+    },
+    {
+      "check": "bound_yaml_actual_resident",
+      "domain": "metaworld",
+      "K": 4,
+      "status": "pass"
+    },
+    {
+      "check": "bound_yaml_actual_resident",
+      "domain": "metaworld",
+      "K": 10,
+      "status": "pass"
+    },
+    {
+      "check": "bound_yaml_actual_resident",
+      "domain": "metaworld",
+      "K": 100,
+      "status": "pass"
+    }
+  ],
+  "elapsed_seconds": 16.25110633999975
+}

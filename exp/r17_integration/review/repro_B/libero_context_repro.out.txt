@@ -1,0 +1,5 @@
+init 0 -> task_name '3' original_init_idx 0 seed 8084586646880178353
+   decision 1 source: policy stage_calls (1, 1, 2) (commit_horizon 10 )
+init 7 -> task_name '3' original_init_idx 0 seed 8084586646880178353
+   decision 1 source: policy stage_calls (1, 1, 2) (commit_horizon 10 )
+identical noise across init states: True

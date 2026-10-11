@@ -1,0 +1,223 @@
+@torch.no_grad()
+def infer_action(
+    self,
+    prompt: str | None,
+    input_image: torch.Tensor,
+    action_horizon: int,
+    proprio: torch.Tensor | None = None,
+    context: torch.Tensor | None = None,
+    context_mask: torch.Tensor | None = None,
+    negative_prompt: str | None = None,
+    text_cfg_scale: float = 1.0,
+    num_inference_steps: int = 20,
+    sigma_shift: float | None = None,
+    seed: int | None = None,
+    rand_device: str = "cpu",
+    tiled: bool = False,
+    compile_action_infer: bool = False,
+) -> dict[str, Any]:
+    self.eval()
+    if str(getattr(self.video_expert, "video_attention_mask_mode", "")) != "first_frame_causal":
+        raise ValueError("`infer_action` requires `video_attention_mask_mode='first_frame_causal'`.")
+
+    input_image, _, _ = self._normalize_infer_input_image(input_image)
+    proprio = self._normalize_infer_proprio(proprio)
+    latents_action = self._make_action_latents(action_horizon, seed, rand_device)
+
+    input_image = input_image.to(device=self.device, dtype=self.torch_dtype)
+    first_frame_latents = self._encode_input_image_latents_tensor(input_image=input_image, tiled=tiled)
+    fuse_flag = bool(getattr(self.video_expert, "fuse_vae_embedding_in_latents", False))
+
+    context, context_mask = self._prepare_infer_context(prompt, context, context_mask, proprio)
+
+    timestep_video = torch.zeros(
+        (first_frame_latents.shape[0],),
+        dtype=first_frame_latents.dtype,
+        device=self.device,
+    )
+    video_pre = self.video_expert.pre_dit(
+        x=first_frame_latents,
+        timestep=timestep_video,
+        context=context,
+        context_mask=context_mask,
+        action=None,
+        fuse_vae_embedding_in_latents=fuse_flag,
+    )
+    video_seq_len = int(video_pre["tokens"].shape[1])
+    attention_mask = self._build_mot_attention_mask(
+        video_seq_len=video_seq_len,
+        action_seq_len=latents_action.shape[1],
+        video_tokens_per_frame=int(video_pre["meta"]["tokens_per_frame"]),
+        device=video_pre["tokens"].device,
+    )
+    video_prefiller = self.mot.prefill_video_cache
+    action_denoiser = self._predict_action_noise_with_cache
+    if compile_action_infer:
+        if not hasattr(self, "_compiled_video_prefiller"):
+            self._compiled_video_prefiller = torch.compile(
+                self.mot.prefill_video_cache,
+                mode="reduce-overhead",
+                fullgraph=True,
+            )
+        if not hasattr(self, "_compiled_action_denoiser"):
+            self._compiled_action_denoiser = torch.compile(
+                self._predict_action_noise_with_cache,
+                mode="reduce-overhead",
+                fullgraph=True,
+            )
+        video_prefiller = self._compiled_video_prefiller
+        action_denoiser = self._compiled_action_denoiser
+        if self.device.type == "cuda":
+            torch.compiler.cudagraph_mark_step_begin()
+
+    video_kv_cache = video_prefiller(
+        video_tokens=video_pre["tokens"],
+        video_freqs=video_pre["freqs"],
+        video_t_mod=video_pre["t_mod"],
+        video_context_payload={
+            "context": video_pre["context"],
+            "mask": video_pre["context_mask"],
+        },
+        video_attention_mask=attention_mask[:video_seq_len, :video_seq_len],
+    )
+    if compile_action_infer:
+        # Inductor's reduce-overhead mode can return CUDA Graph-owned output
+        # buffers. The denoising graph replays repeatedly, so keep stable cache
+        # tensors that cannot be overwritten by a later graph replay.
+        video_kv_cache = [
+            {"k": layer_cache["k"].clone(), "v": layer_cache["v"].clone()}
+            for layer_cache in video_kv_cache
+        ]
+
+    infer_timesteps_action, infer_deltas_action = self.infer_action_scheduler.build_inference_schedule(
+        num_inference_steps=num_inference_steps,
+        device=self.device,
+        dtype=latents_action.dtype,
+        shift_override=sigma_shift,
+    )
+    for step_t_action, step_delta_action in zip(infer_timesteps_action, infer_deltas_action, strict=True):
+        if compile_action_infer and self.device.type == "cuda":
+            torch.compiler.cudagraph_mark_step_begin()
+        timestep_action = step_t_action.unsqueeze(0).to(dtype=latents_action.dtype, device=self.device)
+
+        pred_action = action_denoiser(
+            latents_action=latents_action,
+            timestep_action=timestep_action,
+            context=context,
+            context_mask=context_mask,
+            video_kv_cache=video_kv_cache,
+            attention_mask=attention_mask,
+            video_seq_len=video_seq_len,
+        )
+
+        latents_action = self.infer_action_scheduler.step(pred_action, step_delta_action, latents_action)
+
+    return {
+        "action": latents_action[0].detach().to(device="cpu", dtype=torch.float32),
+    }
+
+def _normalize_infer_input_image(
+    self,
+    input_image: torch.Tensor,
+    num_video_frames: int | None = None,
+) -> tuple[torch.Tensor, int, int]:
+    if input_image.ndim == 3:
+        input_image = input_image.unsqueeze(0)
+    if input_image.ndim != 4 or input_image.shape[0] != 1 or input_image.shape[1] != 3:
+        raise ValueError(
+            f"`input_image` must have shape [1,3,H,W] or [3,H,W], got {tuple(input_image.shape)}"
+        )
+    _, _, height, width = input_image.shape
+    if height % 16 != 0 or width % 16 != 0:
+        raise ValueError(
+            f"`input_image` must be resized before infer, expected multiples of 16 but got HxW=({height},{width})"
+        )
+    if num_video_frames is not None:
+        checked_h, checked_w, checked_t = self._check_resize_height_width(height, width, num_video_frames)
+        if (checked_h, checked_w) != (height, width):
+            raise ValueError(
+                f"`input_image` must be resized before infer, expected multiples of 16 but got HxW=({height},{width})"
+            )
+        if checked_t != num_video_frames:
+            raise ValueError(f"`num_video_frames` must satisfy T % 4 == 1, got {num_video_frames}")
+    return input_image, height, width
+
+def _normalize_infer_proprio(self, proprio: torch.Tensor | None) -> torch.Tensor | None:
+    if proprio is None:
+        return None
+    if self.proprio_dim is None:
+        raise ValueError(
+            "`proprio` was provided but `proprio_dim=None` so `proprio_encoder` is disabled."
+        )
+    if proprio.ndim == 1:
+        proprio = proprio.unsqueeze(0)
+    elif proprio.ndim == 2 and proprio.shape[0] == 1:
+        pass
+    else:
+        raise ValueError(f"`proprio` must be [D] or [1,D], got shape {tuple(proprio.shape)}")
+    if proprio.shape[1] != self.proprio_dim:
+        raise ValueError(f"`proprio` last dim must be {self.proprio_dim}, got {proprio.shape[1]}")
+    return proprio.to(device=self.device, dtype=self.torch_dtype)
+
+def _prepare_infer_context(self, prompt, context, context_mask, proprio):
+    use_prompt = prompt is not None
+    use_context = context is not None or context_mask is not None
+    if use_prompt and use_context:
+        raise ValueError("`prompt` and `context/context_mask` are mutually exclusive.")
+    if not use_prompt and not use_context:
+        raise ValueError("Either `prompt` or both `context/context_mask` must be provided.")
+    if use_prompt:
+        context, context_mask = self.encode_prompt(prompt)
+    else:
+        context, context_mask = self._normalize_context_tensors(context, context_mask)
+    if proprio is not None:
+        context, context_mask = self._append_proprio_to_context(
+            context=context,
+            context_mask=context_mask,
+            proprio=proprio,
+        )
+    return context, context_mask
+
+def _normalize_context_tensors(self, context, context_mask):
+    if context is None or context_mask is None:
+        raise ValueError("`context` and `context_mask` must be both provided together.")
+    if context.ndim == 2:
+        context = context.unsqueeze(0)
+    if context_mask.ndim == 1:
+        context_mask = context_mask.unsqueeze(0)
+    if context.ndim != 3 or context_mask.ndim != 2:
+        raise ValueError(
+            f"`context/context_mask` must be [B,L,D]/[B,L], got {tuple(context.shape)} and {tuple(context_mask.shape)}"
+        )
+    context = context.to(device=self.device, dtype=self.torch_dtype, non_blocking=True)
+    context_mask = context_mask.to(device=self.device, dtype=torch.bool, non_blocking=True)
+    return context, context_mask
+
+def _make_action_latents(self, action_horizon: int, seed: int | None, rand_device: str):
+    generator = None if seed is None else torch.Generator(device=rand_device).manual_seed(seed)
+    return torch.randn(
+        (1, action_horizon, self.action_expert.action_dim),
+        generator=generator,
+        device=rand_device,
+        dtype=torch.float32,
+    ).to(device=self.device, dtype=self.torch_dtype)
+
+@torch.no_grad()
+def _encode_input_image_latents_tensor(
+    self, input_image: torch.Tensor, tiled=False, tile_size=(30, 52), tile_stride=(15, 26)
+):
+    if input_image.ndim == 3:
+        input_image = input_image.unsqueeze(0)
+    if input_image.ndim != 4 or input_image.shape[0] != 1 or input_image.shape[1] != 3:
+        raise ValueError(
+            f"`input_image` must have shape [1,3,H,W] or [3,H,W], got {tuple(input_image.shape)}"
+        )
+    # [0, 1] -> [-1, 1] for the Wan VAE (mirrors `_encode_video_latents`); single image-encode boundary.
+    input_image = input_image * 2.0 - 1.0
+    image = input_image.to(device=self.device)[0].unsqueeze(1)
+    z = self.vae.encode(
+        [image], device=self.device, tiled=tiled, tile_size=tile_size, tile_stride=tile_stride
+    )
+    if isinstance(z, list):
+        z = z[0].unsqueeze(0)
+    return z

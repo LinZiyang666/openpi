@@ -1,0 +1,16 @@
+{
+  "asset_id": "groot_mw_k2",
+  "assets": "/data/mw_finetune/qualification/assets/groot_mw_k2_fix2_b3a3_v1",
+  "checkpoint": "/data/mw_finetune/groot/4090_mt50/checkpoint-30000",
+  "domain": "metaworld",
+  "driver_port": 23157,
+  "endpoint_host": "ziyanglin.com",
+  "host": "local",
+  "live_k": 2,
+  "model": "groot",
+  "python": "/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python",
+  "runtime": "/home/weiland/projects/openpi",
+  "server_port": 23156,
+  "vendor": "/home/weiland/projects/openpi_ext/third_party/gr00t_n15",
+  "worker_node": "timan107"
+}

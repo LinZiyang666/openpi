@@ -1,0 +1,33 @@
+{
+  "admitted": true,
+  "filesystems": [
+    {
+      "admitted": true,
+      "checked_at": 1791685938.9744422,
+      "filesystem_device": 64769,
+      "filesystem_probe": "/scratch/zixuans8/mw_r17/formal/runs",
+      "free_bytes": 33328951296,
+      "free_inodes": 12862140,
+      "minimum_free_bytes": 8589934592,
+      "path": "/scratch/zixuans8/mw_r17/formal/runs/_p6_cpu_disk_probe_timan107",
+      "reason": null,
+      "schema": "r17.worker_disk.v1",
+      "total_bytes": 227084713984
+    },
+    {
+      "admitted": true,
+      "checked_at": 1791685938.9745166,
+      "filesystem_device": 64769,
+      "filesystem_probe": "/tmp/r17_formal",
+      "free_bytes": 33328951296,
+      "free_inodes": 12862140,
+      "minimum_free_bytes": 8589934592,
+      "path": "/tmp/r17_formal/_p6_cpu_disk_probe/timan107",
+      "reason": null,
+      "schema": "r17.worker_disk.v1",
+      "total_bytes": 227084713984
+    }
+  ],
+  "node": "timan107",
+  "phase": "final_read_only_disk_audit"
+}

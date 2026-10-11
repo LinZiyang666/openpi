@@ -1,0 +1,39 @@
+{
+  "wan/video_dit.py": {
+    "sha256": "b03651ad411e23a2fcb1451f6e93ab6d01e9812d508c8bbb22aef7aa575a28bb",
+    "definitions": [
+      "get_sampling_sigmas",
+      "WanContinuousFlowMatchScheduler",
+      "patchify",
+      "_validate_forward_inputs",
+      "pre_dit"
+    ]
+  },
+  "wan/modular.py": {
+    "sha256": "4ae4daacee42945aa66c3a19ed418960646af39a4488d6074a71039e8ce93056",
+    "definitions": [
+      "infer_action",
+      "_normalize_infer_input_image",
+      "_normalize_infer_proprio",
+      "_prepare_infer_context",
+      "_normalize_context_tensors",
+      "_make_action_latents",
+      "_encode_input_image_latents_tensor"
+    ]
+  },
+  "modeling_fastwam.py": {
+    "sha256": "9cd54f5443cfefb67190d02418a619a2e4562d1a36e488f3ca6ebd1e36f8de09",
+    "definitions": [
+      "_resize_frames",
+      "_stack_video_from_images",
+      "_prepare_infer_image",
+      "_input_image_from_batch"
+    ]
+  },
+  "processor_fastwam.py": {
+    "sha256": "b229c5e10a81dc087c0828e8457c6b766609f0261a426c92125c8857e8e2c566",
+    "definitions": [
+      "FastWAMActionToggleProcessorStep"
+    ]
+  }
+}

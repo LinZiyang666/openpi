@@ -1,0 +1,30 @@
+{
+  "schema": "r17_integration_doc_validation.v1",
+  "documents": {
+    "INVENTORY.md": {
+      "file_line_citations": 311,
+      "bytes": 63993,
+      "lines": 142
+    },
+    "DESIGN.md": {
+      "file_line_citations": 282,
+      "bytes": 67307,
+      "lines": 285
+    },
+    "WORK_PACKAGES.md": {
+      "file_line_citations": 106,
+      "bytes": 38894,
+      "lines": 245
+    },
+    "verification/CPU_CHECKS.md": {
+      "file_line_citations": 9,
+      "bytes": 5174,
+      "lines": 64
+    }
+  },
+  "unique_sources": 130,
+  "total_file_line_citations": 708,
+  "source_reference_errors": [],
+  "relative_link_errors": [],
+  "markdown_table_errors": []
+}

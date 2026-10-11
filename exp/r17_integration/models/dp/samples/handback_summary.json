@@ -1,0 +1,520 @@
+{
+  "schema": "r17.p4.handback_receipt.v1",
+  "device": "cpu",
+  "gpu_executed": false,
+  "interface_version": "r17.contracts.v1",
+  "source_digests": {
+    "exp/mw_finetune/dp/model.py": "sha256:e8570dd11fe4402b533f3669e32b3117dd9a0264320322e1e9b3ef0fd7b105e9",
+    "exp/mw_finetune/dp/policy.py": "sha256:8eb98407d959fbec0afa03930dd972644cc3dcb77031e9bf37fef34ff731c686",
+    "exp/mw_finetune/dp/preprocess.py": "sha256:fb8d0d62bd3c74675116b20f00cef7cacd5290e488afcd5c27eba3a0ced5d12d",
+    "exp/mw_finetune/dp/checkpoint.py": "sha256:c4a95d3f476dd21d83b7867f626eced40fb4d6674bfc8377a8913e95ff1a0544",
+    "exp/mw_finetune/dp/RECIPE.md": "sha256:b128adcdc01b3758bf970829d4ea031e69e54bca77110473d6bfa89ef5f700db",
+    "exp/mw_finetune/dp/vendor/module_attr_mixin.py": "sha256:658dececa20f7628960fc1a8db89e4be3693e1bba47f63d1ff8a4faa2d481e45",
+    "exp/mw_finetune/dp/vendor/positional_embedding.py": "sha256:2266c75ecc9c9ac8ca126839d39a7bafbdd7af8800d6de903f66815e64cc366c",
+    "exp/mw_finetune/dp/vendor/transformer.py": "sha256:516e8626408b4329a3accb89bf5c0da06fb4df486bf2d520b82ee81f35891351",
+    "exp/r17_integration/models/dp/__init__.py": "sha256:3a6c4872915e5875db1f60c65b737c922bdd4de1aac580d27488e4e704c25cbe",
+    "exp/r17_integration/models/dp/batcher.py": "sha256:9ee91260bd95a02ec008e1020bd32c5ce4631fc2c488fc2611ff95b027cef598",
+    "exp/r17_integration/models/dp/config.py": "sha256:4d5414d86e525e5d9ba4b814894c1647f3da4e10a598847cecddd53b4eb20fe4",
+    "exp/r17_integration/models/dp/key_builder.py": "sha256:7f9330a87682c28c3ebcdc5305f3b073d5bf78cc463486208a57f2754c029330",
+    "exp/r17_integration/models/dp/loader.py": "sha256:f2732d38122831bb8e663a661c1eb5c66bfdc3f5d94cfe401155d978c3203206",
+    "exp/r17_integration/models/dp/manifest.py": "sha256:d1e4746936910b6d20d812b1b66aca604d029bf53f666b1aed44184c45bcb5bc",
+    "exp/r17_integration/models/dp/normalization.py": "sha256:5a38bf8755b444da917c5b567e669405d5bb6d58b271b940de48055fae456d06",
+    "exp/r17_integration/models/dp/probe.py": "sha256:1dbeece10e783ab1003077b80b2dfc1a0d4b0ce873bf383e1bbe584ba7f5b67c",
+    "exp/r17_integration/models/dp/provider.py": "sha256:23c715a4338e439b4665f44fa71562635f26934437d2c16b65bdae21a5755b91",
+    "exp/r17_integration/models/dp/request_noise.py": "sha256:cab13e2439c74e4c1844bfc5cb82087fac4ecab4002458eb74a04c2403d1893e",
+    "exp/r17_integration/models/dp/sampler.py": "sha256:3ae5f8d418a088ec021af61ac5edbc08b7e76ed240b379f35ce737f1043ce50f",
+    "exp/r17_integration/models/dp/serve.py": "sha256:8c987da7d8f9292b630c6ab18448fa6254a53051b8f1bcc937316eb9a31e54f4",
+    "exp/r17_integration/models/dp/staged.py": "sha256:ed35328c3998c7fa3b32e495981508c7dbfa4756b21b79b6746c2b3da78f403e",
+    "exp/r17_integration/models/dp/trace.py": "sha256:8502c780ac4bf1d6bad9fe616a95d8fd1c23cc7330f94e5d6d579781b707aa3b",
+    "exp/r17_integration/models/dp/wire_policy.py": "sha256:a5981c179e7eebe7be600d32a46ecbea909dd687b96edfb0c8ed335976320843",
+    "exp/r17_integration/common/contracts.py": "sha256:9161cb00e414572df1a490c56772f024bb3a4f2c771869c18fb762c5ae7ef1fd",
+    "exp/r17_integration/common/request_rng.py": "sha256:e6f1e5c13c2bd8f9d2f4aae688ab6639d0400a45be9a5bcb5af95a0ae29f85dd"
+  },
+  "framework_digests": {
+    "exp/r17_integration/common/provider.py": "sha256:7544309040a41ad0086478c3c3b27d979d556492325928de719dd17757caba71",
+    "exp/r17_integration/common/serving.py": "sha256:d6d21730ad1f60b74fe150cf51fba55a9a819047b14b5dbfdbc011b50306683d",
+    "src/openpi/cache/config.py": "sha256:3c59650dd462fa8ec12d870546a8c29ed5325d90875f57a3f07a58b23d22797e",
+    "src/openpi/cache/types.py": "sha256:ef9c8f94c397345d36252e995f562a72088aed86581f017ca887d6c7ace1e352",
+    "src/openpi/cache/storage_types.py": "sha256:1243d82142f87ae29ec11ecc1f24d8956530301e97090a440b86cfe1f6cbc140",
+    "src/openpi/serving/batching_core.py": "sha256:d39b9e0adb7f0828c28cebacc4dee4e4063a670ad3fbe8eb9939f0b3450341e5",
+    "src/openpi/serving/websocket_policy_server.py": "sha256:7f5c46d824ce53a0904e8ee4d2f77d6b06624213550c1b2a59e3f84dc1b17ca8"
+  },
+  "pytest": {
+    "cpu_delivered.xml": {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "56",
+      "time": "29.445",
+      "timestamp": "2026-10-09T12:21:26.396306-05:00",
+      "hostname": "weilandserver"
+    },
+    "cpu_legacy_handback.xml": {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "47",
+      "time": "8.843",
+      "timestamp": "2026-10-09T12:11:05.358420-05:00",
+      "hostname": "weilandserver"
+    }
+  },
+  "probes": {
+    "libero": {
+      "passed": 11,
+      "skipped": 0,
+      "elapsed_seconds": 36.70034404499984,
+      "weight_identity": "sha256:3ab4fb34d819bf1bb3e20b78dc2e41560ef47fe663213b17120d23ef2cf78103",
+      "checks": [
+        {
+          "name": "strict_475",
+          "status": "pass",
+          "missing": [],
+          "unexpected": [],
+          "keys": 475
+        },
+        {
+          "name": "native_condition_exact",
+          "status": "pass"
+        },
+        {
+          "name": "real_relu64_key_geometry",
+          "status": "pass",
+          "fields": {
+            "vision_0": [
+              64
+            ],
+            "robot_state": [
+              8
+            ],
+            "vision_1": [
+              64
+            ]
+          }
+        },
+        {
+          "name": "full_staged_k100_exact",
+          "status": "pass",
+          "native_grid": [
+            99,
+            98,
+            97,
+            96,
+            95,
+            94,
+            93,
+            92,
+            91,
+            90,
+            89,
+            88,
+            87,
+            86,
+            85,
+            84,
+            83,
+            82,
+            81,
+            80,
+            79,
+            78,
+            77,
+            76,
+            75,
+            74,
+            73,
+            72,
+            71,
+            70,
+            69,
+            68,
+            67,
+            66,
+            65,
+            64,
+            63,
+            62,
+            61,
+            60,
+            59,
+            58,
+            57,
+            56,
+            55,
+            54,
+            53,
+            52,
+            51,
+            50,
+            49,
+            48,
+            47,
+            46,
+            45,
+            44,
+            43,
+            42,
+            41,
+            40,
+            39,
+            38,
+            37,
+            36,
+            35,
+            34,
+            33,
+            32,
+            31,
+            30,
+            29,
+            28,
+            27,
+            26,
+            25,
+            24,
+            23,
+            22,
+            21,
+            20,
+            19,
+            18,
+            17,
+            16,
+            15,
+            14,
+            13,
+            12,
+            11,
+            10,
+            9,
+            8,
+            7,
+            6,
+            5,
+            4,
+            3,
+            2,
+            1,
+            0
+          ],
+          "actual_nfe": 100
+        },
+        {
+          "name": "E_Policy_infer100_exact_including_preprocess",
+          "status": "pass"
+        },
+        {
+          "name": "full_staged_k2_exact",
+          "status": "pass",
+          "native_grid": [
+            50,
+            0
+          ],
+          "actual_nfe": 2
+        },
+        {
+          "name": "real_native_suffix_exact",
+          "status": "pass",
+          "actual_nfe": 1
+        },
+        {
+          "name": "real_capture_on_off_exact",
+          "status": "pass"
+        },
+        {
+          "name": "full_staged_k1_exact",
+          "status": "pass",
+          "native_grid": [
+            0
+          ],
+          "actual_nfe": 1
+        },
+        {
+          "name": "real_explicit_ddim_suffix_exact",
+          "status": "pass"
+        },
+        {
+          "name": "real_B1_B2_sampler_equivalence",
+          "status": "pass",
+          "rtol": 0.0001,
+          "atol": 1e-05,
+          "max_abs": 5.960464477539062e-07,
+          "rng_states_exact": true
+        }
+      ]
+    },
+    "metaworld": {
+      "passed": 12,
+      "skipped": 0,
+      "elapsed_seconds": 35.755977296999845,
+      "weight_identity": "sha256:98353004131950a0a087a65270414e67067719e4ef7d701b9da77711ba136c16",
+      "checks": [
+        {
+          "name": "strict_475",
+          "status": "pass",
+          "missing": [],
+          "unexpected": [],
+          "keys": 475
+        },
+        {
+          "name": "native_condition_exact",
+          "status": "pass"
+        },
+        {
+          "name": "real_relu64_key_geometry",
+          "status": "pass",
+          "fields": {
+            "vision_0": [
+              64
+            ],
+            "robot_state": [
+              4
+            ]
+          }
+        },
+        {
+          "name": "full_staged_k100_exact",
+          "status": "pass",
+          "native_grid": [
+            99,
+            98,
+            97,
+            96,
+            95,
+            94,
+            93,
+            92,
+            91,
+            90,
+            89,
+            88,
+            87,
+            86,
+            85,
+            84,
+            83,
+            82,
+            81,
+            80,
+            79,
+            78,
+            77,
+            76,
+            75,
+            74,
+            73,
+            72,
+            71,
+            70,
+            69,
+            68,
+            67,
+            66,
+            65,
+            64,
+            63,
+            62,
+            61,
+            60,
+            59,
+            58,
+            57,
+            56,
+            55,
+            54,
+            53,
+            52,
+            51,
+            50,
+            49,
+            48,
+            47,
+            46,
+            45,
+            44,
+            43,
+            42,
+            41,
+            40,
+            39,
+            38,
+            37,
+            36,
+            35,
+            34,
+            33,
+            32,
+            31,
+            30,
+            29,
+            28,
+            27,
+            26,
+            25,
+            24,
+            23,
+            22,
+            21,
+            20,
+            19,
+            18,
+            17,
+            16,
+            15,
+            14,
+            13,
+            12,
+            11,
+            10,
+            9,
+            8,
+            7,
+            6,
+            5,
+            4,
+            3,
+            2,
+            1,
+            0
+          ],
+          "actual_nfe": 100
+        },
+        {
+          "name": "E_Policy_infer100_exact_including_preprocess",
+          "status": "pass"
+        },
+        {
+          "name": "full_staged_k2_exact",
+          "status": "pass",
+          "native_grid": [
+            50,
+            0
+          ],
+          "actual_nfe": 2
+        },
+        {
+          "name": "real_native_suffix_exact",
+          "status": "pass",
+          "actual_nfe": 1
+        },
+        {
+          "name": "real_capture_on_off_exact",
+          "status": "pass"
+        },
+        {
+          "name": "full_staged_k1_exact",
+          "status": "pass",
+          "native_grid": [
+            0
+          ],
+          "actual_nfe": 1
+        },
+        {
+          "name": "real_explicit_ddim_suffix_exact",
+          "status": "pass"
+        },
+        {
+          "name": "real_B1_B2_sampler_equivalence",
+          "status": "pass",
+          "rtol": 0.0001,
+          "atol": 1e-05,
+          "max_abs": 3.427267074584961e-07,
+          "rng_states_exact": true
+        },
+        {
+          "name": "real_zero_wrist_is_prompt_conditioned",
+          "status": "pass"
+        }
+      ]
+    }
+  },
+  "generated_yaml_roundtrips": [
+    "exp/r17_integration/models/dp/samples/libero_k100.yaml",
+    "exp/r17_integration/models/dp/samples/libero_k2.yaml",
+    "exp/r17_integration/models/dp/samples/libero_k1.yaml",
+    "exp/r17_integration/models/dp/samples/metaworld_k100.yaml",
+    "exp/r17_integration/models/dp/samples/metaworld_k2.yaml",
+    "exp/r17_integration/models/dp/samples/metaworld_k1.yaml"
+  ],
+  "artifact_digests": {
+    "samples/metaworld_load_cpu.json": "sha256:e7e61dcc8f695dd3781a5bfb11cd5ebd736d890575a64d666bac57cb73874506",
+    "samples/libero_load_cpu.json": "sha256:1ba81b6e3f944ee898d9bc082fe01e6c5677fc113d6654f58d99c8c4e5cc491b",
+    "samples/metaworld_k100.yaml": "sha256:9f8a46af9f87c56fc53de2a1821e937a0689be5c1948008c0c9385cba01bdc64",
+    "samples/libero_k100.yaml": "sha256:52f3f8e1a397e6234cd6f0a54d4c552fcf2fbb0c7cf86b0ed6930fd17c1677bd",
+    "samples/metaworld_k2.yaml": "sha256:7ce8d7e81fec05b104f1893bb9ea52cf41d0da3056914a84a79d05343cf4a19b",
+    "samples/metaworld_k1.yaml": "sha256:70c395ecd7351c2fe3aacc3efdc9d3ff676e7e07ded4ce151a4f84b458914bc2",
+    "samples/libero_k1.yaml": "sha256:52a800d81da874c788d8e95188a8809717c1b67905202112570181a6389e0b97",
+    "samples/libero_k2.yaml": "sha256:607a6a277bd65ac90b204a3e361e666beb0025793475327a3ad37ea9e264aad7",
+    "samples/loader_bundle_receipt.json": "sha256:7f4cecc03da5bfbf17fe0ab42ff6136257267cb21961a14dcadb7015f79d92cc"
+  },
+  "pinned_loader_bundles": {
+    "schema": "r17.p4.bundle_load_receipt.v1",
+    "device": "cpu",
+    "exit_code": 0,
+    "passed": 8,
+    "skipped": 0,
+    "elapsed_seconds": 16.662088819999553,
+    "checks": [
+      {
+        "check": "actual_pinned_loader",
+        "domain": "libero",
+        "status": "pass",
+        "strict_load": {
+          "missing": [],
+          "unexpected": [],
+          "keys": 475
+        },
+        "model_identity": "sha256:4d00494588c4b1581aee473799c28fdb3c74bf42ef86105af1749609bc78ca20"
+      },
+      {
+        "check": "bound_yaml_actual_resident",
+        "domain": "libero",
+        "K": 100,
+        "status": "pass"
+      },
+      {
+        "check": "bound_yaml_actual_resident",
+        "domain": "libero",
+        "K": 2,
+        "status": "pass"
+      },
+      {
+        "check": "bound_yaml_actual_resident",
+        "domain": "libero",
+        "K": 1,
+        "status": "pass"
+      },
+      {
+        "check": "actual_pinned_loader",
+        "domain": "metaworld",
+        "status": "pass",
+        "strict_load": {
+          "missing": [],
+          "unexpected": [],
+          "keys": 475
+        },
+        "model_identity": "sha256:c27b79ff5a3a33d61a5280001076907f246dbd8381d79b724438a71f688e130d"
+      },
+      {
+        "check": "bound_yaml_actual_resident",
+        "domain": "metaworld",
+        "K": 100,
+        "status": "pass"
+      },
+      {
+        "check": "bound_yaml_actual_resident",
+        "domain": "metaworld",
+        "K": 2,
+        "status": "pass"
+      },
+      {
+        "check": "bound_yaml_actual_resident",
+        "domain": "metaworld",
+        "K": 1,
+        "status": "pass"
+      }
+    ]
+  }
+}

@@ -1,0 +1,428 @@
+{
+  "activity": {
+    "corrector_nonzero_observed": true,
+    "extra_look_observed": true,
+    "scope": "observed only; absent activity is unexercised, never fabricated",
+    "stall_call_observed": true
+  },
+  "actual_nfe": 2600,
+  "all_owned_closed": true,
+  "artifacts": {
+    "LOCAL_GPU_LOCK.json": {
+      "path": "/data/mw_finetune/eval/csmdf1010/LOCAL_GPU_LOCK.json",
+      "sha256": "a214a5b9662a26bd4880cad699ced46f50c1fe7deeb06abe7fd9081a04200be2"
+    },
+    "RECEIPT.json": {
+      "path": "/data/mw_finetune/eval/csmdf1010/RECEIPT.json",
+      "sha256": "21f1cfad93ce2179e38e9612e53c458cdda1039a60f9fe873582cc98e8ea0e5f"
+    },
+    "SERVER_ATTESTATIONS.json": {
+      "path": "/data/mw_finetune/eval/csmdf1010/SERVER_ATTESTATIONS.json",
+      "sha256": "42307f06af554325e19d73dd28d4a3257ae5d678350d966b32d56c25763751dd"
+    },
+    "STUDY_BUNDLE_ACKS.json": {
+      "path": "/data/mw_finetune/eval/csmdf1010/STUDY_BUNDLE_ACKS.json",
+      "sha256": "73ff0d3b5bcd1c2840993778ace16629f7565299fd63529063a748c4695b61ec"
+    },
+    "SUMMARY.json": {
+      "path": "/data/mw_finetune/eval/csmdf1010/SUMMARY.json",
+      "sha256": "afb1feef213caf823192fac8a0771e9f7781b19d204570ab6edd882892a8149c"
+    },
+    "TUNNELS.json": {
+      "path": "/data/mw_finetune/eval/csmdf1010/TUNNELS.json",
+      "sha256": "c019e01ba176c4a7e70323d4b8f5b513ee145da7c0fd2e77586c99a58bab45f0"
+    },
+    "driver/DRIVER_RECEIPT.json": {
+      "path": "/data/mw_finetune/eval/csmdf1010/driver/DRIVER_RECEIPT.json",
+      "sha256": "bb4ffa10deb52d942092dda96c9c61c3080d43b07ec4b54950499da0e5b32cdd"
+    },
+    "driver/journal.jsonl": {
+      "path": "/data/mw_finetune/eval/csmdf1010/driver/journal.jsonl",
+      "sha256": "112b98c1683454fe28705285832e17f975b41b4ced65dc3b5a5850ec2d5de632"
+    },
+    "driver/per_step.jsonl": {
+      "path": "/data/mw_finetune/eval/csmdf1010/driver/per_step.jsonl",
+      "sha256": "746173daa59709b74e3fb080f3f1900ee31950bfef1bbdae493870a6da848bb8"
+    }
+  },
+  "bundle_ack_count": 16,
+  "campaign": "/data/mw_finetune/eval/csmdf1010",
+  "completed_episodes": 32,
+  "corrector_applied": 498,
+  "cpu_validation": {
+    "failures": 0,
+    "full_subtests": 43,
+    "full_tests": 881,
+    "legacy_tests": 259,
+    "ops_final_subtests": 43,
+    "ops_final_tests": 369,
+    "skips": 0
+  },
+  "decision_count": 1253,
+  "driver_seconds": 641.6768977679894,
+  "execution_ack_count": 1253,
+  "expected_episodes": 32,
+  "gpu_lock_acquisition_observation": {
+    "acquired_before_gpu_spawn": true,
+    "owned_gpu_start_ticks": {
+      "mps_guard": "11636088",
+      "replica_0": "11636207",
+      "replica_1": "11637646"
+    },
+    "pid": 3899891,
+    "source": "P6 tool output read of LOCAL_GPU_LOCK.json before first resident spawn",
+    "start_ticks": "11632911",
+    "status_observed": "HELD"
+  },
+  "gpu_lock_released": true,
+  "group_results": {
+    "c/libero_10": {
+      "completed": 2,
+      "corrector_active": 0,
+      "corrector_nonzero": 0,
+      "decisions": 120,
+      "errors": 0,
+      "nfe": 0,
+      "planned": 2,
+      "source_counts": {
+        "library": 120
+      },
+      "stall_calls": 0,
+      "stall_looks": 0,
+      "stall_observations": 0,
+      "stall_states": {},
+      "successes": 2
+    },
+    "c/libero_spatial": {
+      "completed": 2,
+      "corrector_active": 0,
+      "corrector_nonzero": 0,
+      "decisions": 37,
+      "errors": 0,
+      "nfe": 0,
+      "planned": 2,
+      "source_counts": {
+        "library": 37
+      },
+      "stall_calls": 0,
+      "stall_looks": 0,
+      "stall_observations": 0,
+      "stall_states": {},
+      "successes": 2
+    },
+    "cg/libero_10": {
+      "completed": 2,
+      "corrector_active": 0,
+      "corrector_nonzero": 0,
+      "decisions": 105,
+      "errors": 0,
+      "nfe": 300,
+      "planned": 2,
+      "source_counts": {
+        "library": 102,
+        "policy": 3
+      },
+      "stall_calls": 3,
+      "stall_looks": 4,
+      "stall_observations": 105,
+      "stall_states": {
+        "inactive": 4,
+        "ok": 92,
+        "slow_ambiguous": 4,
+        "slow_confirmed": 5
+      },
+      "successes": 2
+    },
+    "cg/libero_spatial": {
+      "completed": 2,
+      "corrector_active": 0,
+      "corrector_nonzero": 0,
+      "decisions": 37,
+      "errors": 0,
+      "nfe": 100,
+      "planned": 2,
+      "source_counts": {
+        "library": 36,
+        "policy": 1
+      },
+      "stall_calls": 1,
+      "stall_looks": 1,
+      "stall_observations": 37,
+      "stall_states": {
+        "inactive": 4,
+        "ok": 31,
+        "slow_ambiguous": 1,
+        "slow_confirmed": 1
+      },
+      "successes": 2
+    },
+    "ch/libero_10": {
+      "completed": 2,
+      "corrector_active": 0,
+      "corrector_nonzero": 0,
+      "decisions": 103,
+      "errors": 0,
+      "nfe": 0,
+      "planned": 2,
+      "source_counts": {
+        "library": 52,
+        "library_tail": 51
+      },
+      "stall_calls": 0,
+      "stall_looks": 0,
+      "stall_observations": 0,
+      "stall_states": {},
+      "successes": 2
+    },
+    "ch/libero_spatial": {
+      "completed": 2,
+      "corrector_active": 0,
+      "corrector_nonzero": 0,
+      "decisions": 38,
+      "errors": 0,
+      "nfe": 0,
+      "planned": 2,
+      "source_counts": {
+        "library": 19,
+        "library_tail": 19
+      },
+      "stall_calls": 0,
+      "stall_looks": 0,
+      "stall_observations": 0,
+      "stall_states": {},
+      "successes": 2
+    },
+    "chg/libero_10": {
+      "completed": 2,
+      "corrector_active": 0,
+      "corrector_nonzero": 0,
+      "decisions": 104,
+      "errors": 0,
+      "nfe": 100,
+      "planned": 2,
+      "source_counts": {
+        "library": 52,
+        "library_tail": 50,
+        "policy": 1,
+        "policy_tail": 1
+      },
+      "stall_calls": 1,
+      "stall_looks": 1,
+      "stall_observations": 53,
+      "stall_states": {
+        "inactive": 4,
+        "ok": 47,
+        "slow_ambiguous": 1,
+        "slow_confirmed": 1
+      },
+      "successes": 2
+    },
+    "chg/libero_spatial": {
+      "completed": 2,
+      "corrector_active": 0,
+      "corrector_nonzero": 0,
+      "decisions": 38,
+      "errors": 0,
+      "nfe": 0,
+      "planned": 2,
+      "source_counts": {
+        "library": 19,
+        "library_tail": 19
+      },
+      "stall_calls": 0,
+      "stall_looks": 0,
+      "stall_observations": 19,
+      "stall_states": {
+        "inactive": 4,
+        "ok": 15
+      },
+      "successes": 2
+    },
+    "chr/libero_10": {
+      "completed": 2,
+      "corrector_active": 50,
+      "corrector_nonzero": 50,
+      "decisions": 103,
+      "errors": 0,
+      "nfe": 0,
+      "planned": 2,
+      "source_counts": {
+        "library": 52,
+        "library_tail": 51
+      },
+      "stall_calls": 0,
+      "stall_looks": 0,
+      "stall_observations": 0,
+      "stall_states": {},
+      "successes": 2
+    },
+    "chr/libero_spatial": {
+      "completed": 2,
+      "corrector_active": 17,
+      "corrector_nonzero": 17,
+      "decisions": 37,
+      "errors": 0,
+      "nfe": 0,
+      "planned": 2,
+      "source_counts": {
+        "library": 19,
+        "library_tail": 18
+      },
+      "stall_calls": 0,
+      "stall_looks": 0,
+      "stall_observations": 0,
+      "stall_states": {},
+      "successes": 2
+    },
+    "chrg/libero_10": {
+      "completed": 2,
+      "corrector_active": 50,
+      "corrector_nonzero": 50,
+      "decisions": 102,
+      "errors": 0,
+      "nfe": 100,
+      "planned": 2,
+      "source_counts": {
+        "library": 52,
+        "library_tail": 49,
+        "policy": 1
+      },
+      "stall_calls": 1,
+      "stall_looks": 3,
+      "stall_observations": 53,
+      "stall_states": {
+        "inactive": 4,
+        "ok": 39,
+        "slow_ambiguous": 9,
+        "slow_confirmed": 1
+      },
+      "successes": 2
+    },
+    "chrg/libero_spatial": {
+      "completed": 2,
+      "corrector_active": 17,
+      "corrector_nonzero": 17,
+      "decisions": 37,
+      "errors": 0,
+      "nfe": 0,
+      "planned": 2,
+      "source_counts": {
+        "library": 19,
+        "library_tail": 18
+      },
+      "stall_calls": 0,
+      "stall_looks": 0,
+      "stall_observations": 19,
+      "stall_states": {
+        "inactive": 4,
+        "ok": 15
+      },
+      "successes": 2
+    },
+    "cr/libero_10": {
+      "completed": 2,
+      "corrector_active": 162,
+      "corrector_nonzero": 162,
+      "decisions": 164,
+      "errors": 0,
+      "nfe": 0,
+      "planned": 2,
+      "source_counts": {
+        "library": 164
+      },
+      "stall_calls": 0,
+      "stall_looks": 0,
+      "stall_observations": 0,
+      "stall_states": {},
+      "successes": 1
+    },
+    "cr/libero_spatial": {
+      "completed": 2,
+      "corrector_active": 35,
+      "corrector_nonzero": 35,
+      "decisions": 37,
+      "errors": 0,
+      "nfe": 0,
+      "planned": 2,
+      "source_counts": {
+        "library": 37
+      },
+      "stall_calls": 0,
+      "stall_looks": 0,
+      "stall_observations": 0,
+      "stall_states": {},
+      "successes": 2
+    },
+    "crg/libero_10": {
+      "completed": 2,
+      "corrector_active": 133,
+      "corrector_nonzero": 133,
+      "decisions": 154,
+      "errors": 0,
+      "nfe": 1900,
+      "planned": 2,
+      "source_counts": {
+        "library": 135,
+        "policy": 19
+      },
+      "stall_calls": 19,
+      "stall_looks": 5,
+      "stall_observations": 154,
+      "stall_states": {
+        "inactive": 4,
+        "ok": 115,
+        "slow_ambiguous": 8,
+        "slow_confirmed": 27
+      },
+      "successes": 1
+    },
+    "crg/libero_spatial": {
+      "completed": 2,
+      "corrector_active": 34,
+      "corrector_nonzero": 34,
+      "decisions": 37,
+      "errors": 0,
+      "nfe": 100,
+      "planned": 2,
+      "source_counts": {
+        "library": 36,
+        "policy": 1
+      },
+      "stall_calls": 1,
+      "stall_looks": 0,
+      "stall_observations": 37,
+      "stall_states": {
+        "inactive": 4,
+        "ok": 32,
+        "slow_confirmed": 1
+      },
+      "successes": 2
+    }
+  },
+  "hit_counts": {
+    "FULL_HIT": 1227,
+    "MISS": 26
+  },
+  "no_replica_restart_verified": true,
+  "resident_generations": {
+    "3903175": [
+      "cb66f96c8c1943e9babaff2ce83292df"
+    ],
+    "3904487": [
+      "324b658eea564a8abc4060916af25f25"
+    ]
+  },
+  "schema": "r17.cache_startup_smoke.v1",
+  "scope": "authorized DP smoke only; H100 GPU smoke and full lanes not launched",
+  "source_counts": {
+    "library": 951,
+    "library_tail": 275,
+    "policy": 26,
+    "policy_tail": 1
+  },
+  "stall_calls": 26,
+  "status": "PASS",
+  "terminal_ack_count": 32,
+  "terminal_errors": 0,
+  "violations": []
+}

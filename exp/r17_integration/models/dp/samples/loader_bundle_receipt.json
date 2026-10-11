@@ -1,0 +1,68 @@
+{
+  "schema": "r17.p4.bundle_load_receipt.v1",
+  "device": "cpu",
+  "exit_code": 0,
+  "passed": 8,
+  "skipped": 0,
+  "elapsed_seconds": 16.662088819999553,
+  "checks": [
+    {
+      "check": "actual_pinned_loader",
+      "domain": "libero",
+      "status": "pass",
+      "strict_load": {
+        "missing": [],
+        "unexpected": [],
+        "keys": 475
+      },
+      "model_identity": "sha256:4d00494588c4b1581aee473799c28fdb3c74bf42ef86105af1749609bc78ca20"
+    },
+    {
+      "check": "bound_yaml_actual_resident",
+      "domain": "libero",
+      "K": 100,
+      "status": "pass"
+    },
+    {
+      "check": "bound_yaml_actual_resident",
+      "domain": "libero",
+      "K": 2,
+      "status": "pass"
+    },
+    {
+      "check": "bound_yaml_actual_resident",
+      "domain": "libero",
+      "K": 1,
+      "status": "pass"
+    },
+    {
+      "check": "actual_pinned_loader",
+      "domain": "metaworld",
+      "status": "pass",
+      "strict_load": {
+        "missing": [],
+        "unexpected": [],
+        "keys": 475
+      },
+      "model_identity": "sha256:c27b79ff5a3a33d61a5280001076907f246dbd8381d79b724438a71f688e130d"
+    },
+    {
+      "check": "bound_yaml_actual_resident",
+      "domain": "metaworld",
+      "K": 100,
+      "status": "pass"
+    },
+    {
+      "check": "bound_yaml_actual_resident",
+      "domain": "metaworld",
+      "K": 2,
+      "status": "pass"
+    },
+    {
+      "check": "bound_yaml_actual_resident",
+      "domain": "metaworld",
+      "K": 1,
+      "status": "pass"
+    }
+  ]
+}

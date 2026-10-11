@@ -1,0 +1,27 @@
+{
+  "command": [
+    "/home/weiland/projects/openpi/.venv/bin/python",
+    "-u",
+    "-m",
+    "exp.r17_integration.models.pi05.gpu_diagnostic",
+    "--job",
+    "/data/mw_finetune/qualification/runs/slot_G1_pi05_mw_A_20261009_184115_360523/job.json",
+    "--output",
+    "exp/r17_integration/tests/models/pi05/gpu_fix1/diagnostic.json"
+  ],
+  "job_sha256": "7a2b36762f91251d722528c52acdd8db1100533dba59ab606f0bff26cec091e2",
+  "environment": {
+    "CUDA_VISIBLE_DEVICES": "0",
+    "JAX_PLATFORMS": "cpu",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "PYTHONPATH": ":/home/weiland/projects/openpi:/home/weiland/projects/openpi/src:/home/weiland/projects/openpi/packages/openpi-client/src",
+    "XLA_PYTHON_CLIENT_PREALLOCATE": "false",
+    "HF_HUB_OFFLINE": "1",
+    "TRANSFORMERS_OFFLINE": "1",
+    "NO_ALBUMENTATIONS_UPDATE": "1",
+    "TOKENIZERS_PARALLELISM": "false"
+  }
+}

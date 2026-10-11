@@ -1,0 +1,450 @@
+{
+  "schema": "r17.p4.gpu_fix2.summary.v1",
+  "production_max_batch_size": 1,
+  "production_batching": "unsupported",
+  "current_release_GPU_qualified": false,
+  "gpu_measurement_count": 1,
+  "gpu_executed": true,
+  "gpu_measurement_seconds": 22.02568307400361,
+  "gpu_measured_previous_model_identity": "sha256:777919b5255dcb6bfa6f071fedfefd48d200659ebe0e26956c81fbabb45b8d69",
+  "gpu_measurements": [
+    {
+      "K": 100,
+      "B": 2,
+      "scope": "sampler_only",
+      "conditioning_max_abs": 0.0,
+      "rng_exact": true,
+      "max_abs": 5.960464477539063e-08,
+      "max_rel": 8.922508902433257e-07,
+      "rmse": 1.6859162014118823e-08,
+      "elements": 224,
+      "old_tolerance_mismatches": 0
+    },
+    {
+      "K": 100,
+      "B": 2,
+      "scope": "end_to_end",
+      "conditioning_max_abs": 0.0005244612693786621,
+      "rng_exact": true,
+      "max_abs": 0.00010779500007629395,
+      "max_rel": 0.009622216685410336,
+      "rmse": 3.225228343707969e-05,
+      "elements": 224,
+      "old_tolerance_mismatches": 64
+    },
+    {
+      "K": 100,
+      "B": 4,
+      "scope": "sampler_only",
+      "conditioning_max_abs": 0.0,
+      "rng_exact": true,
+      "max_abs": 1.1920928955078125e-07,
+      "max_rel": 1.8138429794725073e-05,
+      "rmse": 1.9879781900638383e-08,
+      "elements": 448,
+      "old_tolerance_mismatches": 0
+    },
+    {
+      "K": 100,
+      "B": 4,
+      "scope": "end_to_end",
+      "conditioning_max_abs": 0.00044077634811401367,
+      "rng_exact": true,
+      "max_abs": 0.00012936443090438843,
+      "max_rel": 0.012699403770921894,
+      "rmse": 3.478078914944796e-05,
+      "elements": 448,
+      "old_tolerance_mismatches": 119
+    },
+    {
+      "K": 2,
+      "B": 2,
+      "scope": "sampler_only",
+      "conditioning_max_abs": 0.0,
+      "rng_exact": true,
+      "max_abs": 4.857778549194336e-06,
+      "max_rel": 0.00014240687023900315,
+      "rmse": 4.751750079504554e-07,
+      "elements": 224,
+      "old_tolerance_mismatches": 0
+    },
+    {
+      "K": 2,
+      "B": 2,
+      "scope": "end_to_end",
+      "conditioning_max_abs": 0.0005244612693786621,
+      "rng_exact": true,
+      "max_abs": 0.00036390870809555054,
+      "max_rel": 0.014322586633857716,
+      "rmse": 4.070914662825703e-05,
+      "elements": 224,
+      "old_tolerance_mismatches": 69
+    },
+    {
+      "K": 2,
+      "B": 4,
+      "scope": "sampler_only",
+      "conditioning_max_abs": 0.0,
+      "rng_exact": true,
+      "max_abs": 4.3004751205444336e-05,
+      "max_rel": 0.0083192676175599,
+      "rmse": 3.543178256291354e-06,
+      "elements": 448,
+      "old_tolerance_mismatches": 1
+    },
+    {
+      "K": 2,
+      "B": 4,
+      "scope": "end_to_end",
+      "conditioning_max_abs": 0.00044077634811401367,
+      "rng_exact": true,
+      "max_abs": 0.0012102723121643066,
+      "max_rel": 0.09099856655574068,
+      "rmse": 0.0001484625359534557,
+      "elements": 448,
+      "old_tolerance_mismatches": 134
+    }
+  ],
+  "gpu_measurement_source_delta": {
+    "exp/r17_integration/models/dp/batcher.py": {
+      "measured": "sha256:9ee91260bd95a02ec008e1020bd32c5ce4631fc2c488fc2611ff95b027cef598",
+      "current": "sha256:5ae4c748e51132cbfe5124b07ab0e3cb2a7bbd2ec8f046f4244ea17b746d4d77"
+    },
+    "exp/r17_integration/models/dp/probe.py": {
+      "measured": "sha256:e9ea4be4b7b3bb9e5485ad43e437dbb57140f3e0d170d3f1595bd02b4e7fa12d",
+      "current": "sha256:2f2faa570e4ab6fe4f360f836d3b117639e37667388348ccaa1ee3c0de47980c"
+    },
+    "exp/r17_integration/models/dp/provider.py": {
+      "measured": "sha256:0c96751d75dc50dfb106e8fcf097f7ee818c764131b17eeb51790b2f219dff12",
+      "current": "sha256:a982ed798e53e0bb8b4940b9ada374bf197ccb52e5045449531eca43cc7df27e"
+    },
+    "exp/r17_integration/models/dp/quality.py": {
+      "measured": "sha256:04bf244c9a9dcbde7ee26880247886a636082079bc3b2ef8db41e959bbb274d1",
+      "current": "sha256:150938fe6d26d16460bed3c9d1474555b9825dc61f545a016e7cbf43f3f47fe9"
+    },
+    "exp/r17_integration/models/dp/serve.py": {
+      "measured": "sha256:f206772336cb011a3d176c392d4bc018e555f299673fcfcbec3d67e1ccdbc9d7",
+      "current": "sha256:33881e1c5b0a73e02a9f288abbab528d17a8362e06139934e7ce0294465e9270"
+    },
+    "exp/r17_integration/models/dp/staged.py": {
+      "measured": "sha256:1b206f38112dc9e186759e7c3079862131cb91135cb6a454458888beb4ba27d1",
+      "current": "sha256:07a32591d44d299f55dfa0749eb85e5400c6a90797b4b4163e7d757cc0b93e6e"
+    },
+    "exp/r17_integration/models/dp/wire_policy.py": {
+      "measured": "sha256:eacc1e10a99b656f0eeb40791853d6c3b1ac560b71bf07e34ea0ee91af1bb55c",
+      "current": "sha256:c1b526754883aed6c78eb1b3775f3d78eca33e8a73012910c1522d4e89c58b95"
+    }
+  },
+  "suites": {
+    "full": {
+      "tests": 153,
+      "failures": 0,
+      "skipped": 0,
+      "errors": 0,
+      "passed": 153,
+      "seconds": 89.882,
+      "expected_exit_code": 0
+    },
+    "legacy": {
+      "tests": 49,
+      "failures": 0,
+      "skipped": 0,
+      "errors": 0,
+      "passed": 49,
+      "seconds": 14.905,
+      "expected_exit_code": 0
+    },
+    "targeted": {
+      "tests": 23,
+      "failures": 0,
+      "skipped": 0,
+      "errors": 0,
+      "passed": 23,
+      "seconds": 8.614,
+      "expected_exit_code": 0
+    },
+    "negative": {
+      "tests": 1,
+      "failures": 1,
+      "skipped": 0,
+      "errors": 0,
+      "passed": 0,
+      "seconds": 0.623,
+      "expected_exit_code": 1
+    }
+  },
+  "distinct_accepted_pytest_passed": 202,
+  "current_probe_checks": 39,
+  "probes": {
+    "q_libero": {
+      "passed": 13,
+      "skipped": 0,
+      "device": "cpu",
+      "diagnostic": true,
+      "elapsed_seconds": 33.151391219005745,
+      "B2_diagnostic": {
+        "name": "B1_B2_batch_composition",
+        "status": "diagnostic_only",
+        "production_batching": "unsupported",
+        "quality_claim": "none",
+        "max_abs": 6.67572021484375e-06,
+        "max_rel": 0.00013050131009587502,
+        "rng_states_exact": true,
+        "old_tolerance": {
+          "rtol": 0.0001,
+          "atol": 1e-05,
+          "mismatches": 0,
+          "elements": 224
+        },
+        "acceptance": "no numerical parity gate; labelled offline diagnostic only",
+        "label": "native_probe_B2_composition_only"
+      },
+      "model_identity": "sha256:67331d0af13c19fc3e993e5a89f81a1c89469e68d66049f0ec26122de203a022"
+    },
+    "release_libero": {
+      "passed": 13,
+      "skipped": 0,
+      "device": "cpu",
+      "diagnostic": true,
+      "elapsed_seconds": 30.079885758001183,
+      "B2_diagnostic": {
+        "name": "B1_B2_batch_composition",
+        "status": "diagnostic_only",
+        "production_batching": "unsupported",
+        "quality_claim": "none",
+        "max_abs": 1.780688762664795e-06,
+        "max_rel": 0.0003316400419500753,
+        "rng_states_exact": true,
+        "old_tolerance": {
+          "rtol": 0.0001,
+          "atol": 1e-05,
+          "mismatches": 0,
+          "elements": 224
+        },
+        "acceptance": "no numerical parity gate; labelled offline diagnostic only",
+        "label": "native_probe_B2_composition_only"
+      },
+      "model_identity": "sha256:67331d0af13c19fc3e993e5a89f81a1c89469e68d66049f0ec26122de203a022"
+    },
+    "release_metaworld": {
+      "passed": 13,
+      "skipped": 0,
+      "device": "cpu",
+      "diagnostic": true,
+      "elapsed_seconds": 29.6137025479984,
+      "B2_diagnostic": {
+        "name": "B1_B2_batch_composition",
+        "status": "diagnostic_only",
+        "production_batching": "unsupported",
+        "quality_claim": "none",
+        "max_abs": 2.7120113372802734e-06,
+        "max_rel": 9.855290292951191e-06,
+        "rng_states_exact": true,
+        "old_tolerance": {
+          "rtol": 0.0001,
+          "atol": 1e-05,
+          "mismatches": 0,
+          "elements": 128
+        },
+        "acceptance": "no numerical parity gate; labelled offline diagnostic only",
+        "label": "native_probe_B2_composition_only"
+      },
+      "model_identity": "sha256:8667deb01c7b44bc98954b3ada0e7151d5ef9df3d5496280b282a898c7f47796"
+    }
+  },
+  "bundle_checks": {
+    "passed": 18,
+    "skipped": 0,
+    "elapsed_seconds": 12.52569643699826
+  },
+  "runtime": {
+    "schema": "r17.p4.gpu_fix2.runtime.v1",
+    "test_device": "cpu",
+    "model_sources": {
+      "exp/mw_finetune/dp/model.py": "sha256:e8570dd11fe4402b533f3669e32b3117dd9a0264320322e1e9b3ef0fd7b105e9",
+      "exp/mw_finetune/dp/policy.py": "sha256:8eb98407d959fbec0afa03930dd972644cc3dcb77031e9bf37fef34ff731c686",
+      "exp/mw_finetune/dp/preprocess.py": "sha256:fb8d0d62bd3c74675116b20f00cef7cacd5290e488afcd5c27eba3a0ced5d12d",
+      "exp/mw_finetune/dp/checkpoint.py": "sha256:c4a95d3f476dd21d83b7867f626eced40fb4d6674bfc8377a8913e95ff1a0544",
+      "exp/mw_finetune/dp/RECIPE.md": "sha256:b128adcdc01b3758bf970829d4ea031e69e54bca77110473d6bfa89ef5f700db",
+      "exp/mw_finetune/dp/vendor/module_attr_mixin.py": "sha256:658dececa20f7628960fc1a8db89e4be3693e1bba47f63d1ff8a4faa2d481e45",
+      "exp/mw_finetune/dp/vendor/positional_embedding.py": "sha256:2266c75ecc9c9ac8ca126839d39a7bafbdd7af8800d6de903f66815e64cc366c",
+      "exp/mw_finetune/dp/vendor/transformer.py": "sha256:516e8626408b4329a3accb89bf5c0da06fb4df486bf2d520b82ee81f35891351",
+      "exp/r17_integration/models/dp/__init__.py": "sha256:3a6c4872915e5875db1f60c65b737c922bdd4de1aac580d27488e4e704c25cbe",
+      "exp/r17_integration/models/dp/admission.py": "sha256:3a0f84efe56cbc43ef08ddffd955baa233d9b5b6cb50e675109739d68e1b65b8",
+      "exp/r17_integration/models/dp/batcher.py": "sha256:5ae4c748e51132cbfe5124b07ab0e3cb2a7bbd2ec8f046f4244ea17b746d4d77",
+      "exp/r17_integration/models/dp/config.py": "sha256:ba4122cfa251e051f1b3f7ac34f1ba04bb0aee67a6c875e90909764335f3502d",
+      "exp/r17_integration/models/dp/fixtures.py": "sha256:8966ab74aed62ff3a33d12705f3ef1c411042ab801bc7e1a3ffe2db708d92d38",
+      "exp/r17_integration/models/dp/key_builder.py": "sha256:7f9330a87682c28c3ebcdc5305f3b073d5bf78cc463486208a57f2754c029330",
+      "exp/r17_integration/models/dp/loader.py": "sha256:6d97ee1d862a15fffff2ecdf7f473f6c347ab4c034cf52e5a53e6d9d8aaae23c",
+      "exp/r17_integration/models/dp/manifest.py": "sha256:70dc03e58bca50fa22eb286a21e81790fb00254d7351c96474b081d2b2ff3575",
+      "exp/r17_integration/models/dp/normalization.py": "sha256:5a38bf8755b444da917c5b567e669405d5bb6d58b271b940de48055fae456d06",
+      "exp/r17_integration/models/dp/probe.py": "sha256:2f2faa570e4ab6fe4f360f836d3b117639e37667388348ccaa1ee3c0de47980c",
+      "exp/r17_integration/models/dp/protocols.py": "sha256:04b16028b6574624c079cba34b65d8b30d5891a75b29901d09dab8914d6843ba",
+      "exp/r17_integration/models/dp/provider.py": "sha256:a982ed798e53e0bb8b4940b9ada374bf197ccb52e5045449531eca43cc7df27e",
+      "exp/r17_integration/models/dp/quality.py": "sha256:150938fe6d26d16460bed3c9d1474555b9825dc61f545a016e7cbf43f3f47fe9",
+      "exp/r17_integration/models/dp/request_noise.py": "sha256:cab13e2439c74e4c1844bfc5cb82087fac4ecab4002458eb74a04c2403d1893e",
+      "exp/r17_integration/models/dp/sampler.py": "sha256:277f56f9b184b0602976a8c8f13b94881df495efd7bf8e5002c76f7dfebb7962",
+      "exp/r17_integration/models/dp/serve.py": "sha256:33881e1c5b0a73e02a9f288abbab528d17a8362e06139934e7ce0294465e9270",
+      "exp/r17_integration/models/dp/staged.py": "sha256:07a32591d44d299f55dfa0749eb85e5400c6a90797b4b4163e7d757cc0b93e6e",
+      "exp/r17_integration/models/dp/trace.py": "sha256:8502c780ac4bf1d6bad9fe616a95d8fd1c23cc7330f94e5d6d579781b707aa3b",
+      "exp/r17_integration/models/dp/wire_policy.py": "sha256:c1b526754883aed6c78eb1b3775f3d78eca33e8a73012910c1522d4e89c58b95",
+      "exp/r17_integration/common/contracts.py": "sha256:db72207d1762c8d904ffe5e9695ab1ec54b4a1ca73402ad4b0e243d5d9bb9737",
+      "exp/r17_integration/common/request_rng.py": "sha256:e6f1e5c13c2bd8f9d2f4aae688ab6639d0400a45be9a5bcb5af95a0ae29f85dd"
+    },
+    "framework_sources": {
+      "exp/r17_integration/common/provider.py": "sha256:60930c2c3c3ba9075db3fb8b8284a2219bcfae86a790cdd317905e7b1f1cdb0a",
+      "exp/r17_integration/common/serving.py": "sha256:86c16a1d967c9da9d75231d3011cdf7618ab38202457cd97b39fb9ee90e1ebd7",
+      "exp/r17_integration/common/config.py": "sha256:c70c5e98cef5d03bdb4d8242081aae85537e72c7284b39942bea41a12bfbd2ec",
+      "exp/r17_integration/common/recipe.py": "sha256:bee9ad04445037eab903a7c7c42c1aa109bdbed0c3afd6f532558435e2ef4ce0",
+      "exp/r17_integration/common/websocket_policy_server.py": "sha256:2b615116603dedb55b115d7954d488a7fe1fba49a8a18273dd2417052b3a7c94",
+      "src/openpi/cache/config.py": "sha256:5020cecac9eff37e379091a7e9defbf5569f3475156b801afc002dee6e1551c8",
+      "src/openpi/cache/types.py": "sha256:46c89e1305dcd5309bad587fe196df4ce14796da78389cfc78ee201547efe630",
+      "src/openpi/cache/storage_types.py": "sha256:4d5aa90c9f159eb65beb95918a1e3f706e42b2bc88259a6a46d2beeb6ce3d4f4",
+      "src/openpi/serving/batching_core.py": "sha256:d39b9e0adb7f0828c28cebacc4dee4e4063a670ad3fbe8eb9939f0b3450341e5",
+      "src/openpi/serving/websocket_policy_server.py": "sha256:e64e61c6bebb627240559043ef3473af5c9ba6bc84b2cf09d4613f5ba172f766"
+    },
+    "Q_npz_sha256": "sha256:4c480ecbb04193a38da09d85c24431547537cdf1150243d6067c019c8170db4a"
+  },
+  "current_model_source_drift": {},
+  "current_framework_source_drift": {},
+  "reviewer_B3_protocol_source_unchanged": true,
+  "frozen_stock_HEAD_byte_parity": [
+    "src/openpi/cache/config.py",
+    "src/openpi/cache/types.py",
+    "src/openpi/cache/storage_types.py",
+    "src/openpi/serving/websocket_policy_server.py"
+  ],
+  "Q_reseal": {
+    "schema": "r17.p4.q_cpu_reseal.v1",
+    "device": "cpu",
+    "gpu_executed": false,
+    "passed": 1,
+    "skipped": 0,
+    "source_load": "/data/mw_finetune/qualification/assets/dp_libero_gpu_fix1_v1/load.json",
+    "source_sha256": "sha256:1cd2b7f6bd87c3340dd3dfd21cf23ce21597834084e7b8c6ef69f3e69817dab0",
+    "changed_fields": [
+      "expected_model_identity"
+    ],
+    "old_model_identity": "sha256:777919b5255dcb6bfa6f071fedfefd48d200659ebe0e26956c81fbabb45b8d69",
+    "new_model_identity": "sha256:67331d0af13c19fc3e993e5a89f81a1c89469e68d66049f0ec26122de203a022",
+    "strict_load": {
+      "missing": [],
+      "unexpected": [],
+      "keys": 475
+    },
+    "protocols": [
+      "589fd0293f29d91fe3f011121b5855d550b9d06288ee67ce12aeae50e0d3afd0"
+    ]
+  },
+  "Q_input": {
+    "path": "/data/mw_finetune/qualification/assets/dp_libero_gpu_fix1_v1/wire_observations.npz",
+    "npz_sha256": "sha256:4c480ecbb04193a38da09d85c24431547537cdf1150243d6067c019c8170db4a",
+    "available_rows": 3,
+    "native_check_row": 0,
+    "batch_prompt_variant": "row0 prompt + carefully",
+    "image_shapes": {
+      "observation/image": [
+        256,
+        256,
+        3
+      ],
+      "observation/wrist_image": [
+        256,
+        256,
+        3
+      ]
+    },
+    "views": "provided camera arrays verbatim; no synthetic wrist"
+  },
+  "parsed_sources": 37,
+  "artifacts": {
+    "exp/r17_integration/REQUESTS/P4_to_P1.md": "sha256:c374e7567b64ba09d56dab81256491d0b3706efc526930ea6191a3625ae51867",
+    "exp/r17_integration/REQUESTS/P4_to_P6.md": "sha256:f5fd273b8e083ba79863f4ac4624da9ded138e307d13dcaf22aca1f98e2c0177",
+    "exp/r17_integration/REQUESTS/P4_to_Q.md": "sha256:992641aa6ec7f036010ccdbbefde2c3b21dabda7371f6dee7195d6f4f506f0e7",
+    "exp/r17_integration/handbacks/HANDBACK_P4.md": "sha256:e97fb8ae2229040dc2bbb13a695bea6704c5f7c54be37e772309ba63a4170671",
+    "exp/r17_integration/models/dp/README.md": "sha256:e953c7478be33aac8e34735de9ef631a89f5baa8d0e157be520bb814ad37f307",
+    "exp/r17_integration/models/dp/__init__.py": "sha256:3a6c4872915e5875db1f60c65b737c922bdd4de1aac580d27488e4e704c25cbe",
+    "exp/r17_integration/models/dp/admission.py": "sha256:3a0f84efe56cbc43ef08ddffd955baa233d9b5b6cb50e675109739d68e1b65b8",
+    "exp/r17_integration/models/dp/batcher.py": "sha256:5ae4c748e51132cbfe5124b07ab0e3cb2a7bbd2ec8f046f4244ea17b746d4d77",
+    "exp/r17_integration/models/dp/config.py": "sha256:ba4122cfa251e051f1b3f7ac34f1ba04bb0aee67a6c875e90909764335f3502d",
+    "exp/r17_integration/models/dp/cpu_gpu_fix2_full.xml": "sha256:bc2f6c0770359b327e534aaad3854a91811d96295e0431b1d2ed8dd2d1f39e21",
+    "exp/r17_integration/models/dp/cpu_gpu_fix2_legacy.xml": "sha256:3afa7a50873d3dff3a860913758ca89a7b064c03b25eea7ca5e203e5c1e5f691",
+    "exp/r17_integration/models/dp/cpu_gpu_fix2_negative.xml": "sha256:2e64f0eabff2b54aed95ddf1270e827c7865e7f336f9dd1da0077d0dab7c3324",
+    "exp/r17_integration/models/dp/cpu_gpu_fix2_targeted.xml": "sha256:ce2d2694d873920ad6d5443af1ce3cdedf7b77cf9249be81bd6d53494a70fd46",
+    "exp/r17_integration/models/dp/fixtures.py": "sha256:8966ab74aed62ff3a33d12705f3ef1c411042ab801bc7e1a3ffe2db708d92d38",
+    "exp/r17_integration/models/dp/key_builder.py": "sha256:7f9330a87682c28c3ebcdc5305f3b073d5bf78cc463486208a57f2754c029330",
+    "exp/r17_integration/models/dp/loader.py": "sha256:6d97ee1d862a15fffff2ecdf7f473f6c347ab4c034cf52e5a53e6d9d8aaae23c",
+    "exp/r17_integration/models/dp/manifest.py": "sha256:70dc03e58bca50fa22eb286a21e81790fb00254d7351c96474b081d2b2ff3575",
+    "exp/r17_integration/models/dp/normalization.py": "sha256:5a38bf8755b444da917c5b567e669405d5bb6d58b271b940de48055fae456d06",
+    "exp/r17_integration/models/dp/probe.py": "sha256:2f2faa570e4ab6fe4f360f836d3b117639e37667388348ccaa1ee3c0de47980c",
+    "exp/r17_integration/models/dp/protocols.py": "sha256:04b16028b6574624c079cba34b65d8b30d5891a75b29901d09dab8914d6843ba",
+    "exp/r17_integration/models/dp/provider.py": "sha256:a982ed798e53e0bb8b4940b9ada374bf197ccb52e5045449531eca43cc7df27e",
+    "exp/r17_integration/models/dp/quality.py": "sha256:150938fe6d26d16460bed3c9d1474555b9825dc61f545a016e7cbf43f3f47fe9",
+    "exp/r17_integration/models/dp/request_noise.py": "sha256:cab13e2439c74e4c1844bfc5cb82087fac4ecab4002458eb74a04c2403d1893e",
+    "exp/r17_integration/models/dp/sampler.py": "sha256:277f56f9b184b0602976a8c8f13b94881df495efd7bf8e5002c76f7dfebb7962",
+    "exp/r17_integration/models/dp/samples/gpu_fix2_finalize.py": "sha256:8201d4f5489d36df4561ad1d12f4fd070e76e931fee0eff50755ce6165bef870",
+    "exp/r17_integration/models/dp/samples/gpu_fix2_measure.py": "sha256:3b7907d36734844ad8fc9d33ee5faaa3a7a2cf9610c314561ca70b1fceb64e6a",
+    "exp/r17_integration/models/dp/samples/gpu_fix2_measurement/normalized_chunks.npz": "sha256:b2512e1734b18f68ec5a3275196de771b37da6df974cc65f8488f9a46b505516",
+    "exp/r17_integration/models/dp/samples/gpu_fix2_measurement/receipt.json": "sha256:eb921b6985334ea7b048e09093c34f9f989186a8b946ae485741194080cf4ba3",
+    "exp/r17_integration/models/dp/samples/gpu_fix2_q_libero_cpu/capture/capture.json": "sha256:a66e435e555150fad10e38dd1683e0f2c8764fc09629872fbb3b8951b1731d38",
+    "exp/r17_integration/models/dp/samples/gpu_fix2_q_libero_cpu/capture/capture.npz": "sha256:76a15886ff49426c8141d251bfdf08d0a257719f4c5cb8dda6459f1eec3a0097",
+    "exp/r17_integration/models/dp/samples/gpu_fix2_q_libero_cpu/k1.yaml": "sha256:3d5a0db4f739101a1b501a5c3f2421e00d3f4f72b2f3875bf23139fa9a451bee",
+    "exp/r17_integration/models/dp/samples/gpu_fix2_q_libero_cpu/k10.yaml": "sha256:32ec08f700d4885ca8f63bfeb8809991699b80f3136f1ab9b93ed4218573f6a8",
+    "exp/r17_integration/models/dp/samples/gpu_fix2_q_libero_cpu/k100.yaml": "sha256:b5a05ce07051c054a45d85a8ee975fd7f16ae7c28405aa6e5f522ce26754523a",
+    "exp/r17_integration/models/dp/samples/gpu_fix2_q_libero_cpu/k2.yaml": "sha256:c0f21c8f0171c0c0c87d87440578ceb0f6c41bfde3dafe59510f3cf8d3a33aeb",
+    "exp/r17_integration/models/dp/samples/gpu_fix2_q_libero_cpu/k4.yaml": "sha256:25a9f3587d712ea4bb6d3fd7a6df743b738df2991cbaee6c9c213721b6084b7f",
+    "exp/r17_integration/models/dp/samples/gpu_fix2_q_libero_cpu/load_cpu.json": "sha256:db7accef7e48df7eeca7de4ebb699ed3c0555113ca02e72c2d246d5295e9b048",
+    "exp/r17_integration/models/dp/samples/gpu_fix2_q_libero_cpu/receipt.json": "sha256:93fc7f2907456b961b3ab60b14149ee6c0c20178a7dbfa6bdfaf687938307cd6",
+    "exp/r17_integration/models/dp/samples/gpu_fix2_q_libero_seal/load.json": "sha256:444c7c8cddd70367cca5af9275903a4a0a09c811faea4f9501356dd8475c652d",
+    "exp/r17_integration/models/dp/samples/gpu_fix2_q_libero_seal/model_spec.json": "sha256:5088c2696f52d151a9c5b5b108ab7ce348bf438c82bda2f10d979588132c2b5c",
+    "exp/r17_integration/models/dp/samples/gpu_fix2_q_libero_seal/receipt.json": "sha256:b99b74810761e6acfa1147730e8b1a7d4238a882707ce2a2982f1f083c49689a",
+    "exp/r17_integration/models/dp/samples/gpu_fix2_release_libero_cpu/capture/capture.json": "sha256:fc56cb13bced92ad35ac8f3825955a88c4cf6c1031c47e8fd405499061fcd73d",
+    "exp/r17_integration/models/dp/samples/gpu_fix2_release_libero_cpu/capture/capture.npz": "sha256:ecb3d6938151df1ec9e4572454fc7bcb61f4002b0f07a6ec7e0ed2a939935f65",
+    "exp/r17_integration/models/dp/samples/gpu_fix2_release_libero_cpu/k1.yaml": "sha256:14ed123643f4d41220096bf389a80e194b1614366f145683805d68a81ee6e157",
+    "exp/r17_integration/models/dp/samples/gpu_fix2_release_libero_cpu/k10.yaml": "sha256:a498ca918737770190aa5703d4b0307df593fc5bba4d69dcf93d1ecb58b2a886",
+    "exp/r17_integration/models/dp/samples/gpu_fix2_release_libero_cpu/k100.yaml": "sha256:6fbf4d6a2183ad4775bf61e625fc5c1996b81ffc820b6e01fe5e1e93344d692a",
+    "exp/r17_integration/models/dp/samples/gpu_fix2_release_libero_cpu/k2.yaml": "sha256:601648538543fd008bd597022fe23633ee6d9c9cea7e532c66e71d7fe65de4e6",
+    "exp/r17_integration/models/dp/samples/gpu_fix2_release_libero_cpu/k4.yaml": "sha256:2be46e2975e768c1e2d569f0418a172984c7cffe478e4c01669dca971e700919",
+    "exp/r17_integration/models/dp/samples/gpu_fix2_release_libero_cpu/load_cpu.json": "sha256:07acb90b691d9c38865148bf0f488fb6a933ac40cbdf7953d3746476a903eaca",
+    "exp/r17_integration/models/dp/samples/gpu_fix2_release_libero_cpu/receipt.json": "sha256:100f5ad550e4222b5e7a68187a82ffa1e7e77e225f1568ce2297688a58dba53d",
+    "exp/r17_integration/models/dp/samples/gpu_fix2_release_loader_bundle_receipt.json": "sha256:ef22ee9a4ff88bf553a66408545a3f78a2e05f646344846e3fd7efab718ecff6",
+    "exp/r17_integration/models/dp/samples/gpu_fix2_release_metaworld_cpu/capture/capture.json": "sha256:2ac5487554f4bd316c1e970f2ffb1bed04490d1c2fb37eec6ed956d9abf33ff6",
+    "exp/r17_integration/models/dp/samples/gpu_fix2_release_metaworld_cpu/capture/capture.npz": "sha256:2781895c3b8f72799b0d4e800676f51965e49881fffb2f22d707ad7481238f49",
+    "exp/r17_integration/models/dp/samples/gpu_fix2_release_metaworld_cpu/k1.yaml": "sha256:a809e7038f3518070e336c017abb813e096241047ed751a152859ce236901a9f",
+    "exp/r17_integration/models/dp/samples/gpu_fix2_release_metaworld_cpu/k10.yaml": "sha256:7b37c09224d6f1afe128303901c5dca8272839b5d8c5de9b180a0fc42650617a",
+    "exp/r17_integration/models/dp/samples/gpu_fix2_release_metaworld_cpu/k100.yaml": "sha256:827be41ced6f56d7d4e4082ffabe225e5caf4220485f1f26e87cb245e8d8baaf",
+    "exp/r17_integration/models/dp/samples/gpu_fix2_release_metaworld_cpu/k2.yaml": "sha256:aec93d80f9656b40c39987f395924c6bb8e1935ee1b35afec61063a8467fc72f",
+    "exp/r17_integration/models/dp/samples/gpu_fix2_release_metaworld_cpu/k4.yaml": "sha256:ac944176484fdf4673680bae80bff5a468a256dd0dc5113271fbc3d30971cf85",
+    "exp/r17_integration/models/dp/samples/gpu_fix2_release_metaworld_cpu/load_cpu.json": "sha256:1b0b84db46db139dec26f427cbc616fbdfdc11b4ccc7b8cae1a6a6bf601142b1",
+    "exp/r17_integration/models/dp/samples/gpu_fix2_release_metaworld_cpu/receipt.json": "sha256:dbf43db429c6bb27ad692fd3dd5d0d8df5d42cffb6b42921af3f763bb826e137",
+    "exp/r17_integration/models/dp/samples/gpu_fix2_reseal.py": "sha256:01a988f2768085e3d673648dbc2921764561bb962743e9b54264ff5ae85ef7c6",
+    "exp/r17_integration/models/dp/samples/gpu_fix2_runtime_under_test.json": "sha256:344e1e697331723f0688dcdfce7ed5557d102c64a801b7b786165e4cb67d2cf7",
+    "exp/r17_integration/models/dp/serve.py": "sha256:33881e1c5b0a73e02a9f288abbab528d17a8362e06139934e7ce0294465e9270",
+    "exp/r17_integration/models/dp/staged.py": "sha256:07a32591d44d299f55dfa0749eb85e5400c6a90797b4b4163e7d757cc0b93e6e",
+    "exp/r17_integration/models/dp/trace.py": "sha256:8502c780ac4bf1d6bad9fe616a95d8fd1c23cc7330f94e5d6d579781b707aa3b",
+    "exp/r17_integration/models/dp/wire_policy.py": "sha256:c1b526754883aed6c78eb1b3775f3d78eca33e8a73012910c1522d4e89c58b95",
+    "exp/r17_integration/tests/models/dp/conftest.py": "sha256:b73d36bd26fdd91c8703076c3ace330364589089f33415d7c6a2fe5caf43ab57",
+    "exp/r17_integration/tests/models/dp/run_fix_round1_negative.py": "sha256:a70abf016c77f925a86be5ec8b03648e9bc50bbf925e79a7b3dcae902505d9f0",
+    "exp/r17_integration/tests/models/dp/run_fix_round2_negative.py": "sha256:0e02e19f917fea428c95ead9b330e7dbb13cc9d36339eda5c136b6ec6343e800",
+    "exp/r17_integration/tests/models/dp/run_gpu_fix1_negative.py": "sha256:c3fc6d379969e23684502e5c707371ea4ad0fc231304a34f07028d0072953f17",
+    "exp/r17_integration/tests/models/dp/run_gpu_fix2_negative.py": "sha256:7c6155d06fff42d6f198c5d2995f4cbb1f6b76fef1fe600153ab70efb605ce26",
+    "exp/r17_integration/tests/models/dp/test_dp_batcher.py": "sha256:ca4d2316b14398b033b1c80745b49f8bc1fde49463102c052cb60527a7171f17",
+    "exp/r17_integration/tests/models/dp/test_dp_fix_round1.py": "sha256:f62e809f4576d3579c705d89cf50f174f4ac6f5d06475b11fa49801477f11c70",
+    "exp/r17_integration/tests/models/dp/test_dp_fix_round2.py": "sha256:808d56f282954edf70b28a23868ebead76562b0e443fd7f27dd4b03c29bd7d6d",
+    "exp/r17_integration/tests/models/dp/test_dp_gpu_fix1.py": "sha256:f2fe958ead32a0056336c3b8c3b2cda3dcdce85c0125bc55a7ab4e0bc497c10f",
+    "exp/r17_integration/tests/models/dp/test_dp_gpu_fix2.py": "sha256:7f6432dfe1a0b510328c8c610391a848f6b6740ee65c0efaddd8fd18949f1656",
+    "exp/r17_integration/tests/models/dp/test_dp_review_b3.py": "sha256:4fc26491673cd96256dabc93c14507db443bc77054eaebb6c219edf0bce4f3f0",
+    "exp/r17_integration/tests/models/dp/test_dp_serving.py": "sha256:365a47d3bb71ddc38d2e10d3d53fec0edb330d205ee884c58af1ffa091e7bb56",
+    "exp/r17_integration/tests/models/dp/test_interop.py": "sha256:92fa7dedee0e81a99bdb32594e814e4d064cb22198fa53a397294107fab730f5",
+    "exp/r17_integration/tests/models/dp/test_sampler.py": "sha256:de6c3c5ef352378ee2ef787cb49e98afe30461b6f6251e95a36acee74b7f967d",
+    "exp/r17_integration/tests/models/dp/test_staged.py": "sha256:64cf5226eb34d634b98a4888862ee8901218549f383278dbce56f88e4730830a"
+  },
+  "consumed_request_sha256": "sha256:d03adee27b37253d9cde66b1698ffbb25fc39a62b2f852b2e03266bdcd93cf38",
+  "limits": [
+    "Single GPU run measured the pinned GPU fix1 release before implementation changes",
+    "No current-release GPU/renderer/SR/throughput/quality qualification",
+    "Q must reseal and retry B1 native/concurrent gates; no qualification writes by P4",
+    "Production cache/MISS/recipe/teacher arms require B1; batch diagnostics do not qualify cost",
+    "Local MW CPU probes use diagnostic ML45, not remote formal MT50"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "model_identity": "e270a8bf5b5e4e31c69f44107c294d9335c404b532405328f5b253c0a5995963",
+  "norm_identity": "1b522e6af87239ed15d7baf8e1bde8c4be007727780dad0a87f59153e7ad40a2",
+  "layout_identity": "ad7e3ab72e924644406a8b4a1087ac966bf80a4eff2b1773393e252aa28a4c7f",
+  "sampler_identity": "149dc83ded18ec71bcfcb5ca5615328babea684d69bcfd02b770ab75bd9080f1",
+  "schedule_digest": "149dc83ded18ec71bcfcb5ca5615328babea684d69bcfd02b770ab75bd9080f1",
+  "loop_index": 1,
+  "native_timestep": 833.3333129882812,
+  "noise_state": {
+    "algorithm": "deterministic_flow; no posterior draws"
+  },
+  "conditioning_scope": "c7a7c4f76a1fac1dd4f52f67f1d55bb7e5ede169a88082d1e5265ef16424e58e",
+  "schema": "r17.native_snapshot.v1",
+  "tensor_dtype": "float32"
+}

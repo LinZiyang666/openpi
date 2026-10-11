@@ -1,0 +1,10 @@
+{
+  "archive": "/scratch/zixuans8/mw_r17/timan1_provision/runtime.tar",
+  "build_seconds": 393.9081062148325,
+  "bytes": 9548318720,
+  "files": 49890,
+  "pid": 2628643,
+  "port": 33843,
+  "sha256": "ef8a7ad899073cadc1f988786172aa17d6c40f99080aa1bda275af821efd946a",
+  "transfer_server_stopped": true
+}

@@ -1,0 +1,69 @@
+{
+  "benchmark_reference": "/data/mw_finetune/eval/hs5dp_ctl_142812/assets/benchmark.json",
+  "dependencies": {
+    "asset_release": "/scratch/zixuans8/mw_r17/formal/assets/libero_3eb6e3e7ee3a03663dba84ccc6d6cf9dbb4ae21fb20558ca4097abc066be57dc",
+    "assets": "/scratch/zixuans8/mw_r17/formal/assets/libero_3eb6e3e7ee3a03663dba84ccc6d6cf9dbb4ae21fb20558ca4097abc066be57dc/assets",
+    "assets_digest": "3eb6e3e7ee3a03663dba84ccc6d6cf9dbb4ae21fb20558ca4097abc066be57dc",
+    "config_sha256": "dc071fb958f2effdba6b7b85cee02cc9073b76332fe89c5f4e77877b9f207dca",
+    "config_source": "/scratch/zixuans8/mw_r17/timan1_provision/libero_config/config.yaml",
+    "content_identity": "c786215bc2061c66ed8851f6aa32e7199a9f2e364b12c47e61235f5a3e83a7c7",
+    "copied": [
+      "libero",
+      "robosuite",
+      "bddl",
+      "easydict",
+      "robomimic",
+      "thop",
+      "future",
+      "past"
+    ],
+    "private_dependencies": "/scratch/zixuans8/mw_r17/formal/dependencies/libero311_c786215bc2061c66ed8851f6aa32e7199a9f2e364b12c47e61235f5a3e83a7c7",
+    "sealed_original_config_sha256": "1cde7e2036fbae293d2b86e92329769c367255edffade3a69f2a63758e1c8720"
+  },
+  "env": {
+    "CUDA_VISIBLE_DEVICES": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+    "HOME": "/home/zixuans8",
+    "LIBERO_CONFIG_PATH": "/scratch/zixuans8/mw_r17/timan1_provision/libero_config",
+    "MKL_NUM_THREADS": "1",
+    "MUJOCO_EGL_DEVICE_ID": "3",
+    "MUJOCO_GL": "egl",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYOPENGL_PLATFORM": "egl",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/scratch/zixuans8/mw_r17/timan1_provision/gpu3_guard:/scratch/zixuans8/mw_r17/formal/payload_e9d40ea8b0f96d1cf1b4c6829ad2f6e358d72fe9d8c69e156328d3102a06304d/packages/openpi-client/src:/scratch/zixuans8/mw_r17/formal/payload_e9d40ea8b0f96d1cf1b4c6829ad2f6e358d72fe9d8c69e156328d3102a06304d/src:/scratch/zixuans8/mw_r17/formal/payload_e9d40ea8b0f96d1cf1b4c6829ad2f6e358d72fe9d8c69e156328d3102a06304d:/scratch/zixuans8/mw_r17/formal/dependencies/libero311_c786215bc2061c66ed8851f6aa32e7199a9f2e364b12c47e61235f5a3e83a7c7",
+    "TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD": "1"
+  },
+  "excluded_devices": [
+    0,
+    1,
+    2
+  ],
+  "node": "timan1",
+  "payload": "/scratch/zixuans8/mw_r17/formal/payload_e9d40ea8b0f96d1cf1b4c6829ad2f6e358d72fe9d8c69e156328d3102a06304d",
+  "private_config": {
+    "path": "/scratch/zixuans8/mw_r17/timan1_provision/libero_config",
+    "sha256": "dc071fb958f2effdba6b7b85cee02cc9073b76332fe89c5f4e77877b9f207dca"
+  },
+  "python": "/scratch/zixuans8/openpi/.venv/bin/python",
+  "python_wrapper": "/scratch/zixuans8/mw_r17/timan1_provision/python-gpu3",
+  "recommended_max_workers": 16,
+  "scratch_root": "/scratch/zixuans8/mw_r17/formal",
+  "stage_root": "/tmp/r17_formal",
+  "tether_allow_roots": [
+    "/home",
+    "/tmp",
+    "/srv"
+  ],
+  "worker_egl_device": 3,
+  "worker_egl_devices": [
+    3
+  ],
+  "worker_gpu_device_minor": 0,
+  "worker_gpu_device_path": "/dev/nvidia0",
+  "worker_gpu_pci": "0000:c1:00.0",
+  "worker_gpu_uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+  "worker_max_episodes": 4,
+  "worker_memory_mib": 6144,
+  "worker_vram_mib": 1024
+}

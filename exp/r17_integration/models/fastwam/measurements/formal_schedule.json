@@ -1,0 +1,33 @@
+{
+  "schema": "r17.fastwam.schedule_projection.v1",
+  "assumptions": "suite step caps, measured burst rates, linear K10-head step cost; not campaign measurements",
+  "h100_rate": 4.95186756559213,
+  "local_rate": 5.983140568955496,
+  "best": {
+    "h100": [
+      "C16"
+    ],
+    "local": [
+      "C10",
+      "C20",
+      "C32",
+      "K2",
+      "K1"
+    ],
+    "h100_hours": 8.722859380282998,
+    "local_hours": 8.499493882949906,
+    "makespan": 8.722859380282998
+  },
+  "profiles": {
+    "h100_action_fraction": 0.6290292514192106,
+    "local_action_fraction": 0.846
+  },
+  "arms_local_equivalent_decisions": {
+    "C10": 37000,
+    "C16": 23500,
+    "C20": 18500,
+    "C32": 12000,
+    "K2": 23916.800000000003,
+    "K1": 17656.4
+  }
+}

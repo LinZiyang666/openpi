@@ -1,0 +1,116 @@
+enabled: true
+timer:
+  enabled: true
+  buffer_size: 10000
+  output_csv_dir: null
+keys:
+  vision_0:
+    enabled: true
+    weight: 1.0
+  vision_1:
+    enabled: true
+    weight: 1.0
+  vision_2:
+    enabled: false
+    weight: 1.0
+  prompt_emb:
+    enabled: false
+    weight: 1.0
+  robot_state:
+    enabled: true
+    weight: 1.0
+  vlm_out:
+    enabled: false
+    weight: 1.0
+key_builder:
+  type: adapter_native
+  prune_window_size: 4
+  temporal_keep_ratio: 0.5
+  reducer:
+    type: mean_pool
+    output_tokens: 16
+    select_k: 32
+    temperature: 1.0
+  extract_layer: 0
+  prefix_reducer:
+    type: prefix_mean_pool
+  projection:
+    inner_type: cp1_mean_pool
+    weights_path: null
+  cp2_vlm:
+    seed: 0
+    d: 500
+    p: 0.01
+    input_dim: 1982464
+  cp2_groot:
+    seed: 0
+    d: 500
+    p: 0.01
+    token_len: 640
+    feature_dim: 2048
+    state_feat_dim: 1536
+  prompt_masked_pool: false
+  prompt_instruction_span: false
+checkpoints: {}
+backend:
+  type: in_memory
+  vector_dims:
+    vision_0: 64
+    robot_state: 8
+    vision_1: 64
+  qdrant:
+    url: http://localhost:6333
+    collection_name: openpi_cache
+    prefer_grpc: false
+    grpc_port: 6334
+    request_timeout: 30
+  in_memory:
+    preload_path: null
+    index_type: brute_force
+    expected_pin_id: null
+    text_ivf:
+      field: prompt_emb
+      max_buckets: 1024
+write_policy:
+  type: never
+collection:
+  export_collect_meta: false
+  collect_fields:
+  - robot_state
+  wire_frame_cap_kib: 32
+shadow_teacher:
+  enabled: false
+  path: ''
+  action_sigma: null
+trace:
+  enabled: false
+  out_dir: ''
+  record_noise_actions: false
+  record_prefix_tokens: true
+  record_raw_images: true
+  record_model_images: false
+  record_query_keys: true
+  record_search: true
+  record_tokenized_prompt: true
+  raw_image_keys:
+  - observation/image
+  - observation/wrist_image
+  rng_isolation: verdict_aware
+  queue_steps: 256
+  sidecar_jsonl: true
+routing: null
+denoise_schedule: null
+warm_reset: null
+miss: null
+adapter_binding:
+  schema: r17.adapter_binding.v1
+  provider: r17_dp_libero_ddpm_3a86d17df9bc_v1
+  model_id: dp_t_libero_diagnostic
+  checkpoint_identity: sha256:4d00494588c4b1581aee473799c28fdb3c74bf42ef86105af1749609bc78ca20
+  norm_identity: sha256:c0a8814c4875289345598c512b32e1ff2c6bda613f05257779b15ff818d24451
+  layout_identity: 6c5e4da700f307ca7e5f2e7b33c2ee1bad86d34f0704181a6d1ee66938ecabc0
+  feature_identity: 805bb1e3c0c4e4754eb96cb6d60ccc20148eadd3dbba05ca2d800b3bcfc90fd8
+  sampler_identity: 82bf0f19f8f83f8851311cd4423f881e10ceffccd1737f7b389a0ca8aac770c9
+  benchmark_protocol: libero_r17_v1
+  num_steps: 100
+  commit_horizon: 10

@@ -1,0 +1,7 @@
+A old-runner metadata, commit10 episode_start: ValueError: extended commit requires declared ack_protocol=r17.execution.v1
+B old-runner metadata, commit5 infer: ValueError: missing R17 request context: ['campaign', 'seed', 'explicit_seed']
+C init 0: decision1 source=policy_tail stage_calls=(0, 0, 0) cursor=5
+C init 0: decision2 without ack: ValueError: extended commit requires __execution__ acknowledgment; cannot silently downgrade
+C init 7: decision1 source=policy_tail stage_calls=(0, 0, 0) cursor=5
+C init 7: decision2 without ack: ValueError: extended commit requires __execution__ acknowledgment; cannot silently downgrade
+C distinct initial seeds across inits: True {0: 961241716, 7: 2566406359}

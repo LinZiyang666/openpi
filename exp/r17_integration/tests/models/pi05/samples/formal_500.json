@@ -1,0 +1,4502 @@
+[
+  {
+    "difficulty": "hard",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Pick up a nut and place it onto a peg",
+    "seed": 7,
+    "task_id": 0,
+    "task_name": "assembly-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Pick up a nut and place it onto a peg",
+    "seed": 7,
+    "task_id": 0,
+    "task_name": "assembly-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Pick up a nut and place it onto a peg",
+    "seed": 7,
+    "task_id": 0,
+    "task_name": "assembly-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Pick up a nut and place it onto a peg",
+    "seed": 7,
+    "task_id": 0,
+    "task_name": "assembly-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Pick up a nut and place it onto a peg",
+    "seed": 7,
+    "task_id": 0,
+    "task_name": "assembly-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Pick up a nut and place it onto a peg",
+    "seed": 7,
+    "task_id": 0,
+    "task_name": "assembly-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Pick up a nut and place it onto a peg",
+    "seed": 7,
+    "task_id": 0,
+    "task_name": "assembly-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Pick up a nut and place it onto a peg",
+    "seed": 7,
+    "task_id": 0,
+    "task_name": "assembly-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Pick up a nut and place it onto a peg",
+    "seed": 7,
+    "task_id": 0,
+    "task_name": "assembly-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Pick up a nut and place it onto a peg",
+    "seed": 7,
+    "task_id": 0,
+    "task_name": "assembly-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Dunk the basketball into the basket",
+    "seed": 7,
+    "task_id": 1,
+    "task_name": "basketball-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Dunk the basketball into the basket",
+    "seed": 7,
+    "task_id": 1,
+    "task_name": "basketball-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Dunk the basketball into the basket",
+    "seed": 7,
+    "task_id": 1,
+    "task_name": "basketball-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Dunk the basketball into the basket",
+    "seed": 7,
+    "task_id": 1,
+    "task_name": "basketball-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Dunk the basketball into the basket",
+    "seed": 7,
+    "task_id": 1,
+    "task_name": "basketball-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Dunk the basketball into the basket",
+    "seed": 7,
+    "task_id": 1,
+    "task_name": "basketball-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Dunk the basketball into the basket",
+    "seed": 7,
+    "task_id": 1,
+    "task_name": "basketball-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Dunk the basketball into the basket",
+    "seed": 7,
+    "task_id": 1,
+    "task_name": "basketball-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Dunk the basketball into the basket",
+    "seed": 7,
+    "task_id": 1,
+    "task_name": "basketball-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Dunk the basketball into the basket",
+    "seed": 7,
+    "task_id": 1,
+    "task_name": "basketball-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Grasp the puck from one bin and place it into another bin",
+    "seed": 7,
+    "task_id": 2,
+    "task_name": "bin-picking-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Grasp the puck from one bin and place it into another bin",
+    "seed": 7,
+    "task_id": 2,
+    "task_name": "bin-picking-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Grasp the puck from one bin and place it into another bin",
+    "seed": 7,
+    "task_id": 2,
+    "task_name": "bin-picking-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Grasp the puck from one bin and place it into another bin",
+    "seed": 7,
+    "task_id": 2,
+    "task_name": "bin-picking-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Grasp the puck from one bin and place it into another bin",
+    "seed": 7,
+    "task_id": 2,
+    "task_name": "bin-picking-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Grasp the puck from one bin and place it into another bin",
+    "seed": 7,
+    "task_id": 2,
+    "task_name": "bin-picking-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Grasp the puck from one bin and place it into another bin",
+    "seed": 7,
+    "task_id": 2,
+    "task_name": "bin-picking-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Grasp the puck from one bin and place it into another bin",
+    "seed": 7,
+    "task_id": 2,
+    "task_name": "bin-picking-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Grasp the puck from one bin and place it into another bin",
+    "seed": 7,
+    "task_id": 2,
+    "task_name": "bin-picking-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Grasp the puck from one bin and place it into another bin",
+    "seed": 7,
+    "task_id": 2,
+    "task_name": "bin-picking-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Grasp the cover and close the box with it",
+    "seed": 7,
+    "task_id": 3,
+    "task_name": "box-close-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Grasp the cover and close the box with it",
+    "seed": 7,
+    "task_id": 3,
+    "task_name": "box-close-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Grasp the cover and close the box with it",
+    "seed": 7,
+    "task_id": 3,
+    "task_name": "box-close-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Grasp the cover and close the box with it",
+    "seed": 7,
+    "task_id": 3,
+    "task_name": "box-close-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Grasp the cover and close the box with it",
+    "seed": 7,
+    "task_id": 3,
+    "task_name": "box-close-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Grasp the cover and close the box with it",
+    "seed": 7,
+    "task_id": 3,
+    "task_name": "box-close-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Grasp the cover and close the box with it",
+    "seed": 7,
+    "task_id": 3,
+    "task_name": "box-close-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Grasp the cover and close the box with it",
+    "seed": 7,
+    "task_id": 3,
+    "task_name": "box-close-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Grasp the cover and close the box with it",
+    "seed": 7,
+    "task_id": 3,
+    "task_name": "box-close-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Grasp the cover and close the box with it",
+    "seed": 7,
+    "task_id": 3,
+    "task_name": "box-close-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Press a button from the top",
+    "seed": 7,
+    "task_id": 4,
+    "task_name": "button-press-topdown-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Press a button from the top",
+    "seed": 7,
+    "task_id": 4,
+    "task_name": "button-press-topdown-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Press a button from the top",
+    "seed": 7,
+    "task_id": 4,
+    "task_name": "button-press-topdown-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Press a button from the top",
+    "seed": 7,
+    "task_id": 4,
+    "task_name": "button-press-topdown-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Press a button from the top",
+    "seed": 7,
+    "task_id": 4,
+    "task_name": "button-press-topdown-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Press a button from the top",
+    "seed": 7,
+    "task_id": 4,
+    "task_name": "button-press-topdown-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Press a button from the top",
+    "seed": 7,
+    "task_id": 4,
+    "task_name": "button-press-topdown-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Press a button from the top",
+    "seed": 7,
+    "task_id": 4,
+    "task_name": "button-press-topdown-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Press a button from the top",
+    "seed": 7,
+    "task_id": 4,
+    "task_name": "button-press-topdown-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Press a button from the top",
+    "seed": 7,
+    "task_id": 4,
+    "task_name": "button-press-topdown-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Bypass a wall and press a button from the top",
+    "seed": 7,
+    "task_id": 5,
+    "task_name": "button-press-topdown-wall-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Bypass a wall and press a button from the top",
+    "seed": 7,
+    "task_id": 5,
+    "task_name": "button-press-topdown-wall-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Bypass a wall and press a button from the top",
+    "seed": 7,
+    "task_id": 5,
+    "task_name": "button-press-topdown-wall-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Bypass a wall and press a button from the top",
+    "seed": 7,
+    "task_id": 5,
+    "task_name": "button-press-topdown-wall-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Bypass a wall and press a button from the top",
+    "seed": 7,
+    "task_id": 5,
+    "task_name": "button-press-topdown-wall-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Bypass a wall and press a button from the top",
+    "seed": 7,
+    "task_id": 5,
+    "task_name": "button-press-topdown-wall-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Bypass a wall and press a button from the top",
+    "seed": 7,
+    "task_id": 5,
+    "task_name": "button-press-topdown-wall-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Bypass a wall and press a button from the top",
+    "seed": 7,
+    "task_id": 5,
+    "task_name": "button-press-topdown-wall-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Bypass a wall and press a button from the top",
+    "seed": 7,
+    "task_id": 5,
+    "task_name": "button-press-topdown-wall-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Bypass a wall and press a button from the top",
+    "seed": 7,
+    "task_id": 5,
+    "task_name": "button-press-topdown-wall-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Press a button",
+    "seed": 7,
+    "task_id": 6,
+    "task_name": "button-press-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Press a button",
+    "seed": 7,
+    "task_id": 6,
+    "task_name": "button-press-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Press a button",
+    "seed": 7,
+    "task_id": 6,
+    "task_name": "button-press-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Press a button",
+    "seed": 7,
+    "task_id": 6,
+    "task_name": "button-press-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Press a button",
+    "seed": 7,
+    "task_id": 6,
+    "task_name": "button-press-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Press a button",
+    "seed": 7,
+    "task_id": 6,
+    "task_name": "button-press-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Press a button",
+    "seed": 7,
+    "task_id": 6,
+    "task_name": "button-press-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Press a button",
+    "seed": 7,
+    "task_id": 6,
+    "task_name": "button-press-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Press a button",
+    "seed": 7,
+    "task_id": 6,
+    "task_name": "button-press-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Press a button",
+    "seed": 7,
+    "task_id": 6,
+    "task_name": "button-press-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Bypass a wall and press a button",
+    "seed": 7,
+    "task_id": 7,
+    "task_name": "button-press-wall-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Bypass a wall and press a button",
+    "seed": 7,
+    "task_id": 7,
+    "task_name": "button-press-wall-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Bypass a wall and press a button",
+    "seed": 7,
+    "task_id": 7,
+    "task_name": "button-press-wall-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Bypass a wall and press a button",
+    "seed": 7,
+    "task_id": 7,
+    "task_name": "button-press-wall-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Bypass a wall and press a button",
+    "seed": 7,
+    "task_id": 7,
+    "task_name": "button-press-wall-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Bypass a wall and press a button",
+    "seed": 7,
+    "task_id": 7,
+    "task_name": "button-press-wall-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Bypass a wall and press a button",
+    "seed": 7,
+    "task_id": 7,
+    "task_name": "button-press-wall-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Bypass a wall and press a button",
+    "seed": 7,
+    "task_id": 7,
+    "task_name": "button-press-wall-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Bypass a wall and press a button",
+    "seed": 7,
+    "task_id": 7,
+    "task_name": "button-press-wall-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Bypass a wall and press a button",
+    "seed": 7,
+    "task_id": 7,
+    "task_name": "button-press-wall-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Push a button on the coffee machine",
+    "seed": 7,
+    "task_id": 8,
+    "task_name": "coffee-button-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Push a button on the coffee machine",
+    "seed": 7,
+    "task_id": 8,
+    "task_name": "coffee-button-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Push a button on the coffee machine",
+    "seed": 7,
+    "task_id": 8,
+    "task_name": "coffee-button-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Push a button on the coffee machine",
+    "seed": 7,
+    "task_id": 8,
+    "task_name": "coffee-button-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Push a button on the coffee machine",
+    "seed": 7,
+    "task_id": 8,
+    "task_name": "coffee-button-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Push a button on the coffee machine",
+    "seed": 7,
+    "task_id": 8,
+    "task_name": "coffee-button-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Push a button on the coffee machine",
+    "seed": 7,
+    "task_id": 8,
+    "task_name": "coffee-button-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Push a button on the coffee machine",
+    "seed": 7,
+    "task_id": 8,
+    "task_name": "coffee-button-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Push a button on the coffee machine",
+    "seed": 7,
+    "task_id": 8,
+    "task_name": "coffee-button-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Push a button on the coffee machine",
+    "seed": 7,
+    "task_id": 8,
+    "task_name": "coffee-button-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Pull a mug from a coffee machine",
+    "seed": 7,
+    "task_id": 9,
+    "task_name": "coffee-pull-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Pull a mug from a coffee machine",
+    "seed": 7,
+    "task_id": 9,
+    "task_name": "coffee-pull-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Pull a mug from a coffee machine",
+    "seed": 7,
+    "task_id": 9,
+    "task_name": "coffee-pull-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Pull a mug from a coffee machine",
+    "seed": 7,
+    "task_id": 9,
+    "task_name": "coffee-pull-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Pull a mug from a coffee machine",
+    "seed": 7,
+    "task_id": 9,
+    "task_name": "coffee-pull-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Pull a mug from a coffee machine",
+    "seed": 7,
+    "task_id": 9,
+    "task_name": "coffee-pull-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Pull a mug from a coffee machine",
+    "seed": 7,
+    "task_id": 9,
+    "task_name": "coffee-pull-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Pull a mug from a coffee machine",
+    "seed": 7,
+    "task_id": 9,
+    "task_name": "coffee-pull-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Pull a mug from a coffee machine",
+    "seed": 7,
+    "task_id": 9,
+    "task_name": "coffee-pull-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Pull a mug from a coffee machine",
+    "seed": 7,
+    "task_id": 9,
+    "task_name": "coffee-pull-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Push a mug under a coffee machine",
+    "seed": 7,
+    "task_id": 10,
+    "task_name": "coffee-push-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Push a mug under a coffee machine",
+    "seed": 7,
+    "task_id": 10,
+    "task_name": "coffee-push-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Push a mug under a coffee machine",
+    "seed": 7,
+    "task_id": 10,
+    "task_name": "coffee-push-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Push a mug under a coffee machine",
+    "seed": 7,
+    "task_id": 10,
+    "task_name": "coffee-push-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Push a mug under a coffee machine",
+    "seed": 7,
+    "task_id": 10,
+    "task_name": "coffee-push-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Push a mug under a coffee machine",
+    "seed": 7,
+    "task_id": 10,
+    "task_name": "coffee-push-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Push a mug under a coffee machine",
+    "seed": 7,
+    "task_id": 10,
+    "task_name": "coffee-push-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Push a mug under a coffee machine",
+    "seed": 7,
+    "task_id": 10,
+    "task_name": "coffee-push-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Push a mug under a coffee machine",
+    "seed": 7,
+    "task_id": 10,
+    "task_name": "coffee-push-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Push a mug under a coffee machine",
+    "seed": 7,
+    "task_id": 10,
+    "task_name": "coffee-push-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Rotate a dial 180 degrees",
+    "seed": 7,
+    "task_id": 11,
+    "task_name": "dial-turn-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Rotate a dial 180 degrees",
+    "seed": 7,
+    "task_id": 11,
+    "task_name": "dial-turn-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Rotate a dial 180 degrees",
+    "seed": 7,
+    "task_id": 11,
+    "task_name": "dial-turn-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Rotate a dial 180 degrees",
+    "seed": 7,
+    "task_id": 11,
+    "task_name": "dial-turn-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Rotate a dial 180 degrees",
+    "seed": 7,
+    "task_id": 11,
+    "task_name": "dial-turn-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Rotate a dial 180 degrees",
+    "seed": 7,
+    "task_id": 11,
+    "task_name": "dial-turn-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Rotate a dial 180 degrees",
+    "seed": 7,
+    "task_id": 11,
+    "task_name": "dial-turn-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Rotate a dial 180 degrees",
+    "seed": 7,
+    "task_id": 11,
+    "task_name": "dial-turn-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Rotate a dial 180 degrees",
+    "seed": 7,
+    "task_id": 11,
+    "task_name": "dial-turn-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Rotate a dial 180 degrees",
+    "seed": 7,
+    "task_id": 11,
+    "task_name": "dial-turn-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Pick a nut out of a peg",
+    "seed": 7,
+    "task_id": 12,
+    "task_name": "disassemble-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Pick a nut out of a peg",
+    "seed": 7,
+    "task_id": 12,
+    "task_name": "disassemble-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Pick a nut out of a peg",
+    "seed": 7,
+    "task_id": 12,
+    "task_name": "disassemble-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Pick a nut out of a peg",
+    "seed": 7,
+    "task_id": 12,
+    "task_name": "disassemble-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Pick a nut out of a peg",
+    "seed": 7,
+    "task_id": 12,
+    "task_name": "disassemble-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Pick a nut out of a peg",
+    "seed": 7,
+    "task_id": 12,
+    "task_name": "disassemble-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Pick a nut out of a peg",
+    "seed": 7,
+    "task_id": 12,
+    "task_name": "disassemble-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Pick a nut out of a peg",
+    "seed": 7,
+    "task_id": 12,
+    "task_name": "disassemble-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Pick a nut out of a peg",
+    "seed": 7,
+    "task_id": 12,
+    "task_name": "disassemble-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Pick a nut out of a peg",
+    "seed": 7,
+    "task_id": 12,
+    "task_name": "disassemble-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Close a door with a revolving joint",
+    "seed": 7,
+    "task_id": 13,
+    "task_name": "door-close-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Close a door with a revolving joint",
+    "seed": 7,
+    "task_id": 13,
+    "task_name": "door-close-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Close a door with a revolving joint",
+    "seed": 7,
+    "task_id": 13,
+    "task_name": "door-close-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Close a door with a revolving joint",
+    "seed": 7,
+    "task_id": 13,
+    "task_name": "door-close-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Close a door with a revolving joint",
+    "seed": 7,
+    "task_id": 13,
+    "task_name": "door-close-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Close a door with a revolving joint",
+    "seed": 7,
+    "task_id": 13,
+    "task_name": "door-close-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Close a door with a revolving joint",
+    "seed": 7,
+    "task_id": 13,
+    "task_name": "door-close-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Close a door with a revolving joint",
+    "seed": 7,
+    "task_id": 13,
+    "task_name": "door-close-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Close a door with a revolving joint",
+    "seed": 7,
+    "task_id": 13,
+    "task_name": "door-close-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Close a door with a revolving joint",
+    "seed": 7,
+    "task_id": 13,
+    "task_name": "door-close-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Lock the door by rotating the lock clockwise",
+    "seed": 7,
+    "task_id": 14,
+    "task_name": "door-lock-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Lock the door by rotating the lock clockwise",
+    "seed": 7,
+    "task_id": 14,
+    "task_name": "door-lock-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Lock the door by rotating the lock clockwise",
+    "seed": 7,
+    "task_id": 14,
+    "task_name": "door-lock-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Lock the door by rotating the lock clockwise",
+    "seed": 7,
+    "task_id": 14,
+    "task_name": "door-lock-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Lock the door by rotating the lock clockwise",
+    "seed": 7,
+    "task_id": 14,
+    "task_name": "door-lock-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Lock the door by rotating the lock clockwise",
+    "seed": 7,
+    "task_id": 14,
+    "task_name": "door-lock-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Lock the door by rotating the lock clockwise",
+    "seed": 7,
+    "task_id": 14,
+    "task_name": "door-lock-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Lock the door by rotating the lock clockwise",
+    "seed": 7,
+    "task_id": 14,
+    "task_name": "door-lock-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Lock the door by rotating the lock clockwise",
+    "seed": 7,
+    "task_id": 14,
+    "task_name": "door-lock-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Lock the door by rotating the lock clockwise",
+    "seed": 7,
+    "task_id": 14,
+    "task_name": "door-lock-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Open a door with a revolving joint",
+    "seed": 7,
+    "task_id": 15,
+    "task_name": "door-open-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Open a door with a revolving joint",
+    "seed": 7,
+    "task_id": 15,
+    "task_name": "door-open-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Open a door with a revolving joint",
+    "seed": 7,
+    "task_id": 15,
+    "task_name": "door-open-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Open a door with a revolving joint",
+    "seed": 7,
+    "task_id": 15,
+    "task_name": "door-open-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Open a door with a revolving joint",
+    "seed": 7,
+    "task_id": 15,
+    "task_name": "door-open-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Open a door with a revolving joint",
+    "seed": 7,
+    "task_id": 15,
+    "task_name": "door-open-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Open a door with a revolving joint",
+    "seed": 7,
+    "task_id": 15,
+    "task_name": "door-open-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Open a door with a revolving joint",
+    "seed": 7,
+    "task_id": 15,
+    "task_name": "door-open-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Open a door with a revolving joint",
+    "seed": 7,
+    "task_id": 15,
+    "task_name": "door-open-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Open a door with a revolving joint",
+    "seed": 7,
+    "task_id": 15,
+    "task_name": "door-open-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Unlock the door by rotating the lock counter-clockwise",
+    "seed": 7,
+    "task_id": 16,
+    "task_name": "door-unlock-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Unlock the door by rotating the lock counter-clockwise",
+    "seed": 7,
+    "task_id": 16,
+    "task_name": "door-unlock-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Unlock the door by rotating the lock counter-clockwise",
+    "seed": 7,
+    "task_id": 16,
+    "task_name": "door-unlock-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Unlock the door by rotating the lock counter-clockwise",
+    "seed": 7,
+    "task_id": 16,
+    "task_name": "door-unlock-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Unlock the door by rotating the lock counter-clockwise",
+    "seed": 7,
+    "task_id": 16,
+    "task_name": "door-unlock-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Unlock the door by rotating the lock counter-clockwise",
+    "seed": 7,
+    "task_id": 16,
+    "task_name": "door-unlock-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Unlock the door by rotating the lock counter-clockwise",
+    "seed": 7,
+    "task_id": 16,
+    "task_name": "door-unlock-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Unlock the door by rotating the lock counter-clockwise",
+    "seed": 7,
+    "task_id": 16,
+    "task_name": "door-unlock-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Unlock the door by rotating the lock counter-clockwise",
+    "seed": 7,
+    "task_id": 16,
+    "task_name": "door-unlock-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Unlock the door by rotating the lock counter-clockwise",
+    "seed": 7,
+    "task_id": 16,
+    "task_name": "door-unlock-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Insert the gripper into a hole",
+    "seed": 7,
+    "task_id": 17,
+    "task_name": "hand-insert-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Insert the gripper into a hole",
+    "seed": 7,
+    "task_id": 17,
+    "task_name": "hand-insert-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Insert the gripper into a hole",
+    "seed": 7,
+    "task_id": 17,
+    "task_name": "hand-insert-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Insert the gripper into a hole",
+    "seed": 7,
+    "task_id": 17,
+    "task_name": "hand-insert-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Insert the gripper into a hole",
+    "seed": 7,
+    "task_id": 17,
+    "task_name": "hand-insert-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Insert the gripper into a hole",
+    "seed": 7,
+    "task_id": 17,
+    "task_name": "hand-insert-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Insert the gripper into a hole",
+    "seed": 7,
+    "task_id": 17,
+    "task_name": "hand-insert-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Insert the gripper into a hole",
+    "seed": 7,
+    "task_id": 17,
+    "task_name": "hand-insert-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Insert the gripper into a hole",
+    "seed": 7,
+    "task_id": 17,
+    "task_name": "hand-insert-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Insert the gripper into a hole",
+    "seed": 7,
+    "task_id": 17,
+    "task_name": "hand-insert-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Push and close a drawer",
+    "seed": 7,
+    "task_id": 18,
+    "task_name": "drawer-close-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Push and close a drawer",
+    "seed": 7,
+    "task_id": 18,
+    "task_name": "drawer-close-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Push and close a drawer",
+    "seed": 7,
+    "task_id": 18,
+    "task_name": "drawer-close-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Push and close a drawer",
+    "seed": 7,
+    "task_id": 18,
+    "task_name": "drawer-close-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Push and close a drawer",
+    "seed": 7,
+    "task_id": 18,
+    "task_name": "drawer-close-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Push and close a drawer",
+    "seed": 7,
+    "task_id": 18,
+    "task_name": "drawer-close-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Push and close a drawer",
+    "seed": 7,
+    "task_id": 18,
+    "task_name": "drawer-close-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Push and close a drawer",
+    "seed": 7,
+    "task_id": 18,
+    "task_name": "drawer-close-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Push and close a drawer",
+    "seed": 7,
+    "task_id": 18,
+    "task_name": "drawer-close-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Push and close a drawer",
+    "seed": 7,
+    "task_id": 18,
+    "task_name": "drawer-close-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Open a drawer",
+    "seed": 7,
+    "task_id": 19,
+    "task_name": "drawer-open-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Open a drawer",
+    "seed": 7,
+    "task_id": 19,
+    "task_name": "drawer-open-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Open a drawer",
+    "seed": 7,
+    "task_id": 19,
+    "task_name": "drawer-open-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Open a drawer",
+    "seed": 7,
+    "task_id": 19,
+    "task_name": "drawer-open-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Open a drawer",
+    "seed": 7,
+    "task_id": 19,
+    "task_name": "drawer-open-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Open a drawer",
+    "seed": 7,
+    "task_id": 19,
+    "task_name": "drawer-open-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Open a drawer",
+    "seed": 7,
+    "task_id": 19,
+    "task_name": "drawer-open-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Open a drawer",
+    "seed": 7,
+    "task_id": 19,
+    "task_name": "drawer-open-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Open a drawer",
+    "seed": 7,
+    "task_id": 19,
+    "task_name": "drawer-open-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Open a drawer",
+    "seed": 7,
+    "task_id": 19,
+    "task_name": "drawer-open-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Rotate the faucet counter-clockwise",
+    "seed": 7,
+    "task_id": 20,
+    "task_name": "faucet-open-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Rotate the faucet counter-clockwise",
+    "seed": 7,
+    "task_id": 20,
+    "task_name": "faucet-open-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Rotate the faucet counter-clockwise",
+    "seed": 7,
+    "task_id": 20,
+    "task_name": "faucet-open-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Rotate the faucet counter-clockwise",
+    "seed": 7,
+    "task_id": 20,
+    "task_name": "faucet-open-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Rotate the faucet counter-clockwise",
+    "seed": 7,
+    "task_id": 20,
+    "task_name": "faucet-open-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Rotate the faucet counter-clockwise",
+    "seed": 7,
+    "task_id": 20,
+    "task_name": "faucet-open-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Rotate the faucet counter-clockwise",
+    "seed": 7,
+    "task_id": 20,
+    "task_name": "faucet-open-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Rotate the faucet counter-clockwise",
+    "seed": 7,
+    "task_id": 20,
+    "task_name": "faucet-open-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Rotate the faucet counter-clockwise",
+    "seed": 7,
+    "task_id": 20,
+    "task_name": "faucet-open-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Rotate the faucet counter-clockwise",
+    "seed": 7,
+    "task_id": 20,
+    "task_name": "faucet-open-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Rotate the faucet clockwise",
+    "seed": 7,
+    "task_id": 21,
+    "task_name": "faucet-close-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Rotate the faucet clockwise",
+    "seed": 7,
+    "task_id": 21,
+    "task_name": "faucet-close-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Rotate the faucet clockwise",
+    "seed": 7,
+    "task_id": 21,
+    "task_name": "faucet-close-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Rotate the faucet clockwise",
+    "seed": 7,
+    "task_id": 21,
+    "task_name": "faucet-close-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Rotate the faucet clockwise",
+    "seed": 7,
+    "task_id": 21,
+    "task_name": "faucet-close-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Rotate the faucet clockwise",
+    "seed": 7,
+    "task_id": 21,
+    "task_name": "faucet-close-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Rotate the faucet clockwise",
+    "seed": 7,
+    "task_id": 21,
+    "task_name": "faucet-close-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Rotate the faucet clockwise",
+    "seed": 7,
+    "task_id": 21,
+    "task_name": "faucet-close-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Rotate the faucet clockwise",
+    "seed": 7,
+    "task_id": 21,
+    "task_name": "faucet-close-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Rotate the faucet clockwise",
+    "seed": 7,
+    "task_id": 21,
+    "task_name": "faucet-close-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Hammer a screw on the wall",
+    "seed": 7,
+    "task_id": 22,
+    "task_name": "hammer-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Hammer a screw on the wall",
+    "seed": 7,
+    "task_id": 22,
+    "task_name": "hammer-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Hammer a screw on the wall",
+    "seed": 7,
+    "task_id": 22,
+    "task_name": "hammer-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Hammer a screw on the wall",
+    "seed": 7,
+    "task_id": 22,
+    "task_name": "hammer-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Hammer a screw on the wall",
+    "seed": 7,
+    "task_id": 22,
+    "task_name": "hammer-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Hammer a screw on the wall",
+    "seed": 7,
+    "task_id": 22,
+    "task_name": "hammer-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Hammer a screw on the wall",
+    "seed": 7,
+    "task_id": 22,
+    "task_name": "hammer-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Hammer a screw on the wall",
+    "seed": 7,
+    "task_id": 22,
+    "task_name": "hammer-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Hammer a screw on the wall",
+    "seed": 7,
+    "task_id": 22,
+    "task_name": "hammer-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Hammer a screw on the wall",
+    "seed": 7,
+    "task_id": 22,
+    "task_name": "hammer-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Press a handle down sideways",
+    "seed": 7,
+    "task_id": 23,
+    "task_name": "handle-press-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Press a handle down sideways",
+    "seed": 7,
+    "task_id": 23,
+    "task_name": "handle-press-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Press a handle down sideways",
+    "seed": 7,
+    "task_id": 23,
+    "task_name": "handle-press-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Press a handle down sideways",
+    "seed": 7,
+    "task_id": 23,
+    "task_name": "handle-press-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Press a handle down sideways",
+    "seed": 7,
+    "task_id": 23,
+    "task_name": "handle-press-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Press a handle down sideways",
+    "seed": 7,
+    "task_id": 23,
+    "task_name": "handle-press-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Press a handle down sideways",
+    "seed": 7,
+    "task_id": 23,
+    "task_name": "handle-press-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Press a handle down sideways",
+    "seed": 7,
+    "task_id": 23,
+    "task_name": "handle-press-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Press a handle down sideways",
+    "seed": 7,
+    "task_id": 23,
+    "task_name": "handle-press-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Press a handle down sideways",
+    "seed": 7,
+    "task_id": 23,
+    "task_name": "handle-press-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Press a handle down",
+    "seed": 7,
+    "task_id": 24,
+    "task_name": "handle-press-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Press a handle down",
+    "seed": 7,
+    "task_id": 24,
+    "task_name": "handle-press-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Press a handle down",
+    "seed": 7,
+    "task_id": 24,
+    "task_name": "handle-press-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Press a handle down",
+    "seed": 7,
+    "task_id": 24,
+    "task_name": "handle-press-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Press a handle down",
+    "seed": 7,
+    "task_id": 24,
+    "task_name": "handle-press-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Press a handle down",
+    "seed": 7,
+    "task_id": 24,
+    "task_name": "handle-press-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Press a handle down",
+    "seed": 7,
+    "task_id": 24,
+    "task_name": "handle-press-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Press a handle down",
+    "seed": 7,
+    "task_id": 24,
+    "task_name": "handle-press-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Press a handle down",
+    "seed": 7,
+    "task_id": 24,
+    "task_name": "handle-press-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Press a handle down",
+    "seed": 7,
+    "task_id": 24,
+    "task_name": "handle-press-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Pull a handle up sideways",
+    "seed": 7,
+    "task_id": 25,
+    "task_name": "handle-pull-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Pull a handle up sideways",
+    "seed": 7,
+    "task_id": 25,
+    "task_name": "handle-pull-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Pull a handle up sideways",
+    "seed": 7,
+    "task_id": 25,
+    "task_name": "handle-pull-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Pull a handle up sideways",
+    "seed": 7,
+    "task_id": 25,
+    "task_name": "handle-pull-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Pull a handle up sideways",
+    "seed": 7,
+    "task_id": 25,
+    "task_name": "handle-pull-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Pull a handle up sideways",
+    "seed": 7,
+    "task_id": 25,
+    "task_name": "handle-pull-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Pull a handle up sideways",
+    "seed": 7,
+    "task_id": 25,
+    "task_name": "handle-pull-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Pull a handle up sideways",
+    "seed": 7,
+    "task_id": 25,
+    "task_name": "handle-pull-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Pull a handle up sideways",
+    "seed": 7,
+    "task_id": 25,
+    "task_name": "handle-pull-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Pull a handle up sideways",
+    "seed": 7,
+    "task_id": 25,
+    "task_name": "handle-pull-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Pull a handle up",
+    "seed": 7,
+    "task_id": 26,
+    "task_name": "handle-pull-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Pull a handle up",
+    "seed": 7,
+    "task_id": 26,
+    "task_name": "handle-pull-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Pull a handle up",
+    "seed": 7,
+    "task_id": 26,
+    "task_name": "handle-pull-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Pull a handle up",
+    "seed": 7,
+    "task_id": 26,
+    "task_name": "handle-pull-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Pull a handle up",
+    "seed": 7,
+    "task_id": 26,
+    "task_name": "handle-pull-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Pull a handle up",
+    "seed": 7,
+    "task_id": 26,
+    "task_name": "handle-pull-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Pull a handle up",
+    "seed": 7,
+    "task_id": 26,
+    "task_name": "handle-pull-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Pull a handle up",
+    "seed": 7,
+    "task_id": 26,
+    "task_name": "handle-pull-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Pull a handle up",
+    "seed": 7,
+    "task_id": 26,
+    "task_name": "handle-pull-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Pull a handle up",
+    "seed": 7,
+    "task_id": 26,
+    "task_name": "handle-pull-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Pull a lever down 90 degrees",
+    "seed": 7,
+    "task_id": 27,
+    "task_name": "lever-pull-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Pull a lever down 90 degrees",
+    "seed": 7,
+    "task_id": 27,
+    "task_name": "lever-pull-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Pull a lever down 90 degrees",
+    "seed": 7,
+    "task_id": 27,
+    "task_name": "lever-pull-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Pull a lever down 90 degrees",
+    "seed": 7,
+    "task_id": 27,
+    "task_name": "lever-pull-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Pull a lever down 90 degrees",
+    "seed": 7,
+    "task_id": 27,
+    "task_name": "lever-pull-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Pull a lever down 90 degrees",
+    "seed": 7,
+    "task_id": 27,
+    "task_name": "lever-pull-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Pull a lever down 90 degrees",
+    "seed": 7,
+    "task_id": 27,
+    "task_name": "lever-pull-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Pull a lever down 90 degrees",
+    "seed": 7,
+    "task_id": 27,
+    "task_name": "lever-pull-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Pull a lever down 90 degrees",
+    "seed": 7,
+    "task_id": 27,
+    "task_name": "lever-pull-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Pull a lever down 90 degrees",
+    "seed": 7,
+    "task_id": 27,
+    "task_name": "lever-pull-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Pick a puck, bypass a wall and place the puck",
+    "seed": 7,
+    "task_id": 28,
+    "task_name": "pick-place-wall-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Pick a puck, bypass a wall and place the puck",
+    "seed": 7,
+    "task_id": 28,
+    "task_name": "pick-place-wall-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Pick a puck, bypass a wall and place the puck",
+    "seed": 7,
+    "task_id": 28,
+    "task_name": "pick-place-wall-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Pick a puck, bypass a wall and place the puck",
+    "seed": 7,
+    "task_id": 28,
+    "task_name": "pick-place-wall-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Pick a puck, bypass a wall and place the puck",
+    "seed": 7,
+    "task_id": 28,
+    "task_name": "pick-place-wall-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Pick a puck, bypass a wall and place the puck",
+    "seed": 7,
+    "task_id": 28,
+    "task_name": "pick-place-wall-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Pick a puck, bypass a wall and place the puck",
+    "seed": 7,
+    "task_id": 28,
+    "task_name": "pick-place-wall-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Pick a puck, bypass a wall and place the puck",
+    "seed": 7,
+    "task_id": 28,
+    "task_name": "pick-place-wall-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Pick a puck, bypass a wall and place the puck",
+    "seed": 7,
+    "task_id": 28,
+    "task_name": "pick-place-wall-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Pick a puck, bypass a wall and place the puck",
+    "seed": 7,
+    "task_id": 28,
+    "task_name": "pick-place-wall-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Pick up a puck from a hole",
+    "seed": 7,
+    "task_id": 29,
+    "task_name": "pick-out-of-hole-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Pick up a puck from a hole",
+    "seed": 7,
+    "task_id": 29,
+    "task_name": "pick-out-of-hole-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Pick up a puck from a hole",
+    "seed": 7,
+    "task_id": 29,
+    "task_name": "pick-out-of-hole-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Pick up a puck from a hole",
+    "seed": 7,
+    "task_id": 29,
+    "task_name": "pick-out-of-hole-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Pick up a puck from a hole",
+    "seed": 7,
+    "task_id": 29,
+    "task_name": "pick-out-of-hole-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Pick up a puck from a hole",
+    "seed": 7,
+    "task_id": 29,
+    "task_name": "pick-out-of-hole-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Pick up a puck from a hole",
+    "seed": 7,
+    "task_id": 29,
+    "task_name": "pick-out-of-hole-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Pick up a puck from a hole",
+    "seed": 7,
+    "task_id": 29,
+    "task_name": "pick-out-of-hole-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Pick up a puck from a hole",
+    "seed": 7,
+    "task_id": 29,
+    "task_name": "pick-out-of-hole-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Pick up a puck from a hole",
+    "seed": 7,
+    "task_id": 29,
+    "task_name": "pick-out-of-hole-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Pick and place a puck to a goal",
+    "seed": 7,
+    "task_id": 30,
+    "task_name": "pick-place-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Pick and place a puck to a goal",
+    "seed": 7,
+    "task_id": 30,
+    "task_name": "pick-place-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Pick and place a puck to a goal",
+    "seed": 7,
+    "task_id": 30,
+    "task_name": "pick-place-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Pick and place a puck to a goal",
+    "seed": 7,
+    "task_id": 30,
+    "task_name": "pick-place-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Pick and place a puck to a goal",
+    "seed": 7,
+    "task_id": 30,
+    "task_name": "pick-place-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Pick and place a puck to a goal",
+    "seed": 7,
+    "task_id": 30,
+    "task_name": "pick-place-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Pick and place a puck to a goal",
+    "seed": 7,
+    "task_id": 30,
+    "task_name": "pick-place-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Pick and place a puck to a goal",
+    "seed": 7,
+    "task_id": 30,
+    "task_name": "pick-place-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Pick and place a puck to a goal",
+    "seed": 7,
+    "task_id": 30,
+    "task_name": "pick-place-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Pick and place a puck to a goal",
+    "seed": 7,
+    "task_id": 30,
+    "task_name": "pick-place-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Slide a plate into a cabinet",
+    "seed": 7,
+    "task_id": 31,
+    "task_name": "plate-slide-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Slide a plate into a cabinet",
+    "seed": 7,
+    "task_id": 31,
+    "task_name": "plate-slide-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Slide a plate into a cabinet",
+    "seed": 7,
+    "task_id": 31,
+    "task_name": "plate-slide-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Slide a plate into a cabinet",
+    "seed": 7,
+    "task_id": 31,
+    "task_name": "plate-slide-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Slide a plate into a cabinet",
+    "seed": 7,
+    "task_id": 31,
+    "task_name": "plate-slide-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Slide a plate into a cabinet",
+    "seed": 7,
+    "task_id": 31,
+    "task_name": "plate-slide-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Slide a plate into a cabinet",
+    "seed": 7,
+    "task_id": 31,
+    "task_name": "plate-slide-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Slide a plate into a cabinet",
+    "seed": 7,
+    "task_id": 31,
+    "task_name": "plate-slide-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Slide a plate into a cabinet",
+    "seed": 7,
+    "task_id": 31,
+    "task_name": "plate-slide-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Slide a plate into a cabinet",
+    "seed": 7,
+    "task_id": 31,
+    "task_name": "plate-slide-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Slide a plate into a cabinet sideways",
+    "seed": 7,
+    "task_id": 32,
+    "task_name": "plate-slide-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Slide a plate into a cabinet sideways",
+    "seed": 7,
+    "task_id": 32,
+    "task_name": "plate-slide-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Slide a plate into a cabinet sideways",
+    "seed": 7,
+    "task_id": 32,
+    "task_name": "plate-slide-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Slide a plate into a cabinet sideways",
+    "seed": 7,
+    "task_id": 32,
+    "task_name": "plate-slide-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Slide a plate into a cabinet sideways",
+    "seed": 7,
+    "task_id": 32,
+    "task_name": "plate-slide-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Slide a plate into a cabinet sideways",
+    "seed": 7,
+    "task_id": 32,
+    "task_name": "plate-slide-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Slide a plate into a cabinet sideways",
+    "seed": 7,
+    "task_id": 32,
+    "task_name": "plate-slide-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Slide a plate into a cabinet sideways",
+    "seed": 7,
+    "task_id": 32,
+    "task_name": "plate-slide-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Slide a plate into a cabinet sideways",
+    "seed": 7,
+    "task_id": 32,
+    "task_name": "plate-slide-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Slide a plate into a cabinet sideways",
+    "seed": 7,
+    "task_id": 32,
+    "task_name": "plate-slide-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Get a plate from the cabinet",
+    "seed": 7,
+    "task_id": 33,
+    "task_name": "plate-slide-back-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Get a plate from the cabinet",
+    "seed": 7,
+    "task_id": 33,
+    "task_name": "plate-slide-back-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Get a plate from the cabinet",
+    "seed": 7,
+    "task_id": 33,
+    "task_name": "plate-slide-back-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Get a plate from the cabinet",
+    "seed": 7,
+    "task_id": 33,
+    "task_name": "plate-slide-back-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Get a plate from the cabinet",
+    "seed": 7,
+    "task_id": 33,
+    "task_name": "plate-slide-back-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Get a plate from the cabinet",
+    "seed": 7,
+    "task_id": 33,
+    "task_name": "plate-slide-back-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Get a plate from the cabinet",
+    "seed": 7,
+    "task_id": 33,
+    "task_name": "plate-slide-back-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Get a plate from the cabinet",
+    "seed": 7,
+    "task_id": 33,
+    "task_name": "plate-slide-back-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Get a plate from the cabinet",
+    "seed": 7,
+    "task_id": 33,
+    "task_name": "plate-slide-back-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Get a plate from the cabinet",
+    "seed": 7,
+    "task_id": 33,
+    "task_name": "plate-slide-back-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Get a plate from the cabinet sideways",
+    "seed": 7,
+    "task_id": 34,
+    "task_name": "plate-slide-back-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Get a plate from the cabinet sideways",
+    "seed": 7,
+    "task_id": 34,
+    "task_name": "plate-slide-back-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Get a plate from the cabinet sideways",
+    "seed": 7,
+    "task_id": 34,
+    "task_name": "plate-slide-back-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Get a plate from the cabinet sideways",
+    "seed": 7,
+    "task_id": 34,
+    "task_name": "plate-slide-back-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Get a plate from the cabinet sideways",
+    "seed": 7,
+    "task_id": 34,
+    "task_name": "plate-slide-back-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Get a plate from the cabinet sideways",
+    "seed": 7,
+    "task_id": 34,
+    "task_name": "plate-slide-back-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Get a plate from the cabinet sideways",
+    "seed": 7,
+    "task_id": 34,
+    "task_name": "plate-slide-back-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Get a plate from the cabinet sideways",
+    "seed": 7,
+    "task_id": 34,
+    "task_name": "plate-slide-back-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Get a plate from the cabinet sideways",
+    "seed": 7,
+    "task_id": 34,
+    "task_name": "plate-slide-back-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Get a plate from the cabinet sideways",
+    "seed": 7,
+    "task_id": 34,
+    "task_name": "plate-slide-back-side-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Insert a peg sideways",
+    "seed": 7,
+    "task_id": 35,
+    "task_name": "peg-insert-side-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Insert a peg sideways",
+    "seed": 7,
+    "task_id": 35,
+    "task_name": "peg-insert-side-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Insert a peg sideways",
+    "seed": 7,
+    "task_id": 35,
+    "task_name": "peg-insert-side-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Insert a peg sideways",
+    "seed": 7,
+    "task_id": 35,
+    "task_name": "peg-insert-side-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Insert a peg sideways",
+    "seed": 7,
+    "task_id": 35,
+    "task_name": "peg-insert-side-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Insert a peg sideways",
+    "seed": 7,
+    "task_id": 35,
+    "task_name": "peg-insert-side-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Insert a peg sideways",
+    "seed": 7,
+    "task_id": 35,
+    "task_name": "peg-insert-side-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Insert a peg sideways",
+    "seed": 7,
+    "task_id": 35,
+    "task_name": "peg-insert-side-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Insert a peg sideways",
+    "seed": 7,
+    "task_id": 35,
+    "task_name": "peg-insert-side-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Insert a peg sideways",
+    "seed": 7,
+    "task_id": 35,
+    "task_name": "peg-insert-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Unplug a peg sideways",
+    "seed": 7,
+    "task_id": 36,
+    "task_name": "peg-unplug-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Unplug a peg sideways",
+    "seed": 7,
+    "task_id": 36,
+    "task_name": "peg-unplug-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Unplug a peg sideways",
+    "seed": 7,
+    "task_id": 36,
+    "task_name": "peg-unplug-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Unplug a peg sideways",
+    "seed": 7,
+    "task_id": 36,
+    "task_name": "peg-unplug-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Unplug a peg sideways",
+    "seed": 7,
+    "task_id": 36,
+    "task_name": "peg-unplug-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Unplug a peg sideways",
+    "seed": 7,
+    "task_id": 36,
+    "task_name": "peg-unplug-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Unplug a peg sideways",
+    "seed": 7,
+    "task_id": 36,
+    "task_name": "peg-unplug-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Unplug a peg sideways",
+    "seed": 7,
+    "task_id": 36,
+    "task_name": "peg-unplug-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Unplug a peg sideways",
+    "seed": 7,
+    "task_id": 36,
+    "task_name": "peg-unplug-side-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Unplug a peg sideways",
+    "seed": 7,
+    "task_id": 36,
+    "task_name": "peg-unplug-side-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Kick a soccer into the goal",
+    "seed": 7,
+    "task_id": 37,
+    "task_name": "soccer-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Kick a soccer into the goal",
+    "seed": 7,
+    "task_id": 37,
+    "task_name": "soccer-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Kick a soccer into the goal",
+    "seed": 7,
+    "task_id": 37,
+    "task_name": "soccer-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Kick a soccer into the goal",
+    "seed": 7,
+    "task_id": 37,
+    "task_name": "soccer-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Kick a soccer into the goal",
+    "seed": 7,
+    "task_id": 37,
+    "task_name": "soccer-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Kick a soccer into the goal",
+    "seed": 7,
+    "task_id": 37,
+    "task_name": "soccer-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Kick a soccer into the goal",
+    "seed": 7,
+    "task_id": 37,
+    "task_name": "soccer-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Kick a soccer into the goal",
+    "seed": 7,
+    "task_id": 37,
+    "task_name": "soccer-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Kick a soccer into the goal",
+    "seed": 7,
+    "task_id": 37,
+    "task_name": "soccer-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Kick a soccer into the goal",
+    "seed": 7,
+    "task_id": 37,
+    "task_name": "soccer-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Grasp a stick and push a box using the stick",
+    "seed": 7,
+    "task_id": 38,
+    "task_name": "stick-push-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Grasp a stick and push a box using the stick",
+    "seed": 7,
+    "task_id": 38,
+    "task_name": "stick-push-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Grasp a stick and push a box using the stick",
+    "seed": 7,
+    "task_id": 38,
+    "task_name": "stick-push-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Grasp a stick and push a box using the stick",
+    "seed": 7,
+    "task_id": 38,
+    "task_name": "stick-push-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Grasp a stick and push a box using the stick",
+    "seed": 7,
+    "task_id": 38,
+    "task_name": "stick-push-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Grasp a stick and push a box using the stick",
+    "seed": 7,
+    "task_id": 38,
+    "task_name": "stick-push-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Grasp a stick and push a box using the stick",
+    "seed": 7,
+    "task_id": 38,
+    "task_name": "stick-push-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Grasp a stick and push a box using the stick",
+    "seed": 7,
+    "task_id": 38,
+    "task_name": "stick-push-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Grasp a stick and push a box using the stick",
+    "seed": 7,
+    "task_id": 38,
+    "task_name": "stick-push-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Grasp a stick and push a box using the stick",
+    "seed": 7,
+    "task_id": 38,
+    "task_name": "stick-push-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Grasp a stick and pull a box with the stick",
+    "seed": 7,
+    "task_id": 39,
+    "task_name": "stick-pull-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Grasp a stick and pull a box with the stick",
+    "seed": 7,
+    "task_id": 39,
+    "task_name": "stick-pull-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Grasp a stick and pull a box with the stick",
+    "seed": 7,
+    "task_id": 39,
+    "task_name": "stick-pull-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Grasp a stick and pull a box with the stick",
+    "seed": 7,
+    "task_id": 39,
+    "task_name": "stick-pull-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Grasp a stick and pull a box with the stick",
+    "seed": 7,
+    "task_id": 39,
+    "task_name": "stick-pull-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Grasp a stick and pull a box with the stick",
+    "seed": 7,
+    "task_id": 39,
+    "task_name": "stick-pull-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Grasp a stick and pull a box with the stick",
+    "seed": 7,
+    "task_id": 39,
+    "task_name": "stick-pull-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Grasp a stick and pull a box with the stick",
+    "seed": 7,
+    "task_id": 39,
+    "task_name": "stick-pull-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Grasp a stick and pull a box with the stick",
+    "seed": 7,
+    "task_id": 39,
+    "task_name": "stick-pull-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Grasp a stick and pull a box with the stick",
+    "seed": 7,
+    "task_id": 39,
+    "task_name": "stick-pull-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Push the puck to a goal",
+    "seed": 7,
+    "task_id": 40,
+    "task_name": "push-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Push the puck to a goal",
+    "seed": 7,
+    "task_id": 40,
+    "task_name": "push-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Push the puck to a goal",
+    "seed": 7,
+    "task_id": 40,
+    "task_name": "push-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Push the puck to a goal",
+    "seed": 7,
+    "task_id": 40,
+    "task_name": "push-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Push the puck to a goal",
+    "seed": 7,
+    "task_id": 40,
+    "task_name": "push-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Push the puck to a goal",
+    "seed": 7,
+    "task_id": 40,
+    "task_name": "push-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Push the puck to a goal",
+    "seed": 7,
+    "task_id": 40,
+    "task_name": "push-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Push the puck to a goal",
+    "seed": 7,
+    "task_id": 40,
+    "task_name": "push-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Push the puck to a goal",
+    "seed": 7,
+    "task_id": 40,
+    "task_name": "push-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Push the puck to a goal",
+    "seed": 7,
+    "task_id": 40,
+    "task_name": "push-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Bypass a wall and push a puck to a goal",
+    "seed": 7,
+    "task_id": 41,
+    "task_name": "push-wall-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Bypass a wall and push a puck to a goal",
+    "seed": 7,
+    "task_id": 41,
+    "task_name": "push-wall-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Bypass a wall and push a puck to a goal",
+    "seed": 7,
+    "task_id": 41,
+    "task_name": "push-wall-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Bypass a wall and push a puck to a goal",
+    "seed": 7,
+    "task_id": 41,
+    "task_name": "push-wall-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Bypass a wall and push a puck to a goal",
+    "seed": 7,
+    "task_id": 41,
+    "task_name": "push-wall-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Bypass a wall and push a puck to a goal",
+    "seed": 7,
+    "task_id": 41,
+    "task_name": "push-wall-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Bypass a wall and push a puck to a goal",
+    "seed": 7,
+    "task_id": 41,
+    "task_name": "push-wall-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Bypass a wall and push a puck to a goal",
+    "seed": 7,
+    "task_id": 41,
+    "task_name": "push-wall-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Bypass a wall and push a puck to a goal",
+    "seed": 7,
+    "task_id": 41,
+    "task_name": "push-wall-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Bypass a wall and push a puck to a goal",
+    "seed": 7,
+    "task_id": 41,
+    "task_name": "push-wall-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Push the puck to a goal",
+    "seed": 7,
+    "task_id": 42,
+    "task_name": "push-back-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Push the puck to a goal",
+    "seed": 7,
+    "task_id": 42,
+    "task_name": "push-back-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Push the puck to a goal",
+    "seed": 7,
+    "task_id": 42,
+    "task_name": "push-back-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Push the puck to a goal",
+    "seed": 7,
+    "task_id": 42,
+    "task_name": "push-back-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Push the puck to a goal",
+    "seed": 7,
+    "task_id": 42,
+    "task_name": "push-back-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Push the puck to a goal",
+    "seed": 7,
+    "task_id": 42,
+    "task_name": "push-back-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Push the puck to a goal",
+    "seed": 7,
+    "task_id": 42,
+    "task_name": "push-back-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Push the puck to a goal",
+    "seed": 7,
+    "task_id": 42,
+    "task_name": "push-back-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Push the puck to a goal",
+    "seed": 7,
+    "task_id": 42,
+    "task_name": "push-back-v3"
+  },
+  {
+    "difficulty": "hard",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Push the puck to a goal",
+    "seed": 7,
+    "task_id": 42,
+    "task_name": "push-back-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Reach a goal position",
+    "seed": 7,
+    "task_id": 43,
+    "task_name": "reach-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Reach a goal position",
+    "seed": 7,
+    "task_id": 43,
+    "task_name": "reach-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Reach a goal position",
+    "seed": 7,
+    "task_id": 43,
+    "task_name": "reach-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Reach a goal position",
+    "seed": 7,
+    "task_id": 43,
+    "task_name": "reach-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Reach a goal position",
+    "seed": 7,
+    "task_id": 43,
+    "task_name": "reach-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Reach a goal position",
+    "seed": 7,
+    "task_id": 43,
+    "task_name": "reach-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Reach a goal position",
+    "seed": 7,
+    "task_id": 43,
+    "task_name": "reach-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Reach a goal position",
+    "seed": 7,
+    "task_id": 43,
+    "task_name": "reach-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Reach a goal position",
+    "seed": 7,
+    "task_id": 43,
+    "task_name": "reach-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Reach a goal position",
+    "seed": 7,
+    "task_id": 43,
+    "task_name": "reach-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Bypass a wall and reach a goal",
+    "seed": 7,
+    "task_id": 44,
+    "task_name": "reach-wall-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Bypass a wall and reach a goal",
+    "seed": 7,
+    "task_id": 44,
+    "task_name": "reach-wall-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Bypass a wall and reach a goal",
+    "seed": 7,
+    "task_id": 44,
+    "task_name": "reach-wall-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Bypass a wall and reach a goal",
+    "seed": 7,
+    "task_id": 44,
+    "task_name": "reach-wall-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Bypass a wall and reach a goal",
+    "seed": 7,
+    "task_id": 44,
+    "task_name": "reach-wall-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Bypass a wall and reach a goal",
+    "seed": 7,
+    "task_id": 44,
+    "task_name": "reach-wall-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Bypass a wall and reach a goal",
+    "seed": 7,
+    "task_id": 44,
+    "task_name": "reach-wall-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Bypass a wall and reach a goal",
+    "seed": 7,
+    "task_id": 44,
+    "task_name": "reach-wall-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Bypass a wall and reach a goal",
+    "seed": 7,
+    "task_id": 44,
+    "task_name": "reach-wall-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Bypass a wall and reach a goal",
+    "seed": 7,
+    "task_id": 44,
+    "task_name": "reach-wall-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Pick and place a puck onto a shelf",
+    "seed": 7,
+    "task_id": 45,
+    "task_name": "shelf-place-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Pick and place a puck onto a shelf",
+    "seed": 7,
+    "task_id": 45,
+    "task_name": "shelf-place-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Pick and place a puck onto a shelf",
+    "seed": 7,
+    "task_id": 45,
+    "task_name": "shelf-place-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Pick and place a puck onto a shelf",
+    "seed": 7,
+    "task_id": 45,
+    "task_name": "shelf-place-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Pick and place a puck onto a shelf",
+    "seed": 7,
+    "task_id": 45,
+    "task_name": "shelf-place-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Pick and place a puck onto a shelf",
+    "seed": 7,
+    "task_id": 45,
+    "task_name": "shelf-place-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Pick and place a puck onto a shelf",
+    "seed": 7,
+    "task_id": 45,
+    "task_name": "shelf-place-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Pick and place a puck onto a shelf",
+    "seed": 7,
+    "task_id": 45,
+    "task_name": "shelf-place-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Pick and place a puck onto a shelf",
+    "seed": 7,
+    "task_id": 45,
+    "task_name": "shelf-place-v3"
+  },
+  {
+    "difficulty": "very_hard",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Pick and place a puck onto a shelf",
+    "seed": 7,
+    "task_id": 45,
+    "task_name": "shelf-place-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Sweep a puck into a hole",
+    "seed": 7,
+    "task_id": 46,
+    "task_name": "sweep-into-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Sweep a puck into a hole",
+    "seed": 7,
+    "task_id": 46,
+    "task_name": "sweep-into-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Sweep a puck into a hole",
+    "seed": 7,
+    "task_id": 46,
+    "task_name": "sweep-into-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Sweep a puck into a hole",
+    "seed": 7,
+    "task_id": 46,
+    "task_name": "sweep-into-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Sweep a puck into a hole",
+    "seed": 7,
+    "task_id": 46,
+    "task_name": "sweep-into-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Sweep a puck into a hole",
+    "seed": 7,
+    "task_id": 46,
+    "task_name": "sweep-into-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Sweep a puck into a hole",
+    "seed": 7,
+    "task_id": 46,
+    "task_name": "sweep-into-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Sweep a puck into a hole",
+    "seed": 7,
+    "task_id": 46,
+    "task_name": "sweep-into-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Sweep a puck into a hole",
+    "seed": 7,
+    "task_id": 46,
+    "task_name": "sweep-into-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Sweep a puck into a hole",
+    "seed": 7,
+    "task_id": 46,
+    "task_name": "sweep-into-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Sweep a puck off the table",
+    "seed": 7,
+    "task_id": 47,
+    "task_name": "sweep-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Sweep a puck off the table",
+    "seed": 7,
+    "task_id": 47,
+    "task_name": "sweep-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Sweep a puck off the table",
+    "seed": 7,
+    "task_id": 47,
+    "task_name": "sweep-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Sweep a puck off the table",
+    "seed": 7,
+    "task_id": 47,
+    "task_name": "sweep-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Sweep a puck off the table",
+    "seed": 7,
+    "task_id": 47,
+    "task_name": "sweep-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Sweep a puck off the table",
+    "seed": 7,
+    "task_id": 47,
+    "task_name": "sweep-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Sweep a puck off the table",
+    "seed": 7,
+    "task_id": 47,
+    "task_name": "sweep-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Sweep a puck off the table",
+    "seed": 7,
+    "task_id": 47,
+    "task_name": "sweep-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Sweep a puck off the table",
+    "seed": 7,
+    "task_id": 47,
+    "task_name": "sweep-v3"
+  },
+  {
+    "difficulty": "medium",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Sweep a puck off the table",
+    "seed": 7,
+    "task_id": 47,
+    "task_name": "sweep-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Push and open a window",
+    "seed": 7,
+    "task_id": 48,
+    "task_name": "window-open-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Push and open a window",
+    "seed": 7,
+    "task_id": 48,
+    "task_name": "window-open-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Push and open a window",
+    "seed": 7,
+    "task_id": 48,
+    "task_name": "window-open-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Push and open a window",
+    "seed": 7,
+    "task_id": 48,
+    "task_name": "window-open-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Push and open a window",
+    "seed": 7,
+    "task_id": 48,
+    "task_name": "window-open-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Push and open a window",
+    "seed": 7,
+    "task_id": 48,
+    "task_name": "window-open-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Push and open a window",
+    "seed": 7,
+    "task_id": 48,
+    "task_name": "window-open-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Push and open a window",
+    "seed": 7,
+    "task_id": 48,
+    "task_name": "window-open-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Push and open a window",
+    "seed": 7,
+    "task_id": 48,
+    "task_name": "window-open-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Push and open a window",
+    "seed": 7,
+    "task_id": 48,
+    "task_name": "window-open-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 0,
+    "partition": "test",
+    "prompt": "Push and close a window",
+    "seed": 7,
+    "task_id": 49,
+    "task_name": "window-close-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 1,
+    "partition": "test",
+    "prompt": "Push and close a window",
+    "seed": 7,
+    "task_id": 49,
+    "task_name": "window-close-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 2,
+    "partition": "test",
+    "prompt": "Push and close a window",
+    "seed": 7,
+    "task_id": 49,
+    "task_name": "window-close-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 3,
+    "partition": "test",
+    "prompt": "Push and close a window",
+    "seed": 7,
+    "task_id": 49,
+    "task_name": "window-close-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 4,
+    "partition": "test",
+    "prompt": "Push and close a window",
+    "seed": 7,
+    "task_id": 49,
+    "task_name": "window-close-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 5,
+    "partition": "test",
+    "prompt": "Push and close a window",
+    "seed": 7,
+    "task_id": 49,
+    "task_name": "window-close-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 6,
+    "partition": "test",
+    "prompt": "Push and close a window",
+    "seed": 7,
+    "task_id": 49,
+    "task_name": "window-close-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 7,
+    "partition": "test",
+    "prompt": "Push and close a window",
+    "seed": 7,
+    "task_id": 49,
+    "task_name": "window-close-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 8,
+    "partition": "test",
+    "prompt": "Push and close a window",
+    "seed": 7,
+    "task_id": 49,
+    "task_name": "window-close-v3"
+  },
+  {
+    "difficulty": "easy",
+    "original_idx": 9,
+    "partition": "test",
+    "prompt": "Push and close a window",
+    "seed": 7,
+    "task_id": 49,
+    "task_name": "window-close-v3"
+  }
+]

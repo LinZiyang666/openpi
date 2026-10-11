@@ -1,0 +1,67 @@
+{
+  "armed_at": "2026-10-11T02:28:08.888219+00:00",
+  "fleets": {
+    "cosmos_libero": {
+      "timan1": 8
+    },
+    "dp_libero": {
+      "local": 16,
+      "timan107": 16
+    },
+    "fastwam_libero": {
+      "local": 16,
+      "timan1": 16,
+      "timan107": 16
+    }
+  },
+  "lanes": {
+    "4090": {
+      "after_lane": {
+        "directory": "/data/mw_finetune/eval/csl10dp",
+        "plan_sha256": "27e96523b1b8984a001b193b305a17fe1e360bef924e8bad372538e8e01cd606",
+        "processes": [
+          {
+            "pid": 473414,
+            "start_ticks": "12403042"
+          }
+        ]
+      },
+      "directory": "/data/mw_finetune/eval/cszsdp",
+      "log": "/data/mw_finetune/eval/cszsdp/ARMED.log",
+      "pid": 834339,
+      "script": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/run_4090.sh",
+      "script_sha256": "25d2c1808a40fc0d6def05f93ca055c30293c2674e60093abde7bfdf72fbd85b",
+      "start_ticks": "12723405",
+      "wait_condition": "Predecessor PID generations exit, exclusive lane ownership releases, lane and all campaigns seal PASS with all owned processes closed; disk/RAM/GPU admission repeated before dispatch",
+      "wait_for_pass": true
+    },
+    "h100": {
+      "after_lane": {
+        "directory": "/data/mw_finetune/eval/csl10h",
+        "plan_sha256": "533a720d3a4925df16ea0415b7f83726d7065b31d04bc934e534f04d4ab4873d",
+        "processes": [
+          {
+            "pid": 729176,
+            "start_ticks": "12632676"
+          }
+        ]
+      },
+      "directory": "/data/mw_finetune/eval/cszsh",
+      "log": "/data/mw_finetune/eval/cszsh/ARMED.log",
+      "pid": 834494,
+      "script": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/run_h100.sh",
+      "script_sha256": "adca1d61551d837f17bc0b9094e41cf13c0fc29c2f85bed8989264ab00ca9a9a",
+      "start_ticks": "12723508",
+      "wait_condition": "Predecessor PID generations exit, exclusive lane ownership releases, lane and all campaigns seal PASS with all owned processes closed; disk/RAM/GPU admission repeated before dispatch",
+      "wait_for_pass": true
+    }
+  },
+  "preparation_report": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/SPLIT_FLEETS.json",
+  "schema": "r17.cache_size_armed.v1",
+  "status": "STOPPED_UNDISPATCHED",
+  "stopped_pids": [
+    834339,
+    834494
+  ],
+  "study_digest": "faed819959444110dc2c8a5ed24a728be35fd73fb6678fd3f03f1c223f788b75"
+}

@@ -1,0 +1,42 @@
+{
+  "status": "PASS",
+  "cpu_only": true,
+  "native_E_small_model_fixture": true,
+  "library_fixture": "sealed synthetic rows with real paired LIBERO frame",
+  "batch_window_ms": 20,
+  "production_batch_window_ms": 5,
+  "decisions": 256,
+  "sources": {
+    "library": 160,
+    "library_tail": 48,
+    "policy": 32,
+    "policy_tail": 16
+  },
+  "total_native_action_head_nfe": 3200,
+  "stages": {
+    "stage1": {
+      "batches": 24,
+      "requests": 192,
+      "max_size": 8
+    },
+    "stage2": {
+      "batches": 4,
+      "requests": 32,
+      "max_size": 8
+    },
+    "stage3": {
+      "batches": 8,
+      "requests": 32,
+      "max_size": 7
+    }
+  },
+  "native_miss_arms": {
+    "cg": 8,
+    "crg": 8,
+    "chg": 8,
+    "chrg": 8
+  },
+  "source": "exp/r17_integration/tests/models/dp/scratch_cache_study_full/test_eight_hot_YAML_groups_rea0/batching.jsonl",
+  "resident_lifetime_assertion": "one pid/generation across all eight groups in passing WS regression",
+  "raw_ledger": "cache_study_batching.jsonl"
+}

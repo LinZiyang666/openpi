@@ -1,0 +1,46 @@
+enabled: true
+timer:
+  enabled: false
+adapter_binding:
+  schema: r17.adapter_binding.v1
+  provider: r17_groot_mw_v1
+  model_id: groot_n15_metaworld_sawyer
+  checkpoint_identity: sha256:0b04ca9542307a6fd26b5c2de605d2adfdb0e3587ffa4578c8d09a2b64842ead
+  norm_identity: sha256:5e10978742f825ed7ebc8e3187a2aa7116c4191a7cdbd1a13b23935da306cffb
+  layout_identity: a059d427c866ee9eebd62bdc2790f50e61efb34c39afd5da56ec665603c2abec
+  feature_identity: 1647a31fc0cf7ecd707af72e1f82662b74ed5af8f29e8997def9f9c58cd1aee2
+  sampler_identity: 40be0b1c806db0e419546bc6b0e45c2e9b5470bdc6dfd9fff3362ba0ee230f69
+  benchmark_protocol: 3e84e999dc3d70662595e8dfb3ece7ac8e67cee8db1afb0294d85e9cd7dfc8d7
+  num_steps: 4
+  commit_horizon: 10
+key_builder:
+  type: adapter_native
+keys:
+  vision_0:
+    enabled: true
+  vision_1:
+    enabled: false
+  vision_2:
+    enabled: false
+  robot_state:
+    enabled: true
+  prompt_emb:
+    enabled: false
+  vlm_out:
+    enabled: false
+backend:
+  type: in_memory
+  vector_dims:
+    vision_0: 128
+    robot_state: 4
+write_policy:
+  type: never
+checkpoints:
+  cp1:
+    gate:
+      type: always_search
+    judge:
+      type: always_hit
+    search_strategy:
+      type: weighted_rrf_knn
+      top_k: 1

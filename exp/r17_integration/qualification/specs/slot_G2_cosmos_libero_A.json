@@ -1,0 +1,18 @@
+{
+  "slot": "slot_G2_cosmos_libero_A",
+  "asset_id": "cosmos_libero",
+  "model": "cosmos",
+  "domain": "libero",
+  "phase": "native",
+  "host": "h100",
+  "worker_node": "timan108",
+  "checkpoint": "/data/mw_finetune/models/cosmos_libero",
+  "deadline_seconds": 600,
+  "pass_criteria": [
+    "CPU SHA seals official checkpoint, tokenizer, prompt cache, normalization and source",
+    "Three real recorded raw LIBERO observations; K5/K3/K1 official/staged actions byte exact",
+    "Native denoiser calls equal attested NFE; no cross-call observation/latent cache",
+    "Owned resident exits normally; foreign processes never signalled"
+  ],
+  "unsupported": ["recipe", "CP2", "warm resume/reset", "trace/snapshots", "B>1", "split"]
+}

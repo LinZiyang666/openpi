@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "/home/weiland/projects/openpi/.venv/bin/python",
+    "-u",
+    "-m",
+    "exp.r17_integration.ops.cache_lane",
+    "--lane",
+    "4090",
+    "--directory",
+    "/data/mw_finetune/eval/csl10dp",
+    "--run"
+  ],
+  "keep_running": true,
+  "lane": "/data/mw_finetune/eval/csl10dp",
+  "log": "/home/weiland/projects/openpi_ext/scratch/r17_ops/cache_lane_4090_resume_1010.log",
+  "pgid": 262681,
+  "pid": 262681,
+  "source": "csl10d",
+  "start_ticks": "12201551",
+  "started": 1791680468.3171616
+}
