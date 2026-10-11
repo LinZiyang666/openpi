@@ -1,0 +1,22 @@
+# R17 survey outputs (added 2026-10-09)
+# Scope: exp/offline_search/rounds/r17/** only. DECISION/EVIDENCE/INPUT .md, prompts
+# and the survey fetch/probe scripts stay visible. Below: fetched third-party
+# material and large generated catalogs.
+
+# Third-party source snapshots fetched by fetch_sources.py (repo clones, paper/site
+# HTML, directory listings); re-fetchable from SOURCE_MANIFEST.json
+sources/
+sources_v2/
+code/
+raw/
+
+# Package-manager cache created by probe runs
+uv_cache/
+.venv/
+
+# Large generated catalog (enumerate_hf.py output, ~600 KB)
+HF_CATALOG.tsv
+
+# Python caches / logs
+__pycache__/
+*.log

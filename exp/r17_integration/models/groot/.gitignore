@@ -1,0 +1,5 @@
+# Keep intentional source/diagnostic artifacts despite the repository-wide patterns.
+!legacy_sources.json
+!samples/cpu_stub_capture.json
+!samples/cpu_stub_bundle.yaml
+__pycache__/

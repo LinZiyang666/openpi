@@ -1,0 +1,15 @@
+# Preserve source evidence and measured probes despite repository-wide ignores.
+!sources/**/*.yaml
+!sources/**/*.json
+!reports/h100*.json
+!reports/local_full_data.json
+!reports/cpu_tests.log
+!reports/h100_frozen_b16.log
+!reports/h100_lora_b16.log
+!reports/h100_batches*.log
+!reports/h100_full_frozen_b128.log
+!reports/h100_policy_smoke.log
+!reports/h100_lora_policy_smoke.log
+!reports/h100_lora_vae_profile.log
+!reports/h100_resume_smoke.log
+!reports/h100_wire_smoke.log

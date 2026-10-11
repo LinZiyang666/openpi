@@ -395,3 +395,57 @@ exp/offline_search/rounds/**/*.conf
 exp/offline_search/rounds/**/*.ts
 exp/offline_search/rounds/r1[2-5]/**/r12_camdev_*/
 **/__pycache__/
+
+# R17 integration, MetaWorld fine-tune and R17 survey outputs (added 2026-10-10)
+# Scope: exp/r17_integration/**, exp/mw_finetune/**, exp/offline_search/rounds/r17/**
+# only. Each of these trees also carries its own .gitignore (pytest scratch trees,
+# receipts, junit xml, archives, capture dumps, third-party clones); those files are
+# versioned with the trees. The rules below add what they do not cover: re-include
+# small configs / summaries hidden by the global *.json / *.yaml rules (and the
+# rounds/** *.csv rule), drop generated run trees and files over ~2 MB, and keep
+# plotting scripts out. Reports (.md) and sources (.py/.sh) stay visible.
+!exp/r17_integration/**/*.json
+!exp/r17_integration/**/*.yaml
+!exp/mw_finetune/**/*.json
+!exp/mw_finetune/**/*.yaml
+!exp/offline_search/rounds/r17/**/*.json
+!exp/offline_search/rounds/r17/**/*.csv
+# rounds/** ignores cache/ dirs as scratch; r17/cache holds the cache-study report and sources
+!exp/offline_search/rounds/r17/cache/
+# r17_integration: generated run trees (reproducible from the sources next to them)
+exp/r17_integration/models/*/samples/*/
+exp/r17_integration/tests/**/samples/*/
+exp/r17_integration/models/fastwam/measurements/cache_cpu_preflight_*/
+exp/r17_integration/models/fastwam/measurements/*_tmp/
+exp/r17_integration/models/fastwam/measurements/*_raw/
+exp/r17_integration/models/fastwam/measurements/*_before/
+exp/r17_integration/ops/cache_study/*/artifacts/
+exp/r17_integration/ops/cache_study/*/*_libero/
+exp/r17_integration/diagnostics/timan1_provision/evidence/render_*/
+exp/r17_integration/diagnostics/timan1_provision/reference_*/
+# mw_finetune: fetched html reference page, eval locks, copied source snapshots
+exp/mw_finetune/**/reports/*.html
+exp/mw_finetune/**/*.lock
+exp/mw_finetune/**/source_snapshot/
+# coordinator backup copies of edited evidence files
+exp/r17_integration/**/*.before_coord_*
+# generated files over ~2 MB (sweep / result dumps)
+exp/r17_integration/models/fastwam/measurements/local_sweep*.json
+exp/offline_search/rounds/r17/horizon/RESULTS_*.json
+# figure / plot / render scripts and figure editors are never committed (owner rule)
+exp/r17_integration/**/build_*figure*
+exp/r17_integration/**/plot_*
+exp/r17_integration/**/render_*
+exp/r17_integration/**/edit_*figure*
+exp/r17_integration/**/*_editor.html
+!exp/r17_integration/diagnostics/timan1_provision/render_probe.py
+exp/mw_finetune/**/build_*figure*
+exp/mw_finetune/**/plot_*
+exp/mw_finetune/**/render_*
+exp/mw_finetune/**/edit_*figure*
+exp/mw_finetune/**/*_editor.html
+exp/offline_search/rounds/r17/**/build_*figure*
+exp/offline_search/rounds/r17/**/plot_*
+exp/offline_search/rounds/r17/**/render_*
+exp/offline_search/rounds/r17/**/edit_*figure*
+exp/offline_search/rounds/r17/**/*_editor.html

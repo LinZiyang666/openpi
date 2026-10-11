@@ -1,0 +1,37 @@
+# MetaWorld finetune generated artifacts (added 2026-10-09)
+# Scope: exp/mw_finetune/** only. Python source, shell scripts, HANDBACK*/RECIPE*/
+# CONTRACT/RESULTS .md, REQUESTS/ and small hand-written configs stay visible.
+
+# Python / pytest caches
+__pycache__/
+.pytest_cache/
+*.py[cod]
+
+# Third-party clones / vendored upstream copies (re-fetchable; see each
+# model's sources/download manifests)
+cosmos/sources/FlowDAgger/
+dp/vendor/
+
+# Run outputs: reports/ and results/ keep their small JSON/MD/txt summaries
+# (see the root .gitignore for the html dump, locks and source snapshots)
+**/scratch*/
+**/pytest_*/
+*.xml
+
+# Logs, checkpoints and data dumps
+*.log
+*.npz
+*.npy
+*.pkl
+*.h5
+*.hdf5
+*.pt
+*.pth
+*.safetensors
+*.sqlite
+*.png
+*.jpg
+*.mp4
+*.tar
+*.tar.gz
+*.jsonl

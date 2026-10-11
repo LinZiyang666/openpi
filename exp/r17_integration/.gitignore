@@ -1,0 +1,55 @@
+# R17 integration generated artifacts (added 2026-10-09)
+# Scope: exp/r17_integration/** only. Source (.py/.sh), docs (.md), small hand-written
+# configs/templates (.json/.yaml) stay visible. Everything below is test scratch,
+# receipts or capture dumps produced by CPU/H100 runs.
+
+# Python / pytest caches
+__pycache__/
+.pytest_cache/
+*.py[cod]
+
+# pytest --basetemp scratch trees (hundreds of copied repo/lock/symlink files each)
+scratch/
+scratch_*/
+pytest_*/
+tmp/
+tmp_*/
+*_scratch/
+*_scratch_*/
+
+# junit XML outputs and run logs
+*.xml
+*.log
+*.osdebug*
+*.part
+*.lock
+
+# Capture dumps / binary data / archives
+*.npz
+*.npy
+*.pkl
+*.pickle
+*.h5
+*.hdf5
+*.pt
+*.pth
+*.safetensors
+*.sqlite
+*.sqlite3
+*.db
+*.png
+*.jpg
+*.jpeg
+*.mp4
+*.tar
+*.tar.gz
+*.tgz
+*.gz
+*.jsonl
+*.model
+
+# Generated receipts / preflight / sample-run output dirs
+receipts/
+qualification/preflight/
+tests/common/artifacts/
+ops/samples/

@@ -1,0 +1,12 @@
+# Local diagnostic traces and intermediate development receipts remain on disk.
+scratch_*/
+__pycache__/
+*.xml
+!cpu_final.xml
+!legacy_final.xml
+!p6_yaml.xml
+!verification_receipt.json
+!fix1_before.xml
+!fix1_final.xml
+!fix1_legacy.xml
+!verification_fix1.json
