@@ -56,6 +56,17 @@ owner 的常驻指令，逐字有效：
 
 ### 1.R16 正在做：纯减步融入闭环（owner 10-07 目标"融入纯减步并实验"，会话 goal 仍挂着）
 
+**10-11 09:3x 增量（最新，先读）**
+- Cosmos 500 档（`cosmos500w85_220813`）08:10 收齐 4000 局。
+- Cosmos 50–400 档受 server 限制：每次决策都要先跑 stage-1 编码器生成检索 key，2 个副本时排队中位 8.9 秒。处理经过：
+  - `cosmossizes145`（2 副本，08:10–08:39，收 850 局）；
+  - → `cosmossizes145_r4`（4 副本 + MPS，08:46–08:59，收 650 局，其中 55 局是停机时的出错局，已剔除）；
+  - → `cosmossizes145_r8`（8 副本，启动时 OOM：60 GiB 预算平分后每个副本 7.5 GiB，小于加载峰值 8.05）；
+  - → `cosmossizes145_r8b`（8 副本 + MPS，预算 76 GiB），09:13 起跑，保留 1445 局，排队中位降到 0.35 秒。
+- 脚本：`r17_ops/cosmos_r4_mps.sh`、`cosmos_r8b_mps.sh`（`cache_resume.prepare(..., replicas=N)` 后改 campaign.json 的 mps 和 memory_budget_gib）。预计 14:30–15:30 收齐。
+- Cosmos size 50 的纯缓存组在 spatial 上几乎全部失败。这是真实结果：145 批次的缓存输入和拔门前验证过的 `cosmossizes85_222001` 逐字节相同。原因是 Cosmos 每 16 步才检索一次，size 50 时每个任务只有约 52 行，16 个近邻会跨越轨迹的各个阶段。
+- 分析出全表时，lane 用 `cosmossizes145_r8b`（它沿 CACHE_RESUME 链接回 r4 和 145）。
+
 **10-11 07:3x 增量（最新，先读）**
 - Fast-WAM 50–400 档（`fastwamc6066547406`）06:21 收齐 40000 局；DP 50–400 档（`csztd_r3_l48`，再加 `csztd_r2_c383_r2_e5b0` 保留的 6350 局）07:16 收齐。两批收据都是 FAIL（`remote worker close/snapshot incomplete`），这是收尾打包 worker 快照那一步失败，数据完整。收尾之后启动进程空挂不退，我手动 SIGTERM 结束了。
 - Cosmos 500 档（`cosmos500w85_220813`）06:28 起跑，07:26 收到 2667/4000。之后链用 145 个 worker 跑 `cosmossizes145`（DP 已经结束）。Cosmos 带停滞门的组受 server 限制（H100 约 91%），预计 13:00–14:00 全部收齐。
