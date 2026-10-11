@@ -83,6 +83,11 @@ owner 的常驻指令，逐字有效：
     - Fast-WAM `library_compatibility.validate` 只留 LIBERO、K10、协议三项（原来十几道源码、权重指纹门，当前代码打包的运行时过不了）；
     - `search/cache_recipe.validate_teacher` 不再要求回执里有证据。
   - `knobdevfw`/`fw2`/`fw3`、`knobdevdp` 都是失败的半成品目录，不用。在跑的是 `knobdevdp2`（15:32 起，4090）和 `knobdevfw4`（15:27 起，H100）。监控用 `r17_ops/knob/watch_knob.sh`（formal_watch14 里写死了旧批次名单，看不到旋钮批次）。
+  - Cosmos 开发集 `knobdevcos2` 已准备好（R8 + MPS，76 GiB，timan107 45 + timan1 40，21,600 局）。
+    - 接续脚本 `r17_ops/knob/chain_cosmos_after_fw.sh`（16:33 挂上）：等 knobdevfw4 退出，把 driver 软链到 `/tmp/r17_driver/knobdevcos2/driver`，再启动。
+    - 跑完要把 driver 拷回 /data（同 r8c 的 `driver_back_r8c.sh` 做法）。
+    - 准备时又拔了 Cosmos `library_admission.compatibility` 的源码/AST 指纹门（`3ce79e98`）。`knobdevcos` 是失败的半成品目录。
+  - 网页第 9 版新增「纯推理减步」一节（数据集 `steps`，数据来自 `rounds/r17/horizon/RESULTS_DP_FASTWAM.json` 和 `COSMOS_K2_ANALYSIS.json`）。
   - **owner 16:0x 定的验收标准**：每个任务的 IR 档位都要调到成功率与纯推理相近或相等（已记入记忆）。执行办法：
     - A 集上每任务 50 局，最多比纯推理低 4 个点（少成功 2 局）算达标；
     - 低 10 个点及以上直接提到 pure，低 6–8 个点升一档；
