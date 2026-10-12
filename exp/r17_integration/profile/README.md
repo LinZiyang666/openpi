@@ -220,3 +220,34 @@ CUDA_VISIBLE_DEVICES='' PYTHONDONTWRITEBYTECODE=1 \
 ```
 
 `--inspect-input` returns before importing torch or invoking a loader.
+
+## Results (2026-10-12, exclusive RTX 4090 48 GB, MPS off, batch 1, warmup 30, 200 iterations, all certified)
+
+Medians in ms; coefficients share the full-step denominator (stage1 + stage2 + full loop).
+
+| Model | Suite | Stage1 | Stage2 | Full loop | Reduced loop | Vision / full miss / reduced miss |
+|---|---|---:|---:|---:|---:|---|
+| DP | libero_10 | 78.1 | 0.4 | 160.8 (DDPM100) | 19.4 (DDIM10) | 0.326 / 0.674 / 0.083 |
+| DP | spatial | 92.7 | 0.4 | 162.0 | 19.8 | 0.363 / 0.637 / 0.079 |
+| Fast-WAM | libero_10 | 9.8 | 32.2 | 79.0 (K10) | 12.3 (K1) | 0.081 / 0.919 / 0.368 |
+| Fast-WAM | spatial | 9.8 | 31.9 | 77.6 | 12.3 | 0.082 / 0.918 / 0.371 |
+| Cosmos | libero_10 | 103.4 | 1.2 | 280.7 (K5) | 58.5 (K2, 1 NFE) | 0.268 / 0.732 / 0.155 |
+| Cosmos | spatial | 109.5 | 1.7 | 284.3 | 59.2 | 0.277 / 0.723 / 0.154 |
+
+Per-request text encoding as served: DP's stage1 includes CPU CLIP (74.5 / 88.6 ms); Fast-WAM's stage2
+includes UMT5-XXL (~13 ms; `results_cached_text/`: stage2 19.2–19.5 ms, coefficients 0.093–0.099 /
+0.901–0.907 / 0.290–0.292). With text encoded once per episode, DP becomes about 0.02 / 0.98 / 0.12.
+
+Deviations from the pi0.5/GR00T recipe, each found on the real card:
+- Fast-WAM: the MoT RoPE tables (complex128) stay on the CPU and traced 0-d scalars are CPU constants;
+  both made cudagraph trees skip, so they are moved to the GPU. The uncompiled stage functions equal
+  the adapter bit for bit; BF16 compilation moves context ~4% and the KV cache <=2% (relative
+  Frobenius), actions ~1%, so stage2 is gated on relative error <=5% and actions at 0.03.
+- Cosmos: the DiT uses Transformer Engine kernels (RMSNorm, fused RoPE) that bypass the dispatcher,
+  so make_fx records only their output allocations and a traced/inductor denoiser returns
+  uninitialised memory. Stage3 is therefore a CUDA graph captured from the native denoiser
+  (`use_video_condition`, constant True, is fixed on the host before capture); stages 1–2 are traced
+  and compiled as for the other models, with random numbers on the CUDA generator
+  (`fallback_random`) and CPU-pinned factory ops moved to the GPU. Two compiled stages are certified.
+- The `_local_scalar_dense` guard in `compile_tensor_program` runs after dead-code elimination and can
+  miss host decisions; the action parity check is what caught the Cosmos problem.
