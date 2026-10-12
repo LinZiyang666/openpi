@@ -1,0 +1,31 @@
+{
+ "libero_10": {
+  "50": {
+   "libero_10/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate": "pure",
+   "libero_10/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy": "k20"
+  },
+  "100": {
+   "libero_10/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate": "pure",
+   "libero_10/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy": "k10"
+  },
+  "200": {
+   "libero_10/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate": "pure"
+  },
+  "400": {
+   "libero_10/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate": "k10"
+  }
+ },
+ "libero_spatial": {
+  "50": {
+   "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate": "pure",
+   "libero_spatial/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate": "k10",
+   "libero_spatial/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate": "k40"
+  },
+  "200": {
+   "libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate": "k20"
+  },
+  "400": {
+   "libero_spatial/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate": "pure"
+  }
+ }
+}

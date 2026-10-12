@@ -101,6 +101,11 @@ owner 的常驻指令，逐字有效：
     - 原 `chain_cosmos_after_fw.sh` 已停（顺序改为先做完 Fast-WAM）。
     - DP 全步数做完后，4090 接着做 DP 减步版：先真机冒烟核对 DDIM 10 步，再跑 `dev_reduced` 开发集。
     - Cosmos 各批次的 NVMe driver 跑完要拷回 /data。
+  - **DP 全步数逐任务旋钮完成（22:48）**：开发集 knobdevdp2 → A 集 knobtestdp → 提档 knobtestdp_r1（11 个任务）→ knobtestdp_r2（2 个任务）→ 全部达标。
+    - 最终 12 格成功率都高于纯推理：libero_10 84.6–86.8%（纯推理 79.6%，高 5.0–7.2 个点），spatial 93.4–96.4%（纯推理 91.2%，高 2.2–5.2 个点）；10 格 95% 区间不含 0。
+    - IR 代理 0.11–0.54。档位：只用停滞门 63 个、纯推理 25 个、0.1–0.5 档 32 个。
+    - 结果文件 `rounds/r17/knob/test_results_dp_r3/`（TEST_A.md、test.json），档位来源 `dev_results_dp/`。
+    - 22:48 起 4090 跑 DP 减步版开发集 knobdevdpred（DDIM10）。
   - **22:06 事故**：tether 中转服务器短暂连不上，knobtestfw 启动失败，0 局。旧脚本把零数据误判成「全部达标」，提前起了 knobdevcos3。我已停掉它，并按 PID 清了 H100（两个 Fast-WAM 副本 + MPS）和 timan107（47 个进程）上的残留。
     - `knob_model_test.sh` 已加检查：批次收到的局数少于计划局数就停下整条线。
     - H100 改挂 `chain_h100b.sh`：knobtestfw2 → Fast-WAM 提档循环 → 重新准备 knobdevcos4 → Cosmos 开发集 → Cosmos 测试和提档。
