@@ -132,6 +132,12 @@ capacity and both memory peaks, since compile/graph pools can add workspace.
   R17 adapter calls T5 in stage2 on each request**, so the default includes it.
   The loader initially loads T5 as the formal server does; the cached option
   therefore does not remove the initial GPU load peak.
+- **Text encoders are recomputed per request (checked 2026-10-12).** DP re-encodes the
+  constant prompt with CPU CLIP-L/14 inside `prepare` on every request
+  (`exp/mw_finetune/dp/preprocess.py::LanguageEncoder`, no cache); the receipt reports it
+  separately as `dp_cpu_text_encoder_ms` (already included in `stage1_ms`). Fast-WAM calls
+  UMT5-XXL in stage2 on every request; run once more with `--precompute-text` for the
+  once-per-episode price. Report both prices; which one enters the formal IR is the owner's call.
 - **Cosmos:** load the official 2B policy DiT, native tokenizer/VAE, statistics,
   and released `libero_t5_embeddings.pkl`. T5 itself is unnecessary: the
   server already uses the precomputed `[1,512,1024]` prompt embeddings.

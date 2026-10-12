@@ -608,6 +608,18 @@ def main():
                     and all(p["passed"] for p in cell["eager_vs_compiled_parity"].values())
                     and all(n == cell["expected_actual_nfe"] for n in cell["actual_nfe_by_iteration"]))
             full, reduced = (cells[str(k)]["summary_ms"] for k in STEPS[args.model])
+            text_encoder_ms = None
+            if args.model == "dp_libero":
+                # DP re-encodes the constant prompt with CPU CLIP inside prepare on every
+                # request; report it separately so a once-per-episode variant can be priced.
+                for _ in range(args.warmup):
+                    adapter.language([obs["prompt"]])
+                values = []
+                for _ in range(args.iters):
+                    tick = time.perf_counter()
+                    adapter.language([obs["prompt"]])
+                    values.append(1000 * (time.perf_counter() - tick))
+                text_encoder_ms = summary(values)
             costs = pricing(full["stage1_ms"]["median"], full["stage2_ms"]["median"],
                             full["stage3_ms"]["median"], reduced["stage3_ms"]["median"])
             props = torch.cuda.get_device_properties(args.device)
@@ -659,7 +671,9 @@ def main():
                 peak_allocated_gib=torch.cuda.max_memory_allocated()/2**30,
                 peak_reserved_gib=torch.cuda.max_memory_reserved()/2**30,
                 load_compile_warmup_peak=warmup_peak,
-                precompute_text=args.precompute_text, host=platform.node(), python=platform.python_version(),
+                precompute_text=args.precompute_text, dp_cpu_text_encoder_ms=text_encoder_ms,
+                dp_text_encoder_scope="CPU CLIP wall clock per request; already inside stage1_ms (prepare)" if text_encoder_ms else None,
+                host=platform.node(), python=platform.python_version(),
                 ts=datetime.now(timezone.utc).isoformat(), elapsed_seconds=time.monotonic()-started)
             args.out.write_text(json.dumps(receipt, indent=2, allow_nan=False) + "\n")
             print(json.dumps({"out": str(args.out), "valid": receipt["valid"], "coefficients": costs,
