@@ -129,7 +129,7 @@ class PreparedTests(unittest.TestCase):
             release.install(parent/'runtime.tar',parent/'runtime',release.sha(parent/'runtime.tar'),pin)
             c=json.loads((p/'campaign.json').read_text())
             c.update(runtime=str(parent/'runtime'),runtime_identity=pin,server_node='local',model='dp',
-                run_name='prepared',endpoint='unused:1',endpoint_host='unused',public_port=1,
+                run_name='prepared',endpoint='unused:1',endpoint_host='unused',public_port=1,driver_port=23179,
                 prepare_only=True,worker_nodes={})
             write_json(p/'campaign.json',c);stage.seal_prepared(c,p,{})
             with mock.patch.object(launch,'FORMAL_ROOT',parent), \

@@ -125,7 +125,7 @@ def evidence(campaign,directory):
     return inherited
 
 
-def prepare(source,name, *, refresh_workers=False,worker_counts=None,replicas=None,local_vram_mib=None,local_server_growth_mib=None):
+def prepare(source,name, *, refresh_workers=False,worker_counts=None,replicas=None,local_vram_mib=None,local_server_growth_mib=None,driver_port=None):
     """Clone immutable initial inputs into a new segment; original is read-only."""
     from .queue_retry import clone
     from .formal_prestage import seal_prepared
@@ -140,6 +140,9 @@ def prepare(source,name, *, refresh_workers=False,worker_counts=None,replicas=No
     full=read(source/('FULL_EPISODE_PLAN.json' if (source/'FULL_EPISODE_PLAN.json').exists() else 'EPISODE_PLAN.json'))
     campaign.update(cache_plan_name=read(source/'campaign.json').get('cache_plan_name',read(source/'campaign.json')['run_name']),
                     cache_resume_from=str(source.resolve()),cache_resume_selection=selection)
+    if driver_port is not None:
+        # Remote workers reach the driver directly through ziyanglin.com (23100-23199 only).
+        campaign.update(driver_port=driver_port,ports=[p for p in campaign['ports'] if p!=campaign['driver_port']]+[driver_port])
     missing=set(selection['missing_task_uids']);segment=dict(full,tasks=[t for t in full['tasks'] if t['task_uid'] in missing],expected_episodes=len(missing))
     write_json(destination/'FULL_EPISODE_PLAN.json',full);write_json(destination/'EPISODE_PLAN.json',segment)
     write_json(destination/'CACHE_RESUME.json',selection)

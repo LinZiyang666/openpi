@@ -136,17 +136,18 @@ def commands(manifest, model, *, miss_steps='full', mode='dev'):
     if miss_steps == 'reduced':
         # Same topology as scratch/r17_ops/knob/prepare_dev.sh; fresh names
         # and ports leave the full-step campaigns alone. These are only text.
-        replicas, workers, fleet, ram, vram, port = {
-            'dp_libero': (4, 48, 'local=48', 2048, 717, 23500),
-            'fastwam_libero': (2, 85, 'timan107=45,timan1=40', 2048, 768, 23520),
-            'cosmos_libero': (8, 85, 'timan107=45,timan1=40', 3072, 768, 23540),
+        # Drivers sit in ziyanglin.com's forwarded 23100-23199 block (workers connect directly).
+        replicas, workers, fleet, ram, vram, port, driver = {
+            'dp_libero': (4, 48, 'local=48', 2048, 717, 23400, 23110),
+            'fastwam_libero': (2, 85, 'timan107=45,timan1=40', 2048, 768, 23420, 23111),
+            'cosmos_libero': (8, 85, 'timan107=45,timan1=40', 3072, 768, 23440, 23112),
         }[model]
         name = 'knob'+mode+{'dp_libero':'dp', 'fastwam_libero':'fw', 'cosmos_libero':'cos'}[model]+'_reduced'
         values = (('--replicas',str(replicas)), ('--workers',str(workers)),
                   ('--worker-node','local' if model == 'dp_libero' else 'timan107'),
                   ('--worker-memory-mib',str(ram)), ('--worker-vram-mib',str(vram)),
                   ('--memory-budget-gib','76' if model == 'cosmos_libero' else argv[argv.index('--memory-budget-gib')+1]),
-                  ('--port',str(port)), ('--driver-port',str(port+19)), ('--run-name',name))
+                  ('--port',str(port)), ('--driver-port',str(driver)), ('--run-name',name))
         argv += ['--worker-counts',fleet]
         if model == 'cosmos_libero':argv.append('--mps')
     else:

@@ -190,41 +190,10 @@ def test_cli_exception_is_explicit_and_requires_resume():
     assert args.resume_waive_unreachable_source_node=='timan108'
 
 
-def test_tunnel_allocator_avoids_old_public_ports_before_services_start(closure_source,destination,tmp_path,monkeypatch):
-    proof=waiver.issue(closure_source,destination,'timan108')
-    destination.update(model='cosmos',resume_source_closure_waiver=proof)
-    write_json(tmp_path/'RESUME.json',dict(source_closure_waiver=proof,retained_episodes=1726))
-    occupied={14000}
-    calls=[]
-    def command(argv,directory):
-        calls.append(argv)
-        if argv[2]=='rm':
-            assert argv[-1].startswith('continuation_')
-            return ''
-        name=argv[argv.index('--name')+1]
-        port=int(argv[-1]) if '--remote-port' in argv else 14008 if name.endswith('_policy') else 14009
-        if port in occupied:
-            raise RuntimeError('error: expose: requested remote port already taken (port_taken: '+str(port)+')')
-        occupied.add(port)
-        return json.dumps(dict(node=argv[2],name=name,public_host='broker.invalid',port=port))
-    monkeypatch.setattr(launch,'tunnel_command',command)
-    routes=launch.open_tunnels(destination,tmp_path)
-    proof=destination['resume_source_closure_waiver']
-    assert [r['port'] for r in routes]==[14001,14002]
-    assert set(waiver.ports(destination)).isdisjoint(proof['source_ports'])
-    assert proof['destination']['all_ports']==[14001,14002,23243,23244,23245,23248]
-    assert proof['destination']['isolated_at']
-    assert resume.read(tmp_path/'RESUME.json')==dict(source_closure_waiver=proof,retained_episodes=1726)
-    assert len([argv for argv in calls if argv[2]=='rm'])==2
-
-
-def test_prepared_waiver_rechecks_reachability_before_allocating_tunnels(closure_source,destination,tmp_path,monkeypatch):
+def test_prepared_waiver_rechecks_reachability_before_launch(closure_source,destination,tmp_path,monkeypatch):
     proof=waiver.issue(closure_source,destination,'timan108')
     destination.update(model='cosmos',resume_source_closure_waiver=proof)
     monkeypatch.setattr(waiver.subprocess,'run',lambda argv,**kw:subprocess.CompletedProcess(argv,0,'online',''))
-    def forbidden_allocation(*args):
-        pytest.fail('must reject stale waiver before any tunnel allocation')
-    monkeypatch.setattr(launch,'tunnel_command',forbidden_allocation)
     with pytest.raises(ValueError,match='node_offline evidence'):
         launch.open_tunnels(destination,tmp_path)
 

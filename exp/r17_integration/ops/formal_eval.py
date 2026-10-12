@@ -111,68 +111,43 @@ def transfer(argv, *, heartbeat=lambda: None):
     return tether_transfer([*argv, '--timeout', '60s'], lane='tether', retry_seconds=RETRY_SECONDS)
 
 
-def tunnel_command(argv, directory):
-    with retry_scope(directory):
-        return retry(lambda: execute(argv), label=' '.join(argv[:4]))
+# ziyanglin.com forwards TCP 23100-23199 1:1 to weilandserver; h100 has a public IP.
+DIRECT_PORTS = range(23100, 23200)
+H100_HOST = '149.165.153.233'
 
 
 def close_tunnels(tunnels, directory):
-    """Cleanup uses the same grace and keeps every blip in the final receipt."""
-    if not tunnels:
-        return
-    with retry_scope(directory) as journal:
-        closed = []
-        for route in reversed(tunnels):
-            try:
-                retry(lambda: execute(['tether','expose','rm',route['node'],'--name',route['name']]),
-                      label='expose rm', node=route['node'])
-                closed.append(dict(name=route['name'],status='CLOSED'))
-            except Exception as exc:
-                closed.append(dict(name=route['name'],status='FAIL',error=repr(exc),
-                                   stderr=getattr(exc,'stderr',None)))
-        write_json(directory/'TUNNELS_CLOSED.json',closed)
-        path = directory/'RECEIPT.json'
-        if path.exists():
-            report = json.loads(path.read_text())
-            report.update(tether_retry=journal.summary(),tunnel_cleanup=closed)
-            write_json(path,report)
-        if any(row['status']!='CLOSED' for row in closed):
-            raise RuntimeError('owned tunnel cleanup incomplete; see TUNNELS_CLOSED.json')
+    """Kept for call sites: workers connect directly, nothing is exposed through the broker."""
 
 
 def open_tunnels(campaign, directory):
-    tunnels = []
+    """Direct endpoints only; never `tether expose` (owner rule: no data through the VPS broker).
+
+    Local workers always use 127.0.0.1 (local_workers.route); remote workers reach the H100
+    server at its public IP and weilandserver services through ziyanglin.com:23100-23199."""
     if campaign.get('resume_source_closure_waiver'):
         from .formal_resume_waiver import refresh
         refresh(campaign,directory)
-    if (campaign['model'] != 'cosmos' and not campaign.get('cache_study')) or campaign.get('native_parity_only'):
-        return tunnels
-    try:
-        for role,node,port in (('policy','weilandserver' if campaign['server_node']=='local' else 'h100',campaign['public_port']),
-                               ('driver','weilandserver',campaign['driver_port'])):
-            if campaign.get('resume_source_closure_waiver'):
-                from .formal_resume_waiver import isolated_tunnel
-                route=isolated_tunnel(campaign,role,node,port,directory,tunnel_command)
-            else:
-                route=json.loads(tunnel_command(['tether','expose',node,'--local',str(port),'--name',campaign['run_name']+'_'+role,'--json'],directory))
-            tunnels.append(route)
-            if role=='policy':
-                campaign.update(endpoint_host=route['public_host'],endpoint_port=route['port'],
-                    endpoint=route['public_host']+':'+str(route['port']))
-            else:
-                campaign.update(driver_host=route['public_host'],driver_public_port=route['port'])
-        if campaign.get('resume_source_closure_waiver'):
-            from .formal_resume_waiver import validate_destination, ports, now, record_selection
-            proof=campaign['resume_source_closure_waiver']
-            validate_destination(campaign,proof)
-            proof['destination'].update(all_ports=ports(campaign),endpoint=campaign['endpoint'],
-                driver_host=campaign['driver_host'],driver_public_port=campaign['driver_public_port'],isolated_at=now())
-            record_selection(campaign,directory)
-        write_json(directory/'TUNNELS.json',tunnels)
-        return tunnels
-    except BaseException:
-        close_tunnels(tunnels,directory)
-        raise
+    remote = [n for n in campaign.get('execution_worker_nodes', campaign['worker_nodes']) if n != 'local']
+    port = campaign['public_port']
+    if campaign['server_node'] == 'local':
+        host = 'ziyanglin.com' if remote else '127.0.0.1'
+        if remote and port not in DIRECT_PORTS:
+            raise ValueError(f'remote workers need the local server port inside 23100-23199, got {port}')
+    else:
+        host = H100_HOST
+    if remote and campaign['driver_port'] not in DIRECT_PORTS:
+        raise ValueError(f"remote workers need the driver port inside 23100-23199, got {campaign['driver_port']}")
+    campaign.update(endpoint_host=host, endpoint_port=port, endpoint=f'{host}:{port}',
+                    driver_host='ziyanglin.com', driver_public_port=campaign['driver_port'])
+    if campaign.get('resume_source_closure_waiver'):
+        from .formal_resume_waiver import validate_destination, ports, now, record_selection
+        proof=campaign['resume_source_closure_waiver']
+        validate_destination(campaign,proof)
+        proof['destination'].update(all_ports=ports(campaign),endpoint=campaign['endpoint'],
+            driver_host=campaign['driver_host'],driver_public_port=campaign['driver_public_port'],isolated_at=now())
+        record_selection(campaign,directory)
+    return []
 
 
 def pythonpath(root, extra=''):
@@ -1640,7 +1615,7 @@ def parse_args(argv=None):
     args.server_node = args.server_node or ('h100' if cosmos else 'local')
     args.worker_node = args.worker_node or ('timan108' if cosmos else 'timan107')
     args.port = args.port if args.port is not None else (23240 if cosmos else 23160)
-    args.driver_port = args.driver_port if args.driver_port is not None else (23249 if cosmos else 23179)
+    args.driver_port = args.driver_port if args.driver_port is not None else (23112 if cosmos else 23179)
     if args.smoke_episodes != 4 and (not args.smoke or not args.model.endswith('libero')):
         p.error('--smoke-episodes requires a LIBERO --smoke')
     if args.official_50 and not args.model.endswith('libero'):
@@ -1678,9 +1653,11 @@ def parse_args(argv=None):
     ports = [args.port, *range(args.port+1, args.port+1+args.replicas), args.driver_port]
     reserved = (range(23400,23460) if args.cache_study else
                 range(23240,23250) if cosmos else range(23180,23190) if args.port >= 23180 else range(23160,23180))
-    if len(ports) != len(set(ports)) or any(port not in reserved for port in ports):
+    # The driver serves remote workers through ziyanglin.com, which forwards only 23100..23199.
+    if (len(ports) != len(set(ports)) or any(port not in reserved for port in ports[:-1])
+            or (args.driver_port not in reserved and args.driver_port not in DIRECT_PORTS)):
         p.error('distinct reserved ports required: '+('23400..23459 (cache study)' if args.cache_study else
-            '23240..23249 (Cosmos)' if cosmos else '23160..23179 or 23180..23189'))
+            '23240..23249 (Cosmos)' if cosmos else '23160..23179 or 23180..23189')+'; driver may also use 23100..23199')
     max_seconds=172800
     if args.cache_study and args.seconds>max_seconds:
         from .cache_study import validate_manifest

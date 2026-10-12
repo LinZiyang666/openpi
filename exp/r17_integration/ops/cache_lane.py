@@ -24,9 +24,9 @@ RUN_ROOT=Path('/data/mw_finetune/eval')
 RUNTIME_SOURCES={'dp_libero':'hs5dp_ctl_142812','fastwam_libero':'hs6fw_ctl_143332',
                  'cosmos_libero':study.CONTROLS['cosmos_libero']}
 PROFILES={
-    'dp_libero':dict(node='local',workers=32,ram=4096,vram=576,batch=8,budget=40,startup=1,port=23400,driver=23419,mps=True,mode='group-commit'),
-    'fastwam_libero':dict(node='h100',workers=48,ram=4096,vram=768,batch=16,budget=70,startup=2,port=23420,driver=23439,mps=True,mode='group-commit'),
-    'cosmos_libero':dict(node='h100',workers=8,ram=4096,vram=768,batch=1,budget=20,startup=1,port=23440,driver=23459,mps=False,mode='legacy')}
+    'dp_libero':dict(node='local',workers=32,ram=4096,vram=576,batch=8,budget=40,startup=1,port=23400,driver=23110,mps=True,mode='group-commit'),
+    'fastwam_libero':dict(node='h100',workers=48,ram=4096,vram=768,batch=16,budget=70,startup=2,port=23420,driver=23111,mps=True,mode='group-commit'),
+    'cosmos_libero':dict(node='h100',workers=8,ram=4096,vram=768,batch=1,budget=20,startup=1,port=23440,driver=23112,mps=False,mode='legacy')}
 
 
 @contextmanager

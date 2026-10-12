@@ -218,30 +218,3 @@ def record_selection(campaign, directory):
         data = read(selection)
         data['source_closure_waiver'] = campaign['resume_source_closure_waiver']
         write_json(selection, data)
-
-
-def isolated_tunnel(campaign, role, node, port, directory, command):
-    """Broker allocation must also exclude source endpoints before services start."""
-    proof = campaign['resume_source_closure_waiver']
-    forbidden = set(proof['source_ports'])
-    argv = ['tether', 'expose', node, '--local', str(port), '--name', campaign['run_name']+'_'+role, '--json']
-    route = json.loads(command(argv, directory))
-    if int(route['port']) not in forbidden:
-        return route
-    # Auto allocation may recycle an old port. Close only this newly owned route.
-    command(['tether', 'expose', 'rm', route['node'], '--name', route['name']], directory)
-    for candidate in range(14000, 15000):
-        if candidate in forbidden:
-            continue
-        try:
-            route = json.loads(command([*argv, '--remote-port', str(candidate)], directory))
-        except RuntimeError as exc:
-            # Only a requested-port collision justifies another allocation attempt.
-            if re.search(r'\bport_taken\b|requested port.*(?:in use|allocated|occupied)', str(exc), re.I):
-                continue
-            raise
-        if int(route['port']) != candidate:
-            command(['tether', 'expose', 'rm', route['node'], '--name', route['name']], directory)
-            raise ValueError('broker ignored isolated resume port request')
-        return route
-    raise ValueError('no isolated broker port available for resume waiver')

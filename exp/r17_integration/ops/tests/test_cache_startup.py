@@ -7,33 +7,30 @@ import pytest
 from exp.r17_integration.ops import formal_eval as launch
 
 
-@pytest.mark.parametrize('model,node', [('dp','local'),('fastwam','h100'),('cosmos','h100')])
-def test_cache_fresh_ports_allocate_owned_policy_and_driver_routes(tmp_path,model,node):
-    c=dict(model=model,server_node=node,cache_study='STUDY.json',run_name='cpu_cache',
-           public_port=23400,driver_port=23419,endpoint_host='unforwarded.invalid')
-    calls=[]
-    def expose(argv,directory):
-        calls.append(argv)
-        return json.dumps(dict(node=argv[2],name=argv[-2],public_host='broker.invalid',port=32000+len(calls)))
-    with mock.patch.object(launch,'tunnel_command',side_effect=expose):
-        routes=launch.open_tunnels(c,tmp_path)
-    assert len(routes)==2
-    assert [a[2] for a in calls]==['weilandserver' if node=='local' else 'h100','weilandserver']
-    assert c['endpoint']=='broker.invalid:32001'
-    assert c['driver_host']=='broker.invalid' and c['driver_public_port']==32002
-    assert launch.backend_control_host(c)==('127.0.0.1' if node=='local' else '149.165.153.233')
-    assert json.loads((tmp_path/'TUNNELS.json').read_text())==routes
-
-
-@pytest.mark.parametrize('model,node', [('dp','local'),('fastwam','h100')])
-def test_default_off_native_routing_remains_identical(tmp_path,model,node):
-    c=dict(model=model,server_node=node,endpoint_host='control.invalid')
-    before=dict(c)
-    with mock.patch.object(launch,'tunnel_command',side_effect=AssertionError('default hook invoked')):
+def test_local_server_with_local_workers_uses_loopback_without_broker(tmp_path):
+    c=dict(model='dp',server_node='local',cache_study='STUDY.json',run_name='cpu_cache',
+           worker_nodes={'local':48},public_port=23400,driver_port=23419)
+    with mock.patch.object(launch.subprocess,'run',side_effect=AssertionError('no tether call')):
         assert launch.open_tunnels(c,tmp_path)==[]
-    assert c==before
-    assert launch.backend_control_host(c)=='control.invalid'
+    assert c['endpoint']=='127.0.0.1:23400' and c['driver_public_port']==23419
     assert list(tmp_path.iterdir())==[]
+
+
+@pytest.mark.parametrize('model',['fastwam','cosmos'])
+def test_h100_server_with_remote_workers_connects_directly(tmp_path,model):
+    c=dict(model=model,server_node='h100',cache_study='STUDY.json',run_name='cpu_cache',
+           worker_nodes={'timan107':45,'timan1':40},public_port=23420,driver_port=23111)
+    assert launch.open_tunnels(c,tmp_path)==[]
+    assert c['endpoint']=='149.165.153.233:23420'
+    assert (c['driver_host'],c['driver_public_port'])==('ziyanglin.com',23111)
+    assert launch.backend_control_host(c)=='149.165.153.233'
+
+
+@pytest.mark.parametrize('node,public,driver',[('h100',23420,23439),('local',23400,23111)])
+def test_remote_workers_need_forwarded_weilandserver_ports(tmp_path,node,public,driver):
+    c=dict(model='dp',server_node=node,worker_nodes={'timan107':45},public_port=public,driver_port=driver)
+    with pytest.raises(ValueError,match='23100-23199'):
+        launch.open_tunnels(c,tmp_path)
 
 
 @pytest.mark.parametrize('status',[

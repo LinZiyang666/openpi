@@ -360,30 +360,18 @@ def main(argv=None):
         require_build_host(campaign)
     if a.ir_costs: campaign['ir_costs']=json.loads(a.ir_costs.read_text())
     if a.miss_sampler: campaign['miss_sampler']=json.loads(a.miss_sampler.read_text())
-    tunnels = []
-    try:
-        # Dedicated ports have no legacy NAT; owned routes do not touch a live
-        # proxy/agent. Backend attestation uses the server's direct address.
-        for role,node,port in (('policy','weilandserver' if a.server_node=='local' else 'h100',a.port),('driver','weilandserver',a.driver_port)):
-            route = json.loads(formal.tunnel_command(['tether','expose',node,'--local',str(port),'--name',name+'_'+role,'--json'],directory))
-            tunnels.append(route)
-            if role=='policy':
-                campaign.update(endpoint_host=route['public_host'],endpoint_port=route['port'],endpoint=route['public_host']+':'+str(route['port']),
-                                backend_host='127.0.0.1' if a.server_node=='local' else '149.165.153.233')
-            else:
-                campaign.update(driver_host=route['public_host'],driver_public_port=route['port'])
-        write_json(directory/'TUNNELS.json',tunnels)
-        deployment = formal.prepare(campaign,directory)
-        if a.prepare_only:
-            print(json.dumps(dict(status='PASS',cpu_only=True,run=str(directory)))); return 0
-        code = formal.run_campaign(campaign,directory,deployment)
-        if code: return code
-        if repair:
-            from .library_repair import merge_repair
-            campaign,directory = merge_repair(campaign,directory)
-        print(json.dumps(finish(campaign,directory))); return 0
-    finally:
-        formal.close_tunnels(tunnels,home/'campaigns'/name)
+    # Direct endpoints only (formal.open_tunnels never exposes through the broker).
+    formal.open_tunnels(campaign,directory)
+    campaign['backend_host'] = '127.0.0.1' if a.server_node=='local' else formal.H100_HOST
+    deployment = formal.prepare(campaign,directory)
+    if a.prepare_only:
+        print(json.dumps(dict(status='PASS',cpu_only=True,run=str(directory)))); return 0
+    code = formal.run_campaign(campaign,directory,deployment)
+    if code: return code
+    if repair:
+        from .library_repair import merge_repair
+        campaign,directory = merge_repair(campaign,directory)
+    print(json.dumps(finish(campaign,directory))); return 0
 
 
 if __name__ == '__main__':

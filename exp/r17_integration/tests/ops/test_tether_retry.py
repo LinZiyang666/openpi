@@ -229,24 +229,6 @@ def test_h100_server_accepts_either_worker_node():
         assert args.server_node=='h100' and args.worker_node==worker and args.replicas==2
 
 
-def test_tunnel_cleanup_recovers_and_appends_blips_to_final_receipt(tmp_path,monkeypatch):
-    clock,calls=Clock(),[]
-    monkeypatch.setattr(tr.time,'sleep',clock.sleep)
-    monkeypatch.setattr(tr.time,'monotonic',clock.now)
-    def execute(argv):
-        calls.append(argv)
-        if len(calls)==1:raise error(64,'error: expose: node_offline: status=STALE')
-        return ''
-    monkeypatch.setattr(formal_eval,'execute',execute)
-    (tmp_path/'RECEIPT.json').write_text(json.dumps(dict(status='FAIL',all_owned_closed=True,error='original failure')))
-    formal_eval.close_tunnels([dict(node='h100',name='CPU_own')],tmp_path)
-    receipt=json.loads((tmp_path/'RECEIPT.json').read_text())
-    assert receipt['all_owned_closed'] and receipt['status']=='FAIL' and receipt['error']=='original failure'
-    assert receipt['tether_retry']['blips']==1
-    assert receipt['tunnel_cleanup']==[dict(name='CPU_own',status='CLOSED')]
-    assert calls==[['tether','expose','rm','h100','--name','CPU_own']]*2
-
-
 def test_capacity_backpressure_allows_a_four_minute_transport_outage(campaign,tmp_path,monkeypatch):
     campaign['h100_staging'].update(shard_bytes=2*1024**2,limit_bytes=2*staging.GIB+4*1024**2)
     shard,leaf,*_=closed_shard(campaign)
