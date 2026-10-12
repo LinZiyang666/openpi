@@ -63,7 +63,7 @@ owner 的常驻指令，逐字有效：
   - 调度器端口：DP 23110、Fast-WAM 23111、Cosmos 23112（已登记 `gpu_share/LEDGER.md`）。`prepare_dev.sh`、`cache_lane`、`cache_knob` 都已改。`cache_resume.prepare(..., driver_port=...)` 用来把旧批次续跑时的端口换进转发段。
   - 测试：改动前后对比，只多出 1 个失败（测试夹具缺 `driver_port`，已补）；其余 28 个失败是 10-10 拔门留下的旧失败（报错被改成 `pass`），与本次无关。
 - 实测：timan107、timan1、h100 都能直连 `ziyanglin.com:23110–23112`；timan107、timan1 都能直连 `149.165.153.233:23420`。
-- 中转上我们的暴露条目全部是 FREED，没有在用的。`__proxy__` 是 tether 自己的节点代理。
+- 中转上的暴露条目：00:3x 释放了 8 条我们旧批次留下、仍是 ALLOCATED 的条目（knobdevcos3、csztd_r3_l48、fastwamc6066547406、hs2_cosmos_h100_k2incl_c16_20261010_114344 的 policy/driver，其中两条还指向现在在用的 23400、23420）。我 00:1x 第一次只看了 `tether ps -a` 的末尾 40 行，漏掉了它们。剩下的 `wls-ssh`（本机 22 端口，87 小时）不是实验条目，没动，要问 owner 是否保留。`__proxy__` 是 tether 自己的节点代理。查暴露用 `tether ps -a | grep ALLOCATED`，不要截断。
 - 清掉了经中转的残留流量：本机 `perf_recorder.py`（经 tether exec 从 timan107 拉遥测，跑了 34 小时）以及 timan107 上对应的 4 个遥测进程；本机 40 多个孤儿 `tail`、10 个孤儿 `formal_watch14` 监控；废弃排队脚本 `queue_hs4_fast.sh`（等一个 PARTIAL 收据，永远不会触发）。
 - 新增 `r17_ops/knob/check_direct.py` 和 `launch_direct.sh`：启动前核对 campaign，启动后核对各节点 worker 的启动配置；发现中转地址或 `TUNNELS.json` 就停掉批次。`knob_model_test.sh` 已改用它。
 - 00:2x 真机核实直连：DP knobdevdpred3 的 97 条连接全部来自 127.0.0.1；Fast-WAM knobtestfw4 的调度器 23111 和 H100 服务端 23420 上，连接全部来自 timan107（45 条）和 timan1（40 条），另有本机公网地址的一条控制连接，没有任何连接经过 VPS。两个续跑都按「服务端确认记录不全」多丢了一批已收局（DP 5,074 局、Fast-WAM 3,069 局，原批次被打断时最后一段记录没同步），直接重跑，DP 约多 50 分钟，Fast-WAM 共补 4,146 局。
