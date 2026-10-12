@@ -72,6 +72,7 @@ owner 的常驻指令，逐字有效：
 - 02:30 起 H100 准备 Cosmos 开发集 knobdevcos4（调度器 23112，driver 放 NVMe），之后 `knob_model_test.sh full cosmos knobdevcos4`。
 - **DP 减步版开发集完成（03:56）**：knobdevdpred3 收齐 20,964 局；下降判定参照开发集里同起点的减步纯推理档（`dev_results_dp_red/`），档位：只用停滞门 74、纯推理 13、中间档 33。04:01 起 A 集测试 knobtestdp_red（6,000 局，42 个配置全是 DDIM 10 步，直连核对通过），之后自动提档。
 - Cosmos 开发集 knobdevcos4 02:38 起跑，约 60 局/分钟，预计 08:20 前后收齐。
+- **DP 减步版逐任务旋钮完成（05:31）**：knobtestdp_red → 提档 6 轮（第 1 轮 7 个任务，之后只剩 spatial 库 400 的 wooden_cabinet 从 0.1 档逐档升到纯推理，每轮 50 局）→ 第 7 轮无需提档。12 格都不低于减步纯推理（libero_10 76.4%，高 4.4–13.6 个点；spatial 90.0%，高 2.8–6.2 个点），IR 代理 0.10–0.60。档位：只用停滞门 71、纯推理 18、中间 31。结果 `test_results_dp_red_r7/`。纯推理档仍偏低的 5 个任务里有 4 个是 LIVING_ROOM_SCENE2 alphabet_soup（38/38/36/39 对同一份对照 43），共用的对照这次大概率偏高。
 - **已排好的接续（04:1x）**：
   - H100 `chain_h100d.sh`（PID 3083934）：等 chain_h100c（Cosmos 全步数）正常结束 → 用 `driver_back.sh` 把 knob*cos* 的 NVMe driver 拷回 /data（逐文件核哈希）→ Fast-WAM 减步开发集 knobdevfwred（K1）→ `REDUCED=1 knob_model_test.sh full fastwam` → Cosmos 减步开发集 knobdevcosred（K2 实算 1 次，driver 放 NVMe）→ `REDUCED=1 ... full cosmos` → 再拷回 driver。
   - 4090 `chain_4090_profile.sh`（PID 3125788）：等 chain_dp_red2 正常结束，确认卡上无 MPS、无其他计算进程，依次跑 certify：DP、Fast-WAM、Cosmos、Fast-WAM `--precompute-text`，结果在 `exp/r17_integration/profile/results{,_cached_text}/`。
