@@ -473,6 +473,15 @@ def measure_iterations(torch, runtime, adapter, obs, request, sampler, iters):
     return rows, nfe
 
 
+def device_exclusive():
+    """Owner: profile with MPS off on an otherwise idle GPU (same as the pi0.5/GR00T profiles)."""
+    mps = subprocess.run(["pgrep", "-x", "nvidia-cuda-mps-server"], capture_output=True).returncode == 0
+    apps = subprocess.run(["nvidia-smi", "--query-compute-apps=pid,used_memory", "--format=csv,noheader"],
+                          text=True, capture_output=True, check=False).stdout.strip().splitlines()
+    others = [a for a in apps if a.strip() and a.split(",")[0].strip() != str(os.getpid())]
+    return dict(mps_server_running=mps, other_compute_apps=others, exclusive=not mps and not others)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--model", choices=STEPS, required=True)
@@ -490,6 +499,7 @@ def main():
     parser.add_argument("--precompute-text", action="store_true", help="Fast-WAM only; separately labelled cached-text cost")
     parser.add_argument("--inspect-input", action="store_true", help="CPU only: write observation provenance without loading weights")
     args = parser.parse_args()
+    exclusive = device_exclusive()
     if args.warmup < 3 or args.iters < 1 or args.row < 0:
         parser.error("warmup >=3, iters >=1, row >=0 required")
     if args.precompute_text and args.model != "fastwam_libero":
@@ -633,7 +643,7 @@ def main():
                 certification_source="torch.cuda.CUDAGraph.replay/capture_begin + Dynamo counters",
                 trace_marker=marker, cuda_trace_path=None, inductor_counters=end_counters,
                 **certificate(expected, counts[0]-warm_graphs[0], counts[1]-warm_graphs[1], skips, new_compiles, graph_count),
-                valid=all(c["valid"] for c in cells.values()), coefficient_source_k=STEPS[args.model][0],
+                device_exclusive=exclusive, valid=exclusive["exclusive"] and all(c["valid"] for c in cells.values()), coefficient_source_k=STEPS[args.model][0],
                 full_steps=STEPS[args.model][0], reduced_steps=STEPS[args.model][1],
                 coefficient_rounding="none; reduced loop measured directly; full-step denominator shared",
                 timing_scope="CUDA events around prepare+run_stage1, run_stage2, sample; includes host dispatch gaps; excludes to_wire/search/transport",

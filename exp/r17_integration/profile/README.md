@@ -145,7 +145,7 @@ capacity; it is not inferred from the product name.
 
 ## Coordinator commands
 
-Run these **after experiments finish**, on the exclusive 4090. Change the
+Run these **after experiments finish**, on the exclusive 4090 with **MPS off** (owner 10-11: same as the π0.5/GR00T profiles; confirm no `nvidia-cuda-mps-server` and no other compute process on the card — the receipt records this as `device_exclusive` and marks the run invalid otherwise). Change the
 physical index `0` below if the assigned 4090 has a different index. The visible
 device is then `cuda:0`. No campaigns or servers are started by this wrapper.
 
