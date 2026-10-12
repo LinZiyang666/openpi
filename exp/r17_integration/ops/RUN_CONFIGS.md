@@ -948,6 +948,19 @@ Three changed launches on 2026-10-12 failed within minutes (no MPS, text-cache k
 model call raised KeyError, CUDA OOM). Run `r17_ops/knob/lane_speed.sh <RUN> 60` (episodes/min, per-replica stage batch
 rate × mean size, hit/call latency, GPU, CPU) as soon as the replicas are ready, and grep the replica logs for errors.
 
+### An overloaded Fast-WAM replica can fall into a 4× slower state
+
+In `knobtestfw_red` (2 replicas, MPS, B16, 70 remote workers) the first ~15 minutes of the plan were call-heavy (~17 model
+calls/s in total). Replica 0 then ran stage2 batches of 12–16 in a median 2.3 s, while replica 1 ran the same sizes in
+0.63 s (the K1 control and `knobdevfwred8` ran them in 0.35–0.73 s on both replicas). Replica 0's calls took 5–10 s
+against 1.2–1.5 s. Its stage threads sat mostly in futex waits while about one connection thread was always runnable,
+which points to GIL contention. The cause is not confirmed: ptrace is restricted on this host, so py-spy cannot attach.
+The lane ran 47 episodes/min. When the call load fell to ~9 calls/s (18:00), both replicas matched again (stage2 batch
+~2.6, 0.33 s apart) and the lane ran ~83 episodes/min. CPU placement, NUMA memory and per-client MPS memory limits were
+all checked and identical. To detect it, compare per-replica stage2 batch intervals at equal batch size: read the `time`
+gaps between `r17.fastwam.stage_batch.v1` rows in `servers/replica_N/batching.jsonl`. If it recurs and lasts, first try
+fewer workers per replica, then a smaller `sys.setswitchinterval` in the server.
+
 ### Keep MPS pipe paths within 85 bytes
 
 The UTF-8/filesystem-encoded **absolute pipe directory**, not just the run name,
