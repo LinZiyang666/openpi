@@ -179,6 +179,14 @@ def compile_tensor_program(fn, inputs):
     from torch.fx.experimental.proxy_tensor import make_fx
     graph = make_fx(fn, tracing_mode="real", _error_on_data_dependent_ops=False)(*inputs)
     graph.graph.eliminate_dead_code()
+    # Python scalars written into tensors (e.g. mask[..., :n] = True) trace to 0-d CPU
+    # constants; cudagraph trees skip any graph with a CPU input. Same values on the GPU.
+    device = next((x.device for x in torch.utils._pytree.tree_leaves(inputs)
+                   if isinstance(x, torch.Tensor) and x.is_cuda), None)
+    for node in graph.graph.nodes:
+        value = getattr(graph, node.target, None) if node.op == "get_attr" else None
+        if device is not None and isinstance(value, torch.Tensor) and value.device.type == "cpu" and value.dim() == 0:
+            setattr(graph, node.target, value.to(device))
     graph.recompile()
     # A scalar branch is legal only when it has been resolved during tracing.
     if any(node.target == torch.ops.aten._local_scalar_dense.default for node in graph.graph.nodes):
@@ -309,6 +317,10 @@ def build_stages(model, adapter, obs, request, *, precompute_text=False):
             spatial = tokens.float().reshape(1, *patches.shape[3:], -1).permute(0, 3, 1, 2)
             pooled = torch.nn.functional.adaptive_avg_pool2d(spatial, (4, 4)).permute(0, 2, 3, 1).reshape(-1)
             return first, patches, tokens, pooled
+        # The MoT keeps its RoPE tables (complex128) on CPU; as graph inputs they make
+        # cudagraph trees skip stage2/stage3. Same values on the model device.
+        for mixture in m.mot.mixtures.values():
+            mixture.freqs = mixture.freqs.to(m.device)
         pixels = prepared.data["input_image"].to(m.device, m.torch_dtype)
         c1 = compile_tensor_program(first, (pixels,))
         def stage1(p):

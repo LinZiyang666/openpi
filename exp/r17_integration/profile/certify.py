@@ -97,11 +97,11 @@ def main():
     env.setdefault("OMP_NUM_THREADS", "1")
     env.setdefault("OPENBLAS_NUM_THREADS", "1")
     env.setdefault("MKL_NUM_THREADS", "1")
-    # The Cosmos island uses NVIDIA's pip CUDA libraries, like formal_eval.
+    # The Cosmos island needs the formal server's environment (LIBERO deps, config, HF cache, pip CUDA libraries).
     if args.model == "cosmos_libero":
-        nvidia = Path(python).parent.parent / "lib/python3.10/site-packages/nvidia"
-        libraries = [str(x) for x in nvidia.glob("*/lib")]
-        env["LD_LIBRARY_PATH"] = ":".join([*libraries, env.get("LD_LIBRARY_PATH", "")])
+        from exp.r17_integration.ops.formal_eval import server_env
+        env.update(server_env(dict(model="cosmos", server_node="local",
+                                   vendor="/home/weiland/projects/openpi_ext/lines/cosmos-policy"), str(ROOT)))
     ok = True
     for suite in SUITES if args.suite == "both" else (args.suite,):
         out, invocation, stats = commands(args.model, suite, args.out_dir, python, nsys, extra)
