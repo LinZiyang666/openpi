@@ -56,7 +56,14 @@ owner 的常驻指令，逐字有效：
 
 ### 1.R16 正在做：纯减步融入闭环（owner 10-07 目标"融入纯减步并实验"，会话 goal 仍挂着）
 
-**10-12 11:2x compact 前交接（最新；compact 后先读这段）**
+**10-12 12:0x 增量（最新，先读；之后读下面 11:2x 那段）**
+- **4090 车道提速（owner：「4090 GPU 利用率太低」「CPU 总利用率也低」）**：病根是单个 Fast-WAM 服务进程 GIL 受限（进程约 144% CPU、GPU 17–47%；stage2 每批 8 个固定约 1.2 s，模型调用端到端排队中位 4.6 s）。加 worker 无用，要加进程。改法：`formal_batch_server.cache_text`——启动时把本批次 20 条 LIBERO 提示词各用 T5 编码一次（batch 1），然后 T5 移到 CPU，单副本显存 27.8 → 13.5 GB，4090 放两个副本。服务端代码来自冻结运行时，所以复制了一份 `/data/mw_finetune/qualification/formal_runtime_3faa6dcf_fwtextcache`（只换了 formal_batch_server.py）。11:47 起 knobdevfwred2（收 984 局）续跑为 knobdevfwred3（`chain_4090_fwred3.sh`；2 副本、显存预算 54、`fastwam_text_cache`；worker 不变；直连核对通过）。**只用于开发集**；测试批次不用，保持与对照同一服务端。H100 的 `chain_h100d.sh` 已改为等 knobdevfwred3（旧版 `chain_h100d.before_fwred3.sh`）。
+- **续跑丢局的真实原因（更正下面「最后一段记录没同步」的说法）**：`cache_resume.select` 的完整性检查要求每次模型调用都是停滞门触发（`stall_call=True`），旋钮周期调用（`knob_call=True`）全被判为不完整，所以续跑总把有周期调用的已收局全部丢掉（knobdevfwred2 的 984 局全丢、knobdevfwred 609 局丢 309、之前 DP 5,074 局、Fast-WAM 3,069 局）。已修：允许 `stall_call` 或 `knob_call`。knobdevfwred3 是修复前准备的，那 984 局会重跑（分析按同局最新记录合并，结果不受影响）。
+- **H100 /data 清理完成**：6,229 个文件两边 sha256 全一致，已删（robocasa365_cache、libero_cache 整目录删除，dp_h100 删有副本的 5,148 个）。/data 98% → 56%（可用 445 GB）。robocasa365_cache 里 60 个符号链接的清单在 `h100_clean_data/robocasa_links_deleted.txt`；`/data/openpi_wr2`、`/data/openpi_sdlib` 各有一个指进 robocasa365_cache 的旧链接，现已悬空（数据本机有）。dp_h100 无副本的 143 GB 未动，等 owner。
+- **DP 纯推理档整体偏低的排查**：astra 噪声分析（复跑数字全部复现）显示 DP 全步数 25 个纯推理格合计少 28 局（p = 0.001）。DP 两组对照用 timan107 worker、旋钮批次用本机 worker，曾怀疑是机器差异；但同一初始状态在两台机器上渲染（两路相机）和 200 步物理状态**逐位一致**（`$CLAUDE_JOB_DIR/tmp/render_probe.py`），机器差异已排除。剩下的候选：服务端副本数（对照 R2、测试 R4，批组成不同），或缓存系统里 DP 纯推理档的执行路径与直接纯推理不同。准备了本机 worker 的 DP 纯推理对照批次 `/data/mw_finetune/eval/hs7dp_loc`（R4、48 worker、端口 23160/23110，未启动；4090 显存腾出后再跑，worker 数要按剩余显存改）。
+- 报告稿 `rounds/r17/knob/REPORT.md` 已核对全部数字（三组结果表、档位分布、提档经过、纯推理档偏低清单都与 test.json 一致），删掉占位表、补了噪声结论；`PURE_LEVEL_NOISE.md` 等 DP 排查有结论后精简再一起提交。
+
+**10-12 11:2x compact 前交接（compact 后先读这段）**
 
 ### 0. 铁律（先对照记忆）
 - 实验流量一律直连，严禁 `tether expose`（记忆 `feedback-no-tether-expose`）。每个批次用 `r17_ops/knob/launch_direct.sh` 启动，它前后各核一次 `check_direct.py`。查残留暴露用 `tether ps -a | grep ALLOCATED`（只剩 `wls-ssh`，不是实验条目，等 owner 定）。

@@ -14,6 +14,30 @@ import threading
 import time
 
 
+def cache_text(model,campaign):
+    """Encode each prompt of the campaign once (batch 1), then move T5 off the GPU.
+
+    Frees ~11 GB so two replicas fit on the 48 GB 4090 (dev lane only).
+    """
+    import torch
+    names=json.loads((Path(campaign['assets'])/'benchmark.json').read_text())['ordered_tasks']
+    def language(name):  # libero.benchmark.grab_language_from_filename
+        task=name.split('/',1)[1]
+        if task[0].isupper():
+            task=task[task.find('SCENE')+(8 if 'SCENE10' in task else 7):]
+        return ' '.join(task.split('_'))
+    prompts=sorted({language(n) for n in names if n.split('/')[0] in campaign['suites']})
+    with torch.inference_mode():
+        table={p:model.encode_prompt([p]) for p in prompts}
+    model.text_encoder.to('cpu')
+    torch.cuda.empty_cache()
+    def encode_prompt(prompt):
+        rows=[table[p] for p in ([prompt] if isinstance(prompt,str) else prompt)]
+        return torch.cat([r[0] for r in rows]),torch.cat([r[1] for r in rows])
+    model.encode_prompt=encode_prompt
+    return prompts
+
+
 def serve(campaign,port,directory):
     if campaign['model']!='fastwam' or campaign['domain']!='libero' or campaign.get('library'):
         raise ValueError('batched resident supports pure-inference fastwam_libero only')
@@ -55,6 +79,7 @@ def serve(campaign,port,directory):
         if torch.cuda.get_device_name(campaign['device']) != treatment['gpu_family']:
             pass
     adapter,original_provider=load(dict(campaign,benchmark_spec=str(Path(campaign['assets'])/'benchmark.json')),campaign['device'])
+    cached_prompts=cache_text(adapter.model,campaign) if campaign.get('fastwam_text_cache') else None
     total=torch.cuda.get_device_properties(campaign['device']).total_memory
     torch.cuda.set_per_process_memory_fraction(campaign['memory_budget_gib']*2**30/campaign['replicas']/total,campaign['device'])
     qualification = None
@@ -102,6 +127,8 @@ def serve(campaign,port,directory):
                             gpu_family=torch.cuda.get_device_name(campaign['device']))
         if qualification:
             metadata['batching_self_check'] = qualification
+        if cached_prompts:
+            metadata['text_cache']=dict(prompts=cached_prompts,text_encoder_device='cpu')
         server=WebsocketPolicyServer(factory(),host='0.0.0.0',port=port,metadata=metadata,concurrent=True,
             connection_policy_factory=factory,bundle_validator=make_bundle_validator(provider),
             ready_callback=lambda:write_json(directory/'ready.json',dict(metadata,pid=os.getpid(),

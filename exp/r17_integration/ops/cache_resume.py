@@ -78,7 +78,7 @@ def select(directory):
                 complete=complete and bool(d.get('resident_generation')) and d.get('resident_pid') is not None
                 complete=complete and source in ('library','library_tail','policy','policy_tail')
                 if source=='policy':
-                    complete=complete and extra['miss_mode']=='stall_only' and d.get('stall_call') is True and d.get('stage_calls')==[1,1,k] and d.get('actual_nfe')==k
+                    complete=complete and (d.get('stall_call') is True or d.get('knob_call') is True) and d.get('stage_calls')==[1,1,k] and d.get('actual_nfe')==k
                 else:complete=complete and d.get('actual_nfe')==0 and d.get('stage_calls') in ([1,0,0],[0,0,0])
                 if source=='library':complete=complete and d.get('corrector_enabled') is extra['corrector'] and d.get('miss_mode')==extra['miss_mode']
                 if not extra['corrector']:complete=complete and not d.get('corrector_applied')
@@ -125,7 +125,7 @@ def evidence(campaign,directory):
     return inherited
 
 
-def prepare(source,name, *, refresh_workers=False,worker_counts=None,replicas=None,local_vram_mib=None,local_server_growth_mib=None,driver_port=None,public_port=None):
+def prepare(source,name, *, refresh_workers=False,worker_counts=None,replicas=None,local_vram_mib=None,local_server_growth_mib=None,driver_port=None,public_port=None,extra=None):
     """Clone immutable initial inputs into a new segment; original is read-only."""
     from .queue_retry import clone
     from .formal_prestage import seal_prepared
@@ -149,6 +149,8 @@ def prepare(source,name, *, refresh_workers=False,worker_counts=None,replicas=No
         backends=list(range(public_port+1,public_port+1+len(campaign['backend_ports'])))
         campaign.update(public_port=public_port,backend_ports=backends,
                         ports=[p for p in campaign['ports'] if p not in server]+[public_port,*backends])
+    # Server-only overrides for the continuation (e.g. memory budget, Fast-WAM text cache, patched runtime).
+    campaign.update(extra or {})
     missing=set(selection['missing_task_uids']);segment=dict(full,tasks=[t for t in full['tasks'] if t['task_uid'] in missing],expected_episodes=len(missing))
     write_json(destination/'FULL_EPISODE_PLAN.json',full);write_json(destination/'EPISODE_PLAN.json',segment)
     write_json(destination/'CACHE_RESUME.json',selection)
