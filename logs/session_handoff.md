@@ -56,6 +56,69 @@ owner 的常驻指令，逐字有效：
 
 ### 1.R16 正在做：纯减步融入闭环（owner 10-07 目标"融入纯减步并实验"，会话 goal 仍挂着）
 
+**10-12 00:1x compact 前交接（最新；compact 后先读这段，并先做第 0 节）**
+
+### 0. 第一件事：实验流量改走公网直连（owner 严令，记忆 `feedback-no-tether-expose`）
+
+**事故经过**
+- 10-11 至 10-12，R17 缓存研究和旋钮实验的所有批次都经 `formal_eval.py` 的 `open_tunnels()` 自动执行 `tether expose`。worker 与服务端、调度器之间的流量全部绕道 VPS 中转（linziyang.top 的 14xxx 端口），连本机 DP 服务加本机 worker 也不例外。
+- 结果把 VPS 流量耗光。22:06 和 23:48 中转两次连不上，打断了批次。
+- owner 规定：**没有当次批准，严禁使用 `tether expose`**。
+
+**两台机器的公网入口**
+- h100：`149.165.153.233`，防火墙全开。
+- weilandserver：`ziyanglin.com`，TCP 23100–23199 一对一转发到本机。openpi 已占 23100–23103、23195/23196；新端口要登记到 `gpu_share/LEDGER.md`。
+
+**要做的事（做完再起任何批次）**
+1. **改 `exp/r17_integration/ops/formal_eval.py` 的 `open_tunnels()`**：缓存研究和 Cosmos 批次一律不再执行 `tether expose`，按下面三种情况直连。
+   - H100 服务端：`endpoint = 149.165.153.233:<public_port>`。
+   - 调度器在 weilandserver：`driver_host = ziyanglin.com`，`driver_port` 放在 23100–23199 内。旋钮批次的调度器端口原来是 23419、23439、23459，要换到这个段内并登记。
+   - 本机服务端且只有本机 worker（DP，4090 + local × 48）：服务端和调度器都用 `127.0.0.1`。如果本机服务端还配了远端 worker，服务端端口也要放进 23100–23199。
+   - 不留开关，删掉 expose 分支。工作树里我临时加的 `R17_DIRECT_ENDPOINTS` 环境变量开关只覆盖了 H100 一种情况，不完整，要按上面重写。
+2. **撤回 `exp/r17_integration/ops/tether_retry.py` 的未提交改动**（`git checkout` 这个文件）。那处改动把「连不上中转服务器」也算作可重试，掩盖了真正的原因。
+3. **清查中转上残留的暴露端口**：用 `tether ps -a` 看 EXPOSURES 段，对我们留下的条目逐个执行 `tether expose rm <node> --name <name>`。
+4. **小冒烟（H100 和 4090 各一个，几局即可）**：开跑前核对 `campaign.json` 的 `endpoint`、`driver_host` 和 `TUNNELS.json`（必须为空）；跑起来后确认 worker 进程参数 `--server-key` 是直连地址，`tether ps` 上没有暴露端口。
+5. 改完提交，同步更新 `exp/r17_integration/ops/RUN_CONFIGS.md` 的拓扑一节（写明直连）。
+
+### 1. 现状（00:0x，没有任何批次在跑；所有接续脚本都已停）
+
+**DP 全步数逐任务旋钮：已完成**
+- 开发集 knobdevdp2 → A 集 knobtestdp → 提档两轮 knobtestdp_r1（11 个任务）、knobtestdp_r2（2 个任务）。120 个任务都在纯推理 4 个点以内。
+- 12 格成功率都高于纯推理：libero_10 84.6–86.8%（纯推理 79.6%），spatial 93.4–96.4%（纯推理 91.2%）。IR 代理 0.11–0.54。
+- 结果在 `exp/offline_search/rounds/r17/knob/test_results_dp_r3/`。
+
+**Fast-WAM 全步数**
+- 开发集 knobdevfw4 已完成，档位表在 `rounds/r17/knob/dev_results_fw/levels_table.json`，测试清单在 `cache_study/knob/test_fw/STUDY.json`。
+- A 集测试：knobtestfw 失败（0 局）；knobtestfw2 停在 5049/6000（中转断开，出错重跑 385 次）。
+- 下一步：直连修好后用 `cache_resume.prepare` 续跑 knobtestfw2，只补缺的局，再跑提档循环：`knob_model_test.sh loop fastwam <续跑批次名>`。
+
+**Cosmos 全步数**
+- 开发集还没跑。knobdevcos3 已作废，要重新准备：`prepare_dev.sh cosmos <名字>`，准备完 `driver/` 软链到 `/tmp/r17_driver/<名字>/driver`，跑完拷回 /data。
+- 之后跑 `knob_model_test.sh full cosmos <开发集批次>`。
+
+**DP 减步版（owner 命令：DP 10 步 DDIM / Fast-WAM 1 次 / Cosmos 2 次实算 1 次，记忆 `project-new-model-default-reduced-steps`）**
+- 开发集 knobdevdpred 被我停在 6310/22200（它也走了中转）。已核对它的模型调用确实只算 10 次。
+- 直连修好后用 `cache_resume.prepare` 续跑，再跑 `REDUCED=1 knob_model_test.sh full dp <开发集批次>`。
+- Fast-WAM 和 Cosmos 的减步版等全步数做完再接。代码已就绪：`cache_knob dev --miss-steps reduced`，清单在 `cache_study/knob/dev_reduced/STUDY.json`。
+
+**latency profile（任务 #116，所有实验做完后）**
+- 关掉 MPS，独占 4090，batch=1，compile 加 CUDA graph。
+- 脚本 `exp/r17_integration/profile/`。正式跑之前先核对两点：DP 的 CLIP 文本编码、Fast-WAM 的 T5，服务端各自是怎么算的。
+
+### 2. 工具与规则
+
+- **运维目录** `/home/weiland/projects/openpi_ext/scratch/r17_ops/knob/`：
+  - `prepare_dev.sh <dp|fastwam|cosmos> <RUN> [STUDY]` 用验证过的拓扑准备批次；
+  - `knob_model_test.sh full|loop <model> <RUN>` 做下降判定、测试和多轮提档（REDUCED=1 是减步版）；批次局数不足会停下整条线；
+  - `watch_knob.sh` 是监控；
+  - `chain.log` 记录各条接续的事件。
+- **owner 的标准**：
+  - 每个任务的成功率都要和纯推理相近（A 集 50 局最多少成功 2 局）；
+  - 低 10 个点及以上直接提到纯推理档，低 6–8 个点升一档，反复提直到全部达标；
+  - 减步版的目标是减步纯推理的成功率。
+- **网页**：https://claude.ai/artifact/To18VP3TyzS5SXY3MmmUCp （第 9 版）。全步数旋钮结果还没加上去。
+- **H100 顺序**：一个模型做完（测试和提档）再换下一个。4090 和 H100 两条线并行。
+
 **10-11 13:0x 新任务：第 5 层逐任务 IR 旋钮下降（owner 12:5x 指示；先读这段，再读下面 12:3x 交接）**
 - owner 原话要点：在每个新模型的「纯缓存 + 长执行段 + 修正器 + 停滞门」上加按任务下降的 IR 旋钮；目标是达到纯推理成功率、用最少的 IR；新模型没有开销 profile，IR 先用 miss 比例代替；参照以前的逐任务下降；每个库大小都要探索。
 - 设定（我定的）：
