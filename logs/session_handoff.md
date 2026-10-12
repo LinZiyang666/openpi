@@ -56,6 +56,47 @@ owner 的常驻指令，逐字有效：
 
 ### 1.R16 正在做：纯减步融入闭环（owner 10-07 目标"融入纯减步并实验"，会话 goal 仍挂着）
 
+**10-12 11:2x compact 前交接（最新；compact 后先读这段）**
+
+### 0. 铁律（先对照记忆）
+- 实验流量一律直连，严禁 `tether expose`（记忆 `feedback-no-tether-expose`）。每个批次用 `r17_ops/knob/launch_direct.sh` 启动，它前后各核一次 `check_direct.py`。查残留暴露用 `tether ps -a | grep ALLOCATED`（只剩 `wls-ssh`，不是实验条目，等 owner 定）。
+- 删数据只删「本机有哈希一致副本」的；没有副本的列给 owner 定。
+- 网页交付前必须本地渲染截图（`$CLAUDE_JOB_DIR/tmp/dash/`：`build_knob.py`、`make_harness.py`，chrome-headless-shell 加 `--no-sandbox`）。
+- owner 单次授权：这段时间 astra agent 放开（不进长期记忆）。
+
+### 1. 正在跑（11:21）
+| 卡 | 接续脚本（PID） | 当前批次 | 进度 | 之后 |
+|---|---|---|---|---|
+| H100 | `chain_h100e.sh`（1810321） | Cosmos 全步数 A 集测试 knobtestcos2（driver 在 NVMe） | 5,614 / 6,000 | Cosmos 提档循环 → 记「Cosmos test chain done rc=0」→ exec `chain_h100d.sh`：拷回 knob*cos* 的 NVMe driver → Cosmos 减步开发集 knobdevcosred → 减步测试与提档 → 等 4090 的 knobdevfwred2 → Fast-WAM 减步 A 集测试与提档（H100，对照 hs6fw_k1） |
+| 4090 | `chain_4090_fwred2.sh`（2694072） | Fast-WAM 减步开发集 knobdevfwred2（本机 22 + timan107 18 + timan1 30，服务端 23130、调度器 23113） | 599 / 21,900 | 收齐后记「knobdevfwred2 exited」，H100 链据此接测试 |
+- 卡死检测 `stall_watch.sh`（3923527）每 5 分钟查一次，收局 15 分钟不涨就写 `[stall]` 到 `chain.log`。事件都在 `r17_ops/knob/chain.log`，用 Monitor 挂 `tail -n 0 -F` 看。
+- 4090 线是单副本主机侧瓶颈（约 108 控制步/秒，加 worker 不提速），预计 23:00–02:00 收齐；不在关键路径（H100 约凌晨 1 点才轮到 Fast-WAM 减步测试）。
+
+### 2. 已完成的结果（都已提交）
+- 逐任务旋钮（A 集每格 500 局，全部达标）：
+  - DP 全步数 `test_results_dp_r3/`：libero_10 84.6–86.8%（纯推理 79.6%），spatial 93.4–96.4%（91.2%）；
+  - Fast-WAM 全步数 `test_results_fw_r2/`：与纯推理差 −1.4 到 +0.4 个点；
+  - DP 减步 `test_results_dp_red_r7/`：libero_10 80.8–90.0%（减步纯推理 76.4%），spatial 92.8–96.2%（90.0%）。
+  - Cosmos 全步数开发集 `dev_results_cos/`（档位：停滞门 44、纯推理 27、中间 49）。
+- 正式 IR：`rounds/r17/knob/ir_formal.py` → `ir_formal/IR_FORMAL.md`。DP 全步数 0.28–0.63，Fast-WAM 0.25–0.51，DP 减步 0.19–0.34（减步纯推理 0.41–0.44）。新组出来后重跑：`.venv/bin/python exp/offline_search/rounds/r17/knob/ir_formal.py --test full:<test.json> ... --test reduced:<test.json> --out exp/offline_search/rounds/r17/knob/ir_formal`。
+- latency profile 全部有效（`exp/r17_integration/profile/results/`，README 末尾有表和方法偏离）：DP 0.33–0.36 / 0.64–0.67 / 0.08，Fast-WAM 0.08 / 0.92 / 0.37，Cosmos 0.27 / 0.73 / 0.155（视觉 / 全步调用 / 减步调用）。
+- 网页第 12 版：https://claude.ai/artifact/To18VP3TyzS5SXY3MmmUCp （旋钮一节按模型 × 步数分表 + 延迟实测一节）。
+
+### 3. 待办（按顺序）
+1. **审 astra 交稿**：`rounds/r17/knob/REPORT.md`（报告初稿）、`PURE_LEVEL_NOISE.md` + `noise_analysis.py`（纯推理档偏低是否抽样波动）。核对数字、删多余内容后提交；日志 `r17_ops/astra_knob_report.log`、`astra_pure_level_noise.log`。
+2. **H100 数据盘清理**（owner 授权：本机有副本就删）。工作目录 `r17_ops/h100_clean_data/`：
+   - `h100_sha.txt`（H100 上 6,229 个文件的 sha256，已拉回）；`local_sha.txt`（本机对应副本，`size_match.tsv` 里有路径对照；本机哈希 11:21 算到 5,194 个，后台还在跑，进程是 xargs sha256sum）。
+   - 比对：`size_match.tsv` 里 `match` 行给出 H100 路径与本机路径；两边 sha 一致的写入删除清单，推到 H100 后 `xargs -d '\n' rm --` 删除；robocasa365_cache、libero_cache 里的符号链接在文件删完后一并删，最后 `find <dir> -depth -type d -empty -delete`。
+   - 不删、等 owner 定：dp_h100 里没有副本的 143 GB（58 个 x0 `latest.ckpt` 116.8 GB；env/mamba/pipcache 约 25 GB）。
+   - 预计能腾出约 455 GB（robocasa365_cache 214.7、libero_cache 97.9、dp_h100 有副本部分 142.4）。
+3. Cosmos 全步数提档完成后：提交 `test_results_cos_r*`，重跑 `ir_formal.py`，网页加 Cosmos（`build_knob.py full:...test_results_cos_rN/test.json`），审过再发布。
+4. 两个减步版完成后同上；任务 #113 报告收尾。
+
+### 4. 要 owner 定的事
+- 正式 IR 用哪种文本编码口径：服务端现状（DP 的 CPU CLIP、Fast-WAM 的 T5 每次请求重算）还是每局只算一次。
+- 中转上的 `wls-ssh` 暴露是否保留。
+- H100 dp_h100 里没有副本的 143 GB 是否删。
+
 **10-12 00:2x 增量（最新，先读）：第 0 节已完成，实验改走公网直连后已续跑**
 - 代码（`f85ed68b`、`0d4bc56e`）：
   - `formal_eval.open_tunnels()` 不再执行 `tether expose`，只设置直连地址：H100 服务端 `149.165.153.233:<端口>`；调度器 `ziyanglin.com:<端口>`；只有本机 worker 时全部用 127.0.0.1。远端 worker 遇到不在 23100–23199 的调度器端口（或本机服务端口）直接报错。
