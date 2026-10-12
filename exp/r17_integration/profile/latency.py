@@ -273,9 +273,10 @@ def build_stages(model, adapter, obs, request, *, precompute_text=False):
         c1 = compile_tensor_program(first, (prepared.data["inputs"],))
         def stage1(p):
             features = tensor_copy(c1(p.data["inputs"]))
+            # Same key order as DPAdapter.run_stage1 (pytree parity compares structure).
             fields = {"vision_0": features["base_0_rgb"][0].float().cpu().numpy().copy(),
-                      "vision_1": features["left_wrist_0_rgb"][0].float().cpu().numpy().copy(),
-                      "robot_state": p.state.copy()}
+                      "robot_state": p.state.copy(),
+                      "vision_1": features["left_wrist_0_rgb"][0].float().cpu().numpy().copy()}
             return Stage1({"prepared": p, "features": features}, fields, p.state)
         def second(features):
             return torch.cat([features[k] for k in core.obs_encoder.feature_order], -1).unsqueeze(1)

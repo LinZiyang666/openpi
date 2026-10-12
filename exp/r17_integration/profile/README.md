@@ -138,6 +138,9 @@ capacity and both memory peaks, since compile/graph pools can add workspace.
   separately as `dp_cpu_text_encoder_ms` (already included in `stage1_ms`). Fast-WAM calls
   UMT5-XXL in stage2 on every request; run once more with `--precompute-text` for the
   once-per-episode price. Report both prices; which one enters the formal IR is the owner's call.
+- **DP smoke on a shared 4090 (2026-10-12, warmup 3, iters 5, not exclusive):** stage1 134 ms, of which
+  CPU CLIP is 130 ms (one OMP thread, as the server runs); stage2 0.4 ms; DDPM100 loop 157 ms; DDIM10 loop
+  18.5 ms. All eager-vs-compiled parity checks pass (max delta 6e-4) once stage1 fields keep the adapter's key order.
 - **Cosmos:** load the official 2B policy DiT, native tokenizer/VAE, statistics,
   and released `libero_t5_embeddings.pkl`. T5 itself is unnecessary: the
   server already uses the precomputed `[1,512,1024]` prompt embeddings.
@@ -177,9 +180,10 @@ Python island and the B row's formal `load.json`. Outputs are
 two only when nsys is installed). nsys is currently available locally at
 `/usr/local/cuda/bin/nsys`. Use a fresh `--out-dir` for repeated measurements.
 
-A direct single-prompt example, with torch counters only:
+A direct single-prompt example, with torch counters only (set `PYTHONPATH` as certify does):
 
 ```bash
+PYTHONPATH=$PWD:$PWD/src:$PWD/packages/openpi-client/src \
 /data/mw_finetune/dp/env/bin/python -m exp.r17_integration.profile.latency \
   --model dp_libero --suite libero_spatial \
   --out exp/r17_integration/profile/results/dp_direct.json
