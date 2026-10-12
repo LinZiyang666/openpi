@@ -20,9 +20,10 @@ def raised_level(level, successes, control_successes, n):
     return "pure" if deficit >= 10*n else c.LEVELS[c.LEVELS.index(level)-1]
 
 
-def load_controls(root, models, controls="full"):
+def load_controls(root, models, controls="full", override=()):
     references = {}
-    names = c.REDUCED_CONTROL_NAMES if controls == "reduced" else c.CONTROL_NAMES
+    names = dict(c.REDUCED_CONTROL_NAMES if controls == "reduced" else c.CONTROL_NAMES)
+    names.update({m: (run,) for m, run in (item.split("=", 1) for item in override)})
     for model in sorted(models):
         # Both Cosmos segments (and the Fast-WAM ancestor) are read by load_lane.
         lane = Path(root) / names[model][-1]
@@ -62,16 +63,17 @@ def main(argv=None):
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--control-root", type=Path, default=c.CONTROL_ROOT)
     parser.add_argument("--controls", choices=("full", "reduced"), default="full")
+    parser.add_argument("--control", action="append", default=[], help="MODEL=RUN: use this pure-inference control run instead of the default")
     args = parser.parse_args(argv)
     cells, planned = c.load_knob(args.lane, "A")
-    references = load_controls(args.control_root, {m for m, _, _ in cells}, args.controls)
+    references = load_controls(args.control_root, {m for m, _, _ in cells}, args.controls, args.control)
     rng = np.random.default_rng(SEED)
     indices = {suite: rng.integers(0, 50, size=(BOOT, 10, 50))
                for suite in ("libero_10", "libero_spatial")}
     result = dict(bootstrap=dict(draws=BOOT, seed=SEED, method="within-task paired init resampling"), cells=[])
     raises = {}
     if args.controls == "reduced":
-        result["controls"] = c.REDUCED_CONTROL_NAMES
+        result["controls"] = {**c.REDUCED_CONTROL_NAMES, **{m: (run,) for m, run in (item.split("=", 1) for item in args.control)}}
     lines = ["# 逐任务旋钮测试", "", "使用 A 集官方起点 0–49，每任务固定一个档位，与同起点纯推理对照配对。",
              "推理开销代理按模型调用数除以执行控制数折算的决策数计算；DP 和 Fast-WAM 每 5 步折算一次，Cosmos 每 16 步折算一次，纯推理按一计。",
              "成功率差的95% 区间在每个任务内按起点配对重采样5,000 次，随机种子为20261005。",

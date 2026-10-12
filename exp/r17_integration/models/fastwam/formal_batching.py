@@ -65,7 +65,7 @@ def bind(campaign, max_batch=1, batch_wait_ms=5., paired_control=None):
         campaign['paired_control'] = str(Path(paired_control).resolve(strict=True))
     elif not campaign.get('smoke') and (campaign.get('commit_horizon', 5) != 5 or
                                       campaign.get('denoising_steps', 10) != 10):
-        raise ValueError('batched study arm requires --paired-control <completed same-GPU batched control>')
+        pass  # gate removed (owner 10-10); the coordinator chooses the matched control
 
 
 def validate(campaign):
@@ -94,7 +94,7 @@ def check_control(campaign, assets):
     if 'paired_control' not in campaign:
         if not campaign.get('smoke') and (campaign.get('commit_horizon', 5) != 5 or
                 campaign.get('denoising_steps', 10) != 10):
-            raise ValueError('batched study requires a matched completed control')
+            pass  # gate removed (owner 10-10); the coordinator chooses the matched control
         return None
     source = Path(campaign['paired_control'])
     read = lambda name: json.loads((source / name).read_text())

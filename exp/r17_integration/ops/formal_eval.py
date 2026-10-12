@@ -741,6 +741,8 @@ def prepare(campaign, directory):
     deployment = {} if campaign.get('native_parity_only') else prepare_workers(campaign, directory)
     if campaign.get('native_parity_only'):
         write_json(directory/'WORKER_DEPLOYMENT.json',deployment)
+    # Server-only overrides (e.g. Fast-WAM text cache, patched runtime) for a fresh preparation.
+    campaign.update(json.loads(os.environ.get('R17_CAMPAIGN_EXTRA', '{}')))
     write_json(directory / 'campaign.json', campaign)
     write_json(directory / 'PREFLIGHT.json', dict(status='PASS', cpu_only=True, episodes=episode_plan['expected_episodes'],
         worker_nodes=list(deployment), replicas=campaign['replicas'], ports=campaign['ports'],
@@ -1658,7 +1660,8 @@ def parse_args(argv=None):
     reserved = (range(23400,23460) if args.cache_study else
                 range(23240,23250) if cosmos else range(23180,23190) if args.port >= 23180 else range(23160,23180))
     # The driver serves remote workers through ziyanglin.com, which forwards only 23100..23199.
-    if (len(ports) != len(set(ports)) or any(port not in reserved for port in ports[:-1])
+    # A local server with remote workers listens inside the forwarded 23100..23199 range as well.
+    if (len(ports) != len(set(ports)) or any(port not in reserved and port not in DIRECT_PORTS for port in ports[:-1])
             or (args.driver_port not in reserved and args.driver_port not in DIRECT_PORTS)):
         p.error('distinct reserved ports required: '+('23400..23459 (cache study)' if args.cache_study else
             '23240..23249 (Cosmos)' if cosmos else '23160..23179 or 23180..23189')+'; driver may also use 23100..23199')
