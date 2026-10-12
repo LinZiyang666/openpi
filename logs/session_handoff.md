@@ -60,6 +60,8 @@ owner 的常驻指令，逐字有效：
 - **Cosmos 全步数逐任务旋钮完成**（13:04，第 4 轮 0 个任务要提档）：`test_results_cos_r4/`，长任务 97.2–98.2%（纯推理 98.6%）、空间 96.0–97.8%（96.4%），正式 IR 0.363–1.030；档位 只用停滞门 33 / 中间 39 / 纯推理 48；没有纯推理档仍少 3 局以上的任务。已提交 `23b26a18`，IR 重算、报告第 2.4 节和提档表已补（`173623a6`），网页第 13 版（旋钮数据集 v4，`knob.json` 资源 `/_blob/969f0bf151c43987f3d0aa0e676bc9b0`）。网页存储读写的 out_dir 不能放在 `.claude` 下，用 `r17_ops/livepage/`。
 - H100 已自动转入 `chain_h100d.sh`：Cosmos driver 拷回 6 个 → Cosmos 减步开发集 knobdevcosred → 减步测试与提档 → 等 `knobdevfwred8 exited` → Fast-WAM 减步测试（H100）。
 - **owner 已把本机 CPU 调频改为 performance 并持久化**（13:0x）。之后副本 0/1 不再一快一慢（之前的 3 倍差距就是降频）。knobdevfwred6 在 timan107 上 40 个 worker 时 timan107 内存只剩 5 GB（Fast-WAM worker 每个 ~3.1 GB RSS），13:01 续跑为 **knobdevfwred8**：timan107 30 + timan1 40（timan1 代码上限 40；knobdevfwred7 因 45 被拒，目录作废），保留 2,163 局、剩 20,037 局；`chain_4090_fwred8.sh` 在副本就绪后自动 taskset 到 NUMA 节点 1（副本 0 → 22–31，副本 1 → 32–41，代理 → 42–43）。只用停滞门的格子 ~120–136 局/分钟，服务端吃不满（stage2 批 ~1.5），这时车道卡在 worker 数上。
+- 13:31 副本 0 慢的真实原因：它被绑在 22–31，而别的会话的 go 测试（p13.test、broker-product）正好跑在这几个核上；改为两个副本都绑整个节点 1（`taskset -a -p -c 22-43,66-87`）后两副本一致（命中 68 ms、调用 1.2 s），车道 ~109 局/分钟。**以后的接续脚本绑核一律用整节点**（`chain_4090_fwred8.sh` 里还是窄范围，运行中不改）。
+- 13:25 测速：H100 Cosmos 减步开发集 knobdevcosred ~104 局/分钟（GPU 100%），预计 16:50 前后收齐；4090 knobdevfwred8 预计 18:30 前后收齐。
 - 记忆已重排（owner 要求）：「先读运行文档」改成第一条铁律（`feedback-run-configs-first`），合并了派 agent、设备与 GPU 两组条目。
 
 **10-12 12:4x 增量**
