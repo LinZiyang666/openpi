@@ -56,7 +56,12 @@ owner 的常驻指令，逐字有效：
 
 ### 1.R16 正在做：纯减步融入闭环（owner 10-07 目标"融入纯减步并实验"，会话 goal 仍挂着）
 
-**10-12 13:1x 增量（最新，先读）**
+**10-12 16:4x 增量（最新，先读）**
+- **负载重排（owner：「你不能把一些东西移到 4090 吗」）**：Fast-WAM 减步的 A 集测试和提档从 H100 挪到 4090（`chain_4090_fwredtest.sh`）：等 knobdevfwred8 收齐 → 在同一套 4090 服务配置上先跑 K1 纯推理对照 `hs7fwk1_4090c`（1,000 局，timan107 × 30；timan1 的许可只覆盖缓存 worker）→ `KNOB_LANE=4090 PREP_PROFILE=fastwam_4090 EXTRA_TEST_ARGS="--control Fast-WAM=hs7fwk1_4090c" REDUCED=1 knob_model_test.sh full fastwam knobdevfwred8` → DP 对照复跑（`chain_4090_dpctl.sh`，hs7dpctl_full / hs7dpctl_ddim10 已准备）。H100 链见到 `r17_ops/knob/fwred_test_on_4090` 就跳过它的 Fast-WAM 一步，只做 Cosmos 减步。预计 4090 线 ~19:45、H100 线 ~20:35 结束（原来串行 ~23:15）。
+- 为此的代码改动（`b76e9461`）：`test.py --control MODEL=RUN`；`formal_eval` 封存前读 `R17_CAMPAIGN_EXTRA`（JSON）写进 campaign（用来加 `fastwam_text_cache` 和补丁运行时）；本机缓存批次的服务端口可用 23100–23199；去掉 Fast-WAM 两处配对门（K1 必须配同 GPU 批处理对照、配对 GPU 不同即报错）。`prepare_dev.sh fastwam_4090` = R2+MPS+B16+文本缓存+补丁运行时，timan107 30 + timan1 40，公网 23130、调度器 23113。端口 23160–23162 已登记台账。
+- **4090 车道在 16:3x 是网络受限**：本机公网入口 ~33 MB/s 打满（每请求 ~330 KB 图像，~80 请求/秒，端口 23130 ~26 MB/s，网卡 34 MB/s），服务端有余量。已写进 RUN_CONFIGS 避坑。
+
+**10-12 13:1x 增量**
 - **Cosmos 全步数逐任务旋钮完成**（13:04，第 4 轮 0 个任务要提档）：`test_results_cos_r4/`，长任务 97.2–98.2%（纯推理 98.6%）、空间 96.0–97.8%（96.4%），正式 IR 0.363–1.030；档位 只用停滞门 33 / 中间 39 / 纯推理 48；没有纯推理档仍少 3 局以上的任务。已提交 `23b26a18`，IR 重算、报告第 2.4 节和提档表已补（`173623a6`），网页第 13 版（旋钮数据集 v4，`knob.json` 资源 `/_blob/969f0bf151c43987f3d0aa0e676bc9b0`）。网页存储读写的 out_dir 不能放在 `.claude` 下，用 `r17_ops/livepage/`。
 - H100 已自动转入 `chain_h100d.sh`：Cosmos driver 拷回 6 个 → Cosmos 减步开发集 knobdevcosred → 减步测试与提档 → 等 `knobdevfwred8 exited` → Fast-WAM 减步测试（H100）。
 - **owner 已把本机 CPU 调频改为 performance 并持久化**（13:0x）。之后副本 0/1 不再一快一慢（之前的 3 倍差距就是降频）。knobdevfwred6 在 timan107 上 40 个 worker 时 timan107 内存只剩 5 GB（Fast-WAM worker 每个 ~3.1 GB RSS），13:01 续跑为 **knobdevfwred8**：timan107 30 + timan1 40（timan1 代码上限 40；knobdevfwred7 因 45 被拒，目录作废），保留 2,163 局、剩 20,037 局；`chain_4090_fwred8.sh` 在副本就绪后自动 taskset 到 NUMA 节点 1（副本 0 → 22–31，副本 1 → 32–41，代理 → 42–43）。只用停滞门的格子 ~120–136 局/分钟，服务端吃不满（stage2 批 ~1.5），这时车道卡在 worker 数上。
