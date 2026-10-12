@@ -56,7 +56,41 @@ owner 的常驻指令，逐字有效：
 
 ### 1.R16 正在做：纯减步融入闭环（owner 10-07 目标"融入纯减步并实验"，会话 goal 仍挂着）
 
-**10-12 16:4x 增量（最新，先读）**
+**10-12 17:2x compact 前交接（最新；compact 后先读这段，再读下面 16:4x、13:1x、12:4x、12:0x、11:2x 各段）**
+
+### 0. 铁律（先读记忆索引 MEMORY.md 的 ⛔⛔ 一组）
+- ⛔⛔ 改任何批次配置前先读 `exp/r17_integration/ops/RUN_CONFIGS.md` 对应一节和 Pitfalls；上线后立刻 `r17_ops/knob/lane_speed.sh <RUN> 60` 看实时吞吐（批率×批大小、命中/调用延迟、GPU、收局、副本日志报错）；变了当场改文档并提交。
+- ⛔⛔ 严禁 tether expose；每个批次用 `launch_direct.sh` 启动（前后各核一次直连）。
+- 本机 4090 上的服务进程要 `taskset -a -p -c 22-43,66-87 <pid>` 绑整个 NUMA 节点 1（不要只绑几个核，别的会话的 go 测试会占）；owner 已把 CPU 调频改为 performance 并持久化。
+- 不要改正在执行的 bash 脚本（bash 边读边执行）；要改流程就改它将来才调用的脚本（`knob_model_test.sh`、`chain_4090_dpctl.sh` 都是每次新起进程）。
+- 一张卡上的多个服务进程必须共用一个 MPS；MPS 车道的卡上不放 EGL 渲染或别的非 MPS 进程。本机服务 + 远端 worker 受本机公网入口 ~33 MB/s 限制（每请求 ~330 KB）。
+
+### 1. 正在跑（17:2x）
+| 卡 | 接续脚本（PID） | 当前 | 之后 |
+|---|---|---|---|
+| H100 | `chain_h100d.sh`（1810321，由 chain_h100e exec） | Cosmos 减步开发集 knobdevcosred（22,200 局，~75–100 局/分，driver 在 NVMe `/tmp/r17_driver/knobdevcosred`），预计 ~17:45 收齐 | `REDUCED=1 knob_model_test.sh full cosmos knobdevcosred`（下降→A 集测试 knobtestcos_red→提档轮次）→ 拷回 driver → 见到 `r17_ops/knob/fwred_test_on_4090` 就跳过 Fast-WAM 一步 → 记「all reduced-step knob chains finished」。预计 ~20:35 |
+| 4090 | `chain_4090_fwredtest.sh`（447459） | Fast-WAM K1 纯推理对照 hs7fwk1_4090c（1,000 局，timan107×30，同 4090 服务配置；17:15 时 249 局、50 局/分、0 报错），预计 ~17:30 | `KNOB_LANE=4090 PREP_PROFILE=fastwam_4090 EXTRA_TEST_ARGS="--control Fast-WAM=hs7fwk1_4090c" REDUCED=1 knob_model_test.sh full fastwam knobdevfwred8`（下降→knobtestfw_red→提档；每轮在副本就绪后自动绑核并记 `servers pinned`）→ exec `chain_4090_dpctl.sh`：hs7dpctl_full（DP DDPM100 纯推理，普通路径，R4/B8/MPS/本机×48）→ hs7dpctl_ddim10（DDIM10）。预计 ~20:15 |
+- 事件都在 `r17_ops/knob/chain.log`，用 Monitor 挂 `tail -n 0 -F`（30 分钟到期要重挂）。
+- Fast-WAM 减步开发集 knobdevfwred8 17:05 收齐（20,037/20,037；整条续跑链 22,200）。CPU 上试跑过下降：120 个任务全部完整冻结，档位 只用停滞门 53 / 中间 53 / 纯推理 14（`$CLAUDE_JOB_DIR/tmp/descent_fwred_probe/`，正式的会写到 `rounds/r17/knob/dev_results_fw_red/`）。
+
+### 2. 已完成（都已提交）
+- 全步数三组 + DP 减步：DP `test_results_dp_r3`、Fast-WAM `test_results_fw_r2`、Cosmos `test_results_cos_r4`（13:04 收口，0 个纯推理档偏低任务）、DP 减步 `test_results_dp_red_r7`。正式 IR `ir_formal/`（已含 Cosmos）。报告 `rounds/r17/knob/REPORT.md`（2.1–2.4、提档表已补；2.5 Fast-WAM 减步、2.6 Cosmos 减步待补）。网页第 13 版 https://claude.ai/artifact/To18VP3TyzS5SXY3MmmUCp （旋钮数据集 v4）。
+- H100 /data 清理完成（98% → 56%）；续跑丢局 bug 修复；4090 车道提速（18.5 → 70–110 局/分）；RUN_CONFIGS 多条避坑；记忆重排。
+
+### 3. 待办（按顺序）
+1. 盯两条链；每个新批次上线后立刻看实时吞吐和报错。
+2. Fast-WAM 减步收口后：提交 `dev_results_fw_red/`、`test_results_fw_red_r*/`；`ir_formal.py` 加 `--test reduced:<fw_red 最后一轮>/test.json`；报告 2.5 节写明对照是 4090 上的 hs7fwk1_4090c（同服务配置），并顺带比较 hs7fwk1_4090c 与 H100 的 hs6fw_k1（硬件差异检查）。
+3. Cosmos 减步收口后同上（`dev_results_cos_red`、`test_results_cos_red_r*`，报告 2.6）。
+4. DP 对照复跑出结果后：hs7dpctl_full 对 hs5dp_ctl_142812 与 DP 全步数纯推理档格子、hs7dpctl_ddim10 对 hs5dp_ddim10s0 与 DP 减步纯推理档格子，判断「对照偶然偏高」还是「缓存路径纯推理档不同」；更新 `PURE_LEVEL_NOISE.md` 末尾「补充核查」和报告第 4 节、网页说明。
+5. 网页：`$CLAUDE_JOB_DIR/tmp/dash/build_knob.py full:dp_r3 full:fw_r2 full:cos_r4 reduced:dp_red_r7 reduced:fw_red_rN reduced:cos_red_rN` → `make_harness.py` → 本地渲染截图（只看旋钮一节可用 harness_knobonly 的 CSS 隐藏法，chrome-headless-shell 加 `--no-sandbox`）→ `Artifact` 上传 knob.json 资源 → `ArtifactData batch` 更新 `datasets/knob`（带 if_version）和必要时的 `files/index.html`；读写数据库的 out_dir 用 `r17_ops/livepage/`（`.claude` 下不允许）；发布后读 `data/users/me` 的 `runs`。
+6. 任务 #113（报告收尾）、#115（减步版）。
+
+### 4. 要 owner 定的事（未变）
+- 正式 IR 主口径：服务端现状 vs 文本每局一次。
+- 中转上的 `wls-ssh` 暴露是否保留。
+- H100 dp_h100 无本机副本的 143 GB 是否删。
+
+**10-12 16:4x 增量**
 - **负载重排（owner：「你不能把一些东西移到 4090 吗」）**：Fast-WAM 减步的 A 集测试和提档从 H100 挪到 4090（`chain_4090_fwredtest.sh`）：等 knobdevfwred8 收齐 → 在同一套 4090 服务配置上先跑 K1 纯推理对照 `hs7fwk1_4090c`（1,000 局，timan107 × 30；timan1 的许可只覆盖缓存 worker）→ `KNOB_LANE=4090 PREP_PROFILE=fastwam_4090 EXTRA_TEST_ARGS="--control Fast-WAM=hs7fwk1_4090c" REDUCED=1 knob_model_test.sh full fastwam knobdevfwred8` → DP 对照复跑（`chain_4090_dpctl.sh`，hs7dpctl_full / hs7dpctl_ddim10 已准备）。H100 链见到 `r17_ops/knob/fwred_test_on_4090` 就跳过它的 Fast-WAM 一步，只做 Cosmos 减步。预计 4090 线 ~19:45、H100 线 ~20:35 结束（原来串行 ~23:15）。
 - 为此的代码改动（`b76e9461`）：`test.py --control MODEL=RUN`；`formal_eval` 封存前读 `R17_CAMPAIGN_EXTRA`（JSON）写进 campaign（用来加 `fastwam_text_cache` 和补丁运行时）；本机缓存批次的服务端口可用 23100–23199；去掉 Fast-WAM 两处配对门（K1 必须配同 GPU 批处理对照、配对 GPU 不同即报错）。`prepare_dev.sh fastwam_4090` = R2+MPS+B16+文本缓存+补丁运行时，timan107 30 + timan1 40，公网 23130、调度器 23113。端口 23160–23162 已登记台账。
 - **4090 车道在 16:3x 是网络受限**：本机公网入口 ~33 MB/s 打满（每请求 ~330 KB 图像，~80 请求/秒，端口 23130 ~26 MB/s，网卡 34 MB/s），服务端有余量。已写进 RUN_CONFIGS 避坑。
