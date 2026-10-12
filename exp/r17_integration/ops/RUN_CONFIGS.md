@@ -418,6 +418,12 @@ cannot qualify the new batch/code/MPS treatment.
   remainsR1/B8/5 ms/MPSoff,36 GiB admission, measured local replay only;
   two approximately26 GiB residents do not fit there. H100's newB16 result
   does not qualify localB16 as a faster production lane.
+  **Superseded for the local knob DEV lane (2026-10-12):** R1/B8/MPS-off with 22 local renderers on the 4090 ran 18.5 episodes/min
+  (one GIL-bound process at ~144% CPU, GPU 17–47%, stage2 always full at B8). Caching the 20 LIBERO prompt encodings and
+  moving T5 to the CPU makes a replica 13.5 GB, so R2 fits; with R2/B16/MPS, renderers moved to timan107/timan1 and the
+  two server processes pinned to two cores each on NUMA node 1, the lane runs **51–66 episodes/min, GPU 31–46%**. Replica 0
+  stays ~3× slower than replica 1 (same work, same connection count, both MPS clients); cause not found. Test lanes keep
+  the H100 configuration without the text cache, so they match their pure-inference controls.
 - **Sharing:** retain Fast-WAM onH100 and DP on4090, sharing timan107 with
   Fast48/2048/768/N4 plus DP32/2048/576/N4. Both spread over0..7.
   A second campaign on the actualH100 needs admission alongside the70 GiB
@@ -909,6 +915,26 @@ Evidence: [P3 H100/local MPS results](../REQUESTS/P3_to_R.md),
 [hs5 treatment](/data/mw_finetune/eval/hs5dp_ctl_142812/campaign.json),
 [hs6 treatment](/data/mw_finetune/eval/hs6fw_ctl_143332/campaign.json).
 
+### Two server processes on one GPU need one shared MPS server
+
+Without MPS, two Fast-WAM replicas on the 4090 time-slice their CUDA contexts: stage1 went from ~120 ms to ~6 s and the lane
+ran slower than one replica (`knobdevfwred3`). Any other non-MPS context on that GPU (another campaign's server, EGL
+renderers) time-slices the same way, so do not co-locate a second campaign on a GPU that runs an MPS lane.
+
+### Pin host-bound servers to a few cores on the GPU's NUMA node
+
+weilandserver is a Xeon E5-2696 v4 with the `schedutil` governor (no root to change it). Server threads spread over many
+cores leave each core lightly loaded at 1.2 GHz. Pinning each Fast-WAM server process to two cores on NUMA node 1
+(GPU0's node; CPUs 22–43, 66–87) brought those cores to 2.9–3.3 GHz and the lane from 27–30 to 51–66 episodes/min.
+`taskset -a -p -c <cores> <pid>` works on a running process; it is lost on restart. `sudo cpupower frequency-set -g
+performance` would fix it for every local process.
+
+### Watch per-stage latency right after launching a changed configuration
+
+Three changed launches on 2026-10-12 failed within minutes (no MPS, text-cache keys missing the prompt template so every
+model call raised KeyError, CUDA OOM). Run `r17_ops/knob/lane_speed.sh <RUN> 60` (episodes/min, per-replica stage batch
+rate × mean size, hit/call latency, GPU, CPU) as soon as the replicas are ready, and grep the replica logs for errors.
+
 ### Keep MPS pipe paths within 85 bytes
 
 The UTF-8/filesystem-encoded **absolute pipe directory**, not just the run name,
@@ -1074,6 +1100,7 @@ only sets direct endpoints:
 | Cosmos, sizes 50–400 (`cosmossizes145_r8c`, resumed; `driver/` on NVMe; finished 15:26) | H100 | **R8, B1, memory budget 76 GiB** | **on (private MPS)** / legacy | timan107 × 45 + timan1 × 40 + local × 60 | 3072 / 768; local 4096 / 1024; N4 | 23440, backends 23441–23448, driver 23459 |
 | DP per-task knob DEV/TEST (`knobdevdp2`, `knobtestdp*`; reduced `knobdevdpred2`) | local RTX 4090 | R4, B8 / 5 ms | on / group-commit | local × 48 | 2048 / 717, N4 | 23400–23404 on 127.0.0.1, driver 23110 (23419 before 10-12) |
 | Fast-WAM per-task knob DEV/TEST (`knobdevfw4`, `knobtestfw3`) | H100 | R2, B16 / 5 ms | on / group-commit | timan107 × 45 + timan1 × 40 | 2048 / 768, N4 | 149.165.153.233:23420–23422, driver ziyanglin.com:23111 (23439 via broker before 10-12) |
+| Fast-WAM reduced-step knob DEV on the 4090 (`knobdevfwred6`, 2026-10-12 12:2x) | local RTX 4090 48 GB | **R2, B16 / 5 ms**, T5 prompt cache (`fastwam_text_cache`, T5 on CPU, 13.5 GB per replica), budget 54 GiB, patched runtime `formal_runtime_3faa6dcf_fwtextcache` | on (private MPS) / group-commit | timan107 × 40 + timan1 × 30, **no renderers on the 4090** | 2048 / 717, N4 | public 23130 (backends 23131–23132), driver 23113; server processes pinned with `taskset` to two cores each on NUMA node 1 |
 | Cosmos per-task knob DEV/TEST (`knobdevcos4`) | H100 | R8, B1, budget 76 GiB | on (private MPS) / legacy, `driver/` on NVMe | timan107 × 45 + timan1 × 40 | 3072 / 768, N4 | 149.165.153.233:23440–23448, driver ziyanglin.com:23112 |
 
 Knob campaigns are prepared with `r17_ops/knob/prepare_dev.sh <dp|fastwam|cosmos> <RUN_NAME> [STUDY]` (it sets `R17_INHERIT_WORKER_DEPLOYMENT`; a fresh prepare otherwise fails on timan107 because the legacy LIBERO config under `/scratch/zixuans8/openpi_trace_h100` is gone). A failed launch cannot be relaunched: prepare again under a new name.
@@ -1084,6 +1111,7 @@ Knob campaigns are prepared with `r17_ops/knob/prepare_dev.sh <dp|fastwam|cosmos
 - Local weilandserver: local workers render (EGL) on the local 4090, about 706 MiB each, on the same card as a local server.
   - With the DP server (4 replicas) on that 4090, the limit is **48 local workers**. On 2026-10-11, 60 workers (54 renderers, 37.5 GB) filled the 48 GB card, and the DP replicas hit CUDA OOM in batched inference; the errored episodes were retried.
   - When the 4090 has no server, 60 local workers fit (about 42 GB of renderers).
+  - With the two-replica Fast-WAM server on the 4090, put **no** local renderers there: 22 renderers (~13 GB) plus two B16 replicas (~34 GB) ran out of memory (`knobdevfwred5`).
   - Local workers serve the 4090 lane first, and join an H100 lane only while the 4090 lane is idle. 60 DP plus 60 Cosmos local workers at once would also exhaust the 251 GB of RAM (about 3 GB RSS each).
 
 **Measured.**
