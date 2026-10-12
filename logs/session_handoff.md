@@ -94,6 +94,11 @@ owner 的常驻指令，逐字有效：
     - 当前全步数旋钮实验做完后，仿 R16：缓存系统里所有模型调用（停滞门、周期旋钮、pure 档）都改成减步，重做一遍逐任务旋钮。
     - 目标成功率 = 同起点减步纯推理（A 集对照：`hs5dp_ddim10s0`、`hs6fw_k1`、Cosmos `hs2_cosmos_h100_k2incl_c16_*`）。
     - 16:43 派 sol 准备代码和输入（任务书 `rounds/r17/prompts/sol_knob_reduced_steps.md`，日志 `r17_ops/sol_knob_reduced.log`）：减步 YAML、放开三个模型校验里写死的原生步数、plan/aggregate 按 YAML 步数、开发集加 pure 行（B 上的减步纯推理参照）、descent `--reference pure-arm`、test `--controls reduced`。
+  - **owner 20:2x 新增任务（所有任务做完后执行）**：给新模型做 latency profile，用来计算正式 IR。
+    - 测法照 π0.5/GR00T：torch.compile `reduce-overhead` 加 CUDA graph，batch=1，独占 RTX 4090，预热 30、测 200 次取中位数，nsys 核对图回放。依据 `exp/libero_groot/config/rit/cost_groot_libero_measured.json`、`exp/dispatch_surface/analysis/analytic_cost.py`。
+    - 分三段：看图编码（prepare+run_stage1，即命中缓存时的开销）、条件前缀（run_stage2）、去噪循环（sample）。全步数和减步两种步数都测。
+    - 系数：视觉 = 看图编码 / 全步数总和；全步数调用 = 后两段 / 同一分母；减步调用 = (条件前缀 + 减步去噪) / 同一分母。
+    - 20:29 派 sol 准备脚本（`rounds/r17/prompts/sol_profile_latency.md`，日志 `r17_ops/sol_profile_latency.log`），任务 #116。
   - **owner 16:0x 定的验收标准**：每个任务的 IR 档位都要调到成功率与纯推理相近或相等（已记入记忆）。执行办法：
     - A 集上每任务 50 局，最多比纯推理低 4 个点（少成功 2 局）算达标；
     - 低 10 个点及以上直接提到 pure，低 6–8 个点升一档；
