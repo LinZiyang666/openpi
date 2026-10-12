@@ -14,7 +14,7 @@ import threading
 import time
 
 
-def cache_text(model,campaign):
+def cache_text(adapter,campaign):
     """Encode each prompt of the campaign once (batch 1), then move T5 off the GPU.
 
     Frees ~11 GB so two replicas fit on the 48 GB 4090 (dev lane only).
@@ -26,7 +26,9 @@ def cache_text(model,campaign):
         if task[0].isupper():
             task=task[task.find('SCENE')+(8 if 'SCENE10' in task else 7):]
         return ' '.join(task.split('_'))
-    prompts=sorted({language(n) for n in names if n.split('/')[0] in campaign['suites']})
+    model=adapter.model
+    # Same string the wire policy sends to T5 (prompt_template wraps the task language).
+    prompts=sorted({adapter.wire.prompt_template.format(task=language(n)) for n in names if n.split('/')[0] in campaign['suites']})
     with torch.inference_mode():
         table={p:model.encode_prompt([p]) for p in prompts}
     model.text_encoder.to('cpu')
@@ -79,7 +81,7 @@ def serve(campaign,port,directory):
         if torch.cuda.get_device_name(campaign['device']) != treatment['gpu_family']:
             pass
     adapter,original_provider=load(dict(campaign,benchmark_spec=str(Path(campaign['assets'])/'benchmark.json')),campaign['device'])
-    cached_prompts=cache_text(adapter.model,campaign) if campaign.get('fastwam_text_cache') else None
+    cached_prompts=cache_text(adapter,campaign) if campaign.get('fastwam_text_cache') else None
     total=torch.cuda.get_device_properties(campaign['device']).total_memory
     torch.cuda.set_per_process_memory_fraction(campaign['memory_budget_gib']*2**30/campaign['replicas']/total,campaign['device'])
     qualification = None

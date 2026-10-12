@@ -56,6 +56,11 @@ owner 的常驻指令，逐字有效：
 
 ### 1.R16 正在做：纯减步融入闭环（owner 10-07 目标"融入纯减步并实验"，会话 goal 仍挂着）
 
+**10-12 12:4x 增量（最新，先读）**
+- 4090 Fast-WAM 减步开发集现为 **knobdevfwred6**（`chain_4090_fwred6.sh`）：2 副本 + MPS + `max_batch` 16 + T5 提示词缓存（键 = 线上模板 `"A video recorded from a robot's point of view executing the following instruction: {task}"` 套任务语言）+ worker 只在 timan107 40 / timan1 30（4090 上不放渲染）。12:3x 起 **taskset 把两个服务进程各绑到 GPU 所在 NUMA 节点 1 的两个核**（副本 0 → 36–37，副本 1 → 38–39，代理 → 40）：本机调频 schedutil 下线程分散时核心只有 1.2 GHz，收拢后 2.9–3.3 GHz。速度 18.5 → 51–66 局/分钟，GPU 17% → 31–44%。**批次重启后绑核会丢，要重新 taskset**（`pgrep -f "formal_server --campaign <RUN>"`，按 `--port` 区分）。owner 可执行 `sudo cpupower frequency-set -g performance` 根治。副本 0 仍比副本 1 慢约 3 倍（同样的格子、同样连接数、都在 MPS 上），原因未查清。
+- 这一段的失败（都在几分钟内停掉，无坏数据进入结果）：knobdevfwred3 两副本无 MPS → 两个上下文分时，stage1 120 ms → 6 s；knobdevfwred3/4 文本缓存键缺模板 → 每次模型调用 KeyError，knobdevfwred3 的 300 局全是基础设施报错（续跑判为缺失、会重跑）；knobdevfwred5 B16 加 22 个本机渲染 → CUDA OOM。实时测速用 `r17_ops/knob/lane_speed.sh <RUN> 60`（每分钟：收局、各段批率×均值、命中/调用延迟、GPU、CPU）。**上线新配置后必须立即看这个，不要等定时测速。**
+- H100 链 `chain_h100d.sh` 已改为等 `knobdevfwred6 exited`（旧版 `chain_h100d.before_fwred3.sh`）。按当前速度 4090 开发集约 19:00 收齐，早于 H100 做完 Cosmos 减步。
+
 **10-12 12:0x 增量（最新，先读；之后读下面 11:2x 那段）**
 - **4090 车道提速（owner：「4090 GPU 利用率太低」「CPU 总利用率也低」）**：病根是单个 Fast-WAM 服务进程 GIL 受限（进程约 144% CPU、GPU 17–47%；stage2 每批 8 个固定约 1.2 s，模型调用端到端排队中位 4.6 s）。加 worker 无用，要加进程。改法：`formal_batch_server.cache_text`——启动时把本批次 20 条 LIBERO 提示词各用 T5 编码一次（batch 1），然后 T5 移到 CPU，单副本显存 27.8 → 13.5 GB，4090 放两个副本。服务端代码来自冻结运行时，所以复制了一份 `/data/mw_finetune/qualification/formal_runtime_3faa6dcf_fwtextcache`（只换了 formal_batch_server.py）。11:47 起 knobdevfwred2（收 984 局）续跑为 knobdevfwred3（`chain_4090_fwred3.sh`；2 副本、显存预算 54、`fastwam_text_cache`；worker 不变；直连核对通过）。**只用于开发集**；测试批次不用，保持与对照同一服务端。H100 的 `chain_h100d.sh` 已改为等 knobdevfwred3（旧版 `chain_h100d.before_fwred3.sh`）。
 - **续跑丢局的真实原因（更正下面「最后一段记录没同步」的说法）**：`cache_resume.select` 的完整性检查要求每次模型调用都是停滞门触发（`stall_call=True`），旋钮周期调用（`knob_call=True`）全被判为不完整，所以续跑总把有周期调用的已收局全部丢掉（knobdevfwred2 的 984 局全丢、knobdevfwred 609 局丢 309、之前 DP 5,074 局、Fast-WAM 3,069 局）。已修：允许 `stall_call` 或 `knob_call`。knobdevfwred3 是修复前准备的，那 984 局会重跑（分析按同局最新记录合并，结果不受影响）。
