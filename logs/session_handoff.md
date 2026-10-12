@@ -67,6 +67,8 @@ owner 的常驻指令，逐字有效：
 - 清掉了经中转的残留流量：本机 `perf_recorder.py`（经 tether exec 从 timan107 拉遥测，跑了 34 小时）以及 timan107 上对应的 4 个遥测进程；本机 40 多个孤儿 `tail`、10 个孤儿 `formal_watch14` 监控；废弃排队脚本 `queue_hs4_fast.sh`（等一个 PARTIAL 收据，永远不会触发）。
 - 新增 `r17_ops/knob/check_direct.py` 和 `launch_direct.sh`：启动前核对 campaign，启动后核对各节点 worker 的启动配置；发现中转地址或 `TUNNELS.json` 就停掉批次。`knob_model_test.sh` 已改用它。
 - 00:2x 真机核实直连：DP knobdevdpred3 的 97 条连接全部来自 127.0.0.1；Fast-WAM knobtestfw4 的调度器 23111 和 H100 服务端 23420 上，连接全部来自 timan107（45 条）和 timan1（40 条），另有本机公网地址的一条控制连接，没有任何连接经过 VPS。两个续跑都按「服务端确认记录不全」多丢了一批已收局（DP 5,074 局、Fast-WAM 3,069 局，原批次被打断时最后一段记录没同步），直接重跑，DP 约多 50 分钟，Fast-WAM 共补 4,146 局。
+- **Fast-WAM 全步数逐任务旋钮完成（02:30，`7a0b2801`）**：knobtestfw4（续跑补 4,146 局）→ 第 1 轮 12 个任务提档 → knobtestfw_r1（600 局）→ 第 2 轮无需提档。12 格成功率与纯推理差 −1.4 到 +0.4 个点（libero_10 纯推理 91.6%，spatial 90.8%），IR 代理 0.22–0.48。档位：只用停滞门 42、纯推理 22、0.1–0.5 档 56。结果在 `rounds/r17/knob/test_results_fw_r2/`。同 DP，有 4 个任务已在纯推理档（IR 1.0）仍少 3–6 局，属抽样波动。
+- 02:30 起 H100 准备 Cosmos 开发集 knobdevcos4（调度器 23112，driver 放 NVMe），之后 `knob_model_test.sh full cosmos knobdevcos4`。
 - DP 全步数结果复核（写报告时要说明）：120 个任务里有 3 个已在「纯推理」档，仍比纯推理对照少 3–6 局（libero_10：库 200 KITCHEN_SCENE6 32 对 38，库 500 LIVING_ROOM_SCENE5 38 对 42，库 300 KITCHEN_SCENE3 41 对 44）。这一档的 IR 代理是 1.0、库命中为 0，每次决策都实算，本身就是纯推理，所以这是两次纯推理运行之间的抽样波动，不是缓存造成的。不能拿对照结果去替换（等于挑样本），已在报告里照实写。
 - 00:21 起两条接续线（00:18 第一次的 knobtestfw3 / knobdevdpred2 准备失败：续跑漏了 `refresh_workers=True`，撞上已存在的 workers.tar；这两个目录作废）（事件写 `r17_ops/knob/chain.log`）：
   - H100 `chain_h100c.sh`：knobtestfw2 续跑为 knobtestfw4（补约 951 局）→ Fast-WAM 提档循环 → knobdevcos4（Cosmos 开发集，driver 放 NVMe）→ Cosmos 测试和提档。
