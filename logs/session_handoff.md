@@ -101,6 +101,10 @@ owner 的常驻指令，逐字有效：
     - 原 `chain_cosmos_after_fw.sh` 已停（顺序改为先做完 Fast-WAM）。
     - DP 全步数做完后，4090 接着做 DP 减步版：先真机冒烟核对 DDIM 10 步，再跑 `dev_reduced` 开发集。
     - Cosmos 各批次的 NVMe driver 跑完要拷回 /data。
+  - **22:06 事故**：tether 中转服务器短暂连不上，knobtestfw 启动失败，0 局。旧脚本把零数据误判成「全部达标」，提前起了 knobdevcos3。我已停掉它，并按 PID 清了 H100（两个 Fast-WAM 副本 + MPS）和 timan107（47 个进程）上的残留。
+    - `knob_model_test.sh` 已加检查：批次收到的局数少于计划局数就停下整条线。
+    - H100 改挂 `chain_h100b.sh`：knobtestfw2 → Fast-WAM 提档循环 → 重新准备 knobdevcos4 → Cosmos 开发集 → Cosmos 测试和提档。
+    - knobtestfw、knobdevcos3 作废。
   - **owner 20:2x 新增任务（所有任务做完后执行）**：给新模型做 latency profile，用来计算正式 IR。
     - 测法照 π0.5/GR00T：torch.compile `reduce-overhead` 加 CUDA graph，batch=1，独占 RTX 4090，预热 30、测 200 次取中位数，nsys 核对图回放。依据 `exp/libero_groot/config/rit/cost_groot_libero_measured.json`、`exp/dispatch_surface/analysis/analytic_cost.py`。
     - 分三段：看图编码（prepare+run_stage1，即命中缓存时的开销）、条件前缀（run_stage2）、去噪循环（sample）。全步数和减步两种步数都测。
