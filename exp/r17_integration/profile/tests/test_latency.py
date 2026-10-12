@@ -299,7 +299,7 @@ def test_fastwam_tensor_cuts_with_cpu_stub_modules(monkeypatch):
         vae=SimpleNamespace(encode=lambda *args, **kw: torch.arange(32.).reshape(1, 1, 1, 4, 8)),
         tokenizer=tokenizer, text_encoder=text, encode_prompt=encode, _append_proprio_to_context=append,
         _build_mot_attention_mask=lambda **kw: torch.ones(40, 40, dtype=torch.bool),
-        mot=SimpleNamespace(prefill_video_cache=prefill), _predict_action_noise_with_cache=network)
+        mot=SimpleNamespace(prefill_video_cache=prefill, mixtures={}), _predict_action_noise_with_cache=network)
     prepared = SimpleNamespace(data={"input_image": torch.ones(1, 3, 224, 448), "prompt": "real prompt",
                                     "proprio": torch.ones(1, 8)}, state=np.zeros(8, np.float32))
     first = m.vae.encode(None)
