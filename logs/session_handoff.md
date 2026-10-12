@@ -72,6 +72,7 @@ owner 的常驻指令，逐字有效：
 - 02:30 起 H100 准备 Cosmos 开发集 knobdevcos4（调度器 23112，driver 放 NVMe），之后 `knob_model_test.sh full cosmos knobdevcos4`。
 - **DP 减步版开发集完成（03:56）**：knobdevdpred3 收齐 20,964 局；下降判定参照开发集里同起点的减步纯推理档（`dev_results_dp_red/`），档位：只用停滞门 74、纯推理 13、中间档 33。04:01 起 A 集测试 knobtestdp_red（6,000 局，42 个配置全是 DDIM 10 步，直连核对通过），之后自动提档。
 - Cosmos 开发集 knobdevcos4 02:38 起跑，约 60 局/分钟，预计 08:20 前后收齐。
+- **网页第 12 版（07:5x）**：旋钮一节按「模型 × 步数」分表（DP 全步数、DP 减步、Fast-WAM 全步数，Cosmos 写运行中），IR 改为实测延迟的正式值，两种文本编码口径并列；新增「延迟实测」一节（数据集 `latency`）。重建：`build_knob.py full:<test.json> ... reduced:<test.json>` → 上传 knob.json → 更新 datasets/knob 的 url。注意：数据字段不要叫 `steps`（页面 `norm()` 会把它当数字）。
 - **latency profile 完成（07:5x）**：六份结果全部有效、认证通过（`exp/r17_integration/profile/results/`，汇总表和方法偏离写在 README 末尾）。系数（视觉 / 全步调用 / 减步调用，按服务端现状）：DP 0.33–0.36 / 0.64–0.67 / 0.08；Fast-WAM 0.08 / 0.92 / 0.37；Cosmos 0.27–0.28 / 0.72–0.73 / 0.155。Cosmos 的 DiT 用 Transformer Engine kernel，make_fx 追踪不到，第三段改为对原生去噪网络做 CUDA graph 捕获；前两段仍是编译加 CUDA graph。
 - **正式 IR**：`rounds/r17/knob/ir_formal.py` → `ir_formal/IR_FORMAL.md`。DP 全步数 0.28–0.63（文本每局一次 0.12–0.55），Fast-WAM 全步数 0.25–0.51，DP 减步版 0.19–0.34（减步纯推理 0.41–0.44；文本每局一次 0.025–0.09，对 0.14）。Cosmos 和两个减步版做完后重跑这个脚本。**要 owner 定**：DP 的 CPU CLIP、Fast-WAM 的 T5 每次请求都重算，正式 IR 用「服务端现状」还是「文本每局一次」。
 - **latency profile（05:3x 起，4090 独占）**：
