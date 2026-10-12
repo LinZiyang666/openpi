@@ -56,7 +56,22 @@ owner 的常驻指令，逐字有效：
 
 ### 1.R16 正在做：纯减步融入闭环（owner 10-07 目标"融入纯减步并实验"，会话 goal 仍挂着）
 
-**10-12 00:1x compact 前交接（最新；compact 后先读这段，并先做第 0 节）**
+**10-12 00:2x 增量（最新，先读）：第 0 节已完成，实验改走公网直连后已续跑**
+- 代码（`f85ed68b`、`0d4bc56e`）：
+  - `formal_eval.open_tunnels()` 不再执行 `tether expose`，只设置直连地址：H100 服务端 `149.165.153.233:<端口>`；调度器 `ziyanglin.com:<端口>`；只有本机 worker 时全部用 127.0.0.1。远端 worker 遇到不在 23100–23199 的调度器端口（或本机服务端口）直接报错。
+  - `library_campaign` 同样改直连；删掉 resume waiver 的中转端口分配；`tether_retry.py` 的临时补丁已撤回。
+  - 调度器端口：DP 23110、Fast-WAM 23111、Cosmos 23112（已登记 `gpu_share/LEDGER.md`）。`prepare_dev.sh`、`cache_lane`、`cache_knob` 都已改。`cache_resume.prepare(..., driver_port=...)` 用来把旧批次续跑时的端口换进转发段。
+  - 测试：改动前后对比，只多出 1 个失败（测试夹具缺 `driver_port`，已补）；其余 28 个失败是 10-10 拔门留下的旧失败（报错被改成 `pass`），与本次无关。
+- 实测：timan107、timan1、h100 都能直连 `ziyanglin.com:23110–23112`；timan107、timan1 都能直连 `149.165.153.233:23420`。
+- 中转上我们的暴露条目全部是 FREED，没有在用的。`__proxy__` 是 tether 自己的节点代理。
+- 清掉了经中转的残留流量：本机 `perf_recorder.py`（经 tether exec 从 timan107 拉遥测，跑了 34 小时）以及 timan107 上对应的 4 个遥测进程；本机 40 多个孤儿 `tail`、10 个孤儿 `formal_watch14` 监控；废弃排队脚本 `queue_hs4_fast.sh`（等一个 PARTIAL 收据，永远不会触发）。
+- 新增 `r17_ops/knob/check_direct.py` 和 `launch_direct.sh`：启动前核对 campaign，启动后核对各节点 worker 的启动配置；发现中转地址或 `TUNNELS.json` 就停掉批次。`knob_model_test.sh` 已改用它。
+- 00:2x 真机核实直连：DP knobdevdpred3 的 97 条连接全部来自 127.0.0.1；Fast-WAM knobtestfw4 的调度器 23111 和 H100 服务端 23420 上，连接全部来自 timan107（45 条）和 timan1（40 条），另有本机公网地址的一条控制连接，没有任何连接经过 VPS。两个续跑都按「服务端确认记录不全」多丢了一批已收局（DP 5,074 局、Fast-WAM 3,069 局，原批次被打断时最后一段记录没同步），直接重跑，DP 约多 50 分钟，Fast-WAM 共补 4,146 局。
+- 00:21 起两条接续线（00:18 第一次的 knobtestfw3 / knobdevdpred2 准备失败：续跑漏了 `refresh_workers=True`，撞上已存在的 workers.tar；这两个目录作废）（事件写 `r17_ops/knob/chain.log`）：
+  - H100 `chain_h100c.sh`：knobtestfw2 续跑为 knobtestfw4（补约 951 局）→ Fast-WAM 提档循环 → knobdevcos4（Cosmos 开发集，driver 放 NVMe）→ Cosmos 测试和提档。
+  - 4090 `chain_dp_red2.sh`：knobdevdpred 续跑为 knobdevdpred3（补约 15,890 局）→ `REDUCED=1 knob_model_test.sh full dp knobdevdpred3`。
+
+**10-12 00:1x compact 前交接（第 0 节已在 00:2x 完成，见上）**
 
 ### 0. 第一件事：实验流量改走公网直连（owner 严令，记忆 `feedback-no-tether-expose`）
 
