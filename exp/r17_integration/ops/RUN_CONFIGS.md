@@ -932,6 +932,16 @@ to two cores, and replica 0 ran ~3× slower than replica 1 the whole time. On 20
 2026-10-12 two of them sat on replica 0's ten cores, which made its CPU-side steps 2× slower and its model calls 3–8× slower.
 With the whole node both replicas match (hit 68 ms, call 1.2 s) and the lane ran 109 episodes/min. If a lane looks host-bound again, check `scaling_governor` and core MHz first.
 
+### A weilandserver server with remote workers is capped by the public ingress (~33 MB/s)
+
+Every request uploads two 256×256 images (~330 KB). On 2026-10-12 the 4090 Fast-WAM lane (workers on timan107/timan1,
+entering through ziyanglin.com:23130) reached ~80 requests/s = ~26 MB/s on that port and 34 MB/s on the NIC, i.e. the
+~33 MB/s ingress, while the servers still had headroom (stage1 batch ~1.6, GPU ~50%). So a local server fed by remote
+workers tops out near 100 requests/s whatever its replicas do. Lanes whose workers sit on the timan nodes should prefer
+a server those workers reach without this link (H100 has its own public IP), or keep local workers on 127.0.0.1 (but do
+not put EGL renderers on a GPU that runs an MPS lane). Measure with `/proc/net/dev` on `enp8s0` and per-port
+`ss -tin` `bytes_received` deltas.
+
 ### Watch per-stage latency right after launching a changed configuration
 
 Three changed launches on 2026-10-12 failed within minutes (no MPS, text-cache keys missing the prompt template so every
