@@ -70,6 +70,8 @@ owner 的常驻指令，逐字有效：
 - **Fast-WAM 全步数逐任务旋钮完成（02:30，`7a0b2801`）**：knobtestfw4（续跑补 4,146 局）→ 第 1 轮 12 个任务提档 → knobtestfw_r1（600 局）→ 第 2 轮无需提档。12 格成功率与纯推理差 −1.4 到 +0.4 个点（libero_10 纯推理 91.6%，spatial 90.8%），IR 代理 0.22–0.48。档位：只用停滞门 42、纯推理 22、0.1–0.5 档 56。结果在 `rounds/r17/knob/test_results_fw_r2/`。同 DP，有 4 个任务已在纯推理档（IR 1.0）仍少 3–6 局，属抽样波动。
 - 网页第 11 版（02:4x）：新增「逐任务 IR 旋钮」一节（数据集 `knob`，DP 第 3 轮 + Fast-WAM 第 2 轮），Cosmos 一栏写「开发集运行中」。顺带修了 250 处差值引用不一致：页面显示百分点、数据存小数，现在 cells、steps、knob 都加了 `diff_pp` 字段，页面直接显示它。源文件和本地测试页在 `$CLAUDE_JOB_DIR/tmp/dash/`（`build_knob.py <test.json>...`、`make_harness.py`；截图用 chrome-headless-shell 要加 `--no-sandbox`）。Cosmos 测试完后重跑 build_knob.py，上传 knob.json，更新 datasets/knob 的 url。
 - 02:30 起 H100 准备 Cosmos 开发集 knobdevcos4（调度器 23112，driver 放 NVMe），之后 `knob_model_test.sh full cosmos knobdevcos4`。
+- **DP 减步版开发集完成（03:56）**：knobdevdpred3 收齐 20,964 局；下降判定参照开发集里同起点的减步纯推理档（`dev_results_dp_red/`），档位：只用停滞门 74、纯推理 13、中间档 33。04:01 起 A 集测试 knobtestdp_red（6,000 局，42 个配置全是 DDIM 10 步，直连核对通过），之后自动提档。
+- Cosmos 开发集 knobdevcos4 02:38 起跑，约 60 局/分钟，预计 08:20 前后收齐。
 - DP 全步数结果复核（写报告时要说明）：120 个任务里有 3 个已在「纯推理」档，仍比纯推理对照少 3–6 局（libero_10：库 200 KITCHEN_SCENE6 32 对 38，库 500 LIVING_ROOM_SCENE5 38 对 42，库 300 KITCHEN_SCENE3 41 对 44）。这一档的 IR 代理是 1.0、库命中为 0，每次决策都实算，本身就是纯推理，所以这是两次纯推理运行之间的抽样波动，不是缓存造成的。不能拿对照结果去替换（等于挑样本），已在报告里照实写。
 - 00:21 起两条接续线（00:18 第一次的 knobtestfw3 / knobdevdpred2 准备失败：续跑漏了 `refresh_workers=True`，撞上已存在的 workers.tar；这两个目录作废）（事件写 `r17_ops/knob/chain.log`）：
   - H100 `chain_h100c.sh`：knobtestfw2 续跑为 knobtestfw4（补约 951 局）→ Fast-WAM 提档循环 → knobdevcos4（Cosmos 开发集，driver 放 NVMe）→ Cosmos 测试和提档。
