@@ -101,6 +101,11 @@ owner 的常驻指令，逐字有效：
     - 原 `chain_cosmos_after_fw.sh` 已停（顺序改为先做完 Fast-WAM）。
     - DP 全步数做完后，4090 接着做 DP 减步版：先真机冒烟核对 DDIM 10 步，再跑 `dev_reduced` 开发集。
     - Cosmos 各批次的 NVMe driver 跑完要拷回 /data。
+  - **接续脚本一览（23:0x）**：都在 `r17_ops/knob/`，事件写入 chain.log。
+    - 4090：`chain_dp_reduced_test.sh`。knobdevdpred 收齐后执行 `REDUCED=1 knob_model_test.sh full dp knobdevdpred`。
+      - REDUCED=1 时：descent 用 `--reference pure-arm`，test 用 `--controls reduced`，cache_knob 用 `--miss-steps reduced`；批次名带 `_red`。
+    - H100：`chain_h100b.sh`，顺序为 knobtestfw2 → Fast-WAM 提档循环 → knobdevcos4 → Cosmos 测试和提档。
+    - Fast-WAM 和 Cosmos 的减步版还没挂，等 H100 上的全步数做完再接。
   - **DP 全步数逐任务旋钮完成（22:48）**：开发集 knobdevdp2 → A 集 knobtestdp → 提档 knobtestdp_r1（11 个任务）→ knobtestdp_r2（2 个任务）→ 全部达标。
     - 最终 12 格成功率都高于纯推理：libero_10 84.6–86.8%（纯推理 79.6%，高 5.0–7.2 个点），spatial 93.4–96.4%（纯推理 91.2%，高 2.2–5.2 个点）；10 格 95% 区间不含 0。
     - IR 代理 0.11–0.54。档位：只用停滞门 63 个、纯推理 25 个、0.1–0.5 档 32 个。
