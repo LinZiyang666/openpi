@@ -388,4 +388,4 @@ def test_cosmos_tensor_cuts_with_cpu_stub_condition_and_vendor(monkeypatch):
         assert L.parity(L.stage_payload("cosmos_libero", s2, 2), L.stage_payload("cosmos_libero", eager2, 2))["passed"]
         result = runtime.sample(s2, SamplerSpec("stub", "stub", 2, (1, 0)))
         assert result.actual_nfe == 1 and result.normalized_chunk.shape == (16, 7)
-    assert len(calls) == 3
+    assert len(calls) == 2  # stage3 is a captured native denoiser, not a traced program
