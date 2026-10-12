@@ -554,6 +554,12 @@ def main():
         reference[k] = (tensor_copy(stage_payload(args.model, s1, 1), cpu=True),
                         tensor_copy(stage_payload(args.model, s2, 2), cpu=True),
                         tensor_copy(result.normalized_chunk, cpu=True), adapter.to_wire(result.normalized_chunk, p).actions.copy())
+    if args.model == "cosmos_libero":
+        # Under cudagraph trees the Cosmos denoiser returns NaN once the stage1/stage2 graphs
+        # have replayed in the shared pool (uncompiled, inductor-only and a lone compiled
+        # denoiser are all finite). Per-graph legacy CUDA graphs keep it finite (2026-10-12).
+        import torch._inductor.config as inductor_config
+        inductor_config.triton.cudagraph_trees = False
     before = counters()
     with torch.inference_mode():
         runtime = build_stages(args.model, adapter, obs, request, precompute_text=args.precompute_text)
