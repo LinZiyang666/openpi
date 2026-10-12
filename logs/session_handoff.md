@@ -87,6 +87,7 @@ owner 的常驻指令，逐字有效：
     - 接续脚本 `r17_ops/knob/chain_cosmos_after_fw.sh`（16:33 挂上）：等 knobdevfw4 退出，把 driver 软链到 `/tmp/r17_driver/knobdevcos2/driver`，再启动。
     - 跑完要把 driver 拷回 /data（同 r8c 的 `driver_back_r8c.sh` 做法）。
     - 准备时又拔了 Cosmos `library_admission.compatibility` 的源码/AST 指纹门（`3ce79e98`）。`knobdevcos` 是失败的半成品目录。
+  - DP A 集测试接续脚本 `r17_ops/knob/chain_dp_test.sh`（19:17 挂上）：knobdevdp2 退出后依次跑 `descent.py`（输出 `rounds/r17/knob/dev_results_dp/`）、`cache_knob test --model dp`（输出 `cache_study/knob/test_dp`）、`prepare_dev.sh dp knobtestdp <STUDY>`，然后启动 knobtestdp。测试跑完后按逐任务标准提档重测（手动）。
   - 网页第 9 版新增「纯推理减步」一节（数据集 `steps`，数据来自 `rounds/r17/horizon/RESULTS_DP_FASTWAM.json` 和 `COSMOS_K2_ANALYSIS.json`）。
   - **owner 16:4x 命令（已记入记忆）**：
     - 新模型默认减步数：DP 10 步（DDIM）、Fast-WAM 1 次、Cosmos 2 次（实算 1 次）。
