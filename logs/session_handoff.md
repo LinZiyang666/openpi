@@ -56,7 +56,13 @@ owner 的常驻指令，逐字有效：
 
 ### 1.R16 正在做：纯减步融入闭环（owner 10-07 目标"融入纯减步并实验"，会话 goal 仍挂着）
 
-**10-12 12:4x 增量（最新，先读）**
+**10-12 13:1x 增量（最新，先读）**
+- **Cosmos 全步数逐任务旋钮完成**（13:04，第 4 轮 0 个任务要提档）：`test_results_cos_r4/`，长任务 97.2–98.2%（纯推理 98.6%）、空间 96.0–97.8%（96.4%），正式 IR 0.363–1.030；档位 只用停滞门 33 / 中间 39 / 纯推理 48；没有纯推理档仍少 3 局以上的任务。已提交 `23b26a18`，IR 重算、报告第 2.4 节和提档表已补（`173623a6`），网页第 13 版（旋钮数据集 v4，`knob.json` 资源 `/_blob/969f0bf151c43987f3d0aa0e676bc9b0`）。网页存储读写的 out_dir 不能放在 `.claude` 下，用 `r17_ops/livepage/`。
+- H100 已自动转入 `chain_h100d.sh`：Cosmos driver 拷回 6 个 → Cosmos 减步开发集 knobdevcosred → 减步测试与提档 → 等 `knobdevfwred8 exited` → Fast-WAM 减步测试（H100）。
+- **owner 已把本机 CPU 调频改为 performance 并持久化**（13:0x）。之后副本 0/1 不再一快一慢（之前的 3 倍差距就是降频）。knobdevfwred6 在 timan107 上 40 个 worker 时 timan107 内存只剩 5 GB（Fast-WAM worker 每个 ~3.1 GB RSS），13:01 续跑为 **knobdevfwred8**：timan107 30 + timan1 40（timan1 代码上限 40；knobdevfwred7 因 45 被拒，目录作废），保留 2,163 局、剩 20,037 局；`chain_4090_fwred8.sh` 在副本就绪后自动 taskset 到 NUMA 节点 1（副本 0 → 22–31，副本 1 → 32–41，代理 → 42–43）。只用停滞门的格子 ~120–136 局/分钟，服务端吃不满（stage2 批 ~1.5），这时车道卡在 worker 数上。
+- 记忆已重排（owner 要求）：「先读运行文档」改成第一条铁律（`feedback-run-configs-first`），合并了派 agent、设备与 GPU 两组条目。
+
+**10-12 12:4x 增量**
 - 4090 Fast-WAM 减步开发集现为 **knobdevfwred6**（`chain_4090_fwred6.sh`）：2 副本 + MPS + `max_batch` 16 + T5 提示词缓存（键 = 线上模板 `"A video recorded from a robot's point of view executing the following instruction: {task}"` 套任务语言）+ worker 只在 timan107 40 / timan1 30（4090 上不放渲染）。12:3x 起 **taskset 把两个服务进程各绑到 GPU 所在 NUMA 节点 1 的两个核**（副本 0 → 36–37，副本 1 → 38–39，代理 → 40）：本机调频 schedutil 下线程分散时核心只有 1.2 GHz，收拢后 2.9–3.3 GHz。速度 18.5 → 51–66 局/分钟，GPU 17% → 31–44%。**批次重启后绑核会丢，要重新 taskset**（`pgrep -f "formal_server --campaign <RUN>"`，按 `--port` 区分）。owner 可执行 `sudo cpupower frequency-set -g performance` 根治。副本 0 仍比副本 1 慢约 3 倍（同样的格子、同样连接数、都在 MPS 上），原因未查清。
 - 这一段的失败（都在几分钟内停掉，无坏数据进入结果）：knobdevfwred3 两副本无 MPS → 两个上下文分时，stage1 120 ms → 6 s；knobdevfwred3/4 文本缓存键缺模板 → 每次模型调用 KeyError，knobdevfwred3 的 300 局全是基础设施报错（续跑判为缺失、会重跑）；knobdevfwred5 B16 加 22 个本机渲染 → CUDA OOM。实时测速用 `r17_ops/knob/lane_speed.sh <RUN> 60`（每分钟：收局、各段批率×均值、命中/调用延迟、GPU、CPU）。**上线新配置后必须立即看这个，不要等定时测速。**
 - H100 链 `chain_h100d.sh` 已改为等 `knobdevfwred6 exited`（旧版 `chain_h100d.before_fwred3.sh`）。按当前速度 4090 开发集约 19:00 收齐，早于 H100 做完 Cosmos 减步。
