@@ -1,0 +1,17 @@
+{
+ "libero_10": {
+  "400": {
+   "libero_10/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it": "k40",
+   "libero_10/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket": "k50"
+  }
+ },
+ "libero_spatial": {
+  "400": {
+   "libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate": "k20",
+   "libero_spatial/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate": "k20"
+  },
+  "500": {
+   "libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate": "k20"
+  }
+ }
+}
