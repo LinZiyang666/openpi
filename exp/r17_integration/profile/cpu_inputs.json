@@ -1,0 +1,206 @@
+{
+  "dp_libero": {
+    "libero_spatial": {
+      "source": "/data/r17_library/dp_libero_libero_spatial/bpool/READY.json",
+      "source_sha256": "765e307e2aa454dfc91ea966fdaf2732cf4e1991a8cc156adc0df7dcbde75605",
+      "row": 0,
+      "row_id": "0ef89ce387927805d7740343463fbcb31c7e3d175d11e376ef64d759485ceebf",
+      "task_name": "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+      "campaign": "teacher_dp_libero_libero_spatial_500_20261010_000311_bdd4f22f",
+      "benchmark_protocol": "589fd0293f29d91fe3f011121b5855d550b9d06288ee67ce12aeae50e0d3afd0",
+      "state_precision": "library recorded float32",
+      "descriptor": "/data/r17_library/dp_libero_libero_spatial/campaigns/teacher_dp_libero_libero_spatial_500_20261010_000311_bdd4f22f/assets/load.json",
+      "prompt": "pick up the black bowl between the plate and the ramekin and place it on the plate",
+      "prompt_sha256": "0a91f8c396de41e282d3640365a14df8f0090791bbf2c2eb917423f4779752a9",
+      "geometry": {
+        "observation/image": [
+          256,
+          256,
+          3
+        ],
+        "observation/wrist_image": [
+          256,
+          256,
+          3
+        ],
+        "observation/state": [
+          8
+        ]
+      },
+      "observation_sha256": {
+        "observation/image": "70d580d36367ea2a6ec737e2231c7c79b5209c5627242d210a592a433953c9d3",
+        "observation/wrist_image": "53c29c69f1000af71a755632173d4a221dfaf64953128f8ad18f0ef628a8fc8c",
+        "observation/state": "6cf71871f741344334739b680e0ae3f8285df69c327682fd6a816f7a32541bcc"
+      }
+    },
+    "libero_10": {
+      "source": "/data/r17_library/dp_libero_libero_10/bpool/READY.json",
+      "source_sha256": "2c2ee8091aa27fd505cca7c5c9eb4731c6441fd491d0c7e1065fa43501e80b1f",
+      "row": 0,
+      "row_id": "c0b11cd39cd917136025af686faec5fef4119b9a08612129c7ccb505313ca72d",
+      "task_name": "libero_10/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket",
+      "campaign": "teacher_dp_libero_libero_10_500_20261010_005446_9bd136a9",
+      "benchmark_protocol": "589fd0293f29d91fe3f011121b5855d550b9d06288ee67ce12aeae50e0d3afd0",
+      "state_precision": "library recorded float32",
+      "descriptor": "/data/r17_library/dp_libero_libero_10/campaigns/teacher_dp_libero_libero_10_500_20261010_005446_9bd136a9/assets/load.json",
+      "prompt": "put both the alphabet soup and the tomato sauce in the basket",
+      "prompt_sha256": "8405398832a6d730162b72e7768751f45e16ade5b47cfd3bb37f37632087c1e0",
+      "geometry": {
+        "observation/image": [
+          256,
+          256,
+          3
+        ],
+        "observation/wrist_image": [
+          256,
+          256,
+          3
+        ],
+        "observation/state": [
+          8
+        ]
+      },
+      "observation_sha256": {
+        "observation/image": "3cbff54aadcd2189643a7954042349bf24ad5d00ed95202536bcf485530ca53d",
+        "observation/wrist_image": "42cf0aa5d816fefe3f4d46ba28cdbfd9b26044f2678af8071729040d809c382a",
+        "observation/state": "a42dbe1253cca085637081969f35f143d38022dd7bb9cd6e07bdcf556dad70e6"
+      }
+    }
+  },
+  "fastwam_libero": {
+    "libero_spatial": {
+      "source": "/data/r17_library/fastwam_libero_libero_spatial/bpool/READY.json",
+      "source_sha256": "f96377a4fd5adb338aed678ba1aaafcba3964fe8eda876143dc6d1ccaff02b05",
+      "row": 0,
+      "row_id": "7cc27cbe4efc246eddb361ea6ab4858ed0032cd0c1f473f3753d24a494a7d52c",
+      "task_name": "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+      "campaign": "teacher_fastwam_libero_libero_spatial_500_20261010_020305_a90d5a54",
+      "benchmark_protocol": "589fd0293f29d91fe3f011121b5855d550b9d06288ee67ce12aeae50e0d3afd0",
+      "state_precision": "library recorded float32",
+      "descriptor": "/data/r17_library/fastwam_libero_libero_spatial/campaigns/teacher_fastwam_libero_libero_spatial_500_20261010_020305_a90d5a54/assets/load.json",
+      "prompt": "pick up the black bowl between the plate and the ramekin and place it on the plate",
+      "prompt_sha256": "0a91f8c396de41e282d3640365a14df8f0090791bbf2c2eb917423f4779752a9",
+      "geometry": {
+        "observation/image": [
+          256,
+          256,
+          3
+        ],
+        "observation/wrist_image": [
+          256,
+          256,
+          3
+        ],
+        "observation/state": [
+          8
+        ]
+      },
+      "observation_sha256": {
+        "observation/image": "355b26e5528c09634598d84958acba10c28323c8ed0ba3d6b897093728802744",
+        "observation/wrist_image": "53c29c69f1000af71a755632173d4a221dfaf64953128f8ad18f0ef628a8fc8c",
+        "observation/state": "6cf71871f741344334739b680e0ae3f8285df69c327682fd6a816f7a32541bcc"
+      }
+    },
+    "libero_10": {
+      "source": "/data/r17_library/fastwam_libero_libero_10/bpool/READY.json",
+      "source_sha256": "bcb126294c83deea5afd6edb96889ae0d5584a72c5c09ee155a4e76404a09504",
+      "row": 0,
+      "row_id": "e4142b8490fe0625ec7fe7fee7a6e1e7333c2b32347e71c23c3aea717a2f0806",
+      "task_name": "libero_10/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket",
+      "campaign": "teacher_fastwam_libero_libero_10_500_20261010_023853_9d2cd40c",
+      "benchmark_protocol": "589fd0293f29d91fe3f011121b5855d550b9d06288ee67ce12aeae50e0d3afd0",
+      "state_precision": "library recorded float32",
+      "descriptor": "/data/r17_library/fastwam_libero_libero_10/campaigns/teacher_fastwam_libero_libero_10_500_20261010_023853_9d2cd40c/assets/load.json",
+      "prompt": "put both the alphabet soup and the tomato sauce in the basket",
+      "prompt_sha256": "8405398832a6d730162b72e7768751f45e16ade5b47cfd3bb37f37632087c1e0",
+      "geometry": {
+        "observation/image": [
+          256,
+          256,
+          3
+        ],
+        "observation/wrist_image": [
+          256,
+          256,
+          3
+        ],
+        "observation/state": [
+          8
+        ]
+      },
+      "observation_sha256": {
+        "observation/image": "3cbff54aadcd2189643a7954042349bf24ad5d00ed95202536bcf485530ca53d",
+        "observation/wrist_image": "42cf0aa5d816fefe3f4d46ba28cdbfd9b26044f2678af8071729040d809c382a",
+        "observation/state": "a42dbe1253cca085637081969f35f143d38022dd7bb9cd6e07bdcf556dad70e6"
+      }
+    }
+  },
+  "cosmos_libero": {
+    "libero_spatial": {
+      "source": "/data/r17_library/cosmos_libero_libero_spatial/bpool/READY.json",
+      "source_sha256": "bf0c896ee685bb9de104cedd833746d03bf984649e367d024636a18c5c1e23aa",
+      "row": 0,
+      "row_id": "56ee4f9c26b81925cde8a5eefff5751ce89c18b8c385e34547f8958dc737d46d",
+      "task_name": "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+      "campaign": "teacher_cosmos_libero_libero_spatial_500_20261010_001258_bb4997a0",
+      "benchmark_protocol": "dea3db8f7d63b47eac9bd9799b2cb2362fb12c001b501ce0c1253dd710dcc940",
+      "state_precision": "library recorded float32; native quaternion fields, no reconstruction",
+      "descriptor": "/data/r17_library/cosmos_libero_libero_spatial/campaigns/teacher_cosmos_libero_libero_spatial_500_20261010_001258_bb4997a0/assets/load.json",
+      "prompt": "pick up the black bowl between the plate and the ramekin and place it on the plate",
+      "prompt_sha256": "0a91f8c396de41e282d3640365a14df8f0090791bbf2c2eb917423f4779752a9",
+      "geometry": {
+        "observation/image": [
+          256,
+          256,
+          3
+        ],
+        "observation/wrist_image": [
+          256,
+          256,
+          3
+        ],
+        "observation/cosmos_proprio": [
+          9
+        ]
+      },
+      "observation_sha256": {
+        "observation/image": "57d8415c63004ab8d82bb590b12ef725d29ffc319570a4b094e895883aacad04",
+        "observation/wrist_image": "43062f3edefb29534766eb041a9b08494758a20a6fb2054435e7a29e8a308e34",
+        "observation/cosmos_proprio": "11b70c5ad1bbcc79b0707621b42d9a281a2cb47b5afd7674e3af87cdacabeb30"
+      }
+    },
+    "libero_10": {
+      "source": "/data/r17_library/cosmos_libero_libero_10/bpool/READY.json",
+      "source_sha256": "d7be6757f146ce8d57b0bf6c8bae3ce4bbe209cf0b8c228433de11c27aacd8c8",
+      "row": 0,
+      "row_id": "6c7a2df89be23e6bfd66429eb1470599d0f4bddace9b5d43b20c47e4cb449e1e",
+      "task_name": "libero_10/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket",
+      "campaign": "teacher_cosmos_libero_libero_10_500_20261010_005553_3fa10df3",
+      "benchmark_protocol": "dea3db8f7d63b47eac9bd9799b2cb2362fb12c001b501ce0c1253dd710dcc940",
+      "state_precision": "library recorded float32; native quaternion fields, no reconstruction",
+      "descriptor": "/data/r17_library/cosmos_libero_libero_10/campaigns/teacher_cosmos_libero_libero_10_500_20261010_005553_3fa10df3/assets/load.json",
+      "prompt": "put both the alphabet soup and the tomato sauce in the basket",
+      "prompt_sha256": "8405398832a6d730162b72e7768751f45e16ade5b47cfd3bb37f37632087c1e0",
+      "geometry": {
+        "observation/image": [
+          256,
+          256,
+          3
+        ],
+        "observation/wrist_image": [
+          256,
+          256,
+          3
+        ],
+        "observation/cosmos_proprio": [
+          9
+        ]
+      },
+      "observation_sha256": {
+        "observation/image": "3cbff54aadcd2189643a7954042349bf24ad5d00ed95202536bcf485530ca53d",
+        "observation/wrist_image": "42cf0aa5d816fefe3f4d46ba28cdbfd9b26044f2678af8071729040d809c382a",
+        "observation/cosmos_proprio": "3fb4796ab136e2e69bc3f667ee57b29eaaf52ff24148997772acef454e768e2d"
+      }
+    }
+  }
+}
