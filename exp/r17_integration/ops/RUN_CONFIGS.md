@@ -14,7 +14,7 @@ group-commit, timan107 x48**, baseline `hs6fw_ctl_143332`. DP LIBERO on the
 startup PARTIAL receipts are not completed baselines. The stopped hs3/hs4
 controls and their queues are superseded and cannot authorize these arms.
 
-**Cache study (current runs):** see [Cache-study topology in use](#cache-study-topology-in-use-2026-10-11) at the end.
+**Cache study (current runs):** see [Cache-study topology in use](#cache-study-topology-in-use-2026-10-12) at the end.
 
 P3/S/Q inputs are resolved. Fixes address host sampler/launch gaps and conductor
 durability stalls, not a shortage of nominal workers. Replicas share GPU compute,
@@ -114,9 +114,12 @@ within one campaign must be distinct. **The model windows above are coordinator
 policy even where the parser accepts a broader legacy range.** π0.5/GR00T
 share their first slot; nine model sections are not nine independent lanes.
 R12/R16-era 23230..23233 H100 service ports and LIBERO-library 233xx ports
-belong to other launchers, not formal_eval.sh. Cosmos needs its launcher-managed
-tunnels outside the local 23100..23199 forwarding range. Never infer readiness
-from a broker TCP port alone; resident and proxy/bundle acknowledgements matter.
+belong to other launchers, not formal_eval.sh. Workers connect directly (no
+`tether expose`, owner rule 2026-10-12): an H100 server at `149.165.153.233:<port>`
+(firewall open), weilandserver services through `ziyanglin.com`, which forwards
+only TCP 23100..23199, and local workers through 127.0.0.1. With remote workers the
+driver port (and a local server's public port) must lie in 23100..23199; the
+launcher refuses anything else. Cosmos normal campaigns now default to driver 23112.
 
 ### Worker reservations and renderer spreading
 
@@ -1045,11 +1048,23 @@ All worker placements below use timan107 for new campaigns; timan108 is offline.
 | DP MT50 |4090;H100 capacity option |fresh/sharedR1;historicalR12 |B1/inactive |off |legacy |t10724 solo/12 shared |15.45 ep/min/5.489 calls/s atR12/W24;R1 unmeasured |small kernels/host/context scheduling |
 | Fast-WAM MT50 |H100;4090R1 capacity option |fresh/sharedR1;historicalR2 |B1/inactive |off |legacy |t10724 solo/12 shared;historicalt10824 |8.68 ep/min/3.041 calls/s atR2/W24;R1 unmeasured |K10 head, shared GPU/driver scheduling |
 
-## Cache-study topology in use (2026-10-11)
+## Cache-study topology in use (2026-10-12)
 
 One resident model per GPU; all groups and library sizes of a model hot-switch by
 YAML inside one campaign. Identity/seal checks and RAM/VRAM/disk admission were
 removed on 2026-10-10 (owner ruling). Worker counts below are measured capacity.
+
+**Network path (2026-10-12, owner rule: never `tether expose`, no traffic through the VPS broker).**
+Until 2026-10-12 every cache and knob campaign exposed its policy and driver ports through
+the broker (linziyang.top 14xxx), which exhausted the VPS traffic quota. `open_tunnels()` now
+only sets direct endpoints:
+- H100 server: `149.165.153.233:<public port>` (23420 Fast-WAM, 23440 Cosmos).
+- Driver on weilandserver: `ziyanglin.com:<driver port>`, using **23110 DP, 23111 Fast-WAM, 23112 Cosmos**
+  (registered in `gpu_share/LEDGER.md`). Older prepared runs carry 234x9 drivers; resume them with
+  `cache_resume.prepare(..., driver_port=2311x)`.
+- Local server with local workers only (DP): server and driver on 127.0.0.1.
+- Launch through `r17_ops/knob/launch_direct.sh <run> <log>`: `check_direct.py` checks the campaign
+  before launch and the worker launch configs after; any broker address or a `TUNNELS.json` stops it.
 
 | Lane | Server GPU | Replicas / batch | MPS / driver | Workers | Per worker | Ports |
 |---|---|---|---|---|---|---|
@@ -1057,10 +1072,11 @@ removed on 2026-10-10 (owner ruling). Worker counts below are measured capacity.
 | Fast-WAM, sizes 50–400 (`fastwamc6066547406`) | H100 80 GB | R2, B16 / 5 ms | on / group-commit | timan107 × 45 (EGL 0–7) + timan1 × 40 (GPU 3 only) | 2048 / 768 MiB, N4 | 23420–23422, driver 23439 |
 | Cosmos, size 500 (`cosmos500w85_220813`) | H100 | R2, B1 | off / legacy | timan107 × 45 + timan1 × 40 | 3072 / 768 MiB, N4 | 23440–23442, driver 23459 |
 | Cosmos, sizes 50–400 (`cosmossizes145_r8c`, resumed; `driver/` on NVMe; finished 15:26) | H100 | **R8, B1, memory budget 76 GiB** | **on (private MPS)** / legacy | timan107 × 45 + timan1 × 40 + local × 60 | 3072 / 768; local 4096 / 1024; N4 | 23440, backends 23441–23448, driver 23459 |
-| DP per-task knob DEV (`knobdevdp2`, B pool, 21,600 episodes) | local RTX 4090 | R4, B8 / 5 ms | on / group-commit | local × 48 | 2048 / 717, N4 | 23400–23404, driver 23419 |
-| Fast-WAM per-task knob DEV (`knobdevfw4`, B pool, 21,600 episodes) | H100 | R2, B16 / 5 ms | on / group-commit | timan107 × 45 + timan1 × 40 | 2048 / 768, N4 | 23420–23422, driver 23439 |
+| DP per-task knob DEV/TEST (`knobdevdp2`, `knobtestdp*`; reduced `knobdevdpred2`) | local RTX 4090 | R4, B8 / 5 ms | on / group-commit | local × 48 | 2048 / 717, N4 | 23400–23404 on 127.0.0.1, driver 23110 (23419 before 10-12) |
+| Fast-WAM per-task knob DEV/TEST (`knobdevfw4`, `knobtestfw3`) | H100 | R2, B16 / 5 ms | on / group-commit | timan107 × 45 + timan1 × 40 | 2048 / 768, N4 | 149.165.153.233:23420–23422, driver ziyanglin.com:23111 (23439 via broker before 10-12) |
+| Cosmos per-task knob DEV/TEST (`knobdevcos4`) | H100 | R8, B1, budget 76 GiB | on (private MPS) / legacy, `driver/` on NVMe | timan107 × 45 + timan1 × 40 | 3072 / 768, N4 | 149.165.153.233:23440–23448, driver ziyanglin.com:23112 |
 
-Knob campaigns are prepared with `r17_ops/knob/prepare_dev.sh <dp|fastwam> <RUN_NAME>` (it sets `R17_INHERIT_WORKER_DEPLOYMENT`; a fresh prepare otherwise fails on timan107 because the legacy LIBERO config under `/scratch/zixuans8/openpi_trace_h100` is gone). A failed launch cannot be relaunched: prepare again under a new name.
+Knob campaigns are prepared with `r17_ops/knob/prepare_dev.sh <dp|fastwam|cosmos> <RUN_NAME> [STUDY]` (it sets `R17_INHERIT_WORKER_DEPLOYMENT`; a fresh prepare otherwise fails on timan107 because the legacy LIBERO config under `/scratch/zixuans8/openpi_trace_h100` is gone). A failed launch cannot be relaunched: prepare again under a new name.
 
 **Node capacity.**
 - timan107: 45 workers in use; 64 have run before.
