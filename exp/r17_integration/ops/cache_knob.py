@@ -30,7 +30,7 @@ def model_name(value):
     return name
 
 
-def build(output, *, gaps=GAPS, model=None, table=None, miss_steps='full'):
+def build(output, *, gaps=GAPS, model=None, table=None, miss_steps='full', partial=False):
     """Copy complete-group YAMLs and artifacts; never fit or launch anything."""
     sources = [(path, study.validate_manifest(path)) for path in SOURCES]
     base = {}
@@ -70,9 +70,13 @@ def build(output, *, gaps=GAPS, model=None, table=None, miss_steps='full'):
                 document = yaml.safe_load((source/original['file']).read_text())
                 names = [name for name in document['recipe']['ordered_tasks'] if name.startswith(suite+'/')]
                 if test:
-                    cell = levels_table[suite][str(size)]
+                    # partial: retest rounds list only the raised tasks; absent tasks/cells are skipped.
+                    cell = levels_table.get(suite, {}).get(str(size), {}) if partial else levels_table[suite][str(size)]
                     chosen = {name if name.startswith(suite+'/') else suite+'/'+name:level for name,level in cell.items()}
-                    if len(chosen)!=10 or set(chosen)!=set(names) or any(level not in LEVELS for level in chosen.values()):
+                    if partial and not chosen:
+                        continue
+                    if (not partial and (len(chosen)!=10 or set(chosen)!=set(names)) or not set(chosen)<=set(names)
+                            or any(level not in LEVELS for level in chosen.values())):
                         raise ValueError(f'{suite}/{size}: table must assign a valid level to each of its ten tasks')
                     levels = [level for level in LEVELS if level in chosen.values()]
                 else:
@@ -99,7 +103,7 @@ def build(output, *, gaps=GAPS, model=None, table=None, miss_steps='full'):
                         row[key] = str((study.ROOT/path).resolve())
                     row['file'] = bundle+'/'+('sp' if suite=='libero_spatial' else 'l10')+'/n'+str(size)+'_'+row['group']+'.yaml'
                     if test:
-                        row['tasks'] = [name for name in names if chosen[name]==level]
+                        row['tasks'] = [name for name in names if chosen.get(name)==level]
                     else:
                         row['indices'] = list(range(30))
                     doc = copy.deepcopy(document)
@@ -179,9 +183,10 @@ def main(argv=None):
     test.add_argument('--gaps', type=Path, default=GAPS)
     test.add_argument('--out', type=Path, required=True)
     test.add_argument('--miss-steps', choices=('full','reduced'), default='full')
+    test.add_argument('--partial', action='store_true', help='retest: only the tasks listed in the table')
     args = parser.parse_args(argv)
     manifest = build(args.out, gaps=args.gaps, model=getattr(args,'model',None), table=getattr(args,'table',None),
-                     miss_steps=args.miss_steps)
+                     miss_steps=args.miss_steps, partial=getattr(args,'partial',False))
     print('STUDY='+str(manifest))
     for model in study.read(manifest)['models']:
         profile = cache_lane.PROFILES[model]

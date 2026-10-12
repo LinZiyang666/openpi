@@ -94,6 +94,13 @@ owner 的常驻指令，逐字有效：
     - 当前全步数旋钮实验做完后，仿 R16：缓存系统里所有模型调用（停滞门、周期旋钮、pure 档）都改成减步，重做一遍逐任务旋钮。
     - 目标成功率 = 同起点减步纯推理（A 集对照：`hs5dp_ddim10s0`、`hs6fw_k1`、Cosmos `hs2_cosmos_h100_k2incl_c16_*`）。
     - 16:43 派 sol 准备代码和输入（任务书 `rounds/r17/prompts/sol_knob_reduced_steps.md`，日志 `r17_ops/sol_knob_reduced.log`）：减步 YAML、放开三个模型校验里写死的原生步数、plan/aggregate 按 YAML 步数、开发集加 pure 行（B 上的减步纯推理参照）、descent `--reference pure-arm`、test `--controls reduced`。
+  - **21:3x 夜间安排（owner 去睡，我自己推进）**：
+    - 提档循环 `r17_ops/knob/knob_model_test.sh full|loop <dp|fastwam|cosmos> <RUN>`：test.py 汇总全部测试批次（同一任务取最高档）→ raise.json → `cache_knob test --partial` 只重测提档任务 → 准备并运行，反复直到没有要提档的任务（最多 8 轮）。
+    - 4090：`chain_dp_raise.sh` 在 knobtestdp 跑完后跑 DP 的提档循环（knobtestdp_r1…）。
+    - H100：`chain_h100.sh` 在 knobdevfw4 退出后依次做：Fast-WAM 下降判定 → knobtestfw → Fast-WAM 提档循环 → knobdevcos3（driver 放 NVMe）→ Cosmos 下降判定 → knobtestcos → Cosmos 提档循环。
+    - 原 `chain_cosmos_after_fw.sh` 已停（顺序改为先做完 Fast-WAM）。
+    - DP 全步数做完后，4090 接着做 DP 减步版：先真机冒烟核对 DDIM 10 步，再跑 `dev_reduced` 开发集。
+    - Cosmos 各批次的 NVMe driver 跑完要拷回 /data。
   - **owner 20:2x 新增任务（所有任务做完后执行）**：给新模型做 latency profile，用来计算正式 IR。
     - 测法照 π0.5/GR00T：torch.compile `reduce-overhead` 加 CUDA graph，batch=1，独占 RTX 4090，预热 30、测 200 次取中位数，nsys 核对图回放。依据 `exp/libero_groot/config/rit/cost_groot_libero_measured.json`、`exp/dispatch_surface/analysis/analytic_cost.py`。
     - 分三段：看图编码（prepare+run_stage1，即命中缓存时的开销）、条件前缀（run_stage2）、去噪循环（sample）。全步数和减步两种步数都测。
