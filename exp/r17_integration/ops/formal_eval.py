@@ -414,6 +414,10 @@ def prepare_workers(campaign, directory, *, payload_override=None):
         # Fresh campaign: reuse a sealed dependency release/config from an earlier deployment.
         inherited_path=Path(os.environ['R17_INHERIT_WORKER_DEPLOYMENT'])
     inherited_deployment=json.loads(inherited_path.read_text()) if inherited_path.exists() else {}
+    if os.environ.get('R17_INHERIT_WORKER_DEPLOYMENT'):
+        # Nodes added on resume reuse the same sealed release (a fresh timan107 install fails).
+        for node, item in json.loads(Path(os.environ['R17_INHERIT_WORKER_DEPLOYMENT']).read_text()).items():
+            inherited_deployment.setdefault(node, item)
     for node, count in execution_nodes.items():
         paths = worker_paths(campaign, node)
         stage = paths['stage']
