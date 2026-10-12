@@ -72,6 +72,10 @@ owner 的常驻指令，逐字有效：
 - 02:30 起 H100 准备 Cosmos 开发集 knobdevcos4（调度器 23112，driver 放 NVMe），之后 `knob_model_test.sh full cosmos knobdevcos4`。
 - **DP 减步版开发集完成（03:56）**：knobdevdpred3 收齐 20,964 局；下降判定参照开发集里同起点的减步纯推理档（`dev_results_dp_red/`），档位：只用停滞门 74、纯推理 13、中间档 33。04:01 起 A 集测试 knobtestdp_red（6,000 局，42 个配置全是 DDIM 10 步，直连核对通过），之后自动提档。
 - Cosmos 开发集 knobdevcos4 02:38 起跑，约 60 局/分钟，预计 08:20 前后收齐。
+- **已排好的接续（04:1x）**：
+  - H100 `chain_h100d.sh`（PID 3083934）：等 chain_h100c（Cosmos 全步数）正常结束 → 用 `driver_back.sh` 把 knob*cos* 的 NVMe driver 拷回 /data（逐文件核哈希）→ Fast-WAM 减步开发集 knobdevfwred（K1）→ `REDUCED=1 knob_model_test.sh full fastwam` → Cosmos 减步开发集 knobdevcosred（K2 实算 1 次，driver 放 NVMe）→ `REDUCED=1 ... full cosmos` → 再拷回 driver。
+  - 4090 `chain_4090_profile.sh`（PID 3125788）：等 chain_dp_red2 正常结束，确认卡上无 MPS、无其他计算进程，依次跑 certify：DP、Fast-WAM、Cosmos、Fast-WAM `--precompute-text`，结果在 `exp/r17_integration/profile/results{,_cached_text}/`。
+- **profile 冒烟（04:0x，共用 4090，不独占）**：DP 第一段 134 ms，其中 CPU CLIP 130 ms（服务端同样单线程）；第二段 0.4 ms；DDPM100 去噪 157 ms，DDIM10 18.5 ms。也就是说 DP 的「视觉系数」几乎全是每次重算的文本编码：按服务端现状约 0.46，按每局只算一次约 0.03。两套数都要报，由 owner 定。修了一处 profile bug：第一段字段顺序和适配器不同，编译前后核对误判为结构不同（`5d7229ca`）。
 - DP 全步数结果复核（写报告时要说明）：120 个任务里有 3 个已在「纯推理」档，仍比纯推理对照少 3–6 局（libero_10：库 200 KITCHEN_SCENE6 32 对 38，库 500 LIVING_ROOM_SCENE5 38 对 42，库 300 KITCHEN_SCENE3 41 对 44）。这一档的 IR 代理是 1.0、库命中为 0，每次决策都实算，本身就是纯推理，所以这是两次纯推理运行之间的抽样波动，不是缓存造成的。不能拿对照结果去替换（等于挑样本），已在报告里照实写。
 - 00:21 起两条接续线（00:18 第一次的 knobtestfw3 / knobdevdpred2 准备失败：续跑漏了 `refresh_workers=True`，撞上已存在的 workers.tar；这两个目录作废）（事件写 `r17_ops/knob/chain.log`）：
   - H100 `chain_h100c.sh`：knobtestfw2 续跑为 knobtestfw4（补约 951 局）→ Fast-WAM 提档循环 → knobdevcos4（Cosmos 开发集，driver 放 NVMe）→ Cosmos 测试和提档。
