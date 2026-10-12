@@ -708,7 +708,7 @@ def main():
                 stage1_ms=full["stage1_ms"]["median"], stage2_ms=full["stage2_ms"]["median"],
                 stage3_full_loop_ms=full["stage3_ms"]["median"], stage3_reduced_loop_ms=reduced["stage3_ms"]["median"],
                 stage3_step_ms=full["stage3_step_ms"]["median"], stage3_reduced_step_ms=reduced["stage3_step_ms"]["median"],
-                num_steps=STEPS[args.model][0],
+                num_steps=STEPS[args.model][0], compiled_stages=compiled_stages,
                 compile_count=graph_count, compiles_after_warmup=new_compiles,
                 capture_calls_after_warmup=counts[1]-warm_graphs[1], cudagraph_skips=skips,
                 expected_cudagraph_launch_count=expected, cudagraph_launch_count=counts[0]-warm_graphs[0],

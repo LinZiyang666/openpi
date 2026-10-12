@@ -61,7 +61,8 @@ def certify_trace(receipt, text, path):
     result["torch_capture_calls_after_warmup"] = receipt["capture_calls_after_warmup"]
     result.update(counts)
     result.update(certificate(receipt["expected_cudagraph_launch_count"], counts["cudagraph_launch_count"],
-        counts["capture_calls_after_warmup"], receipt["cudagraph_skips"], receipt["compiles_after_warmup"], receipt["compile_count"]))
+        counts["capture_calls_after_warmup"], receipt["cudagraph_skips"], receipt["compiles_after_warmup"], receipt["compile_count"],
+        receipt.get("compiled_stages", 3)))
     result["valid"] = bool(result["certified"] and receipt["valid"])
     result.update(certification_source="nsys CUDA API trace + torch per-budget replay counts",
                   cuda_trace_path=str(path), cuda_trace_sha256=sha(path))
