@@ -84,8 +84,8 @@ class FrozenLanguageMemo:
 class BatchRuntime:
     def __init__(self, adapter, config, ledger_path):
         from openpi.serving.batching_core import BatchingCore
-        if adapter.domain != "libero" or adapter.batch_diagnostic_label:
-            raise ValueError("production DP batching requires the LIBERO adapter")
+        if adapter.domain not in ("libero", "metaworld") or adapter.batch_diagnostic_label:
+            raise ValueError("production DP batching requires a LIBERO or MetaWorld adapter")
         if any(os.environ.get(f"BATCHING_STAGE{stage}_WORKERS", "1") != "1" for stage in (1, 2, 3)):
             raise ValueError("DP batching requires exactly one worker per stage; graph workspace is stage3-owned")
         self.adapter, self.config, self.closed = adapter, config, False

@@ -30,8 +30,8 @@ def cache_study_admission(campaign, cache, batch, provider):
 
 
 def serve(campaign, port, directory, cuda_graph=True):
-    if campaign["model"] != "dp" or campaign["domain"] != "libero" or campaign.get("library"):
-        raise ValueError("DP batched formal server currently supports pure-inference LIBERO")
+    if campaign["model"] != "dp" or campaign["domain"] not in ("libero", "metaworld"):
+        raise ValueError("DP batched formal server requires LIBERO or MetaWorld")
     from .batch_runtime import BatchConfig, create_runtime
     from .provider import make_connection_factory
     from .wire_policy import WirePolicy
@@ -48,6 +48,8 @@ def serve(campaign, port, directory, cuda_graph=True):
         pass
     directory = Path(directory)
     directory.mkdir(parents=True, exist_ok=True)
+    if not (directory.parent / "manifest.json").exists():
+        write_json(directory.parent / "manifest.json", campaign)
     started = time.monotonic()
     adapter, provider = load(dict(campaign, benchmark_spec=str(Path(campaign["assets"]) / "benchmark.json")), campaign["device"])
     cache = load_cache_config(Path(campaign["assets"]) / "full.yaml")
@@ -64,16 +66,19 @@ def serve(campaign, port, directory, cuda_graph=True):
         from .probe import fixed_observation
         observations_path = Path(campaign.get("graph_probe_observations",
             str(Path(campaign["assets"]) / "wire_observations.npz")))
-        if not observations_path.is_file():
+        if not observations_path.is_file() and campaign['domain'] == 'libero':
             observations_path = Path("/data/mw_finetune/qualification/assets/dp_libero_gpu_fix1_v1/wire_observations.npz")
         if observations_path.is_file():
-            observation, _ = fixed_observation(observations_path, "libero")
-        else:
+            observation, _ = fixed_observation(observations_path, campaign['domain'])
+        elif campaign['domain'] == 'libero':
             from .fixtures import libero_observation
             observation, _ = libero_observation()
             benchmark = next(iter(adapter.libero_wire_protocols.values()))
             if observation["observation/image"].shape[0] != benchmark:
                 pass
+        else:
+            from exp.mw_finetune.dp.cuda_graph import check_observations
+            observation = next(iter(check_observations('metaworld', adapter.legacy_policy.stats)))
         graph_report = check_graph(adapter, [observation], steps=(active.num_steps,))
         graph = graph_report.pop("graph")
         from exp.r17_integration.common.contracts import RequestContext
@@ -83,9 +88,17 @@ def serve(campaign, port, directory, cuda_graph=True):
         timestep = SamplerProfile(num_steps=active.num_steps).scheduler(adapter.model.cfg).timesteps[0]
         graph_report["batch_prewarm"] = warm_batch_signatures(adapter, graph, s2, config.max_batch, timestep)
     runtime = create_runtime(adapter, config.max_batch, config.batch_wait_ms, directory / "batching.jsonl", force=True)
+    captures = None
     try:
+        capture_kwargs = {}
+        if campaign.get('library'):
+            from exp.r17_integration.debug.library_capture import campaign_capture_factory
+            from exp.r17_integration.common.contracts import CaptureSpec
+            captures = campaign_capture_factory(campaign, directory / 'capture')
+            capture_kwargs = dict(capture_sink_factory=captures,
+                                  capture_spec=CaptureSpec(enabled=True, snapshots=False))
         base = make_connection_factory(adapter, provider=provider, default_config=cache,
-            default_storage=build_shared_storage(cache), stage_core=runtime.core)
+            default_storage=build_shared_storage(cache), stage_core=runtime.core, **capture_kwargs)
         base = runtime.wrap_connection_factory(base)
         evidence_lock = threading.Lock()
         def factory(*args, **kwargs):
@@ -93,6 +106,8 @@ def serve(campaign, port, directory, cuda_graph=True):
             original = connection.infer
             def infer(obs):
                 begin = time.monotonic()
+                if captures is not None:
+                    connection.capture_sink.bind_observation(obs)
                 result = original(obs)
                 hit = result["__hit_meta__"]
                 row = dict(replica_port=port, task_uid=connection._episode.get("task_uid"),
@@ -118,6 +133,9 @@ def serve(campaign, port, directory, cuda_graph=True):
                 cache_study_miss_modes=['never','stall_only'],
                 cache_study_teacher_compatibility='r17.teacher_compatibility.v1; exact producer/asset proof',
                 cache_study_native_stall_nfe=100)
+        if captures is not None:
+            metadata.update(formal_pure_inference=False, library_teacher=True, debug_capture=True,
+                            capture_profile='B-full-native-library-allowlist; received_wire_uint8')
         server = WebsocketPolicyServer(factory(), host="0.0.0.0", port=port, metadata=metadata, concurrent=True,
             connection_policy_factory=factory, bundle_validator=make_bundle_validator(provider),
             ready_callback=lambda: write_json(directory / "ready.json", dict(metadata, pid=os.getpid(),
@@ -126,6 +144,8 @@ def serve(campaign, port, directory, cuda_graph=True):
         server.serve_forever(stop_on_request=True)
     finally:
         runtime.close()
+        if captures is not None:
+            write_json(directory / 'CAPTURE_CLOSED.json', captures.close())
         write_json(directory / "closed.json", dict(status="CLOSED", pid=os.getpid(),
             elapsed_seconds=time.monotonic()-started, peak_allocated_mib=torch.cuda.max_memory_allocated()/2**20,
             peak_reserved_mib=torch.cuda.max_memory_reserved()/2**20, batching=config.metadata()))

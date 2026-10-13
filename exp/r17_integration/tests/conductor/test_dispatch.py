@@ -9,7 +9,10 @@ from types import SimpleNamespace as NS
 import numpy as np
 import pytest
 
-from exp.r17_integration.benchmarks.metaworld import FORMAL_SPEC
+from exp.r17_integration.benchmarks.metaworld import FORMAL_SPEC as MT50_SPEC
+
+# Synthetic configurable dev partition; production dev remains undecided.
+FORMAL_SPEC = replace(MT50_SPEC, dev_seed=101, dev_indices=tuple(range(30, 50)))
 from exp.r17_integration.conductor.manifest import EndpointSpec, episode_tasks
 from exp.r17_integration.conductor.queue import CompatibleEpisodeQueue
 from exp.r17_integration.conductor.strategy import MetaWorldStrategy, PerTaskDescent
@@ -24,7 +27,7 @@ def setup(tmp_path, *, names=None, indices=(30, 31)):
     endpoints.append(replace(endpoints[0], endpoint=ServerEndpoint("other", 3), model_identity="wrong"))
     tasks = episode_tasks(campaign="test", arm="k2", bundle_id="k2_gen1", endpoint=endpoints[0].endpoint,
                           model_identity="m", norm_identity="n", layout_identity="l", num_steps=2,
-                          partition="dev", names=names, indices=indices)
+                          spec=FORMAL_SPEC, partition="dev", names=names, indices=indices)
     s = MetaWorldStrategy(tasks, endpoints=endpoints)
     graph = s.plan([tasks[0].yaml_id], {tasks[0].yaml_id: endpoints[0].endpoint})
     q = CompatibleEpisodeQueue(graph, endpoints=endpoints, dispatch_path=tmp_path / "dispatch.jsonl")
@@ -92,7 +95,7 @@ def test_manifest_partition_identity_duplicate_prompts_and_commit(tmp_path):
     assert len({t.task_uid for t in tasks}) == 4
     with pytest.raises(ValueError, match="leakage"):
         episode_tasks(campaign="c", arm="x", bundle_id="b", endpoint=endpoints[0].endpoint,
-                      model_identity="m", norm_identity="n", layout_identity="l", partition="dev", indices=[0])
+                      model_identity="m", norm_identity="n", layout_identity="l", spec=FORMAL_SPEC, partition="dev", indices=[0])
     with pytest.raises(ValueError, match="compatible"):
         MetaWorldStrategy([replace(tasks[0], extra={**tasks[0].extra, "num_steps": 4})], endpoints=endpoints)
 
@@ -321,7 +324,7 @@ def test_descent_strategy_driver_barriers_skip_after_first_fail_and_resume(tmp_p
     for level in ("k2", "k1", "periodic"):
         group = episode_tasks(campaign="descent", arm=level, bundle_id=level, endpoint=endpoints[0].endpoint,
                     model_identity="m", norm_identity="n", layout_identity="l", num_steps=1 if level == "k1" else 2,
-                    partition="dev", names=names)
+                    spec=FORMAL_SPEC, partition="dev", names=names)
         episodes.extend(replace(t, extra={**t.extra, "descent_level": level}) for t in group)
     def make_driver():
         controller = PerTaskDescent(names, ["k2", "k1", "periodic"], refs)

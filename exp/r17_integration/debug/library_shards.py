@@ -23,7 +23,9 @@ class EpisodeShardSink:
         from .attempts import decision_intent
         decision_intent(self.factory.directory, self.core._episode)
         # Same strict validation/copy as the original local path.
-        holder = LibraryDecisionSink(None,{})
+        from .library_capture import camera_keys
+        holder = LibraryDecisionSink(None,{}, image_keys=camera_keys(self.core.spec.feature_spec.real_cameras),
+                                     capture_images=self.factory.capture_images)
         holder.bind_observation(observation)
         self.images = holder._images
         self.factory.budget.check()
@@ -44,7 +46,7 @@ class EpisodeShardSink:
             atomic_bytes(leaf/'manifest.json',json_bytes(dict(schema='r17.teacher_shard.v1',
                 campaign=self.factory.budget.campaign['run_name'],shard_id=shard_id,
                 episode_identity=list(identity))))
-            self.inner_factory = LibraryCaptureFactory(leaf)
+            self.inner_factory = LibraryCaptureFactory(leaf, capture_images=self.factory.capture_images)
             self.inner = self.inner_factory(self.core)
             self.shard_id = shard_id
             with self.factory.lock:
@@ -84,9 +86,10 @@ class EpisodeShardSink:
 
 
 class ShardedLibraryCaptureFactory:
-    def __init__(self,directory,budget):
+    def __init__(self,directory,budget, *, capture_images=True):
         from pathlib import Path
         self.directory,self.budget = Path(directory),budget
+        self.capture_images = capture_images
         self.active,self.stats,self.lock = {},[],threading.Lock()
 
     def __call__(self,core):

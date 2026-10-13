@@ -59,7 +59,7 @@ def freeze(provider, tmp_path, c, *, gated=False):
     return cfg, fitted
 
 
-@pytest.mark.parametrize('name',study.MODELS)
+@pytest.mark.parametrize('name',study.LIBERO_MODELS)
 def test_sealed_fit_real_layout_cache_corrector_and_tail(name,tmp_path):
     provider=fixture_model(name);c=16 if name=='cosmos_libero' else 10
     cfg,fitted=freeze(provider,tmp_path,c)
@@ -221,7 +221,7 @@ def test_cache_launcher_keeps_control_topology_and_driver(model,max_batch):
     assert args.replicas==2 and args.max_batch==max_batch
 
 
-@pytest.mark.parametrize('model',study.MODELS)
+@pytest.mark.parametrize('model',study.LIBERO_MODELS)
 def test_socket_all_eight_yaml_rebinds_without_model_reload(model,tmp_path,monkeypatch):
     from openpi.serving import websocket_policy_server as ws
     from exp.r17_integration.common.websocket_policy_server import WebsocketPolicyServer

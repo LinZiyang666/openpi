@@ -147,9 +147,9 @@ def test_batch_config_bounds(maximum, window):
         BatchConfig(maximum, window)
 
 
-def test_graph_worker_must_be_single_and_runtime_LIBERO_only(make_adapter, monkeypatch, tmp_path):
-    with pytest.raises(ValueError, match="LIBERO"):
-        create_runtime(make_adapter("metaworld"), 4, 5, tmp_path / "never.jsonl")
+def test_graph_worker_must_be_single_and_runtime_admits_metaworld(make_adapter, monkeypatch, tmp_path):
+    runtime = create_runtime(make_adapter("metaworld"), 4, 5, tmp_path / "mw.jsonl")
+    runtime.close()
     monkeypatch.setenv("BATCHING_STAGE3_WORKERS", "2")
     with pytest.raises(ValueError, match="one worker"):
         create_runtime(make_adapter("libero"), 4, 5, tmp_path / "never2.jsonl")

@@ -1,8 +1,8 @@
-"""B500 teacher campaign, using the stock formal resident/conductor launcher.
+"""Teacher libraries using the stock formal resident/conductor launcher.
 
 No GPUs are started without --run or --repair. --finish uses a closed receipt on
-CPU, useful when a fit job is run separately from collection. Two smoke
-episodes run the same collection/build path, without publishing a500 parent.
+CPU, useful when a fit job is run separately from collection. LIBERO smoke
+uses two episodes; MT50 smoke uses two tasks x two seed8 initial states.
 """
 from __future__ import annotations
 
@@ -19,11 +19,16 @@ from .library_alignment import ROOT, SUITES, load_alignment
 
 LIBRARY_ROOT = Path('/data/r17_library')
 AUDIT_ROOT = ROOT/'exp/r17_integration/ops/samples/libero_library_alignment'
-PORT_BASE = {'dp_libero':23320,'fastwam_libero':23340,'cosmos_libero':23360}
+PORT_BASE = {'dp_libero':23320,'fastwam_libero':23340,'cosmos_libero':23360,
+             'dp_mw':23180, 'fastwam_mw':23170, 'pi05_mw':23160, 'groot_mw':23160, 'cosmos_mw':23240}
 
 
 def teacher_tasks(campaign, benchmark, tasks):
     """B is a separate input pool; keep the sealed A-serving protocol/table."""
+    if benchmark.benchmark != 'libero':
+        return [replace(task, extra=dict(task.extra, partition='library', split='library',
+            seed=benchmark.library_seed, init_pool='seed8', trial=0, suite_task_id=task.task_id,
+            library_episode_id=task.task_id*50+task.orig_init_state_idx)) for task in tasks]
     audit = load_alignment(campaign['alignment'])
     if audit['suite'] != campaign['suite']:
         raise ValueError('B audit belongs to another suite')
@@ -144,7 +149,7 @@ def require_fastwam_g2(a_path, b_path, checkpoint, *, teacher_descriptor=None, t
                 coverage='Q G2 A native mechanics + G2 B framework mechanics; no quality claim')
 
 
-def disk_estimate(model, suite, *, wire_size=256, normalized_action_bytes=4, state_bytes=4):
+def disk_estimate(model, suite, *, wire_size=256, normalized_action_bytes=4, state_bytes=4, capture_images=True):
     """Uncompressed ceiling, including two received images for every decision."""
     import math
     fields,layout = model['feature_spec']['fields'],model['layout']
@@ -152,17 +157,18 @@ def disk_estimate(model, suite, *, wire_size=256, normalized_action_bytes=4, sta
     # its solver/physical inverse float64 dtype does not describe fit inputs.
     width = layout.get('model_action_width') or layout['valid_action_dim']
     keys = sum(fields.values())*4
-    images = 2*wire_size*wire_size*3
+    images = len(model['feature_spec']['real_cameras'])*wire_size*wire_size*3 if capture_images else 0
     fit = keys+(max(layout['valid_state_indices'])+1)*state_bytes+layout['horizon']*width*normalized_action_bytes
-    maximum = {'libero_spatial':220,'libero_10':520}[suite]
-    rows = 500*math.ceil(maximum/layout['replan_steps'])
+    maximum = {'libero_spatial':220,'libero_10':520,'mt50':160}[suite]
+    episodes = 2500 if suite == 'mt50' else 500
+    rows = episodes*math.ceil(maximum/layout['replan_steps'])
     return dict(schema='r17.teacher_disk_estimate.v1',bundle=model['model_id'],suite=suite,
         max_decisions=rows, bytes_per_decision=dict(keys=keys,images=images,state_actions=fit-keys),
         parent_ceiling_bytes=rows*(fit+images),
         collection_transfer_parent_ceiling_bytes=3*rows*(fit+images),
         excludes='small JSON/NPY headers and fitted arrays; allocator/filesystem overhead',
         assumptions=dict(normalized_action_bytes=normalized_action_bytes,state_bytes=state_bytes,wire_size=wire_size),
-        formula='500*ceil(max_episode_controls/native_replan); no image compression assumed')
+        formula=f'{episodes}*ceil(max_episode_controls/native_replan); no image compression assumed')
 
 
 def finish(campaign, directory):
@@ -196,6 +202,12 @@ def finish(campaign, directory):
         if manifests != campaign['repair_merge']['capture_manifests'] or manifests != provenance['captures']:
             raise ValueError('repair merged capture evidence changed')
     terminal, counts, histories, _ = outcomes(directory,tasks,observed)
+    task_data = {}
+    if campaign.get('domain', 'libero') != 'libero':
+        from exp.r17_integration.debug.reader_profiles import CaptureReader
+        for source in sources:
+            for row,_,_ in CaptureReader(source,expected_binding=binding,max_cached_blocks=2).decisions():
+                task_data[row['task_uid'],row['attempt']] = row['task_data_hash']
     episodes = []
     for task in tasks:
         row = terminal[task.task_uid]
@@ -203,25 +215,29 @@ def finish(campaign, directory):
             closed_ok=True,success=row['success'],error=None,n_decisions=counts.get((task.task_uid,row['attempt']),0))
         if histories[task.task_uid]:
             ep['prior_attempts'] = histories[task.task_uid]
+        if campaign.get('domain', 'libero') != 'libero':
+            ep['task_data_hash'] = task_data[task.task_uid,row['attempt']]
         episodes.append(ep)
     if not sources:
         raise ValueError('closed replica teacher capture missing')
     if bounded(campaign) and campaign.get('h100_staging') and (len(shards['shards'])!=len(tasks) or len(sources)!=len(tasks)):
         raise ValueError('teacher streamed shard/episode cohort is incomplete')
     destination = directory/'smoke_parent' if campaign['smoke'] else Path(campaign['library_parent'])
-    alignment = load_alignment(campaign['alignment'])
+    alignment = load_alignment(campaign['alignment']) if campaign.get('domain', 'libero') == 'libero' else None
+    capture_images = campaign.get('capture_images', True)
     parent = Store(destination,expected_binding=binding) if (destination/'READY.json').exists() else build_teacher_parent(
-        sources,destination,binding,episodes,alignment,expected_episodes=len(tasks))
-    if (parent.manifest['metadata']['alignment_digest'] != alignment['digest'] or
+        sources,destination,binding,episodes,alignment,expected_episodes=len(tasks),capture_images=capture_images)
+    if (parent.manifest['metadata']['alignment_digest'] != (alignment['digest'] if alignment else None) or
         parent.manifest['metadata']['episodes'] != episodes):
         raise ValueError('existing parent belongs to another aligned collection')
-    products = {} if campaign['smoke'] else fit_nested_libraries(parent,alignment,task_names=benchmark.ordered_tasks)
+    fit_options = {} if alignment else dict(sizes=campaign.get('subset_counts', [10,20,30,40,50]))
+    products = {} if campaign['smoke'] else fit_nested_libraries(parent,alignment,task_names=benchmark.ordered_tasks,**fit_options)
     knobs = {} if campaign['smoke'] else calibrate_teacher_knobs(parent,products,task_names=benchmark.ordered_tasks,
         cost_profile=campaign.get('ir_costs'),miss_sampler=campaign.get('miss_sampler'))
     result = dict(status='PASS',schema='r17.teacher_pipeline.v1',smoke=campaign['smoke'],
         parent=str(destination),parent_digest=parent.manifest['content_digest'],rows=len(parent.rows),
         episodes=len(episodes),failed_episodes=sum(not e['success'] for e in episodes),fits=products,
-        alignment_digest=alignment['digest'],official_A_fit_reads=0,actual_gpu_collection=not campaign.get('synthetic',False),
+        alignment_digest=alignment['digest'] if alignment else None,official_A_fit_reads=0,actual_gpu_collection=not campaign.get('synthetic',False),
         knob_products=knobs,knob_cost_qualification_pending=bool(knobs) and any(v['status']=='pending_cost_qualification' for v in knobs.values()))
     write_json(directory/'LIBRARY_PIPELINE.json',result)
     return result
@@ -230,7 +246,7 @@ def finish(campaign, directory):
 def parse_args(argv=None):
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--model',required=True,choices=tuple(PORT_BASE))
-    p.add_argument('--suite',required=True,choices=tuple(SUITES))
+    p.add_argument('--suite',required=True,choices=(*SUITES,'mt50'))
     p.add_argument('--checkpoint'); p.add_argument('--alignment',type=Path)
     p.add_argument('--g2-a-receipt',type=Path,help='Q slot_G2_fastwam_libero_A PASS receipt with model_manifest')
     p.add_argument('--g2-b-receipt',type=Path,help='Q slot_G2_fastwam_libero_B PASS receipt with model_manifest')
@@ -238,8 +254,16 @@ def parse_args(argv=None):
     p.add_argument('--ab-descriptor',type=Path,help='Descriptor for optional P3 loader-parity receipt')
     p.add_argument('--ir-costs',type=Path,help='Measured r17.ir_costs.v1; no π/GR cost reuse')
     p.add_argument('--miss-sampler',type=Path,help='Sealed native SamplerSpec for the cost profile; teacher grid by default')
-    p.add_argument('--server-node',choices=('local','h100')); p.add_argument('--worker-node',choices=('timan107','timan108'))
+    p.add_argument('--server-node',choices=('local','h100')); p.add_argument('--worker-node',choices=('timan107','timan108','timan1'))
+    from .local_workers import counts
+    p.add_argument('--worker-counts',type=counts,help='Per-node counts, e.g. timan107=24,timan1=40')
+    p.add_argument('--capture-images',action=argparse.BooleanOptionalAction,default=None)
+    p.add_argument('--subset-counts',type=lambda s:[int(v) for v in s.split(',')],default=[10,20,30,40,50],
+                   help='MT50 nested episodes per task, default10,20,30,40,50')
     p.add_argument('--replicas',type=int); p.add_argument('--workers',type=int,default=24)
+    p.add_argument('--max-batch',type=int,default=1)
+    p.add_argument('--batch-wait-ms',type=float,default=5)
+    p.add_argument('--mps',action='store_true')
     p.add_argument('--memory-budget-gib',type=float); p.add_argument('--gpu',default='cuda:0')
     p.add_argument('--worker-egl-device',type=int,default=0)
     p.add_argument('--worker-min-free-gib',type=float,default=8,
@@ -256,13 +280,29 @@ def parse_args(argv=None):
     if not 0 < a.worker_min_free_gib < 1024:
         p.error('--worker-min-free-gib must be positive and below1024')
     a.server_node = a.server_node or ('local' if a.model=='dp_libero' else 'h100')
-    a.worker_node = a.worker_node or ('timan107' if a.model=='dp_libero' else 'timan108')
-    a.replicas = a.replicas if a.replicas is not None else (2 if a.smoke and a.model=='dp_libero' else 12 if a.model=='dp_libero' else 1)
+    mw = a.model.endswith('_mw')
+    from exp.r17_integration.models.dp.batch_runtime import BatchConfig
+    BatchConfig(a.max_batch,a.batch_wait_ms)
+    if a.max_batch>1 and (not mw or a.model not in ('dp_mw','fastwam_mw')):
+        p.error('library batching supports DP/Fast-WAM MT50')
+    if mw != (a.suite == 'mt50'): p.error('MetaWorld models require --suite mt50; LIBERO models require a LIBERO suite')
+    a.capture_images = not mw if a.capture_images is None else a.capture_images
+    a.worker_node = a.worker_node or ('timan107' if mw or a.model=='dp_libero' else 'timan108')
+    a.worker_counts = a.worker_counts or {a.worker_node:a.workers}
+    a.workers = sum(a.worker_counts.values())
+    if 'local' in a.worker_counts: p.error('library simulators require remote worker nodes')
+    if 'timan1' in a.worker_counts and (not mw or a.worker_counts['timan1']>40):
+        p.error('timan1 MetaWorld workers require GPU3 only, maximum40')
+    if sorted(set(a.subset_counts)) != a.subset_counts or any(n<1 or n>50 for n in a.subset_counts):
+        p.error('nested per-task counts must be distinct increasing values in1..50')
+    a.replicas = a.replicas if a.replicas is not None else (1 if mw else 2 if a.smoke and a.model=='dp_libero' else 12 if a.model=='dp_libero' else 1)
     a.port = a.port if a.port is not None else PORT_BASE[a.model]
-    a.driver_port = a.driver_port if a.driver_port is not None else PORT_BASE[a.model]+19
+    a.driver_port = a.driver_port if a.driver_port is not None else (23112 if a.model=='cosmos_mw' else PORT_BASE[a.model]+9 if mw else PORT_BASE[a.model]+19)
     ports = [a.port,*range(a.port+1,a.port+1+a.replicas),a.driver_port]
-    if a.replicas<1 or a.workers<1 or len(set(ports))!=len(ports) or any(p not in range(PORT_BASE[a.model],PORT_BASE[a.model]+20) for p in ports):
-        p.error('positive workers/replicas and distinct dedicated233xx library ports required')
+    service_ports = ports[:-1] if mw else ports
+    if a.replicas<1 or a.workers<1 or len(set(ports))!=len(ports) or any(p not in range(PORT_BASE[a.model],PORT_BASE[a.model]+(10 if mw else 20)) for p in service_ports):
+        p.error('positive workers/replicas and distinct ports in the model window required')
+    if mw and a.driver_port not in range(23100,23200): p.error('driver port must lie in23100..23199')
     a.seconds = a.seconds or (900 if a.smoke else 172800)
     a.episode_seconds = a.episode_seconds or (min(600,a.seconds) if a.smoke else 3600)
     if not 60<=a.seconds<=172800 or not 30<=a.episode_seconds<=a.seconds or a.smoke and a.seconds>900:
@@ -284,7 +324,7 @@ def main(argv=None):
         from .tether_retry import retry_scope
         with retry_scope(a.salvage/'salvage'):
             print(json.dumps(salvage(a.salvage,model=a.model.rsplit('_',1)[0],suite=a.suite,
-                remote=formal.remote,pull=lambda path,target:formal.transfer(['tether','pull','h100:'+path,str(target)]))))
+                remote=formal.remote,pull=lambda path,target:formal.transfer(['rsync','pull','h100:'+path,str(target)]))))
         return 0
     if a.finish:
         campaign = json.loads((a.finish/'campaign.json').read_text())
@@ -307,9 +347,14 @@ def main(argv=None):
     checkpoint = repair[0]['checkpoint'] if repair else a.checkpoint or formal.DEFAULT_CHECKPOINTS[a.model]
     if a.model=='fastwam_libero':
         require_fastwam_g2(a.g2_a_receipt,a.g2_b_receipt,checkpoint)
+    mw = a.suite == 'mt50'
     alignment = a.alignment or AUDIT_ROOT/(a.suite+'.json')
-    audit = repair[1] if repair else load_alignment(alignment)
-    name = a.run_name or ('teacher_'+a.model+'_'+a.suite+('_repair_' if repair else '_smoke2_' if a.smoke else '_500_')+time.strftime('%Y%m%d_%H%M%S')+'_'+uuid.uuid4().hex[:8])
+    audit = None if mw else repair[1] if repair else load_alignment(alignment)
+    name = a.run_name or ('teacher_'+a.model+'_'+a.suite+('_repair_' if repair else
+        ('_smoke4_' if mw else '_smoke2_') if a.smoke else ('_2500_' if mw else '_500_'))+
+        time.strftime('%Y%m%d_%H%M%S')+'_'+uuid.uuid4().hex[:8])
+    if a.mps and a.run_name is None:
+        name = 't_'+a.model.rsplit('_',1)[0]+'_'+time.strftime('%H%M%S')+'_'+uuid.uuid4().hex[:6]
     if not name or len(name)>150 or any(c not in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-' for c in name):
         raise ValueError('unique plain campaign identifier required')
     home = LIBRARY_ROOT/(a.model+'_'+a.suite)
@@ -317,16 +362,19 @@ def main(argv=None):
         raise ValueError('B500 parent already exists; use --finish for a closed collection')
     directory = home/'campaigns'/name
     directory.mkdir(parents=True,exist_ok=False)
-    write_json(directory/'ALIGNMENT.json',audit)
+    if audit is not None:
+        write_json(directory/'ALIGNMENT.json',audit)
     # Both small B pools avoid the stock LIBERO import/probe selecting A for
     # global task0 during a libero_10-only campaign. Only selected suite is run.
-    audits = [audit if suite==a.suite else load_alignment(AUDIT_ROOT/(suite+'.json')) for suite in SUITES]
+    audits = [] if mw else [audit if suite==a.suite else load_alignment(AUDIT_ROOT/(suite+'.json')) for suite in SUITES]
     if repair:
         import shutil
         shutil.copy2(repair[0]['bpool_archive'],directory/'bpool_inputs.tar')
         init = repair[0]['bpool_transfer']
-    else:
+    elif not mw:
         init = build_init_archive(audits,directory/'bpool_inputs.tar')
+    else:
+        init = None
     model = a.model.rsplit('_',1)[0]
     host = 'ziyanglin.com' if a.server_node=='local' else '149.165.153.233'
     campaign = dict(library=True,library_intent_fence='r17.library_input_intent.v1',suite=a.suite,alignment=str(directory/'ALIGNMENT.json'),
@@ -335,17 +383,24 @@ def main(argv=None):
         ab_descriptor=str(a.ab_descriptor) if a.ab_descriptor else None,
         g2_a_receipt=str(a.g2_a_receipt) if a.g2_a_receipt else None,
         g2_b_receipt=str(a.g2_b_receipt) if a.g2_b_receipt else None,
-        run_name=name,model=model,domain='libero',checkpoint=checkpoint,
-        device=a.gpu,server_node=a.server_node,worker_nodes={a.worker_node:a.workers},workers=a.workers,
+        run_name=name,model=model,domain='metaworld' if mw else 'libero',checkpoint=checkpoint,
+        device=a.gpu,server_node=a.server_node,worker_nodes=a.worker_counts,workers=a.workers,
+        capture_images=a.capture_images,subset_counts=a.subset_counts,prepare_only=a.prepare_only,
         worker_egl_device=a.worker_egl_device,replicas=a.replicas,public_port=a.port,
         worker_min_free_gib=a.worker_min_free_gib,
         backend_ports=list(range(a.port+1,a.port+1+a.replicas)),ports=[a.port,*range(a.port+1,a.port+1+a.replicas),a.driver_port],
         driver_host='ziyanglin.com',driver_port=a.driver_port,endpoint_host=host,endpoint=host+':'+str(a.port),
-        official_50=False,smoke=a.smoke,smoke_episodes=2,native_parity_only=False,
+        official_50=False,smoke=a.smoke,smoke_episodes=4 if mw else 2,native_parity_only=False,
         seconds=a.seconds,episode_seconds=a.episode_seconds,retries=2,
-        memory_budget_gib=a.memory_budget_gib or (14 if model=='dp' else 36 if model=='fastwam' else 10),
+        memory_budget_gib=a.memory_budget_gib or (4 if mw and model=='dp' else 20 if model in ('pi05','groot') else 14 if model=='dp' else 36 if model=='fastwam' else 10),
         local_assets=str(directory/'assets'),assets=str(directory/'assets'),server_run=str(directory/'servers'),
         runtime=str(ROOT),vendor='/data/cosmos/cosmos-policy' if a.server_node=='h100' else '/home/weiland/projects/openpi_ext/lines/cosmos-policy',live_k=4)
+    if mw:
+        for key in ('alignment','bpool_archive','bpool_transfer'):
+            campaign.pop(key)
+        campaign.update(worker_memory_mib=2048,worker_vram_mib=1024,worker_max_episodes=0)
+        if model == 'groot':
+            campaign['vendor'] = '/home/weiland/projects/openpi_ext/third_party/gr00t_n15'
     if repair:
         original,_,pin = repair
         if a.smoke or a.server_node != original['server_node']:
@@ -363,6 +418,14 @@ def main(argv=None):
     # Direct endpoints only (formal.open_tunnels never exposes through the broker).
     formal.open_tunnels(campaign,directory)
     campaign['backend_host'] = '127.0.0.1' if a.server_node=='local' else formal.H100_HOST
+    if a.model=='dp_mw':
+        from exp.r17_integration.models.dp.batch_runtime import BatchConfig
+        campaign['dp_batching'] = BatchConfig(a.max_batch,a.batch_wait_ms).metadata()
+    elif a.model=='fastwam_mw':
+        from exp.r17_integration.models.fastwam.formal_batching import bind
+        bind(campaign,a.max_batch,a.batch_wait_ms)
+    from exp.r17_integration.models.fastwam.ops.mps import bind
+    bind(campaign,a.mps)
     deployment = formal.prepare(campaign,directory)
     if a.prepare_only:
         print(json.dumps(dict(status='PASS',cpu_only=True,run=str(directory)))); return 0

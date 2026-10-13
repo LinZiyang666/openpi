@@ -5,14 +5,23 @@ import numpy as np
 import pytest
 import yaml
 
-from exp.r17_integration.conductor.manifest import EndpointSpec, episode_tasks
+from exp.r17_integration.conductor.manifest import EndpointSpec, episode_tasks as _episode_tasks
 from exp.r17_integration.conductor.strategy import MetaWorldStrategy, PerTaskDescent, MetaWorldDescentStrategy
 from exp.r17_integration.conductor.driver import MetaWorldConductorDriver
-from exp.r17_integration.benchmarks.metaworld import FORMAL_SPEC, R17MetaWorldEpisodeRunner
+from exp.r17_integration.benchmarks.metaworld import FORMAL_SPEC as MT50_SPEC
+
+# Synthetic configurable dev partition; production dev remains undecided.
+FORMAL_SPEC = replace(MT50_SPEC, dev_seed=101, dev_indices=tuple(range(30, 50)))
+from exp.r17_integration.benchmarks.metaworld import R17MetaWorldEpisodeRunner
 from exp.r17_integration.tests.benchmarks.test_metaworld import Env, Client, task
 from exp.r17_integration.tests.benchmarks.test_libero import spec as libero_spec
 from openpi.conductor.task import EpisodeResult, ServerEndpoint
 from openpi.conductor.protocol import result_to_wire, task_from_wire
+
+
+def episode_tasks(**kwargs):
+    kwargs.setdefault('spec', FORMAL_SPEC)
+    return _episode_tasks(**kwargs)
 
 
 def test_config_identity_prevents_queueing_same_geometry_different_recipe(tmp_path):
@@ -71,7 +80,7 @@ def test_descent_terminal_error_finishes_with_diagnostic_freeze_and_resume(tmp_p
         for level in controller.levels:
             group = episode_tasks(campaign='c', arm=level, bundle_id=level, endpoint=endpoint.endpoint,
                                   model_identity='m', norm_identity='n', layout_identity='l', num_steps=2,
-                                  partition='dev', names=['reach-v3'], indices=[30, 31])
+                                  spec=FORMAL_SPEC, partition='dev', names=['reach-v3'], indices=[30, 31])
             episodes.extend(replace(t, extra={**t.extra, 'descent_level': level}) for t in group)
         strategy = MetaWorldDescentStrategy(episodes, endpoints=[endpoint], controller=controller)
         driver = MetaWorldConductorDriver(strategy, dispatch_path=tmp_path/'dispatch.jsonl',

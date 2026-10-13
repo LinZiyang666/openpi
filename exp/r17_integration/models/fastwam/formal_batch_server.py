@@ -1,6 +1,6 @@
 """Local/H100 batched resident entry; P1 factory/S07, P6 loader/receipts.
 
-Pure-inference Fast-WAM LIBERO only. Library campaigns use the P6-owned entry.
+Fast-WAM LIBERO/MT50 inference, cache bundles and opt-in library capture.
 """
 from __future__ import annotations
 
@@ -20,7 +20,8 @@ def cache_text(adapter,campaign):
     Frees ~11 GB so two replicas fit on the 48 GB 4090 (dev lane only).
     """
     import torch
-    names=json.loads((Path(campaign['assets'])/'benchmark.json').read_text())['ordered_tasks']
+    benchmark=json.loads((Path(campaign['assets'])/'benchmark.json').read_text())
+    names=benchmark['ordered_tasks']
     def language(name):  # libero.benchmark.grab_language_from_filename
         task=name.split('/',1)[1]
         if task[0].isupper():
@@ -28,7 +29,10 @@ def cache_text(adapter,campaign):
         return ' '.join(task.split('_'))
     model=adapter.model
     # Same string the wire policy sends to T5 (prompt_template wraps the task language).
-    prompts=sorted({adapter.wire.prompt_template.format(task=language(n)) for n in names if n.split('/')[0] in campaign['suites']})
+    if campaign.get('domain')=='metaworld':
+        prompts=sorted({adapter.wire.prompt_template.format(task=row[1]) for row in benchmark['tasks']})
+    else:
+        prompts=sorted({adapter.wire.prompt_template.format(task=language(n)) for n in names if n.split('/')[0] in campaign['suites']})
     with torch.inference_mode():
         table={p:model.encode_prompt([p]) for p in prompts}
     model.text_encoder.to('cpu')
@@ -41,8 +45,8 @@ def cache_text(adapter,campaign):
 
 
 def serve(campaign,port,directory):
-    if campaign['model']!='fastwam' or campaign['domain']!='libero' or campaign.get('library'):
-        raise ValueError('batched resident supports pure-inference fastwam_libero only')
+    if campaign['model']!='fastwam' or campaign['domain'] not in ('libero','metaworld'):
+        raise ValueError('batched resident supports Fast-WAM LIBERO or MetaWorld')
     config_doc=campaign.get('fastwam_batching')
     if not config_doc or config_doc['max_batch']<=1:
         pass
@@ -89,22 +93,32 @@ def serve(campaign,port,directory):
         from .formal_qualification import qualify
         qualification=qualify(adapter,campaign,directory)
     runtime=create_runtime(adapter,config.max_batch,config.batch_wait_ms,directory/'batching.jsonl')
+    captures=None
     try:
         provider=original_provider
         cache_config=load_cache_config(Path(campaign['assets'])/'full.yaml')
         if cache_config.enabled or cache_config.checkpoints or cache_config.recipe.enabled:
             raise ValueError('formal batch campaign requires cache/checkpoints/recipe disabled')
         storage=build_shared_storage(cache_config)
+        capture_kwargs={}
+        if campaign.get('library'):
+            from exp.r17_integration.debug.library_capture import campaign_capture_factory
+            from exp.r17_integration.common.contracts import CaptureSpec
+            captures=campaign_capture_factory(campaign,directory/'capture')
+            capture_kwargs=dict(capture_sink_factory=captures,
+                                capture_spec=CaptureSpec(enabled=True,snapshots=False))
         # Preserve the sealed provider/YAML identity for worker hot-switches.
         # The existing factory accepts a connection-local adapter constructor.
         base=runtime.wrap_connection_factory(make_connection_factory(provider,cache_config,storage,
-            adapter_factory=lambda:FastWAMBatchedAdapter(provider.load_adapter(),runtime.core)))
+            adapter_factory=lambda:FastWAMBatchedAdapter(provider.load_adapter(),runtime.core), **capture_kwargs))
         evidence_lock=threading.Lock()
         def factory(*args,**kwargs):
             core=base(*args,**kwargs)
             original=core.infer
             def infer(obs):
                 begin=time.monotonic()
+                if captures is not None:
+                    core.capture_sink.bind_observation(obs)
                 result=original(obs)
                 elapsed=time.monotonic()-begin
                 hit=result['__hit_meta__']
@@ -131,6 +145,9 @@ def serve(campaign,port,directory):
             metadata['batching_self_check'] = qualification
         if cached_prompts:
             metadata['text_cache']=dict(prompts=cached_prompts,text_encoder_device='cpu')
+        if captures is not None:
+            metadata.update(formal_pure_inference=False,library_teacher=True,debug_capture=True,
+                            capture_profile='B-full-native-library-allowlist; received_wire_uint8')
         server=WebsocketPolicyServer(factory(),host='0.0.0.0',port=port,metadata=metadata,concurrent=True,
             connection_policy_factory=factory,bundle_validator=make_bundle_validator(provider),
             ready_callback=lambda:write_json(directory/'ready.json',dict(metadata,pid=os.getpid(),
@@ -139,6 +156,8 @@ def serve(campaign,port,directory):
         server.serve_forever(stop_on_request=True)
     finally:
         runtime.close()
+        if captures is not None:
+            write_json(directory/'CAPTURE_CLOSED.json',captures.close())
         write_json(directory/'closed.json',dict(status='CLOSED',pid=os.getpid(),
             elapsed_seconds=time.monotonic()-started,peak_allocated_mib=torch.cuda.max_memory_allocated()/2**20,
             peak_reserved_mib=torch.cuda.max_memory_reserved()/2**20,batching=config.metadata()))

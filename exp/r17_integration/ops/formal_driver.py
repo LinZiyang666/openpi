@@ -15,7 +15,7 @@ from .formal_process import write_json
 
 def probe_validator(benchmark, campaign=None):
     from exp.r17_integration.conductor.manifest import validate_worker_probe
-    if campaign and campaign.get('library'):
+    if campaign and campaign.get('library') and campaign.get('domain') == 'libero':
         from .library_campaign import validate_b_probe
         def validate(probe):
             validate_worker_probe(probe, spec=benchmark)
@@ -71,15 +71,16 @@ def plan(campaign):
     if campaign['smoke'] and campaign['domain'] == 'libero':
         names = names[:campaign.get('smoke_episodes', 4)]
     if campaign.get('library'):
-        names = [r[0] for r in benchmark.tasks if r[2]==campaign['suite']]
+        names = [r[0] for r in benchmark.tasks if campaign['domain'] != 'libero' or r[2]==campaign['suite']]
         # Local B-pool shim: indices partition distinct from official A table.
-        indices = [0] if campaign['smoke'] else list(range(50))
+        indices = ([0] if campaign['domain'] == 'libero' else [0, 1]) if campaign['smoke'] else list(range(50))
         if campaign['smoke']:
             names = names[:2]
     tasks = episode_tasks(campaign=campaign.get('semantic_campaign', campaign['run_name']), arm='full', bundle_id='formal_full_v1',
         endpoint=endpoint, model_identity=model['checkpoint_identity'], norm_identity=model['norm_identity'],
         layout_identity=digest(model['layout']), num_steps=k,
-        spec=benchmark, partition='smoke' if campaign['smoke'] or campaign.get('library') else 'test', names=names, indices=indices,
+        spec=benchmark, partition=('library' if campaign.get('library') and campaign['domain'] != 'libero'
+            else 'smoke' if campaign['smoke'] or campaign.get('library') else 'test'), names=names, indices=indices,
         yaml_identity=hashlib.sha256((assets / 'full.yaml').read_bytes()).hexdigest(),
         bundle_generation='formal_full_v1', commit_horizon=commit)
     suites = selected_suites(campaign)

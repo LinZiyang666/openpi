@@ -145,13 +145,13 @@ def clone(snapshot, name, failure, *, refresh_cache_workers=False,worker_counts=
         bundle = snapshot_run(str(directory/'assets'),str(archive))
         stage = '/tmp/r17_formal/'+name+'/server'
         launch.remote('h100',['mkdir','-p',stage],replay_safe=True)
-        launch.transfer(['tether','push',str(archive),'h100:'+stage+'/startup_assets.tar'])
+        launch.transfer(['rsync','push',str(archive),'h100:'+stage+'/startup_assets.tar'])
         code = ('from exp.r17_integration.ops.sync_back import install_snapshot; '
                 'install_snapshot('+repr(stage+'/startup_assets.tar')+','+repr(campaign['assets'])+
                 ',expected_sha256='+repr(bundle['archive_sha256'])+')')
         launch.remote('h100',['env','PYTHONPATH='+launch.pythonpath(campaign['runtime']),
             launch.host_python(campaign),'-c',code])
-        launch.transfer(['tether','push',str(directory/'campaign.json'),'h100:'+campaign['server_campaign']])
+        launch.transfer(['rsync','push',str(directory/'campaign.json'),'h100:'+campaign['server_campaign']])
     if refresh_cache_workers:
         if not campaign.get('cache_study') or not campaign.get('cache_control'):
             pass

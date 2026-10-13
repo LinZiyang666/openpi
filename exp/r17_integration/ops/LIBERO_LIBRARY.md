@@ -195,3 +195,16 @@ An interrupted fit directory is preserved; move that exact partial aside before
 retrying. Add `--ir-costs /path/to/measured_profile.json --miss-sampler
 /path/to/sealed_sampler.json` to finish later knob qualification on CPU.
 Published READY arrays and existing conflicting data are never overwritten.
+
+## MT50 extension (2026-10-12)
+
+`library_campaign.sh --model {dp_mw,fastwam_mw,pi05_mw,groot_mw} --suite mt50`
+uses the same formal teacher and H100 shard path, with seed8/init0..49 across
+50 tasks (2,500 episodes; smoke2 tasks x2 initial states). Images default off;
+LIBERO alignment and B-pool transport are skipped. Parent directories are
+`/data/r17_library/<model>_mt50/bpool/`; subset `size_N` means N episodes per
+task, default10/20/30/40/50. The shared fits support all50 tasks.
+
+All launcher file transfers now use direct rsync with `--bwlimit=16384`.
+Reserve weilandserver port23118 in the GPU-share ledger; tether is exec-only.
+Commands and renderer comparison are in [HANDBACK_MW_A.md](../handbacks/HANDBACK_MW_A.md).

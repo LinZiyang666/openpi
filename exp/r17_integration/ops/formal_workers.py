@@ -70,14 +70,14 @@ def worker_command(campaign, index, python=sys.executable):
             argv += ['--cache-study']
     elif campaign.get('cache_study'):
         argv[argv.index('-m')+1] = 'exp.r17_integration.ops.cache_study_worker'
-    if campaign.get('library') or campaign.get('cache_study') and campaign.get('eval_pool')=='B':
+    if campaign.get('domain') == 'libero' and (campaign.get('library') or campaign.get('cache_study') and campaign.get('eval_pool')=='B'):
         argv += ['--init-states-dir',campaign['worker_init_states_dir']]
     if campaign.get('worker_node') == 'local':
         argv[argv.index('-m')+1] = 'exp.r17_integration.ops.local_worker_entry'
     if campaign.get('worker_node') == 'timan1':
-        from .timan1_workers import WRAPPER,route
+        from .timan1_workers import wrapper,route
         route(dict(campaign),campaign)
-        argv[0]=WRAPPER
+        argv[0]=wrapper(campaign)
         argv[argv.index('-m')+1]='exp.r17_integration.ops.timan1_workers'
     return worker_id, argv
 

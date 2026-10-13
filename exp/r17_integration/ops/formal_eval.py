@@ -35,6 +35,7 @@ DEFAULT_CHECKPOINTS = {
     'groot_mw': '/data/mw_finetune/groot/4090_mt50/checkpoint-60000',
     'pi05_mw': '/data/ckpt/pi05_metaworld_rlinf',
     'cosmos_libero': '/data/mw_finetune/models/cosmos_libero',
+    'cosmos_mw': '/data/mw_finetune/models/cosmos_mw',
 }
 
 
@@ -96,19 +97,8 @@ def remote(node, argv, seconds=60, *, replay_safe=False):
 
 
 def transfer(argv, *, heartbeat=lambda: None):
-    if argv[:2] in (['tether','push'], ['tether','pull']):
-        address = str(argv[3] if argv[1] == 'push' else argv[2])
-        if address.startswith('local:'):
-            from .local_workers import copy
-            heartbeat()
-            return copy(argv[2],address[6:]) if argv[1] == 'push' else copy(address[6:],argv[3])
-    from .deploy import tether_transfer
-    if argv[:2] == ['tether', 'pull']:
-        from .evidence_transfer import pull
-        node, source = str(argv[2]).split(':', 1)
-        return pull(node, source, argv[3], remote=remote, heartbeat=heartbeat,
-                    transfer=lambda command: tether_transfer(command, lane='tether', retry_seconds=RETRY_SECONDS))
-    return tether_transfer([*argv, '--timeout', '60s'], lane='tether', retry_seconds=RETRY_SECONDS)
+    from .direct_transfer import transfer as rsync_transfer
+    return rsync_transfer(argv,remote=remote,execute=execute,heartbeat=heartbeat)
 
 
 # ziyanglin.com forwards TCP 23100-23199 1:1 to weilandserver; h100 has a public IP.
@@ -169,10 +159,13 @@ def execution_horizon(campaign, layout):
     requested = campaign.get('commit_horizon')
     if requested is None:
         return layout['replan_steps']
-    if campaign.get('domain') != 'libero' or campaign.get('model') not in ('dp', 'fastwam', 'cosmos') or campaign.get('library'):
-        raise ValueError('commit-horizon study supports plain DP/Fast-WAM/Cosmos LIBERO only')
+    supported = {'libero': ('dp', 'fastwam', 'cosmos'), 'metaworld': ('dp', 'fastwam', 'pi05', 'groot')}
+    if campaign.get('model') not in supported.get(campaign.get('domain'), ()) or campaign.get('library'):
+        raise ValueError('commit-horizon study requires a supported plain model')
     if type(requested) is not int or not layout['replan_steps'] <= requested <= layout['horizon']:
         raise ValueError('commit-horizon must be within native replan and predicted chunk length')
+    if campaign.get('domain') == 'metaworld' and requested % layout['replan_steps']:
+        raise ValueError('MetaWorld commit must be divisible by native replan steps')
     return requested
 
 
@@ -182,9 +175,11 @@ def execution_steps(campaign, default_steps):
     if requested is None:
         return default_steps
     choices = {'dp': (5, 10, 100), 'fastwam': (1, 2, 10), 'cosmos': (1, 2, 3, 5)}
-    if (campaign.get('domain') != 'libero' or campaign.get('library') or
+    if campaign.get('domain') == 'metaworld':
+        choices = {'dp': (5, 10, 100), 'fastwam': (1, 2, 10), 'pi05': (1, 2, 10), 'groot': (1, 2, 4)}
+    if (campaign.get('domain') not in ('libero', 'metaworld') or campaign.get('library') or
         type(requested) is not int or requested not in choices.get(campaign.get('model'), ())):
-        raise ValueError('plain LIBERO steps: DP 5/10/100, Fast-WAM 1/2/10, Cosmos 1/2/3/5 (native K2 is NFE1)')
+        raise ValueError('plain steps: DP 5/10/100, Fast-WAM 1/2/10, MW pi05 1/2/10, MW GR00T 1/2/4, LIBERO Cosmos 1/2/3/5 (native K2 is NFE1)')
     if campaign.get('commit_horizon') is not None or campaign.get('native_parity_only'):
         raise ValueError('plain step study cannot combine horizon or parity-only overrides')
     return requested
@@ -347,7 +342,7 @@ def worker_paths(campaign, node):
     if node == 'local':
         from .local_workers import ROOT as local_root
         root = str(local_root)
-    return dict(stage='/tmp/r17_formal/'+name+'/'+node,
+    return dict(stage=(root+'/stage/' if node == 'timan1' else '/tmp/r17_formal/')+name+'/'+node,
         private=root+'/campaigns/'+name+'/'+node,
         run=root+'/runs/'+name+'_'+node)
 
@@ -380,7 +375,7 @@ def prepare_workers(campaign, directory, *, payload_override=None):
         names.append('exp/r17_integration/ops/timan1_workers.py')
     if campaign.get('domain') == 'libero' or not execution_nodes:
         names += ['exp/r17_integration/qualification/specs/libero_original_assets.json']
-    if campaign.get('library') or campaign.get('cache_study') and campaign.get('eval_pool')=='B':
+    if campaign.get('domain') == 'libero' and (campaign.get('library') or campaign.get('cache_study') and campaign.get('eval_pool')=='B'):
         names += ['exp/r17_integration/ops/library_init.py']
     if payload_override is not None:
         from .build_client_bundle import verified_members
@@ -432,6 +427,10 @@ def prepare_workers(campaign, directory, *, payload_override=None):
         dependency = install_worker_dependencies(node, node_root+'/dependencies', destination,
             **(dict(inherited=inherited_deployment[node]) if node in inherited_deployment else {})) if campaign['domain'] == 'libero' else None
         worker_python = '/scratch/zixuans8/openpi/.venv/bin/python' if campaign['domain'] == 'libero' else '/scratch/zixuans8/mw_r17/envs/sim/bin/python'
+        if campaign['domain'] == 'metaworld':
+            remote(node, ['env','PYTHONPATH='+pythonpath(destination),worker_python,'-c',
+                'from exp.r17_integration.ops.worker_installs import prepare_metaworld; '
+                'prepare_metaworld(timan1='+repr(node == 'timan1')+')'], replay_safe=True)
         if node == 'local':
             from .local_workers import environment
             worker_python = environment()
@@ -456,9 +455,9 @@ def prepare_workers(campaign, directory, *, payload_override=None):
             env['TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD'] = '1'
         probe_python=worker_python
         if node == 'timan1':
-            from .timan1_workers import environment,WRAPPER
+            from .timan1_workers import environment,wrapper
             env=environment(env)
-            probe_python=WRAPPER
+            probe_python=wrapper(campaign)
         probe = json.loads(remote(node, ['env', *[k+'='+v for k,v in env.items()], 'CUDA_VISIBLE_DEVICES=',
             probe_python, '-m', 'exp.r17_integration.conductor.worker_entry', '--worker-id', 'import',
             '--server-key', 'unused:1', '--driver-host', 'unused', '--driver-port', '1', '--import-probe']))
@@ -470,7 +469,7 @@ def prepare_workers(campaign, directory, *, payload_override=None):
                 'pools={s:[len(benchmark.get_benchmark_dict()[s]().get_task_init_states(i)) for i in range(10)] for s in suites}; '
                 'assert all(n>=50 for counts in pools.values() for n in counts); print(pools)'],replay_safe=True)
             if campaign.get('resume_from'):
-                transfer(['tether', 'push', str(Path(campaign['local_assets'])/'benchmark.json'), node+':'+stage+'/benchmark.json'])
+                transfer(['rsync','push', str(Path(campaign['local_assets'])/'benchmark.json'), node+':'+stage+'/benchmark.json'])
                 resume_probe = json.loads(remote(node, ['env', *[k+'='+v for k,v in env.items()],
                     'CUDA_VISIBLE_DEVICES=', probe_python, '-c',
                     'from exp.r17_integration.ops.formal_resume import cpu_probe; import json,sys,contextlib\n'
@@ -481,7 +480,7 @@ def prepare_workers(campaign, directory, *, payload_override=None):
                 write_json(directory/(node+'_RESUME_PROBE.json'), resume_probe)
         else:
             validation = remote(node, ['env', *[k+'='+v for k,v in env.items()], 'CUDA_VISIBLE_DEVICES=',
-                worker_python, '-c', 'from exp.r17_integration.benchmarks.metaworld import MetaWorldBenchmarkAdapter; '
+                probe_python, '-c', 'from exp.r17_integration.benchmarks.metaworld import MetaWorldBenchmarkAdapter; '
                 'from exp.r17_integration.conductor.manifest import validate_worker_probe; '
                 'p=MetaWorldBenchmarkAdapter().worker_probe(); validate_worker_probe(p,require_renderer=False,require_task_data=False); print(p)'],replay_safe=True)
         worker = dict(campaign, worker_node=node, node_workers=count,
@@ -522,9 +521,9 @@ def prepare_workers(campaign, directory, *, payload_override=None):
             write_json(directory/(node+'_GPU_ADMISSION.json'),gpu)
             if not gpu['admitted'] and not deferred:
                 pass
-        if campaign.get('library') or campaign.get('cache_study') and campaign.get('eval_pool')=='B':
+        if campaign.get('domain') == 'libero' and (campaign.get('library') or campaign.get('cache_study') and campaign.get('eval_pool')=='B'):
             init_digest = campaign['bpool_transfer']['archive_sha256']
-            transfer(['tether','push',campaign['bpool_archive'],node+':'+stage+'/bpool_inputs.tar'])
+            transfer(['rsync','push',campaign['bpool_archive'],node+':'+stage+'/bpool_inputs.tar'])
             code = ('from exp.r17_integration.ops.library_init import install_init_archive; import json; '
                 'print(json.dumps(install_init_archive('+repr(stage+'/bpool_inputs.tar')+','+
                 repr(paths['private']+'/bpool_'+init_digest)+','+repr(init_digest)+')))')
@@ -543,9 +542,9 @@ def prepare_workers(campaign, directory, *, payload_override=None):
             write_json(directory/(node+'.json'),worker)
             live_config=stage_json(node,worker,directory,stage,remote=remote,transfer=transfer,python=worker_python)
         else:
-            transfer(['tether', 'push', str(directory / (node+'.json')), node+':'+stage+'/campaign.json',*capacity_transfer_options])
+            transfer(['rsync','push', str(directory / (node+'.json')), node+':'+stage+'/campaign.json',*capacity_transfer_options])
         if live_config is None and not (dependency and campaign.get('resume_from')):
-            transfer(['tether', 'push', str(Path(campaign['local_assets']) / 'benchmark.json'), node+':'+stage+'/benchmark.json',*capacity_transfer_options])
+            transfer(['rsync','push', str(Path(campaign['local_assets']) / 'benchmark.json'), node+':'+stage+'/benchmark.json',*capacity_transfer_options])
         report[node] = dict(stage=stage, payload=destination, python=worker_python, env=env, workers=count,
             worker_run=worker['worker_run'], installed=installed, import_probe=probe,
             simulator_import=validation, dependencies=dependency, private_config=config if dependency else None,
@@ -566,6 +565,13 @@ def prepare_workers(campaign, directory, *, payload_override=None):
 
 
 def host_python(campaign):
+    if campaign.get('server_node') == 'h100':
+        if campaign['model'] == 'pi05':
+            return '/home/exouser/openpi/.venv/bin/python'
+        if campaign['model'] == 'groot':
+            # CPU asset preparation also consumes this serialized vendor path.
+            campaign['vendor'] = '/home/exouser/gr00t_n15'
+            return '/home/exouser/gr00t_n15_venv/.venv/bin/python'
     if campaign['model'] == 'dp':
         return '/data/mw_finetune/dp/env/bin/python'
     if campaign['model'] == 'fastwam':
@@ -578,16 +584,23 @@ def host_python(campaign):
 
 
 def server_env(campaign, root):
-    extra = '/data/mw_finetune/qualification/python_deps312' if campaign['server_node'] == 'h100' else ''
+    h100_native = campaign['server_node'] == 'h100' and campaign['model'] in ('pi05', 'groot')
+    extra = '/data/mw_finetune/qualification/python_deps312' if campaign['server_node'] == 'h100' and not h100_native else ''
     if campaign['model'] == 'fastwam':
         extra += ':/data/mw_finetune/vendor/lerobot/src:/data/mw_finetune/vendor/FastWAM/src'
     if campaign['model'] == 'groot':
-        extra += ':'+campaign['vendor']
+        extra += ':'+('/home/exouser/gr00t_n15' if h100_native else campaign['vendor'])
     if campaign['model'] == 'cosmos':
         extra = '/data/cosmos/r17_runtime_deps310:'+campaign['vendor']
     env = dict(PYTHONPATH=pythonpath(root, extra.strip(':')), PYTHONDONTWRITEBYTECODE='1',
         OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1', MKL_NUM_THREADS='1', TOKENIZERS_PARALLELISM='false',
         XLA_PYTHON_CLIENT_PREALLOCATE='false')
+    if h100_native:
+        env['HF_HOME'] = '/home/exouser/.cache/huggingface'
+        if campaign['model'] == 'pi05':
+            env['OPENPI_DATA_HOME'] = '/home/exouser/.cache/openpi'
+        else:
+            env['NO_ALBUMENTATIONS_UPDATE'] = '1'
     if campaign.get('fastwam_batching') or campaign.get('dp_batching'):
         env.update(OPENPI_DISABLE_STAGE_STREAMS='0', BATCHING_STAGE1_WORKERS='1',
                    BATCHING_STAGE2_WORKERS='1', BATCHING_STAGE3_WORKERS='1')
@@ -691,7 +704,7 @@ def prepare(campaign, directory):
         stage = '/tmp/r17_formal/'+campaign['run_name']+'/server'
         campaign['runtime'] = root
         write_json(directory / 'campaign.json', campaign)
-        transfer(['tether', 'push', str(directory / 'campaign.json'), 'h100:'+stage+'/campaign.json'])
+        transfer(['rsync','push', str(directory / 'campaign.json'), 'h100:'+stage+'/campaign.json'])
         campaign['server_campaign'] = stage+'/campaign.json'
         env = server_env(campaign, root)
         remote('h100', ['env', *[k+'='+v for k,v in env.items()], 'CUDA_VISIBLE_DEVICES=', 'JAX_PLATFORMS=cpu',
@@ -700,7 +713,7 @@ def prepare(campaign, directory):
         code = ('from exp.r17_integration.ops.sync_back import snapshot_run; import json; '
             'print(json.dumps(snapshot_run('+repr(campaign['assets'])+','+repr(snapshot)+')))')
         closed = json.loads(remote('h100', ['env', 'PYTHONPATH='+pythonpath(root), host_python(campaign), '-c', code]))
-        transfer(['tether', 'pull', 'h100:'+snapshot, str(directory / 'assets.tar')])
+        transfer(['rsync','pull', 'h100:'+snapshot, str(directory / 'assets.tar')])
         write_json(directory / 'SERVER_ASSET_TRANSFER.json', install_snapshot(directory / 'assets.tar',
             campaign['local_assets'], expected_sha256=closed['archive_sha256']))
     if campaign.get('runtime_from'):
@@ -722,8 +735,10 @@ def prepare(campaign, directory):
         verify_repair_seal(campaign)
     if campaign.get('library'):
         from .library_campaign import disk_estimate, require_fastwam_ab, require_fastwam_g2
-        write_json(directory/'DISK_ESTIMATE.json',disk_estimate(model,campaign['suite'],wire_size=spec.wire_size))
-        if campaign['model']=='fastwam':
+        write_json(directory/'DISK_ESTIMATE.json',disk_estimate(model,campaign['suite'],
+            wire_size=getattr(spec,'wire_size',spec.render_size if campaign['domain'] != 'libero' else 256),
+            capture_images=campaign.get('capture_images',True)))
+        if campaign['model']=='fastwam' and campaign['domain']=='libero':
             descriptor = json.loads((Path(campaign['local_assets'])/'load.json').read_text())
             gate = require_fastwam_g2(campaign.get('g2_a_receipt'),campaign.get('g2_b_receipt'),
                 campaign['checkpoint'],teacher_descriptor=descriptor,teacher_model=model)
@@ -1193,7 +1208,7 @@ def run_campaign(campaign, directory, deployment):
             else:
                 raise TimeoutError('H100 GPU lock guard did not become ready')
             shard_pump = ShardPump(campaign,directory,shard_remote,
-                lambda path,target: transfer(['tether','pull','h100:'+path,str(target)]))
+                lambda path,target: transfer(['rsync','pull','h100:'+path,str(target)]))
             shard_pump.start()
         # Actual reusable listener admission tolerates TCP TIME_WAIT and waits
         # for a prior owned service's release. Never signal an occupied port.
@@ -1506,7 +1521,7 @@ def parse_args(argv=None):
     p.add_argument('--replica-startup-width', type=int,
                    help='Concurrent load wave (default DP4, Fast-WAM2, other1); resident caps/self-checks remain mandatory')
     p.add_argument('--max-batch', type=int, default=1,
-                   help='Default-off native cross-connection batching (Fast-WAM/DP LIBERO)')
+                   help='Default-off native cross-connection batching (Fast-WAM/DP LIBERO or MT50)')
     p.add_argument('--batch-wait-ms', type=float, default=5., help='Native stage batching window, milliseconds')
     p.add_argument('--paired-control', type=Path,
                    help='Completed same-GPU/batching official-50 Fast-WAM K10/C5 control; required for batched arms')
@@ -1540,7 +1555,7 @@ def parse_args(argv=None):
     p.add_argument('--cache-resume-from', type=Path, help='Cache study only: closed segment; retain only complete verified episodes')
     p.add_argument('--live-fleets', action='store_true', help='Default-off pinned live attach/drain worker protocol')
     p.add_argument('--commit-horizon', type=int, default=None,
-                   help='Opt-in LIBERO actions per model inference; reuses policy tails at unchanged transport cadence')
+                   help='Opt-in actions per model inference; reuses policy tails at native transport cadence')
     p.add_argument('--denoising-steps', type=int, default=None,
                    help='Plain step study at native horizon: DP DDIM 5/10 or DDPM100; Fast 1/2/10; Cosmos 1/2/3/5 (K2 includes clean budget; NFE1)')
     p.add_argument('--suites', nargs='+', default=None,
@@ -1568,10 +1583,11 @@ def parse_args(argv=None):
     if bool(args.cache_control) != bool(args.cache_control_runtime):
         p.error('--cache-control and --cache-control-runtime are required together')
     if args.cache_study:
-        if (args.model not in ('dp_libero','fastwam_libero','cosmos_libero') or not args.official_50 or
+        if (args.model not in ('dp_libero','fastwam_libero','cosmos_libero','dp_mw','fastwam_mw','pi05_mw','groot_mw') or
+                args.model.endswith('_libero') and not args.official_50 or
                 args.runtime_from or args.resume_from or args.commit_horizon is not None or
                 args.denoising_steps is not None or args.native_parity_only):
-            p.error('cache study requires official-50 new LIBERO model and per-YAML horizons; fresh runtime only')
+            p.error('cache study requires a supported model (official-50 for LIBERO) and per-YAML horizons; fresh runtime only')
         args.driver_mode = 'legacy' if args.model == 'cosmos_libero' else 'group-commit'
     if args.runtime_from is not None and args.resume_from is not None:
         p.error('--runtime-from and --resume-from select different source semantics; use one')
@@ -1586,14 +1602,14 @@ def parse_args(argv=None):
         return args
     if args.mps and args.gpu != 'cuda:0':
         p.error('--mps requires --gpu cuda:0; select a physical GPU with CUDA_VISIBLE_DEVICES')
-    cosmos = args.model == 'cosmos_libero'
+    cosmos = args.model in ('cosmos_libero', 'cosmos_mw')
     from exp.r17_integration.models.fastwam.batch_runtime import BatchConfig
     try:
-        if args.model == 'dp_libero' and args.max_batch > 1:
+        if args.model in ('dp_libero', 'dp_mw') and args.max_batch > 1:
             from exp.r17_integration.models.dp.batch_runtime import BatchConfig
         BatchConfig(args.max_batch, args.batch_wait_ms)
-        if args.max_batch > 1 and args.model not in ('fastwam_libero', 'dp_libero'):
-            raise ValueError('--max-batch currently supports Fast-WAM/DP LIBERO only')
+        if args.max_batch > 1 and args.model not in ('fastwam_libero', 'dp_libero', 'fastwam_mw', 'dp_mw'):
+            raise ValueError('--max-batch supports Fast-WAM/DP LIBERO or MT50')
         if args.paired_control and (args.max_batch == 1 or args.model != 'fastwam_libero'):
             raise ValueError('--paired-control requires Fast-WAM batching')
         if args.batch_qualification_observations and (not args.smoke or args.max_batch <= 1 or args.model != 'fastwam_libero'):
@@ -1609,9 +1625,12 @@ def parse_args(argv=None):
     except ValueError as exc:
         p.error(str(exc))
     if args.commit_horizon is not None:
-        geometry = {'dp_libero': (5, 16), 'fastwam_libero': (5, 32), 'cosmos_libero': (16, 16)}
+        geometry = {'dp_libero': (5, 16), 'fastwam_libero': (5, 32), 'cosmos_libero': (16, 16),
+                    'dp_mw': (5, 16), 'fastwam_mw': (5, 32), 'pi05_mw': (5, 5), 'groot_mw': (5, 16)}
         if args.model not in geometry or not geometry[args.model][0] <= args.commit_horizon <= geometry[args.model][1]:
-            p.error('--commit-horizon supports DP LIBERO 5..16, Fast-WAM LIBERO 5..32, Cosmos LIBERO 16 only')
+            p.error('--commit-horizon must fit the native chunk: DP/GR00T16, Fast-WAM32, pi05 MT50 5, Cosmos16')
+        if args.model.endswith('_mw') and args.commit_horizon % 5:
+            p.error('MetaWorld commit must be divisible by native replan steps (5)')
         if args.native_parity_only:
             p.error('--commit-horizon cannot be combined with --native-parity-only')
     if cosmos and getattr(args,'library',False):
@@ -1746,6 +1765,8 @@ def main(argv=None):
         local_assets=str(directory / 'assets'), assets=str(FORMAL_ROOT / name / 'assets'),
         server_run=str(FORMAL_ROOT / name / 'servers'), runtime=str(ROOT),
         vendor='/home/weiland/projects/openpi_ext/third_party/gr00t_n15', live_k=4)
+    if model == 'groot' and args.denoising_steps is not None:
+        campaign['live_k'] = args.denoising_steps
     if args.cache_study:
         campaign.update(cache_study=str(args.cache_study.resolve()),
                         driver_module='exp.r17_integration.ops.formal_driver' if args.driver_mode == 'legacy'

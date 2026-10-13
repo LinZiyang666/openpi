@@ -9,11 +9,19 @@ from openpi.conductor.driver import is_retriable_error
 from openpi.conductor.protocol import result_to_wire, task_from_wire
 from openpi.conductor.scheduler import StageState
 from openpi.conductor.task import EpisodeResult, ServerEndpoint
-from exp.r17_integration.benchmarks.metaworld import FORMAL_SPEC
+from exp.r17_integration.benchmarks.metaworld import FORMAL_SPEC as MT50_SPEC
+
+# Synthetic configurable dev partition; production dev remains undecided.
+FORMAL_SPEC = replace(MT50_SPEC, dev_seed=101, dev_indices=tuple(range(30, 50)))
 from exp.r17_integration.conductor.driver import MetaWorldConductorDriver
-from exp.r17_integration.conductor.manifest import EndpointSpec, episode_tasks
+from exp.r17_integration.conductor.manifest import EndpointSpec, episode_tasks as _episode_tasks
 from exp.r17_integration.conductor.strategy import MetaWorldStrategy, MetaWorldDescentStrategy, PerTaskDescent
 from exp.r17_integration.tests.benchmarks.test_libero import spec as libero_spec
+
+
+def episode_tasks(**kwargs):
+    kwargs.setdefault('spec', FORMAL_SPEC)
+    return _episode_tasks(**kwargs)
 
 
 def descent(tmp_path, benchmark=FORMAL_SPEC, *, names=None, retries=1):
@@ -259,6 +267,8 @@ def test_gr_default_yaml_emission_bridge_carries_table_and_preserves_options():
     # Actual P5 emitter, with explicitly synthetic CPU metadata instead of weights.
     model = replace(fake_spec(horizon=16), allowed_benchmark_protocols=(FORMAL_SPEC.identity,))
     provider = fake_provider('p2_gr_emitter_fixture', model)
+    from exp.r17_integration.common.benchmarks import register_benchmark
+    register_benchmark(FORMAL_SPEC)
     original = asdict(default_config(provider, commit_horizon=10))
     emitted = canonical_config_document(original, FORMAL_SPEC)
     # Round 3: the native GR emitter now carries the canonical table itself;

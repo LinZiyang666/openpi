@@ -83,8 +83,8 @@ class R17MetaWorldEpisodeRunner(MetaworldEpisodeRunner):
     def __init__(self, *, spec=FORMAL_SPEC, client_factory=default_client_factory,
                  env_factory=kernel.make_env, capture_sink=None, execution_ack=None,
                  physical_factory=NativeMetaWorldPhysicalAdapter, framework_context=True):
-        if spec.seed != 7 or spec.settle_steps != 15 or spec.max_policy_controls != 160:
-            raise ValueError("existing kernel requires seed7/settle15/max160")
+        if spec.settle_steps != 15 or spec.max_policy_controls != 160:
+            raise ValueError("existing kernel requires settle15/max160")
         if not 1 <= spec.replan_steps <= 5:
             raise ValueError("replan must be 1..5")
         self.spec, self.capture_sink, self.execution_ack = spec, capture_sink, execution_ack
@@ -115,7 +115,7 @@ class R17MetaWorldEpisodeRunner(MetaworldEpisodeRunner):
                 extra = dict(kwargs.get("extra_metadata", {}), **runner._identity())
                 extra["original_init_idx"] = task.orig_init_state_idx
                 extra["ack_protocol"] = "r17.execution.v1"
-                extra["seed"] = runner.spec.seed
+                extra["seed"] = task.extra.get("seed", runner.spec.seed)
                 kwargs["extra_metadata"] = extra
                 return client.episode_start(**kwargs)
             def episode_end(self, **kwargs):
@@ -157,6 +157,7 @@ class R17MetaWorldEpisodeRunner(MetaworldEpisodeRunner):
     def _identity(self):
         t = self.current_task
         return {"task_uid": t.task_uid, "attempt": t.attempt, "yaml_id": t.yaml_id,
+                "seed": t.extra.get("seed", self.spec.seed),
                 "bundle_id": t.bundle_id, "benchmark_protocol": self.spec.identity,
                 "task_name": self.task_name(t), "orig_init_state_idx": t.orig_init_state_idx,
                 "original_init_idx": t.orig_init_state_idx, "task_id": t.task_id,
@@ -165,7 +166,8 @@ class R17MetaWorldEpisodeRunner(MetaworldEpisodeRunner):
                 **{k: t.extra[k] for k in ("num_steps", "sampler", "sampler_identity", "bundle_identity", "recipe_identity") if k in t.extra},
                 "task_data_hash": self.task_data_hash or t.extra.get("task_data_hash"), "arm": t.extra.get("arm", ""),
                 **{k: t.extra[k] for k in ("campaign", "model_identity", "norm_identity", "layout_identity",
-                                         "fit_identity", "library_identity", "bundle_generation") if k in t.extra}}
+                                         "fit_identity", "library_identity", "bundle_generation", "split", "partition",
+                                         "init_pool", "library_episode_id", "suite_task_id", "trial") if k in t.extra}}
 
     def _kernel(self, env, infer, prompt, **kwargs):
         self.task_data_hash = getattr(env, "_r17_task_data_hash", None)
@@ -200,8 +202,8 @@ class R17MetaWorldEpisodeRunner(MetaworldEpisodeRunner):
                            "benchmark_protocol": self.spec.identity, "task_name": self.task_name(t),
                            "task_table_identity": self.spec.task_table_identity,
                            "original_init_idx": t.orig_init_state_idx, "decision_seq": decisions,
-                           "explicit_seed": decision_seed(self.task_name(t), t.orig_init_state_idx, decisions, self.spec.seed),
-                           "task_id": t.task_id, "seed": self.spec.seed, "attempt": t.attempt,
+                           "explicit_seed": decision_seed(self.task_name(t), t.orig_init_state_idx, decisions, t.extra.get("seed", self.spec.seed)),
+                           "task_id": t.task_id, "seed": t.extra.get("seed", self.spec.seed), "attempt": t.attempt,
                            "arm": t.extra.get("arm", ""), "bundle_generation": t.extra.get("bundle_generation", t.bundle_id)})
                 if self.receipts:
                     r = self.receipts[-1]
@@ -250,14 +252,15 @@ class MetaWorldBenchmarkAdapter:
         indices = {"test": self.spec.formal_indices, "library": self.spec.library_indices,
                    "dev": self.spec.dev_indices}[partition]
         return [{"task_id": i, "task_name": name, "prompt": prompt, "difficulty": group,
-                 "original_idx": idx, "seed": self.spec.seed, "partition": partition}
+                 "original_idx": idx, "seed": self.spec.seed_for(partition), "partition": partition}
                 for i, (name, prompt, group) in enumerate(self.tasks()) for idx in indices]
 
-    def task_data_identity(self, name, idx, benchmark_factory=kernel._benchmark):
+    def task_data_identity(self, name, idx, benchmark_factory=kernel._benchmark, *, seed=None):
         if name not in T.TASK_NAMES or not 0 <= idx < 50:
             raise ValueError("unknown task or original MT1 index")
-        task = benchmark_factory(name, self.spec.seed).train_tasks[idx]
-        return {"task_name": name, "original_idx": idx, "seed": self.spec.seed,
+        seed = self.spec.seed if seed is None else seed
+        task = benchmark_factory(name, seed).train_tasks[idx]
+        return {"task_name": name, "original_idx": idx, "seed": seed,
                 "task_data_identity": task_data_digest(bytes(task.data))}
 
     def make_episode_runner(self, client_factory=default_client_factory, capture_sink=None, execution_ack=None,
@@ -265,7 +268,7 @@ class MetaWorldBenchmarkAdapter:
         def make_env(name, idx, seed):
             # Native and renderer-shim factories both use the same MT1 cache.
             native_factory = self.env_factory.__module__ in {"exp.metaworld.env", "exp.mw_finetune.rendering"}
-            identity = self.task_data_identity(name, idx) if native_factory else None
+            identity = self.task_data_identity(name, idx, seed=seed) if native_factory else None
             env = self.env_factory(name, idx, seed)
             if identity is not None:
                 env._r17_task_data_hash = identity["task_data_identity"]

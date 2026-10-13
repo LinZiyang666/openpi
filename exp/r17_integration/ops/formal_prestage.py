@@ -62,8 +62,8 @@ def client_release(launch, node, directory, stage, destination, payload, *, clos
         if existing.get('present'):
             return existing
     options=['--force'] if closed_capacity_refresh else []
-    launch.transfer(['tether', 'push', str(directory/'workers.tar'), node+':'+stage+'/workers.tar',*options])
-    launch.transfer(['tether', 'push', str(launch.ROOT/'exp/r17_integration/qualification/bootstrap_install.py'),
+    launch.transfer(['rsync','push', str(directory/'workers.tar'), node+':'+stage+'/workers.tar',*options])
+    launch.transfer(['rsync','push', str(launch.ROOT/'exp/r17_integration/qualification/bootstrap_install.py'),
         node+':'+stage+'/install.py',*options])
     return json.loads(launch.remote(node, [python, stage+'/install.py',
         stage+'/workers.tar', destination, payload['archive_sha256'], '--immutable']))
@@ -102,8 +102,8 @@ def runtime_release(launch, campaign, directory):
         if not installed['present']:
             if campaign.get('runtime_from'):
                 raise ValueError('frozen execution-host runtime missing')
-            launch.transfer(['tether','push',str(archive),'h100:'+stage+'/runtime.tar'])
-            launch.transfer(['tether','push',str(launch.ROOT/'exp/r17_integration/ops/immutable_release.py'),
+            launch.transfer(['rsync','push',str(archive),'h100:'+stage+'/runtime.tar'])
+            launch.transfer(['rsync','push',str(launch.ROOT/'exp/r17_integration/ops/immutable_release.py'),
                 'h100:'+stage+'/release_install.py'])
             installed = json.loads(launch.remote('h100',[launch.host_python(campaign),stage+'/release_install.py',
                 '--root',root,'--identity',content_pin,'--archive',stage+'/runtime.tar','--archive-sha',archive_pin]))
@@ -406,12 +406,12 @@ def launch_prepared(directory):
                 path=directory/(node+'_launch.json')
                 write_json(path,worker)
                 item['campaign_path']=item['stage']+'/launch_campaign.json'
-                launch.transfer(['tether','push',str(path),node+':'+item['campaign_path']])
+                launch.transfer(['rsync','push',str(path),node+':'+item['campaign_path']])
             write_json(directory/'campaign.json',campaign)
             if campaign['server_node']=='h100':
                 campaign['server_campaign']='/tmp/r17_formal/'+campaign['run_name']+'/server/launch_campaign.json'
                 write_json(directory/'campaign.json',campaign)
-                launch.transfer(['tether','push',str(directory/'campaign.json'),'h100:'+campaign['server_campaign']])
+                launch.transfer(['rsync','push',str(directory/'campaign.json'),'h100:'+campaign['server_campaign']])
             if campaign.get('orchestration'):
                 from .driver_release import planned_tasks
                 task_rows=planned_tasks(campaign,directory)

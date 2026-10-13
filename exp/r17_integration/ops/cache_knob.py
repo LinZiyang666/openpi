@@ -47,7 +47,7 @@ def build(output, *, gaps=GAPS, model=None, table=None, miss_steps='full', parti
                 gap_rows[model_name(entry['model']), entry['suite'], int(entry['size'])] = entry['levels']
     test = table is not None
     levels_table = study.read(table) if test else None
-    models = (model,) if test else study.MODELS
+    models = (model,) if test else study.LIBERO_MODELS
     if test and model not in study.MODELS:
         raise ValueError('TEST requires one model')
     output = Path(output).resolve()

@@ -12,6 +12,8 @@ def configure_library_provider(provider, *, manifest=None):
     """
     from dataclasses import replace
     from .ops.library_compatibility import library_validator
+    if provider.model_spec.model_id == 'fastwam_mt50':
+        return provider  # Native MT50 stores use the shared teacher/Store recipe path.
     return replace(provider, library_validator=library_validator(provider.model_spec, manifest=manifest))
 
 

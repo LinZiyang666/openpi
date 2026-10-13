@@ -7,6 +7,7 @@ PCI = '0000:c1:00.0'
 PYTHON = '/scratch/zixuans8/openpi/.venv/bin/python'
 PROVISION = '/scratch/zixuans8/mw_r17/timan1_provision'
 WRAPPER = PROVISION+'/python-gpu3'
+MW_WRAPPER = PROVISION+'/python-mw-gpu3'
 GUARD = PROVISION+'/gpu3_guard'
 PINS = {WRAPPER:'64199dc0bc944087366a45282861896fdc2b836c1ac0a9453f0375a4154e6ad2',
         GUARD+'/sitecustomize.py':'4bb5b8280cfa21328c9d07c4aae4b8220fc9b68605d6b3160288b4fab98bb2b8',
@@ -29,11 +30,16 @@ def authorize(campaign):
         from .cache_capacity import validate_authorization
         validate_authorization(campaign)
         maximum=40
-    if campaign.get('domain') != 'libero' or not (campaign.get('cache_study') or live) or not 1 <= number <= maximum:
-        raise ValueError('timan1 owner lease requires LIBERO cache workers, maximum 40, GPU3 only')
+    mw = campaign.get('domain') == 'metaworld'
+    if not (mw or campaign.get('domain') == 'libero' and (campaign.get('cache_study') or live)) or not 1 <= number <= maximum:
+        raise ValueError('timan1 owner lease requires MetaWorld or LIBERO cache workers, maximum 40, GPU3 only')
     return dict(schema='r17.timan1_gpu3_lease.v1',workers=number,device=3,device_minor=0,
                 uuid=UUID,pci=PCI,excluded_devices=[0,1,2],pins=PINS,
-                worker_memory_mib=6144,worker_vram_mib=1024,worker_max_episodes=4)
+                worker_memory_mib=2048 if mw else 6144,worker_vram_mib=1024,worker_max_episodes=0 if mw else 4)
+
+
+def wrapper(campaign):
+    return MW_WRAPPER if campaign.get('domain') == 'metaworld' else WRAPPER
 
 
 def install(payload):
@@ -60,8 +66,8 @@ def route(worker,campaign):
     lease=authorize(campaign)
     if not lease or worker['node_workers'] != lease['workers']:
         raise ValueError('T1 worker count differs from guarded lease')
-    worker.update(worker_egl_device=3,worker_egl_devices=[3],worker_memory_mib=6144,
-                  worker_vram_mib=1024,worker_max_episodes=4,timan1_worker_lease=lease)
+    worker.update(worker_egl_device=3,worker_egl_devices=[3],worker_memory_mib=lease['worker_memory_mib'],
+                  worker_vram_mib=1024,worker_max_episodes=lease['worker_max_episodes'],timan1_worker_lease=lease)
     return worker
 
 
@@ -137,7 +143,10 @@ def main(argv=None):
             '--egl-device' not in args or args[args.index('--egl-device')+1]!='3'):
         raise ValueError('wrapped native worker requires the pinned GPU3 namespace')
     record_native_process()
-    from .worker_lifetime import main as native_main
+    if '--max-episodes' in args:
+        from .worker_lifetime import main as native_main
+    else:
+        from exp.r17_integration.conductor.worker_entry import main as native_main
     native_main(args)
 
 

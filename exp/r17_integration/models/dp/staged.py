@@ -116,8 +116,8 @@ class DPAdapter:
 
     def _check_batch(self, count):
         if self.batch_config is not None:
-            if self.domain != "libero" or not 1 <= count <= self.batch_config.max_batch:
-                raise ValueError("DP batch exceeds the explicit LIBERO execution configuration")
+            if self.domain not in ("libero", "metaworld") or not 1 <= count <= self.batch_config.max_batch:
+                raise ValueError("DP batch exceeds the explicit execution configuration")
             return
         if count > 1 and not self.batch_diagnostic_label:
             raise ValueError("DP production B>1 disabled: GPU batch composition changes outputs")

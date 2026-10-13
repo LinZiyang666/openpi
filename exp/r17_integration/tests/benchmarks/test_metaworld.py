@@ -87,12 +87,14 @@ def task(**kwargs):
 def test_formal_roster_and_split_are_explicit():
     b = MetaWorldBenchmarkAdapter()
     episodes = b.episode_specs()
-    assert len(episodes) == 500
-    assert len({(r["task_name"], r["original_idx"]) for r in episodes}) == 500
-    assert set(r["original_idx"] for r in episodes) == set(range(10))
+    assert len(episodes) == 2500
+    assert len({(r["task_name"], r["original_idx"]) for r in episodes}) == 2500
+    assert set(r["original_idx"] for r in episodes) == set(range(50))
     assert Counter(r[2] for r in b.tasks()) == {"easy": 28, "medium": 11, "hard": 6, "very_hard": 5}
-    assert {r["original_idx"] for r in b.episode_specs("library")} == set(range(10, 30))
-    assert {r["original_idx"] for r in b.episode_specs("dev")} == set(range(30, 50))
+    assert {r["original_idx"] for r in b.episode_specs("library")} == set(range(50))
+    assert {r["original_idx"] for r in b.episode_specs("dev")} == set()
+    assert {r["seed"] for r in episodes} == {7}
+    assert {r["seed"] for r in b.episode_specs("library")} == {8}
     assert b.metadata().identity == b.spec.identity
     assert T.EPISODES_PER_TASK == 20  # original September contract unchanged
     assert T.PROMPTS["push-back-v3"] == T.PROMPTS["push-v3"]

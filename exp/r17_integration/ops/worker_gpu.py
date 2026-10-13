@@ -208,7 +208,7 @@ class Reservation:
 def acquire(campaign, run):
     if 'worker_egl_device' not in campaign:
         return None
-    if campaign.get('domain') != 'libero':
+    if campaign.get('domain') not in ('libero', 'metaworld'):
         return _exclusive(campaign, run)
     run = Path(run)
     with (run.parent/'.egl_admission.lock').open('a') as lock:

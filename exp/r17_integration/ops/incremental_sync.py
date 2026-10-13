@@ -143,7 +143,8 @@ def remote_operation(request, *, _run_parent=None):
             if not url.startswith('rsync://q_incremental@ziyanglin.com:') or '/../' in url:
                 raise ValueError('not the private Q rsync destination')
             password=Path(request['password_file'])
-            if (password.parent!=Path('/tmp/r17_q_incremental') or password.resolve()!=password or
+            password_root=Path('/scratch/zixuans8/mw_r17/rsync_stage' if node=='timan1' else '/tmp/r17_q_incremental')
+            if (password.parent!=password_root or password.resolve()!=password or
                     password.stat().st_uid!=os.getuid() or password.stat().st_mode & 0o077):
                 raise ValueError('not the private Q rsync password file')
             try:
@@ -300,9 +301,10 @@ def sync_campaign(campaign,directory,bwlimit,max_chunks):
                 raise RuntimeError('local sync disk headroom low; keep remote originals')
             destination=directory/'inbox'/campaign.name/node;destination.mkdir(parents=True,exist_ok=True)
             url='rsync://q_incremental@ziyanglin.com:'+str(settings['port'])+'/r17q/'+campaign.name+'/'+node+'/'+chunk['token']+'.tar.gz'
-            remote_password='/tmp/r17_q_incremental/'+campaign.name+'_'+node+'.password'
-            remote(node,['mkdir','-p','/tmp/r17_q_incremental'],replay_safe=True)
-            transfer(['tether','push',str(directory/'rsync.password'),node+':'+remote_password,'--force'])
+            password_root='/scratch/zixuans8/mw_r17/rsync_stage' if node=='timan1' else '/tmp/r17_q_incremental'
+            remote_password=password_root+'/'+campaign.name+'_'+node+'.password'
+            remote(node,['mkdir','-p',password_root],replay_safe=True)
+            transfer(['rsync','push',str(directory/'rsync.password'),node+':'+remote_password,'--force'])
             remote(node,['chmod','600',remote_password],replay_safe=True)
             call(dict(request,action='push',chunk=chunk,url=url,password_file=remote_password,bwlimit_kibps=bwlimit))
             receipt=verify_chunk(chunk,destination/(chunk['token']+'.tar.gz'),campaign/'INCREMENTAL_SYNC'/node)

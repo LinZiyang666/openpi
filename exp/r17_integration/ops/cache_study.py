@@ -21,7 +21,9 @@ from exp.r17_integration.search.store import atomic_json
 
 ROOT = Path(__file__).resolve().parents[3]
 HERE = Path(__file__).with_suffix("")
-MODELS = ("dp_libero", "fastwam_libero", "cosmos_libero")
+LIBERO_MODELS = ("dp_libero", "fastwam_libero", "cosmos_libero")
+MW_MODELS = ("dp_mw", "fastwam_mw", "pi05_mw", "groot_mw")
+MODELS = LIBERO_MODELS + MW_MODELS
 SUITES = ("libero_spatial", "libero_10")
 GROUPS = ("c", "cr", "ch", "chr", "cg", "crg", "chg", "chrg")
 ALIASES = {"ch": "c", "chr": "cr", "chg": "cg", "chrg": "crg"}
@@ -50,7 +52,31 @@ def model_spec(value):
     return ModelSpec(**value)
 
 
+def suites_for(bundle):
+    return ('mt50',) if bundle in MW_MODELS else SUITES
+
+
+def campaign_bundle(campaign):
+    return campaign['model'] + ('_mw' if campaign.get('domain') == 'metaworld' else '_libero')
+
+
+def suite_label(suite):
+    return {'libero_spatial': 'sp', 'libero_10': 'l10', 'mt50': 'mt50'}[suite]
+
+
+def suite_tasks(spec, suite):
+    return list(spec.ordered_tasks) if suite == 'mt50' else [r[0] for r in spec.tasks if r[2] == suite]
+
+
 def profiles(bundle, parent):
+    if bundle in MW_MODELS:
+        from exp.r17_integration.benchmarks.metaworld import FORMAL_SPEC
+        # A records seed8 on each library episode under this same profile;
+        # test episodes select seed7 through spec.seed_for('test').
+        source = serving = FORMAL_SPEC
+        from exp.r17_integration.common.benchmarks import register_benchmark
+        register_benchmark(serving)
+        return source, serving
     from .formal_eval import benchmark
     from exp.r17_integration.models.cosmos.protocols import benchmark_profile
     source, serving = benchmark(), benchmark(True)
@@ -109,35 +135,44 @@ def size_label(row):
     return ("n"+str(library_size(row))+"_" if "library_size" in row else "")
 
 
-def generate(output, *, library_root="/data/r17_library", long_dp=10, long_fast=10, sizes=None):
+def supported_sizes(bundle):
+    return (50,100,200,300,400,500,1000,1500,2000,2500) if bundle in MW_MODELS else (50,100,200,300,400,500)
+
+
+def generate(output, *, library_root="/data/r17_library", long_dp=10, long_fast=10, sizes=None,
+             models=LIBERO_MODELS, groups=GROUPS):
     """Emit a complete cohort per size; absent prerequisite fits are explicit."""
     import yaml
     from exp.r17_integration.common.provider import AdapterProvider
     sizes = tuple(sizes) if sizes is not None else (500,)
-    if not sizes or len(set(sizes)) != len(sizes) or any(type(n)!=int or n not in (50,100,200,300,400,500) for n in sizes):
+    if not sizes or len(set(sizes)) != len(sizes) or any(type(n)!=int or any(n not in supported_sizes(b) for b in models) for n in sizes):
         raise ValueError("unique supported library sizes required")
     sized = sizes != (500,)
+    if not models or not set(models) <= set(MODELS) or not groups or not set(groups) <= set(GROUPS):
+        raise ValueError('supported models and cache groups required')
     output = Path(output).resolve()
     output.mkdir(parents=True, exist_ok=False)
     manifest = dict(schema="r17.cache_study.v1", models={}, eval_pool="A", inits=50,
-        suites=list(SUITES), groups=list(GROUPS), prereg_sha256=file_sha(PRE_REG),
+        suites=list(dict.fromkeys(s for b in models for s in suites_for(b))), groups=list(groups), prereg_sha256=file_sha(PRE_REG),
         rulings_sha256=file_sha(RULINGS), ordinary_miss=False, knobs=False,
         controls=CONTROLS,horizon_selection=dict(dp=long_dp, fastwam=long_fast, cosmos=16,
             status="fallback_C10_pending_horizon_NI_freeze"), artifacts_pending=[])
+    if 'pi05_mw' in models:manifest['horizon_selection']['pi05']=5
+    if 'groot_mw' in models:manifest['horizon_selection']['groot']=10
     if sized:manifest["library_sizes"]=list(sizes)
-    for bundle in MODELS:
-        long = {"dp_libero":long_dp,"fastwam_libero":long_fast,"cosmos_libero":16}[bundle]
+    for bundle in models:
+        long = manifest['horizon_selection'][bundle.rsplit('_',1)[0]]
         model_rows = []
         for n in sizes:
-            for suite in SUITES:
-                library = Path(library_root) / (bundle+"_"+suite) / "bpool"
+            for suite in suites_for(bundle):
+                library = Path(library_root) / ((bundle.removesuffix('_mw')+'_mt50') if bundle in MW_MODELS else bundle+'_'+suite) / "bpool"
                 parent, selected = read(library/"READY.json"), read(library/f"subsets/size_{n}/VIEW.json")
                 source, serving = profiles(bundle, parent)
                 spec = replace(model_spec(parent["binding"]["model"]), allowed_benchmark_protocols=(serving.identity,))
                 # Reviewable teacher-bound template; seal() rebinds current provider
                 # and requires its explicit compatibility receipt before dispatch.
                 provider = AdapterProvider("teacher_template_"+bundle, spec, lambda: None, lambda k,s=spec:s.default_sampler)
-                for group in GROUPS:
+                for group in groups:
                     settings = group_settings(bundle, group, long)
                     original_fit = library/f"fits/size_{n}"
                     old = read(original_fit/"READY.json") if (original_fit/"READY.json").exists() else None
@@ -147,7 +182,7 @@ def generate(output, *, library_root="/data/r17_library", long_dp=10, long_fast=
                     fit_digest = read(fit/"READY.json")["digest"] if (fit/"READY.json").exists() else "PENDING_C_SPECIFIC_FIT"
                     stall = (output/"artifacts"/("n"+str(n)) if sized else output/"artifacts")/(bundle+"_"+suite)/("C"+str(c))/"stall"
                     stall_digest = read(stall/"READY.json")["digest"] if (stall/"READY.json").exists() else "PENDING_B_Q3_CALIBRATION"
-                    dest = output/bundle/("sp" if suite=="libero_spatial" else "l10")
+                    dest = output/bundle/suite_label(suite)
                     dest.mkdir(parents=True, exist_ok=True)
                     path = dest/(("n"+str(n)+"_" if sized else "")+group+".yaml")
                     doc = config_document(provider,serving,source,parent,selected,
@@ -178,9 +213,9 @@ def validate_manifest(path):
         pass
     root = Path(path).parent
     sizes=value.get("library_sizes",[500])
-    if (not sizes or len(set(sizes))!=len(sizes) or any(type(n)!=int or n not in (50,100,200,300,400,500) for n in sizes)
+    if (not sizes or len(set(sizes))!=len(sizes) or any(type(n)!=int or any(n not in supported_sizes(b) for b in value['models']) for n in sizes)
             or not value['models'] or not set(value['models']) <= set(MODELS)
-            or not knobs and set(value["models"])!=set(MODELS)):
+            ):
         raise ValueError("invalid cache-study size/model cohort")
     import yaml
     views={}
@@ -190,12 +225,12 @@ def validate_manifest(path):
             allowed = {('crg' if bundle=='cosmos_libero' else 'chrg')+'_'+level
                        for level in ('k50','k40','k30','k20','k10','koff','pure')}
             if not rows or len(cells)!=len(rows) or any(
-                    n not in sizes or s not in SUITES or g not in allowed for n,s,g in cells):
+                    n not in sizes or s not in suites_for(bundle) or g not in allowed for n,s,g in cells):
                 raise ValueError('invalid cache-knob rows')
-        elif cells != {(n,s,g) for n in sizes for s in SUITES for g in GROUPS} or len(rows)!=16*len(sizes):
-            raise ValueError("cache-study cohort is not the complete eight groups/two suites")
+        elif cells != {(n,s,g) for n in sizes for s in suites_for(bundle) for g in value['groups']} or len(cells)!=len(rows):
+            raise ValueError("cache-study cohort does not match its declared groups/suites")
         for row in rows:
-            if row["settings"]!=group_settings(bundle,row["group"],value["horizon_selection"][{"dp_libero":"dp","fastwam_libero":"fastwam","cosmos_libero":"cosmos"}[bundle]]):
+            if row["settings"]!=group_settings(bundle,row["group"],value["horizon_selection"][bundle.rsplit('_',1)[0]]):
                 pass
             if file_sha(root/row["file"]) != row["sha256"]:
                 pass
@@ -228,7 +263,7 @@ def fit_inputs(path, *, bundle=None):
     for name, rows in manifest["models"].items():
         if bundle and name != bundle: continue
         for n in manifest.get("library_sizes",[500]):
-            for suite in SUITES:
+            for suite in suites_for(name):
                 group = [r for r in rows if r["suite"]==suite and library_size(r)==n]
                 library = Path(group[0]["library"])
                 descriptor = sealed_store_descriptor(view_path(group[0]), read(view_path(group[0])/"VIEW.json")["content_digest"])
@@ -338,9 +373,9 @@ def stage_inputs(campaign, directory, launch):
     import yaml
     from .sync_back import snapshot_run, install_snapshot
     manifest = validate_manifest(campaign['cache_study'])
-    bundle = campaign['model']+'_libero'
+    bundle = campaign_bundle(campaign)
     pool = manifest.get('eval_pool', 'A')
-    if pool == 'B':
+    if pool == 'B' and bundle not in MW_MODELS:
         import tarfile
         archives = sorted(Path('/data/r17_library').glob(bundle+'_libero_spatial/campaigns/teacher_*/bpool_inputs.tar'))
         if not archives:
@@ -355,7 +390,7 @@ def stage_inputs(campaign, directory, launch):
         campaign.update(eval_pool='B', bpool_archive=str(archive),
                         bpool_transfer=dict(archive_sha256=file_sha(archive), manifest=init_manifest))
     selected = [r for r in manifest['models'][bundle]
-                if r['suite'] in campaign.get('suites', SUITES)]
+                if r['suite'] in (campaign.get('suites') or suites_for(bundle))]
     if any(r['fit_digest'].startswith('PENDING') or r['settings']['gated'] and
            r['stall_digest'].startswith('PENDING') for r in selected):
         raise ValueError('cache study missing C-specific fits/B Q3 calibration; run cache_study fit before prepare')
@@ -410,7 +445,7 @@ def stage_inputs(campaign, directory, launch):
         archive=Path(directory)/'study_inputs.tar'
         receipt=snapshot_run(root,archive)
         stage='/tmp/r17_formal/'+campaign['run_name']+'/server/study_inputs.tar'
-        launch.transfer(['tether','push',str(archive),'h100:'+stage])
+        launch.transfer(['rsync','push',str(archive),'h100:'+stage])
         command=('from exp.r17_integration.ops.sync_back import install_snapshot; import json; '
             'print(json.dumps(install_snapshot('+repr(stage)+','+repr(dest)+
             ',expected_sha256='+repr(receipt['archive_sha256'])+')))')
@@ -494,9 +529,9 @@ def seal(provider, campaign, benchmark):
         descriptor=sealed_store_descriptor(root/row['view_rel'],read(root/row['view_rel']/'VIEW.json')['content_digest'])
         source,serving=profiles(inputs['model'],descriptor.parent.manifest)
         if serving.identity!=benchmark.identity:pass
-        expected_names={task[0] for task in serving.tasks if task[2]==row['suite']}
+        expected_names=set(suite_tasks(serving,row['suite']))
         if ({r['task_name'] for r in descriptor.rows}!=expected_names or descriptor.manifest['size']!=library_size(row)):
-            raise ValueError('study suite requires all ten tasks from its complete selected B view')
+            raise ValueError('study suite requires every task from its complete selected B view')
         document=config_document(provider,serving,source,descriptor.parent.manifest,descriptor.manifest,
             store_path=root/row['view_rel'],fit_path=root/row['fit_rel'],fit_digest=row['fit_digest'],
             stall_path=root/row['stall_rel'],stall_digest=row['stall_digest'],settings=row['settings'],
@@ -505,7 +540,7 @@ def seal(provider, campaign, benchmark):
         if checked.config_validator is not None:checked.config_validator(config)
         make_bundle_validator(provider,recipe_factory=make_recipe_factory(checked))(config,build_shared_storage(config))
         identity=bundle_identity(config)
-        short=size_label(row)+('sp' if row['suite']=='libero_spatial' else 'l10')+'_'+row['group']
+        short=size_label(row)+suite_label(row['suite'])+'_'+row['group']
         path=output/(short+'.yaml');path.write_text(yaml.safe_dump(document,sort_keys=False))
         groups.append(dict(row,file='cache_yamls/'+path.name,sha256=file_sha(path),
             bundle_id='r17cs_'+short+'_'+identity[:12],bundle_identity=identity,
@@ -520,7 +555,7 @@ def selected_groups(campaign):
     seal=read(Path(campaign['local_assets'])/'CACHE_STUDY.json')
     if seal['digest']!=digest({k:v for k,v in seal.items() if k!='digest'}):
         pass
-    wanted=campaign.get('suites') or SUITES
+    wanted=campaign.get('suites') or suites_for(campaign_bundle(campaign))
     rows=[r for r in seal['groups'] if r['suite'] in wanted]
     if not campaign.get('smoke'):
         rows=[r for r in rows if not r['settings']['alias'] or '_' in r['group']]
@@ -572,7 +607,7 @@ def plan(campaign):
             expected_nfe=make_sampler(k).config.get('expected_nfe',k)
         if bundle_identity(config)!=row['bundle_identity'] or config.recipe.miss_mode not in ('never','stall_only'):
             pass
-        suite_names=[r[0] for r in benchmark.tasks if r[2]==row['suite']]
+        suite_names=suite_tasks(benchmark,row['suite'])
         names=row.get('tasks',suite_names)
         if not names or not set(names)<=set(suite_names):raise ValueError('row tasks must belong to its suite')
         if campaign.get('smoke'):names=names[:2]
@@ -580,7 +615,8 @@ def plan(campaign):
             endpoint=endpoint,model_identity=model['checkpoint_identity'],norm_identity=model['norm_identity'],
             layout_identity=digest(model['layout']),num_steps=k,
             spec=planning_spec,partition='smoke' if campaign.get('smoke') else 'dev' if pool=='B' else 'test',names=names,
-            indices=[0] if campaign.get('smoke') else row.get('indices',list(range(50))),yaml_identity=row['sha256'],
+            indices=([0,1] if campaign.get('domain')=='metaworld' else [0]) if campaign.get('smoke')
+                else row.get('indices',list(range(50))),yaml_identity=row['sha256'],
             bundle_generation=row['bundle_id'],bundle_identity=row['bundle_identity'],
             recipe_identity=row['recipe_identity'],commit_horizon=config.adapter_binding['commit_horizon'])
         for task in episodes:
@@ -627,7 +663,8 @@ def run_driver(campaign,directory):
             # Qualification really switches groups; the full study preserves
             # the preregistered suite/group order on one resident fleet.
             ordered=sorted(graph.stages.values(),key=lambda s:(
-                s.episodes[0].extra.get('library_size',500),SUITES.index(s.episodes[0].experiment),group_order.index(s.episodes[0].extra['cache_group'])))
+                s.episodes[0].extra.get('library_size',500),suites_for(campaign_bundle(campaign)).index(
+                    'mt50' if campaign.get('domain')=='metaworld' else s.episodes[0].experiment),group_order.index(s.episodes[0].extra['cache_group'])))
             # Knob studies have no preregistered order: leave stages unchained so the next
             # YAML's episodes fill workers while the previous stage drains (no tail bubble).
             if all(g['group'] in GROUPS for g in groups):
@@ -802,19 +839,22 @@ def audit(path, output):
         gpu_executed=False,study_digest=manifest['digest'],models={},eval_pool='A',library_pool='B',
         library_sizes=manifest.get('library_sizes',[500]))
     for name,rows in manifest['models'].items():
-        entries=[];control=Path('/data/mw_finetune/eval')/CONTROLS[name]/'assets/model_spec.json'
-        current=read(control);differences=[]
+        entries=[]
+        current=(read(Path('/data/mw_finetune/eval')/CONTROLS[name]/'assets/model_spec.json')
+                 if name in CONTROLS else read(Path(rows[0]['library'])/'READY.json')['binding']['model'])
+        differences=[]
         nested={}
         for n in sorted(manifest.get("library_sizes",[500])):
-            for suite in SUITES:
+            for suite in suites_for(name):
                 subset=[r for r in rows if r['suite']==suite and library_size(r)==n]
                 parent=read(Path(subset[0]['library'])/'READY.json')
                 selected=read(view_path(subset[0])/'VIEW.json')
                 descriptor=sealed_store_descriptor(view_path(subset[0]),selected['content_digest'])
                 episodes={r['library_episode_id']:r['task_name'] for r in descriptor.rows}
                 counts=Counter(episodes.values())
-                full=read(Path(subset[0]['library'])/'subsets/size_500/VIEW.json')
-                if (len(counts)!=10 or set(counts.values())!={n//10} or
+                full=read(Path(subset[0]['library'])/('subsets/size_2500/VIEW.json' if name in MW_MODELS else 'subsets/size_500/VIEW.json'))
+                task_count = 50 if name in MW_MODELS else 10
+                if (len(counts)!=task_count or set(counts.values())!={n//task_count} or
                         not set(episodes).issubset(set(full['episode_ids'])) or
                         not nested.get(suite,set()).issubset(set(episodes))):
                     raise ValueError('selected B cohorts must be balanced complete nested episode subsets')
@@ -855,7 +895,8 @@ def audit(path, output):
                         stall_unavailable_tasks=calibration.get('unavailable_tasks',[]),
                         stall_availability_scope='unchanged Q3: fewer than four successful selected-B references => inactive'))
         report['models'][name]=dict(real_library_queries=entries,control_comparison=differences,
-            deployment_status='needs '+{'dp_libero':'P4','fastwam_libero':'P3','cosmos_libero':'D'}[name],
+            deployment_status=('CPU recipes only; coordinator GPU smoke pending' if name in MW_MODELS else
+                'needs '+{'dp_libero':'P4','fastwam_libero':'P3','cosmos_libero':'D'}[name]),
             qualification_scope='teacher-bound CPU math; current resident admission remains model-owned')
     report['status']='PASS';report['digest']=digest(report);atomic_json(output,report)
     return report
@@ -868,11 +909,13 @@ def main(argv=None):
     p.add_argument("--study",type=Path)
     p.add_argument("--model",choices=MODELS)
     p.add_argument("--sizes",type=int,nargs="+",help="library sizes; default historical B500")
+    p.add_argument("--groups",nargs="+",choices=GROUPS,default=GROUPS,help="YAML groups to generate; default all eight")
     p.add_argument("--long-dp",type=int,default=10);p.add_argument("--long-fast",type=int,default=10)
     args, rest = p.parse_known_args(argv)
     if args.mode=="generate":
         if rest:p.error("unknown generation arguments")
-        result=generate(args.output,long_dp=args.long_dp,long_fast=args.long_fast,sizes=args.sizes)
+        result=generate(args.output,long_dp=args.long_dp,long_fast=args.long_fast,sizes=args.sizes,
+                        models=(args.model,) if args.model else LIBERO_MODELS,groups=args.groups)
         print(json.dumps(dict(yamls=sum(map(len,result["models"].values())),manifest=str(args.output/"STUDY.json"),pending=len(result["artifacts_pending"]))));return 0
     if not args.study:p.error("--study required")
     if args.mode=="fit":
@@ -885,8 +928,11 @@ def main(argv=None):
     if not args.model:p.error("--model required")
     validate_manifest(args.study)
     from .formal_eval import main as formal
-    options=["--model",args.model,"--official-50","--cache-study",str(args.study)]
-    if args.mode=="smoke":options += ["--smoke","--smoke-episodes","2"]
+    options=["--model",args.model,"--cache-study",str(args.study)]
+    if args.model in LIBERO_MODELS:options += ['--official-50']
+    if args.mode=="smoke":
+        options += ["--smoke"]
+        if args.model in LIBERO_MODELS:options += ['--smoke-episodes','2']
     return formal(options+rest)
 
 

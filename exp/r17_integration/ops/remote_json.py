@@ -13,7 +13,7 @@ def stage_json(node, value, directory, stage, *, remote, transfer, python='pytho
     local = Path(directory)/'control_inputs'/(digest+'.json')
     atomic_bytes(local, raw)
     target = stage+'/control_'+digest+'.json'
-    transfer(['tether','push',str(local),node+':'+target])
+    transfer(['rsync','push',str(local),node+':'+target])
     code = ('from pathlib import Path;import hashlib,json; p=Path('+repr(target)+'); '
             's=hashlib.sha256(p.read_bytes()).hexdigest(); '
             'assert s=='+repr(digest)+',"staged control JSON SHA mismatch"; print(json.dumps({"sha256":s}))')

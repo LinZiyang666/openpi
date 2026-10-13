@@ -108,11 +108,9 @@ def serve(campaign, port, directory, cuda_graph=False):
     from exp.r17_integration.common.serving import make_connection_factory, make_bundle_validator
     from exp.r17_integration.common.websocket_policy_server import WebsocketPolicyServer
     directory = Path(directory)
-    shard_budget = None
     if campaign.get('library') and campaign.get('server_node')=='h100':
-        from .library_staging import admit, ShardBudget
+        from .library_staging import admit
         admit(campaign)
-        shard_budget = ShardBudget(campaign)
     directory.mkdir(parents=True, exist_ok=True)
     if not (directory.parent / 'manifest.json').exists():
         write_json(directory.parent / 'manifest.json', campaign)
@@ -151,13 +149,9 @@ def serve(campaign, port, directory, cuda_graph=False):
     storage = build_shared_storage(config)
     captures = None
     if campaign.get('library'):
-        from exp.r17_integration.debug.library_capture import LibraryCaptureFactory
+        from exp.r17_integration.debug.library_capture import campaign_capture_factory
         from exp.r17_integration.common.contracts import CaptureSpec
-        if shard_budget is not None:
-            from exp.r17_integration.debug.library_shards import ShardedLibraryCaptureFactory
-            captures = ShardedLibraryCaptureFactory(directory/'capture',shard_budget)
-        else:
-            captures = LibraryCaptureFactory(directory/'capture')
+        captures = campaign_capture_factory(campaign, directory/'capture')
         base_factory = make_connection_factory(provider,config,storage,capture_sink_factory=captures,
                                                capture_spec=CaptureSpec(enabled=True,snapshots=False))
     else:

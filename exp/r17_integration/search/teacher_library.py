@@ -13,24 +13,29 @@ from exp.r17_integration.benchmarks.spec import digest as task_data_digest
 from .store import SCHEMA, Store, atomic_json, fsync_directory
 
 
-def build_teacher_parent(sources, destination, binding, episodes, alignment, *, expected_episodes=500):
+def build_teacher_parent(sources, destination, binding, episodes, alignment=None, *, expected_episodes=500, capture_images=True):
     """Two bounded passes; RGB never accumulates in a Python whole-run list."""
     sources = tuple(map(Path, sources))
-    if alignment['init_pool'] != 'B' or alignment['status'] != 'PASS' or len(episodes) != expected_episodes:
+    if len(episodes) != expected_episodes:
+        raise ValueError('teacher episode count differs from plan')
+    if alignment and (alignment['init_pool'] != 'B' or alignment['status'] != 'PASS'):
         pass
-    by_coordinate = {(r['task_id'],r['orig_init_state_idx']):r for r in alignment['rows']}
+    by_coordinate = {(r['task_id'],r['orig_init_state_idx']):r for r in alignment['rows']} if alignment else {}
     from exp.r17_integration.debug.attempts import capture_counts, validate_prior_attempts
     attempt_counts, _ = capture_counts(sources, binding=binding)
     selected = {}
     for ep in episodes:
         coordinate = ep['suite_task_id'], ep['orig_init_idx']
-        witness = by_coordinate[coordinate]
-        canonical_name = alignment['suite']+'/'+witness['task_file']
-        if (ep.get('split') != 'library' or ep.get('init_pool') != 'B' or not ep.get('closed_ok') or
-            type(ep.get('success')) is not bool or ep.get('error') is not None or
-            ep['library_episode_id'] != witness['episode_id'] or
-            ep['init_state_sha256'] != witness['init_array']['state_sha256'] or ep['task_name'] != canonical_name or
-            ep['task_data_hash'] != task_data_digest(dict(witness['init_array'],task_name=canonical_name))):
+        if alignment:
+            witness = by_coordinate[coordinate]
+            canonical_name = alignment['suite']+'/'+witness['task_file']
+            aligned = (ep.get('init_pool') == 'B' and ep['library_episode_id'] == witness['episode_id'] and
+                ep['init_state_sha256'] == witness['init_array']['state_sha256'] and ep['task_name'] == canonical_name and
+                ep['task_data_hash'] == task_data_digest(dict(witness['init_array'],task_name=canonical_name)))
+        else:
+            aligned = ep.get('seed') == 8 and ep['library_episode_id'] == coordinate[0]*50+coordinate[1]
+        if (ep.get('split') != 'library' or not ep.get('closed_ok') or
+            type(ep.get('success')) is not bool or ep.get('error') is not None or not aligned):
             raise ValueError('teacher cohort/init/episode alignment mismatch')
         validate_prior_attempts(ep, attempt_counts)
         key = episode_identity(ep)
@@ -38,7 +43,7 @@ def build_teacher_parent(sources, destination, binding, episodes, alignment, *, 
             raise ValueError('duplicate selected teacher episode')
         selected[key] = ep
     ids = [ep['library_episode_id'] for ep in selected.values()]
-    if len(set(ids)) != len(ids) or expected_episodes==500 and set(ids) != set(range(500)):
+    if len(set(ids)) != len(ids) or alignment and expected_episodes==500 and set(ids) != set(range(500)):
         raise ValueError('teacher must select each B coordinate/episode id exactly once')
     def iterate():
         for source in sources:
@@ -52,10 +57,11 @@ def build_teacher_parent(sources, destination, binding, episodes, alignment, *, 
         ep = selected[identity[:-1]]
         k = binding['sampler']['num_steps']
         if (row.get('source') != 'policy' or row.get('actual_nfe') != k or row.get('stage_calls') != [1,1,k] or
-            row.get('sampler_identity') != digest(binding['sampler']) or row.get('init_pool') != 'B' or
+            row.get('sampler_identity') != digest(binding['sampler']) or row.get('init_pool') != ep.get('init_pool') or
             row.get('library_episode_id') != ep['library_episode_id'] or
             row.get('split') != 'library' or row.get('suite_task_id') != ep['suite_task_id'] or
-            row.get('init_state_sha256') != ep['init_state_sha256'] or
+            row.get('init_state_sha256') != ep.get('init_state_sha256') or
+            (not alignment and row.get('seed') != ep['seed']) or
             row.get('task_data_hash') != ep['task_data_hash'] or row.get('executed_count') is None):
             raise ValueError('capture is not an acknowledged full-native B teacher decision')
         if identity in records:
@@ -83,7 +89,9 @@ def build_teacher_parent(sources, destination, binding, episodes, alignment, *, 
     layout = binding['model']['layout']
     fields = binding['model']['feature_spec']['fields']
     for row,values,keys in iterate():
-        payload = {name:values[name] for name in ('state','normalized_actions','image_0','image_1')}
+        payload = {name:values[name] for name in ('state','normalized_actions')}
+        if capture_images:
+            payload.update({name:value for name,value in values.items() if name.startswith('image_')})
         payload.update({'key_'+name:keys[name] for name in fields})
         width = layout.get('model_action_width') or layout['valid_action_dim']
         if payload['normalized_actions'].shape != (layout['horizon'],width):
@@ -114,7 +122,8 @@ def build_teacher_parent(sources, destination, binding, episodes, alignment, *, 
         entries[name] = dict(file=path.name, sha256=file_sha(path), dtype=data.dtype.str,
                             shape=list(data.shape), mode='dense')
     metadata = dict(recipe='teacher_library', episodes=episodes, key_fields=list(fields),
-        init_pool='B', alignment_digest=alignment['digest'], images='received_wire_uint8; both real cameras',
+        init_pool='B' if alignment else 'seed8', alignment_digest=alignment['digest'] if alignment else None,
+        images='received_wire_uint8' if capture_images else 'disabled',
         failed_episodes_kept=True, expected_episodes=expected_episodes, full_native_sampler=True,
         fit_reads='selected B-only arrays; no A/query/outcome features')
     if any(ep.get('prior_attempts') for ep in episodes):
@@ -180,11 +189,17 @@ class RowIndexStore:
         return IndexedArray(self.parent.array(name),self.indices)
 
 
-def nested_views(parent, alignment, *, sizes=(50,100,200,300,400,500)):
+def nested_views(parent, alignment=None, *, sizes=(50,100,200,300,400,500)):
     result, previous = {}, set()
     for size in sizes:
-        selected = set(sum(alignment['selections'][str(size)].values(),[]))
-        if len(selected) != size or not previous <= selected:
+        if alignment:
+            selected = set(sum(alignment['selections'][str(size)].values(),[]))
+            expected = size
+        else:
+            tasks = {r['suite_task_id'] for r in parent.rows}
+            selected = {task*50+idx for task in tasks for idx in range(size)}
+            expected = size*len(tasks)
+        if len(selected) != expected or not previous <= selected:
             raise ValueError('R10 subsets must be nested complete episode quotas')
         available = {r['library_episode_id'] for r in parent.rows}
         if not selected <= available:
@@ -193,7 +208,7 @@ def nested_views(parent, alignment, *, sizes=(50,100,200,300,400,500)):
         directory = parent.directory/'subsets'/('size_'+str(size))
         if directory.exists():
             view = RowIndexStore(directory,parent=parent)
-            if set(view.manifest['episode_ids']) != selected or view.manifest['metadata']['alignment_digest'] != alignment['digest']:
+            if set(view.manifest['episode_ids']) != selected or view.manifest['metadata']['alignment_digest'] != (alignment['digest'] if alignment else None):
                 raise ValueError('existing subset differs from audited R10 selection')
             result[size] = view
             previous = selected
@@ -205,7 +220,10 @@ def nested_views(parent, alignment, *, sizes=(50,100,200,300,400,500)):
         manifest = dict(schema='r17.row_index_view.v1',parent_path='../..',parent_digest=parent.manifest['content_digest'],
             binding=parent.manifest['binding'],rows=len(indices),episode_ids=sorted(selected),size=size,
             row_indices_sha256=file_sha(path),metadata=dict(init_pool='B',split='library',
-                subset_seed=alignment['subset_seed'],alignment_digest=alignment['digest'],selected_fit_only=True))
+                subset_seed=alignment['subset_seed'] if alignment else 8,
+                alignment_digest=alignment['digest'] if alignment else None,selected_fit_only=True))
+        if not alignment:
+            manifest['metadata'].update(init_pool='seed8',episodes_per_task=size)
         manifest['content_digest'] = digest(manifest)
         atomic_json(directory/'VIEW.json',manifest)
         result[size] = RowIndexStore(directory,parent=parent)
@@ -213,7 +231,7 @@ def nested_views(parent, alignment, *, sizes=(50,100,200,300,400,500)):
     return result
 
 
-def fit_nested_libraries(parent, alignment, *, task_names, sizes=(50,100,200,300,400,500), **settings):
+def fit_nested_libraries(parent, alignment=None, *, task_names, sizes=(50,100,200,300,400,500), **settings):
     from .fit import fit_recipe, save_fitted_recipe
     views = nested_views(parent,alignment,sizes=sizes)
     products = {}
@@ -232,14 +250,14 @@ def fit_nested_libraries(parent, alignment, *, task_names, sizes=(50,100,200,300
                 prior['corrector'] != settings['corrector']):
                 raise ValueError('existing fit differs from selected library/settings')
             products[str(size)] = dict(fit_digest=sealed['digest'],receipt_digest=prior['digest'],
-                directory=str(fit_path),episodes=size,rows=len(view.indices))
+                directory=str(fit_path),episodes=len(view.manifest['episode_ids']),rows=len(view.indices))
             continue
         if fit_path.exists():
             raise ValueError('partial fit retained; move it aside before CPU --finish retry')
         recipe,receipt = fit_recipe(view,task_names=task_names,compact_loeo=True,**settings)
         receipt.update(library_size=size,selected_parent_rows=len(view.indices),
             selection_digest=view.manifest['content_digest'], parent_digest=parent.manifest['content_digest'],
-            serving_loeo_required_on_B=size==500,
+            serving_loeo_required_on_B=size==(500 if alignment else 50),
             serving_loeo='B query task/local-init must exclude library_episode_id; A queries have no B own episode',
             shared_products=['PCA','Mahalanobis','early_metric','LOEO_corrector','distance_calibration',
                              'continuity_scale','corrector_caps','no_progress_guard','periodic_knob'],
@@ -253,7 +271,7 @@ def fit_nested_libraries(parent, alignment, *, task_names, sizes=(50,100,200,300
         receipt['digest'] = digest({k:v for k,v in receipt.items() if k!='digest'})
         manifest = save_fitted_recipe(recipe,receipt,fit_path)
         products[str(size)] = dict(fit_digest=manifest['digest'],receipt_digest=receipt['digest'],
-            directory=str(parent.directory/'fits'/('size_'+str(size))),episodes=size,rows=len(view.indices))
+            directory=str(parent.directory/'fits'/('size_'+str(size))),episodes=len(view.manifest['episode_ids']),rows=len(view.indices))
     atomic_json(parent.directory/'FIT_PRODUCTS.json',products)
     return products
 

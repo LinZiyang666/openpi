@@ -72,6 +72,8 @@ def episode_tasks(*, campaign, arm, bundle_id, endpoint, model_identity, norm_id
                 extra["suite_task_id"] = tid % 10
                 extra["expected_controls"] = spec.max_steps_by_suite[tid // 10]
                 extra["wire_size"] = spec.wire_size
+            else:
+                extra["seed"] = spec.seed_for(partition)
             if spec.benchmark != "libero" and commit_horizon is not None and commit_horizon % spec.replan_steps:
                 raise ValueError("MetaWorld commit must be divisible by native replan steps")
             output.append(EpisodeTask(make_task_uid(yaml_id, "eval", tid, idx), yaml_id, "eval", experiment,

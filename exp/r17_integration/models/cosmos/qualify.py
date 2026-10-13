@@ -11,6 +11,9 @@ DEFAULT_OBSERVATIONS = '/data/mw_finetune/qualification/observations/cosmos_libe
 
 
 def run_parity(adapter, directory=DEFAULT_OBSERVATIONS, steps=(5, 3, 1, 2)):
+    if adapter.metadata().model_id == 'cosmos_mw':
+        from .metaworld import run_parity as mw_parity
+        return mw_parity(adapter, steps=steps)
     from .record_observations import validate
     from .protocols import PROPRIO_KEY
     from exp.r17_integration.common.contracts import RequestContext

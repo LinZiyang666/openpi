@@ -104,7 +104,7 @@ def test_sealed_plan_and_real_core_execute_exact_chunk_tail(tmp_path, model, hor
 
 
 @pytest.mark.parametrize('model,commit', [('dp_libero', 4), ('dp_libero', 17),
-    ('fastwam_libero', 33), ('cosmos_libero', 15), ('cosmos_libero', 17), ('dp_mw', 10)])
+    ('fastwam_libero', 33), ('cosmos_libero', 15), ('cosmos_libero', 17), ('dp_mw', 11)])
 def test_cli_rejects_unsupported_commitment(model, commit):
     with pytest.raises(SystemExit):
         launch.parse_args(['--prepare-only', '--model', model, '--commit-horizon', str(commit)])

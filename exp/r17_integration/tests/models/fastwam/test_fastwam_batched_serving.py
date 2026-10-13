@@ -45,8 +45,8 @@ def test_batch_window_rejects_invalid_values(value):
 def test_batch_scope_and_worker_count_fail_closed(tmp_path,monkeypatch):
     with pytest.raises(ValueError,match='ledger'):
         create_runtime(make_adapter('libero'),2)
-    with pytest.raises(ValueError,match='libero only'):
-        create_runtime(make_adapter('metaworld'),2,ledger_path=tmp_path/'ledger')
+    runtime=create_runtime(make_adapter('metaworld'),2,ledger_path=tmp_path/'ledger')
+    runtime.close()
     monkeypatch.setenv('BATCHING_STAGE2_WORKERS','2')
     with pytest.raises(ValueError,match='one worker'):
         create_runtime(make_adapter('libero'),2,ledger_path=tmp_path/'ledger')

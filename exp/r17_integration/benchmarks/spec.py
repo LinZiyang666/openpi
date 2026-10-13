@@ -35,10 +35,19 @@ class BenchmarkSpec:
     camera_pos: tuple[float, ...] = (0.75, 0.075, 0.7)
     render_size: int = 480
     rotation_degrees: int = 180
-    formal_indices: tuple[int, ...] = tuple(range(10))
-    library_indices: tuple[int, ...] = tuple(range(10, 30))
-    dev_indices: tuple[int, ...] = tuple(range(30, 50))
+    formal_indices: tuple[int, ...] = tuple(range(50))
+    library_indices: tuple[int, ...] = tuple(range(50))
+    dev_indices: tuple[int, ...] = ()
+    library_seed: int = 8
+    dev_seed: int | None = None
     interface_version: str = "r17.v1"
+
+    def seed_for(self, partition: str) -> int:
+        seed = {"test": self.seed, "smoke": self.seed,
+                "library": self.library_seed, "dev": self.dev_seed}[partition]
+        if seed is None:
+            raise ValueError("dev partition seed has not been chosen")
+        return seed
 
     @property
     def ordered_tasks(self) -> tuple[str, ...]:
@@ -60,7 +69,8 @@ class BenchmarkSpec:
                         camera_digest=digest((self.camera, self.camera_id, self.camera_pos,
                                               self.render_size, self.rotation_degrees)),
                         group_digest=digest((self.tasks, self.seed, self.formal_indices,
-                                             self.library_indices, self.dev_indices)),
+                                             self.library_indices, self.dev_indices,
+                                             self.library_seed, self.dev_seed)),
                         env_source_digest=digest({p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in
                                                   (Path(__file__).resolve().parents[2] / "metaworld/env.py",
                                                    Path(__file__).resolve().parents[2] / "metaworld/tasks.py")}),
@@ -71,9 +81,9 @@ class BenchmarkSpec:
         return {**asdict(self), "protocol_identity": self.identity,
                 "ordered_tasks": self.ordered_tasks, "task_table_identity": self.task_table_identity,
                 "expected_formal_episodes": len(self.tasks) * len(self.formal_indices),
-                "init_source": "MT1(task, seed=7).train_tasks[original_idx]",
+                "init_source": "MT1(task, seed=partition_seed).train_tasks[original_idx]",
                 "success": "info.success at any policy control",
-                "policy_rng": "sha256(mt50:7:task:idx:decision)[:4] little-endian; NumPy PCG64 standard_normal float32",
+                "policy_rng": "sha256(mt50:episode_seed:task:idx:decision)[:4] little-endian; NumPy PCG64 standard_normal float32",
                 "termination": "success | terminated | truncated | step_cap; exceptions are errors"}
 
 

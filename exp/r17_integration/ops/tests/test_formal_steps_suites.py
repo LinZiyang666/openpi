@@ -84,7 +84,7 @@ def test_suite_filter_retains_all_500_original_episode_identities(tmp_path, mode
     ['--model', 'cosmos_libero', '--denoising-steps', '4'],
     ['--model', 'dp_libero', '--denoising-steps', '1'],
     ['--model', 'fastwam_libero', '--denoising-steps', '3'],
-    ['--model', 'dp_mw', '--denoising-steps', '5'],
+    ['--model', 'dp_mw', '--denoising-steps', '1'],
     ['--denoising-steps', '10', '--commit-horizon', '5'],
     ['--suites', 'libero_spatial'],
     ['--official-50', '--suites', 'unknown'],

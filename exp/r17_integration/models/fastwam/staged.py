@@ -94,8 +94,8 @@ class FastWAMAdapter:
 
     def _check_batch(self, count):
         if self.batch_config is not None:
-            if self.metadata().model_id != "fastwam_libero" or not 0 <= count <= self.batch_config.max_batch:
-                raise ValueError("Fast-WAM batch exceeds explicit LIBERO execution study limit")
+            if self.metadata().model_id not in ("fastwam_libero", "fastwam_mt50") or not 0 <= count <= self.batch_config.max_batch:
+                raise ValueError("Fast-WAM batch exceeds explicit execution study limit")
             return
         if count > 1 and not self.allow_unqualified_batch:
             raise ValueError("Fast-WAM B>1 disabled: GPU batch-composition parity unqualified")

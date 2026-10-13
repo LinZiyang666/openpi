@@ -40,20 +40,36 @@ def make_data_batch(native, embedding, cfg, stats, model, cu, torch):
 
 
 class CosmosAdapter:
+    @staticmethod
+    def data_batch_builder(*args):
+        return make_data_batch(*args)
+
+    action_latent_idx = 4
+    action_shape = (16, 7)
+    teacher_seed = 195
+
     def __init__(self, model, manifest, cfg, stats, embeddings, cu, *, lock=None):
         self.model, self.manifest, self.cfg, self.stats = model, manifest, cfg, stats
         self.embeddings, self.cu = embeddings, cu
         self.lock = lock or threading.RLock()
+        self.wire = self.make_wire_policy(stats, cu)
+        self.keys = self.make_key_builder(manifest.spec.feature_spec)
+
+    @staticmethod
+    def make_wire_policy(stats, cu):
         from .wire_policy import CosmosWirePolicy
-        self.wire = CosmosWirePolicy(stats, cu)
-        self.keys = CosmosKeyBuilder(manifest.spec.feature_spec)
+        return CosmosWirePolicy(stats, cu)
+
+    @staticmethod
+    def make_key_builder(feature_spec):
+        return CosmosKeyBuilder(feature_spec)
 
     def metadata(self):
         return self.manifest.spec
 
     def prepare(self, obs, request):
         if request.benchmark_protocol not in self.metadata().allowed_benchmark_protocols:
-            raise ValueError("Cosmos request is not bound to an admitted LIBERO protocol")
+            raise ValueError("Cosmos request is not bound to its benchmark protocol")
         prepared = self.wire.prepare(obs, request)
         if prepared.data["prompt"] not in self.embeddings:
             raise ValueError("prompt absent from the sealed official T5 cache; no encoder fallback")
@@ -76,7 +92,7 @@ class CosmosAdapter:
             # Our B1 resident resets it at each decision; the native initial
             # diffusion noise separately uses the explicit request seed195.
             set_seed_everywhere(0)
-            batch = make_data_batch(prepared.data["native"], self.embeddings[prepared.data["prompt"]],
+            batch = self.data_batch_builder(prepared.data["native"], self.embeddings[prepared.data["prompt"]],
                                     self.cfg, self.stats, self.model, self.cu, torch)
             self.model._normalize_video_databatch_inplace(batch)
             self.model._augment_image_dim_inplace(batch)
@@ -104,15 +120,15 @@ class CosmosAdapter:
         if capture.enabled and (capture.snapshots or capture.fields):
             raise ValueError("Cosmos capture supports only the minimal teacher profile; no snapshots or extra fields")
         if capture.enabled and sampler != self.metadata().default_sampler:
-            raise ValueError("Cosmos teacher capture requires full native K5 and seed195")
+            raise ValueError("Cosmos teacher capture requires the default K5 sampler")
         if stage2.data["model_identity"] != self.metadata().identity:
             pass
         import torch
         from cosmos_policy._src.imaginaire.utils import misc
         device = self.model.tensor_kwargs["device"]
         seed = rng.seed_for()
-        if capture.enabled and seed != 195:
-            raise ValueError("Cosmos teacher capture requires full native K5 and seed195")
+        if capture.enabled and self.teacher_seed is not None and seed != self.teacher_seed:
+            raise ValueError(f"Cosmos teacher capture requires seed{self.teacher_seed}")
         calls = 0
         def denoise(x, sigma):
             nonlocal calls
@@ -122,8 +138,8 @@ class CosmosAdapter:
             noise = misc.arch_invariant_rand(stage2.data["latent_shape"], torch.float32, device, seed) * self.model.sde.sigma_max
             generated = self.model.sampler(denoise, noise, num_steps=sampler.num_steps,
                 sigma_max=self.model.sde.sigma_max, sigma_min=self.model.sde.sigma_min, solver_option="2ab")
-            indices = torch.tensor([4], device=device, dtype=torch.int64)
-            actions = self.cu.extract_action_chunk_from_latent_sequence(generated, (16, 7), indices).float().cpu()[0]
+            indices = torch.tensor([self.action_latent_idx], device=device, dtype=torch.int64)
+            actions = self.cu.extract_action_chunk_from_latent_sequence(generated, self.action_shape, indices).float().cpu()[0]
         if calls != sampler.config.get("expected_nfe", sampler.num_steps):
             raise RuntimeError("Cosmos actual denoiser NFE differs from attested sampler")
         return SampleResult(actions, calls, sampler, capture={"capture_enabled": capture.enabled,

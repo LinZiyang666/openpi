@@ -37,7 +37,7 @@ def test_single_argument_smoke_default_print_is_safe():
     assert result.returncode==0 and '--run' in result.stdout
 
 
-@pytest.mark.parametrize('model',study.MODELS)
+@pytest.mark.parametrize('model',study.LIBERO_MODELS)
 def test_actual_closed_control_pins_and_changed_treatment_denied(model):
     old=study.read(lane.RUN_ROOT/study.CONTROLS[model]/'campaign.json')
     proof=cache_control.control_proof(lane.RUN_ROOT/study.CONTROLS[model],lane.RUN_ROOT/lane.RUNTIME_SOURCES[model],old)

@@ -88,7 +88,7 @@ def test_size_cells_unique_official_a_and_cosmos_aliases(model,expected,tmp_path
     assert [tasks[i*expected//5].extra['library_size'] for i in range(5)]==SIZES
 
 
-@pytest.mark.parametrize('model',study.MODELS)
+@pytest.mark.parametrize('model',study.LIBERO_MODELS)
 def test_real_library_socket_size_switch_no_resident_restart(model,monkeypatch):
     from openpi.serving import websocket_policy_server as ws
     from exp.r17_integration.common.websocket_policy_server import WebsocketPolicyServer

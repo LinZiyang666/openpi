@@ -28,7 +28,7 @@ def tokenizer_path(spec):
         return Path(spec.tokenizer_path)
     from huggingface_hub import hf_hub_download
     return Path(hf_hub_download("nvidia/Cosmos-Predict2-2B-Video2World", "tokenizer/tokenizer.pth",
-                cache_dir=str(Path(spec.hf_home) / "hub"), local_files_only=True))
+                cache_dir=str(Path(spec.hf_home) / "hub"), local_files_only=True, token=False))
 
 
 def asset_paths(spec):
@@ -60,6 +60,9 @@ def read_stats(spec):
 
 
 def cpu_manifest(spec):
+    from .metaworld import is_metaworld, cpu_manifest as mw_manifest
+    if is_metaworld(spec):
+        return mw_manifest(spec)
     if not spec.benchmark_protocols:
         raise ValueError("Cosmos descriptor must bind the complete benchmark protocol")
     from exp.r17_integration.ops.formal_eval import benchmark
@@ -113,6 +116,9 @@ def audit_loaded_net(net, state):
 def load_adapter(spec, *, device="cuda:0"):
     if isinstance(spec, dict):
         spec = LoadSpec(**spec)
+    from .metaworld import is_metaworld, load_adapter as load_mw
+    if is_metaworld(spec):
+        return load_mw(spec, device=device)
     manifest = cpu_manifest(spec)
     if not spec.expected_digests or dict(manifest.content_digests) != spec.expected_digests:
         pass

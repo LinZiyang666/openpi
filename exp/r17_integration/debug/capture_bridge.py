@@ -10,10 +10,17 @@ import time
 from .validate import canonical, decision_identity, digest, episode_identity, file_sha, numeric_arrays, plain
 
 
+def image_array(value):
+    """Recognize native uint8 HWC RGB without copying a tensor to the CPU."""
+    return (getattr(value, "ndim", None) == 3 and value.shape[-1] == 3
+            and str(getattr(value, "dtype", "")) in ("uint8", "torch.uint8"))
+
+
 class CaptureBridge:
     def __init__(self, directory=None, *, enabled=False, binding=None, writer=None,
-                 trace_sink=None, transport=None, queue_bytes=8 * 1024**2):
+                 trace_sink=None, transport=None, queue_bytes=8 * 1024**2, capture_images=True):
         self.enabled = bool(enabled)
+        self.capture_images = capture_images
         self.binding = plain(binding) if binding is not None else None
         self.directory = Path(directory) if directory is not None else None
         self.writer = writer
@@ -52,6 +59,9 @@ class CaptureBridge:
         record.setdefault("capabilities", {})
         record.setdefault("capture_status", "available")
         serialization = dict(arrays={}, rawkeys={})
+        if not self.capture_images:
+            arrays = {k:v for k,v in arrays.items() if not image_array(v)}
+            rawkeys = {k:v for k,v in (rawkeys or {}).items() if not image_array(v)}
         arrays = numeric_arrays(arrays, serialization=serialization["arrays"])
         rawkeys = numeric_arrays(rawkeys or {}, serialization=serialization["rawkeys"])
         if any(serialization.values()):
@@ -231,7 +241,8 @@ class DecisionSink:
                 for i, child in enumerate(value):
                     flatten(child, prefix + "/" + str(i))
             elif hasattr(value, "shape"):
-                arrays[quote(prefix, safe="")] = value
+                if self.bridge.capture_images or not image_array(value):
+                    arrays[quote(prefix, safe="")] = value
             else:
                 record["native_capture_metadata"][prefix] = plain(value)
         flatten(sample_capture)
@@ -399,11 +410,12 @@ class CaptureFactory:
     This shim avoids ambiguous seq0 acknowledgments even before P1 appends a
     RequestContext to its execution callback. No model wrapper is patched.
     """
-    def __init__(self, provider, config, storage, *, directory=None, episode_metadata=None, enabled=False, **kwargs):
+    def __init__(self, provider, config, storage, *, directory=None, episode_metadata=None, enabled=False, capture_images=True, **kwargs):
         from exp.r17_integration.common.serving import make_connection_factory
         self.provider, self.config, self.storage = provider, config, storage
         self.directory, self.episode_metadata = directory, episode_metadata
         self.enabled, self.kwargs = enabled, kwargs
+        self.capture_images = capture_images
         self.base_factory = make_connection_factory(provider, config, storage, **kwargs)
         self.bridges = {}
         self._lock = threading.Lock()
@@ -429,7 +441,8 @@ class CaptureFactory:
         key = digest(binding)
         with self._lock:
             if key not in self.bridges:
-                self.bridges[key] = CaptureBridge(Path(self.directory) / ("binding_" + key[:16]), enabled=True, binding=binding)
+                self.bridges[key] = CaptureBridge(Path(self.directory) / ("binding_" + key[:16]), enabled=True, binding=binding,
+                                                  capture_images=self.capture_images)
             bridge = self.bridges[key]
         core = self.base_factory(base_policy, bundle_id)
         sink = DecisionSink(bridge, self.episode_metadata or (lambda request: dict(core._episode)))
@@ -446,8 +459,9 @@ class CaptureFactory:
 
 class CoreCaptureFactory:
     """Attach to an already built connection core; never replace its recipe."""
-    def __init__(self, directory, *, provider=None, enabled=True):
+    def __init__(self, directory, *, provider=None, enabled=True, capture_images=True):
         self.directory, self.provider, self.enabled = directory, provider, enabled
+        self.capture_images = capture_images
         self.bridges, self._lock = {}, threading.Lock()
 
     def __call__(self, core):
@@ -460,7 +474,8 @@ class CoreCaptureFactory:
         key = digest(binding)
         with self._lock:
             if key not in self.bridges:
-                self.bridges[key] = CaptureBridge(Path(self.directory) / ("binding_"+key[:16]), enabled=True, binding=binding)
+                self.bridges[key] = CaptureBridge(Path(self.directory) / ("binding_"+key[:16]), enabled=True, binding=binding,
+                                                  capture_images=self.capture_images)
             bridge = self.bridges[key]
         return DecisionSink(bridge, lambda request: dict(core._episode))
 
@@ -469,11 +484,11 @@ class CoreCaptureFactory:
             return [bridge.close() for bridge in self.bridges.values()]
 
 
-def make_capture_sink_factory(provider, directory=None, *, enabled=True):
+def make_capture_sink_factory(provider, directory=None, *, enabled=True, capture_images=True):
     """Provider+directory form or directory-only compatibility with P2's shim."""
     if directory is None:
         directory, provider = provider, None
-    return CoreCaptureFactory(directory, provider=provider, enabled=enabled)
+    return CoreCaptureFactory(directory, provider=provider, enabled=enabled, capture_images=capture_images)
 
 
 class PhysicalCaptureFactory:

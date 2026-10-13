@@ -204,7 +204,7 @@ def pull_snapshot(node, value, destination, *, key, python, root, deadline, phys
         if time.monotonic() >= deadline:
             raise TimeoutError('CPU evidence sealing deadline exceeded')
     if not archive.exists():
-        launch.transfer(['tether','pull',source_node+':'+value['archive'],str(archive)], heartbeat=heartbeat)
+        launch.transfer(['rsync','pull',source_node+':'+value['archive'],str(archive)], heartbeat=heartbeat)
     if 'archive_size_bytes' not in value:
         size = json.loads(launch.remote(source_node,[python,'-c','import json; from pathlib import Path; '
             'print(json.dumps(Path('+repr(value['archive'])+').stat().st_size))'],replay_safe=True))

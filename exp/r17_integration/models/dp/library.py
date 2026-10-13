@@ -97,4 +97,6 @@ def validate_library(provider, config, binding):
 
 def configure_library_provider(provider):
     """Frozen provider copy; no registration, weights reload or identity change."""
+    if provider.model_spec.model_id == 'dp_t_metaworld':
+        return provider  # MT50 uses the common teacher/Store recipe path, without the historical LIBERO release hook.
     return replace(provider, library_validator=lambda config,binding:validate_library(provider,config,binding))

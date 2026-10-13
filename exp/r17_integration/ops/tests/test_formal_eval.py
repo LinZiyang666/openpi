@@ -39,12 +39,12 @@ class FormalCampaignTests(unittest.TestCase):
             _, _, tasks, _ = plan(campaign)
             return tasks
 
-    def test_sealed_cohorts_are_exactly_400_2000_500_and_canonical(self):
+    def test_sealed_cohorts_are_exactly_400_2000_2500_and_canonical(self):
         from exp.r17_integration.benchmarks.metaworld import FORMAL_SPEC
         for benchmark, domain, expected, indices in (
             (launch.benchmark(), 'libero', 400, set(range(10))),
             (launch.benchmark(True), 'libero', 2000, set(range(50))),
-            (FORMAL_SPEC, 'metaworld', 500, set(range(10)))):
+            (FORMAL_SPEC, 'metaworld', 2500, set(range(50)))):
             tasks = self.fixture_plan(benchmark, domain)
             self.assertEqual(len(tasks), expected)
             self.assertEqual(len({t.task_uid for t in tasks}), expected)

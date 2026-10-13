@@ -79,7 +79,8 @@ def _read_store_descriptor(path, expected):
             value.get("content_digest") != expected or
             digest({k: v for k, v in value.items() if k != "content_digest"}) != expected):
         pass
-    if any(row.get("split") != "library" or row.get("init_pool", "B") != "B" for row in value["rows"]):
+    if any(row.get("split") != "library" or (row.get("init_pool", "B") != "B" and
+           not (row.get("init_pool") == "seed8" and row.get("seed") == 8)) for row in value["rows"]):
         raise ValueError("teacher fit source must be B library only")
     return SimpleNamespace(manifest=value, directory=Path(path))
 
@@ -93,9 +94,11 @@ def validate_protocol_bridge(config, binding):
     if not isinstance(bridge, dict) or set(bridge) != {"source", "serving"}:
         pass
     from exp.r17_integration.benchmarks.libero_bridge import LiberoBenchmarkSpec
+    from exp.r17_integration.benchmarks.spec import BenchmarkSpec
     from exp.r17_integration.common.benchmarks import get_benchmark
-    names = {f.name for f in fields(LiberoBenchmarkSpec)}
-    profiles = [LiberoBenchmarkSpec(**{k: v for k, v in bridge[side].items() if k in names})
+    kind = LiberoBenchmarkSpec if bridge['source']['benchmark'] == 'libero' else BenchmarkSpec
+    names = {f.name for f in fields(kind)}
+    profiles = [kind(**{k: v for k, v in bridge[side].items() if k in names})
                 for side in ("source", "serving")]
     source, serving = profiles
     if source.identity != binding["benchmark_protocol"] or serving.identity != target:

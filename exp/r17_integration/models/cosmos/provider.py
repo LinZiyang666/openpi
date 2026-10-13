@@ -25,13 +25,19 @@ def configure_library_provider(provider):
 
 def register_provider(adapter):
     from exp.r17_integration.common.provider import AdapterProvider, register_provider as register
-    from .staged import CosmosAdapter
     spec = adapter.metadata()
     def clone():
-        return CosmosAdapter(adapter.model, adapter.manifest, adapter.cfg, adapter.stats, adapter.embeddings,
+        return type(adapter)(adapter.model, adapter.manifest, adapter.cfg, adapter.stats, adapter.embeddings,
                              adapter.cu, lock=adapter.lock)
+    metaworld = spec.model_id == 'cosmos_mw'
+    if metaworld:
+        from .metaworld import CosmosMWKeyBuilder, validate_config as validator
+        builder = CosmosMWKeyBuilder
+    else:
+        builder, validator = CosmosKeyBuilder, validate_config
     provider = AdapterProvider(spec.model_id, spec, clone, adapter.sampler_for_steps,
-        key_builder_factory=lambda config: CosmosKeyBuilder(spec.feature_spec), config_validator=validate_config)
-    provider = configure_library_provider(provider)
+        key_builder_factory=lambda config: builder(spec.feature_spec), config_validator=validator)
+    if not metaworld:
+        provider = configure_library_provider(provider)
     register(provider)
     return provider

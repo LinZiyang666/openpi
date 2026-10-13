@@ -25,7 +25,9 @@ gain. Select a measured treatment before a baseline and freeze it for its arms.
 
 - Server nodes are `h100` (80 GB) and `local` (the **48 GB** 4090, 49,140 MiB,
   not a stock 24 GB card). Simulators run only on worker nodes.
-- **timan1 is forbidden.** timan107 has 8 x GTX 1080/8 GB and 220.28 GiB host
+- **timan1 MetaWorld workers are owner-authorized on physical GPU3 only, max40.**
+  Use `--worker-counts timan107=N,timan1=M`; the launcher pins timan1 to GPU3.
+  timan107 has 8 x GTX 1080/8 GB and 220.28 GiB host
   RAM. The owner has run 64 workers there. That is useful concurrency history,
   not a universal capacity limit or permission to ignore current admission.
 - timan108 has 4 x A5000; **GPU1/2 belong to another user**. It is currently
@@ -39,7 +41,7 @@ gain. Select a measured treatment before a baseline and freeze it for its arms.
   Their two sections give the actual R16 resident/conductor path. Do not
   substitute an invalid formal command or equate an R16 cached group with an
   R17 pure-inference official-2000 baseline.
-- `--max-batch > 1` is admitted only for **Fast-WAM/DP LIBERO** in the normal
+- `--max-batch > 1` is admitted for **Fast-WAM/DP LIBERO and MetaWorld MT50** in the normal
   formal launcher. Other formal selectors use B1; a batching window has no
   effect on that direct path. Legacy LIBERO π0.5/GR00T have their own batch
   environment variables, described below.
@@ -72,6 +74,8 @@ gain. Select a measured treatment before a baseline and freeze it for its arms.
   H100 Fast-WAM R2/B16/5 ms at28.0 calls/s (+12.9% over the same topology off)
   and4090 DP R2/B8 at26.163 (+15.5% observed over off). Other model/benchmark
   MPS configurations remain unqualified; off-baseline arms stay off.
+  MT50 DP/Fast-WAM now admit batched replicas and private MPS; throughput and
+  production GPU batch drift remain coordinator measurements, not CPU test claims.
 - Q's driver fix uses a separate **orchestration pin**, leaving model/worker
   bytes frozen. **Use `--driver-mode group-commit` for Fast-WAM/DP LIBERO.**
   Q's real-/data CPU replay and durability regressions passed. Its separate
@@ -87,7 +91,9 @@ gain. Select a measured treatment before a baseline and freeze it for its arms.
 - LIBERO official baselines require `--official-50`: original init0..49,
   500 episodes/suite, four suites = 2000. Earlier formal400 receipts below
   are throughput history, not acceptable replacement baselines. MT50 formal
-  campaigns have 500 episodes without this flag. Horizon and denoising
+  campaigns now have 2,500 episodes without this flag: seed7, init0..49 for
+  every task. MT50 libraries use seed8, init0..49; dev is undecided and seeds9/10
+  remain reserved. Horizon and denoising
   overrides cannot be supplied together, even if one equals the default.
 
 All formal templates use a unique `--run-name`, `--gpu cuda:0`,
@@ -523,6 +529,9 @@ Sources: [Cosmos handback](../handbacks/HANDBACK_COSMOS.md),
 
 ## π0.5 x MetaWorld MT50
 
+The formal launcher now accepts native K1/K2/K10. This MT50 checkpoint predicts
+H5, so its maximum commit is C5; C10 needs a different checkpoint geometry.
+
 **Measured-topology baseline template:**
 
 ```bash
@@ -563,6 +572,10 @@ Sources: [Q qualification handback](../qualification/HANDBACK_Q.md),
 [decision counts](/data/mw_finetune/eval/pi05_rlinf_mt50_egl/episodes.jsonl).
 
 ## GR00T x MetaWorld MT50
+
+The formal launcher now accepts K1/K2/K4 by loading an endpoint with the selected
+immutable K, and C5/C10/C15 at K4. Cache YAMLs can hot-switch at the resident's K;
+changing GR00T K requires a new resident.
 
 **Baseline template matching the historical R1/x12 topology:**
 
@@ -605,6 +618,12 @@ Sources: [G2 replicas PASS](/data/mw_finetune/qualification/runs/slot_G2_groot_m
 
 ## DP x MetaWorld MT50
 
+MT50 now accepts B2..32, private `--mps`, native DDPM100 or trailing eta0
+DDIM10/DDIM5, and C5/C10/C15. C10 uses two five-action transport calls; the
+second is a committed tail with no model compute. Default B1 behavior is
+unchanged. See [package B handback](../handbacks/HANDBACK_MW_B.md) for CPU evidence
+and parameterized coordinator smoke commands; GPU throughput remains unmeasured.
+
 **Fresh single-resident capacity template** (episode throughput unmeasured):
 
 ```bash
@@ -628,9 +647,10 @@ bash exp/r17_integration/ops/formal_eval.sh \
 - **Sharing:** localR1/x12/4 GiB,2048/1024/N0; avoid placing a12-process
   DP pool beside Fast-WAM onH100. Session history reports that arrangement
   reduced Fast-WAM from about10 to4 ep/min. Spare VRAM is not spare compute.
-- **Batch/drift:** productionB1 with native DDPM100 CUDA graphs and exact
-  graph/eager self-check. LIBERO's qualified vector scheduler/graph signatures
-  do not qualify MT50B>1. Window inactive; do not pass `--max-batch 16` here.
+- **Batch/drift:** B1 remains the historical topology; MT50 B2..32 now uses
+  native DDPM100 CUDA graphs and the existing graph/eager self-check. The
+  batching window is active for B>1. GPU arithmetic drift and throughput still
+  need MT50 measurements; LIBERO numbers do not establish those results.
 - **Measured rate:** clean formal500 localR12/timan107x24:
   500/1941.295 s =15.45 ep/min,10655/1941.295 =5.489 calls/s.
   All12 resident VRAM allocations totaled10678 MiB (~888 MiB each).
@@ -646,6 +666,12 @@ Sources: [completed campaign](/data/mw_finetune/eval/formal_dp_mw_mt50_500_20261
 [Q handback](../qualification/HANDBACK_Q.md).
 
 ## Fast-WAM x MetaWorld MT50
+
+The one-view MT50 geometry now uses the same native stage batching at B2..32,
+with optional private MPS, K1/K2/K10, and C5..C30 in multiples of five. C10
+retains five-action calls and reuses the second committed tail without compute.
+MT50 cache studies register YAMLs on the resident and select them per episode;
+see [package B handback](../handbacks/HANDBACK_MW_B.md) for smoke commands.
 
 **Fresh single-resident capacity template on the usable worker node:**
 
@@ -673,9 +699,9 @@ bash exp/r17_integration/ops/formal_eval.sh \
 - **Sharing:** H1001/36 GiB,12 workers/2048 MiB plus1024 VRAM/N0. Prefer
   keeping other small-kernel campaigns on the other GPU. Local1 can coexist
   only after sum-of-peak admission, not a momentary free-memory observation.
-- **Batch/drift:** B1 only, inactive5 ms window. P3's LIBERO B8 certification
-  does not cover the one-view MT50 delta geometry. No MW production B>1
-  qualification; an old CPU B2 fixture is insufficient.
+- **Batch/drift:** B1 is the historical setting; B2..32 now batches the one-view
+  MT50 delta geometry with an active window. P3's LIBERO B8 measurements do not
+  cover this geometry. Production MW GPU drift and throughput remain unmeasured.
 - **Measured rate:** clean formal500 H100R2/timan108x24:
   500/3457.273 s =8.677 ep/min,10514/3457.273 =3.041 calls/s.
   OtherH100 residents shared the historical schedule; no standalone util/W
@@ -1005,8 +1031,9 @@ Evidence: [coordinator script-edit incident](../../../logs/session_handoff.md),
 ### Respect model ports, node exclusions, and tether budget
 
 Cosmos23240..23249, Fast-WAM23170..23179, DP23180..23189. A broader parser
-or old receipt does not authorize taking another model's lane. timan1 is
-forbidden; timan108 remains offline andGPU1/2 belong to another user. After
+or old receipt does not authorize taking another model's lane. MetaWorld on
+timan1 is authorized on physical GPU3 only, max40 workers; timan108 remains
+offline andGPU1/2 belong to another user. After
 recovery use eligible0,3 and fresh admission. Keep tether probes>=30 s apart;
 prefer S's existing evidence and batch read-only calls.
 

@@ -70,8 +70,8 @@ class BatchRuntime:
     def __init__(self, adapter, config, ledger_path):
         from openpi.serving.batching_core import BatchingCore
         from .batcher import FastWAMStageBatcher
-        if adapter.metadata().model_id != "fastwam_libero":
-            raise ValueError("production batch study currently supports fastwam_libero only")
+        if adapter.metadata().model_id not in ("fastwam_libero", "fastwam_mt50"):
+            raise ValueError("production batch study requires Fast-WAM LIBERO or MetaWorld")
         for stage in (1,2,3):
             if os.environ.get(f"BATCHING_STAGE{stage}_WORKERS","1") != "1":
                 raise ValueError("Fast-WAM batch study requires exactly one worker per stage")

@@ -23,8 +23,8 @@ def treatment(campaign, *, current_implementation=False):
     config = campaign.get('fastwam_batching')
     if config is None:
         return None
-    if (campaign['model'], campaign['domain']) != ('fastwam', 'libero') or campaign.get('library'):
-        raise ValueError('formal batching supports plain fastwam_libero only')
+    if campaign['model'] != 'fastwam' or campaign['domain'] not in ('libero', 'metaworld'):
+        raise ValueError('formal batching supports Fast-WAM LIBERO or MetaWorld')
     checked = BatchConfig(config['max_batch'], config['batch_wait_ms'], config['numerics_policy'])
     if checked.max_batch <= 1 or checked.metadata() != config:
         pass

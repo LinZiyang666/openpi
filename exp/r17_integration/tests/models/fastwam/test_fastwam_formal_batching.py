@@ -69,7 +69,7 @@ def test_normal_cli_accepts_qualified_capacity_range_on_both_gpu_nodes(node,batc
 
 @pytest.mark.parametrize('extra',[
     ['--max-batch','33'],['--max-batch','0'],['--batch-wait-ms','nan'],
-    ['--batch-wait-ms','-1'],['--model','fastwam_mw','--max-batch','8'],
+    ['--batch-wait-ms','-1'],['--model','pi05_mw','--max-batch','8'],
     ['--model','cosmos_libero','--max-batch','8'],['--paired-control','/tmp/control'],
     ['--batch-qualification-observations','/tmp/replay.npz']])
 def test_normal_cli_rejects_invalid_batch_modes(extra):

@@ -8,12 +8,17 @@ from pathlib import Path
 
 
 def serve_metadata(adapter):
-    return {"r17_model_spec": asdict(adapter.metadata()), "r17_manifest": asdict(adapter.manifest),
+    metadata = {"r17_model_spec": asdict(adapter.metadata()), "r17_manifest": asdict(adapter.manifest),
         "r17_samplers": {str(k): asdict(adapter.sampler_for_steps(k)) for k in (1, 2, 3, 5)},
-        "official_config": "cosmos_predict2_2b_480p_libero__inference_only",
+        "official_config": adapter.cfg.config,
         "num_samples": 1, "value_seed_selection": False, "current_observation_only": True,
         "batch_policy": "B1 serialized per resident; stock proxy replicas",
         "unsupported": [name for name, cap in adapter.metadata().capabilities.features.items() if cap.status == "unsupported"]}
+    if adapter.metadata().model_id == 'cosmos_mw':
+        metadata.update(protocol_source='reconstructed; author runner and training config unavailable',
+                        predicted_chunk=16, execution_steps=5, trained_execution_horizon=None,
+                        state_t=7, conditioning_frames=3, cameras=['corner2'])
+    return metadata
 
 
 def main():

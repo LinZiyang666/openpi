@@ -209,3 +209,23 @@ def private_config(source, destination, *, assets=None):
         with target.open('xb') as stream:
             stream.write(data)
     return dict(path=str(destination), sha256=hashlib.sha256(data).hexdigest())
+
+
+METAWORLD_PYTHON = '/scratch/zixuans8/mw_r17/envs/sim/bin/python'
+
+
+def prepare_metaworld(*, timan1=False):
+    """Use the matching simulator environment; reuse T1's GPU3 namespace guard."""
+    import subprocess
+    versions = {'metaworld':'3.0.0', 'mujoco':'3.14.0', 'gymnasium':'1.3.0', 'numpy':'1.26.4'}
+    code = 'import importlib.metadata as m,json; print(json.dumps({k:m.version(k) for k in '+repr(list(versions))+'}))'
+    actual = json.loads(subprocess.check_output([METAWORLD_PYTHON,'-c',code],text=True))
+    if actual != versions:
+        raise ValueError('MetaWorld simulator versions differ from timan107: '+repr(actual))
+    if timan1:
+        from .timan1_workers import WRAPPER, MW_WRAPPER, PYTHON
+        source = Path(WRAPPER).read_text()
+        target = Path(MW_WRAPPER)
+        target.write_text(source.replace(PYTHON, METAWORLD_PYTHON))
+        target.chmod(0o755)
+    return dict(python=METAWORLD_PYTHON, packages=actual)
