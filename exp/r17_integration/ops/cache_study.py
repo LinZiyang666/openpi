@@ -126,8 +126,13 @@ def library_size(row):
     return row.get("library_size", 500)
 
 
+def subset_dir(library, n):
+    # MT50 libraries (package A) name nested subsets by episodes per task (50 tasks): size_10 .. size_50.
+    return "size_"+str(n//50 if str(library).rstrip("/").endswith("_mt50/bpool") else n)
+
+
 def view_path(row):
-    return Path(row["library"])/("subsets/size_"+str(library_size(row)))
+    return Path(row["library"])/"subsets"/subset_dir(row["library"], library_size(row))
 
 
 def size_label(row):
@@ -165,8 +170,8 @@ def generate(output, *, library_root="/data/r17_library", long_dp=10, long_fast=
         model_rows = []
         for n in sizes:
             for suite in suites_for(bundle):
-                library = Path(library_root) / ((bundle.removesuffix('_mw')+'_mt50') if bundle in MW_MODELS else bundle+'_'+suite) / "bpool"
-                parent, selected = read(library/"READY.json"), read(library/f"subsets/size_{n}/VIEW.json")
+                library = Path(library_root) / ((bundle+'_mt50') if bundle in MW_MODELS else bundle+'_'+suite) / "bpool"
+                parent, selected = read(library/"READY.json"), read(library/"subsets"/subset_dir(library, n)/"VIEW.json")
                 source, serving = profiles(bundle, parent)
                 spec = replace(model_spec(parent["binding"]["model"]), allowed_benchmark_protocols=(serving.identity,))
                 # Reviewable teacher-bound template; seal() rebinds current provider
@@ -174,7 +179,7 @@ def generate(output, *, library_root="/data/r17_library", long_dp=10, long_fast=
                 provider = AdapterProvider("teacher_template_"+bundle, spec, lambda: None, lambda k,s=spec:s.default_sampler)
                 for group in groups:
                     settings = group_settings(bundle, group, long)
-                    original_fit = library/f"fits/size_{n}"
+                    original_fit = library/"fits"/subset_dir(library, n)
                     old = read(original_fit/"READY.json") if (original_fit/"READY.json").exists() else None
                     c = settings["commit"]
                     fit = (original_fit if old and old["receipt"]["config"]["commit_horizon"] == c else
@@ -186,7 +191,7 @@ def generate(output, *, library_root="/data/r17_library", long_dp=10, long_fast=
                     dest.mkdir(parents=True, exist_ok=True)
                     path = dest/(("n"+str(n)+"_" if sized else "")+group+".yaml")
                     doc = config_document(provider,serving,source,parent,selected,
-                        store_path=library/f"subsets/size_{n}",fit_path=fit,fit_digest=fit_digest,
+                        store_path=library/"subsets"/subset_dir(library, n),fit_path=fit,fit_digest=fit_digest,
                         stall_path=stall,stall_digest=stall_digest,settings=settings)
                     path.write_text(yaml.safe_dump(doc, sort_keys=False))
                     row = dict(suite=suite, group=group, file=str(path.relative_to(output)),
@@ -852,7 +857,7 @@ def audit(path, output):
                 descriptor=sealed_store_descriptor(view_path(subset[0]),selected['content_digest'])
                 episodes={r['library_episode_id']:r['task_name'] for r in descriptor.rows}
                 counts=Counter(episodes.values())
-                full=read(Path(subset[0]['library'])/('subsets/size_2500/VIEW.json' if name in MW_MODELS else 'subsets/size_500/VIEW.json'))
+                full=read(Path(subset[0]['library'])/('subsets/size_50/VIEW.json' if name in MW_MODELS else 'subsets/size_500/VIEW.json'))
                 task_count = 50 if name in MW_MODELS else 10
                 if (len(counts)!=task_count or set(counts.values())!={n//task_count} or
                         not set(episodes).issubset(set(full['episode_ids'])) or
