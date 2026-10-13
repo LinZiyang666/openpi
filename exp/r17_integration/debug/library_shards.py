@@ -28,7 +28,10 @@ class EpisodeShardSink:
                                      capture_images=self.factory.capture_images)
         holder.bind_observation(observation)
         self.images = holder._images
-        self.factory.budget.check()
+        if self.factory.capture_images:
+            # Image-free shards are a few MB against a 64 MiB slot; per-decision locked
+            # quota rewrites (two fsyncs each) serialized every replica.
+            self.factory.budget.check()
 
     def __call__(self,capture):
         from exp.r17_integration.ops.build_client_bundle import json_bytes
@@ -62,14 +65,16 @@ class EpisodeShardSink:
         from .library_capture import RECORD_FIELDS
         from .validate import plain
         metadata = {k:plain(v) for k,v in self.core._episode.items() if k in RECORD_FIELDS}
-        self.factory.budget.charge(shard_id,2*size+2*len(json_bytes(metadata))+256*1024)
+        if self.factory.capture_images:
+            self.factory.budget.charge(shard_id,2*size+2*len(json_bytes(metadata))+256*1024)
         self.inner._images = self.images
         self.inner(capture)
 
     def on_execution(self,ack):
         if self.inner is None:
             raise ValueError('execution acknowledgment has no active teacher shard')
-        self.factory.budget.check()
+        if self.factory.capture_images:
+            self.factory.budget.check()
         self.inner.on_execution(ack)
         if ack.get('terminal'):
             if self.inner._pending:
