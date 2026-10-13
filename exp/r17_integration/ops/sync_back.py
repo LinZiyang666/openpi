@@ -119,23 +119,29 @@ def install_snapshot(archive, destination, *, expected_sha256):
             # Existing conflicting data is never silently overwritten.
             if target.exists() and sha256(target) != manifest["files"][name]:
                 raise ValueError("existing snapshot differs: " + name)
+        # Stream members in archive order (name lookups are linear per call) and sync once at the end:
+        # per-file fsync on the /data HDD installed only ~6 files/s for 75k-file shard batches.
         with tarfile.open(archive) as tar:
-            for name in manifest["files"]:
+            for member in tar:
+                name = member.name
+                if name not in manifest["files"]:
+                    continue
                 target = destination / name
                 if target.exists():
                     continue
                 target.parent.mkdir(parents=True, exist_ok=True)
                 part = target.with_name(target.name + ".part")
                 h = hashlib.sha256()
-                with tar.extractfile(name) as source, part.open("wb") as out:
+                with tar.extractfile(member) as source, part.open("wb") as out:
                     for chunk in iter(lambda: source.read(1024 * 1024), b""):
                         h.update(chunk)
                         out.write(chunk)
-                    out.flush()
-                    os.fsync(out.fileno())
                 if h.hexdigest() != manifest["files"][name]:
                     raise ValueError("archive changed during installation")
                 os.replace(part, target)
+        if any(not (destination / name).exists() for name in manifest["files"]):
+            raise ValueError("archive missing listed files after installation")
+        os.sync()
         if sha256(archive) != expected_sha256:
             raise ValueError("archive changed during installation")
         atomic_bytes(destination / "TRANSFER_SHA256.json", json_bytes(manifest))
