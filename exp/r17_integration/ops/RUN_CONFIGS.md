@@ -999,6 +999,15 @@ Fixed in `0f1138aa`: no shard-count cap per batch (the 511 MiB byte cap remains)
 captures. Count errored episodes, not accepted ones (`r17_ops/mw/mw_speed2.sh`, `r17_ops/mw/err_watch.sh`); journal
 `status: failed` with an empty `error` is an ordinary unsuccessful episode and is valid library data.
 
+### Per-decision capture quota writes serialize every H100 replica
+
+The H100 capture quota is one JSON file under one flock. Each decision called `budget.check()` twice and
+`budget.charge()` once, and each call rewrote the JSON with two fsyncs on H100 `/data`. With 76 workers the
+DP MT50 lane (`cdp2_r4b8`, R4 B8 MPS) ran ~6 calls/s with batch size 1.0, 12 s median request time and the GPU idle
+between requests; the three model stages took under 0.5 s. Fixed in `3710d483`: image-free shards skip the
+per-decision check/charge (the episode still reserves a 64 MiB slot and closes it). If a capture lane is slow,
+compare `elapsed_seconds` with the stage timestamps in `servers/replica_*/serving.jsonl` before adding replicas.
+
 ### Keep MPS pipe paths within 85 bytes
 
 The UTF-8/filesystem-encoded **absolute pipe directory**, not just the run name,
