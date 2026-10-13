@@ -81,6 +81,7 @@ owner 的常驻指令，逐字有效：
   - 现在：H100 链 v2（tmux `mw_h100v2`，快照 `openpi_0f1138aa`）DP 重采 `cdp2_r4b8` → Fast-WAM `cfw_r2b16`；`mw_cutover` 在 Fast-WAM 收尾后关掉链 v2（不跑 H100 上的 GR00T），在 H100 tmux `cos_train` 起 Cosmos 微调（输出 `/data/mw_finetune/cosmos/mt50_h100`，日志 `/data/mw_finetune/cosmos/mt50_h100.log`，`--max-hours 24 --resume auto`）。4090：π0.5 `cpi_r5m` → `mw_4090groot` 起 GR00T `cgr_r6m`（R6 MPS，本机绑核，GR00T 单副本峰值 5.4 GB）。
   - Cosmos 微调包已提交（17266028，`exp/mw_finetune/cosmos/{RECIPE,HANDBACK_FINETUNE}.md`），预计 H100 5k 步 10–25 h；5k 检查点出来后测 MT50 seed 7（目标 ≥50%）再采集。
   - 我在 H100 上手改过一次运行时 `formal_runtime_edbc1804…/exp/r17_integration/ops/library_batch.py`（去掉 8 块上限，原件备份 `/data/mw_finetune/qualification/library_batch.py.cdp_r4b8_orig_cap8`），但那个批次实际导入的不是这份，改动无效；新批次用新快照。
+- **02:2x**：DP 第二次 `cdp2_r4b8` 又慢（约 6 调用/秒、批大小 1.0、请求中位 12 s，三个模型阶段 <0.5 s）：H100 采集配额每次决策 `check`×2 + `charge`×1，各自加锁重写 JSON 两次 fsync，所有副本排队。已修（`3710d483`，不存图片时跳过按决策记账），避坑已写 RUN_CONFIGS。02:12 停 cdp2（启动器在关 v2 链时连带结束，H100/timan 无遗留），02:22 起 v3：tmux `mw_h100v3`（`mw/chain_h100_v3.run.sh`：DP `cdp3_r4b8` → Fast-WAM `cfw_r2b16`）+ `mw_cutover3`（Fast-WAM 收尾后在 H100 起 Cosmos 训练）。4090 `mw_4090groot` 仍用快照 `0f1138aa`（本机采集不走 H100 配额，不受影响）。
 - 实测：MT50 观测图 480² 无损 zlib-1 压缩比 2.7（254 KB/张，编码 11 ms、解码 4 ms），4090 线若撞上 33 MB/s 入口就加线路压缩。
 
 **10-12 22:1x compact 前交接：LIBERO 阶段收口（owner：「libero 这边实验暂且做完了」；compact 后只读这段即可，细节再往下翻）**
