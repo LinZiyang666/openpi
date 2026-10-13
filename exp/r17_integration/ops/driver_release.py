@@ -107,7 +107,7 @@ def planned_tasks(campaign,directory):
     env=dict(os.environ,CUDA_VISIBLE_DEVICES='',JAX_PLATFORMS='cpu',PYTHONDONTWRITEBYTECODE='1',
              OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='1',
              PYTHONPATH=launch.pythonpath(campaign['driver_runtime']))
-    return json.loads(launch.execute([launch.CONTROL_PYTHON,'-c',code],seconds=120,
+    return json.loads(launch.execute([launch.CONTROL_PYTHON,"-c",code],seconds=1800,
                                     env=env,cwd=campaign['driver_runtime']))
 
 
