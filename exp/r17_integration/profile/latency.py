@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import argparse
 import copy
-from dataclasses import asdict, replace
+from dataclasses import asdict, fields, replace
 from datetime import datetime, timezone
 import hashlib
 import inspect
@@ -22,8 +22,10 @@ from types import SimpleNamespace
 import uuid
 
 ROOT = Path(__file__).resolve().parents[3]
-STEPS = {"dp_libero": (100, 10), "fastwam_libero": (10, 1), "cosmos_libero": (5, 2)}
+STEPS = {"dp_libero": (100, 10), "fastwam_libero": (10, 1), "cosmos_libero": (5, 2),
+         "dp_mw": (100, 10), "fastwam_mw": (10, 3), "pi05_mw": (10, 2), "groot_mw": (4, 2)}
 SUITES = ("libero_spatial", "libero_10")
+MT50_MODELS = ("dp_mw", "fastwam_mw", "pi05_mw", "groot_mw")
 
 
 def sha(path):
@@ -67,8 +69,9 @@ def certificate(expected, observed, captures, skips, compiles_after_warmup, comp
 
 
 def read_input(model, suite, pool, row=0, observations=None):
-    """Read a real row, including both camera bytes; no synthetic observations."""
+    """Read the recorded wire cameras unchanged, including MT50's rotation."""
     import numpy as np
+    mt50 = model in MT50_MODELS
     if observations:
         with np.load(observations, allow_pickle=False) as data:
             obs = {k: str(data[k][row]) if k == "prompt" else data[k][row].copy() for k in data.files}
@@ -78,14 +81,19 @@ def read_input(model, suite, pool, row=0, observations=None):
         ready = Path(pool) / "READY.json"
         manifest = json.loads(ready.read_text())
         record = manifest["rows"][row]
-        if not record["task_name"].startswith(suite + "/"):
+        if not mt50 and not record["task_name"].startswith(suite + "/"):
             raise ValueError("selected row belongs to a different suite")
-        tasks = json.loads((ROOT / "exp/r17_integration/qualification/specs/libero_benchmark_spec.json").read_text())["tasks"]
-        prompt = next(language for name, language, _ in tasks if name == record["task_name"])
+        if mt50:
+            from exp.metaworld.tasks import PROMPTS
+            prompt = PROMPTS[record["task_name"]]
+        else:
+            tasks = json.loads((ROOT / "exp/r17_integration/qualification/specs/libero_benchmark_spec.json").read_text())["tasks"]
+            prompt = next(language for name, language, _ in tasks if name == record["task_name"])
         def array(name):
             return np.load(Path(pool) / manifest["arrays"][name]["file"], mmap_mode="r", allow_pickle=False)[row].copy()
-        obs = {"observation/image": array("image_0"), "observation/wrist_image": array("image_1"),
-               "observation/state": array("state"), "prompt": prompt}
+        obs = {"observation/image": array("image_0"), "observation/state": array("state"), "prompt": prompt}
+        if not mt50:
+            obs["observation/wrist_image"] = array("image_1")
         if model == "cosmos_libero":
             # The library stores the recorded native gripper/xyz/quaternion in
             # float32. Preserve these fields directly; never reconstruct a quat.
@@ -96,14 +104,15 @@ def read_input(model, suite, pool, row=0, observations=None):
                 "state_precision": ("library recorded float32; native quaternion fields, no reconstruction" if model == "cosmos_libero"
                                     else "library recorded float32"),
                 "descriptor": str(Path(pool).parent / "campaigns" / record["campaign"] / "assets/load.json")}
-    for name in ("observation/image", "observation/wrist_image"):
+    for name in (("observation/image",) if mt50 else ("observation/image", "observation/wrist_image")):
         value = obs[name]
-        allowed = ((96, 96, 3), (256, 256, 3)) if model == "dp_libero" else ((256, 256, 3),)
+        allowed = ((480, 480, 3),) if mt50 else (
+            ((96, 96, 3), (256, 256, 3)) if model == "dp_libero" else ((256, 256, 3),))
         if value.dtype != np.uint8 or value.shape not in allowed:
             raise ValueError(f"invalid serving camera geometry: {name}: {value.shape}/{value.dtype}")
     state_key = "observation/cosmos_proprio" if model == "cosmos_libero" else "observation/state"
     state = obs[state_key]
-    if state.shape != ((9,) if model == "cosmos_libero" else (8,)) or not np.isfinite(state).all():
+    if state.shape != ((4,) if mt50 else (9,) if model == "cosmos_libero" else (8,)) or not np.isfinite(state).all():
         raise ValueError("invalid serving state")
     if not isinstance(obs["prompt"], str) or not obs["prompt"].strip():
         raise ValueError("real task prompt required")
@@ -116,13 +125,23 @@ def read_input(model, suite, pool, row=0, observations=None):
 
 def load_adapter(model, descriptor, device, vendor_root=None):
     desc = json.loads(Path(descriptor).read_text())
-    if model == "dp_libero":
+    if model in ("dp_libero", "dp_mw"):
         from exp.r17_integration.models.dp.loader import load_adapter as load
         desc["device"] = device
         adapter = load(desc)
-    elif model == "fastwam_libero":
+    elif model in ("fastwam_libero", "fastwam_mw"):
         from exp.r17_integration.models.fastwam.loader import LoadSpec, load_adapter as load
         adapter = load(LoadSpec(**desc), device=device)
+    elif model == "pi05_mw":
+        from exp.r17_integration.models.pi05.adapter import load_adapter as load
+        desc["device"] = device
+        adapter = load(desc)
+    elif model == "groot_mw":
+        from exp.r17_integration.models.groot.loader import load_checkpoint
+        from exp.r17_integration.models.groot.provider import GrootMetaWorldAdapter
+        backend, manifest = load_checkpoint(desc["checkpoint"], device=device, denoising_steps=4,
+            tokenizer_files=desc["tokenizer_files"], code_files=desc["code_files"])
+        adapter = GrootMetaWorldAdapter(backend, manifest)
     else:
         from exp.r17_integration.models.cosmos.loader import load_adapter as load
         if vendor_root:
@@ -131,6 +150,27 @@ def load_adapter(model, descriptor, device, vendor_root=None):
             desc["vendor_root"] = "/home/weiland/projects/openpi_ext/lines/cosmos-policy"
         adapter = load(desc, device=device)
     return adapter, desc
+
+
+def sampler_for_steps(model, adapter, k):
+    if model in ("dp_libero", "dp_mw"):
+        from exp.r17_integration.models.dp.sampler import SamplerProfile
+        return SamplerProfile("auto", k, 0.).to_spec(adapter.model.cfg)
+    if model == "pi05_mw":
+        from exp.r17_integration.models.pi05.adapter import sampler_for_steps as sampler
+        return sampler(k)
+    if model == "groot_mw":
+        return replace(adapter.manifest, denoising_steps=k).model_spec().default_sampler
+    return adapter.sampler_for_steps(k)
+
+
+def select_sampler(model, adapter, sampler):
+    # GR00T's native adapter binds K to its endpoint. This single-model profiling
+    # process switches the live head and its native manifest together, outside timing.
+    if model == "groot_mw":
+        adapter.backend.model.action_head.num_inference_timesteps = sampler.num_steps
+        adapter.manifest = replace(adapter.manifest, denoising_steps=sampler.num_steps)
+        adapter.spec = adapter.manifest.model_spec()
 
 
 def tensor_copy(value, *, cpu=False):
@@ -274,7 +314,7 @@ def build_stages(model, adapter, obs, request, *, precompute_text=False):
     eager2 = adapter.run_stage2(eager1)
     native_sample = adapter.sample
 
-    if model == "dp_libero":
+    if model in ("dp_libero", "dp_mw"):
         from exp.mw_finetune.dp.model import crop
         core = adapter.model._policy
         def first(inputs):
@@ -287,8 +327,9 @@ def build_stages(model, adapter, obs, request, *, precompute_text=False):
             features = tensor_copy(c1(p.data["inputs"]))
             # Same key order as DPAdapter.run_stage1 (pytree parity compares structure).
             fields = {"vision_0": features["base_0_rgb"][0].float().cpu().numpy().copy(),
-                      "robot_state": p.state.copy(),
-                      "vision_1": features["left_wrist_0_rgb"][0].float().cpu().numpy().copy()}
+                      "robot_state": p.state.copy()}
+            if model == "dp_libero":
+                fields["vision_1"] = features["left_wrist_0_rgb"][0].float().cpu().numpy().copy()
             return Stage1({"prepared": p, "features": features}, fields, p.state)
         def second(features):
             return torch.cat([features[k] for k in core.obs_encoder.feature_order], -1).unsqueeze(1)
@@ -297,7 +338,7 @@ def build_stages(model, adapter, obs, request, *, precompute_text=False):
             return Stage2({"conditioning": tensor_copy(c2(s.data["features"]))}, s)
         original = core.model
         cond = eager2.data["conditioning"]
-        noise = torch.zeros((1, 16, 7), device=adapter.device, dtype=cond.dtype)
+        noise = torch.zeros((1, 16, adapter.model.cfg["action_dim"]), device=adapter.device, dtype=cond.dtype)
         c3 = compile_tensor_program(lambda x, t, c: original(x, t, c),
                                     (noise, torch.tensor([99], device=adapter.device), cond))
         probe = StepProbe(torch, c3)
@@ -307,7 +348,7 @@ def build_stages(model, adapter, obs, request, *, precompute_text=False):
         core.model = Network().eval()
         restore = lambda: setattr(core, "model", original)
 
-    elif model == "fastwam_libero":
+    elif model in ("fastwam_libero", "fastwam_mw"):
         from exp.r17_integration.models.fastwam.staged import _ReusePatch
         m = adapter.model
         def first(pixels):
@@ -378,13 +419,113 @@ def build_stages(model, adapter, obs, request, *, precompute_text=False):
             return original(latents_action=x, timestep_action=t, context=context, context_mask=mask,
                 video_kv_cache=kv, attention_mask=attn, video_seq_len=eager1.data["video_seq_len"])
         d = eager2.data
-        c3 = compile_tensor_program(network, (torch.zeros((1, 32, 7), device=m.device, dtype=m.torch_dtype),
+        layout = adapter.metadata().layout
+        c3 = compile_tensor_program(network, (torch.zeros((1, layout.horizon, layout.action_width), device=m.device, dtype=m.torch_dtype),
             torch.ones(1, device=m.device, dtype=m.torch_dtype), d["context"], d["context_mask"], d["video_kv_cache"], d["attention_mask"]))
         probe = StepProbe(torch, c3)
         def wrapped(**kw):
             return probe(*(kw[k] for k in ("latents_action", "timestep_action", "context", "context_mask", "video_kv_cache", "attention_mask")))
         m._predict_action_noise_with_cache = wrapped
         restore = lambda: setattr(m, "_predict_action_noise_with_cache", original)
+
+    elif model == "pi05_mw":
+        m = adapter.model
+        names = tuple(f.name for f in fields(eager1.data))
+        def observation(p):
+            return {f.name: getattr(p.data, f.name) for f in fields(p.data)}
+        def first(tensors):
+            out = m.run_stage1(replace(prepared.data, **tensors))
+            return tuple(getattr(out, name) for name in names)
+        c1 = compile_tensor_program(first, (observation(prepared),))
+        def stage1(p):
+            out = replace(eager1.data, **dict(zip(names, tensor_copy(c1(observation(p))), strict=True)))
+            s = Stage1(out, {"model_input_base_rgb": p.data.images["base_0_rgb"]}, out.state)
+            # The native adapter computes this key separately from run_stage1.
+            s.fields = adapter.retrieval_fields(s)
+            return s
+        cache_type = type(eager2.data.past_key_values)
+        def cache(values):
+            return cache_type.from_legacy_cache(values)
+        def second(*values):
+            s = replace(eager1.data, **dict(zip(names, values, strict=True)))
+            return tuple(m.run_stage2(s).past_key_values)
+        c2 = compile_tensor_program(second, tuple(getattr(eager1.data, name) for name in names))
+        def stage2(s):
+            kv = tensor_copy(c2(*(getattr(s.data, name) for name in names)))
+            return Stage2(replace(eager2.data, stage1=s.data, past_key_values=cache(kv)), s)
+        original = m.denoise_step
+        def network(state, mask, kv, x, t):
+            return original(state, mask, cache(kv), x, t)
+        d = eager2.data
+        noise = torch.zeros((1, 5, 32), device=d.stage1.state.device, dtype=torch.float32)
+        c3 = compile_tensor_program(network, (d.stage1.state, d.stage1.prefix_pad_masks,
+            tuple(d.past_key_values), noise, torch.ones(1, device=noise.device)))
+        probe = StepProbe(torch, c3)
+        m.denoise_step = lambda state, mask, kv, x, t: probe(state, mask, tuple(kv), x, t)
+        restore = lambda: setattr(m, "denoise_step", original)
+
+    elif model == "groot_mw":
+        from openpi.cache.groot import staged
+        from openpi.cache.types import CheckpointID
+        runner, m = adapter.runner, adapter.backend.model
+        eagle = runner._eagle
+        # Token positions are fixed by this real prompt and serving geometry.
+        positions = eager1.data.image_token_mask[0].nonzero().flatten()
+        with runner.session():
+            backbone, _ = m.prepare_input(prepared.data)
+        def first(ids, pixels, positions):
+            with runner.session():
+                embeds = eagle.language_model.get_input_embeddings()(ids)
+                vision = eagle.extract_feature(pixels).reshape(1, -1, embeds.shape[-1])
+                return embeds.index_copy(1, positions, embeds.index_select(1, positions) * 0.0 + vision)
+        c1 = compile_tensor_program(first, (backbone["eagle_input_ids"], backbone["eagle_pixel_values"], positions))
+        def stage1(p):
+            with runner.session():
+                backbone, actions = m.prepare_input(p.data)
+            embeds = tensor_copy(c1(backbone["eagle_input_ids"], backbone["eagle_pixel_values"], positions))
+            native = replace(eager1.data, input_embeds=embeds, attention_mask=backbone["eagle_attention_mask"],
+                             image_token_mask=backbone["eagle_input_ids"] == eagle.image_token_index, action_inputs=actions)
+            adapter.key_builder.collect(CheckpointID.CP1, stage1=native)
+            try:
+                keys = adapter.key_builder.build(CheckpointID.CP1)
+            finally:
+                adapter.key_builder.clear()
+            s = Stage1(native, keys, native.state[0, -1, :4].detach().cpu().float().clone())
+            s.fields = adapter.retrieval_fields(s)
+            return s
+        def second(embeds, mask):
+            with runner.session():
+                s = replace(eager1.data, input_embeds=embeds, attention_mask=mask)
+                return runner.run_stage2_llm(s).backbone_features
+        c2 = compile_tensor_program(second, (eager1.data.input_embeds, eager1.data.attention_mask))
+        def stage2(s):
+            features = tensor_copy(c2(s.data.input_embeds, s.data.attention_mask))
+            return Stage2(replace(eager2.data, backbone_features=features,
+                                 attention_mask=s.data.attention_mask, action_inputs=s.data.action_inputs), s)
+        head = m.action_head
+        with runner.session():
+            processed = head.process_backbone_output(runner._head_inputs(eager2.data))
+            vl = processed.backbone_features
+            state_features = head.state_encoder(eager2.data.action_inputs["state"], eager2.data.action_inputs["embodiment_id"])
+        def network(vl, state, embodiment, x, t, dt):
+            with runner.session():
+                return staged.denoise_step(head, vl, state, embodiment, x, t, dt)
+        c3 = compile_tensor_program(network, (vl, state_features, eager2.data.action_inputs["embodiment_id"],
+            torch.zeros((1, 16, 32), device=vl.device, dtype=vl.dtype),
+            torch.zeros(1, device=vl.device, dtype=torch.long), torch.tensor(0.25, device=vl.device)))
+        probe = StepProbe(torch, c3)
+        original = staged.denoise_loop
+        def step(head, vl, state, embodiment, x, t, dt):
+            # A tensor dt keeps K4 and K2 in the same compiled program.
+            return probe(vl, state, embodiment, x, t, torch.tensor(dt, device=x.device, dtype=torch.float32))
+        def loop(*args, **kwargs):
+            return original(*args, **kwargs, step_fn=step)
+        staged.denoise_loop = loop
+        manifest, spec, live_k = adapter.manifest, adapter.spec, head.num_inference_timesteps
+        def restore():
+            staged.denoise_loop = original
+            adapter.manifest, adapter.spec = manifest, spec
+            head.num_inference_timesteps = live_k
 
     else:
         from exp.r17_integration.models.cosmos.staged import make_data_batch
@@ -472,10 +613,15 @@ def build_stages(model, adapter, obs, request, *, precompute_text=False):
 def stage_payload(model, stage, which):
     if which == 1:
         return stage.fields
-    if model == "dp_libero":
+    if model in ("dp_libero", "dp_mw"):
         return stage.data["conditioning"]
-    if model == "fastwam_libero":
+    if model in ("fastwam_libero", "fastwam_mw"):
         return {k: stage.data[k] for k in ("context", "context_mask", "attention_mask", "video_kv_cache")}
+    if model == "pi05_mw":
+        return tuple(stage.data.past_key_values)
+    if model == "groot_mw":
+        return {"backbone_features": stage.data.backbone_features, "attention_mask": stage.data.attention_mask,
+                "action_inputs": dict(stage.data.action_inputs)}
     if "condition_tensors" in stage.data:
         return stage.data["condition_tensors"]
     import torch
@@ -529,7 +675,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--model", choices=STEPS, required=True)
     parser.add_argument("--out", type=Path, required=True)
-    parser.add_argument("--suite", choices=SUITES, default=SUITES[0])
+    parser.add_argument("--suite", choices=(*SUITES, "mt50"), default=SUITES[0])
     parser.add_argument("--pool", type=Path)
     parser.add_argument("--row", type=int, default=0)
     parser.add_argument("--observations", type=Path, help="real wire-observation NPZ, arrays with a leading row axis")
@@ -542,10 +688,11 @@ def main():
     parser.add_argument("--precompute-text", action="store_true", help="Fast-WAM only; separately labelled cached-text cost")
     parser.add_argument("--inspect-input", action="store_true", help="CPU only: write observation provenance without loading weights")
     args = parser.parse_args()
-    exclusive = device_exclusive()
+    if args.model in MT50_MODELS:
+        args.suite = "mt50"
     if args.warmup < 3 or args.iters < 1 or args.row < 0:
         parser.error("warmup >=3, iters >=1, row >=0 required")
-    if args.precompute_text and args.model != "fastwam_libero":
+    if args.precompute_text and args.model not in ("fastwam_libero", "fastwam_mw"):
         parser.error("--precompute-text is Fast-WAM only")
     pool = args.pool or Path("/data/r17_library") / (args.model + "_" + args.suite) / "bpool"
     obs, source = read_input(args.model, args.suite, pool, args.row, args.observations)
@@ -553,6 +700,7 @@ def main():
     if args.inspect_input:
         args.out.write_text(json.dumps(source, indent=2) + "\n")
         return
+    exclusive = device_exclusive()
     descriptor = args.descriptor or source.get("descriptor")
     if descriptor is None:
         parser.error("--observations requires --descriptor")
@@ -567,21 +715,17 @@ def main():
     protocol = source["benchmark_protocol"] or adapter.metadata().allowed_benchmark_protocols[0]
     seed = args.seed if args.seed is not None else (195 if args.model == "cosmos_libero" else 0)
     request = RequestContext("latency", protocol, source.get("task_name", args.suite), 0, 0, explicit_seed=seed)
-    def sampler(k):
-        if args.model == "dp_libero":
-            from exp.r17_integration.models.dp.sampler import SamplerProfile
-            return SamplerProfile("auto", k, 0.).to_spec(adapter.model.cfg)
-        return adapter.sampler_for_steps(k)
-    samplers = {k: sampler(k) for k in STEPS[args.model]}
+    samplers = {k: sampler_for_steps(args.model, adapter, k) for k in STEPS[args.model]}
     # Reference from the untouched formal adapter, with its actual initial and
     # posterior RNG stream. Save owned CPU copies before any compiled replay.
     reference = {}
     for k, spec in samplers.items():
+        select_sampler(args.model, adapter, spec)
         p = adapter.prepare(obs, request)
         s1 = adapter.run_stage1(p)
         s2 = adapter.run_stage2(s1)
         result = adapter.sample(s2, spec, RequestRNG(request), CaptureSpec())
-        reference[k] = (tensor_copy(stage_payload(args.model, s1, 1), cpu=True),
+        reference[k] = (tensor_copy(adapter.retrieval_fields(s1), cpu=True),
                         tensor_copy(stage_payload(args.model, s2, 2), cpu=True),
                         tensor_copy(result.normalized_chunk, cpu=True), adapter.to_wire(result.normalized_chunk, p).actions.copy())
     if args.model == "cosmos_libero":
@@ -589,6 +733,7 @@ def main():
         # trees skip that stage. Use the eager CUDA generator instead (also matches eager RNG).
         import torch._inductor.config as inductor_config
         inductor_config.fallback_random = True
+    select_sampler(args.model, adapter, samplers[STEPS[args.model][0]])
     before = counters()
     with torch.inference_mode():
         runtime = build_stages(args.model, adapter, obs, request, precompute_text=args.precompute_text)
@@ -597,6 +742,7 @@ def main():
     try:
         with torch.inference_mode(), GraphCounts(torch) as graphs:
             for k, spec in samplers.items():
+                select_sampler(args.model, adapter, spec)
                 for _ in range(args.warmup):
                     torch.compiler.cudagraph_mark_step_begin()
                     p = adapter.prepare(obs, request)
@@ -613,7 +759,7 @@ def main():
                 # <=2% (relative Frobenius), actions by ~1% (max 0.023). Gate stage2 on relative
                 # error and actions at 0.03 for this model only (measured 2026-10-12).
                 # Cosmos: stage2 condition frames inherit stage1's ~1.3% VAE compile difference.
-                loose = args.model in ("fastwam_libero", "cosmos_libero")
+                loose = args.model in ("fastwam_libero", "fastwam_mw", "cosmos_libero")
                 stage2_parity = parity(stage_payload(args.model, s2, 2), b)
                 if loose:
                     stage2_parity["passed"] = stage2_parity.get("rel_frobenius", 1.) <= 0.05
@@ -624,9 +770,9 @@ def main():
                               "normalized_actions": parity(result.normalized_chunk, c, **tol),
                               "wire_actions": parity(adapter.to_wire(result.normalized_chunk, p).actions, wire, **tol)}
                 replay = runtime.sample(s2, spec)
-                fixed_equal = bool(torch.equal(result.normalized_chunk, replay.normalized_chunk))
+                fixed_equal = bool(torch.equal(torch.as_tensor(result.normalized_chunk), torch.as_tensor(replay.normalized_chunk)))
                 fresh = runtime.sample(s2, spec, replace(request, explicit_seed=seed+1))
-                noise_distinct = not bool(torch.equal(result.normalized_chunk, fresh.normalized_chunk))
+                noise_distinct = not bool(torch.equal(torch.as_tensor(result.normalized_chunk), torch.as_tensor(fresh.normalized_chunk)))
                 cells[str(k)] = {"k": k, "actual_nfe": result.actual_nfe, "sampler": asdict(spec),
                                  "eager_vs_compiled_parity": parity_row, "fixed_noise_replay_equal": fixed_equal,
                                  "sampled_noise_distinct": noise_distinct}
@@ -640,6 +786,7 @@ def main():
             torch.cuda.nvtx.range_push(marker)
             try:
                 for k, spec in samplers.items():
+                    select_sampler(args.model, adapter, spec)
                     tick_graphs, tick_counters = graphs.snapshot(), counters()
                     samples, nfe = measure_iterations(torch, runtime, adapter, obs, request, spec, args.iters)
                     after_graphs, after_counters = graphs.snapshot(), counters()
@@ -669,7 +816,7 @@ def main():
                     and all(n == cell["expected_actual_nfe"] for n in cell["actual_nfe_by_iteration"]))
             full, reduced = (cells[str(k)]["summary_ms"] for k in STEPS[args.model])
             text_encoder_ms = None
-            if args.model == "dp_libero":
+            if args.model in ("dp_libero", "dp_mw"):
                 # DP re-encodes the constant prompt with CPU CLIP inside prepare on every
                 # request; report it separately so a once-per-episode variant can be priced.
                 for _ in range(args.warmup):
@@ -702,7 +849,9 @@ def main():
                 weight_sha = weight_sha.removeprefix("sha256:")
             git_commit = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True,
                                         capture_output=True, check=False).stdout.strip()
-            receipt = dict(schema="r17.batch1_latency.v1", mode_run="measure", profile="libero", model=args.model,
+            select_sampler(args.model, adapter, samplers[STEPS[args.model][0]])
+            receipt = dict(schema="r17.batch1_latency.v1", mode_run="measure",
+                profile="mt50" if args.model in MT50_MODELS else "libero", model=args.model,
                 suite=args.suite, batch_size=1, mode="reduce-overhead", fullgraph=True, warmup=args.warmup,
                 iters=args.iters, seed=seed, cells=cells, coefficients=costs,
                 stage1_ms=full["stage1_ms"]["median"], stage2_ms=full["stage2_ms"]["median"],

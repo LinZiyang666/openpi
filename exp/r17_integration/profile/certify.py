@@ -10,11 +10,15 @@ import shutil
 import subprocess
 import sys
 
-from .latency import ROOT, STEPS, SUITES, certificate, sha
+from .latency import ROOT, STEPS, SUITES, MT50_MODELS, certificate, sha
 
 PYTHONS = {"dp_libero": "/data/mw_finetune/dp/env/bin/python",
            "fastwam_libero": "/data/mw_finetune/envs/fastwam/bin/python",
-           "cosmos_libero": "/home/weiland/projects/openpi_ext/lines/cosmos-policy/.venv/bin/python"}
+           "cosmos_libero": "/home/weiland/projects/openpi_ext/lines/cosmos-policy/.venv/bin/python",
+           "dp_mw": "/data/mw_finetune/dp/env/bin/python",
+           "fastwam_mw": "/data/mw_finetune/envs/fastwam/bin/python",
+           "pi05_mw": str(ROOT / ".venv/bin/python"),
+           "groot_mw": "/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python"}
 
 
 def parse_trace(text, marker):
@@ -86,7 +90,7 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--model", choices=STEPS, required=True)
     p.add_argument("--out-dir", type=Path, required=True)
-    p.add_argument("--suite", choices=(*SUITES, "both"), default="both")
+    p.add_argument("--suite", choices=(*SUITES, "mt50", "both"), default="both")
     p.add_argument("--python", help="model's existing Python island; selected automatically by default")
     args, extra = p.parse_known_args()
     args.out_dir.mkdir(parents=True, exist_ok=True)
@@ -103,8 +107,16 @@ def main():
         from exp.r17_integration.ops.formal_eval import server_env
         env.update(server_env(dict(model="cosmos", server_node="local",
                                    vendor="/home/weiland/projects/openpi_ext/lines/cosmos-policy"), str(ROOT)))
+    if args.model in MT50_MODELS:
+        # Match the formal model islands' local vendor imports.
+        extra_paths = {"fastwam_mw": ("/data/mw_finetune/vendor/lerobot/src", "/data/mw_finetune/vendor/FastWAM/src"),
+                       "groot_mw": ("/home/weiland/projects/openpi_ext/third_party/gr00t_n15",)}
+        env["PYTHONPATH"] += ":" + ":".join(extra_paths.get(args.model, ()))
+        env.setdefault("TOKENIZERS_PARALLELISM", "false")
+        env.setdefault("XLA_PYTHON_CLIENT_PREALLOCATE", "false")
     ok = True
-    for suite in SUITES if args.suite == "both" else (args.suite,):
+    suites = ("mt50",) if args.model in MT50_MODELS else SUITES if args.suite == "both" else (args.suite,)
+    for suite in suites:
         out, invocation, stats = commands(args.model, suite, args.out_dir, python, nsys, extra)
         print("Running", args.model, suite, "with", "nsys" if nsys else "torch graph counters", flush=True)
         with out.with_suffix(".log").open("w") as log:

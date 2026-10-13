@@ -251,3 +251,60 @@ Deviations from the pi0.5/GR00T recipe, each found on the real card:
   (`fallback_random`) and CPU-pinned factory ops moved to the GPU. Two compiled stages are certified.
 - The `_local_scalar_dense` guard in `compile_tensor_program` runs after dead-code elimination and can
   miss host decisions; the action parity check is what caught the Cosmos problem.
+
+## MT50
+
+The four MW models run one `mt50` profile each, using row 0 of
+`/data/r17_library/<model>_mt50/bpool`, its campaign's `assets/load.json`, and the
+canonical prompt in `exp/metaworld/tasks.py`. Read the recorded single RGB480
+camera unchanged (already rotated 180°) and state4; model adapters own resizing
+and normalization. Batch 1, warmup 30 and 200 iterations **per budget**, CUDA
+events, full-loop pricing and the existing certification/receipt schema are
+unchanged. Receipts set `profile="mt50"`, `suite="mt50"` and record actual NFE.
+
+| Model | Checkpoint | Stage1 (`prepare` + vision + retrieval key) | Stage2 | Stage3 (complete native `sample`; full / reduced K = NFE) |
+| --- | --- | --- | --- | --- |
+| `dp_mw` | `/data/mw_finetune/dp/mt50_policy_100000` | RGB480→96, CPU CLIP, state normalization, both checkpoint FiLM branches (native absent-camera policy); copy the single camera key | Concatenate checkpoint features | Epsilon network + DDPM100 / trailing DDIM10 eta0; 100 / 10 |
+| `fastwam_mw` | `/data/mw_finetune/fastwam/mt50_frozen_b128/policy_016001` | RGB480→224, native Wan VAE, patch embedding, pooled key | T5, proprio conditioning, full video DiT KV prefill | Action expert + shifted-flow update; 10 / 3 |
+| `pi05_mw` | `/data/ckpt/pi05_metaworld_rlinf` | Native input transforms, SigLIP and all three prefix slots + language tokens; native spatial key copied to CPU | Native PaliGemma prefix KV prefill | Native action expert + Euler loop, RNG and output conversion; 10 / 2 |
+| `groot_mw` | `/data/mw_finetune/groot/4090_mt50/checkpoint-60000` | Native MW transforms, Eagle vision + language embedding/scatter before LLM; native spatial key copied to CPU | Native Eagle LLM + backbone projection | Native head prologue + Euler loop, RNG and output conversion; 4 / 2 |
+
+All four compile three tensor programs with the same FX/reduce-overhead recipe.
+π0.5 retains the native KV-cache container; GR00T's compiled step includes its
+Euler update, with tensor `dt` shared by K4/K2. GR00T switches its native endpoint
+manifest and live K together outside timing, and restores local substitutions.
+
+Run later on the coordinator's exclusive 4090 (MPS off):
+
+```bash
+cd /home/weiland/projects/openpi
+export CUDA_VISIBLE_DEVICES=0 PYTHONDONTWRITEBYTECODE=1
+export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1
+.venv/bin/python -m exp.r17_integration.profile.certify --model dp_mw --out-dir exp/r17_integration/profile/results_mt50
+.venv/bin/python -m exp.r17_integration.profile.certify --model fastwam_mw --out-dir exp/r17_integration/profile/results_mt50
+.venv/bin/python -m exp.r17_integration.profile.certify --model pi05_mw --out-dir exp/r17_integration/profile/results_mt50
+.venv/bin/python -m exp.r17_integration.profile.certify --model groot_mw --out-dir exp/r17_integration/profile/results_mt50
+```
+
+Outputs are `<model>_mt50.json` / `.log`, plus nsys artifacts when available.
+**Current input limitation:** all four existing MT50 pools declare
+`metadata.images="disabled"`; their row-0 source blocks also omit camera bytes.
+These default commands need the original observations restored to the pools.
+Alternatively pass the existing `--observations FILE.npz --descriptor LOAD.json`
+options with a real row-0 wire observation (RGB480, raw state4, prompt; leading
+row axis). No camera is synthesized or reconstructed from retrieval keys.
+
+CPU tests cover all budgets, single-camera bytes/prompt/state reading, native
+loader and Python-island dispatch, single-profile launching, DP/Fast-WAM MW
+dimensions, π0.5/GR00T stage cuts with real CPU FX extraction, retrieval keys,
+native cache reconstruction, both GR00T endpoints/restoration, event intervals,
+actual NFE and complete receipt/pricing output with stubs. CUDA initialization
+is forbidden by the test fixture; GPU compilation/replay remains unmeasured.
+
+```bash
+CUDA_VISIBLE_DEVICES='' PYTHONDONTWRITEBYTECODE=1 \
+  PYTHONPATH="$PWD:$PWD/src:$PWD/packages/openpi-client/src" \
+  OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 \
+  /data/mw_finetune/dp/env/bin/python -m pytest -q -p no:cacheprovider \
+  exp/r17_integration/profile/tests/test_latency.py
+```
