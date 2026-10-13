@@ -261,6 +261,7 @@ def parse_args(argv=None):
     p.add_argument('--subset-counts',type=lambda s:[int(v) for v in s.split(',')],default=[10,20,30,40,50],
                    help='MT50 nested episodes per task, default10,20,30,40,50')
     p.add_argument('--replicas',type=int); p.add_argument('--workers',type=int,default=24)
+    p.add_argument('--replica-startup-width',type=int,help='Replicas loaded concurrently (default min(replicas,4))')
     p.add_argument('--max-batch',type=int,default=1)
     p.add_argument('--batch-wait-ms',type=float,default=5)
     p.add_argument('--mps',action='store_true')
@@ -387,6 +388,7 @@ def main(argv=None):
         device=a.gpu,server_node=a.server_node,worker_nodes=a.worker_counts,workers=a.workers,
         capture_images=a.capture_images,subset_counts=a.subset_counts,prepare_only=a.prepare_only,
         worker_egl_device=a.worker_egl_device,replicas=a.replicas,public_port=a.port,
+        replica_startup_width=a.replica_startup_width or min(a.replicas,4),
         worker_min_free_gib=a.worker_min_free_gib,
         backend_ports=list(range(a.port+1,a.port+1+a.replicas)),ports=[a.port,*range(a.port+1,a.port+1+a.replicas),a.driver_port],
         driver_host='ziyanglin.com',driver_port=a.driver_port,endpoint_host=host,endpoint=host+':'+str(a.port),
