@@ -1078,6 +1078,15 @@ transformers 5.5.4, numpy 2.2.6). On weilandserver it pointed at the openpi `.ve
 H100 way (old one kept as `/data/mw_finetune/dp/env.openpi_py311`). Before a test baseline or cache run on another
 host, compare its prepared `assets/model_spec.json` with the library teacher's (`bpool/READY.json` `binding.model`).
 
+### Never kill a chain's tmux session while it holds a launcher
+
+A chain script runs `launch_direct_root.sh` in the foreground, so its tmux session is the launcher's parent. Killing
+that session (2026-10-13 08:51, `mw_4090f`) sent SIGHUP to `formal_eval --run --prepared-run` of `tfw7_0755`; the
+server, driver and remote workers survived, but nothing was left to close them or seal the receipt. Before killing a
+session, list its children (`pgrep -P $(tmux list-panes -t S -F '#{pane_pid}') -a`); stop only a waiting chain by its
+PID. A launcher-less pure-inference run can be finished by waiting for the driver to exit, closing that run's server
+and worker supervisors by PID, and `formal_eval aggregate --output RUN_DIR` (see `openpi_ext/scratch/r17_ops/mw/finish_tfw7.sh`).
+
 ### Keep MPS pipe paths within 85 bytes
 
 The UTF-8/filesystem-encoded **absolute pipe directory**, not just the run name,
