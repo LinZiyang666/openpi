@@ -546,7 +546,7 @@ episode (the H100 shard drain afterwards is not included). Util/W are medians of
 | `tdp7_0729` test | DP | 4090 | R4 MPS B8 | 19 min | 131 | 48.5 | 100% / 410 | GPU |
 | `tfw7_0755` test | Fast-WAM | 4090 | R1 B16 | ~90 min | ~28 | ~8 | ~40% | one replica; R2 does not fit (27.8 GB/replica) |
 
-Full-step test success (seed 7): GR00T 75.8%, DP 61.2%, π0.5 56.3%.
+Full-step test success (seed 7, 2,500 episodes), reported as the equal-weight mean of the four difficulty groups (easy 28 / medium 11 / hard 6 / very hard 5 tasks; the convention of the RLinf and SmolVLA MT50 tables) and, second, the per-task mean: GR00T 67.1 / 75.8, DP 46.0 / 61.2, π0.5 46.7 / 56.3. Published π0.5 SFT (same RLinf checkpoint) is 43.8 group mean. Always state which mean a MetaWorld number is.
 
 Next time: DP R4 B8 MPS saturates both GPUs, keep it. Fast-WAM on H100 leaves the GPU half idle at R2; try R3 B16
 (3 x 24.4 GB fits in 80 GB) before adding workers. π0.5 and GR00T on the 4090 need host CPU, not GPU: pin to NUMA
