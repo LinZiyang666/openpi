@@ -56,7 +56,13 @@ owner 的常驻指令，逐字有效：
 
 ### 1.R16 正在做：纯减步融入闭环（owner 10-07 目标"融入纯减步并实验"，会话 goal 仍挂着）
 
-**10-12 18:1x 增量（先读这段，再读下面 17:2x 交接）**
+**10-12 20:1x 增量（先读这段，再读 18:1x、17:2x）**
+- Fast-WAM 减步收口（4090，对照 hs7fwk1_4090c）：第 1 轮提档 15 个、第 2 轮 0；最终 `test_results_fw_red_r2`，报告 2.5 节、正式 IR 已补（`cf60f00f`）。
+- DP 对照复跑完成（hs7dpctl_full 1000/1000、hs7dpctl_ddim10 1000/1000，4090 同旋钮拓扑）：缓存纯推理档 = 普通纯推理（全步数 25 格 1078 对复跑 1072；减步 18 格 763 对 766），偏低来自原对照偏高（新旧对照逐局 p = 0.08、0.35）。按复跑对照重判：DP 减步 0 个要提档；DP 全步数 2 个（空间任务桌子中央黑碗，库 300/400，47 对 50）→ `chain_4090_dpraise.sh` 补测 knobtestdp_r3（100 局）→ 对两个对照都 0 个要提档。DP 全步数最终改为 `test_results_dp_r4`；`PURE_LEVEL_NOISE.md`、报告 2.1/3/4 节、正式 IR 已更新（`950bc530`）。脚本 `rounds/r17/knob/dpctl_compare.py`。
+- H100：Cosmos 减步测试 6000/6000，第 1 轮 21 个要提档，knobtestcos_red_r1（1050 局）19:58 起，~74 局/分，预计 ~20:19；之后链自动继续提档轮次。4090 空闲（本线没有排队批次）。
+- 剩下：Cosmos 减步收口 → 提交 `test_results_cos_red_r*`、`ir_formal.py` 加 `reduced:test_results_cos_red_rN/test.json`（DP 全步数用 dp_r4）、报告 2.6 节和第 3、4 节 → 网页（`build_knob.py full:dp_r4 full:fw_r2 full:cos_r4 reduced:dp_red_r7 reduced:fw_red_r2 reduced:cos_red_rN`；旋钮一节第二段改 DP 偏低结论、去掉「减步版正在运行」、补 Fast-WAM 减步对照说明）。
+
+**10-12 18:1x 增量（再读下面 17:2x 交接）**
 - 4090：K1 对照 hs7fwk1_4090c 17:38 收齐 1000/1000。与 H100 的 hs6fw_k1 同起点逐局比：空间 458 对 452、长任务 443 对 443，不一致局 31 对 25（符号检验 p = 0.50），看不出硬件差异（报告 2.5 节要写）。
 - Fast-WAM 减步下降已完成（`rounds/r17/knob/dev_results_fw_red/`，未提交）；A 集测试 knobtestfw_red（6,000 局）17:44 启动、17:48 绑核。前 15 分钟调用密集（两副本合计 ~17 次调用/秒），副本 0 掉进慢 4 倍的状态（同批大小 stage2 2.3 s 对 0.63 s），车道 47 局/分；18:00 负载回落后两副本一致，~60–83 局/分。原因未确认（疑 GIL 争用，ptrace 受限无法 py-spy），已写进 RUN_CONFIGS 避坑（`d4403967`）。预计 ~19:30 测完，之后提档轮次、DP 对照复跑。
 - `lane_speed.sh` 改为只读记录文件末尾 8 MB（原来整文件读，文件上百 MB 时一行都出不来）。
