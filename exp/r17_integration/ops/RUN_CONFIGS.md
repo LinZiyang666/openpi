@@ -987,6 +987,18 @@ all checked and identical. To detect it, compare per-replica stage2 batch interv
 gaps between `r17.fastwam.stage_batch.v1` rows in `servers/replica_N/batching.jsonl`. If it recurs and lasts, first try
 fewer workers per replica, then a smaller `sys.setswitchinterval` in the server.
 
+### H100 library capture staging can stall and then burn the plan as errors
+
+MT50 library campaigns with an H100 server stage each episode's capture on H100 and pull closed shards back in
+batches. The original policy reserved 256 MiB per active episode under a 20 GB limit (about 66 concurrent episodes)
+and pulled at most 8 shards per batch (~45 s each, so ~10 shards/min). With 76 workers at ~45 episodes/min
+(`cdp_r4b8`, 2026-10-13) the closed backlog grew to ~900 shards, reservations stopped fitting, episodes failed
+mid-run, and library retries refused them (`FatalEpisodeError: library retries require zero steps and zero
+decisions`): 912 errored episodes in a few minutes while the throughput probe still showed ~140 accepted/min.
+Fixed in `0f1138aa`: no shard-count cap per batch (the 511 MiB byte cap remains) and 64 MiB slots for image-free
+captures. Count errored episodes, not accepted ones (`r17_ops/mw/mw_speed2.sh`, `r17_ops/mw/err_watch.sh`); journal
+`status: failed` with an empty `error` is an ordinary unsuccessful episode and is valid library data.
+
 ### Keep MPS pipe paths within 85 bytes
 
 The UTF-8/filesystem-encoded **absolute pipe directory**, not just the run name,
