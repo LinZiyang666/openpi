@@ -527,6 +527,46 @@ Sources: [Cosmos handback](../handbacks/HANDBACK_COSMOS.md),
 [K5 history](/data/mw_finetune/eval/formal_cosmos_libero_formal400_20261009_231322_2b680ed5/SUMMARY.json),
 [completed K2](/data/mw_finetune/eval/hs2_cosmos_h100_k2incl_c16_t107_20261010_115120/SUMMARY.json).
 
+## MetaWorld MT50 measured topology (2026-10-13)
+
+Seeds: test = seed 7, idx 0-49 (2,500 episodes, the official MT50 count); library = seed 8, idx 0-49. Seeds 9 and
+10 are reserved. Workers: timan107 x40 + timan1 x36 (GPU 3 only) = 76, `--worker-memory-mib 2048
+--worker-vram-mib 1024 --worker-egl-devices 0,1,2,3,4,5,6,7`. Servers: weilandserver 4090 (49 GB) and H100 (80 GB).
+All rows below ran 2,500 episodes with 0 errored episodes. "span" runs from the first to the 2,500th accepted
+episode (the H100 shard drain afterwards is not included). Util/W are medians of 1-minute nvidia-smi samples.
+
+| run | model | server | topology | span | ep/min | calls/s | GPU util / W | bottleneck |
+|---|---|---|---|---|---|---|---|---|
+| `cpi_r5m` library | π0.5 | 4090 | R5 MPS B1 | 152 min | 16 | 6.2 | 46% / 211 | host: ~0.85 s/call per replica, one core each; R5 is the VRAM cap |
+| `cgr_r6m` library | GR00T | 4090 | R6 MPS B1 | 68 min | 37 | 11.8 | 24% / 157 | capture: ~0.48 s/call vs ~0.15 s pure |
+| `cdp4_r4b8` library | DP | H100 | R4 MPS B8 | 26 min | 95 | 31.9 | 97% / 317 | GPU |
+| `cfw_r2b16` library | Fast-WAM | H100 | R2 MPS B16 | 45 min | 56 | 16.1 | 44% / 265 | per-replica host/stage pipeline (~8 calls/s each) |
+| `tgr7_0502` test | GR00T | 4090 | R6 MPS B1 | 22 min | 113 | 34.6 | 70% / 314 | near the 4090's ~33 MB/s public ingress (0.69 MB/request) |
+| `tpi7_0536` test | π0.5 | 4090 | R5 MPS B1 | 96 min | 26 | 9.1 | 71% / 283 | host (pin replicas + proxy to NUMA node 1) |
+| `tdp7_0729` test | DP | 4090 | R4 MPS B8 | 19 min | 131 | 48.5 | 100% / 410 | GPU |
+| `tfw7_0755` test | Fast-WAM | 4090 | R1 B16 | ~90 min | ~28 | ~8 | ~40% | one replica; R2 does not fit (27.8 GB/replica) |
+
+Full-step test success (seed 7): GR00T 75.8%, DP 61.2%, π0.5 56.3%.
+
+Next time: DP R4 B8 MPS saturates both GPUs, keep it. Fast-WAM on H100 leaves the GPU half idle at R2; try R3 B16
+(3 x 24.4 GB fits in 80 GB) before adding workers. π0.5 and GR00T on the 4090 need host CPU, not GPU: pin to NUMA
+node 1 with `pin_local.sh`, which keeps pinning while later replica waves load. A GR00T test lane beyond ~35 calls/s
+needs request compression first. Cosmos: R8 MPS saturates the H100 in the smoke; its MT50 checkpoint is our own
+fine-tune (`exp/mw_finetune/cosmos/RECIPE.md`).
+
+Library collection command (one model; legacy driver kept on NVMe, copied back after finish):
+
+```bash
+bash openpi_ext/scratch/r17_ops/mw/collect_one.v2.run.sh /data/r17_frozen/openpi_<sha> dp_mw h100 cdp4_r4b8 \
+  --replicas 4 --mps --memory-budget-gib 24 --max-batch 8 --batch-wait-ms 5 \
+  --worker-counts timan107=40,timan1=36 --port 23180 --driver-port 23189
+```
+
+Test baseline: `formal_eval --model <m> --server-node local --replicas R --mps --max-batch B --driver-mode group-commit
+--worker-counts timan107=40,timan1=36 --prepare-only`, then `check_direct.py` and `launch_direct_root.sh`; see
+`openpi_ext/scratch/r17_ops/mw/chain_4090_e.sh`. Compare the prepared `assets/model_spec.json` with the library
+teacher first when the library was collected on another host.
+
 ## π0.5 x MetaWorld MT50
 
 The formal launcher now accepts native K1/K2/K10. This MT50 checkpoint predicts
