@@ -56,10 +56,46 @@ owner 的常驻指令，逐字有效：
 
 ### 1.R16 正在做：纯减步融入闭环（owner 10-07 目标"融入纯减步并实验"，会话 goal 仍挂着）
 
-**10-12 22:0x 网页第 17 版（先读这段）**
+**10-12 22:1x compact 前交接：LIBERO 阶段收口（owner：「libero 这边实验暂且做完了」；compact 后只读这段即可，细节再往下翻）**
+
+### 0. 规矩
+- 先读记忆索引 MEMORY.md 的 ⛔⛔ 一组。本会话新增记忆：`feedback-ir-text-encoding`（IR 文本编码计价规则）；`feedback-verify-own-output` 补了 dashboard 运行记录的判读方法。
+- 起批次前读 `exp/r17_integration/ops/RUN_CONFIGS.md`；严禁 tether expose；本机服务绑整个 NUMA 节点 1；不改正在执行的 bash 脚本；等待日志事件时只看新增行（`chain.log` 是累积的，旧行会误匹配）。
+
+### 1. 现在的状态
+- 没有任何实验在跑。4090 和 H100 上没有我们的进程；接续链（`chain_h100d.sh`、`chain_4090_fwredtest.sh`、`chain_4090_dpctl.sh`、`chain_4090_dpraise.sh`）都已结束；Monitor、定时复查、`stall_watch.sh`、孤儿 `tail` 都已停掉。
+- 任务表 #96–#120 全部完成。
+
+### 2. R17 第 5 层逐任务 IR 旋钮（六组全部完成，`rounds/r17/knob/REPORT.md`）
+| 组 | 最终结果 | 正式 IR | 对照 |
+|---|---|---|---|
+| DP 全步数 | `test_results_dp_r4` | 0.131–0.549 | `hs5dp_ctl_142812`；同拓扑复跑 `hs7dpctl_full` 也全部达标 |
+| Fast-WAM 全步数 | `test_results_fw_r2` | 0.225–0.454 | `hs6fw_res_152931` |
+| Cosmos 全步数 | `test_results_cos_r4` | 0.363–1.030 | 10-10 纯推理 |
+| DP 减步（DDIM10） | `test_results_dp_red_r7` | 0.025–0.093（减步纯推理 0.14） | `hs5dp_ddim10s0` |
+| Fast-WAM 减步（K1，4090） | `test_results_fw_red_r2` | 0.087–0.183（减步纯推理 0.45） | 4090 同配置 `hs7fwk1_4090c`，与 H100 的 `hs6fw_k1` 逐局比 p = 0.50 |
+| Cosmos 减步（2 步实算 1 次） | `test_results_cos_red_r5` | 0.310–0.423（减步纯推理 0.42–0.43） | 10-10 减步纯推理 |
+- 规则：开发集 30 局、5 个点容差逐档下降；A 集 50 局，少 ≥5 局 → 纯推理，少 3–4 局 → 升一档，少 ≤2 局达标，反复提档到全部达标。已在纯推理档仍少 ≥3 局的例外列在报告第 4 节。
+- **IR 口径（owner 10-12 定）**：只服务文本的编码在缓存系统里一律不计；纯推理里 GPU 上的计入、CPU 上的不计。DP 的 CPU CLIP 两边不计，Fast-WAM 的 GPU T5 只进分母，Cosmos 不变。只有一个正式 IR。脚本 `rounds/r17/knob/ir_formal.py` → `ir_formal/`。
+- **DP 纯推理档偏低已查清**：4090 上按旋钮拓扑（R4、本机 48 worker）复跑两份 DP 纯推理对照，旋钮里的纯推理档与复跑一致（全步数 25 格 1078 对 1072；减步 18 格 763 对 766），偏低来自原对照偏高（新旧对照逐局 p = 0.08、0.35）。按复跑对照，DP 全步数补提 2 个任务（`knobtestdp_r3`）后对两个对照都达标。见 `PURE_LEVEL_NOISE.md` 末尾、`dpctl_compare.py`。
+- **owner 问过、已答的两点**：DP 的 CLIP 只编码文本、提示词固定，缓存里整段可省；长执行段只用在缓存命中（DP/Fast-WAM 命中 10 步、调用仍 5 步，Cosmos 都是 16）。长执行段的作用（缓存研究 `crg` 对 `chrg`，无旋钮）：DP 每控制步 NFE 降到 0.29–0.42 倍，成功率 −1.4 至 +4.2；Fast-WAM 降到 0.29–0.48 倍，空间 −2.0 至 +1.4，长任务全部变差 −2.0 至 −7.2。这一条还没写进报告。
+
+### 3. 网页 https://claude.ai/artifact/To18VP3TyzS5SXY3MmmUCp （Dashboard 类型，第 17 版）
+- 内容：R17 缓存研究各节 → R17 逐任务 IR 旋钮（六张表，单一 IR 列）→ π0.5 / GR00T 逐任务旋钮（R16 k = 1 提档后，4 张表，IR 换算成满步纯推理 = 1）→ 延迟实测（含「只服务文本的编码」「纯推理一次决策」两列）→ 说明。
+- 当前版本：datasets `knob` v6、`latency` v2、`knob_vla` v2；`files/index.html` v17。
+- 源文件已存到持久目录 `openpi_ext/scratch/r17_ops/livepage/dash_src/`（`index.html`、`build_knob.py`、`build_knob_vla.py`、`make_harness.py`、各 json）。更新流程：改源 → `build_*.py` 生成 json → `make_harness.py` 本地渲染、headless chrome 截宽屏与手机 → `Artifact publish asset:true` 上传 json → `ArtifactData batch` 更新 `datasets/<id>` 的 `source.url`（带 if_version）与 `files/index.html` → owner 打开后读 `data/users/me/runs`（不存在 = 没有失败、报错或标记错位）。
+- 读写数据库的 out_dir 用 `r17_ops/livepage/`（`.claude` 下不允许）。
+
+### 4. 还挂着的（都不急）
+- 中转上的 `wls-ssh` 暴露：不是实验条目，也不是我们建的，保持不动。
+- H100 dp_h100 里没有本机副本的 143 GB：按规则不删，保留。
+- 报告里可以补一节「长执行段的作用」（数据见第 2 节最后一条，来源 `dash_src/cells.json`）。
+- 下一步做什么 owner 还没定（LIBERO 暂告一段落）。
+
+**10-12 22:0x 网页第 17 版**
 - owner：π0.5 / GR00T 一节只放 R16 k = 1 提档后的结果，4 张表（模型 × 套件，每表行 = 库大小，另列满步纯推理与 k = 1 纯推理两行参照）。数据集 `knob_vla` v2（16 行，`/_blob/14d4aeb84ea4c4e4bde420189fc0061f`），index.html v17；`build_knob_vla.py` 里 `KEEP = {"k1"}`。宽屏、手机截图已看。
 
-**10-12 21:5x 网页第 16 版 + 长执行段对比（再读这段）**
+**10-12 21:5x 网页第 16 版 + 长执行段对比**
 - owner 要求把 π0.5 / GR00T 的旋钮下降结果加到网页后面：新增一节 `#knob-vla`（在 R17 旋钮一节之后），数据集 `knob_vla`（48 行，`/_blob/5485fc7f1cad03ca2abc1642d2039f9b`），index.html v16。生成脚本 `$CLAUDE_JOB_DIR/tmp/dash/build_knob_vla.py`：全步数取 R14（库 50）/R15（100/200/500）开发集下降、未提档；减步 k=1/2 取 R16 提档后（`rounds/r16/retest_v1_v2_v3_results/retest.json`），档位取 R14/R15 levels 与 retest levels；IR = 原口径开销 ÷ 同格满步纯推理开销（满步纯推理 = 1）；两个模型文本与图像一起进 VLM，文本计价规则不涉及。R16 提档规则：少 ≥5 局 → 纯推理，少 3–4 局 → 0.45 档（已是 0.45 → 纯推理），对照是满步纯推理。宽屏、手机截图已看。
 - 长执行段的作用（缓存研究 crg 对 chrg，无旋钮，每格 500 局，数据 `dash/cells.json`）：DP 每控制步 NFE 约降到 1/3，成功率 −1.4 至 +4.2（长任务库 100/200 +4.2/+3.2）；Fast-WAM NFE 约降到 40%，空间 −2.0 至 +1.4，长任务全部变差 −2.0 至 −7.2（库 50 −7.2）。旋钮批次里这些任务靠提档补回到容差内。Cosmos 不涉及（纯推理本身就是 16 步）。
 
