@@ -21,8 +21,8 @@ KEY_BUILDER_ID = "pi05_metaworld_cp1_spatial16_v1"
 
 
 def sampler_for_steps(k):
-    if type(k) is not int or k not in (1, 2, 3, 4, 5, 10):
-        raise ValueError("π-MW grids are K1-K5/K10")
+    if type(k) is not int or k not in (1, 2, 10):
+        raise ValueError("π-MW qualified grids are K1/K2/K10")
     dt, t = np.float32(-1/k), np.float32(1)
     times = []
     for _ in range(k):
