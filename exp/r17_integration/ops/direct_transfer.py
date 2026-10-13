@@ -65,7 +65,7 @@ def close_daemon(server, destination=None):
     def owns_daemon():
         try:
             return ('--config='+str(root/'rsyncd.conf')).encode() in cmdline.read_bytes().split(bytes([0]))
-        except FileNotFoundError:
+        except (FileNotFoundError, ProcessLookupError):
             return False
     if owns_daemon():
         try:
