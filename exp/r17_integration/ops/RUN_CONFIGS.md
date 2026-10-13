@@ -1018,6 +1018,16 @@ free during the drain, so start the next GPU job as soon as all episodes are acc
 waiting for the driver copy-back. Fixed for new campaigns in `9cf5cfdc` (stream members, sync once: 3,000 files in
 3.6 s on `/data`); launchers that are already running keep the old function in memory.
 
+### H100 batched campaigns need a local copy of their frozen runtime
+
+Finalize audits batched Fast-WAM evidence (and batched cache-study evidence) on weilandserver with the campaign's own
+frozen runtime under `/data/mw_finetune/qualification/formal_runtime_<identity>`. A new H100 campaign installed that
+release only on H100, so `cfw_r2b16` collected and transferred all 2,500 episodes and then failed with
+`finalization_error: frozen native audit runtime missing`. Prestage now also installs the release locally for every
+H100 campaign. A campaign that already failed this way is recoverable without the GPU: install the campaign's
+`runtime.tar` (same sha as `RUNTIME_RELEASE.json`) at that root, then re-run `formal_finalize.finalize` on the closed
+receipt with `LAUNCH_WORKER_DEPLOYMENT.json`, keeping the old receipt as `RECEIPT_BEFORE_RECOVERY.json`.
+
 ### Keep MPS pipe paths within 85 bytes
 
 The UTF-8/filesystem-encoded **absolute pipe directory**, not just the run name,

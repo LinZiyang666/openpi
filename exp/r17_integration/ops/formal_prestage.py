@@ -113,6 +113,9 @@ def runtime_release(launch, campaign, directory):
         # arms. Installing it never writes the execution host's live release.
         install(archive, root, archive_pin, content_pin)
         campaign['coordinator_runtime'] = root
+    elif campaign['server_node'] == 'h100':
+        # finalize audits batched H100 evidence with the local copy of this release.
+        install(archive, root, archive_pin, content_pin)
     write_json(directory/'RUNTIME_RELEASE.json', dict(node=campaign['server_node'], archive_sha256=archive_pin,
         identity=content_pin, root=root, reused=installed['reused'], files=len(document['files'])))
 
