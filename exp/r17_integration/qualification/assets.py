@@ -61,7 +61,7 @@ def model_assets(job, output):
                     Path('exp/r17_integration/models/groot'), Path('src/openpi/cache/groot'))
                     for p in root.rglob('*.py')})
         manifests = {k: checkpoint_manifest(checkpoint, denoising_steps=k, tokenizer_files=tokenizer,
-                                           code_files=code) for k in (4, 2, 1)}
+                                           code_files=code) for k in (4, 3, 2, 1)}
         m = manifests[job.get('live_k', 4)]
         spec = m.model_spec()
         manifest = dict(schema='r17.model_manifest.v1', spec=asdict(spec), groot=m.to_dict(),

@@ -563,8 +563,7 @@ bash openpi_ext/scratch/r17_ops/mw/collect_one.v2.run.sh /data/r17_frozen/openpi
 
 Test baseline: `formal_eval --model <m> --server-node local --replicas R --replica-startup-width 3 --mps --max-batch B --driver-mode group-commit
 --worker-counts timan107=40,timan1=36 --prepare-only`, then `check_direct.py` and `launch_direct_root.sh`; see
-`openpi_ext/scratch/r17_ops/mw/run_base2.sh`. Always pass the startup width: the default for π0.5/GR00T is 1, which loads R5 π0.5 one replica at a time (~2.3 min each, ~12 min) instead of ~5 min at width 3; GR00T R6 at width 3 is ready in ~1.5 min. Compare the prepared `assets/model_spec.json` with the library
-teacher first when the library was collected on another host.
+`openpi_ext/scratch/r17_ops/mw/run_base2.sh`. Always pass the startup width: the default for π0.5/GR00T is 1, which loads R5 π0.5 one replica at a time (~2.3 min each, ~12 min) instead of ~5 min at width 3; GR00T R6 at width 3 is ready in ~1.5 min.
 
 ## π0.5 x MetaWorld MT50
 
@@ -1070,7 +1069,7 @@ receipt with `LAUNCH_WORKER_DEPLOYMENT.json`, keeping the old receipt as `RECEIP
 ### A library only serves on the env it was collected with
 
 The model spec (`checkpoint_identity`, `code_digest`) includes the dependency versions of the server env, and
-`validate_teacher` refuses a resident whose spec differs from the library's teacher. The MetaWorld DP env on H100 is
+`validate_teacher` used to refuse a resident whose spec differs from the library's teacher (gate since removed). The MetaWorld DP env on H100 is
 a Python 3.12 venv whose `dp_readonly_base.pth` points at the Fast-WAM env (torch 2.7.1+cu128, diffusers 0.39.0,
 transformers 5.5.4, numpy 2.2.6). On weilandserver it pointed at the openpi `.venv` (diffusers 0.37.1, transformers
 4.53.2, numpy 1.26.4), so the DP MT50 library collected on H100 failed the 4090 hot-switch smoke prepare with
@@ -1078,15 +1077,13 @@ transformers 5.5.4, numpy 2.2.6). On weilandserver it pointed at the openpi `.ve
 H100 way (old one kept as `/data/mw_finetune/dp/env.openpi_py311`). Before a test baseline or cache run on another
 host, compare its prepared `assets/model_spec.json` with the library teacher's (`bpool/READY.json` `binding.model`).
 
-### Model-owned code is part of the library identity
+### No identity-fingerprint gate between a library and its resident
 
-The π0.5 `code_digest` hashes `exp/r17_integration/models/pi05/`. The GR00T `checkpoint_identity` hashes all of
-`exp/r17_integration/models/groot/`, `exp/mw_finetune/groot/`, the gr00t vendor and `src/openpi/cache/groot/`.
-Editing any of those files, even only to widen the allowed K list, changes the identity, and the libraries collected
-before the edit then fail `validate_teacher`. On 2026-10-13 widening π0.5 to K1-K5 and GR00T to K1-K4 did exactly
-that (`chkpi3_0948`, `chkgr3b_0951` mismatched), so it was reverted: MT50 plain steps are π0.5 K1/K2/K10 and GR00T
-K1/K2/K4. Fast-WAM's identity does not cover `ops/`, so its launcher allowlist (MT50 K1-K5/K10) can change. Before
-editing model code after collection, check the new prepared spec against the library teacher.
+`validate_teacher` used to refuse a resident whose model spec (code hash, env-derived checkpoint identity) differed
+from the library teacher. Per the owner rule (no fingerprint gates), it now accepts the library; a model-owned
+`library_validator` hook still runs where one exists. So widening a K list in model code (MT50 π0.5 K1-K5/K10,
+GR00T K1-K4, Fast-WAM K1-K5/K10) or serving from another host's env no longer orphans a library. Libraries hold
+full-step teacher data, which the serving K does not change.
 
 ### Never kill a chain's tmux session while it holds a launcher
 

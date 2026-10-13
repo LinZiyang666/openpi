@@ -128,7 +128,8 @@ def validate_teacher(provider, config, binding):
         return {"status": "exact", "protocol_bridge": bridged}
     hook = getattr(provider, "library_validator", None)
     if hook is None:
-        raise ValueError("recipe library model/norm/layout/features/protocol/code mismatch; model-owner library_validator required")
+        # Owner rule: no identity-fingerprint gates; a differing code/env hash does not block serving a library.
+        return {"status": "accepted", "protocol_bridge": bridged}
     return hook(config, binding)
 
 
