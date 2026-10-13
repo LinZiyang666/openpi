@@ -1028,6 +1028,17 @@ H100 campaign. A campaign that already failed this way is recoverable without th
 `runtime.tar` (same sha as `RUNTIME_RELEASE.json`) at that root, then re-run `formal_finalize.finalize` on the closed
 receipt with `LAUNCH_WORKER_DEPLOYMENT.json`, keeping the old receipt as `RECEIPT_BEFORE_RECOVERY.json`.
 
+### A library only serves on the env it was collected with
+
+The model spec (`checkpoint_identity`, `code_digest`) includes the dependency versions of the server env, and
+`validate_teacher` refuses a resident whose spec differs from the library's teacher. The MetaWorld DP env on H100 is
+a Python 3.12 venv whose `dp_readonly_base.pth` points at the Fast-WAM env (torch 2.7.1+cu128, diffusers 0.39.0,
+transformers 5.5.4, numpy 2.2.6). On weilandserver it pointed at the openpi `.venv` (diffusers 0.37.1, transformers
+4.53.2, numpy 1.26.4), so the DP MT50 library collected on H100 failed the 4090 hot-switch smoke prepare with
+`recipe library model/norm/layout/features/protocol/code mismatch`. The weights were byte-identical. The local env was rebuilt the
+H100 way (old one kept as `/data/mw_finetune/dp/env.openpi_py311`). Before a test baseline or cache run on another
+host, compare its prepared `assets/model_spec.json` with the library teacher's (`bpool/READY.json` `binding.model`).
+
 ### Keep MPS pipe paths within 85 bytes
 
 The UTF-8/filesystem-encoded **absolute pipe directory**, not just the run name,
