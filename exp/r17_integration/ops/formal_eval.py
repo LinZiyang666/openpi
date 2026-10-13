@@ -1767,6 +1767,12 @@ def main(argv=None):
         vendor='/home/weiland/projects/openpi_ext/third_party/gr00t_n15', live_k=4)
     if model == 'groot' and args.denoising_steps is not None:
         campaign['live_k'] = args.denoising_steps
+    if model == 'groot' and args.cache_study:
+        # GR00T's endpoint K is fixed at startup; start it at the study YAMLs' K.
+        import yaml
+        study = json.loads(args.cache_study.read_text())
+        row = next(iter(study['models'].values()))[0]
+        campaign['live_k'] = yaml.safe_load((args.cache_study.parent/row['file']).read_text())['adapter_binding']['num_steps']
     if args.cache_study:
         campaign.update(cache_study=str(args.cache_study.resolve()),
                         driver_module='exp.r17_integration.ops.formal_driver' if args.driver_mode == 'legacy'
