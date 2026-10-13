@@ -376,7 +376,8 @@ def launch_prepared(directory):
                 if node == 'timan1':
                     from .timan1_workers import route
                     route(worker,campaign)
-                    launch.install_worker_dependencies(node,'unused',item['payload'])
+                    if campaign.get('domain') == 'libero':
+                        launch.install_worker_dependencies(node,'unused',item['payload'])
                 if campaign.get('cache_study'):
                     from .worker_memory import reservation_mib
                     worker['worker_memory_mib']=reservation_mib(worker)
