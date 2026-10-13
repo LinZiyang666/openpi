@@ -1009,6 +1009,15 @@ per-decision check/charge and charge the written bytes once before `closed()` (w
 charges; `3710d483` skipped the charges without this and every episode failed its final acknowledgment). If a capture lane is slow,
 compare `elapsed_seconds` with the stage timestamps in `servers/replica_*/serving.jsonl` before adding replicas.
 
+### Shard batch installs on the /data HDD can take hours
+
+Each DP/Fast-WAM MT50 shard holds 30-70 small files. Without the 8-shard cap one DP batch carried 1,603 shards and
+75,135 files, and `install_snapshot` looked every member up by name and fsynced every file on `/data`: about 6 files/s,
+so the DP drain after `cdp4_r4b8` finished collecting (03:00) needed roughly 4-5 h and Fast-WAM's about 7 h. The GPU is
+free during the drain, so start the next GPU job as soon as all episodes are accepted (cutover v5 does this) instead of
+waiting for the driver copy-back. Fixed for new campaigns in `9cf5cfdc` (stream members, sync once: 3,000 files in
+3.6 s on `/data`); launchers that are already running keep the old function in memory.
+
 ### Keep MPS pipe paths within 85 bytes
 
 The UTF-8/filesystem-encoded **absolute pipe directory**, not just the run name,
