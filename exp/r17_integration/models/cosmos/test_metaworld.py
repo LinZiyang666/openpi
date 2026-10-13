@@ -203,6 +203,65 @@ def test_offline_resolver_keeps_policy_and_vae_checkpoints_distinct():
     assert resolve('hf://nvidia/Cosmos-Policy-ALOHA-Predict2-2B/Cosmos-Policy-ALOHA-Predict2-2B.pt') == policy
 
 
+def test_finetune_export_reads_own_config_and_statistics(monkeypatch, tmp_path):
+    import json
+    from exp.r17_integration.models.cosmos.loader import LoadSpec
+    from exp.r17_integration.models.cosmos.metaworld import cpu_manifest
+    from exp.mw_finetune.cosmos.mt50_data import PREPROCESSING, dataset_statistics
+    state = np.array([[0, .5, .1, .4], [.4, .8, .3, 1]], np.float32)
+    action = np.array([[-2, -3, -4, -1], [5, 6, 7, 1]], np.float32)
+    stats = dataset_statistics(dict(state=state, action=action))
+    (tmp_path / 'consolidated.pt').write_bytes(b'CPU model stand-in')
+    (tmp_path / 't5_embeddings.pkl').write_bytes(b'CPU prompt cache stand-in')
+    (tmp_path / 'dataset_statistics.json').write_text(json.dumps(stats))
+    (tmp_path / 'config.json').write_text(json.dumps({'cosmos_mw': PREPROCESSING}))
+    monkeypatch.setattr('exp.r17_integration.models.cosmos.loader.asset_paths', lambda spec: {})
+    spec = LoadSpec(str(tmp_path), benchmark_protocols=(FORMAL_SPEC.identity,))
+    manifest = cpu_manifest(spec)
+    cfg = inference_config(spec)
+    assert cfg.image_resize == 'bilinear' and cfg.use_jpeg_compression is False
+    assert set(manifest.content_digests) == {'release:' + name for name in (
+        'consolidated.pt', 't5_embeddings.pkl', 'dataset_statistics.json', 'config.json')}
+    def inverse(chunk, statistics):
+        low, high = np.asarray(statistics['actions_min']), np.asarray(statistics['actions_max'])
+        return (chunk + 1) * (high - low) / 2 + low
+    wire = CosmosMWWirePolicy(stats, SimpleNamespace(unnormalize_actions=inverse))
+    expected = ((action[0] + action[1]) / 2)
+    np.testing.assert_allclose(wire.to_wire(torch.zeros(16,7), None).actions[0], expected)
+    assert manifest.spec.norm_identity == make_manifest(stats, {}, ()).spec.norm_identity
+
+
+def test_finetune_bilinear_preprocessing_preserves_wire_orientation(tmp_path):
+    import json
+    from PIL import Image
+    cfg = inference_config(SimpleNamespace(checkpoint=str(tmp_path)))
+    cfg.image_resize = 'bilinear'
+    cfg.use_jpeg_compression = False
+    native, _, _ = native_observation(observation())
+    seen = []
+    cu = utilities()
+    def prepare(images, config):
+        seen.extend(images)
+        assert config.use_jpeg_compression is False
+        return np.stack(images)
+    cu.prepare_images_for_model = prepare
+    batch = make_data_batch(native, torch.zeros(1,512,1024), cfg, {}, FakeModel(), cu, torch)
+    expected = np.asarray(Image.fromarray(native['primary_image']).resize((224,224), Image.Resampling.BILINEAR))
+    np.testing.assert_array_equal(seen[0], expected)
+    np.testing.assert_array_equal(batch['video'][0,:,5].permute(1,2,0).numpy(), expected)
+
+
+def test_finetune_protocol_metadata_is_explicit(monkeypatch):
+    from exp.r17_integration.models.cosmos.serve import serve_metadata
+    a = adapter(monkeypatch)
+    a.cfg.protocol_source = 'R17 MT50 fine-tune; RECIPE.md'
+    a.cfg.image_resize = 'bilinear'
+    a.cfg.use_jpeg_compression = False
+    metadata = serve_metadata(a)
+    assert metadata['protocol_source'].startswith('R17 MT50 fine-tune')
+    assert metadata['image_resize'] == 'bilinear' and metadata['execution_steps'] == 5
+
+
 def test_library_teacher_captures_one_wire_frame_and_native_chunk(monkeypatch, tmp_path):
     from dataclasses import asdict
     from exp.r17_integration.common.config import build_shared_storage

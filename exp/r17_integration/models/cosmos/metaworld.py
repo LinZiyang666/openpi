@@ -78,7 +78,11 @@ class CosmosMWKeyBuilder(CosmosKeyBuilder):
 
 
 def make_data_batch(native, embedding, cfg, stats, model, cu, torch):
-    image = cu.prepare_images_for_model([native['primary_image']], cfg)[0]
+    image = native['primary_image']
+    if getattr(cfg, 'image_resize', '') == 'bilinear':
+        from PIL import Image
+        image = np.asarray(Image.fromarray(image).resize((224, 224), Image.Resampling.BILINEAR))
+    image = cu.prepare_images_for_model([image], cfg)[0]
     blank = np.zeros_like(image)
     # One current observation, not a temporal history. Four raw frames/latent.
     latent_frames = [blank, blank, image, blank, blank, image, blank]
@@ -109,7 +113,7 @@ class CosmosMWAdapter(CosmosAdapter):
     make_key_builder = staticmethod(CosmosMWKeyBuilder)
 
 
-def make_manifest(stats, digests, protocols):
+def make_manifest(stats, digests, protocols, preprocessing=None):
     norm = digest({'stats': stats, 'proprio': '[g,-g,xyz,0,0,0,1]; native minmax',
                    'actions': 'native minmax inverse; select xyz,gripper; no scaling/clipping'})
     checkpoint = digest(digests)
@@ -122,7 +126,7 @@ def make_manifest(stats, digests, protocols):
         {'vision_0': 256, 'robot_state': 4}, (7, 28, 28), 16,
         'per_camera_latent_channels.adaptive_avg_4x4.v1', 'reject', False, 'float32',
         tuple(range(4)), checkpoint, norm,
-        digest({'wire': 'corner2 RGB480 rot180', 'jpeg': 95, 'resolution': 224,
+        digest({'wire': 'corner2 RGB480 rot180', 'preprocessing': preprocessing or {'jpeg': 95}, 'resolution': 224,
                 'crop_area': .9, 'state_t': 7, 'conditioning_frames': 3}))
     caps = {name: Capability('supported', 'R17 shared serving; CPU fake-model tests; GPU pending')
             for name in ('full', 'k_step', 'concurrent', 'bundle', 'episode', 'conductor', 'worker', 'analysis', 'debug_capture')}
@@ -148,15 +152,25 @@ def cpu_manifest(spec):
     from exp.r17_integration.common.benchmarks import register_benchmark
     register_benchmark(FORMAL_SPEC)
     paths = {k: v for k, v in asset_paths(spec).items() if not k.startswith('release:')}
-    paths.update({'release:' + name: Path(spec.checkpoint) / name for name in RELEASE_FILES})
+    # Training exports need the policy, their own statistics and prompt cache;
+    # the community model card / Git attributes are optional release artifacts.
+    names = ['consolidated.pt', 'dataset_statistics.json', 't5_embeddings.pkl']
+    names += [name for name in ('.gitattributes', 'README.md', 'config.json')
+              if (Path(spec.checkpoint) / name).exists()]
+    paths.update({'release:' + name: Path(spec.checkpoint) / name for name in names})
     digests = {k: sha256_file(v) for k, v in sorted(paths.items())}
     stats = json.loads((Path(spec.checkpoint) / 'dataset_statistics.json').read_text())
-    return make_manifest(stats, digests, spec.benchmark_protocols or (FORMAL_SPEC.identity,))
+    return make_manifest(stats, digests, spec.benchmark_protocols or (FORMAL_SPEC.identity,), checkpoint_config(spec))
+
+
+def checkpoint_config(spec):
+    path = Path(spec.checkpoint) / 'config.json'
+    return json.loads(path.read_text()).get('cosmos_mw', {}) if path.exists() else {}
 
 
 def inference_config(spec):
     root = Path(spec.checkpoint)
-    return SimpleNamespace(config='cosmos_predict2_2b_480p_libero__inference_only',
+    cfg = SimpleNamespace(config='cosmos_predict2_2b_480p_libero__inference_only',
         config_file='cosmos_policy/config/config.py', ckpt_path=str(root / 'consolidated.pt'),
         dataset_stats_path=str(root / 'dataset_statistics.json'),
         t5_text_embeddings_path=str(root / 't5_embeddings.pkl'),
@@ -166,6 +180,11 @@ def inference_config(spec):
         use_jpeg_compression=True, trained_with_image_aug=True, flip_images=False,
         use_variance_scale=False, chunk_size=CHUNK_SIZE, num_open_loop_steps=5,
         num_denoising_steps_action=5, seed=7, deterministic=True, randomize_seed=False)
+    recorded = checkpoint_config(spec)
+    for name in ('image_resize', 'use_jpeg_compression', 'trained_with_image_aug', 'protocol_source'):
+        if name in recorded:
+            setattr(cfg, name, recorded[name])
+    return cfg
 
 
 def experiment_options(spec):

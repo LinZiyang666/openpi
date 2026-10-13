@@ -15,9 +15,12 @@ def serve_metadata(adapter):
         "batch_policy": "B1 serialized per resident; stock proxy replicas",
         "unsupported": [name for name, cap in adapter.metadata().capabilities.features.items() if cap.status == "unsupported"]}
     if adapter.metadata().model_id == 'cosmos_mw':
-        metadata.update(protocol_source='reconstructed; author runner and training config unavailable',
+        metadata.update(protocol_source=getattr(adapter.cfg, 'protocol_source',
+                            'reconstructed; author runner and training config unavailable'),
                         predicted_chunk=16, execution_steps=5, trained_execution_horizon=None,
-                        state_t=7, conditioning_frames=3, cameras=['corner2'])
+                        state_t=7, conditioning_frames=3, cameras=['corner2'],
+                        image_resize=getattr(adapter.cfg, 'image_resize', 'bicubic'),
+                        use_jpeg_compression=adapter.cfg.use_jpeg_compression)
     return metadata
 
 
