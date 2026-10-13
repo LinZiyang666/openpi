@@ -60,6 +60,8 @@ owner 的常驻指令，逐字有效：
 - owner 规则（已记入记忆 `feedback-ir-text-encoding`）：缓存系统（分子）不计只服务文本模态的编码（提示词固定，可整段省）；纯推理（分母）里文本编码在 GPU 上计入、在 CPU 上不计。只剩一个正式 IR。DP 的 CPU CLIP 两边不计；Fast-WAM 的 GPU T5 只进分母（分子第二段用 `results_cached_text` 的实测）；Cosmos 不变。
 - `ir_formal.py` 已改（字段 `ir`、`pure_ir`），报告 2.1–2.6 表、第 5 节系数表、第 6 节都已改（`66c1db02`）。新范围：DP 全步数 0.131–0.549、Fast-WAM 全步数 0.225–0.454、DP 减步 0.025–0.093（减步纯推理 0.142/0.145）、Fast-WAM 减步 0.087–0.183（减步纯推理 0.449/0.452）、Cosmos 不变。
 - 网页第 15 版：旋钮表只剩一列 IR，延迟表加「只服务文本的编码（毫秒，设备）」和「纯推理一次决策」两列（knob v6 `/_blob/9e2b8f60ad87540827c10a9dd934096a`、latency v2 `/_blob/9e80aec8ba0b6ae5c4017f9b39ee39b3`、index.html v15）。owner 还对「旋钮的口径」有疑问，待 owner 说明。
+- 网页核查完成：owner 21:2x 打开过页面，`data/users/me/runs` 不存在；按 Dashboard 类型说明，这表示没有数据源失败、代码报错或标记错位。任务 #113 已关。
+- owner 问过的两点（已答，未改实验）：DP 的 CLIP 只编码文本、输出只取决于提示词，LIBERO 每任务提示词固定，所以缓存里可整段省（代码 `exp/mw_finetune/dp/preprocess.py` LanguageEncoder、`models/dp/staged.py:167`）；长执行段只用在缓存命中上（DP/Fast-WAM 命中执行 10 步、模型调用仍 5 步，计数验证 2×命中+调用≈1；Cosmos 都是 16）。若 owner 要量化长执行段这一层的贡献，需要「同组但命中只执行 5 步」的对比。
 
 **10-12 21:0x 收口（R17 第 5 层逐任务旋钮六组全部完成）**
 - Cosmos 减步收口：第 1 轮 21、第 2 轮 6、第 3/4 轮各 1（同一任务：空间库 300 盘子旁黑碗，0.1→0.4 档，44/44/45/46 对 48）、第 5 轮 0；最终 `test_results_cos_red_r5`，长任务 −1.0 至 −0.4、空间 −0.6 至 +1.4，正式 IR 0.310–0.423（减步纯推理 0.42–0.43），纯推理档无偏低任务。driver 已拷回 /data（6 个批次均为真实目录）。
