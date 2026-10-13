@@ -131,6 +131,12 @@ def subset_dir(library, n):
     return "size_"+str(n//50 if str(library).rstrip("/").endswith("_mt50/bpool") else n)
 
 
+def view_size(row):
+    # VIEW.json "size" counts episodes per task for MT50 libraries, total episodes otherwise.
+    n=library_size(row)
+    return n//50 if str(row["library"]).rstrip("/").endswith("_mt50/bpool") else n
+
+
 def view_path(row):
     return Path(row["library"])/"subsets"/subset_dir(row["library"], library_size(row))
 
@@ -245,7 +251,7 @@ def validate_manifest(path):
             if str(view) not in views:views[str(view)]=read(view/'VIEW.json')
             if (Path(recipe['store_path']).resolve()!=view.resolve() or
                     recipe['store_digest']!=views[str(view)]['content_digest'] or
-                    views[str(view)]['size']!=library_size(row) or
+                    views[str(view)]['size']!=view_size(row) or
                     recipe['fitted_path']!=row['fit'] or recipe['fitted_digest']!=row['fit_digest'] or
                     recipe['corrector']!=settings['corrector'] or
                     recipe['miss_mode']!=('stall_only' if settings['gated'] else 'never') or
@@ -535,7 +541,7 @@ def seal(provider, campaign, benchmark):
         source,serving=profiles(inputs['model'],descriptor.parent.manifest)
         if serving.identity!=benchmark.identity:pass
         expected_names=set(suite_tasks(serving,row['suite']))
-        if ({r['task_name'] for r in descriptor.rows}!=expected_names or descriptor.manifest['size']!=library_size(row)):
+        if ({r['task_name'] for r in descriptor.rows}!=expected_names or descriptor.manifest['size']!=view_size(row)):
             raise ValueError('study suite requires every task from its complete selected B view')
         document=config_document(provider,serving,source,descriptor.parent.manifest,descriptor.manifest,
             store_path=root/row['view_rel'],fit_path=root/row['fit_rel'],fit_digest=row['fit_digest'],
