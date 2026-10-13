@@ -551,8 +551,7 @@ Full-step test success (seed 7, 2,500 episodes), reported as the equal-weight me
 Next time: DP R4 B8 MPS saturates both GPUs, keep it. Fast-WAM on H100 leaves the GPU half idle at R2; try R3 B16
 (3 x 24.4 GB fits in 80 GB) before adding workers. π0.5 and GR00T on the 4090 need host CPU, not GPU: pin to NUMA
 node 1 with `pin_local.sh`, which keeps pinning while later replica waves load. A GR00T test lane beyond ~35 calls/s
-needs request compression first. Cosmos: R8 MPS saturates the H100 in the smoke; its MT50 checkpoint is our own
-fine-tune (`exp/mw_finetune/cosmos/RECIPE.md`).
+needs request compression first. Cosmos is LIBERO-only by owner decision (2026-10-09); MetaWorld uses the four models above.
 
 Library collection command (one model; legacy driver kept on NVMe, copied back after finish):
 
