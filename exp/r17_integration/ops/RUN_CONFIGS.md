@@ -1078,6 +1078,16 @@ transformers 5.5.4, numpy 2.2.6). On weilandserver it pointed at the openpi `.ve
 H100 way (old one kept as `/data/mw_finetune/dp/env.openpi_py311`). Before a test baseline or cache run on another
 host, compare its prepared `assets/model_spec.json` with the library teacher's (`bpool/READY.json` `binding.model`).
 
+### Model-owned code is part of the library identity
+
+The π0.5 `code_digest` hashes `exp/r17_integration/models/pi05/`. The GR00T `checkpoint_identity` hashes all of
+`exp/r17_integration/models/groot/`, `exp/mw_finetune/groot/`, the gr00t vendor and `src/openpi/cache/groot/`.
+Editing any of those files, even only to widen the allowed K list, changes the identity, and the libraries collected
+before the edit then fail `validate_teacher`. On 2026-10-13 widening π0.5 to K1-K5 and GR00T to K1-K4 did exactly
+that (`chkpi3_0948`, `chkgr3b_0951` mismatched), so it was reverted: MT50 plain steps are π0.5 K1/K2/K10 and GR00T
+K1/K2/K4. Fast-WAM's identity does not cover `ops/`, so its launcher allowlist (MT50 K1-K5/K10) can change. Before
+editing model code after collection, check the new prepared spec against the library teacher.
+
 ### Never kill a chain's tmux session while it holds a launcher
 
 A chain script runs `launch_direct_root.sh` in the foreground, so its tmux session is the launcher's parent. Killing
