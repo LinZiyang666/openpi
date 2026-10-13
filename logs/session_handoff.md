@@ -70,6 +70,13 @@ owner 的常驻指令，逐字有效：
 - H100 已有 π0.5 权重：`/data/ckpt/pi05_metaworld_rlinf`（HF `RLinf/RLinf-Pi05-MetaWorld-SFT` rev 60b2d03，sha256 与本机一致，`assets/` 已补）。但 `formal_eval.host_python` 对 π0.5/GR00T 用本机路径，H100 上跑它们要改启动器。GR00T 权重（16 GB）不在 H100。
 - Cosmos-MW 社区权重（`/data/mw_finetune/models/cosmos_mw`，HF `mmurray-ms/Cosmos-Policy-MetaWorld-Predict2-2B` sha 6546ab8）：t5 缓存含全部 50 个 MT50 提示词（push-back 用的是「Push a puck back to a target behind it」），但模型卡只报 assembly-v3 基础策略约 52%（25 局）；动作 7 维、xyz 为未裁剪的脚本专家量级（std 2–3.5），夹爪本体状态编码 `[g,-g]`。计划：D 交回后先测 MT50 seed 7 纯推理；成功率太低就按 DP 先例（「先试他的权重，不行自己微调」）在 MT50 上自己微调。
 - 23:2x 巡检：D 交回 Cosmos-MW（4090 加载 52 s、峰值 7.55 GiB、K5/K3/K1/K2 逐字节比对通过、K5 0.71 s/次；修了 VAE 被解析成策略权重的 bug）和包 C（`host_python`/`server_env` 把 π0.5→`/home/exouser/openpi/.venv`、GR00T→`/home/exouser/gr00t_n15_venv/.venv` + `/home/exouser/gr00t_n15`，H100 CPU 导入探测通过；`HANDBACK_MW_C.md`）。GR00T 权重正经公网传 H100：本机临时只读 rsync 守护进程 23119（`r17_ops/mw/rsyncd/`，只放行 149.165.153.233，台账已登记），H100 tmux `mw_grootrsync` 拉取，限速 16 MB/s；传完核 sha256、停守护进程。A 的 `direct_transfer.py` 原用 23113（与 4090 线调度器冲突），已让它改用 23118（台账已登记）。两卡空闲：A 改完传输前不能起批次。
+- **00:5x 采集进行中**（事件都在 `openpi_ext/scratch/r17_ops/mw/chain.log`；实时测速 `mw/mw_speed.sh RUN_DIR 60` → `mw/speed_<run>.log`；采集脚本 `mw/collect_one.run.sh`（v2 带本机自动绑核 `collect_one.v2.run.sh`），流程 prepare-only → check_direct → launch_direct_root → finish，legacy driver 放 NVMe `/tmp/r17_driver/<run>` 跑完拷回）：
+  - 冒烟 5 模型全过（00:1x–00:27）：DP 0/4、Fast-WAM 0/4（历史 SR 低）、π0.5 1/4、GR00T 2/4、Cosmos 0/4；库主体无图片数组。修了 3 个 bug：快照缺 `exp/mw_finetune/dp/vendor`（gitignore，快照后 `cp -a`）、timan1 对 MW 也装 LIBERO 依赖（`formal_prestage.py`）、`direct_transfer.close_daemon` 竞态（`ProcessLookupError`）。
+  - Cosmos 社区权重：MT50 测试集 0/152（`/data/mw_finetune/eval/mwcost7`，00:41 停，PARTIAL）→ 不可用，按 DP 先例自己微调；sol D 00:42 起写训练代码（交回 `exp/mw_finetune/cosmos/HANDBACK_FINETUNE.md`）。Cosmos R8 MPS 在 H100 上 GPU 100%/690 W、11–23 调用/秒。
+  - DP 采集 `cdp_r4b8`（H100，R4 B8 MPS，timan107×40+timan1×36）：45–51 局/分，约 01:40 收完。
+  - π0.5 采集 `cpi_r5m`（4090，R5 MPS B1，timan107×24+timan1×4，副本绑 NUMA 节点 1）：每副本单核 100%、0.85 s/次（主机端受限，GPU 约 50%），约 5–7 调用/秒，预计约 2.5–3 h。R4（`cpi_r4m`）0.75 s/次、3.8 调用/秒，已停。4090 上 R6 显存不够（每副本约 7.9 GB）。
+  - H100 接续链 `mw/chain_h100_next.run.sh`（tmux `mw_h100next`）：DP 收尾后起 Fast-WAM `cfw_r2b16`（R2 B16 MPS，23170–23172，driver 23179）→ GR00T `cgr_r6m`（R6 MPS，H100 端口 23160–23166，driver 23168，因 23169 被 π0.5 占用）。
+  - 快照 `/data/r17_frozen/openpi_2818d3da`（含 `--replica-startup-width`，默认 min(R,4)）。timan1 总 worker 不超过 40（两条线合计）。
 - 实测：MT50 观测图 480² 无损 zlib-1 压缩比 2.7（254 KB/张，编码 11 ms、解码 4 ms），4090 线若撞上 33 MB/s 入口就加线路压缩。
 
 **10-12 22:1x compact 前交接：LIBERO 阶段收口（owner：「libero 这边实验暂且做完了」；compact 后只读这段即可，细节再往下翻）**
