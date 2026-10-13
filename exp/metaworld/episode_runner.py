@@ -164,8 +164,9 @@ class MetaworldEpisodeRunner(EpisodeRunner):
         self, task: _task.EpisodeTask, report: ProgressCallback
     ) -> _task.EpisodeResult:
         name = self.task_name(task)
+        seed = task.extra.get("seed", self._seed)
         client = self._ensure_client(task)
-        env = self._env_factory(name, task.orig_init_state_idx, self._seed)
+        env = self._env_factory(name, task.orig_init_state_idx, seed)
         per_step: list[dict] = []
         started = time.monotonic()
         outcome = None
@@ -179,7 +180,7 @@ class MetaworldEpisodeRunner(EpisodeRunner):
                     "orig_init_state_idx": task.orig_init_state_idx,
                     "task_uid": task.task_uid,
                     "attempt": task.attempt,
-                    "seed": self._seed,
+                    "seed": seed,
                 },
             )
             last_hit: dict = {"hit_type": None}
@@ -218,7 +219,7 @@ class MetaworldEpisodeRunner(EpisodeRunner):
                 "task": name,
                 "subset_init_state_idx": task.episode_idx,
                 "orig_init_state_idx": task.orig_init_state_idx,
-                "seed": self._seed,
+                "seed": seed,
                 "n_steps": outcome.n_steps,
                 "n_decisions": outcome.n_decisions,
                 "end_reason": outcome.end_reason,
