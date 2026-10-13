@@ -11,6 +11,11 @@ call budget the calibrated stall trigger gave +1.15 pp [+0.12, +2.23]. Sources: 
 (around lines 1644-1696), logs/session_handoff.md (R7 decision 2, ~line 1053). In the 4 gated groups, gate-triggered calls
 are the only model calls and count as cost.
 
+## 2026-10-13 owner confirmation: stall gate = Q3 only; old guard removed
+The five-layer design's stall gate is the R6/R7 Q3 calibrated stall trigger above (YAML `miss_mode: stall_only` + `stall_path`).
+The old only-no-progress `NoProgressGuard` (R8 span arithmetic, n=3, eps=0.5) is not part of the design; it was removed from
+the code (common/layers/guard.py raises; `recipe.guard: true` on an enabled recipe is rejected). Applies to LIBERO and MetaWorld.
+
 ## Coordinator decision 2026-10-10 15:5x (astra CACHE_STUDY open question 2)
 Keep the batched server configs already used by the pure-inference baselines (Fast-WAM h100 2xB16/5ms+MPS, DP 4090
 2xB8/5ms+MPS, Cosmos h100 2xB1) and reuse those baselines as controls (hs6fw_res_152931 merged, hs5dp_ctl_142812,

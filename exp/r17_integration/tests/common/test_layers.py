@@ -48,7 +48,7 @@ def test_dynamic_library_loeo_corrector_no_gripper_change(h,d,v):
     assert corrected.heads[0]["w"].shape[1]==384
     assert corrected._features(q,*corrected._project(q),plain.action).shape[1]==(4*v+d+min(10,h)*d+1+50)
     fork=corrected.fork()
-    assert fork.action is corrected.action and fork.guard is not corrected.guard
+    assert fork.action is corrected.action and fork._memo is None
 
 
 def test_padding_does_not_change_metric_or_active_output():
@@ -141,15 +141,10 @@ def test_legacy_double_view_distances_topk_kernel_chunk_match(step,prev_hit):
     np.testing.assert_array_equal(result.action,chunk)
 
 
-def test_only_no_progress_matches_legacy_span_with_blind_gaps_and_miss_reset():
-    from exp.offline_search.rounds.r04.k1_blind.judge import BlindMixedJudge
-    old=SimpleNamespace(_vision_progress=[],memo_reset_after_miss=True,prog_eps=.5,
-                         C=SimpleNamespace(prog=np.array([.1,.11,.4]),ep_len=np.array([11,11,11])))
-    guard=NoProgressGuard()
-    for step,row,ph in [(0,0,None),(2,1,True),(3,1,True),(4,2,True),(5,2,False)]:
-        span=BlindMixedJudge._progress(old,SimpleNamespace(step=step,prev_hit=ph),row)
-        force=guard.observe(step,old.C.prog[row],old.C.ep_len[row],prev_hit=ph)
-        assert guard.span==span and force==(span>=2)
+def test_old_no_progress_guard_is_retired():
+    import pytest
+    with pytest.raises(RuntimeError, match="retired"):
+        NoProgressGuard()
 
 
 def test_periodic_force_and_guard_priority_match_frozen_r11():

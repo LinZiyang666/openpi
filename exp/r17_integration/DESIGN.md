@@ -237,7 +237,7 @@ DP/Fast nativewarmresume是完整parity的附加交付，不是首π-MW E2E bloc
 | 层 / 新shared hook | 复用规则 | CPU验收 |
 |---|---|---|
 | retrieval metric / kernel | camera/sourcefields动态；每fieldPCA `min(64,feature_dim,fitrank)`，stateactive维；same normalizedmotion distance/topk/tie/kernel；percanonicaltaskfit，noevaluationoutcomes | legacyπ/GRtwo32768keys fixture reproducesold topk/scores/chunks；MWonekey64/32768、state4/action4finite，绝无padding参与；Fastfusedkey不伪拆twoindependentviews |
-| only-no-progress | donorprogress/episodeboundaries随librarymetadata；enabledguard只有no_progress；blind缺vision保留missingstatus；currenthistory只commit实际执行 | stall-trigger/memo/reset/forceMISS与legacy同布局一致；changedgripperchannel不会触发IndexError或LIBEROpolarity，no_progress不依赖不存在aperture |
+| 停滞门（Q3） | **owner 裁定：五层的停滞门是 R6/R7 的 Q3 校准停滞触发器（R6-C-v2），YAML `miss_mode: stall_only` + `stall_path`，每库每 C 用库内成功局 LOEO 标定；旧的 only-no-progress `NoProgressGuard` 不属于设计，2026-10-13 已从代码拔掉（启用即报错）** | 确认停滞调用一次模型并冷却、可能停滞多看一次图；与 LIBERO R17 缓存研究和旋钮同一份代码（与 R16 DESIGN_LOCK 逐字节一致） |
 | corrector | selected-libraryLOEO、RFF384alpha100seed0保留；features：activePCA+state+`min(commit,H)`activeactions+declaredtaskonehot；修正motionchannels，excludegripper；因checkpoint不同独立fit | libraryreadallowlist/LOEO完整identity；MWfirst10最多H5；task50onehot，gripper原值bitwiseunchanged；同legacyexactdtypeorderparity |
 | periodic | 按每episode实际look/vision/misshistory计quota，fractionalhash和guard优先；tail不是新modelcall，fullK/reducedK ledger分开 | restart/interleave/concurrent/workerchangessameaccepteddecisions；guardforceMISS不被quota吞，periodic强制look可中断tail |
 | per-task descent | newconductorstrategy读取leveldefs、devcohort、samefullreference；完整acceptederror-freecohort后首fail停止；冻结后才test | synthetic50task/variablecohort结果等同exhaustiveoracle；staleresult/error不完成barrier；不硬编码30或500 |
@@ -277,7 +277,7 @@ analysis扩展：旧reader/writer/transport直接用，genericlayoutprofile补de
 ## 11. Completion gates 与明确待验证事项
 
 - **G0 合同/CPU**：P1types/provider/fakeadapter + P2MWfakeepisode/conductor；默认offlegacytestspass，unknownbundle/layout/sampler失败可审计。
-- **G1 第一完整目标**：π-MW full + nativeK1/2 + twohot-switchbundles + ownCP1oneview + retrieval/only-no-progress/corrector/periodic + per-episodequeue + live/debugbyteparity + library/offlinereplay；formalH5/replan5commit限5，另protocol测试tail。完成后给owner一组可重放机械episode和报告，不以smallSR声称全局质量。
+- **G1 第一完整目标**：π-MW full + nativeK1/2 + twohot-switchbundles + ownCP1oneview + retrieval/Q3 停滞门/corrector/periodic + per-episodequeue + live/debugbyteparity + library/offlinereplay；formalH5/replan5commit限5，另protocol测试tail。完成后给owner一组可重放机械episode和报告，不以smallSR声称全局质量。
 - **G2 所有新model**：逐模型sameobs/sameseedfullstagedparity、activechannelnorm、hotbundleisolation、nativeK receipts、B2/replicas certificates、LIBERO/MW分别mechanicalepisode，默认offlegacyLIBERO回归。
 - **G3 完整support**：nativewarmresume/reset、stagedtrace/library/augmentation、layout-awaresearch/profiler/analysis、devfreeze/test/identity/erroraudit；支持的旧advanced组合按capability逐项复用并qualified，mathematicallynotapplicable专项给具体替代/理由。未过该gate不得写“全部π/GR功能已支持”。
 - **G4 实验质量**：immutable训练finalcheckpoint、library/dev/test密封、baselinefull500、paired任务descent成本/SR、renderer/workercapacity/pricing资格；这超出≤15min机械smoke，不在本次或单一包的smoke里偷承诺。

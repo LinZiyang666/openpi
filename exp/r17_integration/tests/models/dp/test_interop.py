@@ -42,7 +42,7 @@ def test_DP_geometry_shared_five_layers_connection_recipe(make_adapter, monkeypa
                           task_id=np.zeros(n, np.int64), episode=np.repeat(np.arange(6), 4),
                           step=np.tile(np.arange(4), 6), source_digest="synthetic_library_only")
     recipe = LayoutRecipe(spec.layout, len(options["ordered_tasks"]),
-                           corrector=True, guard=True, periodic_gap=3, early=True).fit(library)
+                           corrector=True, periodic_gap=3, early=True).fit(library)
     for fold in recipe.fit_evidence["loeo"]:
         assert fold["query_episode"] not in fold["donor_episodes"]
     provider = register_provider(adapter)
@@ -61,12 +61,14 @@ def test_DP_geometry_shared_five_layers_connection_recipe(make_adapter, monkeypa
     second = b.infer(obs)
     assert first["actions"].shape == (10, spec.layout.valid_action_dim)
     assert first["actions"].tobytes() == second["actions"].tobytes()
-    assert a.recipe.guard is not b.recipe.guard and a.recipe.action is b.recipe.action
+    assert a.recipe is not b.recipe and a.recipe.action is b.recipe.action
     assert np.isfinite(first["actions"]).all()
     # Shared periodic look policy is evaluated through the ordinary P1 executor.
-    for seq in range(1, 4):
+    looks = []
+    for seq in range(1, 8):
         answer = a.infer(dict(obs, __execution__={"decision_seq": seq-1, "executed_count": 5}))
-    assert answer["__hit_meta__"]["stage_calls"][0] == 1
+        looks.append(answer["__hit_meta__"]["stage_calls"][0])
+    assert 1 in looks
 
 
 def test_model_native_capture_P6_closed_NPZ_H5_roundtrip(make_adapter, req_context, tmp_path):

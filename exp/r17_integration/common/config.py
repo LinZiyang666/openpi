@@ -18,7 +18,7 @@ class RecipeConfig:
     fit_identity: str | None = None
     teacher_sampler_identity: str | None = None
     corrector: bool = True
-    guard: bool = True
+    guard: bool = False  # the old no-progress guard is retired; True is rejected when the recipe is enabled
     periodic_gap: float | None = None
     target_ir: float | None = None
     ir_costs: dict | None = None

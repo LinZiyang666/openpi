@@ -237,7 +237,7 @@ def fit_nested_libraries(parent, alignment=None, *, task_names, sizes=(50,100,20
     products = {}
     layout = parent.manifest['binding']['model']['layout']
     commit = max(layout['replan_steps'], min(10,layout['horizon']))
-    settings = {**dict(commit_horizon=commit,corrector=True,guard=True,early=True,k=16,kref=8),**settings}
+    settings = {**dict(commit_horizon=commit,corrector=True,early=True,k=16,kref=8),**settings}
     for size,view in views.items():
         fit_path = parent.directory/'fits'/('size_'+str(size))
         if (fit_path/'READY.json').exists():
@@ -246,7 +246,7 @@ def fit_nested_libraries(parent, alignment=None, *, task_names, sizes=(50,100,20
             sealed = json.loads((fit_path/'READY.json').read_text())
             prior = sealed['receipt']
             if (prior['store_digest'] != view.manifest['content_digest'] or
-                prior['config'] != dict(task_names=list(task_names),**{k:v for k,v in settings.items() if k!='corrector'}) or
+                {k:v for k,v in prior['config'].items() if k!='guard'} != dict(task_names=list(task_names),**{k:v for k,v in settings.items() if k not in ('corrector','guard')}) or
                 prior['corrector'] != settings['corrector']):
                 raise ValueError('existing fit differs from selected library/settings')
             products[str(size)] = dict(fit_digest=sealed['digest'],receipt_digest=prior['digest'],
@@ -260,12 +260,11 @@ def fit_nested_libraries(parent, alignment=None, *, task_names, sizes=(50,100,20
             serving_loeo_required_on_B=size==(500 if alignment else 50),
             serving_loeo='B query task/local-init must exclude library_episode_id; A queries have no B own episode',
             shared_products=['PCA','Mahalanobis','early_metric','LOEO_corrector','distance_calibration',
-                             'continuity_scale','corrector_caps','no_progress_guard','periodic_knob'],
-            guard_defaults=dict(n=recipe.guard.n,eps=recipe.guard.eps))
+                             'continuity_scale','corrector_caps','periodic_knob'])
         from exp.r17_integration.common.layers import recipe as recipe_module
         receipt['caps_knobs'] = dict(shared_recipe_sha256=file_sha(recipe_module.__file__),
             corrector='unchanged P1 distance ramp, motion-only0.5 cap, fitted sigma/distance_scale',
-            guard_threshold_source='unchanged P1 NoProgressGuard defaults; not outcome-trained',
+            stall_gate='Q3 calibrated stall trigger (old no-progress guard retired)',
             periodic_gap=recipe.periodic_gap,
             owner_IR_status='requires selected-library schedule calibration and measured native cost profile')
         receipt['digest'] = digest({k:v for k,v in receipt.items() if k!='digest'})
@@ -309,7 +308,7 @@ def calibrate_teacher_knobs(parent, products, *, task_names, cost_profile=None, 
         if cost_profile is not None:
             recipe = load_fitted_recipe(product['directory'],expected_binding=binding)
             config = SimpleNamespace(adapter_binding={'benchmark_protocol':binding['benchmark_protocol']},
-                recipe=SimpleNamespace(ordered_tasks=tuple(task_names),guard=recipe.use_guard))
+                recipe=SimpleNamespace(ordered_tasks=tuple(task_names),guard=False))
             replay = library_schedule(recipe,view,config)
             for level in (.25,.32,.40,.45):
                 try:

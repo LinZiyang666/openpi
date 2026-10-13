@@ -89,7 +89,7 @@ def test_n1_bundle_replay_receipt_counts_actual_tails_and_guard(provider,tmp_pat
     assert bound.fit_evidence["ir_calibration"] == receipt
     again = factory(cfg,None)
     assert again.ir_calibration == receipt and again.ir_calibration is not receipt
-    cfg.recipe.guard = True
+    cfg.recipe.guard = False
     guarded = library_schedule(recipe,store,cfg)
     # A constant donor progress stalls: guards force fresh looks and MISS.
     original = recipe._retrieve
@@ -99,7 +99,7 @@ def test_n1_bundle_replay_receipt_counts_actual_tails_and_guard(provider,tmp_pat
         return result,xv,rs
     recipe._retrieve = stationary
     guarded = library_schedule(recipe,store,cfg)
-    assert guarded(40)[2] > replay(40)[2]
+    assert guarded(40)[2] == replay(40)[2]  # the old no-progress guard is retired: no extra MISS
 
 
 def test_n1_review_pi_k10_ir25_repro_uses_owner_ir_not_miss_fraction(provider,tmp_path):
@@ -205,7 +205,7 @@ def test_n4_store_sha_once_per_load_across_connections_and_factories(provider,tm
     policies = [make_connection_factory(provider,cfg,storage)(None,"default") for _ in range(3)]
     assert len(hashes) == len(store.manifest["arrays"])
     assert policies[0].recipe.action is policies[1].recipe.action
-    assert policies[0].recipe.guard is not policies[1].recipe.guard
+    assert policies[0].recipe is not policies[1].recipe
     path = store.directory/next(iter(store.manifest["arrays"].values()))["file"]
     with path.open("ab") as f:f.write(b"changed immutable generation")
     with pytest.raises(ValueError,match="store changed"):

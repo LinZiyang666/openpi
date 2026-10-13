@@ -42,7 +42,7 @@ def test_review_a4_production_hot_yaml_recipe_library_and_plain_independent(
     artifact = tmp_path / "teacher4.pkl"
     save_stock_artifact(first_store, artifact)
     raw.backend.in_memory.preload_path = str(artifact)
-    layers = recipe_config(copy.deepcopy(plain), second_store, corrector=True, guard=True, target_ir=.40)
+    layers = recipe_config(copy.deepcopy(plain), second_store, corrector=True, guard=False, target_ir=.40)
     constructed = []
     original_factory = entry.make_connection_factory
 

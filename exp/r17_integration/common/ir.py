@@ -81,7 +81,9 @@ def library_schedule(recipe, store, config):
     """
     import numpy as np
     from .query_view import QueryView
-    from .layers.guard import NoProgressGuard
+    from .layers.guard import RETIRED
+    if getattr(config.recipe, 'guard', False):
+        raise ValueError(RETIRED)
     from .layers.periodic import periodic
     records = store.rows
     lengths = {int(ep):int(count) for ep,count in zip(*np.unique(recipe.episode,return_counts=True))}
@@ -105,20 +107,18 @@ def library_schedule(recipe, store, config):
     def replay(gap):
         n=v=m=0
         for rows in episodes:
-            guard = NoProgressGuard()
             vision,hit = [],[]
             cursor,has_chunk = 0,False
             for row in rows:
                 request = requests[row]
-                force = periodic(request,vision,hit,gap)[0] or (config.recipe.guard and guard.veto_tail())
+                force = periodic(request,vision,hit,gap)[0]
                 remaining = recipe.commit-cursor
                 tail = has_chunk and remaining >= (1 if config.adapter_binding.get("allow_partial_commit") else recipe.layout.replan_steps) and not force
                 miss = False
                 if not tail:
                     prev_hit = bool(hit[-1]) if hit else None
                     p,length = progress[row][int(prev_hit is False)]
-                    veto = guard.observe(request.decision_seq,p,length,prev_hit=prev_hit) if config.recipe.guard else False
-                    miss = veto or periodic(request,vision,hit,gap,guard=veto)[0]
+                    miss = periodic(request,vision,hit,gap)[0]
                     cursor,has_chunk = 0,True
                     v += 1
                 vision.append(not tail);hit.append(int(not miss))

@@ -44,7 +44,7 @@ def tiny_library_data(adapter):
 def tiny_library(adapter):
     data = tiny_library_data(adapter)
     return fit_library(data, layout=adapter.metadata().layout, task_count=50, commit_horizon=5,
-                       k=2, kref=2, corrector=True, guard=True, periodic_gap=2, early=True)
+                       k=2, kref=2, corrector=True, periodic_gap=2, early=True)
 
 
 
@@ -60,7 +60,7 @@ def tiny_store(adapter, directory):
                         {"key_vision_0": data.features["vision_0"], "state": data.state, "normalized_actions": data.action})
     recipe = {"schema": "r17.recipe.v1", "enabled": True, "store_path": str(directory),
               "store_digest": store.manifest["content_digest"], "teacher_sampler_identity": adapter.metadata().default_sampler.identity,
-              "corrector": True, "guard": True, "periodic_gap": 2, "k": 2, "kref": 2,
+              "corrector": True, "guard": False, "periodic_gap": 2, "k": 2, "kref": 2,
               "task_table_identity": FORMAL_SPEC.task_table_identity,
               "ordered_tasks": [r[0] for r in FORMAL_SPEC.tasks]}
     return store, recipe
@@ -81,7 +81,7 @@ def test_first_pi_mw_real_ws_two_clients_two_yamls_conductor_and_capture(tmp_pat
     config = load_cache_config(full)
     storage = build_shared_storage(config)
     fitted = tiny_library(adapter)
-    assert fitted.use_corrector and fitted.use_guard and fitted.periodic_gap == 2
+    assert fitted.use_corrector and not fitted.use_guard and fitted.periodic_gap == 2
     captures, wrappers = [], []
     model_capture = make_capture_sink_factory(tmp_path / "model_capture")
     def sink_factory(core):
@@ -233,7 +233,7 @@ def test_p6_sealed_store_to_p1_recipe_bridge_and_identity_rejection(tmp_path):
                 {"key_vision_0": features, "state": fitted.state, "normalized_actions": fitted.action})
     recipe = recipe_from_store(a, directory)
     assert recipe.layout.identity == a.spec.layout.identity
-    assert recipe.use_corrector and recipe.use_guard
+    assert recipe.use_corrector and not recipe.use_guard
     assert recipe.fit_evidence["partition"] == "library"
     assert all(r["query_episode"] not in r["donor_episodes"] for r in recipe.fit_evidence["loeo"])
     original = a.spec

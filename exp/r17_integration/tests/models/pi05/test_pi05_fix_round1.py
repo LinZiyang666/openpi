@@ -72,7 +72,7 @@ def test_yaml_five_layers_independent_of_miss_k_and_content_bound_hot_switch(tmp
         'recipe10': config_document(provider, k=10, evidence_dir=tmp_path/'miss',
                                     recipe={**recipe, 'guard': False, 'periodic_gap': None}),
         'force10': config_document(provider, k=10, evidence_dir=tmp_path/'miss',
-                                   recipe={**recipe, 'guard': True, 'corrector': False, 'periodic_gap': 0}),
+                                   recipe={**recipe, 'guard': False, 'corrector': False, 'periodic_gap': 0}),
         'gap2': config_document(provider, k=2, evidence_dir=tmp_path/'miss',
                                recipe={**recipe, 'periodic_gap': 3}),
     }
@@ -111,7 +111,7 @@ def test_yaml_five_layers_independent_of_miss_k_and_content_bound_hot_switch(tmp
                 c.episode_end(success=False, execution={'decision_seq': 0, 'executed_count': 5, 'terminal': True})
             core = factory(None, 'gap2')
             assert core.recipe.periodic_gap == 3
-            assert core.recipe.use_guard and core.recipe.use_corrector
+            assert not core.recipe.use_guard and core.recipe.use_corrector
             # A changed store digest cannot replace an already loaded generation.
             bad = tmp_path/'bad.yaml'
             bad.write_text(yaml.safe_dump({**documents['recipe10'], 'recipe': {**documents['recipe10']['recipe'], 'store_digest': 'bad'}}))

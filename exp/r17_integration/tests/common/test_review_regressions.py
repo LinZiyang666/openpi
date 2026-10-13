@@ -111,12 +111,12 @@ def test_full_and_plain_low_k_select_recipe_per_bundle(provider, tmp_path, monke
     assert descent.recipe.periodic_gap == 2.
     assert descent.bundle_identity != full_policy.bundle_identity
     second = factory(None,"full.recipe")
-    assert second.recipe is not full_policy.recipe and second.recipe.guard is not full_policy.recipe.guard
+    assert second.recipe is not full_policy.recipe
     assert second.recipe._memo_step == -1 and full_policy.recipe._memo_step == 0
     assert second.recipe.action is full_policy.recipe.action
 
 
-@pytest.mark.parametrize("field,value", [("guard",False),("corrector",True),
+@pytest.mark.parametrize("field,value", [("guard",True),("corrector",True),
     ("periodic_gap",0.),("k",4),("kref",3),("store_digest","foreign")])
 def test_recipe_identity_seals_each_arm_setting(provider,tmp_path,field,value):
     cfg = with_recipe(provider,config_for(provider),tmp_path)

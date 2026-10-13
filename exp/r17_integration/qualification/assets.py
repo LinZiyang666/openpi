@@ -156,7 +156,7 @@ def synthetic_store(spec, provider, output, *, task_name=None):
     save_stock_artifact(store, output / 'synthetic_library.pkl')
     from .benchmark_binding import recipe_table
     names = recipe_table(protocol)['ordered_tasks']
-    recipe, receipt = fit_recipe(store, task_names=names, corrector=True, guard=True, periodic_gap=2,
+    recipe, receipt = fit_recipe(store, task_names=names, corrector=True, periodic_gap=2,
         early=False, commit_horizon=spec.layout.replan_steps, k=2, kref=2)
     save_fitted_recipe(recipe, receipt, output / 'synthetic_fit')
     write_json(output / 'SYNTHETIC.json', dict(synthetic=True, real_teacher=False, quality_claim=False,

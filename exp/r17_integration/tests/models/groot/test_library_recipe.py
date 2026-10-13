@@ -18,11 +18,11 @@ def test_one_camera_awmetric_corrector_loeo_padding_and_fork(manifest, context):
     data = LibraryData({"vision_0": features}, state, action, task, episodes, step, source_digest="CPU-stub-only")
     layout = manifest.model_spec().layout
     recipe = fit_library(data, layout=layout, task_count=50, commit_horizon=10, k=4, kref=2,
-                         corrector=True, guard=True, early=False)
+                         corrector=True, early=False)
     poisoned = action.copy()
     poisoned[..., 4:] = rng.normal(0, 100000, (n, 16, 28))
     other = fit_library(replace(data, action=poisoned), layout=layout, task_count=50, commit_horizon=10,
-                        k=4, kref=2, corrector=True, guard=True, early=False)
+                        k=4, kref=2, corrector=True, early=False)
     for evidence in recipe.fit_evidence["loeo"]:
         assert evidence["query_episode"] not in evidence["donor_episodes"]
     raw = fit_library(data, layout=layout, task_count=50, commit_horizon=10, k=4, kref=2,
@@ -36,7 +36,7 @@ def test_one_camera_awmetric_corrector_loeo_padding_and_fork(manifest, context):
     np.testing.assert_array_equal(a.action[:, 3], unc.action[:, 3])  # corrector changes motion only
     fork = recipe.fork()
     assert fork.action is recipe.action and not recipe.action.flags.writeable
-    assert fork.guard is not recipe.guard and fork._memo is None
+    assert fork is not recipe and fork._memo is None
     assert tuple(recipe.fields) == ("vision_0",)
 
 

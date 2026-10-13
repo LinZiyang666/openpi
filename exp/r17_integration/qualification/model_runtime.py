@@ -127,7 +127,7 @@ def serve(job, run, *, device='cuda:0', server_started=None):
     from .benchmark_binding import recipe_settings
     document['recipe'].update(enabled=True,store_path=str(assets/'synthetic_teacher_store'),
         store_digest=store.manifest['content_digest'],teacher_sampler_identity=digest(store.manifest['binding']['sampler']),
-        corrector=True,guard=True,k=2,kref=2,early=False,
+        corrector=True,k=2,kref=2,early=False,
         **recipe_settings(spec.allowed_benchmark_protocols[0]))
     import yaml
     retrieval.write_text(yaml.safe_dump(document))

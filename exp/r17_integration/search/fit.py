@@ -164,6 +164,7 @@ def load_fitted_recipe(directory, *, expected_binding):
     receipt = manifest["receipt"]
     settings = dict(receipt["config"])
     task_names = settings.pop("task_names")
+    settings.pop("guard", None)  # sealed fits recorded the retired guard flag; it is never served
     recipe = make_method(layout=ActionStateLayout(**expected_binding["model"]["layout"]),
                          task_count=len(task_names), corrector=receipt["corrector"], **settings)
     for key, value in decode(manifest["tree"]).items():

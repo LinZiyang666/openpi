@@ -25,7 +25,7 @@ def config_document(provider, *, k=10, commit=5, evidence_dir, recipe=None):
             "write_policy": {"type": "never"}, "miss": {"num_steps": k, "evidence_dir": str(evidence_dir)}}
 
 
-def recipe_from_store(adapter, directory, *, corrector=True, guard=True, periodic_gap=2):
+def recipe_from_store(adapter, directory, *, corrector=True, guard=False, periodic_gap=2):
     """Consume P6's sealed library store and P1's sole layer implementation."""
     import numpy as np
     from exp.r17_integration.benchmarks.metaworld import FORMAL_SPEC

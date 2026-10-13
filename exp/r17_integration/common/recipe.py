@@ -23,6 +23,9 @@ def validate_recipe(config):
         raise ValueError("recipe requires r17.recipe.v1")
     if any(type(value) is not bool for value in (recipe.enabled, recipe.corrector, recipe.guard, recipe.early)):
         raise ValueError("recipe switches must be booleans")
+    if recipe.guard and recipe.enabled:
+        from .layers.guard import RETIRED
+        raise ValueError(RETIRED)
     if recipe.miss_mode not in ("legacy", "never", "stall_only"):
         raise ValueError("recipe miss_mode must be legacy, never or stall_only")
     for path, identity in ((recipe.fitted_path, recipe.fitted_digest), (recipe.stall_path, recipe.stall_digest)):

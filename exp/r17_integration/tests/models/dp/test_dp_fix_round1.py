@@ -147,8 +147,8 @@ def test_serve_CLI_deploys_shared_five_layers_and_capture_even_at_full_K(make_ad
             assert "r17_model_spec" in kwargs["metadata"]
         def serve_forever(self):
             a, b = self.factory(), self.factory()
-            assert a.recipe is not b.recipe and a.recipe.guard is not b.recipe.guard
-            assert a.recipe.use_corrector and a.recipe.use_guard and a.recipe.periodic_gap == 0
+            assert a.recipe is not b.recipe
+            assert a.recipe.use_corrector and not a.recipe.use_guard and a.recipe.periodic_gap == 0
             a.on_episode_start(task_id=0, init_state_id=0, episode_id="cli",
                 extra_metadata={**episode_metadata("reach-v3"), "attempt": 1, "task_uid": "p4_cli",
                                 "task_data_hash": "fixture", "split": "library"})
@@ -203,13 +203,13 @@ def test_default_factory_consumes_bundle_recipe_and_K100_teacher_for_K2_MISS(mak
     config = plain_config(provider, num_steps=2)
     config.recipe = RecipeConfig(enabled=True, store_path=str(store.directory),
         store_digest=store.manifest["content_digest"], teacher_sampler_identity=adapter.metadata().default_sampler.identity,
-        corrector=True, guard=True, periodic_gap=3, k=4, kref=3, **canonical_recipe_options(adapter))
+        corrector=True, periodic_gap=3, k=4, kref=3, **canonical_recipe_options(adapter))
     factory = make_connection_factory(adapter, provider=provider, default_config=config,
                                       default_storage=build_shared_storage(config))
     a, b = factory(), factory()
     assert a.sampler.family == "ddim" and a.sampler.num_steps == 2
     assert a.recipe is not b.recipe and a.recipe.action is b.recipe.action
-    assert a.recipe.periodic_gap == 3 and a.recipe.use_guard and a.recipe.use_corrector
+    assert a.recipe.periodic_gap == 3 and not a.recipe.use_guard and a.recipe.use_corrector
     assert a.recipe.bundle_recipe_identity == recipe_identity(config)
     a.on_episode_start(extra_metadata=episode_metadata("reach-v3"))
     result = a.infer(observation())

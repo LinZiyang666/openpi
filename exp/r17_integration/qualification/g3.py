@@ -142,7 +142,7 @@ def main():
         from exp.r17_integration.benchmarks.metaworld import FORMAL_SPEC
         from .benchmark_binding import recipe_table
         names=recipe_table(protocol)['ordered_tasks']
-        recipe,fit_receipt=fit_recipe(store,task_names=names,corrector=True,guard=True,periodic_gap=2,
+        recipe,fit_receipt=fit_recipe(store,task_names=names,corrector=True,periodic_gap=2,
                                     early=False,commit_horizon=spec.layout.replan_steps,k=2,kref=2)
         save_fitted_recipe(recipe,fit_receipt,run/'fit')
         restored=load_fitted_recipe(run/'fit',expected_binding=binding)

@@ -60,16 +60,16 @@ adapter_binding:
 | G2 cache+修正器 | `q:true,g:false,C:C0` | **禁止** | GC_dist 方法 | 关 | **5 / 5 / 16** | R15 AC_dist 的短段版本 |
 | G3 cache+长 horizon | `q:false,g:false,C:CL` | **禁止** | 关 | 关 | **L_DP / L_FW / 16** | A + 长 anchor-tail |
 | G4 cache+长 horizon+修正器 | `q:true,g:false,C:CL` | **禁止** | GC_dist 方法 | 关 | **L_DP / L_FW / 16** | AC_dist + 长 anchor-tail |
-| G5 G1+停滞门 | `q:false,g:true,C:C0` | **仅停滞** | 关 | only-no-progress | **5 / 5 / 16** | G，周期旋钮 off |
-| G6 G2+停滞门 | `q:true,g:true,C:C0` | **仅停滞** | GC_dist 方法 | only-no-progress | **5 / 5 / 16** | GC_dist，周期旋钮 off |
-| G7 G3+停滞门 | `q:false,g:true,C:CL` | **仅停滞** | 关 | only-no-progress | **L_DP / L_FW / 16** | G + 长 anchor/policy tail |
-| G8 G4+停滞门 | `q:true,g:true,C:CL` | **仅停滞** | GC_dist 方法 | only-no-progress | **L_DP / L_FW / 16** | GC_dist + 长尾，周期旋钮 off |
+| G5 G1+停滞门 | `q:false,g:true,C:C0` | **仅停滞** | 关 | Q3 停滞门 | **5 / 5 / 16** | G，周期旋钮 off |
+| G6 G2+停滞门 | `q:true,g:true,C:C0` | **仅停滞** | GC_dist 方法 | Q3 停滞门 | **5 / 5 / 16** | GC_dist，周期旋钮 off |
+| G7 G3+停滞门 | `q:false,g:true,C:CL` | **仅停滞** | 关 | Q3 停滞门 | **L_DP / L_FW / 16** | G + 长 anchor/policy tail |
+| G8 G4+停滞门 | `q:true,g:true,C:CL` | **仅停滞** | GC_dist 方法 | Q3 停滞门 | **L_DP / L_FW / 16** | GC_dist + 长尾，周期旋钮 off |
 
 **“纯 cache 无 MISS”的执行契约。** 每次新 anchor 提取真实视觉/状态特征，同 task Mahalanobis 排序，取最多 16 个邻居，以 `_kernel_w(distances-distances[0],8)` 归一化混合完整动作块。即使距离大，也不因距离拒绝动作；距离只衰减修正强度。执行后续尾段时复用同一合成块，**不是每个 R 步都重新找最近邻**。G1/G3 的所有已执行动作来自库合成；G2/G4 来自库合成加冻结残差。没有动作头调用、warm start、在线写库或隐藏 fallback；空库、非法值/身份属于无效实验，不能用模型救场后仍报“纯 cache”。视觉特征前向和 CPU 检索/修正仍有成本，NFE=0 不等于完全没有 GPU 工作。[layers/recipe.py:245–271,296–306](/home/weiland/projects/openpi/exp/r17_integration/common/layers/recipe.py:245)；[serving.py:321–365](/home/weiland/projects/openpi/exp/r17_integration/common/serving.py:321)
 
 **修正器。** 用本模型/本 suite/B500 的 library-only LOEO 残差头，motion-only（不改 gripper），每 task 的标准化输入 + 384 RFF、ridge α100、seed0；强度 `0.5*clip((2-r)/1.25,0,1)`，`r=raw_anchor_distance/distance_scale`，step0 不修正。distance scale 用 B 的五折 held-out、按 episode 平衡的距离中位数；这不是 A 适配，也不是“给最近轨迹套一个通用纠偏器”。固定所有参数，不扫描 blend/cap。[layers/recipe.py:137–161,192–229,274–305](/home/weiland/projects/openpi/exp/r17_integration/common/layers/recipe.py:137)；[layers/math.py:7–8,96–125](/home/weiland/projects/openpi/exp/r17_integration/common/layers/math.py:96)
 
-**停滞门。** 用 `NoProgressGuard(n=3,eps=0.5)`：检索 top donor 的归一化轨迹进度，连续区间进度增量乘当前 donor 的 `length-1` ≤0.5 时累积 decision-step span；span≥2 触发 MISS，前次实际 MISS 清空历史；span≥1 可否决盲尾并要求重新看图。它不是机器人位姿速度门，也不使用真实成功标签。阈值来自共享默认与 READY 收据，**不是每库根据 SR 学出的阈值**。长段加门时 C 是最大可承诺长度，门可以提前打断，必须报告实际执行长度分布；不新增不透明的“连续3次相同动作”门。[layers/guard.py:4–28](/home/weiland/projects/openpi/exp/r17_integration/common/layers/guard.py:4)；[layers/recipe.py:287–314](/home/weiland/projects/openpi/exp/r17_integration/common/layers/recipe.py:287)；[teacher_library.py:240–252](/home/weiland/projects/openpi/exp/r17_integration/search/teacher_library.py:240)
+**停滞门。** 用 R6/R7 的 Q3 校准停滞触发器（R6-C-v2，owner 裁定见 [OWNER_RULINGS.md](OWNER_RULINGS.md)，2026-10-13 再次确认）：YAML 为 `miss_mode: stall_only` 加 `stall_path`（每库每 C 用库内成功局 LOEO 标定），`guard: false`。最近 W+1 个观测对齐到同任务成功模板，估推进 δ̂；δ̂+e90<a10 判确认停滞，触发一次模型调用（减步）并冷却下一决策；δ̂<a10≤δ̂+e90 判可能停滞，下一决策多看一次图。代码 [ideation_Q3/stall/stall.py](../../r06/ideation_Q3/stall/stall.py)、[method_c/stall_bridge.py](../../r06/ideation_Q1/method_c/stall_bridge.py)、[cache_recipe.py](/home/weiland/projects/openpi/exp/r17_integration/search/cache_recipe.py)。**旧的 `NoProgressGuard`（only-no-progress，n=3、eps=0.5）不是五层设计的一部分，2026-10-13 已从代码中拔掉，任何启用都会报错。**
 
 ## 3. 库、C 和 fit 的冻结规则
 

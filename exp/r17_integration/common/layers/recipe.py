@@ -13,7 +13,7 @@ import numpy as np
 
 from ..contracts import ActionStateLayout, RequestContext
 from ..query_view import QueryView, RecipeResult
-from .guard import NoProgressGuard
+from .guard import RETIRED
 from .math import _kernel_w, anchor_weights, fit_head, fit_metric, pca_fit, predict
 from .periodic import periodic
 
@@ -42,20 +42,21 @@ class LayoutRecipe:
     version = "r17.layout_recipe.v1"
 
     def __init__(self, layout: ActionStateLayout, task_count: int, *, commit_horizon=None, allow_partial_commit=False,
-                 k=16, kref=8, corrector=True, guard=True, periodic_gap=None, early=True):
+                 k=16, kref=8, corrector=True, guard=False, periodic_gap=None, early=True):
         self.layout, self.task_count = layout, task_count
         self.commit = max(layout.replan_steps, min(10, layout.horizon)) if commit_horizon is None else commit_horizon
         layout.validate_commit(self.commit, allow_partial=allow_partial_commit)
         if task_count <= 0 or k <= 0 or kref <= 0:
             raise ValueError("positive task_count/k/kref required")
         self.k, self.kref = k, kref
-        self.use_corrector, self.use_guard = corrector, guard
+        if guard:
+            raise ValueError(RETIRED)
+        self.use_corrector, self.use_guard = corrector, False
         self.periodic_gap, self.early = periodic_gap, early
         self.serve_loeo_episodes = {}
         self.reset(None)
 
     def reset(self, episode):
-        self.guard = NoProgressGuard()
         self._memo_step = -1
         self._memo = None
 
@@ -293,7 +294,9 @@ class LayoutRecipe:
         prev = q.prev_hit
         if prev is None and q.hist_hit:
             prev = bool(q.hist_hit[-1])
-        guard = self.guard.observe(q.step, progress, length, prev_hit=prev) if self.use_guard else False
+        if self.use_guard:
+            raise ValueError(RETIRED)
+        guard = False
         knob, ex = periodic(q.request, q.hist_has_vision, q.hist_hit, self.periodic_gap, guard=guard)
         correction_norm = 0.
         if self.use_corrector and q.step > 0:
@@ -308,7 +311,7 @@ class LayoutRecipe:
             action[:self.commit, list(motion)] += .5 * corr
             result.action = action
         result.force_miss = bool(guard or knob)
-        result.extras = dict(result.extras, **ex, guard=guard, noprog_span=self.guard.span,
+        result.extras = dict(result.extras, **ex, guard=guard, noprog_span=0,
                              os_force_miss=float(result.force_miss), os_reason=4. if guard else (62. if knob else 0.))
         if getattr(self, "study_diagnostics", False):
             result.extras.update(corrector_enabled=self.use_corrector,
@@ -319,7 +322,9 @@ class LayoutRecipe:
 
     def force_look(self, request, has_vision, hit):
         force, _ = periodic(request, has_vision, hit, self.periodic_gap)
-        return force or (self.use_guard and self.guard.veto_tail())
+        if self.use_guard:
+            raise ValueError(RETIRED)
+        return force
 
 
 def fit_library(library: LibraryData, *, layout: ActionStateLayout, task_count: int, **settings):

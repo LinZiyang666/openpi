@@ -39,7 +39,7 @@ def teacher_store(directory, manifest, *, episodes=3, seed=517):
 FIXTURE_IR_COSTS = dict(vision=.148, miss=.7)
 
 
-def recipe_config(config, store, *, corrector=False, guard=True, periodic_gap=None, target_ir=None):
+def recipe_config(config, store, *, corrector=False, guard=False, periodic_gap=None, target_ir=None):
     from exp.r17_integration.common.benchmarks import get_benchmark, task_table_identity
     from exp.r17_integration.common.config import RecipeConfig
     from exp.r17_integration.common.contracts import digest
