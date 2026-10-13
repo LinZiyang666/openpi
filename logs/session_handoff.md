@@ -56,6 +56,20 @@ owner 的常驻指令，逐字有效：
 
 ### 1.R16 正在做：纯减步融入闭环（owner 10-07 目标"融入纯减步并实验"，会话 goal 仍挂着）
 
+**10-12 23:xx 新阶段：MetaWorld MT50 数据收集（owner 定；compact 后先读这段，再读下面 LIBERO 收口段的规矩）**
+- owner 定的起点方案：测试集 = seed 7 的 idx 0–49（每任务 50 局，共 2,500 局，官方口径）；缓存/建库 = seed 8 的 idx 0–49（seed 9、10 保留，现在只做一组）。旧 `benchmarks/spec.py` 是 seed 7 内按 idx 段切 测试 0–9 / 建库 10–29 / 开发 30–49，要改。开发集来源待 owner 定。
+- 目标：5 个模型（π0.5、GR00T、DP、Fast-WAM、Cosmos）在 MT50 seed 8 上各收满 2,500 局，不存图片（估算合计 ~24 GB，最坏 ~37 GB）；5 个模型都要试出推荐拓扑，**打满吞吐**（owner：「打不满就是你的问题」），写进 `RUN_CONFIGS.md` 新增 MetaWorld 一节。
+- 可用设备（owner 10-12 23:xx 当次授权）：服务端 weilandserver（4090）、h100；worker 只在 timan107 和 **timan1 的 GPU 3**（timan1 本次特例只用于 MetaWorld worker，不进记忆；timan1 代码上限 40 worker）。
+- R17 debug 定为系统层面统一的 debug（旧 osdebug 只停用入口：π0.5/GR00T 的 `server/observer.py` 钩子和旧 `DataCollector` h5；`exp/offline_search/debug` 的写盘器、格式、读取器、传输被 R17 复用，不删）。要加：不存图片开关（含 π0.5 `model_input_base_rgb`）、相机数跟 benchmark（MT50 = 1 路）。
+- 已查清的缺口（10-12 23:xx）：conductor 按单局分发、yaml 热切换在 LIBERO 真跑过（`knobdevcosred` 74 个 yaml、`knobdevdpred3` 70 个），MetaWorld 只跑过纯推理单 yaml（DP、Fast-WAM MT50 500 局）。写死 LIBERO 的地方：`ops/cache_study.py:24` MODELS；`ops/formal_eval.py:172`（commit horizon）、`:185`（denoising steps）；`models/dp/formal_batch_server.py:33`、`models/fastwam/formal_batch_server.py:44`（批处理服务端只接 LIBERO，且不支持采集）；`ops/library_campaign.py`（只认 LIBERO 套件）与 `debug/library_capture.py`（强制两路相机、无条件存图）。π0.5/GR00T 的 R17 MW 只到预检（`formal_pi05_mw_preflight_final`、`formal_groot_mw_preflight_final` 无 RECEIPT），MT50 成绩来自旧 `run_eval_local_lane.sh`。Cosmos 未接入 MetaWorld（社区权重 `mmurray-ms/Cosmos-Policy-MetaWorld-Predict2-2B` 未验证）。
+- 已知瓶颈：MetaWorld 每请求带 480×480 图（~0.69 MB，LIBERO 的两倍多）；本机公网入口 ~33 MB/s，4090 服务配远端 worker 上限约 48 请求/秒。
+- 任务表 #121–#131（代码 → 真机最小端到端 → 拓扑 → 采集 → 建库；Cosmos 验证并行）。默认：建库教师用满步（沿用 LIBERO：DP 100 / Fast-WAM 10 / Cosmos 5 / π0.5、GR00T 原生步数）。
+- ⛔ owner 10-12 23:5x 新规（已进记忆）：tether 只准 `exec`，不准 `push`/`pull`（含启动器内部部署和回传）；机器都有公网 IP，文件一律公网 rsync 直传（限速）。现有 `formal_eval.py` 的 `transfer()` 及调用点、`incremental_sync.py:305`、library staging/salvage 都用 tether push/pull → 交给 sol A 改成 rsync；**改完之前不准起任何 formal_eval 批次**。我 22:5x 起的 `mwg_r2m` 准备阶段已经用 tether push 推了 4 个小文件到 timan107，作废不启动。
+- 在做的 sol（gpt-6.1-sol，codex_daemon_run.py，tmux `cx_mwA/B/D`，日志 `openpi_ext/scratch/r17_ops/sol_mw{A,B,D}.log`，任务书 `rounds/r17/prompts/sol_mw{A_framework,B_batch_cache,D_cosmos}.md`，交回 `handbacks/HANDBACK_MW_{A,B,D}.md`）：A 线程 `01a13360-08ce-75c3-a7ca-36481aa31f62`（seed 分区、无图片采集、MT50 建库、timan1 MW worker、启动器传输改 rsync）；B `01a13360-08d7-7cd0-88c6-64b8f799faf3`（批处理服务端 MW + 采集、MW 减步/长执行段、MT50 缓存计划热切换）；D `01a13360-08ea-7643-b7ee-30a31ac98d6d`（Cosmos-MW）。三个都已用 `turn/steer` 补发「不准 tether push/pull」更正（工具 `$CLAUDE_JOB_DIR/tmp/steer.py`）。Codex 守护进程 22:4x 热切到 ziyang（xuanle 周额度剩 15%）。
+- GPU 实验从冻结快照跑：`/data/r17_frozen/openpi_f4b374af`（`git archive f4b374af`，`.venv` 软链主仓），启动器 `r17_ops/mw/launch_direct_root.sh ROOT RUN LOG`（事件记 `r17_ops/mw/chain.log`）。sol 改完审过、提交后再导出新快照。
+- H100 已有 π0.5 权重：`/data/ckpt/pi05_metaworld_rlinf`（HF `RLinf/RLinf-Pi05-MetaWorld-SFT` rev 60b2d03，sha256 与本机一致，`assets/` 已补）。但 `formal_eval.host_python` 对 π0.5/GR00T 用本机路径，H100 上跑它们要改启动器。GR00T 权重（16 GB）不在 H100。
+- 实测：MT50 观测图 480² 无损 zlib-1 压缩比 2.7（254 KB/张，编码 11 ms、解码 4 ms），4090 线若撞上 33 MB/s 入口就加线路压缩。
+
 **10-12 22:1x compact 前交接：LIBERO 阶段收口（owner：「libero 这边实验暂且做完了」；compact 后只读这段即可，细节再往下翻）**
 
 ### 0. 规矩
