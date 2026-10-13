@@ -82,6 +82,11 @@ class EpisodeShardSink:
             stats = self.inner_factory.close()
             if any(not row.get('drained') or row.get('errors') for row in stats):
                 raise RuntimeError('teacher shard writer failed to drain')
+            if not self.factory.capture_images:
+                # Per-decision charges are skipped for image-free shards; charge the written bytes once.
+                leaf = self.factory.directory/'shards'/self.shard_id
+                written = sum(p.stat().st_size for p in leaf.rglob('*') if p.is_file())
+                self.factory.budget.charge(self.shard_id, written)
             self.factory.budget.closed(self.shard_id)
             with self.factory.lock:
                 del self.factory.active[self.shard_id]
