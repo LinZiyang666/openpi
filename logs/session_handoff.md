@@ -56,6 +56,47 @@ owner 的常驻指令，逐字有效：
 
 ### 1.R16 正在做：纯减步融入闭环（owner 10-07 目标"融入纯减步并实验"，会话 goal 仍挂着）
 
+### ★ MetaWorld MT50 当前状态（2026-10-13 18:50 CDT；compact 后先读这一块，下面按时间倒序的条目是细节）
+
+**owner 目标与已定规矩**
+- 会话 goal「开始工作，不收集完数据不停」。owner 在睡觉时独自推进；巡检 prompt 每 30 分钟一次。
+- MetaWorld 只做 **π0.5 / GR00T / DP / Fast-WAM** 四个模型（⛔ Cosmos 只用于 LIBERO，10-09 裁定，记忆 `project-cosmos-libero-only`；H100 上 Cosmos-MW 微调已 SIGTERM 停在 3,896 步，`/data/mw_finetune/cosmos/mt50_h100` 未删，等 owner）。
+- 起点：测试集 seed 7 idx 0–49（2,500 局）；库 seed 8 idx 0–49；seed 9、10 保留；开发集来源**未定（待 owner）**。
+- ⛔ MetaWorld 默认减步数（owner 10-13）：π0.5 2、GR00T 2、Fast-WAM 3、DP 10（DDIM）。缓存系统里所有模型调用都用减步。记忆 `project-new-model-default-reduced-steps`。
+- ⛔ 停滞门只用 Q3（R6/R7 校准停滞触发器，`miss_mode: stall_only` + `stall_path`）；旧 `NoProgressGuard` 已拔（`7ca2c727`，启用即报错）。记忆 `project-stall-gate-q3-only`。
+- ⛔ 不加门：身份指纹门已拔（`validate_teacher` 不再拒，`0b66b0ef`）。门挡路就拔门，不绕（记忆 `feedback-keep-it-simple`）。
+- 成功率先报**四个难度组等权均值**，再报按任务均值（记忆 `feedback-mt50-report-group-mean`）。结果用 `openpi_ext/scratch/r17_ops/mw/sr.py <run>`。
+- 不在 IR 旋钮里调停滞门；停滞门 L=min(H,2R) 的二次下采样 owner 说「不管」。
+- IR 只能在 4090 测（owner 10-13）。
+
+**已完成**
+- 四个库（seed 8，每个 2,500 局，满步教师，无图片）：`/data/r17_library/{pi05,groot,dp,fastwam}_mw_mt50/bpool`，六档子集 + 拟合 `subsets|fits/size_{5,10,20,30,40,50}`（每任务条数）。四模型每档 episode 完全一致（`library_episode_id`=任务序号×50+idx，每档取 idx 0..N−1）；拟合只用本档子集（LOEO 排除本档自身那局）。
+- 满步测试基线（seed 7，组均值/按任务）：π0.5 46.7/56.3（`tpi7_0536`）、GR00T 67.1/75.8（`tgr7_0502`）、DP 46.0/61.2（`tdp7_0729`）、Fast-WAM 43.7/57.2（`tfw7full_0944`，H100）。运行在 `/data/mw_finetune/eval/`。
+- 减步阶梯（组均值）：π0.5 K1 38.2 / K2 48.7 / K3 53.1 / K4 50.0 / K5 43.4；GR00T K1 60.7 / K2 66.5 / K3 67.0；Fast-WAM K1 27.6 / K2 41.4 / K3 44.0 / K4 44.0 / K5 44.7；DP DDIM10 47.9。批次 `t{pi,gr,fw}7k<K>_*`、`tdp7d10_0851`。
+- IR 测量（4090 独占，`exp/r17_integration/profile/results_mt50/`；视觉/满步调用/减步调用/满步一次决策）：DP 0.307/0.693/0.084/232 ms；Fast-WAM 0.063/0.937/0.502(K3)/108 ms；π0.5 0.392/0.608/0.358(K2)/98.6 ms；GR00T 0.445/0.555/0.387(K2)/30.8 ms。后三个 `valid=false` 只因编译 vs eager 逐元素比对超严格容差，计时可用。输入观测 `profile/inputs_mt50/assembly_seed8_idx0.npz`（timan107 渲染，gitignore）。工具是 sol 扩的（`4945f756`）。
+- RUN_CONFIGS 有「MetaWorld MT50 measured topology」一节 + 多条 MT50 坑（runtime 镜像、库与环境、模型代码身份、计划超时、GR00T K 固定、提前准备、杀 tmux 前查启动器）。
+
+**正在跑：缓存变体研究**（owner：网页第一个表格的全部组，没有 IR 旋钮；每格 seed 7 全 2,500 局）
+- 研究：`/data/r17_library/studies_mt50/{dp_k10,fw_k3,gr_k2,pi_k2}/STUDY.json`（组 c cr ch chr cg crg chg chrg；π0.5 只有 c cr cg crg；六档 250..2500 总局数；MISS 用上面的默认减步）。
+- H100：DP `csdp_1504`（R4 B8，driver 23110，worker timan107×30+timan1×20）18:48 时 99,185/120,000，~500 局/分，0 报错 → Fast-WAM `csfw_k3`（已提前准备，tmux `mw_go_fw` 等 `csdp_1504 ended receipt` 后启动；R3 B16，public 23173，driver 23111）。
+- 4090：π0.5 `cspi_k2`（R5，端口 23150/23159，worker timan107×24+timan1×20）18:49 时 15,553/60,000，~110 局/分 → GR00T `csgr_k2`（已提前准备，`live_k=2`，tmux `mw_go_gr` 等 `cspi_k2 ended receipt`；端口 23160/23169，快照 `openpi_c758a6c9`）。
+- 预计：DP ~19:30 完，Fast-WAM 再 ~4–5 h；π0.5 ~01:00 完，GR00T 再 ~5 h。
+- 监控：`mw/err_watch.sh`（报错局）和 `tail -F mw/chain.log`，30 分钟过期要重挂。
+- 每批结束后用 `mw/sr.py` 只能看全批；按格（组×档）成功率要按 `yaml_id`（每格一个 yaml）分组统计——还没写，跑完后做（`driver/journal.jsonl` 的 `yaml_id` 对应 `STUDY.json` 各行的 `file`）。
+
+**脚本**（`openpi_ext/scratch/r17_ops/mw/`；`.run.sh` 是运行中的不可改副本）
+- 纯推理基线 `run_base3.sh TAG MODEL NAME SERVER R MEM B STEPS PORT DPORT WORKERS SPECREF WIDTH`（快照 `openpi_0b66b0ef`；STEPS `-` 为满步；SPECREF 已不用）。
+- 缓存研究 `run_cs.sh`（准备+启动）、`prep_cs.sh` + `go_cs.sh`（提前准备、上一批结束即启动；`prep_cs2/go_cs2` 用 `openpi_c758a6c9`）。
+- `sr.py`、`pin_local.sh`（本机服务绑 NUMA 1，宽度 3 加载要等 10 分钟）、`mw_speed2.sh`、`launch_direct_root.sh`、`finish_tfw7.sh`（启动器丢失后的收尾样例）、`add_size5.py`、`refinalize.py`。
+- 最新代码快照 `/data/r17_frozen/openpi_7ca2c727`（含拔老门）；之后新批次用它（改 `run_*` 里的 `S=`）。
+
+**还没做 / 待 owner**
+- 开发集来源（逐任务 IR 旋钮要用）。
+- 缓存研究跑完后：按格汇总、写 RESULTS / 网页（Dashboard `https://claude.ai/artifact/To18VP3TyzS5SXY3MmmUCp` 现在只有 LIBERO）。
+- 拓扑任务 #129：RUN_CONFIGS 的 Fast-WAM 4090 一行还是估计值（`tfw7_0755` 丢了启动器；正式满步在 H100）。
+- Cosmos-MW 训练残留要不要删（owner 定）。
+- H100 上 DP 缓存研究时 GPU 只有 ~10–25%（worker 和模拟是瓶颈，worker 已满），属正常。
+
 **10-12 23:xx 新阶段：MetaWorld MT50 数据收集（owner 定；compact 后先读这段，再读下面 LIBERO 收口段的规矩）**
 - owner 定的起点方案：测试集 = seed 7 的 idx 0–49（每任务 50 局，共 2,500 局，官方口径）；缓存/建库 = seed 8 的 idx 0–49（seed 9、10 保留，现在只做一组）。旧 `benchmarks/spec.py` 是 seed 7 内按 idx 段切 测试 0–9 / 建库 10–29 / 开发 30–49，要改。开发集来源待 owner 定。
 - 目标：5 个模型（π0.5、GR00T、DP、Fast-WAM、Cosmos）在 MT50 seed 8 上各收满 2,500 局，不存图片（估算合计 ~24 GB，最坏 ~37 GB）；5 个模型都要试出推荐拓扑，**打满吞吐**（owner：「打不满就是你的问题」），写进 `RUN_CONFIGS.md` 新增 MetaWorld 一节。
