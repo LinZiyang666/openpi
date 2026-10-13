@@ -1077,6 +1077,17 @@ transformers 5.5.4, numpy 2.2.6). On weilandserver it pointed at the openpi `.ve
 H100 way (old one kept as `/data/mw_finetune/dp/env.openpi_py311`). Before a test baseline or cache run on another
 host, compare its prepared `assets/model_spec.json` with the library teacher's (`bpool/READY.json` `binding.model`).
 
+### MT50 cache studies: plan time, GR00T K, and preparing ahead
+
+- One MT50 cache campaign holds up to 48 cells x 2,500 = 120,000 episodes. Computing its plan takes ~140 s and ~600 MB;
+  `driver_release.planned_tasks` used a 120 s limit (`csdp_1451` failed), now 1800 s (`8bc82127`).
+- GR00T's endpoint K is fixed when the resident starts (`live_k`, default 4). A study whose YAMLs use K2 failed at
+  `load_cache_config` on every replica (`csgr_1608`); formal_eval now starts GR00T at the study YAMLs' K (`c758a6c9`).
+  π0.5, DP and Fast-WAM take K per YAML.
+- Preparing a cache campaign takes ~6.5 min (asset push plus a plan) and launching another ~3 min before replicas load.
+  Prepare the next campaign of a lane while the current one runs (`mw/prep_cs.sh` + `mw/go_cs.sh`), otherwise the GPU
+  idles ~10 min per switch (4090, 16:07-16:17 on 2026-10-13).
+
 ### No identity-fingerprint gate between a library and its resident
 
 `validate_teacher` used to refuse a resident whose model spec (code hash, env-derived checkpoint identity) differed
