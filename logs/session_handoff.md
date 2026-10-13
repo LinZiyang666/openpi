@@ -77,6 +77,10 @@ owner 的常驻指令，逐字有效：
   - π0.5 采集 `cpi_r5m`（4090，R5 MPS B1，timan107×24+timan1×4，副本绑 NUMA 节点 1）：每副本单核 100%、0.85 s/次（主机端受限，GPU 约 50%），约 5–7 调用/秒，预计约 2.5–3 h。R4（`cpi_r4m`）0.75 s/次、3.8 调用/秒，已停。4090 上 R6 显存不够（每副本约 7.9 GB）。
   - H100 接续链 `mw/chain_h100_next.run.sh`（tmux `mw_h100next`）：DP 收尾后起 Fast-WAM `cfw_r2b16`（R2 B16 MPS，23170–23172，driver 23179）→ GR00T `cgr_r6m`（R6 MPS，H100 端口 23160–23166，driver 23168，因 23169 被 π0.5 占用）。
   - 快照 `/data/r17_frozen/openpi_2818d3da`（含 `--replica-startup-width`，默认 min(R,4)）。timan1 总 worker 不超过 40（两条线合计）。
+- **01:5x 事故与调整**：DP 第一次采集 `cdp_r4b8`（H100）因 H100 分块配额卡死后成批报错（912 局 `FatalEpisodeError`，其中 947 成功 + 379 正常失败可用但批次已 FAIL），01:38 停、01:54 结束（启动器卡在收尾，按 PID kill；远端进程已无）。根因：每局预留 256 MiB（20 GB 上限 ≈66 局）+ 回传每批最多 8 块（≈10 块/分）。已修（`0f1138aa`：去掉 8 块上限，不存图片时每局 64 MiB），避坑写进 RUN_CONFIGS；报错监控 `mw/err_watch.sh`、测速 `mw/mw_speed2.sh`（含报错数）。journal 里 `status: failed` 且无 `error` 是正常失败局，合法。
+  - 现在：H100 链 v2（tmux `mw_h100v2`，快照 `openpi_0f1138aa`）DP 重采 `cdp2_r4b8` → Fast-WAM `cfw_r2b16`；`mw_cutover` 在 Fast-WAM 收尾后关掉链 v2（不跑 H100 上的 GR00T），在 H100 tmux `cos_train` 起 Cosmos 微调（输出 `/data/mw_finetune/cosmos/mt50_h100`，日志 `/data/mw_finetune/cosmos/mt50_h100.log`，`--max-hours 24 --resume auto`）。4090：π0.5 `cpi_r5m` → `mw_4090groot` 起 GR00T `cgr_r6m`（R6 MPS，本机绑核，GR00T 单副本峰值 5.4 GB）。
+  - Cosmos 微调包已提交（17266028，`exp/mw_finetune/cosmos/{RECIPE,HANDBACK_FINETUNE}.md`），预计 H100 5k 步 10–25 h；5k 检查点出来后测 MT50 seed 7（目标 ≥50%）再采集。
+  - 我在 H100 上手改过一次运行时 `formal_runtime_edbc1804…/exp/r17_integration/ops/library_batch.py`（去掉 8 块上限，原件备份 `/data/mw_finetune/qualification/library_batch.py.cdp_r4b8_orig_cap8`），但那个批次实际导入的不是这份，改动无效；新批次用新快照。
 - 实测：MT50 观测图 480² 无损 zlib-1 压缩比 2.7（254 KB/张，编码 11 ms、解码 4 ms），4090 线若撞上 33 MB/s 入口就加线路压缩。
 
 **10-12 22:1x compact 前交接：LIBERO 阶段收口（owner：「libero 这边实验暂且做完了」；compact 后只读这段即可，细节再往下翻）**
