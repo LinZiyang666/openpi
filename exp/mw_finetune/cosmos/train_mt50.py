@@ -71,7 +71,10 @@ def load_native(a):
             config_file="cosmos_policy/config/config.py", load_ema_to_reg=False, to_device="cuda:0",
             experiment_opts=experiment_options(a, vae), seed=a.seed)
     model.train()
-    model.tokenizer.eval().requires_grad_(False)
+    # The Wan VAE interface is a plain wrapper; its torch module sits two levels down.
+    vae_module = getattr(getattr(model.tokenizer, 'model', None), 'model', None)
+    if isinstance(vae_module, torch.nn.Module):
+        vae_module.eval().requires_grad_(False)
     optimizer, scheduler = model.init_optimizer_scheduler(config.optimizer, config.scheduler)
     return model, optimizer, scheduler
 
