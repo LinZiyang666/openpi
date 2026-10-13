@@ -561,9 +561,9 @@ bash openpi_ext/scratch/r17_ops/mw/collect_one.v2.run.sh /data/r17_frozen/openpi
   --worker-counts timan107=40,timan1=36 --port 23180 --driver-port 23189
 ```
 
-Test baseline: `formal_eval --model <m> --server-node local --replicas R --mps --max-batch B --driver-mode group-commit
+Test baseline: `formal_eval --model <m> --server-node local --replicas R --replica-startup-width 3 --mps --max-batch B --driver-mode group-commit
 --worker-counts timan107=40,timan1=36 --prepare-only`, then `check_direct.py` and `launch_direct_root.sh`; see
-`openpi_ext/scratch/r17_ops/mw/chain_4090_e.sh`. Compare the prepared `assets/model_spec.json` with the library
+`openpi_ext/scratch/r17_ops/mw/run_base2.sh`. Always pass the startup width: the default for π0.5/GR00T is 1, which loads R5 π0.5 one replica at a time (~2.3 min each, ~12 min) instead of ~5 min at width 3; GR00T R6 at width 3 is ready in ~1.5 min. Compare the prepared `assets/model_spec.json` with the library
 teacher first when the library was collected on another host.
 
 ## π0.5 x MetaWorld MT50
