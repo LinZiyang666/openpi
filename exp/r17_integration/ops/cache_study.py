@@ -147,11 +147,11 @@ def size_label(row):
 
 
 def supported_sizes(bundle):
-    return (50,100,200,300,400,500,1000,1500,2000,2500) if bundle in MW_MODELS else (50,100,200,300,400,500)
+    return (50,100,200,250,300,400,500,1000,1500,2000,2500) if bundle in MW_MODELS else (50,100,200,300,400,500)
 
 
 def generate(output, *, library_root="/data/r17_library", long_dp=10, long_fast=10, sizes=None,
-             models=LIBERO_MODELS, groups=GROUPS):
+             models=LIBERO_MODELS, groups=GROUPS, miss_steps=None):
     """Emit a complete cohort per size; absent prerequisite fits are explicit."""
     import yaml
     from exp.r17_integration.common.provider import AdapterProvider
@@ -199,6 +199,8 @@ def generate(output, *, library_root="/data/r17_library", long_dp=10, long_fast=
                     doc = config_document(provider,serving,source,parent,selected,
                         store_path=library/"subsets"/subset_dir(library, n),fit_path=fit,fit_digest=fit_digest,
                         stall_path=stall,stall_digest=stall_digest,settings=settings)
+                    if miss_steps:  # template K; stage_inputs rebinds the resident provider with it
+                        doc["adapter_binding"]["num_steps"] = miss_steps
                     path.write_text(yaml.safe_dump(doc, sort_keys=False))
                     row = dict(suite=suite, group=group, file=str(path.relative_to(output)),
                         sha256=file_sha(path), settings=settings, library=str(library),
@@ -922,11 +924,12 @@ def main(argv=None):
     p.add_argument("--sizes",type=int,nargs="+",help="library sizes; default historical B500")
     p.add_argument("--groups",nargs="+",choices=GROUPS,default=GROUPS,help="YAML groups to generate; default all eight")
     p.add_argument("--long-dp",type=int,default=10);p.add_argument("--long-fast",type=int,default=10)
+    p.add_argument("--miss-steps",type=int,help="denoising steps of model calls inside the cache system (default native)")
     args, rest = p.parse_known_args(argv)
     if args.mode=="generate":
         if rest:p.error("unknown generation arguments")
         result=generate(args.output,long_dp=args.long_dp,long_fast=args.long_fast,sizes=args.sizes,
-                        models=(args.model,) if args.model else LIBERO_MODELS,groups=args.groups)
+                        models=(args.model,) if args.model else LIBERO_MODELS,groups=args.groups,miss_steps=args.miss_steps)
         print(json.dumps(dict(yamls=sum(map(len,result["models"].values())),manifest=str(args.output/"STUDY.json"),pending=len(result["artifacts_pending"]))));return 0
     if not args.study:p.error("--study required")
     if args.mode=="fit":
