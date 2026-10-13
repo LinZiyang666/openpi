@@ -176,10 +176,10 @@ def execution_steps(campaign, default_steps):
         return default_steps
     choices = {'dp': (5, 10, 100), 'fastwam': (1, 2, 10), 'cosmos': (1, 2, 3, 5)}
     if campaign.get('domain') == 'metaworld':
-        choices = {'dp': (5, 10, 100), 'fastwam': (1, 2, 10), 'pi05': (1, 2, 10), 'groot': (1, 2, 4)}
+        choices = {'dp': (5, 10, 100), 'fastwam': (1, 2, 3, 4, 5, 10), 'pi05': (1, 2, 3, 4, 5, 10), 'groot': (1, 2, 3, 4)}
     if (campaign.get('domain') not in ('libero', 'metaworld') or campaign.get('library') or
         type(requested) is not int or requested not in choices.get(campaign.get('model'), ())):
-        raise ValueError('plain steps: DP 5/10/100, Fast-WAM 1/2/10, MW pi05 1/2/10, MW GR00T 1/2/4, LIBERO Cosmos 1/2/3/5 (native K2 is NFE1)')
+        raise ValueError('plain steps: DP 5/10/100, Fast-WAM 1/2/10 (MW 1-5/10), MW pi05 1-5/10, MW GR00T 1-4, LIBERO Cosmos 1/2/3/5 (native K2 is NFE1)')
     if campaign.get('commit_horizon') is not None or campaign.get('native_parity_only'):
         raise ValueError('plain step study cannot combine horizon or parity-only overrides')
     return requested

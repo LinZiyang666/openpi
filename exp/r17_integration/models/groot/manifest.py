@@ -78,8 +78,8 @@ class GrootManifest:
     interface_version: str = "r17.contracts.v1"
 
     def __post_init__(self):
-        if type(self.denoising_steps) is not int or self.denoising_steps not in (1, 2, 4):
-            raise ValueError("GR00T-MW endpoint K must be 4, 2, or 1")
+        if type(self.denoising_steps) is not int or self.denoising_steps not in (1, 2, 3, 4):
+            raise ValueError("GR00T-MW endpoint K must be 1-4")
         if type(self.hidden_width) is not int or self.hidden_width < 1:
             raise ValueError("hidden_width must be positive")
         for name in ("checkpoint_identity", "norm_identity", "code_identity", "transform_identity", "tokenizer_identity"):
