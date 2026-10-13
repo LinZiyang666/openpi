@@ -94,7 +94,6 @@ def next_batch(campaign, acknowledgement=None, force=False, *, salvage=False):
             # Include tar/PAX padding and both per-shard/outer SHA manifests.
             # Raw payload bytes alone underestimate a many-file capture.
             size=sum(p.stat().st_size+4096+4*len(str(p.relative_to(leaf)).encode()) for p in files)+8192
-            if len(chosen)>=8:break
             if estimate+size>limit:continue
             manifest=dict(schema='r17.snapshot.v1',files={str(p.relative_to(leaf)):sha256(p) for p in files},partials=[])
             if any(p.is_symlink() or p.name.endswith(('.part','.tmp','.failed')) for p in files):raise ValueError('partial/symlink closed batch shard '+shard_id)

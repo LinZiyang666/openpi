@@ -413,6 +413,9 @@ def main(argv=None):
     if a.server_node=='h100':
         from .library_staging import DEFAULT_POLICY, require_build_host
         campaign['h100_staging'] = dict(DEFAULT_POLICY)
+        if not a.capture_images:
+            # Image-free episodes are a few MB; 256 MiB slots capped concurrency near 66 episodes.
+            campaign['h100_staging']['shard_bytes'] = 64*1024**2
         campaign['h100_batch'] = True
         require_build_host(campaign)
     if a.ir_costs: campaign['ir_costs']=json.loads(a.ir_costs.read_text())
