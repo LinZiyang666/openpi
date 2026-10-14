@@ -1159,6 +1159,20 @@ remote workers first, then add local workers until the server is saturated: R4 B
 reached 98% of the sweep's prediction. Worker nodes have 1 GbE (timan1 sent 122 MB/s to H100 with the GR00T lane, 98%
 of the link, while the H100 SM averaged 55%), so H100 lanes need several worker nodes and `--wire-zlib` as well.
 
+### Worker-node GPUs: shared cards, timan108 EGL numbering, write races
+
+- Another user's job on a worker card used to refuse EGL admission outright (`tdp7h1_full`, 2026-10-14 14:04: yurenh2
+  started two 868 MiB jobs on timan1 GPU3). Sharing a card with free VRAM is allowed; since `d2019b8c` foreign processes
+  are only recorded.
+- timan108 (rebooted 2026-10-14): EGL device k = kernel minor k, which is the reverse of the nvidia-smi index; EGL 0/1
+  (index 3/2, the idle cards) fail to initialize, EGL 2/3 (index 1/0) render but carry other users' memory. The worker
+  inventory checks `nvidia-smi -i <minor>` against the minor and rejects every card there. Not used until fixed.
+- Three replicas starting together raced on `servers/manifest.json.part` (`pimk1_fulc` replica_0 died); `write_json`
+  uses a per-process temp name since `c15a78dc`.
+- H100 supply (14:03 sweep, `mtk/h100_sweep_report.txt`): DP K100 calls are GPU-bound at ~131/s (R8 B32, 95%; R12 +5%);
+  DP K10 supplies >1,000 calls/s even at R4 B16, far above what 40 workers can send; Fast-WAM K10 R3 B16 ~205 req/s at
+  hit share 0.82 (B8 ~166), R3 is the VRAM cap.
+
 ### Check the worker node's disk before preparing, and watch long MT50 lanes
 
 timan107 went down at ~00:21 on 2026-10-14 (no ping, no ssh, tether agent offline) while it carried an 8 h π0.5 MT50
