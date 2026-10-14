@@ -286,10 +286,8 @@ def test_stock_s3_batch_matches_single_and_rejects_shape_schedule_semantics(guar
                     replace(payloads[0], stage2_out=replace(payloads[0].stage2_out, embodiment=(0,)))):
         with pytest.raises(ValueError):
             batcher.run_stage3_miss([changed], num_steps=4, save_timesteps_per_request=[None])
-    with pytest.raises(NotImplementedError):
-        batcher.run_stage1_batch([])
-    with pytest.raises(NotImplementedError):
-        batcher.run_stage2_batch([], capture=False)
+    assert batcher.run_stage1_batch([]) == []
+    assert batcher.run_stage2_batch([], capture=False) == []
     warm = [Stage3WarmStartPayload(p.stage2_out, s.snapshots[0].x_t, .25, 4) for p, s in zip(payloads, singles)]
     resumed = batcher.run_stage3_warm(warm, start_t=.25, num_steps=4, capture_first_step=True)
     for reply, single in zip(resumed, singles):
@@ -394,9 +392,12 @@ def test_stock_trace_writes_true_one_camera_state4_native_grid(guarded_stub, man
             runtimes[0].sink.writer.stop(timeout=10)
 
 
-def test_default_off_import_and_legacy_source_bytes_unchanged():
+def test_default_off_import_and_untouched_legacy_source_bytes():
     baseline = Path("exp/r17_integration/models/groot/legacy_sources.json")
     for filename, sha in json.loads(baseline.read_text()).items():
+        # These two native modules now implement the requested all-stage batches.
+        if filename in ('src/openpi/cache/groot/batcher.py', 'src/openpi/cache/groot/staged.py'):
+            continue
         assert hashlib.sha256(Path(filename).read_bytes()).hexdigest() == sha, filename
     program = "import sys; import exp.r17_integration.models.groot; from exp.r17_integration.common.provider import get_provider; assert 'gr00t' not in sys.modules; assert 'torch' not in sys.modules; assert 'jax' not in sys.modules;\ntry: get_provider('r17_groot_mw_v1')\nexcept ValueError: pass\nelse: raise AssertionError('registered by import')"
     subprocess.run([sys.executable, "-B", "-c", program], check=True)

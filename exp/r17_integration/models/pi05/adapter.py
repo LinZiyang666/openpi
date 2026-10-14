@@ -99,6 +99,7 @@ class Pi05Adapter:
         if (self.model.config.action_horizon, self.model.config.action_dim) != (spec.layout.horizon, 32):
             raise ValueError("π checkpoint geometry differs from benchmark layout")
         self.observation_factory = observation_factory
+        self.stage_executor = None
 
     def metadata(self):
         return self.spec
@@ -139,7 +140,24 @@ class Pi05Adapter:
         import torch
         with torch.no_grad():
             output = self.model.run_stage1(prepared.data)
+        return self.finish_stage1(output, prepared)
+
+    def finish_stage1(self, output, prepared):
         return Stage1(output, fields={"model_input_base_rgb": prepared.data.images["base_0_rgb"]}, state=output.state)
+
+    def bind_stage_executor(self, executor):
+        self.stage_executor = executor
+
+    def batching_group(self):
+        return id(self.model)
+
+    def stage1_batch_input(self, prepared):
+        import jax
+        # Pi05StageBatcher stacks unbatched observations, whereas prepare is B1.
+        return jax.tree.map(lambda x: x[0], prepared.data)
+
+    def stage3_batch_input(self, s2):
+        return s2.data
 
     def retrieval_fields(self, s1):
         import torch
@@ -172,8 +190,11 @@ class Pi05Adapter:
         noise = torch.from_numpy(rng.normal((self.spec.layout.horizon, 32))).to(s2.data.stage1.state.device)[None]
         points = sampler.native_timesteps[1:] if capture.snapshots else ()
         with torch.no_grad():
-            output = self.model.run_stage3(s2.data, noise=noise, num_steps=sampler.num_steps,
-                                          return_intermediates=capture.snapshots, save_timesteps=points)
+            if self.stage_executor is not None:
+                output = self.stage_executor.miss(s2, noise[0], sampler, points)
+            else:
+                output = self.model.run_stage3(s2.data, noise=noise, num_steps=sampler.num_steps,
+                                              return_intermediates=capture.snapshots, save_timesteps=points)
         normalized = _numpy(output.action_chunk[0])
         self._validate_chunk(normalized)
         snapshots = []
@@ -205,8 +226,12 @@ class Pi05Adapter:
         if x.dtype != np.float32 or not np.isfinite(x).all():
             raise ValueError("snapshot requires finite float32 normalized x_t")
         with torch.no_grad():
-            out = self.model.run_stage3_from(s2.data, torch.from_numpy(x.copy()).to(s2.data.stage1.state.device)[None],
-                                             snapshot.native_timestep, num_steps=sampler.num_steps)
+            start_x = torch.from_numpy(x.copy()).to(s2.data.stage1.state.device)
+            if self.stage_executor is not None:
+                out = self.stage_executor.warm(s2, start_x, snapshot, sampler)
+            else:
+                out = self.model.run_stage3_from(s2.data, start_x[None], snapshot.native_timestep,
+                                               num_steps=sampler.num_steps)
         normalized = _numpy(out.action_chunk[0])
         self._validate_chunk(normalized)
         return SampleResult(normalized, sampler.num_steps - snapshot.loop_index, sampler, rng_receipt=rng.receipt())

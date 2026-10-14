@@ -613,7 +613,7 @@ def server_env(campaign, root):
             env['OPENPI_DATA_HOME'] = '/home/exouser/.cache/openpi'
         else:
             env['NO_ALBUMENTATIONS_UPDATE'] = '1'
-    if campaign.get('fastwam_batching') or campaign.get('dp_batching'):
+    if campaign.get('fastwam_batching') or campaign.get('dp_batching') or campaign.get('stage_batching'):
         env.update(OPENPI_DISABLE_STAGE_STREAMS='0', BATCHING_STAGE1_WORKERS='1',
                    BATCHING_STAGE2_WORKERS='1', BATCHING_STAGE3_WORKERS='1')
     if campaign['model'] == 'cosmos':
@@ -1064,6 +1064,8 @@ def run_campaign(campaign, directory, deployment):
         report['paired_control_seal'] = json.loads((directory/'BATCHING_CONTROL.json').read_text())
     if campaign.get('dp_batching'):
         report['dp_batching'] = campaign['dp_batching']
+    if campaign.get('stage_batching'):
+        report['stage_batching'] = campaign['stage_batching']
     shard_pump = None
     live_fleets = None
     mps_ready = None
@@ -1550,7 +1552,7 @@ def parse_args(argv=None):
     p.add_argument('--replica-startup-width', type=int,
                    help='Concurrent load wave (default DP4, Fast-WAM2, other1); resident caps/self-checks remain mandatory')
     p.add_argument('--max-batch', type=int, default=1,
-                   help='Default-off native cross-connection batching (Fast-WAM/DP LIBERO or MT50)')
+                   help='Native cross-connection batching (pi05/GR00T/Fast-WAM/DP, LIBERO or MT50)')
     p.add_argument('--batch-wait-ms', type=float, default=5., help='Native stage batching window, milliseconds')
     p.add_argument('--paired-control', type=Path,
                    help='Completed same-GPU/batching official-50 Fast-WAM K10/C5 control; required for batched arms')
@@ -1638,9 +1640,12 @@ def parse_args(argv=None):
     try:
         if args.model in ('dp_libero', 'dp_mw') and args.max_batch > 1:
             from exp.r17_integration.models.dp.batch_runtime import BatchConfig
+        elif args.model in ('pi05_mw', 'pi05_libero', 'groot_mw', 'groot_libero'):
+            from exp.r17_integration.common.batch_runtime import BatchConfig
         BatchConfig(args.max_batch, args.batch_wait_ms)
-        if args.max_batch > 1 and args.model not in ('fastwam_libero', 'dp_libero', 'fastwam_mw', 'dp_mw'):
-            raise ValueError('--max-batch supports Fast-WAM/DP LIBERO or MT50')
+        if args.max_batch > 1 and args.model not in ('fastwam_libero', 'dp_libero', 'fastwam_mw', 'dp_mw',
+                                                   'pi05_mw', 'pi05_libero', 'groot_mw', 'groot_libero'):
+            raise ValueError('--max-batch supports pi05/GR00T/Fast-WAM/DP LIBERO or MT50')
         if args.paired_control and (args.max_batch == 1 or args.model != 'fastwam_libero'):
             raise ValueError('--paired-control requires Fast-WAM batching')
         if args.batch_qualification_observations and (not args.smoke or args.max_batch <= 1 or args.model != 'fastwam_libero'):
@@ -1849,6 +1854,9 @@ def main(argv=None):
     elif args.max_batch > 1 and model == 'dp':
         from exp.r17_integration.models.dp.batch_runtime import BatchConfig
         campaign['dp_batching'] = BatchConfig(args.max_batch, args.batch_wait_ms).metadata()
+    elif args.max_batch > 1 and model in ('pi05', 'groot'):
+        from exp.r17_integration.common.batch_runtime import BatchConfig
+        campaign['stage_batching'] = BatchConfig(args.max_batch, args.batch_wait_ms).metadata()
     if args.batch_qualification_observations:
         campaign['batch_qualification_observations'] = str(args.batch_qualification_observations)
     if args.mps:

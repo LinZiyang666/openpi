@@ -1,4 +1,4 @@
-"""Stock S3 batching with MW geometry and identity guards; S1/S2 stay unsupported."""
+"""Native stage batching with benchmark-owned action/state geometry."""
 from __future__ import annotations
 
 import torch
@@ -23,14 +23,14 @@ class GrootMetaWorldStageBatcher(GrootStageBatcher):
         for p in payloads:
             cond = p.stage2_out
             if not isinstance(cond, GrootStage3Input) or cond.embodiment != (31,):
-                raise ValueError("S3 payload must use MetaWorld/slot31")
+                raise ValueError("S3 payload must use benchmark slot31")
             if cond.schedule_id != self._runner.live_schedule().schedule_id:
                 raise ValueError("S3 payload schedule differs from live K")
             state, mask = cond.stage2.action_inputs["state"], cond.stage2.action_inputs["state_mask"]
             expected = torch.zeros_like(mask)
-            expected[..., :4] = True
+            expected[..., :self.manifest.state_dim] = True
             if state.shape != (1, 1, 64) or mask.dtype != torch.bool or not torch.equal(mask, expected):
-                raise ValueError("S3 batch requires first4 state mask in width64")
+                raise ValueError("S3 batch requires benchmark state mask in width64")
             x = p.noise if isinstance(p, Stage3MissPayload) else p.start_x
             if tuple(x.shape) not in ((16, 32), (1, 16, 32)) or not torch.isfinite(x).all():
                 raise ValueError("S3 noise/snapshot must be finite H16×32")

@@ -494,7 +494,7 @@ def append_stall_runtime(archive, root):
 
 
 def audit_batches(campaign, directory):
-    config=campaign.get('fastwam_batching') or campaign.get('dp_batching')
+    config=campaign.get('stage_batching') or campaign.get('fastwam_batching') or campaign.get('dp_batching')
     counts={name:[] for name in ('stage1','stage2','stage3')}
     decisions=0
     for path in sorted(Path(directory).glob('replica_*/serving.jsonl')):
@@ -507,6 +507,9 @@ def audit_batches(campaign, directory):
             if set(stages)!=expected or row['source']!='policy' and row['nfe']!=0:
                 raise ValueError('cache hit/tail/gate executed wrong native stages')
             for name,entry in stages.items():
+                if campaign.get('stage_batching'):
+                    counts[name].append(entry['size'])
+                    continue
                 members=entry['members']
                 if (entry['stage']!=name or entry['config_identity']!=config['identity'] or
                     not 1<=entry['size']<=config['max_batch'] or entry['size']!=len(members) or

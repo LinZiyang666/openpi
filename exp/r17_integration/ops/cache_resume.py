@@ -142,7 +142,7 @@ def segment_resources(campaign,directory):
     result.append(dict(segment=str(Path(directory).resolve()),model=campaign.get('model'),
         worker_nodes=nodes,workers=campaign.get('execution_workers',campaign.get('workers')),
         replicas=campaign.get('replicas'),canonical_worker_nodes=campaign.get('worker_nodes'),
-        canonical_workers=campaign.get('workers'),batching=campaign.get('dp_batching',campaign.get('fastwam_batching')),
+        canonical_workers=campaign.get('workers'),batching=campaign.get('stage_batching') or campaign.get('dp_batching',campaign.get('fastwam_batching')),
         local_worker_memory_mib=campaign.get('local_worker_memory_mib',4096) if 'local' in nodes else None,
         local_worker_vram_mib=campaign.get('local_worker_vram_mib',1024) if 'local' in nodes else None,
         orchestration=campaign.get('cache_worker_orchestration'),cached_actions_unchanged=True,

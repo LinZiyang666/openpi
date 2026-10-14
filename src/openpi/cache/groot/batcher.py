@@ -1,9 +1,7 @@
 """GR00T stage-3 adapter for the model-agnostic batching core (plan §6.3).
 
-Only stage 3 is batched. Stage 1 and stage 2 stay on the connection thread
-under the shared model lock (the vision tower's compiled CUDA-graph buffers
-and the LLM forward are not re-entrant), so the batcher refuses the stage-1 /
-stage-2 hooks of the ``StageBatcher`` protocol outright.
+All stages concatenate same-shape requests without introducing padding.
+Callers must retain exclusion around shared compiled vision buffers.
 
 Same-shape batching, no padding
 -------------------------------
@@ -35,6 +33,8 @@ Depends on torch, ``openpi.serving.batching_core`` (jax-free) and
 from __future__ import annotations
 
 from dataclasses import dataclass
+from collections import defaultdict
+from collections.abc import Mapping
 import logging
 from typing import Any, Hashable, Optional
 
@@ -42,6 +42,7 @@ import torch
 
 from openpi.cache.groot.staged import (
     GrootStage2Output,
+    GrootStage1Output,
     GrootStage3Output,
     GrootStagedRunner,
     _batch_feature,
@@ -54,6 +55,50 @@ from openpi.serving.batching_core import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+def feature_shape(value):
+    if torch.is_tensor(value):
+        return (tuple(value.shape[1:]), str(value.dtype), str(value.device))
+    if isinstance(value, Mapping):
+        return tuple((k, feature_shape(v)) for k, v in value.items())
+    return value
+
+
+def cat_features(values):
+    """Native prepared inputs already carry a unit batch axis."""
+    first = values[0]
+    if torch.is_tensor(first):
+        return torch.cat(values, dim=0)
+    if isinstance(first, Mapping):
+        return {k: cat_features([v[k] for v in values]) for k in first}
+    return first
+
+
+def row_features(value, i):
+    if torch.is_tensor(value):
+        return value[i:i+1]
+    if isinstance(value, Mapping):
+        return {k: row_features(v, i) for k, v in value.items()}
+    return value
+
+
+def cat_stage1(values):
+    return GrootStage1Output(
+        input_embeds=torch.cat([v.input_embeds for v in values]),
+        attention_mask=torch.cat([v.attention_mask for v in values]),
+        image_token_mask=torch.cat([v.image_token_mask for v in values]),
+        action_inputs=_batch_feature(cat_features([v.action_inputs for v in values])))
+
+
+def split_stage1(value, batch):
+    return [GrootStage1Output(value.input_embeds[i:i+1], value.attention_mask[i:i+1],
+        value.image_token_mask[i:i+1], _batch_feature(row_features(value.action_inputs, i))) for i in range(batch)]
+
+
+def split_stage2(value, batch):
+    return [GrootStage2Output(value.backbone_features[i:i+1], value.attention_mask[i:i+1],
+        _batch_feature(row_features(value.action_inputs, i))) for i in range(batch)]
 
 
 @dataclass(frozen=True)
@@ -238,7 +283,7 @@ def cat_stage2(inputs: list[GrootStage3Input]) -> GrootStage2Output:
 
 
 class GrootStageBatcher:
-    """``StageBatcher`` for ``GrootStagedRunner``: stage 3 only, same-shape buckets."""
+    """``StageBatcher`` for ``GrootStagedRunner`` with same-shape buckets."""
 
     def __init__(self, runner: GrootStagedRunner) -> None:
         self._runner = runner
@@ -286,13 +331,28 @@ class GrootStageBatcher:
     def order_timesteps(values) -> tuple[float, ...]:
         return order_timesteps(values)
 
-    # -- stage 1 / 2: not batched --------------------------------------------
+    # -- stage 1 / 2: preserve each request's token length ---------------------
+
+    def _early_groups(self, payloads, key, run):
+        groups = defaultdict(list)
+        for i, payload in enumerate(payloads):
+            groups[key(payload)].append((i, payload))
+        replies = [None] * len(payloads)
+        for group in groups.values():
+            with self._runner.session():
+                outputs = run([p for _, p in group])
+            for (i, _), out in zip(group, outputs, strict=True):
+                replies[i] = out
+        return replies
 
     def run_stage1_batch(self, payloads: list) -> list:
-        raise NotImplementedError("GR00T stage 1 runs on the connection thread")
+        return self._early_groups(payloads, feature_shape,
+            lambda values: split_stage1(self._runner.run_stage1(cat_features(values)), len(values)))
 
     def run_stage2_batch(self, payloads: list, *, capture: bool) -> list:
-        raise NotImplementedError("GR00T stage 2 runs on the connection thread")
+        del capture
+        return self._early_groups(payloads, lambda p: (feature_shape(p.input_embeds), feature_shape(p.action_inputs)),
+            lambda values: split_stage2(self._runner.run_stage2_llm(cat_stage1(values)), len(values)))
 
     # -- stage 3 -------------------------------------------------------------
 

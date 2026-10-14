@@ -476,12 +476,9 @@ class GrootStagedRunner:
             )
 
         input_ids = eagle_input["input_ids"]
-        if input_ids.shape[0] != 1:
-            raise RuntimeError(
-                f"batch size {input_ids.shape[0]}; only B=1 is supported. The "
-                "eagle tokenizer pads on the left, so a batch would shift the "
-                "image-token runs per row and invalidate the key layout."
-            )
+        # StageBatcher concatenates already-tokenized, equal-length requests.
+        # No extra left padding is introduced; image_token_mask retains each
+        # row's layout for retrieval after splitting the native output.
 
         with self._timer.measure("stage1_vision"):
             # --- copied from upstream forward, lines 235-259 ---

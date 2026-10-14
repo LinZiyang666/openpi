@@ -75,10 +75,10 @@ def test_unexpected_eagle_input_is_refused(runner, stub_model):
         runner.run_stage1(inputs)
 
 
-def test_batch_larger_than_one_is_refused(runner, stub_model):
+def test_incomplete_batch_still_rejects_image_token_mismatch(runner, stub_model):
     inputs = stub_model.build_inputs()
     inputs["eagle_input_ids"] = inputs["eagle_input_ids"].repeat(2, 1)
-    with runner.session(), pytest.raises(RuntimeError, match="only B=1"):
+    with runner.session(), pytest.raises(RuntimeError, match="image tokens"):
         runner.run_stage1(inputs)
 
 

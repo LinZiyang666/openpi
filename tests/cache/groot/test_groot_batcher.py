@@ -139,13 +139,11 @@ def _core(runner, **kw):
     return BatchingCore(gb.GrootStageBatcher(runner), device="cpu", max_wait_ms=100.0, **kw)
 
 
-def test_stage1_and_stage2_are_refused():
+def test_empty_early_stage_batches():
     model = _model_with_flow_head(N_STEPS)
     b = gb.GrootStageBatcher(_runner(model))
-    with pytest.raises(NotImplementedError):
-        b.run_stage1_batch([])
-    with pytest.raises(NotImplementedError):
-        b.run_stage2_batch([], capture=False)
+    assert b.run_stage1_batch([]) == []
+    assert b.run_stage2_batch([], capture=False) == []
 
 
 def test_b1_through_batcher_matches_direct_bitwise():

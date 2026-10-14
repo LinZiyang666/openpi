@@ -46,6 +46,7 @@ class _TimedLockView:
 class GrootMetaWorldAdapter:
     def __init__(self, backend, manifest, *, model_lock=None, runner_factory=GrootStagedRunner):
         self.manifest = manifest
+        self.stage_executor = None
         self.spec = manifest.model_spec()
         self.model_lock = model_lock if model_lock is not None else threading.RLock()
         # Shared exclusion, connection-local queue-wait ledger (N5).
@@ -117,12 +118,31 @@ class GrootMetaWorldAdapter:
         self._require_live()
         with self._timed_lock, self.runner.session():
             native = self.runner.run_stage1(prepared.data)
+        return self.finish_stage1(native, prepared)
+
+    def finish_stage1(self, native, prepared):
+        del prepared
         self.key_builder.collect(CheckpointID.CP1, stage1=native)
         try:
             fields = self.key_builder.build(CheckpointID.CP1)
         finally:
             self.key_builder.clear()
         return Stage1(native, fields, native.state[0, -1, :self.manifest.state_dim].detach().cpu().float().clone())
+
+    def bind_stage_executor(self, executor):
+        self.stage_executor = executor
+
+    def batching_group(self):
+        # LIBERO suites have distinct resident weights and normalization.
+        return id(self.backend.model)
+
+    def stage1_batch_input(self, prepared):
+        self._require_live()
+        return prepared.data
+
+    def stage3_batch_input(self, s2):
+        from openpi.cache.groot.batcher import stage3_input
+        return stage3_input(self.runner, s2.data)
 
     def retrieval_fields(self, s1):
         return {name: value.clone() for name, value in s1.fields.items()}
@@ -149,8 +169,14 @@ class GrootMetaWorldAdapter:
         with self._timed_lock, self.runner.session():
             generator = rng.torch_generator(device=str(s2.data.backbone_features.device))
             noise = self.runner.sample_noise(s2.data, generator=generator)
-            out = self.runner.run_stage3(s2.data, noise=noise,
-                                        on_step=observe if capture.enabled and capture.snapshots else None)
+            if self.stage_executor is None:
+                out = self.runner.run_stage3(s2.data, noise=noise,
+                                            on_step=observe if capture.enabled and capture.snapshots else None)
+        if self.stage_executor is not None:
+            points = sampler.native_timesteps[1:] if capture.enabled and capture.snapshots else None
+            out = self.stage_executor.miss(s2, noise[0], sampler, points)
+            for point, x in (out.intermediates or {}).items():
+                observe(sampler.native_timesteps.index(point), x, None)
         normalized = out.action_pred[0].detach().cpu().float().clone()
         if normalized.shape != (16, 32) or not torch.isfinite(normalized).all():
             raise ValueError("GR00T returned invalid normalized action chunk")
@@ -175,8 +201,12 @@ class GrootMetaWorldAdapter:
                         or not torch.equal(x_t.to(expected_dtype).float(), x_t)):
                     raise ValueError("native snapshot dtype differs from live action loop")
                 x_t = x_t.to(expected_dtype)
-            out = self.runner.run_stage3_from(s2.data, x_t, float(snapshot.native_timestep),
-                                              schedule=schedule, capture_first_step=capture.enabled)
+            if self.stage_executor is None:
+                out = self.runner.run_stage3_from(s2.data, x_t, float(snapshot.native_timestep),
+                                                  schedule=schedule, capture_first_step=capture.enabled)
+        if self.stage_executor is not None:
+            out = self.stage_executor.warm(s2, x_t[0] if x_t.ndim == 3 else x_t,
+                                          snapshot, sampler, capture=capture.enabled)
         normalized = out.action_pred[0].detach().cpu().float().clone()
         if not torch.isfinite(normalized).all():
             raise ValueError("resumed action is not finite")

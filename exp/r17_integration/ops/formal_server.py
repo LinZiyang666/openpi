@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import asdict
+import contextlib
 import json
 import os
 from pathlib import Path
@@ -147,15 +148,25 @@ def serve(campaign, port, directory, cuda_graph=False):
     if config.enabled or config.checkpoints or config.recipe.enabled:
         raise ValueError('formal campaign must disable cache, checkpoints and recipe')
     storage = build_shared_storage(config)
+    runtime = None
+    adapter_kwargs = {}
+    if campaign.get('stage_batching'):
+        from exp.r17_integration.common.batch_runtime import BatchedAdapter, create_runtime
+        batching = campaign['stage_batching']
+        runtime = create_runtime(adapter, batching['max_batch'], batching['batch_wait_ms'], device=campaign['device'])
+        if runtime is not None:
+            adapter_kwargs['adapter_factory'] = lambda: BatchedAdapter(provider.load_adapter(), runtime)
     captures = None
     if campaign.get('library'):
         from exp.r17_integration.debug.library_capture import campaign_capture_factory
         from exp.r17_integration.common.contracts import CaptureSpec
         captures = campaign_capture_factory(campaign, directory/'capture')
         base_factory = make_connection_factory(provider,config,storage,capture_sink_factory=captures,
-                                               capture_spec=CaptureSpec(enabled=True,snapshots=False))
+                                               capture_spec=CaptureSpec(enabled=True,snapshots=False), **adapter_kwargs)
     else:
-        base_factory = make_connection_factory(provider, config, storage)
+        base_factory = make_connection_factory(provider, config, storage, **adapter_kwargs)
+    if runtime is not None:
+        base_factory = runtime.wrap_connection_factory(base_factory)
     import threading
     evidence_lock = threading.Lock()
     resident_lock = threading.RLock()
@@ -164,9 +175,9 @@ def serve(campaign, port, directory, cuda_graph=False):
         original = core.infer
         def infer(obs):
             begin = time.monotonic()
-            # Graph workspace and native sampler buffers are resident. Each
-            # replica admits B1 at a time; independent processes run together.
-            with resident_lock:
+            # Without a stage runtime, serialize resident sampler buffers.
+            # Batched adapters submit concurrent connections to stage queues.
+            with resident_lock if runtime is None else contextlib.nullcontext():
                 service_begin = time.monotonic()
                 if captures is not None:
                     core.capture_sink.bind_observation(obs)
@@ -178,6 +189,9 @@ def serve(campaign, port, directory, cuda_graph=False):
                 source=hit.get('source'), nfe=hit.get('nfe', hit.get('actual_nfe')),
                 elapsed_seconds=time.monotonic()-begin, service_seconds=service_seconds,
                 queue_seconds=service_begin-begin, time=time.time())
+            if runtime is not None:
+                row.update(batching=hit['batching'], queue_seconds=None,
+                    timing_scope='end_to_end_including_stage_queue_wait; service_seconds_is_not_kernel_time')
             # Serving counters only: no observations, actions, RNG or snapshots.
             with evidence_lock, (directory / 'serving.jsonl').open('a') as f:
                 f.write(json.dumps(row, sort_keys=True)+'\n')
@@ -189,6 +203,9 @@ def serve(campaign, port, directory, cuda_graph=False):
         resident_execution='B1 per replica; independent resident processes',
         replica_port=port, r17_samplers={str(adapter.metadata().default_sampler.num_steps):
                                       asdict(adapter.metadata().default_sampler)})
+    if runtime is not None:
+        metadata.update(batching=runtime.config.metadata(),
+                        resident_execution='cross-connection native stage batches')
     if campaign['model'] == 'cosmos':
         from exp.r17_integration.models.cosmos.serve import serve_metadata
         metadata.update(serve_metadata(adapter), native_parity_self_check=parity_report)
@@ -208,6 +225,8 @@ def serve(campaign, port, directory, cuda_graph=False):
     try:
         server.serve_forever(stop_on_request=True)
     finally:
+        if runtime is not None:
+            runtime.close()
         if captures is not None:
             write_json(directory/'CAPTURE_CLOSED.json',captures.close())
         write_json(directory / 'closed.json', dict(status='CLOSED', pid=os.getpid(),

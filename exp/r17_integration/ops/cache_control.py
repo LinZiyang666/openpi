@@ -136,8 +136,8 @@ def check(campaign):
         if sha(path)!=pin:pass
 
 
-def overlay_archive(base, fresh, destination):
-    """Never edit a frozen release; non-R17 bytes must remain exact."""
+def overlay_archive(base, fresh, destination, *, batch_groot=False):
+    """Build a new runtime, inheriting all unrelated native code from control."""
     def contents(path):
         with tarfile.open(path) as archive:
             result={}
@@ -150,6 +150,11 @@ def overlay_archive(base, fresh, destination):
     old,new=contents(base),contents(fresh)
     content=dict(old)
     content.update({n:b for n,b in new.items() if n.startswith('exp/r17_integration/')})
+    if batch_groot:
+        # These are the two native hooks required by the R17 StageBatcher.
+        # The base archive and every existing frozen release stay read-only.
+        for name in ('src/openpi/cache/groot/batcher.py', 'src/openpi/cache/groot/staged.py'):
+            content[name] = new[name]
     # Original Q3 implementation is read-only and explicitly supplied by P6.
     from .cache_study import stall_runtime_files
     content.update({n:new[n] for n in stall_runtime_files()})
@@ -160,7 +165,7 @@ def overlay_archive(base, fresh, destination):
         for name,data in sorted(content.items()):
             member=tarfile.TarInfo(name);member.size=len(data);member.mode=0o444
             out.addfile(member,io.BytesIO(data))
-    return dict(files=changed,non_r17_exact=True,base_archive_sha256=sha(base),
+    return dict(files=changed,non_r17_exact=not batch_groot,base_archive_sha256=sha(base),
                 overlay_archive_sha256=sha(destination),files_sha256={n:hashlib.sha256(content[n]).hexdigest() for n in changed})
 
 
@@ -170,7 +175,8 @@ def runtime_archive(campaign, directory, root):
     check(campaign)
     directory=Path(directory);fresh=directory/'cache_framework.tar'
     build(root,fresh);append_stall_runtime(fresh,root)
-    proof=overlay_archive(Path(campaign['cache_control_runtime'])/'runtime.tar',fresh,directory/'runtime.tar')
+    proof=overlay_archive(Path(campaign['cache_control_runtime'])/'runtime.tar',fresh,directory/'runtime.tar',
+        batch_groot=campaign['model']=='groot' and bool(campaign.get('stage_batching')))
     write_json(directory/'CACHE_RUNTIME_OVERLAY.json',proof)
 
 
