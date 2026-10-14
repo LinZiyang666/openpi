@@ -1051,7 +1051,7 @@ that session (2026-10-13 08:51, `mw_4090f`) sent SIGHUP to `formal_eval --run --
 server, driver and remote workers survived, but nothing was left to close them or seal the receipt. Before killing a
 session, list its children (`pgrep -P $(tmux list-panes -t S -F '#{pane_pid}') -a`); stop only a waiting chain by its
 PID. A launcher-less pure-inference run can be finished by waiting for the driver to exit, closing that run's server
-and worker supervisors by PID, and `formal_eval aggregate --output RUN_DIR` (see `openpi_ext/scratch/r17_ops/mw/finish_tfw7.sh`).
+and worker supervisors by PID, and `formal_eval aggregate --output RUN_DIR` (see `openpi_ext/scratch/r17_ops/mw/finish_tfw7.sh`). The replica proxy's command line does not contain the run name (`run_proxy(PORT,[...])`): find it by its public port (`ss -ltnp | grep :PORT`) and stop it too, or the next campaign on that port fails with `ports did not release within 120s` (`gl_a2`, 2026-10-14). To stop a waiting chain, kill only its bash PID; never close the tmux session of a chain whose launcher is still running (`gl_k1a` lost its launcher that way).
 
 ### Keep MPS pipe paths within 85 bytes
 
