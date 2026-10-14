@@ -93,10 +93,13 @@ def validate_protocol_bridge(config, binding):
         return False
     if not isinstance(bridge, dict) or set(bridge) != {"source", "serving"}:
         pass
-    from exp.r17_integration.benchmarks.libero_bridge import LiberoBenchmarkSpec
     from exp.r17_integration.benchmarks.spec import BenchmarkSpec
     from exp.r17_integration.common.benchmarks import get_benchmark
-    kind = LiberoBenchmarkSpec if bridge['source']['benchmark'] == 'libero' else BenchmarkSpec
+    if bridge['source']['benchmark'] == 'libero':
+        # LIBERO-only import: MetaWorld server envs (e.g. GR00T on H100) have no examples.libero.
+        from exp.r17_integration.benchmarks.libero_bridge import LiberoBenchmarkSpec as kind
+    else:
+        kind = BenchmarkSpec
     names = {f.name for f in fields(kind)}
     profiles = [kind(**{k: v for k, v in bridge[side].items() if k in names})
                 for side in ("source", "serving")]
