@@ -1139,6 +1139,14 @@ server campaign, replica logs) that nothing removes. On 2026-10-13 23:51 `/` rea
 (not deleted) to `/data/r17_formal_moved/` on H100 (`/` back to 61%). Check `df -h /` on H100 before a queue of
 H100 prepares and move closed runs' `/tmp/r17_formal/<run>` to `/data/r17_formal_moved/`.
 
+### Local LIBERO workers need VRAM headroom on the 4090
+
+Local LIBERO workers render with EGL on the 4090 and are recycled every 4 episodes; each new generation must allocate
+an offscreen framebuffer. `pl_k1a` (π0.5 LIBERO, R5 MPS ~38 GB + 24 local workers) ran the GPU at 48.4/49 GB; after
+789 episodes the recycled workers failed with mujoco `Offscreen framebuffer is not complete (0x8cdd)`, exhausted the
+worker restart budget and the campaign failed (0 errored episodes). Keep ~8 GB free: π0.5 with local workers uses
+R4 + 20 workers (~40 GB). DP R4 MPS + 48 local workers (`fsreddp2`, ~23 GB) and Fast-WAM R1 + 22 (`fsredfw`) were fine.
+
 ### Prestage queued campaigns
 
 Use `ops/formal_queue.sh` and immutable preparation while the previous job runs.
