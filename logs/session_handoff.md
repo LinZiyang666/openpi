@@ -56,6 +56,17 @@ owner 的常驻指令，逐字有效：
 
 ### 1.R16 正在做：纯减步融入闭环（owner 10-07 目标"融入纯减步并实验"，会话 goal 仍挂着）
 
+### ★★★★ 2026-10-14 12:5x CDT 增量（最先读）
+
+- 批处理上线：sol 交回 π0.5/GR00T 跨连接分段批处理（`f6d41528`，通用 `common/batch_runtime.py`，formal_eval `--max-batch/--batch-wait-ms` 对 pi05/groot 开放；Cosmos 被 stage2 不可拆闭包挡住，未做；GR00T K 仍启动时固定）。GPU 等价性：噪声逐请求一致、B8 动作差在 bf16 舍入内（π0.5 0.0023 归一化、GR00T 0.0078=1 ulp）。快照 `/data/r17_frozen/openpi_f6d41528`。
+- 4090 独占供给扫描（`mwlocal/sweep_4090_1209`，π0.5 R1–4×B1/4/8/16）：命中 0.82 下混合吞吐 R1 7→39、R3 21→65、R4 26→69 请求/s；B≥8 后 GPU 饱和、递减明显。续跑工具 `mwlocal/resume_batched.py SOURCE NAME R B W WORKERS G`（WORKERS=本机数或 `timan107=40,timan108=40`；用新快照重建运行时 + stage_batching + 显存预算）。
+- `pimk1_ful`（B1 R4）12:07 收 4,006 局；我停链时链 bash 是 tmux 窗格进程 → SIGHUP 掉启动器，按 PID 收尾（`mwlocal/close_pimk1_ful.sh`），已写 RUN_CONFIGS（停在跑批次先 SIGTERM 启动器；新链启动器一律 setsid）。
+- A 组 `pimk1_fulb`（R3 B8 W5 本机×96，12:29–12:55）：82–88 局/分（B1 同档 41）、35.9 请求/s、SM 逐秒均 81%（p10 50、最低 23，抖动大；owner 指出本机 worker 与 server 抢卡，我先前说「100% 饱和」是单点采样、错）。pmon：MPS server 75.5%、96 个 EGL worker 合计 ~3% SM（上下文切换开销看不见）。12:55 正常收尾（setsid 启动器，链先停）。
+- 正在做 A/B：B 组 `pimk1_fulc`（R3 B8 远程 107×40+108×40，准备中）→ C 组 R4 远程 → 视结果混合（远程到入口上限 33 MB/s≈48 请求/s + 本机补）。之后 4090 队列：剩余 pimk1_ful 段 → `cspi_k2vb`（已备，5,024）→ `pimk1_redb`（已备）——按 A/B 结论重备 worker 配置。
+- timan107、108 12:37 被 root 重启（owner：都回来了）。107 宕机分析：无 shutdown 记录、系统 journal 脏关闭（`system@00065dd062330cc6-3a77f009df7b4cb8.journal~`）、宕机时 ping 不通（内核/网卡级，磁盘满不会这样），108 同时被重启（10-10 起就离线）→ 更像公共原因；kern.log/系统 journal 我们无权读，已请 owner/管理员看。107 根盘 89%（24 GB），旧 runs 24 GB 是否删待 owner。108：4×A5000、48 核、251 GB，MW 环境版本一致。
+- H100：v10 链已按 PID 停（只是在等，无启动器）。`grmk1_red` 72,743/90,000（~13:40 完）。计划 v11：独占扫描（sol 在写通用 `profile/supply_{proc,sweep,report}`，`sol_supply_sweep.{prompt.md,log}`）→ `tdp7h1_full`（已备，fe84e291 快照启动）→ `csfw_k3w`（Fast-WAM 缓存续跑，`mtk/prep_csfw_k3w.run.sh` 准备中，107/108/1 各 40）→ DP/FW 旋钮按扫描结果定 R/B/W 和 worker 数。
+- 仓库卫生：Sonnet 提交 `5f7738a0`（.gitignore）、`956be466`（knob STUDY/gaps）、`d7c6c54b`（profile 摘要），工作区干净。
+
 ### ★★★ 2026-10-14 10:5x CDT 增量（先读这里，再读下面 10:4x 总状态）
 
 - owner 10:4x：「接下来尝试在4090同时部署worker和server，server的replica的数量可以下去一点」「可能需要mpsserver」→ 已做：本机 MetaWorld worker 走本机现成的 `openpi_ext/envs/metaworld_sim`（metaworld 3.0.0 / mujoco 3.14.0 / gymnasium 1.3.0 / numpy 1.26.4，与 timan 完全一致），改动 `fbe96912`（`worker_installs.LOCAL_METAWORLD_PYTHON` + `prepare_workers` 的 local MW 分支 + local HOME），快照 `/data/r17_frozen/openpi_fbe96912`（已补 assets/pi05_libero、dp vendor、libero_library_alignment）。
