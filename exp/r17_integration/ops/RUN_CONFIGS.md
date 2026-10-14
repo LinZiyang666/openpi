@@ -545,6 +545,9 @@ episode (the H100 shard drain afterwards is not included). Util/W are medians of
 | `tpi7_0536` test | π0.5 | 4090 | R5 MPS B1 | 96 min | 26 | 9.1 | 71% / 283 | host (pin replicas + proxy to NUMA node 1) |
 | `tdp7_0729` test | DP | 4090 | R4 MPS B8 | 19 min | 131 | 48.5 | 100% / 410 | GPU |
 | `tfw7_0755` test | Fast-WAM | 4090 | R1 B16 | ~90 min | ~28 | ~8 | ~40% | one replica; R2 does not fit (27.8 GB/replica) |
+| `csdp_1504` cache study | DP (DDIM10 MISS) | H100 | R4 MPS B8, timan107×30 + timan1×20 | 120,000 eps, 4.5 h | ~450–550 | — | ~20% / 135 | server host loop (4 replicas ~97% CPU each); more replicas would have helped |
+| `cspi_k2` cache study | π0.5 (K2 MISS) | 4090 | R5 MPS B1, timan107×24 + timan1×20 | 60,000 eps | ~110–130, ~175 after DP ended | — | 40–55% / 240 | weilandserver public ingress (33 MB/s measured) |
+| `csfw_k3` cache study | Fast-WAM (K3 MISS) | H100 | R3 MPS B16, timan107×30 + timan1×20 | 120,000 eps | ~410 (first cells) | — | 25–40% / 225; 76 GB | per-replica host pipeline (~85% CPU each) |
 
 Full-step test success (seed 7, 2,500 episodes), reported as the equal-weight mean of the four difficulty groups (easy 28 / medium 11 / hard 6 / very hard 5 tasks; the convention of the RLinf and SmolVLA MT50 tables) and, second, the per-task mean: GR00T 67.1 / 75.8, DP 46.0 / 61.2, π0.5 46.7 / 56.3. Published π0.5 SFT (same RLinf checkpoint) is 43.8 group mean. Always state which mean a MetaWorld number is.
 
