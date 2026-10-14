@@ -56,6 +56,46 @@ owner 的常驻指令，逐字有效：
 
 ### 1.R16 正在做：纯减步融入闭环（owner 10-07 目标"融入纯减步并实验"，会话 goal 仍挂着）
 
+### ★★★★★★ 2026-10-14 14:55 CDT 总状态（compact 后最先读这一块；下面各「增量」块是细节，按时间倒序）
+
+**owner 今天的要求（逐条照做）**：「接下来尝试在4090同时部署worker和server」；「副本是不是可以把batch size开大」；「我们的concurrent server应该支持batch的，你发agent去把所有模型的serving的功能都对齐」；「你可以这么计算，我们是专业的mlsys工程师…记录worker全速运行时请求到来的频率，然后计算server不同batch下的吞吐…用最专业的方式确定」；「本机合用worker和server会抢显卡，而且现在gpu利用率抖动很明显，远没有到100，你不要狗叫」（我曾凭单点采样说 100%，错）；「跑满带宽后还想提高吞吐就只有本地worker了」；「h100那边是不是也是带宽bound」；「h100的运行设置也要改」；「你去清一下timan1 108 107的磁盘」；「发个sonnet去把该commit的commit掉，该ignore的ignore掉」（已做，`5f7738a0/956be466/d7c6c54b`）；「timan107和108呢…你可以增加」（已把 107/108 加进 H100 车道）。
+
+**两张卡现在（14:55）**
+- **4090**：tmux `mwl_ab_d` 跑 `pimk1_fuld`（π0.5 MT50 全步旋钮的续跑段，**生产配置 C**：R4 B8 W5、`--wire-zlib`、worker timan107×80（8 卡）+ 本机×32、显存预算 40 GiB、快照 `0c205b57`；14:54 已 11,200 局 0 报错；130–235 局/分；SM 均 87%）。结束标签行 `[4090ab] pimk1_fuld ended`。随后 tmux `mwl_4090n`（`openpi_ext/scratch/r17_ops/mwlocal/chain_4090n.run.sh`，标签 `[4090n]`）依次跑 `cspi_k2vc`（cspi_k2 剩 5,024 局续跑，已备）→ `pimk1_redc`（π0.5 减步旋钮 90,000，已备），都同 C 配置。启动器一律 `mwlocal/run_one.sh SNAP RUN TAG`（setsid）。
+- **H100**：`csfw_k3w4`（Fast-WAM MT50 缓存续跑 74,234 局，新运行时 + zlib + timan1×40，R3 B16；14:33 起，~430 局/分，SM ~28%（命中多的格 worker-bound））——由已停的 v13 链用 setsid 启动，自己跑完会写 `[direct] csfw_k3w4 launcher exited`。tmux `mtk_h100_v14`（`openpi_ext/scratch/r17_ops/mtk/chain_h100_v14.run.sh`，标签 `[h100-v14]`，快照 `b98049e2`）：正在准备 `dpmk1_fulx` → 等 csfw_k3w4 结束 → `dpmk1_fulx`（DP K100 R8 B32）→ `dpmk1_redx`（DP K10 R4 B16）→ `fwmk1_fulx` → `fwmk1_redx`（FW R3 B16），worker **timan1×40 + timan107×40（8 卡）+ timan108×40（只 minor 3，`--node-egl-devices timan108=3`）** + `--wire-zlib`，每批在上一批收局后准备。⚠ 需确认 dpmk1_fulx 的准备结果（108 的 GPU 准入是否放行 minor 3；`dpmk1_fulx/timan108_GPU_ADMISSION.json`）。
+- 作废/不要启动的已准备批次：`pimk1_red`、`pimk1_redb`、`cspi_k2v`、`cspi_k2vb`、`pimk1_dry`、`csfw_k3v`、`csfw_k3w`、`csfw_k3w2`、`dpmk1_ful`（只有 timan1×40）、`tdp7h1_full`（失败）。失败 0 局：`pimk1_fulc`、`pimk1_fulc2`、`tdp7h1_full`。
+
+**数据段（合并统计用 `python3 openpi_ext/scratch/r17_ops/mw/cells.py --merge ...`）**
+- π0.5 全步旋钮：`pimk1_ful` 4,006 + `pimk1_fulb` 1,761 + `pimk1_fulc4` 502 + `pimk1_fuld`（在跑）；参照 `tpi7_0536`（4090）。减步旋钮 `pimk1_redc`（待跑），参照 `tpi7k2_1135`（4090）。
+- π0.5 缓存研究：`cspi_k2` 54,976 + `cspi_k2vc`（5,024 待跑）。
+- Fast-WAM 缓存研究：`csfw_k3` 47,500（ch n1000 的 1,734 报错局排除）+ `csfw_k3w4`（在跑）。
+- GR00T 旋钮：`grmk1_ful`、`grmk1_red` 都完并已分析提交（`rounds/r17/knob/mt50/groot_{full,reduced}`；减步各档 65.9–66.3 vs 纯推理 66.3，IR 0.53–0.66）。
+- DP 全步 H100 基线：`tdp7h1_full2` 2,500 局，45.6/61.0（4090 `tdp7_0729` 46.0/61.2）→ dpmk1_fulx 的参照。DP 减步参照 `tdp7d10_0851`（H100）；FW 参照 `tfw7full_0944`/`tfw7k3_1051`（H100）。分析：`python -m exp.offline_search.rounds.r17.knob.descent --lane /data/mw_finetune/eval/<run>[,<run2>…] --miss-steps full|reduced --control <model>=<ref> --out ...`（多段如何传参先看 descent 的 --help）。
+
+**今天的代码（都已提交，快照在 /data/r17_frozen/openpi_<sha>，导出时手工补 assets/pi05_libero、exp/mw_finetune/dp/vendor、ops/samples/libero_library_alignment）**
+- `fbe96912` 本机 MetaWorld worker（`openpi_ext/envs/metaworld_sim`）。`f6d41528` π0.5/GR00T 跨连接分段批处理（sol；`common/batch_runtime.py`，`--max-batch/--batch-wait-ms`；GPU 等价性：噪声逐请求一致、B8 差在 bf16 舍入内；Cosmos 被 stage2 闭包挡住未做；GR00T K 仍启动时固定）。`915f9a30` 通用供给扫描 `profile/supply_{proc,sweep,report}`（sol）。`c15a78dc` write_json 按进程临时名（3 副本同写 manifest 竞态）。`0c205b57` `--wire-zlib` 可选无损线上压缩（真实图 691→252 KB）+ cache_resume 的 extra 在部署 worker 前生效。`d2019b8c` 他人进程不再使整卡不可用（owner 规矩：显存够就共卡）。`b98049e2` GPU 清单按 PCI 总线号选卡（timan108 minor≠序号）+ `--node-egl-devices`。
+- 工具：`mwlocal/resume_batched.py SRC NAME R B W WORKERS G ['{extra json}']`（用当前快照重建运行时 + stage_batching + 显存预算；WORKERS=本机数或 `timan107=80,local=32`）；H100 续跑后要把 campaign.json 重推到 `server_campaign`（v13/v14 的 prep_fw_resume 有写法）。`mwlocal/demand.py RUN [秒]`（需求侧：思考时间、命中占比；只能读本机 server 的 serving.jsonl）。`mwlocal/pi05_supply_sweep.sh`（π0.5 专用）和通用 `profile/supply_sweep.sh`。
+
+**实测与定配结论（细节在 RUN_CONFIGS「Size a lane from measured supply and demand…」「Worker-node GPUs…」）**
+- 4090 π0.5 独占扫描（`mwlocal/sweep_4090_1209`）：命中 0.82 下混合吞吐 R1 7→39、R3 21→65、R4 26→69 请求/s，B≥8 后 GPU 饱和。A（本机×96）35.9 请求/s SM 81% 抖；B（远程 107×40）33.4、SM 57%、worker 往返 244 ms；C（R4 B8 zlib 远程×80+本机×32）65.5 = 扫描预测 98%。
+- H100 扫描（`mtk/h100_sweep_report.txt`）：DP K100 R8 B32 ~131 调用/s（GPU 95%，R12 只 +5%）；DP K10 供给远超 worker；FW K10 R3 B16 ~205 请求/s（B8 ~166），R3 是显存上限。
+- worker 机都是千兆口；timan1 曾 122 MB/s=98%。H100 车道 worker-bound（每个 worker 一局 5.3 s、无空档），加 worker 近似线性提速。
+
+**机器**
+- timan107/108 12:37 被 root 重启。107 宕机：无 shutdown 记录、系统 journal 脏关闭、宕机时 ping 不通（内核/网卡级）；kern.log 与系统 journal 我们无权读，已请 owner/管理员看（命令：`journalctl --file /var/log/journal/951a3aa1efa9411b9d4c8f176edf599e/system@00065dd062330cc6-3a77f009df7b4cb8.journal~ -k | tail -150`）。设备文档记载 108 曾在 45 个 EGL worker 时把 NVIDIA 内核模块压死。现在 107 承载 4090×80 + H100×40 = 120 个（owner 同意加）——盯 107 负载/显存。
+- timan108：EGL k = 内核 minor k（与 nvidia-smi 序号反向）；minor 0/1（序号 3/2，空卡）EGL 初始化失败；minor 3（序号 0，有他人 9 GB）可用、minor 2（序号 1）属他人。已请管理员查 minor 0 EGL。
+- 磁盘：107 删旧 runs 24 GB（→77%）、timan1 删 27 GB、NFS 家目录删 pip/uv 缓存 39 GB。未动：107 `Isaac-GR00T` 33 GB 等、timan1 `/tmp/r17_t1_provision_20261010`、yurenh2 的目录。
+
+**我今天的失误**：12:07 停链时链 bash 是 tmux 窗格进程 → SIGHUP 掉 `pimk1_ful` 启动器（按 PID 收尾，数据保住）；单点采样就说 GPU「100% 饱和」（owner 斥）；`csfw_k3w2` 先给 107 加 40 个后又因 EGL 风险撤回；B 组几次准备因竞态/108 编号/extra 顺序失败（各浪费 ~5–10 分钟 GPU）。
+
+**待办**
+1. 看 `dpmk1_fulx` 准备结果（108 准入）；v14 跑起来后实测 H100 车道（DP 应从 worker-bound 变成 GPU-bound）。
+2. `pimk1_fuld` 完后 4090 链自动接 `cspi_k2vc` → `pimk1_redc`；`csfw_k3w4` 完后 H100 v14 自动接 DP/FW 旋钮。各批结束跑 descent 分析并提交（参照见上）；FW 缓存研究完后用 cells.py 合并出表。
+3. 估算剩余：4090 `pimk1_fuld` ~8–9 h → cspi_k2vc ~0.5 h → pimk1_redc ~8 h；H100 csfw_k3w4 ~2.5 h → 4 批旋钮各 2–4 h。之后 LIBERO 线（π0.5/GR00T LIBERO 建库与八组缓存研究、旋钮重跑、Cosmos 减步完整系统 `fsredcos`）。
+4. 待 owner：timan107 宕机日志、timan108 EGL/9 GB 进程、是否删 107 的 Isaac-GR00T 等、网页更新（MT50 段、减步列）、R13 图 (b) 数字出处、Cosmos-MW 训练残留。
+
+**监控（30 分钟过期就重挂）**：`tail -n 0 -F openpi_ext/scratch/r17_ops/mw/chain.log | grep -E "\[h100-v[0-9]+\]|\[4090[a-z]+\]|prepare exit|FAIL|launcher"`、同上 `grep -v` 其余行、`bash openpi_ext/scratch/r17_ops/mw/err_watch.sh`。
+
 ### ★★★★★ 2026-10-14 13:5x CDT 增量（最先读）
 
 - 4090 A/B 定配（RUN_CONFIGS「Size a lane from measured supply and demand…」）：A 本机×96 35.9 请求/s（SM 81%，抖）；B 远程 107×40 33.4（SM 57%，worker 往返 244 ms、入口 23 MB/s）；**C = R4 B8 W5 + `--wire-zlib` + timan107×80（8 卡）+ 本机×32 = 65.5 请求/s（扫描预测 98%），131–176 局/分 → 生产配置**。在跑 `pimk1_fuld`（tmux `mwl_ab_d`，标签 `[4090ab]`），之后 tmux `mwl_4090n`（`mwlocal/chain_4090n.run.sh`）跑 `cspi_k2vc` → `pimk1_redc`（同 C 配置，快照 `0c205b57`）。`pimk1_ful` 段：pimk1_ful 4,006 + pimk1_fulb 1,761 + pimk1_fulc4 502 + pimk1_fuld …（合并统计要 `--merge` 全部段；pimk1_fulc/fulc2 失败 0 局）。
