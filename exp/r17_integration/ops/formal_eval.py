@@ -431,10 +431,13 @@ def prepare_workers(campaign, directory, *, payload_override=None):
             **(dict(inherited=inherited_deployment[node]) if node in inherited_deployment else {})) if campaign['domain'] == 'libero' else None
         worker_python = '/scratch/zixuans8/openpi/.venv/bin/python' if campaign['domain'] == 'libero' else '/scratch/zixuans8/mw_r17/envs/sim/bin/python'
         if campaign['domain'] == 'metaworld':
+            if node == 'local':
+                from .worker_installs import LOCAL_METAWORLD_PYTHON
+                worker_python = LOCAL_METAWORLD_PYTHON
             remote(node, ['env','PYTHONPATH='+pythonpath(destination),worker_python,'-c',
                 'from exp.r17_integration.ops.worker_installs import prepare_metaworld; '
-                'prepare_metaworld(timan1='+repr(node == 'timan1')+')'], replay_safe=True)
-        if node == 'local':
+                'prepare_metaworld(timan1='+repr(node == 'timan1')+',local='+repr(node == 'local')+')'], replay_safe=True)
+        elif node == 'local':
             from .local_workers import environment
             worker_python = environment()
         extra = dependency['private_dependencies'] if dependency else ''
@@ -442,6 +445,9 @@ def prepare_workers(campaign, directory, *, payload_override=None):
             PYTHONDONTWRITEBYTECODE='1', OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1', MKL_NUM_THREADS='1',
             MUJOCO_GL='egl', PYOPENGL_PLATFORM='egl', MUJOCO_EGL_DEVICE_ID=str(campaign['worker_egl_device']),
             LIBERO_CONFIG_PATH='/scratch/zixuans8/openpi_trace_h100/os_cl/libero')
+        if node == 'local':
+            from .local_workers import LOCAL_HOME
+            env['HOME'] = LOCAL_HOME
         if dependency:
             if node == 'local':
                 from .local_workers import config as local_config, LOCAL_HOME

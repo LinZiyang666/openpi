@@ -212,14 +212,16 @@ def private_config(source, destination, *, assets=None):
 
 
 METAWORLD_PYTHON = '/scratch/zixuans8/mw_r17/envs/sim/bin/python'
+LOCAL_METAWORLD_PYTHON = '/home/weiland/projects/openpi_ext/envs/metaworld_sim/bin/python'
 
 
-def prepare_metaworld(*, timan1=False):
+def prepare_metaworld(*, timan1=False, local=False):
     """Use the matching simulator environment; reuse T1's GPU3 namespace guard."""
     import subprocess
+    python = LOCAL_METAWORLD_PYTHON if local else METAWORLD_PYTHON
     versions = {'metaworld':'3.0.0', 'mujoco':'3.14.0', 'gymnasium':'1.3.0', 'numpy':'1.26.4'}
     code = 'import importlib.metadata as m,json; print(json.dumps({k:m.version(k) for k in '+repr(list(versions))+'}))'
-    actual = json.loads(subprocess.check_output([METAWORLD_PYTHON,'-c',code],text=True))
+    actual = json.loads(subprocess.check_output([python,'-c',code],text=True))
     if actual != versions:
         raise ValueError('MetaWorld simulator versions differ from timan107: '+repr(actual))
     if timan1:
@@ -228,4 +230,4 @@ def prepare_metaworld(*, timan1=False):
         target = Path(MW_WRAPPER)
         target.write_text(source.replace(PYTHON, METAWORLD_PYTHON))
         target.chmod(0o755)
-    return dict(python=METAWORLD_PYTHON, packages=actual)
+    return dict(python=python, packages=actual)
