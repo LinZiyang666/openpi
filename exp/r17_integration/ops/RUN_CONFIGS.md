@@ -1087,6 +1087,12 @@ host, compare its prepared `assets/model_spec.json` with the library teacher's (
 - Preparing a cache campaign takes ~6.5 min (asset push plus a plan) and launching another ~3 min before replicas load.
   Prepare the next campaign of a lane while the current one runs (`mw/prep_cs.sh` + `mw/go_cs.sh`), otherwise the GPU
   idles ~10 min per switch (4090, 16:07-16:17 on 2026-10-13).
+- An MT50 request carries one 480x480 image (~0.69 MB), so a 4090 lane fed by timan workers through ziyanglin.com tops
+  out near 48 requests/s (`enp8s0` measured 33 MB/s during `cspi_k2`, π0.5 R5 at ~120 episodes/min). Cache hits make
+  calls cheaper but not fewer: GR00T was already at that cap in its pure test, so its 120k-episode study would take
+  ~13 h on the 4090. Run remote-worker MT50 cache studies of light models (GR00T, DP, Fast-WAM) on H100 (own public
+  IP; DP took ~127 MB/s there at ~500 episodes/min) and give the 4090 the host-bound one (π0.5). When a study runs on
+  another GPU type than its pure baseline, rerun that baseline on the same GPU.
 
 ### No identity-fingerprint gate between a library and its resident
 

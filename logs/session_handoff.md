@@ -78,11 +78,14 @@ owner 的常驻指令，逐字有效：
 
 **正在跑：缓存变体研究**（owner：网页第一个表格的全部组，没有 IR 旋钮；每格 seed 7 全 2,500 局）
 - 研究：`/data/r17_library/studies_mt50/{dp_k10,fw_k3,gr_k2,pi_k2}/STUDY.json`（组 c cr ch chr cg crg chg chrg；π0.5 只有 c cr cg crg；六档 250..2500 总局数；MISS 用上面的默认减步）。
-- H100：DP `csdp_1504`（R4 B8，driver 23110，worker timan107×30+timan1×20）18:48 时 99,185/120,000，~500 局/分，0 报错 → Fast-WAM `csfw_k3`（已提前准备，tmux `mw_go_fw` 等 `csdp_1504 ended receipt` 后启动；R3 B16，public 23173，driver 23111）。
-- 4090：π0.5 `cspi_k2`（R5，端口 23150/23159，worker timan107×24+timan1×20）18:49 时 15,553/60,000，~110 局/分 → GR00T `csgr_k2`（已提前准备，`live_k=2`，tmux `mw_go_gr` 等 `cspi_k2 ended receipt`；端口 23160/23169，快照 `openpi_c758a6c9`）。
-- 预计：DP ~19:30 完，Fast-WAM 再 ~4–5 h；π0.5 ~01:00 完，GR00T 再 ~5 h。
+- H100：DP `csdp_1504`（R4 B8，driver 23110，worker timan107×30+timan1×20）19:00 时 105,000/120,000，~500 局/分，0 报错 → **GR00T `csgr_h`**（19:02 起在 H100 上准备：R8 B1 MPS，budget 56 GiB，宽度 4，public 23160、driver 23169，worker timan107×40+timan1×20，快照 `openpi_7ca2c727`，脚本 `mw/prep_cs3.run.sh` + `mw/go_cs3.run.sh`，tmux `mw_gr_h` 等 `csdp_1504 ended receipt`）→ Fast-WAM `csfw_k3`（已准备，tmux `mw_go_fw2` 等 `csgr_h ended receipt`；R3 B16，public 23173，driver 23111）。GR00T 在 H100 上第一次真跑，启动失败就把 `csfw_k3` 改回等 `csdp_1504`，GR00T 退回 4090。
+- 4090：π0.5 `cspi_k2`（R5，端口 23150/23159，worker timan107×24+timan1×20）19:00 时 16,900/60,000，~120 局/分 → 之后暂无排队（~00:40 空出，到时按 H100 队列进度把剩余格分给 4090）。19:02 停掉了 4090 上等着的 GR00T `csgr_k2` 和旧的 FW 等待脚本（按 PID）：实测 4090 公网入口 `enp8s0` 已顶到 33 MB/s，远端 worker 的 4090 车道都被它卡住；GR00T 纯推理测试时就到上限，12 万局在 4090 上要 ~13 h，在 H100（自有公网 IP，DP 已跑到 ~127 MB/s 入站）上快得多。
+- 预计：DP ~19:30 完；GR00T（H100）待实测；Fast-WAM 再 ~4–5 h；π0.5 ~00:40 完。GR00T 缓存跑在 H100 而纯推理基线 `tgr7_0502`/`tgr7k2_1044` 在 4090：按 RUN_CONFIGS「基线和 arm 同一 GPU 型号」，H100 队列末尾补跑 GR00T K2/K4 纯推理基线（各 2,500 局，`run_base3.sh ... h100`）。
 - 监控：`mw/err_watch.sh`（报错局）和 `tail -F mw/chain.log`，30 分钟过期要重挂。
-- 每批结束后用 `mw/sr.py` 只能看全批；按格（组×档）成功率要按 `yaml_id`（每格一个 yaml）分组统计——还没写，跑完后做（`driver/journal.jsonl` 的 `yaml_id` 对应 `STUDY.json` 各行的 `file`）。
+- 按格（组×档）成功率：`python3 mw/cells.py <run>...`（按 `yaml_id` 分组，组均值/按任务均值，未满 2,500 局的格标 partial）。19:00 结果见下面「缓存研究中间结果」。
+- **缓存研究中间结果（19:00，组均值；每格 seed 7 全 2,500 局）**。组名：c 纯缓存（C5）、r 加修正器、h 长执行段 C10、g 加 Q3 停滞门。对照：DP 满步 46.0、DDIM10 纯推理 47.9；π0.5 满步 46.7、K2 纯推理 48.7。
+  - DP（`csdp_1504`，每任务 5/10/20/30/40/50 条 = n250/500/1000/1500/2000/2500）：c 27.9/35.9/40.4/41.6/42.2/43.0；cr 30.4/38.4/42.8/42.6/42.7/44.3；cg 28.8/37.7/41.2/42.2/43.1；crg 30.8/40.0/42.9/43.4/43.9；ch 23.2/32.2/36.0/38.9/40.4；chr 24.9/32.5/36.8/39.7/40.7；chg 23.1/32.4/36.3/39.0/40.6；chrg 25.1/33.3/36.8/39.8/40.7（n2500 的 ch/chr/cg/crg/chg/chrg 还在跑）。库越大越好，修正器 +1–3 点，C10 比 C5 低 2–5 点；最好的 crg n2000 43.9，仍比 DDIM10 纯推理低 4 个点。
+  - π0.5（`cspi_k2`）：c 21.6/30.0；cr 25.9/35.2；cg 21.9/32.0（n500 部分）；crg 26.6（n250）。
 
 **脚本**（`openpi_ext/scratch/r17_ops/mw/`；`.run.sh` 是运行中的不可改副本）
 - 纯推理基线 `run_base3.sh TAG MODEL NAME SERVER R MEM B STEPS PORT DPORT WORKERS SPECREF WIDTH`（快照 `openpi_0b66b0ef`；STEPS `-` 为满步；SPECREF 已不用）。
