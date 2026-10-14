@@ -40,6 +40,10 @@ def transient(exc, *, replay_safe=False):
     text = stderr.lower()
     if code == 75 and 'too_many_in_flight' in text:
         return True
+    # The CLI could not dial the broker, so nothing reached the node: always safe to retry
+    # (csfw_k3 died on one 'cannot reach broker ... i/o timeout' at 22:12 on 2026-10-13; the next call 13 s later worked).
+    if code == 69 and 'cannot reach broker' in text:
+        return True
     # Tier-B transfers include "pull (tier B):"; tether uses EX_SOFTWARE
     # (70), as well as 64, for relay/NATS timeouts. Remote application errors
     # and ambiguous spawn replies still must never be replayed.
