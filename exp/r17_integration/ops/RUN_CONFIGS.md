@@ -1138,7 +1138,7 @@ H100 `/` is only 58 GB and every H100 campaign stages 0.6–2.7 GB under `/tmp/r
 server campaign, replica logs) that nothing removes. On 2026-10-13 23:51 `/` reached 100% (137 MB free) while
 `csgr_h5` was serving; a prepare failed with `No space left on device`. Closed campaigns' staging dirs were moved
 (not deleted) to `/data/r17_formal_moved/` on H100 (`/` back to 61%). Check `df -h /` on H100 before a queue of
-H100 prepares and move closed runs' `/tmp/r17_formal/<run>` to `/data/r17_formal_moved/`.
+H100 prepares and move closed runs' `/tmp/r17_formal/<run>` to `/data/r17_formal_moved/`. Never move a run that is prepared but not yet launched: its launch reads `/tmp/r17_formal/<run>/server/campaign.json` and the staged assets.
 
 ### Local LIBERO workers need VRAM headroom on the 4090
 
