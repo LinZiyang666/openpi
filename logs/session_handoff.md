@@ -95,6 +95,13 @@ owner 的常驻指令，逐字有效：
   - DP（`csdp_1504`，**48 格全部完成**，120,000 局，0 报错；receipt 为 FAIL 只因 finalize 的「CPU evidence finalizer readiness deadline exceeded」，数据完整、进程全关；每任务 5/10/20/30/40/50 条 = n250/500/1000/1500/2000/2500）：c 27.9/35.9/40.4/41.6/42.2/43.0；cr 30.4/38.4/42.8/42.6/42.7/44.3；cg 28.8/37.7/41.2/42.2/43.1/44.6；crg 30.8/40.0/42.9/43.4/43.9/45.4；ch 23.2/32.2/36.0/38.9/40.4/40.8；chr 24.9/32.5/36.8/39.7/40.7/41.8；chg 23.1/32.4/36.3/39.0/40.6/40.9；chrg 25.1/33.3/36.8/39.8/40.7/41.5。库越大越好，修正器 +1–3 点，停滞门 +0.5–1 点，C10 比 C5 低 3–4 点；最好 crg n2500 45.4（按任务 59.4），比 DDIM10 纯推理 47.9 低 2.5 点、比满步 46.0 低 0.6 点。
   - π0.5（`cspi_k2`）：c 21.6/30.0；cr 25.9/35.2；cg 21.9/32.0（n500 部分）；crg 26.6（n250）。
 
+**21:3x 接续链改动（compact 后巡检）**
+- 4090：旧的 `fsred_4090b` 等待链已按 PID 停（未启动过任何东西），换成 tmux `vla_4090c`（`r17_ops/vla/chain_4090c.run.sh`，全部从快照 `openpi_388c70f5` 启动）：`cspi_k2 ended receipt` → π0.5 LIBERO 建库冒烟 `pl_smk`（R2 MPS，timan107×2，端口 23150/23159，记显存峰值 `vla/pl_smk.vram_max`）→ `fsreddp2` → `fsredfw`（都先 `pin_local`）→ π0.5 LIBERO B500 建库 `pl_sp`、`pl_10`（R5 MPS B1，47 GiB，timan107×24，legacy driver 放 NVMe）+ CPU finish。事件标签 `[4090c]`。
+- H100：tmux `mw_h100_tail`（`mw/h100_tail_grbase.run.sh`）：fsredcos 准备完后准备 GR00T MT50 纯推理基线 `tgr7h_k2`、`tgr7h_full`（R8 B1 MPS，同 csgr_h4，快照 48113e41），fsredcos 结束后（fsredcos 准备失败则 csgr_h4 结束后）依次启动。事件标签 `[h100-tail]`。
+- 快照 `/data/r17_frozen/openpi_388c70f5` = `388c70f5`（拔了 `library_campaign` 的模型端口窗口门：π0.5 在 4090 用 23150/23159，GR00T MT50 在 H100 占 23160..23169）+ 手工补的 gitignore 文件：`assets/pi05_libero`（π0.5 LIBERO norm）和 `exp/r17_integration/ops/samples/libero_library_alignment`（LIBERO 建库对齐表）。以后导出 LIBERO 用的快照都要补这两样。
+- GR00T LIBERO 冒烟 `gl_smk`（4090 本机权重 `/data/ckpt`）在准备，准备好后插进 4090 链（pl_smk 之后），先在 4090 上验证 GR00T LIBERO 的 R17 路径，H100 上 GR00T LIBERO 要等 H100 收尾链之后（约 10-14 上午）。
+- sol 旋钮续发（`cx_libvla2`）还在做；它在活仓库里改 formal_eval/formal_driver/formal_workers/cache_study/cache_knob 等，交回后审 diff 再提交。
+
 **排期：π0.5 / GR00T 的 LIBERO 八组缓存研究（owner 10-13 20:2x 要求「加入排期，之后跑」）**
 - 现状：LIBERO 上 π0.5/GR00T 只有 R10 纯缓存和 R15 纯缓存 + 修正器（网页已加表）；R10 的门控组用的是已拔的旧守卫，Q3 组没跑。R17 的 π0.5/GR00T 包只支持 MetaWorld。
 - 20:2x 派 sol（tmux `cx_libvla`，日志 `openpi_ext/scratch/r17_ops/sol_libero_vla.log`，任务书 `rounds/r17/prompts/sol_libero_vla.md`，交回 `handbacks/HANDBACK_LIBERO_VLA.md`）做 CPU 准备：`pi05_libero`/`groot_libero` 进 R17（沿用 R10/R16 的 LIBERO 权重、两路相机、16×2048 池化键）、B500 建库与 C5/C10 拟合、Q3 停滞门、cache_study（长段 C10，MISS 原生 K：π0.5 K10、GR00T K4）。交回后亲自审 diff。
