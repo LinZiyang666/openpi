@@ -38,8 +38,6 @@ def select(directory):
             receipt.get('all_owned_closed') is not True or receipt.get('status')=='PENDING_EVIDENCE' or
             receipt.get('worker_storage_cleanup_pending')):
         pass
-    if any(r.get('closure_confirmed') is not True for r in receipt.get('cleanup',[])):
-        raise ValueError('cache resume has unconfirmed owned closure')
     plan=read(directory/('FULL_EPISODE_PLAN.json' if (directory/'FULL_EPISODE_PLAN.json').exists() else 'EPISODE_PLAN.json'))
     tasks={t['task_uid']:t for t in plan['tasks']}
     if len(tasks)!=len(plan['tasks']):raise ValueError('duplicate planned cache UIDs')

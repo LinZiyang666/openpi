@@ -116,10 +116,13 @@ def load_benchmark_spec(path, *, register=True):
     import json
     from pathlib import Path
     from dataclasses import fields
-    from exp.r17_integration.benchmarks.libero_bridge import LiberoBenchmarkSpec
     from exp.r17_integration.benchmarks.spec import BenchmarkSpec
     value = json.loads(Path(path).read_text())
-    kind = LiberoBenchmarkSpec if value.get("benchmark") == "libero" else BenchmarkSpec
+    if value.get("benchmark") == "libero":
+        # The LIBERO bridge imports examples.libero, which MetaWorld runtimes do not ship.
+        from exp.r17_integration.benchmarks.libero_bridge import LiberoBenchmarkSpec as kind
+    else:
+        kind = BenchmarkSpec
     names = {f.name for f in fields(kind)}
     args = {k: v for k, v in value.items() if k in names}
     for key in ("tasks", "formal_indices", "library_indices", "dev_indices", "camera_pos", "max_steps_by_suite"):
