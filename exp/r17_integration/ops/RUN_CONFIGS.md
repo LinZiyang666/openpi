@@ -1106,6 +1106,23 @@ Evidence: owner allocation rule;
 [renderer exclusions](worker_gpu.py),
 [recorder/probe budget](../REQUESTS/S_to_R.md).
 
+### One failed broker dial must not abort a campaign
+
+At 22:12 on 2026-10-13 one launcher probe `tether exec --safe --timeout 10s h100 -- env` failed with exit 69
+`cannot reach broker ... i/o timeout`; the next tether call 13 s later worked. `tether_retry.transient` did not
+classify exit 69 as transient, so `csfw_k3` (Fast-WAM MT50 cache study, 47,500 of 120,000 episodes after 2.5 h) was
+aborted and its replicas stopped. Fixed in `d9c2c672` (exit 69 + "cannot reach broker" is retried: nothing reached the
+node). Launchers already running keep the old code. When replicas die under a running driver, the group-commit
+journal records the in-flight episodes as `accepted: true` with an `error` (1,734 in `csfw_k3`'s `ch n1000`): count
+only rows without `error` (`openpi_ext/scratch/r17_ops/mw/cells.py` does) and resume the rest.
+
+### Resuming a large cache campaign
+
+`cache_resume.prepare(source, name)` re-reads the source's whole `per_step.jsonl` (5.3 GB for 47,500 MT50 Fast-WAM
+episodes: ~20+ min single-threaded, ~27 GB RAM). Call `prepare` once; do not call `select` first (it reads the same
+evidence again). Prepare the next campaign of the lane in parallel so the GPU is not idle meanwhile. GR00T MT50 on
+H100 also needed `7db095a3` (`load_benchmark_spec` imported the LIBERO bridge; `csgr_h4` died at replica start).
+
 ### Prestage queued campaigns
 
 Use `ops/formal_queue.sh` and immutable preparation while the previous job runs.
