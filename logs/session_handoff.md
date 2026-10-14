@@ -56,7 +56,7 @@ owner 的常驻指令，逐字有效：
 
 ### 1.R16 正在做：纯减步融入闭环（owner 10-07 目标"融入纯减步并实验"，会话 goal 仍挂着）
 
-### ★ MetaWorld MT50 当前状态（2026-10-13 18:50 CDT；compact 后先读这一块，下面按时间倒序的条目是细节）
+### ★ MetaWorld MT50 + LIBERO 收尾 当前状态（2026-10-13 21:15 CDT；compact 后先读这一块，下面按时间倒序的条目是细节）
 
 **owner 目标与已定规矩**
 - 会话 goal「开始工作，不收集完数据不停」。owner 在睡觉时独自推进；巡检 prompt 每 30 分钟一次。
@@ -68,6 +68,9 @@ owner 的常驻指令，逐字有效：
 - 成功率先报**四个难度组等权均值**，再报按任务均值（记忆 `feedback-mt50-report-group-mean`）。结果用 `openpi_ext/scratch/r17_ops/mw/sr.py <run>`。
 - 不在 IR 旋钮里调停滞门；停滞门 L=min(H,2R) 的二次下采样 owner 说「不管」。
 - IR 只能在 4090 测（owner 10-13）。
+- ⛔ **新规则（owner 10-13 21:0x）**：IR 旋钮是在 Cache + Long horizon + Corrector + Stagnation Guard 上调的；某个缓存库大小下，这个完整系统**不开旋钮**的整格 SR 已达同步数纯推理（我按「≥ 纯推理」判，owner 还没定要不要放宽），就不调 IR，直接用这一格的 SR 和 IR。满步列已套（只 DP 库 100–500 两套件 10 格达标，IR 0.04–0.06，`rounds/r17/knob/full_system_ir.json`）；减步列要等「减步完整系统」那组跑完（见下）。
+- ⛔ 减步旋钮的参照一律是**减步纯推理**（R16 的 π0.5/GR00T k=1 用满步参照是错的，要重跑）。
+- 论文/PPT 术语（owner 的 PPT `/home/weiland/projects/openpi/10.15ciscio.pdf`）：Cache、Corrector、Stagnation Guard（停滞门）、Periodic Refresh Gate with IR Knob（周期调用）、per-task IR knob、MISS、query key、Long horizon（action chunk execution horizon）。我建议第 4 层论文名叫 Periodic Refresh（和停滞门 = event-triggered refresh 对称），第 5 层叫 per-task refresh calibration。
 
 **已完成**
 - 四个库（seed 8，每个 2,500 局，满步教师，无图片）：`/data/r17_library/{pi05,groot,dp,fastwam}_mw_mt50/bpool`，六档子集 + 拟合 `subsets|fits/size_{5,10,20,30,40,50}`（每任务条数）。四模型每档 episode 完全一致（`library_episode_id`=任务序号×50+idx，每档取 idx 0..N−1）；拟合只用本档子集（LOEO 排除本档自身那局）。
@@ -76,10 +79,15 @@ owner 的常驻指令，逐字有效：
 - IR 测量（4090 独占，`exp/r17_integration/profile/results_mt50/`；视觉/满步调用/减步调用/满步一次决策）：DP 0.307/0.693/0.084/232 ms；Fast-WAM 0.063/0.937/0.502(K3)/108 ms；π0.5 0.392/0.608/0.358(K2)/98.6 ms；GR00T 0.445/0.555/0.387(K2)/30.8 ms。后三个 `valid=false` 只因编译 vs eager 逐元素比对超严格容差，计时可用。输入观测 `profile/inputs_mt50/assembly_seed8_idx0.npz`（timan107 渲染，gitignore）。工具是 sol 扩的（`4945f756`）。
 - RUN_CONFIGS 有「MetaWorld MT50 measured topology」一节 + 多条 MT50 坑（runtime 镜像、库与环境、模型代码身份、计划超时、GR00T K 固定、提前准备、杀 tmux 前查启动器）。
 
+**网页（Dashboard `https://claude.ai/artifact/To18VP3TyzS5SXY3MmmUCp`，标题 R17 cache study results，已全英文）**
+- 本地工作目录 `openpi_ext/scratch/dash_r17/`（`index.html` 是页面，`preview_en.html` 是带 stub 数据的本地预览，用 `~/.cache/ms-playwright/chromium_headless_shell-1243/.../chrome-headless-shell --screenshot` 截图；中文字体本机没有）。改完写 `files/index.html`（ArtifactData update，带 if_version；当前 v23），数据集换文件要先 `Artifact publish asset:true` 再 update `datasets/<id>` 的 source/updated，旧 blob 删掉。
+- owner 10-13 晚的改动：删掉顶部标题/导语/进度卡/要点；模型结构可折叠并加了 π0.5、GR00T；成功率表加 π0.5/GR00T（只有 R10 纯缓存、R15 纯缓存+修正器两行）；旋钮表去掉 Levels 列，全步和减步合成一张表；π0.5/GR00T 旋钮表只留 R14/R15 全步（R16 k=1 已删，待重跑）；删掉两段长说明（owner：「不要这么长」）；DP 满步旋钮 10 格按新规则换成完整系统结果（* 号）。
+- R13 PPT 图 `exp/offline_search/rounds/r13/figures/periodic_vs_threshold.{png,svg,pdf}`（脚本同目录）：(a) 同状态调用位置、(b) 同预算成功率差、(c) R11 旋钮准度（periodic 17/17 在 ±.02、平均 −.006；离线标定阈值 2/17、−.080）。owner 要求把 (b) 的数改成 +0.4/0.5/−0.2/−0.1/+0.1，数据里没有出处，我没改，等 owner 说出处。
+
 **正在跑：缓存变体研究**（owner：网页第一个表格的全部组，没有 IR 旋钮；每格 seed 7 全 2,500 局）
 - 研究：`/data/r17_library/studies_mt50/{dp_k10,fw_k3,gr_k2,pi_k2}/STUDY.json`（组 c cr ch chr cg crg chg chrg；π0.5 只有 c cr cg crg；六档 250..2500 总局数；MISS 用上面的默认减步）。
-- H100：DP `csdp_1504` 19:35 完（数据完整）→ **Fast-WAM `csfw_k3` 19:43 起跑、19:52 开始收局，~410 局/分（无门格）、~270 局/分（停滞门格），GPU 25–55%，76 GB；20:23 时 11,571/120,000，预计 ~01:30 完**（R3 B16，public 23173，driver 23111，worker timan107×30+timan1×20，快照 `openpi_8bc82127`）→ GR00T `csgr_h4`（**20:17 已准备好**，tmux `mw_gr_h4` 等 `csfw_k3 ended receipt` 后启动；R8 B1 MPS，budget 56 GiB，public 23160、driver 23169，worker timan107×40+timan1×20，快照 `openpi_48113e41`）。GR00T 前三次准备都没成：`csgr_h` seal 时 MT50 库 import LIBERO bridge（`a9163d16` 修）；`csgr_h2` 拉回 assets.tar 600 s 超时（`48113e41` 放到 2 h）；`csgr_h3` 拉取时占着全局传输锁，挡住了 csfw_k3 的启动（H100 19:35–19:43 空闲），我按 PID 停掉了它的 rsync。坑已写进 RUN_CONFIGS：H100 的准备只能在 H100 当前车道已经在收局时做。
-- 4090：π0.5 `cspi_k2`（R5，端口 23150/23159，worker timan107×24+timan1×20）20:23 时 26,496/60,000（10 格完），~100–175 局/分，预计 ~00:30 完 → 之后暂无排队。**~23:00 决策点**：H100 上 GR00T 要等 FW（~01:00）后才开始，4090 届时空闲；考虑把 GR00T 的一部分格分给 4090（4090 远端 worker 被入口限在 ~130–150 局/分）。19:02 停掉了 4090 上等着的 GR00T `csgr_k2` 和旧的 FW 等待脚本（按 PID）：实测 4090 公网入口 `enp8s0` 已顶到 33 MB/s，远端 worker 的 4090 车道都被它卡住；GR00T 纯推理测试时就到上限，12 万局在 4090 上要 ~13 h，在 H100（自有公网 IP，DP 已跑到 ~127 MB/s 入站）上快得多。
+- H100：DP `csdp_1504` 19:35 完（数据完整）→ **Fast-WAM `csfw_k3` 19:43 起跑、19:52 开始收局，~410 局/分（无门格）、~270 局/分（停滞门格），GPU 25–55%，76 GB；21:09 时 26,588/120,000，~400–490 局/分，预计 ~01:00–01:30 完**（R3 B16，public 23173，driver 23111，worker timan107×30+timan1×20，快照 `openpi_8bc82127`）→ GR00T `csgr_h4`（**20:17 已准备好**，tmux `mw_gr_h4` 等 `csfw_k3 ended receipt` 后启动；R8 B1 MPS，budget 56 GiB，public 23160、driver 23169，worker timan107×40+timan1×20，快照 `openpi_48113e41`）。GR00T 前三次准备都没成：`csgr_h` seal 时 MT50 库 import LIBERO bridge（`a9163d16` 修）；`csgr_h2` 拉回 assets.tar 600 s 超时（`48113e41` 放到 2 h）；`csgr_h3` 拉取时占着全局传输锁，挡住了 csfw_k3 的启动（H100 19:35–19:43 空闲），我按 PID 停掉了它的 rsync。坑已写进 RUN_CONFIGS：H100 的准备只能在 H100 当前车道已经在收局时做。
+- 4090：π0.5 `cspi_k2`（R5，端口 23150/23159，worker timan107×24+timan1×20）21:09 时 31,941/60,000，~100–175 局/分，预计 ~00:30 完 → 之后 4090 接「减步完整系统」DP、Fast-WAM（见下）。**~23:00 决策点**：H100 上 GR00T 要等 FW（~01:00）后才开始，4090 届时空闲；考虑把 GR00T 的一部分格分给 4090（4090 远端 worker 被入口限在 ~130–150 局/分）。19:02 停掉了 4090 上等着的 GR00T `csgr_k2` 和旧的 FW 等待脚本（按 PID）：实测 4090 公网入口 `enp8s0` 已顶到 33 MB/s，远端 worker 的 4090 车道都被它卡住；GR00T 纯推理测试时就到上限，12 万局在 4090 上要 ~13 h，在 H100（自有公网 IP，DP 已跑到 ~127 MB/s 入站）上快得多。
 - DP 19:35 完；GR00T（H100）待实测；Fast-WAM 再 ~4–5 h；π0.5 ~00:40 完。GR00T 缓存跑在 H100 而纯推理基线 `tgr7_0502`/`tgr7k2_1044` 在 4090：按 RUN_CONFIGS「基线和 arm 同一 GPU 型号」，H100 队列末尾补跑 GR00T K2/K4 纯推理基线（各 2,500 局，`run_base3.sh ... h100`）。
 - 监控：`mw/err_watch.sh`（报错局）和 `tail -F mw/chain.log`，30 分钟过期要重挂。
 - 按格（组×档）成功率：`python3 mw/cells.py <run>...`（按 `yaml_id` 分组，组均值/按任务均值，未满 2,500 局的格标 partial）。19:00 结果见下面「缓存研究中间结果」。
@@ -111,7 +119,8 @@ owner 的常驻指令，逐字有效：
 - 缓存研究跑完后：按格汇总、写 RESULTS / 网页（Dashboard `https://claude.ai/artifact/To18VP3TyzS5SXY3MmmUCp` 现在只有 LIBERO）。
 - 拓扑任务 #129：RUN_CONFIGS 的 Fast-WAM 4090 一行还是估计值（`tfw7_0755` 丢了启动器；正式满步在 H100）。
 - Cosmos-MW 训练残留要不要删（owner 定）。
-- H100 上 DP 缓存研究时 GPU 只有 ~10–25%（worker 和模拟是瓶颈，worker 已满），属正常。
+- 待 owner：新规则里「达到纯推理」是否放宽容差；减步旋钮重跑只做 k=1 还是 k=1 和 k=2 都做；R13 图 (b) 那组数的出处。
+- 注意：`r17_ops/knob/prepare_dev.sh` 从**活仓库**（不是冻结快照）准备，仓库代码一改就影响后面的 prepare。
 
 **10-12 23:xx 新阶段：MetaWorld MT50 数据收集（owner 定；compact 后先读这段，再读下面 LIBERO 收口段的规矩）**
 - owner 定的起点方案：测试集 = seed 7 的 idx 0–49（每任务 50 局，共 2,500 局，官方口径）；缓存/建库 = seed 8 的 idx 0–49（seed 9、10 保留，现在只做一组）。旧 `benchmarks/spec.py` 是 seed 7 内按 idx 段切 测试 0–9 / 建库 10–29 / 开发 30–49，要改。开发集来源待 owner 定。
