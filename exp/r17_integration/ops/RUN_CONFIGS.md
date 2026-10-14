@@ -1053,6 +1053,7 @@ server, driver and remote workers survived, but nothing was left to close them o
 session, list its children (`pgrep -P $(tmux list-panes -t S -F '#{pane_pid}') -a`); stop only a waiting chain by its
 PID. A launcher-less pure-inference run can be finished by waiting for the driver to exit, closing that run's server
 and worker supervisors by PID, and `formal_eval aggregate --output RUN_DIR` (see `openpi_ext/scratch/r17_ops/mw/finish_tfw7.sh`). The replica proxy's command line does not contain the run name (`run_proxy(PORT,[...])`): find it by its public port (`ss -ltnp | grep :PORT`) and stop it too, or the next campaign on that port fails with `ports did not release within 120s` (`gl_a2`, 2026-10-14). To stop a waiting chain, kill only its bash PID; never close the tmux session of a chain whose launcher is still running (`gl_k1a` lost its launcher that way).
+Killing the chain's bash is the same as closing the session when that bash is the pane's own process (`tmux new -d -s X "bash chain.sh"`): the pane closes and SIGHUPs the launcher (`pimk1_ful`, 2026-10-14 12:07). To stop a running campaign, SIGTERM its launcher first and only then the chain; new chains start launchers with `setsid bash launch_direct_root.sh ...` (`mwlocal/chain_4090m.sh`), which keeps them out of the pane's session.
 
 ### Keep MPS pipe paths within 85 bytes
 
