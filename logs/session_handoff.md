@@ -89,7 +89,7 @@ owner 的常驻指令，逐字有效：
 **我今天的失误**：12:07 停链时链 bash 是 tmux 窗格进程 → SIGHUP 掉 `pimk1_ful` 启动器（按 PID 收尾，数据保住）；单点采样就说 GPU「100% 饱和」（owner 斥）；`csfw_k3w2` 先给 107 加 40 个后又因 EGL 风险撤回；B 组几次准备因竞态/108 编号/extra 顺序失败（各浪费 ~5–10 分钟 GPU）。
 
 **待办**
-1. 看 `dpmk1_fulx` 准备结果（108 准入）；v14 跑起来后实测 H100 车道（DP 应从 worker-bound 变成 GPU-bound）。
+1. `dpmk1_fulx` 14:57 已备（timan1 [3]、timan107 [0–7]、timan108 [3]，三台都开 zlib；GPU 准入在启动时才做——启动后先查 `dpmk1_fulx/timan108_launch.json` 与车道收局，108 若失败就去掉 108 重备）；v14 跑起来后实测 H100 车道（DP 应从 worker-bound 变成 GPU-bound）。
 2. `pimk1_fuld` 完后 4090 链自动接 `cspi_k2vc` → `pimk1_redc`；`csfw_k3w4` 完后 H100 v14 自动接 DP/FW 旋钮。各批结束跑 descent 分析并提交（参照见上）；FW 缓存研究完后用 cells.py 合并出表。
 3. 估算剩余：4090 `pimk1_fuld` ~8–9 h → cspi_k2vc ~0.5 h → pimk1_redc ~8 h；H100 csfw_k3w4 ~2.5 h → 4 批旋钮各 2–4 h。之后 LIBERO 线（π0.5/GR00T LIBERO 建库与八组缓存研究、旋钮重跑、Cosmos 减步完整系统 `fsredcos`）。
 4. 待 owner：timan107 宕机日志、timan108 EGL/9 GB 进程、是否删 107 的 Isaac-GR00T 等、网页更新（MT50 段、减步列）、R13 图 (b) 数字出处、Cosmos-MW 训练残留。
