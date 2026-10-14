@@ -14,7 +14,8 @@ import time
 def write_json(path, value):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    part = path.with_suffix(path.suffix + '.part')
+    # Per-process temp name: concurrent replicas may write the same file (servers/manifest.json).
+    part = path.with_suffix(path.suffix + f'.{os.getpid()}.part')
     part.write_text(json.dumps(value, indent=2, sort_keys=True, allow_nan=False) + '\n')
     os.replace(part, path)
 
