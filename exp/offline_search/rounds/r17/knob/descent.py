@@ -12,7 +12,9 @@ from exp.offline_search.rounds.r17.knob import common as c
 def descend(levels, tolerance):
     first = next((level for level in c.LEVELS[1:]
                   if levels[level]["passes"][str(tolerance)] is False), None)
-    incomplete = any(levels[level]["n"] != 30 for level in c.LEVELS)
+    # Once a complete level fails, no lower level is needed to freeze the choice.
+    visited = c.LEVELS[:c.LEVELS.index(first)+1] if first else c.LEVELS
+    incomplete = any(levels[level]["n"] != 30 for level in visited)
     recoveries = [level for level in c.LEVELS[c.LEVELS.index(first)+1:]
                   if levels[level]["passes"][str(tolerance)] is True] if first else []
     # Report all available outcomes; incomplete tasks have no frozen choice.
@@ -26,22 +28,25 @@ def main(argv=None):
     parser.add_argument("--lane", type=Path, action="append", required=True)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--library-root", type=Path, default=c.LIBRARY_ROOT)
-    parser.add_argument("--reference", choices=("teacher", "pure-arm"), default="teacher")
+    parser.add_argument("--reference", choices=("teacher", "pure-arm"), default=None)
+    parser.add_argument("--reference-lane",type=Path,action="append",help="Standalone K1 pure B baseline; repeat to combine models")
     args = parser.parse_args(argv)
     cells, planned = c.load_knob(args.lane, "B")
-    references = {(model, suite): (cells.get((model, suite, 500), {}).get("pure", {})
+    args.reference = args.reference or ('pure-arm' if args.reference_lane or any(m in c.VLA_MODELS for m,_,_ in cells) else 'teacher')
+    references = c.pure_references(args.reference_lane) if args.reference_lane else {(model, suite): (cells.get((model, suite, 500), {}).get("pure", {})
                   if args.reference == "pure-arm" else c.teacher_reference(args.library_root, model, suite))
                   for model, suite in sorted({(m, s) for m, s, _ in cells})}
     tables = {tol: {} for tol in (0, 2, 5)}
     result = dict(primary_tolerance_pp=5, cells=[], references=[])
     lines = ["# 逐任务旋钮下降", "", "开发集使用B 池每任务起点0–29，纯推理参考来自教师库。主容差为5 个点，另给0 和 2 个点表。",
              "首次失败即选择上一档；低档恢复只记录，不改变选择。缺局的任务标为不完整，不写入冻结表，也不补齐结果。",
-             "推理开销代理为模型调用数除以执行控制数折算的决策数；DP 和 Fast-WAM 每 5 步折算一次，Cosmos 每 16 步折算一次。纯推理参考按一计；拼接开销由所选轨迹的总调用数和总执行控制数计算。",
+             "推理开销代理为模型调用数除以执行控制数折算的决策数；DP、Fast-WAM、π0.5 和 GR00T 每 5 步折算一次，Cosmos 每 16 步折算一次。纯推理参考按一计；拼接开销由所选轨迹的总调用数和总执行控制数计算。",
              "缺少完整执行计数时开销记为暂无。开发集拼接结果用于选择，尚未独立测试。", "",
              "档位数字是标定的目标 miss 比例，表中开销是实测值。", ""]
-    if args.reference == "pure-arm":
-        result["reference"] = "pure-arm"
-        lines[2] = "开发集使用B 池每任务起点0–29，参考为同一lane 库500 行的减步pure 档，同模型、套件、任务、起点配对。主容差为5 个点，另给0 和 2 个点表。"
+    if args.reference == "pure-arm" or args.reference_lane:
+        result["reference"] = "pure-lane" if args.reference_lane else "pure-arm"
+        lines[2] = "开发集使用B 池每任务起点0–29，参考为同起点减步纯推理（π0.5/GR00T K1）；主容差为5 个点，首次失败即冻结上一档。"
+        if args.reference_lane:result['reference_lanes'] = list(map(str,args.reference_lane))
     for (model, suite), ref in references.items():
         result["references"].append(dict(model=model, suite=suite,
             inits_0_29=c.stats({k: e for k, e in ref.items() if k[2] < 30}, model),
@@ -49,7 +54,7 @@ def main(argv=None):
     totals = []
     for cell, arms in sorted(cells.items()):
         model, suite, size = cell
-        ref = {k: e for k, e in references[model, suite].items() if k[2] < 30}
+        ref = {k: e for k, e in references.get((model, suite),{}).items() if k[2] < 30}
         names = sorted({k[1] for k in ref})
         if args.reference == "pure-arm":
             names = sorted(set(names) | set(planned[cell]))

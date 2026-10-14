@@ -378,7 +378,7 @@ def prepare_workers(campaign, directory, *, payload_override=None):
         names.append('exp/r17_integration/ops/timan1_workers.py')
     if campaign.get('domain') == 'libero' or not execution_nodes:
         names += ['exp/r17_integration/qualification/specs/libero_original_assets.json']
-    if campaign.get('domain') == 'libero' and (campaign.get('library') or campaign.get('cache_study') and campaign.get('eval_pool')=='B'):
+    if campaign.get('domain') == 'libero' and (campaign.get('library') or campaign.get('eval_pool')=='B'):
         names += ['exp/r17_integration/ops/library_init.py']
     if payload_override is not None:
         from .build_client_bundle import verified_members
@@ -524,7 +524,7 @@ def prepare_workers(campaign, directory, *, payload_override=None):
             write_json(directory/(node+'_GPU_ADMISSION.json'),gpu)
             if not gpu['admitted'] and not deferred:
                 pass
-        if campaign.get('domain') == 'libero' and (campaign.get('library') or campaign.get('cache_study') and campaign.get('eval_pool')=='B'):
+        if campaign.get('domain') == 'libero' and (campaign.get('library') or campaign.get('eval_pool')=='B'):
             init_digest = campaign['bpool_transfer']['archive_sha256']
             transfer(['rsync','push',campaign['bpool_archive'],node+':'+stage+'/bpool_inputs.tar'])
             code = ('from exp.r17_integration.ops.library_init import install_init_archive; import json; '
@@ -671,6 +671,9 @@ def failed_fleet(node, item, status):
 def prepare(campaign, directory):
     from .sync_back import snapshot_run, install_snapshot
     from .build_client_bundle import sha256
+    if campaign.get('domain') == 'libero' and campaign.get('eval_pool') == 'B' and not campaign.get('cache_study') and not campaign.get('library'):
+        from .library_init import prepare_b_inputs
+        prepare_b_inputs(campaign, directory)
     if campaign.get('cache_study'):campaign.setdefault('cache_plan_name',campaign['run_name'])
     if campaign.get('cache_control'):
         from .cache_control import attach
@@ -1555,6 +1558,8 @@ def parse_args(argv=None):
     p.add_argument('--port', type=int)
     p.add_argument('--driver-port', type=int)
     p.add_argument('--official-50', action='store_true', help='Separate sealed original init0..49 campaign')
+    p.add_argument('--eval-pool', choices=('A','B'), default='A', help='Pure-inference input pool; B reuses the audited library inits')
+    p.add_argument('--init-count', type=int, choices=range(1,51), default=None, metavar='N', help='Pure inference: original indices 0..N-1')
     p.add_argument('--cache-study', type=Path, help='Default-off frozen eight-group YAML manifest; A500/B500 library')
     p.add_argument('--cache-control', type=Path, help='Cache study only: read-only matched complete control')
     p.add_argument('--cache-control-runtime', type=Path, help='Cache study only: native control archive beneath reviewed R17 overlay')
@@ -1776,6 +1781,8 @@ def main(argv=None):
         local_assets=str(directory / 'assets'), assets=str(FORMAL_ROOT / name / 'assets'),
         server_run=str(FORMAL_ROOT / name / 'servers'), runtime=str(ROOT),
         vendor='/home/weiland/projects/openpi_ext/third_party/gr00t_n15', live_k=4)
+    if args.eval_pool == 'B':campaign['eval_pool']='B'
+    if args.init_count is not None:campaign['init_count']=args.init_count
     if model == 'groot' and args.denoising_steps is not None:
         campaign['live_k'] = args.denoising_steps
     if model == 'groot' and args.cache_study:

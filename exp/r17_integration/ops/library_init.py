@@ -39,6 +39,18 @@ def build_init_archive(audits, archive):
     return dict(archive_sha256=sha(archive), manifest=document)
 
 
+def prepare_b_inputs(campaign, directory):
+    """Reuse the library's audited B pools for a fresh DEV evaluation."""
+    if campaign.get('bpool_archive') and campaign.get('bpool_transfer'):
+        return campaign['bpool_transfer']
+    from .library_alignment import load_alignment
+    from .library_campaign import AUDIT_ROOT, SUITES
+    archive = Path(directory) / 'bpool_inputs.tar'
+    transfer = build_init_archive([load_alignment(AUDIT_ROOT/(suite+'.json')) for suite in SUITES], archive)
+    campaign.update(bpool_archive=str(archive), bpool_transfer=transfer)
+    return transfer
+
+
 def install_init_archive(archive, destination, expected_sha256):
     """Immutable private installation after /tmp ingress; reject every conflict."""
     archive, destination = Path(archive), Path(destination)

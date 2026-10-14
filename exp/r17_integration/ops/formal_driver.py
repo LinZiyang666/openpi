@@ -78,11 +78,20 @@ def plan(campaign):
         indices = ([0] if campaign['domain'] == 'libero' else [0, 1]) if campaign['smoke'] else list(range(50))
         if campaign['smoke']:
             names = names[:2]
+    planning_spec = benchmark
+    pool = campaign.get('eval_pool', 'A')
+    if pool == 'B' and not campaign.get('library'):
+        from types import SimpleNamespace
+        planning_spec = SimpleNamespace(**vars(benchmark), identity=benchmark.identity,
+            task_table_identity=benchmark.task_table_identity, max_policy_controls=benchmark.max_policy_controls)
+        planning_spec.dev_indices = tuple(range(50))
+    if campaign.get('init_count') is not None:
+        indices = list(range(campaign['init_count']))
     tasks = episode_tasks(campaign=campaign.get('semantic_campaign', campaign['run_name']), arm='full', bundle_id='formal_full_v1',
         endpoint=endpoint, model_identity=model['checkpoint_identity'], norm_identity=model['norm_identity'],
         layout_identity=digest(model['layout']), num_steps=k,
-        spec=benchmark, partition=('library' if campaign.get('library') and campaign['domain'] != 'libero'
-            else 'smoke' if campaign['smoke'] or campaign.get('library') else 'test'), names=names, indices=indices,
+        spec=planning_spec, partition=('library' if campaign.get('library') and campaign['domain'] != 'libero'
+            else 'smoke' if campaign['smoke'] or campaign.get('library') else 'dev' if pool == 'B' else 'test'), names=names, indices=indices,
         yaml_identity=hashlib.sha256((assets / 'full.yaml').read_bytes()).hexdigest(),
         bundle_generation='formal_full_v1', commit_horizon=commit)
     suites = selected_suites(campaign)
@@ -90,6 +99,8 @@ def plan(campaign):
         tasks = [task for task in tasks if task.experiment in suites]
     if campaign['model'] == 'groot' and campaign['domain'] == 'libero' and not campaign.get('library'):
         tasks = [task for task in tasks if task.experiment in ('libero_spatial', 'libero_10')]
+    if pool == 'B' and not campaign.get('library'):
+        for task in tasks:task.extra['init_pool']='B'
     if campaign.get('library'):
         from .library_campaign import teacher_tasks
         tasks = teacher_tasks(campaign,benchmark,tasks)

@@ -37,7 +37,7 @@ def reduced_study(tmp_path_factory):
     return knob.build(directory/'dev', gaps=gaps, miss_steps='reduced')
 
 
-@pytest.mark.parametrize('model', tuple(knob.REDUCED))
+@pytest.mark.parametrize('model', tuple(k for k in knob.REDUCED if k not in knob.VLA_PROFILES))
 def test_reduced_yaml_native_identity_teacher_and_complete_plan(reduced_study, model, tmp_path, monkeypatch):
     from exp.r17_integration.common import provider as registry
     monkeypatch.setattr(registry, '_providers', {})
@@ -80,7 +80,7 @@ def test_reduced_yaml_native_identity_teacher_and_complete_plan(reduced_study, m
     assert all(t.extra.get('expected_nfe', k) == (1 if model == 'cosmos_libero' else k) for t in tasks)
 
 
-@pytest.mark.parametrize('model', tuple(knob.REDUCED))
+@pytest.mark.parametrize('model', tuple(k for k in knob.REDUCED if k not in knob.VLA_PROFILES))
 def test_reduced_cpu_stage_and_rebind_cannot_restore_default(reduced_study, model, tmp_path, monkeypatch):
     from exp.r17_integration.common import provider as registry
     monkeypatch.setattr(registry, '_providers', {})
@@ -140,7 +140,7 @@ def test_reduced_test_builder_keeps_frozen_task_levels_and_k(tmp_path):
         assert extra['init_pool'] == 'A' and not extra['serve_loeo']
 
 
-@pytest.mark.parametrize('model', tuple(knob.REDUCED))
+@pytest.mark.parametrize('model', tuple(k for k in knob.REDUCED if k not in knob.VLA_PROFILES))
 @pytest.mark.parametrize('trigger', ['stall', 'periodic', 'pure'])
 def test_each_cache_model_call_uses_bound_reduced_sampler(model, trigger, tmp_path):
     provider = fixture_model(model)
@@ -193,7 +193,7 @@ def test_reduced_commands_match_owner_topology_and_cosmos_nvme():
         assert '--replicas '+str(replicas) in prepare and '--max-batch '+str(batch) in prepare
         assert '--worker-counts '+fleet in prepare and '--mps' in prepare and '--prepare-only' in prepare
         assert '--denoising-steps' not in prepare  # Cache MISS selection belongs to the YAML.
-        assert 'knobdev' in prepare and '235' in prepare
+        assert 'knobdev' in prepare and '--port 234' in prepare
         if model == 'cosmos_libero':
             assert '--driver-mode legacy' in prepare and '--memory-budget-gib 76' in prepare
             assert '/tmp/r17_driver/knobdevcos_reduced/driver' in run and 'ln -s' in run

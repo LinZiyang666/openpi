@@ -394,8 +394,11 @@ def stage_inputs(campaign, directory, launch):
         import tarfile
         archives = sorted(Path('/data/r17_library').glob(bundle+'_libero_spatial/campaigns/teacher_*/bpool_inputs.tar'))
         if not archives:
-            raise FileNotFoundError('no teacher B init archive for '+bundle)
-        archive = archives[0]
+            from .library_init import prepare_b_inputs
+            prepare_b_inputs(campaign, directory)
+            archive = Path(campaign['bpool_archive'])
+        else:
+            archive = archives[0]
         with tarfile.open(archive) as tar:
             init_manifest = json.load(tar.extractfile('INIT_FILES.json'))
         if init_manifest.get('init_pool')!='B' or any(

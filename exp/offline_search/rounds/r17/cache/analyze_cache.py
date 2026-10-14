@@ -22,7 +22,7 @@ SUITES = ("libero_spatial", "libero_10")
 GROUPS = ("c", "cr", "ch", "chr", "cg", "crg", "chg", "chrg")
 ALIASES = {"ch": "c", "chr": "cr", "chg": "cg", "chrg": "crg"}
 MODELS = ("DP", "Fast-WAM", "Cosmos")
-MODEL_IDS = {"dp": "DP", "fastwam": "Fast-WAM", "cosmos": "Cosmos"}
+MODEL_IDS = {"dp": "DP", "fastwam": "Fast-WAM", "cosmos": "Cosmos", "pi05": "π0.5", "groot": "GR00T"}
 FAMILY, BOOT, SEED = 40, 10_000, 20261010
 CONTROL_NAMES = {
     "DP": "hs5dp_ctl_142812", "Fast-WAM": "hs6fw_res_152931",

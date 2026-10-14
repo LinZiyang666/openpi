@@ -33,6 +33,12 @@ def file_digest(path):
     return "sha256:" + result.hexdigest()
 
 
+def sampler_for_steps(k):
+    from exp.r17_integration.common.contracts import SamplerSpec
+    return SamplerSpec(f"groot_n15_k{k}_v1", "flow_euler", k, tuple(i / k for i in range(k)),
+        (1 / k,) * k, {"direction": "noise_to_clean_asc", "endpoint_fixed_k": True}, "flow_time")
+
+
 def validate_training_metadata(document):
     if EMBODIMENT not in document:
         raise ValueError("checkpoint has no metaworld_sawyer normalization")
@@ -156,7 +162,7 @@ class GrootManifest:
                 "benchmark_protocol": self.benchmark_protocol}
 
     def model_spec(self):
-        from exp.r17_integration.common.contracts import ActionStateLayout, Capabilities, Capability, FeatureSpec, ModelSpec, SamplerSpec
+        from exp.r17_integration.common.contracts import ActionStateLayout, Capabilities, Capability, FeatureSpec, ModelSpec
         layout_data = {k:v for k,v in self.layout.items() if k != "valid_action_mask"}
         for key in ("valid_state_indices", "motion_channels", "raw_state_fields"):
             layout_data[key] = tuple(layout_data[key])
@@ -167,8 +173,7 @@ class GrootManifest:
                               active_state_indices=tuple(range(self.state_dim)), policy_digest=self.checkpoint_identity,
                               norm_digest=self.norm_identity, preprocess_digest=self.transform_identity)
         k = self.denoising_steps
-        sampler = SamplerSpec(f"groot_n15_k{k}_v1", "flow_euler", k, tuple(i / k for i in range(k)),
-                              (1 / k,) * k, {"direction": "noise_to_clean_asc", "endpoint_fixed_k": True}, "flow_time")
+        sampler = sampler_for_steps(k)
         caps = {name: Capability("supported", "Generic serving path available; CPU evidence only, GPU qualification pending")
                 for name in ("full", "k_step", "cp1_retrieval", "concurrent", "bundle", "episode", "debug_capture")}
         hook_limits = {

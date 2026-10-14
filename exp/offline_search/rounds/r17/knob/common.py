@@ -6,7 +6,8 @@ from pathlib import Path
 from exp.offline_search.rounds.r17.cache import analyze_cache as cache
 
 LEVELS = ("pure", "k50", "k40", "k30", "k20", "k10", "koff")
-C0 = {"DP": 5, "Fast-WAM": 5, "Cosmos": 16}
+C0 = {"DP": 5, "Fast-WAM": 5, "Cosmos": 16, "π0.5": 5, "GR00T": 5}
+VLA_MODELS = ("π0.5", "GR00T")
 MODEL_IDS = {v: k for k, v in cache.MODEL_IDS.items()}
 LIBRARY_ROOT = Path("/data/r17_library")
 CONTROL_ROOT = Path("/data/mw_finetune/eval")
@@ -16,15 +17,35 @@ CONTROL_NAMES = {
     # load_lane follows the resume ancestor and preserves its cost evidence.
     "Cosmos": ("formal_cosmos_libero_official2000_20261010_100533_5f558380",
                "formal_cosmos_libero_official2000_20261010_130639_a8ca2043"),
+    "π0.5": ("pl_a",), "GR00T": ("gl_a",),
 }
 REDUCED_CONTROL_NAMES = {
     "DP": ("hs5dp_ddim10s0",),
     "Fast-WAM": ("hs6fw_k1",),
     "Cosmos": ("hs2_cosmos_h100_k2incl_c16_t107_20261010_115120",),
+    "π0.5": ("pl_k1a",), "GR00T": ("gl_k1a",),
 }
 LABELS = dict(zip(LEVELS, ("纯推理", "0.5 档", "0.4 档", "0.3 档", "0.2 档", "0.1 档", "关（只有停滞门）")))
 SUITE_LABELS = {"libero_spatial": "空间任务", "libero_10": "长任务"}
-MODEL_LABELS = {"DP": "DP", "Fast-WAM": "Fast-WAM", "Cosmos": "Cosmos"}
+MODEL_LABELS = {model:model for model in C0}
+
+
+def model_label(value):
+    return cache.MODEL_IDS.get(value.removesuffix('_libero'),value)
+
+
+def pure_references(lanes):
+    """Read standalone formal pure baselines through the existing lane loader."""
+    references = {}
+    sources = cache.Sources()
+    for lane in map(Path,lanes):
+        loaded = cache.load_lane(lane,cache.receipt_snapshot(lane),sources,cache.SIZES)
+        for (model,_,group,suite),result in loaded.items():
+            if group != 'control':continue
+            data = result['data']
+            for row in data.values():row['pure']=True
+            merge(references.setdefault((model,suite),{}),data)
+    return references
 
 
 def write_json(path, value):

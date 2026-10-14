@@ -22,7 +22,7 @@ def dev_study(tmp_path_factory):
     gaps=directory/'gaps.jsonl'
     gaps.write_text(''.join(json.dumps(dict(model=model,suite=suite,size=size,
         levels={target:dict(gap=float(i+1)) for i,target in enumerate(list(knob.LEVELS.values())[:5])}))+'\n'
-        for model in tuple(knob.REDUCED) for suite in study.SUITES for size in knob.SIZES))
+        for model in tuple(k for k in knob.REDUCED if k not in knob.VLA_PROFILES) for suite in study.SUITES for size in knob.SIZES))
     return knob.build(directory/'dev',gaps=gaps),gaps
 
 
@@ -48,7 +48,7 @@ def fake_campaign(path,model,assets,*,rows=None):
                 public_port=23400,workers=2,run_name='knobcpu')
 
 
-@pytest.mark.parametrize('model',tuple(knob.REDUCED))
+@pytest.mark.parametrize('model',tuple(k for k in knob.REDUCED if k not in knob.VLA_PROFILES))
 def test_dev_plan_all_levels_unique_b_inits_and_official_protocol(dev_study,model,tmp_path):
     path,_=dev_study
     manifest=study.validate_manifest(path)
@@ -108,7 +108,7 @@ def test_incomplete_gaps_write_no_partial_study(tmp_path):
     assert not (tmp_path/'dev').exists()
 
 
-@pytest.mark.parametrize('model',tuple(knob.REDUCED))
+@pytest.mark.parametrize('model',tuple(k for k in knob.REDUCED if k not in knob.VLA_PROFILES))
 def test_cpu_staging_and_seal_preserve_gap_loeo_tasks_indices_and_pool(dev_study,tmp_path,model):
     from exp.r17_integration.common.provider import AdapterProvider,register_provider
     path,_=dev_study
@@ -227,7 +227,7 @@ def test_summary_accepts_periodic_policy_calls_only_when_configured(gap,knob_cal
 
 
 def test_commands_preserve_lane_resources_and_print_placeholders():
-    for model in tuple(knob.REDUCED):
+    for model in tuple(k for k in knob.REDUCED if k not in knob.VLA_PROFILES):
         prepare,run=knob.commands('STUDY.json',model)
         profile=knob.cache_lane.PROFILES[model]
         assert '--server-node '+profile['node'] in prepare

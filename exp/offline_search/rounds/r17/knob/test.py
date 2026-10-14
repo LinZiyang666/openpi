@@ -23,7 +23,7 @@ def raised_level(level, successes, control_successes, n):
 def load_controls(root, models, controls="full", override=()):
     references = {}
     names = dict(c.REDUCED_CONTROL_NAMES if controls == "reduced" else c.CONTROL_NAMES)
-    names.update({m: (run,) for m, run in (item.split("=", 1) for item in override)})
+    names.update({c.model_label(m): (run,) for m, run in (item.split("=", 1) for item in override)})
     for model in sorted(models):
         # Both Cosmos segments (and the Fast-WAM ancestor) are read by load_lane.
         lane = Path(root) / names[model][-1]
@@ -73,16 +73,16 @@ def main(argv=None):
     result = dict(bootstrap=dict(draws=BOOT, seed=SEED, method="within-task paired init resampling"), cells=[])
     raises = {}
     if args.controls == "reduced":
-        result["controls"] = {**c.REDUCED_CONTROL_NAMES, **{m: (run,) for m, run in (item.split("=", 1) for item in args.control)}}
+        result["controls"] = {**c.REDUCED_CONTROL_NAMES, **{c.model_label(m): (run,) for m, run in (item.split("=", 1) for item in args.control)}}
     lines = ["# 逐任务旋钮测试", "", "使用 A 集官方起点 0–49，每任务固定一个档位，与同起点纯推理对照配对。",
-             "推理开销代理按模型调用数除以执行控制数折算的决策数计算；DP 和 Fast-WAM 每 5 步折算一次，Cosmos 每 16 步折算一次，纯推理按一计。",
+             "推理开销代理按模型调用数除以执行控制数折算的决策数计算；DP、Fast-WAM、π0.5 和 GR00T 每 5 步折算一次，Cosmos 每 16 步折算一次，纯推理按一计。",
              "成功率差的95% 区间在每个任务内按起点配对重采样5,000 次，随机种子为20261005。",
              "任务成功率低于对照至少 10 个点，提到纯推理；低 6–9 个点，提一档，0.5 档提到纯推理；纯推理保持。阈值用成功局数作整数比较。",
              "缺局只报告已有配对，不补齐、不按部分结果提档；缺少完整执行计数时开销记为暂无。提档清单供后续复测，当前结果仍是提档前的测量。", "",
              "| 模型 | 任务套件 | 库集数 | 已有局数 | 配对局数 | 成功率 | 同起点纯推理成功率 | 差（个点） | 95% 区间（个点） | 新增成功 | 丢失成功 | 推理开销代理 | 完整性 |",
              "|---|---|---:|---:|---:|---:|---:|---:|---|---:|---:|---:|---|"]
     if args.controls == "reduced":
-        lines.insert(3, "纯推理对照为DP DDIM10 eta0、Fast-WAM K1、Cosmos K2含清理步（NFE1）的10-10 A 集运行；按逐任务提档表复测，迭代到每个任务差距不超过4 个点。")
+        lines.insert(3, "纯推理对照为相同步数：DP DDIM10 eta0、Fast-WAM K1、Cosmos K2含清理步（NFE1）、π0.5/GR00T K1。A 集每任务50局；差距至少5局提到pure，3–4局升一档，迭代至差距至多2局。")
     detail = []
     for cell, arms in sorted(cells.items()):
         model, suite, size = cell
@@ -111,6 +111,7 @@ def main(argv=None):
                 c.nested_set(raises, cell, task, new_level)
             tasks[task] = dict(level=level, **st, paired_n=len(matched), control=base, difference=delta,
                                retest_level=new_level, incomplete=not complete,
+                               within_tolerance=complete and base['successes']-candidate_s <= 2,
                                missing_inits=sorted(set(range(50)) - {k[2] for k in observed}),
                                missing_control_inits=sorted(set(range(50)) - {k[2] for k in control}))
             data.update(observed)

@@ -57,7 +57,7 @@ def lane(path, model, pool, entries, *, control=False, parent=None, missing_cost
         sources = ["policy"] if control or level == "pure" else ["policy", "library", "policy_tail"]
         for seq, source in enumerate(sources):
             fields = dict(task_uid=uid, accepted=True, attempt=2, decision_seq=seq)
-            steps.append(dict(fields, source=source, actual_nfe=5 if source == "policy" else 0))
+            steps.append(dict(fields, source=source, actual_nfe=(1 if model in c.VLA_MODELS else 5) if source == "policy" else 0))
             count = 1 if source == "policy_tail" else c.C0[model]
             if (task, level, init) != missing_cost:
                 steps.append(dict(fields, _kind="execution_ack", executed_count=count,
@@ -106,7 +106,7 @@ class KnobTests(unittest.TestCase):
             with contextlib.redirect_stdout(io.StringIO()):
                 result = a.main([*runs, '--controls', 'reduced', '--control-root', str(root/'controls'),
                                  '--out', str(root/'out')])
-            self.assertEqual(len(result['cells']), 3)
+            self.assertEqual(len(result['cells']), len(c.C0))
             for cell in result['cells']:
                 task = cell['tasks'][name('libero_spatial', 0)]
                 self.assertEqual(task['control']['successes'], 45)
@@ -201,11 +201,12 @@ class KnobTests(unittest.TestCase):
             self.assertEqual(completed.returncode, 0, completed.stderr)
             raises = json.loads((root / "out/raise.json").read_text())
             result = json.loads((root / "out/test.json").read_text())
-            self.assertEqual(len(result["cells"]), 3)
+            self.assertEqual(len(result["cells"]), len(c.C0))
             for row in result["cells"]:
                 raised = raises[row["model"]]["libero_spatial"]["50"]
-                self.assertEqual(raised, {name("libero_spatial", t): level
-                                         for t, level in [(0, "pure"), (1, "k40"), (2, "pure"), (5, "k20")]})
+                expected = {name("libero_spatial", t): level
+                            for t, level in [(0, "pure"), (1, "k40"), (2, "pure"), (5, "k20")]}
+                self.assertEqual(raised, expected)
                 self.assertEqual(row["n"], 449)
                 self.assertEqual(row["comparison"]["n"], 449)
                 self.assertEqual(row["comparison"]["gains"], 2)

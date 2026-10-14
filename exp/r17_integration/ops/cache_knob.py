@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+from dataclasses import asdict
 import copy
 import json
 import math
@@ -17,6 +18,12 @@ REDUCED = {
     'dp_libero': (10, 'hs5dp_ddim10s0'),
     'fastwam_libero': (1, 'hs6fw_k1'),
     'cosmos_libero': (2, 'hs2_cosmos_h100_k2incl_c16_t107_20261010_115120'),
+    'pi05_libero': (1, 'pl_k1a'),
+    'groot_libero': (1, 'gl_k1a'),
+}
+VLA_PROFILES = {
+    'pi05_libero': dict(node='local', replicas=5, startup=3, workers=24, budget=47, short='pl'),
+    'groot_libero': dict(node='h100', replicas=2, startup=2, workers=32, budget=48, short='gl'),
 }
 SOURCES = (study.HERE/'sizes/STUDY.json', study.HERE/'yaml/STUDY.json')
 SIZES = (50, 100, 200, 300, 400, 500)
@@ -25,14 +32,14 @@ LEVELS = {'k50':'0.5', 'k40':'0.4', 'k30':'0.3', 'k20':'0.2', 'k10':'0.1', 'koff
 
 def model_name(value):
     name = value.lower().replace('-', '').removesuffix('_libero')+'_libero'
-    if name not in study.MODELS:
-        raise argparse.ArgumentTypeError('model must be dp, fastwam or cosmos')
+    if name not in study.LIBERO_MODELS:
+        raise argparse.ArgumentTypeError('model must be dp, fastwam, cosmos, pi05 or groot')
     return name
 
 
-def build(output, *, gaps=GAPS, model=None, table=None, miss_steps='full', partial=False):
+def build(output, *, gaps=GAPS, model=None, table=None, miss_steps='full', partial=False, sources=None):
     """Copy complete-group YAMLs and artifacts; never fit or launch anything."""
-    sources = [(path, study.validate_manifest(path)) for path in SOURCES]
+    sources = [(Path(path), study.validate_manifest(path)) for path in (sources or SOURCES)]
     base = {}
     for path, manifest in sources:
         for bundle, rows in manifest['models'].items():
@@ -47,9 +54,13 @@ def build(output, *, gaps=GAPS, model=None, table=None, miss_steps='full', parti
                 gap_rows[model_name(entry['model']), entry['suite'], int(entry['size'])] = entry['levels']
     test = table is not None
     levels_table = study.read(table) if test else None
+    if test:
+        label = {'pi05_libero':'π0.5', 'groot_libero':'GR00T', 'dp_libero':'DP',
+                 'fastwam_libero':'Fast-WAM', 'cosmos_libero':'Cosmos'}.get(model)
+        if label in levels_table:levels_table = levels_table[label]
     # Existing knob sources cover their own model cohort; new cache-study
     # selectors need their libraries before they can join a knob generation.
-    models = (model,) if test else tuple(dict.fromkeys(bundle for bundle,_,_ in base))
+    models = (model,) if model else tuple(dict.fromkeys(bundle for bundle,_,_ in base))
     if test and model not in study.MODELS:
         raise ValueError('TEST requires one model')
     output = Path(output).resolve()
@@ -60,7 +71,14 @@ def build(output, *, gaps=GAPS, model=None, table=None, miss_steps='full', parti
     missing = []
     for bundle in models:
         sampler = None
-        if miss_steps == 'reduced':
+        if bundle in VLA_PROFILES:
+            if bundle == 'pi05_libero':
+                from exp.r17_integration.models.pi05.adapter import sampler_for_steps
+            else:
+                from exp.r17_integration.models.groot.manifest import sampler_for_steps
+            # Native schedule, independent of a future GPU receipt.
+            sampler = asdict(sampler_for_steps(1))
+        elif miss_steps == 'reduced':
             k, run = REDUCED[bundle]
             sampler = study.read(Path('/data/mw_finetune/eval')/run/'assets/execution_sampler.json')
             if sampler['num_steps'] != k:
@@ -132,8 +150,59 @@ def build(output, *, gaps=GAPS, model=None, table=None, miss_steps='full', parti
     return output/'STUDY.json'
 
 
-def commands(manifest, model, *, miss_steps='full', mode='dev'):
+def calibrate(output, *, sources, model=None):
+    """The existing R17 B-only proxy calibration (vision=0, miss=1)."""
+    from types import SimpleNamespace
+    from exp.r17_integration.common.ir import calibrate_periodic, library_schedule
+    from exp.r17_integration.search.fit import load_fitted_recipe
+    from exp.r17_integration.search.teacher_library import RowIndexStore
+    rows = {}
+    for source in map(Path, sources):
+        for bundle, entries in study.validate_manifest(source)['models'].items():
+            if model and bundle != model:continue
+            for row in entries:
+                if row['group'] == ('crg' if bundle == 'cosmos_libero' else 'chrg'):
+                    rows[bundle,row['suite'],study.library_size(row)] = source.parent,row
+    output = Path(output); output.parent.mkdir(parents=True, exist_ok=True)
+    with output.open('x') as stream:
+        for (bundle,suite,size),(root,row) in sorted(rows.items()):
+            doc = yaml.safe_load((root/row['file']).read_text())
+            r,binding = doc['recipe'],doc['adapter_binding']
+            parent = study.read(Path(row['library'])/'READY.json')
+            fit = load_fitted_recipe(r['fitted_path'], expected_binding=parent['binding'])
+            view = RowIndexStore(study.view_path(row))
+            config = SimpleNamespace(adapter_binding=binding,
+                recipe=SimpleNamespace(ordered_tasks=tuple(r['ordered_tasks']), guard=False))
+            replay = library_schedule(fit,view,config)
+            entry = dict(model=bundle,suite=suite,size=size,commit=fit.commit,
+                calibration_scope='selected B library LOEO; model-call proxy, vision=0/miss=1',levels={})
+            for target in (.5,.4,.3,.2,.1):
+                solved = calibrate_periodic(target,replay,dict(vision=0,miss=1))
+                entry['levels'][str(target)] = dict(gap=solved['setting'], pred=solved['pred_IR_rounded'], status=solved['solve_status'])
+            stream.write(json.dumps(entry)+'\n');stream.flush()
+    return output
+
+
+def commands(manifest, model, *, miss_steps='full', mode='dev', run_name=None):
     """Print lane placeholders or the owner's knob topology; never launch."""
+    if model in VLA_PROFILES:
+        p = VLA_PROFILES[model]
+        name = run_name or p['short']+('_kd' if mode == 'dev' else '_kt')
+        argv = ['--model',model,'--cache-study',str(Path(manifest).resolve()),'--official-50',
+            '--suites',*study.SUITES,'--server-node',p['node'],'--gpu','cuda:0',
+            '--replicas',str(p['replicas']),'--replica-startup-width',str(p['startup']),
+            '--max-batch','1','--mps','--memory-budget-gib',str(p['budget']),
+            '--driver-mode','group-commit','--worker-node','timan107','--extra-workers','0',
+            '--workers',str(p['workers']),'--worker-memory-mib','6144','--worker-vram-mib','1024',
+            '--worker-egl-devices','0,1,2,3,4,5,6,7','--worker-max-episodes','4',
+            '--episode-seconds','1800','--seconds','518400','--port','23160','--driver-port','23169','--run-name',name]
+        prefix = ['env',"CUDA_VISIBLE_DEVICES=",'JAX_PLATFORMS=cpu',
+            'R17_INHERIT_WORKER_DEPLOYMENT=/data/mw_finetune/eval/cosmossizes145_r8c/WORKER_DEPLOYMENT.json']
+        if model == 'pi05_libero':prefix = ['taskset','-c','22-43,66-87',*prefix]
+        python = str(study.ROOT/'.venv/bin/python')
+        entry = [*prefix,python,'-u','-m','exp.r17_integration.ops.formal_eval']
+        return (shlex.join([*entry,*argv,'--prepare-only']),
+                shlex.join([*entry,'--run','--prepared-run','/data/mw_finetune/eval/'+name]))
     argv = cache_lane.launch_args(model, manifest, '${RUN_NAME}', size_count=len(SIZES))
     if miss_steps == 'reduced':
         # Same topology as scratch/r17_ops/knob/prepare_dev.sh; fresh names
@@ -176,7 +245,12 @@ def commands(manifest, model, *, miss_steps='full', mode='dev'):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest='mode', required=True)
+    calibration = sub.add_parser('calibrate')
+    calibration.add_argument('--source',type=Path,action='append',required=True)
+    calibration.add_argument('--model',type=model_name)
+    calibration.add_argument('--out',type=Path,required=True)
     dev = sub.add_parser('dev')
+    dev.add_argument('--model',type=model_name)
     dev.add_argument('--gaps', type=Path, required=True)
     dev.add_argument('--out', type=Path, required=True)
     dev.add_argument('--miss-steps', choices=('full','reduced'), default='full')
@@ -187,11 +261,22 @@ def main(argv=None):
     test.add_argument('--out', type=Path, required=True)
     test.add_argument('--miss-steps', choices=('full','reduced'), default='full')
     test.add_argument('--partial', action='store_true', help='retest: only the tasks listed in the table')
+    for p in (dev,test):
+        p.add_argument('--source',type=Path,action='append',help='Source cache STUDY.json; repeat to combine studies')
+        p.add_argument('--run-name',help='Name used in the printed formal preparation/launch commands')
     args = parser.parse_args(argv)
+    if args.mode == 'calibrate':
+        print('GAPS='+str(calibrate(args.out,sources=args.source,model=args.model)));return 0
     manifest = build(args.out, gaps=args.gaps, model=getattr(args,'model',None), table=getattr(args,'table',None),
-                     miss_steps=args.miss_steps, partial=getattr(args,'partial',False))
+                     miss_steps=args.miss_steps, partial=getattr(args,'partial',False), sources=args.source)
     print('STUDY='+str(manifest))
     for model in study.read(manifest)['models']:
+        if model in VLA_PROFILES:
+            rows = study.read(manifest)['models'][model]
+            count = sum(len(r.get('tasks',range(10)))*len(r.get('indices',range(50))) for r in rows)
+            print(f'{model}: {count} episodes; all model calls K1; C10/Corrector/Q3/Periodic')
+            print('\n'.join(commands(manifest,model,miss_steps='reduced',mode=args.mode,run_name=args.run_name)))
+            continue
         profile = cache_lane.PROFILES[model]
         count = 6000 if args.mode == 'test' else 22200 if args.miss_steps == 'reduced' else 21600
         if args.miss_steps == 'reduced':
