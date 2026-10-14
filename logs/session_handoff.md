@@ -61,7 +61,7 @@ owner 的常驻指令，逐字有效：
 **owner 目标与已定规矩**
 - 会话 goal「开始工作，不收集完数据不停」。owner 在睡觉时独自推进；巡检 prompt 每 30 分钟一次。
 - MetaWorld 只做 **π0.5 / GR00T / DP / Fast-WAM** 四个模型（⛔ Cosmos 只用于 LIBERO，10-09 裁定，记忆 `project-cosmos-libero-only`；H100 上 Cosmos-MW 微调已 SIGTERM 停在 3,896 步，`/data/mw_finetune/cosmos/mt50_h100` 未删，等 owner）。
-- 起点：测试集 seed 7 idx 0–49（2,500 局）；库 seed 8 idx 0–49；seed 9、10 保留；开发集来源**未定（待 owner）**。
+- 起点：测试集 seed 7 idx 0–49（2,500 局）；库 seed 8 idx 0–49（2,500 局全收，就是 cache 集）；seed 9、10 保留。⛔ MT50 不设开发集：逐任务旋钮下降直接在 seed 7 上做（owner 10-13 22:4x 重申「我们不是决议过了吗」，我之前误记成待定）。
 - ⛔ MetaWorld 默认减步数（owner 10-13）：π0.5 2、GR00T 2、Fast-WAM 3、DP 10（DDIM）。缓存系统里所有模型调用都用减步。记忆 `project-new-model-default-reduced-steps`。
 - ⛔ 停滞门只用 Q3（R6/R7 校准停滞触发器，`miss_mode: stall_only` + `stall_path`）；旧 `NoProgressGuard` 已拔（`7ca2c727`，启用即报错）。记忆 `project-stall-gate-q3-only`。
 - ⛔ 不加门：身份指纹门已拔（`validate_teacher` 不再拒，`0b66b0ef`）。门挡路就拔门，不绕（记忆 `feedback-keep-it-simple`）。
@@ -128,7 +128,6 @@ owner 的常驻指令，逐字有效：
 - 最新代码快照 `/data/r17_frozen/openpi_48113e41`（含拔老门、MT50 库不再 import LIBERO bridge、rsync 2 h 上限）；之后新批次用它（改 `run_*` 里的 `S=`）。
 
 **还没做 / 待 owner**
-- 开发集来源（逐任务 IR 旋钮要用）。
 - 缓存研究跑完后：按格汇总、写 RESULTS / 网页（Dashboard `https://claude.ai/artifact/To18VP3TyzS5SXY3MmmUCp` 现在只有 LIBERO）。
 - 拓扑任务 #129：RUN_CONFIGS 的 Fast-WAM 4090 一行还是估计值（`tfw7_0755` 丢了启动器；正式满步在 H100）。
 - Cosmos-MW 训练残留要不要删（owner 定）。
@@ -136,7 +135,7 @@ owner 的常驻指令，逐字有效：
 - 注意：`r17_ops/knob/prepare_dev.sh` 从**活仓库**（不是冻结快照）准备，仓库代码一改就影响后面的 prepare。
 
 **10-12 23:xx 新阶段：MetaWorld MT50 数据收集（owner 定；compact 后先读这段，再读下面 LIBERO 收口段的规矩）**
-- owner 定的起点方案：测试集 = seed 7 的 idx 0–49（每任务 50 局，共 2,500 局，官方口径）；缓存/建库 = seed 8 的 idx 0–49（seed 9、10 保留，现在只做一组）。旧 `benchmarks/spec.py` 是 seed 7 内按 idx 段切 测试 0–9 / 建库 10–29 / 开发 30–49，要改。开发集来源待 owner 定。
+- owner 定的起点方案：测试集 = seed 7 的 idx 0–49（每任务 50 局，共 2,500 局，官方口径）；缓存/建库 = seed 8 的 idx 0–49（seed 9、10 保留，现在只做一组）。旧 `benchmarks/spec.py` 是 seed 7 内按 idx 段切 测试 0–9 / 建库 10–29 / 开发 30–49，要改。（MT50 不设开发集，旋钮直接在 seed 7 上下降，见上方当前状态块。）
 - 目标：5 个模型（π0.5、GR00T、DP、Fast-WAM、Cosmos）在 MT50 seed 8 上各收满 2,500 局，不存图片（估算合计 ~24 GB，最坏 ~37 GB）；5 个模型都要试出推荐拓扑，**打满吞吐**（owner：「打不满就是你的问题」），写进 `RUN_CONFIGS.md` 新增 MetaWorld 一节。
 - 可用设备（owner 10-12 23:xx 当次授权）：服务端 weilandserver（4090）、h100；worker 只在 timan107 和 **timan1 的 GPU 3**（timan1 本次特例只用于 MetaWorld worker，不进记忆；timan1 代码上限 40 worker）。
 - R17 debug 定为系统层面统一的 debug（旧 osdebug 只停用入口：π0.5/GR00T 的 `server/observer.py` 钩子和旧 `DataCollector` h5；`exp/offline_search/debug` 的写盘器、格式、读取器、传输被 R17 复用，不删）。要加：不存图片开关（含 π0.5 `model_input_base_rgb`）、相机数跟 benchmark（MT50 = 1 路）。
@@ -174,7 +173,7 @@ owner 的常驻指令，逐字有效：
 - **15:2x**：DP 缓存研究 `csdp_1504`（H100）在跑，约 460 局/分，0 报错（第一次 `csdp_1451` 失败：`driver_release.planned_tasks` 算 12 万局计划限时 120 秒，实测约 140 秒；已改 1800 秒，`8bc82127`，`run_cs` 用快照 `openpi_8bc82127`）。之后 Fast-WAM `csfw_*`。π0.5 K5 1,508/2,500，约 15:50 完，之后 4090 测 IR。
 - **15:00 IR 测量**：sol 交回 `profile/{latency,certify}.py` 的 MT50 四模型支持（`4945f756`，61 个 CPU 测试过，没加门）。库不存图片，测量输入用 timan107 渲染的一帧 `profile/inputs_mt50/assembly_seed8_idx0.npz`（assembly-v3、seed 8、idx 0，480² 旋转 180°，state4；被 gitignore，未入库），通过 `--observations … --descriptor <库批次 assets/load.json>` 传入。4090 链换成 `chain_cs_4090b`：π0.5 K5 结束且 4090 无 MPS、无其他进程后依次测 dp_mw、fastwam_mw、pi05_mw、groot_mw（结果 `profile/results_mt50/`，日志 `mw/profile_<m>.log`），再跑 GR00T、π0.5 缓存研究。π0.5 K4 50.0/58.9。
 - **14:4x 缓存变体排期（owner：「IR只能在4090测试…把每个模型每一档位的纯cache组、纯cache+修正器组…（网页第一个表格所有变体，没有IR旋钮）加入排期」）**：研究在 `/data/r17_library/studies_mt50/{dp_k10,fw_k3,gr_k2,pi_k2}`（`cache_study generate --sizes 250 500 1000 1500 2000 2500 --miss-steps K`；`9e22e064` 新增 250 档和 `--miss-steps`），MISS 步数取追平满步的最少步数 DP DDIM10 / Fast-WAM K3 / GR00T K2 / π0.5 K2（owner 可改）。组：c cr ch chr cg crg chg chrg（π0.5 只有 c cr cg crg，做不了长执行段）。每格 seed 7 全测试集 2,500 局，共约 42 万局。H100 tmux `mw_cs_h100`：DP `csdp_*`（R4 B8，driver 23110）→ Fast-WAM `csfw_*`（R3 B16，driver 23111），worker timan107×30 + timan1×20；4090 tmux `mw_cs_4090`：π0.5 K5 后 GR00T `csgr_*`（R6）→ π0.5 `cspi_*`（R5），worker timan107×24 + timan1×20，driver 23169。两条链等各自研究的 `cache_study fit` 补齐（chain.log `cache-study fit <名> rc=0 pending=0`）。IR：现有 `profile/certify.py` 只支持 LIBERO 三模型；已派 sol（tmux `cx_mwprof`，任务书 `rounds/r17/prompts/sol_mw_profile.md`，日志 `r17_ops/sol_mw_profile.log`）扩到 MT50 四模型，只写 CPU 部分；GPU 测量由协调者在独占 4090 上跑。
-- **14:00 建库前置**：四个 MT50 库都有每任务 5/10/20/30/40/50 六档（`bpool/subsets/size_N` + `bpool/fits/size_N`），5 这一档用 `mw/add_size5.py` 从全集切出并拟合（`openpi_0b66b0ef`，拟合代码自 35b042cc 未变）。核对：每档四个模型 episode 列表完全相同（`library_episode_id` = 任务序号×50+idx，seed 8，每档取 idx 0..N-1，嵌套）；每档 fit 的 `store_digest` 等于本档 VIEW，PCA/马氏/LOEO corrector/距离标定/上限/停滞门/周期旋钮只在本档子集上拟合，LOEO 排除本档内自身那一局。**缺口**：各档周期旋钮 IR 标定为 `pending_cost_qualification`，需先测每个模型在 MT50 上的原生逐阶段成本（LIBERO 时跑过 profile）；开发集来源待 owner 定。
+- **14:00 建库前置**：四个 MT50 库都有每任务 5/10/20/30/40/50 六档（`bpool/subsets/size_N` + `bpool/fits/size_N`），5 这一档用 `mw/add_size5.py` 从全集切出并拟合（`openpi_0b66b0ef`，拟合代码自 35b042cc 未变）。核对：每档四个模型 episode 列表完全相同（`library_episode_id` = 任务序号×50+idx，seed 8，每档取 idx 0..N-1，嵌套）；每档 fit 的 `store_digest` 等于本档 VIEW，PCA/马氏/LOEO corrector/距离标定/上限/停滞门/周期旋钮只在本档子集上拟合，LOEO 排除本档内自身那一局。**缺口**：各档周期旋钮 IR 标定为 `pending_cost_qualification`，需先测每个模型在 MT50 上的原生逐阶段成本（LIBERO 时跑过 profile）。
 - **13:35 结果**：π0.5 K3 **53.1**/61.3，高于满步 K10（46.7/56.3）和 K2（48.7/59.6）：π0.5 在 MT50 上少步更好。在跑 π0.5 K4（4090），之后 K5（约 15:10 完）。
 - **12:3x 结果**：Fast-WAM 阶梯齐（K1 27.6 / K2 41.4 / K3 44.0 / K4 44.0 / K5 44.7，满步 43.7；按任务 44.6/57.0/59.1/58.5/58.7，满步 57.2），π0.5 K2 48.7/59.6（满步 46.7/56.3）。四个模型都有减步档追平满步：DP DDIM10、Fast-WAM K3、GR00T K2、π0.5 K2。在跑 π0.5 K3（4090），之后 K4、K5（约 14:30 完）。H100 空闲（π0.5 留在 4090 保持同一环境）。下一步旋钮需要 owner 定开发集。
 - **11:5x 结果**：GR00T K3 67.0/75.2（与满步持平，GR00T 阶梯齐），Fast-WAM K4 44.0/58.5。在跑 π0.5 K2（4090）、Fast-WAM K5（H100，最后一档）；之后 4090 π0.5 K3–K5（每档约 45 分钟）。
