@@ -56,6 +56,14 @@ owner 的常驻指令，逐字有效：
 
 ### 1.R16 正在做：纯减步融入闭环（owner 10-07 目标"融入纯减步并实验"，会话 goal 仍挂着）
 
+### ★★★★★ 2026-10-14 13:5x CDT 增量（最先读）
+
+- 4090 A/B 定配（RUN_CONFIGS「Size a lane from measured supply and demand…」）：A 本机×96 35.9 请求/s（SM 81%，抖）；B 远程 107×40 33.4（SM 57%，worker 往返 244 ms、入口 23 MB/s）；**C = R4 B8 W5 + `--wire-zlib` + timan107×80（8 卡）+ 本机×32 = 65.5 请求/s（扫描预测 98%），131–176 局/分 → 生产配置**。在跑 `pimk1_fuld`（tmux `mwl_ab_d`，标签 `[4090ab]`），之后 tmux `mwl_4090n`（`mwlocal/chain_4090n.run.sh`）跑 `cspi_k2vc` → `pimk1_redc`（同 C 配置，快照 `0c205b57`）。`pimk1_ful` 段：pimk1_ful 4,006 + pimk1_fulb 1,761 + pimk1_fulc4 502 + pimk1_fuld …（合并统计要 `--merge` 全部段；pimk1_fulc/fulc2 失败 0 局）。
+- 新代码：`c15a78dc` write_json 按进程临时名（3 副本同写 manifest 竞态，pimk1_fulc 死于此）；`0c205b57` 可选无损线上压缩 `--wire-zlib`（worker zlib-1 大 uint8 数组，接收端两种都收；真实图 691→252 KB；缓存运行时带新 codec）+ cache_resume 的 extra 在部署 worker 前生效；`915f9a30` 通用供给扫描 `profile/supply_{proc,sweep,report}`。
+- 带宽：worker 机都是千兆口（timan1 给 H100 GR00T 车道发 122 MB/s=98%，H100 SM 才 55%）→ H100 车道也要多节点 + zlib。timan108：EGL 设备号=内核 minor（与 nvidia-smi 序号反向），minor 0/1（序号 3/2，空卡）EGL 初始化失败，minor 2/3（序号 1/0）可渲染但已被占（22 GB/9 GB）→ 暂不用，已请 owner/管理员查。timan107 有 EGL 大车队宕机史（108 09-10 同类）→ 107 只给 4090 的 80 个。
+- H100：`grmk1_red` 13:37 完 90,000；GR00T 减步旋钮分析已提交（`rounds/r17/knob/mt50/groot_reduced`：各档组均值 65.9–66.3 vs 纯推理 66.3，IR 0.53–0.66）。13:39 起独占扫描（`mtk/h100_sweep.sh`，报告拉回 `mtk/h100_sweep_report.txt`）：DP K100 R8 B32 混合 654 请求/s（R8 B8 338，R12 B32 699，GPU 95%），DP K10 已出，FW 在扫。v11b（tmux `mtk_h100_v11b`）：扫描完 → `tdp7h1_full` → `csfw_k3w3`（Fast-WAM 缓存续跑 74,234，新运行时 + zlib + timan1×40，准备中）。之后 v12 按扫描结果配 DP/FW 旋钮（R8 B32 等）。`csfw_k3w`/`csfw_k3w2` 作废。
+- 磁盘：107 删旧 runs 24 GB（89%→77%）；timan1 删旧 runs+/tmp 27 GB；NFS 家目录删 pip/uv 缓存 39 GB（NFS 100%）。未动：107 Isaac-GR00T 33 GB 等、timan1 /tmp/r17_t1_provision 8.9 GB、yurenh2 的目录。
+
 ### ★★★★ 2026-10-14 12:5x CDT 增量（最先读）
 
 - 批处理上线：sol 交回 π0.5/GR00T 跨连接分段批处理（`f6d41528`，通用 `common/batch_runtime.py`，formal_eval `--max-batch/--batch-wait-ms` 对 pi05/groot 开放；Cosmos 被 stage2 不可拆闭包挡住，未做；GR00T K 仍启动时固定）。GPU 等价性：噪声逐请求一致、B8 动作差在 bf16 舍入内（π0.5 0.0023 归一化、GR00T 0.0078=1 ulp）。快照 `/data/r17_frozen/openpi_f6d41528`。
