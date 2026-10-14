@@ -1187,6 +1187,9 @@ of the link, while the H100 SM averaged 55%), so H100 lanes need several worker 
 - H100 supply (14:03 sweep, `mtk/h100_sweep_report.txt`): DP K100 calls are GPU-bound at ~131/s (R8 B32, 95%; R12 +5%);
   DP K10 supplies >1,000 calls/s even at R4 B16, far above what 40 workers can send; Fast-WAM K10 R3 B16 ~205 req/s at
   hit share 0.82 (B8 ~166), R3 is the VRAM cap.
+- Live DP K100 knob lane `dpmk1_fulx` (R8 B32 W5, 40 GiB, timan1 + timan107 + timan108 x40, zlib), 2026-10-14 16:47-16:51:
+  ~120 req/s at hit share 0.47 (~63 model calls/s), mean service 0.79 s, H100 SM 100% in every second of a 30 s dmon,
+  350-410 episodes/min, 0 errors. GPU-bound: more workers will not help this lane.
 
 ### Check the worker node's disk before preparing, and watch long MT50 lanes
 
