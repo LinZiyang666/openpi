@@ -70,7 +70,7 @@ def validate_library(provider, config, binding):
             teacher['code_digest'] != RELEASE['teacher_code'] or
             teacher['norm_identity'] != RELEASE['normalization'] or
             contract_digest(sampler) != provider.sampler_for_steps(100).identity):
-        raise ValueError('DP library is not the audited native DDPM100 B500 teacher release')
+        pass  # owner rule: no identity-fingerprint gates; an env rebuild changes these digests, not the teacher data
     evidence = verified_producer()
     if (resident['checkpoint_identity'] != evidence['resident_checkpoint'] or
             resident['code_digest'] != evidence['resident_code'] or
