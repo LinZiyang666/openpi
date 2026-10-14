@@ -1131,6 +1131,14 @@ Queue scripts wait on `grep -q PHRASE chain.log`. At 23:36 on 2026-10-13 the H10
 resume on top of the running GR00T campaign (stopped by PID 25 s later, before any replica loaded). Grep the full
 tagged line (`"\[h100-v5\] h100-v5 chain done"`) and never write a launch trigger phrase into a coordinator note.
 
+### H100 root disk fills with campaign staging
+
+H100 `/` is only 58 GB and every H100 campaign stages 0.6–2.7 GB under `/tmp/r17_formal/<run>` (startup assets,
+server campaign, replica logs) that nothing removes. On 2026-10-13 23:51 `/` reached 100% (137 MB free) while
+`csgr_h5` was serving; a prepare failed with `No space left on device`. Closed campaigns' staging dirs were moved
+(not deleted) to `/data/r17_formal_moved/` on H100 (`/` back to 61%). Check `df -h /` on H100 before a queue of
+H100 prepares and move closed runs' `/tmp/r17_formal/<run>` to `/data/r17_formal_moved/`.
+
 ### Prestage queued campaigns
 
 Use `ops/formal_queue.sh` and immutable preparation while the previous job runs.
