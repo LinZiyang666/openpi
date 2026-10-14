@@ -95,6 +95,12 @@ owner 的常驻指令，逐字有效：
   - DP（`csdp_1504`，**48 格全部完成**，120,000 局，0 报错；receipt 为 FAIL 只因 finalize 的「CPU evidence finalizer readiness deadline exceeded」，数据完整、进程全关；每任务 5/10/20/30/40/50 条 = n250/500/1000/1500/2000/2500）：c 27.9/35.9/40.4/41.6/42.2/43.0；cr 30.4/38.4/42.8/42.6/42.7/44.3；cg 28.8/37.7/41.2/42.2/43.1/44.6；crg 30.8/40.0/42.9/43.4/43.9/45.4；ch 23.2/32.2/36.0/38.9/40.4/40.8；chr 24.9/32.5/36.8/39.7/40.7/41.8；chg 23.1/32.4/36.3/39.0/40.6/40.9；chrg 25.1/33.3/36.8/39.8/40.7/41.5。库越大越好，修正器 +1–3 点，停滞门 +0.5–1 点，C10 比 C5 低 3–4 点；最好 crg n2500 45.4（按任务 59.4），比 DDIM10 纯推理 47.9 低 2.5 点、比满步 46.0 低 0.6 点。
   - π0.5（`cspi_k2`）：c 21.6/30.0；cr 25.9/35.2；cg 21.9/32.0（n500 部分）；crg 26.6（n250）。
 
+**00:3x timan107 tether agent 离线（最新，覆盖下面的队列）**
+- ~00:21 起 timan107 的 tether agent OFFLINE（机器在：它的 worker 还在给 csgr_h5 收局；我从 timan1 ssh 不进去，已 PushNotification 给 owner，需要 owner 在 timan107 上重启 `tether agent`）。两个启动器对 timan107 的存活探测重试满 300 s 后都停批（00:31）：`cspi_k2` 54,976/60,000、`csgr_h5` 24,406/120,000。
+- 按 PID 停了等待中的 `vla_4090c`、`mw_h100_v5`、`mtk_h100_v6`（都只在 sleep，没启动东西）。
+- 现在：4090 tmux `vla_4090d`（只用本机 worker）：`fsreddp2` → `fsredfw`。H100 tmux `mw_h100_v7`：`csgr_h6`（cache_resume 续跑 csgr_h5，worker 只用 timan1×40）。
+- timan107 恢复后要接回：`cspi_k2` 剩 5,024 局续跑（cache_resume）；π0.5/GR00T LIBERO 冒烟 `pl_smk`/`gl_smk`、建库 `pl_sp`/`pl_10`；H100 的 `fsredcos`、`tgr7h_k2`、`tgr7h_full`、`csfw_k3v`、`tdp7h_full` 与 MT50 旋钮 6 批（都已准备，worker 含 timan107）。π0.5 旋钮两批在 4090。
+
 **23:3x H100 队列（最新）**
 - v5（tmux `mw_h100_v5`）：`csgr_h5` 23:04 起（R8，~330 局/分，主机受限，预计 ~05:15 完）→ `fsredcos`（已准备）→ `tgr7h_k2`、`tgr7h_full`（已准备）。`csfw_k3s` 被跳过（它的 PREPARED.json 挪成 `.superseded`：旧 `cache_resume.select` 的逐决策 ACK 审计把 45,766 个有效局全判缺失，计划了 12 万局）。
 - v6（tmux `mtk_h100_v6`，`mtk/chain_h100_v6.sh`，快照 `272ca119`，标签 `[h100-v6]`）：等 v5 的完成行（精确匹配带 `[h100-v5]` 标签的整行）→ `csfw_k3v`（简化后的续跑，只补缺的 74,234 局；`csfw_k3t` 23:36 被 v6 误启动后按 PID 停掉作废；`csfw_k3u` 因 H100 根分区满准备失败——已把 H100 `/tmp/r17_formal` 里已结束批次挪到 `/data/r17_formal_moved/`，`/` 61%）→ `tdp7h_full`（DP 满步 H100 基线）→ MT50 旋钮 `dpmk_ful`、`dpmk_red`（DP R8 B8）、`fwmk_ful`、`fwmk_red`（FW R3 B16）、`grmk_ful`、`grmk_red`（GR00T R11，驱动口 23149）。每个在上一个收局后再准备。
