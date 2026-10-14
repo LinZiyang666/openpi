@@ -61,6 +61,7 @@ owner 的常驻指令，逐字有效：
 - owner 10:4x：「接下来尝试在4090同时部署worker和server，server的replica的数量可以下去一点」「可能需要mpsserver」→ 已做：本机 MetaWorld worker 走本机现成的 `openpi_ext/envs/metaworld_sim`（metaworld 3.0.0 / mujoco 3.14.0 / gymnasium 1.3.0 / numpy 1.26.4，与 timan 完全一致），改动 `fbe96912`（`worker_installs.LOCAL_METAWORLD_PYTHON` + `prepare_workers` 的 local MW 分支 + local HOME），快照 `/data/r17_frozen/openpi_fbe96912`（已补 assets/pi05_libero、dp vendor、libero_library_alignment）。
 - 冒烟 `mwl_smoke1`（π0.5 R1 MPS + local×2，--smoke）10:48 PASS 4/4、0 报错。实测每个本机 MW worker 133 MiB 显存、~490 MB RSS、CPU ~3%。
 - 4090 链 tmux `mwl_4090k`（`openpi_ext/scratch/r17_ops/mwlocal/chain_4090k.run.sh`）：π0.5 一律 **R4 MPS**（比 R5 少一个，给 EGL 留显存）+ **local×40**，端口 23150/23159，副本+代理 NUMA1（pin_local.sh），worker NUMA0（mwlocal/pin_workers.sh）。队列按「谁先准备好谁先跑」：`pimk1_ful`（π0.5 MT50 全步旋钮 90,000 局，参照 `tpi7_0536`）10:50 起跑 → `cspi_k2v`（cspi_k2 剩 5,024 局续跑，tmux `mwl_prep_k2v` 在准备，`cache_resume.prepare(..., worker_counts={'local':40}, replicas=4)`）→ `pimk1_red`（减步旋钮，参照 `tpi7k2_1135`，在 pimk1_ful 收局后准备）。日志标签 `[4090k]`。
+- 11:24 巡检：`pimk1_ful` 实测 75 局/分（15 分钟窗口，0 报错，GPU 40–54%，37 GB，副本 CPU 72–88%）→ 90,000 局约 20 h（~07:00 10-15）；`cspi_k2v`、`pimk1_red` 都已准备好排队。H100 `grmk1_red` 33,838/90,000（~419 局/分，预计 ~13:40 完）。timan107 仍离线（11 h）。
 - 本机 23170 上 26 h 前残留的 Fast-WAM 代理（pid 2397983）已按 PID 关。
 - timan1 泄漏结论：81 个进程 4 分钟平均 334→337 MB（+2.8 MB），最大 +35 MB；整机 37/503 GB → 无实质泄漏。RUN_CONFIGS 新增「Check the worker node's disk before preparing, and watch long MT50 lanes」。
 
