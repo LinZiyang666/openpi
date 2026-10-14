@@ -90,6 +90,7 @@ owner 的常驻指令，逐字有效：
 **排期：π0.5 / GR00T 的 LIBERO 八组缓存研究（owner 10-13 20:2x 要求「加入排期，之后跑」）**
 - 现状：LIBERO 上 π0.5/GR00T 只有 R10 纯缓存和 R15 纯缓存 + 修正器（网页已加表）；R10 的门控组用的是已拔的旧守卫，Q3 组没跑。R17 的 π0.5/GR00T 包只支持 MetaWorld。
 - 20:2x 派 sol（tmux `cx_libvla`，日志 `openpi_ext/scratch/r17_ops/sol_libero_vla.log`，任务书 `rounds/r17/prompts/sol_libero_vla.md`，交回 `handbacks/HANDBACK_LIBERO_VLA.md`）做 CPU 准备：`pi05_libero`/`groot_libero` 进 R17（沿用 R10/R16 的 LIBERO 权重、两路相机、16×2048 池化键）、B500 建库与 C5/C10 拟合、Q3 停滞门、cache_study（长段 C10，MISS 原生 K：π0.5 K10、GR00T K4）。交回后亲自审 diff。
+- **还要重做 π0.5/GR00T 的 k=1 逐任务旋钮（10-13 20:4x 查出）**：R16 的 k=1 档位拿**满步**纯推理当参照，且最高档 c10（k 步纯推理）不检查就兜底。开发集上 17 个 k=1 任务停在 c10，其中 9 个 k=1 纯推理本身就比满步少 >1 局（如 π0.5 spatial 500 任务 0：c10 26/30、ir45 27/30、参照 29/30），白付调用成本。按 R17 规则重做（参照 = k=1 纯推理，测试后逐任务提档到少 ≤2 局），接在八组缓存研究之后。网页上 π0.5/GR00T 旋钮表的 k=1 列目前仍是 R16 旧结果。
 - GPU 顺序（MetaWorld 四模型收完后）：建库（2 模型 × 2 套件 × 500）→ 同卡纯推理基线（official-50）→ 缓存研究（每模型 8 组 × 6 档 × 2 套件 × 500 = 48,000 局）。π0.5 放 4090（R5 MPS，绑 NUMA 1），GR00T 放 H100。
 
 **脚本**（`openpi_ext/scratch/r17_ops/mw/`；`.run.sh` 是运行中的不可改副本）
