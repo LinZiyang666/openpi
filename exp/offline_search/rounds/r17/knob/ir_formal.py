@@ -12,6 +12,10 @@ when it runs on the GPU. DP's CLIP text encoder runs on the CPU: neither side co
 runs on the GPU inside stage2: the denominator counts it, the numerator uses the cached-text stage2.
 Cosmos does not re-encode text per request.
 
+MT50 uses results_mt50's supplied stage costs for all four models. DP's CPU
+text time is excluded on both sides. MT50 Fast-WAM retains measured stage2;
+the LIBERO-only cached-text stage2 profile is not substituted for MT50.
+
 usage: ir_formal.py --test FULL_OR_REDUCED:path/test.json ... --out DIR
 """
 import argparse
@@ -31,12 +35,14 @@ SUITES = {"libero_10": "长任务", "libero_spatial": "空间任务"}
 
 def coefficients(model, suite):
     """(system, pure): per-decision costs in units of the full-step pure-inference decision."""
-    r = json.loads((PROFILE / "results" / f"{MODELS[model]}_{suite}.json").read_text())
+    bundle = c.MODEL_IDS[model]+"_mw" if suite == "mt50" else MODELS[model]
+    directory = "results_mt50" if suite == "mt50" else "results"
+    r = json.loads((PROFILE / directory / f"{bundle}_{suite}.json").read_text())
     stage1, stage2 = r["stage1_ms"], r["stage2_ms"]
     if model == "DP":  # CPU CLIP text: counted on neither side
         stage1 -= r["dp_cpu_text_encoder_ms"]["median"]
     system_stage2 = stage2
-    if model == "Fast-WAM":  # GPU T5 in stage2: pure inference pays it, the cache system does not
+    if model == "Fast-WAM" and suite != "mt50":  # GPU T5 in stage2: pure inference pays it, the cache system does not
         system_stage2 = json.loads((PROFILE / "results_cached_text" / f"{MODELS[model]}_{suite}.json").read_text())["stage2_ms"]
     unit = stage1 + stage2 + r["stage3_full_loop_ms"]
     def coef(s2):
@@ -64,22 +70,29 @@ def main(argv=None):
             system, pure = coefficients(model, suite)
             c0 = c.C0[model]
             rows.append(dict(model=model, suite=suite, size=cell["size"], steps=steps, sr=cell["sr"],
-                             control_sr=cell["control"]["sr"], ir_proxy=cell["ir_proxy"],
-                             vision_ratio=(cell["policy"] + cell["library"]) * c0 / cell["controls"],
-                             ir=ir(cell, system, miss_key, c0), pure_ir=pure["vision"] + pure[miss_key]))
+                             control_sr=cell["control"]["sr"],
+                             group_mean=cell.get("group_mean"), task_mean=cell.get("task_mean"),
+                             control_group_mean=cell["control"].get("group_mean"),
+                             control_task_mean=cell["control"].get("task_mean"), ir_proxy=cell["ir_proxy"],
+                             vision_ratio=(cell["policy"] + cell["library"]) * c0 / cell["controls"] if cell["controls"] else None,
+                             ir=ir(cell, system, miss_key, c0) if cell["cost_n"] == cell["n"] and cell["controls"] else None,
+                             pure_ir=pure["vision"] + pure[miss_key]))
     a.out.mkdir(parents=True, exist_ok=True)
     (a.out / "ir_formal.json").write_text(json.dumps(rows, indent=1, ensure_ascii=False))
     lines = ["# 逐任务旋钮的正式 IR（按 batch=1 延迟实测）", "",
              "IR = [视觉系数 ×（调用次数 + 命中次数）+ 调用系数 × 调用次数] ÷（控制步数 ÷ C0），"
              "以全步数纯推理的一次决策为 1。减步版用减步调用系数。"
              "文本编码：缓存系统不计只服务文本模态的编码（提示词固定）；纯推理里在 GPU 上的计入、在 CPU 上的不计。"
-             "所以 DP 的 CPU CLIP 两边都不计，Fast-WAM 的 GPU T5 只计入纯推理。纯推理一列是纯推理（减步版为减步纯推理）的 IR。", "",
+             "LIBERO Fast-WAM 的 GPU T5 只计入纯推理；MT50 使用提供的实测 stage2，不替换成 LIBERO 的文本缓存成本。"
+             "MT50 成功率先列四难度组等权均值，再列逐任务均值。纯推理一列是同步数纯推理的 IR。", "",
              "| 模型 | 步数 | 任务套件 | 库集数 | 成功率 | 纯推理成功率 | 调用比例（旧代理） | 视觉比例 | IR | 纯推理 IR |",
              "|---|---|---|---:|---:|---:|---:|---:|---:|---:|"]
     for r in rows:
-        lines.append(f"| {r['model']} | {'减步' if r['steps'] == 'reduced' else '全步数'} | {SUITES[r['suite']]} | {r['size']} | "
-                     f"{100*r['sr']:.1f}% | {100*r['control_sr']:.1f}% | {r['ir_proxy']:.3f} | {r['vision_ratio']:.3f} | "
-                     f"{r['ir']:.3f} | {r['pure_ir']:.3f} |")
+        sr = (c.percent(r['group_mean'])+' / '+c.percent(r['task_mean'])) if r['suite']=='mt50' else c.percent(r['sr'])
+        control_sr = (c.percent(r['control_group_mean'])+' / '+c.percent(r['control_task_mean'])) if r['suite']=='mt50' else c.percent(r['control_sr'])
+        lines.append(f"| {r['model']} | {'减步' if r['steps'] == 'reduced' else '全步数'} | {c.SUITE_LABELS[r['suite']]} | {r['size']} | "
+                     f"{sr} | {control_sr} | {c.number(r['ir_proxy'])} | {c.number(r['vision_ratio'])} | "
+                     f"{c.number(r['ir'])} | {r['pure_ir']:.3f} |")
     (a.out / "IR_FORMAL.md").write_text("\n".join(lines) + "\n")
     print(len(rows), "cells")
 

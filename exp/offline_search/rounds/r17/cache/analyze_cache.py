@@ -97,7 +97,8 @@ def physical_groups(model):
 
 
 def canonical(task):
-    return task["experiment"], task["extra"]["task_name"], task["orig_init_state_idx"]
+    suite = "mt50" if task["experiment"] == "metaworld_mt50" else task["experiment"]
+    return suite, task["extra"]["task_name"], task["orig_init_state_idx"]
 
 
 def resume_segments(run, sources):
@@ -176,7 +177,7 @@ def maybe_finish(d):
         finish_episode(d)
 
 
-def load_lane(run, snapshot, sources, sizes):
+def load_lane(run, snapshot, sources, sizes, suites=SUITES):
     segments = resume_segments(run, sources)
     campaign = segments[-1][1]
     model = MODEL_IDS[campaign["model"]]
@@ -192,7 +193,7 @@ def load_lane(run, snapshot, sources, sizes):
         tasks.update((t["task_uid"], t) for t in sources.obj(plan_path).get("tasks", []))
     cells, task_cells = defaultdict(dict), {}
     for uid, t in tasks.items():
-        if t["experiment"] not in SUITES:
+        if canonical(t)[0] not in suites:
             continue
         key = canonical(t); ex = t["extra"]
         g = ex.get("cache_group", "control")

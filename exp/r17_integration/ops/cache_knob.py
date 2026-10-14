@@ -27,51 +27,74 @@ VLA_PROFILES = {
 }
 SOURCES = (study.HERE/'sizes/STUDY.json', study.HERE/'yaml/STUDY.json')
 SIZES = (50, 100, 200, 300, 400, 500)
+MW_SIZES = (250, 500, 1000, 1500, 2000, 2500)
+MW_SOURCES = {m: Path("/data/r17_library/studies_mt50")/s/"STUDY.json"
+              for m,s in zip(study.MW_MODELS, ("dp_k10", "fw_k3", "pi_k2", "gr_k2"))}
+MW_STEPS = {"dp_mw": (100, 10), "fastwam_mw": (10, 3), "pi05_mw": (10, 2), "groot_mw": (4, 2)}
+MW_PROFILES = {
+    "dp_mw": dict(node="h100", replicas=4, startup=3, batch=8, budget=24, workers="timan107=30,timan1=20", port=23180, driver=23189),
+    "fastwam_mw": dict(node="h100", replicas=3, startup=3, batch=16, budget=76, workers="timan107=30,timan1=20", port=23170, driver=23179),
+    "pi05_mw": dict(node="local", replicas=5, startup=3, batch=1, budget=47, workers="timan107=24,timan1=20", port=23160, driver=23169),
+    "groot_mw": dict(node="h100", replicas=8, startup=4, batch=1, budget=56, workers="timan107=40,timan1=20", port=23160, driver=23169),
+}
 LEVELS = {'k50':'0.5', 'k40':'0.4', 'k30':'0.3', 'k20':'0.2', 'k10':'0.1', 'koff':None, 'pure':None}
 
 
 def model_name(value):
-    name = value.lower().replace('-', '').removesuffix('_libero')+'_libero'
-    if name not in study.LIBERO_MODELS:
-        raise argparse.ArgumentTypeError('model must be dp, fastwam, cosmos, pi05 or groot')
+    value = value.lower().replace('-', '')
+    name = value if value.endswith('_mw') else value.removesuffix('_libero')+'_libero'
+    if name not in study.MODELS:
+        raise argparse.ArgumentTypeError('model must be a LIBERO or MT50 cache-study selector')
     return name
 
 
-def build(output, *, gaps=GAPS, model=None, table=None, miss_steps='full', partial=False, sources=None):
-    """Copy complete-group YAMLs and artifacts; never fit or launch anything."""
-    sources = [(Path(path), study.validate_manifest(path)) for path in (sources or SOURCES)]
+def mw_sampler(bundle, miss_steps):
+    """Native CPU sampler metadata from the supplied MT50 stage profiles."""
+    k = MW_STEPS[bundle][miss_steps == 'reduced']
+    path = study.ROOT/'exp/r17_integration/profile/results_mt50'/(bundle+'_mt50.json')
+    return study.read(path)['cells'][str(k)]['sampler']
+
+
+def build(output, *, gaps=GAPS, model=None, table=None, miss_steps='full', partial=False, sources=None, sizes=None, levels=None, mode=None):
+    """Reuse full-system YAMLs: LIBERO B30, MT50 direct seed-7 A50 descent."""
+    sources = [(Path(path), study.validate_manifest(path)) for path in (sources or ([MW_SOURCES[model]] if model in MW_SOURCES else SOURCES))]
+    sizes = tuple(sizes or (MW_SIZES if model in study.MW_MODELS else SIZES))
     base = {}
     for path, manifest in sources:
         for bundle, rows in manifest['models'].items():
             for row in rows:
-                if row['group'] == ('crg' if bundle=='cosmos_libero' else 'chrg'):
+                if row['group'] == study.full_group(bundle):
                     base[bundle, row['suite'], study.library_size(row)] = path.parent, row
     gap_rows = {}
     if Path(gaps).exists():
         for line in Path(gaps).read_text().splitlines():
             if line.strip() and line.strip()!='DONE':
                 entry = json.loads(line)
-                gap_rows[model_name(entry['model']), entry['suite'], int(entry['size'])] = entry['levels']
-    test = table is not None
-    levels_table = study.read(table) if test else None
-    if test:
+                gap_rows[model_name(entry['model']), entry['suite'], int(entry['size']), entry.get('miss_steps', 'full')] = entry['levels']
+    mt50 = model in study.MW_MODELS
+    test = mt50 or ((mode == 'test') if mode else table is not None)
+    levels_table = study.read(table) if table else None
+    if table:
         label = {'pi05_libero':'π0.5', 'groot_libero':'GR00T', 'dp_libero':'DP',
-                 'fastwam_libero':'Fast-WAM', 'cosmos_libero':'Cosmos'}.get(model)
+                 'fastwam_libero':'Fast-WAM', 'cosmos_libero':'Cosmos',
+                 'dp_mw':'DP', 'fastwam_mw':'Fast-WAM', 'pi05_mw':'π0.5', 'groot_mw':'GR00T'}.get(model)
         if label in levels_table:levels_table = levels_table[label]
     # Existing knob sources cover their own model cohort; new cache-study
     # selectors need their libraries before they can join a knob generation.
     models = (model,) if model else tuple(dict.fromkeys(bundle for bundle,_,_ in base))
-    if test and model not in study.MODELS:
+    if table and model not in study.MODELS:
         raise ValueError('TEST requires one model')
     output = Path(output).resolve()
     result = copy.deepcopy(sources[0][1])
-    result.update(models={}, groups=[], library_sizes=list(SIZES), knobs=True,
+    result.update(models={}, groups=[], library_sizes=list(sizes), knobs=True, miss_steps=miss_steps,
                   eval_pool='A' if test else 'B', inits=50 if test else 30, artifacts_pending=[])
     documents = []
     missing = []
     for bundle in models:
         sampler = None
-        if bundle in VLA_PROFILES:
+        if bundle in study.MW_MODELS:
+            sampler = mw_sampler(bundle, miss_steps)
+        elif bundle in VLA_PROFILES:
             if bundle == 'pi05_libero':
                 from exp.r17_integration.models.pi05.adapter import sampler_for_steps
             else:
@@ -84,33 +107,35 @@ def build(output, *, gaps=GAPS, model=None, table=None, miss_steps='full', parti
             if sampler['num_steps'] != k:
                 raise ValueError(f'{run}: expected reduced K{k}')
         rows = result['models'][bundle] = []
-        for size in SIZES:
-            for suite in study.SUITES:
+        for size in sizes:
+            for suite in study.suites_for(bundle):
                 source, original = base[bundle, suite, size]
                 document = yaml.safe_load((source/original['file']).read_text())
-                names = [name for name in document['recipe']['ordered_tasks'] if name.startswith(suite+'/')]
-                if test:
+                names = [name for name in document['recipe']['ordered_tasks'] if suite == 'mt50' or name.startswith(suite+'/')]
+                if table:
                     # partial: retest rounds list only the raised tasks; absent tasks/cells are skipped.
                     cell = levels_table.get(suite, {}).get(str(size), {}) if partial else levels_table[suite][str(size)]
-                    chosen = {name if name.startswith(suite+'/') else suite+'/'+name:level for name,level in cell.items()}
+                    chosen = {name if suite == 'mt50' or name.startswith(suite+'/') else suite+'/'+name:level for name,level in cell.items()}
                     if partial and not chosen:
                         continue
-                    if (not partial and (len(chosen)!=10 or set(chosen)!=set(names)) or not set(chosen)<=set(names)
+                    if (not partial and (set(chosen)!=set(names)) or not set(chosen)<=set(names)
                             or any(level not in LEVELS for level in chosen.values())):
-                        raise ValueError(f'{suite}/{size}: table must assign a valid level to each of its ten tasks')
-                    levels = [level for level in LEVELS if level in chosen.values()]
+                        raise ValueError(f'{suite}/{size}: table must assign a valid level to each of its tasks')
+                    selected_levels = [level for level in LEVELS if level in chosen.values()]
                 else:
-                    levels = list(LEVELS)[:-1]
-                    if sampler is not None and size == 500:
-                        levels.append('pure')
-                for level in levels:
+                    selected_levels = list(levels or list(LEVELS)[:-1])
+                    if levels is None and sampler is not None and size == max(sizes) and bundle not in study.MW_MODELS:
+                        selected_levels.append('pure')
+                for level in selected_levels:
                     gap = None
                     if level=='pure':
                         gap = 0.0
                     elif LEVELS[level] is not None:
                         try:
-                            gap = gap_rows[bundle, suite, size][LEVELS[level]]['gap']
-                        except KeyError:
+                            gap_key = (bundle, suite, size, miss_steps)
+                            entry = gap_rows.get(gap_key) if bundle in study.MW_MODELS else gap_rows.get(gap_key, gap_rows.get((bundle,suite,size,'full')))
+                            gap = entry[LEVELS[level]]['gap']
+                        except (KeyError, TypeError):
                             missing.append(f'{bundle}/{suite}/{size}/{level}')
                             continue
                         if isinstance(gap,bool) or not isinstance(gap,(int,float)) or not math.isfinite(gap) or gap<0:
@@ -121,14 +146,15 @@ def build(output, *, gaps=GAPS, model=None, table=None, miss_steps='full', parti
                     for key in ('library','fit','stall'):
                         path = Path(row[key])
                         row[key] = str((study.ROOT/path).resolve())
-                    row['file'] = bundle+'/'+('sp' if suite=='libero_spatial' else 'l10')+'/n'+str(size)+'_'+row['group']+'.yaml'
-                    if test:
+                    row['file'] = bundle+'/'+study.suite_label(suite)+'/n'+str(size)+'_'+row['group']+'.yaml'
+                    if table:
                         row['tasks'] = [name for name in names if chosen.get(name)==level]
-                    else:
+                    if not test:
                         row['indices'] = list(range(30))
                     doc = copy.deepcopy(document)
                     if sampler is not None:
                         doc['adapter_binding'].update(num_steps=sampler['num_steps'], sampler_identity=study.digest(sampler))
+                        row["num_steps"] = sampler["num_steps"]
                     doc['recipe'].update(store_path=str(study.view_path(row)), fitted_path=row['fit'],
                                          stall_path=row['stall'], periodic_gap=gap, serve_loeo=not test)
                     rows.append(row)
@@ -150,7 +176,7 @@ def build(output, *, gaps=GAPS, model=None, table=None, miss_steps='full', parti
     return output/'STUDY.json'
 
 
-def calibrate(output, *, sources, model=None):
+def calibrate(output, *, sources, model=None, miss_steps='full', sizes=None):
     """The existing R17 B-only proxy calibration (vision=0, miss=1)."""
     from types import SimpleNamespace
     from exp.r17_integration.common.ir import calibrate_periodic, library_schedule
@@ -161,20 +187,24 @@ def calibrate(output, *, sources, model=None):
         for bundle, entries in study.validate_manifest(source)['models'].items():
             if model and bundle != model:continue
             for row in entries:
-                if row['group'] == ('crg' if bundle == 'cosmos_libero' else 'chrg'):
+                if row['group'] == study.full_group(bundle) and (not sizes or study.library_size(row) in sizes):
                     rows[bundle,row['suite'],study.library_size(row)] = source.parent,row
     output = Path(output); output.parent.mkdir(parents=True, exist_ok=True)
     with output.open('x') as stream:
         for (bundle,suite,size),(root,row) in sorted(rows.items()):
             doc = yaml.safe_load((root/row['file']).read_text())
             r,binding = doc['recipe'],doc['adapter_binding']
+            if bundle in study.MW_MODELS:
+                sampler = mw_sampler(bundle, miss_steps)
+                binding.update(num_steps=sampler['num_steps'], sampler_identity=study.digest(sampler))
             parent = study.read(Path(row['library'])/'READY.json')
             fit = load_fitted_recipe(r['fitted_path'], expected_binding=parent['binding'])
             view = RowIndexStore(study.view_path(row))
             config = SimpleNamespace(adapter_binding=binding,
                 recipe=SimpleNamespace(ordered_tasks=tuple(r['ordered_tasks']), guard=False))
             replay = library_schedule(fit,view,config)
-            entry = dict(model=bundle,suite=suite,size=size,commit=fit.commit,
+            entry = dict(model=bundle,suite=suite,size=size,commit=fit.commit,miss_steps=miss_steps,
+                num_steps=binding['num_steps'],
                 calibration_scope='selected B library LOEO; model-call proxy, vision=0/miss=1',levels={})
             for target in (.5,.4,.3,.2,.1):
                 solved = calibrate_periodic(target,replay,dict(vision=0,miss=1))
@@ -185,6 +215,8 @@ def calibrate(output, *, sources, model=None):
 
 def commands(manifest, model, *, miss_steps='full', mode='dev', run_name=None):
     """Print lane placeholders or the owner's knob topology; never launch."""
+    if model in study.MW_MODELS:
+        return mw_commands(manifest, model, miss_steps=miss_steps, mode=mode, run_name=run_name)
     if model in VLA_PROFILES:
         p = VLA_PROFILES[model]
         name = run_name or p['short']+('_kd' if mode == 'dev' else '_kt')
@@ -242,50 +274,80 @@ def commands(manifest, model, *, miss_steps='full', mode='dev', run_name=None):
     return prepare, run
 
 
+def mw_commands(manifest, model, *, miss_steps='full', mode='dev', run_name=None, reference=None):
+    """Exact MT50 prepare/run text; shared workers require serialized launches."""
+    p = MW_PROFILES[model]
+    name = run_name or model.removesuffix('_mw')+'mk_'+mode+'_'+miss_steps
+    size_count = len(study.read(manifest).get('library_sizes', MW_SIZES)) if manifest and Path(manifest).exists() else len(MW_SIZES)
+    seconds = 172800 if reference else 86400*size_count
+    argv = ['--model', model, '--server-node', p['node'], '--gpu', 'cuda:0',
+        '--replicas', str(p['replicas']), '--replica-startup-width', str(p['startup']),
+        '--max-batch', str(p['batch']), '--batch-wait-ms', '5', '--mps',
+        '--memory-budget-gib', str(p['budget']), '--driver-mode', 'group-commit',
+        '--worker-node', 'timan107', '--extra-workers', '0', '--worker-counts', p['workers'],
+        '--worker-memory-mib', '2048', '--worker-vram-mib', '1024',
+        '--worker-egl-devices', '0,1,2,3,4,5,6,7', '--worker-max-episodes', '0',
+        '--worker-restart-limit', '2', '--retries', '2', '--seconds', str(seconds),
+        '--episode-seconds', '1800', '--port', str(p['port']), '--driver-port', str(p['driver']), '--run-name', name]
+    if reference:
+        argv += ['--eval-pool', 'A', '--init-count', '50', '--denoising-steps', str(MW_STEPS[model][miss_steps == 'reduced'])]
+    else:
+        argv += ['--cache-study', str(Path(manifest).resolve())]
+    entry = ['env', 'CUDA_VISIBLE_DEVICES=', 'JAX_PLATFORMS=cpu', str(study.ROOT/'.venv/bin/python'),
+             '-u', '-m', 'exp.r17_integration.ops.formal_eval']
+    if model == 'pi05_mw':
+        entry = ['taskset', '-c', '22-43,66-87', *entry]
+    return (shlex.join([*entry, *argv, '--prepare-only']),
+            shlex.join([*entry, '--run', '--prepared-run', '/data/mw_finetune/eval/'+name]))
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest='mode', required=True)
     calibration = sub.add_parser('calibrate')
-    calibration.add_argument('--source',type=Path,action='append',required=True)
-    calibration.add_argument('--model',type=model_name)
-    calibration.add_argument('--out',type=Path,required=True)
-    dev = sub.add_parser('dev')
-    dev.add_argument('--model',type=model_name)
-    dev.add_argument('--gaps', type=Path, required=True)
-    dev.add_argument('--out', type=Path, required=True)
-    dev.add_argument('--miss-steps', choices=('full','reduced'), default='full')
+    calibration.add_argument('--source', type=Path, action='append', required=True)
+    calibration.add_argument('--model', type=model_name)
+    calibration.add_argument('--out', type=Path, required=True)
+    calibration.add_argument('--miss-steps', choices=('full','reduced'), default='full')
+    calibration.add_argument('--sizes', type=int, nargs='+')
+    dev = sub.add_parser('dev', help='LIBERO DEV or MT50 direct seed-7 descent batch')
     test = sub.add_parser('test')
-    test.add_argument('--model', type=model_name, required=True)
-    test.add_argument('--table', type=Path, required=True)
-    test.add_argument('--gaps', type=Path, default=GAPS)
-    test.add_argument('--out', type=Path, required=True)
-    test.add_argument('--miss-steps', choices=('full','reduced'), default='full')
-    test.add_argument('--partial', action='store_true', help='retest: only the tasks listed in the table')
-    for p in (dev,test):
-        p.add_argument('--source',type=Path,action='append',help='Source cache STUDY.json; repeat to combine studies')
-        p.add_argument('--run-name',help='Name used in the printed formal preparation/launch commands')
+    for p in (dev, test):
+        p.add_argument('--model', type=model_name, required=p is test)
+        p.add_argument('--table', type=Path, help='Per-task levels; omit for a complete MT50 descent batch')
+        p.add_argument('--gaps', type=Path, required=p is dev, default=GAPS)
+        p.add_argument('--out', type=Path, required=True)
+        p.add_argument('--miss-steps', choices=('full','reduced'), default='full')
+        p.add_argument('--partial', action='store_true', help='Only tasks/cells listed in the table')
+        p.add_argument('--source', type=Path, action='append')
+        p.add_argument('--run-name')
+        p.add_argument('--sizes', type=int, nargs='+')
+    dev.add_argument('--levels', choices=tuple(LEVELS), nargs='+', help='Optional levels; MT50 defaults to all six seed-7 levels')
+    command = sub.add_parser('commands', help='Print commands only; never prepare or launch')
+    command.add_argument('--model', type=model_name, required=True)
+    command.add_argument('--study', type=Path)
+    command.add_argument('--reference', choices=('test',), help='Same-step pure seed-7 baseline; MT50 has no DEV set')
+    command.add_argument('--mode', dest='command_mode', choices=('dev','test'), default='dev')
+    command.add_argument('--miss-steps', choices=('full','reduced'), default='full')
+    command.add_argument('--run-name')
     args = parser.parse_args(argv)
-    if args.mode == 'calibrate':
-        print('GAPS='+str(calibrate(args.out,sources=args.source,model=args.model)));return 0
-    manifest = build(args.out, gaps=args.gaps, model=getattr(args,'model',None), table=getattr(args,'table',None),
-                     miss_steps=args.miss_steps, partial=getattr(args,'partial',False), sources=args.source)
-    print('STUDY='+str(manifest))
-    for model in study.read(manifest)['models']:
-        if model in VLA_PROFILES:
-            rows = study.read(manifest)['models'][model]
-            count = sum(len(r.get('tasks',range(10)))*len(r.get('indices',range(50))) for r in rows)
-            print(f'{model}: {count} episodes; all model calls K1; C10/Corrector/Q3/Periodic')
-            print('\n'.join(commands(manifest,model,miss_steps='reduced',mode=args.mode,run_name=args.run_name)))
-            continue
-        profile = cache_lane.PROFILES[model]
-        count = 6000 if args.mode == 'test' else 22200 if args.miss_steps == 'reduced' else 21600
-        if args.miss_steps == 'reduced':
-            print(f'{model}: {count} episodes; reduced MISS K={REDUCED[model][0]}')
+    if args.mode == 'commands':
+        if args.reference:
+            pair = mw_commands(None, args.model, run_name=args.run_name, reference=args.reference,
+                               mode=args.reference, miss_steps=args.miss_steps)
         else:
-            print(f'{model}: {count} episodes; server={profile["node"]}; '
-                  f'suggested WORKERS={profile["workers"]} PORT={profile["port"]} DRIVER_PORT={profile["driver"]}; '
-                  'set RUN_NAME and WORKER_COUNTS (e.g. timan107=N or timan107=N,timan1=M,local=L)')
-        print('\n'.join(commands(manifest, model, miss_steps=args.miss_steps, mode=args.mode)))
+            pair = commands(args.study, args.model, miss_steps=args.miss_steps, mode=args.command_mode, run_name=args.run_name)
+        print('\n'.join(pair)); return 0
+    if args.mode == 'calibrate':
+        print('GAPS='+str(calibrate(args.out, sources=args.source, model=args.model, miss_steps=args.miss_steps, sizes=args.sizes))); return 0
+    manifest = build(args.out, gaps=args.gaps, model=args.model, table=args.table,
+                     miss_steps=args.miss_steps, partial=args.partial, sources=args.source,
+                     sizes=args.sizes, levels=getattr(args,'levels',None), mode=args.mode)
+    print('STUDY='+str(manifest))
+    for model, rows in study.read(manifest)['models'].items():
+        count = sum(len(r.get('tasks',range(50 if model in study.MW_MODELS else 10)))*len(r.get('indices',range(50))) for r in rows)
+        print(f'{model}: {count} episodes; {args.miss_steps} model calls')
+        print('\n'.join(commands(manifest, model, miss_steps=args.miss_steps, mode=args.mode, run_name=args.run_name)))
     return 0
 
 

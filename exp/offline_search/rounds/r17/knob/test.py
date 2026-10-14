@@ -1,4 +1,4 @@
-"""Evaluate frozen per-task knobs on official A; CPU only, no campaign actions."""
+"""Analyze LIBERO TEST or final MT50 direct descent; CPU only, no campaign actions."""
 import argparse
 from pathlib import Path
 import sys
@@ -20,14 +20,16 @@ def raised_level(level, successes, control_successes, n):
     return "pure" if deficit >= 10*n else c.LEVELS[c.LEVELS.index(level)-1]
 
 
-def load_controls(root, models, controls="full", override=()):
+def load_controls(root, models, controls="full", override=(), suites=c.cache.SUITES):
     references = {}
     names = dict(c.REDUCED_CONTROL_NAMES if controls == "reduced" else c.CONTROL_NAMES)
+    if "mt50" in suites:
+        names.update(c.MW_REDUCED_CONTROL_NAMES if controls == "reduced" else c.MW_CONTROL_NAMES)
     names.update({c.model_label(m): (run,) for m, run in (item.split("=", 1) for item in override)})
     for model in sorted(models):
         # Both Cosmos segments (and the Fast-WAM ancestor) are read by load_lane.
         lane = Path(root) / names[model][-1]
-        loaded = c.cache.load_lane(lane, c.cache.receipt_snapshot(lane), c.cache.Sources(), c.cache.SIZES)
+        loaded = c.cache.load_lane(lane, c.cache.receipt_snapshot(lane), c.cache.Sources(), c.SIZES, suites=suites)
         for (actual_model, _, group, suite), result in loaded.items():
             if actual_model != model or group != "control":
                 raise ValueError(f"{lane}: expected {model} pure-inference control")
@@ -59,14 +61,23 @@ def paired(data, ref, indices, names):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--lane", type=Path, action="append", required=True)
+    parser.add_argument("--lane", type=Path, action="append", default=[])
+    parser.add_argument("--koff-lane", type=Path, action="append", default=[], help="MT50 TEST study with full-system no-periodic cells; compare before knob search")
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--control-root", type=Path, default=c.CONTROL_ROOT)
     parser.add_argument("--controls", choices=("full", "reduced"), default="full")
     parser.add_argument("--control", action="append", default=[], help="MODEL=RUN: use this pure-inference control run instead of the default")
     args = parser.parse_args(argv)
-    cells, planned = c.load_knob(args.lane, "A")
-    references = load_controls(args.control_root, {m for m, _, _ in cells}, args.controls, args.control)
+    cells, planned = c.load_knob(args.lane, "A") if args.lane else ({}, {})
+    koff_cells, koff_planned = c.load_koff(args.koff_lane)
+    for cell, arms in koff_cells.items():
+        for level,data in arms.items():c.merge(cells.setdefault(cell,{}).setdefault(level,{}),data)
+        for task,levels in koff_planned[cell].items():planned.setdefault(cell,{}).setdefault(task,set()).update(levels)
+    references = load_controls(args.control_root, {m for m, _, _ in cells}, args.controls, args.control,
+                               suites=tuple({s for _,s,_ in cells}))
+    if cells and all(s == "mt50" for _,s,_ in cells):
+        from exp.offline_search.rounds.r17.knob.descent import analyze_mt50
+        return analyze_mt50(cells, references, args.out, args.controls, args.control)
     rng = np.random.default_rng(SEED)
     indices = {suite: rng.integers(0, 50, size=(BOOT, 10, 50))
                for suite in ("libero_10", "libero_spatial")}
@@ -88,8 +99,8 @@ def main(argv=None):
         model, suite, size = cell
         ref = references.get((model, suite), {})
         names = sorted({k[1] for k in ref} | planned[cell].keys())
-        if len(names) != 10:
-            raise ValueError(f"{cell}: expected 10 task names from control and test plan")
+        if len(names) != c.task_count(suite):
+            raise ValueError(f"{cell}: expected {c.task_count(suite)} task names from control and test plan")
         data, tasks = {}, {}
         detail += [f"## {c.MODEL_LABELS[model]} · {c.SUITE_LABELS[suite]} · 库 {size} 集", "",
                    "| 任务 | 当前档位 | 已有局数 | 配对局数 | 成功率 | 同起点纯推理成功率 | 差（个点） | 复测档位 | 完整性 |",

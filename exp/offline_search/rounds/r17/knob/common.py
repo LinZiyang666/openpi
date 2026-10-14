@@ -4,6 +4,18 @@ import json
 from pathlib import Path
 
 from exp.offline_search.rounds.r17.cache import analyze_cache as cache
+from exp.r17_integration.ops import cache_study as study
+from exp.metaworld.tasks import DIFFICULTY, DIFFICULTY_GROUPS
+
+SIZES = cache.SIZES + (250, 1000, 1500, 2000, 2500)
+SUITES = cache.SUITES + ("mt50",)
+MW_CONTROL_NAMES = {"DP": ("tdp7h_full",), "Fast-WAM": ("tfw7full_0944",),
+                    "GR00T": ("tgr7h_full",), "π0.5": ("tpi7_0536",)}
+MW_REDUCED_CONTROL_NAMES = {"DP": ("tdp7d10_0851",), "Fast-WAM": ("tfw7k3_1051",),
+                            "GR00T": ("tgr7h_k2",), "π0.5": ("tpi7k2_1135",)}
+
+def task_count(suite):
+    return 50 if suite == "mt50" else 10
 
 LEVELS = ("pure", "k50", "k40", "k30", "k20", "k10", "koff")
 C0 = {"DP": 5, "Fast-WAM": 5, "Cosmos": 16, "π0.5": 5, "GR00T": 5}
@@ -26,12 +38,12 @@ REDUCED_CONTROL_NAMES = {
     "π0.5": ("pl_k1a",), "GR00T": ("gl_k1a",),
 }
 LABELS = dict(zip(LEVELS, ("纯推理", "0.5 档", "0.4 档", "0.3 档", "0.2 档", "0.1 档", "关（只有停滞门）")))
-SUITE_LABELS = {"libero_spatial": "空间任务", "libero_10": "长任务"}
+SUITE_LABELS = {"libero_spatial": "空间任务", "libero_10": "长任务", "mt50": "MT50"}
 MODEL_LABELS = {model:model for model in C0}
 
 
 def model_label(value):
-    return cache.MODEL_IDS.get(value.removesuffix('_libero'),value)
+    return cache.MODEL_IDS.get(value.removesuffix('_libero').removesuffix('_mw'),value)
 
 
 def pure_references(lanes):
@@ -39,7 +51,7 @@ def pure_references(lanes):
     references = {}
     sources = cache.Sources()
     for lane in map(Path,lanes):
-        loaded = cache.load_lane(lane,cache.receipt_snapshot(lane),sources,cache.SIZES)
+        loaded = cache.load_lane(lane,cache.receipt_snapshot(lane),sources,SIZES,suites=SUITES)
         for (model,_,group,suite),result in loaded.items():
             if group != 'control':continue
             data = result['data']
@@ -70,15 +82,15 @@ def load_knob(lanes, pool):
     limit = 30 if pool == "B" else 50
     for lane in lanes:
         lane = Path(lane).resolve()
-        loaded = cache.load_lane(lane, cache.receipt_snapshot(lane), sources, cache.SIZES)
+        loaded = cache.load_lane(lane, cache.receipt_snapshot(lane), sources, SIZES, suites=SUITES)
         model = cache.MODEL_IDS[sources.obj(lane / "campaign.json")["model"]]
-        base = "crg" if model == "Cosmos" else "chrg"
+        base = study.full_group(campaign_bundle(sources.obj(lane / "campaign.json")))
         for segment, _ in cache.resume_segments(lane, sources):
             path = segment / "FULL_EPISODE_PLAN.json"
             if not path.exists():
                 path = segment / "EPISODE_PLAN.json"
             for task in sources.obj(path).get("tasks", []):
-                if task["experiment"] not in cache.SUITES:
+                if cache.canonical(task)[0] not in SUITES:
                     continue
                 extra = task["extra"]
                 group = extra.get("cache_group", "control")
@@ -91,7 +103,7 @@ def load_knob(lanes, pool):
                 if extra.get("init_pool", "A") != pool or not 0 <= key[2] < limit:
                     raise ValueError(f"{lane}: expected pool {pool}, init 0..{limit-1}: {key}")
                 size = extra["library_size"]
-                if size not in cache.SIZES:
+                if size not in SIZES:
                     raise ValueError(f"{lane}: unsupported library size {size}")
                 cell = model, key[0], size
                 cells.setdefault(cell, {}).setdefault(level, {})
@@ -153,8 +165,40 @@ def stats(data, model):
     if n and all(row.get("pure") for row in rows):
         ir = 1.0
     successes = sum(row["success"] for row in rows)
-    return dict(n=n, successes=successes, sr=successes/n if n else None, ir_proxy=ir,
+    result = dict(n=n, successes=successes, sr=successes/n if n else None, ir_proxy=ir,
                 cost_n=cost_n, controls=controls, policy=total["policy"], library=total["library"])
+    if data and next(iter(data))[0] == "mt50":
+        per_task = {}
+        for task in sorted({key[1] for key in data}):
+            outcomes = [row["success"] for key,row in data.items() if key[1] == task]
+            per_task[task] = sum(outcomes)/len(outcomes)
+        groups = {group: [sr for task,sr in per_task.items() if DIFFICULTY[task] == group]
+                  for group in DIFFICULTY_GROUPS}
+        result.update(task_mean=sum(per_task.values())/len(per_task),
+            group_sr={g:sum(v)/len(v) if v else None for g,v in groups.items()})
+        result["group_mean"] = (sum(result["group_sr"].values())/4 if all(groups.values()) else None)
+    return result
+
+
+def campaign_bundle(campaign):
+    return campaign["model"] + ("_mw" if campaign.get("domain") == "metaworld" else "_libero")
+
+
+def load_koff(lanes):
+    """Reuse the TEST full-system no-periodic cells from existing MT50 studies."""
+    cells, planned = {}, {}
+    for lane in map(Path, lanes):
+        sources = cache.Sources()
+        campaign = sources.obj(lane / "campaign.json")
+        base = study.full_group(campaign_bundle(campaign))
+        loaded = cache.load_lane(lane, cache.receipt_snapshot(lane), sources, SIZES, suites=("mt50",))
+        for (model,size,group,suite), result in loaded.items():
+            if group != base:continue
+            cell = model,suite,size
+            merge(cells.setdefault(cell,{}).setdefault("koff",{}),result["data"])
+            for key in result["data"]:
+                planned.setdefault(cell,{}).setdefault(key[1],set()).add("koff")
+    return cells,planned
 
 
 def percent(x):

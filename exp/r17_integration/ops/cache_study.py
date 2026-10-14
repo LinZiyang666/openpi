@@ -90,6 +90,10 @@ def profiles(bundle, parent):
     return source, serving
 
 
+def full_group(bundle):
+    return "crg" if bundle in ("cosmos_libero", "pi05_mw") else "chrg"
+
+
 def group_settings(bundle, group, long):
     base, _, level = group.partition('_')
     native = 16 if bundle == "cosmos_libero" else 5
@@ -237,7 +241,7 @@ def validate_manifest(path):
     for bundle, rows in value["models"].items():
         cells = {(library_size(r),r['suite'],r['group']) for r in rows}
         if knobs:
-            allowed = {('crg' if bundle=='cosmos_libero' else 'chrg')+'_'+level
+            allowed = {full_group(bundle)+'_'+level
                        for level in ('k50','k40','k30','k20','k10','koff','pure')}
             if not rows or len(cells)!=len(rows) or any(
                     n not in sizes or s not in suites_for(bundle) or g not in allowed for n,s,g in cells):
