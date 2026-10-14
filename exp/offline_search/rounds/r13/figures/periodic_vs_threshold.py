@@ -37,11 +37,9 @@ ax2.text(1.0, 1.0, "grey = guard call (same in both rows)", transform=ax2.transA
 
 # (b) paired success-rate difference at equal budget
 rows = [r for r in csv.DictReader(open(A / "final_test_a_sr_summary.csv"))]
-dev = next(csv.DictReader(open(A / "final_b_sr_summary.csv")))
 names = {"groot_spatial_50": "GR00T Spatial", "groot_l10_50": "GR00T LIBERO-10",
          "pi05_spatial_50": "π0.5 Spatial", "pi05_l10_50": "π0.5 LIBERO-10", "pooled": "Test pooled (2000 pairs)"}
 items = [(names[r["cell"]], float(r["difference"]), json.loads(r["ci95"]), r["cell"] == "pooled") for r in rows]
-items.append(("Dev pooled (2800 pairs)", float(dev["difference"]), json.loads(dev["ci95"]), True))
 for j, (lab, diff, (lo, hi), pooled) in enumerate(items[::-1]):
     ax.errorbar(100 * diff, j, xerr=[[100 * (diff - lo)], [100 * (hi - diff)]], fmt="o" if pooled else "s",
                 color="k" if pooled else "#555", ms=7 if pooled else 5, capsize=3, lw=1.6 if pooled else 1.1)
