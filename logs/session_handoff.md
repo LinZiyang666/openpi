@@ -56,6 +56,14 @@ owner 的常驻指令，逐字有效：
 
 ### 1.R16 正在做：纯减步融入闭环（owner 10-07 目标"融入纯减步并实验"，会话 goal 仍挂着）
 
+### ★★★ 2026-10-14 10:5x CDT 增量（先读这里，再读下面 10:4x 总状态）
+
+- owner 10:4x：「接下来尝试在4090同时部署worker和server，server的replica的数量可以下去一点」「可能需要mpsserver」→ 已做：本机 MetaWorld worker 走本机现成的 `openpi_ext/envs/metaworld_sim`（metaworld 3.0.0 / mujoco 3.14.0 / gymnasium 1.3.0 / numpy 1.26.4，与 timan 完全一致），改动 `fbe96912`（`worker_installs.LOCAL_METAWORLD_PYTHON` + `prepare_workers` 的 local MW 分支 + local HOME），快照 `/data/r17_frozen/openpi_fbe96912`（已补 assets/pi05_libero、dp vendor、libero_library_alignment）。
+- 冒烟 `mwl_smoke1`（π0.5 R1 MPS + local×2，--smoke）10:48 PASS 4/4、0 报错。实测每个本机 MW worker 133 MiB 显存、~490 MB RSS、CPU ~3%。
+- 4090 链 tmux `mwl_4090k`（`openpi_ext/scratch/r17_ops/mwlocal/chain_4090k.run.sh`）：π0.5 一律 **R4 MPS**（比 R5 少一个，给 EGL 留显存）+ **local×40**，端口 23150/23159，副本+代理 NUMA1（pin_local.sh），worker NUMA0（mwlocal/pin_workers.sh）。队列按「谁先准备好谁先跑」：`pimk1_ful`（π0.5 MT50 全步旋钮 90,000 局，参照 `tpi7_0536`）10:50 起跑 → `cspi_k2v`（cspi_k2 剩 5,024 局续跑，tmux `mwl_prep_k2v` 在准备，`cache_resume.prepare(..., worker_counts={'local':40}, replicas=4)`）→ `pimk1_red`（减步旋钮，参照 `tpi7k2_1135`，在 pimk1_ful 收局后准备）。日志标签 `[4090k]`。
+- 本机 23170 上 26 h 前残留的 Fast-WAM 代理（pid 2397983）已按 PID 关。
+- timan1 泄漏结论：81 个进程 4 分钟平均 334→337 MB（+2.8 MB），最大 +35 MB；整机 37/503 GB → 无实质泄漏。RUN_CONFIGS 新增「Check the worker node's disk before preparing, and watch long MT50 lanes」。
+
 ### ★★ 2026-10-14 10:4x CDT 总状态（compact 后先读这一块；再往下是 10-13 21:15 的旧总块和按时间倒序的细节）
 
 **owner 在场情况**：owner 10:2x 醒了，指出「4090完全是闲置的」（08:05 起空闲，是我失职：把「没有不依赖 timan107 的活」当成空等理由），问 timan107 怎么死的、是不是 worker 搞崩的、timan1 有没有内存泄漏。巡检 prompt 仍每 30 分钟到。

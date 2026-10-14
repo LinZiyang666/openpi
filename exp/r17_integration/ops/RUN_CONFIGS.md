@@ -1140,6 +1140,16 @@ server campaign, replica logs) that nothing removes. On 2026-10-13 23:51 `/` rea
 (not deleted) to `/data/r17_formal_moved/` on H100 (`/` back to 61%). Check `df -h /` on H100 before a queue of
 H100 prepares and move closed runs' `/tmp/r17_formal/<run>` to `/data/r17_formal_moved/`. Never move a run that is prepared but not yet launched: its launch reads `/tmp/r17_formal/<run>/server/campaign.json` and the staged assets.
 
+### Check the worker node's disk before preparing, and watch long MT50 lanes
+
+timan107 went down at ~00:21 on 2026-10-14 (no ping, no ssh, tether agent offline) while it carried an 8 h π0.5 MT50
+lane (`cspi_k2`) plus ~64 EGL workers over its eight 8 GB GPUs. Its shared /scratch + /tmp disk was at 97% (~6.9 GB
+free of 227 GB) after a dozen prepares that day; MT50 workers run with `--worker-max-episodes 0` (never recycled).
+The cause is not established (free RAM was 191 GB at 00:05; timan1 MT50 workers grew ~0.7 MB/min each, 37/503 GB
+used). Before a prepare, run `df -h /scratch /tmp` on every worker node and move closed runs' `/tmp/r17_formal/<run>`
+and `/scratch/zixuans8/mw_r17/formal/runs/<run>_*` out of the way (move, never delete). After a crash, read
+`journalctl -b -1 -k` before restarting anything.
+
 ### Local LIBERO workers need VRAM headroom on the 4090
 
 Local LIBERO workers render with EGL on the 4090 and are recycled every 4 episodes; each new generation must allocate
