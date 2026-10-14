@@ -973,7 +973,7 @@ req/s (+25% for 3x the workers), mean service time 0.52 -> 0.95 s, calls 2.3-3.0
 threads, so on Fast-WAM it overstates the live ceiling about 3x; the ceiling is host-side in the replica process.
 Never attach py-spy or any ptrace tool to a live replica: `sudo py-spy record --nonblocking -p <replica>` hung for over
 two minutes and stalled replica 0; its in-flight episodes exhausted their retries ("replica backend unavailable: timed
-out"), 217 errored episodes in `csfw_k3w5` (15:42-15:45). Profile on a copy of the replica outside a campaign.
+out"): 217 errored attempts, 32 episodes ended with an error in `csfw_k3w5` (15:42-15:45). Profile on a copy of the replica outside a campaign.
 
 ### H100 library capture staging can stall and then burn the plan as errors
 
