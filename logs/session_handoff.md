@@ -98,7 +98,7 @@ owner 的常驻指令，逐字有效：
 **00:3x timan107 tether agent 离线（最新，覆盖下面的队列）**
 - ~00:21 起 timan107 的 tether agent OFFLINE（机器在：它的 worker 还在给 csgr_h5 收局；我从 timan1 ssh 不进去，已 PushNotification 给 owner，需要 owner 在 timan107 上重启 `tether agent`）。两个启动器对 timan107 的存活探测重试满 300 s 后都停批（00:31）：`cspi_k2` 54,976/60,000、`csgr_h5` 24,406/120,000。
 - 按 PID 停了等待中的 `vla_4090c`、`mw_h100_v5`、`mtk_h100_v6`（都只在 sleep，没启动东西）。
-- 现在：4090 tmux `vla_4090d`（只用本机 worker）：`fsreddp2` → `fsredfw`。H100 tmux `mw_h100_v7`：`csgr_h6`（cache_resume 续跑 csgr_h5，worker 只用 timan1×40）。
+- 现在：4090 tmux `vla_4090d`（只用本机 worker）：`fsreddp2`（00:32 起，~100 局/分）→ `fsredfw`。H100 tmux `mw_h100_v7`：`csgr_h6`（cache_resume 续跑 csgr_h5 的 95,594 局，worker 只用 timan1×40，00:50 启动，快照 `ce534b78`）。`ce534b78` 起启动器遇到 tether 连不上的节点会跳过它 10 分钟，不再停批（之前三批都是这样被停的）。MT50 旋钮 8 组批次已生成 6 组（π0.5 两组在生成）。
 - timan107 恢复后要接回：`cspi_k2` 剩 5,024 局续跑（cache_resume）；π0.5/GR00T LIBERO 冒烟 `pl_smk`/`gl_smk`、建库 `pl_sp`/`pl_10`；H100 的 `fsredcos`、`tgr7h_k2`、`tgr7h_full`、`csfw_k3v`、`tdp7h_full` 与 MT50 旋钮 6 批（都已准备，worker 含 timan107）。π0.5 旋钮两批在 4090。
 
 **23:3x H100 队列（最新）**
