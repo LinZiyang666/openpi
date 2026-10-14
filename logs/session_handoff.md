@@ -58,6 +58,8 @@ owner 的常驻指令，逐字有效：
 
 ### ★★★★★★ 2026-10-14 14:55 CDT 总状态（compact 后最先读这一块；下面各「增量」块是细节，按时间倒序）
 
+> **16:24 巡检**：4090 `pimk1_fuld` 21,251 局 0 报错 ~130 局/分（SM 15 s 均 100%）；H100 `csfw_k3w5` 17,873 局（32 局终局报错=py-spy 事故）~417 局/分，剩 ~4.95 万 ≈ 2 h，SM 均 35%；链无新事件。
+
 > **16:1x 增量**：astra 事前预测核查交回（只用 R17 数据，owner 令排除旧实现）：`exp/offline_search/rounds/r17/survey_predict/REPORT.md`（大 JSON 未提交，留在目录）。结论：支持「当前实现没有经验证的事前安全选择器，K/H_exec 靠闭环经验选」；不支持「五模型都测过 difference 预测器且不准」（R17 只有 DP 在 LIBERO 的离线动作质量探针，无 SR 校准）；不支持「不存在可靠方法」。缺口：π0.5/GR00T 无纯 H 阶梯，MT50 各模型无纯 H 阶梯，Object/Goal 无阶梯。我已抽查 MT50 阶梯、π0.5 LIBERO K10/K1（908/903 局成功）、DP/FW horizon 数字，一致。
 
 > **15:50 增量（先读）**：`csfw_k3w5` 15:22 起跑、15:32 收局，三台 worker 机各 40 都在交局（108 minor 3 正常）。整分钟实测 75–80 请求/s（k3w4 40 个 worker 时 62），服务时间 0.52→0.95 s、SM 34%：瓶颈在副本主机侧（GIL，RUN_CONFIGS「An overloaded Fast-WAM replica…」早有记载，我没先读）。我 15:42 用 sudo py-spy 挂副本 0 卡住 → 15:42–15:45 共 217 次尝试报错、32 局终局报错（不计入，续跑会补）；已记入 RUN_CONFIGS，⛔ 不准对在跑副本挂 ptrace 工具。下一步可试：每副本更少连接或 server 里调小 `sys.setswitchinterval`（需改码+重备，留到下个 FW 批次）。owner 15:4x 问 MW 减步数：已核对 π0.5 2/GR00T 2/FW 3/DP 10，旋钮 STUDY 与纯推理批次一致。owner 让发 astra 核查「能否事前预测可减步数/可延长执行段」（五模型）：tmux `cx_predict`，日志 `openpi_ext/scratch/r17_ops/astra_predict.log`，产出 `exp/offline_search/rounds/r17/survey_predict/REPORT.md`，交回后亲自核对。
