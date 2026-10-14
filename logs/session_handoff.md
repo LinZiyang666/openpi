@@ -97,6 +97,8 @@ owner 的常驻指令，逐字有效：
 
 **01:3x 减步完整系统 DP 结果（新规则）**：`fsreddp2` 6,000/6,000、0 报错。对照 DDIM10 减步纯推理：库 100–500 两套件 10 格都 ≥ 纯推理（长任务 +1.8~+11.8，空间 +1.2~+5.0），库 50 两格不达标（−15.8/−7.2）→ 减步列 DP 库 100–500 直接用这一格（不调旋钮）。正式 IR 0.016–0.019（纯推理 0.142–0.145）。`rounds/r17/knob/full_system_reduced/{test_dp,ir_dp}`。网页减步列待 Fast-WAM（`fsredfw` 01:30 起，4090 本机 worker）出来后一起改。
 
+**05:36 GR00T MT50 缓存研究收齐**：`csgr_h5`（24,406）+ `csgr_h6`（95,594）= 120,000 局、48 格、0 报错（csgr_h6 回执 FAIL 无 error、all_owned_closed=True，同 csdp_1504 的收尾记账，数据完整）。`python3 mw/cells.py --merge csgr_h5 csgr_h6`。组均值：c 23.0/33.7/38.5/42.1/43.9/46.5；cr 27.5/36.5/42.3/45.3/46.9/49.6；cg 25.7/35.9/40.4/44.2/46.3/48.4；crg 28.6/38.1/43.1/47.1/49.2/50.5；ch 24.4…44.5；chr 26.2…46.7；chg 25.0…44.6；chrg 26.9…46.5（n250…n2500）。最好 crg n2500 50.5（按任务 63.0），比 K2 纯推理 66.5（4090）低 ~16 点，差距远大于 DP；H100 同卡基线 `tgr7h1_k2`/`tgr7h1_full` 由 v8 接着跑。
+
 **04:5x H100 接续（timan107 仍离线）**：tmux `mw_h100_v8`（`mw/chain_h100_v8.run.sh`，快照 `fe84e291`）等 `[h100-v7] csgr_h6 ended` 后跑 GR00T MT50 同卡纯推理基线 `tgr7h1_k2` → `tgr7h1_full`（R8 B1 MPS，worker 只用 timan1×40；在 CPU 上准备中）。旧名 `tgr7h_k2`/`tgr7h_full`（含 timan107 worker）作废。
 
 **03:4x 4090（timan107 仍离线，只用本机 worker）**
