@@ -58,6 +58,10 @@ owner 的常驻指令，逐字有效：
 
 ### ★★★★★★ 2026-10-14 14:55 CDT 总状态（compact 后最先读这一块；下面各「增量」块是细节，按时间倒序）
 
+> **15:50 增量（先读）**：`csfw_k3w5` 15:22 起跑、15:32 收局，三台 worker 机各 40 都在交局（108 minor 3 正常）。整分钟实测 75–80 请求/s（k3w4 40 个 worker 时 62），服务时间 0.52→0.95 s、SM 34%：瓶颈在副本主机侧（GIL，RUN_CONFIGS「An overloaded Fast-WAM replica…」早有记载，我没先读）。我 15:42 用 sudo py-spy 挂副本 0 卡住 → 15:42–15:45 共 217 局报错（不计入，续跑会补）；已记入 RUN_CONFIGS，⛔ 不准对在跑副本挂 ptrace 工具。下一步可试：每副本更少连接或 server 里调小 `sys.setswitchinterval`（需改码+重备，留到下个 FW 批次）。owner 15:4x 问 MW 减步数：已核对 π0.5 2/GR00T 2/FW 3/DP 10，旋钮 STUDY 与纯推理批次一致。owner 让发 astra 核查「能否事前预测可减步数/可延长执行段」（五模型）：tmux `cx_predict`，日志 `openpi_ext/scratch/r17_ops/astra_predict.log`，产出 `exp/offline_search/rounds/r17/survey_predict/REPORT.md`，交回后亲自核对。
+
+> **15:05 增量（先读）**：H100 `csfw_k3w4` 实测 worker-bound（timan1×40：~63 请求/s、stage3 批均 3.8、调用中位 2.3–3.0 s、SM 逐秒均 44%；扫描供给在命中 0.855 下 ~236 请求/s）。v14 链按 PID 停（只是在等），**现行 H100 链 v15**（tmux `mtk_h100_v15`，`mtk/chain_h100_v15.run.sh`，标签 `[h100-v15]`，快照 `b98049e2`）：k3w4 继续跑的同时准备 `csfw_k3w5`（cache_resume of csfw_k3w4，timan1×40 + timan107×40 + timan108×40 minor 3，zlib，FW B16 W5 R3）→ 准备好后 SIGTERM k3w4 启动器 python（PID 411994）→ 等 `[direct] csfw_k3w4 launcher exited` → 跑 k3w5 → `dpmk1_fulx`（已备）→ `dpmk1_redx` → `fwmk1_fulx` → `fwmk1_redx`。k3w4 在选局之后收的局会在 k3w5 里重跑；FW 缓存研究合并用 `cells.py --merge csfw_k3 csfw_k3w4 csfw_k3w5`（按 task_uid 后段覆盖）。k3w5 起跑后查 `timan108_launch.json` 与 108 worker 收局。
+
 **owner 今天的要求（逐条照做）**：「接下来尝试在4090同时部署worker和server」；「副本是不是可以把batch size开大」；「我们的concurrent server应该支持batch的，你发agent去把所有模型的serving的功能都对齐」；「你可以这么计算，我们是专业的mlsys工程师…记录worker全速运行时请求到来的频率，然后计算server不同batch下的吞吐…用最专业的方式确定」；「本机合用worker和server会抢显卡，而且现在gpu利用率抖动很明显，远没有到100，你不要狗叫」（我曾凭单点采样说 100%，错）；「跑满带宽后还想提高吞吐就只有本地worker了」；「h100那边是不是也是带宽bound」；「h100的运行设置也要改」；「你去清一下timan1 108 107的磁盘」；「发个sonnet去把该commit的commit掉，该ignore的ignore掉」（已做，`5f7738a0/956be466/d7c6c54b`）；「timan107和108呢…你可以增加」（已把 107/108 加进 H100 车道）。
 
 **两张卡现在（14:55）**

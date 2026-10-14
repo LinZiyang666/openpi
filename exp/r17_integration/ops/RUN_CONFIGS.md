@@ -966,6 +966,15 @@ all checked and identical. To detect it, compare per-replica stage2 batch interv
 gaps between `r17.fastwam.stage_batch.v1` rows in `servers/replica_N/batching.jsonl`. If it recurs and lasts, first try
 fewer workers per replica, then a smaller `sys.setswitchinterval` in the server.
 
+2026-10-14 `csfw_k3w5` (H100, R3 B16 W5, `--wire-zlib`, timan1 + timan107 + timan108 x40 = 40 connections per replica)
+against `csfw_k3w4` (same server, timan1 x40), whole-minute rates from `serving.jsonl` at hit share ~0.83: 62 -> 75-80
+req/s (+25% for 3x the workers), mean service time 0.52 -> 0.95 s, calls 2.3-3.0 s -> 3.9-5.4 s, SM 44% -> 34%
+(per-second dmon), replica CPU ~150-200%. The supply sweep predicted ~236 req/s at this mix: it has no connection
+threads, so on Fast-WAM it overstates the live ceiling about 3x; the ceiling is host-side in the replica process.
+Never attach py-spy or any ptrace tool to a live replica: `sudo py-spy record --nonblocking -p <replica>` hung for over
+two minutes and stalled replica 0; its in-flight episodes exhausted their retries ("replica backend unavailable: timed
+out"), 217 errored episodes in `csfw_k3w5` (15:42-15:45). Profile on a copy of the replica outside a campaign.
+
 ### H100 library capture staging can stall and then burn the plan as errors
 
 MT50 library campaigns with an H100 server stage each episode's capture on H100 and pull closed shards back in
