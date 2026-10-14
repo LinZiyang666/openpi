@@ -95,6 +95,12 @@ owner 的常驻指令，逐字有效：
   - DP（`csdp_1504`，**48 格全部完成**，120,000 局，0 报错；receipt 为 FAIL 只因 finalize 的「CPU evidence finalizer readiness deadline exceeded」，数据完整、进程全关；每任务 5/10/20/30/40/50 条 = n250/500/1000/1500/2000/2500）：c 27.9/35.9/40.4/41.6/42.2/43.0；cr 30.4/38.4/42.8/42.6/42.7/44.3；cg 28.8/37.7/41.2/42.2/43.1/44.6；crg 30.8/40.0/42.9/43.4/43.9/45.4；ch 23.2/32.2/36.0/38.9/40.4/40.8；chr 24.9/32.5/36.8/39.7/40.7/41.8；chg 23.1/32.4/36.3/39.0/40.6/40.9；chrg 25.1/33.3/36.8/39.8/40.7/41.5。库越大越好，修正器 +1–3 点，停滞门 +0.5–1 点，C10 比 C5 低 3–4 点；最好 crg n2500 45.4（按任务 59.4），比 DDIM10 纯推理 47.9 低 2.5 点、比满步 46.0 低 0.6 点。
   - π0.5（`cspi_k2`）：c 21.6/30.0；cr 25.9/35.2；cg 21.9/32.0（n500 部分）；crg 26.6（n250）。
 
+**22:1x 事故与 H100 重排（最新，覆盖下面 21:3x 里 H100 的部分）**
+- 22:13 tether broker（linziyang.top:443）短暂连不上，`csfw_k3` 的启动器存活检查失败，整批停掉：收了 47,500 局；`ch n1000` 有 1,734 局报错被驱动记成 accepted（`mw/cells.py` 现在排除带 error 的行；以后报 SR 都用它）。18 格完整 + ch n1000 部分有效。
+- 22:18 `csgr_h4` 在 H100 起不来：`conductor/manifest.load_benchmark_spec` 无条件 import LIBERO bridge，H100 运行时没有 `examples.libero`（DP/FW 用批处理服务端没碰到）。修在 `7db095a3`，同时拔了 `cache_resume.select` 的「owned closure 未确认」门（我手工核过：H100 显存 0、残留代理按 PID 关掉、worker 机无 csfw_k3 进程）。快照 `/data/r17_frozen/openpi_7db095a3`（已补 assets/pi05_libero 与 samples/libero_library_alignment）。
+- 停掉了等待中的 `fsred_cos` 和 `mw_h100_tail`（按 PID，未启动过东西；`mw_h100_tail` 用的 48113e41 也会撞同一个 GR00T bug）。新 H100 链 `mw/chain_h100_v5.sh`：`csfw_k3r`（cache_resume 续跑段，只补缺的约 74k 局）→ 收局≥200 后依次准备 `csgr_h5`、`fsredcos`、`tgr7h_k2`、`tgr7h_full` → 依次启动。事件标签 `[h100-v5]`。
+- 续跑后的 Fast-WAM 结果：`python3 mw/cells.py --merge csfw_k3 csfw_k3r`。
+
 **21:3x 接续链改动（compact 后巡检）**
 - 4090：旧的 `fsred_4090b` 等待链已按 PID 停（未启动过任何东西），换成 tmux `vla_4090c`（`r17_ops/vla/chain_4090c.run.sh`，全部从快照 `openpi_388c70f5` 启动）：`cspi_k2 ended receipt` → π0.5 LIBERO 建库冒烟 `pl_smk`（R2 MPS，timan107×2，端口 23150/23159，记显存峰值 `vla/pl_smk.vram_max`）→ `fsreddp2` → `fsredfw`（都先 `pin_local`）→ π0.5 LIBERO B500 建库 `pl_sp`、`pl_10`（R5 MPS B1，47 GiB，timan107×24，legacy driver 放 NVMe）+ CPU finish。事件标签 `[4090c]`。
 - H100：tmux `mw_h100_tail`（`mw/h100_tail_grbase.run.sh`）：fsredcos 准备完后准备 GR00T MT50 纯推理基线 `tgr7h_k2`、`tgr7h_full`（R8 B1 MPS，同 csgr_h4，快照 48113e41），fsredcos 结束后（fsredcos 准备失败则 csgr_h4 结束后）依次启动。事件标签 `[h100-tail]`。
