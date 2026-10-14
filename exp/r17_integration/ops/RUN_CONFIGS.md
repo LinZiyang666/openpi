@@ -483,6 +483,9 @@ episode (the H100 shard drain afterwards is not included). Util/W are medians of
 | `csgr_h5` cache study | GR00T (K2 MISS) | H100 | R8 MPS B1, timan107×40 + timan1×20 | 120,000 eps | ~280–370 | — | 50–65% / 230; 53 GB | host: each replica one full core (H100 host has 20 cores); ~27 GB VRAM free, so R11 fits for the next GR00T H100 campaign; the resume `csgr_h6` with timan1×40 only ran the same ~200–400 ep/min, so 40 workers suffice |
 | `grmk1_ful` MT50 knob (full K4) | GR00T | H100 | R11 MPS B1, timan1×40, driver 23149 | 90,000 eps | ~340–430 | 10–18 | 45–75% / 230; 71 GB | host per replica; R11 vs R8 not compared on the same plan |
 | `pimk1_ful` MT50 knob (full K10) | π0.5 | 4090 | R4 MPS B1, **local ×40** (server and MetaWorld workers on weilandserver, `fbe96912`), replicas+proxy NUMA 1, workers NUMA 0 | 90,000 eps | 75 (15-min window) | — | 40–50% / 200–235; 37–38 GB | host per replica (72–88% CPU each); a local MW worker holds 133 MiB VRAM, ~0.5 GB RAM, ~1.5% CPU; R5 would leave ~3 GB VRAM |
+| `pimk1_fulb` MT50 knob (full K10), A | π0.5 | 4090 | R3 **B8 stage batching** W5, local ×96 | resume | 82–88 (k40 cells) | 35.9 req/s, h 0.63 | SM mean 81% (p10 50, min 23); 43 GB | server; 96 local EGL contexts share the GPU |
+| `pimk1_fulc4` MT50 knob, B | π0.5 | 4090 | R3 B8, remote timan107 ×40 only | resume | 110 (k10) | 33.4 req/s, h 0.80 | SM mean 57%; ingress 23 MB/s | workers: remote round trip p50 244 ms (0.69 MB/request through the 33 MB/s ingress) |
+| **`pimk1_fuld` MT50 knob, C (production)** | π0.5 | 4090 | **R4 B8 W5, `--wire-zlib`, timan107 ×80 (8 GPUs) + local ×32**, budget 40 GiB | resume | **131–176 (k10)** | **65.5 req/s, h 0.83 (98% of the sweep's R4 B8 prediction)** | SM mean 87%, p50 99%; 42 GB, 429 W; ingress 14 MB/s | server |
 
 Full-step test success (seed 7, 2,500 episodes), reported as the equal-weight mean of the four difficulty groups (easy 28 / medium 11 / hard 6 / very hard 5 tasks; the convention of the RLinf and SmolVLA MT50 tables) and, second, the per-task mean: GR00T 67.1 / 75.8, DP 46.0 / 61.2, π0.5 46.7 / 56.3. Published π0.5 SFT (same RLinf checkpoint) is 43.8 group mean. Always state which mean a MetaWorld number is.
 
@@ -1141,6 +1144,20 @@ server campaign, replica logs) that nothing removes. On 2026-10-13 23:51 `/` rea
 `csgr_h5` was serving; a prepare failed with `No space left on device`. Closed campaigns' staging dirs were moved
 (not deleted) to `/data/r17_formal_moved/` on H100 (`/` back to 61%). Check `df -h /` on H100 before a queue of
 H100 prepares and move closed runs' `/tmp/r17_formal/<run>` to `/data/r17_formal_moved/`. Never move a run that is prepared but not yet launched: its launch reads `/tmp/r17_formal/<run>/server/campaign.json` and the staged assets.
+
+### Size a lane from measured supply and demand, then fill the ingress before adding local workers
+
+Supply: `exp/r17_integration/profile/supply_sweep.sh` measures X(R,B) per phase (hit/call) with R replicas under one
+MPS on an exclusive GPU (4090 π0.5 R1-4 x B1/4/8/16 in `openpi_ext/scratch/r17_ops/mwlocal/sweep_4090_1209`: mixed
+throughput at hit share 0.82 R1 7->39, R3 21->65, R4 26->69 req/s; past B8 the GPU saturates). Demand:
+`mwlocal/demand.py RUN` gives worker think time and the hit/call mix from serving.jsonl (local MT50 worker: 19 ms,
+i.e. ~52 req/s per worker at zero server latency). Calls are only the call share of requests, so a call batch of B
+per replica needs about B / call-share requests in flight per replica (Little's law). On the 4090: remote workers cost
+ingress (0.69 MB raw, 0.25 MB with `--wire-zlib`, lossless) and add ~150-250 ms per request; local workers cost VRAM
+(133 MiB each) and GPU time slices for EGL (96 local workers kept the SM at 81% with large dips). Fill the ingress with
+remote workers first, then add local workers until the server is saturated: R4 B8 + zlib + timan107 x80 + local x32
+reached 98% of the sweep's prediction. Worker nodes have 1 GbE (timan1 sent 122 MB/s to H100 with the GR00T lane, 98%
+of the link, while the H100 SM averaged 55%), so H100 lanes need several worker nodes and `--wire-zlib` as well.
 
 ### Check the worker node's disk before preparing, and watch long MT50 lanes
 
