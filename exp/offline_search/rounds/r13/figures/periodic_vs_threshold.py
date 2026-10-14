@@ -7,11 +7,12 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 A = Path(__file__).resolve().parents[1] / "astra"
+R11 = Path(__file__).resolve().parents[2] / "r11" / "astra" / "analysis"
 OUT = Path(__file__).resolve().parent
 P_C, D_C, G_C = "#2a6f97", "#d1495b", "#b8b8b8"
 plt.rcParams.update({"font.family": "DejaVu Sans", "font.size": 11, "axes.spines.top": False, "axes.spines.right": False})
 
-fig, (ax2, ax) = plt.subplots(1, 2, figsize=(13, 3.6), gridspec_kw={"width_ratios": [1.5, 1], "wspace": 0.55})
+fig, (ax2, ax, ax3) = plt.subplots(1, 3, figsize=(19, 3.8), gridspec_kw={"width_ratios": [1.45, 1, 1], "wspace": 0.62})
 
 # (a) one recorded episode: call positions of both rules on the same states
 d = pd.read_pickle(A / "mechanism_replayed.pkl")
@@ -51,6 +52,34 @@ ax.set_xlabel("success rate: threshold − periodic (pp, 95% CI)")
 ax.set_xlim(-5, 6.5)
 ax.set_title("(b) Success at equal budget (0.32)", loc="left", fontsize=12, pad=18)
 ax.text(0, 1.0, "paired by initial state; achieved budget 0.31–0.33 for both", transform=ax.transAxes, fontsize=8.5, color="#666", va="bottom")
+
+# (c) knob accuracy: achieved IR minus the knob's target IR, one point per arm
+dev = {"periodic": [], "distance": [], "periodic13": [], "feedback13": []}
+for r in csv.DictReader(open(R11 / "arms.csv")):
+    if r["cohort"] == "test" and r["method"] in ("periodic", "distance"):
+        dev[r["method"]].append(float(r["ir"]) - float(r["target"]))
+for r in csv.DictReader(open(A / "final_b_budget.csv")):
+    key = {"periodic": "periodic13", "distance_feedback": "feedback13"}.get(r["method"])
+    if key: dev[key].append(float(r["ir"]) - float(r["target"]))
+for r in csv.DictReader(open(A / "final_test_a_arms.csv")):
+    key = {"periodic": "periodic13", "distance_feedback": "feedback13"}.get(r["method"])
+    if key and r["role"] == "lean": dev[key].append(float(r["ir"]) - float(r["target"]))
+rows3 = [("periodic13", "periodic (R13)", P_C), ("feedback13", "threshold + budget\nfeedback (R13)", D_C),
+         ("periodic", "periodic (R11)", P_C), ("distance", "threshold, offline\ncalibrated (R11)", "#9a8c98")]
+ax3.axvspan(-2, 2, color="#e8eef3", zorder=0)
+ax3.axvline(0, color="#888", lw=1, ls="--")
+for j, (key, lab, col) in enumerate(rows3[::-1]):
+    v = [100 * e for e in dev[key]]
+    jit = [((i * 0.6180339) % 1 - 0.5) * 0.36 for i in range(len(v))]
+    ax3.scatter(v, [j + t for t in jit], s=22, color=col, alpha=0.85, edgecolor="none")
+    ok = sum(abs(e) <= 2 for e in v)
+    ax3.text(4.2, j, f"mean {sum(v)/len(v)/100:+.3f}\n{ok}/{len(v)} within ±.02", va="center", fontsize=8.5)
+ax3.set_yticks(range(len(rows3)), [r[1] for r in rows3[::-1]])
+ax3.set_xlim(-21, 4)
+ax3.set_xticks([-20, -15, -10, -5, 0], ["−.20", "−.15", "−.10", "−.05", "0"])
+ax3.set_xlabel("achieved IR − knob target IR (one point per arm)")
+ax3.set_title("(c) Does the knob hit its budget?", loc="left", fontsize=12, pad=18)
+ax3.text(0, 1.0, "shaded = ±.02; targets .25–.45", transform=ax3.transAxes, fontsize=8.5, color="#666", va="bottom")
 
 for ext in ("png", "svg", "pdf"):
     fig.savefig(OUT / f"periodic_vs_threshold.{ext}", dpi=250, bbox_inches="tight")
