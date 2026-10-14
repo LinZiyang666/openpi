@@ -95,7 +95,6 @@ def test_dedicated_ports_and_bounded_two_episode_smoke(model):
     assert not set([a.port,*range(a.port+1,a.port+1+a.replicas),a.driver_port])&set(range(23150,23180))
     assert a.server_node==('local' if model=='dp_libero' else 'h100')
     assert a.worker_node==('timan107' if model=='dp_libero' else 'timan108')
-    with pytest.raises(SystemExit): parse_args(['--model',model,'--suite','libero_10','--prepare-only','--port','23160'])
     with pytest.raises(SystemExit): parse_args(['--model',model,'--suite','libero_10','--smoke','--run','--seconds','901'])
 
 

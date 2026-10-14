@@ -307,9 +307,8 @@ def parse_args(argv=None):
     a.port = a.port if a.port is not None else PORT_BASE[a.model]
     a.driver_port = a.driver_port if a.driver_port is not None else (23112 if a.model=='cosmos_mw' else PORT_BASE[a.model]+9 if mw or vla else PORT_BASE[a.model]+19)
     ports = [a.port,*range(a.port+1,a.port+1+a.replicas),a.driver_port]
-    service_ports = ports[:-1] if mw or vla else ports
-    if a.replicas<1 or a.workers<1 or len(set(ports))!=len(ports) or any(p not in range(PORT_BASE[a.model],PORT_BASE[a.model]+(10 if mw or vla else 20)) for p in service_ports):
-        p.error('positive workers/replicas and distinct ports in the model window required')
+    if a.replicas<1 or a.workers<1 or len(set(ports))!=len(ports):
+        p.error('positive workers/replicas and distinct ports required')
     if (mw or vla) and a.driver_port not in range(23100,23200): p.error('driver port must lie in23100..23199')
     a.worker_memory_mib = a.worker_memory_mib if a.worker_memory_mib is not None else (2048 if mw else 6144)
     a.worker_max_episodes = a.worker_max_episodes if a.worker_max_episodes is not None else (0 if mw else 4)
