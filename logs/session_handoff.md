@@ -93,6 +93,12 @@ owner 的常驻指令，逐字有效：
 - **还要重做 π0.5/GR00T 的 k=1 逐任务旋钮（10-13 20:4x 查出）**：R16 的 k=1 档位拿**满步**纯推理当参照，且最高档 c10（k 步纯推理）不检查就兜底。开发集上 17 个 k=1 任务停在 c10，其中 9 个 k=1 纯推理本身就比满步少 >1 局（如 π0.5 spatial 500 任务 0：c10 26/30、ir45 27/30、参照 29/30），白付调用成本。**owner 10-13 20:4x 定：重跑，参照 = 减步纯推理 SR**（R17 规则，k=1，测试后逐任务提档到少 ≤2 局；任务 #136），接在八组缓存研究之后。网页上 R16 的 k=1 数据已删（只留 R14/R15 全步）。sol 当前回合交回后，用 `--thread` 续发 `rounds/r17/prompts/sol_libero_vla_knob.md`（knob 工具接 pi05_libero/groot_libero、k=1 纯推理 dev/test 基线）。
 - GPU 顺序（MetaWorld 四模型收完后）：建库（2 模型 × 2 套件 × 500）→ 同卡纯推理基线（official-50）→ 缓存研究（每模型 8 组 × 6 档 × 2 套件 × 500 = 48,000 局）。π0.5 放 4090（R5 MPS，绑 NUMA 1），GR00T 放 H100。
 
+**排期：LIBERO 减步完整系统（owner 10-13 20:5x）**——Cache + Long horizon + Corrector + Stagnation Guard，停滞门调用用减步（DP DDIM10、Fast-WAM K1、Cosmos K2/实算 1），不开周期刷新；官方 A，6 档 × 2 套件 × 500 = 每模型 6,000 局。目的：套新规则「某档完整系统不开旋钮已达纯推理 → 不调 IR，直接用这一格」到减步列（满步列已套：DP 库 100–500 两套件共 10 格，`rounds/r17/knob/full_system_ir.json`）。
+- 研究 `exp/r17_integration/ops/cache_study/knob/fsred_{dp,fw,cos}/STUDY.json`（cache_knob test --miss-steps reduced，levels 全 koff，表在 `rounds/r17/knob/full_system_reduced/`）。
+- 4090：tmux `fsred_4090`（`r17_ops/knob/fsred_4090.run.sh`）等 `cspi_k2 ended receipt` 后跑 `fsreddp`（prepare_dev dp，本机 48 worker）→ `fsredfw`（fastwam_local，本机 22 worker，R1 无 MPS）；两者 20:5x 已在后台 prepare。
+- H100：tmux `fsred_cos`（`fsred_h100_cos.run.sh`）等 csgr_h4 收到 200 局后 prepare `fsredcos`，再等 `csgr_h4 ended receipt` 后启动（R8 MPS，timan107×45+timan1×40，driver 放 NVMe）。
+- π0.5/GR00T 的 k=1 版本随 #135/#136。跑完用 `ir_formal` 公式（vision×(P+H)+reduced_miss×P）÷(U/C0) 算 IR，和减步纯推理比。
+
 **脚本**（`openpi_ext/scratch/r17_ops/mw/`；`.run.sh` 是运行中的不可改副本）
 - 纯推理基线 `run_base3.sh TAG MODEL NAME SERVER R MEM B STEPS PORT DPORT WORKERS SPECREF WIDTH`（快照 `openpi_0b66b0ef`；STEPS `-` 为满步；SPECREF 已不用）。
 - 缓存研究 `run_cs.sh`（准备+启动）、`prep_cs.sh` + `go_cs.sh`（提前准备、上一批结束即启动；`prep_cs2/go_cs2` 用 `openpi_c758a6c9`）。
