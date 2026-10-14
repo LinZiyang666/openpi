@@ -1093,6 +1093,11 @@ host, compare its prepared `assets/model_spec.json` with the library teacher's (
   ~13 h on the 4090. Run remote-worker MT50 cache studies of light models (GR00T, DP, Fast-WAM) on H100 (own public
   IP; DP took ~127 MB/s there at ~500 episodes/min) and give the 4090 the host-bound one (π0.5). When a study runs on
   another GPU type than its pure baseline, rerun that baseline on the same GPU.
+- `direct_transfer` serializes every rsync on one host-wide lock. An H100 prepare pulls its `assets.tar` (~1-1.4 GB)
+  back through the weilandserver ingress; while a 4090 lane with remote workers fills that ingress the pull runs at
+  ~1 MB/s and holds the lock for 20+ min, so another campaign's launch waits on it (H100 idle 19:35-19:43 on
+  2026-10-13, `csfw_k3` behind `csgr_h3`). Prepare an H100 campaign only after the current H100 lane is collecting,
+  never across another lane's switch (`mw/wait_then_prep_gr.sh`).
 
 ### No identity-fingerprint gate between a library and its resident
 
