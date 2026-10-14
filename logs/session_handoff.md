@@ -97,6 +97,8 @@ owner 的常驻指令，逐字有效：
 
 **01:3x 减步完整系统 DP 结果（新规则）**：`fsreddp2` 6,000/6,000、0 报错。对照 DDIM10 减步纯推理：库 100–500 两套件 10 格都 ≥ 纯推理（长任务 +1.8~+11.8，空间 +1.2~+5.0），库 50 两格不达标（−15.8/−7.2）→ 减步列 DP 库 100–500 直接用这一格（不调旋钮）。正式 IR 0.016–0.019（纯推理 0.142–0.145）。`rounds/r17/knob/full_system_reduced/{test_dp,ir_dp}`。网页减步列待 Fast-WAM（`fsredfw` 01:30 起，4090 本机 worker）出来后一起改。
 
+**06:30 π0.5 LIBERO 纯推理基线（4090，R4 MPS + 本机 20 worker，A 集 spatial+10）**：`pl_k1a2`（k=1）903/1000 = 90.3%；`pl_a2`（满步 K10）908/1000 = 90.8%；均 0 报错。GR00T `tgr7h1_full`（H100 满步）66.8/75.6，与 4090 的 67.1/75.8 一致。
+
 **05:5x 排布调整（timan107 仍离线）**
 - H100 同卡 GR00T 基线：`tgr7h1_k2` 组均值 66.3 / 按任务 75.2（4090 上 66.5/75.2，一致 → GR00T 缓存 −16 点是真实差距）；`tgr7h1_full` 在跑。
 - H100 tmux `mtk_h100_v9`（`mtk/chain_h100_v9.run.sh`）：v8 完后跑 MT50 GR00T 旋钮 `grmk1_ful` → `grmk1_red`（R11 MPS，worker 只用 timan1×40，驱动口 23149；参照 `tgr7h1_full`/`tgr7h1_k2`，分析时 `--control groot_mw=tgr7h1_full` 或 `=tgr7h1_k2`）。旧 `grmk_ful/red`（含 timan107）作废。
