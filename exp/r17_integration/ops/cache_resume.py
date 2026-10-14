@@ -106,7 +106,7 @@ def prepare(source,name, *, refresh_workers=False,worker_counts=None,replicas=No
     if worker_counts is not None:kwargs['worker_counts']=worker_counts
     if replicas is not None:kwargs.update(replicas=replicas,local_vram_mib=local_vram_mib,local_server_growth_mib=local_server_growth_mib)
     destination=clone(source/'.startup_inputs',name,dict(status='PASS',all_owned_closed=True,
-                      cache_continuation=True,source=str(source)),**kwargs)
+                      cache_continuation=True,source=str(source)),campaign_overrides=extra,**kwargs)
     campaign=read(destination/'campaign.json')
     full=read(source/('FULL_EPISODE_PLAN.json' if (source/'FULL_EPISODE_PLAN.json').exists() else 'EPISODE_PLAN.json'))
     campaign.update(cache_plan_name=read(source/'campaign.json').get('cache_plan_name',read(source/'campaign.json')['run_name']),

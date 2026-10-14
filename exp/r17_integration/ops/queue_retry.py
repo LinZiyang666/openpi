@@ -74,7 +74,7 @@ def zero_acceptance(directory):
                 all_owned_closed=True,original_failure=receipt.get('error'))
 
 
-def clone(snapshot, name, failure, *, refresh_cache_workers=False,worker_counts=None,size_lane_authorization=None,capacity_authorization=None,replicas=None,local_vram_mib=None,local_server_growth_mib=None):
+def clone(snapshot, name, failure, *, refresh_cache_workers=False,worker_counts=None,size_lane_authorization=None,capacity_authorization=None,replicas=None,local_vram_mib=None,local_server_growth_mib=None,campaign_overrides=None):
     """CPU-only fresh paths; keep native files, episode inputs, and driver pin."""
     from . import formal_eval as launch
     from .formal_prestage import seal_prepared, validate_prepared
@@ -111,6 +111,8 @@ def clone(snapshot, name, failure, *, refresh_cache_workers=False,worker_counts=
         assets=str(directory/'assets'),server_run=str(directory/'servers'))
     if campaign['server_node']=='h100':
         campaign['server_campaign'] = '/tmp/r17_formal/'+name+'/server/campaign.json'
+    # Continuation overrides (worker devices, wire codec, batching) must reach the worker deployment below.
+    campaign.update(campaign_overrides or {})
     if size_lane_authorization is not None:
         if not campaign.get('cache_study') or worker_counts is None:
             pass

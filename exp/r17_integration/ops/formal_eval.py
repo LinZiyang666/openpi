@@ -448,6 +448,8 @@ def prepare_workers(campaign, directory, *, payload_override=None):
         if node == 'local':
             from .local_workers import LOCAL_HOME
             env['HOME'] = LOCAL_HOME
+        if campaign.get('wire_zlib'):
+            env['OPENPI_WIRE_ZLIB'] = '1'
         if dependency:
             if node == 'local':
                 from .local_workers import config as local_config, LOCAL_HOME
@@ -1554,6 +1556,7 @@ def parse_args(argv=None):
     p.add_argument('--max-batch', type=int, default=1,
                    help='Native cross-connection batching (pi05/GR00T/Fast-WAM/DP, LIBERO or MT50)')
     p.add_argument('--batch-wait-ms', type=float, default=5., help='Native stage batching window, milliseconds')
+    p.add_argument('--wire-zlib', action='store_true', help='Workers zlib-compress large uint8 arrays (lossless; server accepts both)')
     p.add_argument('--paired-control', type=Path,
                    help='Completed same-GPU/batching official-50 Fast-WAM K10/C5 control; required for batched arms')
     p.add_argument('--runtime-from', type=Path,
@@ -1857,6 +1860,8 @@ def main(argv=None):
     elif args.max_batch > 1 and model in ('pi05', 'groot'):
         from exp.r17_integration.common.batch_runtime import BatchConfig
         campaign['stage_batching'] = BatchConfig(args.max_batch, args.batch_wait_ms).metadata()
+    if args.wire_zlib:
+        campaign['wire_zlib'] = True
     if args.batch_qualification_observations:
         campaign['batch_qualification_observations'] = str(args.batch_qualification_observations)
     if args.mps:

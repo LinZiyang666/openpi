@@ -150,6 +150,10 @@ def overlay_archive(base, fresh, destination, *, batch_groot=False):
     old,new=contents(base),contents(fresh)
     content=dict(old)
     content.update({n:b for n,b in new.items() if n.startswith('exp/r17_integration/')})
+    # Wire codec: receivers must accept zlib-compressed arrays (backward compatible with plain arrays).
+    codec='packages/openpi-client/src/openpi_client/msgpack_numpy.py'
+    if codec in new and new[codec]!=content.get(codec):
+        content[codec]=new[codec]
     if batch_groot:
         # These are the two native hooks required by the R17 StageBatcher.
         # The base archive and every existing frozen release stay read-only.
@@ -165,7 +169,7 @@ def overlay_archive(base, fresh, destination, *, batch_groot=False):
         for name,data in sorted(content.items()):
             member=tarfile.TarInfo(name);member.size=len(data);member.mode=0o444
             out.addfile(member,io.BytesIO(data))
-    return dict(files=changed,non_r17_exact=not batch_groot,base_archive_sha256=sha(base),
+    return dict(files=changed,non_r17_exact=not batch_groot and content.get(codec)==old.get(codec),base_archive_sha256=sha(base),
                 overlay_archive_sha256=sha(destination),files_sha256={n:hashlib.sha256(content[n]).hexdigest() for n in changed})
 
 
