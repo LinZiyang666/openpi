@@ -32,10 +32,17 @@ def inventory(node, devices=None):
             for line in path.read_text().splitlines():
                 if line.startswith('Device Minor:'):
                     devices.append(int(line.split(':', 1)[1]))
+    # Device numbers are kernel minors (= EGL device ids); nvidia-smi indices may run in another order (timan108),
+    # so select each card by its PCI bus id.
+    bus = {}
+    for path in Path('/proc/driver/nvidia/gpus').glob('*/information'):
+        for line in path.read_text().splitlines():
+            if line.startswith('Device Minor:'):
+                bus[int(line.split(':', 1)[1])] = path.parent.name
     result = []
     for device in sorted(set(devices)-excluded):
         try:
-            selector=str(device)
+            selector=bus.get(device, str(device))
             if node == 'timan1':
                 from .timan1_workers import UUID,PCI
                 selector=UUID

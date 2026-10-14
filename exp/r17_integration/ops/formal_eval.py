@@ -501,6 +501,9 @@ def prepare_workers(campaign, directory, *, payload_override=None):
             from .cache_capacity import renderer_devices
             devices=renderer_devices(campaign,node)
             if devices is not None:worker['worker_egl_devices']=devices
+        node_devices = (campaign.get('worker_egl_devices_by_node') or {}).get(node)
+        if node_devices:
+            worker.update(worker_egl_devices=list(node_devices), worker_egl_device=node_devices[0])
         if node == 'local':
             from .local_workers import route
             route(worker,campaign)
@@ -1557,6 +1560,7 @@ def parse_args(argv=None):
                    help='Native cross-connection batching (pi05/GR00T/Fast-WAM/DP, LIBERO or MT50)')
     p.add_argument('--batch-wait-ms', type=float, default=5., help='Native stage batching window, milliseconds')
     p.add_argument('--wire-zlib', action='store_true', help='Workers zlib-compress large uint8 arrays (lossless; server accepts both)')
+    p.add_argument('--node-egl-devices', help='Per-node EGL devices (kernel minors), e.g. timan108=3;timan107=0,1,2,3,4,5,6,7')
     p.add_argument('--paired-control', type=Path,
                    help='Completed same-GPU/batching official-50 Fast-WAM K10/C5 control; required for batched arms')
     p.add_argument('--runtime-from', type=Path,
@@ -1862,6 +1866,8 @@ def main(argv=None):
         campaign['stage_batching'] = BatchConfig(args.max_batch, args.batch_wait_ms).metadata()
     if args.wire_zlib:
         campaign['wire_zlib'] = True
+    if args.node_egl_devices:
+        campaign['worker_egl_devices_by_node'] = {n: [int(d) for d in v.split(',')] for n, v in (x.split('=') for x in args.node_egl_devices.split(';'))}
     if args.batch_qualification_observations:
         campaign['batch_qualification_observations'] = str(args.batch_qualification_observations)
     if args.mps:
