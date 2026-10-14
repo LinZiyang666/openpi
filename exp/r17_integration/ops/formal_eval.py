@@ -980,12 +980,17 @@ def backend_evidence(directory):
     return result
 
 
+UNREACHABLE_UNTIL = {}
+
+
 def refresh_remote_owned(remote_owned, directory, status_cache, control_files, last_status):
     """At most one lease/status session per node per30s, even in a2s loop."""
     if time.monotonic()-last_status < PROBE_SECONDS:
         return last_status
     from .remote_json import stage_json, expression
     for node in sorted({o['node'] for o in remote_owned}):
+        if UNREACHABLE_UNTIL.get(node, 0) > time.monotonic():
+            continue
         entries=[dict(label=o['label'],request=o['request']) for o in remote_owned if o['node']==node]
         owned=next(o for o in remote_owned if o['node']==node)
         key=node,json.dumps(entries,sort_keys=True)
@@ -998,8 +1003,17 @@ def refresh_remote_owned(remote_owned, directory, status_cache, control_files, l
         code=('from exp.r17_integration.ops.formal_process import controls; '
             'from exp.r17_integration.ops.remote_json import load_json; import json; '
             'print(json.dumps(controls('+payload+')))')
-        results=json.loads(remote(node,['env','PYTHONPATH='+pythonpath(owned['root']),owned['python'],'-c',code],
-                                  seconds=10,replay_safe=True))
+        try:
+            results=json.loads(remote(node,['env','PYTHONPATH='+pythonpath(owned['root']),owned['python'],'-c',code],
+                                      seconds=10,replay_safe=True))
+        except Exception as exc:
+            if not getattr(exc, 'r17_retry_exhausted', False):
+                raise
+            # Workers reach the driver directly, so a node whose tether agent is unreachable keeps serving
+            # (timan107 on 2026-10-14 00:21 aborted cspi_k2 and csgr_h5). Skip its status for 10 minutes.
+            UNREACHABLE_UNTIL[node] = time.monotonic()+600
+            print('R17 probe: '+node+' unreachable through tether; continuing without its status', file=sys.stderr, flush=True)
+            continue
         if set(results)!={o['label'] for o in entries}:
             raise ValueError('remote batched control omitted an owned process')
         for label,value in results.items():status_cache[node,label]=value
