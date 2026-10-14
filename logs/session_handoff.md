@@ -99,7 +99,7 @@ owner 的常驻指令，逐字有效：
 - 4090：旧的 `fsred_4090b` 等待链已按 PID 停（未启动过任何东西），换成 tmux `vla_4090c`（`r17_ops/vla/chain_4090c.run.sh`，全部从快照 `openpi_388c70f5` 启动）：`cspi_k2 ended receipt` → π0.5 LIBERO 建库冒烟 `pl_smk`（R2 MPS，timan107×2，端口 23150/23159，记显存峰值 `vla/pl_smk.vram_max`）→ `fsreddp2` → `fsredfw`（都先 `pin_local`）→ π0.5 LIBERO B500 建库 `pl_sp`、`pl_10`（R5 MPS B1，47 GiB，timan107×24，legacy driver 放 NVMe）+ CPU finish。事件标签 `[4090c]`。
 - H100：tmux `mw_h100_tail`（`mw/h100_tail_grbase.run.sh`）：fsredcos 准备完后准备 GR00T MT50 纯推理基线 `tgr7h_k2`、`tgr7h_full`（R8 B1 MPS，同 csgr_h4，快照 48113e41），fsredcos 结束后（fsredcos 准备失败则 csgr_h4 结束后）依次启动。事件标签 `[h100-tail]`。
 - 快照 `/data/r17_frozen/openpi_388c70f5` = `388c70f5`（拔了 `library_campaign` 的模型端口窗口门：π0.5 在 4090 用 23150/23159，GR00T MT50 在 H100 占 23160..23169）+ 手工补的 gitignore 文件：`assets/pi05_libero`（π0.5 LIBERO norm）和 `exp/r17_integration/ops/samples/libero_library_alignment`（LIBERO 建库对齐表）。以后导出 LIBERO 用的快照都要补这两样。
-- GR00T LIBERO 冒烟 `gl_smk`（4090 本机权重 `/data/ckpt`）在准备，准备好后插进 4090 链（pl_smk 之后），先在 4090 上验证 GR00T LIBERO 的 R17 路径，H100 上 GR00T LIBERO 要等 H100 收尾链之后（约 10-14 上午）。
+- GR00T LIBERO 冒烟 `gl_smk`（4090 本机权重 `/data/ckpt`，R2 MPS）已准备并插进 `vla_4090c`（pl_smk 之后、fsreddp2 之前），先在 4090 上验证 GR00T LIBERO 的 R17 路径，H100 上 GR00T LIBERO 要等 H100 收尾链之后（约 10-14 上午）。
 - sol 旋钮续发（`cx_libvla2`）还在做；它在活仓库里改 formal_eval/formal_driver/formal_workers/cache_study/cache_knob 等，交回后审 diff 再提交。
 
 **排期：π0.5 / GR00T 的 LIBERO 八组缓存研究（owner 10-13 20:2x 要求「加入排期，之后跑」）**
