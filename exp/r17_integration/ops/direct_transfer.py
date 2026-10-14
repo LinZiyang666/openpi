@@ -127,7 +127,8 @@ def transfer(argv, *, remote, execute, heartbeat=lambda: None):
             local.parent.mkdir(parents=True,exist_ok=True)
             complete = False
             try:
-                execute([*flags,str(local),url] if direction == 'push' else [*flags,url,str(local)],seconds=600)
+                # rsync --timeout catches stalls; the wall cap only bounds a slow but moving copy (shared ~33 MB/s ingress).
+                execute([*flags,str(local),url] if direction == 'push' else [*flags,url,str(local)],seconds=7200)
                 complete = True
             finally:
                 call(close_daemon,server,path if complete and direction == 'push' else None)
@@ -140,7 +141,7 @@ def transfer(argv, *, remote, execute, heartbeat=lambda: None):
             try:
                 if direction == 'push':
                     remote(node,['mkdir','-p',str(Path(path).parent)],replay_safe=True)
-                remote(node,[*flags,url,path] if direction == 'push' else [*flags,path,url],seconds=600)
+                remote(node,[*flags,url,path] if direction == 'push' else [*flags,path,url],seconds=7200)
                 complete = True
             finally:
                 close_daemon(server,str(local) if complete and direction == 'pull' else None)
