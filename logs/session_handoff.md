@@ -97,6 +97,8 @@ owner 的常驻指令，逐字有效：
 
 **01:3x 减步完整系统 DP 结果（新规则）**：`fsreddp2` 6,000/6,000、0 报错。对照 DDIM10 减步纯推理：库 100–500 两套件 10 格都 ≥ 纯推理（长任务 +1.8~+11.8，空间 +1.2~+5.0），库 50 两格不达标（−15.8/−7.2）→ 减步列 DP 库 100–500 直接用这一格（不调旋钮）。正式 IR 0.016–0.019（纯推理 0.142–0.145）。`rounds/r17/knob/full_system_reduced/{test_dp,ir_dp}`。网页减步列待 Fast-WAM（`fsredfw` 01:30 起，4090 本机 worker）出来后一起改。
 
+**03:2x 减步完整系统 Fast-WAM 结果**：`fsredfw`（4090 本机 worker）6,000/6,000、0 报错。对照必须用同卡 K1 纯推理 `hs7fwk1_4090c`（默认 `hs6fw_k1` 在 H100，不能用；`test.py --control Fast-WAM=hs7fwk1_4090c`）。12 格都不达标：长任务 66.2–80.4% vs 88.6%，空间 86.6–90.0% vs 91.6% → Fast-WAM 减步列全部仍需旋钮。IR 0.048–0.065（纯推理 0.45）。`rounds/r17/knob/full_system_reduced/{test_fw,ir_fw}`。DP 的对照 `hs5dp_ddim10s0` 在 4090，同卡 OK。Cosmos（`fsredcos`）等 timan107。
+
 **00:3x timan107 tether agent 离线（最新，覆盖下面的队列）**
 - ~00:21 起 timan107 的 tether agent OFFLINE（机器在：它的 worker 还在给 csgr_h5 收局；我从 timan1 ssh 不进去，已 PushNotification 给 owner，需要 owner 在 timan107 上重启 `tether agent`）。两个启动器对 timan107 的存活探测重试满 300 s 后都停批（00:31）：`cspi_k2` 54,976/60,000、`csgr_h5` 24,406/120,000。
 - 按 PID 停了等待中的 `vla_4090c`、`mw_h100_v5`、`mtk_h100_v6`（都只在 sleep，没启动东西）。
