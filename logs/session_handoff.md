@@ -58,6 +58,8 @@ owner 的常驻指令，逐字有效：
 
 ### ★★★★★★ 2026-10-14 14:55 CDT 总状态（compact 后最先读这一块；下面各「增量」块是细节，按时间倒序）
 
+> **17:24 巡检**：4090 `pimk1_fuld` 28,183 局 0 报错 ~107 局/分（SM 15 s 均 97%）；H100 `dpmk1_fulx` 19,983 局 0 报错 ~560 局/分（SM 逐秒 100%），剩 ~2 h；`csfw_k3w6`（R2，47,555 局）16:59 已备，排在 dpmk1_fulx 后。
+
 > **16:52**：`dpmk1_fulx` 16:39 起、16:46 收局，三台各 40 都在交局、0 报错；稳态 ~120 请求/s（命中 0.47，调用 ~63/s）、350–410 局/分、H100 SM 逐秒 100%（GPU-bound）。`csfw_k3w6`（R2）在准备。
 
 > **16:37 增量（先读）**：`csfw_k3w5` 16:29 起在第一个 n1500 格 CUDA OOM（R3 每副本 25.33 GiB 上限，约四成尝试报错，csfw_k3 从未用 R3 跑过 n1500+）。v15 链按 PID 停，**现行 H100 链 v16**（tmux `mtk_h100_v16`，`mtk/chain_h100_v16.run.sh`，标签 `[h100-v16]`，快照 `b98049e2`）：SIGTERM k3w5（19,961 局）→ 立刻跑已备好的 `dpmk1_fulx`，同时准备 `csfw_k3w6`（cache_resume of csfw_k3w5，**R2**，timan1/107/108×40，zlib）→ `csfw_k3w6` → `dpmk1_redx` → `fwmk1_fulx` → `fwmk1_redx`（FW 旋钮也改 R2）。FW 缓存研究合并 `cells.py --merge csfw_k3 csfw_k3w4 csfw_k3w5 csfw_k3w6`。已写 RUN_CONFIGS。
