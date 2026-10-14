@@ -97,6 +97,8 @@ owner 的常驻指令，逐字有效：
 
 **01:3x 减步完整系统 DP 结果（新规则）**：`fsreddp2` 6,000/6,000、0 报错。对照 DDIM10 减步纯推理：库 100–500 两套件 10 格都 ≥ 纯推理（长任务 +1.8~+11.8，空间 +1.2~+5.0），库 50 两格不达标（−15.8/−7.2）→ 减步列 DP 库 100–500 直接用这一格（不调旋钮）。正式 IR 0.016–0.019（纯推理 0.142–0.145）。`rounds/r17/knob/full_system_reduced/{test_dp,ir_dp}`。网页减步列待 Fast-WAM（`fsredfw` 01:30 起，4090 本机 worker）出来后一起改。
 
+**10:1x H100 后续队列**：tmux `mtk_h100_v10`（`mtk/chain_h100_v10.run.sh`，快照 `fe84e291`，worker 只用 timan1×40）：先准备 `tdp7h1_full`（DP 满步 H100 基线，DP 全步旋钮参照），等 `[h100-v9] h100-v9 chain done`（`grmk1_red` 完）后依次跑 `tdp7h1_full` → `dpmk1_ful` → `dpmk1_red`（DP R8 B8，参照 `tdp7h1_full` / `tdp7d10_0851`）→ `fwmk1_ful` → `fwmk1_red`（FW R3 B16，参照 `tfw7full_0944` / `tfw7k3_1051`），每个在上一个收局后准备。旧 v6 的 `dpmk_*`/`fwmk_*`（含 timan107）作废。π0.5 两批（4090）等 timan107。
+
 **09:5x MT50 GR00T 全步逐任务旋钮完成**（`grmk1_ful`，H100 R11，timan1×40，90,000 局 0 报错；参照 `tgr7h1_full`；`rounds/r17/knob/mt50/groot_full/DESCENT.md`）：库 250/500/1000/1500/2000/2500 组均值 66.5/67.4/67.4/68.0/67.2/67.1（纯推理 66.8），按任务 75.3–76.4（纯推理 75.6），正式 IR 0.739/0.698/0.673/0.643/0.599/0.604；koff 整格均未达纯推理（每档都需旋钮）；纯推理档任务数 25→16、koff 8→21（库越大越多）。减步 `grmk1_red` 09:55 起（参照 `tgr7h1_k2`）。
 
 **08:05 4090 空闲（只缺 timan107）**：`gl_a3`（GR00T LIBERO 满步 K4，R2）1000/1000、884 成功 = 88.4%、0 报错（k=1 `gl_k1a` 88.5%）。LIBERO 四条 VLA 纯推理基线齐：π0.5 `pl_k1a2` 90.3 / `pl_a2` 90.8，GR00T `gl_k1a` 88.5 / `gl_a3` 88.4（4090，A 集 spatial+10 各 1000 局；分析时 `--control` 用这些名字）。之后 4090 没有不依赖 timan107 的活：MT50 剩余（π0.5 `cspi_k2` 5,024 局、π0.5 旋钮两批）需要 timan worker，timan1 的 40 个被 H100 `grmk1_ful` 占满；LIBERO 建库/B 池本机 worker 不支持。timan107 一恢复就接：`cspi_k2` 续跑 → π0.5 LIBERO 建库 `pl_sp`/`pl_10` → GR00T LIBERO 建库（改 4090 本机服务）→ 两个模型八组缓存研究。
