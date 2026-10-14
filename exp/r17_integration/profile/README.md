@@ -308,3 +308,89 @@ CUDA_VISIBLE_DEVICES='' PYTHONDONTWRITEBYTECODE=1 \
   /data/mw_finetune/dp/env/bin/python -m pytest -q -p no:cacheprovider \
   exp/r17_integration/profile/tests/test_latency.py
 ```
+
+## Native MT50 GPU supply sweep
+
+`supply_sweep.sh` loads/warmups R formal residents under one private MPS daemon
+on one GPU UUID, then publishes an atomic START file for synchronized hit/call
+slots at each B. It reuses formal `host_python`/`server_env`, uses a short
+`/tmp/r17mps.*/p` pipe, samples `nvidia-smi` every 500 ms, and cleans up its own
+children/daemon on exit. Outputs are per-replica JSONL/logs, `smi.csv`, MPS logs
+and `report.txt`; no endpoint or campaign is started.
+
+Both phases include **per request** `prepare`, native wrapping and retrieval
+keys/CPU copies. **Per batch**, hit runs native stage1; call runs stage1+2+MISS
+stage3 at K. Call includes request-local native noise, DP's sequential posterior
+RNG, and normalized action copies to CPU. Snapshots/capture are off. DP reuses
+the batched server's `FrozenLanguageMemo` (`--dp-uncached-text` disables it);
+Fast-WAM stage2 includes native T5. Search, wire transforms, transport, queues
+and inter-stage pipeline overlap are outside this measurement.
+
+Default MISS K from these load descriptors/adapters is π0.5=10, GR00T=2,
+DP=100, Fast-WAM=10 (`csfw_k3` does not set loader K). Use `--steps` for another
+MISS budget; GR00T sets live K before load, and DP supports K100/10/5. Path
+overrides `--checkpoint` and GR00T `--vendor` leave original assets untouched.
+Other relocations use `--descriptor` with an adjacent `model_spec.json`.
+
+Run later with the GPU available and no existing MPS server for that GPU.
+Reduce R/B lists to `1` for an initial memory-fit run; all requested B must
+survive warmup. Each invocation needs a **new output directory**. Optional
+`--cpus 22-43,66-87` assigns that shared CPU list; `--python` overrides the island.
+
+Local 4090 (all four models, loader-default K):
+
+```bash
+cd /home/weiland/projects/openpi
+run=$(date +%Y%m%d_%H%M%S)
+for model in pi05 groot dp fastwam; do
+  bash exp/r17_integration/profile/supply_sweep.sh --host local --gpu 0 \
+    --model "$model" --replicas '1 2 4' --sizes '1,2,4,8,16' \
+    --phase-seconds 20 --gap-seconds 5 --hit-shares 0.82,0.5,0 \
+    --out-dir "/tmp/r17_supply_${run}_4090_${model}"
+done
+```
+
+H100, after copying these files into `/home/exouser/openpi` (all four models):
+
+```bash
+ssh exouser@149.165.153.233
+cd /home/exouser/openpi
+run=$(date +%Y%m%d_%H%M%S)
+for model in pi05 groot dp fastwam; do
+  bash exp/r17_integration/profile/supply_sweep.sh --host h100 --gpu 0 \
+    --model "$model" --replicas '1 2 4' --sizes '1,2,4,8,16' \
+    --phase-seconds 20 --gap-seconds 5 --hit-shares 0.82,0.5,0 \
+    --out-dir "/tmp/r17_supply_${run}_h100_${model}"
+done
+```
+
+Commands use the supplied `/data/mw_finetune/eval/*/assets/load.json` paths and
+assume their checkpoint/base/CLIP/Wan assets exist on that host. GR00T's default
+vendor is `/home/weiland/projects/openpi_ext/third_party/gr00t_n15` locally,
+`/home/exouser/gr00t_n15` on H100. `--host h100` selects native π0.5/GR00T islands,
+the formal DP/Fast-WAM `/data` islands, `python_deps312` and cache locations.
+
+Re-report any completed sweep with other request hit shares:
+
+```bash
+python3 -m exp.r17_integration.profile.supply_report "/tmp/r17_supply_${run}_h100_dp" --hit-shares 0,0.5,0.9,1
+```
+
+X is total requests / (latest completion − earliest start), including the last
+batch's overrun. GPU utilization uses the common slot interval. The report
+shows sampled GPU memory and process min/mean/max phase-peak **PyTorch reserved**
+GiB (including persistent warmup buffers, excluding CUDA/MPS/vendor allocations).
+Increase phase/gap duration if samples are sparse or a batch outlasts the gap.
+
+Open limits: GPU execution/host assets are untested here; large R/B or resident
+Fast-WAM can OOM on a 24 GB 4090. Batched quality is untested. One observation
+and prompt fill every batch. Mixed `1/X = h/X_hit + (1-h)/X_call` is an estimate;
+actual mixed contention can differ. W needs arrival/batch-fill and latency
+measurements beyond this saturated R/B supply surface.
+
+One CPU-only check (no weights or CUDA):
+
+```bash
+CUDA_VISIBLE_DEVICES='' PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q -p no:cacheprovider \
+  exp/r17_integration/profile/tests/test_supply_proc.py
+```
