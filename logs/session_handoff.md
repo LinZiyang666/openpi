@@ -97,7 +97,7 @@ owner 的常驻指令，逐字有效：
 
 **23:3x H100 队列（最新）**
 - v5（tmux `mw_h100_v5`）：`csgr_h5` 23:04 起（R8，~330 局/分，主机受限，预计 ~05:15 完）→ `fsredcos`（已准备）→ `tgr7h_k2`、`tgr7h_full`（已准备）。`csfw_k3s` 被跳过（它的 PREPARED.json 挪成 `.superseded`：旧 `cache_resume.select` 的逐决策 ACK 审计把 45,766 个有效局全判缺失，计划了 12 万局）。
-- v6（tmux `mtk_h100_v6`，`mtk/chain_h100_v6.sh`，快照 `272ca119`，标签 `[h100-v6]`）：等 `h100-v5 chain done` → `csfw_k3t`（简化后的续跑，只补缺的局）→ `tdp7h_full`（DP 满步 H100 基线）→ MT50 旋钮 `dpmk_ful`、`dpmk_red`（DP R8 B8）、`fwmk_ful`、`fwmk_red`（FW R3 B16）、`grmk_ful`、`grmk_red`（GR00T R11，驱动口 23149）。每个在上一个收局后再准备。
+- v6（tmux `mtk_h100_v6`，`mtk/chain_h100_v6.sh`，快照 `272ca119`，标签 `[h100-v6]`）：等 v5 的完成行（精确匹配带 `[h100-v5]` 标签的整行）→ `csfw_k3u`（简化后的续跑，只补缺的 74,234 局；`csfw_k3t` 23:36 被 v6 误启动后我按 PID 停掉，作废）→ `tdp7h_full`（DP 满步 H100 基线）→ MT50 旋钮 `dpmk_ful`、`dpmk_red`（DP R8 B8）、`fwmk_ful`、`fwmk_red`（FW R3 B16）、`grmk_ful`、`grmk_red`（GR00T R11，驱动口 23149）。每个在上一个收局后再准备。
 - MT50 旋钮（任务 #139）：owner 定不设开发集，直接在 seed 7 上逐档下降。代码 `12212a57`（交回 `HANDBACK_MT50_KNOB.md`），8 组标定与批次在 CPU 生成（`mtk/gen_all.sh`，输出 `exp/r17_integration/ops/cache_study/knob/mt50/<model>/<mode>/batch`）。分析：`python -m exp.offline_search.rounds.r17.knob.descent --lane /data/mw_finetune/eval/<run> --miss-steps full|reduced --control dp_mw=tdp7h_full --out ...`。π0.5 的两组（`pimk_*`）放 4090，待接进 `vla_4090c`。
 
 **22:1x 事故与 H100 重排（覆盖下面 21:3x 里 H100 的部分）**

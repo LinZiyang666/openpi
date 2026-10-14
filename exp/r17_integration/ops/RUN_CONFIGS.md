@@ -1124,6 +1124,13 @@ episodes: ~20+ min single-threaded, ~27 GB RAM). Call `prepare` once; do not cal
 evidence again). Prepare the next campaign of the lane in parallel so the GPU is not idle meanwhile. GR00T MT50 on
 H100 also needed `7db095a3` (`load_benchmark_spec` imported the LIBERO bridge; `csgr_h4` died at replica start).
 
+### Chain waits must match the tagged line, not a phrase
+
+Queue scripts wait on `grep -q PHRASE chain.log`. At 23:36 on 2026-10-13 the H100 v6 chain waited for
+"h100-v5 chain done", found that phrase inside a coordinator note describing the queue, and launched the Fast-WAM
+resume on top of the running GR00T campaign (stopped by PID 25 s later, before any replica loaded). Grep the full
+tagged line (`"\[h100-v5\] h100-v5 chain done"`) and never write a launch trigger phrase into a coordinator note.
+
 ### Prestage queued campaigns
 
 Use `ops/formal_queue.sh` and immutable preparation while the previous job runs.
