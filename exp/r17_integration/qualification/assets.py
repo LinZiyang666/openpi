@@ -46,28 +46,34 @@ def model_assets(job, output):
         raise ValueError('immutable directory required')
     if model == 'pi05':
         from exp.r17_integration.models.pi05.adapter import content_manifest, model_spec, sampler_for_steps
-        manifest = content_manifest(checkpoint)
+        manifest = content_manifest(checkpoint, benchmark=domain, benchmark_spec=benchmark)
         if not manifest['tokenizer']['sha256']:
             raise ValueError('missing sealed local PaliGemma tokenizer')
-        spec = model_spec(manifest['checkpoint_identity'], manifest['norm_identity'], code_digest=manifest['code_digest'])
-        load = dict(checkpoint=checkpoint, checkpoint_identity=spec.checkpoint_identity, device='cuda:0')
-        provider = AdapterProvider('r17_pi05_mt50_v1', spec, lambda: None, sampler_for_steps)
+        spec = model_spec(manifest['checkpoint_identity'], manifest['norm_identity'], code_digest=manifest['code_digest'],
+                          benchmark=domain, benchmark_spec=benchmark)
+        load = dict(checkpoint=checkpoint, checkpoint_identity=spec.checkpoint_identity, device='cuda:0',
+                    benchmark=domain, benchmark_spec=benchmark.manifest())
+        provider = AdapterProvider('r17_pi05_libero_v1' if domain == 'libero' else 'r17_pi05_mt50_v1', spec, lambda: None, sampler_for_steps)
     elif model == 'groot':
         from exp.r17_integration.models.groot.manifest import checkpoint_manifest
+        from exp.r17_integration.models.groot.loader import checkpoint_paths
+        checkpoint = checkpoint_paths(checkpoint, suite=job.get('suite')) if domain == 'libero' else checkpoint
         vendor = Path(job['vendor'])
         eagle = vendor / 'gr00t/model/backbone/eagle2_hg_model'
         tokenizer = sorted(str(p) for p in eagle.iterdir() if p.is_file() and p.suffix in ('.json', '.txt', '.model'))
-        code = sorted({str(p) for root in (vendor / 'gr00t', Path('exp/mw_finetune/groot'),
-                    Path('exp/r17_integration/models/groot'), Path('src/openpi/cache/groot'))
+        code_roots = [vendor / 'gr00t', Path('exp/r17_integration/models/groot'), Path('src/openpi/cache/groot')]
+        code_roots += [vendor / 'examples/Libero', Path('exp/libero_groot')] if domain == 'libero' else [Path('exp/mw_finetune/groot')]
+        code = sorted({str(p) for root in code_roots
                     for p in root.rglob('*.py')})
         manifests = {k: checkpoint_manifest(checkpoint, denoising_steps=k, tokenizer_files=tokenizer,
-                                           code_files=code) for k in (4, 3, 2, 1)}
+                                           code_files=code, benchmark=domain, benchmark_protocol=benchmark.identity) for k in (4, 3, 2, 1)}
         m = manifests[job.get('live_k', 4)]
         spec = m.model_spec()
         manifest = dict(schema='r17.model_manifest.v1', spec=asdict(spec), groot=m.to_dict(),
                         assets=dict(tokenizer_files=tokenizer, code_files=code))
-        load = dict(checkpoint=checkpoint, tokenizer_files=tokenizer, code_files=code, live_k=m.denoising_steps)
-        provider = AdapterProvider('r17_groot_mw_v1', spec, lambda: None,
+        load = dict(checkpoint=checkpoint, tokenizer_files=tokenizer, code_files=code, live_k=m.denoising_steps,
+                    benchmark=domain, benchmark_protocol=benchmark.identity)
+        provider = AdapterProvider(m.provider_id, spec, lambda: None,
                                    lambda k: manifests[k].model_spec().default_sampler)
     elif model == 'fastwam':
         from exp.r17_integration.models.fastwam.loader import LoadSpec, inspect_config, read_stats, seal_descriptor

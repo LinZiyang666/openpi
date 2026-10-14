@@ -39,7 +39,8 @@ def load(job, device='cuda:0'):
         from exp.r17_integration.models.groot.loader import load_checkpoint
         from exp.r17_integration.models.groot.provider import GrootMetaWorldAdapter, make_provider, register_provider
         backend, manifest = load_checkpoint(desc['checkpoint'], device=device, denoising_steps=desc['live_k'],
-            tokenizer_files=desc['tokenizer_files'], code_files=desc['code_files'])
+            tokenizer_files=desc['tokenizer_files'], code_files=desc['code_files'],
+            benchmark=desc.get('benchmark', 'metaworld'), benchmark_protocol=desc.get('benchmark_protocol'))
         adapter = GrootMetaWorldAdapter(backend, manifest)
         provider = make_provider(backend, manifest)
         from dataclasses import replace

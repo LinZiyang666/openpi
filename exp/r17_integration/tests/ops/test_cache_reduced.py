@@ -37,7 +37,7 @@ def reduced_study(tmp_path_factory):
     return knob.build(directory/'dev', gaps=gaps, miss_steps='reduced')
 
 
-@pytest.mark.parametrize('model', study.LIBERO_MODELS)
+@pytest.mark.parametrize('model', tuple(knob.REDUCED))
 def test_reduced_yaml_native_identity_teacher_and_complete_plan(reduced_study, model, tmp_path, monkeypatch):
     from exp.r17_integration.common import provider as registry
     monkeypatch.setattr(registry, '_providers', {})
@@ -80,7 +80,7 @@ def test_reduced_yaml_native_identity_teacher_and_complete_plan(reduced_study, m
     assert all(t.extra.get('expected_nfe', k) == (1 if model == 'cosmos_libero' else k) for t in tasks)
 
 
-@pytest.mark.parametrize('model', study.LIBERO_MODELS)
+@pytest.mark.parametrize('model', tuple(knob.REDUCED))
 def test_reduced_cpu_stage_and_rebind_cannot_restore_default(reduced_study, model, tmp_path, monkeypatch):
     from exp.r17_integration.common import provider as registry
     monkeypatch.setattr(registry, '_providers', {})
@@ -140,7 +140,7 @@ def test_reduced_test_builder_keeps_frozen_task_levels_and_k(tmp_path):
         assert extra['init_pool'] == 'A' and not extra['serve_loeo']
 
 
-@pytest.mark.parametrize('model', study.LIBERO_MODELS)
+@pytest.mark.parametrize('model', tuple(knob.REDUCED))
 @pytest.mark.parametrize('trigger', ['stall', 'periodic', 'pure'])
 def test_each_cache_model_call_uses_bound_reduced_sampler(model, trigger, tmp_path):
     provider = fixture_model(model)

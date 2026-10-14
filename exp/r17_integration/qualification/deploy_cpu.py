@@ -17,7 +17,7 @@ def runtime_archive(root, archive):
         'exp/r17_integration/models', 'exp/r17_integration/benchmarks', 'exp/r17_integration/conductor',
         'exp/r17_integration/debug', 'exp/r17_integration/search', 'exp/r17_integration/ops',
         'exp/r17_integration/qualification', 'exp/mw_finetune', 'exp/metaworld',
-        'exp/offline_search/debug', 'exp/offline_search/closed_loop', 'examples/libero']
+        'exp/offline_search/debug', 'exp/offline_search/closed_loop', 'exp/libero_groot', 'examples/libero']
     files = {root / 'exp/__init__.py'}
     for prefix in prefixes:
         files.update(p for p in (root / prefix).rglob('*.py') if not set(p.parts) & {'tests', 'scratch', '__pycache__','preflight','receipts'}
@@ -25,6 +25,7 @@ def runtime_archive(root, archive):
     files.update((root / 'exp/mw_finetune/dp').rglob('RECIPE.md'))
     files.update((root / 'exp/r17_integration/qualification/specs').glob('*.json'))
     files.add(root / 'exp/r17_integration/qualification/worker_deployment.json')
+    files.add(root / 'assets/pi05_libero/physical-intelligence/libero/norm_stats.json')
     with tarfile.open(archive, 'w') as tar:
         for path in sorted(files):
             if path.is_file():

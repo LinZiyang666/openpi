@@ -1,4 +1,4 @@
-"""Content identities and strict MW library geometry (no checkpoint tensors loaded)."""
+"""Benchmark-owned GR00T geometry and inference assets; no tensors loaded."""
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field, replace
@@ -76,6 +76,23 @@ class GrootManifest:
     hidden_width: int = 2048
     benchmark_protocol: str = field(default_factory=default_protocol)
     interface_version: str = "r17.contracts.v1"
+    benchmark: str = "metaworld"
+
+    @property
+    def channels(self):
+        return ("x", "y", "z", "roll", "pitch", "yaw", "gripper") if self.benchmark == "libero" else CHANNELS
+
+    @property
+    def state_dim(self):
+        return 8 if self.benchmark == "libero" else 4
+
+    @property
+    def provider_id(self):
+        return "r17_groot_libero_v1" if self.benchmark == "libero" else PROVIDER
+
+    @property
+    def builder_id(self):
+        return "cp1_groot_libero_spatial_pool_16" if self.benchmark == "libero" else BUILDER
 
     def __post_init__(self):
         if type(self.denoising_steps) is not int or self.denoising_steps not in (1, 2, 3, 4):
@@ -89,6 +106,14 @@ class GrootManifest:
 
     @property
     def layout(self):
+        if self.benchmark == "libero":
+            return {"horizon": 16, "replan_steps": 5, "model_action_width": 32,
+                "valid_action_dim": 7, "valid_action_mask": [i < 7 for i in range(32)],
+                "valid_state_indices": list(range(8)), "motion_channels": list(range(6)),
+                "gripper_channel": 6, "gripper_closed_convention": "positive LIBERO close command",
+                "raw_state_fields": ["x", "y", "z", "roll", "pitch", "yaw", "gripper_qpos_0", "gripper_qpos_1"],
+                "action_space_name": "libero_native7", "units": "native controller", "frame": "world",
+                "output_transform_id": self.transform_identity}
         return {"horizon": 16, "replan_steps": 5, "model_action_width": 32,
                 "valid_action_dim": 4, "valid_action_mask": [i < 4 for i in range(32)],
                 "valid_state_indices": [0, 1, 2, 3], "motion_channels": [0, 1, 2],
@@ -99,10 +124,10 @@ class GrootManifest:
 
     @property
     def feature_spec(self):
-        return {"cut": "eagle_scatter_before_llm", "real_cameras": ["video.image"],
-                "vision_fields": ["vision_0"], "token_grid": [16, 16], "hidden_width": self.hidden_width,
+        return {"cut": "eagle_scatter_before_llm", "real_cameras": ["video.image", "video.wrist_image"] if self.benchmark == "libero" else ["video.image"],
+                "vision_fields": ["vision_0", "vision_1"] if self.benchmark == "libero" else ["vision_0"], "token_grid": [16, 16], "hidden_width": self.hidden_width,
                 "pooling": "spatial4x4_float32_v1", "prompt_dependent": False,
-                "state_indices": [0, 1, 2, 3], "dtype": "float32", "builder": BUILDER,
+                "state_indices": list(range(self.state_dim)), "dtype": "float32", "builder": self.builder_id,
                 "preprocess_identity": self.transform_identity, "norm_identity": self.norm_identity}
 
     @property
@@ -118,7 +143,8 @@ class GrootManifest:
         result = {name: {"status": "implemented_unverified", "reason": "CPU conformance; GPU qualification pending"} for name in core}
         for name in ("batch_stage1", "batch_stage2", "split", "cp2", "online_rit"):
             result[name] = {"status": "unsupported", "reason": "no MW qualification for this hook"}
-        result["dual_camera_ablation"] = {"status": "not_applicable", "reason": "one real camera"}
+        if self.benchmark != "libero":
+            result["dual_camera_ablation"] = {"status": "not_applicable", "reason": "one real camera"}
         return result
 
     @property
@@ -131,14 +157,14 @@ class GrootManifest:
 
     def model_spec(self):
         from exp.r17_integration.common.contracts import ActionStateLayout, Capabilities, Capability, FeatureSpec, ModelSpec, SamplerSpec
-        layout = ActionStateLayout(16, 5, 4, (0, 1, 2, 3), (0, 1, 2), 3,
-                                  gripper_closed_convention="native_metaworld", raw_state_fields=CHANNELS,
-                                  action_space_name="metaworld_sawyer_native4", units="native controller; physical scale unverified",
-                                  frame="native_metaworld", output_transform_id=self.transform_identity, model_action_width=32)
-        feature = FeatureSpec("eagle_scatter_before_llm", ("video.image",),
-                              {"vision_0": 16 * self.hidden_width, "robot_state": 4},
+        layout_data = {k:v for k,v in self.layout.items() if k != "valid_action_mask"}
+        for key in ("valid_state_indices", "motion_channels", "raw_state_fields"):
+            layout_data[key] = tuple(layout_data[key])
+        layout = ActionStateLayout(**layout_data)
+        feature = FeatureSpec("eagle_scatter_before_llm", tuple(self.feature_spec["real_cameras"]),
+                              {**{name:16 * self.hidden_width for name in self.feature_spec["vision_fields"]}, "robot_state": self.state_dim},
                               token_grid=(16, 16), hidden_width=self.hidden_width, pooling="spatial4x4_float32_v1",
-                              active_state_indices=(0, 1, 2, 3), policy_digest=self.checkpoint_identity,
+                              active_state_indices=tuple(range(self.state_dim)), policy_digest=self.checkpoint_identity,
                               norm_digest=self.norm_identity, preprocess_digest=self.transform_identity)
         k = self.denoising_steps
         sampler = SamplerSpec(f"groot_n15_k{k}_v1", "flow_euler", k, tuple(i / k for i in range(k)),
@@ -156,12 +182,13 @@ class GrootManifest:
         caps.update({name: Capability("implemented_unverified", reason) for name, reason in hook_limits.items()})
         caps.update({name: Capability("unsupported", item["reason"]) for name, item in self.capabilities.items()
                      if item["status"] == "unsupported"})
-        caps["dual_camera_ablation"] = Capability("not_applicable", "one real camera")
-        return ModelSpec("groot_n15_metaworld_sawyer", self.checkpoint_identity, self.norm_identity, layout, feature,
+        if self.benchmark != "libero":
+            caps["dual_camera_ablation"] = Capability("not_applicable", "one real camera")
+        return ModelSpec("groot_libero" if self.benchmark == "libero" else "groot_n15_metaworld_sawyer", self.checkpoint_identity, self.norm_identity, layout, feature,
                          sampler, Capabilities(caps), (self.benchmark_protocol,), self.code_identity, "GR00T vendor island")
 
     def to_dict(self):
-        return {**asdict(self), "provider": PROVIDER, "embodiment": EMBODIMENT, "embodiment_id": 31,
+        return {**asdict(self), "provider": self.provider_id, "embodiment": "new_embodiment" if self.benchmark == "libero" else EMBODIMENT, "embodiment_id": 31,
                 "layout": self.layout, "feature_spec": self.feature_spec, "sampler_spec": self.sampler_spec,
                 "capabilities": self.capabilities, **self.identities,
                 "r17_model_spec": asdict(self.model_spec()),
@@ -200,36 +227,52 @@ def validate_teacher_sampler(meta, manifest):
 
 def validate_library(meta, manifest, *, vector_dims=None):
     for key, expected in manifest.identities.items():
-        if key == "sampler_identity":
+        if key == "sampler_identity" or manifest.benchmark == "libero":
             continue  # teacher sampler is provenance; MISS sampler belongs to the endpoint
         if meta.get(key) != expected:
             raise ValueError(f"library {key} differs from served GR00T-MW endpoint")
-    if meta.get("key_builder_type") != BUILDER:
+    if meta.get("key_builder_type") != manifest.builder_id:
         raise ValueError("library key builder differs")
-    expected = {"vision_0": 16 * manifest.hidden_width, "robot_state": 4}
+    expected = dict(manifest.model_spec().feature_spec.fields)
     if (vector_dims if vector_dims is not None else meta.get("vector_dims")) != expected:
         raise ValueError("library must contain one real vision field and state4")
-    if tuple(meta.get("action_shape", ())) != (16, 32) or meta.get("active_action_indices") != [0, 1, 2, 3]:
+    if tuple(meta.get("action_shape", ())) != (16, 32) or meta.get("active_action_indices") != list(range(len(manifest.channels))):
         raise ValueError("library must preserve H16×32 storage with first4 active")
     validate_teacher_sampler(meta, manifest)
 
 
 def library_metadata(manifest):
     from exp.r17_integration.common.recipe import retrieval_model_identity
-    return {**manifest.identities, "interface_version": "r17.contracts.v1", "key_builder_type": BUILDER,
+    return {**manifest.identities, "interface_version": "r17.contracts.v1", "key_builder_type": manifest.builder_id,
             "r17_binding": {**manifest.identities, "retrieval_model_identity": retrieval_model_identity(manifest.model_spec())},
             "library_sampler_identity": manifest.model_spec().default_sampler.identity,
             "library_sampler": asdict(manifest.model_spec().default_sampler),
-            "vector_dims": {"vision_0": 16 * manifest.hidden_width, "robot_state": 4},
-            "action_shape": [16, 32], "active_action_indices": [0, 1, 2, 3],
-            "real_cameras": ["video.image"], "denoise_schedule": manifest.sampler_spec["schedule_id"]}
+            "vector_dims": dict(manifest.model_spec().feature_spec.fields),
+            "action_shape": [16, 32], "active_action_indices": list(range(len(manifest.channels))),
+            "real_cameras": manifest.feature_spec["real_cameras"], "denoise_schedule": manifest.sampler_spec["schedule_id"]}
 
 
-def checkpoint_manifest(checkpoint, *, denoising_steps=4, tokenizer_files=(), code_files=()):
+def checkpoint_manifest(checkpoint, *, denoising_steps=4, tokenizer_files=(), code_files=(),
+                        benchmark="metaworld", benchmark_protocol=None):
     """Hash immutable inference assets. Caller must supply tokenizer/vendored source inputs."""
+    if benchmark == "libero" and benchmark_protocol is None:
+        from exp.r17_integration.ops.formal_eval import benchmark as libero_spec
+        from exp.r17_integration.common.benchmarks import register_benchmark
+        protocol = libero_spec()
+        register_benchmark(protocol)
+        benchmark_protocol = protocol.identity
+    if isinstance(checkpoint, dict):
+        manifests = {suite:checkpoint_manifest(path, denoising_steps=denoising_steps,
+            tokenizer_files=tokenizer_files, code_files=code_files, benchmark=benchmark,
+            benchmark_protocol=benchmark_protocol) for suite,path in checkpoint.items()}
+        first = next(iter(manifests.values()))
+        return replace(first, checkpoint_identity=digest({s:m.checkpoint_identity for s,m in manifests.items()}),
+            norm_identity=digest({s:m.norm_identity for s,m in manifests.items()}),
+            transform_identity=digest({s:m.transform_identity for s,m in manifests.items()}))
     checkpoint = Path(checkpoint)
     metadata_path = checkpoint / "experiment_cfg/metadata.json"
-    metadata = validate_training_metadata(json.loads(metadata_path.read_text()))
+    document = json.loads(metadata_path.read_text())
+    metadata = document["new_embodiment"] if benchmark == "libero" else validate_training_metadata(document)
     config_path = checkpoint / "config.json"
     config = json.loads(config_path.read_text())
     head = config.get("action_head_cfg", config.get("action_head_config", {}))
@@ -253,7 +296,9 @@ def checkpoint_manifest(checkpoint, *, denoising_steps=4, tokenizer_files=(), co
     code_id = digest(code_hashes)
     tokenizer_id = digest(tokenizer_hashes)
     norm_id = digest(metadata)
-    transform_id = digest({"code": code_id, "norm": norm_id, "tokenizer": tokenizer_id, "embodiment": EMBODIMENT})
+    transform_id = digest({"code": code_id, "norm": norm_id, "tokenizer": tokenizer_id,
+                           "embodiment": "new_embodiment" if benchmark == "libero" else EMBODIMENT})
     identity = digest({"weights": weight_hashes, "config": file_digest(config_path), "metadata": file_digest(metadata_path),
                        "code": code_id, "tokenizer": tokenizer_id, "transform": transform_id})
-    return GrootManifest(identity, norm_id, code_id, transform_id, tokenizer_id, denoising_steps)
+    return GrootManifest(identity, norm_id, code_id, transform_id, tokenizer_id, denoising_steps,
+                         benchmark_protocol=benchmark_protocol or default_protocol(), benchmark=benchmark)

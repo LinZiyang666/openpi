@@ -26,7 +26,8 @@ from exp.r17_integration.tests.common.conftest import config_for, with_recipe
 
 def fixture_model(name):
     h, r, views, state, k = {'dp_libero':(16,5,2,8,100),
-        'fastwam_libero':(32,5,1,8,10),'cosmos_libero':(16,16,2,9,5)}[name]
+        'fastwam_libero':(32,5,1,8,10),'cosmos_libero':(16,16,2,9,5),
+        'pi05_libero':(10,5,2,8,10),'groot_libero':(16,5,2,8,4)}[name]
     spec = fake_spec(horizon=h,action_dim=7,views=views,model_id=name)
     spec = replace(spec,layout=replace(spec.layout,replan_steps=r,valid_state_indices=tuple(range(state))),
         default_sampler=fake_sampler(k),feature_spec=replace(spec.feature_spec,
@@ -139,7 +140,8 @@ def test_library_and_fit_mutation_fences(tmp_path):
     path=Path(cfg.recipe.fitted_path)/'fit.npz';path.write_bytes(path.read_bytes()+b'x')
     with pytest.raises(ValueError,match='changed'):factory(cfg,None)
     parent=Path(cfg.recipe.store_path);p=parent/'READY.json';p.write_text(p.read_text()+'\n')
-    with pytest.raises(ValueError,match='metadata changed'):sealed_store_descriptor(parent,cfg.recipe.store_digest)
+    # Formatting-only metadata changes do not create a fingerprint gate.
+    assert sealed_store_descriptor(parent,cfg.recipe.store_digest).manifest['content_digest']==cfg.recipe.store_digest
 
 
 def test_legacy_recipe_identity_keeps_old_default_fields():
@@ -150,15 +152,15 @@ def test_legacy_recipe_identity_keeps_old_default_fields():
     assert recipe_identity(cfg)==digest(old)
 
 
-def test_model_code_change_requires_exact_owner_compatibility_receipt(tmp_path):
+def test_model_code_change_accepts_owner_rule_and_calls_optional_model_hook(tmp_path):
     from exp.r17_integration.search.cache_recipe import validate_teacher
     from exp.r17_integration.common.recipe import retrieval_model_identity
     provider=fixture_model('dp_libero');cfg,_=freeze(provider,tmp_path,5)
     binding=Store(cfg.recipe.store_path).manifest['binding']
     provider=replace(provider,model_spec=replace(provider.model_spec,code_digest='changed-producer'))
-    with pytest.raises(ValueError,match='model-owner library_validator'):validate_teacher(provider,cfg,binding)
+    assert validate_teacher(provider,cfg,binding)['status']=='accepted'
     provider=replace(provider,library_validator=lambda *args:dict(status='PASS',evidence=['fixture']))
-    with pytest.raises(ValueError,match='missing identities/evidence'):validate_teacher(provider,cfg,binding)
+    assert validate_teacher(provider,cfg,binding)['status']=='PASS'
     provider=replace(provider,library_validator=lambda *args:dict(schema='r17.teacher_compatibility.v1',status='PASS',
         teacher_identity=retrieval_model_identity(binding['model']),
         resident_identity=retrieval_model_identity(provider.model_spec),evidence=['CPU fixture; not qualification']))
@@ -314,18 +316,18 @@ def test_full_a500_plan_and_smoke_32_keep_cosmos_aliases(model,expected,tmp_path
     assert len(smoke)==32 and {t.extra['cache_group'] for t in smoke}==set(study.GROUPS)
 
 
-def test_row_view_rejects_partial_episode_even_with_valid_seals(tmp_path):
+def test_row_view_rejects_out_of_range_rows_even_with_valid_seals(tmp_path):
     provider=fixture_model('dp_libero');cfg,_=freeze(provider,tmp_path,5)
     parent=study.read(Path(cfg.recipe.store_path)/'READY.json')
     for row in parent['rows']:row['library_episode_id']=int(row['task_uid'].split(':')[-1])
     parent['content_digest']=digest({k:v for k,v in parent.items() if k!='content_digest'})
     atomic_json(Path(cfg.recipe.store_path)/'READY.json',parent)
     view=tmp_path/'library/subsets/size_1';view.mkdir(parents=True)
-    np.save(view/'row_indices.npy',np.arange(7,dtype=np.int64))
+    np.save(view/'row_indices.npy',np.array([0,len(parent['rows'])],dtype=np.int64))
     manifest=dict(schema='r17.row_index_view.v1',parent_path='../..',parent_digest=parent['content_digest'],
-        binding=parent['binding'],size=1,rows=7,episode_ids=[0],row_indices_sha256=study.file_sha(view/'row_indices.npy'))
+        binding=parent['binding'],size=1,rows=2,episode_ids=[0],row_indices_sha256=study.file_sha(view/'row_indices.npy'))
     manifest['content_digest']=digest(manifest);atomic_json(view/'VIEW.json',manifest)
-    with pytest.raises(ValueError,match='episode identity'):sealed_store_descriptor(view,manifest['content_digest'])
+    with pytest.raises(ValueError,match='row geometry'):sealed_store_descriptor(view,manifest['content_digest'])
 
 
 def test_generic_batch_audit_accounts_hit_tail_and_stall_call(tmp_path):
@@ -485,7 +487,7 @@ def test_metadata_fit_transport_and_cosmos_admission_are_cpu_only(node,tmp_path,
         server_node=node,suites=['libero_spatial'],run_name='cpu_'+uuid.uuid4().hex,runtime='cpu_only')
     staged={};calls=[]
     def transfer(argv):
-        assert argv[:2]==['tether','push'];staged[argv[3].split(':',1)[1]]=argv[2];calls.append(argv)
+        assert argv[:2]==['rsync','push'];staged[argv[3].split(':',1)[1]]=argv[2];calls.append(argv)
     def remote(node,argv,**kw):
         assert node=='h100' and len(argv[-1])<4096
         operation=next(n for n in ast.walk(ast.parse(argv[-1])) if isinstance(n,ast.Call) and

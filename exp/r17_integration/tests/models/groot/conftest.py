@@ -89,7 +89,7 @@ class Head(torch.nn.Module):
             future = self.future_tokens.weight[None].expand(vl.shape[0], -1, -1)
             predicted = self.action_decoder(self.model(hidden_states=torch.cat((state, future, encoded), 1),
                                                       encoder_hidden_states=vl, timestep=t), emb)
-            x = x + predicted[:, -16:] / self.num_inference_timesteps
+            x = x + (1.0 / self.num_inference_timesteps) * predicted[:, -16:]
         return {"action_pred": x}
 
 

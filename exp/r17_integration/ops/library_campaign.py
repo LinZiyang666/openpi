@@ -20,6 +20,7 @@ from .library_alignment import ROOT, SUITES, load_alignment
 LIBRARY_ROOT = Path('/data/r17_library')
 AUDIT_ROOT = ROOT/'exp/r17_integration/ops/samples/libero_library_alignment'
 PORT_BASE = {'dp_libero':23320,'fastwam_libero':23340,'cosmos_libero':23360,
+             'pi05_libero':23160, 'groot_libero':23160,
              'dp_mw':23180, 'fastwam_mw':23170, 'pi05_mw':23160, 'groot_mw':23160, 'cosmos_mw':23240}
 
 
@@ -265,8 +266,13 @@ def parse_args(argv=None):
     p.add_argument('--max-batch',type=int,default=1)
     p.add_argument('--batch-wait-ms',type=float,default=5)
     p.add_argument('--mps',action='store_true')
+    p.add_argument('--driver-mode',choices=('legacy','group-commit'),default='legacy')
     p.add_argument('--memory-budget-gib',type=float); p.add_argument('--gpu',default='cuda:0')
     p.add_argument('--worker-egl-device',type=int,default=0)
+    p.add_argument('--worker-egl-devices',type=lambda s:[int(v) for v in s.split(',')])
+    p.add_argument('--worker-memory-mib',type=int)
+    p.add_argument('--worker-vram-mib',type=int,default=1024)
+    p.add_argument('--worker-max-episodes',type=int)
     p.add_argument('--worker-min-free-gib',type=float,default=8,
                    help='Available worker run/stage filesystem GiB required at launch/recycle (default8)')
     p.add_argument('--port',type=int); p.add_argument('--driver-port',type=int)
@@ -280,15 +286,16 @@ def parse_args(argv=None):
     a = p.parse_args(argv)
     if not 0 < a.worker_min_free_gib < 1024:
         p.error('--worker-min-free-gib must be positive and below1024')
-    a.server_node = a.server_node or ('local' if a.model=='dp_libero' else 'h100')
+    vla = a.model in ('pi05_libero', 'groot_libero')
+    a.server_node = a.server_node or ('local' if a.model in ('dp_libero', 'pi05_libero') else 'h100')
     mw = a.model.endswith('_mw')
     from exp.r17_integration.models.dp.batch_runtime import BatchConfig
     BatchConfig(a.max_batch,a.batch_wait_ms)
     if a.max_batch>1 and (not mw or a.model not in ('dp_mw','fastwam_mw')):
         p.error('library batching supports DP/Fast-WAM MT50')
     if mw != (a.suite == 'mt50'): p.error('MetaWorld models require --suite mt50; LIBERO models require a LIBERO suite')
-    a.capture_images = not mw if a.capture_images is None else a.capture_images
-    a.worker_node = a.worker_node or ('timan107' if mw or a.model=='dp_libero' else 'timan108')
+    a.capture_images = not (mw or vla) if a.capture_images is None else a.capture_images
+    a.worker_node = a.worker_node or ('timan107' if mw or vla or a.model=='dp_libero' else 'timan108')
     a.worker_counts = a.worker_counts or {a.worker_node:a.workers}
     a.workers = sum(a.worker_counts.values())
     if 'local' in a.worker_counts: p.error('library simulators require remote worker nodes')
@@ -298,12 +305,14 @@ def parse_args(argv=None):
         p.error('nested per-task counts must be distinct increasing values in1..50')
     a.replicas = a.replicas if a.replicas is not None else (1 if mw else 2 if a.smoke and a.model=='dp_libero' else 12 if a.model=='dp_libero' else 1)
     a.port = a.port if a.port is not None else PORT_BASE[a.model]
-    a.driver_port = a.driver_port if a.driver_port is not None else (23112 if a.model=='cosmos_mw' else PORT_BASE[a.model]+9 if mw else PORT_BASE[a.model]+19)
+    a.driver_port = a.driver_port if a.driver_port is not None else (23112 if a.model=='cosmos_mw' else PORT_BASE[a.model]+9 if mw or vla else PORT_BASE[a.model]+19)
     ports = [a.port,*range(a.port+1,a.port+1+a.replicas),a.driver_port]
-    service_ports = ports[:-1] if mw else ports
-    if a.replicas<1 or a.workers<1 or len(set(ports))!=len(ports) or any(p not in range(PORT_BASE[a.model],PORT_BASE[a.model]+(10 if mw else 20)) for p in service_ports):
+    service_ports = ports[:-1] if mw or vla else ports
+    if a.replicas<1 or a.workers<1 or len(set(ports))!=len(ports) or any(p not in range(PORT_BASE[a.model],PORT_BASE[a.model]+(10 if mw or vla else 20)) for p in service_ports):
         p.error('positive workers/replicas and distinct ports in the model window required')
-    if mw and a.driver_port not in range(23100,23200): p.error('driver port must lie in23100..23199')
+    if (mw or vla) and a.driver_port not in range(23100,23200): p.error('driver port must lie in23100..23199')
+    a.worker_memory_mib = a.worker_memory_mib if a.worker_memory_mib is not None else (2048 if mw else 6144)
+    a.worker_max_episodes = a.worker_max_episodes if a.worker_max_episodes is not None else (0 if mw else 4)
     a.seconds = a.seconds or (900 if a.smoke else 172800)
     a.episode_seconds = a.episode_seconds or (min(600,a.seconds) if a.smoke else 3600)
     if not 60<=a.seconds<=172800 or not 30<=a.episode_seconds<=a.seconds or a.smoke and a.seconds>900:
@@ -345,7 +354,8 @@ def main(argv=None):
             a.g2_b_receipt = a.g2_b_receipt or original.get('g2_b_receipt')
     if a.model=='cosmos_libero' and not (ROOT/'exp/r17_integration/handbacks/HANDBACK_COSMOS.md').exists():
         raise ValueError('Cosmos library waits for sol D HANDBACK_COSMOS.md and debug-capable bundle')
-    checkpoint = repair[0]['checkpoint'] if repair else a.checkpoint or formal.DEFAULT_CHECKPOINTS[a.model]
+    checkpoint = repair[0]['checkpoint'] if repair else a.checkpoint or (
+        '/home/exouser/ckpt' if a.model == 'groot_libero' and a.server_node == 'h100' else formal.DEFAULT_CHECKPOINTS[a.model])
     if a.model=='fastwam_libero':
         require_fastwam_g2(a.g2_a_receipt,a.g2_b_receipt,checkpoint)
     mw = a.suite == 'mt50'
@@ -384,10 +394,12 @@ def main(argv=None):
         ab_descriptor=str(a.ab_descriptor) if a.ab_descriptor else None,
         g2_a_receipt=str(a.g2_a_receipt) if a.g2_a_receipt else None,
         g2_b_receipt=str(a.g2_b_receipt) if a.g2_b_receipt else None,
-        run_name=name,model=model,domain='metaworld' if mw else 'libero',checkpoint=checkpoint,
+        run_name=name,model=model,domain='metaworld' if mw else 'libero',checkpoint=checkpoint,driver_mode=a.driver_mode,
         device=a.gpu,server_node=a.server_node,worker_nodes=a.worker_counts,workers=a.workers,
         capture_images=a.capture_images,subset_counts=a.subset_counts,prepare_only=a.prepare_only,
         worker_egl_device=a.worker_egl_device,replicas=a.replicas,public_port=a.port,
+        worker_egl_devices=a.worker_egl_devices,worker_memory_mib=a.worker_memory_mib,
+        worker_vram_mib=a.worker_vram_mib,worker_max_episodes=a.worker_max_episodes,
         replica_startup_width=a.replica_startup_width or min(a.replicas,4),
         worker_min_free_gib=a.worker_min_free_gib,
         backend_ports=list(range(a.port+1,a.port+1+a.replicas)),ports=[a.port,*range(a.port+1,a.port+1+a.replicas),a.driver_port],
@@ -401,8 +413,8 @@ def main(argv=None):
         for key in ('alignment','bpool_archive','bpool_transfer'):
             campaign.pop(key)
         campaign.update(worker_memory_mib=2048,worker_vram_mib=1024,worker_max_episodes=0)
-        if model == 'groot':
-            campaign['vendor'] = '/home/weiland/projects/openpi_ext/third_party/gr00t_n15'
+    if model == 'groot':
+        campaign['vendor'] = '/home/weiland/projects/openpi_ext/third_party/gr00t_n15'
     if repair:
         original,_,pin = repair
         if a.smoke or a.server_node != original['server_node']:

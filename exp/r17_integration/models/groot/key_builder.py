@@ -1,19 +1,19 @@
-"""One-camera specialization of the stock GR00T mask-driven CP1 builder."""
+"""Benchmark camera/state geometry over the stock mask-driven CP1 builder."""
 from __future__ import annotations
 
 import torch
 from openpi.cache.groot.key_builder import GrootCP1SpatialPool16KeyBuilder
 
 
-def validate_stage1(stage1, *, hidden_width=None):
+def validate_stage1(stage1, *, hidden_width=None, state_dim=4):
     state, mask = stage1.state, stage1.state_mask
     if state.shape != (1, 1, 64) or mask.shape != state.shape or mask.dtype != torch.bool:
-        raise RuntimeError("MetaWorld state/state_mask must be [1,1,64] bool mask")
+        raise RuntimeError("native state/state_mask must be [1,1,64] bool mask")
     expected = torch.zeros_like(mask)
-    expected[..., :4] = True
+    expected[..., :state_dim] = True
     if not torch.equal(mask, expected):
-        raise RuntimeError("MetaWorld state_mask must select first4 channels only")
-    if not torch.isfinite(state[..., :4]).all():
+        raise RuntimeError(f"native state_mask must select first{state_dim} channels only")
+    if not torch.isfinite(state[..., :state_dim]).all():
         raise RuntimeError("MetaWorld state is not finite")
     embodiment = stage1.action_inputs["embodiment_id"]
     if embodiment.numel() != 1 or int(embodiment.reshape(-1)[0]) != 31:
@@ -28,16 +28,18 @@ def validate_stage1(stage1, *, hidden_width=None):
 class GrootMetaWorldCP1SpatialPool16KeyBuilder(GrootCP1SpatialPool16KeyBuilder):
     vision_fields = ("vision_0",)
 
-    def __init__(self, enabled_fields=None, *, hidden_width=2048):
-        enabled_fields = ["vision_0", "robot_state"] if enabled_fields is None else enabled_fields
-        if set(enabled_fields) - {"vision_0", "robot_state", "prompt_emb"}:
+    def __init__(self, enabled_fields=None, *, hidden_width=2048, benchmark="metaworld"):
+        self.vision_fields = ("vision_0", "vision_1") if benchmark == "libero" else ("vision_0",)
+        self.state_dim = 8 if benchmark == "libero" else 4
+        enabled_fields = [*self.vision_fields, "robot_state"] if enabled_fields is None else enabled_fields
+        if set(enabled_fields) - {*self.vision_fields, "robot_state", "prompt_emb"}:
             raise ValueError("MetaWorld has no vision_1/vision_2 retrieval field")
         super().__init__(enabled_fields)
         self.hidden_width = hidden_width
 
     def collect(self, checkpoint_id, **stage_outputs):
         if "stage1" in stage_outputs:
-            validate_stage1(stage_outputs["stage1"], hidden_width=self.hidden_width)
+            validate_stage1(stage_outputs["stage1"], hidden_width=self.hidden_width, state_dim=self.state_dim)
         super().collect(checkpoint_id, **stage_outputs)
 
 

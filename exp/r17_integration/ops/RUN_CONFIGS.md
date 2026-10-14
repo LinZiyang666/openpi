@@ -35,16 +35,13 @@ gain. Select a measured treatment before a baseline and freeze it for its arms.
   `--worker-egl-devices 0,3`, verify those two cards and old fleet closure,
   and repeat host/VRAM admission. Older documents describing three usable
   cards or timan108 as the automatic preferred host are superseded.
-- Formal selectors currently exist for `pi05_mw`, `groot_mw`, `dp_mw`,
-  `fastwam_mw`, `dp_libero`, `fastwam_libero`, `cosmos_libero`.
-  **There is no `pi05_libero` or `groot_libero` selector in formal_eval.sh.**
-  Their two sections give the actual R16 resident/conductor path. Do not
-  substitute an invalid formal command or equate an R16 cached group with an
-  R17 pure-inference official-2000 baseline.
+- Formal selectors include `pi05_mw`, `groot_mw`, `dp_mw`, `fastwam_mw`,
+  `dp_libero`, `fastwam_libero`, `cosmos_libero`, `pi05_libero`, `groot_libero`.
+  The two VLA LIBERO selectors use the shared formal/library/cache path; see
+  [LIBERO VLA handback](../handbacks/HANDBACK_LIBERO_VLA.md) for commands.
 - `--max-batch > 1` is admitted for **Fast-WAM/DP LIBERO and MetaWorld MT50** in the normal
   formal launcher. Other formal selectors use B1; a batching window has no
-  effect on that direct path. Legacy LIBERO π0.5/GR00T have their own batch
-  environment variables, described below.
+  effect on that direct path. Formal LIBERO π0.5/GR00T use B1 per replica.
 - Baseline and arms must use the **same GPU type and batching configuration**.
   Also pin checkpoint/norm/protocol, replica count, worker node/count,
   per-stage workers/streams, renderer selection, RAM/VRAM reservation, and
@@ -205,113 +202,48 @@ do not invent a measured MT50 per-worker RSS from the live LIBERO fleets.
 
 ## π0.5 x LIBERO
 
-**Launcher:** formal_eval.sh selector unavailable. R16's runnable local
-resident-group template, with an existing sealed group and worker island:
+**Formal selector:** `pi05_libero`. Original cached checkpoint:
+`/home/weiland/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch`.
+Norms: `assets/pi05_libero/physical-intelligence/libero/norm_stats.json`, the
+config-owned fallback used by the historical stock loader. The frozen runtime
+now carries this file. Native K10, H10/action32 storage, 7-D wire action, 8-D
+state, paired agentview/wrist RGB256; CP1 pools each 256-token view to 32768.
 
-```bash
-env CUDA_VISIBLE_DEVICES='' PYTHONDONTWRITEBYTECODE=1 \
-  OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONPATH=.:src \
-  BATCHING_MAX_BATCH_SIZE=8 BATCHING_MAX_WAIT_MS=10 \
-  .venv/bin/python -m exp.offline_search.rounds.r16.conductor_runner run \
-  --group /absolute/path/to/SEALED_PI05_GROUP/group.json \
-  --agent-island /scratch/zixuans8/openpi_r16_conductor_v1 \
-  --workers 32 --ports 23150,23151,23152 --port 23159
-```
+**Proposed LIBERO topology:** 4090 R5/MPS/B1, startup width 3, whole-server
+budget 47 GiB, timan107 x24, EGL0..7/N4. Inherit NUMA-node-1 affinity with
+`taskset -c 22-43,66-87` on the launcher (replicas and proxy inherit it).
+R5/MPS/B1 and that CPU placement come from the measured MT50 topology above;
+LIBERO peak VRAM and throughput remain unmeasured. Use a fresh matching pure
+baseline. `--official-50` plans all 2000 episodes; selecting spatial/10 keeps 1000.
 
-The CPU controller hides CUDA; the resident helper starts GPU model processes.
-This runner hardcodes local servers and timan107 workers. It uses3 residents
-outside isolated smoke, each holding both suites' methods; it does not offer
-a replica-count flag. The older h100 control chain is the H100 alternative:
-`SERVER_HOST=h100 WORKER_HOST=timan107 PORTS=23230,23231,23232 WPS=10
-.venv/bin/python -m exp.offline_search.closed_loop.ops.h100.control chain
-/absolute/SEALED_ROOT ARM_NAME`, after that root's normal plan/sync checks.
-Those are legacy service ports and a separate fleet lease.
-
-- **GPU alone:** local3, or legacy H1003; budget about30 GiB total using
-  R16's10,000 MiB startup need/resident. R10/R11 also ran4 endpoints x16
-  workers on local,64 workers total. Three is the R16 resident-group topology,
-  not a demonstrated universal maximum. Start32 under the conservative
-  current LIBERO RAM envelope; historical64 needs a fresh resource check.
-- **Sharing:** H100 legacy1..2 or local smoke1 would save weights, but changing
-  an R16 full group's fixed3 requires a different supported group/launcher;
-  the command above cannot silently become R1. Do not put this legacy fleet
-  beside a formal fleet on timan107: its node-wide fleet lease and missing new resource
-  hooks make that an unavailable shared-node configuration today.
-- **Batch:** legacy coordinator default max8/window10 ms for S1/S2/S3.
-  Actual historical fill and normalized drift are not established by a
-  qualification receipt read for this reference. Keep those settings fixed
-  within a study; no B1 byte-equivalence claim for B>1.
-- **Workers/resources:** timan107; historical64, proposed conservative32.
-  Desired RAM/VRAM/recycle =6144/1024/N4 and spread across0..7, but this
-  **legacy CLI has none of the formal `--worker-*` flags**. Treat those as an
-  integration gap, not as configured protections. Verify the island's worker
-  implementation before a new fleet; do not transplant flags into this command.
-- **Measured rate:** no isolated full-K π0.5 LIBERO episodes/min, calls/s or
-  board W in the inspected receipts. R16 reported0.95..0.99 worker busy
-  fraction for resident groups; that is not GPU utilization. R10 cache-prune
-  `infer_ms` includes queueing and counts all resident libraries in group RAM.
-- **Bottleneck:** cached/reduced-K groups can be CPU frontend/retrieval limited;
-  full-model stages and batch fill matter for pure inference. R16's0.44 ms
-  π preprocessing profile does not measure whole inference or a new baseline.
-
-Sources: [R16 runbook](../../offline_search/rounds/r16/RUNBOOK_CONDUCTOR.md),
-[resident runner](../../offline_search/rounds/r16/conductor_runner.py),
-[cache-prune history](../../../logs/cache_prune_run_handoff.md),
-[session history](../../../logs/session_handoff.md),
-[local legacy serving](../../offline_search/closed_loop/ops/h100/HANDBACK_LOCAL.md).
+B500 libraries are image-free by default. The cache study uses all eight groups,
+C5/C10 and native K10 MISS; reduced K1..5 remains opt-in. Commands, including
+capture, CPU finish and six-size preparation:
+[HANDBACK_LIBERO_VLA.md](../handbacks/HANDBACK_LIBERO_VLA.md).
 
 ## GR00T x LIBERO
 
-**Launcher:** formal_eval.sh selector unavailable. Local R16 template:
+**Formal selector:** `groot_libero`. Default checkpoint root is `/data/ckpt`
+on local, `/home/exouser/ckpt` on H100, containing `n15_libero_spatial` and
+`n15_libero_10`. Each uses its own `experiment_cfg/metadata.json` entry
+`new_embodiment` (slot 31), native LIBERO transforms and gripper inversion.
+The shared adapter selects the suite's backend from the canonical task name.
+Library campaigns load only their suite; baselines/cache residents load both.
 
-```bash
-env CUDA_VISIBLE_DEVICES='' PYTHONDONTWRITEBYTECODE=1 \
-  OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONPATH=.:src \
-  BATCHING_MAX_BATCH_SIZE=8 BATCHING_MAX_WAIT_MS=10 \
-  .venv/bin/python -m exp.offline_search.rounds.r16.conductor_runner run \
-  --group /absolute/path/to/SEALED_GROOT_GROUP/group.json \
-  --agent-island /scratch/zixuans8/openpi_r16_conductor_v1 \
-  --groot-servers-per-suite 2 --workers 32 \
-  --ports 23150,23151,23152,23153 --port 23159
-```
+**Proposed topology:** H100 R2/MPS/B1, startup width 2, whole-server budget 48 GiB,
+timan107 x32, EGL0..7/N4. Two paired residents hold four checkpoint copies, the
+same weight-copy count as the historical H100 four-endpoint layout; throughput
+and peak VRAM of this formal path remain unmeasured. Keep baseline/cache
+placement identical. This selector evaluates spatial/10 only: the canonical
+four-suite official-50 table is retained, with 1000 dispatched episodes.
 
-First2 ports serve LIBERO-10, next2 spatial; these are different checkpoints,
-not four interchangeable replicas of one resident. For H100, the legacy
-`control chain` path above supports `SERVER_HOST=h100`, a GR00T sealed arm,
-232xx ports and per-endpoint `WPS`; the R16 runner itself is local only.
-
-- **GPU alone:** local4 (2/suite), about24.8..27.2 GB measured in the R16
-  follow-up. Local6 (3/suite,37.2..40.8 GB) and H1004 are historical
-  topologies, not throughput recommendations. Replicas without MPS share
-  compute; the reduced-K/cache CPU frontend history does not certify a
-  full-inference speedup from additional weight copies.
-- **Sharing:** local2 (1/suite) and16 workers is a proposed smaller full-group
-  setting via `--groot-servers-per-suite 1`. Use a fresh group/baseline and
-  reserve measured peak headroom. Like π, this old fleet cannot concurrently
-  share timan107 with a formal fleet through the new admission mechanism.
-- **Batch:** legacy S3 max8/10 ms; S1/S2 do not batch. Separate suite identity,
-  K and snapshot positions create buckets. Historical B>1 numeric drift and
-  composition were not measured here. The failed **MT50** B2 test is not a
-  certificate for LIBERO S3, or a reason to relabel the old path as B1.
-- **Workers/resources:** timan10732 conservative target, historical64;
-  desired6144/1024/N4 plus EGL0..7 spreading are not CLI options on this
-  legacy runner. Verify protections before a new fleet. Use23150..23155
-  plus23159 only after their reservation is free.
-- **Measured rate:** R16 follow-up reports an approximately38 episodes/min
-  starting observation for4 processes/64 workers in its cached/reduced-K
-  context. No isolated full-K rate/calls/s or power certificate here; do not
-  extrapolate a57/min rate from adding two GPU model processes.
-  Session history reports GPU29..55% with frontend processes each at100% CPU.
-- **Bottleneck:** CPU connection/preprocessing/retrieval at low K/cache hits:
- 14.8 ms preprocessing + about7.7 ms retrieval/plugin + about1 ms logging per
-  request in the R16 profile. That CPU-work profile does not establish a
-  GPU replication throughput gain. The separate
-  CPU/GPU-decoupling branch was not qualified as this launch path.
-
-Sources: [GR00T server handback](../../offline_search/rounds/r16/HANDBACK_GROOT_SERVERS.md),
-[R16 runbook](../../offline_search/rounds/r16/RUNBOOK_CONDUCTOR.md),
-[session history](../../../logs/session_handoff.md),
-[legacy S3 entry](../../libero_groot/serve_groot_libero.py).
+Native K4, H16/action32 storage, 7-D wire action, 8-D state, two RGB256 views;
+CP1 uses the historical mask-driven spatial16 builder. Cache groups use C5/C10
+and native K4 MISS. Endpoint `live_k` follows the study YAML at startup, so
+explicit reduced K1..4 works with the same fixed-K endpoint rule as MT50.
+Both VLA models share ports23160..23169, including the local driver23169;
+serialize their commands when using that tuple even with separate server GPUs.
+See [HANDBACK_LIBERO_VLA.md](../handbacks/HANDBACK_LIBERO_VLA.md).
 
 ## DP x LIBERO
 
@@ -1213,10 +1145,10 @@ Evidence: [queue instructions](FORMAL_QUEUE.md),
 ## Current controls, queued arms, and next tuning
 
 - **Fast-WAM hs6:** R2/B16/5 ms/MPS/group-commit, timan10748,2048/768/N4,
-  explicitEGL0..7;70 GiB campaign budget, startup width2. Preserve the launched
+  explicitEGL0..7;70 GiB campaign budget, startup width 2. Preserve the launched
   control; noR3, cap32 or worker expansion is justified by these measurements.
 - **DP hs5:** R2/B8/5 ms/MPS/group-commit, timan10732,2048/576/N4, automatic
-  EGL0..7;40 GiB budget, startup width2. Next server-code experiment is a
+  EGL0..7;40 GiB budget, startup width 2. Next server-code experiment is a
   qualified whole-sampler CUDA graph, estimated1.15..1.35x. More workers or
   cap16 are not a substitute. Any adoption requires its own matching treatment.
 - **Fast arms C10/C16/C20/C32,K2/K1:** pin
@@ -1249,8 +1181,8 @@ All worker placements below use timan107 for new campaigns; timan108 is offline.
 
 | Model x benchmark | GPU | Replicas | Batch /window | MPS | Driver | Workers | Measured rate | Principal bottleneck |
 |---|---|---|---|---|---|---|---|---|
-| π0.5 LIBERO |4090;legacy H100 option |R16 fixed3 |legacy S1..3 B8/10 ms |off |R16 conductor |t10732 template;64 history; resource hooks need verification |full-K ep/min and calls/s unmeasured |cached frontend/retrieval; full stages/fill unmeasured |
-| GR00T LIBERO |4090;legacy H100 option |historical4,2/suite |legacy S3 B8/10 ms |off |R16 conductor |t10732 template;64 history |~38 ep/min atR4/W64 cached/reduced-K; full-K/calls/s unmeasured |CPU frontend, weight capacity |
+| π0.5 LIBERO |4090 |proposed R5/startup3; NUMA1 |B1 |on |group-commit |t10724, EGL0..7/N4 |LIBERO rate/peak VRAM unmeasured; topology from MT50 |host stages/retrieval |
+| GR00T LIBERO |H100 |proposed R2/startup2; two suite backends/replica |B1 |on |group-commit |t10732, EGL0..7/N4 |formal LIBERO rate/peak VRAM unmeasured |host stages/retrieval |
 | **DP LIBERO — hs5** |**4090/48 GB** |**2** |**B8/5 ms** |**on** |**group-commit** |**t10732;2048/576 MiB,N4;automatic EGL0..7** |**26.16 calls/s replay**,977 ms p50,209.9 W; hs5 ep/min unmeasured |DDPM100 host loop; old-driver stalls addressed |
 | **Fast-WAM LIBERO — hs6** |**H100/80 GB** |**2** |**B16/5 ms** |**on** |**group-commit** |**t10748;2048/768 MiB,N4;explicit EGL0..7** |**28.0 calls/s replay**,1679 ms p50,413 W; hs6 ep/min unmeasured |host/action-head launches and fill; compute occupancy unmeasured |
 | Cosmos LIBERO |H100;4090R1 qualified option |R2 history/pairing;freshR1 capacity start |B1/inactive |off |legacy |newt10712;historicalt10824 K5,t10724 K2 |17.62 ep/min/2.930 calls/s K5;37.00/7.352 K2 atR2, historical |serial queue/K5 compute; renderer/dispatch |

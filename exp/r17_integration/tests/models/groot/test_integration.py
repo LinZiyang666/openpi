@@ -72,8 +72,11 @@ def test_native_snapshot_resume_exact_suffix_and_identity_rejections(guarded_stu
         assert torch.equal(result.normalized_chunk, resumed.normalized_chunk)
         assert resumed.actual_nfe == k - snap.loop_index
     snap = result.snapshots[0]
-    for invalid in (replace(snap, norm_identity="wrong"), replace(snap, layout_identity="wrong"),
-                    replace(snap, sampler_identity="wrong"), replace(snap, native_timestep=.111),
+    # Owner removed fingerprint gates; numerical shape/dtype/grid still applies.
+    for field in ("norm_identity", "layout_identity", "sampler_identity"):
+        assert torch.equal(adapter.resume(s2, replace(snap, **{field:"other"}), sampler, rng).normalized_chunk,
+                           result.normalized_chunk)
+    for invalid in (replace(snap, native_timestep=.111),
                     replace(snap, x_t=snap.x_t.double()), replace(snap, x_t=snap.x_t[:5])):
         with pytest.raises(ValueError):
             adapter.resume(s2, invalid, sampler, rng)

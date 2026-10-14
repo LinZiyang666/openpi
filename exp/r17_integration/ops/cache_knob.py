@@ -47,7 +47,9 @@ def build(output, *, gaps=GAPS, model=None, table=None, miss_steps='full', parti
                 gap_rows[model_name(entry['model']), entry['suite'], int(entry['size'])] = entry['levels']
     test = table is not None
     levels_table = study.read(table) if test else None
-    models = (model,) if test else study.LIBERO_MODELS
+    # Existing knob sources cover their own model cohort; new cache-study
+    # selectors need their libraries before they can join a knob generation.
+    models = (model,) if test else tuple(dict.fromkeys(bundle for bundle,_,_ in base))
     if test and model not in study.MODELS:
         raise ValueError('TEST requires one model')
     output = Path(output).resolve()

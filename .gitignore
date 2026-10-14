@@ -273,8 +273,8 @@ logs/**/*.pkl
 # from there; the local copy here is a working scratch and not project code.
 docs/skills/
 
-# ICLR paper workdir (Overleaf git working copy + drafts, not project deliverables)
-docs/iclr/
+# Paper workdir: MLSys Overleaf working copy + drafts, ICLR leftovers under iclr/ (not project deliverables)
+docs/mlsys/
 
 # Generated outputs and scratch (added 2026-09-28)
 # Scope: exp/offline_search/rounds/** only (other experiment lines are unaffected).

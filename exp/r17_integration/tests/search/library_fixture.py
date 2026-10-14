@@ -17,8 +17,9 @@ class Poison:
         raise AssertionError('non-allowlisted product was copied')
 
 
-def synthetic_capture(path, *, episodes=500, suite='libero_spatial', decisions=2, bad_key_dtype=False, episode_offset=0, attempt=1):
-    b = binding('dp','libero',key_width=3)
+def synthetic_capture(path, *, episodes=500, suite='libero_spatial', decisions=2, bad_key_dtype=False, episode_offset=0, attempt=1,
+                      binding_override=None, capture_images=True):
+    b = binding_override or binding('dp','libero',key_width=3)
     names = benchmark().ordered_tasks
     offset = 0 if suite=='libero_spatial' else 30
     order = {str(t):np.random.default_rng(SEED+t).permutation(np.arange(t*50,(t+1)*50)).tolist() for t in range(10)}
@@ -31,7 +32,7 @@ def synthetic_capture(path, *, episodes=500, suite='libero_spatial', decisions=2
     audit = dict(status='PASS',init_pool='B',suite=suite,rows=witnesses,subset_seed=SEED,
         selections={str(n):{str(t):order[str(t)][:n//10] for t in range(10)} for n in (50,100,200,300,400,500)})
     audit['digest'] = digest(audit)
-    bridge = LibraryCaptureBridge(path,enabled=True,binding=b)
+    bridge = LibraryCaptureBridge(path,enabled=True,binding=b,capture_images=capture_images)
     for w in witnesses[episode_offset:episode_offset+episodes]:
         t,j,eid = w['task_id'],w['orig_init_state_idx'],w['episode_id']
         name = names[offset+t]
@@ -52,7 +53,8 @@ def synthetic_capture(path, *, episodes=500, suite='libero_spatial', decisions=2
                 arm=ep['arm'],bundle_generation=ep['bundle_generation'],attempt=attempt,task_id=t+offset)
             keys['robot_state'] = payload['state']
             if bad_key_dtype: keys['vision_0']=keys['vision_0'].astype(np.float64)
-            capture = DecisionCapture(request,'policy',0,0,(1,1,5),5,
+            k = b['sampler']['num_steps']
+            capture = DecisionCapture(request,'policy',0,0,(1,1,k),k,
                 payload['normalized_actions'],payload['wire_actions'],dict(keys,not_needed=Poison()),
                 diagnostics={'not_needed':Poison()},model_capture={'not_needed':Poison()})
             sink(capture)

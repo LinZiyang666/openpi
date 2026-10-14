@@ -1,7 +1,7 @@
-"""Thin π0.5-MT50 adapter: original transforms and original native stages.
+"""Thin π0.5 adapter: benchmark-owned transforms and original native stages.
 
 Imports are model-island-free. Explicit construction/prepare loads torch; only
-load_adapter() loads weights. No LIBERO transform or surrogate camera key.
+load_adapter() loads weights.
 """
 from __future__ import annotations
 
@@ -32,7 +32,8 @@ def sampler_for_steps(k):
                        {"update": "native PI0Pytorch float32 accumulated Euler", "direction": "descending"}, "native_time")
 
 
-def model_spec(checkpoint_identity, norm_identity, *, replan_steps=5, code_digest=""):
+def model_spec(checkpoint_identity, norm_identity, *, replan_steps=5, code_digest="",
+               benchmark="metaworld", benchmark_spec=None):
     layout = ActionStateLayout(5, replan_steps, 4, (0, 1, 2, 3), (0, 1, 2), 3,
                                gripper_closed_convention="positive native Sawyer close command",
                                raw_state_fields=("hand_x", "hand_y", "hand_z", "gripper_aperture"),
@@ -51,12 +52,27 @@ def model_spec(checkpoint_identity, norm_identity, *, replan_steps=5, code_diges
     for k in ("batch_stage1", "batch_stage2", "batch_stage3", "split", "cp2", "warm_reset", "trace_twins", "routing"):
         caps[k] = Capability("unsupported", "generic R17 executor not yet wired/qualified for this feature")
     caps["warm_resume"] = Capability("implemented_unverified", "native suffix hook; GPU parity pending")
-    benchmark = FORMAL_SPEC if replan_steps == 5 else replace(FORMAL_SPEC, replan_steps=replan_steps,
-                       protocol_id=f"mt50_seed7_corner2_r17_replan{replan_steps}_v1")
+    domain = benchmark
+    if domain == "libero":
+        if benchmark_spec is None:
+            from exp.r17_integration.ops.formal_eval import benchmark as libero_spec
+            benchmark_spec = libero_spec()
+        layout = ActionStateLayout(10, replan_steps, 7, tuple(range(8)), tuple(range(6)), 6,
+            gripper_closed_convention="positive LIBERO close command",
+            raw_state_fields=("eef_x", "eef_y", "eef_z", "axis_angle_x", "axis_angle_y", "axis_angle_z", "gripper_qpos_0", "gripper_qpos_1"),
+            action_space_name="LIBERO xyz/axis-angle delta + gripper", units="native controller", frame="world",
+            output_transform_id="pi05_libero.quantile_inverse.v1", model_action_width=32)
+        features = replace(features, real_cameras=("agentview", "robot0_eye_in_hand"),
+            fields={"vision_0": 32768, "vision_1": 32768, "robot_state": 8},
+            active_state_indices=tuple(range(8)), missing_branch_policy="one masked zero wrist retains native compute")
+        protocol = benchmark_spec
+    else:
+        protocol = FORMAL_SPEC if replan_steps == 5 else replace(FORMAL_SPEC, replan_steps=replan_steps,
+                           protocol_id=f"mt50_seed7_corner2_r17_replan{replan_steps}_v1")
     from exp.r17_integration.common.benchmarks import register_benchmark
-    register_benchmark(benchmark)
-    return ModelSpec("pi05_rlinf_mt50", checkpoint_identity, norm_identity, layout, features,
-                     sampler_for_steps(10), Capabilities(caps), (benchmark.identity,), code_digest, "openpi PyTorch")
+    register_benchmark(protocol)
+    return ModelSpec("pi05_libero" if domain == "libero" else "pi05_rlinf_mt50", checkpoint_identity, norm_identity, layout, features,
+                     sampler_for_steps(10), Capabilities(caps), (protocol.identity,), code_digest, "openpi PyTorch")
 
 
 def _numpy(value):
@@ -75,13 +91,13 @@ def _tensor_tree(tree, device):
     return torch.from_numpy(np.array(tree)).to(device)[None, ...]
 
 
-class Pi05MetaWorldAdapter:
+class Pi05Adapter:
     def __init__(self, policy, spec, *, observation_factory=None):
         if not getattr(policy, "_is_pytorch_model", False):
             raise ValueError("π-MW staged adapter requires the native PyTorch policy")
         self.policy, self.model, self.spec = policy, policy._model, spec
-        if (self.model.config.action_horizon, self.model.config.action_dim) != (5, 32):
-            raise ValueError("π-MW checkpoint geometry must be H5/action32")
+        if (self.model.config.action_horizon, self.model.config.action_dim) != (spec.layout.horizon, 32):
+            raise ValueError("π checkpoint geometry differs from benchmark layout")
         self.observation_factory = observation_factory
 
     def metadata(self):
@@ -98,11 +114,15 @@ class Pi05MetaWorldAdapter:
     def prepare(self, wire_obs, request):
         clean = {k: v for k, v in wire_obs.items() if k not in {"__debug__", "__request__", "__execution__"}}
         state = np.asarray(clean["observation/state"])
-        image = np.asarray(clean["observation/image"])
-        if state.shape != (4,) or not np.isfinite(state).all():
-            raise ValueError("expected finite MetaWorld state4")
-        if image.shape != (480, 480, 3) or image.dtype != np.uint8:
-            raise ValueError("expected uint8 corner2 RGB480; model transform performs resize")
+        state_dim = len(self.spec.layout.valid_state_indices)
+        if state.shape != (state_dim,) or not np.isfinite(state).all():
+            raise ValueError(f"expected finite state{state_dim}")
+        image_size = 256 if state_dim == 8 else 480
+        image_keys = ("observation/image", "observation/wrist_image") if state_dim == 8 else ("observation/image",)
+        for name in image_keys:
+            image = np.asarray(clean[name])
+            if image.shape != (image_size, image_size, 3) or image.dtype != np.uint8:
+                raise ValueError(f"expected uint8 RGB{image_size}; model transform performs resize")
         if not isinstance(clean.get("prompt"), str) or not clean["prompt"]:
             raise ValueError("canonical prompt required")
         # Copy all arrays; stock transforms may modify containers.
@@ -127,13 +147,17 @@ class Pi05MetaWorldAdapter:
         prefix = s1.data.prefix_embs
         if prefix.ndim != 3 or prefix.shape[0] != 1 or prefix.shape[1] < 768 or prefix.shape[2] != 2048:
             raise ValueError("native π prefix must retain all three slots and language tokens")
-        tokens = prefix[0, :256]
-        pool = F.adaptive_avg_pool2d(tokens.reshape(16, 16, 2048).permute(2, 0, 1)[None], (4, 4))
-        key = pool[0].permute(1, 2, 0).reshape(-1).detach().to(device="cpu", dtype=torch.float32).contiguous().clone()
-        state = s1.data.state[0, :4].detach().to(device="cpu", dtype=torch.float32).contiguous().clone()
-        if not torch.isfinite(key).all() or not torch.isfinite(state).all():
+        fields = {}
+        for i in range(len(self.spec.feature_spec.real_cameras)):
+            # Match cp1_spatial_pool_16: pool in the native prefix dtype,
+            # then transfer as float32. GR00T has its own pre-pool cast.
+            tokens = prefix[0, i*256:(i+1)*256]
+            pool = F.adaptive_avg_pool2d(tokens.reshape(16, 16, 2048).permute(2, 0, 1)[None], (4, 4))
+            fields[f"vision_{i}"] = pool[0].permute(1, 2, 0).reshape(-1).detach().to(device="cpu", dtype=torch.float32).contiguous().clone()
+        state = s1.data.state[0, list(self.spec.layout.valid_state_indices)].detach().to(device="cpu", dtype=torch.float32).contiguous().clone()
+        if any(not torch.isfinite(key).all() for key in fields.values()) or not torch.isfinite(state).all():
             raise ValueError("nonfinite retrieval fields")
-        return {"vision_0": key, "robot_state": state}
+        return {**fields, "robot_state": state}
 
     def run_stage2(self, s1, *, capture=False):
         import torch
@@ -145,7 +169,7 @@ class Pi05MetaWorldAdapter:
         import torch
         if sampler != sampler_for_steps(sampler.num_steps):
             raise ValueError("foreign π sampler grid/config")
-        noise = torch.from_numpy(rng.normal((5, 32))).to(s2.data.stage1.state.device)[None]
+        noise = torch.from_numpy(rng.normal((self.spec.layout.horizon, 32))).to(s2.data.stage1.state.device)[None]
         points = sampler.native_timesteps[1:] if capture.snapshots else ()
         with torch.no_grad():
             output = self.model.run_stage3(s2.data, noise=noise, num_steps=sampler.num_steps,
@@ -188,22 +212,22 @@ class Pi05MetaWorldAdapter:
         return SampleResult(normalized, sampler.num_steps - snapshot.loop_index, sampler, rng_receipt=rng.receipt())
 
     def _validate_chunk(self, x):
-        if x.shape != (5, 32) or not np.isfinite(x).all():
-            raise ValueError("expected finite normalized H5/action32")
+        if x.shape != (self.spec.layout.horizon, 32) or not np.isfinite(x).all():
+            raise ValueError("expected finite normalized native horizon/action32")
 
     def to_wire(self, normalized_chunk, prepared):
         x = _numpy(normalized_chunk)
         self._validate_chunk(x)
         output = self.policy._output_transform({"state": np.array(prepared.state, copy=True), "actions": x})
         actions = np.array(output["actions"], copy=True)
-        if actions.shape != (5, 4) or not np.isfinite(actions).all():
-            raise ValueError("native MetaWorld inverse must return finite H5/action4")
+        if actions.shape != (self.spec.layout.horizon, self.spec.layout.valid_action_dim) or not np.isfinite(actions).all():
+            raise ValueError("native inverse returned invalid wire actions")
         return WireChunk(actions)
 
     def extract_state_only(self, wire_obs):
         state = np.asarray(wire_obs["observation/state"], dtype=np.float32)
-        if state.shape != (4,) or not np.isfinite(state).all():
-            raise ValueError("expected finite state4")
+        if state.shape != (len(self.spec.layout.valid_state_indices),) or not np.isfinite(state).all():
+            raise ValueError("expected finite native state")
         # Invoke only the original Normalize transform, on state alone. Vision
         # resize, tokenizer and model-input padding never run on a free tail.
         transforms = getattr(self.policy._input_transform, "transforms", ())
@@ -215,7 +239,7 @@ class Pi05MetaWorldAdapter:
         if stats is not None:
             fn = normalizer._normalize_quantile if normalizer.use_quantiles else normalizer._normalize
             state = fn(state, stats)
-        return StateView(np.array(state, copy=True))
+        return StateView(np.array(state, dtype=np.float32, copy=True))
 
     def make_stage_batcher(self):
         from openpi.serving.batching_coordinator import Pi05StageBatcher
@@ -226,6 +250,10 @@ class Pi05MetaWorldAdapter:
 
     def cpu_blueprint(self):
         raise NotImplementedError("split qualification pending")
+
+
+# Historical import retained for MT50 callers; both benchmarks use one adapter.
+Pi05MetaWorldAdapter = Pi05Adapter
 
 
 class Pi05TraceAdapter:
@@ -259,12 +287,20 @@ def _verify_loaded_tokenizer(policy, expected_digest):
         raise ValueError("loaded tokenizer content differs from sealed manifest")
 
 
-def content_manifest(checkpoint):
+def norm_path(checkpoint, benchmark="metaworld"):
+    if benchmark == "libero":
+        # The historical converted checkpoint contains weights/config only.
+        # Stock policy_config resolves this config-owned LIBERO asset.
+        return Path(__file__).resolve().parents[4] / "assets/pi05_libero/physical-intelligence/libero/norm_stats.json"
+    return Path(checkpoint) / "assets/metaworld_mt50/norm_stats.json"
+
+
+def content_manifest(checkpoint, *, benchmark="metaworld", benchmark_spec=None):
     root = Path(checkpoint).resolve()
     weights = root / "model.safetensors"
-    norm = root / "assets/metaworld_mt50/norm_stats.json"
+    norm = norm_path(root, benchmark)
     if not weights.is_file() or not norm.is_file():
-        raise ValueError("immutable local PyTorch weights and checkpoint-local MW norm stats required")
+        raise ValueError("local PyTorch weights and benchmark norm stats required")
     contents = {}
     for p in sorted(root.rglob("*")):
         if p.is_symlink() and not p.resolve().is_relative_to(root):
@@ -278,28 +314,37 @@ def content_manifest(checkpoint):
     # Bind code used by both the adapter and stock loader/transforms/stages.
     repo = Path(__file__).resolve().parents[4]
     code = {str(p.relative_to(repo)): hashlib.sha256(p.read_bytes()).hexdigest() for p in
-            (Path(__file__), repo / "src/openpi/policies/metaworld_policy.py",
+            (Path(__file__), repo / f"src/openpi/policies/{'libero' if benchmark == 'libero' else 'metaworld'}_policy.py",
              repo / "src/openpi/models_pytorch/pi0_pytorch.py", repo / "src/openpi/policies/policy.py",
              repo / "src/openpi/policies/policy_config.py", repo / "src/openpi/training/config.py",
              repo / "src/openpi/transforms.py", repo / "src/openpi/models/tokenizer.py")}
     tokenizer = _tokenizer_content()
-    checkpoint_identity = digest({"config": "pi05_metaworld", "files": contents, "tokenizer": tokenizer["sha256"]})
+    norm_key = "assets/pi05_libero/physical-intelligence/libero/norm_stats.json" if benchmark == "libero" else "assets/metaworld_mt50/norm_stats.json"
+    contents[norm_key] = hashlib.sha256(norm.read_bytes()).hexdigest()
+    checkpoint_identity = digest({"config": "pi05_libero" if benchmark == "libero" else "pi05_metaworld", "files": contents, "tokenizer": tokenizer["sha256"]})
     code_identity = digest(code)
     return {"schema": "r17.model_manifest.v1", "checkpoint_identity": checkpoint_identity,
-            "norm_identity": contents["assets/metaworld_mt50/norm_stats.json"], "content_digests": contents,
+            "norm_identity": contents[norm_key], "content_digests": contents, "norm_path": str(norm),
             "tokenizer": tokenizer, "code_digest": code_identity, "source_digests": code, "checkpoint_root": str(root),
-            "spec": asdict(model_spec(checkpoint_identity, contents["assets/metaworld_mt50/norm_stats.json"],
-                                      code_digest=code_identity)),
+            "spec": asdict(model_spec(checkpoint_identity, contents[norm_key],
+                                      code_digest=code_identity, benchmark=benchmark, benchmark_spec=benchmark_spec)),
             "available_samplers": [asdict(sampler_for_steps(k)) for k in (10, 2, 1)],
             "components": {"weights": "model.safetensors", "base": "embedded in complete PyTorch checkpoint",
-                           "delta": None, "norm": "assets/metaworld_mt50/norm_stats.json"},
+                           "delta": None, "norm": str(norm) if benchmark == "libero" else norm_key},
             "qualification": {"model_loaded": False, "gpu": "unexecuted"}}
 
 
 def load_adapter(spec):
     """Explicit load only. No norm fallback, no checkpoint URI side effects."""
     checkpoint = spec["checkpoint"]
-    manifest = content_manifest(checkpoint)
+    benchmark = spec.get("benchmark", "metaworld")
+    benchmark_spec = spec.get("benchmark_spec")
+    if benchmark == "libero" and isinstance(benchmark_spec, dict):
+        from exp.r17_integration.benchmarks.libero_bridge import LiberoBenchmarkSpec
+        from dataclasses import fields
+        names = {f.name for f in fields(LiberoBenchmarkSpec)}
+        benchmark_spec = LiberoBenchmarkSpec(**{k:v for k,v in benchmark_spec.items() if k in names})
+    manifest = content_manifest(checkpoint, benchmark=benchmark, benchmark_spec=benchmark_spec)
     if manifest["tokenizer"]["sha256"] is None:
         raise ValueError("local PaliGemma tokenizer content must be sealed before model load; set OPENPI_DATA_HOME")
     expected = spec.get("checkpoint_identity")
@@ -307,8 +352,12 @@ def load_adapter(spec):
         raise ValueError("immutable checkpoint identity mismatch")
     from openpi.policies.policy_config import create_trained_policy
     from openpi.training.config import get_config
-    policy = create_trained_policy(get_config("pi05_metaworld"), checkpoint,
-                                   sample_kwargs={"num_steps": 10}, pytorch_device=spec.get("device", "cpu"))
+    options = {}
+    if benchmark == "libero":
+        from openpi.shared.normalize import load
+        options["norm_stats"] = load(norm_path(checkpoint, benchmark).parent)
+    policy = create_trained_policy(get_config("pi05_libero" if benchmark == "libero" else "pi05_metaworld"), checkpoint,
+                                   sample_kwargs={"num_steps": 10}, pytorch_device=spec.get("device", "cpu"), **options)
     _verify_loaded_tokenizer(policy, manifest["tokenizer"]["sha256"])
     return Pi05MetaWorldAdapter(policy, model_spec(manifest["checkpoint_identity"], manifest["norm_identity"],
-                                                 code_digest=manifest["code_digest"]))
+                                                 code_digest=manifest["code_digest"], benchmark=benchmark, benchmark_spec=benchmark_spec))

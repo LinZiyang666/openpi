@@ -69,6 +69,8 @@ def plan(campaign):
         [benchmark.tasks[0][0], benchmark.tasks[1][0]] if campaign['smoke'] else None)
     indices = [0] if campaign['smoke'] and campaign['domain'] == 'libero' else ([0, 1] if campaign['smoke'] else None)
     if campaign['smoke'] and campaign['domain'] == 'libero':
+        if campaign['model'] == 'groot':
+            names = [benchmark.tasks[i][0] for i in (0, 30)]
         names = names[:campaign.get('smoke_episodes', 4)]
     if campaign.get('library'):
         names = [r[0] for r in benchmark.tasks if campaign['domain'] != 'libero' or r[2]==campaign['suite']]
@@ -86,6 +88,8 @@ def plan(campaign):
     suites = selected_suites(campaign)
     if suites is not None:
         tasks = [task for task in tasks if task.experiment in suites]
+    if campaign['model'] == 'groot' and campaign['domain'] == 'libero' and not campaign.get('library'):
+        tasks = [task for task in tasks if task.experiment in ('libero_spatial', 'libero_10')]
     if campaign.get('library'):
         from .library_campaign import teacher_tasks
         tasks = teacher_tasks(campaign,benchmark,tasks)

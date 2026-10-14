@@ -13,8 +13,8 @@ from exp.r17_integration.common.contracts import (
 from openpi.cache.groot.staged import GrootStagedRunner
 from openpi.cache.types import CheckpointID
 from .key_builder import GrootMetaWorldCP1SpatialPool16KeyBuilder
-from .manifest import PROVIDER, validate_library, validate_library_model
-from .wire_policy import from_groot_actions, observation_field, to_groot_observation
+from .manifest import validate_library, validate_library_model
+from .wire_policy import wire_actions, observation_field, to_groot_observation
 
 
 class _TimedLockView:
@@ -45,26 +45,33 @@ class _TimedLockView:
 
 class GrootMetaWorldAdapter:
     def __init__(self, backend, manifest, *, model_lock=None, runner_factory=GrootStagedRunner):
-        self.backend = backend
         self.manifest = manifest
         self.spec = manifest.model_spec()
         self.model_lock = model_lock if model_lock is not None else threading.RLock()
         # Shared exclusion, connection-local queue-wait ledger (N5).
         self._timed_lock = _TimedLockView(self.model_lock)
-        self.runner = runner_factory(backend.model)  # source drift guards stay enabled
-        self.key_builder = GrootMetaWorldCP1SpatialPool16KeyBuilder(hidden_width=manifest.hidden_width)
-        self._state_transforms = []
-        if not hasattr(backend, "normalize_state_only"):
-            transforms = getattr(getattr(backend, "_modality_transform", None), "transforms", ())
-            state_keys = {"state." + name for name in ("x", "y", "z", "gripper")}
-            self._state_transforms = [t for t in transforms if set(getattr(t, "apply_to", ())) == state_keys
-                                      and type(t).__name__ in ("StateActionToTensor", "StateActionTransform")]
-            if [type(t).__name__ for t in self._state_transforms] != ["StateActionToTensor", "StateActionTransform"]:
-                raise ValueError("backend must expose the exact four-channel state normalization transforms")
+        self.backends = backend if isinstance(backend, dict) else {None:backend}
+        self.runners = {suite:runner_factory(b.model) for suite,b in self.backends.items()}
+        self.state_transforms = {}
+        for suite,b in self.backends.items():
+            transforms = getattr(getattr(b, "_modality_transform", None), "transforms", ())
+            state_keys = {"state." + name for name in manifest.channels}
+            selected = [t for t in transforms if set(getattr(t, "apply_to", ())) == state_keys
+                        and type(t).__name__ in ("StateActionToTensor", "StateActionTransform")]
+            if not hasattr(b, "normalize_state_only") and [type(t).__name__ for t in selected] != ["StateActionToTensor", "StateActionTransform"]:
+                raise ValueError("backend must expose native state normalization transforms")
+            self.state_transforms[suite] = selected
+        self._select_backend(next(iter(self.backends)))
+        self.key_builder = GrootMetaWorldCP1SpatialPool16KeyBuilder(hidden_width=manifest.hidden_width, benchmark=manifest.benchmark)
         self._require_live()
-        head = backend.model.action_head
+        head = self.backend.model.action_head
         if head.config.action_horizon != 16 or head.config.action_dim != 32:
             raise ValueError("GR00T-MW model must have H16/action32 storage")
+
+    def _select_backend(self, suite):
+        self.backend = self.backends[suite]
+        self.runner = self.runners[suite]
+        self._state_transforms = self.state_transforms[suite]
 
     def _require_live(self, sampler=None):
         live = self.runner.live_schedule()
@@ -98,7 +105,9 @@ class GrootMetaWorldAdapter:
         if request.benchmark_protocol != self.manifest.benchmark_protocol:
             raise ValueError("request benchmark protocol differs from model binding")
         # Match stock interceptor's unbatched→B1 transform contract, once.
-        native = to_groot_observation(wire_obs)
+        if None not in self.backends:
+            self._select_backend(request.task_name.split("/", 1)[0])
+        native = to_groot_observation(wire_obs, self.manifest.benchmark)
         batched = {name: np.expand_dims(value, 0) for name, value in native.items()}
         with self._timed_lock:
             normalized = self.backend.apply_transforms(batched)
@@ -113,7 +122,7 @@ class GrootMetaWorldAdapter:
             fields = self.key_builder.build(CheckpointID.CP1)
         finally:
             self.key_builder.clear()
-        return Stage1(native, fields, native.state[0, -1, :4].detach().cpu().float().clone())
+        return Stage1(native, fields, native.state[0, -1, :self.manifest.state_dim].detach().cpu().float().clone())
 
     def retrieval_fields(self, s1):
         return {name: value.clone() for name, value in s1.fields.items()}
@@ -184,25 +193,29 @@ class GrootMetaWorldAdapter:
             raise ValueError("normalized chunk must be finite H16×32")
         with self._timed_lock:
             result = self.backend.unapply_transforms({"action": chunk[None]})
-        return WireChunk(from_groot_actions(result))
+        return WireChunk(wire_actions(result, self.manifest.benchmark))
 
     def extract_state_only(self, wire_obs):
         state = np.asarray(observation_field(wire_obs, "state"), dtype=np.float32)
-        if state.shape != (4,) or not np.isfinite(state).all():
-            raise ValueError("state-only tail requires finite state4")
+        if state.shape != (self.manifest.state_dim,) or not np.isfinite(state).all():
+            raise ValueError("state-only tail requires finite native state")
         with self._timed_lock:
             if hasattr(self.backend, "normalize_state_only"):
                 normalized = torch.as_tensor(self.backend.normalize_state_only(state.copy()))
             else:
-                data = {"state." + name: state[i:i+1].reshape(1, 1, 1).copy()
-                        for i, name in enumerate(("x", "y", "z", "gripper"))}
+                data = {}
+                offset = 0
+                for name in self.manifest.channels:
+                    width = 2 if self.manifest.benchmark == "libero" and name == "gripper" else 1
+                    data["state." + name] = state[offset:offset+width].reshape(1, 1, width).copy()
+                    offset += width
                 for transform in self._state_transforms:
                     data = transform(data)
-                normalized = torch.cat([data["state." + name].reshape(-1) for name in ("x", "y", "z", "gripper")])
+                normalized = torch.cat([data["state." + name].reshape(-1) for name in self.manifest.channels])
             # prepare_input casts state to the head's dtype before stage1; match that quantization.
             normalized = normalized.to(getattr(self.backend.model.action_head, "dtype", torch.float32)).float()
-        if normalized.shape != (4,) or not torch.isfinite(normalized).all():
-            raise ValueError("state normalization returned invalid active4 values")
+        if normalized.shape != (self.manifest.state_dim,) or not torch.isfinite(normalized).all():
+            raise ValueError("state normalization returned invalid active values")
         return StateView(normalized.detach().cpu().numpy().copy())
 
     def make_stage_batcher(self):
@@ -217,7 +230,8 @@ class GrootMetaWorldAdapter:
         """Observe actual stages only. Called by P1 after a MISS with a capture sink."""
         native = s1.data
         tokens = native.input_embeds[0, native.image_token_mask[0]].detach().cpu().float().clone()
-        return {"vision_0_tokens": tokens, "normalized_state": native.state[0, -1, :4].detach().cpu().float().clone(),
+        views = {f"vision_{i}_tokens":tokens[i*256:(i+1)*256] for i in range(len(self.spec.feature_spec.real_cameras))}
+        return {**views, "normalized_state": native.state[0, -1, :self.manifest.state_dim].detach().cpu().float().clone(),
                 "state_mask": native.state_mask[0, -1].detach().cpu().clone(),
                 "image_token_mask": native.image_token_mask[0].detach().cpu().clone(),
                 "backbone_features": s2.data.backbone_features[0].detach().cpu().float().clone(),
@@ -284,8 +298,9 @@ def make_provider(backend, manifest, *, model_lock=None, runner_factory=GrootSta
 
     # Generic connection policy passes adapter's already-computed named fields.
     # Stock interceptor uses the specialized raw-stage key builder separately.
-    return AdapterProvider(PROVIDER, manifest.model_spec(), adapter, sampler,
-                           artifact_validator=artifact, trace_factory=lambda adapter: adapter.make_trace_adapter())
+    return AdapterProvider(manifest.provider_id, manifest.model_spec(), adapter, sampler,
+                           artifact_validator=None if manifest.benchmark == "libero" else artifact,
+                           trace_factory=lambda adapter: adapter.make_trace_adapter())
 
 
 def register_provider(provider=None, *, backend=None, manifest=None, **kwargs):

@@ -16,7 +16,7 @@ def config_document(provider, *, k=10, commit=5, evidence_dir, recipe=None):
             raise ValueError("recipe canonical task table identity/order mismatch")
     return {"recipe": settings, "enabled": True, "timer": {"enabled": False},
             "adapter_binding": binding_for(provider, spec.allowed_benchmark_protocols[0], num_steps=k, commit_horizon=commit),
-            "keys": {"vision_0": {"enabled": True}, "robot_state": {"enabled": True}},
+            "keys": {name: {"enabled": True} for name in spec.feature_spec.fields},
             "key_builder": {"type": "adapter_native"},
             "backend": {"type": "in_memory", "vector_dims": dict(spec.feature_spec.fields)},
             "checkpoints": {"cp1": {"enabled": True, "gate": {"type": "always_skip"},
@@ -28,27 +28,31 @@ def config_document(provider, *, k=10, commit=5, evidence_dir, recipe=None):
 def recipe_from_store(adapter, directory, *, corrector=True, guard=False, periodic_gap=2):
     """Consume P6's sealed library store and P1's sole layer implementation."""
     import numpy as np
-    from exp.r17_integration.benchmarks.metaworld import FORMAL_SPEC
-    from exp.metaworld.tasks import task_id_of
+    from exp.r17_integration.common.benchmarks import get_benchmark
     from exp.r17_integration.common.layers import LibraryData, fit_library
     from exp.r17_integration.debug.validate import model_binding
     from exp.r17_integration.search.fit import LibraryView
     from exp.r17_integration.search.store import Store
-    store = Store(directory, expected_binding=model_binding(adapter.metadata(), FORMAL_SPEC.identity))
+    spec = adapter.metadata()
+    protocol = spec.allowed_benchmark_protocols[0]
+    tasks = get_benchmark(protocol).ordered_tasks
+    task_ids = {name:i for i,name in enumerate(tasks)}
+    store = Store(directory, expected_binding=model_binding(spec, protocol))
     view = LibraryView(store)
     rows = store.rows
     unique_eps = {e: i for i, e in enumerate(sorted(set(view.episode_ids)))}
-    library = LibraryData({"vision_0": view.array("key_vision_0")}, view.array("state"),
-                          view.array("normalized_actions"), np.array([task_id_of(r["task_name"]) for r in rows]),
+    library = LibraryData({name:view.array("key_"+name) for name in spec.feature_spec.fields if name != "robot_state"}, view.array("state"),
+                          view.array("normalized_actions"), np.array([task_ids[r["task_name"]] for r in rows]),
                           np.array([unique_eps[e] for e in view.episode_ids]),
                           np.array([r["decision_seq"] for r in rows]), source_digest=store.manifest["content_digest"])
-    return fit_library(library, layout=adapter.metadata().layout, task_count=50, commit_horizon=5,
+    return fit_library(library, layout=spec.layout, task_count=len(tasks), commit_horizon=spec.layout.replan_steps,
                        corrector=corrector, guard=guard, periodic_gap=periodic_gap)
 
 
-def register_provider(adapter, *, provider_id="r17_pi05_mt50_v1"):
+def register_provider(adapter, *, provider_id=None):
     from exp.r17_integration.common.provider import register_provider as register
     from .adapter import Pi05MetaWorldAdapter
+    provider_id = provider_id or ("r17_pi05_libero_v1" if adapter.spec.model_id == "pi05_libero" else "r17_pi05_mt50_v1")
     provider = AdapterProvider(provider_id, adapter.metadata(),
                                lambda: Pi05MetaWorldAdapter(adapter.policy, adapter.spec, observation_factory=adapter.observation_factory),
                                sampler_for_steps, lambda config: NamedFieldsKeyBuilder(adapter.metadata().feature_spec.fields),

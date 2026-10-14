@@ -18,10 +18,24 @@ def observation_field(obs, name):
     raise KeyError(f"missing {name} or {alias}")
 
 
-def to_groot_observation(obs):
+def to_groot_observation(obs, benchmark="metaworld"):
+    if benchmark == "libero":
+        from exp.libero_groot.policy_adapter import build_groot_observation
+        return build_groot_observation(obs)
     # Only translate field names. B still owns image/state validation and native transforms.
     return _to_groot_observation({"image": observation_field(obs, "image"),
                                  "state": observation_field(obs, "state"), "prompt": obs["prompt"]})
+
+
+def wire_actions(result, benchmark="metaworld"):
+    if benchmark == "libero":
+        from exp.libero_groot import libero_keys
+        from exp.libero_groot.policy_adapter import chunk_to_libero_actions, validate_action_chunk
+        # Vendor inverse retains B1; historical wire adapter consumes T x 1.
+        actions = {key:(np.asarray(result[key])[0] if np.asarray(result[key]).ndim == 3 else np.asarray(result[key]))
+                   for key in libero_keys.ACTION_KEYS}
+        return chunk_to_libero_actions(validate_action_chunk(actions))
+    return from_groot_actions(result)
 
 
 class GrootMetaWorldWirePolicy:
@@ -36,13 +50,18 @@ class GrootMetaWorldWirePolicy:
             model = runner._model if runner is not None else getattr(self.inner, "model", None)
             if model is not None and model.action_head.num_inference_timesteps != self.manifest.denoising_steps:
                 raise RuntimeError("GR00T head runs a different K from the immutable endpoint")
-        native = to_groot_observation(obs)
+        benchmark = self.manifest.benchmark if self.manifest is not None else "metaworld"
+        native = to_groot_observation(obs, benchmark)
+        inner = self.inner
+        if isinstance(inner, dict):
+            suite = obs["__request__"]["task_name"].split("/", 1)[0]
+            inner = inner[suite]
         if self.lock is None:
-            result = self.inner.get_action(native)
+            result = inner.get_action(native)
         else:
             with self.lock:
-                result = self.inner.get_action(native)
-        reply = {"actions": from_groot_actions(result)}
+                result = inner.get_action(native)
+        reply = {"actions": wire_actions(result, benchmark)}
         if "__hit_meta__" in result:
             reply["__hit_meta__"] = result["__hit_meta__"]
         return reply

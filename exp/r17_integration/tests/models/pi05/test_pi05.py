@@ -138,8 +138,9 @@ def test_native_capture_resume_exact_and_foreign_snapshot_rejected():
         resumed = a.resume(s2, snap, sampler, rng, CaptureSpec())
         assert resumed.normalized_chunk.tobytes() == plain.normalized_chunk.tobytes()
         assert resumed.actual_nfe == model.counts[2] == 10 - snap.loop_index
-    with pytest.raises(ValueError, match="identity"):
-        a.resume(s2, replace(captured.snapshots[0], norm_identity="other"), sampler, rng)
+    # Owner removed fingerprint gates; native geometry/grid still applies.
+    migrated = a.resume(s2, replace(captured.snapshots[0], norm_identity="other"), sampler, rng)
+    assert migrated.normalized_chunk.tobytes() == plain.normalized_chunk.tobytes()
     reduced = a.sample(s2, sampler_for_steps(2), rng, CaptureSpec(True, True))
     assert len(reduced.snapshots) == 1
     assert a.resume(s2, reduced.snapshots[0], sampler_for_steps(2), rng).normalized_chunk.tobytes() == reduced.normalized_chunk.tobytes()

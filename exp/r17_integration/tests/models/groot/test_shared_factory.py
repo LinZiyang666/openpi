@@ -86,8 +86,9 @@ def test_common_two_bundles_actual_ack_tail_no_model_calls(published, obs, monke
 def test_common_provider_binding_refuses_wrong_k_norm_layout_and_commit(published):
     good = binding_for(published, published.model_spec.allowed_benchmark_protocols[0], commit_horizon=15)
     validate_binding(good)
-    for field, value in (("num_steps", 2), ("norm_identity", "wrong"), ("layout_identity", "wrong"),
-                         ("benchmark_protocol", "libero"), ("commit_horizon", 17)):
+    for field, value in (("norm_identity", "other"), ("layout_identity", "other"), ("benchmark_protocol", "libero")):
+        validate_binding(dict(good, **{field:value}))  # Existing owner rule: no fingerprint gates.
+    for field, value in (("num_steps", 2), ("commit_horizon", 17)):
         with pytest.raises(ValueError):
             validate_binding(dict(good, **{field: value}))
 

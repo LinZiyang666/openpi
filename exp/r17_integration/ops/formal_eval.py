@@ -34,6 +34,8 @@ DEFAULT_CHECKPOINTS = {
     'fastwam_mw': '/data/mw_finetune/fastwam/mt50_frozen_b128/policy_016001',
     'groot_mw': '/data/mw_finetune/groot/4090_mt50/checkpoint-60000',
     'pi05_mw': '/data/ckpt/pi05_metaworld_rlinf',
+    'pi05_libero': '/home/weiland/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch',
+    'groot_libero': '/data/ckpt',
     'cosmos_libero': '/data/mw_finetune/models/cosmos_libero',
     'cosmos_mw': '/data/mw_finetune/models/cosmos_mw',
 }
@@ -159,7 +161,7 @@ def execution_horizon(campaign, layout):
     requested = campaign.get('commit_horizon')
     if requested is None:
         return layout['replan_steps']
-    supported = {'libero': ('dp', 'fastwam', 'cosmos'), 'metaworld': ('dp', 'fastwam', 'pi05', 'groot')}
+    supported = {'libero': ('dp', 'fastwam', 'cosmos', 'pi05', 'groot'), 'metaworld': ('dp', 'fastwam', 'pi05', 'groot')}
     if campaign.get('model') not in supported.get(campaign.get('domain'), ()) or campaign.get('library'):
         raise ValueError('commit-horizon study requires a supported plain model')
     if type(requested) is not int or not layout['replan_steps'] <= requested <= layout['horizon']:
@@ -174,12 +176,13 @@ def execution_steps(campaign, default_steps):
     requested = campaign.get('denoising_steps')
     if requested is None:
         return default_steps
-    choices = {'dp': (5, 10, 100), 'fastwam': (1, 2, 10), 'cosmos': (1, 2, 3, 5)}
+    choices = {'dp': (5, 10, 100), 'fastwam': (1, 2, 10), 'cosmos': (1, 2, 3, 5),
+               'pi05': (1, 2, 3, 4, 5, 10), 'groot': (1, 2, 3, 4)}
     if campaign.get('domain') == 'metaworld':
         choices = {'dp': (5, 10, 100), 'fastwam': (1, 2, 3, 4, 5, 10), 'pi05': (1, 2, 3, 4, 5, 10), 'groot': (1, 2, 3, 4)}
     if (campaign.get('domain') not in ('libero', 'metaworld') or campaign.get('library') or
         type(requested) is not int or requested not in choices.get(campaign.get('model'), ())):
-        raise ValueError('plain steps: DP 5/10/100, Fast-WAM 1/2/10 (MW 1-5/10), MW pi05 1-5/10, MW GR00T 1-4, LIBERO Cosmos 1/2/3/5 (native K2 is NFE1)')
+        raise ValueError('plain steps: DP 5/10/100, Fast-WAM 1/2/10 (MW 1-5/10), pi05 1-5/10, GR00T 1-4, LIBERO Cosmos 1/2/3/5 (native K2 is NFE1)')
     if campaign.get('commit_horizon') is not None or campaign.get('native_parity_only'):
         raise ValueError('plain step study cannot combine horizon or parity-only overrides')
     return requested
@@ -589,7 +592,10 @@ def server_env(campaign, root):
     if campaign['model'] == 'fastwam':
         extra += ':/data/mw_finetune/vendor/lerobot/src:/data/mw_finetune/vendor/FastWAM/src'
     if campaign['model'] == 'groot':
-        extra += ':'+('/home/exouser/gr00t_n15' if h100_native else campaign['vendor'])
+        vendor = '/home/exouser/gr00t_n15' if h100_native else campaign['vendor']
+        extra += ':'+vendor
+        if campaign.get('domain') == 'libero':
+            extra += ':'+vendor+'/examples/Libero'
     if campaign['model'] == 'cosmos':
         extra = '/data/cosmos/r17_runtime_deps310:'+campaign['vendor']
     env = dict(PYTHONPATH=pythonpath(root, extra.strip(':')), PYTHONDONTWRITEBYTECODE='1',
@@ -1583,7 +1589,7 @@ def parse_args(argv=None):
     if bool(args.cache_control) != bool(args.cache_control_runtime):
         p.error('--cache-control and --cache-control-runtime are required together')
     if args.cache_study:
-        if (args.model not in ('dp_libero','fastwam_libero','cosmos_libero','dp_mw','fastwam_mw','pi05_mw','groot_mw') or
+        if (args.model not in ('dp_libero','fastwam_libero','cosmos_libero','pi05_libero','groot_libero','dp_mw','fastwam_mw','pi05_mw','groot_mw') or
                 args.model.endswith('_libero') and not args.official_50 or
                 args.runtime_from or args.resume_from or args.commit_horizon is not None or
                 args.denoising_steps is not None or args.native_parity_only):
@@ -1626,7 +1632,8 @@ def parse_args(argv=None):
         p.error(str(exc))
     if args.commit_horizon is not None:
         geometry = {'dp_libero': (5, 16), 'fastwam_libero': (5, 32), 'cosmos_libero': (16, 16),
-                    'dp_mw': (5, 16), 'fastwam_mw': (5, 32), 'pi05_mw': (5, 5), 'groot_mw': (5, 16)}
+                    'dp_mw': (5, 16), 'fastwam_mw': (5, 32), 'pi05_mw': (5, 5), 'groot_mw': (5, 16),
+                    'pi05_libero': (5, 10), 'groot_libero': (5, 16)}
         if args.model not in geometry or not geometry[args.model][0] <= args.commit_horizon <= geometry[args.model][1]:
             p.error('--commit-horizon must fit the native chunk: DP/GR00T16, Fast-WAM32, pi05 MT50 5, Cosmos16')
         if args.model.endswith('_mw') and args.commit_horizon % 5:
@@ -1637,14 +1644,17 @@ def parse_args(argv=None):
         p.error('Cosmos model capture/library qualification is unsupported')
     if args.native_parity_only and not cosmos:
         p.error('--native-parity-only is Cosmos only')
-    args.server_node = args.server_node or ('h100' if cosmos else 'local')
+    args.server_node = args.server_node or ('h100' if cosmos or args.model == 'groot_libero' else 'local')
     args.worker_node = args.worker_node or ('timan108' if cosmos else 'timan107')
     args.port = args.port if args.port is not None else (23240 if cosmos else 23160)
-    args.driver_port = args.driver_port if args.driver_port is not None else (23112 if cosmos else 23179)
+    args.driver_port = args.driver_port if args.driver_port is not None else (
+        23112 if cosmos else 23169 if args.model in ('pi05_libero', 'groot_libero') else 23179)
     if args.smoke_episodes != 4 and (not args.smoke or not args.model.endswith('libero')):
         p.error('--smoke-episodes requires a LIBERO --smoke')
     if args.official_50 and not args.model.endswith('libero'):
         p.error('--official-50 is LIBERO only')
+    if args.model == 'groot_libero' and args.official_50 and args.suites is None and not args.smoke:
+        args.suites = ['libero_spatial', 'libero_10']
     if args.prepare_only and args.run:
         p.error('--prepare-only and --run are mutually exclusive')
     if not args.run and not args.prepare_only:
@@ -1745,7 +1755,8 @@ def main(argv=None):
     if args.extra_workers:
         worker_nodes['timan108' if args.worker_node == 'timan107' else 'timan107'] = args.extra_workers
     campaign = dict(run_name=name, model=model, domain=domain,
-        checkpoint=args.checkpoint or DEFAULT_CHECKPOINTS[args.model],
+        checkpoint=args.checkpoint or ('/home/exouser/ckpt' if args.model == 'groot_libero' and args.server_node == 'h100'
+                                      else DEFAULT_CHECKPOINTS[args.model]),
         device=args.gpu, server_node=args.server_node, worker_nodes=worker_nodes,driver_mode=args.driver_mode,
         worker_egl_device=args.worker_egl_device, workers=sum(worker_nodes.values()), replicas=args.replicas,
         replica_startup_width=args.replica_startup_width,
@@ -1771,7 +1782,7 @@ def main(argv=None):
         # GR00T's endpoint K is fixed at startup; start it at the study YAMLs' K.
         import yaml
         study = json.loads(args.cache_study.read_text())
-        row = next(iter(study['models'].values()))[0]
+        row = study['models'][args.model][0]
         campaign['live_k'] = yaml.safe_load((args.cache_study.parent/row['file']).read_text())['adapter_binding']['num_steps']
     if args.cache_study:
         campaign.update(cache_study=str(args.cache_study.resolve()),

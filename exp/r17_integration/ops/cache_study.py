@@ -21,14 +21,15 @@ from exp.r17_integration.search.store import atomic_json
 
 ROOT = Path(__file__).resolve().parents[3]
 HERE = Path(__file__).with_suffix("")
-LIBERO_MODELS = ("dp_libero", "fastwam_libero", "cosmos_libero")
+LIBERO_MODELS = ("dp_libero", "fastwam_libero", "cosmos_libero", "pi05_libero", "groot_libero")
 MW_MODELS = ("dp_mw", "fastwam_mw", "pi05_mw", "groot_mw")
 MODELS = LIBERO_MODELS + MW_MODELS
 SUITES = ("libero_spatial", "libero_10")
 GROUPS = ("c", "cr", "ch", "chr", "cg", "crg", "chg", "chrg")
 ALIASES = {"ch": "c", "chr": "cr", "chg": "cg", "chrg": "crg"}
 CONTROLS = {'dp_libero':'hs5dp_ctl_142812','fastwam_libero':'hs6fw_res_152931',
-            'cosmos_libero':'formal_cosmos_libero_official2000_20261010_130639_a8ca2043'}
+            'cosmos_libero':'formal_cosmos_libero_official2000_20261010_130639_a8ca2043',
+            'pi05_libero':'pl_a', 'groot_libero':'gl_a'}
 PRE_REG = ROOT / "exp/offline_search/rounds/r17/cache/CACHE_STUDY.md"
 RULINGS = PRE_REG.with_name("OWNER_RULINGS.md")
 
@@ -169,7 +170,8 @@ def generate(output, *, library_root="/data/r17_library", long_dp=10, long_fast=
         controls=CONTROLS,horizon_selection=dict(dp=long_dp, fastwam=long_fast, cosmos=16,
             status="fallback_C10_pending_horizon_NI_freeze"), artifacts_pending=[])
     if 'pi05_mw' in models:manifest['horizon_selection']['pi05']=5
-    if 'groot_mw' in models:manifest['horizon_selection']['groot']=10
+    if 'pi05_libero' in models:manifest['horizon_selection']['pi05']=10
+    if 'groot_mw' in models or 'groot_libero' in models:manifest['horizon_selection']['groot']=10
     if sized:manifest["library_sizes"]=list(sizes)
     for bundle in models:
         long = manifest['horizon_selection'][bundle.rsplit('_',1)[0]]
@@ -853,8 +855,8 @@ def audit(path, output):
         library_sizes=manifest.get('library_sizes',[500]))
     for name,rows in manifest['models'].items():
         entries=[]
-        current=(read(Path('/data/mw_finetune/eval')/CONTROLS[name]/'assets/model_spec.json')
-                 if name in CONTROLS else read(Path(rows[0]['library'])/'READY.json')['binding']['model'])
+        control = Path('/data/mw_finetune/eval')/CONTROLS[name]/'assets/model_spec.json' if name in CONTROLS else None
+        current=(read(control) if control and control.exists() else read(Path(rows[0]['library'])/'READY.json')['binding']['model'])
         differences=[]
         nested={}
         for n in sorted(manifest.get("library_sizes",[500])):
@@ -909,7 +911,8 @@ def audit(path, output):
                         stall_availability_scope='unchanged Q3: fewer than four successful selected-B references => inactive'))
         report['models'][name]=dict(real_library_queries=entries,control_comparison=differences,
             deployment_status=('CPU recipes only; coordinator GPU smoke pending' if name in MW_MODELS else
-                'needs '+{'dp_libero':'P4','fastwam_libero':'P3','cosmos_libero':'D'}[name]),
+                'needs '+{'dp_libero':'P4','fastwam_libero':'P3','cosmos_libero':'D',
+                          'pi05_libero':'π0.5 LIBERO GPU run','groot_libero':'GR00T LIBERO GPU run'}[name]),
             qualification_scope='teacher-bound CPU math; current resident admission remains model-owned')
     report['status']='PASS';report['digest']=digest(report);atomic_json(output,report)
     return report

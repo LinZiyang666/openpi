@@ -141,9 +141,10 @@ def main(argv=None):
     import argparse
     parser = argparse.ArgumentParser(description="Opt-in GR00T-MW staged server on the shared WS/cache path")
     parser.add_argument("--checkpoint", required=True)
+    parser.add_argument("--benchmark", choices=("metaworld", "libero"), default="metaworld")
     parser.add_argument("--port", type=int, required=True)
     parser.add_argument("--host", default="0.0.0.0")
-    parser.add_argument("--denoising-steps", type=int, choices=(4, 2, 1), default=4)
+    parser.add_argument("--denoising-steps", type=int, choices=(4, 3, 2, 1), default=4)
     parser.add_argument("--device", default="cuda:0")
     parser.add_argument("--cache-config")
     parser.add_argument("--debug-directory", help="P6 model debug capture root; default off, bound per connection/bundle")
@@ -151,11 +152,12 @@ def main(argv=None):
     parser.add_argument("--tokenizer-file", action="append", required=True)
     parser.add_argument("--code-file", action="append", required=True)
     args = parser.parse_args(argv)
-    from .loader import load_checkpoint
+    from .loader import load_checkpoint, checkpoint_paths
     from .provider import make_provider, register_provider
     from exp.r17_integration.common.config import build_shared_storage, load_cache_config, validate_cache_config
-    backend, manifest = load_checkpoint(args.checkpoint, device=args.device, denoising_steps=args.denoising_steps,
-                                        tokenizer_files=args.tokenizer_file, code_files=args.code_file)
+    checkpoint = checkpoint_paths(args.checkpoint) if args.benchmark == "libero" else args.checkpoint
+    backend, manifest = load_checkpoint(checkpoint, device=args.device, denoising_steps=args.denoising_steps,
+                                        tokenizer_files=args.tokenizer_file, code_files=args.code_file, benchmark=args.benchmark)
     provider = register_provider(make_provider(backend, manifest))
     config = load_cache_config(args.cache_config) if args.cache_config else default_config(provider, commit_horizon=args.commit_horizon)
     validate_cache_config(config)
