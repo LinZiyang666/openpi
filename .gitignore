@@ -421,6 +421,17 @@ exp/r17_integration/models/fastwam/measurements/*_raw/
 exp/r17_integration/models/fastwam/measurements/*_before/
 exp/r17_integration/ops/cache_study/*/artifacts/
 exp/r17_integration/ops/cache_study/*/*_libero/
+# knob study inputs: STUDY.json / CPU_PLAN.json / COMMANDS.txt stay tracked; the bulky per-cell
+# YAML trees emitted from them are regenerable (fsred_*/ cell YAMLs are small and stay tracked)
+exp/r17_integration/ops/cache_study/knob/dev/*_libero/
+exp/r17_integration/ops/cache_study/knob/dev_reduced/*_libero/
+exp/r17_integration/ops/cache_study/knob/smoke_*/*_libero/
+exp/r17_integration/ops/cache_study/knob/test_*/*_libero/
+exp/r17_integration/ops/cache_study/knob/mt50/*/*/batch/*/
+# profile outputs: small <model>_<suite>.json summaries stay tracked; nsys captures and exports are not
+exp/r17_integration/profile/**/*.nsys-rep
+exp/r17_integration/profile/**/*.trace.csv
+exp/r17_integration/profile/**/*.sqlite
 exp/r17_integration/diagnostics/timan1_provision/evidence/render_*/
 exp/r17_integration/diagnostics/timan1_provision/reference_*/
 # mw_finetune: fetched html reference page, eval locks, copied source snapshots
@@ -449,3 +460,6 @@ exp/offline_search/rounds/r17/**/plot_*
 exp/offline_search/rounds/r17/**/render_*
 exp/offline_search/rounds/r17/**/edit_*figure*
 exp/offline_search/rounds/r17/**/*_editor.html
+
+# owner's slide deck
+/10.15ciscio.pdf
