@@ -56,6 +56,37 @@ owner 的常驻指令，逐字有效：
 
 ### 1.R16 正在做：纯减步融入闭环（owner 10-07 目标"融入纯减步并实验"，会话 goal 仍挂着）
 
+### ★★ 2026-10-14 10:4x CDT 总状态（compact 后先读这一块；再往下是 10-13 21:15 的旧总块和按时间倒序的细节）
+
+**owner 在场情况**：owner 10:2x 醒了，指出「4090完全是闲置的」（08:05 起空闲，是我失职：把「没有不依赖 timan107 的活」当成空等理由），问 timan107 怎么死的、是不是 worker 搞崩的、timan1 有没有内存泄漏。巡检 prompt 仍每 30 分钟到。
+
+**timan107 整机宕掉（~00:21 起，至今）**
+- 证据：`cspi_k2` 最后收局 00:20:57；同一时刻 tether agent 失联；从 timan1 内网 ping 192.17.58.207 = host unreachable，ssh 不通。我之前说「00:24 它的 worker 还连着所以机器活着」是错的（宕机不发 FIN，连接是残留）。
+- 我没在 timan107 上 kill/重启任何东西（只读查询 + 正常批次部署）。可能相关（未证实）：MT50 worker 全部 `--worker-max-episodes 0` 从不回收（cspi_k2 的连续跑 ~8 h；RUN_CONFIGS 记过 EGL worker 不回收会泄漏主机内存到 OOM）；/scratch+/tmp 同盘 227 GB 只剩 ~6.9 GB（97%，低于原 8 GiB 下限，今晚十几次准备都往上推）；~64 个 worker 在 8 张 8 GB 卡上 EGL。00:05 时可用内存还有 191 GB。
+- 需要 owner/管理员把它开起来。开机后：`journalctl -b -1 -k`（或 /var/log/kern.log）看 OOM/Xid/文件系统错误 → 查磁盘 → 把我们在 `/tmp/r17_formal/*` 和 `/scratch/zixuans8/mw_r17/formal/runs/*` 的旧暂存挪走（只挪不删）→ 接回排好的批次。以后 MT50 worker 也要定期回收、准备前查 worker 机磁盘（待写进 RUN_CONFIGS）。
+- timan1 泄漏检查（owner 10:3x 问）：`grmk1_red` 的 40 个 worker 跑 39 分钟未回收，每个 ~700 MB（timan107 上跑了数小时的 cspi_k2 worker 也是 ~720 MB）；timan1 用 37/503 GB。目前看不出泄漏；后台 job `b0g6ezkxj` 在同批 worker 上隔 4 分钟采两次 RSS（结果在它的 output 文件，没看到就重采：`tether exec timan1 -- ps -eo pid,rss,args | grep grmk1_red`）。
+
+**两张卡现在**
+- H100：tmux `mtk_h100_v9` 在跑 GR00T MT50 减步旋钮 `grmk1_red`（09:55 起，90,000 局，R11 MPS，timan1×40，驱动 23149，参照 `tgr7h1_k2`，预计 ~13:30 完）。之后 tmux `mtk_h100_v10`（`mtk/chain_h100_v10.run.sh`）等 `[h100-v9] h100-v9 chain done` 依次跑 `tdp7h1_full`（DP 满步 H100 基线，已准备）→ `dpmk1_ful` → `dpmk1_red`（DP R8 B8）→ `fwmk1_ful` → `fwmk1_red`（FW R3 B16），全部 timan1×40，每个在上一个收局后准备。H100 根分区 22 GB 空（63%）；closed 批次的 `/tmp/r17_formal/<run>` 挪到 `/data/r17_formal_moved/`，⛔ 不要挪已准备未启动的（fsredcos、tdp7h_full、csfw_k3v、tdp7h1_full 等）。
+- 4090：08:05 起空闲。我提议做「本机 MetaWorld worker」（本机 worker 环境 `/data/mw_finetune/qualification/local_workers/env311` 没装 metaworld；`ops/local_workers.py` 只接 LIBERO；照 timan 的 `worker_installs.prepare_metaworld` 装 + 让本机部署走 MW 分支 + 4090 上 2 worker 冒烟），问了 owner「要不要现在做（30–60 分钟）」，owner 还没正面回答。MW worker 很轻（~0.7 GB RAM、~0.1–0.2 GB 显存、CPU 几乎闲），本机 88 核 / 237 GB 足够，且绕开 4090 的 33 MB/s 公网入口。做通后 4090 可接：π0.5 `cspi_k2` 剩 5,024 局（cache_resume 续跑）→ π0.5 MT50 旋钮两批（`pimk_*`，批次已在 `exp/r17_integration/ops/cache_study/knob/mt50/pi05_mw/{full,reduced}/batch`）。
+- 本机 worker 已验证可用于 LIBERO 纯推理和 B 池（`pl_k1b2` 已准备，B 池起点装在 `<node>.json` 的 `worker_init_states_dir`，我之前误判不支持）；LIBERO 建库（`library_campaign`）仍拒绝本机 worker（`'local' in worker_counts` 门 + 地址写死 ziyanglin.com）——要改才能在 4090 上本机建库。
+
+**今晚结果（都已提交）**
+- MT50 缓存研究：DP `csdp_1504` 完；GR00T `csgr_h5`+`csgr_h6`=120,000 完（最好 crg n2500 组均值 50.5，H100 同卡纯推理 K2 66.3 / 满步 66.8 → GR00T 缓存低 ~16 点，真实差距）；Fast-WAM `csfw_k3` 47,500（ch n1000 有 1,734 报错局被记成 accepted，`mw/cells.py` 已排除）+ 续跑段 `csfw_k3v`（74,234 局，已准备但 worker 含 timan107，要么等 timan107 要么改 timan1/本机重准备）；π0.5 `cspi_k2` 54,976/60,000（剩 5,024）。合并统计：`python3 mw/cells.py --merge RUN1 RUN2`。
+- MT50 同卡纯推理基线（H100）：GR00T `tgr7h1_k2` 66.3/75.2、`tgr7h1_full` 66.8/75.6（与 4090 一致）。
+- MT50 逐任务旋钮（owner 定：不设开发集，直接在 seed 7 上逐档下降，少 ≤2 局算过，首败冻结；koff 整格达纯推理则不调）：GR00T 全步 `grmk1_ful` 完 —— 组均值 66.5–68.0（纯推理 66.8），IR 0.60–0.74，koff 都没达标（`rounds/r17/knob/mt50/groot_full/DESCENT.md`）。分析命令：`python -m exp.offline_search.rounds.r17.knob.descent --lane /data/mw_finetune/eval/<run> --miss-steps full|reduced --control groot_mw=tgr7h1_full --out ...`（DP 全步参照 `tdp7h1_full`，DP 减步 `tdp7d10_0851`，FW `tfw7full_0944`/`tfw7k3_1051`，π0.5 `tpi7_0536`/`tpi7k2_1135`）。
+- LIBERO 减步完整系统（新规则）：DP `fsreddp2` 库 100–500 两套件 10 格 ≥ DDIM10 纯推理 → 减步列这 10 格不调旋钮（IR 0.016–0.019）；Fast-WAM `fsredfw` 12 格都不达标（对照必须用同卡 4090 K1 `hs7fwk1_4090c`）；Cosmos `fsredcos` 已准备（含 timan107 worker）未跑。结果 `rounds/r17/knob/full_system_reduced/{test,ir}_{dp,fw}`。⚠ 网页减步列还没改（DP 10 格要换成完整系统结果加 *）。
+- LIBERO VLA：R17 新路径冒烟通过（π0.5 10/10；GR00T 修了 state dtype `fe84e291` 后 9/10）。纯推理基线（4090 本机 worker，A 集 spatial+10 各 1000）：π0.5 `pl_k1a2` 90.3 / `pl_a2` 90.8；GR00T `gl_k1a` 88.5 / `gl_a3` 88.4。分析时 `--control π0.5=pl_k1a2` 等（代码默认名 pl_k1a/pl_a/gl_k1a/gl_a）。GR00T 的 LIBERO 线改放 4090（H100 被 MT50 旋钮占满）。
+- sol：MT50 旋钮工具（`12212a57`）和 VLA LIBERO 旋钮（`2754e9bd`）都已交回、审过、提交；无在途 sol。
+
+**今晚修的代码（快照 `/data/r17_frozen/openpi_fe84e291` 含全部；导出新快照要手工补 `assets/pi05_libero` 和 `exp/r17_integration/ops/samples/libero_library_alignment`，都被 gitignore）**：`d9c2c672` tether「cannot reach broker」(exit 69) 当瞬时重试；`ce534b78` 启动器探测不到的节点跳过 10 分钟不停批；`7db095a3` MT50 服务端只在 LIBERO 时 import LIBERO bridge；`272ca119` 续跑只看「有 accepted 终局且无 error」；`afd7b640` 续跑 clone 重建 worker 包；`388c70f5` 拔建库端口窗口门；`fe84e291` GR00T LIBERO state-only float64。RUN_CONFIGS 新坑：broker 拨号失败、报错局被记 accepted、续跑代价、链等待要 grep 带标签整行、H100 根盘、4090 本机 EGL worker 留 ~8 GB 显存余量、启动器丢失收尾要按端口关代理、停链只杀 bash PID 不关 tmux 会话。
+
+**我今晚的失误（如实）**：23:36 v6 链 grep 到我自己备注里的完成短语误启动（25 秒内按 PID 停）；06:57 关 tmux 会话把 `gl_k1a` 启动器 SIGHUP（数据保住，收尾漏关代理导致 `gl_a2` 起不来）；一次挪了 H100 上已准备批次的暂存（马上挪回）；用过一次 `pkill -f`；4090 08:05 起空闲到 owner 指出。
+
+**还没做 / 待 owner**：timan107 开机；本机 MetaWorld worker 是否做（我建议做）；timan1 40 worker 上限（owner 定的，可否放宽）；「达到纯推理」容差；R13 图 (b) 数字出处；Cosmos-MW 训练残留；网页加 MT50 段和减步列更新。
+
+**监控（30 分钟过期要重挂）**：`tail -F mw/chain.log` 两路（链事件 `\[h100-v[0-9]+\]|\[4090[a-z]\]|prepare exit|FAIL|launcher` / 其余行）、`bash mw/err_watch.sh`、timan107 上线（`until tether node ls -a | grep -q "timan107 .*ONLINE"`）。
+
 ### ★ MetaWorld MT50 + LIBERO 收尾 当前状态（2026-10-13 21:15 CDT；compact 后先读这一块，下面按时间倒序的条目是细节）
 
 **owner 目标与已定规矩**
