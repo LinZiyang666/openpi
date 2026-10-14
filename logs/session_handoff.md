@@ -58,6 +58,8 @@ owner 的常驻指令，逐字有效：
 
 ### ★★★★★★ 2026-10-14 14:55 CDT 总状态（compact 后最先读这一块；下面各「增量」块是细节，按时间倒序）
 
+> **16:37 增量（先读）**：`csfw_k3w5` 16:29 起在第一个 n1500 格 CUDA OOM（R3 每副本 25.33 GiB 上限，约四成尝试报错，csfw_k3 从未用 R3 跑过 n1500+）。v15 链按 PID 停，**现行 H100 链 v16**（tmux `mtk_h100_v16`，`mtk/chain_h100_v16.run.sh`，标签 `[h100-v16]`，快照 `b98049e2`）：SIGTERM k3w5（19,961 局）→ 立刻跑已备好的 `dpmk1_fulx`，同时准备 `csfw_k3w6`（cache_resume of csfw_k3w5，**R2**，timan1/107/108×40，zlib）→ `csfw_k3w6` → `dpmk1_redx` → `fwmk1_fulx` → `fwmk1_redx`（FW 旋钮也改 R2）。FW 缓存研究合并 `cells.py --merge csfw_k3 csfw_k3w4 csfw_k3w5 csfw_k3w6`。已写 RUN_CONFIGS。
+
 > **16:24 巡检**：4090 `pimk1_fuld` 21,251 局 0 报错 ~130 局/分（SM 15 s 均 100%）；H100 `csfw_k3w5` 17,873 局（32 局终局报错=py-spy 事故）~417 局/分，剩 ~4.95 万 ≈ 2 h，SM 均 35%；链无新事件。
 
 > **16:1x 增量**：astra 事前预测核查交回（只用 R17 数据，owner 令排除旧实现）：`exp/offline_search/rounds/r17/survey_predict/REPORT.md`（大 JSON 未提交，留在目录）。结论：支持「当前实现没有经验证的事前安全选择器，K/H_exec 靠闭环经验选」；不支持「五模型都测过 difference 预测器且不准」（R17 只有 DP 在 LIBERO 的离线动作质量探针，无 SR 校准）；不支持「不存在可靠方法」。缺口：π0.5/GR00T 无纯 H 阶梯，MT50 各模型无纯 H 阶梯，Object/Goal 无阶梯。我已抽查 MT50 阶梯、π0.5 LIBERO K10/K1（908/903 局成功）、DP/FW horizon 数字，一致。

@@ -975,6 +975,12 @@ Never attach py-spy or any ptrace tool to a live replica: `sudo py-spy record --
 two minutes and stalled replica 0; its in-flight episodes exhausted their retries ("replica backend unavailable: timed
 out"): 217 errored attempts, 32 episodes ended with an error in `csfw_k3w5` (15:42-15:45). Profile on a copy of the replica outside a campaign.
 
+Fast-WAM MT50 cache cells with large libraries do not fit R3 on the H100. `csfw_k3w5` (R3, `--memory-budget-gib 76`, i.e.
+25.33 GiB per replica, B16, 40 connections per replica) ran the n250-n1000 cells cleanly, then hit `torch.OutOfMemoryError`
+from 16:29 on its first n1500 cell (24.5 GiB allocated by PyTorch, 0.8 GiB reserved-unallocated, cap 25.33 GiB): about 40%
+of attempts errored and replicas timed out. The original `csfw_k3` (R3) never reached n1500+. Run the n1500/n2000/n2500
+cells and the Fast-WAM knob batches at R2 (38 GiB per replica): `csfw_k3w6`, `fwmk1_fulx`, `fwmk1_redx`.
+
 ### H100 library capture staging can stall and then burn the plan as errors
 
 MT50 library campaigns with an H100 server stage each episode's capture on H100 and pull closed shards back in
