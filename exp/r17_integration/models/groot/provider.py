@@ -205,9 +205,12 @@ class GrootMetaWorldAdapter:
             else:
                 data = {}
                 offset = 0
+                # GR00T's state transform pins the dtype it first saw; the LIBERO observation builder
+                # (exp.libero_groot.policy_adapter) feeds float64, so the state-only path must too.
+                native_state = state.astype(np.float64) if self.manifest.benchmark == "libero" else state
                 for name in self.manifest.channels:
                     width = 2 if self.manifest.benchmark == "libero" and name == "gripper" else 1
-                    data["state." + name] = state[offset:offset+width].reshape(1, 1, width).copy()
+                    data["state." + name] = native_state[offset:offset+width].reshape(1, 1, width).copy()
                     offset += width
                 for transform in self._state_transforms:
                     data = transform(data)
