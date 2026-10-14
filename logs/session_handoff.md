@@ -99,7 +99,7 @@ owner 的常驻指令，逐字有效：
 
 **03:4x 4090（timan107 仍离线，只用本机 worker）**
 - LIBERO VLA 冒烟（R17 新路径第一次上卡）：`pi05_lsmk` 10/10 成功；`groot_lsmk` 10 局全报错（GR00T 原生 state 变换锁 dtype，LIBERO 观测给 float64、state-only 路径给 float32）→ 修 `fe84e291`，`groot_lsmk2` 9/10 成功、0 报错。
-- tmux `vla_4090f`（`vla/chain_4090f.run.sh`，快照 `fe84e291`）：π0.5 LIBERO 纯推理基线 `pl_k1a`（k=1，旋钮参照）→ `pl_a`（满步，八组研究参照），官方 A、spatial+10 各 1,000 局，R5 MPS + 本机 24 worker（4090 MPS + 本机 EGL worker 在 fsreddp2 已验证可行），显存 48.4/49 GB 偏紧。名字就是 sol 代码里的参照名（`knob/common.py`）。
+- π0.5 LIBERO 纯推理基线：`pl_k1a`（R5 + 本机 24 worker）在 789/1000 失败——显存 48.4/49 GB，回收的本机 EGL worker 建不了 framebuffer，重启额度耗尽（RUN_CONFIGS 已记）。改 R4 MPS + 本机 20 worker（~39 GB）：tmux `vla_4090g`（`vla/chain_4090g.run.sh`，快照 `fe84e291`）`pl_k1a2`（k=1，旋钮参照，04:17 起）→ `pl_a2`（满步，八组研究参照），官方 A、spatial+10 各 1,000 局。⚠ 分析时参照名要显式给：`--control π0.5=pl_k1a2` / `pl_a2`（代码默认 `pl_k1a`/`pl_a`）。
 
 **03:2x 减步完整系统 Fast-WAM 结果**：`fsredfw`（4090 本机 worker）6,000/6,000、0 报错。对照必须用同卡 K1 纯推理 `hs7fwk1_4090c`（默认 `hs6fw_k1` 在 H100，不能用；`test.py --control Fast-WAM=hs7fwk1_4090c`）。12 格都不达标：长任务 66.2–80.4% vs 88.6%，空间 86.6–90.0% vs 91.6% → Fast-WAM 减步列全部仍需旋钮。IR 0.048–0.065（纯推理 0.45）。`rounds/r17/knob/full_system_reduced/{test_fw,ir_fw}`。DP 的对照 `hs5dp_ddim10s0` 在 4090，同卡 OK。Cosmos（`fsredcos`）等 timan107。
 
