@@ -97,6 +97,8 @@ owner 的常驻指令，逐字有效：
 
 **01:3x 减步完整系统 DP 结果（新规则）**：`fsreddp2` 6,000/6,000、0 报错。对照 DDIM10 减步纯推理：库 100–500 两套件 10 格都 ≥ 纯推理（长任务 +1.8~+11.8，空间 +1.2~+5.0），库 50 两格不达标（−15.8/−7.2）→ 减步列 DP 库 100–500 直接用这一格（不调旋钮）。正式 IR 0.016–0.019（纯推理 0.142–0.145）。`rounds/r17/knob/full_system_reduced/{test_dp,ir_dp}`。网页减步列待 Fast-WAM（`fsredfw` 01:30 起，4090 本机 worker）出来后一起改。
 
+**08:05 4090 空闲（只缺 timan107）**：`gl_a3`（GR00T LIBERO 满步 K4，R2）1000/1000、884 成功 = 88.4%、0 报错（k=1 `gl_k1a` 88.5%）。LIBERO 四条 VLA 纯推理基线齐：π0.5 `pl_k1a2` 90.3 / `pl_a2` 90.8，GR00T `gl_k1a` 88.5 / `gl_a3` 88.4（4090，A 集 spatial+10 各 1000 局；分析时 `--control` 用这些名字）。之后 4090 没有不依赖 timan107 的活：MT50 剩余（π0.5 `cspi_k2` 5,024 局、π0.5 旋钮两批）需要 timan worker，timan1 的 40 个被 H100 `grmk1_ful` 占满；LIBERO 建库/B 池本机 worker 不支持。timan107 一恢复就接：`cspi_k2` 续跑 → π0.5 LIBERO 建库 `pl_sp`/`pl_10` → GR00T LIBERO 建库（改 4090 本机服务）→ 两个模型八组缓存研究。
+
 **07:1x GR00T LIBERO 基线（4090 本机 worker）**：`gl_k1a`（k=1，R3）1000/1000、885 成功 = 88.5%、0 报错——我在 06:57 关 `vla_4090h` 的 tmux 会话时把它的启动器一起 SIGHUP 了（违反 RUN_CONFIGS 已有坑），驱动/服务/worker 照常跑完，`vla/finish_gl_k1a.sh` 按 PID 收尾并 aggregate（回执 LAUNCHER_LOST）；漏关的代理占着 23150，`gl_a2` 启动失败，按 PID 关掉后重开 `gl_a3`（满步 K4，R2 MPS + 20 worker，显存 ~34 GB；R3 曾涨到 47 GB 太紧），tmux `vla_4090j`，07:08 起。
 
 **06:30 π0.5 LIBERO 纯推理基线（4090，R4 MPS + 本机 20 worker，A 集 spatial+10）**：`pl_k1a2`（k=1）903/1000 = 90.3%；`pl_a2`（满步 K10）908/1000 = 90.8%；均 0 报错。GR00T `tgr7h1_full`（H100 满步）66.8/75.6，与 4090 的 67.1/75.8 一致。
