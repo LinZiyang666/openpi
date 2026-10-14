@@ -160,6 +160,9 @@ def clone(snapshot, name, failure, *, refresh_cache_workers=False,worker_counts=
                 'exp/r17_integration/ops/formal_workers.py','exp/r17_integration/ops/worker_gpu.py',
                 'exp/r17_integration/ops/worker_disk.py')})
         write_json(directory/'campaign.json',campaign)
+    if not campaign.get('cache_control') and not campaign.get('runtime_from'):
+        # The plain path rebuilds the worker payload; drop the copy cloned above (MT50 cache resumes).
+        (directory/'workers.tar').unlink(missing_ok=True)
     with launch.retry_scope(directory):
         deployment = launch.prepare_workers(campaign,directory)
     # prepare_workers reuses the frozen PAYLOAD.json; only private paths differ.
