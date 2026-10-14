@@ -75,7 +75,8 @@ def inventory(node, devices=None):
                         pass
                 row['processes'].append(dict(pid=pid, uid=uid,used_mib=used,system_display=display))
                 if uid != os.getuid() and not display:
-                    row.update(usable=False, reason='other user GPU allocation')
+                    # Sharing a card with another user's job is allowed when VRAM suffices (owner rule); record only.
+                    row['foreign_processes'] = True
             result.append(row)
         except (OSError, ValueError, ET.ParseError, subprocess.SubprocessError) as exc:
             result.append(dict(device=device, usable=False, reason=repr(exc)))
