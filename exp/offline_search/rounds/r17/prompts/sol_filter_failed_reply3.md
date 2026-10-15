@@ -1,0 +1,10 @@
+<task>
+Launch bug in the filter_failed campaigns (coordinator ran them; nothing reached a server or worker):
+- `ff1015_dp_li_14` (fresh build, staged by `commands/prepare_ff1015_dp_li_14.sh` → PREPARED), launched by `commands/launch_ff1015_dp_li_14.sh` → fails in `formal_prestage.launch_prepared`: `FileNotFoundError: /tmp/r17_formal/ff1015_dp_li_14/local/benchmark.json`. That staging dir contains only two `control_*.json` files; the source run's `/tmp/r17_formal/csztd_r3_l48/local/` has benchmark.json, campaign.json, launch_campaign.json. Same symptom on timan107 for `ff1015_dp_li_16` (`/tmp/r17_formal/ff1015_dp_li_16/timan107/benchmark.json` missing). Logs: `/home/weiland/projects/openpi_ext/scratch/r17_ops/ff/ff1015_dp_li_{14,16}.{prep,run}.log`.
+- Earlier, separately: the archived worker release still refused RAM admission; I changed `exp/r17_integration/ops/formal_prestage.py` to record admission without raising (owner 2026-10-10: no RAM admission). Keep that.
+Fix:
+1. Make stage.py stage exactly what launch_prepared needs for every node type used by the 21 jobs (local, timan107, timan1, timan108; H100 server side too), so a fresh prepare → launch works.
+2. Add a small `reset.py --run <dir>` that returns a run whose launch failed before any server/worker started to a clean, re-launchable prepared state (rename LAUNCH/RECEIPT/.startup_inputs etc. with a suffix, never delete; re-stage). Use it on ff1015_dp_li_14 now. ff1015_dp_li_11 and ff1015_dp_li_16 were rebuilt fresh at 17:2x and have never been launched since.
+3. You may run stage/prepare and the remote CPU staging it performs (tether exec + rsync only), and inspect the staged files on local/timan107/timan1/timan108/h100, to prove for at least one local-worker job, one timan107 job, one H100 job and one R10 job that every file launch_prepared reads is present. Do NOT start any server, worker, driver or launch script; no GPU.
+Deliver: the fix, the proof per node type, and the exact commands to reset/prepare/launch; update HANDBACK.md.
+</task>
