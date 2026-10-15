@@ -58,6 +58,8 @@ owner 的常驻指令，逐字有效：
 
 ### ★★★★★★ 2026-10-14 14:55 CDT 总状态（compact 后最先读这一块；下面各「增量」块是细节，按时间倒序）
 
+> **05:54 巡检**：4090 `pimk1_redc` 51,992/90,000 0 报错 ~163 局/分（SM 均 98%）；H100 `fwmk1_fulx` 32,511/90,000 0 报错 ~110 局/分（util ~49%）。
+
 > **05:24 巡检**：4090 `pimk1_redc` 47,104/90,000 0 报错 ~172 局/分（SM 均 100%）→ ~09:30 完，之后 `[4090lib]` 跑 pl_sp4 → pl_10d；H100 `fwmk1_fulx` 29,219/90,000 0 报错 ~146 局/分（util ~49%）→ ~12:20。
 
 > **04:56**：4090 MT50 收完后接 LIBERO：tmux `mwl_4090lib`（`mwlocal/chain_4090lib.run.sh`，标签 `[4090lib]`，快照 `b98049e2`）现在准备 π0.5 LIBERO 建库 `pl_sp4`（spatial）/`pl_10d`（libero_10），05:00 都已备好（R5 MPS B1、timan107×24、legacy driver、endpoint ziyanglin.com:23160、无 TUNNELS、各 500 局）。作废：`pl_sp2`/`pl_10b`（带 `--driver-mode group-commit`，grouped driver 只支持纯推理）、`pl_sp3`/`pl_10c`（107 旧 LIBERO 配置目录已删，全新准备要 `R17_INHERIT_WORKER_DEPLOYMENT=/data/r17_library/pi05_libero_libero_spatial/campaigns/pl_sp/WORKER_DEPLOYMENT.json`，链里已导出），B500、满步教师、无图片；`library_campaign` 只收远程 worker 且 π0.5 只能 B1 → 照 HANDBACK_LIBERO_VLA 配置 R5 MPS B1 + timan107×24（10-13 准备的 `pl_sp`/`pl_10` 用旧快照 `1cc1763f`、107 重启前部署，作废）。等 `[4090n] 4090n chain done` 后依次跑，各自跑完在 CPU 上 `--finish`（bpool/subsets/fits）。⚠ 待 owner：之后的 π0.5/GR00T LIBERO 八组缓存研究，交回文档用原生 MISS（π0.5 K10、GR00T K4），而规则是「缓存系统所有模型调用都用减步」，LIBERO 上 VLA 的减步数没定过（R16 用 K1/K2）——缓存研究 prepare 前要 owner 定。
