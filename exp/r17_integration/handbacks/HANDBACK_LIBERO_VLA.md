@@ -90,6 +90,8 @@ gt=(--model groot_libero --server-node h100 --replicas 2 --replica-startup-width
   --memory-budget-gib 48 --workers 32 --checkpoint /home/exouser/ckpt)
 
 # 1. Capture: full native teacher at every decision, B500/suite, no images.
+# (2026-10-15: library capture refuses --driver-mode group-commit, "grouped driver supports pure inference only";
+#  drop it from "${common[@]}" here and use the default driver, as every earlier library build did.)
 for pair in libero_spatial:sp libero_10:10; do
   suite=${pair%:*}; short=${pair#*:}
   pi -m exp.r17_integration.ops.library_campaign "${pt[@]}" "${common[@]}" \
