@@ -58,6 +58,8 @@ owner 的常驻指令，逐字有效：
 
 ### ★★★★★★ 2026-10-14 14:55 CDT 总状态（compact 后最先读这一块；下面各「增量」块是细节，按时间倒序）
 
+> **13:30 巡检**：H100 `fwmk1_redx` 4,253/90,000 0 报错 ~180 局/分（util ~19%），按此约 21:30 完。4090 k1ref 冒烟：π0.5 组 13:29 DONE 8/8 成功 0 报错（tether 起 worker 重试 1 次后成功），GR00T 组接着跑。sol_filter_failed 第三轮在写（220 行）。sol_mwA/B/D 无新内容。
+
 > **13:3x**：k1ref 冒烟第二次失败：快照（git worktree）缺 git 忽略的 `assets/pi05_libero/physical-intelligence/libero/norm_stats.json` → 把主仓 `assets/`（24K，sha256 一致）复制进快照，13:23 重起，π0.5 服务已加载（7.6 GB）。过滤消融：sol 第二轮报 MT50 不拟合修正器的重拟合与原产物不一致（π0.5 n250 403 个检索数组），LIBERO/VLA 一致；单局任务度量估不出 → 我改为**不重新拟合**：沿用原同大小拟合，只把失败局的行从可检索集合去掉（owner 授权我选），13:29 第三轮（`sol_filter_failed_3.log`，任务书回复 `rounds/r17/prompts/sol_filter_failed_reply2.md`）。
 
 > **13:2x**：`gl_h10` 13:17 完 1000/1000 0 报错：GR00T LIBERO 执行 10 步 spatial 90.4%、libero_10 88.8%（gl_a3 执行 5 步 90.0/86.8；R14 C10 95.4/88.0，spatial 仍低 5 个点）。任务 #146 完。k1ref 冒烟首次失败：R16 启动器要在 timan107 `/scratch/zixuans8/openpi_trace_h100/os_cl/locks/fleet.lock` 加锁，旧目录已删 → 只建了空的锁目录（不改代码），13:20 重起链 `k1ref_4090`，冒烟在跑。过滤消融 sol 第一轮报 MT50 每格都有任务过滤后零示范（库 250 时 3–9 个，2500 时 1–2 个：π0.5 handle-pull/stick-pull、GR00T stick-pull、DP push-back、FW push-back/stick-pull），另有 1–2 局任务过不了修正器拟合；我定：空任务的测试局按失败计（不仿真，另报去掉空任务的 SR），只拟合 Cache 用的检索部分（修正器不拟合），先验证未过滤格按此拟合与原产物逐字节一致。13:21 第二轮（日志 `sol_filter_failed_2.log`）。I018 告知 /nvme（4 TB）开用，台账 `gpu_share/LEDGER.md` 新增「## /nvme」；已登记 openpi 暂不用（0），要用先登记、不超过一半。
