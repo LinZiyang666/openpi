@@ -58,6 +58,8 @@ owner 的常驻指令，逐字有效：
 
 ### ★★★★★★ 2026-10-14 14:55 CDT 总状态（compact 后最先读这一块；下面各「增量」块是细节，按时间倒序）
 
+> **13:2x**：`gl_h10` 13:17 完 1000/1000 0 报错：GR00T LIBERO 执行 10 步 spatial 90.4%、libero_10 88.8%（gl_a3 执行 5 步 90.0/86.8；R14 C10 95.4/88.0，spatial 仍低 5 个点）。任务 #146 完。k1ref 冒烟首次失败：R16 启动器要在 timan107 `/scratch/zixuans8/openpi_trace_h100/os_cl/locks/fleet.lock` 加锁，旧目录已删 → 只建了空的锁目录（不改代码），13:20 重起链 `k1ref_4090`，冒烟在跑。过滤消融 sol 第一轮报 MT50 每格都有任务过滤后零示范（库 250 时 3–9 个，2500 时 1–2 个：π0.5 handle-pull/stick-pull、GR00T stick-pull、DP push-back、FW push-back/stick-pull），另有 1–2 局任务过不了修正器拟合；我定：空任务的测试局按失败计（不仿真，另报去掉空任务的 SR），只拟合 Cache 用的检索部分（修正器不拟合），先验证未过滤格按此拟合与原产物逐字节一致。13:21 第二轮（日志 `sol_filter_failed_2.log`）。I018 告知 /nvme（4 TB）开用，台账 `gpu_share/LEDGER.md` 新增「## /nvme」；已登记 openpi 暂不用（0），要用先登记、不超过一半。
+
 > **13:13 新消融：库里过滤失败局（owner）**：同等收集局数下，每个库每个大小只删失败局、不补成功局，重新拟合，只跑纯 Cache 组；LIBERO 和 MT50 每个模型、每个大小；对照同大小未过滤 Cache 组（同测试集、同起点、同 GPU）。约 9 万局。失败比例（CPU 统计 READY.json success × subsets VIEW）：MT50 π0.5 43–45%、GR00T 24–26%、DP 37–39%、FW 41–42%；LIBERO DP 12–19%、FW 2–15%、Cosmos 2–10%。π0.5/GR00T LIBERO 的未过滤 Cache 是 R10（bpool_cs/bpool_all，嵌套子集，含失败局）；GR00T sp16 pkl 清单每任务 36–49 条，可能已是只含成功，待 sol 核实。派 sol `sol_filter_failed`（tmux `cx_filter`，线程 `01a140c4-efb4-7713-b097-3624ab6bd81c`，任务书 `rounds/r17/prompts/sol_filter_failed.md`，日志 `r17_ops/sol_filter_failed.log`，交回 `rounds/r17/filter_failed/HANDBACK.md`）。任务 #147。
 
 > **13:0x FW 全步旋钮出结果**：`rounds/r17/knob/mt50/fastwam_full`（提交 78998c2d）：组均值 43.9/44.2/43.4/43.7/43.3/45.0%（库 250–2500）对纯推理 `tfw7full_0944` 43.7%，按任务均值 57.8–58.9 对 57.2，IR 0.629/0.501/0.505/0.463/0.440/0.419；不开旋钮都没达标。网页 `datasets/mt50_knob` v3（重跑 build.py，FW 全步列已填，减步列仍「—」）。剩 FW 减步 `fwmk1_redx`。
