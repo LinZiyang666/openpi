@@ -58,6 +58,8 @@ owner 的常驻指令，逐字有效：
 
 ### ★★★★★★ 2026-10-14 14:55 CDT 总状态（compact 后最先读这一块；下面各「增量」块是细节，按时间倒序）
 
+> **14:54 巡检**：4090 k1ref 不开旋钮 A 14:39 完（3,550 局 0 报错）；dev01（17 任务 / 510 局；原 19 个缺口中 2 个所在格按完整系统规则不调）：π0.5 组 330 局完，GR00T 组加载中。H100 `fwmk1_redx` 18,885/90,000 0 报错 ~210–270 局/分，约 20:00–20:30 完。sol_mwA/B/D 无新内容；Monitor 14:4x 重挂。
+
 > **14:24 巡检**：4090 k1ref 不开旋钮 A：π0.5 组 1,500 局完 0 报错，GR00T 组 1,232/2,050 0 报错 ~54 局/分（GPU ~43%，GR00T 服务端单线程 CPU 受限，R16 已知），~14:40 完 → dev01。H100 `fwmk1_redx` 12,608/90,000 0 报错 ~145 局/分，~23:15 完 → ff_h100 队列。两条 ff 队列在等。Monitor 14:20 重挂（链事件含 `[ff-…]`）。sol_mwA/B/D 无新内容。
 
 > **14:2x 过滤消融排队**：sol 第三轮 13:59 交回（`rounds/r17/filter_failed/HANDBACK.md`，提交 99684e0a，不重新拟合：原拟合不动，只切每任务可检索行；三条流程不过滤时逐字节一致；84 格、21 批次、仿真 86,500 + 自动判败 3,500）。sol 的一键脚本会按顺序起全部批次、混用两卡，未用。改成两条按卡队列 `r17_ops/ff/chain_ff.run.sh`（每批起跑前才 prepare，prepare 失败跳过，暂停文件 `mw/hold_ff_<tag>`）：tmux `ff_4090`（`run_ff_4090.sh`，等 `[4090k1] k1ref chain done`）跑 dp_li_11/16/14/15 → pi05_mt_13；tmux `ff_h100`（`run_ff_h100.sh`，等 `[h100-v16] h100-v16 chain done`，即 fwmk1_redx 后）跑其余 15 个 H100 批次（含 R10 π0.5/GR00T）。⚠ 第一次起队列时 tmux 命令行把等待条件拆成多个参数（等于不等），1 秒内按 PID 停掉、未起任何批次；改用启动脚本后 /proc cmdline 核对参数正确。Cosmos 减步完整系统 fsredcos 仍未跑，排在 ff_h100 之后。完后 `python -m exp.offline_search.rounds.r17.filter_failed.analyze`。
