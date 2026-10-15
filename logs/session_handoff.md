@@ -58,6 +58,8 @@ owner 的常驻指令，逐字有效：
 
 ### ★★★★★★ 2026-10-14 14:55 CDT 总状态（compact 后最先读这一块；下面各「增量」块是细节，按时间倒序）
 
+> **13:0x FW 全步旋钮出结果**：`rounds/r17/knob/mt50/fastwam_full`（提交 78998c2d）：组均值 43.9/44.2/43.4/43.7/43.3/45.0%（库 250–2500）对纯推理 `tfw7full_0944` 43.7%，按任务均值 57.8–58.9 对 57.2，IR 0.629/0.501/0.505/0.463/0.440/0.419；不开旋钮都没达标。网页 `datasets/mt50_knob` v3（重跑 build.py，FW 全步列已填，减步列仍「—」）。剩 FW 减步 `fwmk1_redx`。
+
 > **12:54 巡检**：H100 `fwmk1_fulx` 12:52 完 90,000/90,000 0 报错；回执 FAIL 只因 `finalization_error: CPU evidence finalizer readiness deadline exceeded`（driver_completion verified_completion=true，all_owned_closed），数据可用。FW 全步 descent 在 CPU 跑（日志 `r17_ops/mtk/descent_fastwam_full.log`，输出 `rounds/r17/knob/mt50/fastwam_full`）。v16 链 12:53 起 `fwmk1_redx`（R2，~8–10 h）。4090 `gl_h10` 415/1000 0 报错 ~43 局/分（spatial 段），~13:20 完 → k1ref 链。sol_mwA/B/D 无新内容。
 
 > **12:42 `pl_h10` 完**：1000/1000 0 报错，π0.5 LIBERO 满步 K10 执行 10 步（R17 路径）spatial 96.2%（481/500）、libero_10 88.6%（443/500）；对 `pl_a2`（执行 5 步）96.2 / 85.4：spatial 持平、libero_10 +3.2。对 R14 C10 参照 98.6 / 90.8 仍低 2.4 / 2.2 个点，R17 路径与 R14 路径还有别的差异，待查。`gl_h10` 自动开始。
