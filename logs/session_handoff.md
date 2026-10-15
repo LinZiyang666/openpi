@@ -58,6 +58,8 @@ owner 的常驻指令，逐字有效：
 
 ### ★★★★★★ 2026-10-14 14:55 CDT 总状态（compact 后最先读这一块；下面各「增量」块是细节，按时间倒序）
 
+> **13:54 巡检**：4090 k1ref 冒烟 13:35 通过（16 局 SMOKE_OK；显存峰值 11.4 GB：π0.5 1 进程 ~8 GB，GR00T 2 进程各 5.7 GB），不开旋钮 A（3,550 局）13:35 起：π0.5 组 1,149 局 0 报错 ~119 局/分，GPU 96%、24 GB。H100 `fwmk1_redx` 8,178/90,000 0 报错 ~134–166 局/分，约 23:00 完。sol_filter_failed 第三轮在写（2,775 行）。另挂 k1ref 报错监控（扫 `k1ref/runs/*/journal.jsonl`）。
+
 > **13:30 巡检**：H100 `fwmk1_redx` 4,253/90,000 0 报错 ~180 局/分（util ~19%），按此约 21:30 完。4090 k1ref 冒烟：π0.5 组 13:29 DONE 8/8 成功 0 报错（tether 起 worker 重试 1 次后成功），GR00T 组接着跑。sol_filter_failed 第三轮在写（220 行）。sol_mwA/B/D 无新内容。
 
 > **13:3x**：k1ref 冒烟第二次失败：快照（git worktree）缺 git 忽略的 `assets/pi05_libero/physical-intelligence/libero/norm_stats.json` → 把主仓 `assets/`（24K，sha256 一致）复制进快照，13:23 重起，π0.5 服务已加载（7.6 GB）。过滤消融：sol 第二轮报 MT50 不拟合修正器的重拟合与原产物不一致（π0.5 n250 403 个检索数组），LIBERO/VLA 一致；单局任务度量估不出 → 我改为**不重新拟合**：沿用原同大小拟合，只把失败局的行从可检索集合去掉（owner 授权我选），13:29 第三轮（`sol_filter_failed_3.log`，任务书回复 `rounds/r17/prompts/sol_filter_failed_reply2.md`）。
