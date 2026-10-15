@@ -58,6 +58,8 @@ owner 的常驻指令，逐字有效：
 
 ### ★★★★★★ 2026-10-14 14:55 CDT 总状态（compact 后最先读这一块；下面各「增量」块是细节，按时间倒序）
 
+> **11:3x 网页第 26 版（owner：「liebro 和mt 50折线图位置统一加一个list…所有图公用一个开关」）**：两处折线图的图例改成勾选列表（8 组，纯推理虚线常显），勾选状态全页共用（`shown` 集合，任一列表改动同步另一列表并重画 LIBERO 6 张 + MT50 8 张）；默认全选。模拟取消 6 组后两节点数 66/92 与预期一致，宽屏/手机截图已看（`build_1015/w_tog_*.png p_tog_*.png`）。
+
 > **11:1x 网页第 25 版（owner：「你网页我们之前是这么做的吗…画蛇添足…图呢」）**：MT50 四节改成与 LIBERO 完全同格式——新增「MT50 success rate vs. cache size」折线图（4 模型 × 组均值/按任务均值 8 张，两列），表格按「模型 · group mean / per-task mean」分卡（顶替 LIBERO 的套件维），每格只有 SR + 差值两行；去掉灰色第三行、卡片上的 GPU/步数标注、"running on the H100"。延迟表列与 LIBERO 相同；修正 v24 的 DP 分母错误（把 CPU CLIP 67.3 ms 算进了分母，232→165 ms，vision 0.307→0.023），现与 ir_formal.coefficients 逐位一致（旋钮 IR 本来就是对的）。数据集 mt50_* 改为带 suite 字段的行（v2）。改前备份 `build_1015/{build_v24.py.bak,patch_html_v24.py.bak}`。
 
 > **11:0x 网页第 24 版（owner：「把现在mt50有的数据全部加上去，放在网页后面」「部分liebro的点也重做了…把数据插入回去」）**：页面末尾新增 MT50 四节（`#mt50-table` 缓存研究透视表：4 模型 × 8/4 组 × 250–2500，组均值/差值/按任务均值；`#mt50-steps` 减步纯推理；`#mt50-knob` 旋钮，Fast-WAM 运行中显示「—」；`#mt50-latency` 延迟系数），数据集 `mt50_cells/mt50_base/mt50_steps/mt50_knob/mt50_latency`（v1）。LIBERO：`steps` v4 加 π0.5（pl_a2/pl_k1a2）和 GR00T（gl_a3/gl_k1a）R17 重跑；`knob` v9 DP 减步库 100–500 十格按「完整系统已达纯推理」规则换成 fsreddp2（加 *，原旋钮值留在 knob_*）。源与生成脚本 `openpi_ext/scratch/r17_ops/livepage/build_1015/{build.py,patch_html.py,make_harness.py,index.html}`；宽屏/手机截图已看（`build_1015/w_*.png p_*.png`）。FW 旋钮两批跑完后：重跑 `build.py`（自动收 `rounds/r17/knob/mt50/fastwam_{full,reduced}`）→ 上传 `mt50_knob.json` → 更新 `datasets/mt50_knob` 与页面说明里「Fast-WAM still running」。
