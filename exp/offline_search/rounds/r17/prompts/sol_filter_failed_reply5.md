@@ -1,0 +1,9 @@
+<task>
+Decision (coordinator): keep the identity checks. Fairness rule: filtered vs unfiltered must be compared within the same serving environment.
+1. Interpreter: for each R17 job, serve with an interpreter whose package versions equal the source's sealed manifest (for DP: the repo /home/weiland/projects/openpi/.venv you verified passes the frozen loader with bd1dd4c1). Make the job use it through the existing campaign/launcher field (no global env changes, no package installs).
+2. For all 19 R17 jobs, run the frozen startup identity path on CPU with the chosen interpreter and report: passes (yes/no); equals the source run's actual serving identity in servers/*/ready.json (yes/no).
+3. Wherever (2) is not "equals the source's actual serving identity", add an unfiltered control job for the same cells: same pipeline, the original size-N view (nothing filtered, no empty-task rule), same interpreter/runtime/topology, so both arms run under identical conditions; the analysis then pairs filtered against this rerun control instead of the old baseline (keep the old baseline as a secondary column). Report the extra simulations per model.
+4. R10 π0.5: the timan107 island /scratch/zixuans8/openpi_trace_h100 is gone. Find how it was originally deployed (repo deploy/manifest scripts, R10/R13 handbacks, conductor_deployment-like tars) and give exact rsync commands (public-network rsync only; tether exec allowed for mkdir/sha256) that recreate exactly the files R10 needs, with a sha256 manifest. Do not run the rsync.
+5. Reset/re-prepare ff1015_dp_li_14, then prepare all 4090 jobs (dp_li_11/14/15/16, pi05_mt_13 and any new controls) so they are launch-ready. Same limits: prepare/stage/inspect only, no server/worker/driver/launch, no GPU.
+Update HANDBACK.md with the per-job table and the exact launch order per GPU.
+</task>
