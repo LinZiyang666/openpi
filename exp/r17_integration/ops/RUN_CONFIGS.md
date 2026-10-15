@@ -980,6 +980,9 @@ Fast-WAM MT50 cache cells with large libraries do not fit R3 on the H100. `csfw_
 from 16:29 on its first n1500 cell (24.5 GiB allocated by PyTorch, 0.8 GiB reserved-unallocated, cap 25.33 GiB): about 40%
 of attempts errored and replicas timed out. The original `csfw_k3` (R3) never reached n1500+. Run the n1500/n2000/n2500
 cells and the Fast-WAM knob batches at R2 (38 GiB per replica): `csfw_k3w6`, `fwmk1_fulx`, `fwmk1_redx`.
+`csfw_k3w6` at R2 (n1500-n2500 cells, 60 connections per replica), 2026-10-14 19:48-19:52: ~55 req/s at hit share
+~0.87, mean service 0.85 s, 160-250 episodes/min, H100 util ~26%, 25 GB used per replica (no OOM). A DP lane cannot
+join it on the same H100: the budgets add to 76 + 24 GiB, above the device; wait for the campaign boundary.
 
 ### H100 library capture staging can stall and then burn the plan as errors
 
