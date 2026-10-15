@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -euo pipefail
+bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_ff1015_cosmos_li_01.sh
+bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_ff1015_cosmos_li_02.sh
+bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_ff1015_cosmos_li_03.sh
+bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_ff1015_cosmos_li_04.sh
+bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_ff1015_dp_mt_05.sh
+bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_ff1015_fastwam_mt_06.sh
+bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_ff1015_fastwam_mt_07.sh
+bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_ff1015_fastwam_mt_08.sh
+bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_ff1015_groot_mt_09.sh
+bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_ff1015_groot_mt_10.sh
+bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_ff1015_dp_li_11.sh
+bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_ff1015_fastwam_li_12.sh
+bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_ff1015_pi05_mt_13.sh
+bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_ff1015_dp_li_14.sh
+bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_ff1015_dp_li_15.sh
+bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_ff1015_dp_li_16.sh
+bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_ff1015_fastwam_li_17.sh
+bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_ff1015_fastwam_li_18.sh
+bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_ff1015_fastwam_li_19.sh
+bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_r17_filter_failed_pi05.sh
+bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_r17_filter_failed_groot.sh

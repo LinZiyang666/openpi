@@ -1,0 +1,446 @@
+{
+  "status": "READY_FOR_COORDINATOR_STAGE",
+  "jobs": [
+    {
+      "name": "ff1015_cosmos_li_01",
+      "run": "/data/mw_finetune/eval/ff1015_cosmos_li_01",
+      "source": "/data/mw_finetune/eval/cosmos500w85_220813",
+      "model": "cosmos",
+      "domain": "libero",
+      "gpu": "H100",
+      "replicas": 2,
+      "batch": 1,
+      "workers": {
+        "timan1": 40,
+        "timan107": 45
+      },
+      "episodes": 1000,
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_5318b07bfd914c17e284569600167aa3284ba3329aa9941333eef7a1f1b90b9e",
+      "runtime_identity": "5318b07bfd914c17e284569600167aa3284ba3329aa9941333eef7a1f1b90b9e",
+      "study": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/studies/cosmos_libero/STUDY.json",
+      "prepare_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/prepare_ff1015_cosmos_li_01.sh",
+      "launch_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_ff1015_cosmos_li_01.sh"
+    },
+    {
+      "name": "ff1015_cosmos_li_02",
+      "run": "/data/mw_finetune/eval/ff1015_cosmos_li_02",
+      "source": "/data/mw_finetune/eval/cosmossizes145",
+      "model": "cosmos",
+      "domain": "libero",
+      "gpu": "H100",
+      "replicas": 2,
+      "batch": 1,
+      "workers": {
+        "local": 60,
+        "timan1": 40,
+        "timan107": 45
+      },
+      "episodes": 500,
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_3ee418426f219145556760c56fc22eca757740f12575c253be35014e56c0a261",
+      "runtime_identity": "3ee418426f219145556760c56fc22eca757740f12575c253be35014e56c0a261",
+      "study": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/studies/cosmos_libero/STUDY.json",
+      "prepare_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/prepare_ff1015_cosmos_li_02.sh",
+      "launch_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_ff1015_cosmos_li_02.sh"
+    },
+    {
+      "name": "ff1015_cosmos_li_03",
+      "run": "/data/mw_finetune/eval/ff1015_cosmos_li_03",
+      "source": "/data/mw_finetune/eval/cosmossizes145_r8b",
+      "model": "cosmos",
+      "domain": "libero",
+      "gpu": "H100",
+      "replicas": 8,
+      "batch": 1,
+      "workers": {
+        "local": 60,
+        "timan1": 40,
+        "timan107": 45
+      },
+      "episodes": 1434,
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_3ee418426f219145556760c56fc22eca757740f12575c253be35014e56c0a261",
+      "runtime_identity": "3ee418426f219145556760c56fc22eca757740f12575c253be35014e56c0a261",
+      "study": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/studies/cosmos_libero/STUDY.json",
+      "prepare_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/prepare_ff1015_cosmos_li_03.sh",
+      "launch_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_ff1015_cosmos_li_03.sh"
+    },
+    {
+      "name": "ff1015_cosmos_li_04",
+      "run": "/data/mw_finetune/eval/ff1015_cosmos_li_04",
+      "source": "/data/mw_finetune/eval/cosmossizes145_r8c",
+      "model": "cosmos",
+      "domain": "libero",
+      "gpu": "H100",
+      "replicas": 8,
+      "batch": 1,
+      "workers": {
+        "local": 60,
+        "timan1": 40,
+        "timan107": 45
+      },
+      "episodes": 3066,
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_3ee418426f219145556760c56fc22eca757740f12575c253be35014e56c0a261",
+      "runtime_identity": "3ee418426f219145556760c56fc22eca757740f12575c253be35014e56c0a261",
+      "study": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/studies/cosmos_libero/STUDY.json",
+      "prepare_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/prepare_ff1015_cosmos_li_04.sh",
+      "launch_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_ff1015_cosmos_li_04.sh"
+    },
+    {
+      "name": "ff1015_dp_mt_05",
+      "run": "/data/mw_finetune/eval/ff1015_dp_mt_05",
+      "source": "/data/mw_finetune/eval/csdp_1504",
+      "model": "dp",
+      "domain": "metaworld",
+      "gpu": "H100",
+      "replicas": 4,
+      "batch": 8,
+      "workers": {
+        "timan1": 20,
+        "timan107": 30
+      },
+      "episodes": 14100,
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_5b44d1ecbe4abfe45929749dd655850128b73e1f416fdb9f0e4b597445fb9898",
+      "runtime_identity": "5b44d1ecbe4abfe45929749dd655850128b73e1f416fdb9f0e4b597445fb9898",
+      "study": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/studies/dp_mw/STUDY.json",
+      "prepare_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/prepare_ff1015_dp_mt_05.sh",
+      "launch_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_ff1015_dp_mt_05.sh"
+    },
+    {
+      "name": "ff1015_fastwam_mt_06",
+      "run": "/data/mw_finetune/eval/ff1015_fastwam_mt_06",
+      "source": "/data/mw_finetune/eval/csfw_k3",
+      "model": "fastwam",
+      "domain": "metaworld",
+      "gpu": "H100",
+      "replicas": 3,
+      "batch": 16,
+      "workers": {
+        "timan1": 20,
+        "timan107": 30
+      },
+      "episodes": 6750,
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_5b44d1ecbe4abfe45929749dd655850128b73e1f416fdb9f0e4b597445fb9898",
+      "runtime_identity": "5b44d1ecbe4abfe45929749dd655850128b73e1f416fdb9f0e4b597445fb9898",
+      "study": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/studies/fastwam_mw/STUDY.json",
+      "prepare_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/prepare_ff1015_fastwam_mt_06.sh",
+      "launch_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_ff1015_fastwam_mt_06.sh"
+    },
+    {
+      "name": "ff1015_fastwam_mt_07",
+      "run": "/data/mw_finetune/eval/ff1015_fastwam_mt_07",
+      "source": "/data/mw_finetune/eval/csfw_k3w5",
+      "model": "fastwam",
+      "domain": "metaworld",
+      "gpu": "H100",
+      "replicas": 3,
+      "batch": 16,
+      "workers": {
+        "timan1": 40,
+        "timan107": 40,
+        "timan108": 40
+      },
+      "episodes": 2350,
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_c33e2281905a033a39150c5a71a207f45dc564fb3babf5a0b661442b8fb7e2ed",
+      "runtime_identity": "c33e2281905a033a39150c5a71a207f45dc564fb3babf5a0b661442b8fb7e2ed",
+      "study": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/studies/fastwam_mw/STUDY.json",
+      "prepare_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/prepare_ff1015_fastwam_mt_07.sh",
+      "launch_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_ff1015_fastwam_mt_07.sh"
+    },
+    {
+      "name": "ff1015_fastwam_mt_08",
+      "run": "/data/mw_finetune/eval/ff1015_fastwam_mt_08",
+      "source": "/data/mw_finetune/eval/csfw_k3w6",
+      "model": "fastwam",
+      "domain": "metaworld",
+      "gpu": "H100",
+      "replicas": 2,
+      "batch": 16,
+      "workers": {
+        "timan1": 40,
+        "timan107": 40,
+        "timan108": 40
+      },
+      "episodes": 4800,
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_c33e2281905a033a39150c5a71a207f45dc564fb3babf5a0b661442b8fb7e2ed",
+      "runtime_identity": "c33e2281905a033a39150c5a71a207f45dc564fb3babf5a0b661442b8fb7e2ed",
+      "study": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/studies/fastwam_mw/STUDY.json",
+      "prepare_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/prepare_ff1015_fastwam_mt_08.sh",
+      "launch_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_ff1015_fastwam_mt_08.sh"
+    },
+    {
+      "name": "ff1015_groot_mt_09",
+      "run": "/data/mw_finetune/eval/ff1015_groot_mt_09",
+      "source": "/data/mw_finetune/eval/csgr_h5",
+      "model": "groot",
+      "domain": "metaworld",
+      "gpu": "H100",
+      "replicas": 8,
+      "batch": 1,
+      "workers": {
+        "timan1": 20,
+        "timan107": 40
+      },
+      "episodes": 4750,
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_966ab88a2b07680fe52eaf7e42fae2cb72f7cb45e571996ac5dff3aaf69e9da3",
+      "runtime_identity": "966ab88a2b07680fe52eaf7e42fae2cb72f7cb45e571996ac5dff3aaf69e9da3",
+      "study": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/studies/groot_mw/STUDY.json",
+      "prepare_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/prepare_ff1015_groot_mt_09.sh",
+      "launch_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_ff1015_groot_mt_09.sh"
+    },
+    {
+      "name": "ff1015_groot_mt_10",
+      "run": "/data/mw_finetune/eval/ff1015_groot_mt_10",
+      "source": "/data/mw_finetune/eval/csgr_h6",
+      "model": "groot",
+      "domain": "metaworld",
+      "gpu": "H100",
+      "replicas": 8,
+      "batch": 1,
+      "workers": {
+        "timan1": 40
+      },
+      "episodes": 9800,
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_966ab88a2b07680fe52eaf7e42fae2cb72f7cb45e571996ac5dff3aaf69e9da3",
+      "runtime_identity": "966ab88a2b07680fe52eaf7e42fae2cb72f7cb45e571996ac5dff3aaf69e9da3",
+      "study": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/studies/groot_mw/STUDY.json",
+      "prepare_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/prepare_ff1015_groot_mt_10.sh",
+      "launch_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_ff1015_groot_mt_10.sh"
+    },
+    {
+      "name": "ff1015_dp_li_11",
+      "run": "/data/mw_finetune/eval/ff1015_dp_li_11",
+      "source": "/data/mw_finetune/eval/csl10d",
+      "model": "dp",
+      "domain": "libero",
+      "gpu": "RTX 4090",
+      "replicas": 2,
+      "batch": 8,
+      "workers": {
+        "timan107": 32
+      },
+      "episodes": 501,
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_211cb3c92204e134f1414ee563d6b24586c6a3e6c0a8f5ceaaa9689d8077c8e4",
+      "runtime_identity": "211cb3c92204e134f1414ee563d6b24586c6a3e6c0a8f5ceaaa9689d8077c8e4",
+      "study": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/studies/dp_libero/STUDY.json",
+      "prepare_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/prepare_ff1015_dp_li_11.sh",
+      "launch_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_ff1015_dp_li_11.sh"
+    },
+    {
+      "name": "ff1015_fastwam_li_12",
+      "run": "/data/mw_finetune/eval/ff1015_fastwam_li_12",
+      "source": "/data/mw_finetune/eval/csl10f",
+      "model": "fastwam",
+      "domain": "libero",
+      "gpu": "H100",
+      "replicas": 2,
+      "batch": 16,
+      "workers": {
+        "timan107": 48
+      },
+      "episodes": 523,
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_211cb3c92204e134f1414ee563d6b24586c6a3e6c0a8f5ceaaa9689d8077c8e4",
+      "runtime_identity": "211cb3c92204e134f1414ee563d6b24586c6a3e6c0a8f5ceaaa9689d8077c8e4",
+      "study": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/studies/fastwam_libero/STUDY.json",
+      "prepare_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/prepare_ff1015_fastwam_li_12.sh",
+      "launch_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_ff1015_fastwam_li_12.sh"
+    },
+    {
+      "name": "ff1015_pi05_mt_13",
+      "run": "/data/mw_finetune/eval/ff1015_pi05_mt_13",
+      "source": "/data/mw_finetune/eval/cspi_k2",
+      "model": "pi05",
+      "domain": "metaworld",
+      "gpu": "RTX 4090",
+      "replicas": 5,
+      "batch": 1,
+      "workers": {
+        "timan1": 20,
+        "timan107": 24
+      },
+      "episodes": 13950,
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_5b44d1ecbe4abfe45929749dd655850128b73e1f416fdb9f0e4b597445fb9898",
+      "runtime_identity": "5b44d1ecbe4abfe45929749dd655850128b73e1f416fdb9f0e4b597445fb9898",
+      "study": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/studies/pi05_mw/STUDY.json",
+      "prepare_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/prepare_ff1015_pi05_mt_13.sh",
+      "launch_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_ff1015_pi05_mt_13.sh"
+    },
+    {
+      "name": "ff1015_dp_li_14",
+      "run": "/data/mw_finetune/eval/ff1015_dp_li_14",
+      "source": "/data/mw_finetune/eval/csztd_r2_c383_r2_e5b0",
+      "model": "dp",
+      "domain": "libero",
+      "gpu": "RTX 4090",
+      "replicas": 4,
+      "batch": 8,
+      "workers": {
+        "local": 60
+      },
+      "episodes": 1000,
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_62692e198a28b32f9eece681d458d644e30b9ae5a1bd33f84eded015b5bff6c0",
+      "runtime_identity": "62692e198a28b32f9eece681d458d644e30b9ae5a1bd33f84eded015b5bff6c0",
+      "study": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/studies/dp_libero/STUDY.json",
+      "prepare_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/prepare_ff1015_dp_li_14.sh",
+      "launch_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_ff1015_dp_li_14.sh"
+    },
+    {
+      "name": "ff1015_dp_li_15",
+      "run": "/data/mw_finetune/eval/ff1015_dp_li_15",
+      "source": "/data/mw_finetune/eval/csztd_r3_l48",
+      "model": "dp",
+      "domain": "libero",
+      "gpu": "RTX 4090",
+      "replicas": 4,
+      "batch": 8,
+      "workers": {
+        "local": 48
+      },
+      "episodes": 4000,
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_62692e198a28b32f9eece681d458d644e30b9ae5a1bd33f84eded015b5bff6c0",
+      "runtime_identity": "62692e198a28b32f9eece681d458d644e30b9ae5a1bd33f84eded015b5bff6c0",
+      "study": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/studies/dp_libero/STUDY.json",
+      "prepare_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/prepare_ff1015_dp_li_15.sh",
+      "launch_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_ff1015_dp_li_15.sh"
+    },
+    {
+      "name": "ff1015_dp_li_16",
+      "run": "/data/mw_finetune/eval/ff1015_dp_li_16",
+      "source": "/data/mw_finetune/eval/dpc8513584592",
+      "model": "dp",
+      "domain": "libero",
+      "gpu": "RTX 4090",
+      "replicas": 2,
+      "batch": 8,
+      "workers": {
+        "timan107": 32
+      },
+      "episodes": 499,
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_211cb3c92204e134f1414ee563d6b24586c6a3e6c0a8f5ceaaa9689d8077c8e4",
+      "runtime_identity": "211cb3c92204e134f1414ee563d6b24586c6a3e6c0a8f5ceaaa9689d8077c8e4",
+      "study": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/studies/dp_libero/STUDY.json",
+      "prepare_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/prepare_ff1015_dp_li_16.sh",
+      "launch_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_ff1015_dp_li_16.sh"
+    },
+    {
+      "name": "ff1015_fastwam_li_17",
+      "run": "/data/mw_finetune/eval/ff1015_fastwam_li_17",
+      "source": "/data/mw_finetune/eval/fastwamc1456717485",
+      "model": "fastwam",
+      "domain": "libero",
+      "gpu": "H100",
+      "replicas": 2,
+      "batch": 16,
+      "workers": {
+        "timan107": 48
+      },
+      "episodes": 288,
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_211cb3c92204e134f1414ee563d6b24586c6a3e6c0a8f5ceaaa9689d8077c8e4",
+      "runtime_identity": "211cb3c92204e134f1414ee563d6b24586c6a3e6c0a8f5ceaaa9689d8077c8e4",
+      "study": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/studies/fastwam_libero/STUDY.json",
+      "prepare_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/prepare_ff1015_fastwam_li_17.sh",
+      "launch_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_ff1015_fastwam_li_17.sh"
+    },
+    {
+      "name": "ff1015_fastwam_li_18",
+      "run": "/data/mw_finetune/eval/ff1015_fastwam_li_18",
+      "source": "/data/mw_finetune/eval/fastwamc6066547406",
+      "model": "fastwam",
+      "domain": "libero",
+      "gpu": "H100",
+      "replicas": 2,
+      "batch": 16,
+      "workers": {
+        "timan1": 40,
+        "timan107": 45
+      },
+      "episodes": 5000,
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_b29ef3db350bf6e4d0973813a81944eeac306abbc9f8e96197398432b15132a9",
+      "runtime_identity": "b29ef3db350bf6e4d0973813a81944eeac306abbc9f8e96197398432b15132a9",
+      "study": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/studies/fastwam_libero/STUDY.json",
+      "prepare_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/prepare_ff1015_fastwam_li_18.sh",
+      "launch_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_ff1015_fastwam_li_18.sh"
+    },
+    {
+      "name": "ff1015_fastwam_li_19",
+      "run": "/data/mw_finetune/eval/ff1015_fastwam_li_19",
+      "source": "/data/mw_finetune/eval/fastwamc7615306896",
+      "model": "fastwam",
+      "domain": "libero",
+      "gpu": "H100",
+      "replicas": 2,
+      "batch": 16,
+      "workers": {
+        "local": 16,
+        "timan1": 16,
+        "timan107": 16
+      },
+      "episodes": 189,
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_211cb3c92204e134f1414ee563d6b24586c6a3e6c0a8f5ceaaa9689d8077c8e4",
+      "runtime_identity": "211cb3c92204e134f1414ee563d6b24586c6a3e6c0a8f5ceaaa9689d8077c8e4",
+      "study": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/studies/fastwam_libero/STUDY.json",
+      "prepare_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/prepare_ff1015_fastwam_li_19.sh",
+      "launch_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_ff1015_fastwam_li_19.sh"
+    },
+    {
+      "name": "r17_filter_failed_pi05",
+      "run": "/home/weiland/trace_runs/os_closed_loop/r17_filter_failed_pi05",
+      "model": "pi05",
+      "domain": "r10_libero",
+      "gpu": "H100",
+      "replicas": 4,
+      "batch": 1,
+      "workers": {
+        "timan107": 48
+      },
+      "ports": "23240,23241,23242,23243",
+      "wps": 12,
+      "episodes": 6000,
+      "arms": [
+        "ff1015_pi05_spatial_n50_c",
+        "ff1015_pi05_spatial_n100_c",
+        "ff1015_pi05_spatial_n200_c",
+        "ff1015_pi05_spatial_n300_c",
+        "ff1015_pi05_spatial_n400_c",
+        "ff1015_pi05_spatial_n500_c",
+        "ff1015_pi05_l10_n50_c",
+        "ff1015_pi05_l10_n100_c",
+        "ff1015_pi05_l10_n200_c",
+        "ff1015_pi05_l10_n300_c",
+        "ff1015_pi05_l10_n400_c",
+        "ff1015_pi05_l10_n500_c"
+      ],
+      "prepare_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/prepare_r17_filter_failed_pi05.sh",
+      "launch_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_r17_filter_failed_pi05.sh"
+    },
+    {
+      "name": "r17_filter_failed_groot",
+      "run": "/home/weiland/trace_runs/os_closed_loop/r17_filter_failed_groot",
+      "model": "groot",
+      "domain": "r10_libero",
+      "gpu": "H100",
+      "replicas": 4,
+      "batch": 1,
+      "workers": {
+        "timan108": 40
+      },
+      "ports": "23230,23231,23232,23233",
+      "wps": 10,
+      "episodes": 6000,
+      "arms": [
+        "ff1015_groot_spatial_n50_c",
+        "ff1015_groot_spatial_n100_c",
+        "ff1015_groot_spatial_n200_c",
+        "ff1015_groot_spatial_n300_c",
+        "ff1015_groot_spatial_n400_c",
+        "ff1015_groot_spatial_n500_c",
+        "ff1015_groot_l10_n50_c",
+        "ff1015_groot_l10_n100_c",
+        "ff1015_groot_l10_n200_c",
+        "ff1015_groot_l10_n300_c",
+        "ff1015_groot_l10_n400_c",
+        "ff1015_groot_l10_n500_c"
+      ],
+      "prepare_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/prepare_r17_filter_failed_groot.sh",
+      "launch_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_r17_filter_failed_groot.sh"
+    }
+  ]
+}

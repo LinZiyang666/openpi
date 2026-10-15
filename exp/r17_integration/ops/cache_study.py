@@ -645,6 +645,10 @@ def plan(campaign):
             bundle_generation=row['bundle_id'],bundle_identity=row['bundle_identity'],
             recipe_identity=row['recipe_identity'],commit_horizon=config.adapter_binding['commit_horizon'])
         for task in episodes:
+            if 'num_trials_per_task' in row:
+                # A shard can dispatch fewer inits while retaining the original
+                # benchmark trial-count metadata (e.g. official A50).
+                task.extra['num_trials_per_task'] = row['num_trials_per_task']
             if expected_nfe != k:task.extra['expected_nfe']=expected_nfe
             task.extra.update(cache_group=row['group'],init_pool=pool,cache_study=True,
                 miss_mode=config.recipe.miss_mode,corrector=config.recipe.corrector,
