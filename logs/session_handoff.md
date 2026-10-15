@@ -58,6 +58,8 @@ owner 的常驻指令，逐字有效：
 
 ### ★★★★★★ 2026-10-14 14:55 CDT 总状态（compact 后最先读这一块；下面各「增量」块是细节，按时间倒序）
 
+> **10:2x owner 纠正**：π0.5/GR00T 的 LIBERO 库早就有——`/home/weiland/trace_runs/offline_search_store/library/{pi05,groot}_{spatial,l10}/`（bpool_all 等，235 GB），R14–R16 定型设计下的旋钮下降（网页上那些）就用它们跑。「旧实现」只指定型前（R1–R13、step_diag）。我误判后重建的 `pl_sp2/3/4`、`pl_10b/c/d` 全部作废（owner 令停，10:16 已按 PID 停，4090 空闲）。astra 核查（`survey_predict`）排除了 R14–R16，范围错了，待 owner 定是否重做。下一步：LIBERO π0.5/GR00T 的八组缓存研究、k=1 旋钮重跑用 offline_search_store 的库、接 R16 流程——待 owner 点头。
+
 > **10:1x**：`pimk1_redc` 10:09 完 90,000（0 报错）。**π0.5 减步旋钮 descent**（`rounds/r17/knob/mt50/pi05_reduced`，参照 `tpi7k2_1135` 48.7/59.6）：六档 50/50 冻结，组均值 49.4–52.5，IR 0.601/0.577/0.577/0.572/0.558/0.548（250→2500）。MT50 旋钮只剩 FW 全步/减步（H100）。4090 10:11 起 `pl_sp4`（π0.5 LIBERO spatial 建库）。
 
 > **09:54 巡检**：4090 `pimk1_redc` 87,270/90,000 0 报错 ~160 局/分（SM 均 99%），~10:12 完 → `[4090lib]` 建库；H100 `fwmk1_fulx` 66,355/90,000 0 报错 ~145 局/分（util ~34%），剩 ~2.7 h。
