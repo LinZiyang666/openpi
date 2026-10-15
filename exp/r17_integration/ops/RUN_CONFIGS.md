@@ -983,6 +983,8 @@ cells and the Fast-WAM knob batches at R2 (38 GiB per replica): `csfw_k3w6`, `fw
 `csfw_k3w6` at R2 (n1500-n2500 cells, 60 connections per replica), 2026-10-14 19:48-19:52: ~55 req/s at hit share
 ~0.87, mean service 0.85 s, 160-250 episodes/min, H100 util ~26%, 25 GB used per replica (no OOM). A DP lane cannot
 join it on the same H100: the budgets add to 76 + 24 GiB, above the device; wait for the campaign boundary.
+`fwmk1_fulx` (Fast-WAM K10 knob, R2 B16, same 120 workers), 2026-10-15 01:48-01:51: ~53 req/s at hit share ~0.78, mean
+service 0.89 s, ~140 episodes/min, H100 util ~45%, 26-28 GB per replica: 90,000 episodes take ~10.7 h.
 
 ### H100 library capture staging can stall and then burn the plan as errors
 
