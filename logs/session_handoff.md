@@ -58,6 +58,8 @@ owner 的常驻指令，逐字有效：
 
 ### ★★★★★★ 2026-10-14 14:55 CDT 总状态（compact 后最先读这一块；下面各「增量」块是细节，按时间倒序）
 
+> **14:2x 过滤消融排队**：sol 第三轮 13:59 交回（`rounds/r17/filter_failed/HANDBACK.md`，提交 99684e0a，不重新拟合：原拟合不动，只切每任务可检索行；三条流程不过滤时逐字节一致；84 格、21 批次、仿真 86,500 + 自动判败 3,500）。sol 的一键脚本会按顺序起全部批次、混用两卡，未用。改成两条按卡队列 `r17_ops/ff/chain_ff.run.sh`（每批起跑前才 prepare，prepare 失败跳过，暂停文件 `mw/hold_ff_<tag>`）：tmux `ff_4090`（`run_ff_4090.sh`，等 `[4090k1] k1ref chain done`）跑 dp_li_11/16/14/15 → pi05_mt_13；tmux `ff_h100`（`run_ff_h100.sh`，等 `[h100-v16] h100-v16 chain done`，即 fwmk1_redx 后）跑其余 15 个 H100 批次（含 R10 π0.5/GR00T）。⚠ 第一次起队列时 tmux 命令行把等待条件拆成多个参数（等于不等），1 秒内按 PID 停掉、未起任何批次；改用启动脚本后 /proc cmdline 核对参数正确。Cosmos 减步完整系统 fsredcos 仍未跑，排在 ff_h100 之后。完后 `python -m exp.offline_search.rounds.r17.filter_failed.analyze`。
+
 > **13:54 巡检**：4090 k1ref 冒烟 13:35 通过（16 局 SMOKE_OK；显存峰值 11.4 GB：π0.5 1 进程 ~8 GB，GR00T 2 进程各 5.7 GB），不开旋钮 A（3,550 局）13:35 起：π0.5 组 1,149 局 0 报错 ~119 局/分，GPU 96%、24 GB。H100 `fwmk1_redx` 8,178/90,000 0 报错 ~134–166 局/分，约 23:00 完。sol_filter_failed 第三轮在写（2,775 行）。另挂 k1ref 报错监控（扫 `k1ref/runs/*/journal.jsonl`）。
 
 > **13:30 巡检**：H100 `fwmk1_redx` 4,253/90,000 0 报错 ~180 局/分（util ~19%），按此约 21:30 完。4090 k1ref 冒烟：π0.5 组 13:29 DONE 8/8 成功 0 报错（tether 起 worker 重试 1 次后成功），GR00T 组接着跑。sol_filter_failed 第三轮在写（220 行）。sol_mwA/B/D 无新内容。
