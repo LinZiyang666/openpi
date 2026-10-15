@@ -58,6 +58,8 @@ owner 的常驻指令，逐字有效：
 
 ### ★★★★★★ 2026-10-14 14:55 CDT 总状态（compact 后最先读这一块；下面各「增量」块是细节，按时间倒序）
 
+> **10:3x 库统一目录（owner 令）**：`/data/r17_library/mt50/{pi05,groot,dp,fastwam,cosmos,studies}`、`/data/r17_library/libero/{dp,fastwam,cosmos,pi05,groot}/{libero_spatial,libero_10}`；旧路径（`<m>_mw_mt50`、`<m>_libero_<suite>`、`studies_mt50`、`/data/libero_cache/libraries/<s>/<s>_sp16_S3.pkl`、`trace_runs/dual_20260923/libs/<s>/cp1_spatial_pool_16.pkl`）都是软链接。π0.5/GR00T LIBERO 库 = R14–R16 YAML `preload_path` 的 4 个 pkl（π0.5 跨盘复制 sha256 一致后原处换软链接）。我一度去复制 `offline_search_store/library/*`（235 GB 原始 h5，不是库），8.4 GB 时停下并删除副本，源未动。`_void/` 放了作废的 pi05/groot LIBERO 建库目录。「老实现」= ICLR 崩溃之前（owner 定义）。
+
 > **10:25 巡检**：H100 `fwmk1_fulx` 71,603/90,000 0 报错 ~170 局/分（util ~33%），~12:10 完 → `fwmk1_redx`。4090 自 10:16 空闲，等 owner 定 LIBERO π0.5/GR00T 走哪条路：(a) 把 offline_search_store 的 bpool 转成 R17 `bpool` 布局后用 R17 cache_study/cache_knob（要一个转换脚本，CPU）；(b) 回 R16 conductor 流程（R16 的 timan107 LIBERO 配置目录已删，要先修部署）。
 
 > **10:2x owner 纠正**：π0.5/GR00T 的 LIBERO 库早就有——`/home/weiland/trace_runs/offline_search_store/library/{pi05,groot}_{spatial,l10}/`（bpool_all 等，235 GB），R14–R16 定型设计下的旋钮下降（网页上那些）就用它们跑。「旧实现」只指定型前（R1–R13、step_diag）。我误判后重建的 `pl_sp2/3/4`、`pl_10b/c/d` 全部作废（owner 令停，10:16 已按 PID 停，4090 空闲）。astra 核查（`survey_predict`）排除了 R14–R16，范围错了，待 owner 定是否重做。下一步：LIBERO π0.5/GR00T 的八组缓存研究、k=1 旋钮重跑用 offline_search_store 的库、接 R16 流程——待 owner 点头。
