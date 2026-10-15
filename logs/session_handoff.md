@@ -58,6 +58,8 @@ owner 的常驻指令，逐字有效：
 
 ### ★★★★★★ 2026-10-14 14:55 CDT 总状态（compact 后最先读这一块；下面各「增量」块是细节，按时间倒序）
 
+> **12:24 巡检**：H100 `fwmk1_fulx` 86,748/90,000 0 报错 ~110 局/分（util ~40%），~12:55 完 → `fwmk1_redx`。4090 `pl_h10` 722/1000 0 报错：spatial 500 局 14 min（pl_a2 23 min），libero_10 ~16 局/分（pl_a2 ~8），~12:42 完 → `gl_h10` ~13:20 → k1ref 链。显存 47.5 GB = 4×7.9 GB 副本 + ~16 GB 本机 worker 渲染，与 pl_a2 同配置，无 worker 重启。sol_mwA/B/D 无新内容。Monitor 12:16 重挂。
+
 > **12:03 k1ref 上线排队**：sol_k1ref 11:57 交回（`rounds/r16/k1ref/HANDBACK.md`，350 项 CPU 测试过，31/19 复现），已审选档/不开旋钮/提档规则与端口。服务端快照 `/home/weiland/projects/openpi_r16_k1ref_server`（`r16_ops/k1ref_build_snapshot.sh`，SNAPSHOT_OK）。链 tmux `k1ref_4090`（`r16_ops/chain_k1ref.run.sh`，标签 `[4090k1]`，各步日志 `r16_ops/k1ref_<step>.log`）：等 `[4090k] 4090k chain done` 与 4090 空闲 → 冒烟 16 局 → check-smoke → 不开旋钮 A 3,550 局 → dev01..04（每批 emit 后跑）→ freeze → test00 → test01..06 提档 → analyze（`k1ref/results/{RETEST.md,summary.json}`）；任一步 rc≠0 即停，`touch mw/hold_k1ref` 在步间停。`pl_h10` 12:02 时 ~196/1000、~39 局/分、显存 41 GB，~12:25 完 → `gl_h10` ~13:05 完。冒烟时要亲自看首批推理显存（HANDBACK §2）。
 
 > **11:54 巡检**：H100 `fwmk1_fulx` 82,404/90,000 0 报错 ~115 局/分（util ~24%），~13:00 完 → `fwmk1_redx`。4090（owner：「4090怎么纯闲置了」）11:51 起链 `vla_4090k`（tmux，`openpi_ext/scratch/r17_ops/vla/chain_4090k.run.sh`，标签 `[4090k]`，快照 fe84e291）：`pl_h10`（= pl_a2 + `--commit-horizon 10`）→ `gl_h10`（= gl_a3 + `--commit-horizon 10`），π0.5/GR00T LIBERO 满步纯推理按 R14–R16 的执行 10 步重跑，各 1000 局 A 集 spatial+10，副本启动中。准备脚本 `vla/prep_h10.sh`；K1+执行 10 步被启动器拒绝（`plain step study cannot combine horizon`），未跑。k1ref 交回要 4090 时 `touch mw/hold_4090k`，链在两批之间停。sol_k1ref 第二轮在写（日志 1,594 行，未交回）。sol_mwA/B/D 无新内容。Monitor 11:46 重挂。
