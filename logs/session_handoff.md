@@ -58,6 +58,8 @@ owner 的常驻指令，逐字有效：
 
 ### ★★★★★★ 2026-10-14 14:55 CDT 总状态（compact 后最先读这一块；下面各「增量」块是细节，按时间倒序）
 
+> **17:4x 过滤消融（续）**：sol 第四轮 17:45 交回：修好暂存（本机/timan107/timan1/timan108/H100，14,636 个文件检查过），加 `filter_failed/reset.py`（只改名不删），dp_li_14 已复原、dp_li_11/16 重新暂存；R10 π0.5 卡在 timan107 原 worker 目录 `/scratch/zixuans8/openpi_trace_h100` 已删（R10 GR00T 的 timan108 目录还在），待我恢复。旧 ff-h100 队列（14:20 起）因运行中脚本被改过而按 PID 停，两条队列 17:46 用「每批都先准备」重起。dp_li_14 这次过了暂存、服务端起来了，但 DP 加载报 `identity mismatch`（loader.py:62）——不拔这道门，派 sol 第五轮在 CPU 上查清并对 19 个 R17 批次逐个验证加载身份（`sol_filter_failed_5.log`）；4090 队列暂停（`mw/hold_ff_4090`），H100 队列仍等 h100-v16 结束。
+
 > **17:28 过滤消融暂停**：重建后的 dp_li_14（全新、从未启动）启动同样失败：`/tmp/r17_formal/ff1015_dp_li_14/local/benchmark.json` 不存在——stage.py 只往暂存目录写了 control_*.json，没有 benchmark.json/campaign.json/launch_campaign.json（原批次 csztd_r3_l48 有）。是 sol 暂存代码的系统性问题（dp_li_16 前面也是这个）。两条过滤队列都挂暂停（`mw/hold_ff_4090`、`mw/hold_ff_h100`；4090 队列已退出，H100 队列仍在等 h100-v16 结束、遇到暂停文件即停）。派 sol 第四轮（`sol_filter_failed_4.log`，任务书回复 `rounds/r17/prompts/sol_filter_failed_reply3.md`）：修暂存、加 `reset.py`（只改名不删，把启动前失败的批次复原）、允许它跑 CPU 暂存并检查各节点暂存文件，但不起任何服务/worker。4090 暂时空闲。
 
 > **17:24 巡检**：H100 `fwmk1_redx` 41,932/90,000 0 报错 ~200–270 局/分，约 21:00 完 → ff_h100 队列。4090 空闲（等 `filter_failed.build --reuse-views` 重新生成 dp_li_11/16，已到 Prepare campaign 阶段），完成后只起一条 4090 过滤队列。verify：84 格冻结参数全部 PASS。sol_mwA/B/D 无新内容。
