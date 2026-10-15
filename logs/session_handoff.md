@@ -58,6 +58,8 @@ owner 的常驻指令，逐字有效：
 
 ### ★★★★★★ 2026-10-14 14:55 CDT 总状态（compact 后最先读这一块；下面各「增量」块是细节，按时间倒序）
 
+> **11:25 巡检 + 派单**：H100 `fwmk1_fulx` 78,954/90,000 0 报错 ~96–144 局/分（util ~48%），~12:55 完 → `fwmk1_redx`（已备）。4090 空闲 → 派 sol `sol_k1ref`（tmux `cx_k1ref`，线程 `01a14062-3826-79c1-940f-0bbb6563d4af`，任务书 `rounds/r16/prompts/sol_k1ref.md`，日志 `openpi_ext/scratch/r16_ops/sol_k1ref.log`，交回 `rounds/r16/k1ref/HANDBACK.md`）：π0.5/GR00T LIBERO k=1 旋钮按 k=1 纯推理参照重跑（owner 10-13 令，此前一直未做）。我的 CPU 预估：开发集参照 `r16_dev_c10_{m}_{s}_50_k1` 已齐（10 任务×30 局）；160 个（格×任务）中 31 个档位变、19 个需补测开发集档位；另跑完整系统不开旋钮 test A 套「已达纯推理不调」规则。端口：服务 23150–23155、驱动 23159（23179 被 `fwmk1_fulx` 驱动占用）。服务端须用 R16 冻结代码快照（本机 3 个文件 R17 改过：msgpack_numpy.py、groot/batcher.py、groot/staged.py）。timan107 岛 `/scratch/zixuans8/openpi_r16_conductor_v1` worker.sha256 今天核对通过。三条 Monitor 已重挂。
+
 > **11:3x 网页第 26 版（owner：「liebro 和mt 50折线图位置统一加一个list…所有图公用一个开关」）**：两处折线图的图例改成勾选列表（8 组，纯推理虚线常显），勾选状态全页共用（`shown` 集合，任一列表改动同步另一列表并重画 LIBERO 6 张 + MT50 8 张）；默认全选。模拟取消 6 组后两节点数 66/92 与预期一致，宽屏/手机截图已看（`build_1015/w_tog_*.png p_tog_*.png`）。
 
 > **11:1x 网页第 25 版（owner：「你网页我们之前是这么做的吗…画蛇添足…图呢」）**：MT50 四节改成与 LIBERO 完全同格式——新增「MT50 success rate vs. cache size」折线图（4 模型 × 组均值/按任务均值 8 张，两列），表格按「模型 · group mean / per-task mean」分卡（顶替 LIBERO 的套件维），每格只有 SR + 差值两行；去掉灰色第三行、卡片上的 GPU/步数标注、"running on the H100"。延迟表列与 LIBERO 相同；修正 v24 的 DP 分母错误（把 CPU CLIP 67.3 ms 算进了分母，232→165 ms，vision 0.307→0.023），现与 ir_formal.coefficients 逐位一致（旋钮 IR 本来就是对的）。数据集 mt50_* 改为带 suite 字段的行（v2）。改前备份 `build_1015/{build_v24.py.bak,patch_html_v24.py.bak}`。
