@@ -1193,6 +1193,9 @@ of the link, while the H100 SM averaged 55%), so H100 lanes need several worker 
 - Live DP K100 knob lane `dpmk1_fulx` (R8 B32 W5, 40 GiB, timan1 + timan107 + timan108 x40, zlib), 2026-10-14 16:47-16:51:
   ~120 req/s at hit share 0.47 (~63 model calls/s), mean service 0.79 s, H100 SM 100% in every second of a 30 s dmon,
   350-410 episodes/min, 0 errors. GPU-bound: more workers will not help this lane.
+- Live DP K10 knob lane `dpmk1_redx` (R4 B16 W5, 24 GiB, same 120 workers), 2026-10-14 23:31-23:34: ~225 req/s at hit
+  share 0.94, mean service 0.06 s, 520-675 episodes/min, H100 util ~40%, 8.4 GB. Worker-bound (each worker spends ~0.47 s
+  per request in simulation): more workers would scale it; timan1 workers finish ~1.6x as many episodes as timan107's.
 
 ### Check the worker node's disk before preparing, and watch long MT50 lanes
 

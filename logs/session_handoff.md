@@ -58,6 +58,8 @@ owner 的常驻指令，逐字有效：
 
 ### ★★★★★★ 2026-10-14 14:55 CDT 总状态（compact 后最先读这一块；下面各「增量」块是细节，按时间倒序）
 
+> **23:35**：`dpmk1_redx` 23:23 起、0 报错，三台都在交局；稳态 ~225 请求/s、520–675 局/分、svc 0.06 s、util ~40%（worker-bound）→ 90,000 约 2.5 h（~02:00 完）。`fwmk1_fulx` 23:30 在准备。4090 `pimk1_fuld` 剩 ~2,000 局。
+
 > **23:2x**：`csfw_k3w6` 23:21 完 47,555（0 报错）。**Fast-WAM MT50 缓存研究收齐**：四段合并 48 格 × 2,500 = 120,000，表在 `exp/offline_search/rounds/r17/cache/mt50/FASTWAM_K3_CELLS.md`（最好 crg n2500 35.8/51.7，纯推理 K3 44.0/59.1）。H100 接 `dpmk1_redx`。
 
 > **22:54 巡检**：4090 `pimk1_fuld` 75,630/83,731 0 报错 ~152 局/分（SM 均 94%），剩 ~55 min；H100 `csfw_k3w6` 41,991/47,555 0 报错 ~143 局/分（util ~20%），剩 ~40 min。π0.5 全步 descent 只传 `--lane pimk1_fuld`（load_knob 自动沿 cache_resume 链合并 fulc4/fulb/ful）。
