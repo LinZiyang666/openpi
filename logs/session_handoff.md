@@ -58,6 +58,8 @@ owner 的常驻指令，逐字有效：
 
 ### ★★★★★★ 2026-10-14 14:55 CDT 总状态（compact 后最先读这一块；下面各「增量」块是细节，按时间倒序）
 
+> **17:1x k1ref 完 + 网页 v28 + 过滤队列事故**：k1ref 链 17:15 完（test01 14 任务/700 局后 test02 为 0，READY_FOR_FINAL_ANALYSIS）。最终 16 格 SR 对 k=1 纯推理 −1.2…+1.2 个点；IR（满步纯推理=1）π0.5 0.27–0.43、GR00T 0.17–0.37；GR00T spatial 100/200 按完整系统规则不调。结果 `rounds/r16/k1ref/results/{RETEST.md,summary.json}`（提交 257119ce）。网页 v28：π0.5/GR00T 旋钮表加「Reduced steps」列（k=1，IR 相对满步纯推理，* = 完整系统规则），`datasets/knob_vla` v6。⚠ 过滤消融 4090 队列事故：①`ff1015_dp_li_11` 启动时冻结的旧 worker 包仍做 RAM 准入（timan107 被 fwmk1_redx 占 40 worker，记账只剩 38 GB）→ 按 owner 10-10「不做 RAM 准入」改 `exp/r17_integration/ops/formal_prestage.py` 只记录不抛错；②失败启动的清理删了 timan107 暂存、本地留 LAUNCH/.startup_inputs，重启接连失败；③我在队列运行时跑 `filter_failed.build --reuse-views`（会重写各批 campaign.json），发现后 7 秒内按 PID 停；④tmux kill 不会杀 setsid 的队列，曾有两条 4090 队列同时启动 dp_li_16，两次都失败。处置：两条 4090 队列按 PID 停、`mw/hold_ff_4090`；dp_li_11 目录改名 `ff1015_dp_li_11.failed_1718`；正在跑 `filter_failed.verify` 核对全部产物（日志 `r17_ops/ff/verify_1720.log`）。核对过后：dp_li_16 也改名留档，无队列时重跑 build 生成干净的两个批次，只起一条 4090 队列（dp_li_14 → dp_li_15 → pi05_mt_13 → dp_li_11 → dp_li_16）。停队列一律 kill PID，不靠 tmux。
+
 > **16:54 巡检**：4090 k1ref test01（14 任务 / 700 局）16:47 起，服务加载中（22.7 GB）。H100 `fwmk1_redx` 35,857/90,000 0 报错 ~147–171 局/分，约 23:00 完。sol_mwA/B/D 无新内容；Monitor 16:4x–16:5x 重挂。
 
 > **16:4x k1ref test00 完**：1,650 局 0 报错（16:44）。g00 分析：完整系统不开旋钮已达 k=1 纯推理的只有 GR00T spatial 100（95.0 = 95.0）、200（95.4 ≥ 95.0），这两格不调旋钮；其余 14 格不开旋钮低于纯推理（库 50 长任务差 12–15 个点，库 500 差 0.6–1.2）。提档第 1 代 test01（14 任务 / 700 局）16:47 起。

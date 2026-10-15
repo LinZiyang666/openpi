@@ -389,9 +389,9 @@ def launch_prepared(directory):
                 admission=json.loads(launch.remote(node,['env','PYTHONPATH='+launch.pythonpath(item['payload']),
                     item['python'],'-c','from exp.r17_integration.ops.worker_memory import admission; import json; '
                     'print(json.dumps(admission('+repr(memory_job)+','+repr(item['worker_run'])+')))'],replay_safe=True))
+                # Recorded only: owner 2026-10-10, no RAM admission. Archived worker
+                # releases from before that ruling still compute a refusal.
                 write_json(directory/(node+'_LAUNCH_ADMISSION.json'),admission)
-                if not admission['admitted']:
-                    raise ValueError(node+': '+admission['reason'])
                 # Same immutable asset/dependency releases, no install or native imports.
                 dependency=item.get('dependencies')
                 if dependency:
