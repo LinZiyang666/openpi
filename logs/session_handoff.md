@@ -58,6 +58,8 @@ owner 的常驻指令，逐字有效：
 
 ### ★★★★★★ 2026-10-14 14:55 CDT 总状态（compact 后最先读这一块；下面各「增量」块是细节，按时间倒序）
 
+> **11:4x 网页第 27 版（owner：「Success rate直接在这些表里面 long horizon那里加一个标签就完了」）**：每张成功率表（LIBERO 10 张、MT50 8 张）标题旁加执行段标签「horizon: default · long · max」：DP 5/10/16、Fast-WAM 5/10/32、Cosmos 16/—/16、π0.5 LIBERO 5/10（所有行）/10、GR00T LIBERO 5/10（所有行）/16、MT50 π0.5 5/—/5、GR00T/DP 5/10/16、Fast-WAM 5/10/32（来源：各批次 EPISODE_PLAN commit_horizon 与服务端 horizon）。先做的单独「Action horizon」一节和 horizon 数据集被 owner 否掉，未发布。另发现：R17 重跑 pl_a2/pl_k1a2/gl_a3/gl_k1a 的 commit_horizon=5，而 R14–R16 参照都是 10，所以 R17 π0.5 libero_10 85.4% 与 R14 90.8% 不可比（R4：C5 84–86%、C10 90%）。
+
 > **11:25 巡检 + 派单**：H100 `fwmk1_fulx` 78,954/90,000 0 报错 ~96–144 局/分（util ~48%），~12:55 完 → `fwmk1_redx`（已备）。4090 空闲 → 派 sol `sol_k1ref`（tmux `cx_k1ref`，线程 `01a14062-3826-79c1-940f-0bbb6563d4af`，任务书 `rounds/r16/prompts/sol_k1ref.md`，日志 `openpi_ext/scratch/r16_ops/sol_k1ref.log`，交回 `rounds/r16/k1ref/HANDBACK.md`）：π0.5/GR00T LIBERO k=1 旋钮按 k=1 纯推理参照重跑（owner 10-13 令，此前一直未做）。我的 CPU 预估：开发集参照 `r16_dev_c10_{m}_{s}_50_k1` 已齐（10 任务×30 局）；160 个（格×任务）中 31 个档位变、19 个需补测开发集档位；另跑完整系统不开旋钮 test A 套「已达纯推理不调」规则。端口：服务 23150–23155、驱动 23159（23179 被 `fwmk1_fulx` 驱动占用）。服务端须用 R16 冻结代码快照（本机 3 个文件 R17 改过：msgpack_numpy.py、groot/batcher.py、groot/staged.py）。timan107 岛 `/scratch/zixuans8/openpi_r16_conductor_v1` worker.sha256 今天核对通过。三条 Monitor 已重挂。
 
 > **11:3x 网页第 26 版（owner：「liebro 和mt 50折线图位置统一加一个list…所有图公用一个开关」）**：两处折线图的图例改成勾选列表（8 组，纯推理虚线常显），勾选状态全页共用（`shown` 集合，任一列表改动同步另一列表并重画 LIBERO 6 张 + MT50 8 张）；默认全选。模拟取消 6 组后两节点数 66/92 与预期一致，宽屏/手机截图已看（`build_1015/w_tog_*.png p_tog_*.png`）。
