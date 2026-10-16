@@ -86,6 +86,8 @@ owner 的常驻指令，逐字有效：
 - `exp/r17_integration/ops/formal_prestage.py` 已改为 RAM 准入只记录不拦截（owner 10-10 不做 RAM 准入；d3667946）。
 - 今天新记忆：`feedback-update-task-list`（状态变就同步任务表）、`feedback-keep-it-simple` 加网页条目（放进现有表、照抄 LIBERO 格式）。
 
+> **20:54 巡检**：H100 `fwmk1_redx` 74,607/90,000 0 报错，速度 83–320 局/分波动，约 22:30 完。4090 空闲等 timan107。sol 旋钮消融 4,989 行未交回。sol_mwA/B/D 无新内容；Monitor 20:5x 重挂。
+
 > **20:35 巡检**：H100 `fwmk1_redx` 71,990/90,000 0 报错，提速到 ~270–320 局/分，约 21:50 完 → 两条 ff v2 队列同时开始。4090 空闲（三个 4090 批次都要 timan107，须等 fwmk1_redx 释放）。sol 旋钮消融派单在读源（未交回）。sol_mwA/B/D 无新内容。
 
 > **20:3x 过滤队列重排 + 旋钮消融派单**：dp_li_15 20:22 完 4,000（0 报错）。dp_li_11 20:25 启动被拒：timan107 冻结 worker 的 EGL 显存准入（fwmk1_redx 预留 40）。`filter_failed/reset.py` 扩展到远程 worker（远端 stage 的 process/lease/log 与 worker_run、.tar、.transfer.json 改名留存，不删），dp_li_11 已复原 PREPARED。两条队列改成 v2（见上方快照第 2 条）。owner 20:2x 新要求：过滤库也跑全系统逐任务 IR 旋钮下降（两个 benchmark、全模型、全过滤库大小、全步+减步），20:3x 已按未过滤配置回复 owner；20:34 派 sol（同线程 01a140c4，任务书 `rounds/r17/prompts/sol_filter_failed_knob.md`，日志 `r17_ops/sol_filter_failed_knob.log`，代码 `rounds/r17/filter_failed_knob/`，批次前缀 ffk1015_；先减步后全步；MT50 空任务照常跑=全 MISS 交模型；π0.5/GR00T 全步 R14/R15 老流程能否跑待 sol 核实）。任务 #148。
