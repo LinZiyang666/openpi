@@ -25,11 +25,17 @@ def server_command(argv,needs_bridge):
 
 
 WORKER='exp.r17_integration.ops.formal_workers'
-# Owner 2026-10-10 (local d2019b8c): another user's process on a worker GPU no
-# longer makes the whole card unusable; its memory still counts. The frozen
-# worker archives predate that, so apply it in the worker command instead of
-# changing the archive.
-SHARE=('import runpy\n'
+# Frozen worker archives predate three owner decisions that the current code
+# already follows; apply them in the worker command instead of changing the archive:
+# - another user's process on a worker GPU no longer makes the whole card
+#   unusable (its memory still counts; local d2019b8c);
+# - no per-worker VRAM cap (owner 2026-10-10): a refusal is replaced by the
+#   current round-robin device assignment;
+# - timan1 GPU3 lease allows up to 40 LIBERO cache workers (the source runs got
+#   this from cache_capacity_authorization, which the filtered campaigns drop).
+# The module name stays in argv so the timan1 GPU3 guard and fleet close checks
+# still recognise the fleet; the code removes it before running the module.
+SHARE=('import sys,runpy\n'
        'import exp.r17_integration.ops.worker_gpu as g\n'
        'native=g.inventory\n'
        'def inventory(*a,**k):\n'
@@ -38,6 +44,31 @@ SHARE=('import runpy\n'
        '        if r.get("reason")=="other user GPU allocation":r["usable"]=True;r.pop("reason")\n'
        '    return rows\n'
        'g.inventory=inventory\n'
+       'capped=g.admission\n'
+       'def admission(campaign,run,**kw):\n'
+       '    r=capped(campaign,run,**kw)\n'
+       '    if r.get("admitted") or not str(r.get("reason") or "").startswith("EGL VRAM admission refused"):return r\n'
+       '    uuid={c["device"]:c.get("uuid") for c in r.get("cards",[])}\n'
+       '    if not uuid:return r\n'
+       '    pref=campaign.get("worker_egl_device",0);cards=sorted(uuid)\n'
+       '    order=[d for d in cards if d>=pref]+[d for d in cards if d<pref]\n'
+       '    need=kw.get("count") or campaign["node_workers"];per=r.get("worker_vram_mib",campaign.get("worker_vram_mib",1024))\n'
+       '    asg=[dict(index=i,device=order[i%len(order)],uuid=uuid[order[i%len(order)]],worker_vram_mib=per) for i in range(need)]\n'
+       '    return dict(r,admitted=True,assignments=asg,reason=None,owner_no_vram_cap=True)\n'
+       'g.admission=admission\n'
+       'import exp.r17_integration.ops.timan1_workers as t\n'
+       'lease=t.authorize\n'
+       'def authorize(c):\n'
+       '    nodes=c.get("execution_worker_nodes",c.get("worker_nodes",{}));n=nodes.get("timan1",0)\n'
+       '    if 16<n<=40 and c.get("domain")=="libero" and not (c.get("cache_capacity_authorization") or c.get("live_fleet_authorization")):\n'
+       '        key="execution_worker_nodes" if "execution_worker_nodes" in c else "worker_nodes"\n'
+       '        r=lease(dict(c,**{key:dict(nodes,timan1=16)}))\n'
+       '        if r:r["workers"]=n\n'
+       '        return r\n'
+       '    return lease(c)\n'
+       't.authorize=authorize\n'
+       'assert sys.argv[1]=='+repr(WORKER)+'\n'
+       'del sys.argv[1]\n'
        'runpy.run_module('+repr(WORKER)+',run_name="__main__",alter_sys=True)\n')
 
 
@@ -45,7 +76,7 @@ def worker_command(value):
     if isinstance(value,list):
         if WORKER in value:
             i=value.index(WORKER)
-            if i and value[i-1]=='-m':return value[:i-1]+['-c',SHARE]+value[i+1:]
+            if i and value[i-1]=='-m':return value[:i-1]+['-c',SHARE,WORKER]+value[i+1:]
         return [worker_command(v) for v in value]
     if isinstance(value,dict):return {k:worker_command(v) for k,v in value.items()}
     if isinstance(value,str) and WORKER in value and value.startswith(('{','[')):

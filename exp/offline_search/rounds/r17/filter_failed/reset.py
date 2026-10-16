@@ -93,6 +93,16 @@ def reset(root):
                         target = path.with_name(path.name+suffix)
                         path.rename(target)
                         external.append(dict(original=str(path), saved=str(target)))
+            # A remote server node (H100) keeps its process receipts in the
+            # server stage; formal_process.spawn refuses an existing receipt.
+            campaign = read(root/'campaign.json')
+            if campaign.get('server_node') not in (None, 'local'):
+                from exp.r17_integration.ops import formal_eval as launch
+                stage = '/tmp/r17_formal/'+campaign['run_name']+'/server'
+                script = ('for p in "$1"/*.process.json "$1"/*.lease "$1"/*.log; '
+                          'do if [ -e "$p" ]; then mv -n "$p" "$p$2" && echo "$p"; fi; done')
+                renamed = launch.remote(campaign['server_node'], ['bash', '-c', script, 'reset', stage, suffix])
+                external += [dict(node=campaign['server_node'], original=p, saved=p+suffix) for p in renamed.split()]
         names = {'LAUNCH.json', 'RECEIPT.json', '.startup_inputs', 'LAUNCH_WORKER_DEPLOYMENT.json',
                  'PHASE_TIMINGS.jsonl', 'TETHER_RETRY_RECEIPT.json', 'TETHER_CALLS.jsonl', 'BATCHING_CONTROL.json',
                  'servers', 'mps', 'mps_control', 'BACKEND_EVIDENCE.json', 'PORT_RELEASE.json',
