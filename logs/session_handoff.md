@@ -86,6 +86,8 @@ owner 的常驻指令，逐字有效：
 - `exp/r17_integration/ops/formal_prestage.py` 已改为 RAM 准入只记录不拦截（owner 10-10 不做 RAM 准入；d3667946）。
 - 今天新记忆：`feedback-update-task-list`（状态变就同步任务表）、`feedback-keep-it-simple` 加网页条目（放进现有表、照抄 LIBERO 格式）。
 
+> **11:0x owner 两点纠正**：① 「π0.5/GR00T LIBERO 全步旋钮…不是以前做了吗」——未过滤全步旋钮早已有（R14 库 50、R15 库 100–500），缺的只是过滤库版；这是技术问题不该问 owner。我定：用 R15 流程（现有代码 0 不符）跑过滤版 100/200/500（配原 R15），库 50 在 R15 流程下过滤+未过滤各一格；不建 R16 全步替代。11:05 派 sol（`prompts/sol_ffk_vla_full.md`，日志 `r17_ops/sol_ffk_vla_full.log`）。② 「你不知道原因你定什么规矩」——timan1 失联原因未查明（只知 07:36:26 后 timan1 worker 不再交局、当时跑我们 40 个 Cosmos LIBERO worker），我已撤回凭推测加的设备记忆条目和代码改动（revert 95cd4b29 → 417b2766，launch.py 恢复 timan1 LIBERO 上限 40）。timan1 恢复后先查系统日志定原因再决定。任务表 #149/#150 已同步。
+
 > **10:54 巡检**：H100 ffk fastwam_mt50_reduced_descent 14,127/90,000 0 报错（~145 局/分，约 19:35 完）。4090 ffk dp_libero_full_dev 10,242/21,600 0 报错（~88 局/分，约 13:00 完）。timan1 仍 OFFLINE（3 h）。sol_mwA/B/D 无新内容。
 
 > **10:24 巡检**：H100 ffk fastwam_mt50_reduced_descent 9,830/90,000 0 报错（~160 局/分，约 18:40 完）。4090 ffk dp_libero_full_dev 7,614/21,600 0 报错（~84 局/分，约 13:10 完）。timan1 仍 OFFLINE。sol_mwA/B/D 无新内容。
