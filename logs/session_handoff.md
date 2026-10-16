@@ -86,6 +86,8 @@ owner 的常驻指令，逐字有效：
 - `exp/r17_integration/ops/formal_prestage.py` 已改为 RAM 准入只记录不拦截（owner 10-10 不做 RAM 准入；d3667946）。
 - 今天新记忆：`feedback-update-task-list`（状态变就同步任务表）、`feedback-keep-it-simple` 加网页条目（放进现有表、照抄 LIBERO 格式）。
 
+> **09:54 巡检**：H100 ffk fastwam_mt50_reduced_descent 5,014/90,000 0 报错（~135 局/分，约 20:20 完）→ ffk-h100o（DP MT50 续跑 88,941）。4090 ffk dp_libero_full_dev 5,098/21,600 0 报错（~75 局/分，约 13:35 完）→ ffk-4090q（test00）。timan1 仍 OFFLINE（2 h）。sol_mwA/B/D 无新内容。
+
 > **09:2x**：FW MT50 减步（ffk-h100n）09:16 起，09:25 74 局 0 报错。sol 交回 DP MT50 减步续跑 `ffk1015_dp_mt50_reduced_descentc1`（88,941 局，timan107×40+timan108×40；1,059+88,941=90,000 唯一无重叠；四台机器只读确认原批次无残留；`filter_failed_knob/continuation_checks_1016/HANDBACK.md`）→ 排 **ffk-h100o**（等 `[ffk-h100n] queue done`）。4090 dp_libero_full_dev 2,675/21,600。timan1 仍 OFFLINE。
 
 > **09:1x timan108 重启**：ffk dp_mt50_reduced_descent 09:11 停在 1,059/90,000（0 报错）：timan108 09:11 重启（uptime 0 min），/tmp stage 消失，租约续期失败，回执 FAIL、all_owned_closed=false。timan1 仍 OFFLINE（07:4x 起），timan107 正常（up 1 天 20 h）。已 PushNotification owner（疑似集群维护）。h100m 已停；起 **ffk-h100n**（tmux `ffk_h100n`）：fastwam_mt50_reduced_descent（timan107×40+timan108×40，09:12 准备）。09:12 派 sol 做 DP MT50 减步续跑（`prompts/sol_ffk_dp_mt50_resume.md`，日志 `r17_ops/sol_ffk_dp_mt50_resume.log`）。若 timan108 再出问题，改只用 timan107。
