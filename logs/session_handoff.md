@@ -58,6 +58,36 @@ owner 的常驻指令，逐字有效：
 
 ### ★★★★★★ 2026-10-14 14:55 CDT 总状态（compact 后最先读这一块；下面各「增量」块是细节，按时间倒序）
 
+### ★★★★★★★★ 2026-10-16 11:10 CDT 总状态（compact 前快照；compact 后最先读这一块，下面「>」增量按时间倒序，10-15 20:15 快照已过时）
+
+**目标**：`/goal 不收集完数据不停`。owner 在线但不耐烦：少问、能自己定的技术问题自己定；**不凭推测定规矩**（10-16 owner：「你不知道原因你定什么规矩」）；**每轮写 handoff 必须同时 TaskUpdate**（第三次提醒）。
+
+**在跑（两张卡都满）**
+- **H100**：`ffk1015_fastwam_mt50_reduced_descent`（过滤库 FW MT50 减步旋钮，90,000 局，worker timan107×40+timan108×40——用 `filter_failed.resume --worker-counts` 绕开离线的 timan1），11:10 16,707 局 0 报错，~145 局/分，约 19:30 完。队列 **ffk-h100n**（PID 2839332，tmux `ffk_h100n`）→ **ffk-h100o**（PID 2947283，tmux `ffk_h100o`，等 `[ffk-h100n] queue done`）：`ffk1015_dp_mt50_reduced_descentc1`（DP MT50 减步续跑 88,941 局；原段 1,059 局因 timan108 09:11 非正常重启中断；两段合并分析已由 sol 做好）。
+- **4090**：`ffk1015_dp_libero_full_dev`（DP LIBERO 全步开发集，21,600，本机×48），11:10 11,596 局 0 报错，约 13:00 完。队列 **ffk-4090p**（PID 2620699）→ **ffk-4090q**（PID 2622808，等 `[ffk-4090p] queue done`）：`ffk1015_dp_libero_reduced_test00`（1,000 局，DP 减步 A 集第 0 代，已 build、已 reset 成 PREPARED）。
+- 等待中不会触发的旧队列：**ffk-h100k**（PID 1886165，等 `[ff-h100d] queue done`，ff-h100d 已停，不会来）——timan1 恢复后 kill 掉重排。暂停文件仍在：`mw/hold_ff_4090m`、`mw/hold_ff_h100b`（对应队列已结束，无害）。
+- 队列脚本：`r17_ops/ff/chain_ff2.run.sh`（ff，用 filter_failed/commands，日志标签 `[ff-<tag>]`）与 `chain_ffk.run.sh`（ffk，用 filter_failed_knob/commands，标签 `[ffk-<tag>]`），都支持 `WAIT:<regex>` 项；启动脚本 `ff/run_*.sh`。**停队列先 `ps -eo pid,args | grep` 看 PID 再 kill**（pgrep 模式出现在自己命令行里会匹配并杀掉自己的 shell）；挂 hold 会写 `queue done`，会触发等它的下游队列。
+
+**#147 过滤失败局 · 纯 Cache 消融**：25 个批次完成 24 个（全部 0 报错）：DP li_14_u/14/15_u/15/11/16、pi05_mt_13、R10 π0.5/GR00T、groot_mt_09/10、dp_mt_05、fastwam_mt_06/07/08、fastwam_li_12/17/18（3,787+续跑 li_18c1 1,213）/19、cosmos_li_01/02/03。**剩 cosmos_li_04**（3,066 局，worker 本机×60+timan1×40+timan107×45，要 timan1 和 4090 空出本机渲染）。完后 `cd /home/weiland/projects/openpi && env CUDA_VISIBLE_DEVICES= PYTHONPATH=.:src .venv/bin/python -m exp.offline_search.rounds.r17.filter_failed.analyze` → analysis/RESULTS.md，向 owner 汇报。
+
+**#148 过滤库 · 全系统逐任务 IR 旋钮**（sol 交付 23 个初始批次 881,600 局，`rounds/r17/filter_failed_knob/`，HANDBACK.md 有全部命令）：完成 dp_libero_reduced_off 6,000、dp_libero_reduced_dev 21,600、fastwam_libero_reduced_off 6,000（DP 减步 descent 已跑→`filter_failed_knob/results/dp_libero_reduced/dev`，build-test gen0→test00）。在跑/排队见上。**等 timan1**：cosmos reduced off_u（=未过滤 fsredcos，#137）/off/dev、groot MT50 减步/全步、fastwam LIBERO 减步 dev（4090）/全步 dev、cosmos 全步 dev、dp/fw MT50 全步（timan1 不回来就用 `--worker-counts timan107=40,timan108=40` 绕开，MT50 可这样；注意 MT50 worker 也在本机 GPU 渲染图像，不同 GPU 像素一致性未证明）。4090 另有 pi05 MT50 ×2（timan107×80+本机×32）、pi05/groot LIBERO 减步 off（R16 流程，timan107×64）。test00 后：`workflow test --model dp --mode reduced --generation 0`，有 raise 就 build-test gen1…（HANDBACK「Exact commands」）。纯推理档提档照源行为（已告诉 sol）。
+- **#150**：过滤库 π0.5/GR00T LIBERO 全步旋钮（未过滤的早已有：R14 库 50、R15 库 100–500，**不重跑**）：用 R15 流程跑过滤版 4 种库，库 50 对比 R14 并注明跨流程。sol 11:05 起在建（日志 `r17_ops/sol_ffk_vla_full.log`）；它这轮里还会建「库 50 未过滤对照」——更正任务书 `prompts/sol_ffk_vla_full_reply1.md` 已由后台在本轮结束后自动发出（日志 `sol_ffk_vla_full_2.log`），交回后审：确认没有未过滤重跑，再排进 4090/H100。owner 原话：「你想做就做吧我不管」。
+
+**设备事故（#149）**：timan1 07:36:26 后 worker 不再交局、tether agent 离线（当时跑我们 40 个 Cosmos LIBERO worker；原因**未查明**，不准据此定规矩）。timan108 09:11 非正常重启（无关机记录；10-14、10-05 也有过）。已两次 PushNotification。timan1 恢复后：① 先查系统日志（dmesg/journal：OOM、GPU Xid）定原因；② 清理 cosmos_li_03 在 timan1 的残留 fleet；③ kill ffk-h100k，重排 H100：cosmos_li_04（4090 要空出给本机渲染）→ ffk-h100k 里其余批次。
+
+**今天改过的代码（都已提交）**
+- `filter_failed/launch.py` 的 worker 补丁（`worker_command`/`SHARE`，ffk 的 launch.py 也套用）：argv 保留 `-c 代码 exp.r17_integration.ops.formal_workers`（timan1 GPU3 守卫 sitecustomize 读 orig_argv、收尾 close 检查都要模块名，代码里再删掉）；可选导入（旧包缺模块就跳过）；放开冻结包「他人进程即整卡不可用」门；timan1 LIBERO 缓存 worker 上限按现行租约 40（原批次靠 cache_capacity_authorization，filter_failed.build 把它删了）。**不再**覆盖冻结包的显存上限（06:17 li_18 因此在 timan1 GPU3 EGL 爆显存）。第一版补丁（23:00–05:0x 启动的批次）收尾回执是 `remote worker close/snapshot incomplete` FAIL，数据都齐。
+- `filter_failed/reset.py`：远程 worker stage/run 改名、H100 服务端 stage 与 run 目录（MPS_READY.json、mps、mps_control、servers）改名、空 cleanup 的启动前失败、`--verified-dead`（只本机进程，逐个核 pid）。只改名不删。4 个旧测试夹具因此不过（#151，低优先级）。
+- `filter_failed/resume.py`（sol）：续跑 + `--worker-counts`（续跑与未启动 ffk 批次都可用）；analyze/descent 自动合并续跑段。
+
+**今天已完成并上网页**：MT50 FW 减步旋钮（fwmk1_redx descent 601ccc6c，datasets/mt50_knob v4）→ #139 完成。
+
+**sol**：线程 01a140c4-efb4-7713-b097-3624ab6bd81c；派单 `python3 /home/weiland/idea-sprint/dynamical_system/runs/i018-control/bin/codex_daemon_run.py --model gpt-6.1-sol --effort xhigh --sandbox danger-full-access --cwd /home/weiland/projects/openpi --thread <id> --prompt <md> --log <log>`（tmux 里跑）。
+
+**Monitor**（30 min 过期就重挂）：链事件 `tail -n 0 -F r17_ops/mw/chain.log | grep --line-buffered -E "\[h100-v[0-9]+\]|\[4090[a-z0-9]+\]|\[ffk?-[a-z0-9]+\]|prepare exit|FAIL|launcher"`；其余行同上加 `-v`；报错 `bash r17_ops/mw/err_watch.sh`。进度直接数 `/data/mw_finetune/eval/<run>/driver/journal.jsonl` 里 `"accepted": true`。
+
+**任务表**：#147/#148/#137/#150 进行中；#149 timan1、#151 测试夹具、#135 π0.5/GR00T LIBERO 八组缓存研究（未开始）待办。
+
 ### ★★★★★★★ 2026-10-15 20:15 CDT 总状态（compact 前快照；compact 后最先读这一块，下面「>」增量按时间倒序）
 
 **在跑（3 条，全部 0 报错）**
