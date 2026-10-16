@@ -58,6 +58,30 @@ owner 的常驻指令，逐字有效：
 
 ### ★★★★★★ 2026-10-14 14:55 CDT 总状态（compact 后最先读这一块；下面各「增量」块是细节，按时间倒序）
 
+### ★★★★★★★ 2026-10-15 20:15 CDT 总状态（compact 前快照；compact 后最先读这一块，下面「>」增量按时间倒序）
+
+**在跑（3 条，全部 0 报错）**
+1. **H100 `fwmk1_redx`**（Fast-WAM MT50 减步旋钮，tmux `mtk_h100_v16`，标签 `[h100-v16]`）：20:11 时 68,262/90,000，~160 局/分，约 22:30 完。完后：
+   - `cd /home/weiland/projects/openpi && .venv/bin/python -m exp.offline_search.rounds.r17.knob.descent --lane /data/mw_finetune/eval/fwmk1_redx --miss-steps reduced --control Fast-WAM=tfw7k3_1051 --out exp/offline_search/rounds/r17/knob/mt50/fastwam_reduced`，提交。
+   - 网页：`cd openpi_ext/scratch/r17_ops/livepage/build_1015 && python3 build.py && python3 make_harness.py`，渲染检查后上传 `mt50_knob.json`（Artifact publish asset，url https://claude.ai/artifact/To18VP3TyzS5SXY3MmmUCp），`ArtifactData update datasets/mt50_knob`（现 v3）改 source url 与说明（删「Fast-WAM reduced still running」）。页面本身不用改。
+   - 回执若是 FAIL 先看 `finalization_error`：fwmk1_fulx 也是「CPU evidence finalizer readiness deadline exceeded」，数据完整可用。
+2. **4090 过滤消融队列**（tmux `ff_4090`，PID 3634771，`r17_ops/ff/run_ff_4090.sh` → `chain_ff.run.sh`，标签 `[ff-4090]`）：顺序 dp_li_14_u ✓ → dp_li_14 ✓ → dp_li_15_u ✓ → dp_li_15（20:11 3,000/4,000）→ dp_li_11 → dp_li_16 → pi05_mt_13（13,950 局），约 23:00 完。
+3. **H100 过滤消融队列**（tmux `ff_h100`，PID 3634780，`run_ff_h100.sh`，标签 `[ff-h100]`）：等 `[h100-v16] h100-v16 chain done`，再依次 cosmos_li_01..04 → dp_mt_05 → fastwam_mt_06..08 → groot_mt_09/10 → fastwam_li_12/17/18/19 → r17_filter_failed_pi05 → r17_filter_failed_groot（约 6.6 万局，约明早 4–6 点完）。
+   - 两条队列：每批先 prepare（幂等，会修暂存）再 launch；prepare 失败跳过；停一条队列 = kill 它的 PID（setsid，**kill tmux 停不掉**）或 `touch r17_ops/mw/hold_ff_<4090|h100>`（批间停）。**队列运行时不要改 chain_ff.run.sh、不要跑 filter_failed.build**（会重写各批 campaign.json）。启动前失败的批次用 `python -m exp.offline_search.rounds.r17.filter_failed.reset --run <dir>` 复原（只改名不删）。
+   - 全部完后：`cd /home/weiland/projects/openpi && env CUDA_VISIBLE_DEVICES= PYTHONPATH=.:src .venv/bin/python -m exp.offline_search.rounds.r17.filter_failed.analyze` → `rounds/r17/filter_failed/analysis/RESULTS.md`（主比较含空任务按失败计；次要只比非空任务；DP li 50–400 用同环境未过滤对照 `_u`，旧基线作次要列）。然后向 owner 汇报（网页是否加由 owner 定）。
+- **Monitor**（每 30 min 过期就重挂）：链事件 `tail -n 0 -F r17_ops/mw/chain.log | grep -E "\[h100-v[0-9]+\]|\[4090[a-z0-9]+\]|\[ff-[a-z0-9]+\]|prepare exit|FAIL|launcher"`；其余行同上 `grep -v`；报错 `bash r17_ops/mw/err_watch.sh`。
+
+**过滤失败局消融（任务 #147，owner 10-15）要点**：每库每大小删失败局、不补、**不重新拟合**（原拟合不动，只切可检索行；MT50 重拟合复现不了原产物）；只跑纯 Cache 组；LIBERO（DP/FW/Cosmos R17 库，π0.5/GR00T R10 库）+ MT50（4 模型）全大小；空任务（过滤后零示范，MT50 每格 1–9 个）测试局按失败计、另报非空任务 SR。代码 `rounds/r17/filter_failed/`（sol 线程 01a140c4-efb4-7713-b097-3624ab6bd81c，六轮，HANDBACK.md）。环境：本机 DP env `/data/mw_finetune/dp/env` 10-13 被升级（numpy 2.2、transformers 5.5 等），所以各批改用与封存清单同版本的解释器（DP 用仓库 .venv），19 个 R17 批次 CPU 身份校验全过，17 个与原批次实际服务身份一致，DP li_14/15 不一致 → 补同环境未过滤对照 `_u`（+5,000 局）。R10 π0.5 的 timan107 目录 `/scratch/zixuans8/openpi_trace_h100` 已从 `/data/r17_library/libero/pi05/r10_worker_restore_ff1015/root` 恢复（sha256 全过）。首批：DP LIBERO 库 50：spatial 过滤 69.6 对同环境未过滤 70.2，libero_10 32.0 对 23.4。
+
+**今天完成并已上网页（v28，https://claude.ai/artifact/To18VP3TyzS5SXY3MmmUCp）**：MT50 四节照 LIBERO 格式（先图后表，组均值/按任务均值分卡）；全页共用的折线勾选列表；每张成功率表加 horizon 标签（default · long · max）；LIBERO 减步表加 π0.5/GR00T R17 重跑；旋钮表 DP 减步库 100–500 用 fsreddp2；MT50 旋钮 7 组（FW 全步 78998c2d）；π0.5/GR00T 旋钮表加 k=1 减步列（R16 k1ref，结果 `rounds/r16/k1ref/results`，提交 257119ce：16 格 SR 对 k=1 纯推理 −1.2…+1.2，GR00T spatial 100/200 按完整系统规则不调）。网页源 `openpi_ext/scratch/r17_ops/livepage/build_1015/`（`patch_html.py` 从 live_1015 的 v23 累加全部改动生成 index.html；`build.py` 生成数据集 json；`make_harness.py` 生成本地渲染页；截图用 chrome-headless-shell，宽屏 1400 + 手机 400 都要看）。数据集版本：index.html v28、mt50_knob v3、knob_vla v6、steps v4、knob v9、mt50_cells/base/steps/latency v2。
+
+**待办 / 待 owner 定**
+- 网页减步表里 π0.5/GR00T 的 R17 重跑执行 5 步，R14–R16 都是 10 步，不可比（未注明，等 owner）。已补 R17 路径执行 10 步满步基线：π0.5 `pl_h10` 96.2/88.6、GR00T `gl_h10` 90.4/88.8（未上网页）；R17 路径仍比 R14 低约 2（GR00T spatial 低 5），原因未查。K1 加执行 10 步被启动器拒绝，未跑。
+- #135 π0.5/GR00T LIBERO 八组缓存研究未开始（用现成 pkl/R10 库，不建库）。
+- #137 Cosmos 减步完整系统 fsredcos 未跑（排在 ff_h100 之后，H100）。
+- `exp/r17_integration/ops/formal_prestage.py` 已改为 RAM 准入只记录不拦截（owner 10-10 不做 RAM 准入；d3667946）。
+- 今天新记忆：`feedback-update-task-list`（状态变就同步任务表）、`feedback-keep-it-simple` 加网页条目（放进现有表、照抄 LIBERO 格式）。
+
 > **19:54 巡检**：4090 ff：dp_li_15_u 19:38 完 4,000（0 报错），dp_li_15 19:40 起、1,197/4,000 0 报错（~85 局/分，约 20:30 完）→ 11 → 16 → pi05_mt_13。H100 `fwmk1_redx` 64,765/90,000 0 报错，速度降到 ~100–118 局/分，约 23:40 完。sol_mwA/B/D 无新内容；Monitor 19:4x 重挂。
 
 > **19:24 巡检**：4090 ff `dp_li_15_u` 2,698/4,000 0 报错（~90 局/分，约 19:40 完）→ dp_li_15 → 11 → 16 → pi05_mt_13。H100 `fwmk1_redx` 61,213/90,000 0 报错 ~150–200 局/分，约 22:00 完。sol_mwA/B/D 无新内容；Monitor 19:0x–19:2x 重挂。
