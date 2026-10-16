@@ -86,6 +86,8 @@ owner 的常驻指令，逐字有效：
 - `exp/r17_integration/ops/formal_prestage.py` 已改为 RAM 准入只记录不拦截（owner 10-10 不做 RAM 准入；d3667946）。
 - 今天新记忆：`feedback-update-task-list`（状态变就同步任务表）、`feedback-keep-it-simple` 加网页条目（放进现有表、照抄 LIBERO 格式）。
 
+> **09:1x timan108 重启**：ffk dp_mt50_reduced_descent 09:11 停在 1,059/90,000（0 报错）：timan108 09:11 重启（uptime 0 min），/tmp stage 消失，租约续期失败，回执 FAIL、all_owned_closed=false。timan1 仍 OFFLINE（07:4x 起），timan107 正常（up 1 天 20 h）。已 PushNotification owner（疑似集群维护）。h100m 已停；起 **ffk-h100n**（tmux `ffk_h100n`）：fastwam_mt50_reduced_descent（timan107×40+timan108×40，09:12 准备）。09:12 派 sol 做 DP MT50 减步续跑（`prompts/sol_ffk_dp_mt50_resume.md`，日志 `r17_ops/sol_ffk_dp_mt50_resume.log`）。若 timan108 再出问题，改只用 timan107。
+
 > **08:5x H100 绕开 timan1**：sol 08:5x 交回（`filter_failed/worker_count_checks_1016/HANDBACK.md`）：resume.py `--worker-counts` 可用于未启动的 ffk 批次；DP/FW MT50 减步改 timan107×40+timan108×40，启动身份、封存包版本、90,000 计划都与源一致。注意 MT50 worker 也在本机 GPU 渲染策略图像，不同 GPU 渲染像素是否一致未证明；源批次 2/3 的 worker 本就在 timan107/108，这里只缺 timan1 那 1/3。已应用并起 **ffk-h100m**（tmux `ffk_h100m`）：dp_mt50_reduced_descent（08:59 起，09:05 仍在部署 worker）→ fastwam_mt50_reduced_descent。ffk-h100k 仍在等 `[ff-h100d] queue done`（不会来）：timan1 恢复后重排 H100（cosmos_li_04 → ffk-h100k 其余；h100k 里 dp/fw MT50 减步已启动，会因已启动而跳过）。
 
 > **08:54 巡检**：timan1 仍 OFFLINE。H100 空闲（等 timan1 或 sol 的 worker 数配置，sol 1,327 行未交回）。4090 ffk dp_libero_full_dev 267/21,600 0 报错（~35 局/分，约 19:00 完）→ ffk-4090q test00。sol_mwA/B/D 无新内容。
