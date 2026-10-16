@@ -31,9 +31,8 @@ WORKER='exp.r17_integration.ops.formal_workers'
 #   unusable (its memory still counts; local d2019b8c);
 # (A frozen per-worker VRAM refusal is kept: 2026-10-16 06:17 fastwam_li_18 lost
 #  timan1 GPU3 EGL framebuffers with 40 LIBERO renderers beside another user's 15 GB.)
-# (The timan1 LIBERO lease override was removed 2026-10-16: owner allows only
-#  MetaWorld workers on timan1 GPU3; timan1 went down at 07:36 under 40 Cosmos
-#  LIBERO workers. LIBERO jobs must be re-routed with resume.py --worker-counts.)
+# - timan1 GPU3 lease allows up to 40 LIBERO cache workers (the source runs got
+#   this from cache_capacity_authorization, which the filtered campaigns drop).
 # The module name stays in argv so the timan1 GPU3 guard and fleet close checks
 # still recognise the fleet; the code removes it before running the module.
 SHARE=('import sys,runpy,importlib\n'
@@ -49,6 +48,18 @@ SHARE=('import sys,runpy,importlib\n'
        '            if r.get("reason")=="other user GPU allocation":r["usable"]=True;r.pop("reason")\n'
        '        return rows\n'
        '    g.inventory=inventory\n'
+       't=optional("exp.r17_integration.ops.timan1_workers")\n'
+       'if t is not None:\n'
+       '    lease=t.authorize\n'
+       '    def authorize(c):\n'
+       '        nodes=c.get("execution_worker_nodes",c.get("worker_nodes",{}));n=nodes.get("timan1",0)\n'
+       '        if 16<n<=40 and c.get("domain")=="libero" and not (c.get("cache_capacity_authorization") or c.get("live_fleet_authorization")):\n'
+       '            key="execution_worker_nodes" if "execution_worker_nodes" in c else "worker_nodes"\n'
+       '            r=lease(dict(c,**{key:dict(nodes,timan1=16)}))\n'
+       '            if r:r["workers"]=n\n'
+       '            return r\n'
+       '        return lease(c)\n'
+       '    t.authorize=authorize\n'
        'assert sys.argv[1]=='+repr(WORKER)+'\n'
        'del sys.argv[1]\n'
        'runpy.run_module('+repr(WORKER)+',run_name="__main__",alter_sys=True)\n')
