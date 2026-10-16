@@ -86,6 +86,8 @@ owner 的常驻指令，逐字有效：
 - `exp/r17_integration/ops/formal_prestage.py` 已改为 RAM 准入只记录不拦截（owner 10-10 不做 RAM 准入；d3667946）。
 - 今天新记忆：`feedback-update-task-list`（状态变就同步任务表）、`feedback-keep-it-simple` 加网页条目（放进现有表、照抄 LIBERO 格式）。
 
+> **03:54 巡检**：fastwam_mt_06 03:35 完 6,750、fastwam_mt_07 03:45 完 2,350（均 0 报错；回执同补丁收尾 FAIL）。H100 fastwam_mt_08 03:47 起 1,250/4,800（约 04:10 完）→ groot_mt_09 → FW li 12/17/18/19 → cosmos li 01–04。4090 ffk dp_libero_reduced_dev 16,304/21,600 0 报错（约 04:45 完）→ fastwam_libero_reduced_off。sol_mwA/B/D 无新内容。
+
 > **03:24 巡检**：dp_mt_05 03:15 完 14,100/14,100（0 报错；回执同补丁收尾 FAIL，数据齐）。H100 fastwam_mt_06 03:18 起 1,646/6,750 0 报错（约 03:45 完）→ fastwam_mt_07 → 08 → groot_mt_09 → FW li → cosmos li。4090 ffk dp_libero_reduced_dev 13,141/21,600 0 报错（约 04:50 完）。sol_mwA/B/D 无新内容；Monitor 均在有效期。
 
 > **02:54 巡检**：4090 ffk dp_libero_reduced_dev 9,915/21,600 0 报错（约 05:00 完）。H100 dp_mt_05 02:48 起，1,784/14,100 0 报错（~350 局/分，约 03:30 完）→ fastwam_mt_06。sol_mwA/B/D 无新内容。
