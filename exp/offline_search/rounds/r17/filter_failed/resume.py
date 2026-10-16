@@ -1,4 +1,4 @@
-"""Build a native cache continuation locally; the coordinator stages/launches it.
+"""Build a native cache continuation or choose an unstaged execution topology.
 
 cache_resume.prepare owns episode selection, inherited evidence and full/segment
 plans. Its ordinary clone also provisions remote nodes, so substitute only the
@@ -65,13 +65,20 @@ def build(source,name,worker_counts=None):
 
 
 def topology(root,counts):
-    """Apply an explicitly chosen native orchestration knob to this new draft."""
+    """Use the native knob on a continuation or a fresh, unstaged ffk draft.
+
+    Canonical workers/batch treatment stay sealed; only the recorded execution
+    map changes. Prepared or launched runs must never take this path.
+    """
     from exp.r17_integration.ops.worker_topology import redistribute
     root=Path(root).resolve(strict=True)
-    if not (root/'CONTINUATION_LOCAL_ONLY.json').exists() or any(
-            (root/n).exists() for n in ('PREPARED.json','LAUNCH.json','RECEIPT.json')):
-        raise ValueError('Choose topology only on the new, unstaged continuation draft')
     campaign=read(root/'campaign.json')
+    fresh_knob=(campaign['run_name'].startswith('ffk1015_') and
+                campaign.get('filter_failed_knob',{}).get('method')=='frozen_fit_candidate_rows_only' and
+                (root/'OFFLINE_READY.json').exists())
+    if (not ((root/'CONTINUATION_LOCAL_ONLY.json').exists() or fresh_knob) or any(
+            (root/n).exists() for n in ('PREPARED.json','LAUNCH.json','RECEIPT.json'))):
+        raise ValueError('Choose topology only on an unstaged continuation or fresh ffk draft')
     redistribute(campaign,counts,root)
     write(root/'campaign.json',campaign)
 
@@ -80,7 +87,7 @@ if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--source',type=Path)
     parser.add_argument('--name')
-    parser.add_argument('--run',type=Path,help='Configure the new, unstaged draft rather than build another one')
+    parser.add_argument('--run',type=Path,help='Configure an unstaged continuation or fresh ffk draft')
     parser.add_argument('--worker-counts',help='Existing execution-topology knob, e.g. timan1=16,timan107=45')
     args=parser.parse_args()
     if args.run:

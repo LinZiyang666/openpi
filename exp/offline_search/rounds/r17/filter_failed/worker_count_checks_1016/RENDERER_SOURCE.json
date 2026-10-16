@@ -1,0 +1,42 @@
+{
+  "files": [
+    {
+      "model": "dp",
+      "file": "exp/metaworld/env.py",
+      "sha256": "f9b493aacb833a7e4decd93f555394b779713e40762c1fb8d0763c024954c730",
+      "equals_repository": true
+    },
+    {
+      "model": "dp",
+      "file": "exp/mw_finetune/rendering.py",
+      "sha256": "4cb153a5d7641b136ed38c2f26b6f0b6d6e5655a293bf01d865a8891144ba5af",
+      "equals_repository": true
+    },
+    {
+      "model": "dp",
+      "file": "exp/r17_integration/conductor/manifest.py",
+      "sha256": "327a9195c4a42120e460bf91392a173e7cfc9c8a03eddbe5067acf3e13bfeb6b",
+      "equals_repository": true
+    },
+    {
+      "model": "fastwam",
+      "file": "exp/metaworld/env.py",
+      "sha256": "f9b493aacb833a7e4decd93f555394b779713e40762c1fb8d0763c024954c730",
+      "equals_repository": true
+    },
+    {
+      "model": "fastwam",
+      "file": "exp/mw_finetune/rendering.py",
+      "sha256": "4cb153a5d7641b136ed38c2f26b6f0b6d6e5655a293bf01d865a8891144ba5af",
+      "equals_repository": true
+    },
+    {
+      "model": "fastwam",
+      "file": "exp/r17_integration/conductor/manifest.py",
+      "sha256": "327a9195c4a42120e460bf91392a173e7cfc9c8a03eddbe5067acf3e13bfeb6b",
+      "equals_repository": true
+    }
+  ],
+  "worker_images_use_egl": true,
+  "gpu_pixel_independence_certified": false
+}

@@ -1,0 +1,48 @@
+{
+  "status": "PASS",
+  "jobs": [
+    {
+      "run": "/data/mw_finetune/eval/ffk1015_dp_mt50_reduced_descent",
+      "startup_identity": "PASS",
+      "source_actual_identity_equal": true,
+      "sealed_package_versions_equal": true,
+      "planner_episodes": 90000,
+      "all_task_records_identical": true,
+      "real_override_applied": false,
+      "replicas": 4,
+      "max_batch": 16,
+      "proposed_workers": {
+        "timan107": 40,
+        "timan108": 40
+      },
+      "proposed_total": 80,
+      "canonical_workers_unchanged": true,
+      "filter_selection_unchanged": true,
+      "runtime_unchanged": true,
+      "analysis_execution_resources_visible": true,
+      "real_campaign_sha256": "3ae66cd7d401db2a178d9d40569f401996cd049188b3f74b6bca49bd1611e759"
+    },
+    {
+      "run": "/data/mw_finetune/eval/ffk1015_fastwam_mt50_reduced_descent",
+      "startup_identity": "PASS",
+      "source_actual_identity_equal": true,
+      "sealed_package_versions_equal": true,
+      "planner_episodes": 90000,
+      "all_task_records_identical": true,
+      "real_override_applied": false,
+      "replicas": 2,
+      "max_batch": 16,
+      "proposed_workers": {
+        "timan107": 40,
+        "timan108": 40
+      },
+      "proposed_total": 80,
+      "canonical_workers_unchanged": true,
+      "filter_selection_unchanged": true,
+      "runtime_unchanged": true,
+      "analysis_execution_resources_visible": true,
+      "real_campaign_sha256": "20d309cf8348d7817cf6d5cc2012d670fc1a629a61343ddfd55749d84eb7a6e9"
+    }
+  ],
+  "overrides_applied_to_real_runs": false
+}

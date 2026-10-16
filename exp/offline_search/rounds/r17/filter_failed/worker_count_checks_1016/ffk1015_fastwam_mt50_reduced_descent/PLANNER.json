@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "episodes": 90000,
+  "all_task_records_identical": true,
+  "endpoint_capacity": 80,
+  "runtime": "/data/mw_finetune/qualification/formal_runtime_c33e2281905a033a39150c5a71a207f45dc564fb3babf5a0b661442b8fb7e2ed",
+  "benchmark_identity_memoization_only": true
+}
