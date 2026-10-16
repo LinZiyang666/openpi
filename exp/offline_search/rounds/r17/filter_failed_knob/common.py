@@ -47,6 +47,16 @@ def dump(path, obj):
     write(path, obj)
 
 
+def continued_lanes(lanes):
+    """Use each registered continuation tip; the native loader reads its ancestors."""
+    from exp.offline_search.rounds.r17.filter_failed.analyze import continuations
+    paths=list(dict.fromkeys(Path(p).resolve() for p in lanes))
+    paths.extend(Path(p) for p in continuations([dict(run=str(p)) for p in paths]))
+    parents={Path(selection['source']).resolve() for p in paths
+             if (selection:=read(p/'campaign.json').get('cache_resume_selection'))}
+    return [p for p in dict.fromkeys(paths) if p not in parents]
+
+
 def source_jobs():
     for benchmark, mapping in (('mt50', MT), ('libero', LIBERO)):
         for model, sources in mapping.items():

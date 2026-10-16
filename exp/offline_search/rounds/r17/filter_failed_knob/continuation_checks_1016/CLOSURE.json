@@ -1,0 +1,105 @@
+{
+  "status": "PASS",
+  "all_owned_closed": true,
+  "processes": {
+    "local": [
+      {
+        "pid": 2747139,
+        "start_ticks": "60094178",
+        "alive": false
+      }
+    ],
+    "remote": {
+      "h100": [
+        {
+          "pid": 891389,
+          "start_ticks": "61878061",
+          "alive": false
+        },
+        {
+          "pid": 891388,
+          "start_ticks": "61878053",
+          "alive": false
+        },
+        {
+          "pid": 891422,
+          "start_ticks": "61878276",
+          "alive": false
+        },
+        {
+          "pid": 891421,
+          "start_ticks": "61878267",
+          "alive": false
+        },
+        {
+          "pid": 891432,
+          "start_ticks": "61878315",
+          "alive": false
+        },
+        {
+          "pid": 891431,
+          "start_ticks": "61878307",
+          "alive": false
+        },
+        {
+          "pid": 891442,
+          "start_ticks": "61878357",
+          "alive": false
+        },
+        {
+          "pid": 891441,
+          "start_ticks": "61878349",
+          "alive": false
+        },
+        {
+          "pid": 891457,
+          "start_ticks": "61878392",
+          "alive": false
+        },
+        {
+          "pid": 891456,
+          "start_ticks": "61878383",
+          "alive": false
+        },
+        {
+          "pid": 891549,
+          "start_ticks": "61879551",
+          "alive": false
+        },
+        {
+          "pid": 891548,
+          "start_ticks": "61879542",
+          "alive": false
+        }
+      ],
+      "timan107": [
+        {
+          "pid": 3105960,
+          "start_ticks": "15992739",
+          "alive": false
+        },
+        {
+          "pid": 3105959,
+          "start_ticks": "15992733",
+          "alive": false
+        }
+      ],
+      "timan108": [
+        {
+          "pid": 914801,
+          "start_ticks": "15987552",
+          "alive": false
+        },
+        {
+          "pid": 914800,
+          "start_ticks": "15987548",
+          "alive": false
+        }
+      ]
+    }
+  },
+  "source": "/data/mw_finetune/eval/ffk1015_dp_mt50_reduced_descent",
+  "source_receipt_sha256": "e457c9e4665a9bf6f33a77b7d0aa638e4bb14bb94c6706266a4886647076996b",
+  "source_campaign_sha256": "c6e7c56cb9849258c5ce68ea165c7fc7430a6125295ca9e8499315babc5ce9e7",
+  "checked_at": "2026-10-16T14:14:05.024207+00:00"
+}

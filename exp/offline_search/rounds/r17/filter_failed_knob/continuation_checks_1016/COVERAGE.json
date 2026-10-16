@@ -1,0 +1,30 @@
+{
+  "status": "PASS",
+  "source": "/data/mw_finetune/eval/ffk1015_dp_mt50_reduced_descent",
+  "continuation": "/data/mw_finetune/eval/ffk1015_dp_mt50_reduced_descentc1",
+  "retained_actual_outcomes": 1059,
+  "planned_missing": 88941,
+  "full_unique_uids": 90000,
+  "full_unique_size_level_task_init": 90000,
+  "retained_missing_uid_overlap": 0,
+  "retained_missing_coordinate_overlap": 0,
+  "original_full_plan_identical": true,
+  "missing_records_identical": true,
+  "assets_byte_identical": 96,
+  "runtime_and_worker_archives_identical": true,
+  "scientific_and_serving_settings_unchanged": true,
+  "execution_worker_nodes": {
+    "timan107": 40,
+    "timan108": 40
+  },
+  "workflow_lane_tips": [
+    "/data/mw_finetune/eval/ffk1015_dp_mt50_reduced_descentc1"
+  ],
+  "synthetic_native_parser": {
+    "merged_unique_outcomes": 90000,
+    "copied_ancestor_rows": 1059,
+    "original_execution_origins_preserved": 1059,
+    "note": "Pending outcomes are synthetic CPU fixtures only; continuation has not run"
+  },
+  "source_receipt_unmodified": true
+}

@@ -5,7 +5,7 @@ import argparse
 from pathlib import Path
 from unittest.mock import patch
 
-from .common import HERE, EVAL, LIBERO, MT, read, dump
+from .common import HERE, EVAL, LIBERO, MT, read, dump, continued_lanes
 from exp.offline_search.rounds.r17.knob import common as c, descent, test
 
 LABELS={'pi05':'π0.5','groot':'GR00T','dp':'DP','fastwam':'Fast-WAM','cosmos':'Cosmos'}
@@ -38,7 +38,7 @@ def controls(model,mode):
 def off_rules(model,mode):
     path=EVAL/f'ffk1015_{model}_libero_{mode}_off'
     if mode!='reduced' or not path.exists():return {}
-    cells,_=c.load_knob([path],'A')
+    cells,_=c.load_knob(continued_lanes([path]),'A')
     ref=test.load_controls(c.CONTROL_ROOT,{LABELS[model]},mode,
         ['Fast-WAM=hs7fwk1_4090c'] if model=='fastwam' else [])
     result={}
@@ -53,6 +53,7 @@ def dev(model,benchmark,mode):
     out=HERE/'results'/f'{model}_{benchmark}_{mode}'/'dev'
     run=EVAL/(f'ffk1015_{model}_{benchmark}_{mode}_'+('descent' if benchmark=='mt50' else 'dev'))
     runs=([Path(j['run']) for j in read(HERE/'CAMPAIGNS.json')['jobs'] if j['model']==model and j['benchmark']==benchmark and j['mode']==mode and j['stage']=='descent'] if benchmark=='mt50' else [run])
+    runs=continued_lanes(runs)
     args=[v for lane in runs for v in ('--lane',str(lane))]+['--out',str(out),'--miss-steps',mode]
     if benchmark=='mt50':args += [v for control in mt_controls(model,mode) for v in ('--control',control)]
     if benchmark=='libero' and mode=='reduced':
@@ -75,6 +76,7 @@ def test_a(model,mode,generation,override=()):
     lanes=[p for p in sorted(EVAL.glob(prefix+'test*')) if (p/'EPISODE_PLAN.json').exists()]
     off=EVAL/(prefix+'off')
     if off.exists():lanes.append(off)
+    lanes=continued_lanes(lanes)
     out=HERE/'results'/f'{model}_libero_{mode}'/f'test{generation:02d}'
     args=[v for lane in lanes for v in ('--lane',str(lane))]
     extra=controls(model,mode)+[v for item in override for v in ('--control',item)]

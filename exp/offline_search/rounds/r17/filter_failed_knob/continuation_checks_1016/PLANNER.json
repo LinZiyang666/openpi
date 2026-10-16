@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "episodes": 88941,
+  "all_task_records_identical": true,
+  "endpoint_capacity": 80,
+  "driver_runtime": "/data/mw_finetune/qualification/formal_driver_4f5d9f7e804e79e2ed46abfd90699c72308e7e70f3b5a864c5bdb97429370751",
+  "benchmark_identity_memoization_only": true
+}

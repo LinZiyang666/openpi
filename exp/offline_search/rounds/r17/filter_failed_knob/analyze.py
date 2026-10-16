@@ -5,12 +5,13 @@ import argparse
 from collections import defaultdict
 from pathlib import Path
 
-from .common import HERE, EVAL, MT, OFF, cells, read, dump
+from .common import HERE, EVAL, MT, OFF, cells, read, dump, continued_lanes
 from .workflow import LABELS, SHORT, mt_controls, controls
 from exp.offline_search.rounds.r17.filter_failed.analyze import means
 from exp.offline_search.rounds.r17.knob import common as c
 from exp.offline_search.rounds.r17.knob.ir_formal import coefficients, ir
 from exp.offline_search.rounds.r17.knob.test import load_controls
+from exp.r17_integration.ops.cache_resume import segment_resources
 
 KNOB=HERE.parent/'knob'
 FINAL={('dp','full'):'dp_r4',('dp','reduced'):'dp_red_r7',('fastwam','full'):'fw_r2',
@@ -69,6 +70,7 @@ def r17(model,benchmark,mode,inventory_only):
         old_result=KNOB/f'test_results_{FINAL[model,mode]}/test.json'
         outputs=sorted((HERE/'results'/f'{model}_{benchmark}_{mode}').glob('test*/test.json'))
         new_result=outputs[-1] if outputs else HERE/'NOT_RUN.json'
+    new_lanes=continued_lanes(new_lanes)
     def result_rows(path):return {(r['suite'],r['size']):r for r in read(path)['cells']} if path.exists() else {}
     old_rows,new_rows=result_rows(old_result),result_rows(new_result)
     old_cells=old_planned=new_cells=new_planned={}
@@ -92,6 +94,7 @@ def r17(model,benchmark,mode,inventory_only):
                     if len(data)!=500:baseline_off_complete=False
                     elif sum(r['success'] for r in data.values())>=sum(r['success'] for r in ref.values()):baseline_off[key]=data
     result=[]
+    resources=[segment for lane in new_lanes for segment in segment_resources(read(lane/'campaign.json'),lane)]
     for (actual,suite,size),cell in cells().items():
         if actual!=model or (suite=='mt50')!=(benchmark=='mt50') or cell['source']!='R17':continue
         old,new=old_rows.get((suite,size),{}),new_rows.get((suite,size),{})
@@ -110,6 +113,7 @@ def r17(model,benchmark,mode,inventory_only):
             unfiltered_per_task_levels=bl or levels(old),filtered=fs,unfiltered=bs,
             unfiltered_no_knob=key in baseline_off,
             paired=comparison(fd,bd,benchmark=='mt50') if fd and bd else None,
+            lane_execution_segments=resources,
             status='COMPLETE' if complete else 'PENDING',
             unfiltered_result=str(old_result),filtered_result=str(new_result)))
     return result

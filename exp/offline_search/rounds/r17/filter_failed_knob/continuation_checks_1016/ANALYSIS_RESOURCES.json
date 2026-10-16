@@ -1,0 +1,794 @@
+[
+  {
+    "size": 250,
+    "segments": [
+      {
+        "segment": "/data/mw_finetune/eval/ffk1015_dp_mt50_reduced_descent",
+        "model": "dp",
+        "worker_nodes": {
+          "timan107": 40,
+          "timan108": 40
+        },
+        "workers": 80,
+        "replicas": 4,
+        "canonical_worker_nodes": {
+          "timan1": 40,
+          "timan107": 40,
+          "timan108": 40
+        },
+        "canonical_workers": 120,
+        "batching": {
+          "arm_steps": [
+            100,
+            10,
+            5
+          ],
+          "batch_wait_ms": 5.0,
+          "byte_identical_to_b1": false,
+          "default_off": true,
+          "identity": "e58f2c44d4b95eacc8e57928d45159a53014a4643eadca4cb33dfd3a805620d3",
+          "language_policy": "frozen CPU B1 prompt embeddings memoized by exact text; 128-entry bound",
+          "max_batch": 16,
+          "noise_policy": "per-request sequential B1 initial/posterior draws; independent of members/order",
+          "numerics_policy": "dp_private_rng_vector_v1",
+          "quality_equivalence": "requires matched-batch control SR; not established by throughput",
+          "stage_workers": [
+            1,
+            1,
+            1
+          ]
+        },
+        "local_worker_memory_mib": null,
+        "local_worker_vram_mib": null,
+        "orchestration": {
+          "cache_ram_floor_mib": 4096,
+          "cached_actions_unchanged": true,
+          "local_renderer_vram_mib": 1024,
+          "local_server_growth_mib": null,
+          "miss_batch_composition_may_change": true,
+          "owner_authorized": true,
+          "replicas": 4,
+          "schema": "r17.cache_worker_orchestration.v1",
+          "scientific_settings_unchanged": true,
+          "source_nodes": {
+            "timan1": 40,
+            "timan107": 40,
+            "timan108": 40
+          },
+          "source_replicas": 4,
+          "source_total_workers": 120,
+          "total_workers": 80,
+          "worker_nodes": {
+            "timan107": 40,
+            "timan108": 40
+          }
+        },
+        "cached_actions_unchanged": true,
+        "gated_miss_batch_composition_may_change": true
+      },
+      {
+        "segment": "/data/mw_finetune/eval/ffk1015_dp_mt50_reduced_descentc1",
+        "model": "dp",
+        "worker_nodes": {
+          "timan107": 40,
+          "timan108": 40
+        },
+        "workers": 80,
+        "replicas": 4,
+        "canonical_worker_nodes": {
+          "timan1": 40,
+          "timan107": 40,
+          "timan108": 40
+        },
+        "canonical_workers": 120,
+        "batching": {
+          "arm_steps": [
+            100,
+            10,
+            5
+          ],
+          "batch_wait_ms": 5.0,
+          "byte_identical_to_b1": false,
+          "default_off": true,
+          "identity": "e58f2c44d4b95eacc8e57928d45159a53014a4643eadca4cb33dfd3a805620d3",
+          "language_policy": "frozen CPU B1 prompt embeddings memoized by exact text; 128-entry bound",
+          "max_batch": 16,
+          "noise_policy": "per-request sequential B1 initial/posterior draws; independent of members/order",
+          "numerics_policy": "dp_private_rng_vector_v1",
+          "quality_equivalence": "requires matched-batch control SR; not established by throughput",
+          "stage_workers": [
+            1,
+            1,
+            1
+          ]
+        },
+        "local_worker_memory_mib": null,
+        "local_worker_vram_mib": null,
+        "orchestration": {
+          "cache_ram_floor_mib": 4096,
+          "cached_actions_unchanged": true,
+          "local_renderer_vram_mib": 1024,
+          "local_server_growth_mib": null,
+          "miss_batch_composition_may_change": true,
+          "owner_authorized": true,
+          "replicas": 4,
+          "schema": "r17.cache_worker_orchestration.v1",
+          "scientific_settings_unchanged": true,
+          "source_nodes": {
+            "timan107": 40,
+            "timan108": 40
+          },
+          "source_replicas": 4,
+          "source_total_workers": 80,
+          "total_workers": 80,
+          "worker_nodes": {
+            "timan107": 40,
+            "timan108": 40
+          }
+        },
+        "cached_actions_unchanged": true,
+        "gated_miss_batch_composition_may_change": true
+      }
+    ]
+  },
+  {
+    "size": 500,
+    "segments": [
+      {
+        "segment": "/data/mw_finetune/eval/ffk1015_dp_mt50_reduced_descent",
+        "model": "dp",
+        "worker_nodes": {
+          "timan107": 40,
+          "timan108": 40
+        },
+        "workers": 80,
+        "replicas": 4,
+        "canonical_worker_nodes": {
+          "timan1": 40,
+          "timan107": 40,
+          "timan108": 40
+        },
+        "canonical_workers": 120,
+        "batching": {
+          "arm_steps": [
+            100,
+            10,
+            5
+          ],
+          "batch_wait_ms": 5.0,
+          "byte_identical_to_b1": false,
+          "default_off": true,
+          "identity": "e58f2c44d4b95eacc8e57928d45159a53014a4643eadca4cb33dfd3a805620d3",
+          "language_policy": "frozen CPU B1 prompt embeddings memoized by exact text; 128-entry bound",
+          "max_batch": 16,
+          "noise_policy": "per-request sequential B1 initial/posterior draws; independent of members/order",
+          "numerics_policy": "dp_private_rng_vector_v1",
+          "quality_equivalence": "requires matched-batch control SR; not established by throughput",
+          "stage_workers": [
+            1,
+            1,
+            1
+          ]
+        },
+        "local_worker_memory_mib": null,
+        "local_worker_vram_mib": null,
+        "orchestration": {
+          "cache_ram_floor_mib": 4096,
+          "cached_actions_unchanged": true,
+          "local_renderer_vram_mib": 1024,
+          "local_server_growth_mib": null,
+          "miss_batch_composition_may_change": true,
+          "owner_authorized": true,
+          "replicas": 4,
+          "schema": "r17.cache_worker_orchestration.v1",
+          "scientific_settings_unchanged": true,
+          "source_nodes": {
+            "timan1": 40,
+            "timan107": 40,
+            "timan108": 40
+          },
+          "source_replicas": 4,
+          "source_total_workers": 120,
+          "total_workers": 80,
+          "worker_nodes": {
+            "timan107": 40,
+            "timan108": 40
+          }
+        },
+        "cached_actions_unchanged": true,
+        "gated_miss_batch_composition_may_change": true
+      },
+      {
+        "segment": "/data/mw_finetune/eval/ffk1015_dp_mt50_reduced_descentc1",
+        "model": "dp",
+        "worker_nodes": {
+          "timan107": 40,
+          "timan108": 40
+        },
+        "workers": 80,
+        "replicas": 4,
+        "canonical_worker_nodes": {
+          "timan1": 40,
+          "timan107": 40,
+          "timan108": 40
+        },
+        "canonical_workers": 120,
+        "batching": {
+          "arm_steps": [
+            100,
+            10,
+            5
+          ],
+          "batch_wait_ms": 5.0,
+          "byte_identical_to_b1": false,
+          "default_off": true,
+          "identity": "e58f2c44d4b95eacc8e57928d45159a53014a4643eadca4cb33dfd3a805620d3",
+          "language_policy": "frozen CPU B1 prompt embeddings memoized by exact text; 128-entry bound",
+          "max_batch": 16,
+          "noise_policy": "per-request sequential B1 initial/posterior draws; independent of members/order",
+          "numerics_policy": "dp_private_rng_vector_v1",
+          "quality_equivalence": "requires matched-batch control SR; not established by throughput",
+          "stage_workers": [
+            1,
+            1,
+            1
+          ]
+        },
+        "local_worker_memory_mib": null,
+        "local_worker_vram_mib": null,
+        "orchestration": {
+          "cache_ram_floor_mib": 4096,
+          "cached_actions_unchanged": true,
+          "local_renderer_vram_mib": 1024,
+          "local_server_growth_mib": null,
+          "miss_batch_composition_may_change": true,
+          "owner_authorized": true,
+          "replicas": 4,
+          "schema": "r17.cache_worker_orchestration.v1",
+          "scientific_settings_unchanged": true,
+          "source_nodes": {
+            "timan107": 40,
+            "timan108": 40
+          },
+          "source_replicas": 4,
+          "source_total_workers": 80,
+          "total_workers": 80,
+          "worker_nodes": {
+            "timan107": 40,
+            "timan108": 40
+          }
+        },
+        "cached_actions_unchanged": true,
+        "gated_miss_batch_composition_may_change": true
+      }
+    ]
+  },
+  {
+    "size": 1000,
+    "segments": [
+      {
+        "segment": "/data/mw_finetune/eval/ffk1015_dp_mt50_reduced_descent",
+        "model": "dp",
+        "worker_nodes": {
+          "timan107": 40,
+          "timan108": 40
+        },
+        "workers": 80,
+        "replicas": 4,
+        "canonical_worker_nodes": {
+          "timan1": 40,
+          "timan107": 40,
+          "timan108": 40
+        },
+        "canonical_workers": 120,
+        "batching": {
+          "arm_steps": [
+            100,
+            10,
+            5
+          ],
+          "batch_wait_ms": 5.0,
+          "byte_identical_to_b1": false,
+          "default_off": true,
+          "identity": "e58f2c44d4b95eacc8e57928d45159a53014a4643eadca4cb33dfd3a805620d3",
+          "language_policy": "frozen CPU B1 prompt embeddings memoized by exact text; 128-entry bound",
+          "max_batch": 16,
+          "noise_policy": "per-request sequential B1 initial/posterior draws; independent of members/order",
+          "numerics_policy": "dp_private_rng_vector_v1",
+          "quality_equivalence": "requires matched-batch control SR; not established by throughput",
+          "stage_workers": [
+            1,
+            1,
+            1
+          ]
+        },
+        "local_worker_memory_mib": null,
+        "local_worker_vram_mib": null,
+        "orchestration": {
+          "cache_ram_floor_mib": 4096,
+          "cached_actions_unchanged": true,
+          "local_renderer_vram_mib": 1024,
+          "local_server_growth_mib": null,
+          "miss_batch_composition_may_change": true,
+          "owner_authorized": true,
+          "replicas": 4,
+          "schema": "r17.cache_worker_orchestration.v1",
+          "scientific_settings_unchanged": true,
+          "source_nodes": {
+            "timan1": 40,
+            "timan107": 40,
+            "timan108": 40
+          },
+          "source_replicas": 4,
+          "source_total_workers": 120,
+          "total_workers": 80,
+          "worker_nodes": {
+            "timan107": 40,
+            "timan108": 40
+          }
+        },
+        "cached_actions_unchanged": true,
+        "gated_miss_batch_composition_may_change": true
+      },
+      {
+        "segment": "/data/mw_finetune/eval/ffk1015_dp_mt50_reduced_descentc1",
+        "model": "dp",
+        "worker_nodes": {
+          "timan107": 40,
+          "timan108": 40
+        },
+        "workers": 80,
+        "replicas": 4,
+        "canonical_worker_nodes": {
+          "timan1": 40,
+          "timan107": 40,
+          "timan108": 40
+        },
+        "canonical_workers": 120,
+        "batching": {
+          "arm_steps": [
+            100,
+            10,
+            5
+          ],
+          "batch_wait_ms": 5.0,
+          "byte_identical_to_b1": false,
+          "default_off": true,
+          "identity": "e58f2c44d4b95eacc8e57928d45159a53014a4643eadca4cb33dfd3a805620d3",
+          "language_policy": "frozen CPU B1 prompt embeddings memoized by exact text; 128-entry bound",
+          "max_batch": 16,
+          "noise_policy": "per-request sequential B1 initial/posterior draws; independent of members/order",
+          "numerics_policy": "dp_private_rng_vector_v1",
+          "quality_equivalence": "requires matched-batch control SR; not established by throughput",
+          "stage_workers": [
+            1,
+            1,
+            1
+          ]
+        },
+        "local_worker_memory_mib": null,
+        "local_worker_vram_mib": null,
+        "orchestration": {
+          "cache_ram_floor_mib": 4096,
+          "cached_actions_unchanged": true,
+          "local_renderer_vram_mib": 1024,
+          "local_server_growth_mib": null,
+          "miss_batch_composition_may_change": true,
+          "owner_authorized": true,
+          "replicas": 4,
+          "schema": "r17.cache_worker_orchestration.v1",
+          "scientific_settings_unchanged": true,
+          "source_nodes": {
+            "timan107": 40,
+            "timan108": 40
+          },
+          "source_replicas": 4,
+          "source_total_workers": 80,
+          "total_workers": 80,
+          "worker_nodes": {
+            "timan107": 40,
+            "timan108": 40
+          }
+        },
+        "cached_actions_unchanged": true,
+        "gated_miss_batch_composition_may_change": true
+      }
+    ]
+  },
+  {
+    "size": 1500,
+    "segments": [
+      {
+        "segment": "/data/mw_finetune/eval/ffk1015_dp_mt50_reduced_descent",
+        "model": "dp",
+        "worker_nodes": {
+          "timan107": 40,
+          "timan108": 40
+        },
+        "workers": 80,
+        "replicas": 4,
+        "canonical_worker_nodes": {
+          "timan1": 40,
+          "timan107": 40,
+          "timan108": 40
+        },
+        "canonical_workers": 120,
+        "batching": {
+          "arm_steps": [
+            100,
+            10,
+            5
+          ],
+          "batch_wait_ms": 5.0,
+          "byte_identical_to_b1": false,
+          "default_off": true,
+          "identity": "e58f2c44d4b95eacc8e57928d45159a53014a4643eadca4cb33dfd3a805620d3",
+          "language_policy": "frozen CPU B1 prompt embeddings memoized by exact text; 128-entry bound",
+          "max_batch": 16,
+          "noise_policy": "per-request sequential B1 initial/posterior draws; independent of members/order",
+          "numerics_policy": "dp_private_rng_vector_v1",
+          "quality_equivalence": "requires matched-batch control SR; not established by throughput",
+          "stage_workers": [
+            1,
+            1,
+            1
+          ]
+        },
+        "local_worker_memory_mib": null,
+        "local_worker_vram_mib": null,
+        "orchestration": {
+          "cache_ram_floor_mib": 4096,
+          "cached_actions_unchanged": true,
+          "local_renderer_vram_mib": 1024,
+          "local_server_growth_mib": null,
+          "miss_batch_composition_may_change": true,
+          "owner_authorized": true,
+          "replicas": 4,
+          "schema": "r17.cache_worker_orchestration.v1",
+          "scientific_settings_unchanged": true,
+          "source_nodes": {
+            "timan1": 40,
+            "timan107": 40,
+            "timan108": 40
+          },
+          "source_replicas": 4,
+          "source_total_workers": 120,
+          "total_workers": 80,
+          "worker_nodes": {
+            "timan107": 40,
+            "timan108": 40
+          }
+        },
+        "cached_actions_unchanged": true,
+        "gated_miss_batch_composition_may_change": true
+      },
+      {
+        "segment": "/data/mw_finetune/eval/ffk1015_dp_mt50_reduced_descentc1",
+        "model": "dp",
+        "worker_nodes": {
+          "timan107": 40,
+          "timan108": 40
+        },
+        "workers": 80,
+        "replicas": 4,
+        "canonical_worker_nodes": {
+          "timan1": 40,
+          "timan107": 40,
+          "timan108": 40
+        },
+        "canonical_workers": 120,
+        "batching": {
+          "arm_steps": [
+            100,
+            10,
+            5
+          ],
+          "batch_wait_ms": 5.0,
+          "byte_identical_to_b1": false,
+          "default_off": true,
+          "identity": "e58f2c44d4b95eacc8e57928d45159a53014a4643eadca4cb33dfd3a805620d3",
+          "language_policy": "frozen CPU B1 prompt embeddings memoized by exact text; 128-entry bound",
+          "max_batch": 16,
+          "noise_policy": "per-request sequential B1 initial/posterior draws; independent of members/order",
+          "numerics_policy": "dp_private_rng_vector_v1",
+          "quality_equivalence": "requires matched-batch control SR; not established by throughput",
+          "stage_workers": [
+            1,
+            1,
+            1
+          ]
+        },
+        "local_worker_memory_mib": null,
+        "local_worker_vram_mib": null,
+        "orchestration": {
+          "cache_ram_floor_mib": 4096,
+          "cached_actions_unchanged": true,
+          "local_renderer_vram_mib": 1024,
+          "local_server_growth_mib": null,
+          "miss_batch_composition_may_change": true,
+          "owner_authorized": true,
+          "replicas": 4,
+          "schema": "r17.cache_worker_orchestration.v1",
+          "scientific_settings_unchanged": true,
+          "source_nodes": {
+            "timan107": 40,
+            "timan108": 40
+          },
+          "source_replicas": 4,
+          "source_total_workers": 80,
+          "total_workers": 80,
+          "worker_nodes": {
+            "timan107": 40,
+            "timan108": 40
+          }
+        },
+        "cached_actions_unchanged": true,
+        "gated_miss_batch_composition_may_change": true
+      }
+    ]
+  },
+  {
+    "size": 2000,
+    "segments": [
+      {
+        "segment": "/data/mw_finetune/eval/ffk1015_dp_mt50_reduced_descent",
+        "model": "dp",
+        "worker_nodes": {
+          "timan107": 40,
+          "timan108": 40
+        },
+        "workers": 80,
+        "replicas": 4,
+        "canonical_worker_nodes": {
+          "timan1": 40,
+          "timan107": 40,
+          "timan108": 40
+        },
+        "canonical_workers": 120,
+        "batching": {
+          "arm_steps": [
+            100,
+            10,
+            5
+          ],
+          "batch_wait_ms": 5.0,
+          "byte_identical_to_b1": false,
+          "default_off": true,
+          "identity": "e58f2c44d4b95eacc8e57928d45159a53014a4643eadca4cb33dfd3a805620d3",
+          "language_policy": "frozen CPU B1 prompt embeddings memoized by exact text; 128-entry bound",
+          "max_batch": 16,
+          "noise_policy": "per-request sequential B1 initial/posterior draws; independent of members/order",
+          "numerics_policy": "dp_private_rng_vector_v1",
+          "quality_equivalence": "requires matched-batch control SR; not established by throughput",
+          "stage_workers": [
+            1,
+            1,
+            1
+          ]
+        },
+        "local_worker_memory_mib": null,
+        "local_worker_vram_mib": null,
+        "orchestration": {
+          "cache_ram_floor_mib": 4096,
+          "cached_actions_unchanged": true,
+          "local_renderer_vram_mib": 1024,
+          "local_server_growth_mib": null,
+          "miss_batch_composition_may_change": true,
+          "owner_authorized": true,
+          "replicas": 4,
+          "schema": "r17.cache_worker_orchestration.v1",
+          "scientific_settings_unchanged": true,
+          "source_nodes": {
+            "timan1": 40,
+            "timan107": 40,
+            "timan108": 40
+          },
+          "source_replicas": 4,
+          "source_total_workers": 120,
+          "total_workers": 80,
+          "worker_nodes": {
+            "timan107": 40,
+            "timan108": 40
+          }
+        },
+        "cached_actions_unchanged": true,
+        "gated_miss_batch_composition_may_change": true
+      },
+      {
+        "segment": "/data/mw_finetune/eval/ffk1015_dp_mt50_reduced_descentc1",
+        "model": "dp",
+        "worker_nodes": {
+          "timan107": 40,
+          "timan108": 40
+        },
+        "workers": 80,
+        "replicas": 4,
+        "canonical_worker_nodes": {
+          "timan1": 40,
+          "timan107": 40,
+          "timan108": 40
+        },
+        "canonical_workers": 120,
+        "batching": {
+          "arm_steps": [
+            100,
+            10,
+            5
+          ],
+          "batch_wait_ms": 5.0,
+          "byte_identical_to_b1": false,
+          "default_off": true,
+          "identity": "e58f2c44d4b95eacc8e57928d45159a53014a4643eadca4cb33dfd3a805620d3",
+          "language_policy": "frozen CPU B1 prompt embeddings memoized by exact text; 128-entry bound",
+          "max_batch": 16,
+          "noise_policy": "per-request sequential B1 initial/posterior draws; independent of members/order",
+          "numerics_policy": "dp_private_rng_vector_v1",
+          "quality_equivalence": "requires matched-batch control SR; not established by throughput",
+          "stage_workers": [
+            1,
+            1,
+            1
+          ]
+        },
+        "local_worker_memory_mib": null,
+        "local_worker_vram_mib": null,
+        "orchestration": {
+          "cache_ram_floor_mib": 4096,
+          "cached_actions_unchanged": true,
+          "local_renderer_vram_mib": 1024,
+          "local_server_growth_mib": null,
+          "miss_batch_composition_may_change": true,
+          "owner_authorized": true,
+          "replicas": 4,
+          "schema": "r17.cache_worker_orchestration.v1",
+          "scientific_settings_unchanged": true,
+          "source_nodes": {
+            "timan107": 40,
+            "timan108": 40
+          },
+          "source_replicas": 4,
+          "source_total_workers": 80,
+          "total_workers": 80,
+          "worker_nodes": {
+            "timan107": 40,
+            "timan108": 40
+          }
+        },
+        "cached_actions_unchanged": true,
+        "gated_miss_batch_composition_may_change": true
+      }
+    ]
+  },
+  {
+    "size": 2500,
+    "segments": [
+      {
+        "segment": "/data/mw_finetune/eval/ffk1015_dp_mt50_reduced_descent",
+        "model": "dp",
+        "worker_nodes": {
+          "timan107": 40,
+          "timan108": 40
+        },
+        "workers": 80,
+        "replicas": 4,
+        "canonical_worker_nodes": {
+          "timan1": 40,
+          "timan107": 40,
+          "timan108": 40
+        },
+        "canonical_workers": 120,
+        "batching": {
+          "arm_steps": [
+            100,
+            10,
+            5
+          ],
+          "batch_wait_ms": 5.0,
+          "byte_identical_to_b1": false,
+          "default_off": true,
+          "identity": "e58f2c44d4b95eacc8e57928d45159a53014a4643eadca4cb33dfd3a805620d3",
+          "language_policy": "frozen CPU B1 prompt embeddings memoized by exact text; 128-entry bound",
+          "max_batch": 16,
+          "noise_policy": "per-request sequential B1 initial/posterior draws; independent of members/order",
+          "numerics_policy": "dp_private_rng_vector_v1",
+          "quality_equivalence": "requires matched-batch control SR; not established by throughput",
+          "stage_workers": [
+            1,
+            1,
+            1
+          ]
+        },
+        "local_worker_memory_mib": null,
+        "local_worker_vram_mib": null,
+        "orchestration": {
+          "cache_ram_floor_mib": 4096,
+          "cached_actions_unchanged": true,
+          "local_renderer_vram_mib": 1024,
+          "local_server_growth_mib": null,
+          "miss_batch_composition_may_change": true,
+          "owner_authorized": true,
+          "replicas": 4,
+          "schema": "r17.cache_worker_orchestration.v1",
+          "scientific_settings_unchanged": true,
+          "source_nodes": {
+            "timan1": 40,
+            "timan107": 40,
+            "timan108": 40
+          },
+          "source_replicas": 4,
+          "source_total_workers": 120,
+          "total_workers": 80,
+          "worker_nodes": {
+            "timan107": 40,
+            "timan108": 40
+          }
+        },
+        "cached_actions_unchanged": true,
+        "gated_miss_batch_composition_may_change": true
+      },
+      {
+        "segment": "/data/mw_finetune/eval/ffk1015_dp_mt50_reduced_descentc1",
+        "model": "dp",
+        "worker_nodes": {
+          "timan107": 40,
+          "timan108": 40
+        },
+        "workers": 80,
+        "replicas": 4,
+        "canonical_worker_nodes": {
+          "timan1": 40,
+          "timan107": 40,
+          "timan108": 40
+        },
+        "canonical_workers": 120,
+        "batching": {
+          "arm_steps": [
+            100,
+            10,
+            5
+          ],
+          "batch_wait_ms": 5.0,
+          "byte_identical_to_b1": false,
+          "default_off": true,
+          "identity": "e58f2c44d4b95eacc8e57928d45159a53014a4643eadca4cb33dfd3a805620d3",
+          "language_policy": "frozen CPU B1 prompt embeddings memoized by exact text; 128-entry bound",
+          "max_batch": 16,
+          "noise_policy": "per-request sequential B1 initial/posterior draws; independent of members/order",
+          "numerics_policy": "dp_private_rng_vector_v1",
+          "quality_equivalence": "requires matched-batch control SR; not established by throughput",
+          "stage_workers": [
+            1,
+            1,
+            1
+          ]
+        },
+        "local_worker_memory_mib": null,
+        "local_worker_vram_mib": null,
+        "orchestration": {
+          "cache_ram_floor_mib": 4096,
+          "cached_actions_unchanged": true,
+          "local_renderer_vram_mib": 1024,
+          "local_server_growth_mib": null,
+          "miss_batch_composition_may_change": true,
+          "owner_authorized": true,
+          "replicas": 4,
+          "schema": "r17.cache_worker_orchestration.v1",
+          "scientific_settings_unchanged": true,
+          "source_nodes": {
+            "timan107": 40,
+            "timan108": 40
+          },
+          "source_replicas": 4,
+          "source_total_workers": 80,
+          "total_workers": 80,
+          "worker_nodes": {
+            "timan107": 40,
+            "timan108": 40
+          }
+        },
+        "cached_actions_unchanged": true,
+        "gated_miss_batch_composition_may_change": true
+      }
+    ]
+  }
+]

@@ -1,0 +1,23 @@
+{
+  "status": "PASS",
+  "continuation": "/data/mw_finetune/eval/ffk1015_dp_mt50_reduced_descentc1",
+  "original_source_campaign_and_receipt_unmodified": true,
+  "retained_actual_outcomes": 1059,
+  "planned_missing_episodes": 88941,
+  "unique_full_size_level_task_init": 90000,
+  "overlap": 0,
+  "frozen_planner_passes": true,
+  "startup_identity_passes": true,
+  "equals_source_actual_identity": true,
+  "sealed_package_versions_equal": true,
+  "closure_proved_nodes": [
+    "local",
+    "h100",
+    "timan107",
+    "timan108"
+  ],
+  "synthetic_merge_unique_outcomes": 90000,
+  "focused_tests_passed": 11,
+  "continuation_prepared": false,
+  "continuation_launched": false
+}

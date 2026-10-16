@@ -442,3 +442,12 @@ Parent episodes count each maximum-size collected library once. View memberships
 | `ffk1015_cosmos_libero_reduced_off_u` | PASS | N/A: source off not launched | `/data/cosmos/cosmos-policy/.venv/bin/python` |
 | `ffk1015_pi05_libero_reduced_off` | PASS: sealed snapshot + actual CPU registry | sealed R16 inputs | original R16 interpreter choices |
 | `ffk1015_groot_libero_reduced_off` | PASS: sealed snapshot + actual CPU registry | sealed R16 inputs | original R16 interpreter choices |
+
+## 2026-10-16 DP MT50 reduced continuation
+
+`ffk1015_dp_mt50_reduced_descentc1` retains 1,059 accepted outcomes and plans
+88,941 missing episodes on H100 R4/B16, timan107 × 40 + timan108 × 40.
+Read-only native closure checks passed on the coordinator, H100, timan107 and
+timan108; the original FAIL receipt is preserved. Workflow and analysis resolve
+the registered continuation automatically. Exact prepare/launch/descent commands
+and CPU coverage proofs: [continuation handback](continuation_checks_1016/HANDBACK.md).

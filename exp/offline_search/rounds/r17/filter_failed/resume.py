@@ -7,6 +7,7 @@ local file-copy part here. filter_failed.stage later provisions the new paths.
 from __future__ import annotations
 
 import argparse
+from datetime import datetime, timezone
 from pathlib import Path
 import shutil
 from unittest.mock import patch
@@ -19,9 +20,10 @@ def local_clone(snapshot,name,failure,*,worker_counts=None,campaign_overrides=No
     from exp.r17_integration.ops import formal_eval,queue_retry
     from exp.r17_integration.ops.worker_topology import redistribute
     if any(options.values()):raise ValueError('Only the existing worker-count override is supported')
-    if not name.startswith('ff1015_') or not all(c.isalnum() or c in '_-' for c in name):
-        raise ValueError('A new ff1015_ continuation name is required')
     campaign,_=queue_retry.validate_inputs(snapshot)
+    prefix='ffk1015_' if campaign.get('filter_failed_knob') else 'ff1015_'
+    if not name.startswith(prefix) or not all(c.isalnum() or c in '_-' for c in name):
+        raise ValueError('A new '+prefix+' continuation name is required')
     root=formal_eval.FORMAL_ROOT/name;root.mkdir(exist_ok=False)
     seal=read(snapshot/'PREPARED.json')
     for relative in dict.fromkeys([*seal['files'],'runtime.tar','workers.tar']):
@@ -37,13 +39,28 @@ def local_clone(snapshot,name,failure,*,worker_counts=None,campaign_overrides=No
     return root
 
 
-def build(source,name,worker_counts=None):
+def prove_closed(source):
+    """Reuse the native read-only ownership probe; never repair a FAIL receipt."""
+    from exp.r17_integration.ops.library_salvage import prove_closed as probe
+    from exp.r17_integration.ops.formal_eval import remote
+    from exp.r17_integration.ops.immutable_release import sha
+    proof=probe(read(source/'RECEIPT.json'),read(source/'campaign.json'),remote)
+    proof.update(source=str(source),source_receipt_sha256=sha(source/'RECEIPT.json'),
+                 source_campaign_sha256=sha(source/'campaign.json'),
+                 checked_at=datetime.now(timezone.utc).isoformat())
+    return proof
+
+
+def build(source,name,worker_counts=None,*,verify_closed=False):
     from exp.r17_integration.ops import cache_resume,queue_retry
     from exp.r17_integration.ops.immutable_release import sha
     source=Path(source).resolve(strict=True)
     receipt=read(source/'RECEIPT.json')
-    if receipt.get('all_owned_closed') is not True or receipt.get('status') not in ('FAIL','PARTIAL'):
+    if receipt.get('status') not in ('FAIL','PARTIAL'):
         raise ValueError('Continuation requires a closed partial source')
+    closure=prove_closed(source) if verify_closed else None
+    if receipt.get('all_owned_closed') is not True and closure is None:
+        raise ValueError('Continuation requires a closed partial source; --verify-closed probes original owners read-only')
     with patch.object(queue_retry,'clone',local_clone):
         root=cache_resume.prepare(source,name,worker_counts=worker_counts)
     # Native prepare seals local files. Remote deployment is deliberately not
@@ -52,7 +69,20 @@ def build(source,name,worker_counts=None):
     selection=read(root/'CACHE_RESUME.json')
     assert sha(root/'runtime.tar')==sha(source/'runtime.tar')
     assert sha(root/'workers.tar')==sha(source/'workers.tar')
-    assert read(root/'campaign.json')['filter_failed']==read(source/'campaign.json')['filter_failed']
+    campaign=read(root/'campaign.json');original=read(source/'campaign.json')
+    key='filter_failed_knob' if original.get('filter_failed_knob') else 'filter_failed'
+    assert campaign[key]==original[key]
+    if closure:
+        write(root/'SOURCE_CLOSURE.json',closure)
+        selection['source_closure_proof']=closure
+        campaign['cache_resume_selection']=selection
+        write(root/'CACHE_RESUME.json',selection);write(root/'campaign.json',campaign)
+    if key=='filter_failed_knob':
+        job=read(source/'FFK_DEFINITION.json')
+        job.update(name=name,run=str(root),episodes=len(selection['missing_task_uids']),
+                   workers=campaign.get('execution_worker_nodes',campaign['worker_nodes']),
+                   continuation_source=str(source))
+        write(root/'FFK_DEFINITION.json',job)
     write(root/'CONTINUATION_LOCAL_ONLY.json',dict(source=str(source),run=str(root),
         retained=len(selection['retained_task_uids']),missing=len(selection['missing_task_uids']),
         expected=selection['expected_episodes'],remote_staged=False,server_started=False,workers_started=False))
@@ -89,10 +119,11 @@ if __name__=='__main__':
     parser.add_argument('--name')
     parser.add_argument('--run',type=Path,help='Configure an unstaged continuation or fresh ffk draft')
     parser.add_argument('--worker-counts',help='Existing execution-topology knob, e.g. timan1=16,timan107=45')
+    parser.add_argument('--verify-closed',action='store_true',help='Read-only local/remote ownership checks when the failed receipt could not prove closure')
     args=parser.parse_args()
     if args.run:
         if not args.worker_counts:parser.error('--run requires an explicit --worker-counts choice')
         topology(args.run,args.worker_counts)
     else:
         if not args.source or not args.name:parser.error('building requires --source and --name')
-        build(args.source,args.name,args.worker_counts)
+        build(args.source,args.name,args.worker_counts,verify_closed=args.verify_closed)
