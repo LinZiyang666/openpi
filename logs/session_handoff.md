@@ -86,6 +86,8 @@ owner 的常驻指令，逐字有效：
 - `exp/r17_integration/ops/formal_prestage.py` 已改为 RAM 准入只记录不拦截（owner 10-10 不做 RAM 准入；d3667946）。
 - 今天新记忆：`feedback-update-task-list`（状态变就同步任务表）、`feedback-keep-it-simple` 加网页条目（放进现有表、照抄 LIBERO 格式）。
 
+> **21:24 巡检**：H100 `fwmk1_redx` 78,892/90,000 0 报错（~50–140 局/分），约 22:45 完。4090 空闲等 timan107。sol 旋钮消融 6,062 行未交回。sol_mwA/B/D 无新内容；Monitor 21:2x 全部重挂。
+
 > **20:54 巡检**：H100 `fwmk1_redx` 74,607/90,000 0 报错，速度 83–320 局/分波动，约 22:30 完。4090 空闲等 timan107。sol 旋钮消融 4,989 行未交回。sol_mwA/B/D 无新内容；Monitor 20:5x 重挂。
 
 > **20:35 巡检**：H100 `fwmk1_redx` 71,990/90,000 0 报错，提速到 ~270–320 局/分，约 21:50 完 → 两条 ff v2 队列同时开始。4090 空闲（三个 4090 批次都要 timan107，须等 fwmk1_redx 释放）。sol 旋钮消融派单在读源（未交回）。sol_mwA/B/D 无新内容。
