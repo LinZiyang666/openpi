@@ -1,0 +1,16 @@
+{
+  "name": "ffk1015_cpu_dp_reduced_A",
+  "run": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/cpu_fixtures/r17/ffk1015_cpu_dp_reduced_A",
+  "source": "/data/mw_finetune/eval/knobtestdp_red",
+  "episodes": 100,
+  "model": "dp",
+  "benchmark": "libero",
+  "gpu": "RTX 4090",
+  "workers": {
+    "local": 48
+  },
+  "replicas": 4,
+  "python": "/home/weiland/projects/openpi/.venv/bin/python",
+  "runtime": "/data/mw_finetune/qualification/formal_runtime_3faa6dcf5cd5dacf9109052a0a85f69b53564282161b9f14f165f7229b8d53d4",
+  "unfiltered": false
+}

@@ -1,0 +1,33 @@
+[
+  {
+    "pipeline": "R14",
+    "manifest": "/home/weiland/projects/openpi/exp/offline_search/rounds/r14/impl/RUNTIME_SOURCES.sha256",
+    "mismatches": [
+      {
+        "path": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/devset.py",
+        "expected": "499c938fd6362ac177a82c33c48722f4a8314770e8a74985a45daf4f1a04e313",
+        "actual": "3dbe3e00954cce6412c3d363a50f9105491054e2b0fbefe54b02fe31c3e378f7"
+      },
+      {
+        "path": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/ops/h100/assets.py",
+        "expected": "a106f0f5adcd120996725b28c5326abf24b9db7618d32fbe2ec78389a0ca8770",
+        "actual": "c692a7cc9888b910cd1483c737c9bf582d69b14fc4910411a2ed18e8fb82d7df"
+      },
+      {
+        "path": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/plugin.py",
+        "expected": "fac08f913b37fd401a32b9924551bb5508d7278718cf013c68d1ab97e0ff8872",
+        "actual": "d5b00e4ef58ec140f0a714bf809b3d0357c4848fd0a7bad74b97560b5910766b"
+      },
+      {
+        "path": "/home/weiland/projects/openpi/exp/offline_search/closed_loop/worker_pool.py",
+        "expected": "b0c26607063df74a227f5790f4fd2b15cd0097903ffebbc8cee0c65334f16078",
+        "actual": "a4d0c44b24ddb2810662014e7516fc22acc6799ed952014c3ff79f44ab01af63"
+      }
+    ]
+  },
+  {
+    "pipeline": "R15",
+    "manifest": "/home/weiland/projects/openpi/exp/offline_search/rounds/r15/descent/RUNTIME_SOURCES.sha256",
+    "mismatches": []
+  }
+]

@@ -1,0 +1,154 @@
+{
+  "status": "PASS",
+  "jobs": [
+    {
+      "name": "ffk1015_pi05_mt50_reduced_descent",
+      "planned_empty_miss_episodes": 6300,
+      "evidence_asset_frozen": true,
+      "launched_definition_left_untouched": false,
+      "fit_parameters_recomputed": false
+    },
+    {
+      "name": "ffk1015_pi05_mt50_full_descent_01",
+      "planned_empty_miss_episodes": 150,
+      "evidence_asset_frozen": true,
+      "launched_definition_left_untouched": false,
+      "fit_parameters_recomputed": false
+    },
+    {
+      "name": "ffk1015_pi05_mt50_full_descent_02",
+      "planned_empty_miss_episodes": 100,
+      "evidence_asset_frozen": true,
+      "launched_definition_left_untouched": false,
+      "fit_parameters_recomputed": false
+    },
+    {
+      "name": "ffk1015_pi05_mt50_full_descent_03",
+      "planned_empty_miss_episodes": 0,
+      "evidence_asset_frozen": true,
+      "launched_definition_left_untouched": false,
+      "fit_parameters_recomputed": false
+    },
+    {
+      "name": "ffk1015_pi05_mt50_full_descent_04",
+      "planned_empty_miss_episodes": 6050,
+      "evidence_asset_frozen": true,
+      "launched_definition_left_untouched": false,
+      "fit_parameters_recomputed": false
+    },
+    {
+      "name": "ffk1015_groot_mt50_reduced_descent",
+      "planned_empty_miss_episodes": 2700,
+      "evidence_asset_frozen": true,
+      "launched_definition_left_untouched": false,
+      "fit_parameters_recomputed": false
+    },
+    {
+      "name": "ffk1015_groot_mt50_full_descent",
+      "planned_empty_miss_episodes": 2700,
+      "evidence_asset_frozen": true,
+      "launched_definition_left_untouched": false,
+      "fit_parameters_recomputed": false
+    },
+    {
+      "name": "ffk1015_dp_mt50_reduced_descent",
+      "planned_empty_miss_episodes": 5400,
+      "evidence_asset_frozen": true,
+      "launched_definition_left_untouched": false,
+      "fit_parameters_recomputed": false
+    },
+    {
+      "name": "ffk1015_dp_mt50_full_descent",
+      "planned_empty_miss_episodes": 5400,
+      "evidence_asset_frozen": true,
+      "launched_definition_left_untouched": false,
+      "fit_parameters_recomputed": false
+    },
+    {
+      "name": "ffk1015_fastwam_mt50_reduced_descent",
+      "planned_empty_miss_episodes": 6600,
+      "evidence_asset_frozen": true,
+      "launched_definition_left_untouched": false,
+      "fit_parameters_recomputed": false
+    },
+    {
+      "name": "ffk1015_fastwam_mt50_full_descent",
+      "planned_empty_miss_episodes": 6600,
+      "evidence_asset_frozen": true,
+      "launched_definition_left_untouched": false,
+      "fit_parameters_recomputed": false
+    },
+    {
+      "name": "ffk1015_dp_libero_reduced_dev",
+      "planned_empty_miss_episodes": 0,
+      "evidence_asset_frozen": true,
+      "launched_definition_left_untouched": false,
+      "fit_parameters_recomputed": false
+    },
+    {
+      "name": "ffk1015_dp_libero_full_dev",
+      "planned_empty_miss_episodes": 0,
+      "evidence_asset_frozen": true,
+      "launched_definition_left_untouched": false,
+      "fit_parameters_recomputed": false
+    },
+    {
+      "name": "ffk1015_fastwam_libero_reduced_dev",
+      "planned_empty_miss_episodes": 0,
+      "evidence_asset_frozen": true,
+      "launched_definition_left_untouched": false,
+      "fit_parameters_recomputed": false
+    },
+    {
+      "name": "ffk1015_fastwam_libero_full_dev",
+      "planned_empty_miss_episodes": 0,
+      "evidence_asset_frozen": true,
+      "launched_definition_left_untouched": false,
+      "fit_parameters_recomputed": false
+    },
+    {
+      "name": "ffk1015_cosmos_libero_reduced_dev",
+      "planned_empty_miss_episodes": 0,
+      "evidence_asset_frozen": true,
+      "launched_definition_left_untouched": false,
+      "fit_parameters_recomputed": false
+    },
+    {
+      "name": "ffk1015_cosmos_libero_full_dev",
+      "planned_empty_miss_episodes": 0,
+      "evidence_asset_frozen": true,
+      "launched_definition_left_untouched": false,
+      "fit_parameters_recomputed": false
+    },
+    {
+      "name": "ffk1015_dp_libero_reduced_off",
+      "planned_empty_miss_episodes": 0,
+      "evidence_asset_frozen": false,
+      "launched_definition_left_untouched": true,
+      "fit_parameters_recomputed": false
+    },
+    {
+      "name": "ffk1015_fastwam_libero_reduced_off",
+      "planned_empty_miss_episodes": 0,
+      "evidence_asset_frozen": true,
+      "launched_definition_left_untouched": false,
+      "fit_parameters_recomputed": false
+    },
+    {
+      "name": "ffk1015_cosmos_libero_reduced_off",
+      "planned_empty_miss_episodes": 0,
+      "evidence_asset_frozen": true,
+      "launched_definition_left_untouched": false,
+      "fit_parameters_recomputed": false
+    },
+    {
+      "name": "ffk1015_cosmos_libero_reduced_off_u",
+      "planned_empty_miss_episodes": 0,
+      "evidence_asset_frozen": true,
+      "launched_definition_left_untouched": false,
+      "fit_parameters_recomputed": false
+    }
+  ],
+  "native_other_checks_unchanged": true,
+  "worker_archive_unchanged": true
+}

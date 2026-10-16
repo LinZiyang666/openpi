@@ -1,0 +1,814 @@
+{
+  "cells": [
+    {
+      "model": "pi05",
+      "suite": "mt50",
+      "size": 250,
+      "collected": 250,
+      "kept": 137,
+      "failed": 113,
+      "empty_tasks": [
+        "hammer-v3",
+        "hand-insert-v3",
+        "handle-pull-side-v3",
+        "handle-pull-v3",
+        "reach-v3",
+        "soccer-v3",
+        "stick-pull-v3",
+        "sweep-v3"
+      ]
+    },
+    {
+      "model": "pi05",
+      "suite": "mt50",
+      "size": 500,
+      "collected": 500,
+      "kept": 282,
+      "failed": 218,
+      "empty_tasks": [
+        "handle-pull-v3",
+        "soccer-v3",
+        "stick-pull-v3",
+        "sweep-v3"
+      ]
+    },
+    {
+      "model": "pi05",
+      "suite": "mt50",
+      "size": 1000,
+      "collected": 1000,
+      "kept": 562,
+      "failed": 438,
+      "empty_tasks": [
+        "handle-pull-v3",
+        "soccer-v3",
+        "stick-pull-v3"
+      ]
+    },
+    {
+      "model": "pi05",
+      "suite": "mt50",
+      "size": 1500,
+      "collected": 1500,
+      "kept": 849,
+      "failed": 651,
+      "empty_tasks": [
+        "handle-pull-v3",
+        "stick-pull-v3"
+      ]
+    },
+    {
+      "model": "pi05",
+      "suite": "mt50",
+      "size": 2000,
+      "collected": 2000,
+      "kept": 1122,
+      "failed": 878,
+      "empty_tasks": [
+        "handle-pull-v3",
+        "stick-pull-v3"
+      ]
+    },
+    {
+      "model": "pi05",
+      "suite": "mt50",
+      "size": 2500,
+      "collected": 2500,
+      "kept": 1425,
+      "failed": 1075,
+      "empty_tasks": [
+        "handle-pull-v3",
+        "stick-pull-v3"
+      ]
+    },
+    {
+      "model": "groot",
+      "suite": "mt50",
+      "size": 250,
+      "collected": 250,
+      "kept": 186,
+      "failed": 64,
+      "empty_tasks": [
+        "coffee-pull-v3",
+        "push-back-v3",
+        "stick-pull-v3"
+      ]
+    },
+    {
+      "model": "groot",
+      "suite": "mt50",
+      "size": 500,
+      "collected": 500,
+      "kept": 379,
+      "failed": 121,
+      "empty_tasks": [
+        "push-back-v3",
+        "stick-pull-v3"
+      ]
+    },
+    {
+      "model": "groot",
+      "suite": "mt50",
+      "size": 1000,
+      "collected": 1000,
+      "kept": 762,
+      "failed": 238,
+      "empty_tasks": [
+        "stick-pull-v3"
+      ]
+    },
+    {
+      "model": "groot",
+      "suite": "mt50",
+      "size": 1500,
+      "collected": 1500,
+      "kept": 1140,
+      "failed": 360,
+      "empty_tasks": [
+        "stick-pull-v3"
+      ]
+    },
+    {
+      "model": "groot",
+      "suite": "mt50",
+      "size": 2000,
+      "collected": 2000,
+      "kept": 1516,
+      "failed": 484,
+      "empty_tasks": [
+        "stick-pull-v3"
+      ]
+    },
+    {
+      "model": "groot",
+      "suite": "mt50",
+      "size": 2500,
+      "collected": 2500,
+      "kept": 1899,
+      "failed": 601,
+      "empty_tasks": [
+        "stick-pull-v3"
+      ]
+    },
+    {
+      "model": "dp",
+      "suite": "mt50",
+      "size": 250,
+      "collected": 250,
+      "kept": 153,
+      "failed": 97,
+      "empty_tasks": [
+        "assembly-v3",
+        "handle-pull-v3",
+        "pick-out-of-hole-v3",
+        "push-back-v3",
+        "soccer-v3",
+        "stick-pull-v3"
+      ]
+    },
+    {
+      "model": "dp",
+      "suite": "mt50",
+      "size": 500,
+      "collected": 500,
+      "kept": 312,
+      "failed": 188,
+      "empty_tasks": [
+        "assembly-v3",
+        "push-back-v3",
+        "soccer-v3",
+        "stick-pull-v3"
+      ]
+    },
+    {
+      "model": "dp",
+      "suite": "mt50",
+      "size": 1000,
+      "collected": 1000,
+      "kept": 623,
+      "failed": 377,
+      "empty_tasks": [
+        "assembly-v3",
+        "push-back-v3",
+        "stick-pull-v3"
+      ]
+    },
+    {
+      "model": "dp",
+      "suite": "mt50",
+      "size": 1500,
+      "collected": 1500,
+      "kept": 943,
+      "failed": 557,
+      "empty_tasks": [
+        "assembly-v3",
+        "push-back-v3",
+        "stick-pull-v3"
+      ]
+    },
+    {
+      "model": "dp",
+      "suite": "mt50",
+      "size": 2000,
+      "collected": 2000,
+      "kept": 1262,
+      "failed": 738,
+      "empty_tasks": [
+        "push-back-v3"
+      ]
+    },
+    {
+      "model": "dp",
+      "suite": "mt50",
+      "size": 2500,
+      "collected": 2500,
+      "kept": 1577,
+      "failed": 923,
+      "empty_tasks": [
+        "push-back-v3"
+      ]
+    },
+    {
+      "model": "fastwam",
+      "suite": "mt50",
+      "size": 250,
+      "collected": 250,
+      "kept": 144,
+      "failed": 106,
+      "empty_tasks": [
+        "assembly-v3",
+        "basketball-v3",
+        "box-close-v3",
+        "dial-turn-v3",
+        "handle-pull-side-v3",
+        "peg-insert-side-v3",
+        "push-back-v3",
+        "shelf-place-v3",
+        "stick-pull-v3"
+      ]
+    },
+    {
+      "model": "fastwam",
+      "suite": "mt50",
+      "size": 500,
+      "collected": 500,
+      "kept": 295,
+      "failed": 205,
+      "empty_tasks": [
+        "dial-turn-v3",
+        "push-back-v3",
+        "stick-pull-v3"
+      ]
+    },
+    {
+      "model": "fastwam",
+      "suite": "mt50",
+      "size": 1000,
+      "collected": 1000,
+      "kept": 590,
+      "failed": 410,
+      "empty_tasks": [
+        "dial-turn-v3",
+        "push-back-v3",
+        "stick-pull-v3"
+      ]
+    },
+    {
+      "model": "fastwam",
+      "suite": "mt50",
+      "size": 1500,
+      "collected": 1500,
+      "kept": 874,
+      "failed": 626,
+      "empty_tasks": [
+        "dial-turn-v3",
+        "push-back-v3",
+        "stick-pull-v3"
+      ]
+    },
+    {
+      "model": "fastwam",
+      "suite": "mt50",
+      "size": 2000,
+      "collected": 2000,
+      "kept": 1159,
+      "failed": 841,
+      "empty_tasks": [
+        "push-back-v3",
+        "stick-pull-v3"
+      ]
+    },
+    {
+      "model": "fastwam",
+      "suite": "mt50",
+      "size": 2500,
+      "collected": 2500,
+      "kept": 1457,
+      "failed": 1043,
+      "empty_tasks": [
+        "push-back-v3",
+        "stick-pull-v3"
+      ]
+    },
+    {
+      "model": "dp",
+      "suite": "libero_spatial",
+      "size": 50,
+      "collected": 50,
+      "kept": 42,
+      "failed": 8,
+      "empty_tasks": []
+    },
+    {
+      "model": "dp",
+      "suite": "libero_spatial",
+      "size": 100,
+      "collected": 100,
+      "kept": 84,
+      "failed": 16,
+      "empty_tasks": []
+    },
+    {
+      "model": "dp",
+      "suite": "libero_spatial",
+      "size": 200,
+      "collected": 200,
+      "kept": 177,
+      "failed": 23,
+      "empty_tasks": []
+    },
+    {
+      "model": "dp",
+      "suite": "libero_spatial",
+      "size": 300,
+      "collected": 300,
+      "kept": 265,
+      "failed": 35,
+      "empty_tasks": []
+    },
+    {
+      "model": "dp",
+      "suite": "libero_spatial",
+      "size": 400,
+      "collected": 400,
+      "kept": 349,
+      "failed": 51,
+      "empty_tasks": []
+    },
+    {
+      "model": "dp",
+      "suite": "libero_spatial",
+      "size": 500,
+      "collected": 500,
+      "kept": 436,
+      "failed": 64,
+      "empty_tasks": []
+    },
+    {
+      "model": "dp",
+      "suite": "libero_10",
+      "size": 50,
+      "collected": 50,
+      "kept": 42,
+      "failed": 8,
+      "empty_tasks": []
+    },
+    {
+      "model": "dp",
+      "suite": "libero_10",
+      "size": 100,
+      "collected": 100,
+      "kept": 82,
+      "failed": 18,
+      "empty_tasks": []
+    },
+    {
+      "model": "dp",
+      "suite": "libero_10",
+      "size": 200,
+      "collected": 200,
+      "kept": 164,
+      "failed": 36,
+      "empty_tasks": []
+    },
+    {
+      "model": "dp",
+      "suite": "libero_10",
+      "size": 300,
+      "collected": 300,
+      "kept": 245,
+      "failed": 55,
+      "empty_tasks": []
+    },
+    {
+      "model": "dp",
+      "suite": "libero_10",
+      "size": 400,
+      "collected": 400,
+      "kept": 330,
+      "failed": 70,
+      "empty_tasks": []
+    },
+    {
+      "model": "dp",
+      "suite": "libero_10",
+      "size": 500,
+      "collected": 500,
+      "kept": 405,
+      "failed": 95,
+      "empty_tasks": []
+    },
+    {
+      "model": "fastwam",
+      "suite": "libero_spatial",
+      "size": 50,
+      "collected": 50,
+      "kept": 43,
+      "failed": 7,
+      "empty_tasks": []
+    },
+    {
+      "model": "fastwam",
+      "suite": "libero_spatial",
+      "size": 100,
+      "collected": 100,
+      "kept": 85,
+      "failed": 15,
+      "empty_tasks": []
+    },
+    {
+      "model": "fastwam",
+      "suite": "libero_spatial",
+      "size": 200,
+      "collected": 200,
+      "kept": 175,
+      "failed": 25,
+      "empty_tasks": []
+    },
+    {
+      "model": "fastwam",
+      "suite": "libero_spatial",
+      "size": 300,
+      "collected": 300,
+      "kept": 259,
+      "failed": 41,
+      "empty_tasks": []
+    },
+    {
+      "model": "fastwam",
+      "suite": "libero_spatial",
+      "size": 400,
+      "collected": 400,
+      "kept": 345,
+      "failed": 55,
+      "empty_tasks": []
+    },
+    {
+      "model": "fastwam",
+      "suite": "libero_spatial",
+      "size": 500,
+      "collected": 500,
+      "kept": 432,
+      "failed": 68,
+      "empty_tasks": []
+    },
+    {
+      "model": "fastwam",
+      "suite": "libero_10",
+      "size": 50,
+      "collected": 50,
+      "kept": 49,
+      "failed": 1,
+      "empty_tasks": []
+    },
+    {
+      "model": "fastwam",
+      "suite": "libero_10",
+      "size": 100,
+      "collected": 100,
+      "kept": 95,
+      "failed": 5,
+      "empty_tasks": []
+    },
+    {
+      "model": "fastwam",
+      "suite": "libero_10",
+      "size": 200,
+      "collected": 200,
+      "kept": 188,
+      "failed": 12,
+      "empty_tasks": []
+    },
+    {
+      "model": "fastwam",
+      "suite": "libero_10",
+      "size": 300,
+      "collected": 300,
+      "kept": 279,
+      "failed": 21,
+      "empty_tasks": []
+    },
+    {
+      "model": "fastwam",
+      "suite": "libero_10",
+      "size": 400,
+      "collected": 400,
+      "kept": 371,
+      "failed": 29,
+      "empty_tasks": []
+    },
+    {
+      "model": "fastwam",
+      "suite": "libero_10",
+      "size": 500,
+      "collected": 500,
+      "kept": 462,
+      "failed": 38,
+      "empty_tasks": []
+    },
+    {
+      "model": "cosmos",
+      "suite": "libero_spatial",
+      "size": 50,
+      "collected": 50,
+      "kept": 45,
+      "failed": 5,
+      "empty_tasks": []
+    },
+    {
+      "model": "cosmos",
+      "suite": "libero_spatial",
+      "size": 100,
+      "collected": 100,
+      "kept": 92,
+      "failed": 8,
+      "empty_tasks": []
+    },
+    {
+      "model": "cosmos",
+      "suite": "libero_spatial",
+      "size": 200,
+      "collected": 200,
+      "kept": 189,
+      "failed": 11,
+      "empty_tasks": []
+    },
+    {
+      "model": "cosmos",
+      "suite": "libero_spatial",
+      "size": 300,
+      "collected": 300,
+      "kept": 281,
+      "failed": 19,
+      "empty_tasks": []
+    },
+    {
+      "model": "cosmos",
+      "suite": "libero_spatial",
+      "size": 400,
+      "collected": 400,
+      "kept": 373,
+      "failed": 27,
+      "empty_tasks": []
+    },
+    {
+      "model": "cosmos",
+      "suite": "libero_spatial",
+      "size": 500,
+      "collected": 500,
+      "kept": 465,
+      "failed": 35,
+      "empty_tasks": []
+    },
+    {
+      "model": "cosmos",
+      "suite": "libero_10",
+      "size": 50,
+      "collected": 50,
+      "kept": 49,
+      "failed": 1,
+      "empty_tasks": []
+    },
+    {
+      "model": "cosmos",
+      "suite": "libero_10",
+      "size": 100,
+      "collected": 100,
+      "kept": 98,
+      "failed": 2,
+      "empty_tasks": []
+    },
+    {
+      "model": "cosmos",
+      "suite": "libero_10",
+      "size": 200,
+      "collected": 200,
+      "kept": 194,
+      "failed": 6,
+      "empty_tasks": []
+    },
+    {
+      "model": "cosmos",
+      "suite": "libero_10",
+      "size": 300,
+      "collected": 300,
+      "kept": 287,
+      "failed": 13,
+      "empty_tasks": []
+    },
+    {
+      "model": "cosmos",
+      "suite": "libero_10",
+      "size": 400,
+      "collected": 400,
+      "kept": 383,
+      "failed": 17,
+      "empty_tasks": []
+    },
+    {
+      "model": "cosmos",
+      "suite": "libero_10",
+      "size": 500,
+      "collected": 500,
+      "kept": 479,
+      "failed": 21,
+      "empty_tasks": []
+    },
+    {
+      "model": "pi05",
+      "suite": "libero_10",
+      "size": 50,
+      "collected": 50,
+      "kept": 44,
+      "failed": 6,
+      "empty_tasks": []
+    },
+    {
+      "model": "pi05",
+      "suite": "libero_spatial",
+      "size": 50,
+      "collected": 50,
+      "kept": 46,
+      "failed": 4,
+      "empty_tasks": []
+    },
+    {
+      "model": "groot",
+      "suite": "libero_10",
+      "size": 50,
+      "collected": 50,
+      "kept": 44,
+      "failed": 6,
+      "empty_tasks": []
+    },
+    {
+      "model": "groot",
+      "suite": "libero_spatial",
+      "size": 50,
+      "collected": 50,
+      "kept": 45,
+      "failed": 5,
+      "empty_tasks": []
+    },
+    {
+      "model": "pi05",
+      "suite": "libero_10",
+      "size": 100,
+      "collected": 100,
+      "kept": 89,
+      "failed": 11,
+      "empty_tasks": []
+    },
+    {
+      "model": "pi05",
+      "suite": "libero_spatial",
+      "size": 100,
+      "collected": 100,
+      "kept": 94,
+      "failed": 6,
+      "empty_tasks": []
+    },
+    {
+      "model": "groot",
+      "suite": "libero_10",
+      "size": 100,
+      "collected": 100,
+      "kept": 90,
+      "failed": 10,
+      "empty_tasks": []
+    },
+    {
+      "model": "groot",
+      "suite": "libero_spatial",
+      "size": 100,
+      "collected": 100,
+      "kept": 91,
+      "failed": 9,
+      "empty_tasks": []
+    },
+    {
+      "model": "pi05",
+      "suite": "libero_10",
+      "size": 200,
+      "collected": 200,
+      "kept": 181,
+      "failed": 19,
+      "empty_tasks": []
+    },
+    {
+      "model": "pi05",
+      "suite": "libero_spatial",
+      "size": 200,
+      "collected": 200,
+      "kept": 193,
+      "failed": 7,
+      "empty_tasks": []
+    },
+    {
+      "model": "groot",
+      "suite": "libero_10",
+      "size": 200,
+      "collected": 200,
+      "kept": 175,
+      "failed": 25,
+      "empty_tasks": []
+    },
+    {
+      "model": "groot",
+      "suite": "libero_spatial",
+      "size": 200,
+      "collected": 200,
+      "kept": 186,
+      "failed": 14,
+      "empty_tasks": []
+    },
+    {
+      "model": "pi05",
+      "suite": "libero_10",
+      "size": 500,
+      "collected": 500,
+      "kept": 436,
+      "failed": 64,
+      "empty_tasks": []
+    },
+    {
+      "model": "pi05",
+      "suite": "libero_spatial",
+      "size": 500,
+      "collected": 500,
+      "kept": 487,
+      "failed": 13,
+      "empty_tasks": []
+    },
+    {
+      "model": "groot",
+      "suite": "libero_10",
+      "size": 500,
+      "collected": 500,
+      "kept": 427,
+      "failed": 73,
+      "empty_tasks": []
+    },
+    {
+      "model": "groot",
+      "suite": "libero_spatial",
+      "size": 500,
+      "collected": 500,
+      "kept": 456,
+      "failed": 44,
+      "empty_tasks": []
+    }
+  ],
+  "totals": {
+    "pi05": {
+      "collected_view_memberships": 9450,
+      "kept_view_memberships": 5947,
+      "collected_parent_episodes": 3500,
+      "kept_parent_episodes": 2348
+    },
+    "groot": {
+      "collected_view_memberships": 9450,
+      "kept_view_memberships": 7396,
+      "collected_parent_episodes": 3500,
+      "kept_parent_episodes": 2782
+    },
+    "dp": {
+      "collected_view_memberships": 10850,
+      "kept_view_memberships": 7491,
+      "collected_parent_episodes": 3500,
+      "kept_parent_episodes": 2418
+    },
+    "fastwam": {
+      "collected_view_memberships": 10850,
+      "kept_view_memberships": 7302,
+      "collected_parent_episodes": 3500,
+      "kept_parent_episodes": 2351
+    },
+    "cosmos": {
+      "collected_view_memberships": 3100,
+      "kept_view_memberships": 2935,
+      "collected_parent_episodes": 1000,
+      "kept_parent_episodes": 944
+    }
+  }
+}

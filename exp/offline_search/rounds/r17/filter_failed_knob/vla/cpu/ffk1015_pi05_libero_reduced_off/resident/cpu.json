@@ -1,0 +1,18 @@
+{
+  "model": "pi05",
+  "k": 1,
+  "suite": null,
+  "methods": [
+    "ffk1015_pi05_l10_100_k1_off",
+    "ffk1015_pi05_l10_200_k1_off",
+    "ffk1015_pi05_l10_500_k1_off",
+    "ffk1015_pi05_l10_50_k1_off",
+    "ffk1015_pi05_spatial_100_k1_off",
+    "ffk1015_pi05_spatial_200_k1_off",
+    "ffk1015_pi05_spatial_500_k1_off",
+    "ffk1015_pi05_spatial_50_k1_off"
+  ],
+  "unique_cpu_array_bytes": 409639022,
+  "additional_fit_gpu_bytes": 0,
+  "group_sha256": "0d54447fef2b3db0174799179da7275f227a5092590fdef7ebc522b7f4b1585e"
+}

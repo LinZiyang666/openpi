@@ -1,0 +1,195 @@
+{
+  "status": "PASS",
+  "jobs": [
+    {
+      "name": "ffk1015_pi05_mt50_reduced_descent",
+      "episodes": 90000,
+      "bootstrap_equal": true,
+      "source_rng_namespace": true,
+      "endpoint": "ziyanglin.com:23150",
+      "driver_port": 23159,
+      "launch_claim_exists": false
+    },
+    {
+      "name": "ffk1015_pi05_mt50_full_descent_01",
+      "episodes": 4006,
+      "bootstrap_equal": true,
+      "source_rng_namespace": true,
+      "endpoint": "127.0.0.1:23150",
+      "driver_port": 23159,
+      "launch_claim_exists": false
+    },
+    {
+      "name": "ffk1015_pi05_mt50_full_descent_02",
+      "episodes": 1761,
+      "bootstrap_equal": true,
+      "source_rng_namespace": true,
+      "endpoint": "127.0.0.1:23150",
+      "driver_port": 23159,
+      "launch_claim_exists": false
+    },
+    {
+      "name": "ffk1015_pi05_mt50_full_descent_03",
+      "episodes": 502,
+      "bootstrap_equal": true,
+      "source_rng_namespace": true,
+      "endpoint": "ziyanglin.com:23150",
+      "driver_port": 23159,
+      "launch_claim_exists": false
+    },
+    {
+      "name": "ffk1015_pi05_mt50_full_descent_04",
+      "episodes": 83731,
+      "bootstrap_equal": true,
+      "source_rng_namespace": true,
+      "endpoint": "ziyanglin.com:23150",
+      "driver_port": 23159,
+      "launch_claim_exists": false
+    },
+    {
+      "name": "ffk1015_groot_mt50_reduced_descent",
+      "episodes": 90000,
+      "bootstrap_equal": true,
+      "source_rng_namespace": true,
+      "endpoint": "149.165.153.233:23160",
+      "driver_port": 23149,
+      "launch_claim_exists": false
+    },
+    {
+      "name": "ffk1015_groot_mt50_full_descent",
+      "episodes": 90000,
+      "bootstrap_equal": true,
+      "source_rng_namespace": true,
+      "endpoint": "149.165.153.233:23160",
+      "driver_port": 23149,
+      "launch_claim_exists": false
+    },
+    {
+      "name": "ffk1015_dp_mt50_reduced_descent",
+      "episodes": 90000,
+      "bootstrap_equal": true,
+      "source_rng_namespace": true,
+      "endpoint": "149.165.153.233:23180",
+      "driver_port": 23189,
+      "launch_claim_exists": false
+    },
+    {
+      "name": "ffk1015_dp_mt50_full_descent",
+      "episodes": 90000,
+      "bootstrap_equal": true,
+      "source_rng_namespace": true,
+      "endpoint": "149.165.153.233:23180",
+      "driver_port": 23189,
+      "launch_claim_exists": false
+    },
+    {
+      "name": "ffk1015_fastwam_mt50_reduced_descent",
+      "episodes": 90000,
+      "bootstrap_equal": true,
+      "source_rng_namespace": true,
+      "endpoint": "149.165.153.233:23170",
+      "driver_port": 23179,
+      "launch_claim_exists": false
+    },
+    {
+      "name": "ffk1015_fastwam_mt50_full_descent",
+      "episodes": 90000,
+      "bootstrap_equal": true,
+      "source_rng_namespace": true,
+      "endpoint": "149.165.153.233:23170",
+      "driver_port": 23179,
+      "launch_claim_exists": false
+    },
+    {
+      "name": "ffk1015_dp_libero_reduced_dev",
+      "episodes": 21600,
+      "bootstrap_equal": true,
+      "source_rng_namespace": true,
+      "endpoint": "127.0.0.1:23400",
+      "driver_port": 23110,
+      "launch_claim_exists": false
+    },
+    {
+      "name": "ffk1015_dp_libero_full_dev",
+      "episodes": 21600,
+      "bootstrap_equal": true,
+      "source_rng_namespace": true,
+      "endpoint": "127.0.0.1:23400",
+      "driver_port": 23110,
+      "launch_claim_exists": false
+    },
+    {
+      "name": "ffk1015_fastwam_libero_reduced_dev",
+      "episodes": 21600,
+      "bootstrap_equal": true,
+      "source_rng_namespace": true,
+      "endpoint": "ziyanglin.com:23130",
+      "driver_port": 23113,
+      "launch_claim_exists": false
+    },
+    {
+      "name": "ffk1015_fastwam_libero_full_dev",
+      "episodes": 21600,
+      "bootstrap_equal": true,
+      "source_rng_namespace": true,
+      "endpoint": "149.165.153.233:23420",
+      "driver_port": 23111,
+      "launch_claim_exists": false
+    },
+    {
+      "name": "ffk1015_cosmos_libero_reduced_dev",
+      "episodes": 21600,
+      "bootstrap_equal": true,
+      "source_rng_namespace": true,
+      "endpoint": "149.165.153.233:23440",
+      "driver_port": 23112,
+      "launch_claim_exists": false
+    },
+    {
+      "name": "ffk1015_cosmos_libero_full_dev",
+      "episodes": 21600,
+      "bootstrap_equal": true,
+      "source_rng_namespace": true,
+      "endpoint": "149.165.153.233:23440",
+      "driver_port": 23112,
+      "launch_claim_exists": false
+    },
+    {
+      "name": "ffk1015_dp_libero_reduced_off",
+      "episodes": 6000,
+      "bootstrap_equal": true,
+      "source_rng_namespace": true,
+      "endpoint": "127.0.0.1:23400",
+      "driver_port": 23110,
+      "launch_claim_exists": true
+    },
+    {
+      "name": "ffk1015_fastwam_libero_reduced_off",
+      "episodes": 6000,
+      "bootstrap_equal": true,
+      "source_rng_namespace": true,
+      "endpoint": "127.0.0.1:23420",
+      "driver_port": 23113,
+      "launch_claim_exists": false
+    },
+    {
+      "name": "ffk1015_cosmos_libero_reduced_off",
+      "episodes": 6000,
+      "bootstrap_equal": true,
+      "source_rng_namespace": true,
+      "endpoint": "149.165.153.233:23440",
+      "driver_port": 23112,
+      "launch_claim_exists": false
+    },
+    {
+      "name": "ffk1015_cosmos_libero_reduced_off_u",
+      "episodes": 6000,
+      "bootstrap_equal": true,
+      "source_rng_namespace": true,
+      "endpoint": "149.165.153.233:23440",
+      "driver_port": 23112,
+      "launch_claim_exists": false
+    }
+  ],
+  "simulation_started_by_this_check": false
+}

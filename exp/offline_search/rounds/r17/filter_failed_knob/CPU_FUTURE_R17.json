@@ -1,0 +1,49 @@
+{
+  "cases": [
+    {
+      "model": "dp",
+      "mode": "reduced",
+      "episodes": 100,
+      "status": "PASS",
+      "launchable_campaign": false
+    },
+    {
+      "model": "dp",
+      "mode": "full",
+      "episodes": 100,
+      "status": "PASS",
+      "launchable_campaign": false
+    },
+    {
+      "model": "fastwam",
+      "mode": "reduced",
+      "episodes": 100,
+      "status": "PASS",
+      "launchable_campaign": false
+    },
+    {
+      "model": "fastwam",
+      "mode": "full",
+      "episodes": 100,
+      "status": "PASS",
+      "launchable_campaign": false
+    },
+    {
+      "model": "cosmos",
+      "mode": "reduced",
+      "episodes": 100,
+      "status": "PASS",
+      "launchable_campaign": false
+    },
+    {
+      "model": "cosmos",
+      "mode": "full",
+      "episodes": 100,
+      "status": "PASS",
+      "launchable_campaign": false
+    }
+  ],
+  "cpu_only": true,
+  "server_started": false,
+  "worker_started": false
+}

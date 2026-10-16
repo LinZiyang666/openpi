@@ -1,0 +1,870 @@
+{
+  "r17_count_audits": 60,
+  "r16_cells": 16,
+  "r16_dev_fits": [
+    {
+      "cell": "pi05_l10_50_k1",
+      "source_cell": "pi05_l10_50_k1",
+      "level": "c10",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r13/knob/artifacts/pi05_l10_50_pure_c10.pkl",
+      "fit_sha256": "466e75a09b531ded372cb1c23cc9fe01f0126e740b0abd8383bd52fa5b7b5e97",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_l10_50_k1",
+      "source_cell": "pi05_l10_50_k1",
+      "level": "ir45",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r13/knob/artifacts/pi05_l10_50_periodic_0p45.pkl",
+      "fit_sha256": "091755b38f91eea9fb9e6bc7dd0ac4a53b309fcbdd66a043fe31c54dca79e02e",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_l10_50_k1",
+      "source_cell": "pi05_l10_50_k1",
+      "level": "ir40",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r11_pi05_l10_50_periodic_ir40.pkl",
+      "fit_sha256": "611af25dcb13420cf7e53a9cb3b52262fb494cec26b67f9fa7ce0e51d3a0c291",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_l10_50_k1",
+      "source_cell": "pi05_l10_50_k1",
+      "level": "ir32",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r11_pi05_l10_50_periodic_ir32.pkl",
+      "fit_sha256": "f6e316d2b9ff953df8322256ae6ee354552bdeb6a2e79f92215c157261723f35",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_l10_50_k1",
+      "source_cell": "pi05_l10_50_k1",
+      "level": "ir25",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r11_pi05_l10_50_periodic_ir25.pkl",
+      "fit_sha256": "25cc8f2627bd09f5024761cfa8435a3ee7ac156082622441ceee1bdf9bedeb65",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_l10_50_k1",
+      "source_cell": "pi05_l10_50_k1",
+      "level": "off",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r11_pi05_l10_50_off.pkl",
+      "fit_sha256": "56a87c7c937fb0f74b80d235b2331505d427390df41dcdd82d4213706eb953d4",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_spatial_50_k1",
+      "source_cell": "pi05_spatial_50_k1",
+      "level": "c10",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r13/knob/artifacts/pi05_spatial_50_pure_c10.pkl",
+      "fit_sha256": "d2a840778cdf940ed67ffd875bbd9df6ad3e95f7a4c1d9ddf71f9c7792cbc6e1",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_spatial_50_k1",
+      "source_cell": "pi05_spatial_50_k1",
+      "level": "ir45",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r13/knob/artifacts/pi05_spatial_50_periodic_0p45.pkl",
+      "fit_sha256": "733afeadf7eb348d9bca117988dba51a4e001e9ea4471cf2550033e3ebd02882",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_spatial_50_k1",
+      "source_cell": "pi05_spatial_50_k1",
+      "level": "ir40",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r11_pi05_spatial_50_periodic_ir40.pkl",
+      "fit_sha256": "f47608a8c72276e722f31249dd2d8d222276cd514d329335a37b501e8f6fa8b6",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_spatial_50_k1",
+      "source_cell": "pi05_spatial_50_k1",
+      "level": "ir32",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r11_pi05_spatial_50_periodic_ir32.pkl",
+      "fit_sha256": "b72defad826bf9e0a720e06f391299a7644c0cf9ce49a18b2bc381d3c3bf8b76",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_spatial_50_k1",
+      "source_cell": "pi05_spatial_50_k1",
+      "level": "ir25",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r11_pi05_spatial_50_periodic_ir25.pkl",
+      "fit_sha256": "05f5b26065f4377867fecea84e606bf3ce404935565dbcbf17363c51931de084",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_spatial_50_k1",
+      "source_cell": "pi05_spatial_50_k1",
+      "level": "off",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r11_pi05_spatial_50_off.pkl",
+      "fit_sha256": "f8381556fe07d5337268ebfb566ab42ee6dc10bbc3eab5b79ae1239599c4c0f6",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "groot_l10_50_k1",
+      "source_cell": "groot_l10_50_k1",
+      "level": "c10",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r13/knob/artifacts/groot_l10_50_pure_c10.pkl",
+      "fit_sha256": "0f790260938b1e0e8c2d7d4cdec06766ac6082618b49d046395e27488e437b11",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_l10_50_k1",
+      "source_cell": "groot_l10_50_k1",
+      "level": "ir45",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r13/knob/artifacts/groot_l10_50_periodic_0p45.pkl",
+      "fit_sha256": "b65c799913c880577b21e3d7952588ce2c9aca3ca67c0896eb1325b2e966b0df",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_l10_50_k1",
+      "source_cell": "groot_l10_50_k1",
+      "level": "ir40",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r11_groot_l10_50_periodic_ir40.pkl",
+      "fit_sha256": "c77d7dad8a7b098e33f32a14e11d213fbddc244c0233e73733fa5997253e887e",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_l10_50_k1",
+      "source_cell": "groot_l10_50_k1",
+      "level": "ir32",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r11_groot_l10_50_periodic_ir32.pkl",
+      "fit_sha256": "990d4242519a35c5c2daed945c8a86d35e84c1b9d3b783c16a80456f3ed92007",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_l10_50_k1",
+      "source_cell": "groot_l10_50_k1",
+      "level": "ir25",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r11_groot_l10_50_periodic_ir25.pkl",
+      "fit_sha256": "17c5c483c43eb15fa601c583718de33fa84a2b0edcc0facb29a856a5f5a4d5eb",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_l10_50_k1",
+      "source_cell": "groot_l10_50_k1",
+      "level": "off",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r11_groot_l10_50_off.pkl",
+      "fit_sha256": "17ddcf6e6eeb477c4c70ada9d4e89a8491bfa6623436c97820db1113324a963c",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_spatial_50_k1",
+      "source_cell": "groot_spatial_50_k1",
+      "level": "c10",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r13/knob/artifacts/groot_spatial_50_pure_c10.pkl",
+      "fit_sha256": "72d0285e61aea710541969612f13c6f2c92ccc840212513d9544a0126a217de8",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_spatial_50_k1",
+      "source_cell": "groot_spatial_50_k1",
+      "level": "ir45",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r13/knob/artifacts/groot_spatial_50_periodic_0p45.pkl",
+      "fit_sha256": "18aaee4412a1c117eb1327d798a9b5340ac7c5a5eaa51d4105d732c7bf242bc7",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_spatial_50_k1",
+      "source_cell": "groot_spatial_50_k1",
+      "level": "ir40",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r11_groot_spatial_50_periodic_ir40.pkl",
+      "fit_sha256": "3f8447954227ee79ef5f185148748421ed9107effac6044dffd2f065605fa4ac",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_spatial_50_k1",
+      "source_cell": "groot_spatial_50_k1",
+      "level": "ir32",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r11_groot_spatial_50_periodic_ir32.pkl",
+      "fit_sha256": "b7fde0be6a734fae39848d7104619f2717876312aac0c352f471f91f8352739c",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_spatial_50_k1",
+      "source_cell": "groot_spatial_50_k1",
+      "level": "ir25",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r11_groot_spatial_50_periodic_ir25.pkl",
+      "fit_sha256": "91542c418750b70517e6926a6b9bf2df091f5a3ec4eaf8d19da966934d025c24",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_spatial_50_k1",
+      "source_cell": "groot_spatial_50_k1",
+      "level": "off",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r11_groot_spatial_50_off.pkl",
+      "fit_sha256": "4c32362169ad92e3b40ddedfe5d177cbf4ad905f2a49fd147808714f95eee275",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all/episodes.json"
+    },
+    {
+      "cell": "pi05_l10_100_k1",
+      "source_cell": "pi05_l10_100_k1",
+      "level": "c10",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_l10_100_c10.pkl",
+      "fit_sha256": "d0f4aa84df30de86cae976d66ea8c8b648792ec38194135a6e3aa3b810fbe714",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_l10_100_k1",
+      "source_cell": "pi05_l10_100_k1",
+      "level": "ir45",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_l10_100_ir45.pkl",
+      "fit_sha256": "9614ca78753715da451c75145d0b19e88124ff10c494aa01160cff02af5f38d6",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_l10_100_k1",
+      "source_cell": "pi05_l10_100_k1",
+      "level": "ir40",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_l10_100_ir40.pkl",
+      "fit_sha256": "fa67fb9e6b946894f13718891df621269ac8a0a2d0d5b7a54db3d62a645a3e79",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_l10_100_k1",
+      "source_cell": "pi05_l10_100_k1",
+      "level": "ir32",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_l10_100_ir32.pkl",
+      "fit_sha256": "80a4347317e46ddb67c795ad667fd139114355716026c465c1d6a396ae8a4fee",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_l10_100_k1",
+      "source_cell": "pi05_l10_100_k1",
+      "level": "ir25",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_l10_100_ir25.pkl",
+      "fit_sha256": "1263ca850946e0ef456b2847ee1c0ab2d188026276cac3bf91b64b0bd9ffc293",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_l10_100_k1",
+      "source_cell": "pi05_l10_100_k1",
+      "level": "off",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_l10_100_off.pkl",
+      "fit_sha256": "ea145184eb0364bcf3c82d9f860d51cac9eb5a84fb18d1dd9cdbb239ddc69aa0",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_spatial_100_k1",
+      "source_cell": "pi05_spatial_100_k1",
+      "level": "c10",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_spatial_100_c10.pkl",
+      "fit_sha256": "c6591a9a3fac879589ed77644aca201a131dff6f2432b21584c4ec3369990f44",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_spatial_100_k1",
+      "source_cell": "pi05_spatial_100_k1",
+      "level": "ir45",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_spatial_100_ir45.pkl",
+      "fit_sha256": "09d60f4111316a507df1fb9280f16b33bd396f1f26322109b2ca82d6497c473c",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_spatial_100_k1",
+      "source_cell": "pi05_spatial_100_k1",
+      "level": "ir40",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_spatial_100_ir40.pkl",
+      "fit_sha256": "32bd9ebf43dff0c7e6448183b405e5468203cf3673d6e1f7683aca5125471f5b",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_spatial_100_k1",
+      "source_cell": "pi05_spatial_100_k1",
+      "level": "ir32",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_spatial_100_ir32.pkl",
+      "fit_sha256": "6cd22d29bdaa6e91a7f272981baa958956eea776104226e4c15d1020dbf4d2a1",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_spatial_100_k1",
+      "source_cell": "pi05_spatial_100_k1",
+      "level": "ir25",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_spatial_100_ir25.pkl",
+      "fit_sha256": "d092daed29c466437974b8f2b38ea68fc8a3f9014ff7ae56d208f9fd7f002e21",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_spatial_100_k1",
+      "source_cell": "pi05_spatial_100_k1",
+      "level": "off",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_spatial_100_off.pkl",
+      "fit_sha256": "92965ff16bbcc7eda8dafab5fa4b29569fbac77a19e5565e1ee0cb42d6804572",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "groot_l10_100_k1",
+      "source_cell": "groot_l10_100_k1",
+      "level": "c10",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_groot_l10_100_c10.pkl",
+      "fit_sha256": "a94490b9e52649fc47913c2ca61b2d648d6d07e8eab12bc377f5042a7c278014",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_l10_100_k1",
+      "source_cell": "groot_l10_100_k1",
+      "level": "ir45",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_groot_l10_100_ir45.pkl",
+      "fit_sha256": "2fbbf42f4a57bdb34dfef096587cd040b3c741dd5630bc3e4ba33d12d9d814b3",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_l10_100_k1",
+      "source_cell": "groot_l10_100_k1",
+      "level": "ir40",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_groot_l10_100_ir40.pkl",
+      "fit_sha256": "093c9c32838fb37d473bbe6b1abff8c377de82012f6257448c37b8982cfcc8b5",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_l10_100_k1",
+      "source_cell": "groot_l10_100_k1",
+      "level": "ir32",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_groot_l10_100_ir32.pkl",
+      "fit_sha256": "ce1976158f4cc4469209c0e64327fa5e9e5f9cdfc17b8907a05b611640d90be6",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_l10_100_k1",
+      "source_cell": "groot_l10_100_k1",
+      "level": "ir25",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_groot_l10_100_ir25.pkl",
+      "fit_sha256": "7932469be98e9d75c7360e83d11949035c5188ba93937c09d4a55ef381dbe312",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_l10_100_k1",
+      "source_cell": "groot_l10_100_k1",
+      "level": "off",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_groot_l10_100_off.pkl",
+      "fit_sha256": "0a67779a27412639a10b952f25bcfa14c9d66c9865069c1f42cfac9e0e69e58c",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_spatial_100_k1",
+      "source_cell": "groot_spatial_100_k1",
+      "level": "c10",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_groot_spatial_100_c10.pkl",
+      "fit_sha256": "ad4fbd8528eaefc95908a52a68efe221185857996db979027a55557de5456129",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_spatial_100_k1",
+      "source_cell": "groot_spatial_100_k1",
+      "level": "ir45",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_groot_spatial_100_ir45.pkl",
+      "fit_sha256": "983731ef481291cd7450beb94eca0489e8f97f19bfa2e2447fe03f7a03484b65",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_spatial_100_k1",
+      "source_cell": "groot_spatial_100_k1",
+      "level": "ir40",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_groot_spatial_100_ir40.pkl",
+      "fit_sha256": "cd4b24a8911f9633a83435de715061b2f2832f642823286801fe0a6d3adb02bf",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_spatial_100_k1",
+      "source_cell": "groot_spatial_100_k1",
+      "level": "ir32",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_groot_spatial_100_ir32.pkl",
+      "fit_sha256": "0d59d56e4f3eef908ca6a83fff5011844d3db45ec917378ad8dd96e7a27eef9d",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_spatial_100_k1",
+      "source_cell": "groot_spatial_100_k1",
+      "level": "ir25",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_groot_spatial_100_ir25.pkl",
+      "fit_sha256": "13774f7a15c77e49cb4c228df008a20d99c41df97fc2c0fd37f2583de03dbd31",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_spatial_100_k1",
+      "source_cell": "groot_spatial_100_k1",
+      "level": "off",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_groot_spatial_100_off.pkl",
+      "fit_sha256": "d5e0f1684b29d4406f03b1e56161b9d3863d75fed4b677d30487b611db1991bc",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all/episodes.json"
+    },
+    {
+      "cell": "pi05_l10_200_k1",
+      "source_cell": "pi05_l10_100_k1",
+      "level": "c10",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_l10_100_c10.pkl",
+      "fit_sha256": "d0f4aa84df30de86cae976d66ea8c8b648792ec38194135a6e3aa3b810fbe714",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_l10_200_k1",
+      "source_cell": "pi05_l10_200_k1",
+      "level": "ir45",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r13/knob/artifacts/pi05_l10_200_periodic_0p45.pkl",
+      "fit_sha256": "78a2a29e5c73e36faeb79e59f7bbb1f53fa751716a07bf5e9ea8e8b22788419f",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_l10_200_k1",
+      "source_cell": "pi05_l10_200_k1",
+      "level": "ir40",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r13/knob/artifacts/pi05_l10_200_periodic_0p4.pkl",
+      "fit_sha256": "6dcde9be18abf16a80bd23cab90128ee5a9b0ad65b6d1f56868ac319a3ab2033",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_l10_200_k1",
+      "source_cell": "pi05_l10_200_k1",
+      "level": "ir32",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r13/knob/artifacts/pi05_l10_200_periodic_0p32.pkl",
+      "fit_sha256": "b11a8e8793549e0b905c8045aa3d35c2529c4cc42d1a6056dea51c7c28bcb4a9",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_l10_200_k1",
+      "source_cell": "pi05_l10_200_k1",
+      "level": "ir25",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r11_pi05_l10_200_periodic_ir25.pkl",
+      "fit_sha256": "e285e2638b072dea57b6028e9bb2c28983654580d73f8cc9ebca4ab9e71ebcc9",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_l10_200_k1",
+      "source_cell": "pi05_l10_200_k1",
+      "level": "off",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r11_pi05_l10_200_off.pkl",
+      "fit_sha256": "6c0f2ce13fbaa48192c91da66df4408b9aa59100501515398c7c88aec1ec5ce7",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_spatial_200_k1",
+      "source_cell": "pi05_spatial_100_k1",
+      "level": "c10",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_spatial_100_c10.pkl",
+      "fit_sha256": "c6591a9a3fac879589ed77644aca201a131dff6f2432b21584c4ec3369990f44",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_spatial_200_k1",
+      "source_cell": "pi05_spatial_200_k1",
+      "level": "ir45",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_spatial_200_ir45.pkl",
+      "fit_sha256": "2d06dc3390900b9e07c34a7157617db5a6c42857051d852d7f4ccb3cf47958b8",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_spatial_200_k1",
+      "source_cell": "pi05_spatial_200_k1",
+      "level": "ir40",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_spatial_200_ir40.pkl",
+      "fit_sha256": "9833808cd8b0d2cfc68aa338dc27384b8619315d390dbf09a5cbb3ea0083c10d",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_spatial_200_k1",
+      "source_cell": "pi05_spatial_200_k1",
+      "level": "ir32",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_spatial_200_ir32.pkl",
+      "fit_sha256": "6c6c46994eda8c8cfae3a894fa9237ee2d9c4b1a1cd9077eae84d9e0baaf47bf",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_spatial_200_k1",
+      "source_cell": "pi05_spatial_200_k1",
+      "level": "ir25",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_spatial_200_ir25.pkl",
+      "fit_sha256": "9e3d004bdfc18b87e01ee8c63541d7fd734bbf356a29c6df664790d6cd2022bc",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_spatial_200_k1",
+      "source_cell": "pi05_spatial_200_k1",
+      "level": "off",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_spatial_200_off.pkl",
+      "fit_sha256": "f11bbf2225ce5cb08c7a95e58f802e0e21c93c1fa03ff4b8d09719ad282c29ef",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "groot_l10_200_k1",
+      "source_cell": "groot_l10_100_k1",
+      "level": "c10",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_groot_l10_100_c10.pkl",
+      "fit_sha256": "a94490b9e52649fc47913c2ca61b2d648d6d07e8eab12bc377f5042a7c278014",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_l10_200_k1",
+      "source_cell": "groot_l10_200_k1",
+      "level": "ir45",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r13/knob/artifacts/groot_l10_200_periodic_0p45.pkl",
+      "fit_sha256": "1b999e911b22e1d3b2235b78876c44a8cba5ee5382b3f925ac385d5076446064",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_l10_200_k1",
+      "source_cell": "groot_l10_200_k1",
+      "level": "ir40",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r13/knob/artifacts/groot_l10_200_periodic_0p4.pkl",
+      "fit_sha256": "2121eb9294cb1cb4930be5aa3a7cd40af55f3f6db49d5092598398f2b0d74743",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_l10_200_k1",
+      "source_cell": "groot_l10_200_k1",
+      "level": "ir32",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r11_groot_l10_200_periodic_ir32.pkl",
+      "fit_sha256": "7712b8c292d61e2935932fa8f92df203518dc961fd1f57b281af9152e5ec367b",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_l10_200_k1",
+      "source_cell": "groot_l10_200_k1",
+      "level": "ir25",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r11_groot_l10_200_periodic_ir25.pkl",
+      "fit_sha256": "52a7a96a64e49e8ab5c50581bdbe9e0d23e767acc0f670fe0c404b33aa140078",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_l10_200_k1",
+      "source_cell": "groot_l10_200_k1",
+      "level": "off",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r11_groot_l10_200_off.pkl",
+      "fit_sha256": "3825b3945232a5cd1218076d6cb2a70a7d77c52e3a78ae8fbd32838311a6eb1c",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_spatial_200_k1",
+      "source_cell": "groot_spatial_100_k1",
+      "level": "c10",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_groot_spatial_100_c10.pkl",
+      "fit_sha256": "ad4fbd8528eaefc95908a52a68efe221185857996db979027a55557de5456129",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_spatial_200_k1",
+      "source_cell": "groot_spatial_200_k1",
+      "level": "ir45",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_groot_spatial_200_ir45.pkl",
+      "fit_sha256": "538bb3f5689a2898e10817b2e32eb9fa45f9b2167a4795524e905beb26b35542",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_spatial_200_k1",
+      "source_cell": "groot_spatial_200_k1",
+      "level": "ir40",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_groot_spatial_200_ir40.pkl",
+      "fit_sha256": "f31a1bd7830a8ffb97e1647d5eea655bbd71ea7ac105c69628ef2ff276f679e6",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_spatial_200_k1",
+      "source_cell": "groot_spatial_200_k1",
+      "level": "ir32",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_groot_spatial_200_ir32.pkl",
+      "fit_sha256": "576a9a49fe3aa8facbe91ca0e34d032ec11bd7dcce7f6880c17f5da773ab9447",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_spatial_200_k1",
+      "source_cell": "groot_spatial_200_k1",
+      "level": "ir25",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_groot_spatial_200_ir25.pkl",
+      "fit_sha256": "91d18c9dd7bdc2765cd29e241323a0118fd6e4b93df75d5ba2e6223502480435",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_spatial_200_k1",
+      "source_cell": "groot_spatial_200_k1",
+      "level": "off",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_groot_spatial_200_off.pkl",
+      "fit_sha256": "f81cd21f40bd52d7b8249edf112553a6cce69d4acd6ca25469cade498b8713fc",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all/episodes.json"
+    },
+    {
+      "cell": "pi05_l10_500_k1",
+      "source_cell": "pi05_l10_100_k1",
+      "level": "c10",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_l10_100_c10.pkl",
+      "fit_sha256": "d0f4aa84df30de86cae976d66ea8c8b648792ec38194135a6e3aa3b810fbe714",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_l10_500_k1",
+      "source_cell": "pi05_l10_500_k1",
+      "level": "ir45",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r15/descent/artifacts/pi05_l10_500_ir45_leave_own_out.pkl",
+      "fit_sha256": "518ca0292e3cc7431a059b9da4167952ec7ebaf2b5e306f33affb8bc997b4b30",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_l10_500_k1",
+      "source_cell": "pi05_l10_500_k1",
+      "level": "ir40",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r15/descent/artifacts/pi05_l10_500_ir40_leave_own_out.pkl",
+      "fit_sha256": "f6b9b8690db9848301626cda151bcf83173b1e986b6c7dc860a36c22313107eb",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_l10_500_k1",
+      "source_cell": "pi05_l10_500_k1",
+      "level": "ir32",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r15/descent/artifacts/pi05_l10_500_ir32_leave_own_out.pkl",
+      "fit_sha256": "89400b77f3f8ebf1aa9cae218b328c745ab18b416f9a4d1913334bc44c7a2340",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_l10_500_k1",
+      "source_cell": "pi05_l10_500_k1",
+      "level": "ir25",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r15/descent/artifacts/pi05_l10_500_ir25_leave_own_out.pkl",
+      "fit_sha256": "6a61300e5c329823d868daaa6ac80f6e669ec23e3d9ddbaa369669e79b397c57",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_l10_500_k1",
+      "source_cell": "pi05_l10_500_k1",
+      "level": "off",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r15/descent/artifacts/pi05_l10_500_off_leave_own_out.pkl",
+      "fit_sha256": "50029864486ed031a4c2745d00e2c7fd718c18feb58a19d6efbd89876733ecd3",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_l10/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_spatial_500_k1",
+      "source_cell": "pi05_spatial_100_k1",
+      "level": "c10",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_spatial_100_c10.pkl",
+      "fit_sha256": "c6591a9a3fac879589ed77644aca201a131dff6f2432b21584c4ec3369990f44",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_spatial_500_k1",
+      "source_cell": "pi05_spatial_500_k1",
+      "level": "ir45",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r15/descent/artifacts/pi05_spatial_500_ir45_leave_own_out.pkl",
+      "fit_sha256": "4d22c52132c7fa5bf445450332899ab761915ed5507749a69a67b32aba5355b6",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_spatial_500_k1",
+      "source_cell": "pi05_spatial_500_k1",
+      "level": "ir40",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r15/descent/artifacts/pi05_spatial_500_ir40_leave_own_out.pkl",
+      "fit_sha256": "23279ad556b84c53d4d3f1a857f40911178b1d91289b43b34c859d2ef3e89e53",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_spatial_500_k1",
+      "source_cell": "pi05_spatial_500_k1",
+      "level": "ir32",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r15/descent/artifacts/pi05_spatial_500_ir32_leave_own_out.pkl",
+      "fit_sha256": "84ede5ea1b2433123b61e140684d3ebd47a5c3a6c5eecbcd293d69e7feb3695f",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_spatial_500_k1",
+      "source_cell": "pi05_spatial_500_k1",
+      "level": "ir25",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r15/descent/artifacts/pi05_spatial_500_ir25_leave_own_out.pkl",
+      "fit_sha256": "f6da688e73a344b1c2ca685809a10bcbd1096b5bd0d35ae1bec1c57501d44393",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "pi05_spatial_500_k1",
+      "source_cell": "pi05_spatial_500_k1",
+      "level": "off",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r15/descent/artifacts/pi05_spatial_500_off_leave_own_out.pkl",
+      "fit_sha256": "c87cfe5aba58cbfeff6fbc38d239867a87b4981e37879fd0ad07ed7697cb5a48",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/pi05_spatial/bpool_cs/episodes.json"
+    },
+    {
+      "cell": "groot_l10_500_k1",
+      "source_cell": "groot_l10_100_k1",
+      "level": "c10",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_groot_l10_100_c10.pkl",
+      "fit_sha256": "a94490b9e52649fc47913c2ca61b2d648d6d07e8eab12bc377f5042a7c278014",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_l10_500_k1",
+      "source_cell": "groot_l10_500_k1",
+      "level": "ir45",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r15/descent/artifacts/groot_l10_500_ir45_leave_own_out.pkl",
+      "fit_sha256": "1dc07731a89c6a529866ce3a3e3f4a61170e985317f6a193900d8a5a0deeb895",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_l10_500_k1",
+      "source_cell": "groot_l10_500_k1",
+      "level": "ir40",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r15/descent/artifacts/groot_l10_500_ir40_leave_own_out.pkl",
+      "fit_sha256": "fbda84fe889188f8de465d32503f4e2fda570d6164834da4321f5ce97c3b389b",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_l10_500_k1",
+      "source_cell": "groot_l10_500_k1",
+      "level": "ir32",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r15/descent/artifacts/groot_l10_500_ir32_leave_own_out.pkl",
+      "fit_sha256": "626e36e20407157d53570896ab90a16536d6d143e56ecabe223da217a663cba3",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_l10_500_k1",
+      "source_cell": "groot_l10_500_k1",
+      "level": "ir25",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r15/descent/artifacts/groot_l10_500_ir25_leave_own_out.pkl",
+      "fit_sha256": "f81cbc994616c0c739aeadec57c04aa236403b214b13635ed99fa1e0a7bc82c5",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_l10_500_k1",
+      "source_cell": "groot_l10_500_k1",
+      "level": "off",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r15/descent/artifacts/groot_l10_500_off_leave_own_out.pkl",
+      "fit_sha256": "7afb46812e3f6717e3f822ab57994a0b6d7a318468aeef25625dcb89fb9ffbf9",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_l10/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_spatial_500_k1",
+      "source_cell": "groot_spatial_100_k1",
+      "level": "c10",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_groot_spatial_100_c10.pkl",
+      "fit_sha256": "ad4fbd8528eaefc95908a52a68efe221185857996db979027a55557de5456129",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_spatial_500_k1",
+      "source_cell": "groot_spatial_500_k1",
+      "level": "ir45",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r15/descent/artifacts/groot_spatial_500_ir45_leave_own_out.pkl",
+      "fit_sha256": "cc4552676a29bf351a4f1efbfb57b7dfcefbe52d4b117dd2afade245644df397",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_spatial_500_k1",
+      "source_cell": "groot_spatial_500_k1",
+      "level": "ir40",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r15/descent/artifacts/groot_spatial_500_ir40_leave_own_out.pkl",
+      "fit_sha256": "73ba3f6f5386afaa2abac3085be71ce3d0b23974a5c0979f61f7bda6d09204ab",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_spatial_500_k1",
+      "source_cell": "groot_spatial_500_k1",
+      "level": "ir32",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r15/descent/artifacts/groot_spatial_500_ir32_leave_own_out.pkl",
+      "fit_sha256": "1cbae9debed5a72dc3a0eb13a2f5de8f8276d5633c13f2ecbe0a70e4b6ba8ce4",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_spatial_500_k1",
+      "source_cell": "groot_spatial_500_k1",
+      "level": "ir25",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r15/descent/artifacts/groot_spatial_500_ir25_leave_own_out.pkl",
+      "fit_sha256": "b790e902a14213a18943e80639a82636645675a8b2f7394adebafdfb21440c1b",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all/episodes.json"
+    },
+    {
+      "cell": "groot_spatial_500_k1",
+      "source_cell": "groot_spatial_500_k1",
+      "level": "off",
+      "fit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r15/descent/artifacts/groot_spatial_500_off_leave_own_out.pkl",
+      "fit_sha256": "3173a07a196c2ad20553b085738d0b12ae0f049df3b5fb46673d6181b4188e19",
+      "library": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all",
+      "labels": "/home/weiland/trace_runs/offline_search_store/library/groot_spatial/bpool_all/episodes.json"
+    }
+  ]
+}

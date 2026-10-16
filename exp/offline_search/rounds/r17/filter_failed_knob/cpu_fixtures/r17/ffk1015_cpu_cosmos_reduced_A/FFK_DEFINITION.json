@@ -1,0 +1,17 @@
+{
+  "name": "ffk1015_cpu_cosmos_reduced_A",
+  "run": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/cpu_fixtures/r17/ffk1015_cpu_cosmos_reduced_A",
+  "source": "/data/mw_finetune/eval/knobtestcos_red",
+  "episodes": 100,
+  "model": "cosmos",
+  "benchmark": "libero",
+  "gpu": "H100",
+  "workers": {
+    "timan1": 40,
+    "timan107": 45
+  },
+  "replicas": 8,
+  "python": "/data/cosmos/cosmos-policy/.venv/bin/python",
+  "runtime": "/data/mw_finetune/qualification/formal_runtime_a7a387ed6d45ce9cf5ece2628f32577ee5a55ab55bbcb2a771e25ebc227b4f07",
+  "unfiltered": false
+}

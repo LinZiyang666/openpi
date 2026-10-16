@@ -1,0 +1,2511 @@
+{
+  "run": "ffk1015_groot_mt50_reduced_descent",
+  "python": "/home/exouser/gr00t_n15_venv/.venv/bin/python",
+  "prefix": "/home/exouser/gr00t_n15_venv/.venv",
+  "status": "PASS",
+  "assets": "/data/mw_finetune/eval/grmk1_red/assets",
+  "model": "groot",
+  "identity_path": "groot.loader.checkpoint_manifest (load_checkpoint descriptor path)",
+  "package_versions": {
+    "torch": "2.5.1",
+    "torchvision": "0.20.1",
+    "diffusers": "0.30.2",
+    "transformers": "4.51.3",
+    "numpy": "1.26.4",
+    "safetensors": "0.8.0"
+  },
+  "pinned_packages_equal": true,
+  "actual_spec": {
+    "model_id": "groot_n15_metaworld_sawyer",
+    "checkpoint_identity": "sha256:e3ed5ca4064625a83a391e99ca2ae199e3b820db3cba42fabea4ce205ce3c6ec",
+    "norm_identity": "sha256:a566e2c90005d2327f265d7aebfafe692933663a427a6e5aff8b5c91774b3143",
+    "layout": {
+      "horizon": 16,
+      "replan_steps": 5,
+      "valid_action_dim": 4,
+      "valid_state_indices": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "motion_channels": [
+        0,
+        1,
+        2
+      ],
+      "gripper_channel": 3,
+      "gripper_closed_convention": "native_metaworld",
+      "raw_state_fields": [
+        "x",
+        "y",
+        "z",
+        "gripper"
+      ],
+      "action_space_name": "metaworld_sawyer_native4",
+      "units": "native controller; physical scale unverified",
+      "frame": "native_metaworld",
+      "output_transform_id": "sha256:2193b2b255a87e4cc2ea65184da2e59cdb17de1183a1a744d69a3bc4883e1a62",
+      "model_action_width": 32,
+      "valid_action_indices": []
+    },
+    "feature_spec": {
+      "source": "eagle_scatter_before_llm",
+      "real_cameras": [
+        "video.image"
+      ],
+      "fields": {
+        "vision_0": 32768,
+        "robot_state": 4
+      },
+      "token_grid": [
+        16,
+        16
+      ],
+      "hidden_width": 2048,
+      "pooling": "spatial4x4_float32_v1",
+      "missing_branch_policy": "reject",
+      "prompt_dependent": false,
+      "key_dtype": "float32",
+      "active_state_indices": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "policy_digest": "sha256:e3ed5ca4064625a83a391e99ca2ae199e3b820db3cba42fabea4ce205ce3c6ec",
+      "norm_digest": "sha256:a566e2c90005d2327f265d7aebfafe692933663a427a6e5aff8b5c91774b3143",
+      "preprocess_digest": "sha256:2193b2b255a87e4cc2ea65184da2e59cdb17de1183a1a744d69a3bc4883e1a62"
+    },
+    "default_sampler": {
+      "sampler_id": "groot_n15_k2_v1",
+      "family": "flow_euler",
+      "num_steps": 2,
+      "native_timesteps": [
+        0.0,
+        0.5
+      ],
+      "native_deltas": [
+        0.5,
+        0.5
+      ],
+      "config": {
+        "direction": "noise_to_clean_asc",
+        "endpoint_fixed_k": true
+      },
+      "point_kind": "flow_time"
+    },
+    "capabilities": {
+      "features": {
+        "full": {
+          "status": "supported",
+          "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+          "evidence": []
+        },
+        "k_step": {
+          "status": "supported",
+          "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+          "evidence": []
+        },
+        "cp1_retrieval": {
+          "status": "supported",
+          "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+          "evidence": []
+        },
+        "concurrent": {
+          "status": "supported",
+          "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+          "evidence": []
+        },
+        "bundle": {
+          "status": "supported",
+          "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+          "evidence": []
+        },
+        "episode": {
+          "status": "supported",
+          "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+          "evidence": []
+        },
+        "debug_capture": {
+          "status": "supported",
+          "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+          "evidence": []
+        },
+        "library": {
+          "status": "implemented_unverified",
+          "reason": "Full-action CP1 subset only; complete library fit/replay/augmentation qualification pending",
+          "evidence": []
+        },
+        "native_resume": {
+          "status": "implemented_unverified",
+          "reason": "Direct adapter API only; generic warm-tier dispatcher rejects configuration",
+          "evidence": []
+        },
+        "trace": {
+          "status": "implemented_unverified",
+          "reason": "Direct stock trace hook only; generic trace executor rejects configuration",
+          "evidence": []
+        },
+        "batch_stage3": {
+          "status": "implemented_unverified",
+          "reason": "Direct stock S3 hook only; generic server does not submit through BatchingCore",
+          "evidence": []
+        },
+        "cp2_key_capture": {
+          "status": "implemented_unverified",
+          "reason": "Direct key hook only; generic CP2 execution rejects configuration",
+          "evidence": []
+        },
+        "warm_reset_hook": {
+          "status": "implemented_unverified",
+          "reason": "Direct stock hook only; generic warm-reset execution rejects configuration",
+          "evidence": []
+        },
+        "batch_stage1": {
+          "status": "unsupported",
+          "reason": "no MW qualification for this hook",
+          "evidence": []
+        },
+        "batch_stage2": {
+          "status": "unsupported",
+          "reason": "no MW qualification for this hook",
+          "evidence": []
+        },
+        "split": {
+          "status": "unsupported",
+          "reason": "no MW qualification for this hook",
+          "evidence": []
+        },
+        "cp2": {
+          "status": "unsupported",
+          "reason": "no MW qualification for this hook",
+          "evidence": []
+        },
+        "online_rit": {
+          "status": "unsupported",
+          "reason": "no MW qualification for this hook",
+          "evidence": []
+        },
+        "dual_camera_ablation": {
+          "status": "not_applicable",
+          "reason": "one real camera",
+          "evidence": []
+        }
+      }
+    },
+    "allowed_benchmark_protocols": [
+      "5200a59f91da158a9770543c831c570392aba126c6192d62755a134b224b8e48"
+    ],
+    "code_digest": "sha256:5f91679382e4aa3f49c912f49a64cbb39f2052a7564e0cec37e66904ddab378c",
+    "python_island": "GR00T vendor island"
+  },
+  "spec_equal": true,
+  "full_system_startup_checks": [
+    {
+      "group": "chrg_k50",
+      "size": 250,
+      "suite": "mt50",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k40",
+      "size": 250,
+      "suite": "mt50",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k30",
+      "size": 250,
+      "suite": "mt50",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k20",
+      "size": 250,
+      "suite": "mt50",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k10",
+      "size": 250,
+      "suite": "mt50",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_koff",
+      "size": 250,
+      "suite": "mt50",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k50",
+      "size": 500,
+      "suite": "mt50",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k40",
+      "size": 500,
+      "suite": "mt50",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k30",
+      "size": 500,
+      "suite": "mt50",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k20",
+      "size": 500,
+      "suite": "mt50",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k10",
+      "size": 500,
+      "suite": "mt50",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_koff",
+      "size": 500,
+      "suite": "mt50",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k50",
+      "size": 1000,
+      "suite": "mt50",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k40",
+      "size": 1000,
+      "suite": "mt50",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k30",
+      "size": 1000,
+      "suite": "mt50",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k20",
+      "size": 1000,
+      "suite": "mt50",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k10",
+      "size": 1000,
+      "suite": "mt50",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_koff",
+      "size": 1000,
+      "suite": "mt50",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k50",
+      "size": 1500,
+      "suite": "mt50",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k40",
+      "size": 1500,
+      "suite": "mt50",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k30",
+      "size": 1500,
+      "suite": "mt50",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k20",
+      "size": 1500,
+      "suite": "mt50",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k10",
+      "size": 1500,
+      "suite": "mt50",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_koff",
+      "size": 1500,
+      "suite": "mt50",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k50",
+      "size": 2000,
+      "suite": "mt50",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k40",
+      "size": 2000,
+      "suite": "mt50",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k30",
+      "size": 2000,
+      "suite": "mt50",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k20",
+      "size": 2000,
+      "suite": "mt50",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k10",
+      "size": 2000,
+      "suite": "mt50",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_koff",
+      "size": 2000,
+      "suite": "mt50",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k50",
+      "size": 2500,
+      "suite": "mt50",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k40",
+      "size": 2500,
+      "suite": "mt50",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k30",
+      "size": 2500,
+      "suite": "mt50",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k20",
+      "size": 2500,
+      "suite": "mt50",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k10",
+      "size": 2500,
+      "suite": "mt50",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_koff",
+      "size": 2500,
+      "suite": "mt50",
+      "corrector": true,
+      "stall": true
+    }
+  ],
+  "source_ready_specs": [
+    {
+      "allowed_benchmark_protocols": [
+        "5200a59f91da158a9770543c831c570392aba126c6192d62755a134b224b8e48"
+      ],
+      "capabilities": {
+        "features": {
+          "batch_stage1": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "batch_stage2": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "batch_stage3": {
+            "evidence": [],
+            "reason": "Direct stock S3 hook only; generic server does not submit through BatchingCore",
+            "status": "implemented_unverified"
+          },
+          "bundle": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "concurrent": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "cp1_retrieval": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "cp2": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "cp2_key_capture": {
+            "evidence": [],
+            "reason": "Direct key hook only; generic CP2 execution rejects configuration",
+            "status": "implemented_unverified"
+          },
+          "debug_capture": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "dual_camera_ablation": {
+            "evidence": [],
+            "reason": "one real camera",
+            "status": "not_applicable"
+          },
+          "episode": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "full": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "k_step": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "library": {
+            "evidence": [],
+            "reason": "Full-action CP1 subset only; complete library fit/replay/augmentation qualification pending",
+            "status": "implemented_unverified"
+          },
+          "native_resume": {
+            "evidence": [],
+            "reason": "Direct adapter API only; generic warm-tier dispatcher rejects configuration",
+            "status": "implemented_unverified"
+          },
+          "online_rit": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "split": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "trace": {
+            "evidence": [],
+            "reason": "Direct stock trace hook only; generic trace executor rejects configuration",
+            "status": "implemented_unverified"
+          },
+          "warm_reset_hook": {
+            "evidence": [],
+            "reason": "Direct stock hook only; generic warm-reset execution rejects configuration",
+            "status": "implemented_unverified"
+          }
+        }
+      },
+      "checkpoint_identity": "sha256:e3ed5ca4064625a83a391e99ca2ae199e3b820db3cba42fabea4ce205ce3c6ec",
+      "code_digest": "sha256:5f91679382e4aa3f49c912f49a64cbb39f2052a7564e0cec37e66904ddab378c",
+      "default_sampler": {
+        "config": {
+          "direction": "noise_to_clean_asc",
+          "endpoint_fixed_k": true
+        },
+        "family": "flow_euler",
+        "native_deltas": [
+          0.5,
+          0.5
+        ],
+        "native_timesteps": [
+          0.0,
+          0.5
+        ],
+        "num_steps": 2,
+        "point_kind": "flow_time",
+        "sampler_id": "groot_n15_k2_v1"
+      },
+      "feature_spec": {
+        "active_state_indices": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "fields": {
+          "robot_state": 4,
+          "vision_0": 32768
+        },
+        "hidden_width": 2048,
+        "key_dtype": "float32",
+        "missing_branch_policy": "reject",
+        "norm_digest": "sha256:a566e2c90005d2327f265d7aebfafe692933663a427a6e5aff8b5c91774b3143",
+        "policy_digest": "sha256:e3ed5ca4064625a83a391e99ca2ae199e3b820db3cba42fabea4ce205ce3c6ec",
+        "pooling": "spatial4x4_float32_v1",
+        "preprocess_digest": "sha256:2193b2b255a87e4cc2ea65184da2e59cdb17de1183a1a744d69a3bc4883e1a62",
+        "prompt_dependent": false,
+        "real_cameras": [
+          "video.image"
+        ],
+        "source": "eagle_scatter_before_llm",
+        "token_grid": [
+          16,
+          16
+        ]
+      },
+      "layout": {
+        "action_space_name": "metaworld_sawyer_native4",
+        "frame": "native_metaworld",
+        "gripper_channel": 3,
+        "gripper_closed_convention": "native_metaworld",
+        "horizon": 16,
+        "model_action_width": 32,
+        "motion_channels": [
+          0,
+          1,
+          2
+        ],
+        "output_transform_id": "sha256:2193b2b255a87e4cc2ea65184da2e59cdb17de1183a1a744d69a3bc4883e1a62",
+        "raw_state_fields": [
+          "x",
+          "y",
+          "z",
+          "gripper"
+        ],
+        "replan_steps": 5,
+        "units": "native controller; physical scale unverified",
+        "valid_action_dim": 4,
+        "valid_action_indices": [],
+        "valid_state_indices": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "model_id": "groot_n15_metaworld_sawyer",
+      "norm_identity": "sha256:a566e2c90005d2327f265d7aebfafe692933663a427a6e5aff8b5c91774b3143",
+      "python_island": "GR00T vendor island"
+    },
+    {
+      "allowed_benchmark_protocols": [
+        "5200a59f91da158a9770543c831c570392aba126c6192d62755a134b224b8e48"
+      ],
+      "capabilities": {
+        "features": {
+          "batch_stage1": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "batch_stage2": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "batch_stage3": {
+            "evidence": [],
+            "reason": "Direct stock S3 hook only; generic server does not submit through BatchingCore",
+            "status": "implemented_unverified"
+          },
+          "bundle": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "concurrent": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "cp1_retrieval": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "cp2": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "cp2_key_capture": {
+            "evidence": [],
+            "reason": "Direct key hook only; generic CP2 execution rejects configuration",
+            "status": "implemented_unverified"
+          },
+          "debug_capture": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "dual_camera_ablation": {
+            "evidence": [],
+            "reason": "one real camera",
+            "status": "not_applicable"
+          },
+          "episode": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "full": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "k_step": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "library": {
+            "evidence": [],
+            "reason": "Full-action CP1 subset only; complete library fit/replay/augmentation qualification pending",
+            "status": "implemented_unverified"
+          },
+          "native_resume": {
+            "evidence": [],
+            "reason": "Direct adapter API only; generic warm-tier dispatcher rejects configuration",
+            "status": "implemented_unverified"
+          },
+          "online_rit": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "split": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "trace": {
+            "evidence": [],
+            "reason": "Direct stock trace hook only; generic trace executor rejects configuration",
+            "status": "implemented_unverified"
+          },
+          "warm_reset_hook": {
+            "evidence": [],
+            "reason": "Direct stock hook only; generic warm-reset execution rejects configuration",
+            "status": "implemented_unverified"
+          }
+        }
+      },
+      "checkpoint_identity": "sha256:e3ed5ca4064625a83a391e99ca2ae199e3b820db3cba42fabea4ce205ce3c6ec",
+      "code_digest": "sha256:5f91679382e4aa3f49c912f49a64cbb39f2052a7564e0cec37e66904ddab378c",
+      "default_sampler": {
+        "config": {
+          "direction": "noise_to_clean_asc",
+          "endpoint_fixed_k": true
+        },
+        "family": "flow_euler",
+        "native_deltas": [
+          0.5,
+          0.5
+        ],
+        "native_timesteps": [
+          0.0,
+          0.5
+        ],
+        "num_steps": 2,
+        "point_kind": "flow_time",
+        "sampler_id": "groot_n15_k2_v1"
+      },
+      "feature_spec": {
+        "active_state_indices": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "fields": {
+          "robot_state": 4,
+          "vision_0": 32768
+        },
+        "hidden_width": 2048,
+        "key_dtype": "float32",
+        "missing_branch_policy": "reject",
+        "norm_digest": "sha256:a566e2c90005d2327f265d7aebfafe692933663a427a6e5aff8b5c91774b3143",
+        "policy_digest": "sha256:e3ed5ca4064625a83a391e99ca2ae199e3b820db3cba42fabea4ce205ce3c6ec",
+        "pooling": "spatial4x4_float32_v1",
+        "preprocess_digest": "sha256:2193b2b255a87e4cc2ea65184da2e59cdb17de1183a1a744d69a3bc4883e1a62",
+        "prompt_dependent": false,
+        "real_cameras": [
+          "video.image"
+        ],
+        "source": "eagle_scatter_before_llm",
+        "token_grid": [
+          16,
+          16
+        ]
+      },
+      "layout": {
+        "action_space_name": "metaworld_sawyer_native4",
+        "frame": "native_metaworld",
+        "gripper_channel": 3,
+        "gripper_closed_convention": "native_metaworld",
+        "horizon": 16,
+        "model_action_width": 32,
+        "motion_channels": [
+          0,
+          1,
+          2
+        ],
+        "output_transform_id": "sha256:2193b2b255a87e4cc2ea65184da2e59cdb17de1183a1a744d69a3bc4883e1a62",
+        "raw_state_fields": [
+          "x",
+          "y",
+          "z",
+          "gripper"
+        ],
+        "replan_steps": 5,
+        "units": "native controller; physical scale unverified",
+        "valid_action_dim": 4,
+        "valid_action_indices": [],
+        "valid_state_indices": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "model_id": "groot_n15_metaworld_sawyer",
+      "norm_identity": "sha256:a566e2c90005d2327f265d7aebfafe692933663a427a6e5aff8b5c91774b3143",
+      "python_island": "GR00T vendor island"
+    },
+    {
+      "allowed_benchmark_protocols": [
+        "5200a59f91da158a9770543c831c570392aba126c6192d62755a134b224b8e48"
+      ],
+      "capabilities": {
+        "features": {
+          "batch_stage1": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "batch_stage2": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "batch_stage3": {
+            "evidence": [],
+            "reason": "Direct stock S3 hook only; generic server does not submit through BatchingCore",
+            "status": "implemented_unverified"
+          },
+          "bundle": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "concurrent": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "cp1_retrieval": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "cp2": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "cp2_key_capture": {
+            "evidence": [],
+            "reason": "Direct key hook only; generic CP2 execution rejects configuration",
+            "status": "implemented_unverified"
+          },
+          "debug_capture": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "dual_camera_ablation": {
+            "evidence": [],
+            "reason": "one real camera",
+            "status": "not_applicable"
+          },
+          "episode": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "full": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "k_step": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "library": {
+            "evidence": [],
+            "reason": "Full-action CP1 subset only; complete library fit/replay/augmentation qualification pending",
+            "status": "implemented_unverified"
+          },
+          "native_resume": {
+            "evidence": [],
+            "reason": "Direct adapter API only; generic warm-tier dispatcher rejects configuration",
+            "status": "implemented_unverified"
+          },
+          "online_rit": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "split": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "trace": {
+            "evidence": [],
+            "reason": "Direct stock trace hook only; generic trace executor rejects configuration",
+            "status": "implemented_unverified"
+          },
+          "warm_reset_hook": {
+            "evidence": [],
+            "reason": "Direct stock hook only; generic warm-reset execution rejects configuration",
+            "status": "implemented_unverified"
+          }
+        }
+      },
+      "checkpoint_identity": "sha256:e3ed5ca4064625a83a391e99ca2ae199e3b820db3cba42fabea4ce205ce3c6ec",
+      "code_digest": "sha256:5f91679382e4aa3f49c912f49a64cbb39f2052a7564e0cec37e66904ddab378c",
+      "default_sampler": {
+        "config": {
+          "direction": "noise_to_clean_asc",
+          "endpoint_fixed_k": true
+        },
+        "family": "flow_euler",
+        "native_deltas": [
+          0.5,
+          0.5
+        ],
+        "native_timesteps": [
+          0.0,
+          0.5
+        ],
+        "num_steps": 2,
+        "point_kind": "flow_time",
+        "sampler_id": "groot_n15_k2_v1"
+      },
+      "feature_spec": {
+        "active_state_indices": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "fields": {
+          "robot_state": 4,
+          "vision_0": 32768
+        },
+        "hidden_width": 2048,
+        "key_dtype": "float32",
+        "missing_branch_policy": "reject",
+        "norm_digest": "sha256:a566e2c90005d2327f265d7aebfafe692933663a427a6e5aff8b5c91774b3143",
+        "policy_digest": "sha256:e3ed5ca4064625a83a391e99ca2ae199e3b820db3cba42fabea4ce205ce3c6ec",
+        "pooling": "spatial4x4_float32_v1",
+        "preprocess_digest": "sha256:2193b2b255a87e4cc2ea65184da2e59cdb17de1183a1a744d69a3bc4883e1a62",
+        "prompt_dependent": false,
+        "real_cameras": [
+          "video.image"
+        ],
+        "source": "eagle_scatter_before_llm",
+        "token_grid": [
+          16,
+          16
+        ]
+      },
+      "layout": {
+        "action_space_name": "metaworld_sawyer_native4",
+        "frame": "native_metaworld",
+        "gripper_channel": 3,
+        "gripper_closed_convention": "native_metaworld",
+        "horizon": 16,
+        "model_action_width": 32,
+        "motion_channels": [
+          0,
+          1,
+          2
+        ],
+        "output_transform_id": "sha256:2193b2b255a87e4cc2ea65184da2e59cdb17de1183a1a744d69a3bc4883e1a62",
+        "raw_state_fields": [
+          "x",
+          "y",
+          "z",
+          "gripper"
+        ],
+        "replan_steps": 5,
+        "units": "native controller; physical scale unverified",
+        "valid_action_dim": 4,
+        "valid_action_indices": [],
+        "valid_state_indices": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "model_id": "groot_n15_metaworld_sawyer",
+      "norm_identity": "sha256:a566e2c90005d2327f265d7aebfafe692933663a427a6e5aff8b5c91774b3143",
+      "python_island": "GR00T vendor island"
+    },
+    {
+      "allowed_benchmark_protocols": [
+        "5200a59f91da158a9770543c831c570392aba126c6192d62755a134b224b8e48"
+      ],
+      "capabilities": {
+        "features": {
+          "batch_stage1": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "batch_stage2": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "batch_stage3": {
+            "evidence": [],
+            "reason": "Direct stock S3 hook only; generic server does not submit through BatchingCore",
+            "status": "implemented_unverified"
+          },
+          "bundle": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "concurrent": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "cp1_retrieval": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "cp2": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "cp2_key_capture": {
+            "evidence": [],
+            "reason": "Direct key hook only; generic CP2 execution rejects configuration",
+            "status": "implemented_unverified"
+          },
+          "debug_capture": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "dual_camera_ablation": {
+            "evidence": [],
+            "reason": "one real camera",
+            "status": "not_applicable"
+          },
+          "episode": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "full": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "k_step": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "library": {
+            "evidence": [],
+            "reason": "Full-action CP1 subset only; complete library fit/replay/augmentation qualification pending",
+            "status": "implemented_unverified"
+          },
+          "native_resume": {
+            "evidence": [],
+            "reason": "Direct adapter API only; generic warm-tier dispatcher rejects configuration",
+            "status": "implemented_unverified"
+          },
+          "online_rit": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "split": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "trace": {
+            "evidence": [],
+            "reason": "Direct stock trace hook only; generic trace executor rejects configuration",
+            "status": "implemented_unverified"
+          },
+          "warm_reset_hook": {
+            "evidence": [],
+            "reason": "Direct stock hook only; generic warm-reset execution rejects configuration",
+            "status": "implemented_unverified"
+          }
+        }
+      },
+      "checkpoint_identity": "sha256:e3ed5ca4064625a83a391e99ca2ae199e3b820db3cba42fabea4ce205ce3c6ec",
+      "code_digest": "sha256:5f91679382e4aa3f49c912f49a64cbb39f2052a7564e0cec37e66904ddab378c",
+      "default_sampler": {
+        "config": {
+          "direction": "noise_to_clean_asc",
+          "endpoint_fixed_k": true
+        },
+        "family": "flow_euler",
+        "native_deltas": [
+          0.5,
+          0.5
+        ],
+        "native_timesteps": [
+          0.0,
+          0.5
+        ],
+        "num_steps": 2,
+        "point_kind": "flow_time",
+        "sampler_id": "groot_n15_k2_v1"
+      },
+      "feature_spec": {
+        "active_state_indices": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "fields": {
+          "robot_state": 4,
+          "vision_0": 32768
+        },
+        "hidden_width": 2048,
+        "key_dtype": "float32",
+        "missing_branch_policy": "reject",
+        "norm_digest": "sha256:a566e2c90005d2327f265d7aebfafe692933663a427a6e5aff8b5c91774b3143",
+        "policy_digest": "sha256:e3ed5ca4064625a83a391e99ca2ae199e3b820db3cba42fabea4ce205ce3c6ec",
+        "pooling": "spatial4x4_float32_v1",
+        "preprocess_digest": "sha256:2193b2b255a87e4cc2ea65184da2e59cdb17de1183a1a744d69a3bc4883e1a62",
+        "prompt_dependent": false,
+        "real_cameras": [
+          "video.image"
+        ],
+        "source": "eagle_scatter_before_llm",
+        "token_grid": [
+          16,
+          16
+        ]
+      },
+      "layout": {
+        "action_space_name": "metaworld_sawyer_native4",
+        "frame": "native_metaworld",
+        "gripper_channel": 3,
+        "gripper_closed_convention": "native_metaworld",
+        "horizon": 16,
+        "model_action_width": 32,
+        "motion_channels": [
+          0,
+          1,
+          2
+        ],
+        "output_transform_id": "sha256:2193b2b255a87e4cc2ea65184da2e59cdb17de1183a1a744d69a3bc4883e1a62",
+        "raw_state_fields": [
+          "x",
+          "y",
+          "z",
+          "gripper"
+        ],
+        "replan_steps": 5,
+        "units": "native controller; physical scale unverified",
+        "valid_action_dim": 4,
+        "valid_action_indices": [],
+        "valid_state_indices": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "model_id": "groot_n15_metaworld_sawyer",
+      "norm_identity": "sha256:a566e2c90005d2327f265d7aebfafe692933663a427a6e5aff8b5c91774b3143",
+      "python_island": "GR00T vendor island"
+    },
+    {
+      "allowed_benchmark_protocols": [
+        "5200a59f91da158a9770543c831c570392aba126c6192d62755a134b224b8e48"
+      ],
+      "capabilities": {
+        "features": {
+          "batch_stage1": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "batch_stage2": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "batch_stage3": {
+            "evidence": [],
+            "reason": "Direct stock S3 hook only; generic server does not submit through BatchingCore",
+            "status": "implemented_unverified"
+          },
+          "bundle": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "concurrent": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "cp1_retrieval": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "cp2": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "cp2_key_capture": {
+            "evidence": [],
+            "reason": "Direct key hook only; generic CP2 execution rejects configuration",
+            "status": "implemented_unverified"
+          },
+          "debug_capture": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "dual_camera_ablation": {
+            "evidence": [],
+            "reason": "one real camera",
+            "status": "not_applicable"
+          },
+          "episode": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "full": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "k_step": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "library": {
+            "evidence": [],
+            "reason": "Full-action CP1 subset only; complete library fit/replay/augmentation qualification pending",
+            "status": "implemented_unverified"
+          },
+          "native_resume": {
+            "evidence": [],
+            "reason": "Direct adapter API only; generic warm-tier dispatcher rejects configuration",
+            "status": "implemented_unverified"
+          },
+          "online_rit": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "split": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "trace": {
+            "evidence": [],
+            "reason": "Direct stock trace hook only; generic trace executor rejects configuration",
+            "status": "implemented_unverified"
+          },
+          "warm_reset_hook": {
+            "evidence": [],
+            "reason": "Direct stock hook only; generic warm-reset execution rejects configuration",
+            "status": "implemented_unverified"
+          }
+        }
+      },
+      "checkpoint_identity": "sha256:e3ed5ca4064625a83a391e99ca2ae199e3b820db3cba42fabea4ce205ce3c6ec",
+      "code_digest": "sha256:5f91679382e4aa3f49c912f49a64cbb39f2052a7564e0cec37e66904ddab378c",
+      "default_sampler": {
+        "config": {
+          "direction": "noise_to_clean_asc",
+          "endpoint_fixed_k": true
+        },
+        "family": "flow_euler",
+        "native_deltas": [
+          0.5,
+          0.5
+        ],
+        "native_timesteps": [
+          0.0,
+          0.5
+        ],
+        "num_steps": 2,
+        "point_kind": "flow_time",
+        "sampler_id": "groot_n15_k2_v1"
+      },
+      "feature_spec": {
+        "active_state_indices": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "fields": {
+          "robot_state": 4,
+          "vision_0": 32768
+        },
+        "hidden_width": 2048,
+        "key_dtype": "float32",
+        "missing_branch_policy": "reject",
+        "norm_digest": "sha256:a566e2c90005d2327f265d7aebfafe692933663a427a6e5aff8b5c91774b3143",
+        "policy_digest": "sha256:e3ed5ca4064625a83a391e99ca2ae199e3b820db3cba42fabea4ce205ce3c6ec",
+        "pooling": "spatial4x4_float32_v1",
+        "preprocess_digest": "sha256:2193b2b255a87e4cc2ea65184da2e59cdb17de1183a1a744d69a3bc4883e1a62",
+        "prompt_dependent": false,
+        "real_cameras": [
+          "video.image"
+        ],
+        "source": "eagle_scatter_before_llm",
+        "token_grid": [
+          16,
+          16
+        ]
+      },
+      "layout": {
+        "action_space_name": "metaworld_sawyer_native4",
+        "frame": "native_metaworld",
+        "gripper_channel": 3,
+        "gripper_closed_convention": "native_metaworld",
+        "horizon": 16,
+        "model_action_width": 32,
+        "motion_channels": [
+          0,
+          1,
+          2
+        ],
+        "output_transform_id": "sha256:2193b2b255a87e4cc2ea65184da2e59cdb17de1183a1a744d69a3bc4883e1a62",
+        "raw_state_fields": [
+          "x",
+          "y",
+          "z",
+          "gripper"
+        ],
+        "replan_steps": 5,
+        "units": "native controller; physical scale unverified",
+        "valid_action_dim": 4,
+        "valid_action_indices": [],
+        "valid_state_indices": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "model_id": "groot_n15_metaworld_sawyer",
+      "norm_identity": "sha256:a566e2c90005d2327f265d7aebfafe692933663a427a6e5aff8b5c91774b3143",
+      "python_island": "GR00T vendor island"
+    },
+    {
+      "allowed_benchmark_protocols": [
+        "5200a59f91da158a9770543c831c570392aba126c6192d62755a134b224b8e48"
+      ],
+      "capabilities": {
+        "features": {
+          "batch_stage1": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "batch_stage2": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "batch_stage3": {
+            "evidence": [],
+            "reason": "Direct stock S3 hook only; generic server does not submit through BatchingCore",
+            "status": "implemented_unverified"
+          },
+          "bundle": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "concurrent": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "cp1_retrieval": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "cp2": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "cp2_key_capture": {
+            "evidence": [],
+            "reason": "Direct key hook only; generic CP2 execution rejects configuration",
+            "status": "implemented_unverified"
+          },
+          "debug_capture": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "dual_camera_ablation": {
+            "evidence": [],
+            "reason": "one real camera",
+            "status": "not_applicable"
+          },
+          "episode": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "full": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "k_step": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "library": {
+            "evidence": [],
+            "reason": "Full-action CP1 subset only; complete library fit/replay/augmentation qualification pending",
+            "status": "implemented_unverified"
+          },
+          "native_resume": {
+            "evidence": [],
+            "reason": "Direct adapter API only; generic warm-tier dispatcher rejects configuration",
+            "status": "implemented_unverified"
+          },
+          "online_rit": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "split": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "trace": {
+            "evidence": [],
+            "reason": "Direct stock trace hook only; generic trace executor rejects configuration",
+            "status": "implemented_unverified"
+          },
+          "warm_reset_hook": {
+            "evidence": [],
+            "reason": "Direct stock hook only; generic warm-reset execution rejects configuration",
+            "status": "implemented_unverified"
+          }
+        }
+      },
+      "checkpoint_identity": "sha256:e3ed5ca4064625a83a391e99ca2ae199e3b820db3cba42fabea4ce205ce3c6ec",
+      "code_digest": "sha256:5f91679382e4aa3f49c912f49a64cbb39f2052a7564e0cec37e66904ddab378c",
+      "default_sampler": {
+        "config": {
+          "direction": "noise_to_clean_asc",
+          "endpoint_fixed_k": true
+        },
+        "family": "flow_euler",
+        "native_deltas": [
+          0.5,
+          0.5
+        ],
+        "native_timesteps": [
+          0.0,
+          0.5
+        ],
+        "num_steps": 2,
+        "point_kind": "flow_time",
+        "sampler_id": "groot_n15_k2_v1"
+      },
+      "feature_spec": {
+        "active_state_indices": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "fields": {
+          "robot_state": 4,
+          "vision_0": 32768
+        },
+        "hidden_width": 2048,
+        "key_dtype": "float32",
+        "missing_branch_policy": "reject",
+        "norm_digest": "sha256:a566e2c90005d2327f265d7aebfafe692933663a427a6e5aff8b5c91774b3143",
+        "policy_digest": "sha256:e3ed5ca4064625a83a391e99ca2ae199e3b820db3cba42fabea4ce205ce3c6ec",
+        "pooling": "spatial4x4_float32_v1",
+        "preprocess_digest": "sha256:2193b2b255a87e4cc2ea65184da2e59cdb17de1183a1a744d69a3bc4883e1a62",
+        "prompt_dependent": false,
+        "real_cameras": [
+          "video.image"
+        ],
+        "source": "eagle_scatter_before_llm",
+        "token_grid": [
+          16,
+          16
+        ]
+      },
+      "layout": {
+        "action_space_name": "metaworld_sawyer_native4",
+        "frame": "native_metaworld",
+        "gripper_channel": 3,
+        "gripper_closed_convention": "native_metaworld",
+        "horizon": 16,
+        "model_action_width": 32,
+        "motion_channels": [
+          0,
+          1,
+          2
+        ],
+        "output_transform_id": "sha256:2193b2b255a87e4cc2ea65184da2e59cdb17de1183a1a744d69a3bc4883e1a62",
+        "raw_state_fields": [
+          "x",
+          "y",
+          "z",
+          "gripper"
+        ],
+        "replan_steps": 5,
+        "units": "native controller; physical scale unverified",
+        "valid_action_dim": 4,
+        "valid_action_indices": [],
+        "valid_state_indices": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "model_id": "groot_n15_metaworld_sawyer",
+      "norm_identity": "sha256:a566e2c90005d2327f265d7aebfafe692933663a427a6e5aff8b5c91774b3143",
+      "python_island": "GR00T vendor island"
+    },
+    {
+      "allowed_benchmark_protocols": [
+        "5200a59f91da158a9770543c831c570392aba126c6192d62755a134b224b8e48"
+      ],
+      "capabilities": {
+        "features": {
+          "batch_stage1": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "batch_stage2": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "batch_stage3": {
+            "evidence": [],
+            "reason": "Direct stock S3 hook only; generic server does not submit through BatchingCore",
+            "status": "implemented_unverified"
+          },
+          "bundle": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "concurrent": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "cp1_retrieval": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "cp2": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "cp2_key_capture": {
+            "evidence": [],
+            "reason": "Direct key hook only; generic CP2 execution rejects configuration",
+            "status": "implemented_unverified"
+          },
+          "debug_capture": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "dual_camera_ablation": {
+            "evidence": [],
+            "reason": "one real camera",
+            "status": "not_applicable"
+          },
+          "episode": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "full": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "k_step": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "library": {
+            "evidence": [],
+            "reason": "Full-action CP1 subset only; complete library fit/replay/augmentation qualification pending",
+            "status": "implemented_unverified"
+          },
+          "native_resume": {
+            "evidence": [],
+            "reason": "Direct adapter API only; generic warm-tier dispatcher rejects configuration",
+            "status": "implemented_unverified"
+          },
+          "online_rit": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "split": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "trace": {
+            "evidence": [],
+            "reason": "Direct stock trace hook only; generic trace executor rejects configuration",
+            "status": "implemented_unverified"
+          },
+          "warm_reset_hook": {
+            "evidence": [],
+            "reason": "Direct stock hook only; generic warm-reset execution rejects configuration",
+            "status": "implemented_unverified"
+          }
+        }
+      },
+      "checkpoint_identity": "sha256:e3ed5ca4064625a83a391e99ca2ae199e3b820db3cba42fabea4ce205ce3c6ec",
+      "code_digest": "sha256:5f91679382e4aa3f49c912f49a64cbb39f2052a7564e0cec37e66904ddab378c",
+      "default_sampler": {
+        "config": {
+          "direction": "noise_to_clean_asc",
+          "endpoint_fixed_k": true
+        },
+        "family": "flow_euler",
+        "native_deltas": [
+          0.5,
+          0.5
+        ],
+        "native_timesteps": [
+          0.0,
+          0.5
+        ],
+        "num_steps": 2,
+        "point_kind": "flow_time",
+        "sampler_id": "groot_n15_k2_v1"
+      },
+      "feature_spec": {
+        "active_state_indices": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "fields": {
+          "robot_state": 4,
+          "vision_0": 32768
+        },
+        "hidden_width": 2048,
+        "key_dtype": "float32",
+        "missing_branch_policy": "reject",
+        "norm_digest": "sha256:a566e2c90005d2327f265d7aebfafe692933663a427a6e5aff8b5c91774b3143",
+        "policy_digest": "sha256:e3ed5ca4064625a83a391e99ca2ae199e3b820db3cba42fabea4ce205ce3c6ec",
+        "pooling": "spatial4x4_float32_v1",
+        "preprocess_digest": "sha256:2193b2b255a87e4cc2ea65184da2e59cdb17de1183a1a744d69a3bc4883e1a62",
+        "prompt_dependent": false,
+        "real_cameras": [
+          "video.image"
+        ],
+        "source": "eagle_scatter_before_llm",
+        "token_grid": [
+          16,
+          16
+        ]
+      },
+      "layout": {
+        "action_space_name": "metaworld_sawyer_native4",
+        "frame": "native_metaworld",
+        "gripper_channel": 3,
+        "gripper_closed_convention": "native_metaworld",
+        "horizon": 16,
+        "model_action_width": 32,
+        "motion_channels": [
+          0,
+          1,
+          2
+        ],
+        "output_transform_id": "sha256:2193b2b255a87e4cc2ea65184da2e59cdb17de1183a1a744d69a3bc4883e1a62",
+        "raw_state_fields": [
+          "x",
+          "y",
+          "z",
+          "gripper"
+        ],
+        "replan_steps": 5,
+        "units": "native controller; physical scale unverified",
+        "valid_action_dim": 4,
+        "valid_action_indices": [],
+        "valid_state_indices": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "model_id": "groot_n15_metaworld_sawyer",
+      "norm_identity": "sha256:a566e2c90005d2327f265d7aebfafe692933663a427a6e5aff8b5c91774b3143",
+      "python_island": "GR00T vendor island"
+    },
+    {
+      "allowed_benchmark_protocols": [
+        "5200a59f91da158a9770543c831c570392aba126c6192d62755a134b224b8e48"
+      ],
+      "capabilities": {
+        "features": {
+          "batch_stage1": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "batch_stage2": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "batch_stage3": {
+            "evidence": [],
+            "reason": "Direct stock S3 hook only; generic server does not submit through BatchingCore",
+            "status": "implemented_unverified"
+          },
+          "bundle": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "concurrent": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "cp1_retrieval": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "cp2": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "cp2_key_capture": {
+            "evidence": [],
+            "reason": "Direct key hook only; generic CP2 execution rejects configuration",
+            "status": "implemented_unverified"
+          },
+          "debug_capture": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "dual_camera_ablation": {
+            "evidence": [],
+            "reason": "one real camera",
+            "status": "not_applicable"
+          },
+          "episode": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "full": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "k_step": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "library": {
+            "evidence": [],
+            "reason": "Full-action CP1 subset only; complete library fit/replay/augmentation qualification pending",
+            "status": "implemented_unverified"
+          },
+          "native_resume": {
+            "evidence": [],
+            "reason": "Direct adapter API only; generic warm-tier dispatcher rejects configuration",
+            "status": "implemented_unverified"
+          },
+          "online_rit": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "split": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "trace": {
+            "evidence": [],
+            "reason": "Direct stock trace hook only; generic trace executor rejects configuration",
+            "status": "implemented_unverified"
+          },
+          "warm_reset_hook": {
+            "evidence": [],
+            "reason": "Direct stock hook only; generic warm-reset execution rejects configuration",
+            "status": "implemented_unverified"
+          }
+        }
+      },
+      "checkpoint_identity": "sha256:e3ed5ca4064625a83a391e99ca2ae199e3b820db3cba42fabea4ce205ce3c6ec",
+      "code_digest": "sha256:5f91679382e4aa3f49c912f49a64cbb39f2052a7564e0cec37e66904ddab378c",
+      "default_sampler": {
+        "config": {
+          "direction": "noise_to_clean_asc",
+          "endpoint_fixed_k": true
+        },
+        "family": "flow_euler",
+        "native_deltas": [
+          0.5,
+          0.5
+        ],
+        "native_timesteps": [
+          0.0,
+          0.5
+        ],
+        "num_steps": 2,
+        "point_kind": "flow_time",
+        "sampler_id": "groot_n15_k2_v1"
+      },
+      "feature_spec": {
+        "active_state_indices": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "fields": {
+          "robot_state": 4,
+          "vision_0": 32768
+        },
+        "hidden_width": 2048,
+        "key_dtype": "float32",
+        "missing_branch_policy": "reject",
+        "norm_digest": "sha256:a566e2c90005d2327f265d7aebfafe692933663a427a6e5aff8b5c91774b3143",
+        "policy_digest": "sha256:e3ed5ca4064625a83a391e99ca2ae199e3b820db3cba42fabea4ce205ce3c6ec",
+        "pooling": "spatial4x4_float32_v1",
+        "preprocess_digest": "sha256:2193b2b255a87e4cc2ea65184da2e59cdb17de1183a1a744d69a3bc4883e1a62",
+        "prompt_dependent": false,
+        "real_cameras": [
+          "video.image"
+        ],
+        "source": "eagle_scatter_before_llm",
+        "token_grid": [
+          16,
+          16
+        ]
+      },
+      "layout": {
+        "action_space_name": "metaworld_sawyer_native4",
+        "frame": "native_metaworld",
+        "gripper_channel": 3,
+        "gripper_closed_convention": "native_metaworld",
+        "horizon": 16,
+        "model_action_width": 32,
+        "motion_channels": [
+          0,
+          1,
+          2
+        ],
+        "output_transform_id": "sha256:2193b2b255a87e4cc2ea65184da2e59cdb17de1183a1a744d69a3bc4883e1a62",
+        "raw_state_fields": [
+          "x",
+          "y",
+          "z",
+          "gripper"
+        ],
+        "replan_steps": 5,
+        "units": "native controller; physical scale unverified",
+        "valid_action_dim": 4,
+        "valid_action_indices": [],
+        "valid_state_indices": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "model_id": "groot_n15_metaworld_sawyer",
+      "norm_identity": "sha256:a566e2c90005d2327f265d7aebfafe692933663a427a6e5aff8b5c91774b3143",
+      "python_island": "GR00T vendor island"
+    },
+    {
+      "allowed_benchmark_protocols": [
+        "5200a59f91da158a9770543c831c570392aba126c6192d62755a134b224b8e48"
+      ],
+      "capabilities": {
+        "features": {
+          "batch_stage1": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "batch_stage2": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "batch_stage3": {
+            "evidence": [],
+            "reason": "Direct stock S3 hook only; generic server does not submit through BatchingCore",
+            "status": "implemented_unverified"
+          },
+          "bundle": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "concurrent": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "cp1_retrieval": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "cp2": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "cp2_key_capture": {
+            "evidence": [],
+            "reason": "Direct key hook only; generic CP2 execution rejects configuration",
+            "status": "implemented_unverified"
+          },
+          "debug_capture": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "dual_camera_ablation": {
+            "evidence": [],
+            "reason": "one real camera",
+            "status": "not_applicable"
+          },
+          "episode": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "full": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "k_step": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "library": {
+            "evidence": [],
+            "reason": "Full-action CP1 subset only; complete library fit/replay/augmentation qualification pending",
+            "status": "implemented_unverified"
+          },
+          "native_resume": {
+            "evidence": [],
+            "reason": "Direct adapter API only; generic warm-tier dispatcher rejects configuration",
+            "status": "implemented_unverified"
+          },
+          "online_rit": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "split": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "trace": {
+            "evidence": [],
+            "reason": "Direct stock trace hook only; generic trace executor rejects configuration",
+            "status": "implemented_unverified"
+          },
+          "warm_reset_hook": {
+            "evidence": [],
+            "reason": "Direct stock hook only; generic warm-reset execution rejects configuration",
+            "status": "implemented_unverified"
+          }
+        }
+      },
+      "checkpoint_identity": "sha256:e3ed5ca4064625a83a391e99ca2ae199e3b820db3cba42fabea4ce205ce3c6ec",
+      "code_digest": "sha256:5f91679382e4aa3f49c912f49a64cbb39f2052a7564e0cec37e66904ddab378c",
+      "default_sampler": {
+        "config": {
+          "direction": "noise_to_clean_asc",
+          "endpoint_fixed_k": true
+        },
+        "family": "flow_euler",
+        "native_deltas": [
+          0.5,
+          0.5
+        ],
+        "native_timesteps": [
+          0.0,
+          0.5
+        ],
+        "num_steps": 2,
+        "point_kind": "flow_time",
+        "sampler_id": "groot_n15_k2_v1"
+      },
+      "feature_spec": {
+        "active_state_indices": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "fields": {
+          "robot_state": 4,
+          "vision_0": 32768
+        },
+        "hidden_width": 2048,
+        "key_dtype": "float32",
+        "missing_branch_policy": "reject",
+        "norm_digest": "sha256:a566e2c90005d2327f265d7aebfafe692933663a427a6e5aff8b5c91774b3143",
+        "policy_digest": "sha256:e3ed5ca4064625a83a391e99ca2ae199e3b820db3cba42fabea4ce205ce3c6ec",
+        "pooling": "spatial4x4_float32_v1",
+        "preprocess_digest": "sha256:2193b2b255a87e4cc2ea65184da2e59cdb17de1183a1a744d69a3bc4883e1a62",
+        "prompt_dependent": false,
+        "real_cameras": [
+          "video.image"
+        ],
+        "source": "eagle_scatter_before_llm",
+        "token_grid": [
+          16,
+          16
+        ]
+      },
+      "layout": {
+        "action_space_name": "metaworld_sawyer_native4",
+        "frame": "native_metaworld",
+        "gripper_channel": 3,
+        "gripper_closed_convention": "native_metaworld",
+        "horizon": 16,
+        "model_action_width": 32,
+        "motion_channels": [
+          0,
+          1,
+          2
+        ],
+        "output_transform_id": "sha256:2193b2b255a87e4cc2ea65184da2e59cdb17de1183a1a744d69a3bc4883e1a62",
+        "raw_state_fields": [
+          "x",
+          "y",
+          "z",
+          "gripper"
+        ],
+        "replan_steps": 5,
+        "units": "native controller; physical scale unverified",
+        "valid_action_dim": 4,
+        "valid_action_indices": [],
+        "valid_state_indices": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "model_id": "groot_n15_metaworld_sawyer",
+      "norm_identity": "sha256:a566e2c90005d2327f265d7aebfafe692933663a427a6e5aff8b5c91774b3143",
+      "python_island": "GR00T vendor island"
+    },
+    {
+      "allowed_benchmark_protocols": [
+        "5200a59f91da158a9770543c831c570392aba126c6192d62755a134b224b8e48"
+      ],
+      "capabilities": {
+        "features": {
+          "batch_stage1": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "batch_stage2": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "batch_stage3": {
+            "evidence": [],
+            "reason": "Direct stock S3 hook only; generic server does not submit through BatchingCore",
+            "status": "implemented_unverified"
+          },
+          "bundle": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "concurrent": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "cp1_retrieval": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "cp2": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "cp2_key_capture": {
+            "evidence": [],
+            "reason": "Direct key hook only; generic CP2 execution rejects configuration",
+            "status": "implemented_unverified"
+          },
+          "debug_capture": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "dual_camera_ablation": {
+            "evidence": [],
+            "reason": "one real camera",
+            "status": "not_applicable"
+          },
+          "episode": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "full": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "k_step": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "library": {
+            "evidence": [],
+            "reason": "Full-action CP1 subset only; complete library fit/replay/augmentation qualification pending",
+            "status": "implemented_unverified"
+          },
+          "native_resume": {
+            "evidence": [],
+            "reason": "Direct adapter API only; generic warm-tier dispatcher rejects configuration",
+            "status": "implemented_unverified"
+          },
+          "online_rit": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "split": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "trace": {
+            "evidence": [],
+            "reason": "Direct stock trace hook only; generic trace executor rejects configuration",
+            "status": "implemented_unverified"
+          },
+          "warm_reset_hook": {
+            "evidence": [],
+            "reason": "Direct stock hook only; generic warm-reset execution rejects configuration",
+            "status": "implemented_unverified"
+          }
+        }
+      },
+      "checkpoint_identity": "sha256:e3ed5ca4064625a83a391e99ca2ae199e3b820db3cba42fabea4ce205ce3c6ec",
+      "code_digest": "sha256:5f91679382e4aa3f49c912f49a64cbb39f2052a7564e0cec37e66904ddab378c",
+      "default_sampler": {
+        "config": {
+          "direction": "noise_to_clean_asc",
+          "endpoint_fixed_k": true
+        },
+        "family": "flow_euler",
+        "native_deltas": [
+          0.5,
+          0.5
+        ],
+        "native_timesteps": [
+          0.0,
+          0.5
+        ],
+        "num_steps": 2,
+        "point_kind": "flow_time",
+        "sampler_id": "groot_n15_k2_v1"
+      },
+      "feature_spec": {
+        "active_state_indices": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "fields": {
+          "robot_state": 4,
+          "vision_0": 32768
+        },
+        "hidden_width": 2048,
+        "key_dtype": "float32",
+        "missing_branch_policy": "reject",
+        "norm_digest": "sha256:a566e2c90005d2327f265d7aebfafe692933663a427a6e5aff8b5c91774b3143",
+        "policy_digest": "sha256:e3ed5ca4064625a83a391e99ca2ae199e3b820db3cba42fabea4ce205ce3c6ec",
+        "pooling": "spatial4x4_float32_v1",
+        "preprocess_digest": "sha256:2193b2b255a87e4cc2ea65184da2e59cdb17de1183a1a744d69a3bc4883e1a62",
+        "prompt_dependent": false,
+        "real_cameras": [
+          "video.image"
+        ],
+        "source": "eagle_scatter_before_llm",
+        "token_grid": [
+          16,
+          16
+        ]
+      },
+      "layout": {
+        "action_space_name": "metaworld_sawyer_native4",
+        "frame": "native_metaworld",
+        "gripper_channel": 3,
+        "gripper_closed_convention": "native_metaworld",
+        "horizon": 16,
+        "model_action_width": 32,
+        "motion_channels": [
+          0,
+          1,
+          2
+        ],
+        "output_transform_id": "sha256:2193b2b255a87e4cc2ea65184da2e59cdb17de1183a1a744d69a3bc4883e1a62",
+        "raw_state_fields": [
+          "x",
+          "y",
+          "z",
+          "gripper"
+        ],
+        "replan_steps": 5,
+        "units": "native controller; physical scale unverified",
+        "valid_action_dim": 4,
+        "valid_action_indices": [],
+        "valid_state_indices": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "model_id": "groot_n15_metaworld_sawyer",
+      "norm_identity": "sha256:a566e2c90005d2327f265d7aebfafe692933663a427a6e5aff8b5c91774b3143",
+      "python_island": "GR00T vendor island"
+    },
+    {
+      "allowed_benchmark_protocols": [
+        "5200a59f91da158a9770543c831c570392aba126c6192d62755a134b224b8e48"
+      ],
+      "capabilities": {
+        "features": {
+          "batch_stage1": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "batch_stage2": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "batch_stage3": {
+            "evidence": [],
+            "reason": "Direct stock S3 hook only; generic server does not submit through BatchingCore",
+            "status": "implemented_unverified"
+          },
+          "bundle": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "concurrent": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "cp1_retrieval": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "cp2": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "cp2_key_capture": {
+            "evidence": [],
+            "reason": "Direct key hook only; generic CP2 execution rejects configuration",
+            "status": "implemented_unverified"
+          },
+          "debug_capture": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "dual_camera_ablation": {
+            "evidence": [],
+            "reason": "one real camera",
+            "status": "not_applicable"
+          },
+          "episode": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "full": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "k_step": {
+            "evidence": [],
+            "reason": "Generic serving path available; CPU evidence only, GPU qualification pending",
+            "status": "supported"
+          },
+          "library": {
+            "evidence": [],
+            "reason": "Full-action CP1 subset only; complete library fit/replay/augmentation qualification pending",
+            "status": "implemented_unverified"
+          },
+          "native_resume": {
+            "evidence": [],
+            "reason": "Direct adapter API only; generic warm-tier dispatcher rejects configuration",
+            "status": "implemented_unverified"
+          },
+          "online_rit": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "split": {
+            "evidence": [],
+            "reason": "no MW qualification for this hook",
+            "status": "unsupported"
+          },
+          "trace": {
+            "evidence": [],
+            "reason": "Direct stock trace hook only; generic trace executor rejects configuration",
+            "status": "implemented_unverified"
+          },
+          "warm_reset_hook": {
+            "evidence": [],
+            "reason": "Direct stock hook only; generic warm-reset execution rejects configuration",
+            "status": "implemented_unverified"
+          }
+        }
+      },
+      "checkpoint_identity": "sha256:e3ed5ca4064625a83a391e99ca2ae199e3b820db3cba42fabea4ce205ce3c6ec",
+      "code_digest": "sha256:5f91679382e4aa3f49c912f49a64cbb39f2052a7564e0cec37e66904ddab378c",
+      "default_sampler": {
+        "config": {
+          "direction": "noise_to_clean_asc",
+          "endpoint_fixed_k": true
+        },
+        "family": "flow_euler",
+        "native_deltas": [
+          0.5,
+          0.5
+        ],
+        "native_timesteps": [
+          0.0,
+          0.5
+        ],
+        "num_steps": 2,
+        "point_kind": "flow_time",
+        "sampler_id": "groot_n15_k2_v1"
+      },
+      "feature_spec": {
+        "active_state_indices": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "fields": {
+          "robot_state": 4,
+          "vision_0": 32768
+        },
+        "hidden_width": 2048,
+        "key_dtype": "float32",
+        "missing_branch_policy": "reject",
+        "norm_digest": "sha256:a566e2c90005d2327f265d7aebfafe692933663a427a6e5aff8b5c91774b3143",
+        "policy_digest": "sha256:e3ed5ca4064625a83a391e99ca2ae199e3b820db3cba42fabea4ce205ce3c6ec",
+        "pooling": "spatial4x4_float32_v1",
+        "preprocess_digest": "sha256:2193b2b255a87e4cc2ea65184da2e59cdb17de1183a1a744d69a3bc4883e1a62",
+        "prompt_dependent": false,
+        "real_cameras": [
+          "video.image"
+        ],
+        "source": "eagle_scatter_before_llm",
+        "token_grid": [
+          16,
+          16
+        ]
+      },
+      "layout": {
+        "action_space_name": "metaworld_sawyer_native4",
+        "frame": "native_metaworld",
+        "gripper_channel": 3,
+        "gripper_closed_convention": "native_metaworld",
+        "horizon": 16,
+        "model_action_width": 32,
+        "motion_channels": [
+          0,
+          1,
+          2
+        ],
+        "output_transform_id": "sha256:2193b2b255a87e4cc2ea65184da2e59cdb17de1183a1a744d69a3bc4883e1a62",
+        "raw_state_fields": [
+          "x",
+          "y",
+          "z",
+          "gripper"
+        ],
+        "replan_steps": 5,
+        "units": "native controller; physical scale unverified",
+        "valid_action_dim": 4,
+        "valid_action_indices": [],
+        "valid_state_indices": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "model_id": "groot_n15_metaworld_sawyer",
+      "norm_identity": "sha256:a566e2c90005d2327f265d7aebfafe692933663a427a6e5aff8b5c91774b3143",
+      "python_island": "GR00T vendor island"
+    }
+  ],
+  "identity_passes": true,
+  "descriptor_bytes_equal": {
+    "load.json": true,
+    "model_spec.json": true,
+    "model_manifest.json": true,
+    "full.yaml": true,
+    "benchmark.json": true
+  },
+  "source_assets_read_only": true,
+  "pure_cache_probe_expected_stop": false,
+  "source_serving_run": "/data/mw_finetune/eval/grmk1_red",
+  "source_actual_identities": [
+    "sha256:e3ed5ca4064625a83a391e99ca2ae199e3b820db3cba42fabea4ce205ce3c6ec"
+  ],
+  "equals_source_actual": true,
+  "sealed_metadata_drift_matches_source_ready": false
+}

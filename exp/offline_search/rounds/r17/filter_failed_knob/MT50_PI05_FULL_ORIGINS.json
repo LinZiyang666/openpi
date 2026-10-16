@@ -1,0 +1,22 @@
+{
+  "source": "/data/mw_finetune/eval/pimk1_fuld",
+  "episodes": 90000,
+  "groups": [
+    {
+      "source": "/data/mw_finetune/eval/pimk1_ful",
+      "episodes": 4006
+    },
+    {
+      "source": "/data/mw_finetune/eval/pimk1_fulb",
+      "episodes": 1761
+    },
+    {
+      "source": "/data/mw_finetune/eval/pimk1_fulc4",
+      "episodes": 502
+    },
+    {
+      "source": "/data/mw_finetune/eval/pimk1_fuld",
+      "episodes": 83731
+    }
+  ]
+}

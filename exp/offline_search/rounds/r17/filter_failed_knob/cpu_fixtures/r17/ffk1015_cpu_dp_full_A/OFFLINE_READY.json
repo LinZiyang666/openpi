@@ -1,0 +1,6 @@
+{
+  "status": "READY_FOR_COORDINATOR_STAGE",
+  "episodes": 100,
+  "native_runtime_unchanged": true,
+  "worker_archive_unchanged": true
+}

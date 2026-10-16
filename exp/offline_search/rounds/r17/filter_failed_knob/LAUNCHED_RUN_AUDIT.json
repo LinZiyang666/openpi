@@ -1,0 +1,23 @@
+{
+  "run": "/data/mw_finetune/eval/ffk1015_dp_libero_reduced_off",
+  "launch": {
+    "pid": 1696636,
+    "started": 1792118676.1493561
+  },
+  "receipt_status": "PENDING_EVIDENCE",
+  "root_vs_launch_snapshot_changed_keys": [
+    "prepare_only",
+    "ffk_bootstrap_sha256"
+  ],
+  "same_candidate_selection": true,
+  "sealed_files_changed": [
+    "EPISODE_PLAN.json",
+    "campaign.json"
+  ],
+  "frozen_bootstrap_sha256": "3e17b2483037a24405628145f7d0ad8a201643f772bd62a821cdb237e9f72897",
+  "note": "The later CPU bootstrap-freeze pass added only assets/ffk_bootstrap.py and campaign ffk_bootstrap_sha256. Root vs launch snapshot prepare_only differs as expected at launch. No reset, stop, relaunch or further run-definition change after discovery.",
+  "all_owned_closed": true,
+  "gpu_released": true,
+  "observed_at": "2026-10-15T22:45:09.665615",
+  "native_plan_update": "EPISODE_PLAN.json mtime 21:44:53 matches native launch_prepared plan rewrite; bootstrap pass was 22:18:40"
+}
