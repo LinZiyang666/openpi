@@ -86,6 +86,8 @@ owner 的常驻指令，逐字有效：
 - `exp/r17_integration/ops/formal_prestage.py` 已改为 RAM 准入只记录不拦截（owner 10-10 不做 RAM 准入；d3667946）。
 - 今天新记忆：`feedback-update-task-list`（状态变就同步任务表）、`feedback-keep-it-simple` 加网页条目（放进现有表、照抄 LIBERO 格式）。
 
+> **04:4x**：groot_mt_09 04:24 完 4,750；fastwam_li_12 04:34 完 523；fastwam_li_17 04:44 完 288（均 0 报错；回执同补丁收尾 FAIL——本机 worker 也经同一 remote 改写，故 ffk 本机批次同样如此）。**MT50 过滤 Cache 批次全部完成**。H100 fastwam_li_18 04:47 起 → li_19 → cosmos_li_01–04 → ffk-h100k。4090 **ffk dp_libero_reduced_dev 04:46 完 21,600/21,600（0 报错）**。ffk-4090k 已停（hold），换 **ffk-4090m**（tmux `ffk_4090m`，`ff/run_ffk_4090m.sh`）：fastwam_libero_reduced_off（04:47 起）→ **dp_libero_reduced_test00** → dp_libero_full_dev。test00 的 prepare/launch 脚本我加在 `filter_failed_knob/commands/`（startup+stage / launch，照 HANDBACK）；DP 减步 descent（workflow descent）与 build-test gen 0 后台在跑（日志 `ff/ffk_dp_red_descent.log`、`ff/ffk_dp_red_buildtest0.log`）。test00 跑完后：`workflow test --model dp --mode reduced --generation 0`，有 raise 就 build-test gen 1 …
+
 > **04:24 巡检**：fastwam_mt_08 04:05 完 4,800（0 报错；回执同补丁收尾 FAIL）。H100 groot_mt_09 04:08 起 4,554/4,750 → fastwam_li_12/17/18/19（冻结包有显存上限，此时 4090 只跑本机 worker，不冲突）→ cosmos_li_01–04 → ffk-h100k。4090 ffk dp_libero_reduced_dev 19,288/21,600 0 报错（约 04:50 完）→ fastwam_libero_reduced_off。sol_mwA/B/D 无新内容。
 
 > **03:54 巡检**：fastwam_mt_06 03:35 完 6,750、fastwam_mt_07 03:45 完 2,350（均 0 报错；回执同补丁收尾 FAIL）。H100 fastwam_mt_08 03:47 起 1,250/4,800（约 04:10 完）→ groot_mt_09 → FW li 12/17/18/19 → cosmos li 01–04。4090 ffk dp_libero_reduced_dev 16,304/21,600 0 报错（约 04:45 完）→ fastwam_libero_reduced_off。sol_mwA/B/D 无新内容。
