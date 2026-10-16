@@ -86,6 +86,8 @@ owner 的常驻指令，逐字有效：
 - `exp/r17_integration/ops/formal_prestage.py` 已改为 RAM 准入只记录不拦截（owner 10-10 不做 RAM 准入；d3667946）。
 - 今天新记忆：`feedback-update-task-list`（状态变就同步任务表）、`feedback-keep-it-simple` 加网页条目（放进现有表、照抄 LIBERO 格式）。
 
+> **01:54 巡检**：4090 ffk dp_libero_reduced_dev 3,317/21,600 0 报错（~100 局/分，约 05:00 完）→ fastwam_libero_reduced_off → dp_libero_full_dev。H100 R10 π0.5 过滤 9/12 组，约 02:15 完 → groot_mt_10 → 其余 R17。sol_mwA/B/D 无新内容；Monitor 均在有效期。
+
 > **01:2x**：pi05_mt_13 01:18 完 13,950/13,950（0 报错；回执 FAIL = 远端 worker 收尾快照不完整，数据齐）。**4090 过滤 Cache 批次全部完成**（dp_li_14_u/14/15_u/15/11/16、pi05_mt_13）。ffk-4090k 01:20 起 `ffk1015_dp_libero_reduced_dev`（21,600，本机×48），01:24 50 局 0 报错，4090 22.5 GB 100%。H100 R10 π0.5 过滤进行中。
 
 > **00:5x**：R10 GR00T 过滤 00:40 完 12/12 组（spatial 50–500：76.8/95.2/94.0/97.0/95.8/96.0；l10：59.6/67.2/73.4/75.8/79.6/82.8）。R10 π0.5 过滤 00:44 起，timan107 恢复的 R10 目录工作正常，首组 spatial n50 85.8%（00:52），12 组约 01:55 完 → groot_mt_10 → 其余 R17。4090 pi05_mt_13 进行中。
