@@ -86,6 +86,8 @@ owner 的常驻指令，逐字有效：
 - `exp/r17_integration/ops/formal_prestage.py` 已改为 RAM 准入只记录不拦截（owner 10-10 不做 RAM 准入；d3667946）。
 - 今天新记忆：`feedback-update-task-list`（状态变就同步任务表）、`feedback-keep-it-simple` 加网页条目（放进现有表、照抄 LIBERO 格式）。
 
+> **00:24 巡检**：4090 pi05_mt_13 6,988/13,950 0 报错（~120 局/分，约 01:25 完）。H100 R10 GR00T 过滤 10/12 组（l10 n200 73.4%、n300 75.8%），约 00:45 完 → R10 π0.5。sol_mwA/B/D 无新内容；Monitor 均在有效期。
+
 > **23:54 巡检**：4090 pi05_mt_13 3,346/13,950 0 报错（~100 局/分，约 01:40 完）→ ffk-4090k。H100 R10 GR00T 过滤 7/12 组（spatial 50–500：76.8/95.2/?/97.0/95.8/96.0；l10 n50 59.6），l10 组较慢，约 00:45 完 → R10 π0.5。sol_mwA/B/D 无新内容；Monitor 均在有效期。
 
 > **23:2x**：dp_li_16 23:19 完 499/499（0 报错；回执 FAIL = 远端 worker 收尾快照不完整，driver 数据齐，可用）。ff-4090b queue done → ff-4090c pi05_mt_13 23:20 起，23:26 已 30 局（timan1 共卡补丁生效，4090 38.9 GB）。Monitor 23:2x 重挂。
