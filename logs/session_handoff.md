@@ -86,6 +86,8 @@ owner 的常驻指令，逐字有效：
 - `exp/r17_integration/ops/formal_prestage.py` 已改为 RAM 准入只记录不拦截（owner 10-10 不做 RAM 准入；d3667946）。
 - 今天新记忆：`feedback-update-task-list`（状态变就同步任务表）、`feedback-keep-it-simple` 加网页条目（放进现有表、照抄 LIBERO 格式）。
 
+> **07:54 巡检**：li_19 07:01 完 189/189、cosmos_li_02 07:17 完 500/500（均 PENDING_EVIDENCE）。cosmos_li_03 07:19 起（8 副本逐个加载约 4 min），07:54 464/1,434 0 报错（~15 局/分，约 09:00 完）；本机 60 worker 正常（attempts：local 233 / timan107 151 / timan1 84；4090 nvidia-smi 看不到这些 EGL 渲染进程的显存，属正常）→ cosmos_li_04（3,066）→ ff-h100d queue done → ffk-4090n、ffk-h100k。sol_mwA/B/D 无新内容。
+
 > **06:5x**：li_18c1 06:53 完 1,213/1,213（回执 PENDING_EVIDENCE）→ **fastwam_li_18 两段合计 5,000 齐**。H100 li_19 06:54 起（本机×16 渲染在 4090 + timan1×16 + timan107×16），06:57 48/189 0 报错 → cosmos_li_02/03/04（本机×60 渲染）。窗口期 4090 只做渲染（~3 h），没有能并行的 4090 服务批次（DP test00 要本机 48 渲染、VLA R16 服务+60 渲染超 48 GB 且挤 timan107）。之后 ffk-4090n（test00 → DP 全步开发集）、ffk-h100k。sol_mwA/B/D 无新内容。
 
 > **06:3x–06:4x**：sol 06:3x 交回 li_18 续跑 `ff1015_fastwam_li_18c1`（1,213 局；`filter_failed/resume.py`、`continuations/ff1015_fastwam_li_18c1_HANDBACK.md`；分析自动合并两段，CPU 检查 5,000 唯一 UID 无重叠；sol 记 4 个 reset 测试夹具因我改 reset 而不过，未处理）。timan1 GPU3 只放得下 17 个渲染 → 我定 **timan1 16 + timan107 45**（离原 40+45 最近，服务端不变，仅并发少），用 `resume --worker-counts timan1=16,timan107=45` 配。ff-h100d 重启（同标签，下游不动）：li_18c1（06:37 起，正常出局）→ 等 4090m → li_19、cosmos_li_02–04。4090 ffk fastwam_libero_reduced_off 06:40 完 6,000/6,000（0 报错；回执 close/snapshot FAIL：04:48 用第一版补丁启动），4090m 随即因 hold 停 → 4090 只给 H100 那四批做本机渲染，之后 ffk-4090n（test00 → DP 全步开发集）。
