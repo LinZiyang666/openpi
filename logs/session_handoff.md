@@ -86,6 +86,8 @@ owner 的常驻指令，逐字有效：
 - `exp/r17_integration/ops/formal_prestage.py` 已改为 RAM 准入只记录不拦截（owner 10-10 不做 RAM 准入；d3667946）。
 - 今天新记忆：`feedback-update-task-list`（状态变就同步任务表）、`feedback-keep-it-simple` 加网页条目（放进现有表、照抄 LIBERO 格式）。
 
+> **06:24 巡检**：4090 ffk fastwam_libero_reduced_off 4,868/6,000 0 报错（约 06:47 完）→ 4090m 停（hold）→ H100 ff-h100d 接 li_19、cosmos_li_02–04（用 4090 本机渲染）。H100 06:17 起空等约 30 min（没有更短的不依赖 4090 的活可插）。sol li_18 续跑在做（1,030 行）。sol_mwA/B/D 无新内容。
+
 > **06:1x fastwam_li_18 中途停**：06:17 停在 3,787/5,000（0 报错）：timan1 fleet `worker_restart_budget_exhausted`，回收后的 LIBERO 渲染进程在 GPU3 建不了 EGL 帧缓冲（`Offscreen framebuffer is not complete`；GPU3 另有 yurenh2 ~15 GB）。这是我补丁第二版放开冻结显存上限的后果（MT50 渲染小没事，LIBERO 大）→ 已撤掉该项（9511c28e），保留「他人进程不整卡判不可用」与 timan1 LIBERO 上限 40。li_18 剩 1,213 局：06:18 派 sol 做续跑（同线程 01a140c4，任务书 `prompts/sol_filter_failed_li18_resume.md`，日志 `r17_ops/sol_filter_failed_li18.log`）。风险：cosmos_li_02–04 与 ffk 的 LIBERO-timan1×40 批次在 GPU3 有人共用时可能同样中途失败（cosmos 包本来无上限），先照跑、盯着。H100 ff-h100d 在等 4090m（~07:00）。
 
 > **05:54 巡检**：4090 ffk fastwam_libero_reduced_off 2,780/6,000 0 报错（~50 局/分，约 07:00 完）。H100 fastwam_li_18 1,243/5,000 0 报错（~95 局/分，约 06:35 完）→ 等 4090m → li_19、cosmos_li_02–04。sol_mwA/B/D 无新内容。
