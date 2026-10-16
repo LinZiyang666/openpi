@@ -1,0 +1,47 @@
+{
+  "status": "PASS",
+  "run": "/data/mw_finetune/eval/ff1015_fastwam_li_18c1",
+  "source": "/data/mw_finetune/eval/ff1015_fastwam_li_18",
+  "retained_real_outcomes": 3787,
+  "continuation_planned_episodes": 1213,
+  "unique_planned_task_uids": 5000,
+  "retained_missing_overlap": 0,
+  "current_real_merged_outcomes": 3787,
+  "synthetic_merge_fixture_unique_outcomes": 5000,
+  "synthetic_remaining_outcomes": 1213,
+  "copied_ancestor_rows_deduplicated": 3787,
+  "per_cell_fixture_counts": {
+    "fastwam/libero_spatial/50": 500,
+    "fastwam/libero_spatial/100": 500,
+    "fastwam/libero_spatial/200": 500,
+    "fastwam/libero_spatial/300": 500,
+    "fastwam/libero_spatial/400": 500,
+    "fastwam/libero_10/50": 500,
+    "fastwam/libero_10/100": 500,
+    "fastwam/libero_10/200": 500,
+    "fastwam/libero_10/300": 500,
+    "fastwam/libero_10/400": 500
+  },
+  "source_pins_unchanged": true,
+  "scientific_campaign_fields_unchanged": [
+    "filter_failed",
+    "runtime",
+    "runtime_identity",
+    "server_python",
+    "checkpoint",
+    "fastwam_batching",
+    "fastwam_batch_treatment_identity",
+    "mps",
+    "replicas",
+    "driver_runtime",
+    "orchestration",
+    "cache_plan_name"
+  ],
+  "byte_identical_artifacts": 65,
+  "worker_nodes": {
+    "timan1": 40,
+    "timan107": 45
+  },
+  "remote_writes": false,
+  "server_worker_driver_started": false
+}

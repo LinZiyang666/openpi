@@ -1,0 +1,9 @@
+{
+  "jobs": [
+    {
+      "source": "/data/mw_finetune/eval/ff1015_fastwam_li_18",
+      "run": "/data/mw_finetune/eval/ff1015_fastwam_li_18c1",
+      "name": "ff1015_fastwam_li_18c1"
+    }
+  ]
+}

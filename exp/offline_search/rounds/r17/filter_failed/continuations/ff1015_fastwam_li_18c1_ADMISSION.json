@@ -1,0 +1,779 @@
+{
+  "native_admission_source": "def admission(campaign, run, *, observed=None, ignore_index=None, count=None):\n    per_worker = campaign.get('worker_vram_mib', DEFAULT_VRAM_MIB)\n    if type(per_worker) is not int or per_worker < 1:\n        raise ValueError('positive integer per-worker VRAM reservation required')\n    requested_devices = campaign.get('worker_egl_devices')\n    protected = PROTECTED.get(campaign.get('worker_node'), set())\n    observed = inventory(campaign.get('worker_node'), requested_devices) if observed is None else observed\n    cards = {c['device']: c for c in observed if c.get('usable') and c['device'] not in protected and\n             (requested_devices is None or c['device'] in requested_devices)}\n    pending, evidence = reservations(run, cards, ignore_index=ignore_index)\n    slots = {}\n    for device, card in cards.items():\n        server_headroom = campaign.get('worker_server_vram_headroom_mib', 0)\n        if type(server_headroom) is not int or server_headroom < 0:\n            raise ValueError('nonnegative server VRAM headroom required')\n        reserve = max(512, (card['total_mib']+9)//10) + server_headroom\n        card = dict(card, headroom_mib=reserve, server_headroom_mib=server_headroom,pending_mib=pending[device])\n        cards[device] = card\n        slots[device] = max(0, (card['total_mib']-card['used_mib']-reserve-pending[device])//per_worker)\n    order = sorted(slots)\n    preferred = campaign.get('worker_egl_device', 0)\n    order = [d for d in order if d >= preferred]+[d for d in order if d < preferred]\n    assignments = []\n    required = campaign['node_workers'] if count is None else count\n    while len(assignments) < required:\n        before = len(assignments)\n        for device in order:\n            if slots[device] and len(assignments) < required:\n                assignments.append(dict(index=len(assignments), device=device, uuid=cards[device]['uuid'],\n                                        worker_vram_mib=per_worker))\n                slots[device] -= 1\n        if len(assignments) == before:\n            break\n    return dict(admitted=len(assignments)==required, assignments=assignments, cards=list(cards.values()),\n                observed=observed, other_fleets=evidence, worker_vram_mib=per_worker,\n                excluded_devices=sorted(protected), requested_workers=required,\n                reason=None if len(assignments)==required else\n                f'EGL VRAM admission refused: {required} workers requested, {len(assignments)} fit; '\n                'includes global GPU use, live fleet reservations, 10%/512MiB headroom and server growth reserve')\n",
+  "job": {
+    "worker_node": "timan1",
+    "node_workers": 40,
+    "worker_egl_device": 3,
+    "worker_egl_devices": [
+      3
+    ],
+    "worker_vram_mib": 1024
+  },
+  "checks": {
+    "40": {
+      "admitted": false,
+      "assignments": [
+        {
+          "index": 0,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 1,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 2,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 3,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 4,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 5,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 6,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 7,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 8,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 9,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 10,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 11,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 12,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 13,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 14,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 15,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 16,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        }
+      ],
+      "cards": [
+        {
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "name": "NVIDIA RTX A6000",
+          "total_mib": 49140,
+          "used_mib": 26797,
+          "processes": [
+            {
+              "pid": 3016,
+              "uid": 0,
+              "used_mib": 4,
+              "system_display": true
+            },
+            {
+              "pid": 1938762,
+              "uid": 1273071,
+              "used_mib": 26778,
+              "system_display": false
+            }
+          ],
+          "usable": true,
+          "device_minor": 0,
+          "pci": "0000:c1:00.0",
+          "namespace_guard_required": true,
+          "headroom_mib": 4914,
+          "server_headroom_mib": 0,
+          "pending_mib": 0
+        }
+      ],
+      "observed": [
+        {
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "name": "NVIDIA RTX A6000",
+          "total_mib": 49140,
+          "used_mib": 26797,
+          "processes": [
+            {
+              "pid": 3016,
+              "uid": 0,
+              "used_mib": 4,
+              "system_display": true
+            },
+            {
+              "pid": 1938762,
+              "uid": 1273071,
+              "used_mib": 26778,
+              "system_display": false
+            }
+          ],
+          "usable": true,
+          "device_minor": 0,
+          "pci": "0000:c1:00.0",
+          "namespace_guard_required": true
+        }
+      ],
+      "other_fleets": [],
+      "worker_vram_mib": 1024,
+      "excluded_devices": [
+        0,
+        1,
+        2
+      ],
+      "requested_workers": 40,
+      "reason": "EGL VRAM admission refused: 40 workers requested, 17 fit; includes global GPU use, live fleet reservations, 10%/512MiB headroom and server growth reserve"
+    },
+    "24": {
+      "admitted": false,
+      "assignments": [
+        {
+          "index": 0,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 1,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 2,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 3,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 4,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 5,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 6,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 7,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 8,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 9,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 10,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 11,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 12,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 13,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 14,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 15,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 16,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        }
+      ],
+      "cards": [
+        {
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "name": "NVIDIA RTX A6000",
+          "total_mib": 49140,
+          "used_mib": 26797,
+          "processes": [
+            {
+              "pid": 3016,
+              "uid": 0,
+              "used_mib": 4,
+              "system_display": true
+            },
+            {
+              "pid": 1938762,
+              "uid": 1273071,
+              "used_mib": 26778,
+              "system_display": false
+            }
+          ],
+          "usable": true,
+          "device_minor": 0,
+          "pci": "0000:c1:00.0",
+          "namespace_guard_required": true,
+          "headroom_mib": 4914,
+          "server_headroom_mib": 0,
+          "pending_mib": 0
+        }
+      ],
+      "observed": [
+        {
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "name": "NVIDIA RTX A6000",
+          "total_mib": 49140,
+          "used_mib": 26797,
+          "processes": [
+            {
+              "pid": 3016,
+              "uid": 0,
+              "used_mib": 4,
+              "system_display": true
+            },
+            {
+              "pid": 1938762,
+              "uid": 1273071,
+              "used_mib": 26778,
+              "system_display": false
+            }
+          ],
+          "usable": true,
+          "device_minor": 0,
+          "pci": "0000:c1:00.0",
+          "namespace_guard_required": true
+        }
+      ],
+      "other_fleets": [],
+      "worker_vram_mib": 1024,
+      "excluded_devices": [
+        0,
+        1,
+        2
+      ],
+      "requested_workers": 24,
+      "reason": "EGL VRAM admission refused: 24 workers requested, 17 fit; includes global GPU use, live fleet reservations, 10%/512MiB headroom and server growth reserve"
+    },
+    "20": {
+      "admitted": false,
+      "assignments": [
+        {
+          "index": 0,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 1,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 2,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 3,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 4,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 5,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 6,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 7,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 8,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 9,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 10,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 11,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 12,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 13,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 14,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 15,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 16,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        }
+      ],
+      "cards": [
+        {
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "name": "NVIDIA RTX A6000",
+          "total_mib": 49140,
+          "used_mib": 26797,
+          "processes": [
+            {
+              "pid": 3016,
+              "uid": 0,
+              "used_mib": 4,
+              "system_display": true
+            },
+            {
+              "pid": 1938762,
+              "uid": 1273071,
+              "used_mib": 26778,
+              "system_display": false
+            }
+          ],
+          "usable": true,
+          "device_minor": 0,
+          "pci": "0000:c1:00.0",
+          "namespace_guard_required": true,
+          "headroom_mib": 4914,
+          "server_headroom_mib": 0,
+          "pending_mib": 0
+        }
+      ],
+      "observed": [
+        {
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "name": "NVIDIA RTX A6000",
+          "total_mib": 49140,
+          "used_mib": 26797,
+          "processes": [
+            {
+              "pid": 3016,
+              "uid": 0,
+              "used_mib": 4,
+              "system_display": true
+            },
+            {
+              "pid": 1938762,
+              "uid": 1273071,
+              "used_mib": 26778,
+              "system_display": false
+            }
+          ],
+          "usable": true,
+          "device_minor": 0,
+          "pci": "0000:c1:00.0",
+          "namespace_guard_required": true
+        }
+      ],
+      "other_fleets": [],
+      "worker_vram_mib": 1024,
+      "excluded_devices": [
+        0,
+        1,
+        2
+      ],
+      "requested_workers": 20,
+      "reason": "EGL VRAM admission refused: 20 workers requested, 17 fit; includes global GPU use, live fleet reservations, 10%/512MiB headroom and server growth reserve"
+    },
+    "16": {
+      "admitted": true,
+      "assignments": [
+        {
+          "index": 0,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 1,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 2,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 3,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 4,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 5,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 6,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 7,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 8,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 9,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 10,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 11,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 12,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 13,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 14,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        },
+        {
+          "index": 15,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        }
+      ],
+      "cards": [
+        {
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "name": "NVIDIA RTX A6000",
+          "total_mib": 49140,
+          "used_mib": 26797,
+          "processes": [
+            {
+              "pid": 3016,
+              "uid": 0,
+              "used_mib": 4,
+              "system_display": true
+            },
+            {
+              "pid": 1938762,
+              "uid": 1273071,
+              "used_mib": 26778,
+              "system_display": false
+            }
+          ],
+          "usable": true,
+          "device_minor": 0,
+          "pci": "0000:c1:00.0",
+          "namespace_guard_required": true,
+          "headroom_mib": 4914,
+          "server_headroom_mib": 0,
+          "pending_mib": 0
+        }
+      ],
+      "observed": [
+        {
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "name": "NVIDIA RTX A6000",
+          "total_mib": 49140,
+          "used_mib": 26797,
+          "processes": [
+            {
+              "pid": 3016,
+              "uid": 0,
+              "used_mib": 4,
+              "system_display": true
+            },
+            {
+              "pid": 1938762,
+              "uid": 1273071,
+              "used_mib": 26778,
+              "system_display": false
+            }
+          ],
+          "usable": true,
+          "device_minor": 0,
+          "pci": "0000:c1:00.0",
+          "namespace_guard_required": true
+        }
+      ],
+      "other_fleets": [],
+      "worker_vram_mib": 1024,
+      "excluded_devices": [
+        0,
+        1,
+        2
+      ],
+      "requested_workers": 16,
+      "reason": null
+    },
+    "1": {
+      "admitted": true,
+      "assignments": [
+        {
+          "index": 0,
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "worker_vram_mib": 1024
+        }
+      ],
+      "cards": [
+        {
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "name": "NVIDIA RTX A6000",
+          "total_mib": 49140,
+          "used_mib": 26797,
+          "processes": [
+            {
+              "pid": 3016,
+              "uid": 0,
+              "used_mib": 4,
+              "system_display": true
+            },
+            {
+              "pid": 1938762,
+              "uid": 1273071,
+              "used_mib": 26778,
+              "system_display": false
+            }
+          ],
+          "usable": true,
+          "device_minor": 0,
+          "pci": "0000:c1:00.0",
+          "namespace_guard_required": true,
+          "headroom_mib": 4914,
+          "server_headroom_mib": 0,
+          "pending_mib": 0
+        }
+      ],
+      "observed": [
+        {
+          "device": 3,
+          "uuid": "GPU-ba276422-a0b1-e371-8327-f744be942f15",
+          "name": "NVIDIA RTX A6000",
+          "total_mib": 49140,
+          "used_mib": 26797,
+          "processes": [
+            {
+              "pid": 3016,
+              "uid": 0,
+              "used_mib": 4,
+              "system_display": true
+            },
+            {
+              "pid": 1938762,
+              "uid": 1273071,
+              "used_mib": 26778,
+              "system_display": false
+            }
+          ],
+          "usable": true,
+          "device_minor": 0,
+          "pci": "0000:c1:00.0",
+          "namespace_guard_required": true
+        }
+      ],
+      "other_fleets": [],
+      "worker_vram_mib": 1024,
+      "excluded_devices": [
+        0,
+        1,
+        2
+      ],
+      "requested_workers": 1,
+      "reason": null
+    }
+  },
+  "recorded_at_utc": "2026-10-16T11:20:46.575279+00:00",
+  "read_only_remote_probe": true
+}
