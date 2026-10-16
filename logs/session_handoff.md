@@ -86,6 +86,8 @@ owner 的常驻指令，逐字有效：
 - `exp/r17_integration/ops/formal_prestage.py` 已改为 RAM 准入只记录不拦截（owner 10-10 不做 RAM 准入；d3667946）。
 - 今天新记忆：`feedback-update-task-list`（状态变就同步任务表）、`feedback-keep-it-simple` 加网页条目（放进现有表、照抄 LIBERO 格式）。
 
+> **10:24 巡检**：H100 ffk fastwam_mt50_reduced_descent 9,830/90,000 0 报错（~160 局/分，约 18:40 完）。4090 ffk dp_libero_full_dev 7,614/21,600 0 报错（~84 局/分，约 13:10 完）。timan1 仍 OFFLINE。sol_mwA/B/D 无新内容。
+
 > **09:54 巡检**：H100 ffk fastwam_mt50_reduced_descent 5,014/90,000 0 报错（~135 局/分，约 20:20 完）→ ffk-h100o（DP MT50 续跑 88,941）。4090 ffk dp_libero_full_dev 5,098/21,600 0 报错（~75 局/分，约 13:35 完）→ ffk-4090q（test00）。timan1 仍 OFFLINE（2 h）。sol_mwA/B/D 无新内容。
 
 > **09:2x**：FW MT50 减步（ffk-h100n）09:16 起，09:25 74 局 0 报错。sol 交回 DP MT50 减步续跑 `ffk1015_dp_mt50_reduced_descentc1`（88,941 局，timan107×40+timan108×40；1,059+88,941=90,000 唯一无重叠；四台机器只读确认原批次无残留；`filter_failed_knob/continuation_checks_1016/HANDBACK.md`）→ 排 **ffk-h100o**（等 `[ffk-h100n] queue done`）。4090 dp_libero_full_dev 2,675/21,600。timan1 仍 OFFLINE。
