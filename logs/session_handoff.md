@@ -86,6 +86,8 @@ owner 的常驻指令，逐字有效：
 - `exp/r17_integration/ops/formal_prestage.py` 已改为 RAM 准入只记录不拦截（owner 10-10 不做 RAM 准入；d3667946）。
 - 今天新记忆：`feedback-update-task-list`（状态变就同步任务表）、`feedback-keep-it-simple` 加网页条目（放进现有表、照抄 LIBERO 格式）。
 
+> **05:54 巡检**：4090 ffk fastwam_libero_reduced_off 2,780/6,000 0 报错（~50 局/分，约 07:00 完）。H100 fastwam_li_18 1,243/5,000 0 报错（~95 局/分，约 06:35 完）→ 等 4090m → li_19、cosmos_li_02–04。sol_mwA/B/D 无新内容。
+
 > **05:3x–05:4x**：cosmos_li_01 05:35 完 1,000/1,000，回执 **PENDING_EVIDENCE**（补丁第二版保留 argv 模块名后收尾检查恢复正常，不再是 close/snapshot FAIL）。fastwam_li_18 05:37 失败：H100 上同名 run 目录残留 `mps_control`（上次 04:47 尝试）→ MPS 安装 mkdir 冲突。`filter_failed/reset.py` 再改（912d2e8e）：服务端节点（H100）stage 与 run 目录（MPS_READY.json、mps、mps_control、servers）改名移到条件外（未拉起进程的失败也清理）；接受「无 owned、cleanup 为空」的启动前失败。li_18/li_19 的 H100 残留已改名。队列：ff-h100c 已停，换 **ff-h100d**（tmux `ff_h100d`）：fastwam_li_18（05:41 起，正常出局）→ 等 `[ffk-4090m] queue done` → li_19、cosmos_li_02/03/04；**ffk-4090n** 与 **ffk-h100k** 改等 `[ff-h100d] queue done`。注意：pgrep 模式若出现在本 shell 命令行里会匹配自身（05:39 误杀自己的 shell，h100c 已停、其余未动），停队列一律先 ps 列 PID 再 kill。
 
 > **05:24 巡检**：4090 ffk fastwam_libero_reduced_off 1,247/6,000 0 报错，提速到 ~45 局/分，约 07:10 完。H100 cosmos_li_01 744/1,000 0 报错（~40 局/分，约 05:30 完）→ fastwam_li_18。H100 空等间隙预计缩到约 0.5 h。sol_mwA/B/D 无新内容。
