@@ -86,6 +86,8 @@ owner 的常驻指令，逐字有效：
 - `exp/r17_integration/ops/formal_prestage.py` 已改为 RAM 准入只记录不拦截（owner 10-10 不做 RAM 准入；d3667946）。
 - 今天新记忆：`feedback-update-task-list`（状态变就同步任务表）、`feedback-keep-it-simple` 加网页条目（放进现有表、照抄 LIBERO 格式）。
 
+> **21:54 巡检**：4090 `ffk1015_dp_libero_reduced_off` 843/6,000 0 报错（~90 局/分，约 22:55 完；knob/lane_speed.sh 对该批次读不到数，已停，直接数 driver/journal）。H100 `fwmk1_redx` 82,145/90,000 0 报错 ~100 局/分，约 23:15 完。sol 旋钮消融 6,548 行未交回。sol_mwA/B/D 无新内容；Monitor 21:5x 重挂（链事件正则加 ffk）。
+
 > **21:4x 4090 补活（owner 21:40 批评 4090 空太久）**：4090 自 20:25 空闲 75 分钟（三个 ff-4090b 批次都要 timan107/timan1，被 fwmk1_redx 预留挡住；改冻结 worker 的 worker_vram_mib 不行，cache_control 校验该字段）。sol 旋钮消融已生成 ffk1015_* 定义（未交回）；审了 `filter_failed_knob/{runtime,launch,stage}.py`（行过滤装在 verified_fit 外；periodic_gap==0 只出现在纯推理档，koff=None 走过滤库；空任务走 MISS 交模型），21:44 起 **`ffk1015_dp_libero_reduced_off`**（DP LIBERO 减步不开旋钮，过滤库，6,000 局，本机 ×48，tmux `ffk_dp_off`，脚本 `r17_ops/ff/run_ffk_dp_off.sh`，标签 `[ffk-4090]`，速度日志 `mw/speed_ffk_dp_off.log`）：21:48 74 局 0 报错。ff-4090b 队列等 GPU 空闲后自动接上。sol 两个问题已备答复 `prompts/sol_filter_failed_knob_reply1.md`（交回后发：别动已启动的 ffk 目录、build 加防护；纯推理档提档照源行为；π0.5/GR00T 全步 R14 源审计 4 个哈希不符、R15 可用，R16 全步替代方案待 owner 定）。
 
 > **21:24 巡检**：H100 `fwmk1_redx` 78,892/90,000 0 报错（~50–140 局/分），约 22:45 完。4090 空闲等 timan107。sol 旋钮消融 6,062 行未交回。sol_mwA/B/D 无新内容；Monitor 21:2x 全部重挂。
