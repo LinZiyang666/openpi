@@ -86,6 +86,8 @@ owner 的常驻指令，逐字有效：
 - `exp/r17_integration/ops/formal_prestage.py` 已改为 RAM 准入只记录不拦截（owner 10-10 不做 RAM 准入；d3667946）。
 - 今天新记忆：`feedback-update-task-list`（状态变就同步任务表）、`feedback-keep-it-simple` 加网页条目（放进现有表、照抄 LIBERO 格式）。
 
+> **02:54 巡检**：4090 ffk dp_libero_reduced_dev 9,915/21,600 0 报错（约 05:00 完）。H100 dp_mt_05 02:48 起，1,784/14,100 0 报错（~350 局/分，约 03:30 完）→ fastwam_mt_06。sol_mwA/B/D 无新内容。
+
 > **02:4x 回执 FAIL 原因查明（数据无碍）**：groot_mt_10 02:45 完 9,800/9,800（0 报错），回执 FAIL `remote worker close/snapshot incomplete`，与 dp_li_16、pi05_mt_13 相同。三者都是 23:00 加 worker 共卡补丁（`-m formal_workers` 改成 `-c <补丁>`）之后启动的；dp_li_11（补丁前）回执正常。worker 收尾 stop 状态里 exit_code=0、alive/child/supervisor 全 false，只缺 `owned_worker_survivors`（冻结包按 `-m` 参数找 fleet，`-c` 下算不出来）→ formal_eval.drain_completed_workers 报错；框架把它当已知的可延后错误：回执记 `worker_close_gap`（fleet_verified_gone、snapshot_verification_required），all_owned_closed=true。分析脚本只看 RECEIPT 存在与 driver journal，不受影响。之后补证据封存可用 `python -m exp.r17_integration.ops.formal_finalize --wait <run>`（未跑）。后续用补丁启动的 R17 批次都会这样收尾，不是故障。H100 02:46 起 dp_mt_05。
 
 > **02:1x**：R10 π0.5 过滤 02:12 完 12/12 组（spatial 50–500：85.8/94.6/96.0/96.6/97.4/97.0；l10：64.2/69.8/78.4/79.2/84.2/83.2）。**R10 两个过滤批次都完成**。H100 groot_mt_10 02:15 起（timan1×40，共卡补丁生效），02:18 30 局 → 等 4090b 已完 → dp_mt_05 … cosmos_li_04 → ffk-h100k。4090 ffk dp_libero_reduced_dev 进行中。
