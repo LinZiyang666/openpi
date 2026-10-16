@@ -65,8 +65,12 @@ owner 的常驻指令，逐字有效：
    - `cd /home/weiland/projects/openpi && .venv/bin/python -m exp.offline_search.rounds.r17.knob.descent --lane /data/mw_finetune/eval/fwmk1_redx --miss-steps reduced --control Fast-WAM=tfw7k3_1051 --out exp/offline_search/rounds/r17/knob/mt50/fastwam_reduced`，提交。
    - 网页：`cd openpi_ext/scratch/r17_ops/livepage/build_1015 && python3 build.py && python3 make_harness.py`，渲染检查后上传 `mt50_knob.json`（Artifact publish asset，url https://claude.ai/artifact/To18VP3TyzS5SXY3MmmUCp），`ArtifactData update datasets/mt50_knob`（现 v3）改 source url 与说明（删「Fast-WAM reduced still running」）。页面本身不用改。
    - 回执若是 FAIL 先看 `finalization_error`：fwmk1_fulx 也是「CPU evidence finalizer readiness deadline exceeded」，数据完整可用。
-2. **4090 过滤消融队列**（tmux `ff_4090`，PID 3634771，`r17_ops/ff/run_ff_4090.sh` → `chain_ff.run.sh`，标签 `[ff-4090]`）：顺序 dp_li_14_u ✓ → dp_li_14 ✓ → dp_li_15_u ✓ → dp_li_15（20:11 3,000/4,000）→ dp_li_11 → dp_li_16 → pi05_mt_13（13,950 局），约 23:00 完。
-3. **H100 过滤消融队列**（tmux `ff_h100`，PID 3634780，`run_ff_h100.sh`，标签 `[ff-h100]`）：等 `[h100-v16] h100-v16 chain done`，再依次 cosmos_li_01..04 → dp_mt_05 → fastwam_mt_06..08 → groot_mt_09/10 → fastwam_li_12/17/18/19 → r17_filter_failed_pi05 → r17_filter_failed_groot（约 6.6 万局，约明早 4–6 点完）。
+2. **过滤消融队列 v2**（20:3x 重排，脚本 `r17_ops/ff/chain_ff2.run.sh`，支持 `WAIT:<regex>` 项；都等 `[h100-v16] h100-v16 chain done`）：
+   - **ff-4090b**（tmux `ff2_4090`，PID 1211916，`run_ff2_4090.sh`）：pi05_mt_13（13,950 局，约 2 h）→ dp_li_11 → dp_li_16。已完成：dp_li_14_u/14/15_u/15（各 0 报错）。
+   - **ff-h100b**（tmux `ff2_h100`，PID 1211923，`run_ff2_h100.sh`）：r17_filter_failed_groot → r17_filter_failed_pi05（R10 worker 不登记 R17 预留，可与 4090b 并行）→ 等 4090b 到 dp_li_11 → groot_mt_10（只用 timan1）→ 等 `[ff-4090b] queue done` → dp_mt_05, fastwam_mt_06/07/08, groot_mt_09, fastwam_li_12/17/18/19, cosmos_li_01..04。
+   - **为什么**：原批次冻结的 worker 包仍做 EGL 显存准入（本地 10-10 已取消），按 timan107/timan1 上其他 R17 fleet 的预留算；20:25 dp_li_11 因 fwmk1_redx 在 timan107 预留 40 个被拒（32 要 24 放得下）。4090 与 H100 的 R17 批次在 timan107/timan1 上不能同时预留。
+   - 暂停文件改为 `mw/hold_ff_4090b`、`mw/hold_ff_h100b`。
+3. （旧 ff_4090/ff_h100 队列已停，tmux 已关。）
    - 两条队列：每批先 prepare（幂等，会修暂存）再 launch；prepare 失败跳过；停一条队列 = kill 它的 PID（setsid，**kill tmux 停不掉**）或 `touch r17_ops/mw/hold_ff_<4090|h100>`（批间停）。**队列运行时不要改 chain_ff.run.sh、不要跑 filter_failed.build**（会重写各批 campaign.json）。启动前失败的批次用 `python -m exp.offline_search.rounds.r17.filter_failed.reset --run <dir>` 复原（只改名不删）。
    - 全部完后：`cd /home/weiland/projects/openpi && env CUDA_VISIBLE_DEVICES= PYTHONPATH=.:src .venv/bin/python -m exp.offline_search.rounds.r17.filter_failed.analyze` → `rounds/r17/filter_failed/analysis/RESULTS.md`（主比较含空任务按失败计；次要只比非空任务；DP li 50–400 用同环境未过滤对照 `_u`，旧基线作次要列）。然后向 owner 汇报（网页是否加由 owner 定）。
 - **Monitor**（每 30 min 过期就重挂）：链事件 `tail -n 0 -F r17_ops/mw/chain.log | grep -E "\[h100-v[0-9]+\]|\[4090[a-z0-9]+\]|\[ff-[a-z0-9]+\]|prepare exit|FAIL|launcher"`；其余行同上 `grep -v`；报错 `bash r17_ops/mw/err_watch.sh`。
@@ -81,6 +85,8 @@ owner 的常驻指令，逐字有效：
 - #137 Cosmos 减步完整系统 fsredcos 未跑（排在 ff_h100 之后，H100）。
 - `exp/r17_integration/ops/formal_prestage.py` 已改为 RAM 准入只记录不拦截（owner 10-10 不做 RAM 准入；d3667946）。
 - 今天新记忆：`feedback-update-task-list`（状态变就同步任务表）、`feedback-keep-it-simple` 加网页条目（放进现有表、照抄 LIBERO 格式）。
+
+> **20:3x 过滤队列重排 + 旋钮消融派单**：dp_li_15 20:22 完 4,000（0 报错）。dp_li_11 20:25 启动被拒：timan107 冻结 worker 的 EGL 显存准入（fwmk1_redx 预留 40）。`filter_failed/reset.py` 扩展到远程 worker（远端 stage 的 process/lease/log 与 worker_run、.tar、.transfer.json 改名留存，不删），dp_li_11 已复原 PREPARED。两条队列改成 v2（见上方快照第 2 条）。owner 20:2x 新要求：过滤库也跑全系统逐任务 IR 旋钮下降（两个 benchmark、全模型、全过滤库大小、全步+减步），20:3x 已按未过滤配置回复 owner；20:34 派 sol（同线程 01a140c4，任务书 `rounds/r17/prompts/sol_filter_failed_knob.md`，日志 `r17_ops/sol_filter_failed_knob.log`，代码 `rounds/r17/filter_failed_knob/`，批次前缀 ffk1015_；先减步后全步；MT50 空任务照常跑=全 MISS 交模型；π0.5/GR00T 全步 R14/R15 老流程能否跑待 sol 核实）。任务 #148。
 
 > **19:54 巡检**：4090 ff：dp_li_15_u 19:38 完 4,000（0 报错），dp_li_15 19:40 起、1,197/4,000 0 报错（~85 局/分，约 20:30 完）→ 11 → 16 → pi05_mt_13。H100 `fwmk1_redx` 64,765/90,000 0 报错，速度降到 ~100–118 局/分，约 23:40 完。sol_mwA/B/D 无新内容；Monitor 19:4x 重挂。
 
