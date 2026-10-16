@@ -29,8 +29,8 @@ WORKER='exp.r17_integration.ops.formal_workers'
 # already follows; apply them in the worker command instead of changing the archive:
 # - another user's process on a worker GPU no longer makes the whole card
 #   unusable (its memory still counts; local d2019b8c);
-# - no per-worker VRAM cap (owner 2026-10-10): a refusal is replaced by the
-#   current round-robin device assignment;
+# (A frozen per-worker VRAM refusal is kept: 2026-10-16 06:17 fastwam_li_18 lost
+#  timan1 GPU3 EGL framebuffers with 40 LIBERO renderers beside another user's 15 GB.)
 # - timan1 GPU3 lease allows up to 40 LIBERO cache workers (the source runs got
 #   this from cache_capacity_authorization, which the filtered campaigns drop).
 # The module name stays in argv so the timan1 GPU3 guard and fleet close checks
@@ -44,18 +44,6 @@ SHARE=('import sys,runpy\n'
        '        if r.get("reason")=="other user GPU allocation":r["usable"]=True;r.pop("reason")\n'
        '    return rows\n'
        'g.inventory=inventory\n'
-       'capped=g.admission\n'
-       'def admission(campaign,run,**kw):\n'
-       '    r=capped(campaign,run,**kw)\n'
-       '    if r.get("admitted") or not str(r.get("reason") or "").startswith("EGL VRAM admission refused"):return r\n'
-       '    uuid={c["device"]:c.get("uuid") for c in r.get("cards",[])}\n'
-       '    if not uuid:return r\n'
-       '    pref=campaign.get("worker_egl_device",0);cards=sorted(uuid)\n'
-       '    order=[d for d in cards if d>=pref]+[d for d in cards if d<pref]\n'
-       '    need=kw.get("count") or campaign["node_workers"];per=r.get("worker_vram_mib",campaign.get("worker_vram_mib",1024))\n'
-       '    asg=[dict(index=i,device=order[i%len(order)],uuid=uuid[order[i%len(order)]],worker_vram_mib=per) for i in range(need)]\n'
-       '    return dict(r,admitted=True,assignments=asg,reason=None,owner_no_vram_cap=True)\n'
-       'g.admission=admission\n'
        'import exp.r17_integration.ops.timan1_workers as t\n'
        'lease=t.authorize\n'
        'def authorize(c):\n'
