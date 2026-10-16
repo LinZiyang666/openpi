@@ -34,12 +34,14 @@ def prestart_failure(root):
                 for key in ('child', 'supervisor'):
                     if proof.get(key) and alive(proof[key]):
                         raise ValueError('owned child still alive')
-    elif receipt.get('gpu_bound') is not False:
+    elif receipt.get('gpu_bound') is not False and receipt.get('cleanup'):
+        # An empty cleanup with no owned process means nothing was spawned.
         raise ValueError('missing pre-start failure proof')
     import json
     phases = [json.loads(line) for line in (root/'PHASE_TIMINGS.jsonl').read_text().splitlines() if line]
     validation = [row for row in phases if row['phase'] == 'prepared_validation']
-    if not owned and (not validation or validation[-1]['status'] != 'FAIL' or any(row['phase'] == 'owned_spawn' for row in phases)):
+    spawned = any(row['phase'] == 'owned_spawn' for row in phases)
+    if not owned and (spawned or (receipt.get('cleanup') and (not validation or validation[-1]['status'] != 'FAIL'))):
         raise ValueError('missing proof that failure preceded run_campaign; reset refused')
     if (not owned and any((root/name).exists() for name in ('servers', 'driver', 'GPU_RELEASED.json', 'SUMMARY.json'))) or (root/'SUMMARY.json').exists():
         raise ValueError('execution artifacts present; reset refused')
@@ -93,16 +95,20 @@ def reset(root):
                         target = path.with_name(path.name+suffix)
                         path.rename(target)
                         external.append(dict(original=str(path), saved=str(target)))
-            # A remote server node (H100) keeps its process receipts in the
-            # server stage; formal_process.spawn refuses an existing receipt.
-            campaign = read(root/'campaign.json')
-            if campaign.get('server_node') not in (None, 'local'):
-                from exp.r17_integration.ops import formal_eval as launch
-                stage = '/tmp/r17_formal/'+campaign['run_name']+'/server'
-                script = ('for p in "$1"/*.process.json "$1"/*.lease "$1"/*.log; '
-                          'do if [ -e "$p" ]; then mv -n "$p" "$p$2" && echo "$p"; fi; done')
-                renamed = launch.remote(campaign['server_node'], ['bash', '-c', script, 'reset', stage, suffix])
-                external += [dict(node=campaign['server_node'], original=p, saved=p+suffix) for p in renamed.split()]
+        # A remote server node (H100) keeps its process receipts in the
+        # server stage; formal_process.spawn refuses an existing receipt.
+        campaign = read(root/'campaign.json')
+        if campaign.get('server_node') not in (None, 'local'):
+            from exp.r17_integration.ops import formal_eval as launch
+            stage = '/tmp/r17_formal/'+campaign['run_name']+'/server'
+            script = ('for p in "$1"/*.process.json "$1"/*.lease "$1"/*.log; '
+                      'do if [ -e "$p" ]; then mv -n "$p" "$p$2" && echo "$p"; fi; done')
+            renamed = launch.remote(campaign['server_node'], ['bash', '-c', script, 'reset', stage, suffix])
+            # The server node also mirrors the run directory (MPS control, servers).
+            script = ('for p in "$1"/MPS_READY.json "$1"/mps "$1"/mps_control "$1"/servers; '
+                      'do if [ -e "$p" ]; then mv -n "$p" "$p$2" && echo "$p"; fi; done')
+            renamed += launch.remote(campaign['server_node'], ['bash', '-c', script, 'reset', str(root), suffix])
+            external += [dict(node=campaign['server_node'], original=p, saved=p+suffix) for p in renamed.split()]
         names = {'LAUNCH.json', 'RECEIPT.json', '.startup_inputs', 'LAUNCH_WORKER_DEPLOYMENT.json',
                  'PHASE_TIMINGS.jsonl', 'TETHER_RETRY_RECEIPT.json', 'TETHER_CALLS.jsonl', 'BATCHING_CONTROL.json',
                  'servers', 'mps', 'mps_control', 'BACKEND_EVIDENCE.json', 'PORT_RELEASE.json',
