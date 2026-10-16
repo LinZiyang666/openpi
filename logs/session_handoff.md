@@ -86,6 +86,8 @@ owner 的常驻指令，逐字有效：
 - `exp/r17_integration/ops/formal_prestage.py` 已改为 RAM 准入只记录不拦截（owner 10-10 不做 RAM 准入；d3667946）。
 - 今天新记忆：`feedback-update-task-list`（状态变就同步任务表）、`feedback-keep-it-simple` 加网页条目（放进现有表、照抄 LIBERO 格式）。
 
+> **08:4x timan1 离线（需 owner）**：cosmos_li_03 08:41 完 1,434/1,434（0 报错），收尾时 `timan1 agent OFFLINE`（心跳停在 ~07:4x），回执 FAIL、all_owned_closed=false（timan1 上那组 fleet 未确认关闭）。已 PushNotification owner 重启 timan1 的 tether agent。ff-h100d 已停（cosmos_li_04 未启动）；**所有剩余 H100 批次都含 timan1** → H100 空闲。08:43 派 sol（`prompts/sol_ffk_worker_counts.md`，日志 `r17_ops/sol_ffk_worker_counts.log`）：让 resume.py 的 worker 数配置可用于未启动的 ffk 批次，先给 dp/fastwam MT50 减步配 timan107×40+timan108×40（不用 timan1）。4090：ffk-4090n 停，换 **ffk-4090p**（test00 → dp_libero_full_dev）；test00 08:44 失败：本机 DP worker 包里没有 timan1_workers 模块，我的补丁 import 崩 → 补丁改为模块缺失就跳过（a4a6c3ea，冻结包回归测试过）；test00 回执 all_owned_closed=false（fleet 崩在写回执前）→ reset 加 `--verified-dead`（只限本机进程，逐个核 pid 已退出）后复原；4090p 跳过 test00，**dp_libero_full_dev 08:45 起**；新队列 **ffk-4090q** 等 4090p 完再跑 test00。H100 恢复后要做：重挂 H100 队列（cosmos_li_04 → ffk-h100k），检查 timan1 上 cosmos_li_03 残留 fleet。
+
 > **08:24 巡检**：H100 cosmos_li_03 1,274/1,434 0 报错（约 08:35 完）→ cosmos_li_04（3,066，约 3 h）。4090 给它做本机渲染（38 GB）。sol_mwA/B/D 无新内容；Monitor 均在有效期。
 
 > **07:54 巡检**：li_19 07:01 完 189/189、cosmos_li_02 07:17 完 500/500（均 PENDING_EVIDENCE）。cosmos_li_03 07:19 起（8 副本逐个加载约 4 min），07:54 464/1,434 0 报错（~15 局/分，约 09:00 完）；本机 60 worker 正常（attempts：local 233 / timan107 151 / timan1 84；4090 nvidia-smi 看不到这些 EGL 渲染进程的显存，属正常）→ cosmos_li_04（3,066）→ ff-h100d queue done → ffk-4090n、ffk-h100k。sol_mwA/B/D 无新内容。

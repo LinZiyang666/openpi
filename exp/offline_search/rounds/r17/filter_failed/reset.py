@@ -11,9 +11,9 @@ from .audit_counts import read
 from .build import write
 
 
-def prestart_failure(root):
+def prestart_failure(root, verified_dead=False):
     receipt = read(root/'RECEIPT.json')
-    if receipt.get('status') != 'FAIL' or receipt.get('all_owned_closed') is not True:
+    if receipt.get('status') != 'FAIL' or (receipt.get('all_owned_closed') is not True and not verified_dead):
         raise ValueError('reset requires a closed failed startup')
     owned = receipt.get('owned_local', [])+receipt.get('owned_remote', [])
     if owned:
@@ -23,7 +23,23 @@ def prestart_failure(root):
         if any(p.get('label') == 'driver' for p in owned) or (root/'driver').exists():
             raise ValueError('driver execution present; use an explicit continuation')
         cleanup = receipt.get('cleanup', [])
-        for process in owned:
+        if verified_dead:
+            # A fleet that crashed before writing its receipt is recorded as not
+            # closed. Re-check every recorded local pid instead of the proof.
+            if any(p.get('node') not in (None, 'local') for p in receipt.get('owned_remote', [])):
+                raise ValueError('--verified-dead covers local processes only')
+            for process in owned:
+                for rec in [process, *[p for p in cleanup if p.get('label') == process.get('label')]]:
+                    for item in (rec, rec.get('child'), rec.get('supervisor')):
+                        if not (isinstance(item, dict) and item.get('pid')):
+                            continue
+                        cmdline = Path('/proc/%d/cmdline' % item['pid'])
+                        if alive(item) if 'start_ticks' in item else (cmdline.exists() and root.name in cmdline.read_bytes().decode(errors='ignore')):
+                            raise ValueError('owned process still alive: '+str(item.get('pid')))
+            owned_checked = True
+        else:
+            owned_checked = False
+        for process in ([] if owned_checked else owned):
             closure = [p for p in cleanup if p.get('label') == process.get('label') and p.get('closure_confirmed')]
             if not closure or (process.get('pid') and alive(process)):
                 raise ValueError('owned process closure is not proved')
@@ -55,12 +71,12 @@ def prestart_failure(root):
     return receipt
 
 
-def reset(root):
+def reset(root, verified_dead=False):
     from exp.r17_integration.ops.formal_prestage import preparation_lock
     from .stage import _stage
     root = Path(root).resolve(strict=True)
     with preparation_lock(root):
-        receipt = prestart_failure(root)
+        receipt = prestart_failure(root, verified_dead)
         suffix = '.failed_'+datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')
         restored = []
         snapshot = root/'.startup_inputs'
@@ -136,4 +152,7 @@ def reset(root):
 if __name__ == '__main__':
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--run', type=Path, required=True)
-    reset(p.parse_args().run)
+    p.add_argument('--verified-dead', action='store_true',
+                   help='local-only startup failure whose receipt could not prove closure; every recorded pid is re-checked')
+    a = p.parse_args()
+    reset(a.run, a.verified_dead)
