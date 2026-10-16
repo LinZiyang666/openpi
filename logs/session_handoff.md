@@ -86,6 +86,8 @@ owner 的常驻指令，逐字有效：
 - `exp/r17_integration/ops/formal_prestage.py` 已改为 RAM 准入只记录不拦截（owner 10-10 不做 RAM 准入；d3667946）。
 - 今天新记忆：`feedback-update-task-list`（状态变就同步任务表）、`feedback-keep-it-simple` 加网页条目（放进现有表、照抄 LIBERO 格式）。
 
+> **08:24 巡检**：H100 cosmos_li_03 1,274/1,434 0 报错（约 08:35 完）→ cosmos_li_04（3,066，约 3 h）。4090 给它做本机渲染（38 GB）。sol_mwA/B/D 无新内容；Monitor 均在有效期。
+
 > **07:54 巡检**：li_19 07:01 完 189/189、cosmos_li_02 07:17 完 500/500（均 PENDING_EVIDENCE）。cosmos_li_03 07:19 起（8 副本逐个加载约 4 min），07:54 464/1,434 0 报错（~15 局/分，约 09:00 完）；本机 60 worker 正常（attempts：local 233 / timan107 151 / timan1 84；4090 nvidia-smi 看不到这些 EGL 渲染进程的显存，属正常）→ cosmos_li_04（3,066）→ ff-h100d queue done → ffk-4090n、ffk-h100k。sol_mwA/B/D 无新内容。
 
 > **06:5x**：li_18c1 06:53 完 1,213/1,213（回执 PENDING_EVIDENCE）→ **fastwam_li_18 两段合计 5,000 齐**。H100 li_19 06:54 起（本机×16 渲染在 4090 + timan1×16 + timan107×16），06:57 48/189 0 报错 → cosmos_li_02/03/04（本机×60 渲染）。窗口期 4090 只做渲染（~3 h），没有能并行的 4090 服务批次（DP test00 要本机 48 渲染、VLA R16 服务+60 渲染超 48 GB 且挤 timan107）。之后 ffk-4090n（test00 → DP 全步开发集）、ffk-h100k。sol_mwA/B/D 无新内容。
