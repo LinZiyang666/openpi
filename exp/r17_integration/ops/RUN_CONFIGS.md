@@ -1164,6 +1164,26 @@ server campaign, replica logs) that nothing removes. On 2026-10-13 23:51 `/` rea
 `csgr_h5` was serving; a prepare failed with `No space left on device`. Closed campaigns' staging dirs were moved
 (not deleted) to `/data/r17_formal_moved/` on H100 (`/` back to 61%). Check `df -h /` on H100 before a queue of
 H100 prepares and move closed runs' `/tmp/r17_formal/<run>` to `/data/r17_formal_moved/`. Never move a run that is prepared but not yet launched: its launch reads `/tmp/r17_formal/<run>/server/campaign.json` and the staged assets.
+It happened again on 2026-10-17 09:27 (`fa_fw_f_u_o` prepare: rsync `No space left on device`, `/tmp/r17_formal` 24 GB).
+A guard now runs: `r17_ops/ff/h100_disk_guard2.sh` (tmux `h100_disk_guard2`, log `r17_ops/ff/h100_disk_guard.log`)
+checks every 10 min and, when H100 `/` is above 80%, moves the staging of runs whose last `chain.log` line is
+`ended rc=` (re-queued or re-prepared runs are skipped; a repeated prepare also restores `/tmp` copies).
+
+### Short-name R17 campaigns need their assets at both addresses on H100
+
+The short-name formal_A copies keep the long-name `campaign.assets` (frozen YAMLs and task UIDs stay byte-identical)
+while `local_assets` uses the short run. The H100 server opens `assets`; the coordinator's `load_cache_config`
+passes `local_assets/full.yaml`. Staging installed only the first, so `fa_fw_f_f_o` (2026-10-17 09:30) failed two
+minutes after start with `[Errno 2] No such file or directory: .../fa_fw_f_f_o/assets/full.yaml`.
+`filter_failed/stage.py:server_asset_destinations()` now installs the same sealed snapshot at both addresses.
+Check: `formal_a_1016/h100_assets_1017/verify.py --run <run>` (read-only on H100).
+
+### 4090 queue gate must count only compute processes
+
+`chain_ffk.run.sh` waited for 4090 `memory.used` < 2000 MiB before each 4090 item. An H100 lane with local renderer
+workers keeps EGL contexts on the 4090 (2026-10-17: 7 renderers, 3.6 GB), so the gate never opened and the 4090
+idled after `fa_gr_f_f_o`. Use `chain_ffk2.run.sh`, whose gate sums `nvidia-smi --query-compute-apps=used_memory`
+(servers and MPS) and ignores graphics-type renderer processes.
 
 ### Size a lane from measured supply and demand, then fill the ingress before adding local workers
 
@@ -1330,6 +1350,8 @@ only sets direct endpoints:
 | Fast-WAM per-task knob DEV/TEST (`knobdevfw4`, `knobtestfw3`) | H100 | R2, B16 / 5 ms | on / group-commit | timan107 × 45 + timan1 × 40 | 2048 / 768, N4 | 149.165.153.233:23420–23422, driver ziyanglin.com:23111 (23439 via broker before 10-12) |
 | Fast-WAM reduced-step knob DEV on the 4090 (`knobdevfwred6`, 2026-10-12 12:2x) | local RTX 4090 48 GB | **R2, B16 / 5 ms**, T5 prompt cache (`fastwam_text_cache`, T5 on CPU, 13.5 GB per replica), budget 54 GiB, patched runtime `formal_runtime_3faa6dcf_fwtextcache` | on (private MPS) / group-commit | timan107 × 40 + timan1 × 30, **no renderers on the 4090** | 2048 / 717, N4 | public 23130 (backends 23131–23132), driver 23113; server processes pinned with `taskset` to the whole NUMA node 1 (22–43, 66–87); from 13:0x `knobdevfwred8` with timan107 × 30 + timan1 × 40 (timan107 RAM: each Fast-WAM worker ~3.1 GB RSS) |
 | Cosmos per-task knob DEV/TEST (`knobdevcos4`) | H100 | R8, B1, budget 76 GiB | on (private MPS) / legacy, `driver/` on NVMe | timan107 × 45 + timan1 × 40 | 3072 / 768, N4 | 149.165.153.233:23440–23448, driver ziyanglin.com:23112 |
+
+**Formal knob design (owner ruling).** No development set for IR knob tuning on any benchmark: the cache library is built from the development pool (LIBERO B pool, MetaWorld seed 8), so tuning on it means tuning on the library's own data. The per-task IR knob is descended directly on the test set: LIBERO uses the whole test set A (500 episodes per suite = 10 tasks × 50 initial states, indices 0–49); MetaWorld MT50 uses seed 7 (50 tasks × 50 initial states). For every task, measure the levels on the test set from the most expensive level downwards, 50 episodes per task per level; a level passes when it has at most 2 fewer successes than same-step-count pure inference on the same GPU and the same initial states (integer comparison); the first failing level freezes the previous level. The reference is always same-step-count pure inference (reduced vs reduced, full vs full). Library cells whose complete system with the knob off (stall gate only) already reaches the same-step pure-inference success rate are not tuned and use that knob-off result. All earlier LIBERO knob results that chose levels on a development set (then tested or raised on test set A) are withdrawn and are being deleted and re-run under this design (original and success-filtered libraries; DP, Fast-WAM, Cosmos, π0.5, GR00T; full and reduced steps); MetaWorld knob results already followed this design and stay valid. The LIBERO `knobdev*` DEV lanes above belong to the withdrawn procedure; their rows remain only as measured topology records.
 
 Knob campaigns are prepared with `r17_ops/knob/prepare_dev.sh <dp|fastwam|cosmos> <RUN_NAME> [STUDY]` (it sets `R17_INHERIT_WORKER_DEPLOYMENT`; a fresh prepare otherwise fails on timan107 because the legacy LIBERO config under `/scratch/zixuans8/openpi_trace_h100` is gone). A failed launch cannot be relaunched: prepare again under a new name.
 
