@@ -162,7 +162,12 @@ def main(argv=None):
         runner.capture_sink = capture
         runner.execution_ack = lambda row: None
     try:
-        probe = attest()
+        import os
+        if os.environ.get('OPENPI_AUTOSCALE_NODE'):
+            from exp.offline_search.rounds.r17.autoscale_1017.worker import creation_lock
+            with creation_lock():probe = attest()
+        else:
+            probe = attest()
         WorkerLoop(a.worker_id, a.server_key, runner,
                    connect=lambda: socket.create_connection((a.driver_host, a.driver_port)), probe=probe).run_forever()
     finally:

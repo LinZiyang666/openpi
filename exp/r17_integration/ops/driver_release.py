@@ -25,6 +25,7 @@ def driver_files(files,mode):
         'exp/r17_integration/ops/cache_resume.py','exp/r17_integration/ops/cache_driver_legacy.py') if n in files)
     if mode=='group-commit':names.update(OVERLAY)
     names.update(n for n in LIVE_OVERLAY if n in files)
+    names.update(n for n in files if n.startswith('exp/offline_search/rounds/r17/autoscale_1017/'))
     return {n:files[n] for n in sorted(names)}
 
 
@@ -57,11 +58,15 @@ def prepare(campaign,directory,checkout):
     overlay=((*OVERLAY,) if mode=='group-commit' else ())
     if campaign.get('cache_study'):overlay=(*overlay,*CACHE_OVERLAY)
     if campaign.get('live_fleets'):overlay=(*overlay,*LIVE_OVERLAY)
+    if campaign.get('autoscale'):
+        from exp.offline_search.rounds.r17.autoscale_1017.release import driver_files as autoscale_files
+        overlay = (*overlay, *autoscale_files())
     if overlay:
         selected_archive=directory/'driver_runtime.tar'
         with tarfile.open(archive) as original,tarfile.open(selected_archive,'w') as target:
             content={m.name:original.extractfile(m).read() for m in original.getmembers()}
-            content.update({name:(checkout/name).read_bytes() for name in overlay})
+            from exp.offline_search.rounds.r17.autoscale_1017.switch import source as preparation_source
+            content.update({name:preparation_source(checkout/name) for name in overlay})
             for name,data in sorted(content.items()):
                 member=tarfile.TarInfo(name);member.size=len(data);member.mode=0o444
                 target.addfile(member,io.BytesIO(data))

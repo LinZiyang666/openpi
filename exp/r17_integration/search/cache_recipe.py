@@ -302,12 +302,14 @@ class CacheStudyRecipe:
     def reset(self, episode):
         self.base.reset(episode)
         self.tracker = None
-        self.controls, self.anchor = 0, 0
+        self.decisions, self.controls, self.anchor = 0, 0, 0
         self.cooldown_anchor = self.last_extra_control = self.look_due = None
         self.memo_step, self.memo, self.last = -1, None, {}
 
     def on_execution(self, count):
-        self.controls += count
+        # Kept for callers of the old interface. Delivery acknowledgments do
+        # not advance a recipe clock; query.step is the sole decision clock.
+        pass
 
     def force_look(self, request, has_vision, hit):
         return (self.look_due == request.decision_seq or
@@ -325,6 +327,7 @@ class CacheStudyRecipe:
             call_probability, extra_look, scheduled_look, starts_cooldown)
         if query.step == self.memo_step:
             return copy.deepcopy(self.memo)
+        self.decisions = self.controls = query.step
         result = self.base.query(query)
         knob = bool(self.config.recipe.periodic_gap is not None and
                     result.force_miss and result.extras.get("knob"))
@@ -337,25 +340,30 @@ class CacheStudyRecipe:
         if self.model is not None:
             if self.tracker is None:
                 self.tracker = self.tracker_class(self.model, query.task_id)
-            self.tracker.observe(query_code(self.base, query), self.controls)
+            # Q3 serializes time in calibration-control units. Convert the
+            # decision clock using its fixed calibration quantum, never the
+            # actual number of controls acknowledged by a worker.
+            quantum = getattr(self.model, 'exec_steps', self.base.layout.replan_steps)
+            self.tracker.observe(query_code(self.base, query), self.decisions * quantum)
             status = self.tracker.status()
             if status["state"] not in ("inactive", "ok", "slow_confirmed", "slow_ambiguous"):
                 raise ValueError("unknown Q3 stall state")
             call = call_probability(status["state"], cooled, 0.) == 1.
-            look = scheduled_look(extra_look(status, self.controls, self.last_extra_control,
-                                           self.model.commit_controls), call)
+            look = scheduled_look(extra_look(status, self.decisions, self.last_extra_control,
+                                           self.model.commit_controls // quantum), call)
             if starts_cooldown(call, status["state"], "stall"):
                 self.cooldown_anchor = self.anchor
         self.look_due = query.step + 1 if look else None
         if look:
-            self.last_extra_control = self.controls
+            self.last_extra_control = self.decisions
         result.force_miss = bool(call or knob)
         result.extras['corrector_computed'] = result.extras.get('corrector_applied',False)
         if result.force_miss:
             result.extras.update(corrector_applied=False,corrector_delta_norm=0.)
         result.extras.update(miss_mode=self.config.recipe.miss_mode, stall_status=status,
             stall_call=bool(call), stall_extra_look=bool(look), stall_fresh=True,
-            stall_cooldown=cooled, stall_anchor=self.anchor, executed_controls=self.controls,
+            stall_cooldown=cooled, stall_anchor=self.anchor, decision_index=self.decisions,
+            stall_clock_unit='decision',
             os_force_miss=float(result.force_miss), os_reason=63. if call else (62. if knob else 0.))
         if self.config.recipe.periodic_gap is not None:
             result.extras["knob_call"] = knob

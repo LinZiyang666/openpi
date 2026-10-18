@@ -76,10 +76,11 @@ class ProbeRecordingDriver(MetaWorldConductorDriver):
             super().run(stop=self._shutdown_external_stop,poll_s=poll_s)
             until=time.monotonic()+self.shutdown_seconds
             while self.scheduler.all_done() and not self._shutdown_external_stop() and time.monotonic()<until:
+                if getattr(self, '_autoscaler', None) is not None:self._autoscaler.tick()
                 with self._shutdown_lock:
                     workers=set(self._shutdown_workers)
                     active=len(self._shutdown_connections)
-                if len(workers)==self.expected_workers and not active:
+                if not active and (getattr(self, '_autoscaler', None) is not None or len(workers)==self.expected_workers):
                     self.worker_shutdown=dict(status='PASS',workers=sorted(workers),active_connections=0)
                     break
                 time.sleep(.025)

@@ -107,7 +107,7 @@ def reservations(run, cards, *, ignore_index=None):
         holding = owner and alive(owner) and not reservation.get('released', False)
         assignments = reservation.get('assignments', [])
         if holding:
-            devices = [(e['index'], e['device']) for e in assignments] if assignments else [
+            devices = [(e['index'], e['device']) for e in assignments] if assignments or reservation.get('autoscale') else [
                 (i, config['worker_egl_device']) for i in range(config.get('node_workers', data.get('workers',len(live))))]
         else:
             devices = [(e.get('index'), e.get('egl_device', config['worker_egl_device'])) for e in live]

@@ -36,6 +36,10 @@ class LegacyCacheDriver(ProbeRecordingDriver):
     def __init__(self, strategy, *, evidence_directory, live_fleets=False, **kwargs):
         self.evidence = SynchronousEvidence(evidence_directory)
         def steps(stage, rows):
+            for row in rows:
+                timing=row.get('server_timing',{})
+                if timing.get('clock_unit')=='segment_decision':
+                    row.update({k:timing[k] for k in ('decision_index','delivery_index','env_step_index','segment_head','clock_unit','decision_seed','wire_explicit_seed') if k in timing})
             self.evidence.submit({'per_step.jsonl': rows})
         super().__init__(strategy, per_step_writer=steps, **kwargs)
 

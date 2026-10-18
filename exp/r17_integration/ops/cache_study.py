@@ -636,15 +636,22 @@ def plan(campaign):
         names=row.get('tasks',suite_names)
         if not names or not set(names)<=set(suite_names):raise ValueError('row tasks must belong to its suite')
         if campaign.get('smoke'):names=names[:2]
+        # A recalibrated recipe keeps the owner's existing task/init UID
+        # namespace. Only its content identities change; serving and evidence
+        # always receive the actual new identities below.
+        namespace=row.get('task_namespace',{})
         episodes=episode_tasks(campaign=campaign.get('cache_plan_name',campaign['run_name']),arm=size_label(row)+row['group'],bundle_id=row['bundle_id'],
             endpoint=endpoint,model_identity=model['checkpoint_identity'],norm_identity=model['norm_identity'],
             layout_identity=digest(model['layout']),num_steps=k,
             spec=planning_spec,partition='smoke' if campaign.get('smoke') else 'dev' if pool=='B' else 'test',names=names,
             indices=([0,1] if campaign.get('domain')=='metaworld' else [0]) if campaign.get('smoke')
-                else row.get('indices',list(range(50))),yaml_identity=row['sha256'],
-            bundle_generation=row['bundle_id'],bundle_identity=row['bundle_identity'],
-            recipe_identity=row['recipe_identity'],commit_horizon=config.adapter_binding['commit_horizon'])
+                else row.get('indices',list(range(50))),yaml_identity=namespace.get('yaml_identity',row['sha256']),
+            bundle_generation=row['bundle_id'],bundle_identity=namespace.get('bundle_identity',row['bundle_identity']),
+            recipe_identity=namespace.get('recipe_identity',row['recipe_identity']),commit_horizon=config.adapter_binding['commit_horizon'])
         for task in episodes:
+            if namespace:
+                task.extra.update(yaml_identity=row['sha256'],bundle_identity=row['bundle_identity'],
+                    recipe_identity=row['recipe_identity'])
             if 'num_trials_per_task' in row:
                 # A shard can dispatch fewer inits while retaining the original
                 # benchmark trial-count metadata (e.g. official A50).

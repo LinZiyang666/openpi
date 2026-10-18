@@ -1,6 +1,7 @@
 """Recycle owned LIBERO workers only after reporting complete episodes."""
 import argparse
 import os
+import time
 from pathlib import Path
 
 from .formal_process import ticks, write_json
@@ -8,7 +9,7 @@ from .formal_process import ticks, write_json
 RECYCLE_EXIT = 75
 
 
-def limited_loop(base, maximum, marker):
+def limited_loop(base, maximum, marker, seconds=1800):
     class LimitedLoop(base):
         completed = 0
 
@@ -18,11 +19,13 @@ def limited_loop(base, maximum, marker):
             self.completed += 1
 
         def run_forever(self, stop=None):
-            super().run_forever(stop=lambda: self.completed >= maximum or bool(stop and stop()))
-            if self.completed >= maximum:
+            started = time.monotonic()
+            expired = lambda: self.completed > 0 and time.monotonic() - started >= seconds
+            super().run_forever(stop=lambda: self.completed >= maximum or expired() or bool(stop and stop()))
+            if self.completed >= maximum or expired():
                 write_json(marker, dict(schema='r17.worker_recycle.v1', pid=os.getpid(),
                     start_ticks=ticks(os.getpid()), completed_episodes=self.completed,
-                    maximum_episodes=maximum, reason='episode_boundary'))
+                    maximum_episodes=maximum, maximum_seconds=seconds, elapsed_seconds=time.monotonic()-started, reason='episode_boundary'))
                 raise SystemExit(RECYCLE_EXIT)
     return LimitedLoop
 
@@ -38,7 +41,9 @@ def planned_recycle(entry, code):
     return (marker.get('schema') == 'r17.worker_recycle.v1' and marker.get('pid') == entry['pid'] and
             marker.get('start_ticks') == entry['start_ticks'] and marker.get('reason') == 'episode_boundary' and
             type(marker.get('maximum_episodes')) is int and marker['maximum_episodes'] > 0 and
-            marker.get('completed_episodes') == marker['maximum_episodes'])
+            (marker.get('completed_episodes') == marker['maximum_episodes'] or
+             0 < marker.get('completed_episodes', 0) <= marker['maximum_episodes'] and
+             marker.get('elapsed_seconds', 0) >= marker.get('maximum_seconds', float('inf'))))
 
 
 def main(argv=None):

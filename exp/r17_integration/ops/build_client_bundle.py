@@ -51,7 +51,8 @@ def build_client_bundle(root, files, output):
         source = root / relative
         if source.is_symlink() or not source.resolve().is_relative_to(root):
             raise ValueError("symlink/escaped payload source")
-        content[name] = source.read_bytes()
+        from exp.offline_search.rounds.r17.autoscale_1017.switch import source as preparation_source
+        content[name] = preparation_source(source)
     manifest = dict(schema="r17.client_payload.v1", python="3.11", files={
         name: hashlib.sha256(data).hexdigest() for name, data in content.items()})
     manifest["digest"] = hashlib.sha256(json_bytes(manifest)).hexdigest()

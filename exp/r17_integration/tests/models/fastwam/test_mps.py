@@ -271,7 +271,9 @@ def test_default_off_cli_and_server_env_equal_before_snapshot():
     spec=importlib.util.spec_from_loader(name,loader)
     old=importlib.util.module_from_spec(spec)
     spec.loader.exec_module(old)
-    args=['--model','dp_libero','--max-batch','16','--replicas','1','--prepare-only']
+    # Keep this MPS compatibility comparison explicit about resources; new
+    # campaigns now derive their default desired maximum from node hardware.
+    args=['--model','dp_libero','--max-batch','16','--replicas','1','--workers','24','--prepare-only']
     current=vars(formal_eval.parse_args(args));assert current.pop('mps') is False
     previous=vars(old.parse_args(args))
     assert {k:current[k] for k in previous}==previous

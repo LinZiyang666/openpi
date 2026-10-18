@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import replace
+from functools import wraps
 import hashlib
 import json
 import os
@@ -61,6 +62,7 @@ def execute(argv, seconds=60, env=None, cwd=None):
 
 
 def remote(node, argv, seconds=60, *, replay_safe=False):
+    if node == 'timan108':raise ValueError('timan108 is disabled; no probe allowed')
     if node == 'local':
         return execute(argv, seconds=seconds)
     from .tether_retry import transient
@@ -99,6 +101,8 @@ def remote(node, argv, seconds=60, *, replay_safe=False):
 
 
 def transfer(argv, *, heartbeat=lambda: None):
+    if any(str(value).startswith('timan108:') for value in argv):
+        raise ValueError('timan108 is disabled; no transfer allowed')
     from .direct_transfer import transfer as rsync_transfer
     return rsync_transfer(argv,remote=remote,execute=execute,heartbeat=heartbeat)
 
@@ -350,9 +354,29 @@ def worker_paths(campaign, node):
         run=root+'/runs/'+name+'_'+node)
 
 
+def _gpu2_coordinator(function):
+    """Load worker admission hooks only when starting/preparing a fleet.
+
+    The separately sealed CPU finalizer imports this module for evidence
+    functions; it deliberately has no worker-launch packages installed.
+    """
+    @wraps(function)
+    def call(*args, **kwargs):
+        from exp.offline_search.rounds.r17.filter_failed import timan1_gpu2
+        with timan1_gpu2.coordinator():
+            return function(*args, **kwargs)
+    return call
+
+
+@_gpu2_coordinator
 def prepare_workers(campaign, directory, *, payload_override=None):
     from .build_client_bundle import worker_payload_files, build_client_bundle
+    from exp.offline_search.rounds.r17.autoscale_1017.defaults import apply
+    apply(campaign, directory)
     names = worker_payload_files(ROOT)
+    if campaign.get('autoscale'):
+        from exp.offline_search.rounds.r17.autoscale_1017.bundle import files
+        names += files()
     closed_capacity_refresh=bool(campaign.get('cache_capacity_authorization') and campaign.get('prepare_only') is True)
     if closed_capacity_refresh:
         from .cache_capacity import validate_authorization
@@ -402,6 +426,9 @@ def prepare_workers(campaign, directory, *, payload_override=None):
     if payload_override is None and (campaign.get('live_fleets') or {'local','timan1'} & set(execution_nodes)):
         from .local_workers import payload as local_payload
         payload = local_payload(campaign,directory,ROOT,payload)
+    if campaign.get('autoscale') and not campaign.get('cache_resume_selection'):
+        from exp.offline_search.rounds.r17.autoscale_1017.release import refresh_worker
+        payload = refresh_worker(campaign, Path(directory), ROOT, payload)
     digest = payload['archive_sha256']
     if campaign.get('live_fleets'):
         from .live_fleet_worker import check_payload_protocol
@@ -436,7 +463,8 @@ def prepare_workers(campaign, directory, *, payload_override=None):
                 worker_python = LOCAL_METAWORLD_PYTHON
             remote(node, ['env','PYTHONPATH='+pythonpath(destination),worker_python,'-c',
                 'from exp.r17_integration.ops.worker_installs import prepare_metaworld; '
-                'prepare_metaworld(timan1='+repr(node == 'timan1')+',local='+repr(node == 'local')+')'], replay_safe=True)
+                'prepare_metaworld(timan1='+repr(node == 'timan1')+
+                (',local=True' if node == 'local' else '')+')'], replay_safe=True)
         elif node == 'local':
             from .local_workers import environment
             worker_python = environment()
@@ -497,6 +525,10 @@ def prepare_workers(campaign, directory, *, payload_override=None):
         worker = dict(campaign, worker_node=node, node_workers=count,
             worker_run=paths['run'], worker_private_root=paths['private'],
             worker_benchmark=stage+'/benchmark.json')
+        if campaign.get('autoscale'):
+            env.update(OPENPI_AUTOSCALE_NODE=paths['run']+'/AUTOSCALE_NODE.json',
+                       OPENPI_AUTOSCALE_CONTROL=paths['run']+'/AUTOSCALE_CONTROL.json')
+            worker['autoscale_initial'] = count
         if campaign.get('cache_capacity_authorization'):
             from .cache_capacity import renderer_devices
             devices=renderer_devices(campaign,node)
@@ -518,12 +550,16 @@ def prepare_workers(campaign, directory, *, payload_override=None):
             worker.setdefault('worker_max_episodes', 4)
         memory_job = {key:worker[key] for key in ('domain', 'node_workers', 'worker_memory_mib',
                                                 'worker_memory_headroom_mib') if key in worker}
-        memory = json.loads(remote(node, ['env','PYTHONPATH='+pythonpath(destination),worker_python,'-c',
-            'from exp.r17_integration.ops.worker_memory import admission; import json; '
-            'print(json.dumps(admission('+repr(memory_job)+','+repr(paths['run'])+')))'], replay_safe=True))
+        if campaign.get('autoscale'):
+            memory = dict(admitted=True, deferred=True, desired_maximum=count,
+                          reason='Node supervisor must admit every spawn from live memory/PSI/growth')
+        else:
+            memory = json.loads(remote(node, ['env','PYTHONPATH='+pythonpath(destination),worker_python,'-c',
+                'from exp.r17_integration.ops.worker_memory import admission; import json; '
+                'print(json.dumps(admission('+repr(memory_job)+','+repr(paths['run'])+')))'], replay_safe=True))
         write_json(directory/(node+'_MEMORY_ADMISSION.json'), memory)
         from .cache_capacity import can_defer_admission
-        deferred=can_defer_admission(campaign)
+        deferred=bool(campaign.get('autoscale')) or can_defer_admission(campaign)
         if not memory['admitted'] and not deferred and (not campaign.get('prepare_only') or campaign.get('cache_worker_orchestration')):
             raise RuntimeError(node+': '+memory['reason'])
         if campaign.get('cache_worker_orchestration'):
@@ -579,6 +615,8 @@ def prepare_workers(campaign, directory, *, payload_override=None):
 
 
 def host_python(campaign):
+    if campaign.get('server_python'):
+        return campaign['server_python']
     if campaign.get('server_node') == 'h100':
         if campaign['model'] == 'pi05':
             return '/home/exouser/openpi/.venv/bin/python'
@@ -659,6 +697,8 @@ def worker_fleet_failed(status, *, dispatch_started):
     """A lease/supervisor cannot attest a lost fleet; startup exit0 is fatal."""
     if not status:
         return False  # Not yet in the next bounded liveness probe.
+    if status.get('control_probe_failed'):
+        return False  # Transport failure cannot attest fleet death.
     closed = status.get('status') == 'CLOSED'
     if closed:
         return status.get('exit_code') != 0 or not dispatch_started
@@ -680,6 +720,8 @@ def failed_fleet(node, item, status):
 
 @campaign_retries
 def prepare(campaign, directory):
+    from exp.offline_search.rounds.r17.autoscale_1017.defaults import apply
+    apply(campaign, directory)
     from .sync_back import snapshot_run, install_snapshot
     from .build_client_bundle import sha256
     if campaign.get('domain') == 'libero' and campaign.get('eval_pool') == 'B' and not campaign.get('cache_study') and not campaign.get('library'):
@@ -706,7 +748,8 @@ def prepare(campaign, directory):
             ', "H100 free-space admission failed"; print(json.dumps(dict(status="PASS",free_data_bytes=d,free_tmp_bytes=t)))')
         write_json(directory/'H100_DISK_ADMISSION.json',json.loads(remote('h100',[host_python(campaign),'-c',code])))
     from .formal_prestage import runtime_release, phase
-    with phase(directory, 'runtime_build_verify_transfer'):
+    from exp.offline_search.rounds.r17.autoscale_1017.bundle import runtime_sources
+    with runtime_sources(campaign), phase(directory, 'runtime_build_verify_transfer'):
         runtime_release(sys.modules[__name__],campaign,directory)
     root = campaign['runtime']
     write_json(directory / 'campaign.json', campaign)
@@ -999,14 +1042,18 @@ def refresh_remote_owned(remote_owned, directory, status_cache, control_files, l
     if time.monotonic()-last_status < PROBE_SECONDS:
         return last_status
     from .remote_json import stage_json, expression
+    remote_owned = [o for o in remote_owned if not o.get('retired_worker_node')]
     for node in sorted({o['node'] for o in remote_owned}):
         if UNREACHABLE_UNTIL.get(node, 0) > time.monotonic():
             continue
         entries=[dict(label=o['label'],request=o['request']) for o in remote_owned if o['node']==node]
+        from exp.offline_search.rounds.r17.autoscale_1017.driver import status_entries
+        entries=status_entries(entries, directory)
         owned=next(o for o in remote_owned if o['node']==node)
         key=node,json.dumps(entries,sort_keys=True)
         payload=repr(entries)
-        if len(payload.encode())>8192:
+        if len(payload.encode())>8192 and not any(e.get('autoscale_control') for e in entries) and not (globals().get('worker_resilience') and
+                all(o['label']=='workers' for o in entries)):
             if key not in control_files:
                 control_files[key]=stage_json(node,entries,directory,str(Path(owned['request']['lease']).parent),
                     remote=remote,transfer=transfer,python=owned['python'])
@@ -1015,9 +1062,16 @@ def refresh_remote_owned(remote_owned, directory, status_cache, control_files, l
             'from exp.r17_integration.ops.remote_json import load_json; import json; '
             'print(json.dumps(controls('+payload+')))')
         try:
+            worker_probe=globals().get('worker_resilience') and all(o['label']=='workers' for o in entries)
             results=json.loads(remote(node,['env','PYTHONPATH='+pythonpath(owned['root']),owned['python'],'-c',code],
-                                      seconds=10,replay_safe=True))
+                                      seconds=90 if worker_probe else 10,replay_safe=True))
+            if set(results)!={o['label'] for o in entries}:
+                raise ValueError('remote batched control omitted an owned process')
         except Exception as exc:
+            if globals().get('worker_resilience') and all(o['label']=='workers' for o in entries):
+                for entry in entries:
+                    status_cache[node,entry['label']]=dict(status='UNKNOWN',error=repr(exc),control_probe_failed=True)
+                continue
             if not getattr(exc, 'r17_retry_exhausted', False):
                 raise
             # Workers reach the driver directly, so a node whose tether agent is unreachable keeps serving
@@ -1025,14 +1079,16 @@ def refresh_remote_owned(remote_owned, directory, status_cache, control_files, l
             UNREACHABLE_UNTIL[node] = time.monotonic()+600
             print('R17 probe: '+node+' unreachable through tether; continuing without its status', file=sys.stderr, flush=True)
             continue
-        if set(results)!={o['label'] for o in entries}:
-            raise ValueError('remote batched control omitted an owned process')
         for label,value in results.items():status_cache[node,label]=value
+    from exp.offline_search.rounds.r17.autoscale_1017.driver import collect_status
+    collect_status(directory, status_cache)
     return time.monotonic()
 
 
 @campaign_retries
+@_gpu2_coordinator
 def run_campaign(campaign, directory, deployment):
+    from exp.offline_search.rounds.r17.filter_failed import timan1_gpu2 as _autoscale_gpu2
     class NativeQualificationComplete(Exception):
         pass
     from .sync_back import install_snapshot
@@ -1043,6 +1099,8 @@ def run_campaign(campaign, directory, deployment):
         stopped = True
     previous = {sig:signal.signal(sig, stop) for sig in (signal.SIGINT, signal.SIGTERM)}
     report = dict(status='PARTIAL', owned_local=[], owned_remote=[], cleanup=[])
+    resilience = globals().get('worker_resilience')
+    worker_state = resilience.Running(campaign,directory,deployment,report) if resilience else None
     if campaign.get('cache_study'):
         from .cache_resume import segment_resources
         report.update(segment_resources=segment_resources(campaign,directory),
@@ -1086,6 +1144,9 @@ def run_campaign(campaign, directory, deployment):
         log = (directory / (label+'.log')).open('ab')
         handles.append(log)
         child_env = {**os.environ, **env}
+        if label == 'driver' and campaign.get('autoscale'):
+            child_env.update(OPENPI_AUTOSCALE_CONFIG=str(directory/'campaign.json'),
+                             OPENPI_AUTOSCALE_DRIVER_MODULE='exp.offline_search.rounds.r17.autoscale_1017.driver')
         if label.startswith('replica_') and child_env.get('CUDA_VISIBLE_DEVICES')=='':
             # Slot wrappers deliberately hide CUDA from the CPU conductor.
             # An explicit --run admits only this owned resident to the GPU.
@@ -1100,6 +1161,8 @@ def run_campaign(campaign, directory, deployment):
         save()
         return child
     def spawn_remote(node, label, argv, env, root, python, stage, ownership=None):
+        if node == 'timan1' and label == 'workers' and campaign.get('autoscale'):
+            argv = _autoscale_gpu2.bootstrap(argv[0], ['exp.r17_integration.ops.formal_workers', *argv[4:]], 'fleet')
         if ownership:
             from .live_fleets import owned_spawn
             def record(owned,first):
@@ -1111,8 +1174,19 @@ def run_campaign(campaign, directory, deployment):
         request = dict(argv=argv, env=env, cwd=root, receipt=stage+'/'+label+'.process.json',
             log=stage+'/'+label+'.log', lease=stage+'/'+label+'.lease', seconds=campaign['seconds'],
             lease_seconds=LEASE_SECONDS)
-        receipt = json.loads(remote(node, ['env', 'PYTHONPATH='+pythonpath(root), python, '-m',
-            'exp.r17_integration.ops.formal_process', 'spawn', '--request', json.dumps(request)]))
+        try:
+            receipt = json.loads(remote(node, ['env', 'PYTHONPATH='+pythonpath(root), python, '-m',
+                'exp.r17_integration.ops.formal_process', 'spawn', '--request', json.dumps(request)]))
+        except Exception as exc:
+            if worker_state is None or label != 'workers':raise
+            # A lost spawn reply is ambiguous. Fence the node and preserve the
+            # exact request for later closure; never replay an ambiguous spawn.
+            owned=dict(node=node,label=label,request=request,root=root,python=python,receipt={},
+                       transport='direct' if node=='local' else 'tether')
+            remote_owned.append(owned);report['owned_remote'].append(owned)
+            worker_state.retire(node,dict(spawn_error=repr(exc)),owned)
+            save()
+            return owned
         owned = dict(node=node, label=label, request=request, root=root, python=python, receipt=receipt,
                      transport='direct' if node=='local' else 'tether')
         if ownership:owned.update(ownership)
@@ -1143,6 +1217,7 @@ def run_campaign(campaign, directory, deployment):
         for owned in remote_owned:
             if owned.get('kind',owned['label'])=='workers':
                 status=status_cache.get((owned['node'],owned['label']),{})
+                if worker_state is not None and worker_state.check(owned,status):continue
                 fleet_key=owned.get('fleet_key',owned['node'])
                 if live_fleets is not None and live_fleets.closed_fleet(owned,status):
                     report.setdefault('completed_worker_drains',{})[fleet_key]=status
@@ -1159,6 +1234,7 @@ def run_campaign(campaign, directory, deployment):
                 path = owned['request']['log']
                 require_service_alive(owned['label'], status, owned['node']+':'+path,
                     lambda: remote(owned['node'], ['tail', '-c', '6000', path], seconds=10, replay_safe=True))
+        if worker_state is not None:worker_state.require_workers()
     def wait_port(host, port, seconds=600, required_label=None):
         bound = min(until, time.monotonic()+seconds)
         while time.monotonic() < bound:
@@ -1188,7 +1264,7 @@ def run_campaign(campaign, directory, deployment):
         if campaign.get('live_fleets'):
             from .live_fleets import Launcher
             live_fleets=Launcher(sys.modules[__name__],campaign,directory,deployment,spawn_remote)
-        if deployment and (campaign.get('worker_min_free_gib') is not None or
+        if worker_state is None and deployment and (campaign.get('worker_min_free_gib') is not None or
                 any((directory/(node+'_DISK_ADMISSION.json')).exists() for node in deployment)):
             from .worker_disk import prepared as disk_admission
             report['worker_disk_admission'] = disk_admission(campaign,directory,deployment)
@@ -1407,7 +1483,7 @@ def run_campaign(campaign, directory, deployment):
             check()
             for owned in remote_owned:
                 status = status_cache.get((owned['node'],owned['label']),{})
-                if owned.get('kind',owned['label']) == 'workers' and status.get('status') == 'CLOSED' and status.get('exit_code'):
+                if owned.get('kind',owned['label']) == 'workers' and not owned.get('retired_worker_node') and status.get('status') == 'CLOSED' and status.get('exit_code'):
                     report['worker_fleet_failure'] = failed_fleet(owned['node'], deployment[owned.get('fleet_key',owned['node'])], status)
                     detail = report['worker_fleet_failure'].get('fleet_receipt', {})
                     raise RuntimeError('remote worker fleet failed: '+owned['node']+'; '+
@@ -1420,10 +1496,16 @@ def run_campaign(campaign, directory, deployment):
         for owned in remote_owned:
             if owned.get('kind',owned['label']) != 'workers':
                 continue
+            if owned.get('retired_worker_node'):continue
             if report['driver_completion'].get('verified_completion'):
                 # All cells/attempts are verified. A recycled worker can miss
                 # the final pull; close only this owned fleet and retain its snapshot.
-                drained = drain_completed_workers(owned, report['driver_completion'], managed)
+                try:
+                    drained = drain_completed_workers(owned, report['driver_completion'], managed)
+                except Exception as exc:
+                    if worker_state is None:raise
+                    worker_state.retire(owned['node'],dict(drain_error=repr(exc)),owned)
+                    continue
                 report.setdefault('completed_worker_drains', {})[owned.get('fleet_key',owned['node'])] = drained
                 if drained.get('snapshot_incomplete'):
                     from .formal_finalize import record_close_gap
@@ -1433,10 +1515,12 @@ def run_campaign(campaign, directory, deployment):
             deadline = min(until, time.monotonic()+90+RETRY_SECONDS)
             while time.monotonic() < deadline:
                 check()
+                if owned.get('retired_worker_node'):break
                 status = status_cache.get((owned['node'],owned['label']),{})
                 if status.get('status') == 'CLOSED':
                     break
                 time.sleep(.5)
+            if owned.get('retired_worker_node'):continue
             allowed_exit = (0, 2) if report['driver_completion'].get('recovered_worker_shutdown') else (0,)
             if (status.get('status') != 'CLOSED' or
                     status.get('exit_code') not in allowed_exit and not status.get('snapshot_incomplete') or
@@ -1456,7 +1540,8 @@ def run_campaign(campaign, directory, deployment):
         if live_fleets is not None:live_fleets.freeze()
         for owned in reversed(remote_owned):
             try:
-                result = managed(owned, 'stop')
+                result = (worker_state.cleanup(owned,managed) if owned.get('retired_worker_node')
+                          else managed(owned, 'stop'))
                 report['cleanup'].append(dict(node=owned['node'], label=owned['label'], **result,
                     **({k:owned[k] for k in ('kind','fleet_key','fleet_id') if k in owned}),
                     closure_confirmed=result.get('alive') is False))
@@ -1492,6 +1577,12 @@ def run_campaign(campaign, directory, deployment):
             signal.signal(sig, handler)
         report['all_owned_closed'] = all(not alive(entry) for _,entry in local) and all(
             r['closure_confirmed'] for r in report['cleanup'])
+        if worker_state is not None and worker_state.retired:
+            report['active_owned_closed'] = all(not alive(entry) for _,entry in local) and all(
+                r['closure_confirmed'] for r in report['cleanup'] if r.get('node') not in worker_state.retired)
+            if (report['status']=='PENDING_EVIDENCE' and report.get('driver_completion',{}).get('verified_completion')
+                    and report['active_owned_closed'] and not report['all_owned_closed']):
+                report.update(gpu_released=True,worker_node_closure_pending=True)
         if live_fleets is not None:
             try:live_fleets.seal_owners(report)
             except Exception as exc:
@@ -1534,6 +1625,10 @@ def run_campaign(campaign, directory, deployment):
             report['backend_evidence'] = backend_evidence(directory)
             save()
     print(json.dumps(dict(status=report['status'], run=str(directory), all_owned_closed=report['all_owned_closed'])))
+    if (worker_state is not None and report.get('worker_node_closure_pending') and
+            report.get('active_owned_closed') and report['status']=='PENDING_EVIDENCE' and
+            report.get('driver_completion',{}).get('verified_completion')):
+        return 0  # Full plan done, services released; unknown worker closure stays explicit.
     return 0 if report['all_owned_closed'] and (report['status'] == 'PASS' or
         report['status'] == 'PENDING_EVIDENCE' and report.get('gpu_released') is True) else 2
 
@@ -1542,14 +1637,18 @@ def parse_args(argv=None):
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('mode', nargs='?', choices=('launch', 'seal', 'aggregate'), default='launch')
     p.add_argument('--campaign')
+    p.add_argument('--semantic-campaign', help='Stable scientific namespace across paired runtime trials')
     p.add_argument('--model', choices=tuple(DEFAULT_CHECKPOINTS), default='dp_libero')
     p.add_argument('--checkpoint')
     p.add_argument('--server-node', choices=('local', 'h100'))
-    p.add_argument('--worker-node', choices=('timan107', 'timan108','local','timan1'))
+    p.add_argument('--worker-node', choices=('timan107','local','timan1'))
     from .local_workers import counts
-    p.add_argument('--worker-counts', type=counts, help='Explicit per-node counts, e.g. timan107=8,local=16; overrides --workers/--worker-node')
+    p.add_argument('--worker-counts', type=counts, help='Desired per-node maxima, e.g. timan1=150,timan107=100; runtime chooses active counts')
     p.add_argument('--local-worker-memory-mib',type=int,default=4096)
     p.add_argument('--local-worker-vram-mib',type=int,default=1024)
+    p.add_argument('--worker-autoscale', choices=('dynamic','fixed'), default='dynamic')
+    p.add_argument('--worker-memory-floor-gib', type=float, default=20)
+    p.add_argument('--worker-memory-critical-gib', type=float, default=10)
     p.add_argument('--extra-workers', type=int, default=0, help='Workers on the other timan node')
     p.add_argument('--replicas', type=int)
     p.add_argument('--mps', action='store_true',
@@ -1560,7 +1659,7 @@ def parse_args(argv=None):
                    help='Native cross-connection batching (pi05/GR00T/Fast-WAM/DP, LIBERO or MT50)')
     p.add_argument('--batch-wait-ms', type=float, default=5., help='Native stage batching window, milliseconds')
     p.add_argument('--wire-zlib', action='store_true', help='Workers zlib-compress large uint8 arrays (lossless; server accepts both)')
-    p.add_argument('--node-egl-devices', help='Per-node EGL devices (kernel minors), e.g. timan108=3;timan107=0,1,2,3,4,5,6,7')
+    p.add_argument('--node-egl-devices', help='Per-node EGL devices (kernel minors), e.g. timan1=2;timan107=0,1,2,3,4,5,6,7')
     p.add_argument('--paired-control', type=Path,
                    help='Completed same-GPU/batching official-50 Fast-WAM K10/C5 control; required for batched arms')
     p.add_argument('--runtime-from', type=Path,
@@ -1569,7 +1668,7 @@ def parse_args(argv=None):
                    help='Separately pinned orchestration; group-commit leaves frozen model/worker code unchanged')
     p.add_argument('--batch-qualification-observations', type=Path,
                    help='Smoke only: recorded Fast-WAM observations on server for startup B1/B8 parity and throughput')
-    p.add_argument('--workers', type=int, default=24)
+    p.add_argument('--workers', type=int, default=None, help='Desired maximum; omitted: benchmark renderer hardware limit')
     p.add_argument('--worker-memory-mib', type=int,
                    help='Node RAM reservation per worker (default LIBERO6144, MW2048 MiB)')
     p.add_argument('--worker-min-free-gib',type=float,default=8,
@@ -1577,11 +1676,11 @@ def parse_args(argv=None):
     p.add_argument('--worker-restart-limit', type=int, default=2,
                    help='Bounded replacements per failed worker; 0 restores fail-fast behavior')
     p.add_argument('--worker-max-episodes', type=int,
-                   help='Recycle at episode boundaries (default LIBERO4, MW0); 0 disables; separate from failure restart budget')
+                   help='Recycle at episode boundaries (default LIBERO4, MW32); 0 disables; separate from failure restart budget')
     p.add_argument('--gpu', default='cuda:0')
     p.add_argument('--worker-egl-device', type=int, default=0)
     p.add_argument('--worker-egl-devices', type=lambda value: [int(x) for x in value.split(',')],
-                   help='Optional physical LIBERO GPU allowlist; default all usable GPUs, round-robin (timan108 excludes1/2)')
+                   help='Optional physical LIBERO GPU allowlist; default all usable GPUs, round-robin; timan108 disabled')
     p.add_argument('--worker-vram-mib', type=int, default=1024,
                    help='LIBERO VRAM reservation per worker; default1024MiB plus per-GPU headroom')
     p.add_argument('--port', type=int)
@@ -1682,7 +1781,11 @@ def parse_args(argv=None):
     if args.native_parity_only and not cosmos:
         p.error('--native-parity-only is Cosmos only')
     args.server_node = args.server_node or ('h100' if cosmos or args.model == 'groot_libero' else 'local')
-    args.worker_node = args.worker_node or ('timan108' if cosmos else 'timan107')
+    args.worker_node = args.worker_node or 'timan107'
+    if args.workers is None:
+        from exp.offline_search.rounds.r17.autoscale_1017.defaults import physical_maximum
+        from exp.offline_search.rounds.r17.autoscale_1017.switch import enabled
+        args.workers = physical_maximum(args.worker_node, 'libero' if args.model.endswith('_libero') else 'metaworld') if enabled() else 24
     args.port = args.port if args.port is not None else (23240 if cosmos else 23160)
     args.driver_port = args.driver_port if args.driver_port is not None else (
         23112 if cosmos else 23169 if args.model in ('pi05_libero', 'groot_libero') else 23179)
@@ -1713,7 +1816,7 @@ def parse_args(argv=None):
     if args.worker_memory_mib is None:
         args.worker_memory_mib = 6144 if args.model.endswith('libero') else 2048
     if args.worker_max_episodes is None:
-        args.worker_max_episodes = 4 if args.model.endswith('libero') else 0
+        args.worker_max_episodes = 4 if args.model.endswith('libero') else 32
     if args.worker_memory_mib < 1 or args.worker_restart_limit < 0 or args.worker_max_episodes < 0:
         p.error('positive worker memory and nonnegative worker restart limit required')
     if not 0 < args.worker_min_free_gib < 1024:
@@ -1788,10 +1891,11 @@ def main(argv=None):
     model, suffix = args.model.rsplit('_', 1)
     domain = 'libero' if suffix == 'libero' else 'metaworld'
     host = 'ziyanglin.com' if args.server_node == 'local' else '149.165.153.233'
-    worker_nodes = args.worker_counts or {args.worker_node:args.workers}
+    from exp.offline_search.rounds.r17.autoscale_1017.defaults import physical_maximum
+    worker_nodes = args.worker_counts or {args.worker_node: args.workers if args.workers is not None else physical_maximum(args.worker_node, domain)}
     if args.extra_workers:
-        worker_nodes['timan108' if args.worker_node == 'timan107' else 'timan107'] = args.extra_workers
-    campaign = dict(run_name=name, model=model, domain=domain,
+        worker_nodes['timan1' if args.worker_node == 'timan107' else 'timan107'] = args.extra_workers
+    campaign = dict(run_name=name, semantic_campaign=args.semantic_campaign or name, model=model, domain=domain,
         checkpoint=args.checkpoint or ('/home/exouser/ckpt' if args.model == 'groot_libero' and args.server_node == 'h100'
                                       else DEFAULT_CHECKPOINTS[args.model]),
         device=args.gpu, server_node=args.server_node, worker_nodes=worker_nodes,driver_mode=args.driver_mode,
@@ -1801,7 +1905,10 @@ def main(argv=None):
         worker_memory_mib=args.worker_memory_mib, worker_restart_limit=args.worker_restart_limit,
         worker_min_free_gib=args.worker_min_free_gib,
         local_worker_memory_mib=args.local_worker_memory_mib,local_worker_vram_mib=args.local_worker_vram_mib,
-        worker_max_episodes=args.worker_max_episodes,
+        worker_max_episodes=args.worker_max_episodes, worker_max_seconds=1800,
+        autoscale=dict(mode=args.worker_autoscale, floor=int(args.worker_memory_floor_gib*1024**3),
+                       critical=int(args.worker_memory_critical_gib*1024**3)),
+        autoscale_maximum=sum(worker_nodes.values()),
         public_port=args.port, backend_ports=list(range(args.port+1,args.port+1+args.replicas)),
         ports=[args.port,*range(args.port+1,args.port+1+args.replicas),args.driver_port],
         driver_host='ziyanglin.com', driver_port=args.driver_port,

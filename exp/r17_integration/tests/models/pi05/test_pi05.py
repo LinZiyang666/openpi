@@ -247,9 +247,11 @@ def test_default_off_import_registers_nothing_and_legacy_sources_match_head():
     code = "import sys; from exp.r17_integration.common.provider import _providers; import exp.r17_integration.models.pi05.adapter, exp.r17_integration.models.pi05.provider; assert not _providers; assert 'torch' not in sys.modules and 'jax' not in sys.modules"
     subprocess.run([sys.executable, "-c", code], check=True, capture_output=True, timeout=15)
     from pathlib import Path
+    # Scientific implementations remain frozen. The shared conductor now has
+    # authorized autoscale hooks; its wire/runner compatibility is covered by
+    # tests/conductor and the post-apply autoscale tests, not a HEAD byte pin.
     for name in ("exp/metaworld/tasks.py", "exp/metaworld/env.py", "exp/metaworld/episode_runner.py",
-                 "src/openpi/models_pytorch/pi0_pytorch.py", "src/openpi/policies/metaworld_policy.py",
-                 "src/openpi/conductor/worker.py", "src/openpi/conductor/driver.py"):
+                 "src/openpi/models_pytorch/pi0_pytorch.py", "src/openpi/policies/metaworld_policy.py"):
         original = subprocess.run(["git", "show", "HEAD:" + name], check=True, capture_output=True).stdout
         assert original == Path(name).read_bytes(), name
 

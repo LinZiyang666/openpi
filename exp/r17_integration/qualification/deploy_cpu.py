@@ -29,7 +29,12 @@ def runtime_archive(root, archive):
     with tarfile.open(archive, 'w') as tar:
         for path in sorted(files):
             if path.is_file():
-                tar.add(path, arcname=str(path.relative_to(root)), recursive=False)
+                from exp.offline_search.rounds.r17.autoscale_1017.switch import source as preparation_source
+                import io
+                data = preparation_source(path)
+                info = tar.gettarinfo(str(path), arcname=str(path.relative_to(root)))
+                info.size = len(data)
+                tar.addfile(info, io.BytesIO(data))
     return files
 
 

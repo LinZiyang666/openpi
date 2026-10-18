@@ -7,6 +7,29 @@ import time
 from pathlib import Path
 
 
+def local_ports(campaign):
+    """Server ports belong to server_node; the campaign driver is local."""
+    return sorted(set(campaign['ports'] if campaign['server_node'] == 'local'
+                      else [campaign['driver_port']]))
+
+
+def prepare_admission(campaign):
+    """Fail before staging on a local collision, without starting a listener."""
+    busy = []
+    for port in local_ports(campaign):
+        with socket.socket() as sock:
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            try:
+                sock.bind(('0.0.0.0', port))
+            except OSError as exc:
+                if exc.errno != errno.EADDRINUSE:
+                    raise
+                busy.append(port)
+    if busy:
+        raise ValueError('LOCAL_PORT_BUSY before staging: '+str(busy)+
+                         '; leave existing owners running and choose disjoint campaign ports')
+
+
 def probe_ports(ports):
     """Test the actual reusable listener shape, holding all binds together."""
     sockets, busy = [], []

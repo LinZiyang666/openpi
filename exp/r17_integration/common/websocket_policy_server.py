@@ -29,10 +29,22 @@ class _ControlSocket:
         return getattr(self.socket, name)
 
     async def send(self, value):
+        decoded = msgpack_numpy.unpackb(value) if not isinstance(value, str) else None
+        changed = False
+        if isinstance(decoded, dict):
+            meta = decoded.get('__hit_meta__', {})
+            if meta.get('clock_unit') == 'segment_decision':
+                # Frozen workers retain server_timing verbatim in per_step.
+                # Their transport decision_seq remains the ack sequence.
+                timing = decoded.setdefault('server_timing', {})
+                timing.update({k: meta[k] for k in ('decision_index','delivery_index','env_step_index','segment_head','clock_unit','decision_seed','wire_explicit_seed') if k in meta})
+                changed = True
         if self.policy is not None:
-            decoded = msgpack_numpy.unpackb(value) if not isinstance(value, str) else None
             if isinstance(decoded, dict) and decoded.get("__ack__") == "episode_end" and getattr(self, "last_execution_ack", None):
-                value = self.packer.pack(dict(decoded, execution=self.last_execution_ack))
+                decoded = dict(decoded, execution=self.last_execution_ack)
+                changed = True
+        if changed:
+            value = self.packer.pack(decoded)
         return await self.socket.send(value)
 
     async def recv(self):

@@ -31,16 +31,32 @@ def process_probe(entries, campaign):
     for p in Path('/proc').glob('[0-9]*'):
         try:
             fields = (p/'stat').read_text().split(') ', 1)[1].split()
+            if fields[0] != 'Z' and int(fields[2]) in groups:
+                raise ValueError('salvage campaign/group member still alive: '+p.name)
             argv = (p/'cmdline').read_bytes().decode(errors='replace').split('\0')
             modules = {'exp.r17_integration.ops.'+m for m in
                        ('formal_workers','formal_server','formal_driver','formal_gpu_lock')}
             campaign_worker = any(arg in modules for arg in argv) and any(campaign in arg for arg in argv)
-            if fields[0] != 'Z' and (int(fields[2]) in groups or
-                    campaign_worker):
+            if fields[0] != 'Z' and campaign_worker:
                 raise ValueError('salvage campaign/group member still alive: '+p.name)
-        except (FileNotFoundError, ProcessLookupError):
+        except (FileNotFoundError, ProcessLookupError, PermissionError):
             continue
     return result
+
+
+def receipt_processes(references):
+    """Read existing node receipts; transport only paths and ownership pins."""
+    entries = []
+    for reference in references:
+        path = Path(reference['path'])
+        if not path.is_absolute():raise ValueError('absolute ownership receipt path required')
+        recorded = json.loads(path.read_text())
+        for role, pin in reference['identities'].items():
+            observed = recorded.get(role, {})
+            if {k: observed.get(k) for k in pin} != pin:
+                raise ValueError('remote ownership receipt identity changed: '+str(path)+' '+role)
+            entries.append(pin)
+    return entries
 
 
 def prove_closed(receipt, campaign, remote):
@@ -50,17 +66,33 @@ def prove_closed(receipt, campaign, remote):
     proof = dict(local=process_probe(local, campaign['run_name']), remote={})
     grouped = {}
     for owned in receipt['owned_remote']:
-        entries = [owned['receipt'][k] for k in ('child','supervisor') if k in owned['receipt']]
-        if not entries:
+        identities = {role: {k: owned['receipt'][role][k] for k in ('pid','start_ticks','pgid')
+                             if k != 'pgid' or k in owned['receipt'][role]}
+                      for role in ('child','supervisor') if role in owned['receipt']}
+        if not identities:
             raise ValueError('missing remote process identity')
-        grouped.setdefault(owned['node'], []).extend(entries)
-    # The stdlib function is sent inline, without changing a shared runtime.
+        if owned['node'] == 'timan108':raise ValueError('timan108 is disabled; cannot probe closure')
+        path = (owned.get('request') or owned['receipt'].get('request', {})).get('receipt')
+        if not path:raise ValueError('missing remote ownership receipt path')
+        grouped.setdefault(owned['node'], []).append(dict(path=path, identities=identities))
+    # Full argv/env stay in the existing receipt FILE on the node. They may
+    # contain megabytes of embedded source, exceeding Linux MAX_ARG_STRLEN.
     source = inspect.getsource(alive)
     from .formal_process import ticks
-    source = inspect.getsource(ticks)+'\n'+source+'\n'+inspect.getsource(process_probe)
-    for node, entries in grouped.items():
-        code = 'from pathlib import Path; import json\n'+source+'\nprint(json.dumps(process_probe('+repr(entries)+','+repr(campaign['run_name'])+')))'
-        proof['remote'][node] = json.loads(remote(node,['env','CUDA_VISIBLE_DEVICES=','PYTHONDONTWRITEBYTECODE=1','python3','-c',code]))
+    source = inspect.getsource(ticks)+'\n'+source+'\n'+inspect.getsource(process_probe)+'\n'+inspect.getsource(receipt_processes)
+    for node, references in grouped.items():
+        batches, batch = [], []
+        for reference in references:
+            if len(json.dumps(reference).encode()) > 8192:raise ValueError('ownership receipt reference too large')
+            if batch and len(json.dumps(batch+[reference]).encode()) > 8192:
+                batches.append(batch);batch=[]
+            batch.append(reference)
+        if batch:batches.append(batch)
+        proof['remote'][node] = []
+        for batch in batches:
+            code = ('from pathlib import Path; import json\n'+source+
+                    '\nprint(json.dumps(process_probe(receipt_processes('+repr(batch)+'),'+repr(campaign['run_name'])+')))')
+            proof['remote'][node].extend(json.loads(remote(node,['env','CUDA_VISIBLE_DEVICES=','PYTHONDONTWRITEBYTECODE=1','python3','-c',code])))
     return dict(status='PASS', all_owned_closed=True, processes=proof)
 
 

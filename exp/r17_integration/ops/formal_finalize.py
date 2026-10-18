@@ -27,7 +27,7 @@ MAX_BYTES = 8 * 1024**3
 OVERLAY = ('formal_finalize', 'formal_eval', 'formal_prestage', 'formal_process',
            'formal_runtime', 'formal_resume', 'driver_release', 'tether_retry',
            'evidence_transfer', 'transport_operations', 'sync_back', 'formal_ports','local_workers',
-           'worker_storage','worker_disk','timan1_workers','incremental_sync')
+           'worker_storage','worker_disk','timan1_workers','incremental_sync','direct_transfer')
 
 
 def read(path):
@@ -91,6 +91,13 @@ def closed_proof(report):
         if owned.get('kind',owned['label']) == 'workers':
             row = rows[0]
             key = owned.get('fleet_key',owned['node'])
+            if owned.get('retired_worker_node') and owned['node'] in report.get('worker_node_losses',{}):
+                if (report.get('driver_completion',{}).get('verified_completion') is not True or
+                        row.get('owned_worker_survivors') != []):
+                    raise ValueError('retired worker requires full central evidence and proven closure')
+                # Accepted per-step rows/results are durable in the driver.
+                # A reboot can destroy optional worker-side diagnostics.
+                continue
             allowed = (0, 2) if report.get('driver_completion', {}).get('recovered_worker_shutdown') else (0,)
             gap = report.get('worker_close_gap', {}).get(key, {})
             deferred = (gap.get('phase') == 'after_verified_driver_completion' and
@@ -243,7 +250,7 @@ def native_batch_audit(campaign, directory):
     return result
 
 
-def finalize(campaign, directory, deployment, report):
+def finalize(campaign, directory, deployment, report, *, retain_worker_storage=False):
     """No process controls: only closed snapshots, verification and publication."""
     from . import formal_eval as launch
     directory = Path(directory)
@@ -326,7 +333,7 @@ def finalize(campaign, directory, deployment, report):
             aggregate_rc = 0
         summary = launch.aggregate(directory,driver_returncode=aggregate_rc)
         if summary['status'] != 'PASS':
-            pass
+            raise ValueError('native CPU evidence aggregate is incomplete')
         if report.get('worker_shutdown_gap'):
             summary['worker_shutdown_gap'] = report['worker_shutdown_gap']
             durable_json(directory/'SUMMARY.json',summary)
@@ -351,7 +358,10 @@ def finalize(campaign, directory, deployment, report):
                   scientific_evidence_seal=dict(path=str(scientific_seal),sha256=sha(scientific_seal)))
     durable_json(directory/'RECEIPT.json',report)
     try:
-        from .worker_storage import cleanup as storage_cleanup
+        if retain_worker_storage:
+            storage_cleanup = None
+        else:
+            from .worker_storage import cleanup as storage_cleanup
     except ModuleNotFoundError as exc:
         # A launcher imported before this change may carry the old overlay
         # list into its new CPU release. Preserve its evidence, never break
@@ -361,7 +371,11 @@ def finalize(campaign, directory, deployment, report):
         report['worker_storage_cleanup'] = {node:dict(status='RETAINED',
             reason='legacy CPU overlay lacks worker_storage; remote evidence retained') for node in fleets}
     else:
-        storage_cleanup(campaign,directory,deployment,report)
+        if storage_cleanup is None:
+            report['worker_storage_cleanup'] = {node:dict(status='RETAINED',
+                reason='CPU refinalization retains closed remote diagnostics') for node in fleets}
+        else:
+            storage_cleanup(campaign,directory,deployment,report)
     report.update(status='PASS',evidence_pending=False,worker_storage_cleanup_pending=False)
     durable_json(directory/'RECEIPT.json',report)
     return report
@@ -412,6 +426,8 @@ def handoff(campaign, directory, deployment, report):
     pins = {name:sha(directory/name) for name in ('campaign.json','EPISODE_PLAN.json','RECEIPT.json',
         'SERVER_ATTESTATIONS.json','WORKER_DEPLOYMENT.json','driver/DRIVER_RECEIPT.json',
         'driver/journal.jsonl','driver/attempts.jsonl','driver/per_step.jsonl')}
+    if campaign.get('worker_node_failover'):
+        pins['WORKER_NODE_STATE.json']=sha(directory/'WORKER_NODE_STATE.json')
     for node in deployment:
         name = node+'_launch.json' if (directory/(node+'_launch.json')).exists() else node+'.json'
         pins[name] = sha(directory/name)
@@ -451,17 +467,25 @@ def handoff(campaign, directory, deployment, report):
 
 
 def await_ready(child, directory, seconds=30):
-    """Confirm the frozen CPU child imported and verified its input before exit."""
+    """Confirm CPU ownership/import; bulk verification stays behind the seal."""
     deadline=time.monotonic()+seconds
     while time.monotonic()<deadline:
         path=Path(directory)/'EVIDENCE_FINALIZATION.json'
         if path.exists():
             state=read(path)
-            if state.get('status') in ('RUNNING','PASS'):
+            if state.get('status') in ('VERIFYING_INPUTS','RUNNING','PASS'):
                 return
-            pass
-        if child.poll() is not None:
-            pass
+            if state.get('status') in ('FAIL','PARTIAL'):
+                raise RuntimeError('CPU evidence finalizer failed before readiness: '+str(state.get('error')))
+        returncode = child.poll()
+        if returncode is not None:
+            log = Path(directory)/'evidence_finalizer.log'
+            detail = ''
+            if log.exists():
+                with log.open('rb') as stream:
+                    stream.seek(max(0,log.stat().st_size-8192))
+                    detail = stream.read(8192).decode('utf-8',errors='replace')
+            raise RuntimeError(f'CPU evidence finalizer exited before readiness (rc={returncode}): '+detail)
         time.sleep(.05)
     raise TimeoutError('CPU evidence finalizer readiness deadline exceeded')
 
@@ -482,12 +506,19 @@ def background(directory):
             pin = release['orchestration']
             if not verify(pin['root'],'RUNTIME_RELEASE.json',pin['identity'])['present']:
                 raise ValueError('CPU finalizer release missing')
-            if any(sha(directory/name) != digest for name,digest in release['input_pins'].items()):
-                pass
             owner = read(directory/'EVIDENCE_FINALIZER_PROCESS.json')
             if owner['pid'] != os.getpid() or owner['start_ticks'] != ticks(os.getpid()):
-                pass
-            durable_json(directory/'EVIDENCE_FINALIZATION.json',dict(status='RUNNING',cpu_only=True,owner=owner))
+                raise ValueError('CPU finalizer ownership differs')
+            # The two failed Cosmos releases pin 3.20 GB / .65 GB. Hashing
+            # those is CPU evidence work, not a 30-second import handshake.
+            # The public receipt remains PENDING until all audits pass.
+            started=time.monotonic()
+            durable_json(directory/'EVIDENCE_FINALIZATION.json',dict(status='VERIFYING_INPUTS',
+                cpu_only=True,owner=owner,started_at=datetime.now(timezone.utc).isoformat()))
+            if any(sha(directory/name) != digest for name,digest in release['input_pins'].items()):
+                raise ValueError('GPU-release input changed before CPU evidence sealing')
+            durable_json(directory/'EVIDENCE_FINALIZATION.json',dict(status='RUNNING',cpu_only=True,
+                owner=owner,input_verification_seconds=time.monotonic()-started))
             with retry_scope(directory/'evidence_transport'):
                 report = finalize(read(directory/'campaign.json'),directory,release['deployment'],report)
         except BaseException as exc:
@@ -507,21 +538,86 @@ def wait_seal(directory, *, seconds=7500, stopped=lambda:False):
         if (report.get('status') != 'PENDING_EVIDENCE' and
                 (report.get('status') != 'PASS' or not report.get('worker_storage_cleanup_pending'))):
             if report.get('status') != 'PASS' or report.get('all_owned_closed') is not True:
-                pass
+                raise RuntimeError('CPU evidence seal failed: '+str(report.get('finalization_error') or report.get('status')))
             return dict(run=str(directory),status='PASS',receipt_sha256=sha(directory/'RECEIPT.json'))
         if stopped() or time.monotonic() >= deadline:
-            pass
+            raise TimeoutError('CPU evidence seal deadline exceeded')
         if (directory/'EVIDENCE_FINALIZER_PROCESS.json').exists() and not alive(read(directory/'EVIDENCE_FINALIZER_PROCESS.json')):
-            pass
+            raise RuntimeError('CPU evidence finalizer exited before seal')
         time.sleep(.2)
+
+
+def retry_closed(directory):
+    """Rerun only a closed, completed readiness failure; no experiment launch.
+
+    Keep the failed public receipt and all existing frozen releases. Optional
+    remote worker diagnostics are retained rather than deleted during recovery.
+    The normal snapshot, native execution and batching audits still run.
+    """
+    from . import formal_eval as launch, cache_study
+    from .tether_retry import retry_scope
+    from unittest.mock import patch
+    directory=Path(directory).resolve(strict=True)
+    with (directory/'.evidence_seal.lock').open('a') as lock:
+        fcntl.flock(lock,fcntl.LOCK_EX | fcntl.LOCK_NB)
+        report=read(directory/'RECEIPT.json')
+        if report.get('status')=='PASS':
+            return dict(status='PASS',run=str(directory),already_sealed=True)
+        if (report.get('status')!='FAIL' or report.get('finalization_error') !=
+                "TimeoutError('CPU evidence finalizer readiness deadline exceeded')" or
+                any(report.get(k) for k in ('error','batching_audit_error','shard_transfer_error'))):
+            raise ValueError('CPU retry requires an isolated finalizer readiness failure')
+        owner=directory/'EVIDENCE_FINALIZER_PROCESS.json'
+        if owner.exists() and alive(read(owner)):
+            raise ValueError('CPU evidence finalizer is still alive')
+        closed_proof(report)
+        completion=launch.driver_completion(directory,report['driver_completion']['returncode'])
+        if completion!=report['driver_completion'] or completion.get('verified_completion') is not True:
+            raise ValueError('CPU retry requires unchanged verified driver completion')
+        campaign=read(directory/'campaign.json')
+        deployment=read(directory/('LAUNCH_WORKER_DEPLOYMENT.json' if
+            (directory/'LAUNCH_WORKER_DEPLOYMENT.json').exists() else 'WORKER_DEPLOYMENT.json'))
+        stamp=datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')
+        backup=directory/('RECEIPT.before_cpu_refinalize_'+stamp+'.json')
+        atomic_bytes(backup,(directory/'RECEIPT.json').read_bytes())
+        proof=dict(schema='r17.cpu_refinalization.v1',cpu_only=True,started_at=stamp,
+            original_receipt=str(backup),original_receipt_sha256=sha(backup),
+            original_error=report.pop('finalization_error'),driver_completion=completion,
+            model_server_worker_releases_unchanged=True,
+            cpu_source_pins={n:sha(Path(__file__).with_name(n+'.py')) for n in ('formal_eval','formal_finalize')})
+        report['cpu_refinalization']=proof
+        try:
+            with retry_scope(directory/'cpu_refinalize_transport'),patch.object(cache_study,'aggregate',cache_study.aggregate):
+                path=directory/'assets/ffk_evidence.py'
+                if campaign.get('ffk_evidence_sha256'):
+                    if sha(path)!=campaign['ffk_evidence_sha256']:
+                        raise ValueError('sealed FFK CPU evidence overlay changed')
+                    scope={};exec(compile(path.read_text(),str(path),'exec'),scope);scope['install']()
+                report=finalize(campaign,directory,deployment,report,retain_worker_storage=True)
+                summary=read(directory/'SUMMARY.json')
+                if summary.get('status')!='PASS' or summary.get('terminal_errors'):
+                    raise ValueError('CPU refinalization did not verify complete native evidence')
+        except BaseException as exc:
+            report.update(status='FAIL',evidence_pending=False,finalization_error=repr(exc))
+            durable_json(directory/'RECEIPT.json',report)
+            raise
+        proof.update(status='PASS',finished_at=datetime.now(timezone.utc).isoformat(),
+            summary_sha256=sha(directory/'SUMMARY.json'))
+        durable_json(directory/'CPU_REFINALIZATION.json',proof)
+        report['cpu_refinalization']=proof
+        durable_json(directory/'RECEIPT.json',report)
+        return dict(status=report['status'],run=str(directory),original_receipt=str(backup),
+            completed_episodes=summary['completed_episodes'])
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--wait',type=Path,nargs='+',required=True,help='Scientific completion barrier for closed campaigns')
+    mode=parser.add_mutually_exclusive_group(required=True)
+    mode.add_argument('--wait',type=Path,nargs='+',help='Scientific completion barrier for closed campaigns')
+    mode.add_argument('--retry-closed',type=Path,nargs='+',help='CPU-only recovery of completed readiness failures')
     args = parser.parse_args(argv)
-    for directory in args.wait:
-        print(json.dumps(wait_seal(directory)),flush=True)
+    for directory in args.retry_closed or args.wait:
+        print(json.dumps(retry_closed(directory) if args.retry_closed else wait_seal(directory)),flush=True)
 
 
 if __name__ == '__main__':

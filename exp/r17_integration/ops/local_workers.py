@@ -27,7 +27,7 @@ def counts(value):
     result = {}
     for part in value.split(','):
         node, number = part.split('=', 1)
-        if node not in ('timan107','timan108','local','timan1') or node in result or int(number) < 1 or (node == 'timan1' and int(number) > 40):
+        if node not in ('timan107','local','timan1') or node in result or int(number) < 1:
             raise ValueError('distinct allowed worker nodes and positive counts required')
         result[node] = int(number)
     return result
@@ -157,6 +157,8 @@ def route(worker, campaign):
                   worker_vram_mib=campaign.get('local_worker_vram_mib',RENDERER_VRAM_MIB),
                   worker_memory_headroom_mib=campaign.get('worker_memory_headroom_mib',RAM_HEADROOM_MIB),
                   worker_server_vram_headroom_mib=growth)
+    if campaign.get('autoscale') and campaign['domain'] == 'metaworld':
+        worker.update(worker_max_episodes=32, worker_max_seconds=1800)
     worker['policy_endpoint'] = ('127.0.0.1:'+str(campaign['public_port']) if campaign['server_node']=='local'
                                  else campaign['endpoint'])
     return worker
@@ -178,6 +180,10 @@ def payload(campaign, directory, root, base):
         overlay.append('exp/r17_integration/ops/timan1_workers.py')
         if campaign.get('cache_capacity_authorization'):
             overlay.append('exp/r17_integration/ops/cache_capacity.py')
+    if campaign.get('autoscale'):
+        from exp.offline_search.rounds.r17.autoscale_1017.bundle import files
+        overlay += files() + ['src/openpi/conductor/worker.py', 'exp/r17_integration/conductor/worker_entry.py', 'exp/r17_integration/ops/worker_lifetime.py',
+                              'exp/r17_integration/ops/formal_process.py', 'exp/r17_integration/ops/worker_memory.py']
     with tempfile.TemporaryDirectory(prefix='local_worker_ops_',dir=directory) as temp:
         temp = Path(temp)
         for name,data in content.items():
@@ -185,7 +191,8 @@ def payload(campaign, directory, root, base):
                 continue
             p=temp/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(data)
         for name in overlay:
-            p=temp/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes((Path(root)/name).read_bytes())
+            from exp.offline_search.rounds.r17.autoscale_1017.switch import source as preparation_source
+            p=temp/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(preparation_source(Path(root)/name))
         result=build_client_bundle(temp,sorted(set(manifest['files'])|set(overlay)),temp/'release.tar')
         unchanged={n:pin for n,pin in manifest['files'].items() if n not in overlay}
         if any(result['manifest']['files'].get(n)!=pin for n,pin in unchanged.items()):

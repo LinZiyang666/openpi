@@ -76,12 +76,12 @@ def test_sealed_fit_real_layout_cache_corrector_and_tail(name,tmp_path):
     next_=policy.infer(dict(obs,__execution__={'decision_seq':0,'executed_count':count}))
     assert next_['__hit_meta__']['source']==('library' if c==count else 'library_tail')
     assert next_['__hit_meta__']['actual_nfe']==0
-    assert policy.recipe.controls==count
+    assert policy.recipe.controls==(1 if c==count else 0)
     if c>count:
         assert next_['actions'].tobytes()==first['actions'][count:].tobytes()
         third=policy.infer(dict(obs,__execution__={'decision_seq':1,'executed_count':c-count}))
         assert third['__hit_meta__']['corrector_applied']
-        assert third['__hit_meta__']['executed_controls']==c
+        assert third['__hit_meta__']['decision_index']==1
     else:assert next_['__hit_meta__']['corrector_applied']
     cfg_off=copy.deepcopy(cfg);cfg_off.recipe.corrector=False
     other=make_connection_factory(provider,cfg_off,build_shared_storage(cfg_off))()

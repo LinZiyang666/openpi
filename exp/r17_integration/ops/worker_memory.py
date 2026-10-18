@@ -5,7 +5,7 @@ from pathlib import Path
 from .formal_process import alive
 
 MIB = 1024*1024
-RAM_HEADROOM_MIB = 8192
+RAM_HEADROOM_MIB = 20480
 CACHE_RAM_MIB = 3584
 
 
@@ -110,7 +110,7 @@ def admission(campaign, run, *, memory=None, rss_reader=rss, replacement=False):
     requested = campaign['node_workers']*per_worker
     result = dict(total_bytes=total, available_bytes=available, headroom_bytes=headroom,
                   other_pending_bytes=pending, requested_bytes=requested, other_fleets=observed,
-                  worker_memory_mib=per_worker//MIB, admitted=True)  # owner 2026-10-10: no RAM admission
+                  worker_memory_mib=per_worker//MIB, admitted=available-requested-pending >= headroom)
     if not result['admitted']:
         result['reason'] = ('node worker memory admission refused: requested '+str(campaign['node_workers'])+
             ' workers at '+str(per_worker//MIB)+' MiB each; available after fleet reservations/headroom '+

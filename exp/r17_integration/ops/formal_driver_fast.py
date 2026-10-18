@@ -114,6 +114,9 @@ class AsyncCampaignDriver(ProbeRecordingDriver):
         rows=[]
         for original in result.per_step_rows:
             row=dict(original)
+            timing=row.get('server_timing',{})
+            if timing.get('clock_unit')=='segment_decision':
+                row.update({k:timing[k] for k in ('decision_index','delivery_index','env_step_index','segment_head','clock_unit','decision_seed','wire_explicit_seed') if k in timing})
             row.setdefault('success',result.success);row.setdefault('task_uid',result.task_uid)
             row.setdefault('attempt',result.attempt)
             row.update(accepted=accepted,yaml_id=yaml_id,run_id=self._run_id)

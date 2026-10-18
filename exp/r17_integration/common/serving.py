@@ -138,7 +138,10 @@ class ConnectionPolicy:
         self._reset()
 
     def _reset(self):
-        self._seq = 0
+        self._delivery_seq = self._decision_seq = 0
+        self._env_steps = 0
+        self._head_request = self._head_state = None
+        self._head_diagnostics = {}
         self._chunk = self._wire = None
         self._previous_action = None
         self._last_executed_count = 0
@@ -213,18 +216,33 @@ class ConnectionPolicy:
         r = RequestContext(campaign=e.get("campaign", "r17"),
                            benchmark_protocol=self.config.adapter_binding["benchmark_protocol"],
                            task_name=e.get("task_name", str(e.get("task_id", 0))),
-                           original_init_idx=e.get("original_init_idx", 0), decision_seq=self._seq,
+                           original_init_idx=e.get("original_init_idx", 0), decision_seq=self._decision_seq,
                            task_id=e.get("task_id", 0), bundle_generation=e.get("bundle_generation", self.bundle_id),
                            arm=e.get("arm", ""), attempt=e.get("attempt", 0), seed=e.get("seed", 7),
                            explicit_seed=e.get("explicit_seed"))
         unknown = set(overrides) - {f.name for f in fields(RequestContext)}
         if unknown:
             raise ValueError(f"unknown request context fields: {sorted(unknown)}")
-        if "decision_seq" in overrides and overrides["decision_seq"] != self._seq:
+        if "decision_seq" in overrides and overrides["decision_seq"] != self._delivery_seq:
             raise ValueError("request decision sequence does not match connection")
         if "benchmark_protocol" in overrides and overrides["benchmark_protocol"] != r.benchmark_protocol:
             pass
-        request = replace(r, **overrides)
+        # Frozen workers number deliveries for ack fencing. Recipes and RNG
+        # identity see the head index; tails never construct another request.
+        request = replace(r, **dict(overrides, decision_seq=self._decision_seq))
+        if (self.commit_horizon > self.spec.layout.replan_steps and
+                request.explicit_seed is not None and not request.benchmark_protocol.startswith('fake_')):
+            from .benchmarks import get_benchmark
+            benchmark = get_benchmark(request.benchmark_protocol)
+            # Frozen workers still hash their delivery index. Keep the native
+            # benchmark seed rule, but number model draws by segment heads.
+            # Cosmos uses fixed seeds and native-length segments, so never
+            # enters this branch.
+            prefix = {'metaworld_mt50': 'mt50', 'libero': 'libero'}.get(benchmark.benchmark)
+            if prefix is not None:
+                import hashlib
+                value = f'{prefix}:{request.seed}:{request.task_name}:{request.original_init_idx}:{request.decision_seq}'.encode()
+                request = replace(request, explicit_seed=int.from_bytes(hashlib.sha256(value).digest()[:4], 'little'))
         table_identity = request.task_table_identity or e.get("task_table_identity")
         if table_identity is not None:
             from .benchmarks import get_benchmark, task_table_identity
@@ -257,11 +275,9 @@ class ConnectionPolicy:
             if ack["request"] != asdict(request):
                 pass
         self._cursor = cursor
+        self._env_steps += count
         self._last_executed_count = count
         self._awaiting = None
-        execution_hook = getattr(self.recipe, "on_execution", None)
-        if execution_hook:
-            execution_hook(count)
         hook = getattr(self.capture_sink, "on_execution", None)
         if hook:
             hook({"decision_seq": seq, "executed_count": count, "cursor": cursor, "cursor_end": cursor,
@@ -269,6 +285,8 @@ class ConnectionPolicy:
                   "request": request})
         from dataclasses import asdict
         self.last_execution_ack = {"request": asdict(request), "decision_seq": seq,
+                                   "decision_index": request.decision_seq, "delivery_index": seq,
+                                   "env_step_index": self._env_steps,
                                    "executed_count": count, "cursor": cursor, "cursor_end": cursor,
                                    "terminal": bool(ack.get("terminal", False)),
                                    "bundle_identity": self.bundle_identity}
@@ -312,24 +330,33 @@ class ConnectionPolicy:
             self._previous_action = None
             self._last_executed_count = 0
             self._awaiting = None
-        request = self._request(obs.get("__request__", {}))
+        can_tail = self._chunk is not None and 0 <= self._cursor < self.commit_horizon
+        if can_tail:
+            override = obs.get("__request__", {})
+            if override.get("decision_seq", self._delivery_seq) != self._delivery_seq:
+                raise ValueError("request decision sequence does not match connection")
+            request = self._head_request
+        else:
+            request = self._request(obs.get("__request__", {}))
         if self.requires_context and self.commit_horizon > self.spec.layout.replan_steps and self._episode.get("ack_protocol") != "r17.execution.v1":
             raise ValueError("extended commit requires declared ack_protocol=r17.execution.v1")
         if self.allow_partial_commit and self._episode.get("partial_tail_protocol") != "r17.partial_tail.v1":
             raise ValueError("partial commit requires declared partial_tail_protocol=r17.partial_tail.v1")
         clean = {k: v for k, v in obs.items() if not k.startswith("__")}
-        state_view = measured("state", lambda: self.adapter.extract_state_only(clean))
-        state = _array(getattr(state_view, "state", state_view)).reshape(-1)
+        if can_tail:
+            state = self._head_state
+        else:
+            state_view = measured("state", lambda: self.adapter.extract_state_only(clean))
+            state = _array(getattr(state_view, "state", state_view)).reshape(-1)
         calls, nfe, named, diagnostics = (0, 0, 0), 0, {}, {}
-        if self.recipe is not None and hasattr(self.recipe, "tail_diagnostics"):
-            diagnostics = self.recipe.tail_diagnostics()
+        if can_tail:
+            diagnostics = dict(self._head_diagnostics, stall_call=False, stall_fresh=False,
+                               knob_call=False, corrector_computed=False, corrector_applied=False,
+                               corrector_delta_norm=0., stall_extra_look=False)
         result = None
         check = None
         proposal = None
         source = self._chunk_source + "_tail"
-        force_look = self.recipe is not None and self.recipe.force_look(request, self._has_vision, self._hit)
-        remaining = self.commit_horizon - self._cursor
-        can_tail = self._chunk is not None and remaining >= (1 if self.allow_partial_commit else self.spec.layout.replan_steps) and not force_look
         try:
             if not can_tail:
                 self._cursor = 0
@@ -342,7 +369,7 @@ class ConnectionPolicy:
                     proposal = measured("recipe", lambda: self.recipe.query(QueryView(request, named, state, self._has_vision,
                                                            self._hit, self._states,
                                                            previous_action=self._previous_action.copy() if self._previous_action is not None else None,
-                                                           executed_count=self._last_executed_count,
+                                                           executed_count=int(self._decision_seq > 0),
                                                            prev_hit=bool(self._hit[-1]) if self._hit else None)))
                     diagnostics = dict(proposal.extras)
                 miss_mode = self.config.recipe.miss_mode
@@ -382,7 +409,7 @@ class ConnectionPolicy:
                                timing_kind="host_wall", capture_enabled=self.capture.enabled or self.capture_sink is not None,
                                pricing_eligible=not self.capture.enabled and self.capture_sink is None and queue_timing is not None,
                                bundle_identity=self.bundle_identity, recipe_identity=self.recipe_identity)
-            if self.config.recipe.miss_mode != "legacy":
+            if self.config.recipe.miss_mode != "legacy" or not self.config.recipe.enabled:
                 diagnostics.update(resident_pid=os.getpid(), resident_generation=_RESIDENT_GENERATION)
             queue_wait = sum(queue_timing.values()) if queue_timing is not None else None
             diagnostics.update(queue_wait_ms=queue_wait, stage_queue_wait_ms=queue_timing,
@@ -429,19 +456,29 @@ class ConnectionPolicy:
                 diagnostics["capture_sink_ms"] = (time.perf_counter() - sink_begin) * 1000.0
             else:
                 diagnostics["capture_overhead_ms"] = None if self.capture.enabled else 0.0
-            self._awaiting = (self._seq, available, request)
-            self._previous_action = self._chunk.copy()
-            self._has_vision.append(bool(calls[0]))
-            self._hit.append(int(source in {"cache", "library", "cache_tail", "library_tail", "policy_tail"}))
-            self._states.append(state.copy())
-            self._seq += 1
+            self._awaiting = (self._delivery_seq, available, request)
+            delivery_index = self._delivery_seq
+            self._delivery_seq += 1  # transport/ack sequence, never a recipe clock
+            if not can_tail:
+                self._head_request, self._head_state = request, state.copy()
+                self._head_diagnostics = dict(diagnostics)
+                self._previous_action = self._chunk.copy()
+                self._has_vision.append(bool(calls[0]))
+                self._hit.append(int(source in {"cache", "library"}))
+                self._states.append(state.copy())
+                self._decision_seq += 1
             hit = source in {"cache", "library", "cache_tail", "library_tail", "policy_tail"}
             meta = {"hit_type": "FULL_HIT" if hit else "MISS", "start_t": None,
                     "winner_id": check.entry_id if check else None,
                     "cp1_score": check.score if check else None, "score": check.score if check else None,
                     "checkpoint": "CP1" if check else None, "searched": check.searched if check else False,
                     "source": source, "cursor": self._cursor,
-                    "decision_seq": request.decision_seq,
+                    "decision_seq": delivery_index,  # frozen-client ack identifier
+                    "decision_index": request.decision_seq, "delivery_index": delivery_index,
+                    "env_step_index": self._env_steps, "segment_head": not can_tail,
+                    "decision_seed": request.explicit_seed,
+                    "wire_explicit_seed": obs.get('__request__', {}).get('explicit_seed'),
+                    "clock_unit": "segment_decision", "state_fresh": not can_tail,
                     "stage_calls": calls, "actual_nfe": nfe, "sampler_identity": self.sampler.identity,
                     "commit_horizon": self.commit_horizon, **diagnostics}
             if proposal is not None:

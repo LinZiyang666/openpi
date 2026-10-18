@@ -41,10 +41,10 @@ def test_batched_launch_rejects_other_model(monkeypatch):
 def test_normal_formal_launcher_accepts_owned_DP_config(maximum):
     from exp.r17_integration.ops.formal_eval import parse_args
     args = parse_args(["--model", "dp_libero", "--max-batch", str(maximum),
-        "--batch-wait-ms", "5", "--server-node", "local", "--worker-node", "timan108",
+        "--batch-wait-ms", "5", "--server-node", "local", "--worker-node", "timan107",
         "--workers", "12", "--replicas", "1", "--official-50", "--run"])
     assert args.max_batch == maximum and args.batch_wait_ms == 5
-    assert args.server_node == "local" and args.worker_node == "timan108"
+    assert args.server_node == "local" and args.worker_node == "timan107"
 
 
 def test_normal_resident_dispatch_keeps_graph_and_measured_stage_settings(monkeypatch):

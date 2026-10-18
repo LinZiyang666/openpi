@@ -44,12 +44,12 @@ def test_transport_recovers_with_backoff_and_each_blip_in_receipt(tmp_path, code
             raise error(code, stderr)
         return 'complete'
     with tr.retry_scope(tmp_path):
-        assert tr.retry(run,label='renew',node='timan108',clock=clock.now,sleeper=clock.sleep,replay_safe=True)=='complete'
+        assert tr.retry(run,label='renew',node='timan1',clock=clock.now,sleeper=clock.sleep,replay_safe=True)=='complete'
     receipt=json.loads((tmp_path/'TETHER_RETRY_RECEIPT.json').read_text())
     assert calls==[True]*3 and clock.delays==[2,4]
     assert receipt['blips']==2 and receipt['window_seconds']==300
     assert [r['event'] for r in receipt['events']]==['blip','blip','recovered']
-    assert all(r['stderr']==stderr and r['node']=='timan108' for r in receipt['events'][:2])
+    assert all(r['stderr']==stderr and r['node']=='timan1' for r in receipt['events'][:2])
     assert receipt['events']==[json.loads(r) for r in (tmp_path/'TETHER_BLIPS.jsonl').read_text().splitlines()]
 
 
@@ -92,7 +92,7 @@ def test_formal_remote_lease_close_snapshot_paths_recover(monkeypatch,tmp_path,m
     monkeypatch.setattr(formal_eval,'execute',execute)
     argv=['python3','-m','exp.r17_integration.ops.formal_process',mode]
     with tr.retry_scope(tmp_path):
-        assert json.loads(formal_eval.remote('timan108',argv,seconds=10))['complete']
+        assert json.loads(formal_eval.remote('timan1',argv,seconds=10))['complete']
     assert len(calls)==2 and calls[0]==calls[1] and clock.delays==[2]
     assert json.loads((tmp_path/'TETHER_RETRY_RECEIPT.json').read_text())['blips']==1
 
@@ -222,6 +222,8 @@ def test_failed_campaign_cleanup_retries_and_records_provable_closure(tmp_path,m
 
 def test_h100_server_accepts_either_worker_node():
     from exp.r17_integration.ops.library_campaign import parse_args
+    # Legacy input metadata is parsed here; shared preparation removes the
+    # disabled node from execution targets before any transport.
     for worker in ('timan107','timan108'):
         args=parse_args(['--model','fastwam_libero','--suite','libero_10','--run',
             '--server-node','h100','--worker-node',worker,'--replicas','2','--workers','24',
@@ -276,7 +278,7 @@ def test_idempotent_remote_controls_retry_transient_client_timeouts(monkeypatch,
         return '{"alive":false}'
     monkeypatch.setattr(formal_eval,'execute',execute)
     with tr.retry_scope(tmp_path):
-        result=formal_eval.remote('timan108',['python3','-m','exp.r17_integration.ops.formal_process',mode],seconds=10)
+        result=formal_eval.remote('timan1',['python3','-m','exp.r17_integration.ops.formal_process',mode],seconds=10)
     assert json.loads(result)['alive'] is False and len(calls)==2
     assert json.loads((tmp_path/'TETHER_RETRY_RECEIPT.json').read_text())['blips']==1
 

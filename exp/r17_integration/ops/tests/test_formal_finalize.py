@@ -1,6 +1,7 @@
 """Real CPU archive/background handoff plus strict shutdown/queue regressions."""
 import io
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -300,6 +301,79 @@ def test_handoff_uses_cpu_only_detached_child_and_no_inherited_gpu_lock(complete
     assert (directory/'EVIDENCE_FINALIZER_START.json').exists()
 
 
+@pytest.mark.parametrize('state',['reported_failure','exited'])
+def test_readiness_reports_the_actual_child_error_without_waiting(tmp_path,state,monkeypatch):
+    class Child:
+        def poll(self):return 1 if state=='exited' else None
+    if state=='reported_failure':
+        write_json(tmp_path/'EVIDENCE_FINALIZATION.json',dict(status='FAIL',error='input pin mismatch'))
+        detail='input pin mismatch'
+    else:
+        (tmp_path/'evidence_finalizer.log').write_text('ModuleNotFoundError: missing CPU helper\n')
+        detail='missing CPU helper'
+    monkeypatch.setattr(seal.time,'sleep',lambda *a:pytest.fail('dead finalizer must not wait for readiness timeout'))
+    with pytest.raises(RuntimeError,match=detail):seal.await_ready(Child(),tmp_path)
+
+
+def test_cpu_retry_keeps_failed_receipt_and_accepts_verified_retirement_rc2(complete,monkeypatch):
+    from exp.r17_integration.ops import worker_storage
+    directory,_,_,report=complete
+    report.update(status='FAIL',finalization_error="TimeoutError('CPU evidence finalizer readiness deadline exceeded')")
+    write_json(directory/'RECEIPT.json',report)
+    original=(directory/'RECEIPT.json').read_bytes()
+    monkeypatch.setattr(worker_storage,'cleanup',lambda *a:pytest.fail('CPU retry must retain remote data'))
+    result=seal.retry_closed(directory)
+    assert result['status']=='PASS' and result['completed_episodes']==2
+    assert Path(result['original_receipt']).read_bytes()==original
+    recovered=seal.read(directory/'RECEIPT.json')
+    assert recovered['driver_completion']['returncode']==2
+    assert recovered['driver_completion']['verified_completion']
+    assert recovered['driver_completion']['recovered_worker_shutdown']
+    assert 'finalization_error' not in recovered
+    assert recovered['worker_storage_cleanup']['timan107']['status']=='RETAINED'
+
+
+@pytest.mark.parametrize('corrupt',[False,True])
+def test_readiness_precedes_slow_hashing_but_public_pass_waits_for_it(complete,monkeypatch,corrupt):
+    directory,_,deployment,_=complete
+    original_sha=seal.sha;blocked,release=threading.Event(),threading.Event()
+    owner=dict(pid=os.getpid(),start_ticks=seal.ticks(os.getpid()))
+    path=directory/'driver/journal.jsonl';expected=original_sha(path)
+    write_json(directory/'EVIDENCE_FINALIZER_START.json',dict(status='START'))
+    write_json(directory/'EVIDENCE_FINALIZER_PROCESS.json',owner)
+    write_json(directory/'GPU_RELEASED.json',dict(orchestration=dict(root='cpu-only',identity='pin'),
+        input_pins={'driver/journal.jsonl':'wrong' if corrupt else expected},deployment=deployment))
+    def slow_sha(p):
+        if Path(p)==path:
+            blocked.set();assert release.wait(10)
+        return original_sha(p)
+    monkeypatch.setattr(seal,'sha',slow_sha)
+    monkeypatch.setattr(seal,'verify',lambda *a:{'present':True})
+    def completed(c,d,deploy,report):
+        assert blocked.is_set() and release.is_set()
+        report=dict(report,status='PASS',evidence_verified=True,evidence_pending=False)
+        seal.durable_json(d/'RECEIPT.json',report)
+        return report
+    monkeypatch.setattr(seal,'finalize',completed)
+    process=threading.Thread(target=seal.background,args=(directory,));process.start()
+    try:
+        assert blocked.wait(5)
+        assert seal.read(directory/'EVIDENCE_FINALIZATION.json')['status']=='VERIFYING_INPUTS'
+        assert seal.read(directory/'RECEIPT.json')['status']!='PASS'
+        class Child:
+            def poll(self):return None
+        seal.await_ready(Child(),directory)
+    finally:
+        release.set();process.join(10)
+    assert not process.is_alive()
+    if corrupt:
+        assert seal.read(directory/'EVIDENCE_FINALIZATION.json')['status']=='FAIL'
+        with pytest.raises(RuntimeError,match='input changed'):seal.wait_seal(directory)
+    else:
+        assert seal.read(directory/'EVIDENCE_FINALIZATION.json')['status']=='PASS'
+        assert seal.read(directory/'RECEIPT.json')['evidence_verified']
+
+
 @pytest.mark.parametrize('legacy_overlay',[False,True])
 def test_real_background_cpu_seal_and_native_identity_unchanged(complete,monkeypatch,tmp_path,legacy_overlay):
     directory,campaign,deployment,report=complete
@@ -340,6 +414,8 @@ def test_real_background_cpu_seal_and_native_identity_unchanged(complete,monkeyp
     assert child[0].wait(timeout=10)==0
     assert sha(directory/'runtime.tar')==native_before
     pin=seal.read(directory/'EVIDENCE_ORCHESTRATION.json')
+    assert 'exp/r17_integration/ops/direct_transfer.py' in pin['overlay_files']
+    assert not (Path(pin['root'])/'exp/offline_search/rounds/r17').exists()
     assert (Path(pin['root'])/'exp/r17_integration/models/native_sentinel.py').read_bytes()==b'frozen model bytes'
     assert pin['native_runtime_identity']==campaign['runtime_identity']
     assert seal.read(directory/'EVIDENCE_FINALIZATION.json')['status']=='PASS'

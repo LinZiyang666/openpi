@@ -49,6 +49,40 @@ def test_stock_orchestrator_hit_miss_tail_and_inverse_once(provider):
     np.testing.assert_array_equal(out["actions"], np.full((10,4),6.,np.float32))
 
 
+@pytest.mark.parametrize('model_miss', [False, True])
+def test_forced_knob_or_stall_look_waits_for_committed_tail(provider,tmp_path,model_miss):
+    from exp.r17_integration.common.query_view import RecipeResult
+    from exp.r17_integration.tests.common.conftest import with_recipe
+    class Recipe:
+        def reset(self,*args):self.queries=[]
+        def force_look(self,*args):raise AssertionError('delivery must not evaluate a look')
+        def query(self,q):
+            self.queries.append(q.step)
+            return RecipeResult(np.zeros((16,4),np.float32),np.array([0]),
+                                np.array([1.]),np.array([0.]),force_miss=model_miss)
+    cfg=with_recipe(provider,config_for(provider,commit=10),tmp_path)
+    recipe=Recipe();recipe.reset()
+    policy=make_connection_factory(provider,cfg,build_shared_storage(cfg),
+                                   recipe_factory=lambda *args:recipe)()
+    policy.on_episode_start(extra_metadata={'task_name':'reach','task_id':0})
+    obs={'state':np.arange(4,dtype=np.float32)}
+    sources=[]
+    for seq in range(20):
+        value=dict(obs)
+        if seq:value['__execution__']={'decision_seq':seq-1,'executed_count':5}
+        out=policy.infer(value);meta=out['__hit_meta__'];sources.append(meta['source'])
+        assert meta['cursor']==(seq%2)*5
+        assert meta['decision_index']==seq//2 and meta['delivery_index']==seq
+        assert meta['env_step_index']==seq*5
+        if seq%2:
+            assert meta['stage_calls']==(0,0,0)
+            assert out['actions'].tobytes()==head[5:].tobytes()
+        else:head=out['actions'].copy()
+    head_source='policy' if model_miss else 'library'
+    assert sources==[head_source,head_source+'_tail']*10
+    assert recipe.queries==list(range(10))
+
+
 def test_capture_on_off_byte_parity_and_no_unacknowledged_tail(provider):
     cfg=config_for(provider,commit=10); storage=build_shared_storage(cfg)
     captures=[]
