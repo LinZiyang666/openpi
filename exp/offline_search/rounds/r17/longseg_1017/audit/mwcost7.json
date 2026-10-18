@@ -1,0 +1,65 @@
+{
+  "run": "mwcost7",
+  "model": "cosmos",
+  "domain": "metaworld",
+  "server_node": "h100",
+  "file": "/data/mw_finetune/eval/mwcost7/driver/per_step.jsonl",
+  "bytes": 23570944,
+  "sample_bytes": 16771606,
+  "sample_rows": 7031,
+  "sample_limit_bytes": 16777216,
+  "sample_limit_lines": 16000,
+  "scan_kind": "bounded_windows",
+  "samples": [
+    {
+      "offset": 0,
+      "bytes": 2096881,
+      "rows": 873
+    },
+    {
+      "offset": 3068202,
+      "bytes": 2096924,
+      "rows": 879
+    },
+    {
+      "offset": 6137535,
+      "bytes": 2096179,
+      "rows": 884
+    },
+    {
+      "offset": 9205456,
+      "bytes": 2097129,
+      "rows": 885
+    },
+    {
+      "offset": 12271635,
+      "bytes": 2096501,
+      "rows": 882
+    },
+    {
+      "offset": 15340184,
+      "bytes": 2096139,
+      "rows": 871
+    },
+    {
+      "offset": 18406295,
+      "bytes": 2094707,
+      "rows": 875
+    },
+    {
+      "offset": 21473798,
+      "bytes": 2097146,
+      "rows": 882
+    }
+  ],
+  "inode": 44304890,
+  "mtime_ns": 1791869994869940281,
+  "live": false,
+  "changed_during_scan": false,
+  "episodes": 113,
+  "affected": false,
+  "rows": 7031,
+  "cut_percent": 0.0,
+  "groups": {},
+  "examples": []
+}

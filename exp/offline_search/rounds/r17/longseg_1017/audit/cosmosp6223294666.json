@@ -1,0 +1,18 @@
+{
+  "run": "cosmosp6223294666",
+  "model": "cosmos",
+  "domain": "libero",
+  "server_node": "h100",
+  "file": "/data/mw_finetune/eval/cosmosp6223294666/driver/per_step.jsonl",
+  "bytes": 351517883,
+  "inode": 34093228,
+  "mtime_ns": 1791724107004896977,
+  "live": false,
+  "changed_during_scan": false,
+  "episodes": 4000,
+  "affected": false,
+  "rows": 110394,
+  "cut_percent": 0.0,
+  "groups": {},
+  "examples": []
+}

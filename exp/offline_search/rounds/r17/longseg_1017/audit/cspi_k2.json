@@ -1,0 +1,18 @@
+{
+  "run": "cspi_k2",
+  "model": "pi05",
+  "domain": "metaworld",
+  "server_node": "local",
+  "file": "/data/mw_finetune/eval/cspi_k2/driver/per_step.jsonl",
+  "bytes": 7012038920,
+  "inode": 46530762,
+  "mtime_ns": 1791955257887014734,
+  "live": false,
+  "changed_during_scan": false,
+  "episodes": 54976,
+  "affected": false,
+  "rows": 2587702,
+  "cut_percent": 0.0,
+  "groups": {},
+  "examples": []
+}

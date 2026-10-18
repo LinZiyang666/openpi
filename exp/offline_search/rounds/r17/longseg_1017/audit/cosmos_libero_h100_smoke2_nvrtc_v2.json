@@ -1,0 +1,18 @@
+{
+  "run": "cosmos_libero_h100_smoke2_nvrtc_v2",
+  "model": "cosmos",
+  "domain": "libero",
+  "server_node": "h100",
+  "file": "/data/mw_finetune/eval/cosmos_libero_h100_smoke2_nvrtc_v2/driver/per_step.jsonl",
+  "bytes": 64607,
+  "inode": 29624982,
+  "mtime_ns": 1791605414800276492,
+  "live": false,
+  "changed_during_scan": false,
+  "episodes": 2,
+  "affected": false,
+  "rows": 28,
+  "cut_percent": 0.0,
+  "groups": {},
+  "examples": []
+}

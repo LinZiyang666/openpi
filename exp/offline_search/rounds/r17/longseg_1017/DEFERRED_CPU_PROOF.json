@@ -1,0 +1,157 @@
+{
+  "status": "PASS",
+  "rows": [
+    {
+      "name": "fa_ls_dp_r_u_l_l",
+      "status": "PASS",
+      "potential_episodes": 30000,
+      "unique_task_uids": 30000,
+      "source_uid_subset": true,
+      "descriptors_equal": {
+        "load.json": true,
+        "model_spec.json": true,
+        "model_manifest.json": true,
+        "full.yaml": true,
+        "benchmark.json": true
+      },
+      "startup_proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/cpu/fa_ls_dp_r_u_o_l.json",
+      "runtime_interpreter_equal_to_probed_OFF": true,
+      "mps_pipe": "/data/mw_finetune/eval/fa_ls_dp_r_u_l_l/mps/e5681f/p",
+      "mps_pipe_bytes": 52,
+      "pending": "Actual tuned cells depend only on new OFF + same-step same-GPU pure, not withdrawn outcomes"
+    },
+    {
+      "name": "fa_ls_dp_r_f_l_l",
+      "status": "PASS",
+      "potential_episodes": 30000,
+      "unique_task_uids": 30000,
+      "source_uid_subset": true,
+      "descriptors_equal": {
+        "load.json": true,
+        "model_spec.json": true,
+        "model_manifest.json": true,
+        "full.yaml": true,
+        "benchmark.json": true
+      },
+      "startup_proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/cpu/fa_ls_dp_r_f_o_l.json",
+      "runtime_interpreter_equal_to_probed_OFF": true,
+      "mps_pipe": "/data/mw_finetune/eval/fa_ls_dp_r_f_l_l/mps/e5681f/p",
+      "mps_pipe_bytes": 52,
+      "pending": "Actual tuned cells depend only on new OFF + same-step same-GPU pure, not withdrawn outcomes"
+    },
+    {
+      "name": "fa_ls_dp_f_u_l_l",
+      "status": "PASS",
+      "potential_episodes": 30000,
+      "unique_task_uids": 30000,
+      "source_uid_subset": true,
+      "descriptors_equal": {
+        "load.json": true,
+        "model_spec.json": true,
+        "model_manifest.json": true,
+        "full.yaml": true,
+        "benchmark.json": true
+      },
+      "startup_proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/cpu/fa_ls_dp_f_u_o_l.json",
+      "runtime_interpreter_equal_to_probed_OFF": true,
+      "mps_pipe": "/data/mw_finetune/eval/fa_ls_dp_f_u_l_l/mps/e5681f/p",
+      "mps_pipe_bytes": 52,
+      "pending": "Actual tuned cells depend only on new OFF + same-step same-GPU pure, not withdrawn outcomes"
+    },
+    {
+      "name": "fa_ls_dp_f_f_l_l",
+      "status": "PASS",
+      "potential_episodes": 30000,
+      "unique_task_uids": 30000,
+      "source_uid_subset": true,
+      "descriptors_equal": {
+        "load.json": true,
+        "model_spec.json": true,
+        "model_manifest.json": true,
+        "full.yaml": true,
+        "benchmark.json": true
+      },
+      "startup_proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/cpu/fa_ls_dp_f_f_o_l.json",
+      "runtime_interpreter_equal_to_probed_OFF": true,
+      "mps_pipe": "/data/mw_finetune/eval/fa_ls_dp_f_f_l_l/mps/e5681f/p",
+      "mps_pipe_bytes": 52,
+      "pending": "Actual tuned cells depend only on new OFF + same-step same-GPU pure, not withdrawn outcomes"
+    },
+    {
+      "name": "fa_ls_fw_r_u_l_l",
+      "status": "PASS",
+      "potential_episodes": 30000,
+      "unique_task_uids": 30000,
+      "source_uid_subset": true,
+      "descriptors_equal": {
+        "load.json": true,
+        "model_spec.json": true,
+        "model_manifest.json": true,
+        "full.yaml": true,
+        "benchmark.json": true
+      },
+      "startup_proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/cpu/fa_ls_fw_r_u_o_l.json",
+      "runtime_interpreter_equal_to_probed_OFF": true,
+      "mps_pipe": "/data/mw_finetune/eval/fa_ls_fw_r_u_l_l/mps/e5681f/p",
+      "mps_pipe_bytes": 52,
+      "pending": "Actual tuned cells depend only on new OFF + same-step same-GPU pure, not withdrawn outcomes"
+    },
+    {
+      "name": "fa_ls_fw_r_f_l_l",
+      "status": "PASS",
+      "potential_episodes": 30000,
+      "unique_task_uids": 30000,
+      "source_uid_subset": true,
+      "descriptors_equal": {
+        "load.json": true,
+        "model_spec.json": true,
+        "model_manifest.json": true,
+        "full.yaml": true,
+        "benchmark.json": true
+      },
+      "startup_proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/cpu/fa_ls_fw_r_f_o_l.json",
+      "runtime_interpreter_equal_to_probed_OFF": true,
+      "mps_pipe": "/data/mw_finetune/eval/fa_ls_fw_r_f_l_l/mps/e5681f/p",
+      "mps_pipe_bytes": 52,
+      "pending": "Actual tuned cells depend only on new OFF + same-step same-GPU pure, not withdrawn outcomes"
+    },
+    {
+      "name": "fa_ls_fw_f_u_l_l",
+      "status": "PASS",
+      "potential_episodes": 30000,
+      "unique_task_uids": 30000,
+      "source_uid_subset": true,
+      "descriptors_equal": {
+        "load.json": true,
+        "model_spec.json": true,
+        "model_manifest.json": true,
+        "full.yaml": true,
+        "benchmark.json": true
+      },
+      "startup_proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/cpu/fa_ls_fw_f_u_o_l.json",
+      "runtime_interpreter_equal_to_probed_OFF": true,
+      "mps_pipe": "/data/mw_finetune/eval/fa_ls_fw_f_u_l_l/mps/e2823e/p",
+      "mps_pipe_bytes": 52,
+      "pending": "Actual tuned cells depend only on new OFF + same-step same-GPU pure, not withdrawn outcomes"
+    },
+    {
+      "name": "fa_ls_fw_f_f_l_l",
+      "status": "PASS",
+      "potential_episodes": 30000,
+      "unique_task_uids": 30000,
+      "source_uid_subset": true,
+      "descriptors_equal": {
+        "load.json": true,
+        "model_spec.json": true,
+        "model_manifest.json": true,
+        "full.yaml": true,
+        "benchmark.json": true
+      },
+      "startup_proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/cpu/fa_ls_fw_f_f_o_l.json",
+      "runtime_interpreter_equal_to_probed_OFF": true,
+      "mps_pipe": "/data/mw_finetune/eval/fa_ls_fw_f_f_l_l/mps/e2823e/p",
+      "mps_pipe_bytes": 52,
+      "pending": "Actual tuned cells depend only on new OFF + same-step same-GPU pure, not withdrawn outcomes"
+    }
+  ]
+}

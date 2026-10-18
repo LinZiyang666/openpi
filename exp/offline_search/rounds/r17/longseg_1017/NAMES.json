@@ -1,0 +1,65 @@
+{
+  "old_to_new": {
+    "dpmk1_redx": "fa_ls_dp_r_u_m",
+    "ffk1015_dp_mt50_reduced_descent": "fa_ls_dp_r_f_m",
+    "ffk1015_dp_mt50_reduced_descentc1": "fa_ls_dp_r_f_m",
+    "dpmk1_fulx": "fa_ls_dp_f_u_m",
+    "ffk1015_dp_mt50_full_descent": "fa_ls_dp_f_f_m",
+    "grmk1_red": "fa_ls_gr_r_u_m",
+    "ffk1015_groot_mt50_reduced_descent": "fa_ls_gr_r_f_m",
+    "grmk1_ful": "fa_ls_gr_f_u_m",
+    "ffk1015_groot_mt50_full_descent": "fa_ls_gr_f_f_m",
+    "fwmk1_redx": "fa_ls_fw_r_u_m",
+    "ffk1015_fastwam_mt50_reduced_descent": "fa_ls_fw_r_f_m",
+    "fwmk1_fulx": "fa_ls_fw_f_u_m",
+    "ffk1015_fastwam_mt50_full_descent": "fa_ls_fw_f_f_m",
+    "fa_dp_f_f_o": "FORMAL_QUEUE.json",
+    "fa_dp_f_u_o": "FORMAL_QUEUE.json",
+    "fa_dp_r_f_l": "FORMAL_QUEUE.json",
+    "fa_dp_r_u_l": "FORMAL_QUEUE.json",
+    "fa_fw_f_f_o": "FORMAL_QUEUE.json",
+    "fa_fw_f_u_o": "FORMAL_QUEUE.json",
+    "fa_fw_r_u_l": "FORMAL_QUEUE.json",
+    "knobsmokedp1355": "TRASH_ONLY_NO_REPLACEMENT_OWNER_20261017",
+    "csdp_1504": "fa_ls_v01_0",
+    "csfw_k3": [
+      "fa_ls_v02_s",
+      "fa_ls_v02_b"
+    ],
+    "csfw_k3w4": [
+      "fa_ls_v02_s",
+      "fa_ls_v02_b"
+    ],
+    "csfw_k3w5": [
+      "fa_ls_v02_s",
+      "fa_ls_v02_b"
+    ],
+    "csfw_k3w6": [
+      "fa_ls_v02_s",
+      "fa_ls_v02_b"
+    ],
+    "csgr_h5": "fa_ls_v03_0",
+    "csgr_h6": "fa_ls_v03_1",
+    "csl10d": "fa_ls_v04_0",
+    "dpc8513584592": "fa_ls_v04_1",
+    "dpc3464789869": "fa_ls_v04_2",
+    "dpc8713063796_r2_d1dd": "fa_ls_v04_3",
+    "csl10f": "fa_ls_v05_0",
+    "fastwamc1456717485": "fa_ls_v05_1",
+    "fastwamc7615306896": "fa_ls_v05_2",
+    "fastwamc5232306668": "fa_ls_v05_3",
+    "fastwamc5481985003": "fa_ls_v05_4",
+    "csmdf1010": "fa_ls_v06_0",
+    "csmf1010": "fa_ls_v07_0",
+    "fastwamc6066547406": "fa_ls_v08_1",
+    "csztd_r2_c383_r2_e5b0": "fa_ls_v09_0",
+    "csztd_r3_l48": "fa_ls_v09_1",
+    "ffk1015_dp_libero_reduced_off": "fa_ls_v10_0",
+    "ffk1015_fastwam_libero_reduced_off": "fa_ls_v11_0",
+    "fsreddp2": "fa_ls_v12_0",
+    "fsredfw": "fa_ls_v13_0",
+    "hsdp_0725": "fa_ls_v14_0",
+    "fa_fw_r_u_lc1": "FORMAL_QUEUE.json"
+  },
+  "decoupled": true
+}

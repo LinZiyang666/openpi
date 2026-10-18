@@ -1,0 +1,31 @@
+{
+  "run": "dpc3464789869",
+  "model": "dp",
+  "domain": "libero",
+  "server_node": "local",
+  "file": "/data/mw_finetune/eval/dpc3464789869/driver/per_step.jsonl",
+  "bytes": 811250166,
+  "inode": 32777805,
+  "mtime_ns": 1791687730452703081,
+  "live": false,
+  "changed_during_scan": false,
+  "episodes": 1734,
+  "affected": false,
+  "rows": 213232,
+  "eligible_heads": 28637,
+  "tails": 28637,
+  "cut_percent": 0.0,
+  "groups": {
+    "ch": {
+      "eligible_heads": 14508,
+      "tails": 14508,
+      "cut_percent": 0.0
+    },
+    "chr": {
+      "eligible_heads": 14129,
+      "tails": 14129,
+      "cut_percent": 0.0
+    }
+  },
+  "examples": []
+}

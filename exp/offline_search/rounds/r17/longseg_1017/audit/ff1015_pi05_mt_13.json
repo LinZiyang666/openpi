@@ -1,0 +1,65 @@
+{
+  "run": "ff1015_pi05_mt_13",
+  "model": "pi05",
+  "domain": "metaworld",
+  "server_node": "local",
+  "file": "/data/mw_finetune/eval/ff1015_pi05_mt_13/driver/per_step.jsonl",
+  "bytes": 1763872634,
+  "sample_bytes": 16766542,
+  "sample_rows": 6180,
+  "sample_limit_bytes": 16777216,
+  "sample_limit_lines": 16000,
+  "scan_kind": "bounded_windows",
+  "samples": [
+    {
+      "offset": 0,
+      "bytes": 2095006,
+      "rows": 758
+    },
+    {
+      "offset": 251683740,
+      "bytes": 2096321,
+      "rows": 754
+    },
+    {
+      "offset": 503365294,
+      "bytes": 2096528,
+      "rows": 780
+    },
+    {
+      "offset": 755047232,
+      "bytes": 2094952,
+      "rows": 765
+    },
+    {
+      "offset": 1006731599,
+      "bytes": 2096365,
+      "rows": 760
+    },
+    {
+      "offset": 1258411605,
+      "bytes": 2095820,
+      "rows": 790
+    },
+    {
+      "offset": 1510094623,
+      "bytes": 2096811,
+      "rows": 791
+    },
+    {
+      "offset": 1761777895,
+      "bytes": 2094739,
+      "rows": 782
+    }
+  ],
+  "inode": 48912349,
+  "mtime_ns": 1792131481113274645,
+  "live": false,
+  "changed_during_scan": false,
+  "episodes": 145,
+  "affected": false,
+  "rows": 6180,
+  "cut_percent": 0.0,
+  "groups": {},
+  "examples": []
+}

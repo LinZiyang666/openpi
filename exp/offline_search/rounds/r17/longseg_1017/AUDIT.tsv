@@ -1,0 +1,434 @@
+run	model	benchmark	sample_rows	sample_MiB	eligible_heads	cuts	cut_percent	affected	scan_kind_or_status	reason
+P3_h100_fastwam_B8_smoke_20261010_1209	fastwam	libero	310	0.72	0	0	0.0000	False	full_completed_before_IO_correction	None
+Q_cosmos_formal_smoke_20261009_224906_2030216	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+Q_cosmos_native_20261009_224732_2013357	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+bad_assets_1016_ffk1015_dp_libero_full_test01	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+cfwp31010	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+chkgr3_0949	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+chkgr3b_0951	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+chkpi3_0948	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+cosmos500w57_215527	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+cosmos500w85_220813	cosmos	libero	110394	335.23	0	0	0.0000	False	full_completed_before_IO_correction	None
+cosmos_libero_h100_formal400_preflight_final	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+cosmos_libero_h100_formal400_preflight_v1	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+cosmos_libero_h100_formal400_release	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+cosmos_libero_h100_prelisten_failure_nvrtc_v1	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+cosmos_libero_h100_smoke2_nvrtc_v1	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+cosmos_libero_h100_smoke2_nvrtc_v2	cosmos	libero	28	0.06	0	0	0.0000	False	full_completed_before_IO_correction	None
+cosmos_libero_smoke2_preflight_v2	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+cosmos_libero_smoke2_release_v1	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+cosmos_libero_smoke2_release_v2	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+cosmos_libero_smoke2_release_v3	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+cosmos_libero_smoke2_release_v4	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+cosmos_libero_smoke2_release_v5	cosmos	libero	32	0.07	0	0	0.0000	False	full_completed_before_IO_correction	None
+cosmos_libero_smoke2_v1	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+cosmosp0082847588	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+cosmosp0816138887	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+cosmosp6223294666	cosmos	libero	110394	335.23	0	0	0.0000	False	full_completed_before_IO_correction	None
+cosmosp6223294666_ALIAS_TO_57_PRESERVED_2209	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+cosmosp6223294666_PREPARED_ORIGINAL_215910	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+cosmossizes145	cosmos	libero	22375	64.78	0	0	0.0000	False	full_completed_before_IO_correction	None
+cosmossizes145_r4	cosmos	libero	15073	45.08	0	0	0.0000	False	full_completed_before_IO_correction	None
+cosmossizes145_r8	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+cosmossizes145_r8b	cosmos	libero	185695	555.82	0	0	0.0000	False	full_completed_before_IO_correction	None
+cosmossizes145_r8c	cosmos	libero	414616	1260.76	0	0	0.0000	False	full_completed_before_IO_correction	None
+cosmossizes85_222001	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+csdp_1451	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+csdp_1504	dp	metaworld	5508696	13081.77	678493	17328	2.5539	True	full_completed_before_IO_correction	midpoint cuts
+csfw_k3	fastwam	metaworld	2268788	5352.38	254446	3992	1.5689	True	full_completed_before_IO_correction	midpoint cuts
+csfw_k3r	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+csfw_k3s	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+csfw_k3t	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+csfw_k3u	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+csfw_k3v	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+csfw_k3w	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+csfw_k3w2	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+csfw_k3w4	fastwam	metaworld	425535	1004.31	49493	0	0.0000	True	full_completed_before_IO_correction	delivery-count recipe clock on long ch/chr heads
+csfw_k3w5	fastwam	metaworld	934961	2204.80	116133	2545	2.1915	True	full_completed_before_IO_correction	midpoint cuts
+csfw_k3w6	fastwam	metaworld	2213699	5218.03	286562	9621	3.3574	True	full_completed_before_IO_correction	midpoint cuts
+csgr_1608	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+csgr_h	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+csgr_h2	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+csgr_h3	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+csgr_h4	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+csgr_h5	groot	metaworld	1204434	3140.10	122719	2540	2.0698	True	full_completed_before_IO_correction	midpoint cuts
+csgr_h6	groot	metaworld	4235196	11002.04	547880	17322	3.1616	True	full_completed_before_IO_correction	midpoint cuts
+csgr_k2	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+csl10c	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+csl10d	dp	libero	183067	687.98	21876	155	0.7085	True	full_completed_before_IO_correction	midpoint cuts
+csl10f	fastwam	libero	201085	750.87	23690	267	1.1271	True	full_completed_before_IO_correction	midpoint cuts
+csmc1010	cosmos	libero	832	2.51	0	0	0.0000	False	full_completed_before_IO_correction	None
+csmd1010	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+csmdf1010	dp	libero	2538	9.26	279	3	1.0753	True	full_completed_before_IO_correction	midpoint cuts
+csmf1010	fastwam	libero	2698	9.65	311	4	1.2862	True	full_completed_before_IO_correction	midpoint cuts
+cspi_k2	pi05	metaworld	2587702	6687.20	0	0	0.0000	False	full_completed_before_IO_correction	None
+cspi_k2v	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+cspi_k2vb	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+cspi_k2vc	pi05	metaworld	227488	540.32	0	0	0.0000	False	full_completed_before_IO_correction	None
+cszec	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+cszed	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+cszef	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+cszmd	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+cszmf	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+csznc	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+csznc0	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+csznf	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+csznf0	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+cszpd	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+cszqd	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+cszqd_r1_9ece	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+cszqd_r1_9ece_r1_c5f4	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+cszqd_r2_3bef	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+cszsc	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+cszsc2	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+cszsd	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+cszsf	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+csztd	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+csztd_r1_dfd4	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+csztd_r2_c383	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+csztd_r2_c383_r1_b71c	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+csztd_r2_c383_r2_e5b0	dp	libero	596546	2258.77	64551	765	1.1851	True	full_completed_before_IO_correction	midpoint cuts
+csztd_r3_l48	dp	libero	3112222	11866.18	375505	12802	3.4093	True	full_completed_before_IO_correction	midpoint cuts
+dpc2777537823	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+dpc3464789869	dp	libero	213232	773.67	28637	0	0.0000	True	full_completed_before_IO_correction	delivery-count recipe clock on long ch/chr heads
+dpc8513584592	dp	libero	73477	279.23	0	0	0.0000	False	full_completed_before_IO_correction	None
+dpc8713063796	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+dpc8713063796_r1_7fdb	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+dpc8713063796_r2_d1dd	dp	libero	208412	818.99	29383	1952	6.6433	True	full_completed_before_IO_correction	midpoint cuts
+dpmk1_ful	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+dpmk1_fulx	dp	metaworld	4058746	9712.23	1213313	498070	41.0504	True	full_completed_before_IO_correction	midpoint cuts
+dpmk1_redx	dp	metaworld	4036454	9645.83	1204994	492245	40.8504	True	full_completed_before_IO_correction	midpoint cuts
+fa_co_f_f_o	cosmos	libero	94021	301.22	0	0	0.0000	False	full_completed_before_IO_correction	None
+fa_co_f_f_oc1	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+fa_co_f_f_oc1.before_gpu2_counts_20261017T232939Z	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+fa_co_f_u_o	cosmos	libero	179120	575.93	0	0	0.0000	False	full_completed_before_IO_correction	None
+fa_co_r_u_l	cosmos	libero	4919	15.98	0	0	0.0000	False	bounded_windows	None
+fa_dp_f_f_o	dp	libero	8801	32.00	2096	16	0.7634	True	bounded_prefix	midpoint cuts
+fa_dp_f_u_o	dp	libero	8442	32.00	2115	70	3.3097	True	bounded_prefix	midpoint cuts
+fa_dp_r_f_l	dp	libero	430422	1753.94	138019	66585	48.2434	True	full_completed_before_IO_correction	midpoint cuts
+fa_dp_r_u_l	dp	libero	8609	32.00	2344	438	18.6860	True	bounded_prefix	midpoint cuts
+fa_fw_f_f_o	fastwam	libero	532072	2323.48	133116	5876	4.4142	True	full_completed_before_IO_correction	midpoint cuts
+fa_fw_f_u_o	fastwam	libero	7615	32.00	1903	45	2.3647	True	bounded_prefix	midpoint cuts
+fa_fw_r_f_l	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+fa_fw_r_u_l	fastwam	libero	6411	31.99	1822	605	33.2053	True	bounded_prefix	midpoint cuts
+fa_fw_r_u_lc1	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+fa_fw_r_u_lc1.six_infra_only_20261017T232908Z	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+fastwam_baseline_resume_cpu_20261010	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+fastwam_baseline_resume_final_cpu_20261010	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+fastwam_baseline_resume_frozen_cpu_20261010	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+fastwam_baseline_resume_ready_cpu_20261010	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+fastwamc1456717485	fastwam	libero	3837	15.97	0	0	0.0000	False	bounded_windows	None
+fastwamc2350933912	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+fastwamc2350933912_r1_99da	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+fastwamc4456346641	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+fastwamc4503081199	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+fastwamc5232306668	fastwam	libero	3620	15.98	129	0	0.0000	True	bounded_windows	delivery-count recipe clock on long ch/chr heads
+fastwamc5481985003	fastwam	libero	4057	15.98	662	19	2.8701	True	bounded_windows	midpoint cuts
+fastwamc6066547406	fastwam	libero	3181	15.97	339	9	2.6549	True	bounded_windows	midpoint cuts
+fastwamc6990509669	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+fastwamc7615306896	fastwam	libero	3304	15.98	0	0	0.0000	False	bounded_windows	None
+ff1015_cosmos_li_01	cosmos	libero	5465	15.99	0	0	0.0000	False	bounded_windows	None
+ff1015_cosmos_li_02	cosmos	libero	5507	15.99	0	0	0.0000	False	bounded_windows	None
+ff1015_cosmos_li_03	cosmos	libero	5455	15.98	0	0	0.0000	False	bounded_windows	None
+ff1015_cosmos_li_04	cosmos	libero	5458	15.99	0	0	0.0000	False	bounded_windows	None
+ff1015_dp_li_11	dp	libero	4249	15.97	0	0	0.0000	False	bounded_windows	None
+ff1015_dp_li_11.failed_1718	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+ff1015_dp_li_14	dp	libero	4112	15.98	0	0	0.0000	False	bounded_windows	None
+ff1015_dp_li_14_u	dp	libero	4064	15.98	0	0	0.0000	False	bounded_windows	None
+ff1015_dp_li_15	dp	libero	4158	15.97	0	0	0.0000	False	bounded_windows	None
+ff1015_dp_li_15_u	dp	libero	4242	15.98	0	0	0.0000	False	bounded_windows	None
+ff1015_dp_li_16	dp	libero	4094	15.98	0	0	0.0000	False	bounded_windows	None
+ff1015_dp_li_16.failed_1719	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+ff1015_dp_mt_05	dp	metaworld	6702	15.99	0	0	0.0000	False	bounded_windows	None
+ff1015_fastwam_li_12	fastwam	libero	4008	15.98	0	0	0.0000	False	bounded_windows	None
+ff1015_fastwam_li_17	fastwam	libero	3936	15.98	0	0	0.0000	False	bounded_windows	None
+ff1015_fastwam_li_18	fastwam	libero	2641	15.97	0	0	0.0000	False	bounded_windows	None
+ff1015_fastwam_li_18c1	fastwam	libero	3149	15.95	0	0	0.0000	False	bounded_windows	None
+ff1015_fastwam_li_19	fastwam	libero	3425	15.97	0	0	0.0000	False	bounded_windows	None
+ff1015_fastwam_mt_06	fastwam	metaworld	6714	15.99	0	0	0.0000	False	bounded_windows	None
+ff1015_fastwam_mt_07	fastwam	metaworld	6764	15.99	0	0	0.0000	False	bounded_windows	None
+ff1015_fastwam_mt_08	fastwam	metaworld	6760	15.99	0	0	0.0000	False	bounded_windows	None
+ff1015_groot_mt_09	groot	metaworld	6077	15.99	0	0	0.0000	False	bounded_windows	None
+ff1015_groot_mt_10	groot	metaworld	6075	15.99	0	0	0.0000	False	bounded_windows	None
+ff1015_pi05_mt_13	pi05	metaworld	6180	15.99	0	0	0.0000	False	bounded_windows	None
+ffk1015_cosmos_libero_full_dev	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+ffk1015_cosmos_libero_full_formal_A_filtered	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+ffk1015_cosmos_libero_full_formal_A_filtered_off	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+ffk1015_cosmos_libero_full_formal_A_original	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+ffk1015_cosmos_libero_full_formal_A_original_off	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+ffk1015_cosmos_libero_reduced_dev	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+ffk1015_cosmos_libero_reduced_formal_A_filtered	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+ffk1015_cosmos_libero_reduced_formal_A_original	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+ffk1015_cosmos_libero_reduced_formal_A_original_levels	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+ffk1015_cosmos_libero_reduced_off	cosmos	libero	4987	15.98	0	0	0.0000	False	bounded_windows	None
+ffk1015_cosmos_libero_reduced_off_u	cosmos	libero	5002	15.99	0	0	0.0000	False	bounded_windows	None
+ffk1015_dp_libero_full_dev	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+ffk1015_dp_libero_full_formal_A_filtered	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+ffk1015_dp_libero_full_formal_A_filtered_off	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+ffk1015_dp_libero_full_formal_A_original	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+ffk1015_dp_libero_full_formal_A_original_off	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+ffk1015_dp_libero_full_test00	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+ffk1015_dp_libero_full_test01	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+ffk1015_dp_libero_reduced_dev	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+ffk1015_dp_libero_reduced_formal_A_filtered	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+ffk1015_dp_libero_reduced_formal_A_filtered_levels	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+ffk1015_dp_libero_reduced_formal_A_original	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+ffk1015_dp_libero_reduced_formal_A_original_levels	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+ffk1015_dp_libero_reduced_off	dp	libero	4330	15.99	1056	29	2.7462	True	bounded_windows	midpoint cuts
+ffk1015_dp_libero_reduced_test00	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+ffk1015_dp_libero_reduced_test01	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+ffk1015_dp_mt50_full_descent	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+ffk1015_dp_mt50_reduced_descent	dp	metaworld	6737	15.99	2083	989	47.4796	True	bounded_windows	midpoint cuts
+ffk1015_dp_mt50_reduced_descentc1	dp	metaworld	6687	15.99	2282	1434	62.8396	True	bounded_windows	midpoint cuts
+ffk1015_fastwam_libero_full_dev	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+ffk1015_fastwam_libero_full_formal_A_filtered	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+ffk1015_fastwam_libero_full_formal_A_filtered_off	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+ffk1015_fastwam_libero_full_formal_A_original	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+ffk1015_fastwam_libero_full_formal_A_original_off	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+ffk1015_fastwam_libero_reduced_dev	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+ffk1015_fastwam_libero_reduced_formal_A_filtered	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+ffk1015_fastwam_libero_reduced_formal_A_filtered_levels	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+ffk1015_fastwam_libero_reduced_formal_A_original	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+ffk1015_fastwam_libero_reduced_formal_A_original_levels	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+ffk1015_fastwam_libero_reduced_off	fastwam	libero	4167	15.97	1041	39	3.7464	True	bounded_windows	midpoint cuts
+ffk1015_fastwam_mt50_full_descent	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+ffk1015_fastwam_mt50_reduced_descent	fastwam	metaworld	6819	15.99	2117	978	46.1974	True	bounded_windows	midpoint cuts
+ffk1015_groot_mt50_full_descent	groot	metaworld	6088	15.99	1947	1019	52.3369	True	bounded_windows	midpoint cuts
+ffk1015_groot_mt50_reduced_descent	groot	metaworld	6103	15.99	1814	725	39.9669	True	bounded_windows	midpoint cuts
+ffk1015_pi05_mt50_full_descent.DRAFT_WHOLE_LANE_NOT_FOR_LAUNCH	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+ffk1015_pi05_mt50_full_descent_01	pi05	metaworld	6105	15.99	0	0	0.0000	False	bounded_windows	None
+ffk1015_pi05_mt50_full_descent_02	pi05	metaworld	6610	15.99	0	0	0.0000	False	bounded_windows	None
+ffk1015_pi05_mt50_full_descent_03	pi05	metaworld	6741	15.98	0	0	0.0000	False	bounded_windows	None
+ffk1015_pi05_mt50_full_descent_04	pi05	metaworld	6648	15.99	0	0	0.0000	False	bounded_windows	None
+ffk1015_pi05_mt50_reduced_descent	pi05	metaworld	6674	15.99	0	0	0.0000	False	bounded_windows	None
+formal_cosmos_libero_formal400_20261009_225545_b32d224f	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+formal_cosmos_libero_formal400_20261009_231322_2b680ed5	cosmos	libero	7076	15.99	0	0	0.0000	False	bounded_windows	None
+formal_cosmos_libero_official2000_20261010_100533_5f558380	cosmos	libero	7133	15.99	0	0	0.0000	False	bounded_windows	None
+formal_cosmos_libero_official2000_20261010_130639_a8ca2043	cosmos	libero	7081	15.99	0	0	0.0000	False	bounded_windows	None
+formal_cosmos_libero_smoke2_20261010_164328_59d52ca2	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+formal_cosmos_libero_smoke2_20261010_165015_143aea67	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+formal_dp_libero_formal400_20261009_220843_8dca4316	dp	libero	6824	15.99	0	0	0.0000	False	bounded_windows	None
+formal_dp_libero_formal400_preflight_final	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+formal_dp_libero_official2000_20261010_100532_bda5ad98	dp	libero	6837	15.99	0	0	0.0000	False	bounded_windows	None
+formal_dp_libero_official2000_20261010_104712_89545577	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+formal_dp_libero_official2000_20261010_105548_978e1346	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+formal_dp_libero_official2000_20261010_110137_228194cb	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+formal_dp_libero_official2000_preflight_v1	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+formal_dp_libero_official2000_release	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+formal_dp_libero_prepare1	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+formal_dp_libero_prepare3	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+formal_dp_libero_prepare4	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+formal_dp_libero_smoke4_final	dp	libero	358	0.83	0	0	0.0000	False	bounded_windows	None
+formal_dp_libero_smoke4_v1	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+formal_dp_libero_smoke4_v2	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+formal_dp_libero_smoke4_v3	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+formal_dp_libero_smoke4_v4	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+formal_dp_libero_smoke4_v5	dp	libero	358	0.83	0	0	0.0000	False	bounded_windows	None
+formal_dp_mw_mt50_500_20261009_224317_78761faf	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+formal_dp_mw_mt50_500_20261009_224818_6ad929a1	dp	metaworld	2082	4.69	0	0	0.0000	False	bounded_windows	None
+formal_dp_mw_mt50_500_20261009_225821_ef25fe4e	dp	metaworld	7143	15.99	0	0	0.0000	False	bounded_windows	None
+formal_dp_mw_mt50_preflight_v1	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+formal_dp_mw_mt50_release	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+formal_fastwam_libero_official2000_20261010_100444_ac20d667	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+formal_fastwam_libero_official2000_20261010_101044_b0c4e68b	fastwam	libero	6842	15.99	0	0	0.0000	False	bounded_windows	None
+formal_fastwam_libero_preflight_final	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+formal_fastwam_mw_final016001_release	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+formal_fastwam_mw_final016001_replicas2_release	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+formal_fastwam_mw_mt50_500_20261009_220843_a2a9f217	fastwam	metaworld	2349	5.20	0	0	0.0000	False	bounded_windows	None
+formal_fastwam_mw_mt50_500_20261009_223917_0b845f00	fastwam	metaworld	7292	15.99	0	0	0.0000	False	bounded_windows	None
+formal_fastwam_mw_sanity_preflight_v1	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+formal_fastwam_mw_sanity_release	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+formal_groot_mw_preflight_final	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+formal_pi05_mw_preflight_final	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+fsredcos	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+fsreddp	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+fsreddp2	dp	libero	4272	15.98	1072	77	7.1828	True	bounded_windows	midpoint cuts
+fsredfw	fastwam	libero	4206	15.97	1052	53	5.0380	True	bounded_windows	midpoint cuts
+fwmk1_fulx	fastwam	metaworld	6733	15.99	1984	715	36.0383	True	bounded_windows	midpoint cuts
+fwmk1_redx	fastwam	metaworld	6762	15.99	2062	910	44.1319	True	bounded_windows	midpoint cuts
+gl_a	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+gl_a2	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+gl_a3	groot	libero	6156	15.98	0	0	0.0000	False	bounded_windows	None
+gl_h10	groot	libero	6322	15.99	1571	0	0.0000	False	bounded_windows	None
+gl_k1a	groot	libero	6160	15.99	0	0	0.0000	False	bounded_windows	None
+grmk1_ful	groot	metaworld	6124	15.99	1713	521	30.4145	True	bounded_windows	midpoint cuts
+grmk1_red	groot	metaworld	6123	15.99	1800	742	41.2222	True	bounded_windows	midpoint cuts
+groot_lsmk	groot	libero	0	0.00	0	0	0.0000	False	bounded_windows	None
+groot_lsmk2	groot	libero	532	1.37	0	0	0.0000	False	bounded_windows	None
+hs2_cosmos_h100_k2incl_c16_20261010_114344	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+hs2_cosmos_h100_k2incl_c16_t107_20261010_114743	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+hs2_cosmos_h100_k2incl_c16_t107_20261010_115120	cosmos	libero	7018	15.99	0	0	0.0000	False	bounded_windows	None
+hs2_dp_k100_c5_default_20261010_111846	dp	libero	4172	9.70	0	0	0.0000	False	bounded_windows	None
+hs2_fast_h100_k10_c10_20261010_112043	fastwam	libero	7010	15.99	1696	0	0.0000	False	bounded_windows	None
+hs3_dp_b16w5_4090_k100_c5_control_20261010_125303	dp	libero	6848	15.99	0	0	0.0000	False	bounded_windows	None
+hs3_fast_b8w5_h100_c10_20261010	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+hs3_fast_b8w5_h100_c10_20261010_frozen_132040	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+hs3_fast_b8w5_h100_c16_20261010	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+hs3_fast_b8w5_h100_c16_20261010_frozen_132040	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+hs3_fast_b8w5_h100_c20_20261010	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+hs3_fast_b8w5_h100_c20_20261010_frozen_132040	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+hs3_fast_b8w5_h100_c32_20261010_frozen_132040	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+hs3_fast_b8w5_h100_k10_c5_control_20261010_125303	fastwam	libero	6868	15.99	0	0	0.0000	False	bounded_windows	None
+hs3_fast_b8w5_h100_k1_20261010_frozen_132040	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+hs3_fast_b8w5_h100_k2_20261010_frozen_132040	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+hs4_dp_b16w5_4090_c10_20261010	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+hs4_dp_b16w5_4090_c15_20261010	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+hs4_dp_b16w5_4090_c16_20261010	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+hs4_dp_b16w5_4090_ddim10_20261010	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+hs4_dp_b16w5_4090_ddim5_20261010	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+hs4_dp_b16w5_4090_k100_c5_control_20261010_131810	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+hs4_dp_b16w5_4090_k100_c5_control_20261010_133712	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+hs4_dp_b16w5_4090_k100_c5_control_20261010_133915	dp	libero	6834	15.99	0	0	0.0000	False	bounded_windows	None
+hs4_fast_b8w5_h100_c10_20261010	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+hs4_fast_b8w5_h100_c16_20261010	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+hs4_fast_b8w5_h100_c20_20261010	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+hs4_fast_b8w5_h100_c32_20261010	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+hs4_fast_b8w5_h100_k10_c5_control_20261010_131810	fastwam	libero	6887	15.99	0	0	0.0000	False	bounded_windows	None
+hs4_fast_b8w5_h100_k1_20261010	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+hs4_fast_b8w5_h100_k2_20261010	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+hs5dp_c10	dp	libero	7061	15.99	1683	0	0.0000	False	bounded_windows	None
+hs5dp_c15	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+hs5dp_c15r0	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+hs5dp_c15s0	dp	libero	7031	15.99	1168	0	0.0000	False	bounded_windows	None
+hs5dp_c16	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+hs5dp_c16s0	dp	libero	7121	15.99	873	0	0.0000	False	bounded_windows	None
+hs5dp_ctl_142626	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+hs5dp_ctl_142812	dp	libero	6977	15.99	0	0	0.0000	False	bounded_windows	None
+hs5dp_ddim10	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+hs5dp_ddim10s0	dp	libero	6913	15.99	0	0	0.0000	False	bounded_windows	None
+hs5dp_ddim5	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+hs5dp_ddim5s0	dp	libero	6926	15.99	0	0	0.0000	False	bounded_windows	None
+hs6fw_c10	fastwam	libero	7053	15.99	1716	0	0.0000	False	bounded_windows	None
+hs6fw_c16	fastwam	libero	7095	15.99	896	0	0.0000	False	bounded_windows	None
+hs6fw_c20	fastwam	libero	7116	15.99	884	0	0.0000	False	bounded_windows	None
+hs6fw_c32	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+hs6fw_c32s1	fastwam	libero	7140	15.99	529	0	0.0000	False	bounded_windows	None
+hs6fw_ctl_143332	fastwam	libero	6965	15.99	0	0	0.0000	False	bounded_windows	None
+hs6fw_k1	fastwam	libero	6937	15.99	0	0	0.0000	False	bounded_windows	None
+hs6fw_k2	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+hs6fw_k2s1	fastwam	libero	6971	15.99	0	0	0.0000	False	bounded_windows	None
+hs6fw_res_152931	fastwam	libero	6990	15.99	0	0	0.0000	False	bounded_windows	None
+hs7dp_loc	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+hs7dp_loc12	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+hs7dpctl_ddim10	dp	libero	6902	15.99	0	0	0.0000	False	bounded_windows	None
+hs7dpctl_full	dp	libero	6865	15.99	0	0	0.0000	False	bounded_windows	None
+hs7fwk1_4090b	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+hs7fwk1_4090c	fastwam	libero	6938	15.99	0	0	0.0000	False	bounded_windows	None
+hsdp_0721	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+hsdp_0725	dp	metaworld	428	1.01	57	0	0.0000	True	bounded_windows	delivery-count recipe clock on long ch/chr heads
+hspi2_0502	pi05	metaworld	502	1.30	0	0	0.0000	False	bounded_windows	None
+hspi_0501	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobdevcos	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobdevcos2	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobdevcos3	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobdevcos4	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobdevcosred	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobdevdp	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobdevdp2	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobdevdpred	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobdevdpred2	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobdevdpred3	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobdevfw2	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobdevfw3	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobdevfw4	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobdevfwred	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobdevfwred2	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobdevfwred3	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobdevfwred4	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobdevfwred5	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobdevfwred6	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobdevfwred7	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobdevfwred8	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobprobe4090	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobsmokedp1354	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobsmokedp1355	dp	libero	788	2.92	223	60	26.9058	True	bounded_windows	midpoint cuts
+knobtestcos	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobtestcos2	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobtestcos_r1	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobtestcos_r2	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobtestcos_r3	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobtestcos_red	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobtestcos_red_r1	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobtestcos_red_r2	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobtestcos_red_r3	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobtestcos_red_r4	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobtestdp	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobtestdp_r1	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobtestdp_r2	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobtestdp_r3	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobtestdp_red	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobtestdp_red_r1	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobtestdp_red_r2	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobtestdp_red_r3	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobtestdp_red_r4	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobtestdp_red_r5	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobtestdp_red_r6	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobtestfw	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobtestfw2	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobtestfw3	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobtestfw4	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobtestfw_r1	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobtestfw_red	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+knobtestfw_red_r1	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+mps_dp_libero_1010_164432_2c1f7e32	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+mps_fastwam_libero_1010_164532_d55f30f1	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+mps_fastwam_libero_1010_164810_9280c9a7	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+mps_fastwam_libero_1010_165002_1cc26649	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+mwcost7	cosmos	metaworld	7031	15.99	0	0	0.0000	False	bounded_windows	None
+mwg_r2m	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+mwl_smoke1	pi05	metaworld	222	0.55	0	0	0.0000	False	bounded_windows	None
+pi05_lsmk	pi05	libero	428	1.07	0	0	0.0000	False	bounded_windows	None
+pimk1_dry	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+pimk1_ful	pi05	metaworld	6111	15.99	0	0	0.0000	False	bounded_windows	None
+pimk1_fulb	pi05	metaworld	6661	15.99	0	0	0.0000	False	bounded_windows	None
+pimk1_fulc	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+pimk1_fulc2	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+pimk1_fulc4	pi05	metaworld	6684	15.99	0	0	0.0000	False	bounded_windows	None
+pimk1_fuld	pi05	metaworld	6727	15.99	0	0	0.0000	False	bounded_windows	None
+pimk1_red	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+pimk1_redb	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+pimk1_redc	pi05	metaworld	6686	15.99	0	0	0.0000	False	bounded_windows	None
+pl_a	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+pl_a2	pi05	libero	6439	15.99	0	0	0.0000	False	bounded_windows	None
+pl_h10	pi05	libero	6517	15.99	1574	0	0.0000	False	bounded_windows	None
+pl_k1a	pi05	libero	6322	15.99	0	0	0.0000	False	bounded_windows	None
+pl_k1a2	pi05	libero	6396	15.99	0	0	0.0000	False	bounded_windows	None
+pl_k1b2	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+q_dp_frozen_cpu_20261010_132330	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+q_local_worker_final_preflight_20261010	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+q_local_worker_prepare_1791681965	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+q_local_worker_smoke2_1791681965	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+q_local_worker_smoke3_1791681965	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+q_mps_cpu_161954	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+q_prestage_cold_cpu_20261010	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+q_prestage_release_cpu_20261010	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+q_prestage_warm_cpu_20261010	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+tdp7_0723	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+tdp7_0729	dp	metaworld	7211	15.99	0	0	0.0000	False	bounded_windows	None
+tdp7d10_0851	dp	metaworld	7145	15.99	0	0	0.0000	False	bounded_windows	None
+tdp7h1_full	dp	metaworld	0	0.00	0	0	0.0000	False	bounded_windows	None
+tdp7h1_full2	dp	metaworld	7172	15.99	0	0	0.0000	False	bounded_windows	None
+tdp7h_full	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+tfw7_0750	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+tfw7_0755	fastwam	metaworld	7285	16.00	0	0	0.0000	False	bounded_windows	None
+tfw7full_0944	fastwam	metaworld	7272	15.99	0	0	0.0000	False	bounded_windows	None
+tfw7k1_0904	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+tfw7k1_0908	fastwam	metaworld	7263	15.99	0	0	0.0000	False	bounded_windows	None
+tfw7k2_1024	fastwam	metaworld	7291	15.99	0	0	0.0000	False	bounded_windows	None
+tfw7k3_1051	fastwam	metaworld	7304	15.99	0	0	0.0000	False	bounded_windows	None
+tfw7k4_1121	fastwam	metaworld	7288	15.99	0	0	0.0000	False	bounded_windows	None
+tfw7k5_1153	fastwam	metaworld	7280	15.99	0	0	0.0000	False	bounded_windows	None
+tgr7_0502	groot	metaworld	6411	15.99	0	0	0.0000	False	bounded_windows	None
+tgr7h1_full	groot	metaworld	6394	15.98	0	0	0.0000	False	bounded_windows	None
+tgr7h1_k2	groot	metaworld	6419	15.99	0	0	0.0000	False	bounded_windows	None
+tgr7h_full	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+tgr7h_k2	None	None	0	0.00	0	0	0.0000	False	no_per_step_outcomes	None
+tgr7k1_1021	groot	metaworld	6364	15.99	0	0	0.0000	False	bounded_windows	None
+tgr7k2_1044	groot	metaworld	6404	15.99	0	0	0.0000	False	bounded_windows	None
+tgr7k3_1107	groot	metaworld	6398	15.99	0	0	0.0000	False	bounded_windows	None
+tpi7_0536	pi05	metaworld	6555	15.99	0	0	0.0000	False	bounded_windows	None
+tpi7k1_0922	pi05	metaworld	6532	15.99	0	0	0.0000	False	bounded_windows	None
+tpi7k2_1135	pi05	metaworld	6530	15.99	0	0	0.0000	False	bounded_windows	None
+tpi7k3_1232	pi05	metaworld	6520	15.99	0	0	0.0000	False	bounded_windows	None
+tpi7k4_1335	pi05	metaworld	6509	15.99	0	0	0.0000	False	bounded_windows	None
+tpi7k5_1440	pi05	metaworld	6491	15.99	0	0	0.0000	False	bounded_windows	None

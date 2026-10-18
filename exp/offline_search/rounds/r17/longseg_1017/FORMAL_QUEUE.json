@@ -1,0 +1,572 @@
+{
+  "units": [
+    {
+      "model": "dp",
+      "mode": "reduced",
+      "arm": "original",
+      "source": "/data/mw_finetune/eval/ffk1015_dp_libero_reduced_formal_A_original",
+      "workers": {
+        "timan1": 24,
+        "timan107": 24
+      },
+      "gpu": "RTX 4090",
+      "replicas": 4,
+      "batch": 8,
+      "pipeline": "R17",
+      "name": "fa_ls_dp_r_u_o_l",
+      "stage": "off",
+      "status": "BUILT",
+      "episodes": 6000,
+      "jobs": [
+        {
+          "name": "fa_ls_dp_r_u_o_l",
+          "run": "/data/mw_finetune/eval/fa_ls_dp_r_u_o_l",
+          "source": "/data/mw_finetune/eval/ffk1015_dp_libero_reduced_formal_A_original",
+          "episodes": 6000,
+          "model": "dp",
+          "benchmark": "libero",
+          "mode": "reduced",
+          "stage": "off",
+          "gpu": "RTX 4090",
+          "replicas": 4,
+          "batch": 8,
+          "workers": {
+            "timan1": 24,
+            "timan107": 24
+          },
+          "python": "/home/weiland/projects/openpi/.venv/bin/python",
+          "runtime": "/data/mw_finetune/qualification/formal_runtime_3faa6dcf5cd5dacf9109052a0a85f69b53564282161b9f14f165f7229b8d53d4",
+          "unfiltered": true,
+          "pipeline": "R17",
+          "source_full_native_plan_equal": false,
+          "task_uid_sha256": "5704c9fb9a99fbb78a9c1c6b6369bf98aed5a2be5b8081de83915123641afa20",
+          "arm": "original",
+          "transport_plan_rebound": true,
+          "bootstrap_sha256": "4e07fb3ecbfbc15000886cdaeb6cc16da2fbd346e045df22ad8ac77a1e5e4f5e",
+          "evidence_sha256": "b7c5d06ef219e18387a03f83e438804049d8eab7440d09a81ec970eb6c0c3813",
+          "pre_recal_source_full_native_plan_equal": null,
+          "recalibrated": true,
+          "task_uid_namespace_preserved": true,
+          "scientific_plan_equal_except_recipe_inputs": true
+        }
+      ]
+    },
+    {
+      "model": "dp",
+      "mode": "reduced",
+      "arm": "original",
+      "source": "/data/mw_finetune/eval/ffk1015_dp_libero_reduced_formal_A_original",
+      "workers": {
+        "timan1": 24,
+        "timan107": 24
+      },
+      "gpu": "RTX 4090",
+      "replicas": 4,
+      "batch": 8,
+      "pipeline": "R17",
+      "name": "fa_ls_dp_r_u_l_l",
+      "stage": "levels",
+      "status": "WAITING_OFF",
+      "episodes": null,
+      "maximum_episodes": 30000,
+      "jobs": []
+    },
+    {
+      "model": "dp",
+      "mode": "reduced",
+      "arm": "filtered",
+      "source": "/data/mw_finetune/eval/ffk1015_dp_libero_reduced_formal_A_filtered",
+      "workers": {
+        "timan1": 24,
+        "timan107": 24
+      },
+      "gpu": "RTX 4090",
+      "replicas": 4,
+      "batch": 8,
+      "pipeline": "R17",
+      "name": "fa_ls_dp_r_f_o_l",
+      "stage": "off",
+      "status": "BUILT",
+      "episodes": 6000,
+      "jobs": [
+        {
+          "name": "fa_ls_dp_r_f_o_l",
+          "run": "/data/mw_finetune/eval/fa_ls_dp_r_f_o_l",
+          "source": "/data/mw_finetune/eval/ffk1015_dp_libero_reduced_formal_A_filtered",
+          "episodes": 6000,
+          "model": "dp",
+          "benchmark": "libero",
+          "mode": "reduced",
+          "stage": "off",
+          "gpu": "RTX 4090",
+          "replicas": 4,
+          "batch": 8,
+          "workers": {
+            "timan1": 24,
+            "timan107": 24
+          },
+          "python": "/home/weiland/projects/openpi/.venv/bin/python",
+          "runtime": "/data/mw_finetune/qualification/formal_runtime_3faa6dcf5cd5dacf9109052a0a85f69b53564282161b9f14f165f7229b8d53d4",
+          "unfiltered": false,
+          "pipeline": "R17",
+          "source_full_native_plan_equal": false,
+          "task_uid_sha256": "9076e8fa337e9da4b6e5a206530e6cd3fd818bbe3829917a60d36b0277addd86",
+          "arm": "filtered",
+          "transport_plan_rebound": true,
+          "bootstrap_sha256": "4e07fb3ecbfbc15000886cdaeb6cc16da2fbd346e045df22ad8ac77a1e5e4f5e",
+          "evidence_sha256": "b7c5d06ef219e18387a03f83e438804049d8eab7440d09a81ec970eb6c0c3813",
+          "pre_recal_source_full_native_plan_equal": null,
+          "recalibrated": true,
+          "task_uid_namespace_preserved": true,
+          "scientific_plan_equal_except_recipe_inputs": true
+        }
+      ]
+    },
+    {
+      "model": "dp",
+      "mode": "reduced",
+      "arm": "filtered",
+      "source": "/data/mw_finetune/eval/ffk1015_dp_libero_reduced_formal_A_filtered",
+      "workers": {
+        "timan1": 24,
+        "timan107": 24
+      },
+      "gpu": "RTX 4090",
+      "replicas": 4,
+      "batch": 8,
+      "pipeline": "R17",
+      "name": "fa_ls_dp_r_f_l_l",
+      "stage": "levels",
+      "status": "WAITING_OFF",
+      "episodes": null,
+      "maximum_episodes": 30000,
+      "jobs": []
+    },
+    {
+      "model": "dp",
+      "mode": "full",
+      "arm": "original",
+      "source": "/data/mw_finetune/eval/ffk1015_dp_libero_full_formal_A_original",
+      "workers": {
+        "timan1": 24,
+        "timan107": 24
+      },
+      "gpu": "RTX 4090",
+      "replicas": 4,
+      "batch": 8,
+      "pipeline": "R17",
+      "name": "fa_ls_dp_f_u_o_l",
+      "stage": "off",
+      "status": "BUILT",
+      "episodes": 6000,
+      "jobs": [
+        {
+          "name": "fa_ls_dp_f_u_o_l",
+          "run": "/data/mw_finetune/eval/fa_ls_dp_f_u_o_l",
+          "source": "/data/mw_finetune/eval/ffk1015_dp_libero_full_formal_A_original",
+          "episodes": 6000,
+          "model": "dp",
+          "benchmark": "libero",
+          "mode": "full",
+          "stage": "off",
+          "gpu": "RTX 4090",
+          "replicas": 4,
+          "batch": 8,
+          "workers": {
+            "timan1": 24,
+            "timan107": 24
+          },
+          "python": "/home/weiland/projects/openpi/.venv/bin/python",
+          "runtime": "/data/mw_finetune/qualification/formal_runtime_5927a753312bf5981cba81a2e389edea914bde0580523b0dc3c8ea8d58f1fa1e",
+          "unfiltered": true,
+          "pipeline": "R17",
+          "source_full_native_plan_equal": false,
+          "task_uid_sha256": "9bfd06d59b98cce31a84be76623e8e350790b7c35e1560ad36d39047bb7c9a64",
+          "arm": "original",
+          "transport_plan_rebound": true,
+          "bootstrap_sha256": "4e07fb3ecbfbc15000886cdaeb6cc16da2fbd346e045df22ad8ac77a1e5e4f5e",
+          "evidence_sha256": "b7c5d06ef219e18387a03f83e438804049d8eab7440d09a81ec970eb6c0c3813",
+          "pre_recal_source_full_native_plan_equal": null,
+          "recalibrated": true,
+          "task_uid_namespace_preserved": true,
+          "scientific_plan_equal_except_recipe_inputs": true
+        }
+      ]
+    },
+    {
+      "model": "dp",
+      "mode": "full",
+      "arm": "original",
+      "source": "/data/mw_finetune/eval/ffk1015_dp_libero_full_formal_A_original",
+      "workers": {
+        "timan1": 24,
+        "timan107": 24
+      },
+      "gpu": "RTX 4090",
+      "replicas": 4,
+      "batch": 8,
+      "pipeline": "R17",
+      "name": "fa_ls_dp_f_u_l_l",
+      "stage": "levels",
+      "status": "WAITING_OFF",
+      "episodes": null,
+      "maximum_episodes": 30000,
+      "jobs": []
+    },
+    {
+      "model": "dp",
+      "mode": "full",
+      "arm": "filtered",
+      "source": "/data/mw_finetune/eval/ffk1015_dp_libero_full_formal_A_filtered",
+      "workers": {
+        "timan1": 24,
+        "timan107": 24
+      },
+      "gpu": "RTX 4090",
+      "replicas": 4,
+      "batch": 8,
+      "pipeline": "R17",
+      "name": "fa_ls_dp_f_f_o_l",
+      "stage": "off",
+      "status": "BUILT",
+      "episodes": 6000,
+      "jobs": [
+        {
+          "name": "fa_ls_dp_f_f_o_l",
+          "run": "/data/mw_finetune/eval/fa_ls_dp_f_f_o_l",
+          "source": "/data/mw_finetune/eval/ffk1015_dp_libero_full_formal_A_filtered",
+          "episodes": 6000,
+          "model": "dp",
+          "benchmark": "libero",
+          "mode": "full",
+          "stage": "off",
+          "gpu": "RTX 4090",
+          "replicas": 4,
+          "batch": 8,
+          "workers": {
+            "timan1": 24,
+            "timan107": 24
+          },
+          "python": "/home/weiland/projects/openpi/.venv/bin/python",
+          "runtime": "/data/mw_finetune/qualification/formal_runtime_5927a753312bf5981cba81a2e389edea914bde0580523b0dc3c8ea8d58f1fa1e",
+          "unfiltered": false,
+          "pipeline": "R17",
+          "source_full_native_plan_equal": false,
+          "task_uid_sha256": "d207102019c1565fe6aca2b55d656fc12099a47cec0d22e2896212aa9358b9fe",
+          "arm": "filtered",
+          "transport_plan_rebound": true,
+          "bootstrap_sha256": "4e07fb3ecbfbc15000886cdaeb6cc16da2fbd346e045df22ad8ac77a1e5e4f5e",
+          "evidence_sha256": "b7c5d06ef219e18387a03f83e438804049d8eab7440d09a81ec970eb6c0c3813",
+          "pre_recal_source_full_native_plan_equal": null,
+          "recalibrated": true,
+          "task_uid_namespace_preserved": true,
+          "scientific_plan_equal_except_recipe_inputs": true
+        }
+      ]
+    },
+    {
+      "model": "dp",
+      "mode": "full",
+      "arm": "filtered",
+      "source": "/data/mw_finetune/eval/ffk1015_dp_libero_full_formal_A_filtered",
+      "workers": {
+        "timan1": 24,
+        "timan107": 24
+      },
+      "gpu": "RTX 4090",
+      "replicas": 4,
+      "batch": 8,
+      "pipeline": "R17",
+      "name": "fa_ls_dp_f_f_l_l",
+      "stage": "levels",
+      "status": "WAITING_OFF",
+      "episodes": null,
+      "maximum_episodes": 30000,
+      "jobs": []
+    },
+    {
+      "model": "fastwam",
+      "mode": "reduced",
+      "arm": "original",
+      "source": "/data/mw_finetune/eval/ffk1015_fastwam_libero_reduced_formal_A_original",
+      "workers": {
+        "timan1": 35,
+        "timan107": 35
+      },
+      "gpu": "RTX 4090",
+      "replicas": 2,
+      "batch": 16,
+      "pipeline": "R17",
+      "name": "fa_ls_fw_r_u_o_l",
+      "stage": "off",
+      "status": "BUILT",
+      "episodes": 6000,
+      "jobs": [
+        {
+          "name": "fa_ls_fw_r_u_o_l",
+          "run": "/data/mw_finetune/eval/fa_ls_fw_r_u_o_l",
+          "source": "/data/mw_finetune/eval/ffk1015_fastwam_libero_reduced_formal_A_original",
+          "episodes": 6000,
+          "model": "fastwam",
+          "benchmark": "libero",
+          "mode": "reduced",
+          "stage": "off",
+          "gpu": "RTX 4090",
+          "replicas": 2,
+          "batch": 16,
+          "workers": {
+            "timan1": 35,
+            "timan107": 35
+          },
+          "python": "/data/mw_finetune/envs/fastwam/bin/python",
+          "runtime": "/data/mw_finetune/qualification/formal_runtime_a7a387ed6d45ce9cf5ece2628f32577ee5a55ab55bbcb2a771e25ebc227b4f07",
+          "unfiltered": true,
+          "pipeline": "R17",
+          "source_full_native_plan_equal": false,
+          "task_uid_sha256": "ffe0902108c8135b2d34336908b9e7e69bc309749c554db7713dba9f13abcbbd",
+          "arm": "original",
+          "transport_plan_rebound": true,
+          "bootstrap_sha256": "4e07fb3ecbfbc15000886cdaeb6cc16da2fbd346e045df22ad8ac77a1e5e4f5e",
+          "evidence_sha256": "b7c5d06ef219e18387a03f83e438804049d8eab7440d09a81ec970eb6c0c3813",
+          "pre_recal_source_full_native_plan_equal": null,
+          "recalibrated": true,
+          "task_uid_namespace_preserved": true,
+          "scientific_plan_equal_except_recipe_inputs": true
+        }
+      ]
+    },
+    {
+      "model": "fastwam",
+      "mode": "reduced",
+      "arm": "original",
+      "source": "/data/mw_finetune/eval/ffk1015_fastwam_libero_reduced_formal_A_original",
+      "workers": {
+        "timan1": 35,
+        "timan107": 35
+      },
+      "gpu": "RTX 4090",
+      "replicas": 2,
+      "batch": 16,
+      "pipeline": "R17",
+      "name": "fa_ls_fw_r_u_l_l",
+      "stage": "levels",
+      "status": "WAITING_OFF",
+      "episodes": null,
+      "maximum_episodes": 30000,
+      "jobs": []
+    },
+    {
+      "model": "fastwam",
+      "mode": "reduced",
+      "arm": "filtered",
+      "source": "/data/mw_finetune/eval/ffk1015_fastwam_libero_reduced_formal_A_filtered",
+      "workers": {
+        "timan1": 35,
+        "timan107": 35
+      },
+      "gpu": "RTX 4090",
+      "replicas": 2,
+      "batch": 16,
+      "pipeline": "R17",
+      "name": "fa_ls_fw_r_f_o_l",
+      "stage": "off",
+      "status": "BUILT",
+      "episodes": 6000,
+      "jobs": [
+        {
+          "name": "fa_ls_fw_r_f_o_l",
+          "run": "/data/mw_finetune/eval/fa_ls_fw_r_f_o_l",
+          "source": "/data/mw_finetune/eval/ffk1015_fastwam_libero_reduced_formal_A_filtered",
+          "episodes": 6000,
+          "model": "fastwam",
+          "benchmark": "libero",
+          "mode": "reduced",
+          "stage": "off",
+          "gpu": "RTX 4090",
+          "replicas": 2,
+          "batch": 16,
+          "workers": {
+            "timan1": 35,
+            "timan107": 35
+          },
+          "python": "/data/mw_finetune/envs/fastwam/bin/python",
+          "runtime": "/data/mw_finetune/qualification/formal_runtime_a7a387ed6d45ce9cf5ece2628f32577ee5a55ab55bbcb2a771e25ebc227b4f07",
+          "unfiltered": false,
+          "pipeline": "R17",
+          "source_full_native_plan_equal": false,
+          "task_uid_sha256": "e72c75de7832cc4b0e3417209607a13b7e1feae759cb1aa066e429b53391f14a",
+          "arm": "filtered",
+          "transport_plan_rebound": true,
+          "bootstrap_sha256": "4e07fb3ecbfbc15000886cdaeb6cc16da2fbd346e045df22ad8ac77a1e5e4f5e",
+          "evidence_sha256": "b7c5d06ef219e18387a03f83e438804049d8eab7440d09a81ec970eb6c0c3813",
+          "pre_recal_source_full_native_plan_equal": null,
+          "recalibrated": true,
+          "task_uid_namespace_preserved": true,
+          "scientific_plan_equal_except_recipe_inputs": true
+        }
+      ]
+    },
+    {
+      "model": "fastwam",
+      "mode": "reduced",
+      "arm": "filtered",
+      "source": "/data/mw_finetune/eval/ffk1015_fastwam_libero_reduced_formal_A_filtered",
+      "workers": {
+        "timan1": 35,
+        "timan107": 35
+      },
+      "gpu": "RTX 4090",
+      "replicas": 2,
+      "batch": 16,
+      "pipeline": "R17",
+      "name": "fa_ls_fw_r_f_l_l",
+      "stage": "levels",
+      "status": "WAITING_OFF",
+      "episodes": null,
+      "maximum_episodes": 30000,
+      "jobs": []
+    },
+    {
+      "model": "fastwam",
+      "mode": "full",
+      "arm": "original",
+      "source": "/data/mw_finetune/eval/ffk1015_fastwam_libero_full_formal_A_original",
+      "workers": {
+        "timan1": 42,
+        "timan107": 43
+      },
+      "gpu": "H100",
+      "replicas": 2,
+      "batch": 16,
+      "pipeline": "R17",
+      "name": "fa_ls_fw_f_u_o_l",
+      "stage": "off",
+      "status": "BUILT",
+      "episodes": 6000,
+      "jobs": [
+        {
+          "name": "fa_ls_fw_f_u_o_l",
+          "run": "/data/mw_finetune/eval/fa_ls_fw_f_u_o_l",
+          "source": "/data/mw_finetune/eval/ffk1015_fastwam_libero_full_formal_A_original",
+          "episodes": 6000,
+          "model": "fastwam",
+          "benchmark": "libero",
+          "mode": "full",
+          "stage": "off",
+          "gpu": "H100",
+          "replicas": 2,
+          "batch": 16,
+          "workers": {
+            "timan1": 42,
+            "timan107": 43
+          },
+          "python": "/data/mw_finetune/envs/fastwam/bin/python",
+          "runtime": "/data/mw_finetune/qualification/formal_runtime_20550932745afaeb6bf31e858d1bfb91740727cf98bd0c6a5cd9171a8d9baa21",
+          "unfiltered": true,
+          "pipeline": "R17",
+          "source_full_native_plan_equal": false,
+          "task_uid_sha256": "c1926f90a1a01bc75330cb4c4c3eedef1ec066e850b5d0e11bbeadf5bd75430a",
+          "arm": "original",
+          "transport_plan_rebound": true,
+          "bootstrap_sha256": "4e07fb3ecbfbc15000886cdaeb6cc16da2fbd346e045df22ad8ac77a1e5e4f5e",
+          "evidence_sha256": "b7c5d06ef219e18387a03f83e438804049d8eab7440d09a81ec970eb6c0c3813",
+          "pre_recal_source_full_native_plan_equal": null,
+          "recalibrated": true,
+          "task_uid_namespace_preserved": true,
+          "scientific_plan_equal_except_recipe_inputs": true
+        }
+      ]
+    },
+    {
+      "model": "fastwam",
+      "mode": "full",
+      "arm": "original",
+      "source": "/data/mw_finetune/eval/ffk1015_fastwam_libero_full_formal_A_original",
+      "workers": {
+        "timan1": 42,
+        "timan107": 43
+      },
+      "gpu": "H100",
+      "replicas": 2,
+      "batch": 16,
+      "pipeline": "R17",
+      "name": "fa_ls_fw_f_u_l_l",
+      "stage": "levels",
+      "status": "WAITING_OFF",
+      "episodes": null,
+      "maximum_episodes": 30000,
+      "jobs": []
+    },
+    {
+      "model": "fastwam",
+      "mode": "full",
+      "arm": "filtered",
+      "source": "/data/mw_finetune/eval/ffk1015_fastwam_libero_full_formal_A_filtered",
+      "workers": {
+        "timan1": 42,
+        "timan107": 43
+      },
+      "gpu": "H100",
+      "replicas": 2,
+      "batch": 16,
+      "pipeline": "R17",
+      "name": "fa_ls_fw_f_f_o_l",
+      "stage": "off",
+      "status": "BUILT",
+      "episodes": 6000,
+      "jobs": [
+        {
+          "name": "fa_ls_fw_f_f_o_l",
+          "run": "/data/mw_finetune/eval/fa_ls_fw_f_f_o_l",
+          "source": "/data/mw_finetune/eval/ffk1015_fastwam_libero_full_formal_A_filtered",
+          "episodes": 6000,
+          "model": "fastwam",
+          "benchmark": "libero",
+          "mode": "full",
+          "stage": "off",
+          "gpu": "H100",
+          "replicas": 2,
+          "batch": 16,
+          "workers": {
+            "timan1": 42,
+            "timan107": 43
+          },
+          "python": "/data/mw_finetune/envs/fastwam/bin/python",
+          "runtime": "/data/mw_finetune/qualification/formal_runtime_20550932745afaeb6bf31e858d1bfb91740727cf98bd0c6a5cd9171a8d9baa21",
+          "unfiltered": false,
+          "pipeline": "R17",
+          "source_full_native_plan_equal": false,
+          "task_uid_sha256": "58d11f3d3caeea2e97f200896b0d861d39764cd683117898930aeb7d888ff100",
+          "arm": "filtered",
+          "transport_plan_rebound": true,
+          "bootstrap_sha256": "4e07fb3ecbfbc15000886cdaeb6cc16da2fbd346e045df22ad8ac77a1e5e4f5e",
+          "evidence_sha256": "b7c5d06ef219e18387a03f83e438804049d8eab7440d09a81ec970eb6c0c3813",
+          "pre_recal_source_full_native_plan_equal": null,
+          "recalibrated": true,
+          "task_uid_namespace_preserved": true,
+          "scientific_plan_equal_except_recipe_inputs": true
+        }
+      ]
+    },
+    {
+      "model": "fastwam",
+      "mode": "full",
+      "arm": "filtered",
+      "source": "/data/mw_finetune/eval/ffk1015_fastwam_libero_full_formal_A_filtered",
+      "workers": {
+        "timan1": 42,
+        "timan107": 43
+      },
+      "gpu": "H100",
+      "replicas": 2,
+      "batch": 16,
+      "pipeline": "R17",
+      "name": "fa_ls_fw_f_f_l_l",
+      "stage": "levels",
+      "status": "WAITING_OFF",
+      "episodes": null,
+      "maximum_episodes": 30000,
+      "jobs": []
+    }
+  ]
+}

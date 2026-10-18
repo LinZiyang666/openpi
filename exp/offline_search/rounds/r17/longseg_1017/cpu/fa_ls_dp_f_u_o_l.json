@@ -1,0 +1,58 @@
+{
+  "name": "fa_ls_dp_f_u_o_l",
+  "status": "PASS",
+  "native_strict_loader_proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/startup_checks/fa_dp_f_u_l.json",
+  "native_strict_loader_path": "qualification.model_runtime.load -> dp.loader.load_adapter(cpu)",
+  "descriptor_bytes_equal": {
+    "load.json": true,
+    "model_spec.json": true,
+    "model_manifest.json": true,
+    "benchmark.json": true,
+    "full.yaml": true
+  },
+  "fresh_frozen_interpreter_probe": {
+    "packages": {
+      "diffusers": "0.37.1",
+      "numpy": "1.26.4",
+      "safetensors": "0.7.0",
+      "torch": "2.7.1",
+      "torchvision": "0.22.1",
+      "transformers": "4.53.2"
+    },
+    "python": "/home/weiland/projects/openpi/.venv/bin/python",
+    "bootstrap_imported": true,
+    "cuda_initialized": false
+  },
+  "model_identity_equal": true,
+  "sealed_metadata_equal_to_actual": true,
+  "weights_and_fit_reread": false,
+  "immutable_inputs_same_inodes": true,
+  "planner_episodes": 6000,
+  "unique_task_uids": 6000,
+  "source_native_plan_equal": false,
+  "mps_pipe": "/data/mw_finetune/eval/fa_ls_dp_f_u_o_l/mps/e5681f/p",
+  "mps_pipe_bytes": 52,
+  "fresh_native_dp_startup_admission_checked": true,
+  "decision_clock_recalibration": {
+    "Q3_artifacts": [
+      "02c7fd106b260bac3586ca910bfe7823647083b3ebfdd8da86c6cb72111ce894",
+      "1a2c75b1088c71f24e9fc18c1d4b79cba32a121e7a94ef0505dd66a86d055ed3",
+      "250f7eed3cb4dc7147d7824ebc31583e07d003d54622b029ec673e4705b2fce7",
+      "33cacf18f318030ccc7faef8a31518e73c80d7fad1baf72f45073e9f75a97643",
+      "4a92d8da02b0186040446f1f181ca69db82bddd15fe0bbfefd668de1e30b6b6d",
+      "4e53c81ed3c1dae9ce33b408b75fa8acf14c1e0653d4f3ab817ec4d90ac623c2",
+      "59bad8456761bc2884ee3f8739429b5c6b129bed51bea62f6bf8e804eb792ccf",
+      "8ff32c9a9345c6bd735b469ead1de9a67e957390b428f40e14d95fdd508e9f05",
+      "940f3c05d3065b5709c96926b33912dbd841f99daf825da95291d47dfae063aa",
+      "9f35a9f26cc82f6372032376839d19aa9b19e019235afa5852932538a098c65d",
+      "b3de4ef75c05b86560d736e9bb5908c59385cdcbb253759312a42b6df450a704",
+      "ba8f173460dff55f0a63f2b566117a9e4da1b0d960f1850ba74819162a305345"
+    ],
+    "new_artifact_inodes_verified": true,
+    "frozen_metric_identical": true,
+    "UID_namespace_preserved": true,
+    "frozen_driver_plan_overlay_imported": true,
+    "level_ir": "M/N_segment_heads",
+    "tolerance": 0.005
+  }
+}

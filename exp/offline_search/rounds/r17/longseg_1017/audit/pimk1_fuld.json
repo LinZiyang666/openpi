@@ -1,0 +1,65 @@
+{
+  "run": "pimk1_fuld",
+  "model": "pi05",
+  "domain": "metaworld",
+  "server_node": "local",
+  "file": "/data/mw_finetune/eval/pimk1_fuld/driver/per_step.jsonl",
+  "bytes": 9673582155,
+  "sample_bytes": 16768595,
+  "sample_rows": 6727,
+  "sample_limit_bytes": 16777216,
+  "sample_limit_lines": 16000,
+  "scan_kind": "bounded_windows",
+  "samples": [
+    {
+      "offset": 0,
+      "bytes": 2094751,
+      "rows": 839
+    },
+    {
+      "offset": 1381642828,
+      "bytes": 2096364,
+      "rows": 840
+    },
+    {
+      "offset": 2763283187,
+      "bytes": 2095578,
+      "rows": 851
+    },
+    {
+      "offset": 4144923484,
+      "bytes": 2096907,
+      "rows": 826
+    },
+    {
+      "offset": 5526563892,
+      "bytes": 2094448,
+      "rows": 825
+    },
+    {
+      "offset": 6908204789,
+      "bytes": 2097120,
+      "rows": 841
+    },
+    {
+      "offset": 8289845399,
+      "bytes": 2096386,
+      "rows": 848
+    },
+    {
+      "offset": 9671485114,
+      "bytes": 2097041,
+      "rows": 857
+    }
+  ],
+  "inode": 48774980,
+  "mtime_ns": 1792039404636775690,
+  "live": false,
+  "changed_during_scan": false,
+  "episodes": 180,
+  "affected": false,
+  "rows": 6727,
+  "cut_percent": 0.0,
+  "groups": {},
+  "examples": []
+}

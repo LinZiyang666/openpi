@@ -1,0 +1,163 @@
+{
+  "rows": [
+    {
+      "key": "pi05:full:libero_10",
+      "gpu": "H100",
+      "root": "/data/mw_finetune/eval/fa_pi_f_p10",
+      "arm": "ffk1015_pi05_libero_full_formal_A_pure_l10_r1_c10",
+      "authorized": true,
+      "shared_by_both_arms": true,
+      "replaces": "ffk1015_pi05_libero_full_formal_A_pure_l10",
+      "result_policy": "replacement_only_do_not_merge",
+      "accepted_count": 500,
+      "span_minutes": 11.04,
+      "server_host": null,
+      "rate_ep_min": 45.28985507246377
+    },
+    {
+      "key": "pi05:full:libero_spatial",
+      "gpu": "H100",
+      "root": "/data/mw_finetune/eval/fa_pi_f_ps",
+      "arm": "ffk1015_pi05_libero_full_formal_A_pure_spatial_c10",
+      "authorized": true,
+      "shared_by_both_arms": true,
+      "accepted_count": 500,
+      "span_minutes": 5.49,
+      "server_host": null,
+      "rate_ep_min": 91.07468123861567
+    },
+    {
+      "key": "pi05_l10_50_k1",
+      "gpu": "RTX 4090",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_phase1_pi05_l10_k1",
+      "arm": "r16p1_pi05_l10_k1_pure_c10",
+      "accepted_count": 500,
+      "span_minutes": 11.4,
+      "server_host": "local",
+      "rate_ep_min": 43.859649122807014
+    },
+    {
+      "key": "pi05_spatial_50_k1",
+      "gpu": "RTX 4090",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_phase1_pi05_spatial_k1",
+      "arm": "r16p1_pi05_spatial_k1_pure_c10",
+      "accepted_count": 500,
+      "span_minutes": 4.76,
+      "server_host": "local",
+      "rate_ep_min": 105.0420168067227
+    },
+    {
+      "key": "groot_l10_50_k1",
+      "gpu": "RTX 4090",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_phase1_groot_l10_k1",
+      "arm": "r16p1_groot_l10_k1_pure_c10",
+      "accepted_count": 500,
+      "span_minutes": 14.24,
+      "server_host": "local",
+      "rate_ep_min": 35.1123595505618
+    },
+    {
+      "key": "groot_spatial_50_k1",
+      "gpu": "RTX 4090",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_phase1_groot_spatial_k1",
+      "arm": "r16p1_groot_spatial_k1_pure_c10",
+      "accepted_count": 500,
+      "span_minutes": 6.01,
+      "server_host": "local",
+      "rate_ep_min": 83.19467554076539
+    },
+    {
+      "key": "groot_l10",
+      "gpu": "RTX 4090",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r14_descent_test_groot_l10_50",
+      "arm": "r14dt_groot_l10_50_pure_c10",
+      "arms_sha256": "1220dea905bd317152e694a3928c6096b3d807a05a08a25d4df4ae7a2ab7d72e",
+      "manifest": "/home/weiland/trace_runs/os_closed_loop/r14_descent_test_groot_l10_50/eval500.json",
+      "template_sha256": "2c3b0477794c04b9f9925100346f0d0adbca4dcfe42f3c2eb26278f18b4d9a29",
+      "fit_path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r13/knob/artifacts/groot_l10_50_pure_c10.pkl",
+      "fit_sha256": "0f790260938b1e0e8c2d7d4cdec06766ac6082618b49d046395e27488e437b11",
+      "rollout_seed": 2026101401,
+      "init_pool": "A",
+      "reusable": true,
+      "init_identities": "official A task 0..9 x init 0..49; original indices",
+      "host": "local",
+      "accepted_count": 500,
+      "span_minutes": 20.59,
+      "server_host": "local",
+      "rate_ep_min": 24.28363283147159
+    },
+    {
+      "key": "groot_spatial",
+      "gpu": "RTX 4090",
+      "root": "/home/weiland/trace_runs/os_closed_loop/r14_descent_test_groot_spatial_50",
+      "arm": "r14dt_groot_spatial_50_pure_c10",
+      "arms_sha256": "af91820054489b2dcc3136437c094069afe2d35877b367e342c60d919b50b0a2",
+      "manifest": "/home/weiland/trace_runs/os_closed_loop/r14_descent_test_groot_spatial_50/eval500.json",
+      "template_sha256": "2c3b0477794c04b9f9925100346f0d0adbca4dcfe42f3c2eb26278f18b4d9a29",
+      "fit_path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r13/knob/artifacts/groot_spatial_50_pure_c10.pkl",
+      "fit_sha256": "72d0285e61aea710541969612f13c6f2c92ccc840212513d9544a0126a217de8",
+      "rollout_seed": 2026101401,
+      "init_pool": "A",
+      "reusable": true,
+      "init_identities": "official A task 0..9 x init 0..49; original indices",
+      "host": "local",
+      "accepted_count": 500,
+      "span_minutes": 8.57,
+      "server_host": "local",
+      "rate_ep_min": 58.343057176196034
+    },
+    {
+      "key": "cosmos:libero:full",
+      "gpu": "H100",
+      "root": "/data/mw_finetune/eval/formal_cosmos_libero_official2000_20261010_130639_a8ca2043"
+    },
+    {
+      "key": "cosmos:libero:reduced",
+      "gpu": "H100",
+      "root": "/data/mw_finetune/eval/hs2_cosmos_h100_k2incl_c16_t107_20261010_115120"
+    }
+  ],
+  "note": "Definition/CPU-proof pointers only; no old dev outcome or selected level read.",
+  "rates": {
+    "pi05:full": {
+      "rate_ep_min": 60.49606775559588,
+      "episodes": 1000,
+      "span_minutes": 16.53,
+      "sources": [
+        "/data/mw_finetune/eval/fa_pi_f_p10",
+        "/data/mw_finetune/eval/fa_pi_f_ps"
+      ],
+      "note": "Same-step test-A pure counts/wall span only; proxy for prospective knob-level mixture, startup excluded."
+    },
+    "pi05:reduced": {
+      "rate_ep_min": 61.88118811881188,
+      "episodes": 1000,
+      "span_minutes": 16.16,
+      "sources": [
+        "/home/weiland/trace_runs/os_closed_loop/r16_phase1_pi05_l10_k1",
+        "/home/weiland/trace_runs/os_closed_loop/r16_phase1_pi05_spatial_k1"
+      ],
+      "note": "Same-step test-A pure counts/wall span only; proxy for prospective knob-level mixture, startup excluded."
+    },
+    "groot:full": {
+      "rate_ep_min": 34.29355281207133,
+      "episodes": 1000,
+      "span_minutes": 29.16,
+      "sources": [
+        "/home/weiland/trace_runs/os_closed_loop/r14_descent_test_groot_l10_50",
+        "/home/weiland/trace_runs/os_closed_loop/r14_descent_test_groot_spatial_50"
+      ],
+      "note": "Same-step test-A pure counts/wall span only; proxy for prospective knob-level mixture, startup excluded."
+    },
+    "groot:reduced": {
+      "rate_ep_min": 49.382716049382715,
+      "episodes": 1000,
+      "span_minutes": 20.25,
+      "sources": [
+        "/home/weiland/trace_runs/os_closed_loop/r16_phase1_groot_l10_k1",
+        "/home/weiland/trace_runs/os_closed_loop/r16_phase1_groot_spatial_k1"
+      ],
+      "note": "Same-step test-A pure counts/wall span only; proxy for prospective knob-level mixture, startup excluded."
+    }
+  }
+}

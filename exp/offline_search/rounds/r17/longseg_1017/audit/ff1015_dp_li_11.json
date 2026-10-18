@@ -1,0 +1,65 @@
+{
+  "run": "ff1015_dp_li_11",
+  "model": "dp",
+  "domain": "libero",
+  "server_node": "local",
+  "file": "/data/mw_finetune/eval/ff1015_dp_li_11/driver/per_step.jsonl",
+  "bytes": 93055559,
+  "sample_bytes": 16746775,
+  "sample_rows": 4249,
+  "sample_limit_bytes": 16777216,
+  "sample_limit_lines": 16000,
+  "scan_kind": "bounded_windows",
+  "samples": [
+    {
+      "offset": 0,
+      "bytes": 2093632,
+      "rows": 530
+    },
+    {
+      "offset": 12995503,
+      "bytes": 2096047,
+      "rows": 522
+    },
+    {
+      "offset": 25991724,
+      "bytes": 2093974,
+      "rows": 538
+    },
+    {
+      "offset": 38983574,
+      "bytes": 2091339,
+      "rows": 539
+    },
+    {
+      "offset": 51976671,
+      "bytes": 2090704,
+      "rows": 539
+    },
+    {
+      "offset": 64970292,
+      "bytes": 2092298,
+      "rows": 513
+    },
+    {
+      "offset": 77966134,
+      "bytes": 2096041,
+      "rows": 529
+    },
+    {
+      "offset": 90962819,
+      "bytes": 2092740,
+      "rows": 539
+    }
+  ],
+  "inode": 48912100,
+  "mtime_ns": 1792123510959330165,
+  "live": false,
+  "changed_during_scan": false,
+  "episodes": 101,
+  "affected": false,
+  "rows": 4249,
+  "cut_percent": 0.0,
+  "groups": {},
+  "examples": []
+}

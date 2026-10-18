@@ -1,0 +1,1647 @@
+{
+  "source": "/data/mw_finetune/eval/dpmk1_redx/assets/cache_inputs/mt50/n2500_C10/stall",
+  "path": "/data/mw_finetune/eval/dpmk1_redx/assets/cache_inputs/mt50/n2500_C10/stall_decision1018",
+  "old_digest": "7cb112e0d65cd3b1555ec2983ccca15070f3ed7a2997b364fe3c4a4944cfef0f",
+  "digest": "f1ee8a2f29f121971e90586481439b423e92b80b851571a533314ddb3cf6b91b",
+  "fit_digest": "adca6f85234210c24bfae83ad6a43840cff0d6bfcb23a35247622d4ab866edbd",
+  "fingerprint": "e4f821b5508e42329f33ac345d370850eb168eb502e6cf3e68ffc7512bfbe874",
+  "old_parameters": {
+    "schema": "r6.q3.stall.v1",
+    "fingerprint": "cc5b540bda14b7072a0f80e8c1c88d81bfdbda432d8306980b895f9e9eef1d54",
+    "payload_sha256": "047a87528fea3850da77920e3cb2e7595cf30bc2a15333df077fb49095fa5d3d",
+    "provenance": {
+      "schema": "r6.q3.stall.v1",
+      "manifest_sha256": "4cab5c1c38b6ca274970089140bfab0c2e3eef684d7af5f16df304f720060e31",
+      "bank_labels_sha256": "4b99d43e0a13aa06f2c12bd554ad9a594c84f3f2013a37f443441777632f80be",
+      "metric_sha256": "e164cc1cf34a2a43b7faeed89074a9625b1b5c279f74496f5b9f69eda9a5dcfe",
+      "metric_provenance": {
+        "kind": "r17.layout_recipe.frozen_metric",
+        "source_digest": "3618bf9f3d670267d7114b2e3451bf03cf3ab194f81a1e87ebd34d8b475d102c",
+        "layout_identity": "dda90d334511ad6cd2d2f6b5b62aa1a1599ef944b5a07da59724cc9063b4e9c3"
+      },
+      "constants": {
+        "window_fraction": 0.05,
+        "minimum_window_intervals": 2,
+        "max_templates": 5,
+        "error_quantile": 0.9,
+        "advance_quantile": 0.1,
+        "minimum_reference_episodes": 4
+      },
+      "calibration_scope": "successful library; frozen representation; empirical not conformal; no evaluation data"
+    },
+    "commit_controls": 10,
+    "exec_steps": 5,
+    "tasks": {
+      "0": {
+        "E": 4,
+        "K": 3,
+        "W": 2,
+        "T_med": 8.75,
+        "calibration_windows": 32,
+        "reference_episodes": 4,
+        "available": true
+      },
+      "1": {
+        "E": 14,
+        "K": 5,
+        "W": 2,
+        "T_med": 9.5,
+        "calibration_windows": 131,
+        "reference_episodes": 14,
+        "available": true
+      },
+      "10": {
+        "E": 32,
+        "K": 5,
+        "W": 2,
+        "T_med": 5.5,
+        "calibration_windows": 154,
+        "reference_episodes": 32,
+        "available": true
+      },
+      "11": {
+        "E": 14,
+        "K": 5,
+        "W": 2,
+        "T_med": 13.25,
+        "calibration_windows": 180,
+        "reference_episodes": 14,
+        "available": true
+      },
+      "12": {
+        "E": 16,
+        "K": 5,
+        "W": 2,
+        "T_med": 10.25,
+        "calibration_windows": 157,
+        "reference_episodes": 16,
+        "available": true
+      },
+      "13": {
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 6.0,
+        "calibration_windows": 267,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "14": {
+        "E": 33,
+        "K": 5,
+        "W": 2,
+        "T_med": 7.0,
+        "calibration_windows": 277,
+        "reference_episodes": 33,
+        "available": true
+      },
+      "15": {
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 8.0,
+        "calibration_windows": 378,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "16": {
+        "E": 49,
+        "K": 5,
+        "W": 2,
+        "T_med": 4.5,
+        "calibration_windows": 194,
+        "reference_episodes": 49,
+        "available": true
+      },
+      "17": {
+        "E": 23,
+        "K": 5,
+        "W": 2,
+        "T_med": 6.0,
+        "calibration_windows": 120,
+        "reference_episodes": 23,
+        "available": true
+      },
+      "18": {
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 8.0,
+        "calibration_windows": 351,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "19": {
+        "E": 48,
+        "K": 5,
+        "W": 2,
+        "T_med": 9.0,
+        "calibration_windows": 408,
+        "reference_episodes": 48,
+        "available": true
+      },
+      "2": {
+        "E": 24,
+        "K": 5,
+        "W": 2,
+        "T_med": 10.75,
+        "calibration_windows": 246,
+        "reference_episodes": 24,
+        "available": true
+      },
+      "20": {
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 6.0,
+        "calibration_windows": 257,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "21": {
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 7.0,
+        "calibration_windows": 334,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "22": {
+        "E": 33,
+        "K": 5,
+        "W": 2,
+        "T_med": 6.5,
+        "calibration_windows": 188,
+        "reference_episodes": 33,
+        "available": true
+      },
+      "23": {
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 4.0,
+        "calibration_windows": 157,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "24": {
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 3.0,
+        "calibration_windows": 101,
+        "reference_episodes": 42,
+        "available": true
+      },
+      "25": {
+        "E": 3,
+        "K": 2,
+        "W": 2,
+        "T_med": 6.0,
+        "calibration_windows": 20,
+        "reference_episodes": 3,
+        "available": false
+      },
+      "26": {
+        "E": 4,
+        "K": 3,
+        "W": 2,
+        "T_med": 10.75,
+        "calibration_windows": 38,
+        "reference_episodes": 4,
+        "available": true
+      },
+      "27": {
+        "E": 19,
+        "K": 5,
+        "W": 2,
+        "T_med": 7.5,
+        "calibration_windows": 126,
+        "reference_episodes": 19,
+        "available": true
+      },
+      "28": {
+        "E": 32,
+        "K": 5,
+        "W": 2,
+        "T_med": 8.75,
+        "calibration_windows": 258,
+        "reference_episodes": 32,
+        "available": true
+      },
+      "29": {
+        "E": 6,
+        "K": 5,
+        "W": 2,
+        "T_med": 14.75,
+        "calibration_windows": 83,
+        "reference_episodes": 6,
+        "available": true
+      },
+      "3": {
+        "E": 13,
+        "K": 5,
+        "W": 2,
+        "T_med": 12.0,
+        "calibration_windows": 143,
+        "reference_episodes": 13,
+        "available": true
+      },
+      "30": {
+        "E": 22,
+        "K": 5,
+        "W": 2,
+        "T_med": 5.5,
+        "calibration_windows": 110,
+        "reference_episodes": 22,
+        "available": true
+      },
+      "31": {
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 5.0,
+        "calibration_windows": 212,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "32": {
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 5.0,
+        "calibration_windows": 202,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "33": {
+        "E": 49,
+        "K": 5,
+        "W": 2,
+        "T_med": 5.5,
+        "calibration_windows": 290,
+        "reference_episodes": 49,
+        "available": true
+      },
+      "34": {
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 5.0,
+        "calibration_windows": 200,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "35": {
+        "E": 29,
+        "K": 5,
+        "W": 2,
+        "T_med": 8.5,
+        "calibration_windows": 235,
+        "reference_episodes": 29,
+        "available": true
+      },
+      "36": {
+        "E": 31,
+        "K": 5,
+        "W": 2,
+        "T_med": 11.5,
+        "calibration_windows": 328,
+        "reference_episodes": 31,
+        "available": true
+      },
+      "37": {
+        "E": 9,
+        "K": 5,
+        "W": 2,
+        "T_med": 6.5,
+        "calibration_windows": 57,
+        "reference_episodes": 9,
+        "available": true
+      },
+      "38": {
+        "E": 33,
+        "K": 5,
+        "W": 2,
+        "T_med": 4.5,
+        "calibration_windows": 127,
+        "reference_episodes": 33,
+        "available": true
+      },
+      "39": {
+        "E": 1,
+        "K": 0,
+        "W": 2,
+        "T_med": 11.0,
+        "calibration_windows": 0,
+        "reference_episodes": 0,
+        "available": false
+      },
+      "4": {
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 6.5,
+        "calibration_windows": 290,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "40": {
+        "E": 39,
+        "K": 5,
+        "W": 2,
+        "T_med": 6.0,
+        "calibration_windows": 204,
+        "reference_episodes": 39,
+        "available": true
+      },
+      "41": {
+        "E": 39,
+        "K": 5,
+        "W": 2,
+        "T_med": 8.0,
+        "calibration_windows": 280,
+        "reference_episodes": 39,
+        "available": true
+      },
+      "42": {
+        "E": 0,
+        "K": 0,
+        "W": 2,
+        "T_med": 0.0,
+        "calibration_windows": 0,
+        "reference_episodes": 0,
+        "available": false
+      },
+      "43": {
+        "E": 13,
+        "K": 5,
+        "W": 2,
+        "T_med": 5.5,
+        "calibration_windows": 62,
+        "reference_episodes": 13,
+        "available": true
+      },
+      "44": {
+        "E": 25,
+        "K": 5,
+        "W": 2,
+        "T_med": 4.5,
+        "calibration_windows": 113,
+        "reference_episodes": 25,
+        "available": true
+      },
+      "45": {
+        "E": 7,
+        "K": 5,
+        "W": 2,
+        "T_med": 9.5,
+        "calibration_windows": 59,
+        "reference_episodes": 7,
+        "available": true
+      },
+      "46": {
+        "E": 8,
+        "K": 5,
+        "W": 2,
+        "T_med": 5.75,
+        "calibration_windows": 39,
+        "reference_episodes": 8,
+        "available": true
+      },
+      "47": {
+        "E": 22,
+        "K": 5,
+        "W": 2,
+        "T_med": 8.5,
+        "calibration_windows": 173,
+        "reference_episodes": 22,
+        "available": true
+      },
+      "48": {
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 9.0,
+        "calibration_windows": 403,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "49": {
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 8.0,
+        "calibration_windows": 371,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "5": {
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 5.5,
+        "calibration_windows": 246,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "6": {
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 5.5,
+        "calibration_windows": 252,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "7": {
+        "E": 49,
+        "K": 5,
+        "W": 2,
+        "T_med": 6.0,
+        "calibration_windows": 267,
+        "reference_episodes": 49,
+        "available": true
+      },
+      "8": {
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 3.5,
+        "calibration_windows": 145,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "9": {
+        "E": 34,
+        "K": 5,
+        "W": 2,
+        "T_med": 8.5,
+        "calibration_windows": 289,
+        "reference_episodes": 34,
+        "available": true
+      }
+    }
+  },
+  "new_parameters": {
+    "schema": "r6.q3.stall.v1",
+    "fingerprint": "e4f821b5508e42329f33ac345d370850eb168eb502e6cf3e68ffc7512bfbe874",
+    "payload_sha256": "80cf48ad2855c7e2278495e4c2522004ad95fde3c968dcd0d17872a4b2c22702",
+    "provenance": {
+      "schema": "r6.q3.stall.v1",
+      "manifest_sha256": "8be43d1dc0eafe1e3573f345a25806f09b038f2621194fe55d07a74dba9d5ad0",
+      "bank_labels_sha256": "af76c2576fbc010f682ef04cfebebba1ed3c4bfa6da5a7d29c7deb539f33702e",
+      "metric_sha256": "e164cc1cf34a2a43b7faeed89074a9625b1b5c279f74496f5b9f69eda9a5dcfe",
+      "metric_provenance": {
+        "kind": "r17.layout_recipe.frozen_metric",
+        "source_digest": "3618bf9f3d670267d7114b2e3451bf03cf3ab194f81a1e87ebd34d8b475d102c",
+        "layout_identity": "dda90d334511ad6cd2d2f6b5b62aa1a1599ef944b5a07da59724cc9063b4e9c3"
+      },
+      "constants": {
+        "window_fraction": 0.05,
+        "minimum_window_intervals": 2,
+        "max_templates": 5,
+        "error_quantile": 0.9,
+        "advance_quantile": 0.1,
+        "minimum_reference_episodes": 4
+      },
+      "calibration_scope": "successful library; frozen representation; empirical not conformal; no evaluation data",
+      "calibration_metric_sha256": "cf303ecc64168c8a0a86c86c3f78214b5c6637b8ed44e23ff9becdd8a107f48c",
+      "clock_unit": "segment_decision",
+      "calibration_stride_native_slots": 2,
+      "physical_commit_controls": 10,
+      "source_stall_digest": "7cb112e0d65cd3b1555ec2983ccca15070f3ed7a2997b364fe3c4a4944cfef0f",
+      "source_fitted_digest": "adca6f85234210c24bfae83ad6a43840cff0d6bfcb23a35247622d4ab866edbd",
+      "full_metric_unchanged": true
+    },
+    "commit_controls": 1,
+    "exec_steps": 1,
+    "tasks": {
+      "0": {
+        "E": 4,
+        "K": 3,
+        "W": 2,
+        "T_med": 8.5,
+        "calibration_windows": 31,
+        "reference_episodes": 4,
+        "available": true
+      },
+      "1": {
+        "E": 14,
+        "K": 5,
+        "W": 2,
+        "T_med": 9.0,
+        "calibration_windows": 125,
+        "reference_episodes": 14,
+        "available": true
+      },
+      "10": {
+        "E": 32,
+        "K": 5,
+        "W": 2,
+        "T_med": 5.0,
+        "calibration_windows": 134,
+        "reference_episodes": 32,
+        "available": true
+      },
+      "11": {
+        "E": 14,
+        "K": 5,
+        "W": 2,
+        "T_med": 13.0,
+        "calibration_windows": 170,
+        "reference_episodes": 14,
+        "available": true
+      },
+      "12": {
+        "E": 16,
+        "K": 5,
+        "W": 2,
+        "T_med": 10.0,
+        "calibration_windows": 147,
+        "reference_episodes": 16,
+        "available": true
+      },
+      "13": {
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 6.0,
+        "calibration_windows": 245,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "14": {
+        "E": 33,
+        "K": 5,
+        "W": 2,
+        "T_med": 7.0,
+        "calibration_windows": 261,
+        "reference_episodes": 33,
+        "available": true
+      },
+      "15": {
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 8.0,
+        "calibration_windows": 352,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "16": {
+        "E": 49,
+        "K": 5,
+        "W": 2,
+        "T_med": 4.0,
+        "calibration_windows": 165,
+        "reference_episodes": 49,
+        "available": true
+      },
+      "17": {
+        "E": 23,
+        "K": 5,
+        "W": 2,
+        "T_med": 6.0,
+        "calibration_windows": 110,
+        "reference_episodes": 23,
+        "available": true
+      },
+      "18": {
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 8.0,
+        "calibration_windows": 346,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "19": {
+        "E": 48,
+        "K": 5,
+        "W": 2,
+        "T_med": 9.0,
+        "calibration_windows": 393,
+        "reference_episodes": 48,
+        "available": true
+      },
+      "2": {
+        "E": 24,
+        "K": 5,
+        "W": 2,
+        "T_med": 10.5,
+        "calibration_windows": 233,
+        "reference_episodes": 24,
+        "available": true
+      },
+      "20": {
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 6.0,
+        "calibration_windows": 228,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "21": {
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 7.0,
+        "calibration_windows": 305,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "22": {
+        "E": 33,
+        "K": 5,
+        "W": 2,
+        "T_med": 6.0,
+        "calibration_windows": 169,
+        "reference_episodes": 33,
+        "available": true
+      },
+      "23": {
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 4.0,
+        "calibration_windows": 143,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "24": {
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 3.0,
+        "calibration_windows": 76,
+        "reference_episodes": 37,
+        "available": true
+      },
+      "25": {
+        "E": 3,
+        "K": 2,
+        "W": 2,
+        "T_med": 6.0,
+        "calibration_windows": 18,
+        "reference_episodes": 3,
+        "available": false
+      },
+      "26": {
+        "E": 4,
+        "K": 3,
+        "W": 2,
+        "T_med": 10.5,
+        "calibration_windows": 37,
+        "reference_episodes": 4,
+        "available": true
+      },
+      "27": {
+        "E": 19,
+        "K": 5,
+        "W": 2,
+        "T_med": 7.0,
+        "calibration_windows": 116,
+        "reference_episodes": 19,
+        "available": true
+      },
+      "28": {
+        "E": 32,
+        "K": 5,
+        "W": 2,
+        "T_med": 8.5,
+        "calibration_windows": 239,
+        "reference_episodes": 32,
+        "available": true
+      },
+      "29": {
+        "E": 6,
+        "K": 5,
+        "W": 2,
+        "T_med": 14.5,
+        "calibration_windows": 78,
+        "reference_episodes": 6,
+        "available": true
+      },
+      "3": {
+        "E": 13,
+        "K": 5,
+        "W": 2,
+        "T_med": 12.0,
+        "calibration_windows": 138,
+        "reference_episodes": 13,
+        "available": true
+      },
+      "30": {
+        "E": 22,
+        "K": 5,
+        "W": 2,
+        "T_med": 5.0,
+        "calibration_windows": 97,
+        "reference_episodes": 22,
+        "available": true
+      },
+      "31": {
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 5.0,
+        "calibration_windows": 200,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "32": {
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 5.0,
+        "calibration_windows": 193,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "33": {
+        "E": 49,
+        "K": 5,
+        "W": 2,
+        "T_med": 5.0,
+        "calibration_windows": 265,
+        "reference_episodes": 49,
+        "available": true
+      },
+      "34": {
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 5.0,
+        "calibration_windows": 178,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "35": {
+        "E": 29,
+        "K": 5,
+        "W": 2,
+        "T_med": 8.0,
+        "calibration_windows": 222,
+        "reference_episodes": 29,
+        "available": true
+      },
+      "36": {
+        "E": 31,
+        "K": 5,
+        "W": 2,
+        "T_med": 11.0,
+        "calibration_windows": 306,
+        "reference_episodes": 31,
+        "available": true
+      },
+      "37": {
+        "E": 9,
+        "K": 5,
+        "W": 2,
+        "T_med": 6.0,
+        "calibration_windows": 49,
+        "reference_episodes": 9,
+        "available": true
+      },
+      "38": {
+        "E": 33,
+        "K": 5,
+        "W": 2,
+        "T_med": 4.0,
+        "calibration_windows": 111,
+        "reference_episodes": 33,
+        "available": true
+      },
+      "39": {
+        "E": 1,
+        "K": 0,
+        "W": 2,
+        "T_med": 11.0,
+        "calibration_windows": 0,
+        "reference_episodes": 0,
+        "available": false
+      },
+      "4": {
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 6.0,
+        "calibration_windows": 267,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "40": {
+        "E": 39,
+        "K": 5,
+        "W": 2,
+        "T_med": 6.0,
+        "calibration_windows": 188,
+        "reference_episodes": 39,
+        "available": true
+      },
+      "41": {
+        "E": 39,
+        "K": 5,
+        "W": 2,
+        "T_med": 8.0,
+        "calibration_windows": 258,
+        "reference_episodes": 39,
+        "available": true
+      },
+      "42": {
+        "E": 0,
+        "K": 0,
+        "W": 2,
+        "T_med": 0.0,
+        "calibration_windows": 0,
+        "reference_episodes": 0,
+        "available": false
+      },
+      "43": {
+        "E": 13,
+        "K": 5,
+        "W": 2,
+        "T_med": 5.0,
+        "calibration_windows": 54,
+        "reference_episodes": 13,
+        "available": true
+      },
+      "44": {
+        "E": 25,
+        "K": 5,
+        "W": 2,
+        "T_med": 4.0,
+        "calibration_windows": 98,
+        "reference_episodes": 25,
+        "available": true
+      },
+      "45": {
+        "E": 7,
+        "K": 5,
+        "W": 2,
+        "T_med": 9.0,
+        "calibration_windows": 54,
+        "reference_episodes": 7,
+        "available": true
+      },
+      "46": {
+        "E": 8,
+        "K": 5,
+        "W": 2,
+        "T_med": 5.5,
+        "calibration_windows": 36,
+        "reference_episodes": 8,
+        "available": true
+      },
+      "47": {
+        "E": 22,
+        "K": 5,
+        "W": 2,
+        "T_med": 8.0,
+        "calibration_windows": 158,
+        "reference_episodes": 22,
+        "available": true
+      },
+      "48": {
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 9.0,
+        "calibration_windows": 381,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "49": {
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 8.0,
+        "calibration_windows": 354,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "5": {
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 5.0,
+        "calibration_windows": 217,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "6": {
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 5.0,
+        "calibration_windows": 221,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "7": {
+        "E": 49,
+        "K": 5,
+        "W": 2,
+        "T_med": 6.0,
+        "calibration_windows": 242,
+        "reference_episodes": 49,
+        "available": true
+      },
+      "8": {
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 3.0,
+        "calibration_windows": 117,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "9": {
+        "E": 34,
+        "K": 5,
+        "W": 2,
+        "T_med": 8.0,
+        "calibration_windows": 271,
+        "reference_episodes": 34,
+        "available": true
+      }
+    }
+  },
+  "achieved": {
+    "windows": 8778,
+    "residual_q90_covered": 8318,
+    "advance_above_q10": 8327,
+    "confirmed": 205,
+    "ambiguous": 479,
+    "tasks": {
+      "0": {
+        "windows": 31,
+        "residual_q90_covered": 31,
+        "advance_above_q10": 31,
+        "confirmed": 0,
+        "ambiguous": 5,
+        "E": 4,
+        "K": 3,
+        "W": 2,
+        "T_med": 8.5,
+        "reference_episodes": 4,
+        "available": true
+      },
+      "1": {
+        "windows": 125,
+        "residual_q90_covered": 119,
+        "advance_above_q10": 111,
+        "confirmed": 7,
+        "ambiguous": 14,
+        "E": 14,
+        "K": 5,
+        "W": 2,
+        "T_med": 9.0,
+        "reference_episodes": 14,
+        "available": true
+      },
+      "10": {
+        "windows": 134,
+        "residual_q90_covered": 131,
+        "advance_above_q10": 128,
+        "confirmed": 3,
+        "ambiguous": 5,
+        "E": 32,
+        "K": 5,
+        "W": 2,
+        "T_med": 5.0,
+        "reference_episodes": 32,
+        "available": true
+      },
+      "11": {
+        "windows": 170,
+        "residual_q90_covered": 162,
+        "advance_above_q10": 167,
+        "confirmed": 0,
+        "ambiguous": 94,
+        "E": 14,
+        "K": 5,
+        "W": 2,
+        "T_med": 13.0,
+        "reference_episodes": 14,
+        "available": true
+      },
+      "12": {
+        "windows": 147,
+        "residual_q90_covered": 138,
+        "advance_above_q10": 134,
+        "confirmed": 3,
+        "ambiguous": 33,
+        "E": 16,
+        "K": 5,
+        "W": 2,
+        "T_med": 10.0,
+        "reference_episodes": 16,
+        "available": true
+      },
+      "13": {
+        "windows": 245,
+        "residual_q90_covered": 226,
+        "advance_above_q10": 245,
+        "confirmed": 3,
+        "ambiguous": 7,
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 6.0,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "14": {
+        "windows": 261,
+        "residual_q90_covered": 244,
+        "advance_above_q10": 261,
+        "confirmed": 3,
+        "ambiguous": 5,
+        "E": 33,
+        "K": 5,
+        "W": 2,
+        "T_med": 7.0,
+        "reference_episodes": 33,
+        "available": true
+      },
+      "15": {
+        "windows": 352,
+        "residual_q90_covered": 334,
+        "advance_above_q10": 312,
+        "confirmed": 21,
+        "ambiguous": 8,
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 8.0,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "16": {
+        "windows": 165,
+        "residual_q90_covered": 152,
+        "advance_above_q10": 147,
+        "confirmed": 10,
+        "ambiguous": 3,
+        "E": 49,
+        "K": 5,
+        "W": 2,
+        "T_med": 4.0,
+        "reference_episodes": 49,
+        "available": true
+      },
+      "17": {
+        "windows": 110,
+        "residual_q90_covered": 105,
+        "advance_above_q10": 110,
+        "confirmed": 3,
+        "ambiguous": 0,
+        "E": 23,
+        "K": 5,
+        "W": 2,
+        "T_med": 6.0,
+        "reference_episodes": 23,
+        "available": true
+      },
+      "18": {
+        "windows": 346,
+        "residual_q90_covered": 322,
+        "advance_above_q10": 346,
+        "confirmed": 0,
+        "ambiguous": 0,
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 8.0,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "19": {
+        "windows": 393,
+        "residual_q90_covered": 373,
+        "advance_above_q10": 381,
+        "confirmed": 6,
+        "ambiguous": 1,
+        "E": 48,
+        "K": 5,
+        "W": 2,
+        "T_med": 9.0,
+        "reference_episodes": 48,
+        "available": true
+      },
+      "2": {
+        "windows": 233,
+        "residual_q90_covered": 212,
+        "advance_above_q10": 208,
+        "confirmed": 9,
+        "ambiguous": 18,
+        "E": 24,
+        "K": 5,
+        "W": 2,
+        "T_med": 10.5,
+        "reference_episodes": 24,
+        "available": true
+      },
+      "20": {
+        "windows": 228,
+        "residual_q90_covered": 208,
+        "advance_above_q10": 221,
+        "confirmed": 7,
+        "ambiguous": 0,
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 6.0,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "21": {
+        "windows": 305,
+        "residual_q90_covered": 284,
+        "advance_above_q10": 296,
+        "confirmed": 10,
+        "ambiguous": 6,
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 7.0,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "22": {
+        "windows": 169,
+        "residual_q90_covered": 162,
+        "advance_above_q10": 168,
+        "confirmed": 0,
+        "ambiguous": 0,
+        "E": 33,
+        "K": 5,
+        "W": 2,
+        "T_med": 6.0,
+        "reference_episodes": 33,
+        "available": true
+      },
+      "23": {
+        "windows": 143,
+        "residual_q90_covered": 140,
+        "advance_above_q10": 143,
+        "confirmed": 1,
+        "ambiguous": 0,
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 4.0,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "24": {
+        "windows": 76,
+        "residual_q90_covered": 73,
+        "advance_above_q10": 64,
+        "confirmed": 3,
+        "ambiguous": 0,
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 3.0,
+        "reference_episodes": 37,
+        "available": true
+      },
+      "25": {
+        "windows": 0,
+        "residual_q90_covered": 0,
+        "advance_above_q10": 0,
+        "confirmed": 0,
+        "ambiguous": 0,
+        "E": 3,
+        "K": 2,
+        "W": 2,
+        "T_med": 6.0,
+        "reference_episodes": 3,
+        "available": false
+      },
+      "26": {
+        "windows": 37,
+        "residual_q90_covered": 37,
+        "advance_above_q10": 37,
+        "confirmed": 0,
+        "ambiguous": 6,
+        "E": 4,
+        "K": 3,
+        "W": 2,
+        "T_med": 10.5,
+        "reference_episodes": 4,
+        "available": true
+      },
+      "27": {
+        "windows": 116,
+        "residual_q90_covered": 107,
+        "advance_above_q10": 116,
+        "confirmed": 2,
+        "ambiguous": 13,
+        "E": 19,
+        "K": 5,
+        "W": 2,
+        "T_med": 7.0,
+        "reference_episodes": 19,
+        "available": true
+      },
+      "28": {
+        "windows": 239,
+        "residual_q90_covered": 229,
+        "advance_above_q10": 219,
+        "confirmed": 9,
+        "ambiguous": 5,
+        "E": 32,
+        "K": 5,
+        "W": 2,
+        "T_med": 8.5,
+        "reference_episodes": 32,
+        "available": true
+      },
+      "29": {
+        "windows": 78,
+        "residual_q90_covered": 78,
+        "advance_above_q10": 78,
+        "confirmed": 0,
+        "ambiguous": 19,
+        "E": 6,
+        "K": 5,
+        "W": 2,
+        "T_med": 14.5,
+        "reference_episodes": 6,
+        "available": true
+      },
+      "3": {
+        "windows": 138,
+        "residual_q90_covered": 123,
+        "advance_above_q10": 125,
+        "confirmed": 8,
+        "ambiguous": 23,
+        "E": 13,
+        "K": 5,
+        "W": 2,
+        "T_med": 12.0,
+        "reference_episodes": 13,
+        "available": true
+      },
+      "30": {
+        "windows": 97,
+        "residual_q90_covered": 92,
+        "advance_above_q10": 83,
+        "confirmed": 2,
+        "ambiguous": 16,
+        "E": 22,
+        "K": 5,
+        "W": 2,
+        "T_med": 5.0,
+        "reference_episodes": 22,
+        "available": true
+      },
+      "31": {
+        "windows": 200,
+        "residual_q90_covered": 200,
+        "advance_above_q10": 200,
+        "confirmed": 0,
+        "ambiguous": 0,
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 5.0,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "32": {
+        "windows": 193,
+        "residual_q90_covered": 192,
+        "advance_above_q10": 193,
+        "confirmed": 0,
+        "ambiguous": 0,
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 5.0,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "33": {
+        "windows": 265,
+        "residual_q90_covered": 261,
+        "advance_above_q10": 225,
+        "confirmed": 0,
+        "ambiguous": 18,
+        "E": 49,
+        "K": 5,
+        "W": 2,
+        "T_med": 5.0,
+        "reference_episodes": 49,
+        "available": true
+      },
+      "34": {
+        "windows": 178,
+        "residual_q90_covered": 169,
+        "advance_above_q10": 158,
+        "confirmed": 3,
+        "ambiguous": 7,
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 5.0,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "35": {
+        "windows": 222,
+        "residual_q90_covered": 202,
+        "advance_above_q10": 196,
+        "confirmed": 13,
+        "ambiguous": 17,
+        "E": 29,
+        "K": 5,
+        "W": 2,
+        "T_med": 8.0,
+        "reference_episodes": 29,
+        "available": true
+      },
+      "36": {
+        "windows": 306,
+        "residual_q90_covered": 278,
+        "advance_above_q10": 266,
+        "confirmed": 17,
+        "ambiguous": 28,
+        "E": 31,
+        "K": 5,
+        "W": 2,
+        "T_med": 11.0,
+        "reference_episodes": 31,
+        "available": true
+      },
+      "37": {
+        "windows": 49,
+        "residual_q90_covered": 49,
+        "advance_above_q10": 49,
+        "confirmed": 0,
+        "ambiguous": 13,
+        "E": 9,
+        "K": 5,
+        "W": 2,
+        "T_med": 6.0,
+        "reference_episodes": 9,
+        "available": true
+      },
+      "38": {
+        "windows": 111,
+        "residual_q90_covered": 103,
+        "advance_above_q10": 109,
+        "confirmed": 4,
+        "ambiguous": 0,
+        "E": 33,
+        "K": 5,
+        "W": 2,
+        "T_med": 4.0,
+        "reference_episodes": 33,
+        "available": true
+      },
+      "39": {
+        "windows": 0,
+        "residual_q90_covered": 0,
+        "advance_above_q10": 0,
+        "confirmed": 0,
+        "ambiguous": 0,
+        "E": 1,
+        "K": 0,
+        "W": 2,
+        "T_med": 11.0,
+        "reference_episodes": 0,
+        "available": false
+      },
+      "4": {
+        "windows": 267,
+        "residual_q90_covered": 260,
+        "advance_above_q10": 260,
+        "confirmed": 1,
+        "ambiguous": 0,
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 6.0,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "40": {
+        "windows": 188,
+        "residual_q90_covered": 175,
+        "advance_above_q10": 186,
+        "confirmed": 4,
+        "ambiguous": 10,
+        "E": 39,
+        "K": 5,
+        "W": 2,
+        "T_med": 6.0,
+        "reference_episodes": 39,
+        "available": true
+      },
+      "41": {
+        "windows": 258,
+        "residual_q90_covered": 248,
+        "advance_above_q10": 234,
+        "confirmed": 4,
+        "ambiguous": 10,
+        "E": 39,
+        "K": 5,
+        "W": 2,
+        "T_med": 8.0,
+        "reference_episodes": 39,
+        "available": true
+      },
+      "42": {
+        "windows": 0,
+        "residual_q90_covered": 0,
+        "advance_above_q10": 0,
+        "confirmed": 0,
+        "ambiguous": 0,
+        "E": 0,
+        "K": 0,
+        "W": 2,
+        "T_med": 0.0,
+        "reference_episodes": 0,
+        "available": false
+      },
+      "43": {
+        "windows": 54,
+        "residual_q90_covered": 51,
+        "advance_above_q10": 54,
+        "confirmed": 0,
+        "ambiguous": 14,
+        "E": 13,
+        "K": 5,
+        "W": 2,
+        "T_med": 5.0,
+        "reference_episodes": 13,
+        "available": true
+      },
+      "44": {
+        "windows": 98,
+        "residual_q90_covered": 92,
+        "advance_above_q10": 79,
+        "confirmed": 10,
+        "ambiguous": 12,
+        "E": 25,
+        "K": 5,
+        "W": 2,
+        "T_med": 4.0,
+        "reference_episodes": 25,
+        "available": true
+      },
+      "45": {
+        "windows": 54,
+        "residual_q90_covered": 54,
+        "advance_above_q10": 54,
+        "confirmed": 0,
+        "ambiguous": 14,
+        "E": 7,
+        "K": 5,
+        "W": 2,
+        "T_med": 9.0,
+        "reference_episodes": 7,
+        "available": true
+      },
+      "46": {
+        "windows": 36,
+        "residual_q90_covered": 36,
+        "advance_above_q10": 36,
+        "confirmed": 0,
+        "ambiguous": 7,
+        "E": 8,
+        "K": 5,
+        "W": 2,
+        "T_med": 5.5,
+        "reference_episodes": 8,
+        "available": true
+      },
+      "47": {
+        "windows": 158,
+        "residual_q90_covered": 148,
+        "advance_above_q10": 149,
+        "confirmed": 9,
+        "ambiguous": 11,
+        "E": 22,
+        "K": 5,
+        "W": 2,
+        "T_med": 8.0,
+        "reference_episodes": 22,
+        "available": true
+      },
+      "48": {
+        "windows": 381,
+        "residual_q90_covered": 369,
+        "advance_above_q10": 372,
+        "confirmed": 5,
+        "ambiguous": 0,
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 9.0,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "49": {
+        "windows": 354,
+        "residual_q90_covered": 331,
+        "advance_above_q10": 351,
+        "confirmed": 2,
+        "ambiguous": 0,
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 8.0,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "5": {
+        "windows": 217,
+        "residual_q90_covered": 216,
+        "advance_above_q10": 217,
+        "confirmed": 1,
+        "ambiguous": 0,
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 5.0,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "6": {
+        "windows": 221,
+        "residual_q90_covered": 211,
+        "advance_above_q10": 219,
+        "confirmed": 0,
+        "ambiguous": 0,
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 5.0,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "7": {
+        "windows": 242,
+        "residual_q90_covered": 229,
+        "advance_above_q10": 216,
+        "confirmed": 12,
+        "ambiguous": 2,
+        "E": 49,
+        "K": 5,
+        "W": 2,
+        "T_med": 6.0,
+        "reference_episodes": 49,
+        "available": true
+      },
+      "8": {
+        "windows": 117,
+        "residual_q90_covered": 114,
+        "advance_above_q10": 117,
+        "confirmed": 2,
+        "ambiguous": 0,
+        "E": 50,
+        "K": 5,
+        "W": 2,
+        "T_med": 3.0,
+        "reference_episodes": 50,
+        "available": true
+      },
+      "9": {
+        "windows": 271,
+        "residual_q90_covered": 248,
+        "advance_above_q10": 256,
+        "confirmed": 8,
+        "ambiguous": 35,
+        "E": 34,
+        "K": 5,
+        "W": 2,
+        "T_med": 8.0,
+        "reference_episodes": 34,
+        "available": true
+      }
+    },
+    "residual_q90_empirical_coverage": 0.9475962633857371,
+    "advance_q10_empirical_coverage": 0.9486215538847118,
+    "successful_window_confirmed_rate": 0.023353839143312828,
+    "scope": "Original successful-library LOEO empirical quantiles; no online FAR/conformal guarantee"
+  },
+  "metric_identical": true,
+  "input_heads": 26728,
+  "input_native_rows": 52637,
+  "target_constants": {
+    "window_fraction": 0.05,
+    "minimum_window_intervals": 2,
+    "max_templates": 5,
+    "error_quantile": 0.9,
+    "advance_quantile": 0.1,
+    "minimum_reference_episodes": 4
+  }
+}

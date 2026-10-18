@@ -1,0 +1,18 @@
+{
+  "run": "fa_co_f_f_o",
+  "model": "cosmos",
+  "domain": "libero",
+  "server_node": "h100",
+  "file": "/data/mw_finetune/eval/fa_co_f_f_o/driver/per_step.jsonl",
+  "bytes": 315852693,
+  "inode": 103156090,
+  "mtime_ns": 1792280666045070246,
+  "live": false,
+  "changed_during_scan": false,
+  "episodes": 2985,
+  "affected": false,
+  "rows": 94021,
+  "cut_percent": 0.0,
+  "groups": {},
+  "examples": []
+}

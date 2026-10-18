@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "episodes": 2500,
+  "UID_init_seed_equal": true,
+  "actual_recipe_identity_changed": true,
+  "details": {
+    "changed_yamls": 1,
+    "artifacts": {
+      "f2a99cc6b3f9bfe44fa0dd6e4b8d5f87c3e327dce709418839cbb2c0d189c66d": {
+        "path": "/data/mw_finetune/eval/dpmk1_redx/assets/cache_inputs/mt50/n250_C10/stall_decision1018",
+        "digest": "2f6f5bd773d10d996704a6de9034c816711e804b6a62fd046c83d6b07cbfc4e0",
+        "files": {
+          "stall.pkl": "3eefe7ce14e59ebcac480ca124ae10c758bdbfcb73d2447aaa2dece92f7a3db1",
+          "stall.json": "269d8d471031f691b315306ed74ad3d8b47c0c2c167a5f2dba9f76bbd632792e",
+          "stall.loeo.csv": "385b4f202436f5e8e189ce4a6e319628cbf77d14f5d65f5bcd06d14c6967da5f"
+        }
+      }
+    }
+  }
+}

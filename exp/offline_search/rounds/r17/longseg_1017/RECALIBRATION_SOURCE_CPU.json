@@ -1,0 +1,32 @@
+{
+  "status": "PASS_SOURCE_CONTRADICTIONS_REPRODUCED",
+  "tests": 2,
+  "synthetic_seven_head_solver": {
+    "schema": "r17.ir_calibration.v1",
+    "target": 0.1,
+    "setting": 6.299,
+    "unrounded_setting": 6.298970878124237,
+    "solve_status": "ok",
+    "pred_IR_lib": 0.0,
+    "pred_IR_rounded": 0.0,
+    "N": 7,
+    "V": 7,
+    "M": 0,
+    "costs": {
+      "vision": 0,
+      "miss": 1
+    },
+    "pricing_definition": "(vision*V+miss(K)*M)/N",
+    "library_only": true
+  },
+  "original_calibration": {
+    "model": "dp",
+    "suite": "libero_spatial",
+    "size": 50,
+    "nominal": 0.5,
+    "gap": 0.4909,
+    "pred": 0.501195219123506,
+    "status": "ok"
+  },
+  "claims": "No recalibration or new startup proof is claimed by these two checks."
+}

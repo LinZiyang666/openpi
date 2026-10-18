@@ -1,0 +1,352 @@
+{
+  "status": "PASS",
+  "units": 7,
+  "inputs": 11,
+  "rows": [
+    {
+      "name": "fa_ls_timing_dp_m_4",
+      "suite": "mt50",
+      "load_sha256": "ec4c002ba444f2a7f0ad100fdc1ae22065adc74fb29b20411f4c811f48a4371c",
+      "inputs": {
+        "source": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/profile_bundles/fa_ls_timing_dp_m_4/mt50.npz",
+        "source_sha256": "3f1266ef16e9e7843f6a7b247415097d77e64881b29c4cda668016818b3f2f9c",
+        "row": 0,
+        "benchmark_protocol": null,
+        "prompt": "Pick up a nut and place it onto a peg",
+        "prompt_sha256": "1bbcbbb4f026ad03aa7b00412764f7a4c28f83ade218c1cb21133d854e87b79b",
+        "geometry": {
+          "observation/image": [
+            480,
+            480,
+            3
+          ],
+          "observation/state": [
+            4
+          ]
+        },
+        "observation_sha256": {
+          "observation/image": "8693ea653bca3d57721e668a41d7b2fe91b6d06d9e811680b4116f8f8ee40d8d",
+          "observation/state": "0d93b933795d21b102cfa99467b109a619f6053909bf7d19e84c76c42a89ec20"
+        }
+      }
+    },
+    {
+      "name": "fa_ls_timing_gr_m_h",
+      "suite": "mt50",
+      "load_sha256": "eb48156d13833b64cd77caa5dc0219981a557233fd59788c23eaed2d1fc87747",
+      "inputs": {
+        "source": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/profile_bundles/fa_ls_timing_gr_m_h/mt50.npz",
+        "source_sha256": "3f1266ef16e9e7843f6a7b247415097d77e64881b29c4cda668016818b3f2f9c",
+        "row": 0,
+        "benchmark_protocol": null,
+        "prompt": "Pick up a nut and place it onto a peg",
+        "prompt_sha256": "1bbcbbb4f026ad03aa7b00412764f7a4c28f83ade218c1cb21133d854e87b79b",
+        "geometry": {
+          "observation/image": [
+            480,
+            480,
+            3
+          ],
+          "observation/state": [
+            4
+          ]
+        },
+        "observation_sha256": {
+          "observation/image": "8693ea653bca3d57721e668a41d7b2fe91b6d06d9e811680b4116f8f8ee40d8d",
+          "observation/state": "0d93b933795d21b102cfa99467b109a619f6053909bf7d19e84c76c42a89ec20"
+        }
+      }
+    },
+    {
+      "name": "fa_ls_timing_fw_m_h",
+      "suite": "mt50",
+      "load_sha256": "ec6405e93277f9f0c3c9c91ea3f6c0c974b71cc89d007c427c53753d72687902",
+      "inputs": {
+        "source": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/profile_bundles/fa_ls_timing_fw_m_h/mt50.npz",
+        "source_sha256": "3f1266ef16e9e7843f6a7b247415097d77e64881b29c4cda668016818b3f2f9c",
+        "row": 0,
+        "benchmark_protocol": null,
+        "prompt": "Pick up a nut and place it onto a peg",
+        "prompt_sha256": "1bbcbbb4f026ad03aa7b00412764f7a4c28f83ade218c1cb21133d854e87b79b",
+        "geometry": {
+          "observation/image": [
+            480,
+            480,
+            3
+          ],
+          "observation/state": [
+            4
+          ]
+        },
+        "observation_sha256": {
+          "observation/image": "8693ea653bca3d57721e668a41d7b2fe91b6d06d9e811680b4116f8f8ee40d8d",
+          "observation/state": "0d93b933795d21b102cfa99467b109a619f6053909bf7d19e84c76c42a89ec20"
+        }
+      }
+    },
+    {
+      "name": "fa_ls_timing_dp_l_4",
+      "suite": "libero_10",
+      "load_sha256": "867a224034590fe8c48d772cb47838df4a72bd60ac237424eea7b554547eb659",
+      "inputs": {
+        "source": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/profile_bundles/fa_ls_timing_dp_l_4/libero_10.npz",
+        "source_sha256": "b756ca64940d5288220e5fb82ad8fd2a253556997b0a74c22ce61573bf4bda77",
+        "row": 0,
+        "benchmark_protocol": null,
+        "prompt": "put both the alphabet soup and the tomato sauce in the basket",
+        "prompt_sha256": "8405398832a6d730162b72e7768751f45e16ade5b47cfd3bb37f37632087c1e0",
+        "geometry": {
+          "observation/image": [
+            256,
+            256,
+            3
+          ],
+          "observation/wrist_image": [
+            256,
+            256,
+            3
+          ],
+          "observation/state": [
+            8
+          ]
+        },
+        "observation_sha256": {
+          "observation/image": "3cbff54aadcd2189643a7954042349bf24ad5d00ed95202536bcf485530ca53d",
+          "observation/wrist_image": "42cf0aa5d816fefe3f4d46ba28cdbfd9b26044f2678af8071729040d809c382a",
+          "observation/state": "a42dbe1253cca085637081969f35f143d38022dd7bb9cd6e07bdcf556dad70e6"
+        }
+      }
+    },
+    {
+      "name": "fa_ls_timing_dp_l_4",
+      "suite": "libero_spatial",
+      "load_sha256": "867a224034590fe8c48d772cb47838df4a72bd60ac237424eea7b554547eb659",
+      "inputs": {
+        "source": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/profile_bundles/fa_ls_timing_dp_l_4/libero_spatial.npz",
+        "source_sha256": "facbb1e193a89054987cef03d93c9cee25787d04df4ed3bd9f1d20bd546cc9fe",
+        "row": 0,
+        "benchmark_protocol": null,
+        "prompt": "pick up the black bowl between the plate and the ramekin and place it on the plate",
+        "prompt_sha256": "0a91f8c396de41e282d3640365a14df8f0090791bbf2c2eb917423f4779752a9",
+        "geometry": {
+          "observation/image": [
+            256,
+            256,
+            3
+          ],
+          "observation/wrist_image": [
+            256,
+            256,
+            3
+          ],
+          "observation/state": [
+            8
+          ]
+        },
+        "observation_sha256": {
+          "observation/image": "70d580d36367ea2a6ec737e2231c7c79b5209c5627242d210a592a433953c9d3",
+          "observation/wrist_image": "53c29c69f1000af71a755632173d4a221dfaf64953128f8ad18f0ef628a8fc8c",
+          "observation/state": "6cf71871f741344334739b680e0ae3f8285df69c327682fd6a816f7a32541bcc"
+        }
+      }
+    },
+    {
+      "name": "fa_ls_timing_fw_l_h",
+      "suite": "libero_10",
+      "load_sha256": "370c4d4f058a9b3ea0b9db33e96713688e1d64d51558cc747271da183eb25ce1",
+      "inputs": {
+        "source": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/profile_bundles/fa_ls_timing_fw_l_h/libero_10.npz",
+        "source_sha256": "b756ca64940d5288220e5fb82ad8fd2a253556997b0a74c22ce61573bf4bda77",
+        "row": 0,
+        "benchmark_protocol": null,
+        "prompt": "put both the alphabet soup and the tomato sauce in the basket",
+        "prompt_sha256": "8405398832a6d730162b72e7768751f45e16ade5b47cfd3bb37f37632087c1e0",
+        "geometry": {
+          "observation/image": [
+            256,
+            256,
+            3
+          ],
+          "observation/wrist_image": [
+            256,
+            256,
+            3
+          ],
+          "observation/state": [
+            8
+          ]
+        },
+        "observation_sha256": {
+          "observation/image": "3cbff54aadcd2189643a7954042349bf24ad5d00ed95202536bcf485530ca53d",
+          "observation/wrist_image": "42cf0aa5d816fefe3f4d46ba28cdbfd9b26044f2678af8071729040d809c382a",
+          "observation/state": "a42dbe1253cca085637081969f35f143d38022dd7bb9cd6e07bdcf556dad70e6"
+        }
+      }
+    },
+    {
+      "name": "fa_ls_timing_fw_l_h",
+      "suite": "libero_spatial",
+      "load_sha256": "370c4d4f058a9b3ea0b9db33e96713688e1d64d51558cc747271da183eb25ce1",
+      "inputs": {
+        "source": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/profile_bundles/fa_ls_timing_fw_l_h/libero_spatial.npz",
+        "source_sha256": "d40db21d0a5a1a4217f9f4f6b0950892d06cfd1a1be29d6277f9c6b18fdcf577",
+        "row": 0,
+        "benchmark_protocol": null,
+        "prompt": "pick up the black bowl between the plate and the ramekin and place it on the plate",
+        "prompt_sha256": "0a91f8c396de41e282d3640365a14df8f0090791bbf2c2eb917423f4779752a9",
+        "geometry": {
+          "observation/image": [
+            256,
+            256,
+            3
+          ],
+          "observation/wrist_image": [
+            256,
+            256,
+            3
+          ],
+          "observation/state": [
+            8
+          ]
+        },
+        "observation_sha256": {
+          "observation/image": "355b26e5528c09634598d84958acba10c28323c8ed0ba3d6b897093728802744",
+          "observation/wrist_image": "53c29c69f1000af71a755632173d4a221dfaf64953128f8ad18f0ef628a8fc8c",
+          "observation/state": "6cf71871f741344334739b680e0ae3f8285df69c327682fd6a816f7a32541bcc"
+        }
+      }
+    },
+    {
+      "name": "fa_ls_timing_fw_l_4",
+      "suite": "libero_10",
+      "load_sha256": "fe02349caad41f19612ad3f286269d66853e5614c0550a820168000800811d33",
+      "inputs": {
+        "source": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/profile_bundles/fa_ls_timing_fw_l_4/libero_10.npz",
+        "source_sha256": "b756ca64940d5288220e5fb82ad8fd2a253556997b0a74c22ce61573bf4bda77",
+        "row": 0,
+        "benchmark_protocol": null,
+        "prompt": "put both the alphabet soup and the tomato sauce in the basket",
+        "prompt_sha256": "8405398832a6d730162b72e7768751f45e16ade5b47cfd3bb37f37632087c1e0",
+        "geometry": {
+          "observation/image": [
+            256,
+            256,
+            3
+          ],
+          "observation/wrist_image": [
+            256,
+            256,
+            3
+          ],
+          "observation/state": [
+            8
+          ]
+        },
+        "observation_sha256": {
+          "observation/image": "3cbff54aadcd2189643a7954042349bf24ad5d00ed95202536bcf485530ca53d",
+          "observation/wrist_image": "42cf0aa5d816fefe3f4d46ba28cdbfd9b26044f2678af8071729040d809c382a",
+          "observation/state": "a42dbe1253cca085637081969f35f143d38022dd7bb9cd6e07bdcf556dad70e6"
+        }
+      }
+    },
+    {
+      "name": "fa_ls_timing_fw_l_4",
+      "suite": "libero_spatial",
+      "load_sha256": "fe02349caad41f19612ad3f286269d66853e5614c0550a820168000800811d33",
+      "inputs": {
+        "source": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/profile_bundles/fa_ls_timing_fw_l_4/libero_spatial.npz",
+        "source_sha256": "d40db21d0a5a1a4217f9f4f6b0950892d06cfd1a1be29d6277f9c6b18fdcf577",
+        "row": 0,
+        "benchmark_protocol": null,
+        "prompt": "pick up the black bowl between the plate and the ramekin and place it on the plate",
+        "prompt_sha256": "0a91f8c396de41e282d3640365a14df8f0090791bbf2c2eb917423f4779752a9",
+        "geometry": {
+          "observation/image": [
+            256,
+            256,
+            3
+          ],
+          "observation/wrist_image": [
+            256,
+            256,
+            3
+          ],
+          "observation/state": [
+            8
+          ]
+        },
+        "observation_sha256": {
+          "observation/image": "355b26e5528c09634598d84958acba10c28323c8ed0ba3d6b897093728802744",
+          "observation/wrist_image": "53c29c69f1000af71a755632173d4a221dfaf64953128f8ad18f0ef628a8fc8c",
+          "observation/state": "6cf71871f741344334739b680e0ae3f8285df69c327682fd6a816f7a32541bcc"
+        }
+      }
+    },
+    {
+      "name": "fa_ls_timing_co_l_h",
+      "suite": "libero_10",
+      "load_sha256": "a8571769b53cbc829b42b172d711e68e28b820ea9d9cecfc295c67e1995ff722",
+      "inputs": {
+        "source": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/profile_bundles/fa_ls_timing_co_l_h/libero_10.npz",
+        "source_sha256": "bbc6e31d1c2fd4f683d72697809a468758fbb735d000be96222f4d65ade85d3f",
+        "row": 0,
+        "benchmark_protocol": null,
+        "prompt": "put both the alphabet soup and the tomato sauce in the basket",
+        "prompt_sha256": "8405398832a6d730162b72e7768751f45e16ade5b47cfd3bb37f37632087c1e0",
+        "geometry": {
+          "observation/image": [
+            256,
+            256,
+            3
+          ],
+          "observation/wrist_image": [
+            256,
+            256,
+            3
+          ],
+          "observation/cosmos_proprio": [
+            9
+          ]
+        },
+        "observation_sha256": {
+          "observation/image": "3cbff54aadcd2189643a7954042349bf24ad5d00ed95202536bcf485530ca53d",
+          "observation/wrist_image": "42cf0aa5d816fefe3f4d46ba28cdbfd9b26044f2678af8071729040d809c382a",
+          "observation/cosmos_proprio": "3fb4796ab136e2e69bc3f667ee57b29eaaf52ff24148997772acef454e768e2d"
+        }
+      }
+    },
+    {
+      "name": "fa_ls_timing_co_l_h",
+      "suite": "libero_spatial",
+      "load_sha256": "a8571769b53cbc829b42b172d711e68e28b820ea9d9cecfc295c67e1995ff722",
+      "inputs": {
+        "source": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/profile_bundles/fa_ls_timing_co_l_h/libero_spatial.npz",
+        "source_sha256": "3942a99e30ea8ca78f9a3f766319008c96d1badd593cba10b102647d49f3deca",
+        "row": 0,
+        "benchmark_protocol": null,
+        "prompt": "pick up the black bowl between the plate and the ramekin and place it on the plate",
+        "prompt_sha256": "0a91f8c396de41e282d3640365a14df8f0090791bbf2c2eb917423f4779752a9",
+        "geometry": {
+          "observation/image": [
+            256,
+            256,
+            3
+          ],
+          "observation/wrist_image": [
+            256,
+            256,
+            3
+          ],
+          "observation/cosmos_proprio": [
+            9
+          ]
+        },
+        "observation_sha256": {
+          "observation/image": "57d8415c63004ab8d82bb590b12ef725d29ffc319570a4b094e895883aacad04",
+          "observation/wrist_image": "43062f3edefb29534766eb041a9b08494758a20a6fb2054435e7a29e8a308e34",
+          "observation/cosmos_proprio": "11b70c5ad1bbcc79b0707621b42d9a281a2cb47b5afd7674e3af87cdacabeb30"
+        }
+      }
+    }
+  ]
+}

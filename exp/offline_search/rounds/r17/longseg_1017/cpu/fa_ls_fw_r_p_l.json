@@ -1,0 +1,36 @@
+{
+  "name": "fa_ls_fw_r_p_l",
+  "status": "PASS",
+  "native_strict_loader_proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/startup_checks/ffk1015_fastwam_libero_reduced_formal_A_original_levels.json",
+  "native_strict_loader_path": "fastwam.loader.seal_descriptor/inspect_config/read_stats -> native CPU scheduler -> make_manifest",
+  "descriptor_bytes_equal": {
+    "load.json": true,
+    "model_spec.json": true,
+    "model_manifest.json": true,
+    "benchmark.json": true,
+    "full.yaml": true
+  },
+  "fresh_frozen_interpreter_probe": {
+    "packages": {
+      "torch": "2.7.1+cu128",
+      "torchvision": "0.22.1+cu128",
+      "diffusers": "0.39.0",
+      "transformers": "5.5.4",
+      "numpy": "2.2.6",
+      "safetensors": "0.8.0"
+    },
+    "python": "/data/mw_finetune/envs/fastwam/bin/python",
+    "bootstrap_imported": true,
+    "cuda_initialized": false
+  },
+  "model_identity_equal": true,
+  "sealed_metadata_equal_to_actual": true,
+  "weights_and_fit_reread": false,
+  "immutable_inputs_same_inodes": true,
+  "planner_episodes": 1000,
+  "unique_task_uids": 1000,
+  "source_native_plan_equal": null,
+  "mps_pipe": "/data/mw_finetune/eval/fa_ls_fw_r_p_l/mps/e5681f/p",
+  "mps_pipe_bytes": 50,
+  "fresh_native_dp_startup_admission_checked": false
+}

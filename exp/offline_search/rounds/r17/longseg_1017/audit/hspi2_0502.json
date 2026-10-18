@@ -1,0 +1,30 @@
+{
+  "run": "hspi2_0502",
+  "model": "pi05",
+  "domain": "metaworld",
+  "server_node": "local",
+  "file": "/data/mw_finetune/eval/hspi2_0502/driver/per_step.jsonl",
+  "bytes": 1358033,
+  "sample_bytes": 1358033,
+  "sample_rows": 502,
+  "sample_limit_bytes": 16777216,
+  "sample_limit_lines": 16000,
+  "scan_kind": "bounded_windows",
+  "samples": [
+    {
+      "offset": 0,
+      "bytes": 1358033,
+      "rows": 502
+    }
+  ],
+  "inode": 44310583,
+  "mtime_ns": 1791887726652643347,
+  "live": false,
+  "changed_during_scan": false,
+  "episodes": 8,
+  "affected": false,
+  "rows": 502,
+  "cut_percent": 0.0,
+  "groups": {},
+  "examples": []
+}

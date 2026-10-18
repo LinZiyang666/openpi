@@ -1,0 +1,65 @@
+{
+  "run": "hs2_cosmos_h100_k2incl_c16_t107_20261010_115120",
+  "model": "cosmos",
+  "domain": "libero",
+  "server_node": "h100",
+  "file": "/data/mw_finetune/eval/hs2_cosmos_h100_k2incl_c16_t107_20261010_115120/driver/per_step.jsonl",
+  "bytes": 59517953,
+  "sample_bytes": 16764651,
+  "sample_rows": 7018,
+  "sample_limit_bytes": 16777216,
+  "sample_limit_lines": 16000,
+  "scan_kind": "bounded_windows",
+  "samples": [
+    {
+      "offset": 0,
+      "bytes": 2094495,
+      "rows": 903
+    },
+    {
+      "offset": 8203356,
+      "bytes": 2094421,
+      "rows": 894
+    },
+    {
+      "offset": 16406809,
+      "bytes": 2095610,
+      "rows": 879
+    },
+    {
+      "offset": 24611936,
+      "bytes": 2095633,
+      "rows": 870
+    },
+    {
+      "offset": 32813036,
+      "bytes": 2097143,
+      "rows": 864
+    },
+    {
+      "offset": 41015705,
+      "bytes": 2094552,
+      "rows": 860
+    },
+    {
+      "offset": 49218471,
+      "bytes": 2096576,
+      "rows": 873
+    },
+    {
+      "offset": 57421732,
+      "bytes": 2096221,
+      "rows": 875
+    }
+  ],
+  "inode": 29626343,
+  "mtime_ns": 1791652775064179422,
+  "live": false,
+  "changed_during_scan": false,
+  "episodes": 297,
+  "affected": false,
+  "rows": 7018,
+  "cut_percent": 0.0,
+  "groups": {},
+  "examples": []
+}

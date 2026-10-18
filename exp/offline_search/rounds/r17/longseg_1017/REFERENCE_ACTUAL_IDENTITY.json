@@ -1,0 +1,64 @@
+{
+  "rows": [
+    {
+      "key": "dp:mt50:reduced:RTX 4090",
+      "reference": "/data/mw_finetune/eval/fa_ls_dp_r_b_m",
+      "new_matching_control": true
+    },
+    {
+      "key": "dp:mt50:full:RTX 4090",
+      "reference": "/data/mw_finetune/eval/fa_ls_dp_f_b_m",
+      "new_matching_control": true
+    },
+    {
+      "key": "groot:mt50:reduced:H100",
+      "reference": "/data/mw_finetune/eval/tgr7h1_k2",
+      "actual_ready_matches_fresh_loader": true,
+      "ready_count": 8,
+      "differences": []
+    },
+    {
+      "key": "groot:mt50:full:H100",
+      "reference": "/data/mw_finetune/eval/tgr7h1_full",
+      "actual_ready_matches_fresh_loader": true,
+      "ready_count": 8,
+      "differences": []
+    },
+    {
+      "key": "fastwam:mt50:reduced:H100",
+      "reference": "/data/mw_finetune/eval/tfw7k3_1051",
+      "actual_ready_matches_fresh_loader": true,
+      "ready_count": 3,
+      "differences": []
+    },
+    {
+      "key": "fastwam:mt50:full:H100",
+      "reference": "/data/mw_finetune/eval/tfw7full_0944",
+      "actual_ready_matches_fresh_loader": true,
+      "ready_count": 3,
+      "differences": []
+    },
+    {
+      "key": "dp:libero:reduced:RTX 4090",
+      "reference": "/data/mw_finetune/eval/fa_ls_dp_r_b_l",
+      "new_matching_control": true
+    },
+    {
+      "key": "dp:libero:full:RTX 4090",
+      "reference": "/data/mw_finetune/eval/fa_ls_dp_f_b_l",
+      "new_matching_control": true
+    },
+    {
+      "key": "fastwam:libero:reduced:RTX 4090",
+      "reference": "/data/mw_finetune/eval/hs7fwk1_4090c",
+      "actual_ready_matches_fresh_loader": true,
+      "ready_count": 2,
+      "differences": []
+    },
+    {
+      "key": "fastwam:libero:full:H100",
+      "reference": "/data/mw_finetune/eval/fa_ls_fw_f_b_l",
+      "new_matching_control": true
+    }
+  ]
+}

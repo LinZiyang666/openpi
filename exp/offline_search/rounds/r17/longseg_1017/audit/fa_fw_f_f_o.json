@@ -1,0 +1,155 @@
+{
+  "run": "fa_fw_f_f_o",
+  "model": "fastwam",
+  "domain": "libero",
+  "server_node": "h100",
+  "file": "/data/mw_finetune/eval/fa_fw_f_f_o/driver/per_step.jsonl",
+  "bytes": 2436347121,
+  "inode": 103154724,
+  "mtime_ns": 1792266594689567300,
+  "live": false,
+  "changed_during_scan": false,
+  "episodes": 6000,
+  "affected": true,
+  "rows": 532072,
+  "eligible_heads": 133116,
+  "tails": 127240,
+  "cuts": 5876,
+  "cut_percent": 4.414195138075062,
+  "groups": {
+    "n100_chrg_koff": {
+      "eligible_heads": 22612,
+      "tails": 21580,
+      "cuts": 1032,
+      "cut_percent": 4.563948346010967
+    },
+    "n200_chrg_koff": {
+      "eligible_heads": 22078,
+      "tails": 21223,
+      "cuts": 855,
+      "cut_percent": 3.87263339070568
+    },
+    "n300_chrg_koff": {
+      "eligible_heads": 21275,
+      "tails": 20512,
+      "cuts": 763,
+      "cut_percent": 3.5863689776733256
+    },
+    "n400_chrg_koff": {
+      "eligible_heads": 21363,
+      "tails": 20660,
+      "cuts": 703,
+      "cut_percent": 3.2907363198052706
+    },
+    "n500_chrg_koff": {
+      "eligible_heads": 21417,
+      "tails": 20684,
+      "cuts": 733,
+      "cut_percent": 3.4225148246719894
+    },
+    "n50_chrg_koff": {
+      "eligible_heads": 24371,
+      "tails": 22581,
+      "cuts": 1790,
+      "cut_percent": 7.344795043289155
+    }
+  },
+  "examples": [
+    {
+      "task_uid": "r17_013c37ae1477c2e52de3_n100_chrg_koff:eval:30:2",
+      "head_seq": 30,
+      "next_seq": 31,
+      "head_step": 150,
+      "next_step": 155,
+      "head_source": "library",
+      "next_source": "library",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n100_chrg_koff"
+    },
+    {
+      "task_uid": "r17_013c37ae1477c2e52de3_n100_chrg_koff:eval:31:7",
+      "head_seq": 30,
+      "next_seq": 31,
+      "head_step": 150,
+      "next_step": 155,
+      "head_source": "library",
+      "next_source": "library",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n100_chrg_koff"
+    },
+    {
+      "task_uid": "r17_013c37ae1477c2e52de3_n100_chrg_koff:eval:31:3",
+      "head_seq": 28,
+      "next_seq": 29,
+      "head_step": 140,
+      "next_step": 145,
+      "head_source": "library",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n100_chrg_koff"
+    },
+    {
+      "task_uid": "r17_013c37ae1477c2e52de3_n100_chrg_koff:eval:31:10",
+      "head_seq": 48,
+      "next_seq": 49,
+      "head_step": 240,
+      "next_step": 245,
+      "head_source": "library",
+      "next_source": "library",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n100_chrg_koff"
+    },
+    {
+      "task_uid": "r17_013c37ae1477c2e52de3_n100_chrg_koff:eval:30:26",
+      "head_seq": 26,
+      "next_seq": 27,
+      "head_step": 130,
+      "next_step": 135,
+      "head_source": "library",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n100_chrg_koff"
+    },
+    {
+      "task_uid": "r17_013c37ae1477c2e52de3_n100_chrg_koff:eval:30:43",
+      "head_seq": 14,
+      "next_seq": 15,
+      "head_step": 70,
+      "next_step": 75,
+      "head_source": "library",
+      "next_source": "library",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n100_chrg_koff"
+    },
+    {
+      "task_uid": "r17_013c37ae1477c2e52de3_n100_chrg_koff:eval:30:43",
+      "head_seq": 31,
+      "next_seq": 32,
+      "head_step": 155,
+      "next_step": 160,
+      "head_source": "library",
+      "next_source": "library",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n100_chrg_koff"
+    },
+    {
+      "task_uid": "r17_013c37ae1477c2e52de3_n100_chrg_koff:eval:30:1",
+      "head_seq": 32,
+      "next_seq": 33,
+      "head_step": 160,
+      "next_step": 165,
+      "head_source": "library",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n100_chrg_koff"
+    }
+  ]
+}

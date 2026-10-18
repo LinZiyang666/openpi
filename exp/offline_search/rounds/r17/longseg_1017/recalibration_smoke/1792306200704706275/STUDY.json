@@ -1,0 +1,86 @@
+{
+  "artifacts_pending": [],
+  "controls": {
+    "cosmos_libero": "formal_cosmos_libero_official2000_20261010_130639_a8ca2043",
+    "dp_libero": "hs5dp_ctl_142812",
+    "fastwam_libero": "hs6fw_res_152931"
+  },
+  "digest": "0ba1b400b0bd067515c935c3e4dff6079d28ff85a1743a0e0c16dc7303596ed0",
+  "eval_pool": "A",
+  "groups": [
+    "chrg_k50"
+  ],
+  "horizon_selection": {
+    "cosmos": 16,
+    "dp": 10,
+    "fastwam": 10,
+    "status": "fallback_C10_pending_horizon_NI_freeze"
+  },
+  "inits": 50,
+  "knobs": true,
+  "library_sizes": [
+    250
+  ],
+  "miss_steps": "reduced",
+  "models": {
+    "dp_mw": [
+      {
+        "bundle_id": "r17cs_n250_mt50_chrg_k50_78ed2af24bce",
+        "bundle_identity": "a83913640f440968e67f25c105640c58944925f34bc79dae81d2d9b53e701ebc",
+        "file": "assets/cache_yamls/n250_mt50_chrg_k50.yaml",
+        "fit": "/data/r17_library/dp_mw_mt50/bpool/fits/size_5",
+        "fit_digest": "292668803ef1bb625d4c12ee65f226059a6b97cdbf649b4d3bedf53be8b79b2b",
+        "fit_rel": "mt50/n250_C10/fit",
+        "group": "chrg_k50",
+        "library": "/data/r17_library/dp_mw_mt50/bpool",
+        "library_size": 250,
+        "num_steps": 10,
+        "periodic_gap": 0.9301,
+        "recipe_identity": "f1d2eeda4e7886c0d8a1f4632dc0f5830065664b320129415e31a7badd9a6143",
+        "serve_loeo": false,
+        "settings": {
+          "alias": null,
+          "commit": 10,
+          "corrector": true,
+          "gated": true
+        },
+        "sha256": "5a3914708c75d8762cde17e934248ef4ed30ef9ea037be280af96789f391f4e8",
+        "stall": "/data/mw_finetune/eval/dpmk1_redx/assets/cache_inputs/mt50/n250_C10/stall_decision1018",
+        "stall_digest": "2f6f5bd773d10d996704a6de9034c816711e804b6a62fd046c83d6b07cbfc4e0",
+        "stall_rel": "../../../../../../../../../../../../../data/mw_finetune/eval/dpmk1_redx/assets/cache_inputs/mt50/n250_C10/stall_decision1018",
+        "status": "ARTIFACTS_READY_MODEL_ADMISSION_PENDING",
+        "suite": "mt50",
+        "view_rel": "mt50/parent/subsets/size_250",
+        "decision_ir_calibration": {
+          "new_gap": 0.9301,
+          "nominal_ir": 0.5,
+          "predicted_ir": 0.5,
+          "N": 2676,
+          "M": 1338,
+          "absolute_error": 0.0,
+          "tolerance": 0.005,
+          "passed": true,
+          "off_floor": 0.002242152466367713,
+          "pricing_definition": "M / N_segment_heads; tails excluded",
+          "scheduler": "R11 deterministic fractional gap; confirmed Q3 calls/cooldown and empty-LOEO MISS included"
+        },
+        "task_namespace": {
+          "yaml_identity": "0b36fa4b7b7937875771867781c5ab53323c55f43fa120303347e97652fc6364",
+          "bundle_identity": "78ed2af24bce30fe5662406de2c0bb9f777f3152644c3e31d81a1bcebd3db614",
+          "recipe_identity": "3aeac388b2b0a89d9ebbd25a03eba84d2e727c7c10eeb5be91ac794a23245217"
+        }
+      }
+    ]
+  },
+  "ordinary_miss": false,
+  "prereg_sha256": "1b733bec5da41d90b234caf27bd5282833699519d6049039b0be3e055c63b06e",
+  "rulings_sha256": "9c852a063cf5531d4412380245a29b7e75289e571b6298486d77fbb9482b28fb",
+  "schema": "r17.cache_study.v1",
+  "suites": [
+    "mt50"
+  ],
+  "filter_failed_knob": {
+    "source": "/data/mw_finetune/eval/fa_ls_dp_r_u_m",
+    "refit": false
+  }
+}

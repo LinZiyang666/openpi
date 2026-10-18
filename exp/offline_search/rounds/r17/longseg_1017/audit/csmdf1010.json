@@ -1,0 +1,80 @@
+{
+  "run": "csmdf1010",
+  "model": "dp",
+  "domain": "libero",
+  "server_node": "local",
+  "file": "/data/mw_finetune/eval/csmdf1010/driver/per_step.jsonl",
+  "bytes": 9710482,
+  "inode": 30157248,
+  "mtime_ns": 1791675496267007271,
+  "live": false,
+  "changed_during_scan": false,
+  "episodes": 32,
+  "affected": true,
+  "rows": 2538,
+  "eligible_heads": 279,
+  "tails": 276,
+  "cuts": 3,
+  "cut_percent": 1.075268817204301,
+  "groups": {
+    "ch": {
+      "eligible_heads": 70,
+      "tails": 70,
+      "cut_percent": 0.0
+    },
+    "chg": {
+      "eligible_heads": 70,
+      "tails": 70,
+      "cut_percent": 0.0
+    },
+    "chr": {
+      "eligible_heads": 69,
+      "tails": 69,
+      "cut_percent": 0.0
+    },
+    "chrg": {
+      "eligible_heads": 70,
+      "tails": 67,
+      "cuts": 3,
+      "cut_percent": 4.285714285714286
+    }
+  },
+  "examples": [
+    {
+      "task_uid": "r17_ac8fbc3432d4990ee37a_chrg:eval:31:0",
+      "head_seq": 26,
+      "next_seq": 27,
+      "head_step": 130,
+      "next_step": 135,
+      "head_source": "library",
+      "next_source": "library",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "chrg"
+    },
+    {
+      "task_uid": "r17_ac8fbc3432d4990ee37a_chrg:eval:30:0",
+      "head_seq": 26,
+      "next_seq": 27,
+      "head_step": 130,
+      "next_step": 135,
+      "head_source": "library",
+      "next_source": "library",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "chrg"
+    },
+    {
+      "task_uid": "r17_ac8fbc3432d4990ee37a_chrg:eval:30:0",
+      "head_seq": 37,
+      "next_seq": 38,
+      "head_step": 185,
+      "next_step": 190,
+      "head_source": "library",
+      "next_source": "library",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "chrg"
+    }
+  ]
+}

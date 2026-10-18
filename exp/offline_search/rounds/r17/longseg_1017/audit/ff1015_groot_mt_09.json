@@ -1,0 +1,65 @@
+{
+  "run": "ff1015_groot_mt_09",
+  "model": "groot",
+  "domain": "metaworld",
+  "server_node": "h100",
+  "file": "/data/mw_finetune/eval/ff1015_groot_mt_09/driver/per_step.jsonl",
+  "bytes": 635771137,
+  "sample_bytes": 16762462,
+  "sample_rows": 6077,
+  "sample_limit_bytes": 16777216,
+  "sample_limit_lines": 16000,
+  "scan_kind": "bounded_windows",
+  "samples": [
+    {
+      "offset": 0,
+      "bytes": 2094932,
+      "rows": 750
+    },
+    {
+      "offset": 90527267,
+      "bytes": 2094639,
+      "rows": 768
+    },
+    {
+      "offset": 181051353,
+      "bytes": 2096848,
+      "rows": 746
+    },
+    {
+      "offset": 271575963,
+      "bytes": 2095483,
+      "rows": 746
+    },
+    {
+      "offset": 362102194,
+      "bytes": 2094847,
+      "rows": 769
+    },
+    {
+      "offset": 452626204,
+      "bytes": 2096161,
+      "rows": 776
+    },
+    {
+      "offset": 543149690,
+      "bytes": 2094300,
+      "rows": 753
+    },
+    {
+      "offset": 633675885,
+      "bytes": 2095252,
+      "rows": 769
+    }
+  ],
+  "inode": 48913255,
+  "mtime_ns": 1792142667981221863,
+  "live": false,
+  "changed_during_scan": false,
+  "episodes": 128,
+  "affected": false,
+  "rows": 6077,
+  "cut_percent": 0.0,
+  "groups": {},
+  "examples": []
+}

@@ -1,0 +1,29 @@
+{
+  "run": "tdp7h1_full",
+  "model": "dp",
+  "domain": "metaworld",
+  "server_node": "h100",
+  "file": "/data/mw_finetune/eval/tdp7h1_full/driver/per_step.jsonl",
+  "bytes": 0,
+  "sample_bytes": 0,
+  "sample_rows": 0,
+  "sample_limit_bytes": 16777216,
+  "sample_limit_lines": 16000,
+  "scan_kind": "bounded_windows",
+  "samples": [
+    {
+      "offset": 0,
+      "bytes": 0,
+      "rows": 0
+    }
+  ],
+  "inode": 50879991,
+  "mtime_ns": 1792004682577205268,
+  "live": false,
+  "changed_during_scan": false,
+  "episodes": 0,
+  "affected": false,
+  "cut_percent": 0.0,
+  "groups": {},
+  "examples": []
+}

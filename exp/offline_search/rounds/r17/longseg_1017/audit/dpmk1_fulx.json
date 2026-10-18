@@ -1,0 +1,335 @@
+{
+  "run": "dpmk1_fulx",
+  "model": "dp",
+  "domain": "metaworld",
+  "server_node": "h100",
+  "file": "/data/mw_finetune/eval/dpmk1_fulx/driver/per_step.jsonl",
+  "bytes": 10184011537,
+  "inode": 48777434,
+  "mtime_ns": 1792024333986084540,
+  "live": false,
+  "changed_during_scan": false,
+  "episodes": 90000,
+  "affected": true,
+  "rows": 4058746,
+  "eligible_heads": 1213313,
+  "cuts": 498070,
+  "tails": 715243,
+  "cut_percent": 41.05041320747408,
+  "groups": {
+    "n1000_chrg_k10": {
+      "eligible_heads": 30512,
+      "tails": 24315,
+      "cuts": 6197,
+      "cut_percent": 20.31004195070792
+    },
+    "n1000_chrg_k20": {
+      "eligible_heads": 32852,
+      "tails": 21200,
+      "cuts": 11652,
+      "cut_percent": 35.46816023377572
+    },
+    "n1000_chrg_k30": {
+      "eligible_heads": 34593,
+      "cuts": 16734,
+      "tails": 17859,
+      "cut_percent": 48.37394848668806
+    },
+    "n1000_chrg_k40": {
+      "eligible_heads": 36540,
+      "tails": 15435,
+      "cuts": 21105,
+      "cut_percent": 57.758620689655174
+    },
+    "n1000_chrg_k50": {
+      "eligible_heads": 38973,
+      "cuts": 25866,
+      "tails": 13107,
+      "cut_percent": 66.3690247094142
+    },
+    "n1000_chrg_koff": {
+      "eligible_heads": 28518,
+      "tails": 26987,
+      "cuts": 1531,
+      "cut_percent": 5.3685391682446175
+    },
+    "n1500_chrg_k10": {
+      "eligible_heads": 30019,
+      "tails": 23453,
+      "cuts": 6566,
+      "cut_percent": 21.87281388453979
+    },
+    "n1500_chrg_k20": {
+      "eligible_heads": 32195,
+      "tails": 20599,
+      "cuts": 11596,
+      "cut_percent": 36.01801521975462
+    },
+    "n1500_chrg_k30": {
+      "eligible_heads": 34354,
+      "cuts": 16803,
+      "tails": 17551,
+      "cut_percent": 48.91133492460849
+    },
+    "n1500_chrg_k40": {
+      "eligible_heads": 36475,
+      "tails": 15294,
+      "cuts": 21181,
+      "cut_percent": 58.06991089787526
+    },
+    "n1500_chrg_k50": {
+      "eligible_heads": 38870,
+      "cuts": 25823,
+      "tails": 13047,
+      "cut_percent": 66.43426807306406
+    },
+    "n1500_chrg_koff": {
+      "eligible_heads": 27750,
+      "tails": 25887,
+      "cuts": 1863,
+      "cut_percent": 6.713513513513513
+    },
+    "n2000_chrg_k10": {
+      "eligible_heads": 29598,
+      "tails": 23467,
+      "cuts": 6131,
+      "cut_percent": 20.714237448476247
+    },
+    "n2000_chrg_k20": {
+      "eligible_heads": 32148,
+      "tails": 20958,
+      "cuts": 11190,
+      "cut_percent": 34.80776409107876
+    },
+    "n2000_chrg_k30": {
+      "eligible_heads": 34199,
+      "cuts": 16436,
+      "tails": 17763,
+      "cut_percent": 48.05988479195298
+    },
+    "n2000_chrg_k40": {
+      "eligible_heads": 36285,
+      "cuts": 20911,
+      "tails": 15374,
+      "cut_percent": 57.629874603830785
+    },
+    "n2000_chrg_k50": {
+      "eligible_heads": 38909,
+      "cuts": 25784,
+      "tails": 13125,
+      "cut_percent": 66.26744455010409
+    },
+    "n2000_chrg_koff": {
+      "eligible_heads": 27299,
+      "tails": 25770,
+      "cuts": 1529,
+      "cut_percent": 5.600937763288033
+    },
+    "n2500_chrg_k10": {
+      "eligible_heads": 29488,
+      "tails": 23396,
+      "cuts": 6092,
+      "cut_percent": 20.659251220835593
+    },
+    "n2500_chrg_k20": {
+      "eligible_heads": 31873,
+      "cuts": 11158,
+      "tails": 20715,
+      "cut_percent": 35.00768675681611
+    },
+    "n2500_chrg_k30": {
+      "eligible_heads": 34203,
+      "cuts": 16419,
+      "tails": 17784,
+      "cut_percent": 48.004561003420754
+    },
+    "n2500_chrg_k40": {
+      "eligible_heads": 36115,
+      "cuts": 20699,
+      "tails": 15416,
+      "cut_percent": 57.31413540080299
+    },
+    "n2500_chrg_k50": {
+      "eligible_heads": 38652,
+      "cuts": 25552,
+      "tails": 13100,
+      "cut_percent": 66.10783400600228
+    },
+    "n2500_chrg_koff": {
+      "eligible_heads": 27304,
+      "tails": 25780,
+      "cuts": 1524,
+      "cut_percent": 5.5815997656021095
+    },
+    "n250_chrg_k10": {
+      "eligible_heads": 32284,
+      "tails": 26220,
+      "cuts": 6064,
+      "cut_percent": 18.783298228224506
+    },
+    "n250_chrg_k20": {
+      "eligible_heads": 34464,
+      "tails": 22440,
+      "cuts": 12024,
+      "cut_percent": 34.88857938718663
+    },
+    "n250_chrg_k30": {
+      "eligible_heads": 35366,
+      "cuts": 16664,
+      "tails": 18702,
+      "cut_percent": 47.118701577786574
+    },
+    "n250_chrg_k40": {
+      "eligible_heads": 37279,
+      "cuts": 21379,
+      "tails": 15900,
+      "cut_percent": 57.348641326215834
+    },
+    "n250_chrg_k50": {
+      "eligible_heads": 39731,
+      "cuts": 26355,
+      "tails": 13376,
+      "cut_percent": 66.33359341572073
+    },
+    "n250_chrg_koff": {
+      "eligible_heads": 30544,
+      "tails": 29889,
+      "cuts": 655,
+      "cut_percent": 2.144447354635935
+    },
+    "n500_chrg_k10": {
+      "eligible_heads": 31662,
+      "tails": 25185,
+      "cuts": 6477,
+      "cut_percent": 20.456698881940497
+    },
+    "n500_chrg_k20": {
+      "eligible_heads": 33384,
+      "tails": 21421,
+      "cuts": 11963,
+      "cut_percent": 35.834531512101606
+    },
+    "n500_chrg_k30": {
+      "eligible_heads": 35023,
+      "cuts": 16952,
+      "tails": 18071,
+      "cut_percent": 48.40247837135597
+    },
+    "n500_chrg_k40": {
+      "eligible_heads": 36840,
+      "cuts": 21351,
+      "tails": 15489,
+      "cut_percent": 57.95602605863192
+    },
+    "n500_chrg_k50": {
+      "eligible_heads": 39492,
+      "cuts": 26211,
+      "tails": 13281,
+      "cut_percent": 66.37040413248253
+    },
+    "n500_chrg_koff": {
+      "eligible_heads": 29520,
+      "tails": 27887,
+      "cuts": 1633,
+      "cut_percent": 5.531842818428184
+    }
+  },
+  "examples": [
+    {
+      "task_uid": "r17_066686bc2cafff9468ae_n1500_chrg_k50:eval:0:0",
+      "head_seq": 0,
+      "next_seq": 1,
+      "head_step": 0,
+      "next_step": 5,
+      "head_source": "library",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n1500_chrg_k50"
+    },
+    {
+      "task_uid": "r17_066686bc2cafff9468ae_n1500_chrg_k50:eval:0:0",
+      "head_seq": 3,
+      "next_seq": 4,
+      "head_step": 15,
+      "next_step": 20,
+      "head_source": "library",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n1500_chrg_k50"
+    },
+    {
+      "task_uid": "r17_066686bc2cafff9468ae_n1500_chrg_k50:eval:0:0",
+      "head_seq": 6,
+      "next_seq": 7,
+      "head_step": 30,
+      "next_step": 35,
+      "head_source": "library",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n1500_chrg_k50"
+    },
+    {
+      "task_uid": "r17_066686bc2cafff9468ae_n1500_chrg_k50:eval:0:0",
+      "head_seq": 7,
+      "next_seq": 8,
+      "head_step": 35,
+      "next_step": 40,
+      "head_source": "policy",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n1500_chrg_k50"
+    },
+    {
+      "task_uid": "r17_066686bc2cafff9468ae_n1500_chrg_k50:eval:0:0",
+      "head_seq": 8,
+      "next_seq": 9,
+      "head_step": 40,
+      "next_step": 45,
+      "head_source": "policy",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n1500_chrg_k50"
+    },
+    {
+      "task_uid": "r17_066686bc2cafff9468ae_n1500_chrg_k50:eval:0:0",
+      "head_seq": 11,
+      "next_seq": 12,
+      "head_step": 55,
+      "next_step": 60,
+      "head_source": "library",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n1500_chrg_k50"
+    },
+    {
+      "task_uid": "r17_066686bc2cafff9468ae_n1500_chrg_k50:eval:0:0",
+      "head_seq": 14,
+      "next_seq": 15,
+      "head_step": 70,
+      "next_step": 75,
+      "head_source": "library",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n1500_chrg_k50"
+    },
+    {
+      "task_uid": "r17_066686bc2cafff9468ae_n1500_chrg_k50:eval:0:0",
+      "head_seq": 17,
+      "next_seq": 18,
+      "head_step": 85,
+      "next_step": 90,
+      "head_source": "library",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n1500_chrg_k50"
+    }
+  ]
+}

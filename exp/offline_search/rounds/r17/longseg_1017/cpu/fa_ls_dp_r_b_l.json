@@ -1,0 +1,36 @@
+{
+  "name": "fa_ls_dp_r_b_l",
+  "status": "PASS",
+  "native_strict_loader_proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/startup_checks/fa_dp_f_u_l.json",
+  "native_strict_loader_path": "qualification.model_runtime.load -> dp.loader.load_adapter(cpu)",
+  "descriptor_bytes_equal": {
+    "load.json": true,
+    "model_spec.json": true,
+    "model_manifest.json": true,
+    "benchmark.json": true,
+    "full.yaml": true
+  },
+  "fresh_frozen_interpreter_probe": {
+    "packages": {
+      "diffusers": "0.37.1",
+      "numpy": "1.26.4",
+      "safetensors": "0.7.0",
+      "torch": "2.7.1",
+      "torchvision": "0.22.1",
+      "transformers": "4.53.2"
+    },
+    "python": "/home/weiland/projects/openpi/.venv/bin/python",
+    "bootstrap_imported": true,
+    "cuda_initialized": false
+  },
+  "model_identity_equal": true,
+  "sealed_metadata_equal_to_actual": true,
+  "weights_and_fit_reread": false,
+  "immutable_inputs_same_inodes": true,
+  "planner_episodes": 1000,
+  "unique_task_uids": 1000,
+  "source_native_plan_equal": null,
+  "mps_pipe": "/data/mw_finetune/eval/fa_ls_dp_r_b_l/mps/e5681f/p",
+  "mps_pipe_bytes": 50,
+  "fresh_native_dp_startup_admission_checked": true
+}

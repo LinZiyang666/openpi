@@ -1,0 +1,173 @@
+{
+  "status": "PASS",
+  "rows": [
+    {
+      "name": "fa_ls_dp_r_u_l_l",
+      "status": "PASS",
+      "potential_episodes": 30000,
+      "unique_task_uids": 30000,
+      "UIDs_inits_seeds_equal": true,
+      "task_uid_sha256": "884798d02a04ccd55bd2b88111776cf7b2c20da98ae89f8b66ce7ff5ee70076c",
+      "descriptor_bytes_equal": {
+        "load.json": true,
+        "model_spec.json": true,
+        "model_manifest.json": true,
+        "benchmark.json": true,
+        "full.yaml": true
+      },
+      "startup_proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/cpu/fa_ls_dp_r_u_o_l.json",
+      "runtime_interpreter_equal": true,
+      "mps_pipe_bytes": 52,
+      "calibrated_level_groups": 60,
+      "Q3_decision_clock": true,
+      "no_campaign_built_or_staged": true
+    },
+    {
+      "name": "fa_ls_dp_r_f_l_l",
+      "status": "PASS",
+      "potential_episodes": 30000,
+      "unique_task_uids": 30000,
+      "UIDs_inits_seeds_equal": true,
+      "task_uid_sha256": "87e43ebaeeb4996da68518c18467a50174ae32ac3b5b049ea955e3dde870bd4f",
+      "descriptor_bytes_equal": {
+        "load.json": true,
+        "model_spec.json": true,
+        "model_manifest.json": true,
+        "benchmark.json": true,
+        "full.yaml": true
+      },
+      "startup_proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/cpu/fa_ls_dp_r_f_o_l.json",
+      "runtime_interpreter_equal": true,
+      "mps_pipe_bytes": 52,
+      "calibrated_level_groups": 60,
+      "Q3_decision_clock": true,
+      "no_campaign_built_or_staged": true
+    },
+    {
+      "name": "fa_ls_dp_f_u_l_l",
+      "status": "PASS",
+      "potential_episodes": 30000,
+      "unique_task_uids": 30000,
+      "UIDs_inits_seeds_equal": true,
+      "task_uid_sha256": "fe3d795fd650a41db31e10d74a6f6a585503f36f67bc7c44f703d52d57617971",
+      "descriptor_bytes_equal": {
+        "load.json": true,
+        "model_spec.json": true,
+        "model_manifest.json": true,
+        "benchmark.json": true,
+        "full.yaml": true
+      },
+      "startup_proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/cpu/fa_ls_dp_f_u_o_l.json",
+      "runtime_interpreter_equal": true,
+      "mps_pipe_bytes": 52,
+      "calibrated_level_groups": 60,
+      "Q3_decision_clock": true,
+      "no_campaign_built_or_staged": true
+    },
+    {
+      "name": "fa_ls_dp_f_f_l_l",
+      "status": "PASS",
+      "potential_episodes": 30000,
+      "unique_task_uids": 30000,
+      "UIDs_inits_seeds_equal": true,
+      "task_uid_sha256": "12e328f8b416b88a863a0ed04c2acd7abfb242a826226ba4093d1b93c37a1b3a",
+      "descriptor_bytes_equal": {
+        "load.json": true,
+        "model_spec.json": true,
+        "model_manifest.json": true,
+        "benchmark.json": true,
+        "full.yaml": true
+      },
+      "startup_proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/cpu/fa_ls_dp_f_f_o_l.json",
+      "runtime_interpreter_equal": true,
+      "mps_pipe_bytes": 52,
+      "calibrated_level_groups": 60,
+      "Q3_decision_clock": true,
+      "no_campaign_built_or_staged": true
+    },
+    {
+      "name": "fa_ls_fw_r_u_l_l",
+      "status": "PASS",
+      "potential_episodes": 30000,
+      "unique_task_uids": 30000,
+      "UIDs_inits_seeds_equal": true,
+      "task_uid_sha256": "8d54b4f675403c4da261259a75418abb16ee9db1fd273c7f052d60f5c6e645b9",
+      "descriptor_bytes_equal": {
+        "load.json": true,
+        "model_spec.json": true,
+        "model_manifest.json": true,
+        "benchmark.json": true,
+        "full.yaml": true
+      },
+      "startup_proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/cpu/fa_ls_fw_r_u_o_l.json",
+      "runtime_interpreter_equal": true,
+      "mps_pipe_bytes": 52,
+      "calibrated_level_groups": 60,
+      "Q3_decision_clock": true,
+      "no_campaign_built_or_staged": true
+    },
+    {
+      "name": "fa_ls_fw_r_f_l_l",
+      "status": "PASS",
+      "potential_episodes": 30000,
+      "unique_task_uids": 30000,
+      "UIDs_inits_seeds_equal": true,
+      "task_uid_sha256": "d5e2474456d1532e369fba2b0b72f0ca26c618d9767dd4494d4c5e26342f6604",
+      "descriptor_bytes_equal": {
+        "load.json": true,
+        "model_spec.json": true,
+        "model_manifest.json": true,
+        "benchmark.json": true,
+        "full.yaml": true
+      },
+      "startup_proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/cpu/fa_ls_fw_r_f_o_l.json",
+      "runtime_interpreter_equal": true,
+      "mps_pipe_bytes": 52,
+      "calibrated_level_groups": 60,
+      "Q3_decision_clock": true,
+      "no_campaign_built_or_staged": true
+    },
+    {
+      "name": "fa_ls_fw_f_u_l_l",
+      "status": "PASS",
+      "potential_episodes": 30000,
+      "unique_task_uids": 30000,
+      "UIDs_inits_seeds_equal": true,
+      "task_uid_sha256": "0a2f2814c1e05a46a9f2e92098165ad7ece76367b2d78d98f45b88d5f5b9a7fd",
+      "descriptor_bytes_equal": {
+        "load.json": true,
+        "model_spec.json": true,
+        "model_manifest.json": true,
+        "benchmark.json": true,
+        "full.yaml": true
+      },
+      "startup_proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/cpu/fa_ls_fw_f_u_o_l.json",
+      "runtime_interpreter_equal": true,
+      "mps_pipe_bytes": 52,
+      "calibrated_level_groups": 60,
+      "Q3_decision_clock": true,
+      "no_campaign_built_or_staged": true
+    },
+    {
+      "name": "fa_ls_fw_f_f_l_l",
+      "status": "PASS",
+      "potential_episodes": 30000,
+      "unique_task_uids": 30000,
+      "UIDs_inits_seeds_equal": true,
+      "task_uid_sha256": "0fe671a9295c6798f3c57e7190ca991f2d106a4c306ba0b46dc9eb81339dbb80",
+      "descriptor_bytes_equal": {
+        "load.json": true,
+        "model_spec.json": true,
+        "model_manifest.json": true,
+        "benchmark.json": true,
+        "full.yaml": true
+      },
+      "startup_proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/cpu/fa_ls_fw_f_f_o_l.json",
+      "runtime_interpreter_equal": true,
+      "mps_pipe_bytes": 52,
+      "calibrated_level_groups": 60,
+      "Q3_decision_clock": true,
+      "no_campaign_built_or_staged": true
+    }
+  ]
+}

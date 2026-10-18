@@ -1,0 +1,73 @@
+{
+  "run": "gl_h10",
+  "model": "groot",
+  "domain": "libero",
+  "server_node": "local",
+  "file": "/data/mw_finetune/eval/gl_h10/driver/per_step.jsonl",
+  "bytes": 213732021,
+  "sample_bytes": 16765512,
+  "sample_rows": 6322,
+  "sample_limit_bytes": 16777216,
+  "sample_limit_lines": 16000,
+  "scan_kind": "bounded_windows",
+  "samples": [
+    {
+      "offset": 0,
+      "bytes": 2094491,
+      "rows": 798
+    },
+    {
+      "offset": 30235701,
+      "bytes": 2096111,
+      "rows": 791
+    },
+    {
+      "offset": 60468536,
+      "bytes": 2095524,
+      "rows": 796
+    },
+    {
+      "offset": 90702070,
+      "bytes": 2096838,
+      "rows": 798
+    },
+    {
+      "offset": 120935385,
+      "bytes": 2096150,
+      "rows": 786
+    },
+    {
+      "offset": 151170389,
+      "bytes": 2096599,
+      "rows": 763
+    },
+    {
+      "offset": 181402584,
+      "bytes": 2093663,
+      "rows": 785
+    },
+    {
+      "offset": 211635885,
+      "bytes": 2096136,
+      "rows": 805
+    }
+  ],
+  "inode": 48780845,
+  "mtime_ns": 1792088236501268695,
+  "live": false,
+  "changed_during_scan": false,
+  "episodes": 82,
+  "affected": false,
+  "rows": 6322,
+  "eligible_heads": 1571,
+  "tails": 1571,
+  "cut_percent": 0.0,
+  "groups": {
+    "full": {
+      "eligible_heads": 1571,
+      "tails": 1571,
+      "cut_percent": 0.0
+    }
+  },
+  "examples": []
+}

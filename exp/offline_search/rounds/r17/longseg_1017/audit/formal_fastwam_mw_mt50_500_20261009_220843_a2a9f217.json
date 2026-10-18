@@ -1,0 +1,30 @@
+{
+  "run": "formal_fastwam_mw_mt50_500_20261009_220843_a2a9f217",
+  "model": "fastwam",
+  "domain": "metaworld",
+  "server_node": "h100",
+  "file": "/data/mw_finetune/eval/formal_fastwam_mw_mt50_500_20261009_220843_a2a9f217/driver/per_step.jsonl",
+  "bytes": 5448714,
+  "sample_bytes": 5448714,
+  "sample_rows": 2349,
+  "sample_limit_bytes": 16777216,
+  "sample_limit_lines": 16000,
+  "scan_kind": "bounded_windows",
+  "samples": [
+    {
+      "offset": 0,
+      "bytes": 5448714,
+      "rows": 2349
+    }
+  ],
+  "inode": 29624374,
+  "mtime_ns": 1791602473482589370,
+  "live": false,
+  "changed_during_scan": false,
+  "episodes": 47,
+  "affected": false,
+  "rows": 2349,
+  "cut_percent": 0.0,
+  "groups": {},
+  "examples": []
+}

@@ -1,0 +1,30 @@
+{
+  "run": "mwl_smoke1",
+  "model": "pi05",
+  "domain": "metaworld",
+  "server_node": "local",
+  "file": "/data/mw_finetune/eval/mwl_smoke1/driver/per_step.jsonl",
+  "bytes": 574655,
+  "sample_bytes": 574655,
+  "sample_rows": 222,
+  "sample_limit_bytes": 16777216,
+  "sample_limit_lines": 16000,
+  "scan_kind": "bounded_windows",
+  "samples": [
+    {
+      "offset": 0,
+      "bytes": 574655,
+      "rows": 222
+    }
+  ],
+  "inode": 50876817,
+  "mtime_ns": 1791992887954981961,
+  "live": false,
+  "changed_during_scan": false,
+  "episodes": 4,
+  "affected": false,
+  "rows": 222,
+  "cut_percent": 0.0,
+  "groups": {},
+  "examples": []
+}

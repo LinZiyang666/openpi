@@ -1,0 +1,52 @@
+{
+  "name": "fa_ls_dp_f_f_m",
+  "status": "PASS",
+  "native_strict_loader_proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/startup_checks/ffk1015_dp_mt50_reduced_descent.json",
+  "native_strict_loader_path": "qualification.model_runtime.load -> dp.loader.load_adapter(cpu)",
+  "descriptor_bytes_equal": {
+    "load.json": true,
+    "model_spec.json": true,
+    "model_manifest.json": true,
+    "benchmark.json": true,
+    "full.yaml": true
+  },
+  "fresh_frozen_interpreter_probe": {
+    "packages": {
+      "diffusers": "0.39.0",
+      "numpy": "2.2.6",
+      "safetensors": "0.8.0",
+      "torch": "2.7.1+cu128",
+      "torchvision": "0.22.1+cu128",
+      "transformers": "5.5.4"
+    },
+    "python": "/data/mw_finetune/dp/env/bin/python",
+    "bootstrap_imported": true,
+    "cuda_initialized": false
+  },
+  "model_identity_equal": true,
+  "sealed_metadata_equal_to_actual": true,
+  "weights_and_fit_reread": false,
+  "immutable_inputs_same_inodes": true,
+  "planner_episodes": 90000,
+  "unique_task_uids": 90000,
+  "source_native_plan_equal": false,
+  "mps_pipe": "/data/mw_finetune/eval/fa_ls_dp_f_f_m/mps/e5681f/p",
+  "mps_pipe_bytes": 50,
+  "fresh_native_dp_startup_admission_checked": true,
+  "decision_clock_recalibration": {
+    "Q3_artifacts": [
+      "1f13c629489c70e0afd0e19c43acef2802aaebbee9df16c1a50e99022fceac87",
+      "2f6f5bd773d10d996704a6de9034c816711e804b6a62fd046c83d6b07cbfc4e0",
+      "32bc7173ce38ebb5c3aefff4266f229b42f61046f442a9dbe01e4541ece6ae37",
+      "350e7909443668a440bf267c999aec3b04a08e96d35939fca6dae0752a9706fb",
+      "869454a67a48b28e1d1fd33dfac3de15d27d25e909e64b65bc34b1073c66e71c",
+      "f1ee8a2f29f121971e90586481439b423e92b80b851571a533314ddb3cf6b91b"
+    ],
+    "new_artifact_inodes_verified": true,
+    "frozen_metric_identical": true,
+    "UID_namespace_preserved": true,
+    "frozen_driver_plan_overlay_imported": true,
+    "level_ir": "M/N_segment_heads",
+    "tolerance": 0.005
+  }
+}

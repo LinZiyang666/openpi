@@ -1,0 +1,65 @@
+{
+  "run": "tfw7k5_1153",
+  "model": "fastwam",
+  "domain": "metaworld",
+  "server_node": "h100",
+  "file": "/data/mw_finetune/eval/tfw7k5_1153/driver/per_step.jsonl",
+  "bytes": 250382351,
+  "sample_bytes": 16767875,
+  "sample_rows": 7280,
+  "sample_limit_bytes": 16777216,
+  "sample_limit_lines": 16000,
+  "scan_kind": "bounded_windows",
+  "samples": [
+    {
+      "offset": 0,
+      "bytes": 2095859,
+      "rows": 901
+    },
+    {
+      "offset": 35469787,
+      "bytes": 2096102,
+      "rows": 928
+    },
+    {
+      "offset": 70938971,
+      "bytes": 2096364,
+      "rows": 921
+    },
+    {
+      "offset": 106408175,
+      "bytes": 2096479,
+      "rows": 906
+    },
+    {
+      "offset": 141878616,
+      "bytes": 2097073,
+      "rows": 898
+    },
+    {
+      "offset": 177349099,
+      "bytes": 2094626,
+      "rows": 895
+    },
+    {
+      "offset": 212815920,
+      "bytes": 2096796,
+      "rows": 894
+    },
+    {
+      "offset": 248287775,
+      "bytes": 2094576,
+      "rows": 937
+    }
+  ],
+  "inode": 44826706,
+  "mtime_ns": 1791912348431417321,
+  "live": false,
+  "changed_during_scan": false,
+  "episodes": 164,
+  "affected": false,
+  "rows": 7280,
+  "cut_percent": 0.0,
+  "groups": {},
+  "examples": []
+}

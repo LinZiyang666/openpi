@@ -1,0 +1,18 @@
+{
+  "run": "P3_h100_fastwam_B8_smoke_20261010_1209",
+  "model": "fastwam",
+  "domain": "libero",
+  "server_node": "h100",
+  "file": "/data/mw_finetune/eval/P3_h100_fastwam_B8_smoke_20261010_1209/driver/per_step.jsonl",
+  "bytes": 750611,
+  "inode": 29626389,
+  "mtime_ns": 1791652310817321888,
+  "live": false,
+  "changed_during_scan": false,
+  "episodes": 4,
+  "affected": false,
+  "rows": 310,
+  "cut_percent": 0.0,
+  "groups": {},
+  "examples": []
+}

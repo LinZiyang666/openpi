@@ -1,0 +1,26 @@
+{
+  "status": "PASS",
+  "built_campaigns": 60,
+  "built_episodes": 1637572,
+  "deferred_campaigns": 8,
+  "deferred_episode_bound": 240000,
+  "no_campaign_prepared_or_launched": true,
+  "all_pinned_bootstrap_bytes_match": true,
+  "commands_syntax_checked": 300,
+  "fresh_experiment_units": 68,
+  "timing_units": 7,
+  "CUDA_initialized": 0,
+  "maximum_mps_pipe_bytes": 52,
+  "queues": {
+    "H100": {
+      "units": 37,
+      "episodes": 1225047,
+      "hours": 138.4781888031289
+    },
+    "RTX 4090": {
+      "units": 44,
+      "episodes": 863540,
+      "hours": 142.11840493288022
+    }
+  }
+}

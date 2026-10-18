@@ -1,0 +1,18 @@
+{
+  "run": "cosmos_libero_smoke2_release_v5",
+  "model": "cosmos",
+  "domain": "libero",
+  "server_node": "local",
+  "file": "/data/mw_finetune/eval/cosmos_libero_smoke2_release_v5/driver/per_step.jsonl",
+  "bytes": 74270,
+  "inode": 29624659,
+  "mtime_ns": 1791603928235754251,
+  "live": false,
+  "changed_during_scan": false,
+  "episodes": 2,
+  "affected": false,
+  "rows": 32,
+  "cut_percent": 0.0,
+  "groups": {},
+  "examples": []
+}

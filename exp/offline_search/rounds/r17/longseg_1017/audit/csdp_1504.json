@@ -1,0 +1,251 @@
+{
+  "run": "csdp_1504",
+  "model": "dp",
+  "domain": "metaworld",
+  "server_node": "h100",
+  "file": "/data/mw_finetune/eval/csdp_1504/driver/per_step.jsonl",
+  "bytes": 13717225126,
+  "inode": 45350919,
+  "mtime_ns": 1791938028954944148,
+  "live": false,
+  "changed_during_scan": false,
+  "episodes": 120000,
+  "affected": true,
+  "rows": 5508696,
+  "eligible_heads": 678493,
+  "tails": 661165,
+  "cuts": 17328,
+  "cut_percent": 2.5538951765161912,
+  "groups": {
+    "n1000_ch": {
+      "eligible_heads": 28039,
+      "tails": 28039,
+      "cut_percent": 0.0
+    },
+    "n1000_chg": {
+      "eligible_heads": 28554,
+      "tails": 27040,
+      "cuts": 1514,
+      "cut_percent": 5.302234362961406
+    },
+    "n1000_chr": {
+      "eligible_heads": 27861,
+      "tails": 27861,
+      "cut_percent": 0.0
+    },
+    "n1000_chrg": {
+      "eligible_heads": 28482,
+      "tails": 26970,
+      "cuts": 1512,
+      "cut_percent": 5.308615967979777
+    },
+    "n1500_ch": {
+      "eligible_heads": 27079,
+      "tails": 27079,
+      "cut_percent": 0.0
+    },
+    "n1500_chg": {
+      "eligible_heads": 27816,
+      "tails": 25973,
+      "cuts": 1843,
+      "cut_percent": 6.6256830601092895
+    },
+    "n1500_chr": {
+      "eligible_heads": 26977,
+      "tails": 26977,
+      "cut_percent": 0.0
+    },
+    "n1500_chrg": {
+      "eligible_heads": 27663,
+      "tails": 25847,
+      "cuts": 1816,
+      "cut_percent": 6.564725445540975
+    },
+    "n2000_ch": {
+      "eligible_heads": 26791,
+      "tails": 26791,
+      "cut_percent": 0.0
+    },
+    "n2000_chg": {
+      "eligible_heads": 27304,
+      "tails": 25838,
+      "cuts": 1466,
+      "cut_percent": 5.369176677409904
+    },
+    "n2000_chr": {
+      "eligible_heads": 26797,
+      "tails": 26797,
+      "cut_percent": 0.0
+    },
+    "n2000_chrg": {
+      "eligible_heads": 27352,
+      "tails": 25834,
+      "cuts": 1518,
+      "cut_percent": 5.549868382568002
+    },
+    "n2500_ch": {
+      "eligible_heads": 26845,
+      "tails": 26845,
+      "cut_percent": 0.0
+    },
+    "n2500_chg": {
+      "eligible_heads": 27456,
+      "tails": 25892,
+      "cuts": 1564,
+      "cut_percent": 5.696386946386946
+    },
+    "n2500_chr": {
+      "eligible_heads": 26747,
+      "tails": 26747,
+      "cut_percent": 0.0
+    },
+    "n2500_chrg": {
+      "eligible_heads": 27337,
+      "tails": 25807,
+      "cuts": 1530,
+      "cut_percent": 5.5968101839997075
+    },
+    "n250_ch": {
+      "eligible_heads": 30768,
+      "tails": 30768,
+      "cut_percent": 0.0
+    },
+    "n250_chg": {
+      "eligible_heads": 30962,
+      "tails": 30307,
+      "cuts": 655,
+      "cut_percent": 2.115496414960274
+    },
+    "n250_chr": {
+      "eligible_heads": 30324,
+      "tails": 30324,
+      "cut_percent": 0.0
+    },
+    "n250_chrg": {
+      "eligible_heads": 30525,
+      "tails": 29868,
+      "cuts": 657,
+      "cut_percent": 2.152334152334152
+    },
+    "n500_ch": {
+      "eligible_heads": 29017,
+      "tails": 29017,
+      "cut_percent": 0.0
+    },
+    "n500_chg": {
+      "eligible_heads": 29511,
+      "tails": 27850,
+      "cuts": 1661,
+      "cut_percent": 5.628409745518621
+    },
+    "n500_chr": {
+      "eligible_heads": 28962,
+      "tails": 28962,
+      "cut_percent": 0.0
+    },
+    "n500_chrg": {
+      "eligible_heads": 29324,
+      "tails": 27732,
+      "cuts": 1592,
+      "cut_percent": 5.429000136407039
+    }
+  },
+  "examples": [
+    {
+      "task_uid": "r17_75191cfe2806b7d90019_n250_chg:eval:4:17",
+      "head_seq": 8,
+      "next_seq": 9,
+      "head_step": 40,
+      "next_step": 45,
+      "head_source": "library",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n250_chg"
+    },
+    {
+      "task_uid": "r17_75191cfe2806b7d90019_n250_chg:eval:4:14",
+      "head_seq": 8,
+      "next_seq": 9,
+      "head_step": 40,
+      "next_step": 45,
+      "head_source": "library",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n250_chg"
+    },
+    {
+      "task_uid": "r17_75191cfe2806b7d90019_n250_chg:eval:4:20",
+      "head_seq": 8,
+      "next_seq": 9,
+      "head_step": 40,
+      "next_step": 45,
+      "head_source": "library",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n250_chg"
+    },
+    {
+      "task_uid": "r17_75191cfe2806b7d90019_n250_chg:eval:4:27",
+      "head_seq": 10,
+      "next_seq": 11,
+      "head_step": 50,
+      "next_step": 55,
+      "head_source": "library",
+      "next_source": "library",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n250_chg"
+    },
+    {
+      "task_uid": "r17_75191cfe2806b7d90019_n250_chg:eval:4:32",
+      "head_seq": 10,
+      "next_seq": 11,
+      "head_step": 50,
+      "next_step": 55,
+      "head_source": "library",
+      "next_source": "library",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n250_chg"
+    },
+    {
+      "task_uid": "r17_75191cfe2806b7d90019_n250_chg:eval:4:41",
+      "head_seq": 10,
+      "next_seq": 11,
+      "head_step": 50,
+      "next_step": 55,
+      "head_source": "library",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n250_chg"
+    },
+    {
+      "task_uid": "r17_75191cfe2806b7d90019_n250_chg:eval:4:0",
+      "head_seq": 8,
+      "next_seq": 9,
+      "head_step": 40,
+      "next_step": 45,
+      "head_source": "library",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n250_chg"
+    },
+    {
+      "task_uid": "r17_75191cfe2806b7d90019_n250_chg:eval:4:4",
+      "head_seq": 10,
+      "next_seq": 11,
+      "head_step": 50,
+      "next_step": 55,
+      "head_source": "library",
+      "next_source": "library",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n250_chg"
+    }
+  ]
+}

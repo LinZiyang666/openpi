@@ -1,0 +1,65 @@
+{
+  "run": "formal_fastwam_mw_mt50_500_20261009_223917_0b845f00",
+  "model": "fastwam",
+  "domain": "metaworld",
+  "server_node": "h100",
+  "file": "/data/mw_finetune/eval/formal_fastwam_mw_mt50_500_20261009_223917_0b845f00/driver/per_step.jsonl",
+  "bytes": 49696209,
+  "sample_bytes": 16768641,
+  "sample_rows": 7292,
+  "sample_limit_bytes": 16777216,
+  "sample_limit_lines": 16000,
+  "scan_kind": "bounded_windows",
+  "samples": [
+    {
+      "offset": 0,
+      "bytes": 2095712,
+      "rows": 895
+    },
+    {
+      "offset": 6800881,
+      "bytes": 2096123,
+      "rows": 925
+    },
+    {
+      "offset": 13601036,
+      "bytes": 2096863,
+      "rows": 929
+    },
+    {
+      "offset": 20400533,
+      "bytes": 2096532,
+      "rows": 922
+    },
+    {
+      "offset": 27199667,
+      "bytes": 2095575,
+      "rows": 892
+    },
+    {
+      "offset": 33999907,
+      "bytes": 2096666,
+      "rows": 905
+    },
+    {
+      "offset": 40799347,
+      "bytes": 2096825,
+      "rows": 898
+    },
+    {
+      "offset": 47601864,
+      "bytes": 2094345,
+      "rows": 926
+    }
+  ],
+  "inode": 29624619,
+  "mtime_ns": 1791607114072163937,
+  "live": false,
+  "changed_during_scan": false,
+  "episodes": 187,
+  "affected": false,
+  "rows": 7292,
+  "cut_percent": 0.0,
+  "groups": {},
+  "examples": []
+}

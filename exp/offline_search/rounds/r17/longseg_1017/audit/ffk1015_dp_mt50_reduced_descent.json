@@ -1,0 +1,172 @@
+{
+  "run": "ffk1015_dp_mt50_reduced_descent",
+  "model": "dp",
+  "domain": "metaworld",
+  "server_node": "h100",
+  "file": "/data/mw_finetune/eval/ffk1015_dp_mt50_reduced_descent/driver/per_step.jsonl",
+  "bytes": 106697798,
+  "sample_bytes": 16769659,
+  "sample_rows": 6737,
+  "sample_limit_bytes": 16777216,
+  "sample_limit_lines": 16000,
+  "scan_kind": "bounded_windows",
+  "samples": [
+    {
+      "offset": 0,
+      "bytes": 2096019,
+      "rows": 827
+    },
+    {
+      "offset": 14945401,
+      "bytes": 2094851,
+      "rows": 839
+    },
+    {
+      "offset": 29887492,
+      "bytes": 2096024,
+      "rows": 855
+    },
+    {
+      "offset": 44829130,
+      "bytes": 2096201,
+      "rows": 836
+    },
+    {
+      "offset": 59773073,
+      "bytes": 2096661,
+      "rows": 822
+    },
+    {
+      "offset": 74716583,
+      "bytes": 2096653,
+      "rows": 862
+    },
+    {
+      "offset": 89660428,
+      "bytes": 2096198,
+      "rows": 850
+    },
+    {
+      "offset": 104600746,
+      "bytes": 2097052,
+      "rows": 846
+    }
+  ],
+  "inode": 72229197,
+  "mtime_ns": 1792159896028449477,
+  "live": false,
+  "changed_during_scan": false,
+  "episodes": 163,
+  "affected": true,
+  "rows": 6737,
+  "eligible_heads": 2083,
+  "cuts": 989,
+  "tails": 1094,
+  "cut_percent": 47.47959673547768,
+  "groups": {
+    "n1500_chrg_k30": {
+      "eligible_heads": 2083,
+      "cuts": 989,
+      "tails": 1094,
+      "cut_percent": 47.47959673547768
+    }
+  },
+  "examples": [
+    {
+      "task_uid": "r17_001a3389c06188369992_n1500_chrg_k30:eval:0:30",
+      "head_seq": 0,
+      "next_seq": 1,
+      "head_step": 0,
+      "next_step": 5,
+      "head_source": "policy",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n1500_chrg_k30"
+    },
+    {
+      "task_uid": "r17_001a3389c06188369992_n1500_chrg_k30:eval:0:30",
+      "head_seq": 1,
+      "next_seq": 2,
+      "head_step": 5,
+      "next_step": 10,
+      "head_source": "policy",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n1500_chrg_k30"
+    },
+    {
+      "task_uid": "r17_001a3389c06188369992_n1500_chrg_k30:eval:0:30",
+      "head_seq": 2,
+      "next_seq": 3,
+      "head_step": 10,
+      "next_step": 15,
+      "head_source": "policy",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n1500_chrg_k30"
+    },
+    {
+      "task_uid": "r17_001a3389c06188369992_n1500_chrg_k30:eval:0:30",
+      "head_seq": 3,
+      "next_seq": 4,
+      "head_step": 15,
+      "next_step": 20,
+      "head_source": "policy",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n1500_chrg_k30"
+    },
+    {
+      "task_uid": "r17_001a3389c06188369992_n1500_chrg_k30:eval:0:30",
+      "head_seq": 4,
+      "next_seq": 5,
+      "head_step": 20,
+      "next_step": 25,
+      "head_source": "policy",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n1500_chrg_k30"
+    },
+    {
+      "task_uid": "r17_001a3389c06188369992_n1500_chrg_k30:eval:0:30",
+      "head_seq": 5,
+      "next_seq": 6,
+      "head_step": 25,
+      "next_step": 30,
+      "head_source": "policy",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n1500_chrg_k30"
+    },
+    {
+      "task_uid": "r17_001a3389c06188369992_n1500_chrg_k30:eval:0:30",
+      "head_seq": 6,
+      "next_seq": 7,
+      "head_step": 30,
+      "next_step": 35,
+      "head_source": "policy",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n1500_chrg_k30"
+    },
+    {
+      "task_uid": "r17_001a3389c06188369992_n1500_chrg_k30:eval:0:30",
+      "head_seq": 7,
+      "next_seq": 8,
+      "head_step": 35,
+      "next_step": 40,
+      "head_source": "policy",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n1500_chrg_k30"
+    }
+  ]
+}

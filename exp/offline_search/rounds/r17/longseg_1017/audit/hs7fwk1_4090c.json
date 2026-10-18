@@ -1,0 +1,65 @@
+{
+  "run": "hs7fwk1_4090c",
+  "model": "fastwam",
+  "domain": "libero",
+  "server_node": "local",
+  "file": "/data/mw_finetune/eval/hs7fwk1_4090c/driver/per_step.jsonl",
+  "bytes": 197942754,
+  "sample_bytes": 16771170,
+  "sample_rows": 6938,
+  "sample_limit_bytes": 16777216,
+  "sample_limit_lines": 16000,
+  "scan_kind": "bounded_windows",
+  "samples": [
+    {
+      "offset": 0,
+      "bytes": 2096809,
+      "rows": 872
+    },
+    {
+      "offset": 27978797,
+      "bytes": 2095343,
+      "rows": 876
+    },
+    {
+      "offset": 55959118,
+      "bytes": 2095896,
+      "rows": 877
+    },
+    {
+      "offset": 83934538,
+      "bytes": 2097013,
+      "rows": 862
+    },
+    {
+      "offset": 111912024,
+      "bytes": 2096772,
+      "rows": 856
+    },
+    {
+      "offset": 139890427,
+      "bytes": 2096951,
+      "rows": 829
+    },
+    {
+      "offset": 167868063,
+      "bytes": 2096168,
+      "rows": 884
+    },
+    {
+      "offset": 195846536,
+      "bytes": 2096218,
+      "rows": 882
+    }
+  ],
+  "inode": 42996325,
+  "mtime_ns": 1791844670527838334,
+  "live": false,
+  "changed_during_scan": false,
+  "episodes": 87,
+  "affected": false,
+  "rows": 6938,
+  "cut_percent": 0.0,
+  "groups": {},
+  "examples": []
+}

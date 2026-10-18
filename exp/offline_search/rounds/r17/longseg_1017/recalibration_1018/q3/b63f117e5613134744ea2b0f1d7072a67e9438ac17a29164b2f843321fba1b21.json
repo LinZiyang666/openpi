@@ -1,0 +1,407 @@
+{
+  "source": "/data/mw_finetune/eval/ffk1015_fastwam_libero_reduced_formal_A_original/assets/cache_inputs/libero_10/n400_C10/stall",
+  "path": "/data/mw_finetune/eval/ffk1015_fastwam_libero_reduced_formal_A_original/assets/cache_inputs/libero_10/n400_C10/stall_decision1018",
+  "old_digest": "b63f117e5613134744ea2b0f1d7072a67e9438ac17a29164b2f843321fba1b21",
+  "digest": "f23ad5c02a4d8071e64bd1e68fca461725ea0cac80f6ede1ed095c72c6e2f3f3",
+  "fit_digest": "3a30862d38bb7ac48c10b03728be4f3ac327ad88b51ddec357070b0e5dd9e9df",
+  "fingerprint": "f02640da935b2ed355164f0b4571011ce57a3d619413ebdae1d903ff14283de3",
+  "old_parameters": {
+    "schema": "r6.q3.stall.v1",
+    "fingerprint": "7a797348284d9b96a8b5867f54f5cc609a21e76228338aa633ac9f142e673ebc",
+    "payload_sha256": "e63ee33e8b3bbbd5471e513b60d34de7bec8b9306c4427f0c0ead5f66186146a",
+    "provenance": {
+      "schema": "r6.q3.stall.v1",
+      "manifest_sha256": "df5b7f7a385c7771453e0aab1cad691a2d0600dada66f82decd7ddbc7a860bb6",
+      "bank_labels_sha256": "fb6bb8b26647add3ff16725d8390a295963eba10194ee909121cebe4ea3de7bb",
+      "metric_sha256": "4ca2e80ed57ce062b192c2c1c69f417892298b4c7d5eb5c824ad56c10fdca439",
+      "metric_provenance": {
+        "kind": "r17.layout_recipe.frozen_metric",
+        "source_digest": "7d9a95596d7c875853059b2b3539ec9bfc6a6ca52e4bfd0ff884df38c3792101",
+        "layout_identity": "ad7e3ab72e924644406a8b4a1087ac966bf80a4eff2b1773393e252aa28a4c7f"
+      },
+      "constants": {
+        "window_fraction": 0.05,
+        "minimum_window_intervals": 2,
+        "max_templates": 5,
+        "error_quantile": 0.9,
+        "advance_quantile": 0.1,
+        "minimum_reference_episodes": 4
+      },
+      "calibration_scope": "successful library; frozen representation; empirical not conformal; no evaluation data"
+    },
+    "commit_controls": 10,
+    "exec_steps": 5,
+    "tasks": {
+      "30": {
+        "E": 37,
+        "K": 5,
+        "W": 2,
+        "T_med": 26.5,
+        "calibration_windows": 1004,
+        "reference_episodes": 37,
+        "available": true
+      },
+      "31": {
+        "E": 39,
+        "K": 5,
+        "W": 2,
+        "T_med": 24.5,
+        "calibration_windows": 933,
+        "reference_episodes": 39,
+        "available": true
+      },
+      "32": {
+        "E": 39,
+        "K": 5,
+        "W": 2,
+        "T_med": 24.0,
+        "calibration_windows": 933,
+        "reference_episodes": 39,
+        "available": true
+      },
+      "33": {
+        "E": 39,
+        "K": 5,
+        "W": 2,
+        "T_med": 22.0,
+        "calibration_windows": 840,
+        "reference_episodes": 39,
+        "available": true
+      },
+      "34": {
+        "E": 37,
+        "K": 5,
+        "W": 2,
+        "T_med": 22.5,
+        "calibration_windows": 800,
+        "reference_episodes": 37,
+        "available": true
+      },
+      "35": {
+        "E": 39,
+        "K": 5,
+        "W": 2,
+        "T_med": 17.0,
+        "calibration_windows": 643,
+        "reference_episodes": 39,
+        "available": true
+      },
+      "36": {
+        "E": 32,
+        "K": 5,
+        "W": 2,
+        "T_med": 22.25,
+        "calibration_windows": 742,
+        "reference_episodes": 32,
+        "available": true
+      },
+      "37": {
+        "E": 38,
+        "K": 5,
+        "W": 2,
+        "T_med": 25.25,
+        "calibration_windows": 996,
+        "reference_episodes": 38,
+        "available": true
+      },
+      "38": {
+        "E": 31,
+        "K": 5,
+        "W": 2,
+        "T_med": 37.5,
+        "calibration_windows": 1192,
+        "reference_episodes": 31,
+        "available": true
+      },
+      "39": {
+        "E": 40,
+        "K": 5,
+        "W": 2,
+        "T_med": 25.5,
+        "calibration_windows": 1047,
+        "reference_episodes": 40,
+        "available": true
+      }
+    }
+  },
+  "new_parameters": {
+    "schema": "r6.q3.stall.v1",
+    "fingerprint": "f02640da935b2ed355164f0b4571011ce57a3d619413ebdae1d903ff14283de3",
+    "payload_sha256": "7978051ebc99a76ca808629070af766014f53a1ffb0a8f6da83a3c279d04c5a7",
+    "provenance": {
+      "schema": "r6.q3.stall.v1",
+      "manifest_sha256": "8be43d1dc0eafe1e3573f345a25806f09b038f2621194fe55d07a74dba9d5ad0",
+      "bank_labels_sha256": "64d0ba9cc7acccc3b36ca3094b057e9a3e9add340911ae9b74e7f44de497668b",
+      "metric_sha256": "4ca2e80ed57ce062b192c2c1c69f417892298b4c7d5eb5c824ad56c10fdca439",
+      "metric_provenance": {
+        "kind": "r17.layout_recipe.frozen_metric",
+        "source_digest": "7d9a95596d7c875853059b2b3539ec9bfc6a6ca52e4bfd0ff884df38c3792101",
+        "layout_identity": "ad7e3ab72e924644406a8b4a1087ac966bf80a4eff2b1773393e252aa28a4c7f"
+      },
+      "constants": {
+        "window_fraction": 0.05,
+        "minimum_window_intervals": 2,
+        "max_templates": 5,
+        "error_quantile": 0.9,
+        "advance_quantile": 0.1,
+        "minimum_reference_episodes": 4
+      },
+      "calibration_scope": "successful library; frozen representation; empirical not conformal; no evaluation data",
+      "calibration_metric_sha256": "06db8696956f143ebdc9c00011169aa7dcca4ae7087d4a2d702ff9f4b9ddec38",
+      "clock_unit": "segment_decision",
+      "calibration_stride_native_slots": 2,
+      "physical_commit_controls": 10,
+      "source_stall_digest": "b63f117e5613134744ea2b0f1d7072a67e9438ac17a29164b2f843321fba1b21",
+      "source_fitted_digest": "3a30862d38bb7ac48c10b03728be4f3ac327ad88b51ddec357070b0e5dd9e9df",
+      "full_metric_unchanged": true
+    },
+    "commit_controls": 1,
+    "exec_steps": 1,
+    "tasks": {
+      "30": {
+        "E": 37,
+        "K": 5,
+        "W": 2,
+        "T_med": 26.0,
+        "calibration_windows": 987,
+        "reference_episodes": 37,
+        "available": true
+      },
+      "31": {
+        "E": 39,
+        "K": 5,
+        "W": 2,
+        "T_med": 24.0,
+        "calibration_windows": 913,
+        "reference_episodes": 39,
+        "available": true
+      },
+      "32": {
+        "E": 39,
+        "K": 5,
+        "W": 2,
+        "T_med": 24.0,
+        "calibration_windows": 915,
+        "reference_episodes": 39,
+        "available": true
+      },
+      "33": {
+        "E": 39,
+        "K": 5,
+        "W": 2,
+        "T_med": 22.0,
+        "calibration_windows": 822,
+        "reference_episodes": 39,
+        "available": true
+      },
+      "34": {
+        "E": 37,
+        "K": 5,
+        "W": 2,
+        "T_med": 22.0,
+        "calibration_windows": 780,
+        "reference_episodes": 37,
+        "available": true
+      },
+      "35": {
+        "E": 39,
+        "K": 5,
+        "W": 2,
+        "T_med": 17.0,
+        "calibration_windows": 627,
+        "reference_episodes": 39,
+        "available": true
+      },
+      "36": {
+        "E": 32,
+        "K": 5,
+        "W": 2,
+        "T_med": 22.0,
+        "calibration_windows": 722,
+        "reference_episodes": 32,
+        "available": true
+      },
+      "37": {
+        "E": 38,
+        "K": 5,
+        "W": 2,
+        "T_med": 25.0,
+        "calibration_windows": 973,
+        "reference_episodes": 38,
+        "available": true
+      },
+      "38": {
+        "E": 31,
+        "K": 5,
+        "W": 2,
+        "T_med": 37.0,
+        "calibration_windows": 1176,
+        "reference_episodes": 31,
+        "available": true
+      },
+      "39": {
+        "E": 40,
+        "K": 5,
+        "W": 2,
+        "T_med": 25.0,
+        "calibration_windows": 1028,
+        "reference_episodes": 40,
+        "available": true
+      }
+    }
+  },
+  "achieved": {
+    "windows": 8943,
+    "residual_q90_covered": 8053,
+    "advance_above_q10": 8019,
+    "confirmed": 559,
+    "ambiguous": 729,
+    "tasks": {
+      "30": {
+        "windows": 987,
+        "residual_q90_covered": 889,
+        "advance_above_q10": 891,
+        "confirmed": 60,
+        "ambiguous": 93,
+        "E": 37,
+        "K": 5,
+        "W": 2,
+        "T_med": 26.0,
+        "reference_episodes": 37,
+        "available": true
+      },
+      "31": {
+        "windows": 913,
+        "residual_q90_covered": 844,
+        "advance_above_q10": 831,
+        "confirmed": 33,
+        "ambiguous": 32,
+        "E": 39,
+        "K": 5,
+        "W": 2,
+        "T_med": 24.0,
+        "reference_episodes": 39,
+        "available": true
+      },
+      "32": {
+        "windows": 915,
+        "residual_q90_covered": 826,
+        "advance_above_q10": 817,
+        "confirmed": 62,
+        "ambiguous": 89,
+        "E": 39,
+        "K": 5,
+        "W": 2,
+        "T_med": 24.0,
+        "reference_episodes": 39,
+        "available": true
+      },
+      "33": {
+        "windows": 822,
+        "residual_q90_covered": 746,
+        "advance_above_q10": 729,
+        "confirmed": 43,
+        "ambiguous": 14,
+        "E": 39,
+        "K": 5,
+        "W": 2,
+        "T_med": 22.0,
+        "reference_episodes": 39,
+        "available": true
+      },
+      "34": {
+        "windows": 780,
+        "residual_q90_covered": 727,
+        "advance_above_q10": 734,
+        "confirmed": 31,
+        "ambiguous": 30,
+        "E": 37,
+        "K": 5,
+        "W": 2,
+        "T_med": 22.0,
+        "reference_episodes": 37,
+        "available": true
+      },
+      "35": {
+        "windows": 627,
+        "residual_q90_covered": 575,
+        "advance_above_q10": 555,
+        "confirmed": 47,
+        "ambiguous": 66,
+        "E": 39,
+        "K": 5,
+        "W": 2,
+        "T_med": 17.0,
+        "reference_episodes": 39,
+        "available": true
+      },
+      "36": {
+        "windows": 722,
+        "residual_q90_covered": 639,
+        "advance_above_q10": 625,
+        "confirmed": 51,
+        "ambiguous": 97,
+        "E": 32,
+        "K": 5,
+        "W": 2,
+        "T_med": 22.0,
+        "reference_episodes": 32,
+        "available": true
+      },
+      "37": {
+        "windows": 973,
+        "residual_q90_covered": 861,
+        "advance_above_q10": 876,
+        "confirmed": 74,
+        "ambiguous": 90,
+        "E": 38,
+        "K": 5,
+        "W": 2,
+        "T_med": 25.0,
+        "reference_episodes": 38,
+        "available": true
+      },
+      "38": {
+        "windows": 1176,
+        "residual_q90_covered": 1041,
+        "advance_above_q10": 1033,
+        "confirmed": 71,
+        "ambiguous": 140,
+        "E": 31,
+        "K": 5,
+        "W": 2,
+        "T_med": 37.0,
+        "reference_episodes": 31,
+        "available": true
+      },
+      "39": {
+        "windows": 1028,
+        "residual_q90_covered": 905,
+        "advance_above_q10": 928,
+        "confirmed": 87,
+        "ambiguous": 78,
+        "E": 40,
+        "K": 5,
+        "W": 2,
+        "T_med": 25.0,
+        "reference_episodes": 40,
+        "available": true
+      }
+    },
+    "residual_q90_empirical_coverage": 0.9004808229900481,
+    "advance_q10_empirical_coverage": 0.8966789667896679,
+    "successful_window_confirmed_rate": 0.0625069887062507,
+    "scope": "Original successful-library LOEO empirical quantiles; no online FAR/conformal guarantee"
+  },
+  "metric_identical": true,
+  "input_heads": 11193,
+  "input_native_rows": 22202,
+  "target_constants": {
+    "window_fraction": 0.05,
+    "minimum_window_intervals": 2,
+    "max_templates": 5,
+    "error_quantile": 0.9,
+    "advance_quantile": 0.1,
+    "minimum_reference_episodes": 4
+  }
+}

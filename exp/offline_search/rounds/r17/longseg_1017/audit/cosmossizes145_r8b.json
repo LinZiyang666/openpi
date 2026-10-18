@@ -1,0 +1,18 @@
+{
+  "run": "cosmossizes145_r8b",
+  "model": "cosmos",
+  "domain": "libero",
+  "server_node": "h100",
+  "file": "/data/mw_finetune/eval/cosmossizes145_r8b/driver/per_step.jsonl",
+  "bytes": 582821709,
+  "inode": 36175987,
+  "mtime_ns": 1791737667874030789,
+  "live": false,
+  "changed_during_scan": false,
+  "episodes": 4989,
+  "affected": false,
+  "rows": 185695,
+  "cut_percent": 0.0,
+  "groups": {},
+  "examples": []
+}

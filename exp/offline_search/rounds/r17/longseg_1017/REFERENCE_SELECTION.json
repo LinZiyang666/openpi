@@ -1,0 +1,103 @@
+{
+  "references": {
+    "dp:mt50:reduced:RTX 4090:long": {
+      "run": "/data/mw_finetune/eval/fa_ls_dp_r_p_m",
+      "new": true,
+      "episodes": 2500
+    },
+    "dp:mt50:reduced:RTX 4090": {
+      "run": "/data/mw_finetune/eval/fa_ls_dp_r_b_m",
+      "new": true,
+      "episodes": 2500
+    },
+    "dp:mt50:full:RTX 4090:long": {
+      "run": "/data/mw_finetune/eval/fa_ls_dp_f_p_m",
+      "new": true,
+      "episodes": 2500
+    },
+    "dp:mt50:full:RTX 4090": {
+      "run": "/data/mw_finetune/eval/fa_ls_dp_f_b_m",
+      "new": true,
+      "episodes": 2500
+    },
+    "groot:mt50:reduced:H100:long": {
+      "run": "/data/mw_finetune/eval/fa_ls_gr_r_p_m",
+      "new": true,
+      "episodes": 2500
+    },
+    "groot:mt50:full:H100:long": {
+      "run": "/data/mw_finetune/eval/fa_ls_gr_f_p_m",
+      "new": true,
+      "episodes": 2500
+    },
+    "fastwam:mt50:reduced:H100:long": {
+      "run": "/data/mw_finetune/eval/fa_ls_fw_r_p_m",
+      "new": true,
+      "episodes": 2500
+    },
+    "fastwam:mt50:full:H100:long": {
+      "run": "/data/mw_finetune/eval/fa_ls_fw_f_p_m",
+      "new": true,
+      "episodes": 2500
+    },
+    "dp:libero:reduced:RTX 4090:long": {
+      "run": "/data/mw_finetune/eval/fa_ls_dp_r_p_l",
+      "new": true,
+      "episodes": 1000
+    },
+    "dp:libero:reduced:RTX 4090": {
+      "run": "/data/mw_finetune/eval/fa_ls_dp_r_b_l",
+      "new": true,
+      "episodes": 1000
+    },
+    "dp:libero:full:RTX 4090:long": {
+      "run": "/data/mw_finetune/eval/fa_ls_dp_f_p_l",
+      "new": true,
+      "episodes": 1000
+    },
+    "dp:libero:full:RTX 4090": {
+      "run": "/data/mw_finetune/eval/fa_ls_dp_f_b_l",
+      "new": true,
+      "episodes": 1000
+    },
+    "fastwam:libero:reduced:RTX 4090:long": {
+      "run": "/data/mw_finetune/eval/fa_ls_fw_r_p_l",
+      "new": true,
+      "episodes": 1000
+    },
+    "fastwam:libero:full:H100:long": {
+      "run": "/data/mw_finetune/eval/fa_ls_fw_f_p_l",
+      "new": true,
+      "episodes": 1000
+    },
+    "fastwam:libero:full:H100": {
+      "run": "/data/mw_finetune/eval/fa_ls_fw_f_b_l",
+      "new": true,
+      "episodes": 1000
+    },
+    "groot:mt50:full:H100": {
+      "run": "/data/mw_finetune/eval/tgr7h1_full",
+      "new": false
+    },
+    "groot:mt50:reduced:H100": {
+      "run": "/data/mw_finetune/eval/tgr7h1_k2",
+      "new": false
+    },
+    "dp:mt50:full:H100": {
+      "run": "/data/mw_finetune/eval/tdp7h1_full2",
+      "new": false
+    },
+    "fastwam:mt50:full:H100": {
+      "run": "/data/mw_finetune/eval/tfw7full_0944",
+      "new": false
+    },
+    "fastwam:mt50:reduced:H100": {
+      "run": "/data/mw_finetune/eval/tfw7k3_1051",
+      "new": false
+    },
+    "fastwam:libero:reduced:RTX 4090": {
+      "run": "/data/mw_finetune/eval/hs7fwk1_4090c",
+      "new": false
+    }
+  }
+}

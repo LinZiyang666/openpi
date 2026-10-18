@@ -1,0 +1,18 @@
+{
+  "run": "dpc8513584592",
+  "model": "dp",
+  "domain": "libero",
+  "server_node": "local",
+  "file": "/data/mw_finetune/eval/dpc8513584592/driver/per_step.jsonl",
+  "bytes": 292790348,
+  "inode": 32768253,
+  "mtime_ns": 1791682170628913322,
+  "live": false,
+  "changed_during_scan": false,
+  "episodes": 513,
+  "affected": false,
+  "rows": 73477,
+  "cut_percent": 0.0,
+  "groups": {},
+  "examples": []
+}

@@ -1,0 +1,335 @@
+{
+  "run": "dpmk1_redx",
+  "model": "dp",
+  "domain": "metaworld",
+  "server_node": "h100",
+  "file": "/data/mw_finetune/eval/dpmk1_redx/driver/per_step.jsonl",
+  "bytes": 10114384883,
+  "inode": 48778918,
+  "mtime_ns": 1792046094576751109,
+  "live": false,
+  "changed_during_scan": false,
+  "episodes": 90000,
+  "affected": true,
+  "rows": 4036454,
+  "eligible_heads": 1204994,
+  "tails": 712749,
+  "cuts": 492245,
+  "cut_percent": 40.850410873415136,
+  "groups": {
+    "n1000_chrg_k10": {
+      "eligible_heads": 30378,
+      "tails": 24245,
+      "cuts": 6133,
+      "cut_percent": 20.188952531437224
+    },
+    "n1000_chrg_k20": {
+      "eligible_heads": 32606,
+      "tails": 21035,
+      "cuts": 11571,
+      "cut_percent": 35.48733361957922
+    },
+    "n1000_chrg_k30": {
+      "eligible_heads": 34085,
+      "cuts": 16318,
+      "tails": 17767,
+      "cut_percent": 47.874431568138476
+    },
+    "n1000_chrg_k40": {
+      "eligible_heads": 36362,
+      "tails": 15391,
+      "cuts": 20971,
+      "cut_percent": 57.672845278037514
+    },
+    "n1000_chrg_k50": {
+      "eligible_heads": 38457,
+      "cuts": 25499,
+      "tails": 12958,
+      "cut_percent": 66.30522401643394
+    },
+    "n1000_chrg_koff": {
+      "eligible_heads": 28482,
+      "tails": 26967,
+      "cuts": 1515,
+      "cut_percent": 5.319148936170213
+    },
+    "n1500_chrg_k10": {
+      "eligible_heads": 29894,
+      "tails": 23451,
+      "cuts": 6443,
+      "cut_percent": 21.55281996387235
+    },
+    "n1500_chrg_k20": {
+      "eligible_heads": 31994,
+      "tails": 20470,
+      "cuts": 11524,
+      "cut_percent": 36.019253610051884
+    },
+    "n1500_chrg_k30": {
+      "eligible_heads": 34169,
+      "cuts": 16604,
+      "tails": 17565,
+      "cut_percent": 48.59375457285844
+    },
+    "n1500_chrg_k40": {
+      "eligible_heads": 36165,
+      "cuts": 20982,
+      "tails": 15183,
+      "cut_percent": 58.01742015761095
+    },
+    "n1500_chrg_k50": {
+      "eligible_heads": 38623,
+      "cuts": 25667,
+      "tails": 12956,
+      "cut_percent": 66.45522098231623
+    },
+    "n1500_chrg_koff": {
+      "eligible_heads": 27683,
+      "tails": 25875,
+      "cuts": 1808,
+      "cut_percent": 6.531084058808655
+    },
+    "n2000_chrg_k10": {
+      "eligible_heads": 29618,
+      "tails": 23577,
+      "cuts": 6041,
+      "cut_percent": 20.396380579377407
+    },
+    "n2000_chrg_k20": {
+      "eligible_heads": 31762,
+      "tails": 20739,
+      "cuts": 11023,
+      "cut_percent": 34.704993388325676
+    },
+    "n2000_chrg_k30": {
+      "eligible_heads": 33899,
+      "cuts": 16223,
+      "tails": 17676,
+      "cut_percent": 47.85686893418685
+    },
+    "n2000_chrg_k40": {
+      "eligible_heads": 35935,
+      "cuts": 20571,
+      "tails": 15364,
+      "cut_percent": 57.24502574092111
+    },
+    "n2000_chrg_k50": {
+      "eligible_heads": 38284,
+      "cuts": 25293,
+      "tails": 12991,
+      "cut_percent": 66.06676418347091
+    },
+    "n2000_chrg_koff": {
+      "eligible_heads": 27371,
+      "tails": 25855,
+      "cuts": 1516,
+      "cut_percent": 5.538708852435059
+    },
+    "n2500_chrg_k10": {
+      "eligible_heads": 29487,
+      "tails": 23460,
+      "cuts": 6027,
+      "cut_percent": 20.43951571879133
+    },
+    "n2500_chrg_k20": {
+      "eligible_heads": 31830,
+      "cuts": 11016,
+      "tails": 20814,
+      "cut_percent": 34.608859566446746
+    },
+    "n2500_chrg_k30": {
+      "eligible_heads": 33802,
+      "cuts": 16084,
+      "tails": 17718,
+      "cut_percent": 47.58298325542867
+    },
+    "n2500_chrg_k40": {
+      "eligible_heads": 35747,
+      "cuts": 20386,
+      "tails": 15361,
+      "cut_percent": 57.02856183735698
+    },
+    "n2500_chrg_k50": {
+      "eligible_heads": 38178,
+      "cuts": 25155,
+      "tails": 13023,
+      "cut_percent": 65.88873173031588
+    },
+    "n2500_chrg_koff": {
+      "eligible_heads": 27292,
+      "tails": 25769,
+      "cuts": 1523,
+      "cut_percent": 5.580389857833797
+    },
+    "n250_chrg_k10": {
+      "eligible_heads": 32372,
+      "tails": 26295,
+      "cuts": 6077,
+      "cut_percent": 18.77239589768936
+    },
+    "n250_chrg_k20": {
+      "eligible_heads": 34414,
+      "tails": 22413,
+      "cuts": 12001,
+      "cut_percent": 34.872435636659496
+    },
+    "n250_chrg_k30": {
+      "eligible_heads": 35035,
+      "cuts": 16554,
+      "tails": 18481,
+      "cut_percent": 47.24989296417868
+    },
+    "n250_chrg_k40": {
+      "eligible_heads": 36955,
+      "tails": 15719,
+      "cuts": 21236,
+      "cut_percent": 57.46448383168719
+    },
+    "n250_chrg_k50": {
+      "eligible_heads": 39404,
+      "cuts": 26140,
+      "tails": 13264,
+      "cut_percent": 66.33844279768552
+    },
+    "n250_chrg_koff": {
+      "eligible_heads": 30535,
+      "tails": 29878,
+      "cuts": 657,
+      "cut_percent": 2.151629277877845
+    },
+    "n500_chrg_k10": {
+      "eligible_heads": 31578,
+      "tails": 25201,
+      "cuts": 6377,
+      "cut_percent": 20.194439166508328
+    },
+    "n500_chrg_k20": {
+      "eligible_heads": 32949,
+      "cuts": 11836,
+      "tails": 21113,
+      "cut_percent": 35.92218276730705
+    },
+    "n500_chrg_k30": {
+      "eligible_heads": 34398,
+      "cuts": 16605,
+      "tails": 17793,
+      "cut_percent": 48.27315541601256
+    },
+    "n500_chrg_k40": {
+      "eligible_heads": 36685,
+      "tails": 15439,
+      "cuts": 21246,
+      "cut_percent": 57.914679024124304
+    },
+    "n500_chrg_k50": {
+      "eligible_heads": 39236,
+      "tails": 13212,
+      "cuts": 26024,
+      "cut_percent": 66.32684269548373
+    },
+    "n500_chrg_koff": {
+      "eligible_heads": 29330,
+      "tails": 27731,
+      "cuts": 1599,
+      "cut_percent": 5.451755881350153
+    }
+  },
+  "examples": [
+    {
+      "task_uid": "r17_0567e6ab3e6eb07e61f0_n2000_chrg_koff:eval:1:18",
+      "head_seq": 6,
+      "next_seq": 7,
+      "head_step": 30,
+      "next_step": 35,
+      "head_source": "library",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n2000_chrg_koff"
+    },
+    {
+      "task_uid": "r17_0567e6ab3e6eb07e61f0_n2000_chrg_koff:eval:1:18",
+      "head_seq": 11,
+      "next_seq": 12,
+      "head_step": 55,
+      "next_step": 60,
+      "head_source": "library",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n2000_chrg_koff"
+    },
+    {
+      "task_uid": "r17_0567e6ab3e6eb07e61f0_n2000_chrg_koff:eval:1:22",
+      "head_seq": 6,
+      "next_seq": 7,
+      "head_step": 30,
+      "next_step": 35,
+      "head_source": "library",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n2000_chrg_koff"
+    },
+    {
+      "task_uid": "r17_0567e6ab3e6eb07e61f0_n2000_chrg_koff:eval:1:2",
+      "head_seq": 8,
+      "next_seq": 9,
+      "head_step": 40,
+      "next_step": 45,
+      "head_source": "library",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n2000_chrg_koff"
+    },
+    {
+      "task_uid": "r17_0567e6ab3e6eb07e61f0_n2000_chrg_koff:eval:1:2",
+      "head_seq": 13,
+      "next_seq": 14,
+      "head_step": 65,
+      "next_step": 70,
+      "head_source": "library",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n2000_chrg_koff"
+    },
+    {
+      "task_uid": "r17_0567e6ab3e6eb07e61f0_n2000_chrg_koff:eval:1:12",
+      "head_seq": 14,
+      "next_seq": 15,
+      "head_step": 70,
+      "next_step": 75,
+      "head_source": "library",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n2000_chrg_koff"
+    },
+    {
+      "task_uid": "r17_0567e6ab3e6eb07e61f0_n2000_chrg_koff:eval:1:13",
+      "head_seq": 18,
+      "next_seq": 19,
+      "head_step": 90,
+      "next_step": 95,
+      "head_source": "library",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n2000_chrg_koff"
+    },
+    {
+      "task_uid": "r17_0567e6ab3e6eb07e61f0_n2000_chrg_koff:eval:1:25",
+      "head_seq": 10,
+      "next_seq": 11,
+      "head_step": 50,
+      "next_step": 55,
+      "head_source": "library",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n2000_chrg_koff"
+    }
+  ]
+}

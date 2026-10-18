@@ -1,0 +1,168 @@
+{
+  "run": "csfw_k3",
+  "model": "fastwam",
+  "domain": "metaworld",
+  "server_node": "h100",
+  "file": "/data/mw_finetune/eval/csfw_k3/driver/per_step.jsonl",
+  "bytes": 5612378046,
+  "inode": 46924545,
+  "mtime_ns": 1791947590484401501,
+  "live": false,
+  "changed_during_scan": false,
+  "episodes": 45766,
+  "affected": true,
+  "rows": 2268788,
+  "eligible_heads": 254446,
+  "tails": 250454,
+  "cuts": 3992,
+  "cut_percent": 1.5688987054227617,
+  "groups": {
+    "n1000_ch": {
+      "eligible_heads": 8719,
+      "tails": 8719,
+      "cut_percent": 0.0
+    },
+    "n250_ch": {
+      "eligible_heads": 31920,
+      "tails": 31920,
+      "cut_percent": 0.0
+    },
+    "n250_chg": {
+      "eligible_heads": 32023,
+      "tails": 31113,
+      "cuts": 910,
+      "cut_percent": 2.8417075227180466
+    },
+    "n250_chr": {
+      "eligible_heads": 30840,
+      "tails": 30840,
+      "cut_percent": 0.0
+    },
+    "n250_chrg": {
+      "eligible_heads": 30905,
+      "tails": 30071,
+      "cuts": 834,
+      "cut_percent": 2.698592460766866
+    },
+    "n500_ch": {
+      "eligible_heads": 30123,
+      "tails": 30123,
+      "cut_percent": 0.0
+    },
+    "n500_chg": {
+      "eligible_heads": 30385,
+      "tails": 29240,
+      "cuts": 1145,
+      "cut_percent": 3.768306730294553
+    },
+    "n500_chr": {
+      "eligible_heads": 29610,
+      "tails": 29610,
+      "cut_percent": 0.0
+    },
+    "n500_chrg": {
+      "eligible_heads": 29921,
+      "tails": 28818,
+      "cuts": 1103,
+      "cut_percent": 3.6863741185120817
+    }
+  },
+  "examples": [
+    {
+      "task_uid": "r17_e7d32a62c20a60a917ab_n250_chg:eval:4:2",
+      "head_seq": 4,
+      "next_seq": 5,
+      "head_step": 20,
+      "next_step": 25,
+      "head_source": "library",
+      "next_source": "library",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n250_chg"
+    },
+    {
+      "task_uid": "r17_e7d32a62c20a60a917ab_n250_chg:eval:4:3",
+      "head_seq": 4,
+      "next_seq": 5,
+      "head_step": 20,
+      "next_step": 25,
+      "head_source": "library",
+      "next_source": "library",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n250_chg"
+    },
+    {
+      "task_uid": "r17_e7d32a62c20a60a917ab_n250_chg:eval:4:15",
+      "head_seq": 4,
+      "next_seq": 5,
+      "head_step": 20,
+      "next_step": 25,
+      "head_source": "library",
+      "next_source": "library",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n250_chg"
+    },
+    {
+      "task_uid": "r17_e7d32a62c20a60a917ab_n250_chg:eval:4:27",
+      "head_seq": 4,
+      "next_seq": 5,
+      "head_step": 20,
+      "next_step": 25,
+      "head_source": "library",
+      "next_source": "library",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n250_chg"
+    },
+    {
+      "task_uid": "r17_e7d32a62c20a60a917ab_n250_chg:eval:4:45",
+      "head_seq": 4,
+      "next_seq": 5,
+      "head_step": 20,
+      "next_step": 25,
+      "head_source": "library",
+      "next_source": "library",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n250_chg"
+    },
+    {
+      "task_uid": "r17_e7d32a62c20a60a917ab_n250_chg:eval:5:6",
+      "head_seq": 12,
+      "next_seq": 13,
+      "head_step": 60,
+      "next_step": 65,
+      "head_source": "library",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n250_chg"
+    },
+    {
+      "task_uid": "r17_e7d32a62c20a60a917ab_n250_chg:eval:6:3",
+      "head_seq": 4,
+      "next_seq": 5,
+      "head_step": 20,
+      "next_step": 25,
+      "head_source": "library",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n250_chg"
+    },
+    {
+      "task_uid": "r17_e7d32a62c20a60a917ab_n250_chg:eval:5:10",
+      "head_seq": 12,
+      "next_seq": 13,
+      "head_step": 60,
+      "next_step": 65,
+      "head_source": "library",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n250_chg"
+    }
+  ]
+}

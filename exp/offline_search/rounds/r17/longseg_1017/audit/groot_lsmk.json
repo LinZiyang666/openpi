@@ -1,0 +1,29 @@
+{
+  "run": "groot_lsmk",
+  "model": "groot",
+  "domain": "libero",
+  "server_node": "local",
+  "file": "/data/mw_finetune/eval/groot_lsmk/driver/per_step.jsonl",
+  "bytes": 0,
+  "sample_bytes": 0,
+  "sample_rows": 0,
+  "sample_limit_bytes": 16777216,
+  "sample_limit_lines": 16000,
+  "scan_kind": "bounded_windows",
+  "samples": [
+    {
+      "offset": 0,
+      "bytes": 0,
+      "rows": 0
+    }
+  ],
+  "inode": 50594150,
+  "mtime_ns": 1791966493028773417,
+  "live": false,
+  "changed_during_scan": false,
+  "episodes": 0,
+  "affected": false,
+  "cut_percent": 0.0,
+  "groups": {},
+  "examples": []
+}

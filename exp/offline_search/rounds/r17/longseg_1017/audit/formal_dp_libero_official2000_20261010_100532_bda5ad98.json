@@ -1,0 +1,65 @@
+{
+  "run": "formal_dp_libero_official2000_20261010_100532_bda5ad98",
+  "model": "dp",
+  "domain": "libero",
+  "server_node": "local",
+  "file": "/data/mw_finetune/eval/formal_dp_libero_official2000_20261010_100532_bda5ad98/driver/per_step.jsonl",
+  "bytes": 16829555,
+  "sample_bytes": 16768449,
+  "sample_rows": 6837,
+  "sample_limit_bytes": 16777216,
+  "sample_limit_lines": 16000,
+  "scan_kind": "bounded_windows",
+  "samples": [
+    {
+      "offset": 0,
+      "bytes": 2096448,
+      "rows": 854
+    },
+    {
+      "offset": 2106170,
+      "bytes": 2096710,
+      "rows": 854
+    },
+    {
+      "offset": 4209657,
+      "bytes": 2096622,
+      "rows": 843
+    },
+    {
+      "offset": 6314318,
+      "bytes": 2093925,
+      "rows": 855
+    },
+    {
+      "offset": 8421821,
+      "bytes": 2094261,
+      "rows": 860
+    },
+    {
+      "offset": 10526243,
+      "bytes": 2096958,
+      "rows": 856
+    },
+    {
+      "offset": 12628019,
+      "bytes": 2097148,
+      "rows": 855
+    },
+    {
+      "offset": 14733178,
+      "bytes": 2096377,
+      "rows": 860
+    }
+  ],
+  "inode": 29625953,
+  "mtime_ns": 1791645590378061111,
+  "live": false,
+  "changed_during_scan": false,
+  "episodes": 167,
+  "affected": false,
+  "rows": 6837,
+  "cut_percent": 0.0,
+  "groups": {},
+  "examples": []
+}

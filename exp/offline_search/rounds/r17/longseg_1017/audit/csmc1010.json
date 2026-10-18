@@ -1,0 +1,18 @@
+{
+  "run": "csmc1010",
+  "model": "cosmos",
+  "domain": "libero",
+  "server_node": "h100",
+  "file": "/data/mw_finetune/eval/csmc1010/driver/per_step.jsonl",
+  "bytes": 2636122,
+  "inode": 30409718,
+  "mtime_ns": 1791678547214375403,
+  "live": false,
+  "changed_during_scan": false,
+  "episodes": 32,
+  "affected": false,
+  "rows": 832,
+  "cut_percent": 0.0,
+  "groups": {},
+  "examples": []
+}

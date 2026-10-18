@@ -1,0 +1,190 @@
+{
+  "run": "fsredfw",
+  "model": "fastwam",
+  "domain": "libero",
+  "server_node": "local",
+  "file": "/data/mw_finetune/eval/fsredfw/driver/per_step.jsonl",
+  "bytes": 2169685147,
+  "sample_bytes": 16740686,
+  "sample_rows": 4206,
+  "sample_limit_bytes": 16777216,
+  "sample_limit_lines": 16000,
+  "scan_kind": "bounded_windows",
+  "samples": [
+    {
+      "offset": 0,
+      "bytes": 2093301,
+      "rows": 535
+    },
+    {
+      "offset": 309662670,
+      "bytes": 2094618,
+      "rows": 451
+    },
+    {
+      "offset": 619312676,
+      "bytes": 2092948,
+      "rows": 550
+    },
+    {
+      "offset": 928968679,
+      "bytes": 2091022,
+      "rows": 465
+    },
+    {
+      "offset": 1238622937,
+      "bytes": 2089442,
+      "rows": 557
+    },
+    {
+      "offset": 1548278784,
+      "bytes": 2092462,
+      "rows": 545
+    },
+    {
+      "offset": 1857936724,
+      "bytes": 2093241,
+      "rows": 543
+    },
+    {
+      "offset": 2167591495,
+      "bytes": 2093652,
+      "rows": 560
+    }
+  ],
+  "inode": 50617537,
+  "mtime_ns": 1791966021342369897,
+  "live": false,
+  "changed_during_scan": false,
+  "episodes": 67,
+  "affected": true,
+  "rows": 4206,
+  "eligible_heads": 1052,
+  "tails": 999,
+  "cuts": 53,
+  "cut_percent": 5.038022813688213,
+  "groups": {
+    "n100_chrg_koff": {
+      "eligible_heads": 272,
+      "tails": 261,
+      "cuts": 11,
+      "cut_percent": 4.044117647058823
+    },
+    "n200_chrg_koff": {
+      "eligible_heads": 261,
+      "tails": 251,
+      "cuts": 10,
+      "cut_percent": 3.8314176245210727
+    },
+    "n500_chrg_koff": {
+      "eligible_heads": 251,
+      "tails": 246,
+      "cuts": 5,
+      "cut_percent": 1.9920318725099602
+    },
+    "n50_chrg_koff": {
+      "eligible_heads": 268,
+      "tails": 241,
+      "cuts": 27,
+      "cut_percent": 10.074626865671641
+    }
+  },
+  "examples": [
+    {
+      "task_uid": "r17_4418382d3a0ed7ba119e_n500_chrg_koff:eval:37:48",
+      "head_seq": 32,
+      "next_seq": 33,
+      "head_step": 160,
+      "next_step": 165,
+      "head_source": "library",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n500_chrg_koff"
+    },
+    {
+      "task_uid": "r17_4418382d3a0ed7ba119e_n500_chrg_koff:eval:37:48",
+      "head_seq": 59,
+      "next_seq": 60,
+      "head_step": 295,
+      "next_step": 300,
+      "head_source": "library",
+      "next_source": "library",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n500_chrg_koff"
+    },
+    {
+      "task_uid": "r17_4418382d3a0ed7ba119e_n500_chrg_koff:eval:37:48",
+      "head_seq": 86,
+      "next_seq": 87,
+      "head_step": 430,
+      "next_step": 435,
+      "head_source": "library",
+      "next_source": "library",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n500_chrg_koff"
+    },
+    {
+      "task_uid": "r17_4418382d3a0ed7ba119e_n500_chrg_koff:eval:37:35",
+      "head_seq": 12,
+      "next_seq": 13,
+      "head_step": 60,
+      "next_step": 65,
+      "head_source": "library",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n500_chrg_koff"
+    },
+    {
+      "task_uid": "r17_4418382d3a0ed7ba119e_n500_chrg_koff:eval:38:18",
+      "head_seq": 26,
+      "next_seq": 27,
+      "head_step": 130,
+      "next_step": 135,
+      "head_source": "library",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n500_chrg_koff"
+    },
+    {
+      "task_uid": "r17_7241b0fda25855a7688d_n100_chrg_koff:eval:7:16",
+      "head_seq": 10,
+      "next_seq": 11,
+      "head_step": 50,
+      "next_step": 55,
+      "head_source": "library",
+      "next_source": "library",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n100_chrg_koff"
+    },
+    {
+      "task_uid": "r17_9aca1d0e4c34e71be3f7_n100_chrg_koff:eval:30:28",
+      "head_seq": 31,
+      "next_seq": 32,
+      "head_step": 155,
+      "next_step": 160,
+      "head_source": "library",
+      "next_source": "library",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n100_chrg_koff"
+    },
+    {
+      "task_uid": "r17_9aca1d0e4c34e71be3f7_n100_chrg_koff:eval:30:28",
+      "head_seq": 102,
+      "next_seq": 103,
+      "head_step": 510,
+      "next_step": 515,
+      "head_source": "library",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n100_chrg_koff"
+    }
+  ]
+}

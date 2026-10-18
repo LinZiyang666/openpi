@@ -1,0 +1,458 @@
+{
+  "cells": [
+    {
+      "model": "groot",
+      "domain": "metaworld",
+      "mode": "full",
+      "gpu": "H100",
+      "episodes_needed": 2500,
+      "references": [
+        {
+          "run": "tgr7h1_full",
+          "episodes": 2500,
+          "replicas": 8,
+          "batch": 1,
+          "rate_ep_min": 204.49935532602248,
+          "descriptor_equal": true
+        }
+      ],
+      "missing": false,
+      "key": "groot:mt50:full:H100",
+      "strict_source_identity_match": true
+    },
+    {
+      "model": "groot",
+      "domain": "metaworld",
+      "mode": "full",
+      "gpu": "RTX 4090",
+      "episodes_needed": 2500,
+      "references": [
+        {
+          "run": "tgr7_0502",
+          "episodes": 2500,
+          "replicas": 6,
+          "batch": 1,
+          "rate_ep_min": 112.88756272086223,
+          "descriptor_equal": false
+        }
+      ],
+      "missing": false,
+      "key": "groot:mt50:full:RTX 4090",
+      "strict_source_identity_match": false
+    },
+    {
+      "model": "groot",
+      "domain": "metaworld",
+      "mode": "reduced",
+      "gpu": "H100",
+      "episodes_needed": 2500,
+      "references": [
+        {
+          "run": "tgr7h1_k2",
+          "episodes": 2500,
+          "replicas": 8,
+          "batch": 1,
+          "rate_ep_min": 238.32105253122256,
+          "descriptor_equal": true
+        }
+      ],
+      "missing": false,
+      "key": "groot:mt50:reduced:H100",
+      "strict_source_identity_match": true
+    },
+    {
+      "model": "groot",
+      "domain": "metaworld",
+      "mode": "reduced",
+      "gpu": "RTX 4090",
+      "episodes_needed": 2500,
+      "references": [
+        {
+          "run": "tgr7k2_1044",
+          "episodes": 2500,
+          "replicas": 6,
+          "batch": 1,
+          "rate_ep_min": 140.8229687069516,
+          "descriptor_equal": false
+        }
+      ],
+      "missing": false,
+      "key": "groot:mt50:reduced:RTX 4090",
+      "strict_source_identity_match": false
+    },
+    {
+      "model": "dp",
+      "domain": "metaworld",
+      "mode": "full",
+      "gpu": "H100",
+      "episodes_needed": 2500,
+      "references": [
+        {
+          "run": "tdp7h1_full2",
+          "episodes": 2500,
+          "replicas": 8,
+          "batch": 32,
+          "rate_ep_min": 106.02035609724207,
+          "descriptor_equal": true
+        }
+      ],
+      "missing": false,
+      "key": "dp:mt50:full:H100",
+      "strict_source_identity_match": true
+    },
+    {
+      "model": "dp",
+      "domain": "metaworld",
+      "mode": "full",
+      "gpu": "RTX 4090",
+      "episodes_needed": 2500,
+      "references": [
+        {
+          "run": "tdp7_0729",
+          "episodes": 2500,
+          "replicas": 4,
+          "batch": 8,
+          "rate_ep_min": 133.73365635672118,
+          "descriptor_equal": false
+        }
+      ],
+      "missing": false,
+      "key": "dp:mt50:full:RTX 4090",
+      "strict_source_identity_match": false
+    },
+    {
+      "model": "dp",
+      "domain": "metaworld",
+      "mode": "reduced",
+      "gpu": "H100",
+      "episodes_needed": 2500,
+      "references": [
+        {
+          "run": "tdp7d10_0851",
+          "episodes": 2500,
+          "replicas": 4,
+          "batch": 8,
+          "rate_ep_min": 214.0932240238611,
+          "descriptor_equal": false
+        }
+      ],
+      "missing": false,
+      "key": "dp:mt50:reduced:H100",
+      "strict_source_identity_match": false
+    },
+    {
+      "model": "dp",
+      "domain": "metaworld",
+      "mode": "reduced",
+      "gpu": "RTX 4090",
+      "episodes_needed": 2500,
+      "references": [],
+      "missing": true,
+      "key": "dp:mt50:reduced:RTX 4090",
+      "strict_source_identity_match": false
+    },
+    {
+      "model": "fastwam",
+      "domain": "metaworld",
+      "mode": "full",
+      "gpu": "H100",
+      "episodes_needed": 2500,
+      "references": [
+        {
+          "run": "tfw7full_0944",
+          "episodes": 2500,
+          "replicas": 3,
+          "batch": 16,
+          "rate_ep_min": 71.4180134467464,
+          "descriptor_equal": true
+        }
+      ],
+      "missing": false,
+      "key": "fastwam:mt50:full:H100",
+      "strict_source_identity_match": true
+    },
+    {
+      "model": "fastwam",
+      "domain": "metaworld",
+      "mode": "full",
+      "gpu": "RTX 4090",
+      "episodes_needed": 2500,
+      "references": [],
+      "missing": true,
+      "key": "fastwam:mt50:full:RTX 4090",
+      "strict_source_identity_match": false
+    },
+    {
+      "model": "fastwam",
+      "domain": "metaworld",
+      "mode": "reduced",
+      "gpu": "H100",
+      "episodes_needed": 2500,
+      "references": [
+        {
+          "run": "tfw7k3_1051",
+          "episodes": 2500,
+          "replicas": 3,
+          "batch": 16,
+          "rate_ep_min": 96.9244725435648,
+          "descriptor_equal": true
+        }
+      ],
+      "missing": false,
+      "key": "fastwam:mt50:reduced:H100",
+      "strict_source_identity_match": true
+    },
+    {
+      "model": "fastwam",
+      "domain": "metaworld",
+      "mode": "reduced",
+      "gpu": "RTX 4090",
+      "episodes_needed": 2500,
+      "references": [],
+      "missing": true,
+      "key": "fastwam:mt50:reduced:RTX 4090",
+      "strict_source_identity_match": false
+    },
+    {
+      "model": "dp",
+      "domain": "libero",
+      "mode": "full",
+      "gpu": "H100",
+      "episodes_needed": 1000,
+      "references": [],
+      "missing": true,
+      "key": "dp:libero:full:H100",
+      "strict_source_identity_match": false
+    },
+    {
+      "model": "dp",
+      "domain": "libero",
+      "mode": "full",
+      "gpu": "RTX 4090",
+      "episodes_needed": 1000,
+      "references": [
+        {
+          "run": "hs5dp_ctl_142812",
+          "episodes": 2000,
+          "replicas": 2,
+          "batch": 8,
+          "rate_ep_min": 36.630911133349876,
+          "descriptor_equal": false
+        },
+        {
+          "run": "hs7dpctl_full",
+          "episodes": 1000,
+          "replicas": 4,
+          "batch": 8,
+          "rate_ep_min": 49.11570252694861,
+          "descriptor_equal": false
+        }
+      ],
+      "missing": false,
+      "key": "dp:libero:full:RTX 4090",
+      "strict_source_identity_match": false
+    },
+    {
+      "model": "dp",
+      "domain": "libero",
+      "mode": "reduced",
+      "gpu": "H100",
+      "episodes_needed": 1000,
+      "references": [],
+      "missing": true,
+      "key": "dp:libero:reduced:H100",
+      "strict_source_identity_match": false
+    },
+    {
+      "model": "dp",
+      "domain": "libero",
+      "mode": "reduced",
+      "gpu": "RTX 4090",
+      "episodes_needed": 1000,
+      "references": [
+        {
+          "run": "hs5dp_ddim10s0",
+          "episodes": 1000,
+          "replicas": 2,
+          "batch": 8,
+          "rate_ep_min": 37.53462587860071,
+          "descriptor_equal": false
+        },
+        {
+          "run": "hs7dpctl_ddim10",
+          "episodes": 1000,
+          "replicas": 4,
+          "batch": 8,
+          "rate_ep_min": 90.25517030471947,
+          "descriptor_equal": false
+        }
+      ],
+      "missing": false,
+      "key": "dp:libero:reduced:RTX 4090",
+      "strict_source_identity_match": false
+    },
+    {
+      "model": "fastwam",
+      "domain": "libero",
+      "mode": "full",
+      "gpu": "H100",
+      "episodes_needed": 1000,
+      "references": [
+        {
+          "run": "hs6fw_ctl_143332",
+          "episodes": 1839,
+          "replicas": 2,
+          "batch": 16,
+          "rate_ep_min": 35.892497654707974,
+          "descriptor_equal": false
+        },
+        {
+          "run": "hs6fw_res_152931",
+          "episodes": 2000,
+          "replicas": 2,
+          "batch": 16,
+          "rate_ep_min": 30.37132148204868,
+          "descriptor_equal": false
+        }
+      ],
+      "missing": false,
+      "key": "fastwam:libero:full:H100",
+      "strict_source_identity_match": false
+    },
+    {
+      "model": "fastwam",
+      "domain": "libero",
+      "mode": "full",
+      "gpu": "RTX 4090",
+      "episodes_needed": 1000,
+      "references": [],
+      "missing": true,
+      "key": "fastwam:libero:full:RTX 4090",
+      "strict_source_identity_match": false
+    },
+    {
+      "model": "fastwam",
+      "domain": "libero",
+      "mode": "reduced",
+      "gpu": "H100",
+      "episodes_needed": 1000,
+      "references": [
+        {
+          "run": "hs6fw_k1",
+          "episodes": 1000,
+          "replicas": 2,
+          "batch": 16,
+          "rate_ep_min": 43.50968948050407,
+          "descriptor_equal": false
+        }
+      ],
+      "missing": false,
+      "key": "fastwam:libero:reduced:H100",
+      "strict_source_identity_match": false
+    },
+    {
+      "model": "fastwam",
+      "domain": "libero",
+      "mode": "reduced",
+      "gpu": "RTX 4090",
+      "episodes_needed": 1000,
+      "references": [
+        {
+          "run": "hs7fwk1_4090c",
+          "episodes": 1000,
+          "replicas": 2,
+          "batch": 16,
+          "rate_ep_min": 36.960862131242166,
+          "descriptor_equal": true
+        }
+      ],
+      "missing": false,
+      "key": "fastwam:libero:reduced:RTX 4090",
+      "strict_source_identity_match": true
+    }
+  ],
+  "profiles": [
+    {
+      "path": "/home/weiland/projects/openpi/exp/r17_integration/profile/results/fastwam_libero_libero_10.json",
+      "model": "fastwam_libero",
+      "suite": "libero_10",
+      "gpu": "NVIDIA GeForce RTX 4090",
+      "valid": true,
+      "certified": true,
+      "directory": "results"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/r17_integration/profile/results/dp_libero_libero_spatial.json",
+      "model": "dp_libero",
+      "suite": "libero_spatial",
+      "gpu": "NVIDIA GeForce RTX 4090",
+      "valid": true,
+      "certified": true,
+      "directory": "results"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/r17_integration/profile/results/dp_libero_libero_10.json",
+      "model": "dp_libero",
+      "suite": "libero_10",
+      "gpu": "NVIDIA GeForce RTX 4090",
+      "valid": true,
+      "certified": true,
+      "directory": "results"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/r17_integration/profile/results/fastwam_libero_libero_spatial.json",
+      "model": "fastwam_libero",
+      "suite": "libero_spatial",
+      "gpu": "NVIDIA GeForce RTX 4090",
+      "valid": true,
+      "certified": true,
+      "directory": "results"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/r17_integration/profile/results_mt50/groot_mw_mt50.json",
+      "model": "groot_mw",
+      "suite": "mt50",
+      "gpu": "NVIDIA GeForce RTX 4090",
+      "valid": false,
+      "certified": true,
+      "directory": "results_mt50"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/r17_integration/profile/results_mt50/fastwam_mw_mt50.json",
+      "model": "fastwam_mw",
+      "suite": "mt50",
+      "gpu": "NVIDIA GeForce RTX 4090",
+      "valid": false,
+      "certified": true,
+      "directory": "results_mt50"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/r17_integration/profile/results_mt50/dp_mw_mt50.json",
+      "model": "dp_mw",
+      "suite": "mt50",
+      "gpu": "NVIDIA GeForce RTX 4090",
+      "valid": true,
+      "certified": true,
+      "directory": "results_mt50"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/r17_integration/profile/results_cached_text/fastwam_libero_libero_10.json",
+      "model": "fastwam_libero",
+      "suite": "libero_10",
+      "gpu": "NVIDIA GeForce RTX 4090",
+      "valid": true,
+      "certified": true,
+      "directory": "results_cached_text"
+    },
+    {
+      "path": "/home/weiland/projects/openpi/exp/r17_integration/profile/results_cached_text/fastwam_libero_libero_spatial.json",
+      "model": "fastwam_libero",
+      "suite": "libero_spatial",
+      "gpu": "NVIDIA GeForce RTX 4090",
+      "valid": true,
+      "certified": true,
+      "directory": "results_cached_text"
+    }
+  ],
+  "note": "No journal/per_step reread. Counts/rates inherited from completed inventory; descriptors/profile GPU identities read from small metadata."
+}

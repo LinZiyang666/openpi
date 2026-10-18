@@ -1,0 +1,286 @@
+{
+  "rows": [
+    {
+      "name": "fa_ls_v01_0",
+      "key": "dp:mt50:reduced:RTX 4090",
+      "mode": "reduced",
+      "reference": "/data/mw_finetune/eval/fa_ls_dp_r_b_v",
+      "compatible": true,
+      "missing_reference_episodes": 0,
+      "actual_ready_match": true,
+      "fresh_native_identity_proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/startup_checks/ff1015_dp_mt_05.json",
+      "new_matching_control": true
+    },
+    {
+      "name": "fa_ls_v02_s",
+      "key": "fastwam:mt50:reduced:H100",
+      "mode": "reduced",
+      "reference": "/data/mw_finetune/eval/tfw7k3_1051",
+      "compatible": true,
+      "missing_reference_episodes": 0,
+      "actual_ready_match": true,
+      "fresh_native_identity_proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/startup_checks/ffk1015_fastwam_mt50_full_descent.json"
+    },
+    {
+      "name": "fa_ls_v02_b",
+      "key": "fastwam:mt50:reduced:H100",
+      "mode": "reduced",
+      "reference": "/data/mw_finetune/eval/tfw7k3_1051",
+      "compatible": true,
+      "missing_reference_episodes": 0,
+      "actual_ready_match": true,
+      "fresh_native_identity_proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/startup_checks/ffk1015_fastwam_mt50_full_descent.json"
+    },
+    {
+      "name": "fa_ls_v03_0",
+      "key": "groot:mt50:reduced:H100",
+      "mode": "reduced",
+      "reference": "/data/mw_finetune/eval/tgr7h1_k2",
+      "compatible": true,
+      "missing_reference_episodes": 0,
+      "actual_ready_match": true,
+      "fresh_native_identity_proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/startup_checks/ffk1015_groot_mt50_reduced_descent.json"
+    },
+    {
+      "name": "fa_ls_v03_1",
+      "key": "groot:mt50:reduced:H100",
+      "mode": "reduced",
+      "reference": "/data/mw_finetune/eval/tgr7h1_k2",
+      "compatible": true,
+      "missing_reference_episodes": 0,
+      "actual_ready_match": true,
+      "fresh_native_identity_proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/startup_checks/ffk1015_groot_mt50_reduced_descent.json"
+    },
+    {
+      "name": "fa_ls_v04_0",
+      "key": "dp:libero:full:RTX 4090",
+      "mode": "full",
+      "reference": null,
+      "compatible": false,
+      "missing_reference_episodes": 1000,
+      "fresh_native_identity_proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/startup_checks/ff1015_dp_li_11.json"
+    },
+    {
+      "name": "fa_ls_v04_1",
+      "key": "dp:libero:full:RTX 4090",
+      "mode": "full",
+      "reference": null,
+      "compatible": false,
+      "missing_reference_episodes": 1000,
+      "fresh_native_identity_proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/startup_checks/ff1015_dp_li_11.json"
+    },
+    {
+      "name": "fa_ls_v04_2",
+      "key": "dp:libero:full:RTX 4090",
+      "mode": "full",
+      "reference": null,
+      "compatible": false,
+      "missing_reference_episodes": 1000,
+      "fresh_native_identity_proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/startup_checks/ff1015_dp_li_11.json"
+    },
+    {
+      "name": "fa_ls_v04_3",
+      "key": "dp:libero:full:RTX 4090",
+      "mode": "full",
+      "reference": null,
+      "compatible": false,
+      "missing_reference_episodes": 1000
+    },
+    {
+      "name": "fa_ls_v05_0",
+      "key": "fastwam:libero:full:H100",
+      "mode": "full",
+      "reference": null,
+      "compatible": false,
+      "missing_reference_episodes": 1000
+    },
+    {
+      "name": "fa_ls_v05_1",
+      "key": "fastwam:libero:full:H100",
+      "mode": "full",
+      "reference": null,
+      "compatible": false,
+      "missing_reference_episodes": 1000
+    },
+    {
+      "name": "fa_ls_v05_2",
+      "key": "fastwam:libero:full:H100",
+      "mode": "full",
+      "reference": null,
+      "compatible": false,
+      "missing_reference_episodes": 1000
+    },
+    {
+      "name": "fa_ls_v05_3",
+      "key": "fastwam:libero:full:H100",
+      "mode": "full",
+      "reference": null,
+      "compatible": false,
+      "missing_reference_episodes": 1000
+    },
+    {
+      "name": "fa_ls_v05_4",
+      "key": "fastwam:libero:full:H100",
+      "mode": "full",
+      "reference": null,
+      "compatible": false,
+      "missing_reference_episodes": 1000
+    },
+    {
+      "name": "fa_ls_v06_0",
+      "key": "dp:libero:full:RTX 4090",
+      "mode": "full",
+      "reference": null,
+      "compatible": false,
+      "missing_reference_episodes": 1000
+    },
+    {
+      "name": "fa_ls_v07_0",
+      "key": "fastwam:libero:full:H100",
+      "mode": "full",
+      "reference": null,
+      "compatible": false,
+      "missing_reference_episodes": 1000
+    },
+    {
+      "name": "fa_ls_v08_1",
+      "key": "fastwam:libero:full:H100",
+      "mode": "full",
+      "reference": null,
+      "compatible": false,
+      "missing_reference_episodes": 1000
+    },
+    {
+      "name": "fa_ls_v09_0",
+      "key": "dp:libero:full:RTX 4090",
+      "mode": "full",
+      "reference": null,
+      "compatible": false,
+      "missing_reference_episodes": 1000
+    },
+    {
+      "name": "fa_ls_v09_1",
+      "key": "dp:libero:full:RTX 4090",
+      "mode": "full",
+      "reference": null,
+      "compatible": false,
+      "missing_reference_episodes": 1000
+    },
+    {
+      "name": "fa_ls_v10_0",
+      "key": "dp:libero:reduced:RTX 4090",
+      "mode": "reduced",
+      "reference": null,
+      "compatible": false,
+      "missing_reference_episodes": 1000
+    },
+    {
+      "name": "fa_ls_v11_0",
+      "key": "fastwam:libero:reduced:RTX 4090",
+      "mode": "reduced",
+      "reference": null,
+      "compatible": false,
+      "missing_reference_episodes": 1000
+    },
+    {
+      "name": "fa_ls_v12_0",
+      "key": "dp:libero:reduced:RTX 4090",
+      "mode": "reduced",
+      "reference": null,
+      "compatible": false,
+      "missing_reference_episodes": 1000
+    },
+    {
+      "name": "fa_ls_v13_0",
+      "key": "fastwam:libero:reduced:RTX 4090",
+      "mode": "reduced",
+      "reference": null,
+      "compatible": false,
+      "missing_reference_episodes": 1000
+    },
+    {
+      "name": "fa_ls_v14_0",
+      "key": "dp:mt50:full:RTX 4090",
+      "mode": "full",
+      "reference": "/data/mw_finetune/eval/tdp7_0729",
+      "compatible": true,
+      "missing_reference_episodes": 0
+    }
+  ],
+  "missing_same_R_B_reference_groups": [
+    {
+      "model": "dp",
+      "benchmark": "libero",
+      "mode": "full",
+      "gpu": "RTX 4090",
+      "replicas": 2,
+      "batch": 8,
+      "episodes": 1000,
+      "jobs": [
+        "fa_ls_v04_0",
+        "fa_ls_v04_1",
+        "fa_ls_v04_2",
+        "fa_ls_v06_0"
+      ]
+    },
+    {
+      "model": "dp",
+      "benchmark": "libero",
+      "mode": "full",
+      "gpu": "RTX 4090",
+      "replicas": 4,
+      "batch": 8,
+      "episodes": 1000,
+      "jobs": [
+        "fa_ls_v04_3",
+        "fa_ls_v09_0",
+        "fa_ls_v09_1"
+      ]
+    },
+    {
+      "model": "fastwam",
+      "benchmark": "libero",
+      "mode": "full",
+      "gpu": "H100",
+      "replicas": 2,
+      "batch": 16,
+      "episodes": 1000,
+      "jobs": [
+        "fa_ls_v05_0",
+        "fa_ls_v05_1",
+        "fa_ls_v05_2",
+        "fa_ls_v05_3",
+        "fa_ls_v05_4",
+        "fa_ls_v07_0",
+        "fa_ls_v08_1"
+      ]
+    },
+    {
+      "model": "dp",
+      "benchmark": "libero",
+      "mode": "reduced",
+      "gpu": "RTX 4090",
+      "replicas": 4,
+      "batch": 8,
+      "episodes": 1000,
+      "jobs": [
+        "fa_ls_v10_0",
+        "fa_ls_v12_0"
+      ]
+    },
+    {
+      "model": "fastwam",
+      "benchmark": "libero",
+      "mode": "reduced",
+      "gpu": "RTX 4090",
+      "replicas": 1,
+      "batch": 8,
+      "episodes": 1000,
+      "jobs": [
+        "fa_ls_v11_0",
+        "fa_ls_v13_0"
+      ]
+    }
+  ],
+  "missing_same_R_B_total_episodes": 5000
+}

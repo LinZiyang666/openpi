@@ -1,0 +1,177 @@
+{
+  "run": "fastwamc6066547406",
+  "model": "fastwam",
+  "domain": "libero",
+  "server_node": "h100",
+  "file": "/data/mw_finetune/eval/fastwamc6066547406/driver/per_step.jsonl",
+  "bytes": 20344925352,
+  "sample_bytes": 16749256,
+  "sample_rows": 3181,
+  "sample_limit_bytes": 16777216,
+  "sample_limit_lines": 16000,
+  "scan_kind": "bounded_windows",
+  "samples": [
+    {
+      "offset": 0,
+      "bytes": 2093024,
+      "rows": 476
+    },
+    {
+      "offset": 2906122881,
+      "bytes": 2093619,
+      "rows": 285
+    },
+    {
+      "offset": 5812245104,
+      "bytes": 2096597,
+      "rows": 252
+    },
+    {
+      "offset": 8718360355,
+      "bytes": 2096809,
+      "rows": 334
+    },
+    {
+      "offset": 11624474815,
+      "bytes": 2094525,
+      "rows": 380
+    },
+    {
+      "offset": 14530598085,
+      "bytes": 2085939,
+      "rows": 449
+    },
+    {
+      "offset": 17436713034,
+      "bytes": 2091837,
+      "rows": 467
+    },
+    {
+      "offset": 20342828446,
+      "bytes": 2096906,
+      "rows": 538
+    }
+  ],
+  "inode": 34476501,
+  "mtime_ns": 1791717656928268164,
+  "live": false,
+  "changed_during_scan": false,
+  "episodes": 48,
+  "affected": true,
+  "rows": 3181,
+  "eligible_heads": 339,
+  "tails": 330,
+  "cuts": 9,
+  "cut_percent": 2.6548672566371683,
+  "groups": {
+    "n300_ch": {
+      "eligible_heads": 110,
+      "tails": 110,
+      "cut_percent": 0.0
+    },
+    "n400_chrg": {
+      "eligible_heads": 229,
+      "tails": 220,
+      "cuts": 9,
+      "cut_percent": 3.930131004366812
+    }
+  },
+  "examples": [
+    {
+      "task_uid": "r17_2570a9cf56c9db131d2a_n400_chrg:eval:5:33",
+      "head_seq": 18,
+      "next_seq": 19,
+      "head_step": 90,
+      "next_step": 95,
+      "head_source": "library",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n400_chrg"
+    },
+    {
+      "task_uid": "r17_2570a9cf56c9db131d2a_n400_chrg:eval:5:33",
+      "head_seq": 29,
+      "next_seq": 30,
+      "head_step": 145,
+      "next_step": 150,
+      "head_source": "library",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n400_chrg"
+    },
+    {
+      "task_uid": "r17_2570a9cf56c9db131d2a_n400_chrg:eval:5:33",
+      "head_seq": 40,
+      "next_seq": 41,
+      "head_step": 200,
+      "next_step": 205,
+      "head_source": "library",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n400_chrg"
+    },
+    {
+      "task_uid": "r17_2570a9cf56c9db131d2a_n400_chrg:eval:5:8",
+      "head_seq": 10,
+      "next_seq": 11,
+      "head_step": 50,
+      "next_step": 55,
+      "head_source": "library",
+      "next_source": "policy",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n400_chrg"
+    },
+    {
+      "task_uid": "r17_2570a9cf56c9db131d2a_n400_chrg:eval:5:8",
+      "head_seq": 21,
+      "next_seq": 22,
+      "head_step": 105,
+      "next_step": 110,
+      "head_source": "library",
+      "next_source": "library",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n400_chrg"
+    },
+    {
+      "task_uid": "r17_2570a9cf56c9db131d2a_n400_chrg:eval:5:8",
+      "head_seq": 26,
+      "next_seq": 27,
+      "head_step": 130,
+      "next_step": 135,
+      "head_source": "library",
+      "next_source": "library",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n400_chrg"
+    },
+    {
+      "task_uid": "r17_a46661f8eefb5538c28e_n400_chrg:eval:39:45",
+      "head_seq": 20,
+      "next_seq": 21,
+      "head_step": 100,
+      "next_step": 105,
+      "head_source": "library",
+      "next_source": "library",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n400_chrg"
+    },
+    {
+      "task_uid": "r17_a46661f8eefb5538c28e_n400_chrg:eval:39:45",
+      "head_seq": 47,
+      "next_seq": 48,
+      "head_step": 235,
+      "next_step": 240,
+      "head_source": "library",
+      "next_source": "library",
+      "commit_horizon": 10,
+      "midpoint": 5,
+      "group": "n400_chrg"
+    }
+  ]
+}

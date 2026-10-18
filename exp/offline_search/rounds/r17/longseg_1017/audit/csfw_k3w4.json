@@ -1,0 +1,31 @@
+{
+  "run": "csfw_k3w4",
+  "model": "fastwam",
+  "domain": "metaworld",
+  "server_node": "h100",
+  "file": "/data/mw_finetune/eval/csfw_k3w4/driver/per_step.jsonl",
+  "bytes": 1053097552,
+  "inode": 48776330,
+  "mtime_ns": 1792009245999913623,
+  "live": false,
+  "changed_during_scan": false,
+  "episodes": 8961,
+  "affected": false,
+  "rows": 425535,
+  "eligible_heads": 49493,
+  "tails": 49493,
+  "cut_percent": 0.0,
+  "groups": {
+    "n1000_ch": {
+      "eligible_heads": 20607,
+      "tails": 20607,
+      "cut_percent": 0.0
+    },
+    "n1000_chr": {
+      "eligible_heads": 28886,
+      "tails": 28886,
+      "cut_percent": 0.0
+    }
+  },
+  "examples": []
+}
