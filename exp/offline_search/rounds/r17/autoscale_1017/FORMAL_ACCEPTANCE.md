@@ -56,4 +56,4 @@ PLAN_fa_ls_gr_f_p_m.json和PLAN_fa_pi_f_{u,f}_l.json逐字段比较OFF和动态T
 
 前后逐例表、源码SHA、readonly快照见 followup_1018/formal_dynamic_122x/。新包装器只在其进程和新冻结payload内读取on，物理ENABLED仍off；不改现有wrapper，不改queued/running campaign，不改旧fit、gap、Q3、pure引用或serving。CPU-only测试插件禁止未mock的GPU、远端传输及production端口绑定。
 
-最终回归：207个原用例全部保留通过，新增14个全部通过，共221 PASS、0回归。新六份wrapper全部bash -n通过，旧六份wrapper SHA保持；逐例表见 [BEFORE_AFTER.md](followup_1018/formal_dynamic_122x/BEFORE_AFTER.md)。
+最终回归：207个原用例全部保留通过，新增14个全部通过，共221 PASS、0回归。新六份wrapper全部bash -n通过，旧八份wrapper SHA保持；逐例表见 [BEFORE_AFTER.md](followup_1018/formal_dynamic_122x/BEFORE_AFTER.md)。
