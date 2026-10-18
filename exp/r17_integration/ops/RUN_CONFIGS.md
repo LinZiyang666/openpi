@@ -444,6 +444,12 @@ bash exp/r17_integration/ops/formal_eval.sh \
   4096 MiB/N8 treatment and was GPU/node shared; it is not the rate of the
   conservative command above. No isolated campaign GPU util/W receipt was
   found; Fast-WAM profile's mixed-board W cannot be attributed to Cosmos.
+- **Worker count, measured 2026-10-17 (fa_co_r_u_l, H100 R8/MPS, K2 test-set levels):** with 85 LIBERO workers
+  (timan1 44 + timan107 39 + local 2) the worker round trip was p50 0.95 s / p90 4.1 s, while the server cost
+  was p50 0.19–0.37 s. Workers mostly queued behind the B1 replicas. Retiring timan107 and local, leaving 44
+  workers, raised the rate from ~55 to ~73–86 episodes/min (5-minute windows), with the H100 at 100%. It
+  also freed ~90 GB RAM on timan107 (each Cosmos LIBERO worker holds 2.5–3 GB RSS). Use ~40 workers for
+  H100 R8 Cosmos; more workers only lengthen the queue and load the worker host.
 - **Bottleneck:** native K5 GPU work for the full baseline, then worker
   rendering/recycling/arrival supply atK2. Previously GPU0 renderer saturation
   caused driver growth and D-state stalls; distributing workers is mandatory.
