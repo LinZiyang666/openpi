@@ -10,3 +10,15 @@ def candidate_policy(monkeypatch,request):
         monkeypatch.setattr(module,'enabled',lambda:on)
     old=fleet.FLEETS['timan107']
     monkeypatch.setitem(fleet.FLEETS,'timan107',(*old[:2],104 if on else 64))
+
+
+@pytest.fixture(autouse=True)
+def shed_never_signals_the_test_runner(monkeypatch):
+    """A simulated memory shed (node.stop_tree) must never SIGKILL pytest itself."""
+    import os
+    from exp.offline_search.rounds.r17.autoscale_1017 import node
+    native = node.os.kill
+    def kill(pid, sig):
+        if pid in (os.getpid(), os.getppid()):raise AssertionError('test shed would signal the test runner')
+        return native(pid, sig)
+    monkeypatch.setattr(node.os, 'kill', kill)

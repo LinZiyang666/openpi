@@ -1,0 +1,66 @@
+{
+ "changed_keys": [
+  "autoscale",
+  "autoscale_external_legacy_nodes",
+  "autoscale_maxima_policy",
+  "autoscale_maximum",
+  "autoscale_node_config",
+  "autoscale_node_maxima",
+  "autoscale_overlay",
+  "coordinator_runtime",
+  "driver_runtime",
+  "execution_worker_nodes",
+  "execution_workers",
+  "orchestration",
+  "runtime",
+  "runtime_identity",
+  "worker_max_episodes",
+  "worker_max_seconds",
+  "worker_nodes",
+  "worker_vram_mib",
+  "workers"
+ ],
+ "checks": {
+  "archive_methods_fixed": true,
+  "archived_planner_equals_plan": true,
+  "campaign_uses_fixed_runtime": true,
+  "driver_built_from_fixed_runtime": true,
+  "fixed_runtime_written": true,
+  "h100_receives_fixed_archive": true,
+  "maxima": true,
+  "node_config": true,
+  "plan_bytes_unchanged": true,
+  "unfixed_runtime_never_installed": true,
+  "unique_uids": true
+ },
+ "cpu_only": true,
+ "data_writes": false,
+ "episodes": 90000,
+ "fixed_runtime": {
+  "archive_sha256": "f51c06d6a900fa4c1dca480faf9effd8175bc70b2c94d0fd79db8ce3a4c8ebbf",
+  "identity": "abfcde3abb1dab3e1b991cefb1e120518cb09b89bc698f755cbca398e2de0497",
+  "members": {
+   "exp/r17_integration/common/serving.py": [
+    "fbe946a802a493526ccb518704ce92e652560d2934c6d9fc0691b6d1aec824c0",
+    "1594011d8fa438fb67747beb8e19a541a2d77940c97ba4098057b75f94823890"
+   ],
+   "exp/r17_integration/common/websocket_policy_server.py": [
+    "9960e837c53665f6a12fdd1b284629aba3a71a9fc3e500baa32da1edef7277a3",
+    "5da8a77a8eccacb1762e26558df8ca8fe1dc661de79078a8cff84a5d1180041a"
+   ],
+   "exp/r17_integration/search/cache_recipe.py": [
+    "ce060c35e0699233073b529564325a48a2a8c6c63ba9f3df28dcd52af642ff90",
+    "e5463aa423adb0b774f4075c2c8e5dae7787e3aac0dea3b3f7b611b2ab3302d5"
+   ]
+  }
+ },
+ "frozen_parent_runtime": {
+  "archive_sha256": "66499ead6bf4b490aea3a651fa22494c337b19e3df3c45280488486ca08f354a",
+  "identity": "6a3136e32dc06ee8f76d09340a7d03aebf443ffa6d2c80ec754da981a0e9c394"
+ },
+ "name": "fa_ls_gr_r_f_m",
+ "plan_sha256": "fe6793664801ddbd2fa5eb6491ceb01868e5f041fd909f67b0dc72e2b3c5663a",
+ "remote_calls": "emulated H100 fixed-runtime install only",
+ "seconds": 377.3,
+ "status": "PASS"
+}

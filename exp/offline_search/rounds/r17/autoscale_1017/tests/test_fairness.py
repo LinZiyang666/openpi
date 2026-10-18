@@ -267,7 +267,8 @@ def test_peer_signal_failure_never_suppresses_known_local_critical_retirement(tm
     w.total-=15*GIB  # an unrelated allocation takes MemAvailable to 5 GiB
     def unavailable():raise OSError('simulated /proc failure')
     a.reader=unavailable;a.tick();b.tick()
-    assert b.snapshot['reason']=='critical' and len(b.retired)==10
+    # 14-5 GiB is stopped at once (shed); boundary retirement still covers 24-5 GiB.
+    assert b.snapshot['reason']=='shed_kill' and len(b.snapshot['kill'])==5 and len(b.retired)==10
     assert not b.snapshot['admit']
     w.boundary(b)
     assert w.memory()[0]>=24*GIB

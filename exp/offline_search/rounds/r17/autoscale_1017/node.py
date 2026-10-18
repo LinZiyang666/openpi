@@ -1,4 +1,5 @@
-"""Node-local cooperative memory ledger. No remote calls and no signals."""
+"""Node-local cooperative memory ledger. No remote calls; the only signals are
+a memory shed's SIGKILL to this governor's own workers' process trees."""
 from __future__ import annotations
 
 from contextlib import contextmanager
@@ -7,6 +8,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import signal
 import time
 
 from .policy import Config, MemoryGuard, Peaks
@@ -109,8 +111,22 @@ def campaign_key(campaign):
     return hashlib.sha256(json.dumps({k: campaign.get(k) for k in keys}, sort_keys=True).encode()).hexdigest()
 
 
+# Worker entry points of every pipeline: R15/R16 legacy agents, and fixed or
+# dynamic R17 lanes (native, N-episode recycling, cache study, local, GPU2 relay).
+WORKER_MODULES = (b'examples.libero.worker_entry', b'exp.r17_integration.conductor.worker_entry',
+                  b'exp.r17_integration.ops.worker_lifetime', b'exp.r17_integration.ops.cache_study_worker',
+                  b'exp.r17_integration.ops.local_worker_entry', b'exp.r17_integration.ops.timan1_workers')
+
+
+def stop_tree(pid, start_ticks, proc=Path('/proc')):
+    """SIGKILL one owned worker generation's process tree (PID-reuse safe)."""
+    for current in process_ids(pid, start_ticks, proc):
+        try:os.kill(current, signal.SIGKILL)
+        except ProcessLookupError:pass
+
+
 def external_legacy(covered, margin, proc=Path('/proc')):
-    """Charge uncooperative LIBERO workers' observed high-water, never signal them."""
+    """Charge every non-ledger worker's observed high-water, never signal them."""
     workers = []
     for path in proc.glob('[0-9]*'):
         try:
@@ -119,15 +135,18 @@ def external_legacy(covered, margin, proc=Path('/proc')):
             argv = (path/'cmdline').read_bytes().split(b'\0')
             if not argv or not Path(os.fsdecode(argv[0])).name.startswith('python'):continue
             index = argv.index(b'-m') if b'-m' in argv else -1
-            if index < 1 or argv[index+1:index+2] != [b'examples.libero.worker_entry']:continue
+            if index < 1 or argv[index+1:index+2] == [] or argv[index+1] not in WORKER_MODULES:continue
             if any(not v.startswith(b'-') for v in argv[1:index]):continue
+            if b'--import-probe' in argv or b'--probe' in argv:continue  # seconds-long CPU checks
+            benchmark = argv[argv.index(b'--benchmark')+1:argv.index(b'--benchmark')+2] if b'--benchmark' in argv else []
+            kind = 'metaworld' if benchmark == [b'metaworld'] else 'libero'
             ticks = identity(pid, proc)
             if ticks is None:continue
             sample = process_tree(pid, ticks, proc)
             if sample is None:continue
             rss, peak = sample
             workers.append(dict(pid=pid, worker_id='external_'+str(pid), rss=rss, peak=peak,
-                projected_peak=int(max(rss,peak)*margin+.999), owned=False, born=0))
+                projected_peak=int(max(rss,peak)*margin+.999), owned=False, born=0, worker_class=kind))
         except (FileNotFoundError, ProcessLookupError):continue
     return workers
 
@@ -174,6 +193,7 @@ class LocalGovernor:
         self.snapshot = {}
         self.minimum_available = None
         self.last_spawn = float('-inf')
+        self.replacements = 0  # planned-recycle exits not yet replaced; exempt from the growth ramp
         self.target = campaign.get('autoscale_initial', self.maximum)
         self.legacy = campaign.get('autoscale_legacy', False)
         if self.legacy:
@@ -192,7 +212,8 @@ class LocalGovernor:
         entry.setdefault('peak', 0)
         entry.setdefault('rss', 0)
         self.entries[entry['worker_id']] = entry
-        self.last_spawn = self.clock()
+        if self.replacements:self.replacements -= 1
+        else:self.last_spawn = self.clock()
         self._publish()
         event(self.events, self.node, 1, 'spawn', self.snapshot,
               dict(active=len(self.entries), target=self.target, maximum=self.maximum))
@@ -207,6 +228,7 @@ class LocalGovernor:
         # only a complete planned generation unlocks bootstrap calibration.
         history.append(dict(peak=entry['peak'], complete=normal, boot=self.boot))
         atomic(self.history_path, history[-128:])
+        if normal and worker_id not in self.retired:self.replacements += 1
         self.retired.discard(worker_id)
         self._publish()
         event(self.events, self.node, -1, 'generation_exit', dict(peak=entry['peak'], complete=normal),
@@ -288,14 +310,16 @@ class LocalGovernor:
             covered = {pid for w in workers for pid in w.get('gpu_pids', [w['pid']])}
             try:unmanaged = external_legacy(covered, self.config.peak_margin)
             except (OSError, ValueError):valid = False
-            # Fresh legacy generations have not reached their high-water yet.
-            # Retain the node's observed envelope across PID turnover, with the
-            # explicitly measured technical bootstrap floor from preparation.
-            path=self.root/'peaks-external-libero.json';prior=read(path,{})
-            envelope=max([self.config.external_peak_floor,prior.get('peak',0)]+
-                         [w['projected_peak'] for w in unmanaged])
-            for w in unmanaged:w['projected_peak']=max(w['projected_peak'],envelope)
-            if envelope>prior.get('peak',0):atomic(path,dict(peak=envelope))
+            # Fresh generations have not reached their high-water yet. Retain
+            # each worker class's observed envelope across PID turnover, with
+            # the explicitly measured technical bootstrap floor per class.
+            floors=dict(libero=self.config.external_peak_floor,metaworld=self.config.external_peak_floor_metaworld)
+            for kind,floor in floors.items():
+                members=[w for w in unmanaged if w.get('worker_class','libero')==kind]
+                path=self.root/('peaks-external-'+kind+'.json');prior=read(path,{})
+                envelope=max([floor,prior.get('peak',0)]+[w['projected_peak'] for w in members])
+                for w in members:w['projected_peak']=max(w['projected_peak'],envelope)
+                if members and envelope>prior.get('peak',0):atomic(path,dict(peak=envelope))
         external_growth = sum(max(0,w['projected_peak']-w['rss']) for w in unmanaged)
         workers.extend(unmanaged)
         control = read(self.control_path, {})
@@ -335,11 +359,19 @@ class LocalGovernor:
                       key=lambda w:(w['born'],w['fleet'],w['worker_id']),reverse=True)
         fair_retire={w['worker_id'] for w in newest[:fair_excess] if w['fleet']==self.fleet} if valid and sharing['campaigns']>1 else set()
         decision = self.guard.evaluate(now, available, workers, projection, valid=self.memory_sample_valid,
-                                       psi_full=pressure.get('full', {}).get('avg10', 0))
+                                       psi_full=pressure.get('full', {}).get('avg10', 0), external_growth=external_growth)
         if not valid:
             self.guard.blocked, self.guard.healthy_since = True, None
             decision['admit'] = False
-            if decision['reason'] != 'critical':decision['reason'] = 'memory_unknown'
+            if decision['reason'] not in ('critical', 'shed_kill'):decision['reason'] = 'memory_unknown'
+        for worker_id in decision['kill']:
+            entry = self.entries[worker_id]
+            stop_tree(entry['pid'], entry['start_ticks'])
+            entry['killed'] = True
+        if decision['kill']:
+            event(self.events, self.node, -len(decision['kill']), 'shed_kill', decision,
+                  dict(active=len(own), killed=len(decision['kill']), target=self.target))
+        decision['retire'] = list(dict.fromkeys([*decision['retire'], *decision['kill']]))
         new_retire = set(decision['retire'])
         excess = max(0, len(own) - len(self.retired) - self.target - len(new_retire))
         candidates = sorted(own, key=lambda w: w['born'], reverse=True)
@@ -372,7 +404,9 @@ class LocalGovernor:
         decision.update(external_legacy_workers=len(unmanaged), external_legacy_growth=external_growth,
             spawn_interval_s=self.config.spawn_interval_s)
         last_spawn = max([self.last_spawn] + [s['last_spawn'] for s in peers if s.get('last_spawn') is not None])
-        if decision['admit'] and now-last_spawn < self.config.spawn_interval_s:
+        # Replacing a planned recycle keeps the active count; only growth is ramped.
+        self.replacements = min(self.replacements, max(0, self.target - len(self.entries)))
+        if decision['admit'] and not self.replacements and now-last_spawn < self.config.spawn_interval_s:
             decision.update(admit=False, reason='spawn_ramp_wait')
         self.snapshot = dict(decision, node=self.node, boot=self.boot, time=time.time(),
                              projected_peak=projection, memory_sample_valid=self.memory_sample_valid,

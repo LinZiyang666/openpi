@@ -9,6 +9,8 @@ import threading
 
 from .node import LocalGovernor, atomic, event
 
+SPAWNS_PER_SAMPLE = 16
+
 
 class Slots:
     """Reserve only active GPU slots. RAM is admitted independently per spawn."""
@@ -150,21 +152,23 @@ def run_fleet(campaign, run, report, children, logs, launch, stopped, draining, 
             # Disk and GPU checks remain in the existing launch envelope. GPU
             # inventory is refreshed by its independent 10s sampler. Admission
             # runs every 2s; every pending child reserves its projected growth.
-            if not drain and not terminal_shutdown:
+            # Several admissions per pass: N32 recycling of few-second episodes
+            # needs more than one replacement per 2 s sample. Every spawn is
+            # still admitted on a fresh sample; growth keeps its node ramp.
+            for _ in range(SPAWNS_PER_SAMPLE if not drain and not terminal_shutdown else 0):
                 with governor.permit() as allowed:
-                    if allowed and admission(run, minimum_bytes(campaign))['admitted']:
-                        index = next((i for i in range(campaign['node_workers']) if i not in live), None)
-                        if index is not None:
-                            if slots.acquire(index):
-                                generation = generations.get(index, -1) + 1
-                                spawned = launch(index, generation)
-                                if spawned is None:
-                                    slots.release(index)
-                                else:
-                                    generations[index] = generation
-                                    children.append(spawned)
-                                    live[index] = spawned
-                                    governor.register(spawned[1])
+                    if not (allowed and admission(run, minimum_bytes(campaign))['admitted']):break
+                    index = next((i for i in range(campaign['node_workers']) if i not in live), None)
+                    if index is None or not slots.acquire(index):break
+                    generation = generations.get(index, -1) + 1
+                    spawned = launch(index, generation)
+                    if spawned is None:
+                        slots.release(index)
+                        break
+                    generations[index] = generation
+                    children.append(spawned)
+                    live[index] = spawned
+                    governor.register(spawned[1])
             time.sleep(governor.config.sample_s)
         report.update(status='PARTIAL', reason='interrupted' if stopped() else 'worker_deadline')
     finally:

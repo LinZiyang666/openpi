@@ -107,7 +107,7 @@ def prepare(root, maxima=None, *, reprepare=False, node_config=None, preserve_sc
         c = configure(old, maxima) if maxima else apply(copy.deepcopy(old), force=True)
         if node_config is not None:
             c['autoscale_node_config'] = copy.deepcopy(node_config)
-            c['autoscale_external_legacy_nodes'] = ['timan107']
+            c['autoscale_external_legacy_nodes'] = sorted(node_config)
         maxima = c['autoscale_node_maxima']
         if (root/'PREPARED.json').exists():
             import time

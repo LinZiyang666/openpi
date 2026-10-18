@@ -1,5 +1,10 @@
 # 正式 campaign 私有动态验收（2026-10-18 12:2x）
 
+**10-18 14:xx 更新（以本段为准）**：fa_ls_gr_f_p_m 已由链以 OFF 原生完成（13:56–14:05），GR 动态验收改为 **fa_ls_gr_r_f_m**（90,000 集，GR00T MT50 reduced/filtered，长段）。CPU 证据：PLAN_fa_ls_gr_r_f_m.json（OFF/动态/EPISODE_PLAN 90,000 条全字段相等）、PREPARE_CPU_fa_ls_gr_r_f_m.json（动态 prepare 从冻结 66499ead 写出修复后 runtime f51c06d6/abfcde3a 与 LONGSEG_RUNTIME_FIX.json，归档 planner 相等）。同时修改：
+- 外部计费覆盖所有非 ledger worker 入口（R15/R16 `examples.libero.worker_entry`，R17 worker_entry/worker_lifetime/cache_study_worker/local_worker_entry/timan1_workers），按 RSS/HWM×1.15 计、按类保留峰值包络；下限 LIBERO 4 GiB、MetaWorld 1 GiB；timan1 与 timan107 都启用。
+- 预测性止损：`MemAvailable − 外部未来增长 < critical(60 GiB)` 时，governor 在同一 2 s 采样内 SIGKILL 自己最新的 worker 进程树，直到释放到 critical+hysteresis；被杀 episode 经 driver 断连 fence 以 attempt+1 重发、只接受一次。原 episode 边界退让保留。
+- 计划回收（N32/1800 s/N4）的替换不占 10 s 增长节拍；fleet 每次采样最多 16 个准入（每个都重新采样）。
+
 目标改为已授权 fallback **fa_ls_gr_f_p_m**。13:09最终只读检查发现队列已提前以OFF启动fa_ls_fw_f_p_m；没有触碰该运行目录。GR00T仍未prepare/launch，已提供对应_dyn入口。FW先前新建的_dyn文件已在repo内另名.NOT_FOR_RUNNING_1018，不能用于当前运行；代码也在任何写入/prepare lock之前拒绝已启动目录。global ENABLED 始终 off。现有 prepare_/launch_ 文件和所有链不改；下面只新增 _dyn 文件，coordinator 审阅后自行替换入口。本轮未写 /data/mw_finetune/eval 下的任何目录，未 prepare、stage、传输或启动真实实验。
 
 | Campaign | 正式计划 / 本次待执行 | desired maxima（不是人数上限） | Serving |
@@ -31,9 +36,9 @@ fa_pi_f_f_l_l50 有三档已native DONE，各500集（ir45/ir40/ir32）。ir25�
 
 ```bash
 cd /home/weiland/projects/openpi
-# 替换 H100 chain 授权GR fallback项入口；不用改 campaign definition / 重新build。
-bash exp/offline_search/rounds/r17/filter_failed_knob/commands/prepare_fa_ls_gr_f_p_m_dyn.sh
-bash exp/offline_search/rounds/r17/filter_failed_knob/commands/launch_fa_ls_gr_f_p_m_dyn.sh
+# GR 验收（fa_ls_gr_f_p_m 已 OFF 跑完，入口作废）：链停在 fa_ls_gr_r_f_m 之前时替换其入口。
+bash exp/offline_search/rounds/r17/filter_failed_knob/commands/prepare_fa_ls_gr_r_f_m_dyn.sh
+bash exp/offline_search/rounds/r17/filter_failed_knob/commands/launch_fa_ls_gr_r_f_m_dyn.sh
 
 # R16 GR00T 四批离开 timan107 后，H100空闲时执行；两个R15 unit串行。
 bash exp/offline_search/rounds/r17/filter_failed_knob/commands/prepare_fa_pi_f_u_l_dyn.sh
@@ -42,7 +47,7 @@ bash exp/offline_search/rounds/r17/filter_failed_knob/commands/prepare_fa_pi_f_f
 bash exp/offline_search/rounds/r17/filter_failed_knob/commands/launch_fa_pi_f_f_l_dyn.sh
 
 # 各unit结束后，audit只读结果，写入repo的formal_acceptance/<NAME>/。
-for name in fa_ls_gr_f_p_m fa_pi_f_u_l fa_pi_f_f_l; do
+for name in fa_ls_gr_r_f_m fa_pi_f_u_l fa_pi_f_f_l; do
   env CUDA_VISIBLE_DEVICES= JAX_PLATFORMS=cpu PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src \
     .venv/bin/python -m exp.offline_search.rounds.r17.autoscale_1017.formal_dynamic audit --name "$name"
 done

@@ -20,9 +20,13 @@ from .policy import GIB
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[4]
 EVAL = Path('/data/mw_finetune/eval')
-NAMES = ('fa_ls_fw_f_p_m', 'fa_ls_gr_f_p_m', 'fa_pi_f_u_l', 'fa_pi_f_f_l')
+NAMES = ('fa_ls_fw_f_p_m', 'fa_ls_gr_f_p_m', 'fa_pi_f_u_l', 'fa_pi_f_f_l', 'fa_ls_gr_r_f_m')
+# Non-ledger worker floors: LIBERO from the measured R16 high-water (3.37 GiB x 1.15);
+# MetaWorld at twice the measured 512 MiB R17 renderer reservation.
+EXTERNAL_FLOORS = dict(external_peak_floor=4*GIB, external_peak_floor_metaworld=1*GIB)
 NODE_CONFIG = {'timan107': dict(floor=96*GIB, critical=60*GIB, hysteresis=8*GIB,
-                              spawn_interval_s=10, external_peak_floor=4*GIB)}
+                              spawn_interval_s=10, **EXTERNAL_FLOORS),
+               'timan1': dict(EXTERNAL_FLOORS)}
 
 
 @contextmanager
@@ -57,7 +61,7 @@ def desired(campaign):
 
 def dynamic_campaign(campaign):
     c = formal_trial.configure(campaign, desired(campaign))
-    c.update(autoscale_node_config=copy.deepcopy(NODE_CONFIG), autoscale_external_legacy_nodes=['timan107'])
+    c.update(autoscale_node_config=copy.deepcopy(NODE_CONFIG), autoscale_external_legacy_nodes=sorted(NODE_CONFIG))
     return c
 
 

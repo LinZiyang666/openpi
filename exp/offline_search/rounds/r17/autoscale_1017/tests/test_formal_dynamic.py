@@ -68,6 +68,28 @@ def test_external_unledgered_legacy_high_water_reserved_without_conda_double_cou
     assert not workers[0]['owned'] and not n.external_legacy({10},1.15,proc)
 
 
+def test_every_unledgered_worker_entry_is_charged_by_class(tmp_path):
+    proc=tmp_path/'proc'
+    for pid,argv in (
+            (20,b'/envs/sim/bin/python\0-u\0-m\0exp.r17_integration.conductor.worker_entry\0--benchmark\0metaworld\0'),
+            (21,b'/provision/python-mw-gpu3\0-u\0-m\0exp.r17_integration.ops.timan1_workers\0--benchmark\0metaworld\0'),
+            (22,b'python\0-u\0-m\0exp.r17_integration.ops.worker_lifetime\0--benchmark\0libero\0'),
+            (23,b'python\0-u\0-m\0exp.r17_integration.ops.cache_study_worker\0--benchmark\0libero\0'),
+            (24,b'/scratch/zixuans8/libero_sim/bin/python\0-m\0examples.libero.worker_entry\0--task-suite-name\0libero_10\0'),
+            (25,b'python\0-u\0-m\0exp.r17_integration.conductor.worker_entry\0--worker-id\0import\0--import-probe\0'),
+            (26,b'python\0-m\0exp.r17_integration.ops.formal_workers\0--campaign\0c.json\0'),
+            (27,b'/usr/bin/bwrap\0--unshare-user\0python\0-m\0exp.r17_integration.ops.timan1_workers\0')):
+        p=proc/str(pid);(p/'task'/str(pid)).mkdir(parents=True)
+        (p/'cmdline').write_bytes(argv)
+        (p/'stat').write_text(str(pid)+' (worker) S '+'0 '*18+'123 0\n')
+        (p/'status').write_text('VmRSS: 128 kB\nVmHWM: 256 kB\n')
+        (p/'task'/str(pid)/'children').write_text('')
+    workers=n.external_legacy(set(),1.15,proc)
+    # Fixed R17 lanes (MetaWorld/LIBERO, GPU2 relay) and R15/R16 legacy workers;
+    # never import probes, supervisors, or a wrapper beside its python child.
+    assert {w['pid']:w['worker_class'] for w in workers}=={20:'metaworld',21:'metaworld',22:'libero',23:'libero',24:'libero'}
+
+
 def governor(tmp_path,clock,name,available,**extras):
     c=dict(run_name=name,model='fastwam',domain='metaworld',worker_node='timan107',node_workers=440,
            autoscale={},autoscale_node_config=f.NODE_CONFIG,**extras)
@@ -105,6 +127,98 @@ def test_cold_legacy_pid_turnover_does_not_release_reserved_future_growth(tmp_pa
     workers[0]['projected_peak']=5*GIB;clock.advance(2);g.tick()
     workers[0]['projected_peak']=GIB//4;clock.advance(2);g.tick()
     assert g.snapshot['external_legacy_growth']==304*GIB  # high-water survives recycling
+
+
+def test_fixed_metaworld_lane_is_charged_at_its_own_class_floor(tmp_path,monkeypatch):
+    clock=Clock();monkeypatch.setattr(n.time,'time',clock.wall)
+    workers=[dict(pid=i,worker_id='fixed'+str(i),rss=GIB//4,peak=GIB//4,projected_peak=int(GIB/4*1.15),
+                  owned=False,born=0,worker_class='metaworld') for i in range(60)]
+    monkeypatch.setattr(n,'external_legacy',lambda *a:workers)
+    g=governor(tmp_path,clock,'lane',[200*GIB],autoscale_external_legacy_nodes=['timan107'])
+    g.tick()
+    assert g.snapshot['external_legacy_workers']==60
+    assert g.snapshot['external_legacy_growth']==60*(GIB-GIB//4)  # 1 GiB MetaWorld floor, not LIBERO's 4 GiB
+
+
+def own_workers(g,count):
+    for i in range(count):
+        g.register(dict(pid=10**6+i,start_ticks='1',worker_id='w'+str(i),born=float(i)))
+
+
+def test_t107_new_unledgered_lane_makes_own_workers_stop_within_one_sample(tmp_path,monkeypatch):
+    clock=Clock();monkeypatch.setattr(n.time,'time',clock.wall);external=[];killed=[]
+    monkeypatch.setattr(n,'external_legacy',lambda *a:list(external))
+    monkeypatch.setattr(n,'stop_tree',lambda pid,ticks:killed.append(pid))
+    g=governor(tmp_path,clock,'lane',[97*GIB],autoscale_external_legacy_nodes=['timan107'])
+    own_workers(g,40);clock.advance(2)
+    assert not g.tick()['kill'] and not killed
+    # A fixed 60-worker MetaWorld lane appears; its RSS has not grown yet, but
+    # 97-45 GiB projected is below the 60 GiB critical level: free 16 GiB now.
+    external[:]=[dict(pid=i,worker_id='mw'+str(i),rss=GIB//4,peak=GIB//4,projected_peak=0,owned=False,
+                      born=0,worker_class='metaworld') for i in range(60)]
+    clock.advance(2);s=g.tick()
+    assert s['reason']=='shed_kill' and killed==[10**6+i for i in range(39,23,-1)]  # newest first
+    assert {'w'+str(i) for i in range(24,40)}<=set(s['retired'])
+    clock.advance(2);g.tick();assert len(killed)==16  # exiting workers are not stopped twice
+    # Next, a 64-worker R16 batch: every remaining own worker stops at once.
+    external+=[dict(pid=100+i,worker_id='r16'+str(i),rss=GIB//4,peak=GIB//4,projected_peak=0,owned=False,
+                    born=0,worker_class='libero') for i in range(64)]
+    clock.advance(2);g.tick();assert len(killed)==40
+    with g.permit() as allowed:assert not allowed
+    # Without any external signal, MemAvailable itself below critical also stops workers.
+    r=governor(tmp_path/'reactive',clock,'reactive',[55*GIB]);monkeypatch.setattr(n,'external_legacy',lambda *a:[])
+    own_workers(r,20);clock.advance(2);killed.clear()
+    assert r.tick()['kill'] and len(killed)==13  # 60+8-55 GiB at 1 GiB each
+
+
+def test_killed_worker_episode_is_redispatched_and_accepted_exactly_once(tmp_path):
+    import socket
+    import threading
+    from openpi.conductor import protocol as P, task as T
+    from openpi.conductor.driver import ConductorDriver
+    from openpi.conductor.strategy import ExperimentStrategy
+    server=T.ServerEndpoint('h',1)
+    class One(ExperimentStrategy):
+        def plan(self,yamls,assignment):
+            g=T.TaskGraph()
+            g.add_stage(T.Stage('y:eval','y','eval',server,episodes=[T.EpisodeTask(task_uid=T.make_task_uid('y','eval',0,0),
+                yaml_id='y',phase='eval',experiment='e',task_id=0,episode_idx=0,orig_init_state_idx=0,
+                server_host=server.host,server_port=server.port,bundle_id='y')],setup={}))
+            return g
+        def on_stage_begin(self,stage,ctl,ctx):pass
+        def on_stage_complete(self,stage,ctl,ctx):pass
+    d=ConductorDriver(One(),yaml_weights={'y':1},servers=[server],journal_path=str(tmp_path/'j.jsonl'),ctl_factory=lambda s:None)
+    d.drive_stages_once()
+    def session(killed):
+        a,b=socket.socketpair();t=threading.Thread(target=d._handle_conn,args=(a,lambda:False));t.start()
+        P.send_message(b,P.MSG_PULL,dict(worker_id='w',server_host=server.key));task=P.recv_message(b)[1]['task']
+        if not killed:
+            P.send_message(b,P.MSG_REPORT_RESULT,P.result_to_wire(T.EpisodeResult(task['task_uid'],success=True,n_steps=1,attempt=task['attempt'])))
+        b.close();t.join(5);assert not t.is_alive()
+        return task
+    first=session(killed=True)  # SIGKILL mid-episode: the socket drops with no result
+    second=session(killed=False)
+    assert first['task_uid']==second['task_uid'] and second['attempt']==first['attempt']+1
+    d.handle_result(P.result_to_wire(T.EpisodeResult(first['task_uid'],success=True,n_steps=1,attempt=first['attempt'])))
+    rows=[json.loads(line) for line in (tmp_path/'j.jsonl').read_text().splitlines()]
+    d.drive_stages_once()
+    assert [r['task_uid'] for r in rows if r.get('accepted')]==[first['task_uid']] and d.scheduler.all_done()
+
+
+def test_recycle_replacement_skips_growth_ramp_without_refilling_it(tmp_path,monkeypatch):
+    clock=Clock();monkeypatch.setattr(n.time,'time',clock.wall)
+    g=governor(tmp_path,clock,'lane',[200*GIB]);me=dict(pid=os.getpid(),start_ticks=n.identity(os.getpid()))
+    with g.permit() as allowed:
+        assert allowed;g.register(dict(me,worker_id='a'))
+    clock.advance(2)
+    with g.permit() as allowed:assert not allowed  # growth: one per 10 s
+    with g.lock():g.finished('a',normal=True)       # planned N32 / 1800 s recycle
+    with g.permit() as allowed:
+        assert allowed;g.register(dict(me,worker_id='a2'))  # its replacement does not wait
+    clock.advance(2)
+    with g.permit() as allowed:assert not allowed  # ...and does not reset the growth token
+    clock.advance(6)
+    with g.permit() as allowed:assert allowed
 
 
 def test_t107_ramp_is_one_per_10s_shared_between_dynamic_fleets(tmp_path,monkeypatch):
@@ -271,3 +385,50 @@ def test_actual_gr_formal_prepare_uses_its_fixed_runtime_not_pre_longseg_parent(
     assert driver_release.planned_tasks(new,root)==expected
     assert new['execution_worker_nodes']=={'timan1':332,'timan107':440}
     assert (str(root/'runtime.tar'),new['runtime']) in calls and unfixed['root'] not in installs
+
+
+@pytest.mark.parametrize('per_sample',[1,16])
+def test_fleet_replaces_simultaneous_recycles_in_one_pass_while_growth_keeps_ramp(tmp_path,monkeypatch,per_sample):
+    import types
+    from exp.offline_search.rounds.r17.autoscale_1017 import fleet
+    from exp.r17_integration.ops import worker_disk, worker_lifetime
+    clock=[0.];control=dict(campaign='lane',targets=dict(timan107=6))
+    def sleep(seconds):
+        clock[0]+=seconds;n.atomic(g.control_path,dict(control,time=1700000000+clock[0]))
+    monkeypatch.setattr(fleet.time,'monotonic',lambda:clock[0])
+    monkeypatch.setattr(fleet.time,'time',lambda:1700000000+clock[0])
+    monkeypatch.setattr(fleet.time,'sleep',sleep)
+    monkeypatch.setattr(worker_disk,'admission',lambda *a:dict(admitted=True))
+    monkeypatch.setattr(worker_lifetime,'planned_recycle',lambda entry,code:code==75)
+    monkeypatch.setattr(fleet,'SPAWNS_PER_SAMPLE',per_sample)
+    class Slots:
+        def __init__(self,*a):pass
+        def view(self):return None
+        def acquire(self,i):return True
+        def release(self,i):pass
+    monkeypatch.setattr(fleet,'Slots',Slots)
+    campaign=dict(run_name='lane',domain='metaworld',worker_node='timan107',node_workers=6,autoscale={},
+                  autoscale_node_config=dict(timan107=dict(spawn_interval_s=10)),seconds=400,worker_max_episodes=32)
+    g=n.LocalGovernor(campaign,tmp_path/'run',ledger=tmp_path/'ledger',clock=lambda:clock[0],
+        reader=lambda:(200*GIB,{'full':dict(avg10=0)}),process_reader=lambda *a:(GIB,GIB))
+    n.atomic(g.history_path,[dict(peak=GIB,complete=True)]);sleep(0)
+    spawned=[]
+    class Handle:
+        pid=os.getpid()
+        def __init__(self,generation):self.generation=generation
+        def poll(self):
+            if self.generation==0:return 75 if clock[0]>=100 else None  # all recycle at once
+            return 0 if clock[0]>=150 else None
+        def wait(self,timeout):return self.poll()
+    def launch(index,generation):
+        spawned.append((clock[0],generation));logs[index]=types.SimpleNamespace(close=lambda:None)
+        return Handle(generation),dict(pid=os.getpid(),start_ticks=n.identity(os.getpid()),worker_id='w'+str(index),
+                                       index=index,generation=generation)
+    logs={};report=dict(worker_failures=[],worker_recycles=[])
+    fleet.run_fleet(campaign,g.run,report,[],logs,launch,lambda:False,lambda:len(spawned)>=12,g)
+    growth=[t for t,generation in spawned if generation==0]
+    replacements=[t for t,generation in spawned if generation==1]
+    assert growth==[0,10,20,30,40,50]  # growth: one per 10 s on timan107
+    assert len(replacements)==6 and report['status']=='PASS' and not report['worker_failures']
+    # Replacements are neither ramped nor limited to one per 2 s sample.
+    assert (max(replacements)-min(replacements)==0) == (per_sample>=6)

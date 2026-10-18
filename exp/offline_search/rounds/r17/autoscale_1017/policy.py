@@ -28,6 +28,7 @@ class Config:
     mode: str = 'dynamic'
     spawn_interval_s: float = 0
     external_peak_floor: int = 0
+    external_peak_floor_metaworld: int = 0
 
     def __post_init__(self):
         if not 0 < self.critical < self.floor or self.hysteresis < 0:
@@ -36,8 +37,8 @@ class Config:
             raise ValueError('positive timing required')
         if self.peak_margin < 1 or not 0 < self.decrease < 1:
             raise ValueError('invalid projection/decrease')
-        if self.spawn_interval_s < 0 or self.external_peak_floor < 0:
-            raise ValueError('nonnegative spawn interval required')
+        if self.spawn_interval_s < 0 or min(self.external_peak_floor, self.external_peak_floor_metaworld) < 0:
+            raise ValueError('nonnegative spawn interval and external floors required')
         if not 0 <= self.marginal < 1 or not 0 < self.wait_fraction < 1:
             raise ValueError('invalid throughput thresholds')
         if self.mode not in ('dynamic', 'fixed') or self.min_slice < 1 or self.min_samples < 1:
@@ -74,10 +75,10 @@ class MemoryGuard:
         self.blocked = False
         self.healthy_since = None
 
-    def evaluate(self, now, available, workers, new_peak, *, valid=True, psi_full=0):
+    def evaluate(self, now, available, workers, new_peak, *, valid=True, psi_full=0, external_growth=0):
         if not valid:
             self.blocked, self.healthy_since = True, None
-            return dict(admit=False, retire=[], reason='memory_unknown', headroom=0)
+            return dict(admit=False, retire=[], kill=[], reason='memory_unknown', headroom=0)
         growth = remaining_growth(workers)
         headroom = available - self.c.floor - growth
         # PSI is a stop-admission signal, never evidence that RAM became free.
@@ -103,11 +104,27 @@ class MemoryGuard:
                 if not w.get('draining') and w.get('owned', True):
                     retire.append(w['worker_id'])
                     released += w['rss']
+        kill = []
+        projected = available - external_growth
+        if projected < self.c.critical:
+            # Non-ledger workers are charged at their projected peak as soon as
+            # their processes exist, before their RSS grows; an episode boundary
+            # can be a minute away. Stop own newest workers now. Their episodes
+            # are re-dispatched by the driver's disconnect fence.
+            released = sum(w['rss'] for w in workers if w.get('killed'))
+            need = self.c.critical + self.c.hysteresis - projected
+            for w in sorted(workers, key=lambda w: w['born'], reverse=True):
+                if released >= need:
+                    break
+                if w.get('owned', True) and not w.get('killed'):
+                    kill.append(w['worker_id'])
+                    released += w['rss']
         return dict(admit=not self.blocked and new_peak > 0 and headroom >= new_peak,
-                    retire=retire, reason=('critical' if available < self.c.critical else
+                    retire=retire, kill=kill, reason=('shed_kill' if kill else 'critical' if available < self.c.critical else
                     'memory_hold' if self.blocked else 'memory_growth' if headroom < new_peak else 'memory_ok'),
                     headroom=headroom, remaining_growth=growth, projected_peak=new_peak,
-                    available=available, psi_full=psi_full, floor=self.c.floor, critical=self.c.critical)
+                    available=available, psi_full=psi_full, floor=self.c.floor, critical=self.c.critical,
+                    projected_available=projected)
 
 
 class Tuner:
