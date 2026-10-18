@@ -478,7 +478,6 @@ exp/offline_search/rounds/r17/**/*_editor.html
 /exp/offline_search/rounds/r17/**/*.lock
 
 # Copied source releases, staging snapshots and local runtime dependencies.
-/exp/offline_search/rounds/r17/autoscale_1017/native_sources/
 /exp/offline_search/rounds/r17/autoscale_1017/dependencies_ops_after/
 /exp/offline_search/rounds/r17/autoscale_1017/test_frozen_final/
 /exp/offline_search/rounds/r17/autoscale_1017/test_retry_final*/

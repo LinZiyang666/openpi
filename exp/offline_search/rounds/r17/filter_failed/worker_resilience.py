@@ -441,8 +441,11 @@ def install_worker(inventory_source):
     """Use physical PCI discovery and measured reservations in frozen workers."""
     from exp.r17_integration.ops import worker_gpu as g,worker_memory as m
     exec(inventory_source,g.__dict__)
-    admission,reservation=g.admission,m.reservation_mib
-    m.reservation_mib=lambda c:c['worker_ram_reservation_mib'] if 'worker_ram_reservation_mib' in c else reservation(c)
+    admission=g.admission
+    # Payloads frozen before reservation_mib keep their native per-worker RAM admission.
+    if hasattr(m,'reservation_mib'):
+        reservation=m.reservation_mib
+        m.reservation_mib=lambda c:c['worker_ram_reservation_mib'] if 'worker_ram_reservation_mib' in c else reservation(c)
     def admit(c,*a,**kw):
         result=admission(c,*a,**kw)
         slots={r['device']:max(0,(r['total_mib']-r['used_mib']-r['headroom_mib']-r['pending_mib'])//result['worker_vram_mib'])
