@@ -44,6 +44,15 @@ def test_dispatch_targets_fresh_formal_prepare_without_rewriting_definition(tmp_
     assert (r/'campaign.json').read_bytes()==data
 
 
+def test_dynamic_prepare_refuses_already_launched_before_touching_its_directory(tmp_path,monkeypatch):
+    r=tmp_path/'launched';r.mkdir();n.atomic(r/'campaign.json',{'domain':'metaworld'});n.atomic(r/'LAUNCH.json',{})
+    before={p.name:p.read_bytes() for p in r.iterdir()}
+    monkeypatch.setattr(f,'jobs',lambda name:[dict(run=str(r),pipeline='R17')])
+    monkeypatch.setattr(f.formal_trial,'prepare',lambda *a,**kw:pytest.fail('must refuse before prepare lock/write'))
+    with pytest.raises(ValueError,match='already launched'):f.dispatch('prepare',f.NAMES[0])
+    assert {p.name:p.read_bytes() for p in r.iterdir()}==before
+
+
 def test_external_unledgered_legacy_high_water_reserved_without_conda_double_count(tmp_path):
     proc=tmp_path/'proc'
     for pid,argv in ((10,b'python\0-m\0examples.libero.worker_entry\0'),
@@ -201,13 +210,13 @@ def test_formal_audit_requires_unique_outcomes_recycling_and_covered_zero_oom(tm
     assert not audit(f.NAMES[0],tmp_path/'audit')['checks']['every_uid_once']
 
 
-def test_actual_fw_formal_prepare_uses_its_fixed_runtime_not_pre_longseg_parent(tmp_path,monkeypatch):
+def test_actual_gr_formal_prepare_uses_its_fixed_runtime_not_pre_longseg_parent(tmp_path,monkeypatch):
     import shutil
     from contextlib import nullcontext
     from exp.r17_integration.ops import formal_eval as launch,driver_release,immutable_release,formal_ports,formal_prestage
     from exp.offline_search.rounds.r17.autoscale_1017 import trial_runtime
     from exp.offline_search.rounds.r17.filter_failed import stage
-    source=Path('/data/mw_finetune/eval/fa_ls_fw_f_p_m');root=tmp_path/'formal';root.mkdir()
+    source=Path('/data/mw_finetune/eval/fa_ls_gr_f_p_m');root=tmp_path/'formal';root.mkdir()
     for name in ('campaign.json','runtime.tar','workers.tar','EPISODE_PLAN.json','WORKER_DEPLOYMENT.json'):
         if (source/name).exists():shutil.copy2(source/name,root/name)
     old=f.read(root/'campaign.json');expected=f.read(root/'EPISODE_PLAN.json')['tasks']

@@ -1,14 +1,14 @@
 # 正式 campaign 私有动态验收（2026-10-18 12:2x）
 
-目标为 H100 chain 的第二项 **fa_ls_fw_f_p_m**，已在13:50前完成本地准备；不用 GR00T fallback。global ENABLED 始终 off。现有 prepare_/launch_ 文件和所有链不改；下面只新增 _dyn 文件，coordinator 审阅后自行替换入口。本轮未写 /data/mw_finetune/eval 下的任何目录，未 prepare、stage、传输或启动真实实验。
+目标改为已授权 fallback **fa_ls_gr_f_p_m**。13:09最终只读检查发现队列已提前以OFF启动fa_ls_fw_f_p_m；没有触碰该运行目录。GR00T仍未prepare/launch，已提供对应_dyn入口。FW先前新建的_dyn文件已在repo内另名.NOT_FOR_RUNNING_1018，不能用于当前运行；代码也在任何写入/prepare lock之前拒绝已启动目录。global ENABLED 始终 off。现有 prepare_/launch_ 文件和所有链不改；下面只新增 _dyn 文件，coordinator 审阅后自行替换入口。本轮未写 /data/mw_finetune/eval 下的任何目录，未 prepare、stage、传输或启动真实实验。
 
 | Campaign | 正式计划 / 本次待执行 | desired maxima（不是人数上限） | Serving |
 |---|---:|---|---|
-| fa_ls_fw_f_p_m | 2,500 / 2,500 | timan1 GPU2=332；timan107=440；总772 | 原 H100 R2、同 MPS/批处理/模型/steps |
+| fa_ls_gr_f_p_m | 2,500 / 2,500 | timan1 GPU2=332；timan107=440；总772 | 原 H100 R11、同批处理/模型/steps |
 | fa_pi_f_u_l | 10,000 / 10,000，5 cells ×4档×500 | timan107=104 | 原 H100 R3 B1、R15 |
 | fa_pi_f_f_l | 12,000 / 10,298，6 cells ×4档×500 | timan107=104 | 原 H100 R3 B1、R15；原生 journal continuation |
 
-MetaWorld 定义的 execution_worker_nodes=60/60 是下界，经 defaults.desired_maxima 升至332/440；R15 经 physical_maximum 升至104。没有 worker_hard_limits 被注入。真正的技术约束是 VRAM/RAM 逐次准入和已知保护设备；不会把4、8、60或其它固定小人数当活动人数上限。R17 N32、legacy N4 的代际回收属于 worker orchestration，不改变episode UID/init、rollout seed 或 decision seed。
+FW的60/60、GR的20/20 execution_worker_nodes 都是下界，经 defaults.desired_maxima 升至332/440；R15 经 physical_maximum 升至104。没有 worker_hard_limits 被注入。真正的技术约束是 VRAM/RAM 逐次准入和已知保护设备；不会把4、8、60或其它固定小人数当活动人数上限。R17 N32、legacy N4 的代际回收属于 worker orchestration，不改变episode UID/init、rollout seed 或 decision seed。
 
 ## timan107 内存与 ramp
 
@@ -23,7 +23,7 @@ R15仍必须等4090链的四批R16 GR00T LIBERO离开timan107；_dyn launch先�
 
 ## 过滤臂 continuation 的证据
 
-fa_pi_f_f_l_l50 有三档已native DONE，各500集（ir45/ir40/ir32）。ir25在timan107的journal有202个唯一accepted、0 error，最近记录10:55；只读进程检查无该run幸存者。对其10,819,101字节per_step用单读者、8MiB/s上限检查，202条client_timing、0 exception。保留这1,702个结果；ir25先原生resume剩余298个UID，之后其余5个cell的20档共10,000集，总待跑10,298。
+fa_pi_f_f_l_l50 有三档已native DONE，各500集（ir45/ir40/ir32）。ir25在timan107的journal有202个唯一accepted、0 error，最近记录10:55；只读检查timan107该ir25与H100该cell均无相关进程幸存者。对其10,819,101字节per_step用单读者、8MiB/s上限检查，202条client_timing、0 exception。保留这1,702个结果；ir25先原生resume剩余298个UID，之后其余5个cell的20档共10,000集，总待跑10,298。
 
 **不reset、不丢弃重跑。** _dyn prepare在l50只stage新的worker orchestration，不重新生成已有h100_sync/synced.json，不改变三条closed arm记录的mirror地址。停止的ir25 h100_launch.json会在coordinator真正prepare时另存按SHA命名的backup。native control.chain跳过DONE，并用原journal的UID过滤；测试证明202+298=500，交集为空。后续五个从未启动cell正常sync。零OOM只认证新的动态执行窗口，不能追认旧OFF历史。
 
@@ -31,9 +31,9 @@ fa_pi_f_f_l_l50 有三档已native DONE，各500集（ir45/ir40/ir32）。ir25�
 
 ```bash
 cd /home/weiland/projects/openpi
-# 替换 H100 chain 第二项入口；不用改 campaign definition / 重新build。
-bash exp/offline_search/rounds/r17/filter_failed_knob/commands/prepare_fa_ls_fw_f_p_m_dyn.sh
-bash exp/offline_search/rounds/r17/filter_failed_knob/commands/launch_fa_ls_fw_f_p_m_dyn.sh
+# 替换 H100 chain 授权GR fallback项入口；不用改 campaign definition / 重新build。
+bash exp/offline_search/rounds/r17/filter_failed_knob/commands/prepare_fa_ls_gr_f_p_m_dyn.sh
+bash exp/offline_search/rounds/r17/filter_failed_knob/commands/launch_fa_ls_gr_f_p_m_dyn.sh
 
 # R16 GR00T 四批离开 timan107 后，H100空闲时执行；两个R15 unit串行。
 bash exp/offline_search/rounds/r17/filter_failed_knob/commands/prepare_fa_pi_f_u_l_dyn.sh
@@ -42,7 +42,7 @@ bash exp/offline_search/rounds/r17/filter_failed_knob/commands/prepare_fa_pi_f_f
 bash exp/offline_search/rounds/r17/filter_failed_knob/commands/launch_fa_pi_f_f_l_dyn.sh
 
 # 各unit结束后，audit只读结果，写入repo的formal_acceptance/<NAME>/。
-for name in fa_ls_fw_f_p_m fa_pi_f_u_l fa_pi_f_f_l; do
+for name in fa_ls_gr_f_p_m fa_pi_f_u_l fa_pi_f_f_l; do
   env CUDA_VISIBLE_DEVICES= JAX_PLATFORMS=cpu PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.:src \
     .venv/bin/python -m exp.offline_search.rounds.r17.autoscale_1017.formal_dynamic audit --name "$name"
 done
@@ -52,6 +52,8 @@ done
 
 ## CPU证据与运行限制
 
-PLAN_fw.json和PLAN_fa_pi_f_{u,f}_l.json逐字段比较OFF和动态TaskGraph，包括所有task UID、init、seed/extra、server endpoint与bundle：2,500 / 10,000 / 12,000全相等。真实Fast-WAM定义还在CPU临时目录走formal_trial.prepare、真实driver/runtime打包安装和archived planner；transport被禁止/替代，目标fixed runtime的SHA/identity不回退到pre-longseg父runtime，2500字段仍相等。R15 task builder本来就不接收worker counts；同server shard列表、同manifest/row/seed，39→104只改变agent spec数量。
+PLAN_fa_ls_gr_f_p_m.json和PLAN_fa_pi_f_{u,f}_l.json逐字段比较OFF和动态TaskGraph，包括所有task UID、init、seed/extra、server endpoint与bundle：2,500 / 10,000 / 12,000全相等。真实GR00T fallback定义还在CPU临时目录走formal_trial.prepare、真实driver/runtime打包安装和archived planner；transport被禁止/替代，目标fixed runtime的SHA/identity不回退到pre-longseg父runtime，2500字段仍相等。R15 task builder本来就不接收worker counts；同server shard列表、同manifest/row/seed，39→104只改变agent spec数量。
 
 前后逐例表、源码SHA、readonly快照见 followup_1018/formal_dynamic_122x/。新包装器只在其进程和新冻结payload内读取on，物理ENABLED仍off；不改现有wrapper，不改queued/running campaign，不改旧fit、gap、Q3、pure引用或serving。CPU-only测试插件禁止未mock的GPU、远端传输及production端口绑定。
+
+最终回归：207个原用例全部保留通过，新增14个全部通过，共221 PASS、0回归。新六份wrapper全部bash -n通过，旧六份wrapper SHA保持；逐例表见 [BEFORE_AFTER.md](followup_1018/formal_dynamic_122x/BEFORE_AFTER.md)。

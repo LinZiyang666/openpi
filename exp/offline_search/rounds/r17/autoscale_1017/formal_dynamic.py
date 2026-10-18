@@ -20,7 +20,7 @@ from .policy import GIB
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[4]
 EVAL = Path('/data/mw_finetune/eval')
-NAMES = ('fa_ls_fw_f_p_m', 'fa_pi_f_u_l', 'fa_pi_f_f_l')
+NAMES = ('fa_ls_fw_f_p_m', 'fa_ls_gr_f_p_m', 'fa_pi_f_u_l', 'fa_pi_f_f_l')
 NODE_CONFIG = {'timan107': dict(floor=96*GIB, critical=60*GIB, hysteresis=8*GIB,
                               spawn_interval_s=10, external_peak_floor=4*GIB)}
 
@@ -44,7 +44,7 @@ def private_on():
 
 def jobs(name):
     if name not in NAMES:raise ValueError('explicit owner-selected formal campaign required')
-    if name == NAMES[0]:return [dict(name=name, run=str(EVAL/name), pipeline='R17')]
+    if name.startswith('fa_ls_'):return [dict(name=name, run=str(EVAL/name), pipeline='R17')]
     from exp.offline_search.rounds.r17.filter_failed_knob.formal_a_queue import INDEX
     return next(u['jobs'] for u in read(INDEX)['units'] if u['name'] == name)
 
@@ -156,6 +156,8 @@ def dispatch(action, name):
             if j['pipeline']=='R15':legacy_job(action,j);continue
             c=read(root/'campaign.json')
             if action=='prepare':
+                if any((root/n).exists() for n in ('LAUNCH.json','RECEIPT.json','DONE.json','launch.json')):
+                    raise ValueError('already launched: refuse before writing or acquiring a preparation lock')
                 formal_trial.prepare(root,desired(c),node_config=NODE_CONFIG,preserve_science=True,
                                      reprepare=(root/'PREPARED.json').exists())
                 record_r17(root,c)

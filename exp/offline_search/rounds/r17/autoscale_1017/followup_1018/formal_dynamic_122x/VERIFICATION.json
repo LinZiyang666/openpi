@@ -55,7 +55,7 @@
     },
     "exp/offline_search/rounds/r17/autoscale_1017/FORMAL_ACCEPTANCE.md": {
       "before": null,
-      "after": "afa1ae7e770e1b06de63fa49fae54589a681a956c4f02c07335eacf07b8c33b7"
+      "after": "53589b1be12df4d69e76b40b5a74ca1e45f6191097b8aab8efb4a540d868e25b"
     },
     "exp/offline_search/rounds/r17/filter_failed_knob/commands/prepare_fa_ls_fw_f_p_m_dyn.sh": {
       "before": null,
@@ -80,6 +80,18 @@
     "exp/offline_search/rounds/r17/filter_failed_knob/commands/launch_fa_pi_f_f_l_dyn.sh": {
       "before": null,
       "after": "14f89403220733f168529fd0fd0e134196282110237765ce5043568d301a0ab3"
+    },
+    "exp/offline_search/rounds/r17/autoscale_1017/trial_commands.sh": {
+      "before": "f2cb68aeaf94e921066a2cb274fe4e3365d6148b2465837baceb04f1ea6c8639",
+      "after": "af28851f5f49fa006eb599487c43024a3b578d2add612c64504948dfa83546f9"
+    },
+    "exp/offline_search/rounds/r17/autoscale_1017/TRIAL.md": {
+      "before": "8855fcedfe83caf61a7152b935168f5a810f8487ef933fab098c7f7c272d0571",
+      "after": "5a433f5e6fb726c50f4b24c655c32c5ca9496f85bae9622a3c8d5ef777adbc51"
+    },
+    "exp/offline_search/rounds/r17/autoscale_1017/HANDOFF_OFF.md": {
+      "before": "1b686d5339bdf03643e7a18c172c29b0d9ea64de31d6b2fd50758f598bee2731",
+      "after": "8d4a46a3b37052bbb24f9ec3676b261bd7f922a037fff6bd8a245eb791546ded"
     }
   },
   "existing_wrappers_unchanged": true,
