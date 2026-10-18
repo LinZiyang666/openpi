@@ -1,0 +1,109 @@
+{
+  "jobs": {
+    "ff1015_cosmos_li_01": {
+      "python": "/data/cosmos/cosmos-policy/.venv/bin/python",
+      "node": "h100",
+      "source": "/data/mw_finetune/eval/cosmos500w85_220813"
+    },
+    "ff1015_cosmos_li_02": {
+      "python": "/data/cosmos/cosmos-policy/.venv/bin/python",
+      "node": "h100",
+      "source": "/data/mw_finetune/eval/cosmossizes145"
+    },
+    "ff1015_cosmos_li_03": {
+      "python": "/data/cosmos/cosmos-policy/.venv/bin/python",
+      "node": "h100",
+      "source": "/data/mw_finetune/eval/cosmossizes145_r8b"
+    },
+    "ff1015_cosmos_li_04": {
+      "python": "/data/cosmos/cosmos-policy/.venv/bin/python",
+      "node": "h100",
+      "source": "/data/mw_finetune/eval/cosmossizes145_r8c"
+    },
+    "ff1015_dp_mt_05": {
+      "python": "/data/mw_finetune/dp/env/bin/python",
+      "node": "h100",
+      "source": "/data/mw_finetune/eval/csdp_1504"
+    },
+    "ff1015_fastwam_mt_06": {
+      "python": "/data/mw_finetune/envs/fastwam/bin/python",
+      "node": "h100",
+      "source": "/data/mw_finetune/eval/csfw_k3"
+    },
+    "ff1015_fastwam_mt_07": {
+      "python": "/data/mw_finetune/envs/fastwam/bin/python",
+      "node": "h100",
+      "source": "/data/mw_finetune/eval/csfw_k3w5"
+    },
+    "ff1015_fastwam_mt_08": {
+      "python": "/data/mw_finetune/envs/fastwam/bin/python",
+      "node": "h100",
+      "source": "/data/mw_finetune/eval/csfw_k3w6"
+    },
+    "ff1015_groot_mt_09": {
+      "python": "/home/exouser/gr00t_n15_venv/.venv/bin/python",
+      "node": "h100",
+      "source": "/data/mw_finetune/eval/csgr_h5"
+    },
+    "ff1015_groot_mt_10": {
+      "python": "/home/exouser/gr00t_n15_venv/.venv/bin/python",
+      "node": "h100",
+      "source": "/data/mw_finetune/eval/csgr_h6"
+    },
+    "ff1015_dp_li_11": {
+      "python": "/home/weiland/projects/openpi/.venv/bin/python",
+      "node": "local",
+      "source": "/data/mw_finetune/eval/csl10d"
+    },
+    "ff1015_fastwam_li_12": {
+      "python": "/data/mw_finetune/envs/fastwam/bin/python",
+      "node": "h100",
+      "source": "/data/mw_finetune/eval/csl10f"
+    },
+    "ff1015_pi05_mt_13": {
+      "python": "/home/weiland/projects/openpi/.venv/bin/python",
+      "node": "local",
+      "source": "/data/mw_finetune/eval/cspi_k2"
+    },
+    "ff1015_dp_li_14": {
+      "python": "/home/weiland/projects/openpi/.venv/bin/python",
+      "node": "local",
+      "source": "/data/mw_finetune/eval/csztd_r2_c383_r2_e5b0"
+    },
+    "ff1015_dp_li_15": {
+      "python": "/home/weiland/projects/openpi/.venv/bin/python",
+      "node": "local",
+      "source": "/data/mw_finetune/eval/csztd_r3_l48"
+    },
+    "ff1015_dp_li_16": {
+      "python": "/home/weiland/projects/openpi/.venv/bin/python",
+      "node": "local",
+      "source": "/data/mw_finetune/eval/dpc8513584592"
+    },
+    "ff1015_fastwam_li_17": {
+      "python": "/data/mw_finetune/envs/fastwam/bin/python",
+      "node": "h100",
+      "source": "/data/mw_finetune/eval/fastwamc1456717485"
+    },
+    "ff1015_fastwam_li_18": {
+      "python": "/data/mw_finetune/envs/fastwam/bin/python",
+      "node": "h100",
+      "source": "/data/mw_finetune/eval/fastwamc6066547406"
+    },
+    "ff1015_fastwam_li_19": {
+      "python": "/data/mw_finetune/envs/fastwam/bin/python",
+      "node": "h100",
+      "source": "/data/mw_finetune/eval/fastwamc7615306896"
+    },
+    "ff1015_dp_li_14_u": {
+      "python": "/home/weiland/projects/openpi/.venv/bin/python",
+      "node": "local",
+      "source": "/data/mw_finetune/eval/csztd_r2_c383_r2_e5b0"
+    },
+    "ff1015_dp_li_15_u": {
+      "python": "/home/weiland/projects/openpi/.venv/bin/python",
+      "node": "local",
+      "source": "/data/mw_finetune/eval/csztd_r3_l48"
+    }
+  }
+}

@@ -1,0 +1,251 @@
+{
+  "artifacts_pending": false,
+  "controls": {
+    "cosmos_libero": "formal_cosmos_libero_official2000_20261010_130639_a8ca2043",
+    "dp_libero": "hs5dp_ctl_142812",
+    "fastwam_libero": "hs6fw_res_152931"
+  },
+  "digest": "c78075290974427db416ab2ab031ff38981998621b6a8da877db08eab3a2cfd7",
+  "eval_pool": "A",
+  "groups": [
+    "c"
+  ],
+  "horizon_selection": {
+    "cosmos": 16,
+    "dp": 10,
+    "fastwam": 10,
+    "status": "fallback_C10_pending_horizon_NI_freeze"
+  },
+  "inits": 50,
+  "knobs": false,
+  "library_sizes": [
+    100,
+    200,
+    300,
+    400
+  ],
+  "models": {
+    "dp_libero": [
+      {
+        "bundle_id": "ffunfiltered_n100_sp_c35031cbd506",
+        "bundle_identity": "c35031cbd50682e5992985be320ae7ee4c091861fbd2bd6871e11c199c41f343",
+        "file": "dp_libero/libero_spatial/n100_c.yaml",
+        "fit": "/data/mw_finetune/eval/csztd_r3_l48/assets/cache_inputs/libero_spatial/n100_C5/fit",
+        "fit_digest": "dfcdb8bddfe3cea3b27596d3345a0c0c6f922b5e234392d67347b91284637a6f",
+        "fit_rel": "libero_spatial/n100_C5/fit",
+        "group": "c",
+        "library": "/data/r17_library/dp_libero_libero_spatial/bpool",
+        "library_size": 100,
+        "recipe_identity": "6289fb86c52483447b6af89e287dfe0dc56fd0a0de270117c609cec9a72bbfd7",
+        "settings": {
+          "alias": null,
+          "commit": 5,
+          "corrector": false,
+          "gated": false
+        },
+        "sha256": "1d76f7d848ee64eb6fae3bda6f46e84510f7e38a58b4d30054a8e80eb50c9d64",
+        "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n100/dp_libero_libero_spatial/C5/stall",
+        "stall_digest": "1a4d19dc7185da6be0e9026e89080b6e8221c06d18166544b7cef84feffca6d6",
+        "stall_rel": "libero_spatial/n100_C5/stall",
+        "status": "ARTIFACTS_READY_MODEL_ADMISSION_PENDING",
+        "suite": "libero_spatial",
+        "view_rel": "libero_spatial/parent/subsets/size_100",
+        "num_trials_per_task": 50
+      },
+      {
+        "bundle_id": "ffunfiltered_n200_sp_5259cb7f2b56",
+        "bundle_identity": "5259cb7f2b56d4b2951b8ee91688d8f8ace69925a2d3db6e6435206e97532794",
+        "file": "dp_libero/libero_spatial/n200_c.yaml",
+        "fit": "/data/mw_finetune/eval/csztd_r3_l48/assets/cache_inputs/libero_spatial/n200_C5/fit",
+        "fit_digest": "deffd3597a14e997be5006fce237ed837a58b89333483fad6ae47bbdd5ea881b",
+        "fit_rel": "libero_spatial/n200_C5/fit",
+        "group": "c",
+        "library": "/data/r17_library/dp_libero_libero_spatial/bpool",
+        "library_size": 200,
+        "recipe_identity": "abdfef1f760f55f93988be1a10dc8eb6f80383add8bee7114e94bdb9cebdeb5b",
+        "settings": {
+          "alias": null,
+          "commit": 5,
+          "corrector": false,
+          "gated": false
+        },
+        "sha256": "9f9e0df9a97590cf83039c3874d8f4bf382f2a2067113094e7bc7d6be18dabb6",
+        "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n200/dp_libero_libero_spatial/C5/stall",
+        "stall_digest": "06dafc51153472cbb175b76a419b664fdcb725a66c4fd36564c204533d35feb5",
+        "stall_rel": "libero_spatial/n200_C5/stall",
+        "status": "ARTIFACTS_READY_MODEL_ADMISSION_PENDING",
+        "suite": "libero_spatial",
+        "view_rel": "libero_spatial/parent/subsets/size_200",
+        "num_trials_per_task": 50
+      },
+      {
+        "bundle_id": "ffunfiltered_n300_sp_8e1eca51b77a",
+        "bundle_identity": "8e1eca51b77ab27c7be90b0a1bf9064cda157d60a098e39d26a645a7faec19b8",
+        "file": "dp_libero/libero_spatial/n300_c.yaml",
+        "fit": "/data/mw_finetune/eval/csztd_r3_l48/assets/cache_inputs/libero_spatial/n300_C5/fit",
+        "fit_digest": "1331eea2e0507d7092f3b32f39ad9595e1a0df17e19b8540ebf3c0888dd89bbf",
+        "fit_rel": "libero_spatial/n300_C5/fit",
+        "group": "c",
+        "library": "/data/r17_library/dp_libero_libero_spatial/bpool",
+        "library_size": 300,
+        "recipe_identity": "1da95dce03cf68cba60e5398b43d81b93ae934ae65c8faba20a2f7dd6dc848a3",
+        "settings": {
+          "alias": null,
+          "commit": 5,
+          "corrector": false,
+          "gated": false
+        },
+        "sha256": "d0cfbe56482e89d9e99fde3976222f52355d26513b5445b8e2ec2218d59243de",
+        "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n300/dp_libero_libero_spatial/C5/stall",
+        "stall_digest": "e28b03b3a486846a455d18540215b87d863058e6b0912f9e6d91fb267ba82f78",
+        "stall_rel": "libero_spatial/n300_C5/stall",
+        "status": "ARTIFACTS_READY_MODEL_ADMISSION_PENDING",
+        "suite": "libero_spatial",
+        "view_rel": "libero_spatial/parent/subsets/size_300",
+        "num_trials_per_task": 50
+      },
+      {
+        "bundle_id": "ffunfiltered_n400_sp_02b7e60a6962",
+        "bundle_identity": "02b7e60a696291785318d9574aad9d01128e28489a607ae9a549b594c726eb86",
+        "file": "dp_libero/libero_spatial/n400_c.yaml",
+        "fit": "/data/mw_finetune/eval/csztd_r3_l48/assets/cache_inputs/libero_spatial/n400_C5/fit",
+        "fit_digest": "04dfc1a2f17da27902aadd21d3ff3f4afe729e55e1dcfc2855f00f1c2124d55e",
+        "fit_rel": "libero_spatial/n400_C5/fit",
+        "group": "c",
+        "library": "/data/r17_library/dp_libero_libero_spatial/bpool",
+        "library_size": 400,
+        "recipe_identity": "2f7726ccf03c166e8b682dc81931c0bf09395054e7af4db1f21142d821749eff",
+        "settings": {
+          "alias": null,
+          "commit": 5,
+          "corrector": false,
+          "gated": false
+        },
+        "sha256": "f74eb05dcc5d9f6d50a07f5dd1fef264522a82137825e0c7a433b0bd4b3243f4",
+        "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n400/dp_libero_libero_spatial/C5/stall",
+        "stall_digest": "ba7374ce0fb13ea5570690dc507fd586734915585ff1d0d72d8533b532c531e0",
+        "stall_rel": "libero_spatial/n400_C5/stall",
+        "status": "ARTIFACTS_READY_MODEL_ADMISSION_PENDING",
+        "suite": "libero_spatial",
+        "view_rel": "libero_spatial/parent/subsets/size_400",
+        "num_trials_per_task": 50
+      },
+      {
+        "bundle_id": "ffunfiltered_n100_l10_b9f34e8908eb",
+        "bundle_identity": "b9f34e8908eb7673ef9988f3ce88b8443762a9d5f5674565b379a04c1a3fd072",
+        "file": "dp_libero/libero_10/n100_c.yaml",
+        "fit": "/data/mw_finetune/eval/csztd_r3_l48/assets/cache_inputs/libero_10/n100_C5/fit",
+        "fit_digest": "9b693b2e4ff0300a354f770ad06d41476e6f6f9963dec53099f5be1e6d31de36",
+        "fit_rel": "libero_10/n100_C5/fit",
+        "group": "c",
+        "library": "/data/r17_library/dp_libero_libero_10/bpool",
+        "library_size": 100,
+        "recipe_identity": "0efde4bcb6d2498732f78aeebd3f3f6d059cc771fa7504fff04e90a867d8a114",
+        "settings": {
+          "alias": null,
+          "commit": 5,
+          "corrector": false,
+          "gated": false
+        },
+        "sha256": "154de9e8494046e4a612255987b3a89b56b058401eb5f73bebaff0bc2d750baf",
+        "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n100/dp_libero_libero_10/C5/stall",
+        "stall_digest": "fa758ecfe75e2287a33b62eee646207cf687ef9a87958d0fee61e1bbcb7ed5b0",
+        "stall_rel": "libero_10/n100_C5/stall",
+        "status": "ARTIFACTS_READY_MODEL_ADMISSION_PENDING",
+        "suite": "libero_10",
+        "view_rel": "libero_10/parent/subsets/size_100",
+        "num_trials_per_task": 50
+      },
+      {
+        "bundle_id": "ffunfiltered_n200_l10_1f6817e430d2",
+        "bundle_identity": "1f6817e430d2c74592cab2f0ee93d4b0b0473b7f438dc9530aef653cb1657f0f",
+        "file": "dp_libero/libero_10/n200_c.yaml",
+        "fit": "/data/mw_finetune/eval/csztd_r3_l48/assets/cache_inputs/libero_10/n200_C5/fit",
+        "fit_digest": "e73b7e6408dbeb1bca664513c2ddfd43217a0a0ef62ec08bbc561fb3997e3724",
+        "fit_rel": "libero_10/n200_C5/fit",
+        "group": "c",
+        "library": "/data/r17_library/dp_libero_libero_10/bpool",
+        "library_size": 200,
+        "recipe_identity": "b1fd7633f4b22dde4a5175d7f552d993df48d98c739658286a8fddb964fc0088",
+        "settings": {
+          "alias": null,
+          "commit": 5,
+          "corrector": false,
+          "gated": false
+        },
+        "sha256": "5a89b1890df528338467ac127163e53daa4b7d8ab11750304fa3533a1859679f",
+        "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n200/dp_libero_libero_10/C5/stall",
+        "stall_digest": "3d9acbd26b7a84e8c437e9e588bb4147124e2157b3d6244aaba1733bb1e99d6c",
+        "stall_rel": "libero_10/n200_C5/stall",
+        "status": "ARTIFACTS_READY_MODEL_ADMISSION_PENDING",
+        "suite": "libero_10",
+        "view_rel": "libero_10/parent/subsets/size_200",
+        "num_trials_per_task": 50
+      },
+      {
+        "bundle_id": "ffunfiltered_n300_l10_5a6f77029e7c",
+        "bundle_identity": "5a6f77029e7ca2654499894898bd69c9ee9e87342de5ee688b84a705c3a0ed94",
+        "file": "dp_libero/libero_10/n300_c.yaml",
+        "fit": "/data/mw_finetune/eval/csztd_r3_l48/assets/cache_inputs/libero_10/n300_C5/fit",
+        "fit_digest": "eb95677eb075a403499f4a30a14b00b76738d61a96d33fec3509c28afb321d87",
+        "fit_rel": "libero_10/n300_C5/fit",
+        "group": "c",
+        "library": "/data/r17_library/dp_libero_libero_10/bpool",
+        "library_size": 300,
+        "recipe_identity": "f8d5a347a900a810db0e7499a13ece9ab43f717d93666feaa18b51a33fe6a573",
+        "settings": {
+          "alias": null,
+          "commit": 5,
+          "corrector": false,
+          "gated": false
+        },
+        "sha256": "b0c6f858b1cee16b063d70f263c1c560f5e57e9743bbaeae2c8ccd9b2b01ea5d",
+        "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n300/dp_libero_libero_10/C5/stall",
+        "stall_digest": "fff567fb649e38ac2255a4066e35e319ab6696b865b687b9a1d3b005d7dc6b80",
+        "stall_rel": "libero_10/n300_C5/stall",
+        "status": "ARTIFACTS_READY_MODEL_ADMISSION_PENDING",
+        "suite": "libero_10",
+        "view_rel": "libero_10/parent/subsets/size_300",
+        "num_trials_per_task": 50
+      },
+      {
+        "bundle_id": "ffunfiltered_n400_l10_e6a7cc43d3bf",
+        "bundle_identity": "e6a7cc43d3bf61c582f6d20d0743302e51c370ef37d87a52ae5adcf5e3323f51",
+        "file": "dp_libero/libero_10/n400_c.yaml",
+        "fit": "/data/mw_finetune/eval/csztd_r3_l48/assets/cache_inputs/libero_10/n400_C5/fit",
+        "fit_digest": "ca8080967974a0bbf32d9313bf89cd6b62bbc10c2d510b7cada99ea6d8ccd39a",
+        "fit_rel": "libero_10/n400_C5/fit",
+        "group": "c",
+        "library": "/data/r17_library/dp_libero_libero_10/bpool",
+        "library_size": 400,
+        "recipe_identity": "7ba7ac3697d770b00ad1df68391fe898a9bf815d3377faf2f35c1cade58f9a7b",
+        "settings": {
+          "alias": null,
+          "commit": 5,
+          "corrector": false,
+          "gated": false
+        },
+        "sha256": "5d642174cac9cf5f425a53e5dbdbc080cd31ed734970f90248bc6b3be43907d2",
+        "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n400/dp_libero_libero_10/C5/stall",
+        "stall_digest": "cd29be06c88c840e77258f731a5d178317ff62100672a6fd23247a3428046a14",
+        "stall_rel": "libero_10/n400_C5/stall",
+        "status": "ARTIFACTS_READY_MODEL_ADMISSION_PENDING",
+        "suite": "libero_10",
+        "view_rel": "libero_10/parent/subsets/size_400",
+        "num_trials_per_task": 50
+      }
+    ]
+  },
+  "ordinary_miss": false,
+  "prereg_sha256": "1b733bec5da41d90b234caf27bd5282833699519d6049039b0be3e055c63b06e",
+  "rulings_sha256": "9c852a063cf5531d4412380245a29b7e75289e571b6298486d77fbb9482b28fb",
+  "schema": "r17.cache_study.v1",
+  "suites": [
+    "libero_spatial",
+    "libero_10"
+  ],
+  "filter_failed": {
+    "method": "frozen_fit_candidate_rows_only",
+    "refit": false
+  }
+}

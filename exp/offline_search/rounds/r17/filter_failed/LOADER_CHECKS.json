@@ -1,0 +1,54 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "model": "cosmos",
+      "domain": "libero",
+      "status": "PASS",
+      "refit_called": false,
+      "fit_digest": "31d36ef0a8041a1fb374cd04380ab8d6ab9ffa88beecccb34b682f0eb2ecdc45"
+    },
+    {
+      "model": "dp",
+      "domain": "metaworld",
+      "status": "PASS",
+      "refit_called": false,
+      "fit_digest": "5817bc9b7abc491410dbc18dbd72e176840ee927e07e0e711883a70a2408ffeb"
+    },
+    {
+      "model": "fastwam",
+      "domain": "metaworld",
+      "status": "PASS",
+      "refit_called": false,
+      "fit_digest": "098c24dc6f60e129c2a4392d5a29229984da9d71c08526f8c4ea877c09ed9b8e"
+    },
+    {
+      "model": "groot",
+      "domain": "metaworld",
+      "status": "PASS",
+      "refit_called": false,
+      "fit_digest": "85496225e98e37ae4fa76ba96d9f838b6ee2e78d9f08a6c0f1fc4380479b0236"
+    },
+    {
+      "model": "dp",
+      "domain": "libero",
+      "status": "PASS",
+      "refit_called": false,
+      "fit_digest": "89a6bb298497aff571fdb891502622952185b33b21577614eec66e833c5bffb4"
+    },
+    {
+      "model": "fastwam",
+      "domain": "libero",
+      "status": "PASS",
+      "refit_called": false,
+      "fit_digest": "320b7563ae4bcfaca1583384175858a6167b9aaee45ac6c43c62dd10d914b286"
+    },
+    {
+      "model": "pi05",
+      "domain": "metaworld",
+      "status": "PASS",
+      "refit_called": false,
+      "fit_digest": "a98107c2ebad2b58c81196fc5573926786981dc8bc26d22d0ae5af574aef9b10"
+    }
+  ]
+}

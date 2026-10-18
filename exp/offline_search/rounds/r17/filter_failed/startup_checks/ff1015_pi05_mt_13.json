@@ -1,0 +1,262 @@
+{
+  "run": "ff1015_pi05_mt_13",
+  "python": "/home/weiland/projects/openpi/.venv/bin/python",
+  "prefix": "/home/weiland/projects/openpi/.venv",
+  "status": "PASS",
+  "assets": "/data/mw_finetune/eval/ff1015_pi05_mt_13/assets",
+  "model": "pi05",
+  "identity_path": "pi05.adapter.content_manifest/model_spec (loader descriptor path)",
+  "package_versions": {
+    "torch": "2.7.1",
+    "torchvision": "0.22.1",
+    "diffusers": "0.37.1",
+    "transformers": "4.53.2",
+    "numpy": "1.26.4",
+    "safetensors": "0.7.0"
+  },
+  "pinned_packages_equal": true,
+  "actual_spec": {
+    "model_id": "pi05_rlinf_mt50",
+    "checkpoint_identity": "4008289bc944015dbf3eba6cea0a701f6ef9dbb53e0bfd47dea7b55585d8b62e",
+    "norm_identity": "ab3e2f7380ccbd0967fe391e07d4bc67492ceb7e3e06a9c03397aa6c28309220",
+    "layout": {
+      "horizon": 5,
+      "replan_steps": 5,
+      "valid_action_dim": 4,
+      "valid_state_indices": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "motion_channels": [
+        0,
+        1,
+        2
+      ],
+      "gripper_channel": 3,
+      "gripper_closed_convention": "positive native Sawyer close command",
+      "raw_state_fields": [
+        "hand_x",
+        "hand_y",
+        "hand_z",
+        "gripper_aperture"
+      ],
+      "action_space_name": "MetaWorld native Sawyer xyz delta + gripper",
+      "units": "native command; controller scale not calibrated here",
+      "frame": "world",
+      "output_transform_id": "pi05_metaworld.quantile_inverse.v1",
+      "model_action_width": 32,
+      "valid_action_indices": []
+    },
+    "feature_spec": {
+      "source": "PI0Pytorch.run_stage1.prefix_embs",
+      "real_cameras": [
+        "corner2"
+      ],
+      "fields": {
+        "vision_0": 32768,
+        "robot_state": 4
+      },
+      "token_grid": [
+        16,
+        16
+      ],
+      "hidden_width": 2048,
+      "pooling": "spatial16.adaptive_avg_pool2d.v1",
+      "missing_branch_policy": "two masked zero wrists retain native compute",
+      "prompt_dependent": false,
+      "key_dtype": "float32",
+      "active_state_indices": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "policy_digest": "4008289bc944015dbf3eba6cea0a701f6ef9dbb53e0bfd47dea7b55585d8b62e",
+      "norm_digest": "ab3e2f7380ccbd0967fe391e07d4bc67492ceb7e3e06a9c03397aa6c28309220",
+      "preprocess_digest": "db66849fcea9d416e70d80c9d6edef2a7b1b0740dbc83b9d11e2cc1a4f697c11"
+    },
+    "default_sampler": {
+      "sampler_id": "pi05_v1_k10",
+      "family": "flow",
+      "num_steps": 10,
+      "native_timesteps": [
+        1.0,
+        0.8999999761581421,
+        0.7999999523162842,
+        0.6999999284744263,
+        0.5999999046325684,
+        0.49999991059303284,
+        0.3999999165534973,
+        0.2999999225139618,
+        0.19999992847442627,
+        0.09999992698431015
+      ],
+      "native_deltas": [
+        -0.10000000149011612,
+        -0.10000000149011612,
+        -0.10000000149011612,
+        -0.10000000149011612,
+        -0.10000000149011612,
+        -0.10000000149011612,
+        -0.10000000149011612,
+        -0.10000000149011612,
+        -0.10000000149011612,
+        -0.10000000149011612
+      ],
+      "config": {
+        "update": "native PI0Pytorch float32 accumulated Euler",
+        "direction": "descending"
+      },
+      "point_kind": "native_time"
+    },
+    "capabilities": {
+      "features": {
+        "full": {
+          "status": "supported",
+          "reason": "CPU hook conformance; real checkpoint GPU qualification pending",
+          "evidence": []
+        },
+        "k_step": {
+          "status": "supported",
+          "reason": "CPU hook conformance; real checkpoint GPU qualification pending",
+          "evidence": []
+        },
+        "cp1_retrieval": {
+          "status": "supported",
+          "reason": "CPU hook conformance; real checkpoint GPU qualification pending",
+          "evidence": []
+        },
+        "concurrent": {
+          "status": "supported",
+          "reason": "CPU hook conformance; real checkpoint GPU qualification pending",
+          "evidence": []
+        },
+        "bundle": {
+          "status": "supported",
+          "reason": "CPU hook conformance; real checkpoint GPU qualification pending",
+          "evidence": []
+        },
+        "episode": {
+          "status": "supported",
+          "reason": "CPU hook conformance; real checkpoint GPU qualification pending",
+          "evidence": []
+        },
+        "debug_capture": {
+          "status": "supported",
+          "reason": "CPU hook conformance; real checkpoint GPU qualification pending",
+          "evidence": []
+        },
+        "warmup": {
+          "status": "implemented_unverified",
+          "reason": "framework/benchmark tools require cross-package qualification",
+          "evidence": []
+        },
+        "library": {
+          "status": "implemented_unverified",
+          "reason": "framework/benchmark tools require cross-package qualification",
+          "evidence": []
+        },
+        "recipe": {
+          "status": "implemented_unverified",
+          "reason": "framework/benchmark tools require cross-package qualification",
+          "evidence": []
+        },
+        "offline": {
+          "status": "implemented_unverified",
+          "reason": "framework/benchmark tools require cross-package qualification",
+          "evidence": []
+        },
+        "replay": {
+          "status": "implemented_unverified",
+          "reason": "framework/benchmark tools require cross-package qualification",
+          "evidence": []
+        },
+        "conductor": {
+          "status": "implemented_unverified",
+          "reason": "framework/benchmark tools require cross-package qualification",
+          "evidence": []
+        },
+        "worker": {
+          "status": "implemented_unverified",
+          "reason": "framework/benchmark tools require cross-package qualification",
+          "evidence": []
+        },
+        "analysis": {
+          "status": "implemented_unverified",
+          "reason": "framework/benchmark tools require cross-package qualification",
+          "evidence": []
+        },
+        "batch_stage1": {
+          "status": "unsupported",
+          "reason": "generic R17 executor not yet wired/qualified for this feature",
+          "evidence": []
+        },
+        "batch_stage2": {
+          "status": "unsupported",
+          "reason": "generic R17 executor not yet wired/qualified for this feature",
+          "evidence": []
+        },
+        "batch_stage3": {
+          "status": "unsupported",
+          "reason": "generic R17 executor not yet wired/qualified for this feature",
+          "evidence": []
+        },
+        "split": {
+          "status": "unsupported",
+          "reason": "generic R17 executor not yet wired/qualified for this feature",
+          "evidence": []
+        },
+        "cp2": {
+          "status": "unsupported",
+          "reason": "generic R17 executor not yet wired/qualified for this feature",
+          "evidence": []
+        },
+        "warm_reset": {
+          "status": "unsupported",
+          "reason": "generic R17 executor not yet wired/qualified for this feature",
+          "evidence": []
+        },
+        "trace_twins": {
+          "status": "unsupported",
+          "reason": "generic R17 executor not yet wired/qualified for this feature",
+          "evidence": []
+        },
+        "routing": {
+          "status": "unsupported",
+          "reason": "generic R17 executor not yet wired/qualified for this feature",
+          "evidence": []
+        },
+        "warm_resume": {
+          "status": "implemented_unverified",
+          "reason": "native suffix hook; GPU parity pending",
+          "evidence": []
+        }
+      }
+    },
+    "allowed_benchmark_protocols": [
+      "5200a59f91da158a9770543c831c570392aba126c6192d62755a134b224b8e48"
+    ],
+    "code_digest": "db66849fcea9d416e70d80c9d6edef2a7b1b0740dbc83b9d11e2cc1a4f697c11",
+    "python_island": "openpi PyTorch"
+  },
+  "spec_equal": true,
+  "cache_groups": 6,
+  "startup_config_checked": true,
+  "cuda_initialized": false,
+  "source": "/data/mw_finetune/eval/cspi_k2",
+  "runtime": "/data/mw_finetune/qualification/formal_runtime_5b44d1ecbe4abfe45929749dd655850128b73e1f416fdb9f0e4b597445fb9898",
+  "server_node": "local",
+  "source_actual_identities": [
+    "4008289bc944015dbf3eba6cea0a701f6ef9dbb53e0bfd47dea7b55585d8b62e"
+  ],
+  "source_ready_paths": [
+    "/data/mw_finetune/eval/cspi_k2/servers/replica_0/ready.json",
+    "/data/mw_finetune/eval/cspi_k2/servers/replica_2/ready.json",
+    "/data/mw_finetune/eval/cspi_k2/servers/replica_4/ready.json",
+    "/data/mw_finetune/eval/cspi_k2/servers/replica_3/ready.json",
+    "/data/mw_finetune/eval/cspi_k2/servers/replica_1/ready.json"
+  ],
+  "equals_source_actual": true
+}

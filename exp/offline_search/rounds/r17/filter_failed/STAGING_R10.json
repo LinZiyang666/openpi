@@ -1,0 +1,804 @@
+{
+  "cpu_only": true,
+  "checked_at": "2026-10-15T22:42:33.294058+00:00",
+  "runs": [
+    {
+      "run": "/home/weiland/trace_runs/os_closed_loop/r17_filter_failed_groot",
+      "status": "PASS",
+      "nodes": [
+        {
+          "node": "h100",
+          "status": "PASS",
+          "files": [
+            {
+              "path": "/data/oscl_h100/mirror/data/libero_cache/libraries/libero_10/libero_10_sp16_S3.pkl",
+              "present": true,
+              "sha256": "e8e41965e1636f32ba76c70663f236f1a0e2701df0b0fde9098e9c7f3e34517b",
+              "expected": "e8e41965e1636f32ba76c70663f236f1a0e2701df0b0fde9098e9c7f3e34517b",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/mirror/data/libero_cache/libraries/libero_spatial/libero_spatial_sp16_S3.pkl",
+              "present": true,
+              "sha256": "182ef39b5f14a959614459edc5d79a7ac57ecd8828d9061799a2a7fe41cf6037",
+              "expected": "182ef39b5f14a959614459edc5d79a7ac57ecd8828d9061799a2a7fe41cf6037",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/node.py",
+              "present": true,
+              "sha256": null,
+              "expected": null,
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/openpi/exp/offline_search/closed_loop/serve_groot.py",
+              "present": true,
+              "sha256": null,
+              "expected": null,
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/openpi/exp/offline_search/rounds/r10/method.py",
+              "present": true,
+              "sha256": null,
+              "expected": null,
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/runs/r17_filter_failed_groot/config/ff1015_groot_l10_n100_c.yaml",
+              "present": true,
+              "sha256": "37c9cf5ad29d6712bf3c7abde374cd67b3da7968332067ef8037a0d2cd906c26",
+              "expected": "37c9cf5ad29d6712bf3c7abde374cd67b3da7968332067ef8037a0d2cd906c26",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/runs/r17_filter_failed_groot/config/ff1015_groot_l10_n200_c.yaml",
+              "present": true,
+              "sha256": "37c9cf5ad29d6712bf3c7abde374cd67b3da7968332067ef8037a0d2cd906c26",
+              "expected": "37c9cf5ad29d6712bf3c7abde374cd67b3da7968332067ef8037a0d2cd906c26",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/runs/r17_filter_failed_groot/config/ff1015_groot_l10_n300_c.yaml",
+              "present": true,
+              "sha256": "37c9cf5ad29d6712bf3c7abde374cd67b3da7968332067ef8037a0d2cd906c26",
+              "expected": "37c9cf5ad29d6712bf3c7abde374cd67b3da7968332067ef8037a0d2cd906c26",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/runs/r17_filter_failed_groot/config/ff1015_groot_l10_n400_c.yaml",
+              "present": true,
+              "sha256": "37c9cf5ad29d6712bf3c7abde374cd67b3da7968332067ef8037a0d2cd906c26",
+              "expected": "37c9cf5ad29d6712bf3c7abde374cd67b3da7968332067ef8037a0d2cd906c26",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/runs/r17_filter_failed_groot/config/ff1015_groot_l10_n500_c.yaml",
+              "present": true,
+              "sha256": "37c9cf5ad29d6712bf3c7abde374cd67b3da7968332067ef8037a0d2cd906c26",
+              "expected": "37c9cf5ad29d6712bf3c7abde374cd67b3da7968332067ef8037a0d2cd906c26",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/runs/r17_filter_failed_groot/config/ff1015_groot_l10_n50_c.yaml",
+              "present": true,
+              "sha256": "37c9cf5ad29d6712bf3c7abde374cd67b3da7968332067ef8037a0d2cd906c26",
+              "expected": "37c9cf5ad29d6712bf3c7abde374cd67b3da7968332067ef8037a0d2cd906c26",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/runs/r17_filter_failed_groot/config/ff1015_groot_spatial_n100_c.yaml",
+              "present": true,
+              "sha256": "f844e45704df9166b4fb158495cf4b23d12678b7909781d416fccc135addc0c3",
+              "expected": "f844e45704df9166b4fb158495cf4b23d12678b7909781d416fccc135addc0c3",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/runs/r17_filter_failed_groot/config/ff1015_groot_spatial_n200_c.yaml",
+              "present": true,
+              "sha256": "f844e45704df9166b4fb158495cf4b23d12678b7909781d416fccc135addc0c3",
+              "expected": "f844e45704df9166b4fb158495cf4b23d12678b7909781d416fccc135addc0c3",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/runs/r17_filter_failed_groot/config/ff1015_groot_spatial_n300_c.yaml",
+              "present": true,
+              "sha256": "f844e45704df9166b4fb158495cf4b23d12678b7909781d416fccc135addc0c3",
+              "expected": "f844e45704df9166b4fb158495cf4b23d12678b7909781d416fccc135addc0c3",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/runs/r17_filter_failed_groot/config/ff1015_groot_spatial_n400_c.yaml",
+              "present": true,
+              "sha256": "f844e45704df9166b4fb158495cf4b23d12678b7909781d416fccc135addc0c3",
+              "expected": "f844e45704df9166b4fb158495cf4b23d12678b7909781d416fccc135addc0c3",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/runs/r17_filter_failed_groot/config/ff1015_groot_spatial_n500_c.yaml",
+              "present": true,
+              "sha256": "f844e45704df9166b4fb158495cf4b23d12678b7909781d416fccc135addc0c3",
+              "expected": "f844e45704df9166b4fb158495cf4b23d12678b7909781d416fccc135addc0c3",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/runs/r17_filter_failed_groot/config/ff1015_groot_spatial_n50_c.yaml",
+              "present": true,
+              "sha256": "f844e45704df9166b4fb158495cf4b23d12678b7909781d416fccc135addc0c3",
+              "expected": "f844e45704df9166b4fb158495cf4b23d12678b7909781d416fccc135addc0c3",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/runs/r17_filter_failed_groot/config/matrix_ff1015_groot_l10_n100_c.yaml",
+              "present": true,
+              "sha256": "17ec8ad62f6a26d29d741439b1b9dc51dce9109f5776947c209f72f96dc0d1fe",
+              "expected": "17ec8ad62f6a26d29d741439b1b9dc51dce9109f5776947c209f72f96dc0d1fe",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/runs/r17_filter_failed_groot/config/matrix_ff1015_groot_l10_n200_c.yaml",
+              "present": true,
+              "sha256": "6ca0a4e732ec52a983ec2bf262b36dbb082ba2144b8f94570f5bd2180c2effc0",
+              "expected": "6ca0a4e732ec52a983ec2bf262b36dbb082ba2144b8f94570f5bd2180c2effc0",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/runs/r17_filter_failed_groot/config/matrix_ff1015_groot_l10_n300_c.yaml",
+              "present": true,
+              "sha256": "af12dae6a3b0719834e5d5466feaa0bb09c256669a926874a8774d738ad2a61c",
+              "expected": "af12dae6a3b0719834e5d5466feaa0bb09c256669a926874a8774d738ad2a61c",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/runs/r17_filter_failed_groot/config/matrix_ff1015_groot_l10_n400_c.yaml",
+              "present": true,
+              "sha256": "4aafc03c39a2a02baecf85eaea8fd3ab4a41a0fe61fcc8182eab3430f2cd7a6d",
+              "expected": "4aafc03c39a2a02baecf85eaea8fd3ab4a41a0fe61fcc8182eab3430f2cd7a6d",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/runs/r17_filter_failed_groot/config/matrix_ff1015_groot_l10_n500_c.yaml",
+              "present": true,
+              "sha256": "9972267257f325a0a2109d6a68633ef74809d3e7d1e792408f0fbd5eda06f193",
+              "expected": "9972267257f325a0a2109d6a68633ef74809d3e7d1e792408f0fbd5eda06f193",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/runs/r17_filter_failed_groot/config/matrix_ff1015_groot_l10_n50_c.yaml",
+              "present": true,
+              "sha256": "338cdfc8dc5dd8a05322389fc70b285c8540bab269ef7c0dfe98516bc9afe43c",
+              "expected": "338cdfc8dc5dd8a05322389fc70b285c8540bab269ef7c0dfe98516bc9afe43c",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/runs/r17_filter_failed_groot/config/matrix_ff1015_groot_spatial_n100_c.yaml",
+              "present": true,
+              "sha256": "958464e841b49355773f377f3cdfa017570474338ab3f38f30bada7f14adfa6a",
+              "expected": "958464e841b49355773f377f3cdfa017570474338ab3f38f30bada7f14adfa6a",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/runs/r17_filter_failed_groot/config/matrix_ff1015_groot_spatial_n200_c.yaml",
+              "present": true,
+              "sha256": "2bc7eaa0b9961d27430edb1a895158c382c3ca86e2ce610d99bab326fabeebd6",
+              "expected": "2bc7eaa0b9961d27430edb1a895158c382c3ca86e2ce610d99bab326fabeebd6",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/runs/r17_filter_failed_groot/config/matrix_ff1015_groot_spatial_n300_c.yaml",
+              "present": true,
+              "sha256": "aa0f4cfa123ebfdf7732ddcd7469446b77fef74e9876dd8f2658c2cc1b861fa6",
+              "expected": "aa0f4cfa123ebfdf7732ddcd7469446b77fef74e9876dd8f2658c2cc1b861fa6",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/runs/r17_filter_failed_groot/config/matrix_ff1015_groot_spatial_n400_c.yaml",
+              "present": true,
+              "sha256": "bba46231a1624edd082ba35b9a86f5ff3db29d8480e58f3cb14a7dff80dc6161",
+              "expected": "bba46231a1624edd082ba35b9a86f5ff3db29d8480e58f3cb14a7dff80dc6161",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/runs/r17_filter_failed_groot/config/matrix_ff1015_groot_spatial_n500_c.yaml",
+              "present": true,
+              "sha256": "cc0742eb7cab1114cea95c689e5332a1ee7645cf02d947021d830ac746497781",
+              "expected": "cc0742eb7cab1114cea95c689e5332a1ee7645cf02d947021d830ac746497781",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/runs/r17_filter_failed_groot/config/matrix_ff1015_groot_spatial_n50_c.yaml",
+              "present": true,
+              "sha256": "9269e14596213cf2844b93778aeebd18e7bc2b0ede26969b1f820d9be4111ff8",
+              "expected": "9269e14596213cf2844b93778aeebd18e7bc2b0ede26969b1f820d9be4111ff8",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/runs/r17_filter_failed_groot/fits/ff1015_groot_l10_n100_c.pkl",
+              "present": true,
+              "sha256": "f08701f8b733f8055c5ad7b212ed370a78e68e8d97a2c5eff42b3c11c2df5f90",
+              "expected": "f08701f8b733f8055c5ad7b212ed370a78e68e8d97a2c5eff42b3c11c2df5f90",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/runs/r17_filter_failed_groot/fits/ff1015_groot_l10_n200_c.pkl",
+              "present": true,
+              "sha256": "01cd03ad17617e131b43bca14384f83557f538ae08057b71ab022e3c4e0760ff",
+              "expected": "01cd03ad17617e131b43bca14384f83557f538ae08057b71ab022e3c4e0760ff",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/runs/r17_filter_failed_groot/fits/ff1015_groot_l10_n300_c.pkl",
+              "present": true,
+              "sha256": "8f800ac838b054ca0c102924d51ee07c0879bca75030927f6f64be602b88a498",
+              "expected": "8f800ac838b054ca0c102924d51ee07c0879bca75030927f6f64be602b88a498",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/runs/r17_filter_failed_groot/fits/ff1015_groot_l10_n400_c.pkl",
+              "present": true,
+              "sha256": "a31627dcac6689d5f8af3737d40444caa2342306e7aab5048a52a85c41beb315",
+              "expected": "a31627dcac6689d5f8af3737d40444caa2342306e7aab5048a52a85c41beb315",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/runs/r17_filter_failed_groot/fits/ff1015_groot_l10_n500_c.pkl",
+              "present": true,
+              "sha256": "f4b037b7071b33ba11e4afc30fb944646a8d22395536434ef67ac1c01518e7a2",
+              "expected": "f4b037b7071b33ba11e4afc30fb944646a8d22395536434ef67ac1c01518e7a2",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/runs/r17_filter_failed_groot/fits/ff1015_groot_l10_n50_c.pkl",
+              "present": true,
+              "sha256": "80581a1ecb0cf2e56e1c321dfcbdc39ab025051f49651b336d997752d694b99b",
+              "expected": "80581a1ecb0cf2e56e1c321dfcbdc39ab025051f49651b336d997752d694b99b",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/runs/r17_filter_failed_groot/fits/ff1015_groot_spatial_n100_c.pkl",
+              "present": true,
+              "sha256": "bb3fb671900498ebf52ad40441e5672c60ec2fa83bbb17045ad1186d1955f64d",
+              "expected": "bb3fb671900498ebf52ad40441e5672c60ec2fa83bbb17045ad1186d1955f64d",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/runs/r17_filter_failed_groot/fits/ff1015_groot_spatial_n200_c.pkl",
+              "present": true,
+              "sha256": "5fbb1adc2d1042e7cebd38b89540eabe75544c87e06bf1b10a5d25af004434e2",
+              "expected": "5fbb1adc2d1042e7cebd38b89540eabe75544c87e06bf1b10a5d25af004434e2",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/runs/r17_filter_failed_groot/fits/ff1015_groot_spatial_n300_c.pkl",
+              "present": true,
+              "sha256": "767e9b84bcb40938023072f19ca612fbe55cc3b4eb41771b90fe91b48128d0db",
+              "expected": "767e9b84bcb40938023072f19ca612fbe55cc3b4eb41771b90fe91b48128d0db",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/runs/r17_filter_failed_groot/fits/ff1015_groot_spatial_n400_c.pkl",
+              "present": true,
+              "sha256": "6e662aece6a25ff23e3168c8b31b32175d6974b2448d2557e9191458a01c7a48",
+              "expected": "6e662aece6a25ff23e3168c8b31b32175d6974b2448d2557e9191458a01c7a48",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/runs/r17_filter_failed_groot/fits/ff1015_groot_spatial_n500_c.pkl",
+              "present": true,
+              "sha256": "6045ae7a48a471d034c64b05f1032afa7776e43d2c52389d58af09da4c733a75",
+              "expected": "6045ae7a48a471d034c64b05f1032afa7776e43d2c52389d58af09da4c733a75",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/runs/r17_filter_failed_groot/fits/ff1015_groot_spatial_n50_c.pkl",
+              "present": true,
+              "sha256": "c9d2c962b18a7cce38a5db87ab0d749999bc771dfb9995be8da7ffa5164ae2a2",
+              "expected": "c9d2c962b18a7cce38a5db87ab0d749999bc771dfb9995be8da7ffa5164ae2a2",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/store/library/groot_l10/bpool_all/action.npy",
+              "present": true,
+              "sha256": "f4b6d4380f98e7a3766cf6a9484cf0559c75a1e14c3fde617e08da0c8ce0c3dc",
+              "expected": "f4b6d4380f98e7a3766cf6a9484cf0559c75a1e14c3fde617e08da0c8ce0c3dc",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/store/library/groot_l10/bpool_all/key_v0.npy",
+              "present": true,
+              "sha256": "3d290af4192e2ce42ffe79ce33a1b53dc8136fa5d87cdef04dccf09740f7700f",
+              "expected": "3d290af4192e2ce42ffe79ce33a1b53dc8136fa5d87cdef04dccf09740f7700f",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/store/library/groot_l10/bpool_all/task_id.npy",
+              "present": true,
+              "sha256": "4bfc4768fb3bf297ac6783b4ade736c9181860d5175051a276a26a9be3179e75",
+              "expected": "4bfc4768fb3bf297ac6783b4ade736c9181860d5175051a276a26a9be3179e75",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/store/library/groot_l10/current/action.npy",
+              "present": true,
+              "sha256": "08052bde9635e6238b48fa9a804ff54327639286733e86f716ef0f716b4ea989",
+              "expected": "08052bde9635e6238b48fa9a804ff54327639286733e86f716ef0f716b4ea989",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/store/library/groot_l10/current/ids.json",
+              "present": true,
+              "sha256": "394370bcc968ecaf821a81c4fb6bfb6ae09a194f59be214a41a88c3d4f26700f",
+              "expected": "394370bcc968ecaf821a81c4fb6bfb6ae09a194f59be214a41a88c3d4f26700f",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/store/library/groot_l10/current/manifest.json",
+              "present": true,
+              "sha256": "3cf41ef25292e6999b7752ce1df196f6f7fef45076a01bd07cf590a97cfaac82",
+              "expected": "3cf41ef25292e6999b7752ce1df196f6f7fef45076a01bd07cf590a97cfaac82",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/store/library/groot_l10/current/task_id.npy",
+              "present": true,
+              "sha256": "7dba5138a379621f7e79d5bc7358b8dd46c1298faa966bcf58c563edbd7c4454",
+              "expected": "7dba5138a379621f7e79d5bc7358b8dd46c1298faa966bcf58c563edbd7c4454",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/store/library/groot_spatial/bpool_all/action.npy",
+              "present": true,
+              "sha256": "2bafed2b909d1723ff5ba764e7b7275b6ec844c8f5335d870087f82112c4c8ab",
+              "expected": "2bafed2b909d1723ff5ba764e7b7275b6ec844c8f5335d870087f82112c4c8ab",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/store/library/groot_spatial/bpool_all/key_v0.npy",
+              "present": true,
+              "sha256": "5eabccff03d0da37d6ca871432e417c01c119b6f86851a805cf6eff5ca340305",
+              "expected": "5eabccff03d0da37d6ca871432e417c01c119b6f86851a805cf6eff5ca340305",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/store/library/groot_spatial/bpool_all/task_id.npy",
+              "present": true,
+              "sha256": "59d0a457346a16315a570fbf6427188c19e9acd8ca1adb5636f5361959575508",
+              "expected": "59d0a457346a16315a570fbf6427188c19e9acd8ca1adb5636f5361959575508",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/store/library/groot_spatial/current/action.npy",
+              "present": true,
+              "sha256": "fce1e98888e516822058b3abd485e528abb9ccae2338e358ca7fa6bd8a58a4db",
+              "expected": "fce1e98888e516822058b3abd485e528abb9ccae2338e358ca7fa6bd8a58a4db",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/store/library/groot_spatial/current/ids.json",
+              "present": true,
+              "sha256": "ef495c9909678eb2bbbad9b633929f38b3209e620b77298703428ebfdc769ddd",
+              "expected": "ef495c9909678eb2bbbad9b633929f38b3209e620b77298703428ebfdc769ddd",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/store/library/groot_spatial/current/manifest.json",
+              "present": true,
+              "sha256": "46781bbb09bd4a83218e0f4b131a9e318a95dbcbe6917c1dfdc8ca19fa384fb3",
+              "expected": "46781bbb09bd4a83218e0f4b131a9e318a95dbcbe6917c1dfdc8ca19fa384fb3",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/store/library/groot_spatial/current/task_id.npy",
+              "present": true,
+              "sha256": "ba075f6460c3c713f82f1d4bc2e86d546b9b2f1cbfd80a674c4b1a49afb351a7",
+              "expected": "ba075f6460c3c713f82f1d4bc2e86d546b9b2f1cbfd80a674c4b1a49afb351a7",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/store/queries/groot_l10_cache/episodes.json",
+              "present": true,
+              "sha256": "2c3d45cacbeb9743b45804d6e31048c22628fef5d6bcae3b011e46fc95775fcf",
+              "expected": "2c3d45cacbeb9743b45804d6e31048c22628fef5d6bcae3b011e46fc95775fcf",
+              "equal": true
+            },
+            {
+              "path": "/data/oscl_h100/store/queries/groot_spatial_cache/episodes.json",
+              "present": true,
+              "sha256": "52a305aebcff142f4ac25687d9a816d1a611a684744e878164b27cb747559bb9",
+              "expected": "52a305aebcff142f4ac25687d9a816d1a611a684744e878164b27cb747559bb9",
+              "equal": true
+            }
+          ],
+          "manifests": []
+        },
+        {
+          "node": "timan108",
+          "status": "PASS",
+          "files": [
+            {
+              "path": "/scratch/zixuans8/libero_sim/bin/python",
+              "present": true,
+              "sha256": null,
+              "expected": null,
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi/.venv/bin/python",
+              "present": true,
+              "sha256": null,
+              "expected": null,
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/exp/ablation_study/cache_size/config/apool_libero_10.yaml",
+              "present": true,
+              "sha256": null,
+              "expected": null,
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/exp/ablation_study/cache_size/config/apool_libero_spatial.yaml",
+              "present": true,
+              "sha256": null,
+              "expected": null,
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/exp/common/data/db_init/libero/libero_10_apool/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it.init",
+              "present": true,
+              "sha256": "02a8401f8d59f5447fc8c5a16f4c158dd8c426c3eaed6779927a2a53e9abf3c5",
+              "expected": "02a8401f8d59f5447fc8c5a16f4c158dd8c426c3eaed6779927a2a53e9abf3c5",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/exp/common/data/db_init/libero/libero_10_apool/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it.init",
+              "present": true,
+              "sha256": "e98ded151f64a036c74c872336dd09b968c379f3c9db7bc333aba37e7c235b86",
+              "expected": "e98ded151f64a036c74c872336dd09b968c379f3c9db7bc333aba37e7c235b86",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/exp/common/data/db_init/libero/libero_10_apool/KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it.init",
+              "present": true,
+              "sha256": "6b75c8d4d1e1c40b5d99c78ceea380d99ccffb0a484a4cb2d3153488a0afbbe2",
+              "expected": "6b75c8d4d1e1c40b5d99c78ceea380d99ccffb0a484a4cb2d3153488a0afbbe2",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/exp/common/data/db_init/libero/libero_10_apool/KITCHEN_SCENE8_put_both_moka_pots_on_the_stove.init",
+              "present": true,
+              "sha256": "44f992e911c84a1340589510ecdaf947a4872966f7678c8364d8bb5d13dc4dac",
+              "expected": "44f992e911c84a1340589510ecdaf947a4872966f7678c8364d8bb5d13dc4dac",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/exp/common/data/db_init/libero/libero_10_apool/LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket.init",
+              "present": true,
+              "sha256": "2113ea5923fcbbe1b57b428383934496072f062729d0b72d3021573d55d25abc",
+              "expected": "2113ea5923fcbbe1b57b428383934496072f062729d0b72d3021573d55d25abc",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/exp/common/data/db_init/libero/libero_10_apool/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket.init",
+              "present": true,
+              "sha256": "1899fe54c51e24a41d5f9e32254730d6777f4894ab68e0e873f1fa7ae2062030",
+              "expected": "1899fe54c51e24a41d5f9e32254730d6777f4894ab68e0e873f1fa7ae2062030",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/exp/common/data/db_init/libero/libero_10_apool/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket.init",
+              "present": true,
+              "sha256": "f8ac06ea8f43bb328d40cba1e6a9767da2f8f5386fd7ff3f845c64a96bf6d2ce",
+              "expected": "f8ac06ea8f43bb328d40cba1e6a9767da2f8f5386fd7ff3f845c64a96bf6d2ce",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/exp/common/data/db_init/libero/libero_10_apool/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate.init",
+              "present": true,
+              "sha256": "b6f20784b381c75d715f4fdaadda1fb460cbe24adcbad76f381a009419b8474e",
+              "expected": "b6f20784b381c75d715f4fdaadda1fb460cbe24adcbad76f381a009419b8474e",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/exp/common/data/db_init/libero/libero_10_apool/LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate.init",
+              "present": true,
+              "sha256": "6e811394c4ff9a43ae23515d8512e9b657c04344b94dd5baed121b595490514f",
+              "expected": "6e811394c4ff9a43ae23515d8512e9b657c04344b94dd5baed121b595490514f",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/exp/common/data/db_init/libero/libero_10_apool/STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy.init",
+              "present": true,
+              "sha256": "6cd3937ba18d64e72223222af36888d26ea201840415adbc4dae590454d0a5a8",
+              "expected": "6cd3937ba18d64e72223222af36888d26ea201840415adbc4dae590454d0a5a8",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/exp/common/data/db_init/libero/libero_spatial_apool/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate.init",
+              "present": true,
+              "sha256": "cbbc73792ce546c9bec181fd328a411d3183074840b282671dee481511381d0a",
+              "expected": "cbbc73792ce546c9bec181fd328a411d3183074840b282671dee481511381d0a",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/exp/common/data/db_init/libero/libero_spatial_apool/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate.init",
+              "present": true,
+              "sha256": "27d5b81d739f969e40c72b6c88699e57a91ea61209946b21c593aae5990689cb",
+              "expected": "27d5b81d739f969e40c72b6c88699e57a91ea61209946b21c593aae5990689cb",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/exp/common/data/db_init/libero/libero_spatial_apool/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate.init",
+              "present": true,
+              "sha256": "deef3df529e0bb57658b973bbb3baf02b02922db065c025a73ebfcd11eb54d46",
+              "expected": "deef3df529e0bb57658b973bbb3baf02b02922db065c025a73ebfcd11eb54d46",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/exp/common/data/db_init/libero/libero_spatial_apool/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate.init",
+              "present": true,
+              "sha256": "ab86fb7b5942dc0fec762eae57e72bf636106b1c10ad8ce57227723d8eb9a81b",
+              "expected": "ab86fb7b5942dc0fec762eae57e72bf636106b1c10ad8ce57227723d8eb9a81b",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/exp/common/data/db_init/libero/libero_spatial_apool/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate.init",
+              "present": true,
+              "sha256": "f43df2d80042130ac8770590d83f1a1e6fd4df7479aebc392aa2ed6e3bd0b83e",
+              "expected": "f43df2d80042130ac8770590d83f1a1e6fd4df7479aebc392aa2ed6e3bd0b83e",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/exp/common/data/db_init/libero/libero_spatial_apool/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate.init",
+              "present": true,
+              "sha256": "9b6927b6ef03460ab055141e1a1154ad85e5e290058d8ed3a8a314aff911f864",
+              "expected": "9b6927b6ef03460ab055141e1a1154ad85e5e290058d8ed3a8a314aff911f864",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/exp/common/data/db_init/libero/libero_spatial_apool/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate.init",
+              "present": true,
+              "sha256": "0627f5f5ce3ef23be546571012be8ef603d93bcb4032bc80feb34937ba580140",
+              "expected": "0627f5f5ce3ef23be546571012be8ef603d93bcb4032bc80feb34937ba580140",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/exp/common/data/db_init/libero/libero_spatial_apool/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate.init",
+              "present": true,
+              "sha256": "2d2c50b7dcbf861fffa94d576f217ed34153e57487010d7a109a220d4d97189b",
+              "expected": "2d2c50b7dcbf861fffa94d576f217ed34153e57487010d7a109a220d4d97189b",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/exp/common/data/db_init/libero/libero_spatial_apool/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate.init",
+              "present": true,
+              "sha256": "ea9cba2814bc166f3682f3f5a97329467839bcf584069cd419191b6c17adae25",
+              "expected": "ea9cba2814bc166f3682f3f5a97329467839bcf584069cd419191b6c17adae25",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/exp/common/data/db_init/libero/libero_spatial_apool/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate.init",
+              "present": true,
+              "sha256": "08b0ac928dcc524a66d963851a6a4eece9aeb782b38466006e403a70e3287867",
+              "expected": "08b0ac928dcc524a66d963851a6a4eece9aeb782b38466006e403a70e3287867",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/os_cl/cfg/ff1015_groot_l10_n100_c.yaml",
+              "present": true,
+              "sha256": "37c9cf5ad29d6712bf3c7abde374cd67b3da7968332067ef8037a0d2cd906c26",
+              "expected": "37c9cf5ad29d6712bf3c7abde374cd67b3da7968332067ef8037a0d2cd906c26",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/os_cl/cfg/ff1015_groot_l10_n200_c.yaml",
+              "present": true,
+              "sha256": "37c9cf5ad29d6712bf3c7abde374cd67b3da7968332067ef8037a0d2cd906c26",
+              "expected": "37c9cf5ad29d6712bf3c7abde374cd67b3da7968332067ef8037a0d2cd906c26",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/os_cl/cfg/ff1015_groot_l10_n300_c.yaml",
+              "present": true,
+              "sha256": "37c9cf5ad29d6712bf3c7abde374cd67b3da7968332067ef8037a0d2cd906c26",
+              "expected": "37c9cf5ad29d6712bf3c7abde374cd67b3da7968332067ef8037a0d2cd906c26",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/os_cl/cfg/ff1015_groot_l10_n400_c.yaml",
+              "present": true,
+              "sha256": "37c9cf5ad29d6712bf3c7abde374cd67b3da7968332067ef8037a0d2cd906c26",
+              "expected": "37c9cf5ad29d6712bf3c7abde374cd67b3da7968332067ef8037a0d2cd906c26",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/os_cl/cfg/ff1015_groot_l10_n500_c.yaml",
+              "present": true,
+              "sha256": "37c9cf5ad29d6712bf3c7abde374cd67b3da7968332067ef8037a0d2cd906c26",
+              "expected": "37c9cf5ad29d6712bf3c7abde374cd67b3da7968332067ef8037a0d2cd906c26",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/os_cl/cfg/ff1015_groot_l10_n50_c.yaml",
+              "present": true,
+              "sha256": "37c9cf5ad29d6712bf3c7abde374cd67b3da7968332067ef8037a0d2cd906c26",
+              "expected": "37c9cf5ad29d6712bf3c7abde374cd67b3da7968332067ef8037a0d2cd906c26",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/os_cl/cfg/ff1015_groot_spatial_n100_c.yaml",
+              "present": true,
+              "sha256": "f844e45704df9166b4fb158495cf4b23d12678b7909781d416fccc135addc0c3",
+              "expected": "f844e45704df9166b4fb158495cf4b23d12678b7909781d416fccc135addc0c3",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/os_cl/cfg/ff1015_groot_spatial_n200_c.yaml",
+              "present": true,
+              "sha256": "f844e45704df9166b4fb158495cf4b23d12678b7909781d416fccc135addc0c3",
+              "expected": "f844e45704df9166b4fb158495cf4b23d12678b7909781d416fccc135addc0c3",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/os_cl/cfg/ff1015_groot_spatial_n300_c.yaml",
+              "present": true,
+              "sha256": "f844e45704df9166b4fb158495cf4b23d12678b7909781d416fccc135addc0c3",
+              "expected": "f844e45704df9166b4fb158495cf4b23d12678b7909781d416fccc135addc0c3",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/os_cl/cfg/ff1015_groot_spatial_n400_c.yaml",
+              "present": true,
+              "sha256": "f844e45704df9166b4fb158495cf4b23d12678b7909781d416fccc135addc0c3",
+              "expected": "f844e45704df9166b4fb158495cf4b23d12678b7909781d416fccc135addc0c3",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/os_cl/cfg/ff1015_groot_spatial_n500_c.yaml",
+              "present": true,
+              "sha256": "f844e45704df9166b4fb158495cf4b23d12678b7909781d416fccc135addc0c3",
+              "expected": "f844e45704df9166b4fb158495cf4b23d12678b7909781d416fccc135addc0c3",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/os_cl/cfg/ff1015_groot_spatial_n50_c.yaml",
+              "present": true,
+              "sha256": "f844e45704df9166b4fb158495cf4b23d12678b7909781d416fccc135addc0c3",
+              "expected": "f844e45704df9166b4fb158495cf4b23d12678b7909781d416fccc135addc0c3",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/os_cl/cfg/matrix_ff1015_groot_l10_n100_c.yaml",
+              "present": true,
+              "sha256": "17ec8ad62f6a26d29d741439b1b9dc51dce9109f5776947c209f72f96dc0d1fe",
+              "expected": "17ec8ad62f6a26d29d741439b1b9dc51dce9109f5776947c209f72f96dc0d1fe",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/os_cl/cfg/matrix_ff1015_groot_l10_n200_c.yaml",
+              "present": true,
+              "sha256": "6ca0a4e732ec52a983ec2bf262b36dbb082ba2144b8f94570f5bd2180c2effc0",
+              "expected": "6ca0a4e732ec52a983ec2bf262b36dbb082ba2144b8f94570f5bd2180c2effc0",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/os_cl/cfg/matrix_ff1015_groot_l10_n300_c.yaml",
+              "present": true,
+              "sha256": "af12dae6a3b0719834e5d5466feaa0bb09c256669a926874a8774d738ad2a61c",
+              "expected": "af12dae6a3b0719834e5d5466feaa0bb09c256669a926874a8774d738ad2a61c",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/os_cl/cfg/matrix_ff1015_groot_l10_n400_c.yaml",
+              "present": true,
+              "sha256": "4aafc03c39a2a02baecf85eaea8fd3ab4a41a0fe61fcc8182eab3430f2cd7a6d",
+              "expected": "4aafc03c39a2a02baecf85eaea8fd3ab4a41a0fe61fcc8182eab3430f2cd7a6d",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/os_cl/cfg/matrix_ff1015_groot_l10_n500_c.yaml",
+              "present": true,
+              "sha256": "9972267257f325a0a2109d6a68633ef74809d3e7d1e792408f0fbd5eda06f193",
+              "expected": "9972267257f325a0a2109d6a68633ef74809d3e7d1e792408f0fbd5eda06f193",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/os_cl/cfg/matrix_ff1015_groot_l10_n50_c.yaml",
+              "present": true,
+              "sha256": "338cdfc8dc5dd8a05322389fc70b285c8540bab269ef7c0dfe98516bc9afe43c",
+              "expected": "338cdfc8dc5dd8a05322389fc70b285c8540bab269ef7c0dfe98516bc9afe43c",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/os_cl/cfg/matrix_ff1015_groot_spatial_n100_c.yaml",
+              "present": true,
+              "sha256": "958464e841b49355773f377f3cdfa017570474338ab3f38f30bada7f14adfa6a",
+              "expected": "958464e841b49355773f377f3cdfa017570474338ab3f38f30bada7f14adfa6a",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/os_cl/cfg/matrix_ff1015_groot_spatial_n200_c.yaml",
+              "present": true,
+              "sha256": "2bc7eaa0b9961d27430edb1a895158c382c3ca86e2ce610d99bab326fabeebd6",
+              "expected": "2bc7eaa0b9961d27430edb1a895158c382c3ca86e2ce610d99bab326fabeebd6",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/os_cl/cfg/matrix_ff1015_groot_spatial_n300_c.yaml",
+              "present": true,
+              "sha256": "aa0f4cfa123ebfdf7732ddcd7469446b77fef74e9876dd8f2658c2cc1b861fa6",
+              "expected": "aa0f4cfa123ebfdf7732ddcd7469446b77fef74e9876dd8f2658c2cc1b861fa6",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/os_cl/cfg/matrix_ff1015_groot_spatial_n400_c.yaml",
+              "present": true,
+              "sha256": "bba46231a1624edd082ba35b9a86f5ff3db29d8480e58f3cb14a7dff80dc6161",
+              "expected": "bba46231a1624edd082ba35b9a86f5ff3db29d8480e58f3cb14a7dff80dc6161",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/os_cl/cfg/matrix_ff1015_groot_spatial_n500_c.yaml",
+              "present": true,
+              "sha256": "cc0742eb7cab1114cea95c689e5332a1ee7645cf02d947021d830ac746497781",
+              "expected": "cc0742eb7cab1114cea95c689e5332a1ee7645cf02d947021d830ac746497781",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/os_cl/cfg/matrix_ff1015_groot_spatial_n50_c.yaml",
+              "present": true,
+              "sha256": "9269e14596213cf2844b93778aeebd18e7bc2b0ede26969b1f820d9be4111ff8",
+              "expected": "9269e14596213cf2844b93778aeebd18e7bc2b0ede26969b1f820d9be4111ff8",
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/os_cl/count.py",
+              "present": true,
+              "sha256": null,
+              "expected": null,
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/os_cl/libero/config.yaml",
+              "present": true,
+              "sha256": null,
+              "expected": null,
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/os_cl/node.py",
+              "present": true,
+              "sha256": null,
+              "expected": null,
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/os_cl/purge_exc.py",
+              "present": true,
+              "sha256": null,
+              "expected": null,
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/os_cl/run_arm.sh",
+              "present": true,
+              "sha256": null,
+              "expected": null,
+              "equal": true
+            },
+            {
+              "path": "/scratch/zixuans8/openpi_trace/os_cl/run_gtp_subset.py",
+              "present": true,
+              "sha256": null,
+              "expected": null,
+              "equal": true
+            }
+          ],
+          "manifests": []
+        }
+      ]
+    }
+  ],
+  "status": "PASS"
+}

@@ -1,0 +1,69 @@
+{
+  "jobs": [
+    {
+      "name": "ff1015_dp_li_14_u",
+      "run": "/data/mw_finetune/eval/ff1015_dp_li_14_u",
+      "source": "/data/mw_finetune/eval/csztd_r2_c383_r2_e5b0",
+      "model": "dp",
+      "domain": "libero",
+      "gpu": "RTX 4090",
+      "replicas": 4,
+      "batch": 8,
+      "workers": {
+        "local": 60
+      },
+      "episodes": 1000,
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_62692e198a28b32f9eece681d458d644e30b9ae5a1bd33f84eded015b5bff6c0",
+      "runtime_identity": "62692e198a28b32f9eece681d458d644e30b9ae5a1bd33f84eded015b5bff6c0",
+      "study": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/studies/ff1015_dp_li_14_u_unfiltered/STUDY.json",
+      "prepare_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/prepare_ff1015_dp_li_14_u.sh",
+      "launch_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_ff1015_dp_li_14_u.sh",
+      "arm": "unfiltered_control",
+      "paired_filtered": "ff1015_dp_li_14",
+      "replaces_source": "/data/mw_finetune/eval/csztd_r2_c383_r2_e5b0",
+      "cells": [
+        "dp/libero_spatial/50",
+        "dp/libero_10/50"
+      ]
+    },
+    {
+      "name": "ff1015_dp_li_15_u",
+      "run": "/data/mw_finetune/eval/ff1015_dp_li_15_u",
+      "source": "/data/mw_finetune/eval/csztd_r3_l48",
+      "model": "dp",
+      "domain": "libero",
+      "gpu": "RTX 4090",
+      "replicas": 4,
+      "batch": 8,
+      "workers": {
+        "local": 48
+      },
+      "episodes": 4000,
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_62692e198a28b32f9eece681d458d644e30b9ae5a1bd33f84eded015b5bff6c0",
+      "runtime_identity": "62692e198a28b32f9eece681d458d644e30b9ae5a1bd33f84eded015b5bff6c0",
+      "study": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/studies/ff1015_dp_li_15_u_unfiltered/STUDY.json",
+      "prepare_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/prepare_ff1015_dp_li_15_u.sh",
+      "launch_command": "bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/commands/launch_ff1015_dp_li_15_u.sh",
+      "arm": "unfiltered_control",
+      "paired_filtered": "ff1015_dp_li_15",
+      "replaces_source": "/data/mw_finetune/eval/csztd_r3_l48",
+      "cells": [
+        "dp/libero_spatial/100",
+        "dp/libero_spatial/200",
+        "dp/libero_spatial/300",
+        "dp/libero_spatial/400",
+        "dp/libero_10/100",
+        "dp/libero_10/200",
+        "dp/libero_10/300",
+        "dp/libero_10/400"
+      ]
+    }
+  ],
+  "extra_simulations_by_model": {
+    "pi05": 0,
+    "groot": 0,
+    "dp": 5000,
+    "fastwam": 0,
+    "cosmos": 0
+  }
+}

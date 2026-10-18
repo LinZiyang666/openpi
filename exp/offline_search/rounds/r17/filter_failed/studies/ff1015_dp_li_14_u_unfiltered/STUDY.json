@@ -1,0 +1,92 @@
+{
+  "artifacts_pending": false,
+  "controls": {
+    "cosmos_libero": "formal_cosmos_libero_official2000_20261010_130639_a8ca2043",
+    "dp_libero": "hs5dp_ctl_142812",
+    "fastwam_libero": "hs6fw_res_152931"
+  },
+  "digest": "72a5c95f718c1a1fb0541c811886c84c525cdd4c11967e123be005e22de9bebb",
+  "eval_pool": "A",
+  "groups": [
+    "c"
+  ],
+  "horizon_selection": {
+    "cosmos": 16,
+    "dp": 10,
+    "fastwam": 10,
+    "status": "fallback_C10_pending_horizon_NI_freeze"
+  },
+  "inits": 50,
+  "knobs": false,
+  "library_sizes": [
+    50
+  ],
+  "models": {
+    "dp_libero": [
+      {
+        "bundle_id": "ffunfiltered_n50_sp_64c13a3c82ca",
+        "bundle_identity": "64c13a3c82cab6f1bfeaa9a8848c7e8bfc60e97963f5c42aa6096c37e0eb8d39",
+        "file": "dp_libero/libero_spatial/n50_c.yaml",
+        "fit": "/data/mw_finetune/eval/csztd_r2_c383_r2_e5b0/assets/cache_inputs/libero_spatial/n50_C5/fit",
+        "fit_digest": "45e0d1e21fb0c2bc4df8c90ae5763ff81c4195f1a98123f426ae18b6815ae470",
+        "fit_rel": "libero_spatial/n50_C5/fit",
+        "group": "c",
+        "library": "/data/r17_library/dp_libero_libero_spatial/bpool",
+        "library_size": 50,
+        "recipe_identity": "4d9baaeeb2ce553500cf464006fb10f4bfd86141ca6b8217f0ab94b1cc41c1ae",
+        "settings": {
+          "alias": null,
+          "commit": 5,
+          "corrector": false,
+          "gated": false
+        },
+        "sha256": "4d88c13df23910a1f157c6a78049eab474b06f4abdaae8e04d6e640bad9eba57",
+        "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n50/dp_libero_libero_spatial/C5/stall",
+        "stall_digest": "b906dcb45a0b974007eb1171233171c949a668132ef4b60240eb2f38ca28bd36",
+        "stall_rel": "libero_spatial/n50_C5/stall",
+        "status": "ARTIFACTS_READY_MODEL_ADMISSION_PENDING",
+        "suite": "libero_spatial",
+        "view_rel": "libero_spatial/parent/subsets/size_50",
+        "num_trials_per_task": 50
+      },
+      {
+        "bundle_id": "ffunfiltered_n50_l10_26625c5b4e97",
+        "bundle_identity": "26625c5b4e97b17d7d5dd4d61fbc23a92c29f875ddb582754049e84e44dd04f8",
+        "file": "dp_libero/libero_10/n50_c.yaml",
+        "fit": "/data/mw_finetune/eval/csztd_r2_c383_r2_e5b0/assets/cache_inputs/libero_10/n50_C5/fit",
+        "fit_digest": "83a2667bb77f7588f7c57a338dd68c6249e32117e209dce65f7ff5558c3a38ca",
+        "fit_rel": "libero_10/n50_C5/fit",
+        "group": "c",
+        "library": "/data/r17_library/dp_libero_libero_10/bpool",
+        "library_size": 50,
+        "recipe_identity": "83133b7e7fa5eb2b731bbb8728c5eaaa4daa9e922f0998ea2ae2f65319b5505a",
+        "settings": {
+          "alias": null,
+          "commit": 5,
+          "corrector": false,
+          "gated": false
+        },
+        "sha256": "0d3d60d510d30534851274788d69492ce9b2665909c9754c97853a3baa0ae110",
+        "stall": "/home/weiland/projects/openpi/exp/r17_integration/ops/cache_study/sizes/artifacts/n50/dp_libero_libero_10/C5/stall",
+        "stall_digest": "b9dbd1f2ffefed47337e944c8734f13cdf1c99c359458561eb03aa3a3bfb42c8",
+        "stall_rel": "libero_10/n50_C5/stall",
+        "status": "ARTIFACTS_READY_MODEL_ADMISSION_PENDING",
+        "suite": "libero_10",
+        "view_rel": "libero_10/parent/subsets/size_50",
+        "num_trials_per_task": 50
+      }
+    ]
+  },
+  "ordinary_miss": false,
+  "prereg_sha256": "1b733bec5da41d90b234caf27bd5282833699519d6049039b0be3e055c63b06e",
+  "rulings_sha256": "9c852a063cf5531d4412380245a29b7e75289e571b6298486d77fbb9482b28fb",
+  "schema": "r17.cache_study.v1",
+  "suites": [
+    "libero_spatial",
+    "libero_10"
+  ],
+  "filter_failed": {
+    "method": "frozen_fit_candidate_rows_only",
+    "refit": false
+  }
+}

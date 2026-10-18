@@ -1,0 +1,70 @@
+{
+  "status": "PASS",
+  "prepared_4090_jobs": [
+    {
+      "job": "ff1015_dp_li_14_u",
+      "status": "PREPARED",
+      "episodes": 1000,
+      "server_python": "/home/weiland/projects/openpi/.venv/bin/python",
+      "seal_files": 29
+    },
+    {
+      "job": "ff1015_dp_li_14",
+      "status": "PREPARED",
+      "episodes": 1000,
+      "server_python": "/home/weiland/projects/openpi/.venv/bin/python",
+      "seal_files": 29
+    },
+    {
+      "job": "ff1015_dp_li_15_u",
+      "status": "PREPARED",
+      "episodes": 4000,
+      "server_python": "/home/weiland/projects/openpi/.venv/bin/python",
+      "seal_files": 59
+    },
+    {
+      "job": "ff1015_dp_li_15",
+      "status": "PREPARED",
+      "episodes": 4000,
+      "server_python": "/home/weiland/projects/openpi/.venv/bin/python",
+      "seal_files": 59
+    },
+    {
+      "job": "ff1015_dp_li_11",
+      "status": "PREPARED",
+      "episodes": 501,
+      "server_python": "/home/weiland/projects/openpi/.venv/bin/python",
+      "seal_files": 28
+    },
+    {
+      "job": "ff1015_dp_li_16",
+      "status": "PREPARED",
+      "episodes": 499,
+      "server_python": "/home/weiland/projects/openpi/.venv/bin/python",
+      "seal_files": 22
+    },
+    {
+      "job": "ff1015_pi05_mt_13",
+      "status": "PREPARED",
+      "episodes": 13950,
+      "server_python": "/home/weiland/projects/openpi/.venv/bin/python",
+      "seal_files": 47
+    }
+  ],
+  "original_jobs_checked": 19,
+  "equal_historical_identity": 17,
+  "control_jobs": 2,
+  "extra_simulations_by_model": {
+    "pi05": 0,
+    "groot": 0,
+    "dp": 5000,
+    "fastwam": 0,
+    "cosmos": 0
+  },
+  "controls_use_original_views_and_fits": true,
+  "controls_match_filtered_identity": true,
+  "r10_restore_transfers_executed": false,
+  "model_server_started": false,
+  "worker_started": false,
+  "driver_started": false
+}

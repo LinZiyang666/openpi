@@ -1,0 +1,32 @@
+{
+  "action": "Run the provided public rsync restore and SHA verification, then the existing R10 pi05 prepare command.",
+  "chain_started": false,
+  "driver_started": false,
+  "h100_dependency_sync": {
+    "bytes": 16706534893,
+    "files": 84,
+    "status": "PASS"
+  },
+  "island": "/scratch/zixuans8/openpi_trace_h100",
+  "job": "r17_filter_failed_pi05",
+  "missing": [
+    "os_cl/node.py",
+    "os_cl/run_arm.sh",
+    "os_cl/run_gtp_subset.py",
+    "os_cl/libero/config.yaml",
+    "exp/offline_search/rounds/r10/method.py"
+  ],
+  "model_server_started": false,
+  "node": "timan107",
+  "original_source": "/home/weiland/trace_runs/os_closed_loop/r10_size_pi05",
+  "original_topology_confirmed_by": [
+    "h100_sync/synced.json",
+    "runs/r10_pi05_l10_500_A/h100_launch.json"
+  ],
+  "restore_commands": "exp/offline_search/rounds/r17/filter_failed/R10_RESTORE_COMMANDS.txt",
+  "restore_manifest": "exp/offline_search/rounds/r17/filter_failed/R10_RESTORE_MANIFEST.json",
+  "rsync_executed": false,
+  "status": "READY_FOR_COORDINATOR_RESTORE",
+  "worker_started": false,
+  "worker_sync": "failed at original node.py install; no synced.json written"
+}

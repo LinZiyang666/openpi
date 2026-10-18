@@ -1,0 +1,68 @@
+{
+  "actual_model_identity": "sha256:17b1d6a1f389e09bd853aa384df9c3b27e3cff1b6d03c7e253e5a5e002ff203d",
+  "actual_run": "/data/mw_finetune/eval/ff1015_dp_li_14",
+  "build_stage_or_identity_checks_changed": false,
+  "checked_at": "2026-10-15T22:54:46.745381+00:00",
+  "copied_source_descriptors_equal_jobs": 19,
+  "cpu_checks": [
+    {
+      "evidence": "DP_STARTUP_ACTUAL.json",
+      "python": "/data/mw_finetune/dp/env/bin/python",
+      "status": "FAIL"
+    },
+    {
+      "evidence": "DP_STARTUP_SEALED_ENV.json",
+      "python": "/home/weiland/projects/openpi/.venv/bin/python",
+      "status": "PASS"
+    }
+  ],
+  "dependency_version_changes": {
+    "diffusers": {
+      "actual": "0.39.0",
+      "sealed": "0.37.1"
+    },
+    "numpy": {
+      "actual": "2.2.6",
+      "sealed": "1.26.4"
+    },
+    "safetensors": {
+      "actual": "0.8.0",
+      "sealed": "0.7.0"
+    },
+    "torch": {
+      "actual": "2.7.1+cu128",
+      "sealed": "2.7.1"
+    },
+    "torchvision": {
+      "actual": "0.22.1+cu128",
+      "sealed": "0.22.1"
+    },
+    "transformers": {
+      "actual": "5.5.4",
+      "sealed": "4.53.2"
+    }
+  },
+  "descriptor_copy_audit": "SOURCE_STARTUP_AUDIT.json",
+  "expected_model_identity": "sha256:bd1dd4c1b2e1bfbb4c660ed8ec0a50362f461dc8a631c16edfa9d3097879d0c5",
+  "identity_recomputed_with_sealed_dependency_versions": "sha256:bd1dd4c1b2e1bfbb4c660ed8ec0a50362f461dc8a631c16edfa9d3097879d0c5",
+  "next_decision": "Identify the authoritative source runtime/environment (observed served source versus CPU-sealed source) before changing preparation or rerunning paired controls.",
+  "normalization_match": true,
+  "reason": "Source serving identity differs from its current sealed descriptor; current execution environment also differs from sealed dependencies.",
+  "requested_all_19_job_startup_proof": "NOT COMPLETE: stopped on binding source fact conflict",
+  "reset_executed": false,
+  "reset_reason": "Latest receipt has closed owned replica_0 and workers; existing reset supports pre-spawn failures only. No relaunchable state is claimed.",
+  "resolution": "Coordinator chose sealed environments; all 19 CPU checks pass; 2 matched unfiltered controls replace mismatched historical DP cells.",
+  "resolved_by": "FAIRNESS_VERIFICATION.json",
+  "source_frozen_code_files_match": true,
+  "source_run": "/data/mw_finetune/eval/csztd_r3_l48",
+  "source_sealed_code_digest": "sha256:6536008be9eb5f64188af8636a6b0a255c004adf6e418d6e0b976b6a362316d5",
+  "source_served_code_digest": "sha256:1eacb5b538e19bdf94801b24b31ba4aacb7f29e12f1d41831b13023aab6f77ea",
+  "source_served_model_identity": "sha256:110944f6457c8ee389d5726cc60464875aed71846d9cc19967c048beb3f48ecb",
+  "status": "BLOCKED",
+  "strict_tensor_load": {
+    "keys": 475,
+    "missing": [],
+    "unexpected": []
+  },
+  "weights_match": true
+}

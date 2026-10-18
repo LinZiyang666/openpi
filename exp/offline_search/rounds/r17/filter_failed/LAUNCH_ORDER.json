@@ -1,0 +1,29 @@
+{
+  "RTX 4090": [
+    "ff1015_dp_li_14_u",
+    "ff1015_dp_li_14",
+    "ff1015_dp_li_15_u",
+    "ff1015_dp_li_15",
+    "ff1015_dp_li_11",
+    "ff1015_dp_li_16",
+    "ff1015_pi05_mt_13"
+  ],
+  "H100": [
+    "ff1015_cosmos_li_01",
+    "ff1015_cosmos_li_02",
+    "ff1015_cosmos_li_03",
+    "ff1015_cosmos_li_04",
+    "ff1015_dp_mt_05",
+    "ff1015_fastwam_mt_06",
+    "ff1015_fastwam_mt_07",
+    "ff1015_fastwam_mt_08",
+    "ff1015_groot_mt_09",
+    "ff1015_groot_mt_10",
+    "ff1015_fastwam_li_12",
+    "ff1015_fastwam_li_17",
+    "ff1015_fastwam_li_18",
+    "ff1015_fastwam_li_19",
+    "r17_filter_failed_pi05",
+    "r17_filter_failed_groot"
+  ]
+}

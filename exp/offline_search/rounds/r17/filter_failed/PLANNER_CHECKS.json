@@ -1,0 +1,138 @@
+{
+  "status": "PASS",
+  "campaigns": [
+    {
+      "campaign": "ff1015_cosmos_li_01",
+      "status": "PASS",
+      "episodes": 1000,
+      "native_runtime": "/data/mw_finetune/qualification/formal_runtime_5318b07bfd914c17e284569600167aa3284ba3329aa9941333eef7a1f1b90b9e",
+      "planner": "/data/mw_finetune/qualification/formal_driver_4991055995a12bbf75784384b15780b74ba6dee3f576713bd1629b8ae5161ad1"
+    },
+    {
+      "campaign": "ff1015_cosmos_li_02",
+      "status": "PASS",
+      "episodes": 500,
+      "native_runtime": "/data/mw_finetune/qualification/formal_runtime_3ee418426f219145556760c56fc22eca757740f12575c253be35014e56c0a261",
+      "planner": "/data/mw_finetune/qualification/formal_driver_c0afc21e240ffe4f08e475dda88f1238289a2e7580f815949237875ff0cde829"
+    },
+    {
+      "campaign": "ff1015_cosmos_li_03",
+      "status": "PASS",
+      "episodes": 1434,
+      "native_runtime": "/data/mw_finetune/qualification/formal_runtime_3ee418426f219145556760c56fc22eca757740f12575c253be35014e56c0a261",
+      "planner": "/data/mw_finetune/qualification/formal_driver_c0afc21e240ffe4f08e475dda88f1238289a2e7580f815949237875ff0cde829"
+    },
+    {
+      "campaign": "ff1015_cosmos_li_04",
+      "status": "PASS",
+      "episodes": 3066,
+      "native_runtime": "/data/mw_finetune/qualification/formal_runtime_3ee418426f219145556760c56fc22eca757740f12575c253be35014e56c0a261",
+      "planner": "/data/mw_finetune/qualification/formal_driver_c0afc21e240ffe4f08e475dda88f1238289a2e7580f815949237875ff0cde829"
+    },
+    {
+      "campaign": "ff1015_dp_mt_05",
+      "status": "PASS",
+      "episodes": 14100,
+      "native_runtime": "/data/mw_finetune/qualification/formal_runtime_5b44d1ecbe4abfe45929749dd655850128b73e1f416fdb9f0e4b597445fb9898",
+      "planner": "/data/mw_finetune/qualification/formal_driver_c4cd93c4dfbf9b0e21bb36446d59400397b24622e7f30e855803ab922813637a"
+    },
+    {
+      "campaign": "ff1015_fastwam_mt_06",
+      "status": "PASS",
+      "episodes": 6750,
+      "native_runtime": "/data/mw_finetune/qualification/formal_runtime_5b44d1ecbe4abfe45929749dd655850128b73e1f416fdb9f0e4b597445fb9898",
+      "planner": "/data/mw_finetune/qualification/formal_driver_c4cd93c4dfbf9b0e21bb36446d59400397b24622e7f30e855803ab922813637a"
+    },
+    {
+      "campaign": "ff1015_fastwam_mt_07",
+      "status": "PASS",
+      "episodes": 2350,
+      "native_runtime": "/data/mw_finetune/qualification/formal_runtime_c33e2281905a033a39150c5a71a207f45dc564fb3babf5a0b661442b8fb7e2ed",
+      "planner": "/data/mw_finetune/qualification/formal_driver_4f5d9f7e804e79e2ed46abfd90699c72308e7e70f3b5a864c5bdb97429370751"
+    },
+    {
+      "campaign": "ff1015_fastwam_mt_08",
+      "status": "PASS",
+      "episodes": 4800,
+      "native_runtime": "/data/mw_finetune/qualification/formal_runtime_c33e2281905a033a39150c5a71a207f45dc564fb3babf5a0b661442b8fb7e2ed",
+      "planner": "/data/mw_finetune/qualification/formal_driver_4f5d9f7e804e79e2ed46abfd90699c72308e7e70f3b5a864c5bdb97429370751"
+    },
+    {
+      "campaign": "ff1015_groot_mt_09",
+      "status": "PASS",
+      "episodes": 4750,
+      "native_runtime": "/data/mw_finetune/qualification/formal_runtime_966ab88a2b07680fe52eaf7e42fae2cb72f7cb45e571996ac5dff3aaf69e9da3",
+      "planner": "/data/mw_finetune/qualification/formal_driver_dd99bf81a348b632aa57bcf1814e3ef2d92a6c20b7bdaad49fd82e3596b35068"
+    },
+    {
+      "campaign": "ff1015_groot_mt_10",
+      "status": "PASS",
+      "episodes": 9800,
+      "native_runtime": "/data/mw_finetune/qualification/formal_runtime_966ab88a2b07680fe52eaf7e42fae2cb72f7cb45e571996ac5dff3aaf69e9da3",
+      "planner": "/data/mw_finetune/qualification/formal_driver_dd99bf81a348b632aa57bcf1814e3ef2d92a6c20b7bdaad49fd82e3596b35068"
+    },
+    {
+      "campaign": "ff1015_dp_li_11",
+      "status": "PASS",
+      "episodes": 501,
+      "native_runtime": "/data/mw_finetune/qualification/formal_runtime_211cb3c92204e134f1414ee563d6b24586c6a3e6c0a8f5ceaaa9689d8077c8e4",
+      "planner": "/data/mw_finetune/qualification/formal_driver_bd6dcec2cfa58d9a304533b32dd5d94b080e6382e5b9053495786196f65466c5"
+    },
+    {
+      "campaign": "ff1015_fastwam_li_12",
+      "status": "PASS",
+      "episodes": 523,
+      "native_runtime": "/data/mw_finetune/qualification/formal_runtime_211cb3c92204e134f1414ee563d6b24586c6a3e6c0a8f5ceaaa9689d8077c8e4",
+      "planner": "/data/mw_finetune/qualification/formal_driver_bd6dcec2cfa58d9a304533b32dd5d94b080e6382e5b9053495786196f65466c5"
+    },
+    {
+      "campaign": "ff1015_pi05_mt_13",
+      "status": "PASS",
+      "episodes": 13950,
+      "native_runtime": "/data/mw_finetune/qualification/formal_runtime_5b44d1ecbe4abfe45929749dd655850128b73e1f416fdb9f0e4b597445fb9898",
+      "planner": "/data/mw_finetune/qualification/formal_driver_c4cd93c4dfbf9b0e21bb36446d59400397b24622e7f30e855803ab922813637a"
+    },
+    {
+      "campaign": "ff1015_dp_li_14",
+      "status": "PASS",
+      "episodes": 1000,
+      "native_runtime": "/data/mw_finetune/qualification/formal_runtime_62692e198a28b32f9eece681d458d644e30b9ae5a1bd33f84eded015b5bff6c0",
+      "planner": "/data/mw_finetune/qualification/formal_driver_20858f6628bb9860332d0e55dd3781d40d244863e2be6e714cf5de9fa0b6bcf9"
+    },
+    {
+      "campaign": "ff1015_dp_li_15",
+      "status": "PASS",
+      "episodes": 4000,
+      "native_runtime": "/data/mw_finetune/qualification/formal_runtime_62692e198a28b32f9eece681d458d644e30b9ae5a1bd33f84eded015b5bff6c0",
+      "planner": "/data/mw_finetune/qualification/formal_driver_20858f6628bb9860332d0e55dd3781d40d244863e2be6e714cf5de9fa0b6bcf9"
+    },
+    {
+      "campaign": "ff1015_dp_li_16",
+      "status": "PASS",
+      "episodes": 499,
+      "native_runtime": "/data/mw_finetune/qualification/formal_runtime_211cb3c92204e134f1414ee563d6b24586c6a3e6c0a8f5ceaaa9689d8077c8e4",
+      "planner": "/data/mw_finetune/qualification/formal_driver_bd6dcec2cfa58d9a304533b32dd5d94b080e6382e5b9053495786196f65466c5"
+    },
+    {
+      "campaign": "ff1015_fastwam_li_17",
+      "status": "PASS",
+      "episodes": 288,
+      "native_runtime": "/data/mw_finetune/qualification/formal_runtime_211cb3c92204e134f1414ee563d6b24586c6a3e6c0a8f5ceaaa9689d8077c8e4",
+      "planner": "/data/mw_finetune/qualification/formal_driver_bd6dcec2cfa58d9a304533b32dd5d94b080e6382e5b9053495786196f65466c5"
+    },
+    {
+      "campaign": "ff1015_fastwam_li_18",
+      "status": "PASS",
+      "episodes": 5000,
+      "native_runtime": "/data/mw_finetune/qualification/formal_runtime_b29ef3db350bf6e4d0973813a81944eeac306abbc9f8e96197398432b15132a9",
+      "planner": "/data/mw_finetune/qualification/formal_driver_0e05d80638dd106b66671cf8d540ff023b680b0863168b6327b5cbad41c93580"
+    },
+    {
+      "campaign": "ff1015_fastwam_li_19",
+      "status": "PASS",
+      "episodes": 189,
+      "native_runtime": "/data/mw_finetune/qualification/formal_runtime_211cb3c92204e134f1414ee563d6b24586c6a3e6c0a8f5ceaaa9689d8077c8e4",
+      "planner": "/data/mw_finetune/qualification/formal_driver_bd6dcec2cfa58d9a304533b32dd5d94b080e6382e5b9053495786196f65466c5"
+    }
+  ]
+}

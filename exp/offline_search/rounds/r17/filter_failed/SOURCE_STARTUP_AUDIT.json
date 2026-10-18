@@ -1,0 +1,726 @@
+{
+  "jobs": [
+    {
+      "all_copied_descriptors_equal": true,
+      "cpu_startup_proof": "BLOCKED: source identity conflict; not claimed",
+      "files": {
+        "benchmark.json": {
+          "equal": true,
+          "filtered_sha256": "6c24129059fb086ca119cce762f73c248f1a06efbfb92a5d44da4a1cfd97d1e3",
+          "source_sha256": "6c24129059fb086ca119cce762f73c248f1a06efbfb92a5d44da4a1cfd97d1e3"
+        },
+        "full.yaml": {
+          "equal": true,
+          "filtered_sha256": "f26c67e361f72a74911369ee0d5bdeba9cc70c59fcdc7831bca043e2e15a0966",
+          "source_sha256": "f26c67e361f72a74911369ee0d5bdeba9cc70c59fcdc7831bca043e2e15a0966"
+        },
+        "load.json": {
+          "equal": true,
+          "filtered_sha256": "15e14b40c00113a23ec12b2f016f0362f36ac4232fa0c2a56a033959d2897193",
+          "source_sha256": "15e14b40c00113a23ec12b2f016f0362f36ac4232fa0c2a56a033959d2897193"
+        },
+        "model_manifest.json": {
+          "equal": true,
+          "filtered_sha256": "e59541ddb0f64cf56a41fc1aee671746a3de9aa4cbb6b0e7941abb51ee98ed77",
+          "source_sha256": "e59541ddb0f64cf56a41fc1aee671746a3de9aa4cbb6b0e7941abb51ee98ed77"
+        },
+        "model_spec.json": {
+          "equal": true,
+          "filtered_sha256": "b21f3ba909d3e6edb321690d7726dfa26138aa15d904c3ce0b39bb55b3bb8f1a",
+          "source_sha256": "b21f3ba909d3e6edb321690d7726dfa26138aa15d904c3ce0b39bb55b3bb8f1a"
+        }
+      },
+      "job": "ff1015_cosmos_li_01",
+      "run": "/data/mw_finetune/eval/ff1015_cosmos_li_01",
+      "source": "/data/mw_finetune/eval/cosmos500w85_220813",
+      "source_ready": "/data/mw_finetune/eval/cosmos500w85_220813/servers/replica_0/ready.json",
+      "source_sealed_vs_served_differences": {},
+      "source_served_identity": "d234db6ddd2948c9db7982b203ae4f01a273f86c8c05cb5b92236037752da310"
+    },
+    {
+      "all_copied_descriptors_equal": true,
+      "cpu_startup_proof": "BLOCKED: source identity conflict; not claimed",
+      "files": {
+        "benchmark.json": {
+          "equal": true,
+          "filtered_sha256": "6c24129059fb086ca119cce762f73c248f1a06efbfb92a5d44da4a1cfd97d1e3",
+          "source_sha256": "6c24129059fb086ca119cce762f73c248f1a06efbfb92a5d44da4a1cfd97d1e3"
+        },
+        "full.yaml": {
+          "equal": true,
+          "filtered_sha256": "f26c67e361f72a74911369ee0d5bdeba9cc70c59fcdc7831bca043e2e15a0966",
+          "source_sha256": "f26c67e361f72a74911369ee0d5bdeba9cc70c59fcdc7831bca043e2e15a0966"
+        },
+        "load.json": {
+          "equal": true,
+          "filtered_sha256": "15e14b40c00113a23ec12b2f016f0362f36ac4232fa0c2a56a033959d2897193",
+          "source_sha256": "15e14b40c00113a23ec12b2f016f0362f36ac4232fa0c2a56a033959d2897193"
+        },
+        "model_manifest.json": {
+          "equal": true,
+          "filtered_sha256": "e59541ddb0f64cf56a41fc1aee671746a3de9aa4cbb6b0e7941abb51ee98ed77",
+          "source_sha256": "e59541ddb0f64cf56a41fc1aee671746a3de9aa4cbb6b0e7941abb51ee98ed77"
+        },
+        "model_spec.json": {
+          "equal": true,
+          "filtered_sha256": "b21f3ba909d3e6edb321690d7726dfa26138aa15d904c3ce0b39bb55b3bb8f1a",
+          "source_sha256": "b21f3ba909d3e6edb321690d7726dfa26138aa15d904c3ce0b39bb55b3bb8f1a"
+        }
+      },
+      "job": "ff1015_cosmos_li_02",
+      "run": "/data/mw_finetune/eval/ff1015_cosmos_li_02",
+      "source": "/data/mw_finetune/eval/cosmossizes145",
+      "source_ready": null,
+      "source_sealed_vs_served_differences": {},
+      "source_served_identity": null
+    },
+    {
+      "all_copied_descriptors_equal": true,
+      "cpu_startup_proof": "BLOCKED: source identity conflict; not claimed",
+      "files": {
+        "benchmark.json": {
+          "equal": true,
+          "filtered_sha256": "6c24129059fb086ca119cce762f73c248f1a06efbfb92a5d44da4a1cfd97d1e3",
+          "source_sha256": "6c24129059fb086ca119cce762f73c248f1a06efbfb92a5d44da4a1cfd97d1e3"
+        },
+        "full.yaml": {
+          "equal": true,
+          "filtered_sha256": "f26c67e361f72a74911369ee0d5bdeba9cc70c59fcdc7831bca043e2e15a0966",
+          "source_sha256": "f26c67e361f72a74911369ee0d5bdeba9cc70c59fcdc7831bca043e2e15a0966"
+        },
+        "load.json": {
+          "equal": true,
+          "filtered_sha256": "15e14b40c00113a23ec12b2f016f0362f36ac4232fa0c2a56a033959d2897193",
+          "source_sha256": "15e14b40c00113a23ec12b2f016f0362f36ac4232fa0c2a56a033959d2897193"
+        },
+        "model_manifest.json": {
+          "equal": true,
+          "filtered_sha256": "e59541ddb0f64cf56a41fc1aee671746a3de9aa4cbb6b0e7941abb51ee98ed77",
+          "source_sha256": "e59541ddb0f64cf56a41fc1aee671746a3de9aa4cbb6b0e7941abb51ee98ed77"
+        },
+        "model_spec.json": {
+          "equal": true,
+          "filtered_sha256": "b21f3ba909d3e6edb321690d7726dfa26138aa15d904c3ce0b39bb55b3bb8f1a",
+          "source_sha256": "b21f3ba909d3e6edb321690d7726dfa26138aa15d904c3ce0b39bb55b3bb8f1a"
+        }
+      },
+      "job": "ff1015_cosmos_li_03",
+      "run": "/data/mw_finetune/eval/ff1015_cosmos_li_03",
+      "source": "/data/mw_finetune/eval/cosmossizes145_r8b",
+      "source_ready": null,
+      "source_sealed_vs_served_differences": {},
+      "source_served_identity": null
+    },
+    {
+      "all_copied_descriptors_equal": true,
+      "cpu_startup_proof": "BLOCKED: source identity conflict; not claimed",
+      "files": {
+        "benchmark.json": {
+          "equal": true,
+          "filtered_sha256": "6c24129059fb086ca119cce762f73c248f1a06efbfb92a5d44da4a1cfd97d1e3",
+          "source_sha256": "6c24129059fb086ca119cce762f73c248f1a06efbfb92a5d44da4a1cfd97d1e3"
+        },
+        "full.yaml": {
+          "equal": true,
+          "filtered_sha256": "f26c67e361f72a74911369ee0d5bdeba9cc70c59fcdc7831bca043e2e15a0966",
+          "source_sha256": "f26c67e361f72a74911369ee0d5bdeba9cc70c59fcdc7831bca043e2e15a0966"
+        },
+        "load.json": {
+          "equal": true,
+          "filtered_sha256": "15e14b40c00113a23ec12b2f016f0362f36ac4232fa0c2a56a033959d2897193",
+          "source_sha256": "15e14b40c00113a23ec12b2f016f0362f36ac4232fa0c2a56a033959d2897193"
+        },
+        "model_manifest.json": {
+          "equal": true,
+          "filtered_sha256": "e59541ddb0f64cf56a41fc1aee671746a3de9aa4cbb6b0e7941abb51ee98ed77",
+          "source_sha256": "e59541ddb0f64cf56a41fc1aee671746a3de9aa4cbb6b0e7941abb51ee98ed77"
+        },
+        "model_spec.json": {
+          "equal": true,
+          "filtered_sha256": "b21f3ba909d3e6edb321690d7726dfa26138aa15d904c3ce0b39bb55b3bb8f1a",
+          "source_sha256": "b21f3ba909d3e6edb321690d7726dfa26138aa15d904c3ce0b39bb55b3bb8f1a"
+        }
+      },
+      "job": "ff1015_cosmos_li_04",
+      "run": "/data/mw_finetune/eval/ff1015_cosmos_li_04",
+      "source": "/data/mw_finetune/eval/cosmossizes145_r8c",
+      "source_ready": null,
+      "source_sealed_vs_served_differences": {},
+      "source_served_identity": null
+    },
+    {
+      "all_copied_descriptors_equal": true,
+      "cpu_startup_proof": "BLOCKED: source identity conflict; not claimed",
+      "files": {
+        "benchmark.json": {
+          "equal": true,
+          "filtered_sha256": "ab4214a46a5901bf2a062951657cb97794cd59f33d4e1c67246d91e7cc2efad7",
+          "source_sha256": "ab4214a46a5901bf2a062951657cb97794cd59f33d4e1c67246d91e7cc2efad7"
+        },
+        "full.yaml": {
+          "equal": true,
+          "filtered_sha256": "2dc10fe4e4c6fb8287c19331fd0643db1d9cebdecf3bbef8e432b20aab1149f9",
+          "source_sha256": "2dc10fe4e4c6fb8287c19331fd0643db1d9cebdecf3bbef8e432b20aab1149f9"
+        },
+        "load.json": {
+          "equal": true,
+          "filtered_sha256": "43ecbcd57b61a6354fa63edbd972f25b25b0863d5f32cd208d2c97192f87b025",
+          "source_sha256": "43ecbcd57b61a6354fa63edbd972f25b25b0863d5f32cd208d2c97192f87b025"
+        },
+        "model_manifest.json": {
+          "equal": true,
+          "filtered_sha256": "adcc9e239a17d308fc42197b52a0475d5d7e55fa36634e41db09e0a9f2056ef7",
+          "source_sha256": "adcc9e239a17d308fc42197b52a0475d5d7e55fa36634e41db09e0a9f2056ef7"
+        },
+        "model_spec.json": {
+          "equal": true,
+          "filtered_sha256": "ea5e9e7a484d02f6a628eb09398671b45f3256be0f3546e3ceab8b8a320f1b0f",
+          "source_sha256": "ea5e9e7a484d02f6a628eb09398671b45f3256be0f3546e3ceab8b8a320f1b0f"
+        }
+      },
+      "job": "ff1015_dp_mt_05",
+      "run": "/data/mw_finetune/eval/ff1015_dp_mt_05",
+      "source": "/data/mw_finetune/eval/csdp_1504",
+      "source_ready": "/data/mw_finetune/eval/csdp_1504/servers/replica_0/ready.json",
+      "source_sealed_vs_served_differences": {},
+      "source_served_identity": "sha256:96c9ffe54443ae591659dd5eaed462d020605f1ab1f8e297a843882614745f20"
+    },
+    {
+      "all_copied_descriptors_equal": true,
+      "cpu_startup_proof": "BLOCKED: source identity conflict; not claimed",
+      "files": {
+        "benchmark.json": {
+          "equal": true,
+          "filtered_sha256": "ab4214a46a5901bf2a062951657cb97794cd59f33d4e1c67246d91e7cc2efad7",
+          "source_sha256": "ab4214a46a5901bf2a062951657cb97794cd59f33d4e1c67246d91e7cc2efad7"
+        },
+        "full.yaml": {
+          "equal": true,
+          "filtered_sha256": "96e35c5dcf551701c02aacb8ac863d704a57a578ad2231715415f7db625cfb77",
+          "source_sha256": "96e35c5dcf551701c02aacb8ac863d704a57a578ad2231715415f7db625cfb77"
+        },
+        "load.json": {
+          "equal": true,
+          "filtered_sha256": "ec6405e93277f9f0c3c9c91ea3f6c0c974b71cc89d007c427c53753d72687902",
+          "source_sha256": "ec6405e93277f9f0c3c9c91ea3f6c0c974b71cc89d007c427c53753d72687902"
+        },
+        "model_manifest.json": {
+          "equal": true,
+          "filtered_sha256": "1ec68240c6eec85bba60a80618166c3fb7f4652279156c90eda8e2b322e79323",
+          "source_sha256": "1ec68240c6eec85bba60a80618166c3fb7f4652279156c90eda8e2b322e79323"
+        },
+        "model_spec.json": {
+          "equal": true,
+          "filtered_sha256": "5e7cc68467d47061a0bba80a1a8bad2e0095b00fab7e7a7222db550ac332c037",
+          "source_sha256": "5e7cc68467d47061a0bba80a1a8bad2e0095b00fab7e7a7222db550ac332c037"
+        }
+      },
+      "job": "ff1015_fastwam_mt_06",
+      "run": "/data/mw_finetune/eval/ff1015_fastwam_mt_06",
+      "source": "/data/mw_finetune/eval/csfw_k3",
+      "source_ready": null,
+      "source_sealed_vs_served_differences": {},
+      "source_served_identity": null
+    },
+    {
+      "all_copied_descriptors_equal": true,
+      "cpu_startup_proof": "BLOCKED: source identity conflict; not claimed",
+      "files": {
+        "benchmark.json": {
+          "equal": true,
+          "filtered_sha256": "ab4214a46a5901bf2a062951657cb97794cd59f33d4e1c67246d91e7cc2efad7",
+          "source_sha256": "ab4214a46a5901bf2a062951657cb97794cd59f33d4e1c67246d91e7cc2efad7"
+        },
+        "full.yaml": {
+          "equal": true,
+          "filtered_sha256": "96e35c5dcf551701c02aacb8ac863d704a57a578ad2231715415f7db625cfb77",
+          "source_sha256": "96e35c5dcf551701c02aacb8ac863d704a57a578ad2231715415f7db625cfb77"
+        },
+        "load.json": {
+          "equal": true,
+          "filtered_sha256": "ec6405e93277f9f0c3c9c91ea3f6c0c974b71cc89d007c427c53753d72687902",
+          "source_sha256": "ec6405e93277f9f0c3c9c91ea3f6c0c974b71cc89d007c427c53753d72687902"
+        },
+        "model_manifest.json": {
+          "equal": true,
+          "filtered_sha256": "1ec68240c6eec85bba60a80618166c3fb7f4652279156c90eda8e2b322e79323",
+          "source_sha256": "1ec68240c6eec85bba60a80618166c3fb7f4652279156c90eda8e2b322e79323"
+        },
+        "model_spec.json": {
+          "equal": true,
+          "filtered_sha256": "5e7cc68467d47061a0bba80a1a8bad2e0095b00fab7e7a7222db550ac332c037",
+          "source_sha256": "5e7cc68467d47061a0bba80a1a8bad2e0095b00fab7e7a7222db550ac332c037"
+        }
+      },
+      "job": "ff1015_fastwam_mt_07",
+      "run": "/data/mw_finetune/eval/ff1015_fastwam_mt_07",
+      "source": "/data/mw_finetune/eval/csfw_k3w5",
+      "source_ready": null,
+      "source_sealed_vs_served_differences": {},
+      "source_served_identity": null
+    },
+    {
+      "all_copied_descriptors_equal": true,
+      "cpu_startup_proof": "BLOCKED: source identity conflict; not claimed",
+      "files": {
+        "benchmark.json": {
+          "equal": true,
+          "filtered_sha256": "ab4214a46a5901bf2a062951657cb97794cd59f33d4e1c67246d91e7cc2efad7",
+          "source_sha256": "ab4214a46a5901bf2a062951657cb97794cd59f33d4e1c67246d91e7cc2efad7"
+        },
+        "full.yaml": {
+          "equal": true,
+          "filtered_sha256": "96e35c5dcf551701c02aacb8ac863d704a57a578ad2231715415f7db625cfb77",
+          "source_sha256": "96e35c5dcf551701c02aacb8ac863d704a57a578ad2231715415f7db625cfb77"
+        },
+        "load.json": {
+          "equal": true,
+          "filtered_sha256": "ec6405e93277f9f0c3c9c91ea3f6c0c974b71cc89d007c427c53753d72687902",
+          "source_sha256": "ec6405e93277f9f0c3c9c91ea3f6c0c974b71cc89d007c427c53753d72687902"
+        },
+        "model_manifest.json": {
+          "equal": true,
+          "filtered_sha256": "1ec68240c6eec85bba60a80618166c3fb7f4652279156c90eda8e2b322e79323",
+          "source_sha256": "1ec68240c6eec85bba60a80618166c3fb7f4652279156c90eda8e2b322e79323"
+        },
+        "model_spec.json": {
+          "equal": true,
+          "filtered_sha256": "5e7cc68467d47061a0bba80a1a8bad2e0095b00fab7e7a7222db550ac332c037",
+          "source_sha256": "5e7cc68467d47061a0bba80a1a8bad2e0095b00fab7e7a7222db550ac332c037"
+        }
+      },
+      "job": "ff1015_fastwam_mt_08",
+      "run": "/data/mw_finetune/eval/ff1015_fastwam_mt_08",
+      "source": "/data/mw_finetune/eval/csfw_k3w6",
+      "source_ready": "/data/mw_finetune/eval/csfw_k3w6/servers/replica_0/ready.json",
+      "source_sealed_vs_served_differences": {},
+      "source_served_identity": "65f7a6646b3623664da0e17083125531b6091a5f6e9e2e491a1ce90c3a4855c0"
+    },
+    {
+      "all_copied_descriptors_equal": true,
+      "cpu_startup_proof": "BLOCKED: source identity conflict; not claimed",
+      "files": {
+        "benchmark.json": {
+          "equal": true,
+          "filtered_sha256": "ab4214a46a5901bf2a062951657cb97794cd59f33d4e1c67246d91e7cc2efad7",
+          "source_sha256": "ab4214a46a5901bf2a062951657cb97794cd59f33d4e1c67246d91e7cc2efad7"
+        },
+        "full.yaml": {
+          "equal": true,
+          "filtered_sha256": "bebfb80dc6c398dff7264babd18b9d0f78820a0d6e724f4cc0703b10aaf8c9ee",
+          "source_sha256": "bebfb80dc6c398dff7264babd18b9d0f78820a0d6e724f4cc0703b10aaf8c9ee"
+        },
+        "load.json": {
+          "equal": true,
+          "filtered_sha256": "eb48156d13833b64cd77caa5dc0219981a557233fd59788c23eaed2d1fc87747",
+          "source_sha256": "eb48156d13833b64cd77caa5dc0219981a557233fd59788c23eaed2d1fc87747"
+        },
+        "model_manifest.json": {
+          "equal": true,
+          "filtered_sha256": "daf0b7ecaaa395d9a34755bce03a22f2cff6730f2d612d08bcde6b2435aec281",
+          "source_sha256": "daf0b7ecaaa395d9a34755bce03a22f2cff6730f2d612d08bcde6b2435aec281"
+        },
+        "model_spec.json": {
+          "equal": true,
+          "filtered_sha256": "6643f8b58425b22cc6b05a81fef7da8e17faefb872c15e016e9251a192b89ec0",
+          "source_sha256": "6643f8b58425b22cc6b05a81fef7da8e17faefb872c15e016e9251a192b89ec0"
+        }
+      },
+      "job": "ff1015_groot_mt_09",
+      "run": "/data/mw_finetune/eval/ff1015_groot_mt_09",
+      "source": "/data/mw_finetune/eval/csgr_h5",
+      "source_ready": null,
+      "source_sealed_vs_served_differences": {},
+      "source_served_identity": null
+    },
+    {
+      "all_copied_descriptors_equal": true,
+      "cpu_startup_proof": "BLOCKED: source identity conflict; not claimed",
+      "files": {
+        "benchmark.json": {
+          "equal": true,
+          "filtered_sha256": "ab4214a46a5901bf2a062951657cb97794cd59f33d4e1c67246d91e7cc2efad7",
+          "source_sha256": "ab4214a46a5901bf2a062951657cb97794cd59f33d4e1c67246d91e7cc2efad7"
+        },
+        "full.yaml": {
+          "equal": true,
+          "filtered_sha256": "bebfb80dc6c398dff7264babd18b9d0f78820a0d6e724f4cc0703b10aaf8c9ee",
+          "source_sha256": "bebfb80dc6c398dff7264babd18b9d0f78820a0d6e724f4cc0703b10aaf8c9ee"
+        },
+        "load.json": {
+          "equal": true,
+          "filtered_sha256": "eb48156d13833b64cd77caa5dc0219981a557233fd59788c23eaed2d1fc87747",
+          "source_sha256": "eb48156d13833b64cd77caa5dc0219981a557233fd59788c23eaed2d1fc87747"
+        },
+        "model_manifest.json": {
+          "equal": true,
+          "filtered_sha256": "daf0b7ecaaa395d9a34755bce03a22f2cff6730f2d612d08bcde6b2435aec281",
+          "source_sha256": "daf0b7ecaaa395d9a34755bce03a22f2cff6730f2d612d08bcde6b2435aec281"
+        },
+        "model_spec.json": {
+          "equal": true,
+          "filtered_sha256": "6643f8b58425b22cc6b05a81fef7da8e17faefb872c15e016e9251a192b89ec0",
+          "source_sha256": "6643f8b58425b22cc6b05a81fef7da8e17faefb872c15e016e9251a192b89ec0"
+        }
+      },
+      "job": "ff1015_groot_mt_10",
+      "run": "/data/mw_finetune/eval/ff1015_groot_mt_10",
+      "source": "/data/mw_finetune/eval/csgr_h6",
+      "source_ready": "/data/mw_finetune/eval/csgr_h6/servers/replica_0/ready.json",
+      "source_sealed_vs_served_differences": {},
+      "source_served_identity": "sha256:e3ed5ca4064625a83a391e99ca2ae199e3b820db3cba42fabea4ce205ce3c6ec"
+    },
+    {
+      "all_copied_descriptors_equal": true,
+      "cpu_startup_proof": "BLOCKED: source identity conflict; not claimed",
+      "files": {
+        "benchmark.json": {
+          "equal": true,
+          "filtered_sha256": "cf428cb5d8d20a8ebf66e0c37b10f9816dda37f33289f82e5598f81d6ba4cf36",
+          "source_sha256": "cf428cb5d8d20a8ebf66e0c37b10f9816dda37f33289f82e5598f81d6ba4cf36"
+        },
+        "full.yaml": {
+          "equal": true,
+          "filtered_sha256": "0ab5c17426720c274f27f8d4de7b94832e69a057e7dcca60514005217d02ad01",
+          "source_sha256": "0ab5c17426720c274f27f8d4de7b94832e69a057e7dcca60514005217d02ad01"
+        },
+        "load.json": {
+          "equal": true,
+          "filtered_sha256": "211950cc9652658f66f0e50cf9674a77557d54cd3d1971bba5563f303c08b65b",
+          "source_sha256": "211950cc9652658f66f0e50cf9674a77557d54cd3d1971bba5563f303c08b65b"
+        },
+        "model_manifest.json": {
+          "equal": true,
+          "filtered_sha256": "06a96fb53593026db87dbb05e925a423d9a95ff93e2d17e5ac8ebdfaf6358385",
+          "source_sha256": "06a96fb53593026db87dbb05e925a423d9a95ff93e2d17e5ac8ebdfaf6358385"
+        },
+        "model_spec.json": {
+          "equal": true,
+          "filtered_sha256": "386dc3aa3ae1afda3f14c33ce61d8d244b83f2ef9dfc38ba337dfa2a9cbc7445",
+          "source_sha256": "386dc3aa3ae1afda3f14c33ce61d8d244b83f2ef9dfc38ba337dfa2a9cbc7445"
+        }
+      },
+      "job": "ff1015_dp_li_11",
+      "run": "/data/mw_finetune/eval/ff1015_dp_li_11",
+      "source": "/data/mw_finetune/eval/csl10d",
+      "source_ready": "/data/mw_finetune/eval/csl10d/servers/replica_0/ready.json",
+      "source_sealed_vs_served_differences": {},
+      "source_served_identity": "sha256:bd1dd4c1b2e1bfbb4c660ed8ec0a50362f461dc8a631c16edfa9d3097879d0c5"
+    },
+    {
+      "all_copied_descriptors_equal": true,
+      "cpu_startup_proof": "BLOCKED: source identity conflict; not claimed",
+      "files": {
+        "benchmark.json": {
+          "equal": true,
+          "filtered_sha256": "cf428cb5d8d20a8ebf66e0c37b10f9816dda37f33289f82e5598f81d6ba4cf36",
+          "source_sha256": "cf428cb5d8d20a8ebf66e0c37b10f9816dda37f33289f82e5598f81d6ba4cf36"
+        },
+        "full.yaml": {
+          "equal": true,
+          "filtered_sha256": "bbb45e3d2629f112dc9b5cbc07f23391146aa0aad864a9dc57c0c574a968a83f",
+          "source_sha256": "bbb45e3d2629f112dc9b5cbc07f23391146aa0aad864a9dc57c0c574a968a83f"
+        },
+        "load.json": {
+          "equal": true,
+          "filtered_sha256": "2b120ecae508445cb4b8c331cc6466a978effb4a9d87c4a4dff78064e342fed6",
+          "source_sha256": "2b120ecae508445cb4b8c331cc6466a978effb4a9d87c4a4dff78064e342fed6"
+        },
+        "model_manifest.json": {
+          "equal": true,
+          "filtered_sha256": "b72b43da3f67f47f898d6074ea55b7fd785263478be8fb700ac5d06a88563a49",
+          "source_sha256": "b72b43da3f67f47f898d6074ea55b7fd785263478be8fb700ac5d06a88563a49"
+        },
+        "model_spec.json": {
+          "equal": true,
+          "filtered_sha256": "bd681600e156cb623a91448774d3f0195da8fc3b7d994fa0e5a3d59532bfc415",
+          "source_sha256": "bd681600e156cb623a91448774d3f0195da8fc3b7d994fa0e5a3d59532bfc415"
+        }
+      },
+      "job": "ff1015_fastwam_li_12",
+      "run": "/data/mw_finetune/eval/ff1015_fastwam_li_12",
+      "source": "/data/mw_finetune/eval/csl10f",
+      "source_ready": null,
+      "source_sealed_vs_served_differences": {},
+      "source_served_identity": null
+    },
+    {
+      "all_copied_descriptors_equal": true,
+      "cpu_startup_proof": "BLOCKED: source identity conflict; not claimed",
+      "files": {
+        "benchmark.json": {
+          "equal": true,
+          "filtered_sha256": "ab4214a46a5901bf2a062951657cb97794cd59f33d4e1c67246d91e7cc2efad7",
+          "source_sha256": "ab4214a46a5901bf2a062951657cb97794cd59f33d4e1c67246d91e7cc2efad7"
+        },
+        "full.yaml": {
+          "equal": true,
+          "filtered_sha256": "3e130b54fab55d2e18305babf8c7aa4082747661082be764591da8434279b126",
+          "source_sha256": "3e130b54fab55d2e18305babf8c7aa4082747661082be764591da8434279b126"
+        },
+        "load.json": {
+          "equal": true,
+          "filtered_sha256": "578e189420e24fa1582370d16ac2dedc791db02288dab49bd45e886f23c9c2d4",
+          "source_sha256": "578e189420e24fa1582370d16ac2dedc791db02288dab49bd45e886f23c9c2d4"
+        },
+        "model_manifest.json": {
+          "equal": true,
+          "filtered_sha256": "37d718cc11655a2e207a4187f89a3416119fa09ca62bfbc8137ea60245c623e8",
+          "source_sha256": "37d718cc11655a2e207a4187f89a3416119fa09ca62bfbc8137ea60245c623e8"
+        },
+        "model_spec.json": {
+          "equal": true,
+          "filtered_sha256": "bfee140dcb30ea6ac3aeaa3b18eda58da1c9c55c4b7cb737f94d313655ca1853",
+          "source_sha256": "bfee140dcb30ea6ac3aeaa3b18eda58da1c9c55c4b7cb737f94d313655ca1853"
+        }
+      },
+      "job": "ff1015_pi05_mt_13",
+      "run": "/data/mw_finetune/eval/ff1015_pi05_mt_13",
+      "source": "/data/mw_finetune/eval/cspi_k2",
+      "source_ready": "/data/mw_finetune/eval/cspi_k2/servers/replica_0/ready.json",
+      "source_sealed_vs_served_differences": {},
+      "source_served_identity": "4008289bc944015dbf3eba6cea0a701f6ef9dbb53e0bfd47dea7b55585d8b62e"
+    },
+    {
+      "all_copied_descriptors_equal": true,
+      "cpu_startup_proof": "BLOCKED: source identity conflict; not claimed",
+      "files": {
+        "benchmark.json": {
+          "equal": true,
+          "filtered_sha256": "cf428cb5d8d20a8ebf66e0c37b10f9816dda37f33289f82e5598f81d6ba4cf36",
+          "source_sha256": "cf428cb5d8d20a8ebf66e0c37b10f9816dda37f33289f82e5598f81d6ba4cf36"
+        },
+        "full.yaml": {
+          "equal": true,
+          "filtered_sha256": "0ab5c17426720c274f27f8d4de7b94832e69a057e7dcca60514005217d02ad01",
+          "source_sha256": "0ab5c17426720c274f27f8d4de7b94832e69a057e7dcca60514005217d02ad01"
+        },
+        "load.json": {
+          "equal": true,
+          "filtered_sha256": "211950cc9652658f66f0e50cf9674a77557d54cd3d1971bba5563f303c08b65b",
+          "source_sha256": "211950cc9652658f66f0e50cf9674a77557d54cd3d1971bba5563f303c08b65b"
+        },
+        "model_manifest.json": {
+          "equal": true,
+          "filtered_sha256": "06a96fb53593026db87dbb05e925a423d9a95ff93e2d17e5ac8ebdfaf6358385",
+          "source_sha256": "06a96fb53593026db87dbb05e925a423d9a95ff93e2d17e5ac8ebdfaf6358385"
+        },
+        "model_spec.json": {
+          "equal": true,
+          "filtered_sha256": "386dc3aa3ae1afda3f14c33ce61d8d244b83f2ef9dfc38ba337dfa2a9cbc7445",
+          "source_sha256": "386dc3aa3ae1afda3f14c33ce61d8d244b83f2ef9dfc38ba337dfa2a9cbc7445"
+        }
+      },
+      "job": "ff1015_dp_li_14",
+      "run": "/data/mw_finetune/eval/ff1015_dp_li_14",
+      "source": "/data/mw_finetune/eval/csztd_r2_c383_r2_e5b0",
+      "source_ready": "/data/mw_finetune/eval/csztd_r2_c383_r2_e5b0/servers/replica_0/ready.json",
+      "source_sealed_vs_served_differences": {
+        "checkpoint_identity": {
+          "sealed": "sha256:bd1dd4c1b2e1bfbb4c660ed8ec0a50362f461dc8a631c16edfa9d3097879d0c5",
+          "served": "sha256:110944f6457c8ee389d5726cc60464875aed71846d9cc19967c048beb3f48ecb"
+        },
+        "code_digest": {
+          "sealed": "sha256:6536008be9eb5f64188af8636a6b0a255c004adf6e418d6e0b976b6a362316d5",
+          "served": "sha256:1eacb5b538e19bdf94801b24b31ba4aacb7f29e12f1d41831b13023aab6f77ea"
+        }
+      },
+      "source_served_identity": "sha256:110944f6457c8ee389d5726cc60464875aed71846d9cc19967c048beb3f48ecb"
+    },
+    {
+      "all_copied_descriptors_equal": true,
+      "cpu_startup_proof": "BLOCKED: source identity conflict; not claimed",
+      "files": {
+        "benchmark.json": {
+          "equal": true,
+          "filtered_sha256": "cf428cb5d8d20a8ebf66e0c37b10f9816dda37f33289f82e5598f81d6ba4cf36",
+          "source_sha256": "cf428cb5d8d20a8ebf66e0c37b10f9816dda37f33289f82e5598f81d6ba4cf36"
+        },
+        "full.yaml": {
+          "equal": true,
+          "filtered_sha256": "0ab5c17426720c274f27f8d4de7b94832e69a057e7dcca60514005217d02ad01",
+          "source_sha256": "0ab5c17426720c274f27f8d4de7b94832e69a057e7dcca60514005217d02ad01"
+        },
+        "load.json": {
+          "equal": true,
+          "filtered_sha256": "211950cc9652658f66f0e50cf9674a77557d54cd3d1971bba5563f303c08b65b",
+          "source_sha256": "211950cc9652658f66f0e50cf9674a77557d54cd3d1971bba5563f303c08b65b"
+        },
+        "model_manifest.json": {
+          "equal": true,
+          "filtered_sha256": "06a96fb53593026db87dbb05e925a423d9a95ff93e2d17e5ac8ebdfaf6358385",
+          "source_sha256": "06a96fb53593026db87dbb05e925a423d9a95ff93e2d17e5ac8ebdfaf6358385"
+        },
+        "model_spec.json": {
+          "equal": true,
+          "filtered_sha256": "386dc3aa3ae1afda3f14c33ce61d8d244b83f2ef9dfc38ba337dfa2a9cbc7445",
+          "source_sha256": "386dc3aa3ae1afda3f14c33ce61d8d244b83f2ef9dfc38ba337dfa2a9cbc7445"
+        }
+      },
+      "job": "ff1015_dp_li_15",
+      "run": "/data/mw_finetune/eval/ff1015_dp_li_15",
+      "source": "/data/mw_finetune/eval/csztd_r3_l48",
+      "source_ready": "/data/mw_finetune/eval/csztd_r3_l48/servers/replica_0/ready.json",
+      "source_sealed_vs_served_differences": {
+        "checkpoint_identity": {
+          "sealed": "sha256:bd1dd4c1b2e1bfbb4c660ed8ec0a50362f461dc8a631c16edfa9d3097879d0c5",
+          "served": "sha256:110944f6457c8ee389d5726cc60464875aed71846d9cc19967c048beb3f48ecb"
+        },
+        "code_digest": {
+          "sealed": "sha256:6536008be9eb5f64188af8636a6b0a255c004adf6e418d6e0b976b6a362316d5",
+          "served": "sha256:1eacb5b538e19bdf94801b24b31ba4aacb7f29e12f1d41831b13023aab6f77ea"
+        }
+      },
+      "source_served_identity": "sha256:110944f6457c8ee389d5726cc60464875aed71846d9cc19967c048beb3f48ecb"
+    },
+    {
+      "all_copied_descriptors_equal": true,
+      "cpu_startup_proof": "BLOCKED: source identity conflict; not claimed",
+      "files": {
+        "benchmark.json": {
+          "equal": true,
+          "filtered_sha256": "cf428cb5d8d20a8ebf66e0c37b10f9816dda37f33289f82e5598f81d6ba4cf36",
+          "source_sha256": "cf428cb5d8d20a8ebf66e0c37b10f9816dda37f33289f82e5598f81d6ba4cf36"
+        },
+        "full.yaml": {
+          "equal": true,
+          "filtered_sha256": "0ab5c17426720c274f27f8d4de7b94832e69a057e7dcca60514005217d02ad01",
+          "source_sha256": "0ab5c17426720c274f27f8d4de7b94832e69a057e7dcca60514005217d02ad01"
+        },
+        "load.json": {
+          "equal": true,
+          "filtered_sha256": "211950cc9652658f66f0e50cf9674a77557d54cd3d1971bba5563f303c08b65b",
+          "source_sha256": "211950cc9652658f66f0e50cf9674a77557d54cd3d1971bba5563f303c08b65b"
+        },
+        "model_manifest.json": {
+          "equal": true,
+          "filtered_sha256": "06a96fb53593026db87dbb05e925a423d9a95ff93e2d17e5ac8ebdfaf6358385",
+          "source_sha256": "06a96fb53593026db87dbb05e925a423d9a95ff93e2d17e5ac8ebdfaf6358385"
+        },
+        "model_spec.json": {
+          "equal": true,
+          "filtered_sha256": "386dc3aa3ae1afda3f14c33ce61d8d244b83f2ef9dfc38ba337dfa2a9cbc7445",
+          "source_sha256": "386dc3aa3ae1afda3f14c33ce61d8d244b83f2ef9dfc38ba337dfa2a9cbc7445"
+        }
+      },
+      "job": "ff1015_dp_li_16",
+      "run": "/data/mw_finetune/eval/ff1015_dp_li_16",
+      "source": "/data/mw_finetune/eval/dpc8513584592",
+      "source_ready": "/data/mw_finetune/eval/dpc8513584592/servers/replica_0/ready.json",
+      "source_sealed_vs_served_differences": {},
+      "source_served_identity": "sha256:bd1dd4c1b2e1bfbb4c660ed8ec0a50362f461dc8a631c16edfa9d3097879d0c5"
+    },
+    {
+      "all_copied_descriptors_equal": true,
+      "cpu_startup_proof": "BLOCKED: source identity conflict; not claimed",
+      "files": {
+        "benchmark.json": {
+          "equal": true,
+          "filtered_sha256": "cf428cb5d8d20a8ebf66e0c37b10f9816dda37f33289f82e5598f81d6ba4cf36",
+          "source_sha256": "cf428cb5d8d20a8ebf66e0c37b10f9816dda37f33289f82e5598f81d6ba4cf36"
+        },
+        "full.yaml": {
+          "equal": true,
+          "filtered_sha256": "bbb45e3d2629f112dc9b5cbc07f23391146aa0aad864a9dc57c0c574a968a83f",
+          "source_sha256": "bbb45e3d2629f112dc9b5cbc07f23391146aa0aad864a9dc57c0c574a968a83f"
+        },
+        "load.json": {
+          "equal": true,
+          "filtered_sha256": "2b120ecae508445cb4b8c331cc6466a978effb4a9d87c4a4dff78064e342fed6",
+          "source_sha256": "2b120ecae508445cb4b8c331cc6466a978effb4a9d87c4a4dff78064e342fed6"
+        },
+        "model_manifest.json": {
+          "equal": true,
+          "filtered_sha256": "b72b43da3f67f47f898d6074ea55b7fd785263478be8fb700ac5d06a88563a49",
+          "source_sha256": "b72b43da3f67f47f898d6074ea55b7fd785263478be8fb700ac5d06a88563a49"
+        },
+        "model_spec.json": {
+          "equal": true,
+          "filtered_sha256": "bd681600e156cb623a91448774d3f0195da8fc3b7d994fa0e5a3d59532bfc415",
+          "source_sha256": "bd681600e156cb623a91448774d3f0195da8fc3b7d994fa0e5a3d59532bfc415"
+        }
+      },
+      "job": "ff1015_fastwam_li_17",
+      "run": "/data/mw_finetune/eval/ff1015_fastwam_li_17",
+      "source": "/data/mw_finetune/eval/fastwamc1456717485",
+      "source_ready": null,
+      "source_sealed_vs_served_differences": {},
+      "source_served_identity": null
+    },
+    {
+      "all_copied_descriptors_equal": true,
+      "cpu_startup_proof": "BLOCKED: source identity conflict; not claimed",
+      "files": {
+        "benchmark.json": {
+          "equal": true,
+          "filtered_sha256": "cf428cb5d8d20a8ebf66e0c37b10f9816dda37f33289f82e5598f81d6ba4cf36",
+          "source_sha256": "cf428cb5d8d20a8ebf66e0c37b10f9816dda37f33289f82e5598f81d6ba4cf36"
+        },
+        "full.yaml": {
+          "equal": true,
+          "filtered_sha256": "bbb45e3d2629f112dc9b5cbc07f23391146aa0aad864a9dc57c0c574a968a83f",
+          "source_sha256": "bbb45e3d2629f112dc9b5cbc07f23391146aa0aad864a9dc57c0c574a968a83f"
+        },
+        "load.json": {
+          "equal": true,
+          "filtered_sha256": "2b120ecae508445cb4b8c331cc6466a978effb4a9d87c4a4dff78064e342fed6",
+          "source_sha256": "2b120ecae508445cb4b8c331cc6466a978effb4a9d87c4a4dff78064e342fed6"
+        },
+        "model_manifest.json": {
+          "equal": true,
+          "filtered_sha256": "b72b43da3f67f47f898d6074ea55b7fd785263478be8fb700ac5d06a88563a49",
+          "source_sha256": "b72b43da3f67f47f898d6074ea55b7fd785263478be8fb700ac5d06a88563a49"
+        },
+        "model_spec.json": {
+          "equal": true,
+          "filtered_sha256": "bd681600e156cb623a91448774d3f0195da8fc3b7d994fa0e5a3d59532bfc415",
+          "source_sha256": "bd681600e156cb623a91448774d3f0195da8fc3b7d994fa0e5a3d59532bfc415"
+        }
+      },
+      "job": "ff1015_fastwam_li_18",
+      "run": "/data/mw_finetune/eval/ff1015_fastwam_li_18",
+      "source": "/data/mw_finetune/eval/fastwamc6066547406",
+      "source_ready": null,
+      "source_sealed_vs_served_differences": {},
+      "source_served_identity": null
+    },
+    {
+      "all_copied_descriptors_equal": true,
+      "cpu_startup_proof": "BLOCKED: source identity conflict; not claimed",
+      "files": {
+        "benchmark.json": {
+          "equal": true,
+          "filtered_sha256": "cf428cb5d8d20a8ebf66e0c37b10f9816dda37f33289f82e5598f81d6ba4cf36",
+          "source_sha256": "cf428cb5d8d20a8ebf66e0c37b10f9816dda37f33289f82e5598f81d6ba4cf36"
+        },
+        "full.yaml": {
+          "equal": true,
+          "filtered_sha256": "bbb45e3d2629f112dc9b5cbc07f23391146aa0aad864a9dc57c0c574a968a83f",
+          "source_sha256": "bbb45e3d2629f112dc9b5cbc07f23391146aa0aad864a9dc57c0c574a968a83f"
+        },
+        "load.json": {
+          "equal": true,
+          "filtered_sha256": "2b120ecae508445cb4b8c331cc6466a978effb4a9d87c4a4dff78064e342fed6",
+          "source_sha256": "2b120ecae508445cb4b8c331cc6466a978effb4a9d87c4a4dff78064e342fed6"
+        },
+        "model_manifest.json": {
+          "equal": true,
+          "filtered_sha256": "b72b43da3f67f47f898d6074ea55b7fd785263478be8fb700ac5d06a88563a49",
+          "source_sha256": "b72b43da3f67f47f898d6074ea55b7fd785263478be8fb700ac5d06a88563a49"
+        },
+        "model_spec.json": {
+          "equal": true,
+          "filtered_sha256": "bd681600e156cb623a91448774d3f0195da8fc3b7d994fa0e5a3d59532bfc415",
+          "source_sha256": "bd681600e156cb623a91448774d3f0195da8fc3b7d994fa0e5a3d59532bfc415"
+        }
+      },
+      "job": "ff1015_fastwam_li_19",
+      "run": "/data/mw_finetune/eval/ff1015_fastwam_li_19",
+      "source": "/data/mw_finetune/eval/fastwamc7615306896",
+      "source_ready": null,
+      "source_sealed_vs_served_differences": {},
+      "source_served_identity": null
+    }
+  ],
+  "status": "BLOCKED"
+}

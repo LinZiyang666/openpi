@@ -1,0 +1,541 @@
+{
+  "status": "PASS",
+  "artifacts": [
+    {
+      "cell": "pi05/mt50/250",
+      "source": "/data/mw_finetune/eval/cspi_k2",
+      "status": "PASS",
+      "comparisons": 1386
+    },
+    {
+      "cell": "pi05/mt50/500",
+      "source": "/data/mw_finetune/eval/cspi_k2",
+      "status": "PASS",
+      "comparisons": 1684
+    },
+    {
+      "cell": "pi05/mt50/1000",
+      "source": "/data/mw_finetune/eval/cspi_k2",
+      "status": "PASS",
+      "comparisons": 2196
+    },
+    {
+      "cell": "pi05/mt50/1500",
+      "source": "/data/mw_finetune/eval/cspi_k2",
+      "status": "PASS",
+      "comparisons": 2708
+    },
+    {
+      "cell": "pi05/mt50/2000",
+      "source": "/data/mw_finetune/eval/cspi_k2",
+      "status": "PASS",
+      "comparisons": 3208
+    },
+    {
+      "cell": "pi05/mt50/2500",
+      "source": "/data/mw_finetune/eval/cspi_k2",
+      "status": "PASS",
+      "comparisons": 3708
+    },
+    {
+      "cell": "groot/mt50/250",
+      "source": "/data/mw_finetune/eval/csgr_h5",
+      "status": "PASS",
+      "comparisons": 1390
+    },
+    {
+      "cell": "groot/mt50/500",
+      "source": "/data/mw_finetune/eval/csgr_h5",
+      "status": "PASS",
+      "comparisons": 1652
+    },
+    {
+      "cell": "groot/mt50/1000",
+      "source": "/data/mw_finetune/eval/csgr_h6",
+      "status": "PASS",
+      "comparisons": 2164
+    },
+    {
+      "cell": "groot/mt50/1500",
+      "source": "/data/mw_finetune/eval/csgr_h6",
+      "status": "PASS",
+      "comparisons": 2664
+    },
+    {
+      "cell": "groot/mt50/2000",
+      "source": "/data/mw_finetune/eval/csgr_h6",
+      "status": "PASS",
+      "comparisons": 3164
+    },
+    {
+      "cell": "groot/mt50/2500",
+      "source": "/data/mw_finetune/eval/csgr_h6",
+      "status": "PASS",
+      "comparisons": 3664
+    },
+    {
+      "cell": "dp/mt50/250",
+      "source": "/data/mw_finetune/eval/csdp_1504",
+      "status": "PASS",
+      "comparisons": 1812
+    },
+    {
+      "cell": "dp/mt50/500",
+      "source": "/data/mw_finetune/eval/csdp_1504",
+      "status": "PASS",
+      "comparisons": 2086
+    },
+    {
+      "cell": "dp/mt50/1000",
+      "source": "/data/mw_finetune/eval/csdp_1504",
+      "status": "PASS",
+      "comparisons": 2598
+    },
+    {
+      "cell": "dp/mt50/1500",
+      "source": "/data/mw_finetune/eval/csdp_1504",
+      "status": "PASS",
+      "comparisons": 3098
+    },
+    {
+      "cell": "dp/mt50/2000",
+      "source": "/data/mw_finetune/eval/csdp_1504",
+      "status": "PASS",
+      "comparisons": 3622
+    },
+    {
+      "cell": "dp/mt50/2500",
+      "source": "/data/mw_finetune/eval/csdp_1504",
+      "status": "PASS",
+      "comparisons": 4122
+    },
+    {
+      "cell": "fastwam/mt50/250",
+      "source": "/data/mw_finetune/eval/csfw_k3",
+      "status": "PASS",
+      "comparisons": 1363
+    },
+    {
+      "cell": "fastwam/mt50/500",
+      "source": "/data/mw_finetune/eval/csfw_k3",
+      "status": "PASS",
+      "comparisons": 1685
+    },
+    {
+      "cell": "fastwam/mt50/1000",
+      "source": "/data/mw_finetune/eval/csfw_k3",
+      "status": "PASS",
+      "comparisons": 2185
+    },
+    {
+      "cell": "fastwam/mt50/1500",
+      "source": "/data/mw_finetune/eval/csfw_k3w5",
+      "status": "PASS",
+      "comparisons": 2685
+    },
+    {
+      "cell": "fastwam/mt50/2000",
+      "source": "/data/mw_finetune/eval/csfw_k3w6",
+      "status": "PASS",
+      "comparisons": 3197
+    },
+    {
+      "cell": "fastwam/mt50/2500",
+      "source": "/data/mw_finetune/eval/csfw_k3w6",
+      "status": "PASS",
+      "comparisons": 3697
+    },
+    {
+      "cell": "dp/libero_spatial/50",
+      "source": "/data/mw_finetune/eval/csztd_r2_c383_r2_e5b0",
+      "status": "PASS",
+      "comparisons": 928
+    },
+    {
+      "cell": "dp/libero_spatial/100",
+      "source": "/data/mw_finetune/eval/csztd_r3_l48",
+      "status": "PASS",
+      "comparisons": 978
+    },
+    {
+      "cell": "dp/libero_spatial/200",
+      "source": "/data/mw_finetune/eval/csztd_r3_l48",
+      "status": "PASS",
+      "comparisons": 1078
+    },
+    {
+      "cell": "dp/libero_spatial/300",
+      "source": "/data/mw_finetune/eval/csztd_r3_l48",
+      "status": "PASS",
+      "comparisons": 1178
+    },
+    {
+      "cell": "dp/libero_spatial/400",
+      "source": "/data/mw_finetune/eval/csztd_r3_l48",
+      "status": "PASS",
+      "comparisons": 1278
+    },
+    {
+      "cell": "dp/libero_spatial/500",
+      "source": "/data/mw_finetune/eval/csl10d",
+      "status": "PASS",
+      "comparisons": 1378
+    },
+    {
+      "cell": "dp/libero_10/50",
+      "source": "/data/mw_finetune/eval/csztd_r2_c383_r2_e5b0",
+      "status": "PASS",
+      "comparisons": 928
+    },
+    {
+      "cell": "dp/libero_10/100",
+      "source": "/data/mw_finetune/eval/csztd_r3_l48",
+      "status": "PASS",
+      "comparisons": 978
+    },
+    {
+      "cell": "dp/libero_10/200",
+      "source": "/data/mw_finetune/eval/csztd_r3_l48",
+      "status": "PASS",
+      "comparisons": 1078
+    },
+    {
+      "cell": "dp/libero_10/300",
+      "source": "/data/mw_finetune/eval/csztd_r3_l48",
+      "status": "PASS",
+      "comparisons": 1178
+    },
+    {
+      "cell": "dp/libero_10/400",
+      "source": "/data/mw_finetune/eval/csztd_r3_l48",
+      "status": "PASS",
+      "comparisons": 1278
+    },
+    {
+      "cell": "dp/libero_10/500",
+      "source": "/data/mw_finetune/eval/csl10d",
+      "status": "PASS",
+      "comparisons": 1378
+    },
+    {
+      "cell": "dp/libero_10/500",
+      "source": "/data/mw_finetune/eval/dpc8513584592",
+      "status": "PASS",
+      "comparisons": 1378
+    },
+    {
+      "cell": "fastwam/libero_spatial/50",
+      "source": "/data/mw_finetune/eval/fastwamc6066547406",
+      "status": "PASS",
+      "comparisons": 513
+    },
+    {
+      "cell": "fastwam/libero_spatial/100",
+      "source": "/data/mw_finetune/eval/fastwamc6066547406",
+      "status": "PASS",
+      "comparisons": 563
+    },
+    {
+      "cell": "fastwam/libero_spatial/200",
+      "source": "/data/mw_finetune/eval/fastwamc6066547406",
+      "status": "PASS",
+      "comparisons": 663
+    },
+    {
+      "cell": "fastwam/libero_spatial/300",
+      "source": "/data/mw_finetune/eval/fastwamc6066547406",
+      "status": "PASS",
+      "comparisons": 763
+    },
+    {
+      "cell": "fastwam/libero_spatial/400",
+      "source": "/data/mw_finetune/eval/fastwamc6066547406",
+      "status": "PASS",
+      "comparisons": 863
+    },
+    {
+      "cell": "fastwam/libero_spatial/500",
+      "source": "/data/mw_finetune/eval/csl10f",
+      "status": "PASS",
+      "comparisons": 963
+    },
+    {
+      "cell": "fastwam/libero_10/50",
+      "source": "/data/mw_finetune/eval/fastwamc6066547406",
+      "status": "PASS",
+      "comparisons": 513
+    },
+    {
+      "cell": "fastwam/libero_10/100",
+      "source": "/data/mw_finetune/eval/fastwamc6066547406",
+      "status": "PASS",
+      "comparisons": 563
+    },
+    {
+      "cell": "fastwam/libero_10/200",
+      "source": "/data/mw_finetune/eval/fastwamc6066547406",
+      "status": "PASS",
+      "comparisons": 663
+    },
+    {
+      "cell": "fastwam/libero_10/300",
+      "source": "/data/mw_finetune/eval/fastwamc6066547406",
+      "status": "PASS",
+      "comparisons": 763
+    },
+    {
+      "cell": "fastwam/libero_10/400",
+      "source": "/data/mw_finetune/eval/fastwamc6066547406",
+      "status": "PASS",
+      "comparisons": 863
+    },
+    {
+      "cell": "fastwam/libero_10/500",
+      "source": "/data/mw_finetune/eval/csl10f",
+      "status": "PASS",
+      "comparisons": 963
+    },
+    {
+      "cell": "fastwam/libero_10/500",
+      "source": "/data/mw_finetune/eval/fastwamc1456717485",
+      "status": "PASS",
+      "comparisons": 963
+    },
+    {
+      "cell": "fastwam/libero_10/500",
+      "source": "/data/mw_finetune/eval/fastwamc7615306896",
+      "status": "PASS",
+      "comparisons": 963
+    },
+    {
+      "cell": "cosmos/libero_spatial/50",
+      "source": "/data/mw_finetune/eval/cosmossizes145",
+      "status": "PASS",
+      "comparisons": 523
+    },
+    {
+      "cell": "cosmos/libero_spatial/100",
+      "source": "/data/mw_finetune/eval/cosmossizes145_r8b",
+      "status": "PASS",
+      "comparisons": 573
+    },
+    {
+      "cell": "cosmos/libero_spatial/200",
+      "source": "/data/mw_finetune/eval/cosmossizes145_r8c",
+      "status": "PASS",
+      "comparisons": 673
+    },
+    {
+      "cell": "cosmos/libero_spatial/300",
+      "source": "/data/mw_finetune/eval/cosmossizes145_r8c",
+      "status": "PASS",
+      "comparisons": 773
+    },
+    {
+      "cell": "cosmos/libero_spatial/400",
+      "source": "/data/mw_finetune/eval/cosmossizes145_r8c",
+      "status": "PASS",
+      "comparisons": 873
+    },
+    {
+      "cell": "cosmos/libero_spatial/500",
+      "source": "/data/mw_finetune/eval/cosmos500w85_220813",
+      "status": "PASS",
+      "comparisons": 973
+    },
+    {
+      "cell": "cosmos/libero_10/50",
+      "source": "/data/mw_finetune/eval/cosmossizes145_r8b",
+      "status": "PASS",
+      "comparisons": 523
+    },
+    {
+      "cell": "cosmos/libero_10/100",
+      "source": "/data/mw_finetune/eval/cosmossizes145_r8b",
+      "status": "PASS",
+      "comparisons": 573
+    },
+    {
+      "cell": "cosmos/libero_10/100",
+      "source": "/data/mw_finetune/eval/cosmossizes145_r8c",
+      "status": "PASS",
+      "comparisons": 573
+    },
+    {
+      "cell": "cosmos/libero_10/200",
+      "source": "/data/mw_finetune/eval/cosmossizes145_r8c",
+      "status": "PASS",
+      "comparisons": 673
+    },
+    {
+      "cell": "cosmos/libero_10/300",
+      "source": "/data/mw_finetune/eval/cosmossizes145_r8c",
+      "status": "PASS",
+      "comparisons": 773
+    },
+    {
+      "cell": "cosmos/libero_10/400",
+      "source": "/data/mw_finetune/eval/cosmossizes145_r8c",
+      "status": "PASS",
+      "comparisons": 873
+    },
+    {
+      "cell": "cosmos/libero_10/500",
+      "source": "/data/mw_finetune/eval/cosmos500w85_220813",
+      "status": "PASS",
+      "comparisons": 973
+    },
+    {
+      "cell": "pi05/libero_spatial/50",
+      "source": "/home/weiland/trace_runs/os_closed_loop/r10_size_pi05",
+      "status": "PASS",
+      "comparisons": 332
+    },
+    {
+      "cell": "pi05/libero_spatial/100",
+      "source": "/home/weiland/trace_runs/os_closed_loop/r10_size_pi05",
+      "status": "PASS",
+      "comparisons": 332
+    },
+    {
+      "cell": "pi05/libero_spatial/200",
+      "source": "/home/weiland/trace_runs/os_closed_loop/r10_size_pi05",
+      "status": "PASS",
+      "comparisons": 332
+    },
+    {
+      "cell": "pi05/libero_spatial/300",
+      "source": "/home/weiland/trace_runs/os_closed_loop/r10_size_pi05",
+      "status": "PASS",
+      "comparisons": 332
+    },
+    {
+      "cell": "pi05/libero_spatial/400",
+      "source": "/home/weiland/trace_runs/os_closed_loop/r10_size_pi05",
+      "status": "PASS",
+      "comparisons": 332
+    },
+    {
+      "cell": "pi05/libero_spatial/500",
+      "source": "/home/weiland/trace_runs/os_closed_loop/r10_size_pi05",
+      "status": "PASS",
+      "comparisons": 332
+    },
+    {
+      "cell": "pi05/libero_10/50",
+      "source": "/home/weiland/trace_runs/os_closed_loop/r10_size_pi05",
+      "status": "PASS",
+      "comparisons": 332
+    },
+    {
+      "cell": "pi05/libero_10/100",
+      "source": "/home/weiland/trace_runs/os_closed_loop/r10_size_pi05",
+      "status": "PASS",
+      "comparisons": 332
+    },
+    {
+      "cell": "pi05/libero_10/200",
+      "source": "/home/weiland/trace_runs/os_closed_loop/r10_size_pi05",
+      "status": "PASS",
+      "comparisons": 332
+    },
+    {
+      "cell": "pi05/libero_10/300",
+      "source": "/home/weiland/trace_runs/os_closed_loop/r10_size_pi05",
+      "status": "PASS",
+      "comparisons": 332
+    },
+    {
+      "cell": "pi05/libero_10/400",
+      "source": "/home/weiland/trace_runs/os_closed_loop/r10_size_pi05",
+      "status": "PASS",
+      "comparisons": 332
+    },
+    {
+      "cell": "pi05/libero_10/500",
+      "source": "/home/weiland/trace_runs/os_closed_loop/r10_size_pi05",
+      "status": "PASS",
+      "comparisons": 332
+    },
+    {
+      "cell": "groot/libero_spatial/50",
+      "source": "/home/weiland/trace_runs/os_closed_loop/r10_size_groot",
+      "status": "PASS",
+      "comparisons": 332
+    },
+    {
+      "cell": "groot/libero_spatial/100",
+      "source": "/home/weiland/trace_runs/os_closed_loop/r10_size_groot",
+      "status": "PASS",
+      "comparisons": 332
+    },
+    {
+      "cell": "groot/libero_spatial/200",
+      "source": "/home/weiland/trace_runs/os_closed_loop/r10_size_groot",
+      "status": "PASS",
+      "comparisons": 332
+    },
+    {
+      "cell": "groot/libero_spatial/300",
+      "source": "/home/weiland/trace_runs/os_closed_loop/r10_size_groot",
+      "status": "PASS",
+      "comparisons": 332
+    },
+    {
+      "cell": "groot/libero_spatial/400",
+      "source": "/home/weiland/trace_runs/os_closed_loop/r10_size_groot",
+      "status": "PASS",
+      "comparisons": 332
+    },
+    {
+      "cell": "groot/libero_spatial/500",
+      "source": "/home/weiland/trace_runs/os_closed_loop/r10_size_groot",
+      "status": "PASS",
+      "comparisons": 332
+    },
+    {
+      "cell": "groot/libero_10/50",
+      "source": "/home/weiland/trace_runs/os_closed_loop/r10_size_groot",
+      "status": "PASS",
+      "comparisons": 332
+    },
+    {
+      "cell": "groot/libero_10/100",
+      "source": "/home/weiland/trace_runs/os_closed_loop/r10_size_groot",
+      "status": "PASS",
+      "comparisons": 332
+    },
+    {
+      "cell": "groot/libero_10/200",
+      "source": "/home/weiland/trace_runs/os_closed_loop/r10_size_groot",
+      "status": "PASS",
+      "comparisons": 332
+    },
+    {
+      "cell": "groot/libero_10/300",
+      "source": "/home/weiland/trace_runs/os_closed_loop/r10_size_groot",
+      "status": "PASS",
+      "comparisons": 332
+    },
+    {
+      "cell": "groot/libero_10/400",
+      "source": "/home/weiland/trace_runs/os_closed_loop/r10_size_groot",
+      "status": "PASS",
+      "comparisons": 332
+    },
+    {
+      "cell": "groot/libero_10/500",
+      "source": "/home/weiland/trace_runs/os_closed_loop/r10_size_groot",
+      "status": "PASS",
+      "comparisons": 332
+    }
+  ],
+  "coverage": {
+    "status": "PASS",
+    "cells": 84,
+    "simulated_episodes": 86500,
+    "automatic_failures": 3500,
+    "sources_preserved": true,
+    "duplicate_or_unplanned_episodes": 0
+  }
+}

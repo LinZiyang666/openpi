@@ -1,4 +1,4 @@
-"""Preserve a closed startup failure's evidence and re-stage its prepared run."""
+"""Preserve a closed startup failure's evidence; optionally defer staging."""
 from __future__ import annotations
 
 import argparse
@@ -7,13 +7,55 @@ import os
 from pathlib import Path
 import shutil
 
+
+def closed_mps_path_failure(root):
+    """Read-only closure proof for a guard that failed before creating MPS."""
+    import json
+    import subprocess
+    receipt = read(root/'RECEIPT.json')
+    owned = receipt.get('owned_local', [])+receipt.get('owned_remote', [])
+    if (receipt.get('status') != 'PARTIAL' or
+            'ValueError: MPS pipe path too long;' not in receipt.get('error', '') or
+            not owned or any(p.get('label') != 'mps_guard' for p in owned) or
+            any((root/n).exists() for n in ('driver','SUMMARY.json','MPS_READY.json','servers'))):
+        raise ValueError('not a pre-replica MPS path startup failure')
+    proof = []
+    for process in owned:
+        records = process['receipt']
+        entries = [records[k] for k in ('child','supervisor') if records.get(k)]
+        code = ('import json;from pathlib import Path;rows='+repr(entries)+';'
+                'live=[]\nfor r in rows:\n'
+                ' p=Path("/proc/"+str(r["pid"])+"/stat")\n'
+                ' if p.exists():\n'
+                '  s=p.read_text().rsplit(")",1)[1].split()\n'
+                '  if s[0]!="Z" and s[19]==r["start_ticks"]:live.append(r["pid"])\n'
+                'print(json.dumps(dict(alive=live,ready=Path('+repr(str(root/'MPS_READY.json'))+').exists())))')
+        node = process.get('node','local')
+        argv = ['/usr/bin/python3','-B','-S','-c',code]
+        if node != 'local':argv = ['tether','exec','--safe','--timeout','30s',node,'--',*argv]
+        observed = json.loads(subprocess.run(argv,capture_output=True,text=True,check=True,timeout=35).stdout)
+        if observed['alive'] or observed['ready']:
+            raise ValueError('MPS guard/client closure not proved')
+        proof.append(dict(node=node,**observed))
+    claim=read(root/'LAUNCH.json')
+    if Path('/proc/'+str(claim['pid'])).exists():raise ValueError('launch process still exists')
+    return dict(receipt,reset_read_only_closure=proof)
+
 from .audit_counts import read
 from .build import write
 
 
 def prestart_failure(root, verified_dead=False):
     receipt = read(root/'RECEIPT.json')
-    if receipt.get('status') != 'FAIL' or (receipt.get('all_owned_closed') is not True and not verified_dead):
+    # A port-wait timeout is reported PARTIAL even though run_campaign has
+    # spawned nothing. Require its specific port evidence, not any PARTIAL run.
+    port_failure = (receipt.get('status') == 'PARTIAL' and
+                    receipt.get('all_owned_closed') is True and not receipt.get('gpu_bound') and
+                    not receipt.get('owned_local') and not receipt.get('owned_remote') and
+                    not receipt.get('cleanup') and (root/'PORT_RELEASE.json').exists() and
+                    read(root/'PORT_RELEASE.json').get('status') == 'FAIL' and
+                    str(receipt.get('error', '')).startswith("TimeoutError('ports did not release within "))
+    if (receipt.get('status') != 'FAIL' and not port_failure) or (receipt.get('all_owned_closed') is not True and not verified_dead):
         raise ValueError('reset requires a closed failed startup')
     owned = receipt.get('owned_local', [])+receipt.get('owned_remote', [])
     if owned:
@@ -71,16 +113,31 @@ def prestart_failure(root, verified_dead=False):
     return receipt
 
 
-def reset(root, verified_dead=False):
+def reset(root, verified_dead=False, *, local_only=False, unstage_only=False):
     from exp.r17_integration.ops.formal_prestage import preparation_lock
     from .stage import _stage
     root = Path(root).resolve(strict=True)
     with preparation_lock(root):
-        receipt = prestart_failure(root, verified_dead)
+        if unstage_only and not any((root/n).exists() for n in ('LAUNCH.json', 'RECEIPT.json')):
+            # A prepare (e.g. interrupted rsync) never launches execution. Keep
+            # its partial deployment and logs under the same rename-only path.
+            import json
+            phases = root/'PHASE_TIMINGS.jsonl'
+            if (any((root/n).exists() for n in ('driver', 'servers', 'SUMMARY.json', 'MPS_READY.json')) or
+                    (phases.exists() and any(json.loads(line).get('phase') == 'owned_spawn'
+                                             for line in phases.read_text().splitlines() if line))):
+                raise ValueError('execution artifacts present; reset refused')
+            receipt = dict(status='PREPARE_INCOMPLETE', all_owned_closed=True,
+                           owned_local=[], owned_remote=[], gpu_bound=False)
+        else:
+            receipt = (closed_mps_path_failure(root) if unstage_only and verified_dead
+                       else prestart_failure(root, verified_dead))
+        if local_only and (receipt.get('owned_local') or receipt.get('owned_remote')):
+            raise ValueError('--local-only requires failure before any owned process was spawned')
         suffix = '.failed_'+datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')
         restored = []
         snapshot = root/'.startup_inputs'
-        if (snapshot/'STARTUP_INPUTS.json').exists():
+        if not unstage_only and (snapshot/'STARTUP_INPUTS.json').exists():
             from exp.r17_integration.ops.immutable_release import sha
             for name, pin in read(snapshot/'STARTUP_INPUTS.json')['files'].items():
                 target = root/name
@@ -92,7 +149,7 @@ def reset(root, verified_dead=False):
                 shutil.copyfile(snapshot/name, target)
                 restored.append(name)
         external = []
-        if receipt.get('owned_local') or receipt.get('owned_remote'):
+        if not unstage_only and (receipt.get('owned_local') or receipt.get('owned_remote')):
             # Preserve local fleet receipts too: formal_process.spawn reuses a
             # receipt at the same path, so old closed receipts must be renamed.
             for node, item in read(root/'WORKER_DEPLOYMENT.json').items():
@@ -114,7 +171,7 @@ def reset(root, verified_dead=False):
         # A remote server node (H100) keeps its process receipts in the
         # server stage; formal_process.spawn refuses an existing receipt.
         campaign = read(root/'campaign.json')
-        if campaign.get('server_node') not in (None, 'local'):
+        if not local_only and not unstage_only and campaign.get('server_node') not in (None, 'local'):
             from exp.r17_integration.ops import formal_eval as launch
             stage = '/tmp/r17_formal/'+campaign['run_name']+'/server'
             script = ('for p in "$1"/*.process.json "$1"/*.lease "$1"/*.log; '
@@ -130,6 +187,11 @@ def reset(root, verified_dead=False):
                  'servers', 'mps', 'mps_control', 'BACKEND_EVIDENCE.json', 'PORT_RELEASE.json',
                  'SERVER_ATTESTATIONS.json', 'GPU_MEMORY.json', 'GPU_RELEASED.json', 'PROXY_METADATA.json',
                  'BUNDLE_ACK.json', 'STUDY_BUNDLE_ACKS.json'}
+        if local_only or unstage_only:
+            # A later explicit prepare must regenerate routed node controls
+            # and seal the edited definition. Preserve all old evidence.
+            names.update({'PREPARED.json', 'WORKER_NODE_STATE.json'})
+        if unstage_only:names.add('WORKER_DEPLOYMENT.json')
         names.update(p.name for pattern in ('*_LAUNCH_ADMISSION.json', '*_launch.json', 'MPS_*.json',
                                            'replica_*.log', 'mps_*.log') for p in root.glob(pattern))
         moved = {}
@@ -139,13 +201,19 @@ def reset(root, verified_dead=False):
                 target = path.with_name(name+suffix)
                 path.rename(target)
                 moved[name] = target.name
+        if unstage_only:
+            stage=Path('/tmp/r17_formal')/root.name
+            if stage.exists():
+                target=stage.with_name(stage.name+suffix);stage.rename(target)
+                external.append(dict(node='local',original=str(stage),saved=str(target)))
         record = root/('RESET'+suffix+'.json')
         metadata = dict(run=str(root), original_failure=receipt, renamed=moved, restored_inputs=restored,
                         external_renames=external, driver_started=False, reset_started_processes=False)
-        write(record, dict(status='RESTAGING', **metadata))
+        write(record, dict(status='UNSTAGED' if local_only or unstage_only else 'RESTAGING', **metadata))
         # Reuse the original seal and native releases; repair staged controls.
-        _stage(root)
-        write(record, dict(status='PREPARED', **metadata))
+        if not local_only and not unstage_only:
+            _stage(root)
+            write(record, dict(status='PREPARED', **metadata))
     print(str(record))
 
 
@@ -153,6 +221,10 @@ if __name__ == '__main__':
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--run', type=Path, required=True)
     p.add_argument('--verified-dead', action='store_true',
-                   help='local-only startup failure whose receipt could not prove closure; every recorded pid is re-checked')
+                   help='re-check owned PIDs; --unstage-only also supports the documented remote MPS path startup failure')
+    p.add_argument('--local-only', action='store_true',
+                   help='rename local evidence only after a no-spawn failure; leave explicit prepare for later')
+    p.add_argument('--unstage-only',action='store_true',
+                   help='rename local evidence/stage only; --verified-dead proves a pre-replica MPS path failure by read-only checks')
     a = p.parse_args()
-    reset(a.run, a.verified_dead)
+    reset(a.run, a.verified_dead, local_only=a.local_only, unstage_only=a.unstage_only)

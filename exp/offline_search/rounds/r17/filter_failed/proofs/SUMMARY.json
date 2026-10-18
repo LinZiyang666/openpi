@@ -1,0 +1,26 @@
+{
+  "status": "STOPPED_EQUIVALENCE_FAILED",
+  "pipelines": [
+    {
+      "pipeline": "r17_mt50",
+      "status": "FAIL",
+      "comparisons": 612,
+      "differences": 403,
+      "path": "exp/offline_search/rounds/r17/filter_failed/proofs/r17_mt50.json"
+    },
+    {
+      "pipeline": "r17_libero",
+      "status": "PASS",
+      "comparisons": 136,
+      "differences": 0,
+      "path": "exp/offline_search/rounds/r17/filter_failed/proofs/r17_libero.json"
+    },
+    {
+      "pipeline": "r10_vla",
+      "status": "PASS",
+      "comparisons": 290,
+      "differences": 0,
+      "path": "exp/offline_search/rounds/r17/filter_failed/proofs/r10_vla.json"
+    }
+  ]
+}

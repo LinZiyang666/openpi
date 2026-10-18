@@ -1,0 +1,275 @@
+{
+  "run": "ff1015_cosmos_li_04",
+  "python": "/data/cosmos/cosmos-policy/.venv/bin/python",
+  "prefix": "/data/cosmos/cosmos-policy/.venv",
+  "status": "PASS",
+  "assets": "/data/mw_finetune/eval/ff1015_cosmos_li_04/assets",
+  "model": "cosmos",
+  "identity_path": "cosmos.loader.cpu_manifest (strict loader descriptor path)",
+  "package_versions": {
+    "torch": "2.7.0+cu128",
+    "torchvision": "0.22.0+cu128",
+    "diffusers": "0.36.0",
+    "transformers": "4.57.1",
+    "numpy": "2.2.6",
+    "safetensors": "0.7.0"
+  },
+  "pinned_packages_equal": true,
+  "actual_spec": {
+    "model_id": "cosmos_libero",
+    "checkpoint_identity": "d234db6ddd2948c9db7982b203ae4f01a273f86c8c05cb5b92236037752da310",
+    "norm_identity": "286fc702ab5fed79562adde6062f72473c7dba12a1e714021b806d92365c420c",
+    "layout": {
+      "horizon": 16,
+      "replan_steps": 16,
+      "valid_action_dim": 7,
+      "valid_state_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "motion_channels": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "gripper_channel": 6,
+      "gripper_closed_convention": "native LIBERO gripper command; unchanged from official runner",
+      "raw_state_fields": [
+        "gripper_qpos[2]",
+        "eef_pos[3]",
+        "eef_quat_xyzw[4]"
+      ],
+      "action_space_name": "LIBERO_OSC_POSE",
+      "units": "official native controller",
+      "frame": "LIBERO base frame",
+      "output_transform_id": "cosmos.libero.official_minmax.v1",
+      "model_action_width": null,
+      "valid_action_indices": []
+    },
+    "feature_spec": {
+      "source": "Cosmos tokenizer.encode current camera latent frames",
+      "real_cameras": [
+        "agentview",
+        "robot0_eye_in_hand"
+      ],
+      "fields": {
+        "vision_0": 256,
+        "vision_1": 256,
+        "robot_state": 9
+      },
+      "token_grid": [
+        9,
+        28,
+        28
+      ],
+      "hidden_width": 16,
+      "pooling": "per_camera_latent_channels.adaptive_avg_4x4.v1",
+      "missing_branch_policy": "reject",
+      "prompt_dependent": false,
+      "key_dtype": "float32",
+      "active_state_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "policy_digest": "d234db6ddd2948c9db7982b203ae4f01a273f86c8c05cb5b92236037752da310",
+      "norm_digest": "286fc702ab5fed79562adde6062f72473c7dba12a1e714021b806d92365c420c",
+      "preprocess_digest": "87c9f62f1a5bed869f9bbac174dec51540f9cd387497c1f211984c150c140335"
+    },
+    "default_sampler": {
+      "sampler_id": "cosmos_policy_edm_2ab_v1",
+      "family": "cosmos_edm",
+      "num_steps": 5,
+      "native_timesteps": [
+        80.0,
+        42.29112070739096,
+        20.97244866800536,
+        9.618250562522087,
+        3.9999999999999987
+      ],
+      "native_deltas": [],
+      "config": {
+        "sigma_min": 4.0,
+        "sigma_max": 80.0,
+        "rho": 7,
+        "solver": "2ab",
+        "sample_clean": true,
+        "churn": 0.0,
+        "cfg": false,
+        "variance_scale": false,
+        "net_dtype": "bfloat16",
+        "solver_dtype": "float64",
+        "initial_noise_dtype": "float32",
+        "initial_noise": "native arch_invariant_rand; current request seed",
+        "num_samples": 1
+      },
+      "point_kind": "sigma"
+    },
+    "capabilities": {
+      "features": {
+        "full": {
+          "status": "supported",
+          "reason": "native implementation; receipts in HANDBACK_COSMOS.md",
+          "evidence": []
+        },
+        "k_step": {
+          "status": "supported",
+          "reason": "native implementation; receipts in HANDBACK_COSMOS.md",
+          "evidence": []
+        },
+        "concurrent": {
+          "status": "supported",
+          "reason": "native implementation; receipts in HANDBACK_COSMOS.md",
+          "evidence": []
+        },
+        "bundle": {
+          "status": "supported",
+          "reason": "native implementation; receipts in HANDBACK_COSMOS.md",
+          "evidence": []
+        },
+        "episode": {
+          "status": "supported",
+          "reason": "native implementation; receipts in HANDBACK_COSMOS.md",
+          "evidence": []
+        },
+        "conductor": {
+          "status": "supported",
+          "reason": "native implementation; receipts in HANDBACK_COSMOS.md",
+          "evidence": []
+        },
+        "worker": {
+          "status": "supported",
+          "reason": "native implementation; receipts in HANDBACK_COSMOS.md",
+          "evidence": []
+        },
+        "analysis": {
+          "status": "supported",
+          "reason": "native implementation; receipts in HANDBACK_COSMOS.md",
+          "evidence": []
+        },
+        "cp1_retrieval": {
+          "status": "implemented_unverified",
+          "reason": "native VAE keys implemented; Cosmos CP1 HIT/recipe quality has no GPU certificate",
+          "evidence": []
+        },
+        "recipe": {
+          "status": "implemented_unverified",
+          "reason": "sealed B500 cache-study K5/C16 admission and key-only HIT CPU verified; GPU hot-switch smoke pending",
+          "evidence": []
+        },
+        "debug_capture": {
+          "status": "supported",
+          "reason": "minimal P6 teacher allowlist only; native K5/seed195; snapshots=False; no model trace products",
+          "evidence": []
+        },
+        "warmup_library": {
+          "status": "unsupported",
+          "reason": "no Cosmos-specific end-to-end certificate; rejected explicitly",
+          "evidence": []
+        },
+        "offline_replay": {
+          "status": "unsupported",
+          "reason": "no Cosmos-specific end-to-end certificate; rejected explicitly",
+          "evidence": []
+        },
+        "native_warm_resume": {
+          "status": "unsupported",
+          "reason": "no Cosmos-specific end-to-end certificate; rejected explicitly",
+          "evidence": []
+        },
+        "native_warm_reset": {
+          "status": "unsupported",
+          "reason": "no Cosmos-specific end-to-end certificate; rejected explicitly",
+          "evidence": []
+        },
+        "cp2": {
+          "status": "unsupported",
+          "reason": "no Cosmos-specific end-to-end certificate; rejected explicitly",
+          "evidence": []
+        },
+        "trace_twins": {
+          "status": "unsupported",
+          "reason": "no Cosmos-specific end-to-end certificate; rejected explicitly",
+          "evidence": []
+        },
+        "batch_stage1": {
+          "status": "unsupported",
+          "reason": "no Cosmos-specific end-to-end certificate; rejected explicitly",
+          "evidence": []
+        },
+        "batch_stage2": {
+          "status": "unsupported",
+          "reason": "no Cosmos-specific end-to-end certificate; rejected explicitly",
+          "evidence": []
+        },
+        "batch_stage3": {
+          "status": "unsupported",
+          "reason": "no Cosmos-specific end-to-end certificate; rejected explicitly",
+          "evidence": []
+        },
+        "split": {
+          "status": "unsupported",
+          "reason": "no Cosmos-specific end-to-end certificate; rejected explicitly",
+          "evidence": []
+        },
+        "shadow_routing": {
+          "status": "unsupported",
+          "reason": "no Cosmos-specific end-to-end certificate; rejected explicitly",
+          "evidence": []
+        },
+        "online_rit": {
+          "status": "unsupported",
+          "reason": "no Cosmos-specific end-to-end certificate; rejected explicitly",
+          "evidence": []
+        },
+        "flow_shoot": {
+          "status": "unsupported",
+          "reason": "no Cosmos-specific end-to-end certificate; rejected explicitly",
+          "evidence": []
+        }
+      }
+    },
+    "allowed_benchmark_protocols": [
+      "cfcd22a087c544aaffcd878f1997abb6d045f22757d01df9a8ab96f8e7163740"
+    ],
+    "code_digest": "82be7b95411bc6a28020e64efa1149c26c0b83bcf6affbee00030415b4b99bd0",
+    "python_island": "cosmos-policy/python3.10/torch2.7-cu128"
+  },
+  "spec_equal": true,
+  "cache_groups": 8,
+  "startup_config_checked": true,
+  "cuda_initialized": false,
+  "source": "/data/mw_finetune/eval/cosmossizes145_r8c",
+  "runtime": "/data/mw_finetune/qualification/formal_runtime_3ee418426f219145556760c56fc22eca757740f12575c253be35014e56c0a261",
+  "server_node": "h100",
+  "source_actual_identities": [
+    "d234db6ddd2948c9db7982b203ae4f01a273f86c8c05cb5b92236037752da310"
+  ],
+  "source_ready_paths": [
+    "/data/mw_finetune/eval/cosmossizes145_r8c/servers/replica_6/ready.json",
+    "/data/mw_finetune/eval/cosmossizes145_r8c/servers/replica_5/ready.json",
+    "/data/mw_finetune/eval/cosmossizes145_r8c/servers/replica_4/ready.json",
+    "/data/mw_finetune/eval/cosmossizes145_r8c/servers/replica_0/ready.json",
+    "/data/mw_finetune/eval/cosmossizes145_r8c/servers/replica_1/ready.json",
+    "/data/mw_finetune/eval/cosmossizes145_r8c/servers/replica_2/ready.json",
+    "/data/mw_finetune/eval/cosmossizes145_r8c/servers/replica_3/ready.json",
+    "/data/mw_finetune/eval/cosmossizes145_r8c/servers/replica_7/ready.json"
+  ],
+  "equals_source_actual": true
+}
