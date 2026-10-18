@@ -1,6 +1,6 @@
 # 正式动态验收：逐例前后回归
 
-原有207个用例：before.xml 207 PASS；after_final.xml 同207个全部PASS，无缺失、无新增失败、无跳过。新增13个真实prepare/plan/ledger/guard/continuation/audit用例全部PASS，总220 PASS。逐例按(classname,name)匹配；原始XML保持不变。首次中间开发失败（peer心跳fixture未更新、未准备目标尚无WORKER_DEPLOYMENT）仅改fixture后纠正，未放松生产检查。
+原有207个用例：before.xml 207 PASS；after_fallback.xml 同207个全部PASS，无缺失、无新增失败、无跳过。新增14个真实prepare/plan/ledger/guard/continuation/audit用例全部PASS，总221 PASS。逐例按(classname,name)匹配；原始XML保持不变。首次中间开发失败（peer心跳fixture未更新、未准备目标尚无WORKER_DEPLOYMENT）仅改fixture后纠正，未放松生产检查。
 
 | 改动文件 | 改前 | 改后 | 原207例新增回归 |
 |---|---|---|---:|
@@ -15,11 +15,13 @@
 | driver.py | 只保存window timing | scheduler accepted后追加小型per-node timing事件 | 0 |
 | formal_dynamic.py（新增） | 无正式私有ON入口 | 精确三campaign包装；OFF/dyn全字段proof；R15原生resume | 新增测试PASS |
 | formal_dynamic_audit.py（新增） | 无跨正式unit的active/rate验收 | 唯一UID/错误/关闭/kernel/回收验收及60秒per-node CSV | 新增测试PASS |
-| 六个*_dyn.sh（新增） | 无 | bash -n全部PASS；原prepare/launch六份SHA未变 | 0 |
+| 六个*_dyn.sh（新增） | 无 | bash -n全部PASS；原prepare/launch八份SHA未变 | 0 |
 | trial_commands.sh / TRIAL.md / HANDOFF_OFF.md | side-lane旧说明 | 撤销旧方案，指向FORMAL_ACCEPTANCE；打印helper只打印不执行 | shell检查PASS |
 
-真实FW formal CPU临时prepare：保留目标c33 runtime、不回退pre-longseg父archive；真实driver打包/不可变本地安装/archived planner，2500个完整task dict相等。remote/transfer/stage transport由CPU-only防护阻止或替身替代；不能称作远端prepare成功。R15源SweepStrategy分片、A-pool rollup、manifest与UID/init均真实构建；20/24档共10000/12000个task dict相等。
+真实GR fallback formal CPU临时prepare：保留目标6a3136 runtime、不回退pre-longseg父archive；真实driver打包/不可变本地安装/archived planner，2500个完整task dict相等。remote/transfer/stage transport由CPU-only防护阻止或替身替代；不能称作远端prepare成功。R15源SweepStrategy分片、A-pool rollup、manifest与UID/init均真实构建；20/24档共10000/12000个task dict相等。
 
 新curve测试验证只有scheduler accepted计入每node accepted/min，拒绝的结果不记；端到端audit测试证明UNKNOWN kernel及重复UID不能PASS。旧207项含全局OFF、source payload、不变seed、probe/closure、native legacy回收及公平ledger回归。
 
 GLOBAL开关物理off；未修改/data/eval目录、任何现有wrapper、链脚本或链列表。只读远端：107内存/进程/journal、10.8MiB bounded per_step，以及H100该旧lane进程查询。源证据不移不删。
+
+队列状态变化：13:09检查FW已由coordinator链OFF启动，未修改该运行目录；改用授权GR fallback。增加“启动记录存在则在锁/写入之前拒绝”的测试，GR真实临时prepare及新guard通过后重新全量221 PASS。FW草稿wrapper在repo另名NOT_FOR_RUNNING保留，六份活跃wrapper为GR、R15原库和R15过滤库。
