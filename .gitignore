@@ -463,3 +463,58 @@ exp/offline_search/rounds/r17/**/*_editor.html
 
 # owner's slide deck
 /10.15ciscio.pdf
+
+# Frozen experiment source snapshots (local only).
+/exp/offline_search/rounds/r17/**/baseline_0*/
+
+# Regenerable R17 test workspaces, caches and runtime outputs.
+/exp/offline_search/rounds/r17/**/tmp_*/
+/exp/offline_search/rounds/r17/**/*_tmp/
+/exp/offline_search/rounds/r17/**/*_cache/
+/exp/offline_search/rounds/r17/**/test_artifacts/
+/exp/offline_search/rounds/r17/**/.pytest_cache/
+/exp/offline_search/rounds/r17/**/*.xml
+/exp/offline_search/rounds/r17/**/*.tar
+/exp/offline_search/rounds/r17/**/*.lock
+
+# Copied source releases, staging snapshots and local runtime dependencies.
+/exp/offline_search/rounds/r17/autoscale_1017/native_sources/
+/exp/offline_search/rounds/r17/autoscale_1017/dependencies_ops_after/
+/exp/offline_search/rounds/r17/autoscale_1017/test_frozen_final/
+/exp/offline_search/rounds/r17/autoscale_1017/test_retry_final*/
+/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/before/
+/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/candidate/
+/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_publication_before/
+/exp/offline_search/rounds/r17/longseg_1017/profile_bundles/
+/exp/offline_search/rounds/r17/xgpu_1017/pilot_driver_releases/
+/exp/offline_search/rounds/r17/xgpu_1017/harnesses/
+/exp/offline_search/rounds/r17/xgpu_1017/cpu_osmesa/
+/exp/offline_search/rounds/r17/xgpu_1017/**/mps/
+
+# Runtime publications, per-delivery journals, generated transfer lists and large dumps.
+/exp/offline_search/rounds/r17/**/frozen_runtime/
+/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_switch/test01/
+/exp/offline_search/rounds/r17/autoscale_1017/ENABLED
+/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/PUBLICATION_HOLD
+/exp/offline_search/rounds/r17/longseg_1017/*.pre_recal1018_*
+/exp/offline_search/rounds/r17/longseg_1017/commands/*.cpu_validation_only_*
+/exp/offline_search/rounds/r17/xgpu_1017/**/legacy_runtimes/
+/exp/offline_search/rounds/r17/xgpu_1017/a100_closedloop_1018/serving_extra/
+/exp/offline_search/rounds/r17/xgpu_1017/**/*.files
+/exp/offline_search/rounds/r17/xgpu_1017/**/*.include
+/exp/offline_search/rounds/r17/xgpu_1017/**/client_*_delivery_*.json
+/exp/offline_search/rounds/r17/xgpu_1017/**/source_campaign.json
+/exp/offline_search/rounds/r17/**/*.stderr
+/exp/offline_search/rounds/r17/filter_failed/BASELINE.json
+/exp/offline_search/rounds/r17/filter_failed/STAGING_4090_FINAL.json
+/exp/offline_search/rounds/r17/filter_failed/STAGING_LOCAL_T107.json
+/exp/offline_search/rounds/r17/filter_failed/STAGING_PROOF.json
+/exp/offline_search/rounds/r17/filter_failed/STAGING_R17.json
+/exp/offline_search/rounds/r17/survey_predict/audit.json
+/exp/offline_search/rounds/r17/survey_predict/mt50_cache_audit.json
+
+# Before/candidate code snapshots retained locally for regression comparisons.
+/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/**/before/
+/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/generation_before/
+/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/generation_candidate/
+/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_switch/exp/
