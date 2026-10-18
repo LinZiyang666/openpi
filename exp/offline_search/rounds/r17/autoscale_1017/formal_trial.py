@@ -1,5 +1,6 @@
 """Explicit prepare/launch entry for real formal queues. Importing never executes it."""
 import argparse
+from contextlib import contextmanager
 import copy
 import json
 from pathlib import Path
@@ -64,6 +65,20 @@ def resolve(name, action, maxima):
     return root
 
 
+@contextmanager
+def longseg_budget(root):
+    """filter_failed.stage's /data reader and rsync budget for long-segment campaigns."""
+    if not (read(Path(root)/'campaign.json') or {}).get('longseg_1017'):
+        yield
+        return
+    from unittest.mock import patch
+    from exp.offline_search.rounds.r17.longseg_1017.io_budget import filesystem_budget
+    from exp.r17_integration.ops import direct_transfer
+    with filesystem_budget(), patch.object(direct_transfer, 'BWLIMIT_KIBPS', 4096), \
+            patch.object(shutil, '_USE_CP_SENDFILE', False):
+        yield
+
+
 def prepare(root, maxima=None, *, reprepare=False, node_config=None, preserve_science=False):
     """Native staging pieces, with a new worker/driver pin and frozen server bytes."""
     from exp.r17_integration.ops import formal_eval as f, driver_release
@@ -79,7 +94,7 @@ def prepare(root, maxima=None, *, reprepare=False, node_config=None, preserve_sc
         if maxima is not None:raise ValueError("global OFF: native preparation retains original counts")
         return stage.stage(root)
     wait_io()
-    with preparation_lock(root), timan1_gpu2.coordinator(), worker_resilience.coordinator():
+    with preparation_lock(root), longseg_budget(root), timan1_gpu2.coordinator(), worker_resilience.coordinator():
         if any((root / n).exists() for n in ('LAUNCH.json', 'RECEIPT.json', 'DONE.json', 'launch.json')):
             raise ValueError('launched campaign cannot be re-prepared')
         if (root/'PREPARED.json').exists() and not reprepare:
@@ -101,12 +116,20 @@ def prepare(root, maxima=None, *, reprepare=False, node_config=None, preserve_sc
         # otherwise timan107 inherits an obsolete1GiB slot and masks RAM pressure.
         c['worker_vram_mib'] = timan1_gpu2.SIZES[c['domain']][0]
         source = Path(root) if preserve_science else Path(c.get('filter_failed_source', root))
+        runtime_sha = sha(source / 'runtime.tar')
+        if c.get('longseg_1017'):
+            # Same as filter_failed.stage._stage: long-segment campaigns run the
+            # archive with the segment-boundary fix written into its sources.
+            if sha(root/'runtime.tar') != runtime_sha and not (root/'LONGSEG_RUNTIME_FIX.json').exists():
+                raise ValueError('runtime.tar is neither the source release nor its fixed copy')
+            from exp.offline_search.rounds.r17.longseg_1017.runtime_fix import stage as fixed_runtime
+            runtime_sha = fixed_runtime(f, c, root)
         server_pin = sha(root/'runtime.tar')
         prepare_admission(c)
         if c.get('autoscale_validation'):
             from .trial_runtime import prepare as prepare_validation_runtime
             prepare_validation_runtime(f,c,root)
-        install(root / 'runtime.tar', c['runtime'], sha(source / 'runtime.tar'), c['runtime_identity'])
+        install(root / 'runtime.tar', c['runtime'], runtime_sha, c['runtime_identity'])
         c['coordinator_runtime'] = c['runtime']
         if source.resolve() != root.resolve():
             attach(c, source)

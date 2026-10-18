@@ -52,7 +52,7 @@ done
 
 ## CPU证据与运行限制
 
-PLAN_fa_ls_gr_f_p_m.json和PLAN_fa_pi_f_{u,f}_l.json逐字段比较OFF和动态TaskGraph，包括所有task UID、init、seed/extra、server endpoint与bundle：2,500 / 10,000 / 12,000全相等。真实GR00T fallback定义还在CPU临时目录走formal_trial.prepare、真实driver/runtime打包安装和archived planner；transport被禁止/替代，目标fixed runtime的SHA/identity不回退到pre-longseg父runtime，2500字段仍相等。R15 task builder本来就不接收worker counts；同server shard列表、同manifest/row/seed，39→104只改变agent spec数量。
+PLAN_fa_ls_gr_f_p_m.json和PLAN_fa_pi_f_{u,f}_l.json逐字段比较OFF和动态TaskGraph，包括所有task UID、init、seed/extra、server endpoint与bundle：2,500 / 10,000 / 12,000全相等。真实GR00T fallback定义还在CPU临时目录走formal_trial.prepare、真实driver/runtime打包安装和archived planner；transport被禁止/替代，2500字段仍相等。（10-18复核更正：fa_ls_gr_f_p_m 目录内的6a3136 runtime.tar 与 grmk1_ful 字节相同，仍是旧分段边界方法，并非已修复版本。formal_trial.prepare 现与 filter_failed.stage::_stage 相同，对 longseg_1017 campaign 先调用 longseg_1017/runtime_fix.stage，并沿用同一 /data 读与 rsync 限速；CPU 临时 prepare 从冻结父 archive 得到修复后 runtime（archive f51c06d6…，identity abfcde3a…），与 13:51 原生 filter_failed.stage 对该目录写出的 LONGSEG_RUNTIME_FIX.json 字节相同；H100 安装走 runtime_fix 自身路径。）R15 task builder本来就不接收worker counts；同server shard列表、同manifest/row/seed，39→104只改变agent spec数量。
 
 前后逐例表、源码SHA、readonly快照见 followup_1018/formal_dynamic_122x/。新包装器只在其进程和新冻结payload内读取on，物理ENABLED仍off；不改现有wrapper，不改queued/running campaign，不改旧fit、gap、Q3、pure引用或serving。CPU-only测试插件禁止未mock的GPU、远端传输及production端口绑定。
 

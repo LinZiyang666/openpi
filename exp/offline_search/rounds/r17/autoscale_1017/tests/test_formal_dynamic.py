@@ -212,14 +212,21 @@ def test_formal_audit_requires_unique_outcomes_recycling_and_covered_zero_oom(tm
 
 def test_actual_gr_formal_prepare_uses_its_fixed_runtime_not_pre_longseg_parent(tmp_path,monkeypatch):
     import shutil
+    import tarfile
     from contextlib import nullcontext
     from exp.r17_integration.ops import formal_eval as launch,driver_release,immutable_release,formal_ports,formal_prestage
+    from exp.r17_integration.ops import direct_transfer
     from exp.offline_search.rounds.r17.autoscale_1017 import trial_runtime
     from exp.offline_search.rounds.r17.filter_failed import stage
+    from exp.offline_search.rounds.r17.longseg_1017.runtime_fix import patched_files
     source=Path('/data/mw_finetune/eval/fa_ls_gr_f_p_m');root=tmp_path/'formal';root.mkdir()
     for name in ('campaign.json','runtime.tar','workers.tar','EPISODE_PLAN.json','WORKER_DEPLOYMENT.json'):
         if (source/name).exists():shutil.copy2(source/name,root/name)
     old=f.read(root/'campaign.json');expected=f.read(root/'EPISODE_PLAN.json')['tasks']
+    # Start from the frozen pre-fix parent archive (byte-identical to this
+    # campaign's own archive before any prepare), whatever the live dir's state.
+    parent=Path(old['filter_failed_source']);unfixed=f.read(parent/'RUNTIME_RELEASE.json')
+    shutil.copy2(parent/'runtime.tar',root/'runtime.tar')
     pin=immutable_release.sha(root/'runtime.tar');installs={};calls=[]
     def install(archive,path,archive_sha,identity):
         assert immutable_release.sha(archive)==archive_sha
@@ -235,8 +242,16 @@ def test_actual_gr_formal_prepare_uses_its_fixed_runtime_not_pre_longseg_parent(
     monkeypatch.setattr(immutable_release,'install',install);monkeypatch.setattr(driver_release,'install',install)
     monkeypatch.setattr(driver_release,'prepare',driver)
     monkeypatch.setattr(formal_ports,'prepare_admission',lambda *a:None)
-    monkeypatch.setattr(launch,'remote',lambda *a,**kw:pytest.fail('real remote call'))
-    monkeypatch.setattr(launch,'transfer',lambda *a,**kw:pytest.fail('real transfer'))
+    # Only the long-segment fixed-runtime install may reach H100 (emulated).
+    server='/tmp/r17_formal/'+old['run_name']+'/server';remotes,transfers=[],[]
+    def remote(node,argv,**kw):
+        assert node=='h100' and direct_transfer.BWLIMIT_KIBPS==4096
+        remotes.append(argv);return json.dumps(dict(present=False)) if argv[1:2]==['-c'] else ''
+    def transfer(argv,**kw):
+        assert argv[:2]==['rsync','push'] and argv[3] in ('h100:'+server+'/runtime.tar','h100:'+server+'/release_install.py')
+        transfers.append(argv)
+    monkeypatch.setattr(launch,'remote',remote)
+    monkeypatch.setattr(launch,'transfer',transfer)
     monkeypatch.setattr(launch,'retry_scope',lambda *a:nullcontext())
     monkeypatch.setattr(launch,'prepare_workers',lambda c,r,**kw:{n:{} for n in c['execution_worker_nodes']})
     monkeypatch.setattr(stage,'stage_server_inputs',lambda *a:None)
@@ -244,9 +259,15 @@ def test_actual_gr_formal_prepare_uses_its_fixed_runtime_not_pre_longseg_parent(
     monkeypatch.setattr(formal_prestage,'seal_prepared',lambda c,r,d:n.atomic(r/'PREPARED.json',{'cpu_dry_run':True}))
     with f.private_on():
         f.formal_trial.prepare(root,f.desired(old),node_config=f.NODE_CONFIG,preserve_science=True)
-    new=f.read(root/'campaign.json')
-    assert new['runtime']==old['runtime'] and new['runtime_identity']==old['runtime_identity']
-    assert immutable_release.sha(root/'runtime.tar')==pin
+    new=f.read(root/'campaign.json');fixed=f.read(root/'LONGSEG_RUNTIME_FIX.json')
+    # Same fixed runtime as filter_failed.stage: never the frozen pre-fix archive.
+    assert immutable_release.sha(root/'runtime.tar')==fixed['archive_sha256']!=pin
+    assert new['runtime']==fixed['runtime']!=unfixed['root']
+    assert new['runtime_identity']==fixed['identity']==immutable_release.identity(immutable_release.archive_manifest(root/'runtime.tar'))!=unfixed['identity']
+    with tarfile.open(root/'runtime.tar') as tar:data={m.name:tar.extractfile(m).read() for m in tar.getmembers() if m.isfile()}
+    assert fixed['members'] and all(data[m].decode()==text for m,text in patched_files(lambda m:data[m].decode()).items())
+    assert transfers[0][2]==str(root/'runtime.tar') and fixed['identity'] in remotes[-1]
+    assert new['orchestration']['source_runtime_identity']==new['runtime_identity']
     assert driver_release.planned_tasks(new,root)==expected
     assert new['execution_worker_nodes']=={'timan1':332,'timan107':440}
-    assert calls[0]==(str(root/'runtime.tar'),old['runtime'])
+    assert (str(root/'runtime.tar'),new['runtime']) in calls and unfixed['root'] not in installs

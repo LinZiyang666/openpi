@@ -93,7 +93,13 @@ def dry_stage(root, c, monkeypatch, tasks=None, invoke=None):
         return {n:{} for n in c.get('execution_worker_nodes',c['worker_nodes'])}
     monkeypatch.setattr(f,'prepare_workers',workers)
     monkeypatch.setattr(formal_prestage,'seal_prepared',lambda c,r,d:atomic(r/'PREPARED.json',dict(cpu_only=True,nodes=list(d))))
+    # The long-segment runtime fix (archive rewrite + release installs) is an
+    # external effect here; only its invocation is checked.
+    from exp.offline_search.rounds.r17.longseg_1017 import runtime_fix
+    fixes=[]
+    monkeypatch.setattr(runtime_fix,'stage',lambda launch,c,r:fixes.append(r) or immutable_release.sha(r/'runtime.tar'))
     (invoke or inspect.unwrap(stage._stage))(root)
+    assert bool(fixes)==bool(c.get('longseg_1017'))
     assert (root/'EPISODE_PLAN.json').read_bytes()==before
     assert (root/'runtime.tar').read_bytes()==b'frozen server model'
     return read(root/'campaign.json')

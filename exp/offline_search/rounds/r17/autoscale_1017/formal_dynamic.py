@@ -162,7 +162,8 @@ def dispatch(action, name):
                                      reprepare=(root/'PREPARED.json').exists())
                 record_r17(root,c)
             else:
-                if not read(root/'FORMAL_DYNAMIC.json'):raise ValueError('use the reviewed dynamic prepare first')
+                if not read(root/'FORMAL_DYNAMIC.json') or (c.get('autoscale') or {}).get('mode')!='dynamic':
+                    raise ValueError('use the reviewed dynamic prepare first')
                 from exp.offline_search.rounds.r17.filter_failed_knob.launch import main
                 main(root)
 
