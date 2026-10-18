@@ -157,7 +157,7 @@ def _default_spawn(spec: WorkerSpec, driver_host: str, driver_port: int) -> Work
                 p for p in env.get("PATH", "").split(os.pathsep) if p != venv_bin
             )
         env["MUJOCO_GL"] = "egl"
-        env["PYTHONPATH"] = os.pathsep.join((_REPO_ROOT, _SRC_DIR))
+        env["PYTHONPATH"] = os.pathsep.join((_REPO_ROOT, _SRC_DIR, os.environ.get('OPENPI_AUTOSCALE_BASE_PYTHONPATH', '')))
         env_flag = "-p" if ("/" in spec.conda_env or os.path.isabs(spec.conda_env)) else "-n"
         cmd = ["conda", "run", "--no-capture-output", env_flag, spec.conda_env, *base_cmd]
     else:
@@ -203,10 +203,17 @@ class WorkerAgent:
         self._handles: dict[str, WorkerHandle] = {}
         self._restart_counts: dict[str, int] = {}
         self._stop = threading.Event()
+        import importlib
+        module = os.environ.get('OPENPI_WORKER_GOVERNOR')
+        self._governor = importlib.import_module(module).from_environment(self) if module else None
 
-    def _spawn(self, spec: WorkerSpec) -> None:
+    def _spawn(self, spec: WorkerSpec) -> bool:
         logger.info("agent: spawning worker %s on GPU %s", spec.worker_id, spec.gpu_id)
-        self._handles[spec.worker_id] = self._spawn_fn(spec, self._driver_host, self._driver_port)
+        handle = (self._governor.spawn(spec, self._spawn_fn, self._driver_host, self._driver_port)
+                  if self._governor is not None else self._spawn_fn(spec, self._driver_host, self._driver_port))
+        if handle is not None:
+            self._handles[spec.worker_id] = handle
+        return handle is not None
 
     def start(self) -> None:
         for spec in self._specs:
@@ -216,6 +223,8 @@ class WorkerAgent:
         """One supervision pass: respawn any worker whose process has exited."""
         if self._stop.is_set():
             return
+        if self._governor is not None:
+            self._governor.tick()
         for spec in self._specs:
             handle = self._handles.get(spec.worker_id)
             if handle is None or handle.poll() is not None:
@@ -226,11 +235,9 @@ class WorkerAgent:
                     if wait_fn is not None:
                         with contextlib.suppress(Exception):
                             wait_fn(timeout=5)
-                self._restart_counts[spec.worker_id] = self._restart_counts.get(spec.worker_id, 0) + 1
-                logger.warning(
-                    "agent: worker %s died; restart #%d", spec.worker_id, self._restart_counts[spec.worker_id]
-                )
-                self._spawn(spec)
+                if self._spawn(spec):
+                    self._restart_counts[spec.worker_id] = self._restart_counts.get(spec.worker_id, 0) + 1
+                    logger.warning("agent: worker %s restart #%d", spec.worker_id, self._restart_counts[spec.worker_id])
 
     def run(self) -> None:
         """Resident supervision loop until ``stop`` is called."""
@@ -252,6 +259,9 @@ class WorkerAgent:
                     os.killpg(os.getpgid(pid), signal.SIGTERM)
             with contextlib.suppress(Exception):
                 handle.terminate()
+        governor = getattr(self, "_governor", None)
+        if governor is not None and hasattr(governor, "close"):
+            governor.close()
 
     @property
     def restart_counts(self) -> dict[str, int]:

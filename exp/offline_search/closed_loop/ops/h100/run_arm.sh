@@ -1,21 +1,20 @@
 #!/bin/bash
 # run_arm.sh <suite> <arm> <servers> <server-workers> <out-dir> [extra run_gtp args]
-# timan108 side (pushed to /scratch/zixuans8/openpi_trace/os_cl/): run_gtp (driver + WorkerAgent in one process)
+# worker island: run_gtp (driver + WorkerAgent in one process)
 # against h100 servers; same recipe as exp/trace_dual/ops/run_group.sh. OSCL_EPISODES=<ep_idx,...> restricts
 # every task to those episode indices (smoke), via run_gtp_subset.py.
 set -uo pipefail
 SUITE=${1:?suite}; ARM=${2:?arm}; SERVERS=${3:?servers}; SW=${4:?server-workers}; OUT=${5:?out}
 shift 5
 R=/scratch/zixuans8/openpi_trace
-DEFAULT_WORKER_HOST=timan108
+DEFAULT_WORKER_HOST=timan107
 if [ "$(readlink -f "$0")" = /scratch/zixuans8/openpi_trace_h100/os_cl/run_arm.sh ]; then
   DEFAULT_WORKER_HOST=timan107
   [ "${WORKER_HOST:-timan107}" = timan107 ] || { echo "new island requires WORKER_HOST=timan107" >&2; exit 2; }
 fi
 case "${WORKER_HOST:-$DEFAULT_WORKER_HOST}" in
-  timan108) GPU_IDS=0,1,2,3; GPU_COUNT=4; WORKER_CAP=40 ;;
-  timan107) R=/scratch/zixuans8/openpi_trace_h100; GPU_IDS=0,1,2,3,4,5,6,7; GPU_COUNT=8; WORKER_CAP=64 ;;
-  *) echo "WORKER_HOST must be timan108 or timan107" >&2; exit 2 ;;
+  timan107) R=/scratch/zixuans8/openpi_trace_h100; GPU_IDS=0,1,2,3,4,5,6,7; GPU_COUNT=8 ;;
+  *) echo "WORKER_HOST must be timan107; timan108 is disabled" >&2; exit 2 ;;
 esac
 # Hold the lock in the driver shell and its run_gtp child for their entire lifetime.
 mkdir -p "$R/os_cl/locks"
@@ -23,8 +22,17 @@ exec 9>"$R/os_cl/locks/fleet.lock"
 flock -n 9 || exit 75
 export HOME=/home/zixuans8
 export LIBERO_CONFIG_PATH=$R/os_cl/libero
+if [ -n "${OPENPI_AUTOSCALE_OVERLAY:-}" ] && [ "$(cat "$OPENPI_AUTOSCALE_OVERLAY/exp/offline_search/rounds/r17/autoscale_1017/ENABLED" 2>/dev/null)" = on ]; then
+export OPENPI_WORKER_MEMORY_GUARD=1
+export OPENPI_WORKER_GOVERNOR=exp.offline_search.rounds.r17.autoscale_1017.legacy
+export OPENPI_AUTOSCALE_RUN="$OUT/autoscale"
+export OPENPI_AUTOSCALE_CAMPAIGN="${OPENPI_AUTOSCALE_CAMPAIGN:-$ARM}"
+else
+  unset OPENPI_WORKER_MEMORY_GUARD OPENPI_WORKER_GOVERNOR OPENPI_WORKER_OBSERVER OPENPI_AUTOSCALE_OVERLAY
+fi
 export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1
-export PYTHONPATH=$R/packages/openpi-client/src:$R/src:$R
+export OPENPI_AUTOSCALE_BASE_PYTHONPATH=$R/packages/openpi-client/src:$R/src:$R
+export PYTHONPATH=${OPENPI_AUTOSCALE_OVERLAY:+$OPENPI_AUTOSCALE_OVERLAY:$OPENPI_AUTOSCALE_OVERLAY/src:}$OPENPI_AUTOSCALE_BASE_PYTHONPATH
 export PATH=/scratch/zixuans8/dsp_bin:/usr/local/bin:/usr/bin:/bin
 PY=/scratch/zixuans8/openpi/.venv/bin/python
 MANIFEST=${OSCL_MANIFEST:-}
@@ -63,7 +71,7 @@ if [[ "$ARM" == *groot* ]] || grep -qi groot "$R/os_cl/cfg/$ARM.yaml" 2>/dev/nul
 echo "RUN_ARM_RESIZE arm=$ARM res=${RES[*]:-none}"
 W=0; for n in $(echo "$SW" | tr ',' ' '); do W=$((W+n)); done
 if [ -n "${OSCL_TASKS:-}" ] && [ -z "${OSCL_EPISODES:-}$MANIFEST" ]; then export OSCL_EPISODES=$(seq -s, 0 49); fi
-[ "$W" -le "$WORKER_CAP" ] && [ "$W" -gt 0 ] || { echo "worker cap: 1..$WORKER_CAP" >&2; exit 2; }
+[ "$W" -gt 0 ] || { echo "positive desired worker maximum required" >&2; exit 2; }
 ENTRY=("$R/os_cl/run_gtp_subset.py")
 case "${OSCL_INIT_POOL:-A}" in
   A) POOL_RECORD=exp/ablation_study/cache_size/config/apool_${SUITE}.yaml

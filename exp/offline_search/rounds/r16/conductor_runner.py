@@ -146,7 +146,11 @@ def _run(args):
     from exp.offline_search.closed_loop.ops.h100 import control
     global BASE_COMMAND
     group=read_group(args.group);root=Path(group['root'])
-    if not 1<=args.workers<=64:raise ValueError('Worker cap is 64')
+    from exp.offline_search.rounds.r17.autoscale_1017.switch import enabled
+    if args.workers is None:
+        from exp.offline_search.rounds.r17.autoscale_1017.defaults import physical_maximum
+        args.workers = physical_maximum('timan107') if enabled() else 64
+    if args.workers < 1:raise ValueError('Positive desired maximum required')
     if not 23100<=args.port<=23199:raise ValueError('Use the local public forwarded port range')
     if (root/'DONE.json').exists():
         if json.loads((root/'DONE.json').read_bytes())['group_sha256']!=group['group_sha256']:raise ValueError('Changed DONE group')
@@ -164,6 +168,10 @@ def _run(args):
         raise ValueError('Use an isolated R16 conductor worker island')
     # Fail before starting models if the old line owns the worker fleet.
     control.remote('timan107',['flock','-n','/scratch/zixuans8/openpi_trace_h100/os_cl/locks/fleet.lock','true'])
+    if enabled() and not os.environ.get('OPENPI_AUTOSCALE_REMOTE'):
+        from exp.offline_search.rounds.r17.autoscale_1017.legacy_release import stage as stage_autoscale
+        prepared_autoscale = stage_autoscale(root, 'timan107', pipeline='R16', maximum=args.workers, base=remote_repo)
+        os.environ['OPENPI_AUTOSCALE_REMOTE'] = prepared_autoscale['remote']
     specs=prepare_servers(group,args)
     BASE_COMMAND=local_server.command;local_server.command=resident_command
     try:
@@ -189,7 +197,17 @@ def _run(args):
              OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='1',
              PYTHONPATH=remote_repo+'/packages/openpi-client/src:'+remote_repo+'/src:'+remote_repo,
              PYTHONDONTWRITEBYTECODE='1',
+             OPENPI_AUTOSCALE_CAMPAIGN=group['group_sha256'],
+             OPENPI_AUTOSCALE_MODEL=group['model'],
+             OPENPI_AUTOSCALE_RUN=str(Path(lease_path).parent/'autoscale'),
              PATH='/scratch/zixuans8/dsp_bin:/usr/local/bin:/usr/bin:/bin')
+    if not enabled():
+        for key in list(env):
+            if key.startswith('OPENPI_AUTOSCALE'):env.pop(key)
+    overlay = os.environ.get('OPENPI_AUTOSCALE_REMOTE') if enabled() else None
+    if overlay:
+        env['OPENPI_AUTOSCALE_BASE_PYTHONPATH'] = env['PYTHONPATH']
+        env['PYTHONPATH'] = overlay + ':' + overlay + '/src:' + env['PYTHONPATH']
     def renew(active):
         script=('import json,os,time;from pathlib import Path;'
                 'p=Path('+repr(lease_path)+');p.parent.mkdir(parents=True,exist_ok=True);'
@@ -253,7 +271,7 @@ def run(args):
 def main():
     ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('action',choices=['run'])
     ap.add_argument('--group',type=Path,required=True);ap.add_argument('--agent-island',required=True)
-    ap.add_argument('--workers',type=int,default=64);ap.add_argument('--port',type=int,default=23179)
+    ap.add_argument('--workers',type=int,default=None);ap.add_argument('--port',type=int,default=23179)
     ap.add_argument('--ports',type=lambda s:list(map(int,s.split(','))))
     ap.add_argument('--groot-servers-per-suite',type=int,
                     help='Identical processes per checkpoint (default: 2; isolated smoke: 1)')

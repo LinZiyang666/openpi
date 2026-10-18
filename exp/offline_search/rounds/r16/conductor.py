@@ -478,6 +478,10 @@ def import_reuse(group, journal_path):
 
 
 def run_driver(args):
+    from exp.offline_search.rounds.r17.autoscale_1017.switch import enabled
+    if enabled():
+        os.environ.update(OPENPI_WORKER_MEMORY_GUARD='1',
+                          OPENPI_WORKER_GOVERNOR='exp.offline_search.rounds.r17.autoscale_1017.legacy')
     group=read_group(args.group); root=Path(group['root'])
     from .analyze import Reader,verify
     rr=Reader();verify(rr);rr.stable()
@@ -535,7 +539,17 @@ def run_agent(args):
     pool='B' if args.phase=='dev' else 'A'
     specs=[]
     servers=[item.partition('=')[0] for item in args.servers.split(',')]
-    if not 1<=args.workers<=64: raise ValueError('Worker cap is 64')
+    if args.workers is None:
+        from exp.offline_search.rounds.r17.autoscale_1017.defaults import physical_maximum
+        from exp.offline_search.rounds.r17.autoscale_1017.switch import enabled
+        args.workers = physical_maximum('timan107') if enabled() else 64
+    if args.workers < 1: raise ValueError('Positive desired worker maximum required')
+    from exp.offline_search.rounds.r17.autoscale_1017.switch import enabled
+    if enabled():
+        os.environ.update(OPENPI_WORKER_MEMORY_GUARD='1',
+                          OPENPI_WORKER_GOVERNOR='exp.offline_search.rounds.r17.autoscale_1017.legacy',
+                          OPENPI_AUTOSCALE_MODEL=args.model)
+        os.environ.setdefault('OPENPI_AUTOSCALE_RUN',str(Path('/scratch/zixuans8/mw_r17/autoscale_legacy')/str(os.getpid())))
     lock_path=Path('/scratch/zixuans8/openpi_trace_h100/os_cl/locks/fleet.lock')
     # Shares the OLD fleet lock read-only in meaning: fail if that line still
     # owns the workers; never terminate it or update its code/queue.
@@ -584,7 +598,7 @@ def main():
     p.add_argument('--port',type=int,default=23179);p.add_argument('--smoke-episodes',type=int)
     p=sub.add_parser('agent');p.add_argument('--model',choices=('pi05','groot'),required=True)
     p.add_argument('--phase',choices=('dev','test'),required=True);p.add_argument('--servers',required=True)
-    p.add_argument('--driver-host',required=True);p.add_argument('--port',type=int,default=23179);p.add_argument('--workers',type=int,default=64)
+    p.add_argument('--driver-host',required=True);p.add_argument('--port',type=int,default=23179);p.add_argument('--workers',type=int,default=None,help='Desired maximum; node memory governor chooses active count')
     p.add_argument('--lease-stdin',action='store_true')
     p.add_argument('--lease-file',type=Path);p.add_argument('--lease-token');p.add_argument('--lease-timeout',type=int,default=90)
     args=ap.parse_args()

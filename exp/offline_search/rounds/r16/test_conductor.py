@@ -270,7 +270,8 @@ def test_detached_agent_lease_expires_and_rejects_old_controller(tmp_path):
 
 
 @pytest.mark.parametrize('interrupted',[False,True])
-def test_coordinator_owned_lifecycle_and_lease_without_launches(tmp_path,monkeypatch,interrupted):
+@pytest.mark.parametrize('dynamic',[False,True])
+def test_coordinator_owned_lifecycle_and_lease_without_launches(tmp_path,monkeypatch,interrupted,dynamic):
     """All remote/GPU/process operations are replaced; exercise the real control flow."""
     from . import conductor_runner as runner
     from exp.offline_search.closed_loop.ops.h100 import local_server,control
@@ -280,6 +281,12 @@ def test_coordinator_owned_lifecycle_and_lease_without_launches(tmp_path,monkeyp
                             plugin_args=['--os-fit-artifact','/synthetic/fit'],yaml='/synthetic/yaml')
     monkeypatch.setattr(runner,'read_group',lambda path:group)
     operations={'remote':[],'start':[],'stop':[]}
+    from exp.offline_search.rounds.r17.autoscale_1017 import legacy_release, switch
+    monkeypatch.setattr(switch, 'enabled', lambda: dynamic)
+    monkeypatch.delenv('OPENPI_AUTOSCALE_REMOTE', raising=False)
+    monkeypatch.setenv('OPENPI_AUTOSCALE_REMOTE', '')
+    staged=[]
+    monkeypatch.setattr(legacy_release, 'stage', lambda *a, **kw: staged.append((a,kw)) or dict(remote='/sealed/new_ops'))
     monkeypatch.setattr(control,'remote',lambda host,argv,**kw:operations['remote'].append(argv) or '')
     monkeypatch.setattr(local_server,'choose_ports',lambda **kw:[23170,23171,23172])
     monkeypatch.setattr(local_server,'status',lambda spec:dict(running=True,listening=True,dead=False))
@@ -303,6 +310,12 @@ def test_coordinator_owned_lifecycle_and_lease_without_launches(tmp_path,monkeyp
         if argv[:2]==['bash','-c']:
             assert 'nohup env' in argv[2] and '--lease-file' in argv[2] and '--lease-token' in argv[2]
             assert str(args.agent_island) in argv[2]
+            if dynamic:
+                assert 'OPENPI_AUTOSCALE_CAMPAIGN='+group['group_sha256'] in argv[2]
+                assert '/autoscale' in argv[2] and '/sealed/new_ops' in argv[2]
+            else:
+                assert 'OPENPI_AUTOSCALE' not in argv[2] and '/sealed/new_ops' not in argv[2]
+    assert bool(staged) is dynamic
     assert any('active=False' in str(argv) for argv in operations['remote'])
     if interrupted:
         assert operations['start'][:3]==operations['start'][3:] # surviving launch receipts stay identical

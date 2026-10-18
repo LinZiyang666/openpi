@@ -11,11 +11,18 @@ from types import SimpleNamespace
 import pytest
 
 from exp.offline_search.closed_loop.ops.h100 import control, node
+from exp.offline_search.closed_loop.ops.h100.test_h100 import autoscale_stage
+
+
+@pytest.fixture(autouse=True)
+def second_fake_fleet(monkeypatch,tmp_path):
+    # Lock/isolation tests need two identities, never an actual second fleet.
+    monkeypatch.setitem(control.FLEETS,'timan1',(tmp_path/'gpu2',(2,),83))
 
 
 def test_two_fleets_run_concurrently_and_maintenance_stays_exclusive(tmp_path, monkeypatch):
     monkeypatch.setattr(control, "CHAIN_LOCK", tmp_path / "h100_chain.lock")
-    monkeypatch.setenv("WORKER_HOST", "timan108")
+    monkeypatch.setenv("WORKER_HOST", "timan1")
     with control.fleet_lock(tmp_path / "A"):
         monkeypatch.setenv("WORKER_HOST", "timan107")
         with control.fleet_lock(tmp_path / "B"):
@@ -28,7 +35,7 @@ def test_two_fleets_run_concurrently_and_maintenance_stays_exclusive(tmp_path, m
         # Idle B's isolated worker setup remains possible while A holds its gate.
         monkeypatch.setattr(control, "_setup", lambda **kw: kw)
         control.setup(worker_only=True)
-        monkeypatch.setenv("WORKER_HOST", "timan108")
+        monkeypatch.setenv("WORKER_HOST", "timan1")
         with pytest.raises(RuntimeError, match="H100_CHAIN_BUSY"):
             control.setup(worker_only=True)
 
@@ -61,7 +68,7 @@ def test_chain_B_contacts_only_t107_and_h100(tmp_path, monkeypatch):
 
 def test_wrong_synced_fleet_refused_before_remote_calls(tmp_path, monkeypatch):
     root, events, _ = mock_chain(tmp_path, monkeypatch)
-    monkeypatch.setenv("WORKER_HOST", "timan107")
+    monkeypatch.setenv("WORKER_HOST", "timan1")
     with pytest.raises(RuntimeError, match="synced worker host differs"):
         control.chain(root, ["first"])
     assert events == []
@@ -69,14 +76,14 @@ def test_wrong_synced_fleet_refused_before_remote_calls(tmp_path, monkeypatch):
 
 def test_live_legacy_A_allows_B_but_refuses_same_host_and_tag(tmp_path, monkeypatch):
     monkeypatch.setattr(control, "CHAIN_LOCK", tmp_path / "h100_chain.lock")
-    monkeypatch.setattr(control, "legacy_chains", lambda **kw: [dict(root=tmp_path / "A", worker_host="timan108")])
+    monkeypatch.setattr(control, "legacy_chains", lambda **kw: [dict(root=tmp_path / "A", worker_host="timan1")])
     monkeypatch.setenv("WORKER_HOST", "timan107")
     with control.fleet_lock(tmp_path / "B"):
         pass
     with pytest.raises(RuntimeError, match="H100_CHAIN_BUSY"):
         with control.fleet_lock(tmp_path / "elsewhere/A"):
             pass
-    monkeypatch.setenv("WORKER_HOST", "timan108")
+    monkeypatch.setenv("WORKER_HOST", "timan1")
     with pytest.raises(RuntimeError, match="H100_CHAIN_BUSY"):
         with control.fleet_lock(tmp_path / "B"):
             pass
@@ -111,7 +118,7 @@ def test_legacy_lock_holder_authentication_and_fail_closed(tmp_path, monkeypatch
         control.legacy_chains()
 
 
-@pytest.mark.parametrize("host", ["timan108", "timan107"])
+@pytest.mark.parametrize("host", ["timan107"])
 def test_rpc_host_island_and_allowed_staging(tmp_path, monkeypatch, host):
     monkeypatch.setattr(control, "_RPC_SPECS", set())
     monkeypatch.setattr(control, "_STAGING_READY", set())
@@ -204,9 +211,9 @@ def test_concurrent_sync_B_while_A_uses_shared_assets(tmp_path, monkeypatch):
     calls = []
     monkeypatch.setattr(control, "rpc", lambda host, action, spec, **kw: calls.append((host, action, spec)) or "OK")
     monkeypatch.setattr(control, "bundle", lambda host, dest, pairs: calls.append((host, "bundle", dest)))
-    monkeypatch.setenv("WORKER_HOST", "timan108")
+    monkeypatch.setenv("WORKER_HOST", "timan1")
     with control.fleet_lock(a):
-        monkeypatch.setattr(control, "legacy_chains", lambda **kw: [dict(root=a, worker_host="timan108")])
+        monkeypatch.setattr(control, "legacy_chains", lambda **kw: [dict(root=a, worker_host="timan1")])
         monkeypatch.setenv("WORKER_HOST", "timan107")
         control.sync(b, ["sample"], concurrent=True)
         with pytest.raises(RuntimeError, match="H100_CHAIN_BUSY"):
@@ -222,7 +229,8 @@ def test_old_launch_receipts_route_abort_collection_to_t108(tmp_path, monkeypatc
     path.parent.mkdir(parents=True)
     path.write_text(json.dumps(dict(driver={})))
     monkeypatch.setenv("WORKER_HOST", "timan107")
-    assert control.launch_host(tmp_path, "arm") == "timan108"
+    with pytest.raises(ValueError,match="worker host"):
+        control.launch_host(tmp_path, "arm")
     path.write_text(json.dumps(dict(worker_host="timan107")))
     assert control.launch_host(tmp_path, "arm") == "timan107"
 
@@ -248,8 +256,8 @@ def test_another_chains_port_is_refused_before_launch(tmp_path, monkeypatch):
     assert not list((tmp_path / "runs").rglob("*.owner.json"))
 
 
-@pytest.mark.parametrize("total,accepted", [(64, True), (65, False)])
-def test_new_island_node_enforces_64_worker_cap(tmp_path, monkeypatch, total, accepted):
+@pytest.mark.parametrize("total,accepted", [(64, True), (65, True), (250, True), (0, False)])
+def test_new_island_node_treats_workers_as_desired_maximum(tmp_path, monkeypatch, total, accepted):
     monkeypatch.setattr(node, "ISLAND", tmp_path)
     monkeypatch.setattr(node, "T107_ISLAND", tmp_path)
     monkeypatch.setattr(node, "session_exists", lambda receipt: False)
@@ -263,7 +271,7 @@ def test_new_island_node_enforces_64_worker_cap(tmp_path, monkeypatch, total, ac
         job = json.loads((tmp_path / "os_cl/runs/B/driver.job.json").read_text())
         assert job["env"]["WORKER_HOST"] == "timan107"
     else:
-        with pytest.raises(ValueError, match="1..64"):
+        with pytest.raises(ValueError, match="positive desired maxima"):
             node.launch(spec)
 
 
@@ -436,13 +444,13 @@ def test_rpc_reuses_content_addressed_remote_spec(monkeypatch, exists):
 
 
 def test_timan_push_merges_finalize_and_tolerates_duplicate_exec(tmp_path, monkeypatch):
-    monkeypatch.setattr(control, "T108_STAGE", tmp_path / "stage")
+    monkeypatch.setattr(control, "T107_STAGE", tmp_path / "stage")
     monkeypatch.setattr(control, "_STAGING_READY", set())
     source, dest = tmp_path / "local", tmp_path / "island/cfg/spec.json"
     source.write_bytes(b"spec")
     commands = []
     def remote(machine, cmd, timeout=300):
-        assert machine == "timan108"
+        assert machine == "timan107"
         commands.append(cmd)
         # Execute only local mkdir/finalize commands twice, modeling h100's quirk.
         for _ in range(2):
@@ -454,8 +462,8 @@ def test_timan_push_merges_finalize_and_tolerates_duplicate_exec(tmp_path, monke
         return ""
     monkeypatch.setattr(control, "remote", remote)
     monkeypatch.setattr(control, "run", run)
-    control.push("timan108", source, dest)
-    control.push("timan108", source, dest)
+    control.push("timan107", source, dest)
+    control.push("timan107", source, dest)
     assert dest.read_bytes() == b"spec"
     assert len(commands) == 3  # staging mkdir once, one finalize exec per transfer
     assert all("mkdir -p" in c[-1] and "cp " in c[-1] and "rm -f" in c[-1] for c in commands[1:])
@@ -468,7 +476,9 @@ def mock_chain(tmp_path, monkeypatch, names=("first",), polls=None, counts=None,
     rows = [dict(arm=arm, model="pi05", suite="libero_spatial", mode="stock", yaml="cfg.yaml") for arm in names]
     (root / "arms.json").write_text(json.dumps(rows))
     (root / "h100_sync").mkdir()
-    (root / "h100_sync/synced.json").write_text(json.dumps(dict(arms=rows, arms_sha256=node.sha(root / "arms.json"))))
+    (root / "h100_sync/synced.json").write_text(json.dumps(dict(arms=rows, arms_sha256=node.sha(root / "arms.json"),worker_host="timan107")))
+    (root/"LEGACY_AUTOSCALE.json").write_text(json.dumps(dict(remote="/sealed/autoscale",mode="dynamic",maximum=1)))
+    monkeypatch.setenv("WORKER_HOST","timan107")
     monkeypatch.setattr(control, "CHAIN_LOCK", tmp_path / "runs/h100_chain.lock")
     monkeypatch.setenv("PORTS", "23210")
     monkeypatch.setenv("WPS", "1")
@@ -659,6 +669,7 @@ def test_maintenance_refuses_active_global_or_legacy_chain(tmp_path, monkeypatch
     root = tmp_path / "runs/r08"
     lockpath = root / "state/h100_chain.lock" if legacy else tmp_path / "runs/h100_chain.lock"
     lockpath.parent.mkdir(parents=True)
+    monkeypatch.setenv("WORKER_HOST","timan107")
     monkeypatch.setattr(control, "CHAIN_LOCK", tmp_path / "runs/h100_chain.lock")
     monkeypatch.setattr(control, "_setup", lambda: pytest.fail("setup must not mutate"))
     monkeypatch.setattr(control, "_sync", lambda *a, **k: pytest.fail("sync must not mutate"))
@@ -752,7 +763,7 @@ def test_driver_launch_supervises_bash_without_outer_flock(tmp_path, monkeypatch
 def test_run_arm_lock_refuses_before_any_driver_work(tmp_path):
     source = Path(node.__file__).with_name("run_arm.sh").read_text()
     script = tmp_path / "run_arm.sh"
-    script.write_text(source.replace("R=/scratch/zixuans8/openpi_trace", f"R={tmp_path}"))
+    script.write_text(source.replace("R=/scratch/zixuans8/openpi_trace_h100", f"R={tmp_path}").replace("R=/scratch/zixuans8/openpi_trace", f"R={tmp_path}"))
     lockpath = tmp_path / "os_cl/locks/fleet.lock"
     lockpath.parent.mkdir(parents=True)
     with open(lockpath, "a") as held:

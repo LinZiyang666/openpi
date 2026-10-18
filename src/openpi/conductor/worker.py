@@ -98,6 +98,17 @@ class WorkerLoop:
         # callers that predate the field.
         self._probe = probe
         self._probe_sent = False
+        self._observer = None
+        import importlib, os
+        observer = os.environ.get('OPENPI_WORKER_OBSERVER')
+        if observer:
+            module, name = observer.split(':', 1)
+            self._observer = getattr(importlib.import_module(module), name)(worker_id, runner)
+            # The supervisor owns a stable slot; each process instance has a
+            # distinct census identity. Reconnects reuse this instance identity.
+            # Keep the observer slot id unchanged for boundary retirement.
+            import uuid
+            self._worker_id = f"{worker_id}__generation_{uuid.uuid4().hex}"
 
     # -- one request/response round against the driver --
 
@@ -108,11 +119,15 @@ class WorkerLoop:
         payload: dict = {"worker_id": self._worker_id, "server_host": self._server_key}
         if self._probe is not None and not self._probe_sent:
             payload["probe"] = self._probe
+        if self._observer is not None:
+            payload['_autoscale'] = self._observer.payload()
         _proto.send_message(sock, _proto.MSG_PULL, payload)
         # Sent once per connection: the driver keys its census by connection, and
         # a reconnect after a transport error must re-introduce the worker.
         self._probe_sent = True
         msg_type, payload = _proto.recv_message(sock)
+        if self._observer is not None:
+            self._observer.response(payload)
         if msg_type == _proto.MSG_SHUTDOWN:
             return None
         if msg_type != _proto.MSG_ASSIGN:
@@ -122,7 +137,10 @@ class WorkerLoop:
         return _proto.task_from_wire(payload["task"])
 
     def _report_result(self, sock: socket.socket, result: _task.EpisodeResult) -> None:
-        _proto.send_message(sock, _proto.MSG_REPORT_RESULT, _proto.result_to_wire(result))
+        payload = _proto.result_to_wire(result)
+        if self._observer is not None:
+            payload['_autoscale_episode'] = self._observer.result()
+        _proto.send_message(sock, _proto.MSG_REPORT_RESULT, payload)
 
     def _run_one(self, sock: socket.socket, task: _task.EpisodeTask) -> None:
         def report(step: int, actions_per_s: float, hit_type: str | None) -> None:
@@ -133,6 +151,7 @@ class WorkerLoop:
                     sock,
                     _proto.MSG_REPORT_PROGRESS,
                     {
+                        "_autoscale": self._observer.payload() if self._observer is not None else {},
                         "worker_id": self._worker_id,
                         "task_uid": task.task_uid,
                         "step": step,
@@ -146,6 +165,8 @@ class WorkerLoop:
         # utilisation figure that silently drops those intervals reads high for
         # exactly the run that went worst.
         started = time.monotonic()
+        if self._observer is not None:
+            self._observer.begin(task)
         try:
             result = self._runner.run(task, report)
         except Exception as exc:
@@ -163,11 +184,13 @@ class WorkerLoop:
             duration_s=result.duration_s if result.duration_s is not None else elapsed,
         )
         self._report_result(sock, result)
+        if self._observer is not None:
+            self._observer.recycle()
 
     def run_forever(self, stop: Callable[[], bool] | None = None) -> None:
         """Main loop. ``stop`` is an optional predicate to break the loop."""
         backoff = 1.0
-        should_stop = stop or (lambda: False)
+        should_stop = lambda: bool(stop and stop()) or bool(self._observer and self._observer.stop_requested())
         try:
             while not should_stop():
                 try:

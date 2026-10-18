@@ -25,7 +25,7 @@ from exp.offline_search.closed_loop.devset import root_pool, arm_contract, valid
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[4]
-REMOTE_NODE = {"h100": str(BASE / "node.py"), "timan108": str(ISLAND / "os_cl/node.py")}
+REMOTE_NODE = {"h100": str(BASE / "node.py")}
 REMOTE_NODE["timan107"] = str(island("timan107") / "os_cl/node.py")
 PY = REPO / ".venv/bin/python"
 T108_STAGE = Path("/srv/local/zixuans8/oscl_sb_stage")  # md0, same disk as /scratch; tether allows /srv
@@ -68,6 +68,7 @@ def run(cmd, timeout=300, attempts=None, **kw):
 
 
 def remote(node, cmd, timeout=300, attempts=None):
+    if node == 'timan108':raise ValueError('timan108 is disabled; no probe allowed')
     if node == 'local':
         return run(cmd, timeout=timeout, attempts=1)
     return run(["tether", "exec", node, "--", "bash", "-c", shlex.join(list(map(str, cmd)))],
@@ -75,6 +76,7 @@ def remote(node, cmd, timeout=300, attempts=None):
 
 
 def push(node, local, destination):
+    if node == 'timan108':raise ValueError('timan108 is disabled; no transfer allowed')
     if node in FLEETS:
         stage_root = T108_STAGE if node == "timan108" else T107_STAGE
         if node not in _STAGING_READY:
@@ -93,6 +95,7 @@ def push(node, local, destination):
 
 
 def rpc(node, action, spec, timeout=300, attempts=None):
+    if node == 'timan108':raise ValueError('timan108 is disabled; no RPC allowed')
     if node == 'local':
         from . import local_server
         return local_server.rpc(action, spec)
@@ -115,7 +118,8 @@ def rpc(node, action, spec, timeout=300, attempts=None):
     # Concurrent sync is the only new h100 RPC. Its separately deployed helper
     # leaves A's executable helper and application snapshot completely intact.
     helper = str(BASE / "node_sb3.py") if node == "h100" and action == "pull-new" else REMOTE_NODE[node]
-    cmd = ["python3", helper, action, target]
+    from exp.offline_search.rounds.r17.autoscale_1017.legacy_release import rpc_command
+    cmd = rpc_command(helper, action, target, spec)
     out = remote(node, cmd, timeout) if attempts is None else remote(node, cmd, timeout, attempts=attempts)
     return out
 
@@ -155,6 +159,10 @@ def source_files():
                 # Results are research artifacts, not executable source dependencies.
                 if root == "exp/offline_search" and p.suffix != ".py":
                     continue
+                relative = p.relative_to(REPO)
+                autoscale = Path('exp/offline_search/rounds/r17/autoscale_1017')
+                if relative.is_relative_to(autoscale) and len(relative.relative_to(autoscale).parts) > 1:
+                    continue  # CPU receipts, temporary releases and baseline test mirrors
                 result[p.relative_to(REPO)] = p
     # Follow static absolute experiment imports, rather than copying unrelated research trees.
     pending = list(result.values())
@@ -258,7 +266,7 @@ def legacy_chains(ignore_pid=None):
             # Read just the topology selector; never print process environments.
             env = Path(f"/proc/{pid}/environ").read_bytes().split(b"\0")
             host = next((v.split(b"=", 1)[1].decode() for v in env if v.startswith(b"WORKER_HOST=")), "timan108")
-            if host not in FLEETS:
+            if host not in FLEETS and host != 'timan108':
                 raise RuntimeError(f"H100_CHAIN_BUSY unknown fleet pid={pid}")
             found = dict(root=root, worker_host=host)
             server = next((v.split(b"=", 1)[1].decode() for v in env if v.startswith(b"SERVER_HOST=")), "h100")
@@ -390,6 +398,9 @@ def daemon(work, files):
     # Probe bind first and let rsync recheck atomically. Never stop an existing listener.
     import socket
     with socket.socket() as s:
+        # rsync binds with SO_REUSEADDR; match it so TIME_WAIT from the previous
+        # arm's transfer does not fail the probe (a live listener still fails).
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         s.bind(("0.0.0.0", port))
     config = work / "rsyncd.conf"
     # Non-root daemon defaults retain its user/groups; explicit uid/gid tries
@@ -450,6 +461,14 @@ def _sync(runroot, names, plan_only=False, concurrent=False, active=(), workdir=
         for item in plan["files"]:
             if item["rel"] in protected and item["sha256"] != protected[item["rel"]]:
                 raise RuntimeError("ACTIVE_ASSET_CONFLICT " + item["rel"])
+        from exp.offline_search.rounds.r17.autoscale_1017.legacy_release import stage as stage_autoscale
+        desired = FLEETS[worker_host()][2]
+        if 'WPS' in os.environ:
+            autoscale_ports, autoscale_wps = ports_workers()
+            desired = autoscale_wps * len(autoscale_ports)
+        desired = int(os.environ.get('OPENPI_DESIRED_MAXIMUM', desired))
+        if desired < 1:raise ValueError('positive desired maximum required')
+        stage_autoscale(runroot, worker_host(), pipeline='R15', maximum=desired, base=str(island()))
         if not local:
             with daemon(work, plan["files"]) as url:
                 spec = dict(dest=str(BASE), files=plan["files"], reserve_files=plan["files"], url=url)
@@ -591,16 +610,16 @@ def ports_workers():
         from .local_server import choose_ports
         requested = [int(p) for p in os.environ['PORTS'].split(',')] if 'PORTS' in os.environ else None
         ports = choose_ports(int(os.environ.get('LOCAL_SERVER_COUNT', '4')), requested=requested)
-        wps = int(os.environ.get('WPS', '8'))
-        if wps < 1 or wps * len(ports) > cap:
-            raise ValueError(f'WPS * number of ports must be 1..{cap}')
+        wps = int(os.environ.get('WPS', str(max(1, cap//len(ports)))))
+        if wps < 1:
+            raise ValueError('positive desired maximum required')
         return ports, wps
     ports = [int(p) for p in os.environ["PORTS"].split(",")]
-    wps = int(os.environ.get("WPS", "8"))
+    wps = int(os.environ.get("WPS", str(max(1, cap//len(ports)))))
     if len(set(ports)) != len(ports) or any(not 23200 <= p <= 23299 for p in ports):
         raise ValueError("PORTS must be distinct ports in 23200..23299")
-    if wps < 1 or wps * len(ports) > cap:
-        raise ValueError(f"WPS * number of ports must be 1..{cap}")
+    if wps < 1:
+        raise ValueError('positive desired maximum required')
     return ports, wps
 
 
@@ -807,6 +826,12 @@ def chain(runroot, names):
                     env.update(OSCL_INIT_POOL='B', OSCL_POOL_CONTRACT=remote_contract,
                                OSCL_POOL_CONTRACT_SHA256=sha(contract_path))
                 env.update(execution_env(row))
+                from exp.offline_search.rounds.r17.autoscale_1017.switch import enabled
+                autoscale = json.loads((root/'LEGACY_AUTOSCALE.json').read_text()) if enabled() else None
+                if autoscale:
+                    env.update(OPENPI_AUTOSCALE_OVERLAY=autoscale['remote'], OPENPI_WORKER_AUTOSCALE=autoscale['mode'],
+                               OPENPI_AUTOSCALE_CAMPAIGN=root.name+':'+arm, OPENPI_AUTOSCALE_MODEL=row['model'],
+                               OPENPI_AUTOSCALE_NODE_CONFIG=json.dumps(autoscale.get('node_config', {})))
                 if manifest:
                     saved = dest / "manifest.json"
                     saved.write_bytes(Path(manifest).read_bytes())
@@ -820,7 +845,7 @@ def chain(runroot, names):
                 (dest / "selection.json").write_text(json.dumps(selection_data))
                 driver = dict(role="driver", out=str(worker_island / "os_cl/runs" / root.name / arm), arm=arm,
                               suite=row["suite"], servers=[endpoint(p, server) for p in ports],
-                              workers=[wps] * len(ports), env=env)
+                              workers=([autoscale['maximum']//len(ports) + (i < autoscale['maximum']%len(ports)) for i in range(len(ports))] if autoscale else [wps]*len(ports)), env=env)
                 if host != "timan108":
                     env["WORKER_HOST"] = host
                 specs = [server_spec(root, row, p) for p in ports]

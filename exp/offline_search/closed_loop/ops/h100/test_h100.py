@@ -14,9 +14,37 @@ from exp.offline_search.closed_loop.ops.remote import count
 from exp.offline_search.closed_loop.ops.h100.fleet import FLEETS, island, worker_host
 
 
+@pytest.fixture(autouse=True)
+def autoscale_stage(monkeypatch):
+    """Legacy transport tests mock the new immutable-release staging boundary."""
+    from exp.offline_search.rounds.r17.autoscale_1017 import legacy_release
+    def stage(root, host, **kwargs):
+        record=dict(remote='/sealed/autoscale',mode='dynamic',maximum=kwargs['maximum'])
+        (Path(root)/'LEGACY_AUTOSCALE.json').write_text(json.dumps(record))
+        return record
+    monkeypatch.setattr(legacy_release,'stage',stage)
+
+
+def test_disabled_worker_rejected_before_any_transfer_or_rpc(monkeypatch):
+    monkeypatch.setattr(control,'run',lambda *a,**kw:pytest.fail('disabled node contacted'))
+    for call in (lambda:control.remote('timan108',[]),
+                 lambda:control.push('timan108','source','dest'),
+                 lambda:control.rpc('timan108','status',{})):
+        with pytest.raises(ValueError,match='disabled'):call()
+
+
+def test_source_snapshot_excludes_autoscale_verification_trees(tmp_path,monkeypatch):
+    monkeypatch.setattr(control,'REPO',tmp_path)
+    monkeypatch.setattr(control,'HERE',tmp_path)
+    root=tmp_path/'exp/offline_search/rounds/r17/autoscale_1017'
+    for name in ('legacy.py','baseline_02/exp/science.py','tests/tmp/worker.py','regression/run/module.py'):
+        path=root/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_text('VALUE = 1\n')
+    names=[str(relative) for _,relative in control.source_files() if relative.suffix=='.py']
+    assert names==['exp/offline_search/rounds/r17/autoscale_1017/legacy.py']
+
+
 @pytest.mark.parametrize("host,cap,gpus,path", [
-    ("timan108", 40, 4, "/scratch/zixuans8/openpi_trace"),
-    ("timan107", 64, 8, "/scratch/zixuans8/openpi_trace_h100"),
+    ("timan107", 104, 8, "/scratch/zixuans8/openpi_trace_h100"),
 ])
 def test_fleet_selection_paths_and_caps(monkeypatch, host, cap, gpus, path):
     monkeypatch.setenv("WORKER_HOST", host)
@@ -27,19 +55,20 @@ def test_fleet_selection_paths_and_caps(monkeypatch, host, cap, gpus, path):
     monkeypatch.setenv("WPS", str(cap))
     assert control.ports_workers() == ([23220], cap)
     monkeypatch.setenv("WPS", str(cap + 1))
-    with pytest.raises(ValueError, match=f"1..{cap}"):
-        control.ports_workers()
+    assert control.ports_workers() == ([23220], cap+1)
 
 
 def test_fleet_default_and_invalid_host(monkeypatch):
     monkeypatch.delenv("WORKER_HOST", raising=False)
-    assert worker_host() == "timan108"
+    assert worker_host() == "timan107"
+    monkeypatch.setenv("WORKER_HOST", "timan108")
+    with pytest.raises(ValueError, match="disabled"):worker_host()
     monkeypatch.setenv("WORKER_HOST", "h100")
     with pytest.raises(ValueError, match="WORKER_HOST"):
         control.ports_workers()
 
 
-@pytest.mark.parametrize("host,gpus,cap", [("timan108", "0,1,2,3", 40), ("timan107", "0,1,2,3,4,5,6,7", 64)])
+@pytest.mark.parametrize("host,gpus,cap", [("timan107", "0,1,2,3,4,5,6,7", 104)])
 def test_run_arm_uses_host_gpu_cycle_and_cap(tmp_path, host, gpus, cap):
     fake = tmp_path / "python"
     fake.write_text('#!/bin/bash\nif [ "$1" = - ]; then echo "5 default"; else printf "%s\\n" "$@"; fi\n')
@@ -59,7 +88,7 @@ def test_run_arm_uses_host_gpu_cycle_and_cap(tmp_path, host, gpus, cap):
     assert args[args.index("--workers") + 1] == str(cap)
     result = subprocess.run(["bash", str(script), "libero_spatial", "sample", "host:23220", str(cap + 1), str(tmp_path / "out")],
                             env=env, capture_output=True, text=True)
-    assert result.returncode == 2 and f"worker cap: 1..{cap}" in result.stderr
+    assert result.returncode == 0 and str(cap+1) in result.stdout
 
 
 def test_worker_only_setup_never_contacts_h100_or_other_fleet(tmp_path, monkeypatch):
@@ -197,8 +226,10 @@ def test_worker_cap_and_port_validation(monkeypatch):
     monkeypatch.setenv("WPS", "10")
     assert control.ports_workers() == ([23210, 23211, 23212, 23213], 10)
     monkeypatch.setenv("WPS", "11")
-    with pytest.raises(ValueError, match="1..40"):
-        control.ports_workers()
+    assert control.ports_workers()[1] == 11
+    monkeypatch.setenv("WPS", "0")
+    with pytest.raises(ValueError, match="positive"):control.ports_workers()
+    monkeypatch.setenv("WPS", "11")
     monkeypatch.setenv("PORTS", "23198")
     with pytest.raises(ValueError, match="23200"):
         control.ports_workers()
@@ -341,7 +372,9 @@ def test_chain_resume_markers_and_collection_failure(tmp_path, monkeypatch, coll
     row = dict(arm="sample", model="pi05", suite="libero_spatial", mode="stock", yaml="cfg.yaml")
     (root / "arms.json").write_text(json.dumps([row]))
     (root / "h100_sync").mkdir()
-    (root / "h100_sync/synced.json").write_text(json.dumps(dict(arms=[row], arms_sha256=node.sha(root / "arms.json"))))
+    (root / "h100_sync/synced.json").write_text(json.dumps(dict(arms=[row], arms_sha256=node.sha(root / "arms.json"), worker_host="timan107")))
+    (root/"LEGACY_AUTOSCALE.json").write_text(json.dumps(dict(remote="/sealed/new_ops",maximum=1,mode="dynamic")))
+    monkeypatch.setenv("WORKER_HOST", "timan107")
     monkeypatch.setenv("PORTS", "23210")
     monkeypatch.setenv("WPS", "1")
     monkeypatch.setenv("OSCL_TASKS", "0,1")

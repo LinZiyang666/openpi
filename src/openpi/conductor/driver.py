@@ -183,6 +183,13 @@ class ConductorDriver:
         # (accepted, attempt) alone. Stamping the run on both sides gives the
         # finalizer a discriminator that survives the restart.
         self._run_id = uuid.uuid4().hex[:12]
+        # Runtime policy is injectable; core has no experiment imports.
+        import importlib, os
+        module = os.environ.get('OPENPI_AUTOSCALE_DRIVER_MODULE')
+        self._autoscaler = importlib.import_module(module).from_environment(self) if module else None
+        if self._autoscaler is None and os.environ.get('OPENPI_WORKER_MEMORY_GUARD') == '1':
+            policy = importlib.import_module(os.environ['OPENPI_WORKER_GOVERNOR'])
+            self._autoscaler = policy.driver_from_environment(self)
 
     # -- ctl connection pool --
 
@@ -296,6 +303,8 @@ class ConductorDriver:
     def _stage_loop(self, stop: Callable[[], bool]) -> None:
         while not stop() and not self._scheduler.all_done():
             self.drive_stages_once()
+            if getattr(self, '_autoscaler', None) is not None:
+                self._autoscaler.tick()
             # Wall-clock episode timeout: requeue tasks stuck on a hung worker
             # (plan §9.2 — worker alive but blocked in infer, never reports).
             self._scheduler.requeue_timed_out(timeout_s=self._episode_timeout_s)
@@ -403,10 +412,16 @@ class ConductorDriver:
                 accepted=accepted,
                 error=result.error,
             )
+        if getattr(self, '_autoscaler', None) is not None:
+            self._autoscaler.result(payload, accepted and terminal and evidence_safe)
         if self._monitor is not None:
             self._monitor.on_result(result)
 
     def handle_progress(self, payload: dict[str, Any]) -> None:
+        if getattr(self, '_autoscaler', None) is not None:
+            with self._autoscaler.lock:
+                self._autoscaler.ingest(payload.get('_autoscale', {}))
+                self._autoscaler.tick()
         if self._monitor is not None:
             self._monitor.on_progress(payload)
 
@@ -439,12 +454,28 @@ class ConductorDriver:
                 except (ConnectionError, _proto.ProtocolError):
                     break
                 if msg_type == _proto.MSG_PULL:
+                    if payload.get('_autoscale_supervisor'):
+                        control = self._autoscaler.pull(payload)[1] if self._autoscaler is not None else {}
+                        _proto.send_message(conn, _proto.MSG_ASSIGN, {'task': None, '_autoscale_control': control})
+                        continue
                     key = payload.get("server_host", "")
                     worker_id = self._record_pull(payload, peer)
                     # Reuse handle_pull so the assign/none/shutdown/backoff logic
                     # lives in one place; honour the returned message type so an
                     # all-done run can hand the worker a clean MSG_SHUTDOWN.
-                    out_type, assign_payload = self.handle_pull(key)
+                    retire = bool(payload.get('_autoscale', {}).get('retire'))
+                    control = None
+                    if getattr(self, '_autoscaler', None) is not None:
+                        retire, control = self._autoscaler.pull(payload)
+                    if retire:
+                        out_type, assign_payload = _proto.MSG_SHUTDOWN, {}
+                        local = getattr(self, '_shutdown_local', None)
+                        if local is not None:
+                            local.sent_shutdown = True
+                    else:
+                        out_type, assign_payload = self.handle_pull(key)
+                    if control is not None:
+                        assign_payload['_autoscale_control'] = control
                     if "task" in assign_payload:
                         task = assign_payload["task"]
                         inflight[task["task_uid"]] = task.get("attempt")

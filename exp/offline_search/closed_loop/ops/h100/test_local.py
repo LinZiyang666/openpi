@@ -14,8 +14,8 @@ import pytest
 
 from exp.offline_search.closed_loop.ops.h100 import assets, control, local_server as local, node
 from exp.offline_search.closed_loop.ops.h100.server_host import endpoint, server_host
-from exp.offline_search.closed_loop.ops.h100.test_h100 import fixture_run
-from exp.offline_search.closed_loop.ops.h100.test_robustness import mock_chain
+from exp.offline_search.closed_loop.ops.h100.test_h100 import fixture_run, autoscale_stage
+from exp.offline_search.closed_loop.ops.h100.test_robustness import mock_chain, second_fake_fleet
 
 
 @pytest.fixture(autouse=True)
@@ -66,8 +66,7 @@ def test_all_ports_busy_and_timan107_capacity(monkeypatch):
     monkeypatch.setenv('PORTS', '23150,23151,23152,23153')
     assert control.ports_workers()[0] == [23150, 23151, 23152, 23153]
     monkeypatch.setenv('WPS', '17')
-    with pytest.raises(ValueError, match='1..64'):
-        control.ports_workers()
+    assert control.ports_workers()[1] == 17
 
 
 def test_ss_parser_includes_ipv6_and_foreign_pids(monkeypatch):
@@ -190,10 +189,10 @@ def test_local_sync_concurrent_with_h100_never_transfers_to_h100(tmp_path, monke
     monkeypatch.setattr(control, 'rpc', lambda *a, **kw: pytest.fail('local sync must not use server RPCs'))
     bundles = []
     monkeypatch.setattr(control, 'bundle', lambda h, d, p: bundles.append((h, d, p)))
-    monkeypatch.setenv('WORKER_HOST', 'timan108')
+    monkeypatch.setenv('WORKER_HOST', 'timan1')
     monkeypatch.setenv('SERVER_HOST', 'h100')
     with control.fleet_lock(tmp_path / 'h100_chain'):
-        monkeypatch.setattr(control, 'legacy_chains', lambda **kw: [dict(root=tmp_path / 'h100_chain', worker_host='timan108')])
+        monkeypatch.setattr(control, 'legacy_chains', lambda **kw: [dict(root=tmp_path / 'h100_chain', worker_host='timan1')])
         monkeypatch.setenv('WORKER_HOST', 'timan107')
         monkeypatch.setenv('SERVER_HOST', 'local')
         plan = control.sync(root, ['sample'])
@@ -211,9 +210,9 @@ def test_local_sync_concurrent_with_h100_never_transfers_to_h100(tmp_path, monke
 def test_local_chain_runs_under_h100_lock_uses_local_gpu_and_cleans_up(tmp_path, monkeypatch, failure):
     root, events, sleeps = mock_chain(tmp_path, monkeypatch)
     # Hold the other fleet throughout local preflight, launch, polling and teardown.
-    monkeypatch.setenv('WORKER_HOST', 'timan108')
+    monkeypatch.setenv('WORKER_HOST', 'timan1')
     with control.fleet_lock(tmp_path / 'other_chain'):
-        monkeypatch.setattr(control, 'legacy_chains', lambda **kw: [dict(root=tmp_path / 'other_chain', worker_host='timan108')])
+        monkeypatch.setattr(control, 'legacy_chains', lambda **kw: [dict(root=tmp_path / 'other_chain', worker_host='timan1')])
         path = root / 'h100_sync/synced.json'
         plan = json.loads(path.read_text())
         plan.update(server_host='local', worker_host='timan107')
@@ -259,8 +258,9 @@ def test_abort_uses_saved_server_host_regardless_of_environment(tmp_path, monkey
     path.write_text(json.dumps(dict(driver={}, servers=[{}])))
     calls.clear()
     monkeypatch.setenv('SERVER_HOST', 'local')
-    control.abort(tmp_path, ['arm'])
-    assert calls == [('timan108', 'stop'), ('h100', 'stop')]
+    with pytest.raises(ValueError,match='worker host'):
+        control.abort(tmp_path, ['arm'])
+    assert calls == []
 
 
 def test_detached_fake_process_lifecycle_idempotency_and_foreign_receipt(tmp_path, monkeypatch):

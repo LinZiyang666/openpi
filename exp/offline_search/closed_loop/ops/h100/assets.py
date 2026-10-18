@@ -126,7 +126,13 @@ def relocated_local_fit(blob, run, store):
     return walk(blob), bool(changes)
 
 
-def build_plan(run, names, work, *, store=STORE, base=BASE, local=False):
+def generated_rel(rel, digest):
+    """Immutable address for rewritten external inputs; historical mirrors stay put."""
+    return str(Path('generated/sha256') / digest / rel)
+
+
+def build_plan(run, names, work, *, store=STORE, base=BASE, local=False,
+               isolate_generated=None):
     from exp.offline_search.closed_loop.devset import root_pool, arm_contract
     from exp.offline_search.closed_loop.ops.remote.run_gtp_subset import load_manifest
     run, work = Path(run).resolve(), Path(work)
@@ -137,12 +143,30 @@ def build_plan(run, names, work, *, store=STORE, base=BASE, local=False):
     work.mkdir(parents=True, exist_ok=True)
     files, prepared, contracts = {}, [], {}
     mapper = local_remap if local else remap
+    if isolate_generated is None:
+        isolate_generated = os.environ.get('OSCL_ISOLATE_GENERATED_ASSETS') == '1'
+    isolate_generated = isolate_generated and not local
+    destinations = {}
+
+    def mapped_input(value):
+        if isinstance(value, str):
+            if value in destinations:
+                return destinations[value]
+            key, sep, argument = value.partition('=')
+            return key + sep + destinations[argument] if sep and argument in destinations else value
+        if isinstance(value, dict):
+            return {k: mapped_input(v) for k, v in value.items()}
+        if isinstance(value, (list, tuple)):
+            return type(value)(mapped_input(v) for v in value)
+        return value
 
     def add(path, reason, *, destination=None, content=None):
         path = Path(str(path).replace("<RUN>", str(run)))
         if not path.is_file():
             raise FileNotFoundError(f"{reason}: missing dependency {path}")
         target = destination or mapper(str(path), run, store, base)
+        original_target = target
+        target = destinations.get(target, target)
         rel = str(Path(target)).lstrip("/") if local else str(Path(target).relative_to(base))
         if "\n" in rel or ".." in Path(rel).parts:
             raise ValueError("unsafe transfer path")
@@ -151,12 +175,19 @@ def build_plan(run, names, work, *, store=STORE, base=BASE, local=False):
             return
         source_sha = sha(path)
         source = path
+        unscoped_rel = None
+        if isolate_generated and content is not None and rel.startswith('mirror/'):
+            unscoped_rel = rel
+            rel = generated_rel(rel, hashlib.sha256(content).hexdigest())
+            destinations[original_target] = str(base / rel)
         if content is not None:
             source = work / "generated" / rel
             source.parent.mkdir(parents=True, exist_ok=True)
             source.write_bytes(content)
         files[rel] = dict(rel=rel, source=str(source), original=str(path), source_sha256=source_sha,
                           sha256=sha(source), size=source.stat().st_size, reasons=[reason])
+        if unscoped_rel is not None:
+            files[rel]['unscoped_rel'] = unscoped_rel
 
     for name in names:
         if not re.fullmatch(r"[A-Za-z0-9_]+", name):
@@ -253,7 +284,7 @@ def build_plan(run, names, work, *, store=STORE, base=BASE, local=False):
                     # Relocation changes payload paths in the pickle. Bind the
                     # exact bytes served at the destination, retaining the source
                     # SHA separately in the transfer receipt.
-                    target = mapper(str(artifact), run, store, base)
+                    target = mapped_input(mapper(str(artifact), run, store, base))
                     rel = str(Path(target)).lstrip('/') if local else str(Path(target).relative_to(base))
                     digest = files[rel]['sha256']
                     args[args.index('--os-cache-ablate-sha256') + 1] = digest
@@ -274,7 +305,7 @@ def build_plan(run, names, work, *, store=STORE, base=BASE, local=False):
                     raise FileNotFoundError(f"{name}: missing explicit argument {path}")
             if not flag(args, "--os-root"):
                 args += ["--os-root", str(store)]
-        ready = mapper(row, run, store, base)
+        ready = mapped_input(mapper(row, run, store, base))
         if local:
             ready['yaml'] = files[str(Path(ready['yaml'])).lstrip('/')]['source']
             artifact = flag(ready.get('plugin_args', []), '--os-fit-artifact')
@@ -290,6 +321,8 @@ def build_plan(run, names, work, *, store=STORE, base=BASE, local=False):
         prepared.append(ready)
     data = dict(run=str(run), remote_run=str(base / "runs" / run.name), arms=prepared,
                 files=sorted(files.values(), key=lambda x: x["rel"]))
+    if isolate_generated:
+        data['generated_asset_namespace'] = 'sha256-v1'
     data["bytes"] = sum(x["size"] for x in data["files"])
     if local:
         data.update(server_host='local', remote_run=str(run), server_tree='/home/weiland/projects/openpi',
