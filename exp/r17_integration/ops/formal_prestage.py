@@ -87,12 +87,18 @@ def runtime_release(launch, campaign, directory):
         if campaign.get('cache_study'):
             from .cache_study import append_stall_runtime
             append_stall_runtime(archive, launch.ROOT)
+    # Long-segment campaigns: the segment-boundary fix is written into the
+    # archived sources, so no launch path can import the old methods.
+    frozen = bool(campaign.get('runtime_from')) and not campaign.get('longseg_1017')
+    if campaign.get('longseg_1017'):
+        from exp.offline_search.rounds.r17.longseg_1017.runtime_fix import apply
+        write_json(directory/'LONGSEG_RUNTIME_FIX.json', dict(members=apply(archive)))
     document = archive_manifest(archive)
     content_pin, archive_pin = identity(document), sha(archive)
     root = '/data/mw_finetune/qualification/formal_runtime_'+content_pin
     stage = '/tmp/r17_formal/'+campaign['run_name']+'/server'
     if campaign['server_node'] == 'local':
-        if campaign.get('runtime_from') and not verify(root, 'RUNTIME_RELEASE.json', content_pin)['present']:
+        if frozen and not verify(root, 'RUNTIME_RELEASE.json', content_pin)['present']:
             raise ValueError('frozen execution-host runtime missing')
         installed = install(archive, root, archive_pin, content_pin)
     else:
@@ -100,7 +106,7 @@ def runtime_release(launch, campaign, directory):
         installed = json.loads(launch.remote('h100', [launch.host_python(campaign), '-c',
             verify_code(root, 'RUNTIME_RELEASE.json', content_pin)], replay_safe=True))
         if not installed['present']:
-            if campaign.get('runtime_from'):
+            if frozen:
                 raise ValueError('frozen execution-host runtime missing')
             launch.transfer(['rsync','push',str(archive),'h100:'+stage+'/runtime.tar'])
             launch.transfer(['rsync','push',str(launch.ROOT/'exp/r17_integration/ops/immutable_release.py'),
@@ -300,6 +306,8 @@ def launch_prepared(directory):
     # Exclusive one-shot claim: two queues cannot dispatch the same plan.
     with preparation_lock(directory):
         campaign, deployment = validate_prepared(directory)
+        resilience=getattr(launch,'worker_resilience',None)
+        if resilience:campaign,deployment=resilience.select(campaign,directory,deployment)
         # Coordinator-only boundary hold: never affect the already live child.
         if (directory/'DISPATCH_HOLD.json').exists():
             raise RuntimeError('coordinator dispatch hold before launch claim: '+str(directory))
@@ -307,7 +315,7 @@ def launch_prepared(directory):
             from .cache_capacity import t1_ready
             if not t1_ready(Path(campaign['cache_study']).parent/'evidence/t1_recycle_fix.json'):
                 pass
-        if campaign.get('cache_capacity_authorization',{}).get('preclaim_admission'):
+        if resilience is None and campaign.get('cache_capacity_authorization',{}).get('preclaim_admission'):
             from .cache_capacity import wait_admission
             wait_admission(dict(name=campaign['run_name'],run=str(directory),model=campaign['model']+'_libero'),{},directory)
         if 'local' in campaign.get('execution_worker_nodes',campaign.get('worker_nodes',{})):
@@ -315,7 +323,7 @@ def launch_prepared(directory):
             if authorize(campaign)!=campaign.get('local_worker_exception'):
                 pass
         from .worker_disk import prepared as disk_admission
-        disk_admission(campaign,directory,deployment)
+        if resilience is None:disk_admission(campaign,directory,deployment)
         if campaign.get('cache_study') and campaign.get('cache_control'):
             from .cache_control import refresh_prepared_workers
             campaign,deployment=refresh_prepared_workers(campaign,directory,deployment)
@@ -363,7 +371,7 @@ def launch_prepared(directory):
                 write_json(directory/'BATCHING_CONTROL.json',control_gate(campaign,directory))
             campaign['prepare_only']=False
             tunnels=launch.open_tunnels(campaign,directory)
-            for node,item in deployment.items():
+            def worker_preflight(node,item):
                 installed=item['installed']
                 present=json.loads(launch.remote(node,[item['python'],'-c',
                     verify_code(item['payload'],'PAYLOAD.json',identity({k:v for k,v in installed.items()
@@ -371,6 +379,11 @@ def launch_prepared(directory):
                 if not present['present']:
                     raise ValueError('prepared worker payload missing')
                 worker=json.loads((directory/(node+'.json')).read_text())
+                if resilience:
+                    worker.update(execution_worker_nodes=campaign["execution_worker_nodes"],
+                                  execution_workers=campaign["execution_workers"],node_workers=campaign["execution_worker_nodes"][node])
+                    vram,ram=resilience.timan1_gpu2.SIZES[campaign["domain"]]
+                    worker.update(worker_vram_mib=vram,worker_memory_mib=ram,worker_ram_reservation_mib=ram)
                 worker.update({key:value for key,value in campaign.items() if key in
                     ('endpoint','endpoint_host','endpoint_port','driver_host','driver_public_port','prepare_only')})
                 if node == 'local':
@@ -392,6 +405,8 @@ def launch_prepared(directory):
                 # Recorded only: owner 2026-10-10, no RAM admission. Archived worker
                 # releases from before that ruling still compute a refusal.
                 write_json(directory/(node+'_LAUNCH_ADMISSION.json'),admission)
+                if resilience and not admission['admitted']:
+                    raise RuntimeError(node+': worker RAM admission refused')
                 # Same immutable asset/dependency releases, no install or native imports.
                 dependency=item.get('dependencies')
                 if dependency:
@@ -409,8 +424,14 @@ def launch_prepared(directory):
                 launch.remote(node,[item['python'],'-c',code],replay_safe=True)
                 path=directory/(node+'_launch.json')
                 write_json(path,worker)
+                if resilience:item.update(workers=worker['node_workers'],worker_vram_mib=worker['worker_vram_mib'],
+                                          worker_memory_mib=worker['worker_memory_mib'])
                 item['campaign_path']=item['stage']+'/launch_campaign.json'
                 launch.transfer(['rsync','push',str(path),node+':'+item['campaign_path']])
+            if resilience:
+                deployment=resilience.launch_workers(campaign,directory,deployment,worker_preflight)
+            else:
+                for node,item in deployment.items():worker_preflight(node,item)
             write_json(directory/'campaign.json',campaign)
             if campaign['server_node']=='h100':
                 campaign['server_campaign']='/tmp/r17_formal/'+campaign['run_name']+'/server/launch_campaign.json'
