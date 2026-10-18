@@ -21,6 +21,56 @@ def route(c,root,workers=None):
     return c
 
 
+def execution_host(c,root):
+    """filter_failed.stage: move a built, never-prepared H100 job to the R17_H100_NODE machine.
+
+    The route() rebind again, routing fields only: the driver entry of ports ->
+    R17_DRIVER_PORT, endpoint (and backend) host -> R17_H100_HOST, plus
+    execution_host. EPISODE_PLAN tasks change only server_host/server_port; stage
+    then re-derives them with the recorded planner. The previous campaign.json
+    and EPISODE_PLAN.json stay beside them as *.before_alias_<ns>.
+    Without the alias variables the job is returned untouched.
+    """
+    import time
+    from exp.r17_integration.ops.formal_eval import h100_alias,check_execution_host,open_tunnels
+    from exp.offline_search.rounds.r17.filter_failed_knob.common import read
+    from .io_budget import dump
+    alias=h100_alias()
+    if alias is None or c['server_node']!='h100':
+        check_execution_host(c);return c
+    if (c.get('execution_host'),c['driver_port'],c['endpoint_host'])==(alias['node'],alias['driver_port'],alias['host']):
+        return c
+    if alias['driver_port']==23199:raise ValueError('R17_DRIVER_PORT must differ from the H100 lane driver 23199')
+    root=Path(root)
+    if any((root/n).exists() for n in ('PREPARED.json','LAUNCH.json','RECEIPT.json')):
+        raise ValueError('prepared for '+c.get('execution_host','h100')+'; reset it before moving it to '+alias['node'])
+    keys=('ports','driver_port','driver_host','driver_public_port','endpoint_host','endpoint_port','endpoint',
+          'backend_host','execution_host')
+    new=copy.deepcopy(c)
+    new['ports']=[p for p in c['ports'] if p!=c['driver_port']]+[alias['driver_port']]
+    new['driver_port']=alias['driver_port']
+    assert len(new['ports'])==len(set(new['ports']))
+    projected=copy.deepcopy(new)
+    open_tunnels(projected,root)
+    for k in ('endpoint_host','endpoint_port','endpoint','driver_host','driver_public_port'):new[k]=projected[k]
+    if 'backend_host' in new:new['backend_host']=alias['host']
+    new['execution_host']=alias['node']
+    assert {k for k in set(c)|set(new) if c.get(k)!=new.get(k)}<=set(keys)
+    new['execution_host_rebind']=dict(source={k:c[k] for k in keys if k in c},destination={k:new[k] for k in keys if k in new},
+        model_serving_R_B_MPS_unchanged=True,task_identity_unchanged=True,
+        reason='Serve this H100 job on '+alias['node']+'; own driver port beside the H100 lane')
+    plan=read(root/'EPISODE_PLAN.json')
+    if any((t['server_host'],t['server_port'])!=(c['endpoint_host'],c['endpoint_port']) for t in plan['tasks']):
+        raise ValueError('EPISODE_PLAN routing differs from campaign endpoint')
+    routing=dict(server_host=new['endpoint_host'],server_port=new['endpoint_port'])
+    plan.update(endpoint=new['endpoint'],tasks=[dict(t,**routing) for t in plan['tasks']])
+    stamp=str(time.time_ns())
+    for name in ('campaign.json','EPISODE_PLAN.json'):(root/name).rename(root/(name+'.before_alias_'+stamp))
+    dump(root/'EPISODE_PLAN.json',plan,compact=True);dump(root/'campaign.json',new)
+    print('execution_host',c['run_name'],alias['node'],new['endpoint'],new['driver_port'],flush=True)
+    return new
+
+
 def finalize():
     """Apply the final transport map only to our never-prepared fresh jobs."""
     from dataclasses import asdict

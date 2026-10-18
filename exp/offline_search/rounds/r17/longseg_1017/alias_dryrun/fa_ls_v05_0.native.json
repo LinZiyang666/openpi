@@ -1,0 +1,304 @@
+{
+ "name": "fa_ls_v05_0",
+ "variant": "native",
+ "env": {
+  "R17_H100_NODE": null,
+  "R17_H100_HOST": null,
+  "R17_DRIVER_PORT": null
+ },
+ "scratch": "/tmp/h100alias/runs/native/fa_ls_v05_0",
+ "tether_nodes": {
+  "h100": 16,
+  "timan1": 7,
+  "timan107": 7
+ },
+ "rsync_daemon_hosts": {
+  "149.165.153.233": 5
+ },
+ "server_transfers": [
+  "/tmp/h100alias/runs/native/fa_ls_v05_0/runtime.tar",
+  "/home/weiland/projects/openpi/exp/r17_integration/ops/immutable_release.py",
+  "/tmp/h100alias/runs/native/fa_ls_v05_0/startup_assets.tar",
+  "/tmp/h100alias/runs/native/fa_ls_v05_0/campaign.json",
+  "/tmp/h100alias/runs/native/fa_ls_v05_0/campaign.json"
+ ],
+ "remote_calls": [
+  {
+   "kind": "tether",
+   "node": "h100",
+   "command": "mkdir -p /tmp/r17_formal/fa_ls_v05_0/server"
+  },
+  {
+   "kind": "tether",
+   "node": "h100",
+   "command": "/data/mw_finetune/envs/fastwam/bin/python -c import json,hashlib; from pathlib import Path; r=Path('/data/mw_finetune/qu"
+  },
+  {
+   "kind": "tether",
+   "node": "h100",
+   "command": "python3 -c     def daemon(root, module, port, source=None):\n        return dict(pid=1, root=str(root))\n\nimport json; pri"
+  },
+  {
+   "kind": "rsync",
+   "host": "149.165.153.233",
+   "url": "rsync://149.165.153.233:23118/r17_3f0117d55b5c496d8b43ca24ed30082f/payload",
+   "local": "/tmp/h100alias/runs/native/fa_ls_v05_0/runtime.tar"
+  },
+  {
+   "kind": "tether",
+   "node": "h100",
+   "command": "python3 -c     def close_daemon(server, destination=None):\n        return None\n\nimport json; print(json.dumps(close_daem"
+  },
+  {
+   "kind": "tether",
+   "node": "h100",
+   "command": "python3 -c     def daemon(root, module, port, source=None):\n        return dict(pid=1, root=str(root))\n\nimport json; pri"
+  },
+  {
+   "kind": "rsync",
+   "host": "149.165.153.233",
+   "url": "rsync://149.165.153.233:23118/r17_bb9d66181a0e4ebfb8d5d9aad8189513/payload",
+   "local": "/home/weiland/projects/openpi/exp/r17_integration/ops/immutable_release.py"
+  },
+  {
+   "kind": "tether",
+   "node": "h100",
+   "command": "python3 -c     def close_daemon(server, destination=None):\n        return None\n\nimport json; print(json.dumps(close_daem"
+  },
+  {
+   "kind": "tether",
+   "node": "h100",
+   "command": "/data/mw_finetune/envs/fastwam/bin/python /tmp/r17_formal/fa_ls_v05_0/server/release_install.py --root /data/mw_finetune"
+  },
+  {
+   "kind": "tether",
+   "node": "h100",
+   "command": "mkdir -p /tmp/r17_formal/fa_ls_v05_0/server"
+  },
+  {
+   "kind": "tether",
+   "node": "h100",
+   "command": "python3 -c     def daemon(root, module, port, source=None):\n        return dict(pid=1, root=str(root))\n\nimport json; pri"
+  },
+  {
+   "kind": "rsync",
+   "host": "149.165.153.233",
+   "url": "rsync://149.165.153.233:23118/r17_15e0efeb35684775899c2573be726d04/payload",
+   "local": "/tmp/h100alias/runs/native/fa_ls_v05_0/startup_assets.tar"
+  },
+  {
+   "kind": "tether",
+   "node": "h100",
+   "command": "python3 -c     def close_daemon(server, destination=None):\n        return None\n\nimport json; print(json.dumps(close_daem"
+  },
+  {
+   "kind": "tether",
+   "node": "h100",
+   "command": "env PYTHONPATH=/data/mw_finetune/qualification/formal_runtime_7860ba85eec4f93943876bef7e4763e1db2e944cb9b676f7355fc315ca"
+  },
+  {
+   "kind": "tether",
+   "node": "h100",
+   "command": "python3 -c import json;from pathlib import Path\np=Path('/data/mw_finetune/eval/csl10f/assets/cache_inputs')\nm=json.loads"
+  },
+  {
+   "kind": "tether",
+   "node": "h100",
+   "command": "python3 -c     def daemon(root, module, port, source=None):\n        return dict(pid=1, root=str(root))\n\nimport json; pri"
+  },
+  {
+   "kind": "rsync",
+   "host": "149.165.153.233",
+   "url": "rsync://149.165.153.233:23118/r17_221b747724774ea5849d93c1e025aa6e/payload",
+   "local": "/tmp/h100alias/runs/native/fa_ls_v05_0/campaign.json"
+  },
+  {
+   "kind": "tether",
+   "node": "h100",
+   "command": "python3 -c     def close_daemon(server, destination=None):\n        return None\n\nimport json; print(json.dumps(close_daem"
+  },
+  {
+   "kind": "tether",
+   "node": "h100",
+   "command": "python3 -c     def daemon(root, module, port, source=None):\n        return dict(pid=1, root=str(root))\n\nimport json; pri"
+  },
+  {
+   "kind": "rsync",
+   "host": "149.165.153.233",
+   "url": "rsync://149.165.153.233:23118/r17_a0c9e61d05c344b7ae9bc1720cb3ffb5/payload",
+   "local": "/tmp/h100alias/runs/native/fa_ls_v05_0/campaign.json"
+  },
+  {
+   "kind": "tether",
+   "node": "h100",
+   "command": "python3 -c     def close_daemon(server, destination=None):\n        return None\n\nimport json; print(json.dumps(close_daem"
+  },
+  {
+   "kind": "tether",
+   "node": "timan1",
+   "command": "mkdir -p /scratch/zixuans8/mw_r17/formal/stage/fa_ls_v05_0/timan1"
+  },
+  {
+   "kind": "tether",
+   "node": "timan1",
+   "command": "mkdir -p /scratch/zixuans8/mw_r17/formal/stage/fa_ls_v05_0/timan1"
+  },
+  {
+   "kind": "tether",
+   "node": "timan1",
+   "command": "rsync rsync://ziyanglin.com:23118/r17_85ca0415557841b1a41e9f08cac295c2/payload"
+  },
+  {
+   "kind": "tether",
+   "node": "timan1",
+   "command": "mkdir -p /scratch/zixuans8/mw_r17/formal/stage/fa_ls_v05_0/timan1"
+  },
+  {
+   "kind": "tether",
+   "node": "timan1",
+   "command": "rsync rsync://ziyanglin.com:23118/r17_2472a7e097cb47039a5a451a56e373a6/payload"
+  },
+  {
+   "kind": "tether",
+   "node": "timan1",
+   "command": "mkdir -p /scratch/zixuans8/mw_r17/formal/stage/fa_ls_v05_0/timan1"
+  },
+  {
+   "kind": "tether",
+   "node": "timan1",
+   "command": "rsync rsync://ziyanglin.com:23118/r17_44db3c8386a64b7e8a7e8ca973dc24f5/payload"
+  },
+  {
+   "kind": "tether",
+   "node": "timan107",
+   "command": "mkdir -p /tmp/r17_formal/fa_ls_v05_0/timan107"
+  },
+  {
+   "kind": "tether",
+   "node": "timan107",
+   "command": "mkdir -p /tmp/r17_formal/fa_ls_v05_0/timan107"
+  },
+  {
+   "kind": "tether",
+   "node": "timan107",
+   "command": "rsync rsync://ziyanglin.com:23118/r17_c2c9c1e2637f4ce396ce5fa1288f8769/payload"
+  },
+  {
+   "kind": "tether",
+   "node": "timan107",
+   "command": "mkdir -p /tmp/r17_formal/fa_ls_v05_0/timan107"
+  },
+  {
+   "kind": "tether",
+   "node": "timan107",
+   "command": "rsync rsync://ziyanglin.com:23118/r17_4b67fd0dfadf4fea86d066decf6b755b/payload"
+  },
+  {
+   "kind": "tether",
+   "node": "timan107",
+   "command": "mkdir -p /tmp/r17_formal/fa_ls_v05_0/timan107"
+  },
+  {
+   "kind": "tether",
+   "node": "timan107",
+   "command": "rsync rsync://ziyanglin.com:23118/r17_ef5278dbf58e4c51835993651eb56abd/payload"
+  }
+ ],
+ "local_release_installs": [
+  {
+   "root": "/data/mw_finetune/qualification/formal_runtime_7860ba85eec4f93943876bef7e4763e1db2e944cb9b676f7355fc315ca363bc9",
+   "present_locally": true
+  },
+  {
+   "root": "/data/mw_finetune/qualification/formal_runtime_7860ba85eec4f93943876bef7e4763e1db2e944cb9b676f7355fc315ca363bc9",
+   "present_locally": true
+  },
+  {
+   "root": "/data/mw_finetune/qualification/formal_driver_dc735946276643ba0a6852e48a0d353fe50ce5d08cc5fe4fea9d192d41457f79",
+   "present_locally": true
+  }
+ ],
+ "driver_release_in_scratch": {},
+ "local_port_admission": [
+  23199
+ ],
+ "campaign": {
+  "server_node": "h100",
+  "execution_host": null,
+  "endpoint_host": "149.165.153.233",
+  "endpoint": "149.165.153.233:23420",
+  "endpoint_port": 23420,
+  "driver_host": "ziyanglin.com",
+  "driver_port": 23199,
+  "driver_public_port": 23199,
+  "ports": [
+   23420,
+   23421,
+   23422,
+   23199
+  ],
+  "backend_host": null,
+  "server_campaign": "/tmp/r17_formal/fa_ls_v05_0/server/campaign.json",
+  "runtime": "/data/mw_finetune/qualification/formal_runtime_7860ba85eec4f93943876bef7e4763e1db2e944cb9b676f7355fc315ca363bc9",
+  "runtime_identity": "7860ba85eec4f93943876bef7e4763e1db2e944cb9b676f7355fc315ca363bc9"
+ },
+ "campaign_h100_addresses": [
+  [
+   "/endpoint",
+   "149.165.153.233:23420"
+  ],
+  [
+   "/endpoint_host",
+   "149.165.153.233"
+  ],
+  [
+   "/longseg_1017/transport_rebind/destination/endpoint_host",
+   "149.165.153.233"
+  ],
+  [
+   "/longseg_1017/transport_rebind/destination/endpoint",
+   "149.165.153.233:23420"
+  ]
+ ],
+ "launch_view": {
+  "endpoint_host": "149.165.153.233",
+  "endpoint": "149.165.153.233:23420",
+  "driver_host": "ziyanglin.com",
+  "driver_public_port": 23199,
+  "backend_control_host": "149.165.153.233"
+ },
+ "rebind_record": null,
+ "transport_rebind_kept": true,
+ "plan": {
+  "tasks": 4023,
+  "endpoint": "149.165.153.233:23420",
+  "routing": [
+   [
+    "149.165.153.233:23420",
+    4023
+   ]
+  ],
+  "task_uid_order_equal": true,
+  "non_routing_fields_equal": true,
+  "plan_fields_equal_except_endpoint": true,
+  "bytes_equal_to_live": true,
+  "backups": []
+ },
+ "longseg_runtime_fix": {
+  "present": true,
+  "members": [
+   "exp/r17_integration/common/serving.py",
+   "exp/r17_integration/common/websocket_policy_server.py",
+   "exp/r17_integration/search/cache_recipe.py"
+  ],
+  "identity": "7860ba85eec4f93943876bef7e4763e1db2e944cb9b676f7355fc315ca363bc9"
+ },
+ "prepared": "PASS",
+ "preflight_ports": [
+  23420,
+  23421,
+  23422,
+  23199
+ ],
+ "live_unchanged": true
+}

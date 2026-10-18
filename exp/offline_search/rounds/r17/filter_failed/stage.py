@@ -129,6 +129,9 @@ def _stage(root):
             continuation=campaign['cache_resume_selection']
     if any((root/name).exists() for name in ('LAUNCH.json', 'RECEIPT.json')):
         raise ValueError('campaign was already launched; use filter_failed.reset for a pre-start failure')
+    # R17_H100_NODE lane: serve this H100 job on the alias machine (routing fields only).
+    from exp.offline_search.rounds.r17.longseg_1017.ports import execution_host
+    campaign = execution_host(campaign, root)
     from exp.offline_search.rounds.r17.autoscale_1017.defaults import apply
     apply(campaign, root)
     from exp.r17_integration.ops.formal_ports import prepare_admission

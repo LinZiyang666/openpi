@@ -180,7 +180,8 @@ def prepare_r17(source, selected, study_path, number):
         if selected:campaign['server_python']=selected['python']
     campaign.pop('server_campaign', None)
     port = 23150 if campaign['server_node']=='local' else 23420
-    host = 'ziyanglin.com' if campaign['server_node']=='local' else '149.165.153.233'
+    from exp.r17_integration.ops.formal_eval import h100_host
+    host = 'ziyanglin.com' if campaign['server_node']=='local' else h100_host()
     campaign.update(public_port=port,backend_ports=list(range(port+1,port+1+campaign['replicas'])),
                     driver_port=23159,driver_public_port=23159,driver_host='ziyanglin.com',
                     endpoint_host=host,endpoint_port=port,endpoint=f'{host}:{port}')

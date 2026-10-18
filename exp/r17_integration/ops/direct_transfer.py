@@ -120,10 +120,11 @@ def transfer(argv, *, remote, execute, heartbeat=lambda: None):
         fcntl.flock(lock,fcntl.LOCK_EX)
         heartbeat()
         if node == 'h100':
+            from .formal_eval import h100_host  # R17_H100_HOST alias; remote() maps the node
             root = str(Path(path).parent/('.'+token))
             # Source hardlinks stay on their source filesystem; no extra archive copy.
             server = call(daemon,root,token,PORT,path if direction == 'pull' else None)
-            url = f'rsync://149.165.153.233:{PORT}/{token}/payload'
+            url = f'rsync://{h100_host()}:{PORT}/{token}/payload'
             local.parent.mkdir(parents=True,exist_ok=True)
             complete = False
             try:

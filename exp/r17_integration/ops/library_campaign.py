@@ -386,7 +386,7 @@ def main(argv=None):
     else:
         init = None
     model = a.model.rsplit('_',1)[0]
-    host = 'ziyanglin.com' if a.server_node=='local' else '149.165.153.233'
+    host = 'ziyanglin.com' if a.server_node=='local' else formal.h100_host()
     campaign = dict(library=True,library_intent_fence='r17.library_input_intent.v1',suite=a.suite,alignment=str(directory/'ALIGNMENT.json'),
         library_parent=str(home/'bpool'),bpool_archive=str(directory/'bpool_inputs.tar'),bpool_transfer=init,
         ab_qualification=str(a.ab_qualification) if a.ab_qualification else None,
@@ -433,7 +433,7 @@ def main(argv=None):
     if a.miss_sampler: campaign['miss_sampler']=json.loads(a.miss_sampler.read_text())
     # Direct endpoints only (formal.open_tunnels never exposes through the broker).
     formal.open_tunnels(campaign,directory)
-    campaign['backend_host'] = '127.0.0.1' if a.server_node=='local' else formal.H100_HOST
+    campaign['backend_host'] = '127.0.0.1' if a.server_node=='local' else formal.h100_host()
     if a.model=='dp_mw':
         from exp.r17_integration.models.dp.batch_runtime import BatchConfig
         campaign['dp_batching'] = BatchConfig(a.max_batch,a.batch_wait_ms).metadata()

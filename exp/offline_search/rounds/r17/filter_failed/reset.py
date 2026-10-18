@@ -32,7 +32,9 @@ def closed_mps_path_failure(root):
                 'print(json.dumps(dict(alive=live,ready=Path('+repr(str(root/'MPS_READY.json'))+').exists())))')
         node = process.get('node','local')
         argv = ['/usr/bin/python3','-B','-S','-c',code]
-        if node != 'local':argv = ['tether','exec','--safe','--timeout','30s',node,'--',*argv]
+        if node != 'local':
+            from exp.r17_integration.ops.formal_eval import physical_node
+            argv = ['tether','exec','--safe','--timeout','30s',physical_node(node),'--',*argv]
         observed = json.loads(subprocess.run(argv,capture_output=True,text=True,check=True,timeout=35).stdout)
         if observed['alive'] or observed['ready']:
             raise ValueError('MPS guard/client closure not proved')

@@ -65,6 +65,7 @@ def remote(node, argv, seconds=60, *, replay_safe=False):
     if node == 'timan108':raise ValueError('timan108 is disabled; no probe allowed')
     if node == 'local':
         return execute(argv, seconds=seconds)
+    node = physical_node(node)
     from .tether_retry import transient
     label = 'exec '+(' '.join(argv[argv.index('-m')+1:argv.index('-m')+3]) if '-m' in argv else str(argv[0]))
     spawn_request = None
@@ -109,7 +110,46 @@ def transfer(argv, *, heartbeat=lambda: None):
 
 # ziyanglin.com forwards TCP 23100-23199 1:1 to weilandserver; h100 has a public IP.
 DIRECT_PORTS = range(23100, 23200)
-H100_HOST = '149.165.153.233'
+H100_NODE, H100_IP = 'h100', '149.165.153.233'
+ALIAS_ENV = ('R17_H100_NODE', 'R17_H100_HOST', 'R17_DRIVER_PORT')
+
+
+def h100_alias():
+    """Process-level stand-in machine for node 'h100'; None means the H100 itself.
+
+    R17_H100_NODE (tether node), R17_H100_HOST (its public IP) and R17_DRIVER_PORT
+    (this lane's coordinator driver port) are set together. Every tether call,
+    spawn, rsync transfer and release install of this process that names 'h100'
+    then reaches that machine. Campaigns keep server_node='h100'.
+    """
+    values = [os.environ.get(key, '') for key in ALIAS_ENV]
+    if not any(values):
+        return None
+    node, host, port = values
+    if not all(values) or node == H100_NODE or not port.isdigit() or int(port) not in DIRECT_PORTS:
+        raise ValueError('set '+', '.join(ALIAS_ENV)+' together: alias tether node, its public IP, driver port 23100-23199')
+    return dict(node=node, host=host, driver_port=int(port))
+
+
+def physical_node(node):
+    alias = h100_alias()
+    return alias['node'] if alias and node == H100_NODE else node
+
+
+def h100_host():
+    alias = h100_alias()
+    return alias['host'] if alias else H100_IP
+
+
+H100_HOST = h100_host()
+
+
+def check_execution_host(campaign):
+    """An H100 campaign rebound to an alias machine runs only under that alias, and vice versa."""
+    bound = campaign.get('execution_host', H100_NODE)
+    if campaign.get('server_node') == H100_NODE and bound != physical_node(H100_NODE):
+        raise ValueError(f'campaign is bound to execution host {bound}, but this process serves h100 on '
+                         f'{physical_node(H100_NODE)}; set/unset '+', '.join(ALIAS_ENV))
 
 
 def close_tunnels(tunnels, directory):
@@ -131,7 +171,7 @@ def open_tunnels(campaign, directory):
         if remote and port not in DIRECT_PORTS:
             raise ValueError(f'remote workers need the local server port inside 23100-23199, got {port}')
     else:
-        host = H100_HOST
+        host = h100_host()
     if remote and campaign['driver_port'] not in DIRECT_PORTS:
         raise ValueError(f"remote workers need the driver port inside 23100-23199, got {campaign['driver_port']}")
     campaign.update(endpoint_host=host, endpoint_port=port, endpoint=f'{host}:{port}',
@@ -688,8 +728,8 @@ def backend_control_host(campaign):
     # Cache campaigns use fresh ports, independent of the controls' NAT rules.
     # Check the local listener directly before attesting its published route.
     if campaign.get('cache_study'):
-        return campaign.get('backend_host') or ('127.0.0.1' if campaign['server_node']=='local' else '149.165.153.233')
-    return campaign.get('backend_host') or (('127.0.0.1' if campaign['server_node']=='local' else '149.165.153.233')
+        return campaign.get('backend_host') or ('127.0.0.1' if campaign['server_node']=='local' else h100_host())
+    return campaign.get('backend_host') or (('127.0.0.1' if campaign['server_node']=='local' else h100_host())
         if campaign['model']=='cosmos' else campaign['endpoint_host'])
 
 
@@ -1117,6 +1157,8 @@ def run_campaign(campaign, directory, deployment):
                       cache_capacity_authorization=campaign['cache_capacity_authorization'])
     if campaign.get('timan1_worker_lease'):
         report['timan1_worker_lease']=campaign['timan1_worker_lease']
+    if campaign.get('execution_host'):
+        report['execution_host'] = campaign['execution_host']
     if campaign.get('orchestration'):
         report['orchestration'] = campaign['orchestration']
     if campaign.get('resume_source_closure_waiver'):
@@ -1890,7 +1932,7 @@ def main(argv=None):
     directory.mkdir(parents=True, exist_ok=False)
     model, suffix = args.model.rsplit('_', 1)
     domain = 'libero' if suffix == 'libero' else 'metaworld'
-    host = 'ziyanglin.com' if args.server_node == 'local' else '149.165.153.233'
+    host = 'ziyanglin.com' if args.server_node == 'local' else h100_host()
     from exp.offline_search.rounds.r17.autoscale_1017.defaults import physical_maximum
     worker_nodes = args.worker_counts or {args.worker_node: args.workers if args.workers is not None else physical_maximum(args.worker_node, domain)}
     if args.extra_workers:

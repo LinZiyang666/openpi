@@ -306,6 +306,7 @@ def launch_prepared(directory):
     # Exclusive one-shot claim: two queues cannot dispatch the same plan.
     with preparation_lock(directory):
         campaign, deployment = validate_prepared(directory)
+        launch.check_execution_host(campaign)
         resilience=getattr(launch,'worker_resilience',None)
         if resilience:campaign,deployment=resilience.select(campaign,directory,deployment)
         # Coordinator-only boundary hold: never affect the already live child.
@@ -452,7 +453,8 @@ def launch_prepared(directory):
         return launch.run_campaign(campaign,directory,deployment)
     except Exception as exc:
         if not (directory/'RECEIPT.json').exists():
-            write_json(directory/'RECEIPT.json',dict(status='FAIL',error=repr(exc),gpu_bound=False,all_owned_closed=True))
+            write_json(directory/'RECEIPT.json',dict(status='FAIL',error=repr(exc),gpu_bound=False,all_owned_closed=True,
+                **{k:campaign[k] for k in ('execution_host',) if k in campaign}))
         raise
     finally:
         launch.close_tunnels(tunnels,directory)

@@ -1,0 +1,101 @@
+{
+ "name": "fa_ls_v05_0",
+ "campaign_keys_differing": [
+  "driver_port",
+  "driver_public_port",
+  "endpoint",
+  "endpoint_host",
+  "execution_host",
+  "execution_host_rebind",
+  "ports"
+ ],
+ "longseg_1017_keys_differing": [],
+ "values": {
+  "driver_port": {
+   "alias": 23194,
+   "native": 23199
+  },
+  "driver_public_port": {
+   "alias": 23194,
+   "native": 23199
+  },
+  "endpoint": {
+   "alias": "149.165.172.126:23420",
+   "native": "149.165.153.233:23420"
+  },
+  "endpoint_host": {
+   "alias": "149.165.172.126",
+   "native": "149.165.153.233"
+  },
+  "execution_host": {
+   "alias": "h100-temp",
+   "native": null
+  },
+  "execution_host_rebind": {
+   "alias": {
+    "source": {
+     "ports": [
+      23420,
+      23421,
+      23422,
+      23199
+     ],
+     "driver_port": 23199,
+     "driver_host": "ziyanglin.com",
+     "driver_public_port": 23199,
+     "endpoint_host": "149.165.153.233",
+     "endpoint_port": 23420,
+     "endpoint": "149.165.153.233:23420"
+    },
+    "destination": {
+     "ports": [
+      23420,
+      23421,
+      23422,
+      23194
+     ],
+     "driver_port": 23194,
+     "driver_host": "ziyanglin.com",
+     "driver_public_port": 23194,
+     "endpoint_host": "149.165.172.126",
+     "endpoint_port": 23420,
+     "endpoint": "149.165.172.126:23420",
+     "execution_host": "h100-temp"
+    },
+    "model_serving_R_B_MPS_unchanged": true,
+    "task_identity_unchanged": true,
+    "reason": "Serve this H100 job on h100-temp; own driver port beside the H100 lane"
+   },
+   "native": null
+  },
+  "ports": {
+   "alias": [
+    23420,
+    23421,
+    23422,
+    23194
+   ],
+   "native": [
+    23420,
+    23421,
+    23422,
+    23199
+   ]
+  }
+ },
+ "plan_tasks": 4023,
+ "task_fields_differing": {
+  "server_host": 4023
+ },
+ "plan_top_level_differing": [
+  "endpoint"
+ ],
+ "common_files_differing": [
+  "EPISODE_PLAN.json",
+  "PREFLIGHT.json",
+  "PREPARED.json",
+  "campaign.json",
+  "timan1.json",
+  "timan107.json"
+ ]
+}
