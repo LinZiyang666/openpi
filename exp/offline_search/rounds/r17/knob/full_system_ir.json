@@ -1,1 +1,134 @@
-[{"model": "Cosmos", "suite": "libero_10", "size": 50, "group": "crg", "sr": 0.384, "n": 500, "diff_pp": -60.2, "ir": 0.4377696529585034, "meets": false}, {"model": "Cosmos", "suite": "libero_spatial", "size": 50, "group": "crg", "sr": 0.452, "n": 500, "diff_pp": -51.2, "ir": 0.43056513720034056, "meets": false}, {"model": "Cosmos", "suite": "libero_10", "size": 100, "group": "crg", "sr": 0.652, "n": 500, "diff_pp": -33.4, "ir": 0.36682127891271954, "meets": false}, {"model": "Cosmos", "suite": "libero_spatial", "size": 100, "group": "crg", "sr": 0.918, "n": 500, "diff_pp": -4.6, "ir": 0.3305172483970324, "meets": false}, {"model": "Cosmos", "suite": "libero_10", "size": 200, "group": "crg", "sr": 0.764, "n": 500, "diff_pp": -22.2, "ir": 0.34375459766900635, "meets": false}, {"model": "Cosmos", "suite": "libero_spatial", "size": 200, "group": "crg", "sr": 0.948, "n": 500, "diff_pp": -1.6, "ir": 0.32066557570853077, "meets": false}, {"model": "Cosmos", "suite": "libero_10", "size": 300, "group": "crg", "sr": 0.836, "n": 500, "diff_pp": -15.0, "ir": 0.3343474252067854, "meets": false}, {"model": "Cosmos", "suite": "libero_spatial", "size": 300, "group": "crg", "sr": 0.962, "n": 500, "diff_pp": -0.2, "ir": 0.3152618625349585, "meets": false}, {"model": "Cosmos", "suite": "libero_10", "size": 400, "group": "crg", "sr": 0.84, "n": 500, "diff_pp": -14.6, "ir": 0.3330581386287826, "meets": false}, {"model": "Cosmos", "suite": "libero_spatial", "size": 400, "group": "crg", "sr": 0.952, "n": 500, "diff_pp": -1.2, "ir": 0.32090215129247357, "meets": false}, {"model": "Cosmos", "suite": "libero_10", "size": 500, "group": "crg", "sr": 0.856, "n": 500, "diff_pp": -13.0, "ir": 0.3300516326216291, "meets": false}, {"model": "Cosmos", "suite": "libero_spatial", "size": 500, "group": "crg", "sr": 0.958, "n": 500, "diff_pp": -0.6, "ir": 0.31658779270355347, "meets": false}, {"model": "DP", "suite": "libero_10", "size": 50, "group": "chrg", "sr": 0.606, "n": 500, "diff_pp": -19.0, "ir": 0.06744355962968072, "meets": false}, {"model": "DP", "suite": "libero_spatial", "size": 50, "group": "chrg", "sr": 0.84, "n": 500, "diff_pp": -7.2, "ir": 0.061442402253719705, "meets": false}, {"model": "DP", "suite": "libero_10", "size": 100, "group": "chrg", "sr": 0.806, "n": 500, "diff_pp": 1.0, "ir": 0.05504954333074152, "meets": true}, {"model": "DP", "suite": "libero_spatial", "size": 100, "group": "chrg", "sr": 0.92, "n": 500, "diff_pp": 0.8, "ir": 0.04798944330138427, "meets": true}, {"model": "DP", "suite": "libero_10", "size": 200, "group": "chrg", "sr": 0.836, "n": 500, "diff_pp": 4.0, "ir": 0.06326536952120093, "meets": true}, {"model": "DP", "suite": "libero_spatial", "size": 200, "group": "chrg", "sr": 0.94, "n": 500, "diff_pp": 2.8, "ir": 0.04151039094205087, "meets": true}, {"model": "DP", "suite": "libero_10", "size": 300, "group": "chrg", "sr": 0.862, "n": 500, "diff_pp": 6.6, "ir": 0.049716830781934514, "meets": true}, {"model": "DP", "suite": "libero_spatial", "size": 300, "group": "chrg", "sr": 0.942, "n": 500, "diff_pp": 3.0, "ir": 0.03687331521012683, "meets": true}, {"model": "DP", "suite": "libero_10", "size": 400, "group": "chrg", "sr": 0.876, "n": 500, "diff_pp": 8.0, "ir": 0.05041177941075311, "meets": true}, {"model": "DP", "suite": "libero_spatial", "size": 400, "group": "chrg", "sr": 0.934, "n": 500, "diff_pp": 2.2, "ir": 0.03713914683913987, "meets": true}, {"model": "DP", "suite": "libero_10", "size": 500, "group": "chrg", "sr": 0.886, "n": 500, "diff_pp": 9.0, "ir": 0.044773313678747345, "meets": true}, {"model": "DP", "suite": "libero_spatial", "size": 500, "group": "chrg", "sr": 0.94, "n": 500, "diff_pp": 2.8, "ir": 0.037150794199344, "meets": true}, {"model": "Fast-WAM", "suite": "libero_10", "size": 50, "group": "chrg", "sr": 0.646, "n": 500, "diff_pp": -27.0, "ir": 0.11295197824252841, "meets": false}, {"model": "Fast-WAM", "suite": "libero_spatial", "size": 50, "group": "chrg", "sr": 0.87, "n": 500, "diff_pp": -3.8, "ir": 0.07047936640575318, "meets": false}, {"model": "Fast-WAM", "suite": "libero_10", "size": 100, "group": "chrg", "sr": 0.694, "n": 500, "diff_pp": -22.2, "ir": 0.09520507676121422, "meets": false}, {"model": "Fast-WAM", "suite": "libero_spatial", "size": 100, "group": "chrg", "sr": 0.874, "n": 500, "diff_pp": -3.4, "ir": 0.058942292459743285, "meets": false}, {"model": "Fast-WAM", "suite": "libero_10", "size": 200, "group": "chrg", "sr": 0.75, "n": 500, "diff_pp": -16.6, "ir": 0.09125460490392845, "meets": false}, {"model": "Fast-WAM", "suite": "libero_spatial", "size": 200, "group": "chrg", "sr": 0.886, "n": 500, "diff_pp": -2.2, "ir": 0.06787028451174043, "meets": false}, {"model": "Fast-WAM", "suite": "libero_10", "size": 300, "group": "chrg", "sr": 0.792, "n": 500, "diff_pp": -12.4, "ir": 0.08662984952918305, "meets": false}, {"model": "Fast-WAM", "suite": "libero_spatial", "size": 300, "group": "chrg", "sr": 0.884, "n": 500, "diff_pp": -2.4, "ir": 0.0669159173538024, "meets": false}, {"model": "Fast-WAM", "suite": "libero_10", "size": 400, "group": "chrg", "sr": 0.818, "n": 500, "diff_pp": -9.8, "ir": 0.08193298918959184, "meets": false}, {"model": "Fast-WAM", "suite": "libero_spatial", "size": 400, "group": "chrg", "sr": 0.892, "n": 500, "diff_pp": -1.6, "ir": 0.06937567010562476, "meets": false}, {"model": "Fast-WAM", "suite": "libero_10", "size": 500, "group": "chrg", "sr": 0.8, "n": 500, "diff_pp": -11.6, "ir": 0.08286902065077037, "meets": false}, {"model": "Fast-WAM", "suite": "libero_spatial", "size": 500, "group": "chrg", "sr": 0.882, "n": 500, "diff_pp": -2.6, "ir": 0.06888729701056645, "meets": false}]
+[
+  {
+    "model": "Cosmos",
+    "suite": "libero_10",
+    "size": 50,
+    "group": "crg",
+    "sr": 0.384,
+    "n": 500,
+    "diff_pp": -60.2,
+    "ir": 0.4377696529585034,
+    "meets": false
+  },
+  {
+    "model": "Cosmos",
+    "suite": "libero_spatial",
+    "size": 50,
+    "group": "crg",
+    "sr": 0.452,
+    "n": 500,
+    "diff_pp": -51.2,
+    "ir": 0.43056513720034056,
+    "meets": false
+  },
+  {
+    "model": "Cosmos",
+    "suite": "libero_10",
+    "size": 100,
+    "group": "crg",
+    "sr": 0.652,
+    "n": 500,
+    "diff_pp": -33.4,
+    "ir": 0.36682127891271954,
+    "meets": false
+  },
+  {
+    "model": "Cosmos",
+    "suite": "libero_spatial",
+    "size": 100,
+    "group": "crg",
+    "sr": 0.918,
+    "n": 500,
+    "diff_pp": -4.6,
+    "ir": 0.3305172483970324,
+    "meets": false
+  },
+  {
+    "model": "Cosmos",
+    "suite": "libero_10",
+    "size": 200,
+    "group": "crg",
+    "sr": 0.764,
+    "n": 500,
+    "diff_pp": -22.2,
+    "ir": 0.34375459766900635,
+    "meets": false
+  },
+  {
+    "model": "Cosmos",
+    "suite": "libero_spatial",
+    "size": 200,
+    "group": "crg",
+    "sr": 0.948,
+    "n": 500,
+    "diff_pp": -1.6,
+    "ir": 0.32066557570853077,
+    "meets": false
+  },
+  {
+    "model": "Cosmos",
+    "suite": "libero_10",
+    "size": 300,
+    "group": "crg",
+    "sr": 0.836,
+    "n": 500,
+    "diff_pp": -15.0,
+    "ir": 0.3343474252067854,
+    "meets": false
+  },
+  {
+    "model": "Cosmos",
+    "suite": "libero_spatial",
+    "size": 300,
+    "group": "crg",
+    "sr": 0.962,
+    "n": 500,
+    "diff_pp": -0.2,
+    "ir": 0.3152618625349585,
+    "meets": false
+  },
+  {
+    "model": "Cosmos",
+    "suite": "libero_10",
+    "size": 400,
+    "group": "crg",
+    "sr": 0.84,
+    "n": 500,
+    "diff_pp": -14.6,
+    "ir": 0.3330581386287826,
+    "meets": false
+  },
+  {
+    "model": "Cosmos",
+    "suite": "libero_spatial",
+    "size": 400,
+    "group": "crg",
+    "sr": 0.952,
+    "n": 500,
+    "diff_pp": -1.2,
+    "ir": 0.32090215129247357,
+    "meets": false
+  },
+  {
+    "model": "Cosmos",
+    "suite": "libero_10",
+    "size": 500,
+    "group": "crg",
+    "sr": 0.856,
+    "n": 500,
+    "diff_pp": -13.0,
+    "ir": 0.3300516326216291,
+    "meets": false
+  },
+  {
+    "model": "Cosmos",
+    "suite": "libero_spatial",
+    "size": 500,
+    "group": "crg",
+    "sr": 0.958,
+    "n": 500,
+    "diff_pp": -0.6,
+    "ir": 0.31658779270355347,
+    "meets": false
+  }
+]

@@ -23,10 +23,11 @@ def descend(levels, tolerance, count=30):
                 incomplete=incomplete)
 
 
-def analyze_mt50(cells, references, output, miss_steps, control_overrides=()):
+def analyze_mt50(cells, references, output, miss_steps, control_overrides=(), *, prices=None, summary=None):
     """Freeze measured seed-7 levels directly, with a two-success tolerance."""
     from exp.offline_search.rounds.r17.knob.ir_formal import coefficients, ir
     tables = {}
+    summarize=summary or c.stats
     control_names = dict(c.MW_REDUCED_CONTROL_NAMES if miss_steps == "reduced" else c.MW_CONTROL_NAMES)
     control_names.update({c.model_label(m):(run,) for m,run in (item.split("=",1) for item in control_overrides)})
     result = dict(benchmark="mt50", seed=7, inits=50, miss_steps=miss_steps,
@@ -47,18 +48,18 @@ def analyze_mt50(cells, references, output, miss_steps, control_overrides=()):
         expected = {(suite, task, i) for task in names for i in range(50)}
         off = arms.get("koff", {})
         no_knob = (len(names) == 50 and set(off) == set(ref) == expected and
-                   c.stats(off, model)["group_mean"] >= c.stats(ref, model)["group_mean"])
+                   summarize(off, model)["group_mean"] >= summarize(ref, model)["group_mean"])
         tasks, selected, selected_ref = {}, {}, {}
         details += [f"## {model} · size {size}", "",
                     "| Task | Frozen level | First failure | Successes | Pure successes | Complete |",
                     "|---|---|---|---:|---:|---|"]
         for task in names:
             pure = {k:e for k,e in ref.items() if k[1] == task and 0 <= k[2] < 50}
-            baseline = c.stats(pure, model)
+            baseline = summarize(pure, model)
             levels = {"pure": dict(baseline, passes={"4": True if baseline["n"] == 50 else None})}
             for level in c.LEVELS[1:]:
                 data = {k:e for k,e in arms.get(level, {}).items() if k in pure}
-                st = c.stats(data, model)
+                st = summarize(data, model)
                 levels[level] = dict(st, passes={"4": baseline["successes"]-st["successes"] <= 2
                                     if st["n"] == baseline["n"] == 50 else None},
                                     missing_inits=sorted(set(range(50))-{k[2] for k in data}))
@@ -74,15 +75,15 @@ def analyze_mt50(cells, references, output, miss_steps, control_overrides=()):
             details.append(f'| {task} | {level or "pending"} | {decision["first_failure"] or "none"} | '
                            f'{levels[level]["successes"] if level else "pending"} | {baseline["successes"]} | '
                            f'{not decision["incomplete"]} |')
-        st = c.stats(selected, model)
-        baseline = c.stats(selected_ref, model)
-        system, pure_cost = coefficients(model, suite)
+        st = summarize(selected, model)
+        baseline = summarize(selected_ref, model)
+        system, pure_cost = (prices or coefficients)(model, suite)
         miss_key = "reduced_miss" if miss_steps == "reduced" else "full_miss"
-        formal_ir = ir(st, system, miss_key, c.C0[model]) if st["n"] and st["cost_n"] == st["n"] and st["controls"] else None
+        formal_ir = ir(st, system, miss_key, c.C0[model]) if system is not None and st["n"] and st["cost_n"] == st["n"] and st["controls"] else None
         row = dict(model=model, suite=suite, size=size, **st, control=baseline,
                    tasks=tasks, no_knob=no_knob, complete_tasks=st["n"]//50,
                    incomplete=st["n"] != 2500, ir=formal_ir,
-                   pure_ir=pure_cost["vision"]+pure_cost[miss_key])
+                   pure_ir=pure_cost["vision"]+pure_cost[miss_key] if pure_cost is not None else None)
         result["cells"].append(row)
         lines.append(f'| {model} | {size} | {row["complete_tasks"]}/50 | {c.percent(st.get("group_mean"))} | '
                      f'{c.percent(st.get("task_mean"))} | {c.percent(baseline.get("group_mean"))} | '

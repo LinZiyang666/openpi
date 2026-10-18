@@ -22,7 +22,7 @@ Receipt status is information only. Cells with fewer than 500 accepted episodes 
 | /data/mw_finetune/eval/cosmos500w85_220813 | PASS | RECEIPT.json:PASS | 4000 | 4000 | 0 |
 | /data/mw_finetune/eval/cosmossizes145_r8c | FAIL | RECEIPT.json:FAIL | 20000 | 20000 | 0 |
 
-240/240 cells have accepted outcomes; 240/240 have all 500 episodes.
+144/240 cells have accepted outcomes; 144/240 have all 500 episodes.
 
 ## N500 vs inference control (full cohort)
 
@@ -40,14 +40,6 @@ Receipt status is information only. Cells with fewer than 500 accepted episodes 
 | DP | c | libero_spatial | 500 | 94.60 | 500 | 3.40 | 30/13 | -2.64 | COMPLETE |
 | DP | cg | libero_10 | 500 | 87.40 | 500 | 7.80 | 76/37 | -1.47 | COMPLETE |
 | DP | cg | libero_spatial | 500 | 93.00 | 500 | 1.80 | 31/22 | -4.90 | COMPLETE |
-| DP | ch | libero_10 | 500 | 84.80 | 500 | 5.20 | 73/47 | -4.37 | COMPLETE |
-| DP | ch | libero_spatial | 500 | 91.40 | 500 | 0.20 | 28/27 | -6.61 | COMPLETE |
-| DP | chg | libero_10 | 500 | 87.40 | 500 | 7.80 | 79/40 | -1.68 | COMPLETE |
-| DP | chg | libero_spatial | 500 | 92.00 | 500 | 0.80 | 29/25 | -5.96 | COMPLETE |
-| DP | chr | libero_10 | 500 | 87.20 | 500 | 7.60 | 76/38 | -1.71 | COMPLETE |
-| DP | chr | libero_spatial | 500 | 93.80 | 500 | 2.60 | 32/19 | -3.97 | COMPLETE |
-| DP | chrg | libero_10 | 500 | 88.60 | 500 | 9.00 | 80/35 | -0.30 | COMPLETE |
-| DP | chrg | libero_spatial | 500 | 94.00 | 500 | 2.80 | 31/17 | -3.59 | COMPLETE |
 | DP | cr | libero_10 | 500 | 68.20 | 500 | -11.40 | 46/103 | -21.41 | COMPLETE |
 | DP | cr | libero_spatial | 500 | 93.60 | 500 | 2.40 | 30/18 | -4.00 | COMPLETE |
 | DP | crg | libero_10 | 500 | 88.80 | 500 | 9.20 | 78/32 | 0.10 | COMPLETE |
@@ -56,14 +48,6 @@ Receipt status is information only. Cells with fewer than 500 accepted episodes 
 | Fast-WAM | c | libero_spatial | 500 | 87.80 | 500 | -3.00 | 15/30 | -9.08 | COMPLETE |
 | Fast-WAM | cg | libero_10 | 500 | 81.40 | 500 | -10.20 | 27/78 | -18.74 | COMPLETE |
 | Fast-WAM | cg | libero_spatial | 500 | 89.20 | 500 | -1.60 | 17/25 | -7.58 | COMPLETE |
-| Fast-WAM | ch | libero_10 | 500 | 75.60 | 500 | -16.00 | 18/98 | -24.37 | COMPLETE |
-| Fast-WAM | ch | libero_spatial | 500 | 89.20 | 500 | -1.60 | 17/25 | -7.58 | COMPLETE |
-| Fast-WAM | chg | libero_10 | 500 | 78.20 | 500 | -13.40 | 19/86 | -21.60 | COMPLETE |
-| Fast-WAM | chg | libero_spatial | 500 | 89.20 | 500 | -1.60 | 18/26 | -7.71 | COMPLETE |
-| Fast-WAM | chr | libero_10 | 500 | 76.80 | 500 | -14.80 | 25/99 | -23.66 | COMPLETE |
-| Fast-WAM | chr | libero_spatial | 500 | 89.40 | 500 | -1.40 | 17/24 | -7.33 | COMPLETE |
-| Fast-WAM | chrg | libero_10 | 500 | 80.00 | 500 | -11.60 | 24/82 | -20.05 | COMPLETE |
-| Fast-WAM | chrg | libero_spatial | 500 | 88.20 | 500 | -2.60 | 16/29 | -8.71 | COMPLETE |
 | Fast-WAM | cr | libero_10 | 500 | 70.40 | 500 | -21.20 | 24/130 | -30.48 | COMPLETE |
 | Fast-WAM | cr | libero_spatial | 500 | 88.40 | 500 | -2.40 | 14/26 | -8.20 | COMPLETE |
 | Fast-WAM | crg | libero_10 | 500 | 83.40 | 500 | -8.20 | 25/66 | -16.31 | COMPLETE |
@@ -77,34 +61,18 @@ Receipt status is information only. Cells with fewer than 500 accepted episodes 
 | DP | c | libero_10 | 500 / 24.20 | 500 / 46.60 | 500 / 48.80 | 500 / 57.80 | 500 / 61.20 |
 | DP | cr | libero_spatial | 500 / 77.80 | 500 / 89.20 | 500 / 93.40 | 500 / 94.40 | 500 / 94.80 |
 | DP | cr | libero_10 | 500 / 32.40 | 500 / 50.40 | 500 / 51.00 | 500 / 60.60 | 500 / 63.60 |
-| DP | ch | libero_spatial | 500 / 69.60 | 500 / 83.40 | 500 / 87.80 | 500 / 90.60 | 500 / 91.60 |
-| DP | ch | libero_10 | 500 / 47.00 | 500 / 64.40 | 500 / 76.80 | 500 / 82.80 | 500 / 81.80 |
-| DP | chr | libero_spatial | 500 / 77.80 | 500 / 92.60 | 500 / 95.20 | 500 / 94.20 | 500 / 93.00 |
-| DP | chr | libero_10 | 500 / 54.60 | 500 / 71.20 | 500 / 80.00 | 500 / 81.40 | 500 / 84.40 |
 | DP | cg | libero_spatial | 500 / 83.80 | 500 / 91.40 | 500 / 92.20 | 500 / 92.80 | 500 / 92.00 |
 | DP | cg | libero_10 | 500 / 50.60 | 500 / 73.60 | 500 / 83.80 | 500 / 82.20 | 500 / 85.80 |
 | DP | crg | libero_spatial | 500 / 85.40 | 500 / 90.20 | 500 / 93.40 | 500 / 93.00 | 500 / 93.80 |
 | DP | crg | libero_10 | 500 / 59.40 | 500 / 76.40 | 500 / 80.40 | 500 / 84.80 | 500 / 87.60 |
-| DP | chg | libero_spatial | 500 / 76.20 | 500 / 86.60 | 500 / 91.80 | 500 / 91.80 | 500 / 91.00 |
-| DP | chg | libero_10 | 500 / 50.80 | 500 / 71.00 | 500 / 82.80 | 500 / 87.00 | 500 / 85.60 |
-| DP | chrg | libero_spatial | 500 / 84.00 | 500 / 92.00 | 500 / 94.00 | 500 / 94.20 | 500 / 93.40 |
-| DP | chrg | libero_10 | 500 / 60.60 | 500 / 80.60 | 500 / 83.60 | 500 / 86.20 | 500 / 87.60 |
 | Fast-WAM | c | libero_spatial | 500 / 78.60 | 500 / 83.20 | 500 / 84.40 | 500 / 84.80 | 500 / 85.40 |
 | Fast-WAM | c | libero_10 | 500 / 39.00 | 500 / 51.00 | 500 / 56.60 | 500 / 62.60 | 500 / 64.80 |
 | Fast-WAM | cr | libero_spatial | 500 / 77.00 | 500 / 83.40 | 500 / 86.40 | 500 / 87.40 | 500 / 87.60 |
 | Fast-WAM | cr | libero_10 | 500 / 45.00 | 500 / 53.80 | 500 / 63.00 | 500 / 67.20 | 500 / 71.20 |
-| Fast-WAM | ch | libero_spatial | 500 / 85.00 | 500 / 85.20 | 500 / 88.80 | 500 / 88.40 | 500 / 88.60 |
-| Fast-WAM | ch | libero_10 | 500 / 52.80 | 500 / 64.40 | 500 / 70.20 | 500 / 72.00 | 500 / 73.80 |
-| Fast-WAM | chr | libero_spatial | 500 / 84.60 | 500 / 88.00 | 500 / 89.20 | 500 / 89.00 | 500 / 89.20 |
-| Fast-WAM | chr | libero_10 | 500 / 60.60 | 500 / 66.80 | 500 / 72.00 | 500 / 76.00 | 500 / 77.00 |
 | Fast-WAM | cg | libero_spatial | 500 / 84.20 | 500 / 87.60 | 500 / 86.20 | 500 / 87.00 | 500 / 88.20 |
 | Fast-WAM | cg | libero_10 | 500 / 66.20 | 500 / 71.80 | 500 / 74.80 | 500 / 77.20 | 500 / 79.60 |
 | Fast-WAM | crg | libero_spatial | 500 / 85.60 | 500 / 87.20 | 500 / 87.80 | 500 / 89.20 | 500 / 88.80 |
 | Fast-WAM | crg | libero_10 | 500 / 71.80 | 500 / 72.20 | 500 / 79.80 | 500 / 81.20 | 500 / 84.80 |
-| Fast-WAM | chg | libero_spatial | 500 / 85.60 | 500 / 85.20 | 500 / 88.60 | 500 / 88.80 | 500 / 89.80 |
-| Fast-WAM | chg | libero_10 | 500 / 63.20 | 500 / 66.40 | 500 / 70.40 | 500 / 75.60 | 500 / 79.20 |
-| Fast-WAM | chrg | libero_spatial | 500 / 87.00 | 500 / 87.40 | 500 / 88.60 | 500 / 88.40 | 500 / 89.20 |
-| Fast-WAM | chrg | libero_10 | 500 / 64.60 | 500 / 69.40 | 500 / 75.00 | 500 / 79.20 | 500 / 81.80 |
 | Cosmos | c | libero_spatial | 500 / 11.20 | 500 / 85.60 | 500 / 93.60 | 500 / 95.20 | 500 / 94.00 |
 | Cosmos | c | libero_10 | 500 / 12.00 | 500 / 45.00 | 500 / 66.00 | 500 / 70.60 | 500 / 77.20 |
 | Cosmos | cr | libero_spatial | 500 / 36.80 | 500 / 90.60 | 500 / 96.00 | 500 / 96.00 | 500 / 95.60 |
@@ -222,22 +190,6 @@ Receipt status is information only. Cells with fewer than 500 accepted episodes 
 | DP | 50 | cg | libero_10 | sensitivity | COMPLETE | 479 | 51.15 [46.57,55.71] | 479 | 83.89 | 0.03230 | 3.23030 | 12.35 |
 | DP | 50 | cg | libero_spatial | full | COMPLETE | 500 | 83.80 [80.27,86.92] | 500 | 85.80 | 0.02879 | 2.87925 | 3.62 |
 | DP | 50 | cg | libero_spatial | sensitivity | COMPLETE | 489 | 84.05 [80.50,87.18] | 489 | 85.58 | 0.02923 | 2.92342 | 3.67 |
-| DP | 50 | ch | libero_10 | full | COMPLETE | 500 | 47.00 [42.55,51.48] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 50 | ch | libero_10 | sensitivity | COMPLETE | 479 | 48.02 [43.46,52.60] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 50 | ch | libero_spatial | full | COMPLETE | 500 | 69.60 [65.36,73.61] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 50 | ch | libero_spatial | sensitivity | COMPLETE | 489 | 69.33 [65.03,73.39] | 489 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 50 | chg | libero_10 | full | COMPLETE | 500 | 50.80 [46.32,55.27] | 500 | 86.90 | 0.01373 | 1.37308 | 5.16 |
-| DP | 50 | chg | libero_10 | sensitivity | COMPLETE | 479 | 51.57 [46.99,56.12] | 479 | 86.91 | 0.01374 | 1.37360 | 5.13 |
-| DP | 50 | chg | libero_spatial | full | COMPLETE | 500 | 76.20 [72.22,79.87] | 500 | 87.93 | 0.01280 | 1.27962 | 1.75 |
-| DP | 50 | chg | libero_spatial | sensitivity | COMPLETE | 489 | 75.87 [71.82,79.60] | 489 | 87.77 | 0.01298 | 1.29774 | 1.79 |
-| DP | 50 | chr | libero_10 | full | COMPLETE | 500 | 54.60 [50.12,59.03] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 50 | chr | libero_10 | sensitivity | COMPLETE | 479 | 54.91 [50.33,59.42] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 50 | chr | libero_spatial | full | COMPLETE | 500 | 77.80 [73.90,81.37] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 50 | chr | libero_spatial | sensitivity | COMPLETE | 489 | 77.71 [73.76,81.32] | 489 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 50 | chrg | libero_10 | full | COMPLETE | 500 | 60.60 [56.16,64.91] | 500 | 89.05 | 0.01143 | 1.14312 | 3.99 |
-| DP | 50 | chrg | libero_10 | sensitivity | COMPLETE | 479 | 60.75 [56.22,65.15] | 479 | 89.02 | 0.01147 | 1.14713 | 4.00 |
-| DP | 50 | chrg | libero_spatial | full | COMPLETE | 500 | 84.00 [80.49,87.10] | 500 | 90.62 | 0.00994 | 0.99413 | 1.23 |
-| DP | 50 | chrg | libero_spatial | sensitivity | COMPLETE | 489 | 84.05 [80.50,87.18] | 489 | 90.46 | 0.01012 | 1.01171 | 1.25 |
 | DP | 50 | cr | libero_10 | full | COMPLETE | 500 | 32.40 [28.31,36.70] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
 | DP | 50 | cr | libero_10 | sensitivity | COMPLETE | 479 | 32.57 [28.39,36.97] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
 | DP | 50 | cr | libero_spatial | full | COMPLETE | 500 | 77.80 [73.90,81.37] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
@@ -254,22 +206,6 @@ Receipt status is information only. Cells with fewer than 500 accepted episodes 
 | DP | 100 | cg | libero_10 | sensitivity | COMPLETE | 479 | 74.32 [70.16,78.18] | 479 | 86.96 | 0.02620 | 2.61962 | 8.86 |
 | DP | 100 | cg | libero_spatial | full | COMPLETE | 500 | 91.40 [88.59,93.71] | 500 | 88.51 | 0.02334 | 2.33405 | 2.67 |
 | DP | 100 | cg | libero_spatial | sensitivity | COMPLETE | 489 | 91.62 [88.80,93.92] | 489 | 88.67 | 0.02304 | 2.30359 | 2.63 |
-| DP | 100 | ch | libero_10 | full | COMPLETE | 500 | 64.40 [60.03,68.60] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 100 | ch | libero_10 | sensitivity | COMPLETE | 479 | 65.14 [60.68,69.40] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 100 | ch | libero_spatial | full | COMPLETE | 500 | 83.40 [79.84,86.56] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 100 | ch | libero_spatial | sensitivity | COMPLETE | 489 | 83.64 [80.06,86.81] | 489 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 100 | chg | libero_10 | full | COMPLETE | 500 | 71.00 [66.81,74.94] | 500 | 88.85 | 0.01188 | 1.18804 | 3.97 |
-| DP | 100 | chg | libero_10 | sensitivity | COMPLETE | 479 | 71.40 [67.12,75.41] | 479 | 88.87 | 0.01185 | 1.18501 | 3.93 |
-| DP | 100 | chg | libero_spatial | full | COMPLETE | 500 | 86.60 [83.30,89.46] | 500 | 91.13 | 0.00934 | 0.93441 | 1.11 |
-| DP | 100 | chg | libero_spatial | sensitivity | COMPLETE | 489 | 86.71 [83.37,89.59] | 489 | 91.22 | 0.00925 | 0.92489 | 1.10 |
-| DP | 100 | chr | libero_10 | full | COMPLETE | 500 | 71.20 [67.01,75.13] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 100 | chr | libero_10 | sensitivity | COMPLETE | 479 | 71.40 [67.12,75.41] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 100 | chr | libero_spatial | full | COMPLETE | 500 | 92.60 [89.94,94.74] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 100 | chr | libero_spatial | sensitivity | COMPLETE | 489 | 92.64 [89.95,94.79] | 489 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 100 | chrg | libero_10 | full | COMPLETE | 500 | 80.60 [76.86,83.98] | 500 | 91.66 | 0.00886 | 0.88555 | 2.73 |
-| DP | 100 | chrg | libero_10 | sensitivity | COMPLETE | 479 | 80.58 [76.75,84.03] | 479 | 91.64 | 0.00888 | 0.88764 | 2.72 |
-| DP | 100 | chrg | libero_spatial | full | COMPLETE | 500 | 92.00 [89.27,94.22] | 500 | 93.18 | 0.00720 | 0.71955 | 0.81 |
-| DP | 100 | chrg | libero_spatial | sensitivity | COMPLETE | 489 | 92.02 [89.26,94.27] | 489 | 93.29 | 0.00708 | 0.70776 | 0.80 |
 | DP | 100 | cr | libero_10 | full | COMPLETE | 500 | 50.40 [45.93,54.87] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
 | DP | 100 | cr | libero_10 | sensitivity | COMPLETE | 479 | 51.15 [46.57,55.71] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
 | DP | 100 | cr | libero_spatial | full | COMPLETE | 500 | 89.20 [86.14,91.78] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
@@ -286,22 +222,6 @@ Receipt status is information only. Cells with fewer than 500 accepted episodes 
 | DP | 200 | cg | libero_10 | sensitivity | COMPLETE | 479 | 84.97 [81.45,88.05] | 479 | 87.39 | 0.02535 | 2.53531 | 7.91 |
 | DP | 200 | cg | libero_spatial | full | COMPLETE | 500 | 92.20 [89.49,94.39] | 500 | 90.32 | 0.01969 | 1.96887 | 2.23 |
 | DP | 200 | cg | libero_spatial | sensitivity | COMPLETE | 489 | 92.02 [89.26,94.27] | 489 | 90.31 | 0.01969 | 1.96928 | 2.23 |
-| DP | 200 | ch | libero_10 | full | COMPLETE | 500 | 76.80 [72.85,80.43] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 200 | ch | libero_10 | sensitivity | COMPLETE | 479 | 76.83 [72.78,80.53] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 200 | ch | libero_spatial | full | COMPLETE | 500 | 87.80 [84.61,90.54] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 200 | ch | libero_spatial | sensitivity | COMPLETE | 489 | 87.93 [84.71,90.69] | 489 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 200 | chg | libero_10 | full | COMPLETE | 500 | 82.80 [79.20,86.01] | 500 | 89.34 | 0.01116 | 1.11605 | 3.38 |
-| DP | 200 | chg | libero_10 | sensitivity | COMPLETE | 479 | 82.67 [78.98,85.96] | 479 | 89.17 | 0.01133 | 1.13314 | 3.43 |
-| DP | 200 | chg | libero_spatial | full | COMPLETE | 500 | 91.80 [89.04,94.05] | 500 | 92.96 | 0.00733 | 0.73333 | 0.83 |
-| DP | 200 | chg | libero_spatial | sensitivity | COMPLETE | 489 | 91.62 [88.80,93.92] | 489 | 93.00 | 0.00729 | 0.72891 | 0.82 |
-| DP | 200 | chr | libero_10 | full | COMPLETE | 500 | 80.00 [76.22,83.42] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 200 | chr | libero_10 | sensitivity | COMPLETE | 479 | 80.38 [76.53,83.84] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 200 | chr | libero_spatial | full | COMPLETE | 500 | 95.20 [92.94,96.90] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 200 | chr | libero_spatial | sensitivity | COMPLETE | 489 | 95.30 [93.03,97.00] | 489 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 200 | chrg | libero_10 | full | COMPLETE | 500 | 83.60 [80.06,86.74] | 500 | 89.92 | 0.01057 | 1.05672 | 3.13 |
-| DP | 200 | chrg | libero_10 | sensitivity | COMPLETE | 479 | 83.09 [79.43,86.34] | 479 | 89.87 | 0.01062 | 1.06202 | 3.14 |
-| DP | 200 | chrg | libero_spatial | full | COMPLETE | 500 | 94.00 [91.55,95.92] | 500 | 94.38 | 0.00589 | 0.58855 | 0.64 |
-| DP | 200 | chrg | libero_spatial | sensitivity | COMPLETE | 489 | 93.87 [91.36,95.82] | 489 | 94.36 | 0.00591 | 0.59107 | 0.65 |
 | DP | 200 | cr | libero_10 | full | COMPLETE | 500 | 51.00 [46.52,55.46] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
 | DP | 200 | cr | libero_10 | sensitivity | COMPLETE | 479 | 51.57 [46.99,56.12] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
 | DP | 200 | cr | libero_spatial | full | COMPLETE | 500 | 93.40 [90.86,95.41] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
@@ -318,22 +238,6 @@ Receipt status is information only. Cells with fewer than 500 accepted episodes 
 | DP | 300 | cg | libero_10 | sensitivity | COMPLETE | 479 | 82.67 [78.98,85.96] | 479 | 87.91 | 0.02432 | 2.43215 | 7.56 |
 | DP | 300 | cg | libero_spatial | full | COMPLETE | 500 | 92.80 [90.17,94.91] | 500 | 91.34 | 0.01761 | 1.76094 | 1.96 |
 | DP | 300 | cg | libero_spatial | sensitivity | COMPLETE | 489 | 92.84 [90.19,94.96] | 489 | 91.44 | 0.01741 | 1.74103 | 1.94 |
-| DP | 300 | ch | libero_10 | full | COMPLETE | 500 | 82.80 [79.20,86.01] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 300 | ch | libero_10 | sensitivity | COMPLETE | 479 | 82.88 [79.20,86.15] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 300 | ch | libero_spatial | full | COMPLETE | 500 | 90.60 [87.70,93.01] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 300 | ch | libero_spatial | sensitivity | COMPLETE | 489 | 90.59 [87.65,93.03] | 489 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 300 | chg | libero_10 | full | COMPLETE | 500 | 87.00 [83.73,89.82] | 500 | 93.01 | 0.00736 | 0.73562 | 2.14 |
-| DP | 300 | chg | libero_10 | sensitivity | COMPLETE | 479 | 87.27 [83.94,90.12] | 479 | 93.07 | 0.00729 | 0.72873 | 2.11 |
-| DP | 300 | chg | libero_spatial | full | COMPLETE | 500 | 91.80 [89.04,94.05] | 500 | 93.61 | 0.00671 | 0.67068 | 0.75 |
-| DP | 300 | chg | libero_spatial | sensitivity | COMPLETE | 489 | 91.82 [89.03,94.09] | 489 | 93.66 | 0.00665 | 0.66548 | 0.74 |
-| DP | 300 | chr | libero_10 | full | COMPLETE | 500 | 81.40 [77.71,84.72] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 300 | chr | libero_10 | sensitivity | COMPLETE | 479 | 82.05 [78.31,85.38] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 300 | chr | libero_spatial | full | COMPLETE | 500 | 94.20 [91.78,96.08] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 300 | chr | libero_spatial | sensitivity | COMPLETE | 489 | 94.27 [91.83,96.16] | 489 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 300 | chrg | libero_10 | full | COMPLETE | 500 | 86.20 [82.86,89.10] | 500 | 92.59 | 0.00779 | 0.77900 | 2.23 |
-| DP | 300 | chrg | libero_10 | sensitivity | COMPLETE | 479 | 86.64 [83.26,89.56] | 479 | 92.56 | 0.00781 | 0.78127 | 2.22 |
-| DP | 300 | chrg | libero_spatial | full | COMPLETE | 500 | 94.20 [91.78,96.08] | 500 | 95.30 | 0.00493 | 0.49321 | 0.53 |
-| DP | 300 | chrg | libero_spatial | sensitivity | COMPLETE | 489 | 94.27 [91.83,96.16] | 489 | 95.35 | 0.00487 | 0.48748 | 0.53 |
 | DP | 300 | cr | libero_10 | full | COMPLETE | 500 | 60.60 [56.16,64.91] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
 | DP | 300 | cr | libero_10 | sensitivity | COMPLETE | 479 | 61.59 [57.07,65.96] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
 | DP | 300 | cr | libero_spatial | full | COMPLETE | 500 | 94.40 [92.01,96.25] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
@@ -350,22 +254,6 @@ Receipt status is information only. Cells with fewer than 500 accepted episodes 
 | DP | 400 | cg | libero_10 | sensitivity | COMPLETE | 479 | 86.43 [83.03,89.37] | 479 | 88.96 | 0.02221 | 2.22100 | 6.72 |
 | DP | 400 | cg | libero_spatial | full | COMPLETE | 500 | 92.00 [89.27,94.22] | 500 | 91.76 | 0.01675 | 1.67455 | 1.88 |
 | DP | 400 | cg | libero_spatial | sensitivity | COMPLETE | 489 | 92.23 [89.49,94.44] | 489 | 91.91 | 0.01646 | 1.64621 | 1.84 |
-| DP | 400 | ch | libero_10 | full | COMPLETE | 500 | 81.80 [78.13,85.09] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 400 | ch | libero_10 | sensitivity | COMPLETE | 479 | 81.84 [78.09,85.19] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 400 | ch | libero_spatial | full | COMPLETE | 500 | 91.60 [88.82,93.88] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 400 | ch | libero_spatial | sensitivity | COMPLETE | 489 | 91.62 [88.80,93.92] | 489 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 400 | chg | libero_10 | full | COMPLETE | 500 | 85.60 [82.21,88.56] | 500 | 91.88 | 0.00851 | 0.85103 | 2.49 |
-| DP | 400 | chg | libero_10 | sensitivity | COMPLETE | 479 | 85.39 [81.90,88.43] | 479 | 91.76 | 0.00864 | 0.86364 | 2.52 |
-| DP | 400 | chg | libero_spatial | full | COMPLETE | 500 | 91.00 [88.14,93.36] | 500 | 93.90 | 0.00640 | 0.64034 | 0.72 |
-| DP | 400 | chg | libero_spatial | sensitivity | COMPLETE | 489 | 91.21 [88.34,93.56] | 489 | 94.02 | 0.00628 | 0.62824 | 0.70 |
-| DP | 400 | chr | libero_10 | full | COMPLETE | 500 | 84.40 [80.92,87.47] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 400 | chr | libero_10 | sensitivity | COMPLETE | 479 | 85.59 [82.13,88.62] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 400 | chr | libero_spatial | full | COMPLETE | 500 | 93.00 [90.40,95.08] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 400 | chr | libero_spatial | sensitivity | COMPLETE | 489 | 93.05 [90.42,95.14] | 489 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 400 | chrg | libero_10 | full | COMPLETE | 500 | 87.60 [84.39,90.36] | 500 | 92.40 | 0.00794 | 0.79445 | 2.25 |
-| DP | 400 | chrg | libero_10 | sensitivity | COMPLETE | 479 | 88.52 [85.32,91.23] | 479 | 92.48 | 0.00785 | 0.78502 | 2.20 |
-| DP | 400 | chrg | libero_spatial | full | COMPLETE | 500 | 93.40 [90.86,95.41] | 500 | 95.27 | 0.00498 | 0.49771 | 0.54 |
-| DP | 400 | chrg | libero_spatial | sensitivity | COMPLETE | 489 | 93.46 [90.89,95.48] | 489 | 95.26 | 0.00499 | 0.49878 | 0.54 |
 | DP | 400 | cr | libero_10 | full | COMPLETE | 500 | 63.60 [59.21,67.83] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
 | DP | 400 | cr | libero_10 | sensitivity | COMPLETE | 479 | 64.93 [60.47,69.20] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
 | DP | 400 | cr | libero_spatial | full | COMPLETE | 500 | 94.80 [92.47,96.58] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
@@ -382,22 +270,6 @@ Receipt status is information only. Cells with fewer than 500 accepted episodes 
 | DP | 500 | cg | libero_10 | sensitivity | COMPLETE | 479 | 87.27 [83.94,90.12] | 479 | 89.51 | 0.02111 | 2.11119 | 6.33 |
 | DP | 500 | cg | libero_spatial | full | COMPLETE | 500 | 93.00 [90.40,95.08] | 500 | 92.03 | 0.01621 | 1.62066 | 1.80 |
 | DP | 500 | cg | libero_spatial | sensitivity | COMPLETE | 489 | 93.05 [90.42,95.14] | 489 | 92.10 | 0.01605 | 1.60527 | 1.78 |
-| DP | 500 | ch | libero_10 | full | COMPLETE | 500 | 84.80 [81.35,87.83] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 500 | ch | libero_10 | sensitivity | COMPLETE | 479 | 85.18 [81.67,88.24] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 500 | ch | libero_spatial | full | COMPLETE | 500 | 91.40 [88.59,93.71] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 500 | ch | libero_spatial | sensitivity | COMPLETE | 489 | 91.62 [88.80,93.92] | 489 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 500 | chg | libero_10 | full | COMPLETE | 500 | 87.40 [84.17,90.18] | 500 | 93.30 | 0.00702 | 0.70248 | 2.01 |
-| DP | 500 | chg | libero_10 | sensitivity | COMPLETE | 479 | 87.89 [84.63,90.68] | 479 | 93.39 | 0.00693 | 0.69311 | 1.96 |
-| DP | 500 | chg | libero_spatial | full | COMPLETE | 500 | 92.00 [89.27,94.22] | 500 | 94.24 | 0.00605 | 0.60534 | 0.67 |
-| DP | 500 | chg | libero_spatial | sensitivity | COMPLETE | 489 | 92.23 [89.49,94.44] | 489 | 94.49 | 0.00579 | 0.57861 | 0.64 |
-| DP | 500 | chr | libero_10 | full | COMPLETE | 500 | 87.20 [83.95,90.00] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 500 | chr | libero_10 | sensitivity | COMPLETE | 479 | 87.47 [84.17,90.30] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 500 | chr | libero_spatial | full | COMPLETE | 500 | 93.80 [91.31,95.75] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 500 | chr | libero_spatial | sensitivity | COMPLETE | 489 | 93.87 [91.36,95.82] | 489 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| DP | 500 | chrg | libero_10 | full | COMPLETE | 500 | 88.60 [85.48,91.25] | 500 | 93.54 | 0.00678 | 0.67807 | 1.93 |
-| DP | 500 | chrg | libero_10 | sensitivity | COMPLETE | 479 | 88.73 [85.55,91.42] | 479 | 93.46 | 0.00686 | 0.68649 | 1.94 |
-| DP | 500 | chrg | libero_spatial | full | COMPLETE | 500 | 94.00 [91.55,95.92] | 500 | 95.24 | 0.00499 | 0.49901 | 0.54 |
-| DP | 500 | chrg | libero_spatial | sensitivity | COMPLETE | 489 | 94.07 [91.59,95.99] | 489 | 95.31 | 0.00491 | 0.49148 | 0.53 |
 | DP | 500 | cr | libero_10 | full | COMPLETE | 500 | 68.20 [63.92,72.26] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
 | DP | 500 | cr | libero_10 | sensitivity | COMPLETE | 479 | 69.31 [64.97,73.42] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
 | DP | 500 | cr | libero_spatial | full | COMPLETE | 500 | 93.60 [91.08,95.58] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
@@ -414,22 +286,6 @@ Receipt status is information only. Cells with fewer than 500 accepted episodes 
 | Fast-WAM | 50 | cg | libero_10 | sensitivity | COMPLETE | 479 | 66.18 [61.75,70.41] | 479 | 80.89 | 0.03836 | 0.38363 | 13.28 |
 | Fast-WAM | 50 | cg | libero_spatial | full | COMPLETE | 500 | 84.20 [80.70,87.29] | 500 | 92.20 | 0.01581 | 0.15809 | 1.98 |
 | Fast-WAM | 50 | cg | libero_spatial | sensitivity | COMPLETE | 489 | 84.25 [80.72,87.37] | 489 | 92.10 | 0.01601 | 0.16007 | 2.00 |
-| Fast-WAM | 50 | ch | libero_10 | full | COMPLETE | 500 | 52.80 [48.32,57.25] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 50 | ch | libero_10 | sensitivity | COMPLETE | 479 | 53.03 [48.45,57.57] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 50 | ch | libero_spatial | full | COMPLETE | 500 | 85.00 [81.56,88.02] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 50 | ch | libero_spatial | sensitivity | COMPLETE | 489 | 84.87 [81.38,87.93] | 489 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 50 | chg | libero_10 | full | COMPLETE | 500 | 63.20 [58.80,67.44] | 500 | 82.95 | 0.01805 | 0.18049 | 6.26 |
-| Fast-WAM | 50 | chg | libero_10 | sensitivity | COMPLETE | 479 | 63.88 [59.40,68.19] | 479 | 83.21 | 0.01778 | 0.17780 | 6.12 |
-| Fast-WAM | 50 | chg | libero_spatial | full | COMPLETE | 500 | 85.60 [82.21,88.56] | 500 | 93.50 | 0.00686 | 0.06855 | 0.85 |
-| Fast-WAM | 50 | chg | libero_spatial | sensitivity | COMPLETE | 489 | 85.48 [82.04,88.48] | 489 | 93.40 | 0.00697 | 0.06967 | 0.87 |
-| Fast-WAM | 50 | chr | libero_10 | full | COMPLETE | 500 | 60.60 [56.16,64.91] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 50 | chr | libero_10 | sensitivity | COMPLETE | 479 | 61.59 [57.07,65.96] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 50 | chr | libero_spatial | full | COMPLETE | 500 | 84.60 [81.13,87.65] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 50 | chr | libero_spatial | sensitivity | COMPLETE | 489 | 84.46 [80.94,87.56] | 489 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 50 | chrg | libero_10 | full | COMPLETE | 500 | 64.60 [60.23,68.79] | 500 | 83.63 | 0.01729 | 0.17285 | 5.90 |
-| Fast-WAM | 50 | chrg | libero_10 | sensitivity | COMPLETE | 479 | 65.55 [61.11,69.81] | 479 | 83.85 | 0.01706 | 0.17055 | 5.78 |
-| Fast-WAM | 50 | chrg | libero_spatial | full | COMPLETE | 500 | 87.00 [83.73,89.82] | 500 | 93.66 | 0.00670 | 0.06702 | 0.82 |
-| Fast-WAM | 50 | chrg | libero_spatial | sensitivity | COMPLETE | 489 | 87.12 [83.82,89.96] | 489 | 93.57 | 0.00680 | 0.06802 | 0.83 |
 | Fast-WAM | 50 | cr | libero_10 | full | COMPLETE | 500 | 45.00 [40.58,49.48] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
 | Fast-WAM | 50 | cr | libero_10 | sensitivity | COMPLETE | 479 | 45.72 [41.19,50.30] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
 | Fast-WAM | 50 | cr | libero_spatial | full | COMPLETE | 500 | 77.00 [73.06,80.62] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
@@ -446,22 +302,6 @@ Receipt status is information only. Cells with fewer than 500 accepted episodes 
 | Fast-WAM | 100 | cg | libero_10 | sensitivity | COMPLETE | 479 | 71.61 [67.34,75.61] | 479 | 85.43 | 0.02926 | 0.29259 | 9.78 |
 | Fast-WAM | 100 | cg | libero_spatial | full | COMPLETE | 500 | 87.60 [84.39,90.36] | 500 | 93.14 | 0.01392 | 0.13917 | 1.69 |
 | Fast-WAM | 100 | cg | libero_spatial | sensitivity | COMPLETE | 489 | 87.73 [84.49,90.50] | 489 | 93.00 | 0.01419 | 0.14192 | 1.72 |
-| Fast-WAM | 100 | ch | libero_10 | full | COMPLETE | 500 | 64.40 [60.03,68.60] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 100 | ch | libero_10 | sensitivity | COMPLETE | 479 | 64.30 [59.83,68.60] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 100 | ch | libero_spatial | full | COMPLETE | 500 | 85.20 [81.78,88.20] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 100 | ch | libero_spatial | sensitivity | COMPLETE | 489 | 86.09 [82.71,89.04] | 489 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 100 | chg | libero_10 | full | COMPLETE | 500 | 66.40 [62.07,70.53] | 500 | 86.38 | 0.01423 | 0.14229 | 4.85 |
-| Fast-WAM | 100 | chg | libero_10 | sensitivity | COMPLETE | 479 | 67.01 [62.60,71.21] | 479 | 86.52 | 0.01408 | 0.14081 | 4.76 |
-| Fast-WAM | 100 | chg | libero_spatial | full | COMPLETE | 500 | 85.20 [81.78,88.20] | 500 | 95.62 | 0.00455 | 0.04549 | 0.56 |
-| Fast-WAM | 100 | chg | libero_spatial | sensitivity | COMPLETE | 489 | 85.48 [82.04,88.48] | 489 | 95.52 | 0.00465 | 0.04650 | 0.57 |
-| Fast-WAM | 100 | chr | libero_10 | full | COMPLETE | 500 | 66.80 [62.48,70.92] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 100 | chr | libero_10 | sensitivity | COMPLETE | 479 | 67.22 [62.82,71.41] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 100 | chr | libero_spatial | full | COMPLETE | 500 | 88.00 [84.82,90.72] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 100 | chr | libero_spatial | sensitivity | COMPLETE | 489 | 88.14 [84.94,90.87] | 489 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 100 | chrg | libero_10 | full | COMPLETE | 500 | 69.40 [65.15,73.41] | 500 | 87.50 | 0.01305 | 0.13048 | 4.31 |
-| Fast-WAM | 100 | chrg | libero_10 | sensitivity | COMPLETE | 479 | 69.73 [65.40,73.81] | 479 | 87.63 | 0.01292 | 0.12918 | 4.24 |
-| Fast-WAM | 100 | chrg | libero_spatial | full | COMPLETE | 500 | 87.40 [84.17,90.18] | 500 | 96.13 | 0.00403 | 0.04028 | 0.49 |
-| Fast-WAM | 100 | chrg | libero_spatial | sensitivity | COMPLETE | 489 | 88.14 [84.94,90.87] | 489 | 96.07 | 0.00409 | 0.04094 | 0.50 |
 | Fast-WAM | 100 | cr | libero_10 | full | COMPLETE | 500 | 53.80 [49.32,58.24] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
 | Fast-WAM | 100 | cr | libero_10 | sensitivity | COMPLETE | 479 | 54.28 [49.70,58.81] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
 | Fast-WAM | 100 | cr | libero_spatial | full | COMPLETE | 500 | 83.40 [79.84,86.56] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
@@ -478,22 +318,6 @@ Receipt status is information only. Cells with fewer than 500 accepted episodes 
 | Fast-WAM | 200 | cg | libero_10 | sensitivity | COMPLETE | 479 | 74.95 [70.82,78.77] | 479 | 83.80 | 0.03256 | 0.32564 | 10.37 |
 | Fast-WAM | 200 | cg | libero_spatial | full | COMPLETE | 500 | 86.20 [82.86,89.10] | 500 | 90.54 | 0.01918 | 0.19178 | 2.35 |
 | Fast-WAM | 200 | cg | libero_spatial | sensitivity | COMPLETE | 489 | 86.91 [83.60,89.77] | 489 | 90.60 | 0.01907 | 0.19072 | 2.32 |
-| Fast-WAM | 200 | ch | libero_10 | full | COMPLETE | 500 | 70.20 [65.98,74.18] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 200 | ch | libero_10 | sensitivity | COMPLETE | 479 | 70.56 [66.26,74.61] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 200 | ch | libero_spatial | full | COMPLETE | 500 | 88.80 [85.70,91.43] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 200 | ch | libero_spatial | sensitivity | COMPLETE | 489 | 89.57 [86.52,92.14] | 489 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 200 | chg | libero_10 | full | COMPLETE | 500 | 70.40 [66.19,74.37] | 500 | 87.23 | 0.01327 | 0.13273 | 4.36 |
-| Fast-WAM | 200 | chg | libero_10 | sensitivity | COMPLETE | 479 | 70.77 [66.48,74.81] | 479 | 87.30 | 0.01320 | 0.13198 | 4.30 |
-| Fast-WAM | 200 | chg | libero_spatial | full | COMPLETE | 500 | 88.60 [85.48,91.25] | 500 | 93.78 | 0.00652 | 0.06524 | 0.78 |
-| Fast-WAM | 200 | chg | libero_spatial | sensitivity | COMPLETE | 489 | 88.96 [85.84,91.59] | 489 | 93.91 | 0.00638 | 0.06381 | 0.76 |
-| Fast-WAM | 200 | chr | libero_10 | full | COMPLETE | 500 | 72.00 [67.84,75.90] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 200 | chr | libero_10 | sensitivity | COMPLETE | 479 | 72.23 [67.99,76.20] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 200 | chr | libero_spatial | full | COMPLETE | 500 | 89.20 [86.14,91.78] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 200 | chr | libero_spatial | sensitivity | COMPLETE | 489 | 89.57 [86.52,92.14] | 489 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 200 | chrg | libero_10 | full | COMPLETE | 500 | 75.00 [70.96,78.74] | 500 | 88.27 | 0.01215 | 0.12152 | 3.85 |
-| Fast-WAM | 200 | chrg | libero_10 | sensitivity | COMPLETE | 479 | 75.78 [71.69,79.55] | 479 | 88.34 | 0.01208 | 0.12083 | 3.80 |
-| Fast-WAM | 200 | chrg | libero_spatial | full | COMPLETE | 500 | 88.60 [85.48,91.25] | 500 | 94.13 | 0.00615 | 0.06153 | 0.74 |
-| Fast-WAM | 200 | chrg | libero_spatial | sensitivity | COMPLETE | 489 | 88.96 [85.84,91.59] | 489 | 94.30 | 0.00597 | 0.05972 | 0.71 |
 | Fast-WAM | 200 | cr | libero_10 | full | COMPLETE | 500 | 63.00 [58.60,67.24] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
 | Fast-WAM | 200 | cr | libero_10 | sensitivity | COMPLETE | 479 | 63.47 [58.98,67.79] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
 | Fast-WAM | 200 | cr | libero_spatial | full | COMPLETE | 500 | 86.40 [83.08,89.28] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
@@ -510,22 +334,6 @@ Receipt status is information only. Cells with fewer than 500 accepted episodes 
 | Fast-WAM | 300 | cg | libero_10 | sensitivity | COMPLETE | 479 | 77.45 [73.44,81.12] | 479 | 84.12 | 0.03192 | 0.31923 | 10.06 |
 | Fast-WAM | 300 | cg | libero_spatial | full | COMPLETE | 500 | 87.00 [83.73,89.82] | 500 | 90.83 | 0.01860 | 0.18602 | 2.25 |
 | Fast-WAM | 300 | cg | libero_spatial | sensitivity | COMPLETE | 489 | 87.73 [84.49,90.50] | 489 | 91.02 | 0.01822 | 0.18219 | 2.19 |
-| Fast-WAM | 300 | ch | libero_10 | full | COMPLETE | 500 | 72.00 [67.84,75.90] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 300 | ch | libero_10 | sensitivity | COMPLETE | 479 | 72.23 [67.99,76.20] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 300 | ch | libero_spatial | full | COMPLETE | 500 | 88.40 [85.26,91.07] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 300 | ch | libero_spatial | sensitivity | COMPLETE | 489 | 88.75 [85.61,91.41] | 489 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 300 | chg | libero_10 | full | COMPLETE | 500 | 75.60 [71.59,79.30] | 500 | 88.25 | 0.01217 | 0.12169 | 3.88 |
-| Fast-WAM | 300 | chg | libero_10 | sensitivity | COMPLETE | 479 | 75.37 [71.25,79.16] | 479 | 88.15 | 0.01228 | 0.12277 | 3.92 |
-| Fast-WAM | 300 | chg | libero_spatial | full | COMPLETE | 500 | 88.80 [85.70,91.43] | 500 | 94.44 | 0.00580 | 0.05800 | 0.69 |
-| Fast-WAM | 300 | chg | libero_spatial | sensitivity | COMPLETE | 489 | 89.37 [86.29,91.96] | 489 | 94.58 | 0.00565 | 0.05646 | 0.67 |
-| Fast-WAM | 300 | chr | libero_10 | full | COMPLETE | 500 | 76.00 [72.01,79.68] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 300 | chr | libero_10 | sensitivity | COMPLETE | 479 | 76.20 [72.13,79.95] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 300 | chr | libero_spatial | full | COMPLETE | 500 | 89.00 [85.92,91.61] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 300 | chr | libero_spatial | sensitivity | COMPLETE | 489 | 89.57 [86.52,92.14] | 489 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 300 | chrg | libero_10 | full | COMPLETE | 500 | 79.20 [75.37,82.68] | 500 | 89.35 | 0.01103 | 0.11025 | 3.39 |
-| Fast-WAM | 300 | chrg | libero_10 | sensitivity | COMPLETE | 479 | 79.33 [75.43,82.87] | 479 | 89.27 | 0.01111 | 0.11108 | 3.41 |
-| Fast-WAM | 300 | chrg | libero_spatial | full | COMPLETE | 500 | 88.40 [85.26,91.07] | 500 | 94.27 | 0.00597 | 0.05971 | 0.71 |
-| Fast-WAM | 300 | chrg | libero_spatial | sensitivity | COMPLETE | 489 | 88.96 [85.84,91.59] | 489 | 94.32 | 0.00592 | 0.05915 | 0.70 |
 | Fast-WAM | 300 | cr | libero_10 | full | COMPLETE | 500 | 67.20 [62.89,71.30] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
 | Fast-WAM | 300 | cr | libero_10 | sensitivity | COMPLETE | 479 | 67.64 [63.25,71.81] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
 | Fast-WAM | 300 | cr | libero_spatial | full | COMPLETE | 500 | 87.40 [84.17,90.18] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
@@ -542,22 +350,6 @@ Receipt status is information only. Cells with fewer than 500 accepted episodes 
 | Fast-WAM | 400 | cg | libero_10 | sensitivity | COMPLETE | 479 | 79.54 [75.65,83.07] | 479 | 84.73 | 0.03070 | 0.30704 | 9.51 |
 | Fast-WAM | 400 | cg | libero_spatial | full | COMPLETE | 500 | 88.20 [85.04,90.89] | 500 | 90.67 | 0.01892 | 0.18920 | 2.29 |
 | Fast-WAM | 400 | cg | libero_spatial | sensitivity | COMPLETE | 489 | 88.96 [85.84,91.59] | 489 | 90.87 | 0.01852 | 0.18515 | 2.22 |
-| Fast-WAM | 400 | ch | libero_10 | full | COMPLETE | 500 | 73.80 [69.71,77.60] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 400 | ch | libero_10 | sensitivity | COMPLETE | 479 | 74.11 [69.94,77.98] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 400 | ch | libero_spatial | full | COMPLETE | 500 | 88.60 [85.48,91.25] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 400 | ch | libero_spatial | sensitivity | COMPLETE | 489 | 89.16 [86.06,91.78] | 489 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 400 | chg | libero_10 | full | COMPLETE | 500 | 79.20 [75.37,82.68] | 500 | 89.57 | 0.01079 | 0.10785 | 3.33 |
-| Fast-WAM | 400 | chg | libero_10 | sensitivity | COMPLETE | 479 | 79.33 [75.43,82.87] | 479 | 89.59 | 0.01077 | 0.10768 | 3.32 |
-| Fast-WAM | 400 | chg | libero_spatial | full | COMPLETE | 500 | 89.80 [86.81,92.31] | 500 | 93.45 | 0.00681 | 0.06812 | 0.80 |
-| Fast-WAM | 400 | chg | libero_spatial | sensitivity | COMPLETE | 489 | 90.18 [87.20,92.67] | 489 | 93.70 | 0.00655 | 0.06553 | 0.77 |
-| Fast-WAM | 400 | chr | libero_10 | full | COMPLETE | 500 | 77.00 [73.06,80.62] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 400 | chr | libero_10 | sensitivity | COMPLETE | 479 | 77.24 [73.22,80.93] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 400 | chr | libero_spatial | full | COMPLETE | 500 | 89.20 [86.14,91.78] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 400 | chr | libero_spatial | sensitivity | COMPLETE | 489 | 89.57 [86.52,92.14] | 489 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 400 | chrg | libero_10 | full | COMPLETE | 500 | 81.80 [78.13,85.09] | 500 | 90.42 | 0.00989 | 0.09894 | 2.98 |
-| Fast-WAM | 400 | chrg | libero_10 | sensitivity | COMPLETE | 479 | 82.05 [78.31,85.38] | 479 | 90.51 | 0.00980 | 0.09801 | 2.95 |
-| Fast-WAM | 400 | chrg | libero_spatial | full | COMPLETE | 500 | 89.20 [86.14,91.78] | 500 | 93.67 | 0.00659 | 0.06592 | 0.78 |
-| Fast-WAM | 400 | chrg | libero_spatial | sensitivity | COMPLETE | 489 | 89.57 [86.52,92.14] | 489 | 93.84 | 0.00641 | 0.06409 | 0.75 |
 | Fast-WAM | 400 | cr | libero_10 | full | COMPLETE | 500 | 71.20 [67.01,75.13] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
 | Fast-WAM | 400 | cr | libero_10 | sensitivity | COMPLETE | 479 | 71.82 [67.56,75.80] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
 | Fast-WAM | 400 | cr | libero_spatial | full | COMPLETE | 500 | 87.60 [84.39,90.36] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
@@ -574,22 +366,6 @@ Receipt status is information only. Cells with fewer than 500 accepted episodes 
 | Fast-WAM | 500 | cg | libero_10 | sensitivity | COMPLETE | 479 | 81.42 [77.64,84.80] | 479 | 85.22 | 0.02972 | 0.29719 | 9.09 |
 | Fast-WAM | 500 | cg | libero_spatial | full | COMPLETE | 500 | 89.20 [86.14,91.78] | 500 | 91.62 | 0.01701 | 0.17012 | 2.02 |
 | Fast-WAM | 500 | cg | libero_spatial | sensitivity | COMPLETE | 489 | 89.98 [86.97,92.49] | 489 | 91.92 | 0.01641 | 0.16405 | 1.94 |
-| Fast-WAM | 500 | ch | libero_10 | full | COMPLETE | 500 | 75.60 [71.59,79.30] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 500 | ch | libero_10 | sensitivity | COMPLETE | 479 | 75.78 [71.69,79.55] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 500 | ch | libero_spatial | full | COMPLETE | 500 | 89.20 [86.14,91.78] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 500 | ch | libero_spatial | sensitivity | COMPLETE | 489 | 89.37 [86.29,91.96] | 489 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 500 | chg | libero_10 | full | COMPLETE | 500 | 78.20 [74.32,81.74] | 500 | 88.52 | 0.01184 | 0.11840 | 3.66 |
-| Fast-WAM | 500 | chg | libero_10 | sensitivity | COMPLETE | 479 | 78.29 [74.32,81.90] | 479 | 88.50 | 0.01186 | 0.11858 | 3.66 |
-| Fast-WAM | 500 | chg | libero_spatial | full | COMPLETE | 500 | 89.20 [86.14,91.78] | 500 | 93.89 | 0.00638 | 0.06377 | 0.75 |
-| Fast-WAM | 500 | chg | libero_spatial | sensitivity | COMPLETE | 489 | 89.57 [86.52,92.14] | 489 | 94.03 | 0.00623 | 0.06225 | 0.73 |
-| Fast-WAM | 500 | chr | libero_10 | full | COMPLETE | 500 | 76.80 [72.85,80.43] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 500 | chr | libero_10 | sensitivity | COMPLETE | 479 | 76.83 [72.78,80.53] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 500 | chr | libero_spatial | full | COMPLETE | 500 | 89.40 [86.36,91.96] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 500 | chr | libero_spatial | sensitivity | COMPLETE | 489 | 89.98 [86.97,92.49] | 489 | 100.00 | 0.00000 | 0.00000 | 0.00 |
-| Fast-WAM | 500 | chrg | libero_10 | full | COMPLETE | 500 | 80.00 [76.22,83.42] | 500 | 90.22 | 0.01012 | 0.10115 | 3.08 |
-| Fast-WAM | 500 | chrg | libero_10 | sensitivity | COMPLETE | 479 | 79.96 [76.09,83.45] | 479 | 90.15 | 0.01019 | 0.10185 | 3.10 |
-| Fast-WAM | 500 | chrg | libero_spatial | full | COMPLETE | 500 | 88.20 [85.04,90.89] | 500 | 93.87 | 0.00641 | 0.06414 | 0.76 |
-| Fast-WAM | 500 | chrg | libero_spatial | sensitivity | COMPLETE | 489 | 88.75 [85.61,91.41] | 489 | 94.01 | 0.00626 | 0.06261 | 0.74 |
 | Fast-WAM | 500 | cr | libero_10 | full | COMPLETE | 500 | 70.40 [66.19,74.37] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
 | Fast-WAM | 500 | cr | libero_10 | sensitivity | COMPLETE | 479 | 71.40 [67.12,75.41] | 479 | 100.00 | 0.00000 | 0.00000 | 0.00 |
 | Fast-WAM | 500 | cr | libero_spatial | full | COMPLETE | 500 | 88.40 [85.26,91.07] | 500 | 100.00 | 0.00000 | 0.00000 | 0.00 |
@@ -895,70 +671,6 @@ Receipt status is information only. Cells with fewer than 500 accepted episodes 
 | DP/50/cg/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -7.36 | 34/70 | — | — | -12.87/-10.43 | 描述性 |
 | DP/50/cg/libero_spatial | sensitivity | N500 | Fsize | PAIRED | 489 | 489 | -9.00 | 24/68 | -17.26 | -14.52 | -14.12/-11.86 | 描述性 |
 | DP/50/cg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | 11.66 | 75/18 | — | — | 6.50/8.59 | 描述性 |
-| DP/50/ch/libero_10 | full | control | — | PAIRED | 500 | 500 | -32.60 | 31/194 | — | — | -38.98/-36.20 | 描述性 |
-| DP/50/ch/libero_10 | full | N500 | Fsize | PAIRED | 500 | 500 | -37.80 | 13/202 | -46.80 | -43.40 | -43.46/-41.00 | 未证明 |
-| DP/50/ch/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | 22.80 | 123/9 | — | — | 17.50/20.00 | 描述性 |
-| DP/50/ch/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -32.78 | 30/187 | — | — | -39.30/-36.34 | 描述性 |
-| DP/50/ch/libero_10 | sensitivity | N500 | Fsize | PAIRED | 479 | 479 | -37.16 | 13/191 | -46.39 | -43.32 | -42.96/-40.50 | 描述性 |
-| DP/50/ch/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | 23.38 | 121/9 | — | — | 17.89/20.46 | 描述性 |
-| DP/50/ch/libero_spatial | full | control | — | PAIRED | 500 | 500 | -21.60 | 35/143 | — | — | -27.86/-25.20 | 描述性 |
-| DP/50/ch/libero_spatial | full | N500 | Fsize | PAIRED | 500 | 500 | -21.80 | 26/135 | -31.26 | -27.80 | -27.70/-25.20 | 未证明 |
-| DP/50/ch/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | -2.60 | 64/77 | — | — | -8.87/-6.40 | 描述性 |
-| DP/50/ch/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -22.09 | 33/141 | — | — | -28.38/-25.77 | 描述性 |
-| DP/50/ch/libero_spatial | sensitivity | N500 | Fsize | PAIRED | 489 | 489 | -22.29 | 25/134 | -31.85 | -28.43 | -28.25/-25.77 | 描述性 |
-| DP/50/ch/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | -3.07 | 61/76 | — | — | -9.38/-6.75 | 描述性 |
-| DP/50/chg/libero_10 | full | control | — | PAIRED | 500 | 500 | -28.80 | 35/179 | — | — | -35.25/-32.60 | 描述性 |
-| DP/50/chg/libero_10 | full | N500 | Fsize | PAIRED | 500 | 500 | -36.60 | 14/197 | -45.67 | -42.20 | -42.30/-39.80 | 未证明 |
-| DP/50/chg/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | 0.20 | 36/35 | — | — | -4.51/-2.60 | 描述性 |
-| DP/50/chg/libero_10 | full | gate_ablation | — | PAIRED | 500 | 500 | 3.80 | 43/24 | — | — | -0.76/1.20 | 描述性 |
-| DP/50/chg/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -29.23 | 32/172 | — | — | -35.77/-32.99 | 描述性 |
-| DP/50/chg/libero_10 | sensitivity | N500 | Fsize | PAIRED | 479 | 479 | -36.33 | 13/187 | -45.54 | -42.17 | -42.12/-39.46 | 描述性 |
-| DP/50/chg/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | 0.42 | 34/32 | — | — | -4.33/-2.30 | 描述性 |
-| DP/50/chg/libero_10 | sensitivity | gate_ablation | — | PAIRED | 479 | 479 | 3.55 | 41/24 | — | — | -1.15/0.84 | 描述性 |
-| DP/50/chg/libero_spatial | full | control | — | PAIRED | 500 | 500 | -15.00 | 33/108 | — | — | -20.88/-18.40 | 描述性 |
-| DP/50/chg/libero_spatial | full | N500 | Fsize | PAIRED | 500 | 500 | -15.80 | 24/103 | -24.67 | -21.80 | -21.31/-19.00 | 未证明 |
-| DP/50/chg/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | -7.60 | 31/69 | — | — | -12.89/-10.80 | 描述性 |
-| DP/50/chg/libero_spatial | full | gate_ablation | — | PAIRED | 500 | 500 | 6.60 | 57/24 | — | — | 1.69/3.80 | 描述性 |
-| DP/50/chg/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -15.54 | 31/107 | — | — | -21.47/-19.02 | 描述性 |
-| DP/50/chg/libero_spatial | sensitivity | N500 | Fsize | PAIRED | 489 | 489 | -16.36 | 23/103 | -25.34 | -22.09 | -21.95/-19.63 | 描述性 |
-| DP/50/chg/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | -8.18 | 29/69 | — | — | -13.51/-11.45 | 描述性 |
-| DP/50/chg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | 6.54 | 56/24 | — | — | 1.55/3.68 | 描述性 |
-| DP/50/chr/libero_10 | full | control | — | PAIRED | 500 | 500 | -25.00 | 37/162 | — | — | -31.43/-28.80 | 描述性 |
-| DP/50/chr/libero_10 | full | N500 | Fsize | PAIRED | 500 | 500 | -32.60 | 14/177 | -41.58 | -38.20 | -38.23/-35.80 | 未证明 |
-| DP/50/chr/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 7.60 | 66/28 | — | — | 2.37/4.60 | 描述性 |
-| DP/50/chr/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | 22.20 | 134/23 | — | — | 16.14/19.00 | 描述性 |
-| DP/50/chr/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -25.89 | 32/156 | — | — | -32.35/-29.65 | 描述性 |
-| DP/50/chr/libero_10 | sensitivity | N500 | Fsize | PAIRED | 479 | 479 | -32.57 | 13/169 | -41.70 | -38.41 | -38.29/-35.91 | 描述性 |
-| DP/50/chr/libero_10 | sensitivity | corrector_ablation | — | PAIRED | 479 | 479 | 6.89 | 61/28 | — | — | 1.55/3.76 | 描述性 |
-| DP/50/chr/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | 22.34 | 130/23 | — | — | 16.09/19.00 | 描述性 |
-| DP/50/chr/libero_spatial | full | control | — | PAIRED | 500 | 500 | -13.40 | 34/101 | — | — | -19.24/-16.80 | 描述性 |
-| DP/50/chr/libero_spatial | full | N500 | Fsize | PAIRED | 500 | 500 | -16.00 | 20/100 | -24.55 | -21.80 | -21.32/-19.20 | 未证明 |
-| DP/50/chr/libero_spatial | full | corrector_ablation | — | PAIRED | 500 | 500 | 8.20 | 76/35 | — | — | 2.57/4.80 | 描述性 |
-| DP/50/chr/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | 0.00 | 59/59 | — | — | -5.85/-3.40 | 描述性 |
-| DP/50/chr/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -13.70 | 32/99 | — | — | -19.57/-17.18 | 描述性 |
-| DP/50/chr/libero_spatial | sensitivity | N500 | Fsize | PAIRED | 489 | 489 | -16.16 | 20/99 | -24.86 | -22.09 | -21.57/-19.22 | 描述性 |
-| DP/50/chr/libero_spatial | sensitivity | corrector_ablation | — | PAIRED | 489 | 489 | 8.38 | 75/34 | — | — | 2.68/5.11 | 描述性 |
-| DP/50/chr/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | -0.20 | 57/58 | — | — | -6.11/-3.68 | 描述性 |
-| DP/50/chrg/libero_10 | full | control | — | PAIRED | 500 | 500 | -19.00 | 46/141 | — | — | -25.55/-22.80 | 描述性 |
-| DP/50/chrg/libero_10 | full | N500 | Fsize | PAIRED | 500 | 500 | -28.00 | 19/159 | -37.24 | -33.60 | -33.78/-31.20 | 未证明 |
-| DP/50/chrg/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 9.80 | 75/26 | — | — | 4.46/6.80 | 描述性 |
-| DP/50/chrg/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | 1.20 | 51/45 | — | — | -4.17/-2.00 | 描述性 |
-| DP/50/chrg/libero_10 | full | gate_ablation | — | PAIRED | 500 | 500 | 6.00 | 58/28 | — | — | 0.94/3.00 | 描述性 |
-| DP/50/chrg/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -20.04 | 41/137 | — | — | -26.66/-23.80 | 描述性 |
-| DP/50/chrg/libero_10 | sensitivity | N500 | Fsize | PAIRED | 479 | 479 | -27.97 | 18/152 | -37.39 | -33.82 | -33.87/-31.11 | 描述性 |
-| DP/50/chrg/libero_10 | sensitivity | corrector_ablation | — | PAIRED | 479 | 479 | 9.19 | 70/26 | — | — | 3.72/6.05 | 描述性 |
-| DP/50/chrg/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | 0.63 | 46/43 | — | — | -4.78/-2.51 | 描述性 |
-| DP/50/chrg/libero_10 | sensitivity | gate_ablation | — | PAIRED | 479 | 479 | 5.85 | 55/27 | — | — | 0.67/2.92 | 描述性 |
-| DP/50/chrg/libero_spatial | full | control | — | PAIRED | 500 | 500 | -7.20 | 37/73 | — | — | -12.74/-10.20 | 描述性 |
-| DP/50/chrg/libero_spatial | full | N500 | Fsize | PAIRED | 500 | 500 | -10.00 | 20/70 | -17.89 | -15.30 | -14.89/-12.80 | 未证明 |
-| DP/50/chrg/libero_spatial | full | corrector_ablation | — | PAIRED | 500 | 500 | 7.80 | 61/22 | — | — | 2.88/5.00 | 描述性 |
-| DP/50/chrg/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | -1.40 | 39/46 | — | — | -6.48/-4.40 | 描述性 |
-| DP/50/chrg/libero_spatial | full | gate_ablation | — | PAIRED | 500 | 500 | 6.20 | 43/12 | — | — | 2.14/4.00 | 描述性 |
-| DP/50/chrg/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -7.36 | 35/71 | — | — | -12.92/-10.43 | 描述性 |
-| DP/50/chrg/libero_spatial | sensitivity | N500 | Fsize | PAIRED | 489 | 489 | -10.02 | 20/69 | -18.04 | -15.13 | -15.00/-12.88 | 描述性 |
-| DP/50/chrg/libero_spatial | sensitivity | corrector_ablation | — | PAIRED | 489 | 489 | 8.18 | 61/21 | — | — | 3.19/5.32 | 描述性 |
-| DP/50/chrg/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | -1.23 | 39/45 | — | — | -6.39/-4.29 | 描述性 |
-| DP/50/chrg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | 6.34 | 43/12 | — | — | 2.19/4.09 | 描述性 |
 | DP/50/cr/libero_10 | full | control | — | PAIRED | 500 | 500 | -47.20 | 19/255 | — | — | -53.16/-50.80 | 描述性 |
 | DP/50/cr/libero_10 | full | N500 | Fsize | PAIRED | 500 | 500 | -35.80 | 21/200 | -45.41 | -42.50 | -41.82/-39.40 | 未证明 |
 | DP/50/cr/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 8.20 | 77/36 | — | — | 2.52/5.20 | 描述性 |
@@ -1007,70 +719,6 @@ Receipt status is information only. Cells with fewer than 500 accepted episodes 
 | DP/100/cg/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | 0.20 | 30/29 | — | — | -4.23/-2.25 | 描述性 |
 | DP/100/cg/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | -1.43 | 24/31 | — | — | -5.71/-3.89 | 描述性 |
 | DP/100/cg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | 4.91 | 39/15 | — | — | 0.72/2.45 | 描述性 |
-| DP/100/ch/libero_10 | full | control | — | PAIRED | 500 | 500 | -15.20 | 49/125 | — | — | -21.70/-19.00 | 描述性 |
-| DP/100/ch/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -20.40 | 21/123 | — | — | -26.00/-23.80 | 描述性 |
-| DP/100/ch/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | 17.80 | 110/21 | — | — | 12.09/14.40 | 描述性 |
-| DP/100/ch/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -15.66 | 44/119 | — | — | -22.21/-19.42 | 描述性 |
-| DP/100/ch/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | -20.04 | 20/116 | — | — | -25.74/-23.39 | 描述性 |
-| DP/100/ch/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | 18.16 | 107/20 | — | — | 12.31/14.61 | 描述性 |
-| DP/100/ch/libero_spatial | full | control | — | PAIRED | 500 | 500 | -7.80 | 33/72 | — | — | -13.20/-11.00 | 描述性 |
-| DP/100/ch/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | -8.00 | 23/63 | — | — | -12.89/-10.80 | 描述性 |
-| DP/100/ch/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | -3.20 | 38/54 | — | — | -8.42/-6.20 | 描述性 |
-| DP/100/ch/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -7.77 | 33/71 | — | — | -13.27/-11.04 | 描述性 |
-| DP/100/ch/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | -7.98 | 22/61 | — | — | -12.89/-10.84 | 描述性 |
-| DP/100/ch/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | -3.07 | 37/52 | — | — | -8.33/-6.13 | 描述性 |
-| DP/100/chg/libero_10 | full | control | — | PAIRED | 500 | 500 | -8.60 | 56/99 | — | — | -15.00/-12.40 | 描述性 |
-| DP/100/chg/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -16.40 | 22/104 | — | — | -21.85/-19.80 | 描述性 |
-| DP/100/chg/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | -2.60 | 43/56 | — | — | -8.00/-5.80 | 描述性 |
-| DP/100/chg/libero_10 | full | gate_ablation | — | PAIRED | 500 | 500 | 6.60 | 59/26 | — | — | 1.58/3.80 | 描述性 |
-| DP/100/chg/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -9.39 | 50/95 | — | — | -15.84/-13.15 | 描述性 |
-| DP/100/chg/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | -16.49 | 21/100 | — | — | -22.06/-20.04 | 描述性 |
-| DP/100/chg/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | -2.92 | 40/54 | — | — | -8.42/-6.26 | 描述性 |
-| DP/100/chg/libero_10 | sensitivity | gate_ablation | — | PAIRED | 479 | 479 | 6.26 | 56/26 | — | — | 1.10/3.34 | 描述性 |
-| DP/100/chg/libero_spatial | full | control | — | PAIRED | 500 | 500 | -4.60 | 34/57 | — | — | -9.76/-7.60 | 描述性 |
-| DP/100/chg/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | -5.40 | 24/51 | — | — | -10.09/-8.00 | 描述性 |
-| DP/100/chg/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | -4.80 | 25/49 | — | — | -9.49/-7.40 | 描述性 |
-| DP/100/chg/libero_spatial | full | gate_ablation | — | PAIRED | 500 | 500 | 3.20 | 33/17 | — | — | -0.80/1.00 | 描述性 |
-| DP/100/chg/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -4.70 | 33/56 | — | — | -9.92/-7.57 | 描述性 |
-| DP/100/chg/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | -5.52 | 23/50 | — | — | -10.25/-8.18 | 描述性 |
-| DP/100/chg/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | -4.91 | 24/48 | — | — | -9.63/-7.57 | 描述性 |
-| DP/100/chg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | 3.07 | 32/17 | — | — | -0.99/0.82 | 描述性 |
-| DP/100/chr/libero_10 | full | control | — | PAIRED | 500 | 500 | -8.40 | 56/98 | — | — | -14.78/-12.00 | 描述性 |
-| DP/100/chr/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -16.00 | 21/101 | — | — | -21.37/-19.20 | 描述性 |
-| DP/100/chr/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 6.80 | 67/33 | — | — | 1.39/3.60 | 描述性 |
-| DP/100/chr/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | 20.80 | 134/30 | — | — | 14.51/17.20 | 描述性 |
-| DP/100/chr/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -9.39 | 50/95 | — | — | -15.84/-13.15 | 描述性 |
-| DP/100/chr/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | -16.08 | 19/96 | — | — | -21.51/-19.42 | 描述性 |
-| DP/100/chr/libero_10 | sensitivity | corrector_ablation | — | PAIRED | 479 | 479 | 6.26 | 62/32 | — | — | 0.77/3.13 | 描述性 |
-| DP/100/chr/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | 20.25 | 127/30 | — | — | 13.79/16.49 | 描述性 |
-| DP/100/chr/libero_spatial | full | control | — | PAIRED | 500 | 500 | 1.40 | 39/32 | — | — | -3.31/-1.20 | 描述性 |
-| DP/100/chr/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | -1.20 | 23/29 | — | — | -5.29/-3.60 | 描述性 |
-| DP/100/chr/libero_spatial | full | corrector_ablation | — | PAIRED | 500 | 500 | 9.20 | 58/12 | — | — | 4.77/6.60 | 描述性 |
-| DP/100/chr/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | 3.40 | 44/27 | — | — | -1.29/0.80 | 描述性 |
-| DP/100/chr/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | 1.23 | 37/31 | — | — | -3.49/-1.43 | 描述性 |
-| DP/100/chr/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | -1.23 | 23/29 | — | — | -5.40/-3.48 | 描述性 |
-| DP/100/chr/libero_spatial | sensitivity | corrector_ablation | — | PAIRED | 489 | 489 | 9.00 | 56/12 | — | — | 4.52/6.34 | 描述性 |
-| DP/100/chr/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | 3.27 | 42/26 | — | — | -1.43/0.61 | 描述性 |
-| DP/100/chrg/libero_10 | full | control | — | PAIRED | 500 | 500 | 1.00 | 66/61 | — | — | -5.04/-2.40 | 描述性 |
-| DP/100/chrg/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -8.00 | 25/65 | — | — | -13.01/-11.00 | 描述性 |
-| DP/100/chrg/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 9.60 | 70/22 | — | — | 4.49/6.60 | 描述性 |
-| DP/100/chrg/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | 4.20 | 53/32 | — | — | -0.87/1.20 | 描述性 |
-| DP/100/chrg/libero_10 | full | gate_ablation | — | PAIRED | 500 | 500 | 9.40 | 65/18 | — | — | 4.55/6.60 | 描述性 |
-| DP/100/chrg/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -0.21 | 58/59 | — | — | -6.28/-3.76 | 描述性 |
-| DP/100/chrg/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | -8.14 | 23/62 | — | — | -13.22/-11.06 | 描述性 |
-| DP/100/chrg/libero_10 | sensitivity | corrector_ablation | — | PAIRED | 479 | 479 | 9.19 | 66/22 | — | — | 3.95/6.05 | 描述性 |
-| DP/100/chrg/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | 3.13 | 47/32 | — | — | -2.00/0.00 | 描述性 |
-| DP/100/chrg/libero_10 | sensitivity | gate_ablation | — | PAIRED | 479 | 479 | 9.19 | 62/18 | — | — | 4.20/6.26 | 描述性 |
-| DP/100/chrg/libero_spatial | full | control | — | PAIRED | 500 | 500 | 0.80 | 37/33 | — | — | -3.88/-1.80 | 描述性 |
-| DP/100/chrg/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | -2.00 | 22/32 | — | — | -6.14/-4.40 | 描述性 |
-| DP/100/chrg/libero_spatial | full | corrector_ablation | — | PAIRED | 500 | 500 | 5.40 | 41/14 | — | — | 1.30/3.00 | 描述性 |
-| DP/100/chrg/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | 1.80 | 38/29 | — | — | -2.79/-0.80 | 描述性 |
-| DP/100/chrg/libero_spatial | full | gate_ablation | — | PAIRED | 500 | 500 | -0.60 | 14/17 | — | — | -3.85/-2.40 | 描述性 |
-| DP/100/chrg/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | 0.61 | 35/32 | — | — | -4.08/-2.04 | 描述性 |
-| DP/100/chrg/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | -2.04 | 22/32 | — | — | -6.27/-4.50 | 描述性 |
-| DP/100/chrg/libero_spatial | sensitivity | corrector_ablation | — | PAIRED | 489 | 489 | 5.32 | 40/14 | — | — | 1.15/2.86 | 描述性 |
-| DP/100/chrg/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | 1.84 | 37/28 | — | — | -2.79/-0.82 | 描述性 |
-| DP/100/chrg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | -0.61 | 14/17 | — | — | -3.93/-2.45 | 描述性 |
 | DP/100/cr/libero_10 | full | control | — | PAIRED | 500 | 500 | -29.20 | 33/179 | — | — | -35.59/-33.00 | 描述性 |
 | DP/100/cr/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -17.80 | 37/126 | — | — | -23.98/-21.60 | 描述性 |
 | DP/100/cr/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 3.80 | 80/61 | — | — | -2.50/0.20 | 描述性 |
@@ -1119,70 +767,6 @@ Receipt status is information only. Cells with fewer than 500 accepted episodes 
 | DP/200/cg/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | 0.61 | 33/30 | — | — | -3.95/-2.04 | 描述性 |
 | DP/200/cg/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | -1.02 | 24/29 | — | — | -5.24/-3.48 | 描述性 |
 | DP/200/cg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | 3.68 | 34/16 | — | — | -0.40/1.43 | 描述性 |
-| DP/200/ch/libero_10 | full | control | — | PAIRED | 500 | 500 | -2.80 | 61/75 | — | — | -8.97/-6.40 | 描述性 |
-| DP/200/ch/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -8.00 | 26/66 | — | — | -13.06/-11.00 | 描述性 |
-| DP/200/ch/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | 28.00 | 160/20 | — | — | 21.82/24.40 | 描述性 |
-| DP/200/ch/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -3.97 | 53/72 | — | — | -10.15/-7.52 | 描述性 |
-| DP/200/ch/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | -8.35 | 24/64 | — | — | -13.50/-11.48 | 描述性 |
-| DP/200/ch/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | 27.56 | 152/20 | — | — | 21.21/23.80 | 描述性 |
-| DP/200/ch/libero_spatial | full | control | — | PAIRED | 500 | 500 | -3.40 | 29/46 | — | — | -8.16/-6.00 | 描述性 |
-| DP/200/ch/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | -3.60 | 22/40 | — | — | -7.96/-6.00 | 描述性 |
-| DP/200/ch/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | -0.60 | 30/33 | — | — | -5.06/-3.20 | 描述性 |
-| DP/200/ch/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -3.48 | 28/45 | — | — | -8.28/-6.13 | 描述性 |
-| DP/200/ch/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | -3.68 | 21/39 | — | — | -8.06/-6.13 | 描述性 |
-| DP/200/ch/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | -0.41 | 30/32 | — | — | -4.94/-3.07 | 描述性 |
-| DP/200/chg/libero_10 | full | control | — | PAIRED | 500 | 500 | 3.20 | 72/56 | — | — | -2.86/-0.40 | 描述性 |
-| DP/200/chg/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -4.60 | 26/49 | — | — | -9.32/-7.40 | 描述性 |
-| DP/200/chg/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | -1.00 | 43/48 | — | — | -6.23/-4.00 | 描述性 |
-| DP/200/chg/libero_10 | full | gate_ablation | — | PAIRED | 500 | 500 | 6.00 | 59/29 | — | — | 0.88/3.00 | 描述性 |
-| DP/200/chg/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | 1.88 | 63/54 | — | — | -4.20/-1.67 | 描述性 |
-| DP/200/chg/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | -5.22 | 24/49 | — | — | -10.06/-8.14 | 描述性 |
-| DP/200/chg/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | -2.30 | 37/48 | — | — | -7.57/-5.43 | 描述性 |
-| DP/200/chg/libero_10 | sensitivity | gate_ablation | — | PAIRED | 479 | 479 | 5.85 | 57/29 | — | — | 0.56/2.71 | 描述性 |
-| DP/200/chg/libero_spatial | full | control | — | PAIRED | 500 | 500 | 0.60 | 34/31 | — | — | -3.93/-2.00 | 描述性 |
-| DP/200/chg/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | -0.20 | 24/25 | — | — | -4.19/-2.40 | 描述性 |
-| DP/200/chg/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | -0.40 | 22/24 | — | — | -4.28/-2.60 | 描述性 |
-| DP/200/chg/libero_spatial | full | gate_ablation | — | PAIRED | 500 | 500 | 4.00 | 33/13 | — | — | 0.18/2.20 | 描述性 |
-| DP/200/chg/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | 0.20 | 32/31 | — | — | -4.36/-2.45 | 描述性 |
-| DP/200/chg/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | -0.61 | 22/25 | — | — | -4.61/-2.86 | 描述性 |
-| DP/200/chg/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | -0.41 | 22/24 | — | — | -4.37/-2.66 | 描述性 |
-| DP/200/chg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | 3.68 | 31/13 | — | — | -0.16/1.84 | 描述性 |
-| DP/200/chr/libero_10 | full | control | — | PAIRED | 500 | 500 | 0.40 | 66/64 | — | — | -5.69/-3.20 | 描述性 |
-| DP/200/chr/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -7.20 | 23/59 | — | — | -12.02/-10.20 | 描述性 |
-| DP/200/chr/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 3.20 | 58/42 | — | — | -2.26/0.00 | 描述性 |
-| DP/200/chr/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | 29.00 | 163/18 | — | — | 22.87/25.40 | 描述性 |
-| DP/200/chr/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -0.42 | 58/60 | — | — | -6.50/-3.97 | 描述性 |
-| DP/200/chr/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | -7.10 | 22/56 | — | — | -12.01/-10.02 | 描述性 |
-| DP/200/chr/libero_10 | sensitivity | corrector_ablation | — | PAIRED | 479 | 479 | 3.55 | 56/39 | — | — | -2.01/0.21 | 描述性 |
-| DP/200/chr/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | 28.81 | 155/17 | — | — | 22.56/25.26 | 描述性 |
-| DP/200/chr/libero_spatial | full | control | — | PAIRED | 500 | 500 | 4.00 | 37/17 | — | — | -0.12/1.60 | 描述性 |
-| DP/200/chr/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | 1.40 | 20/13 | — | — | -1.94/-0.40 | 描述性 |
-| DP/200/chr/libero_spatial | full | corrector_ablation | — | PAIRED | 500 | 500 | 7.40 | 47/10 | — | — | 3.34/5.20 | 描述性 |
-| DP/200/chr/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | 1.80 | 23/14 | — | — | -1.72/-0.20 | 描述性 |
-| DP/200/chr/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | 3.89 | 36/17 | — | — | -0.30/1.64 | 描述性 |
-| DP/200/chr/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | 1.43 | 19/12 | — | — | -1.89/-0.41 | 描述性 |
-| DP/200/chr/libero_spatial | sensitivity | corrector_ablation | — | PAIRED | 489 | 489 | 7.36 | 46/10 | — | — | 3.24/5.11 | 描述性 |
-| DP/200/chr/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | 2.04 | 23/13 | — | — | -1.50/0.20 | 描述性 |
-| DP/200/chrg/libero_10 | full | control | — | PAIRED | 500 | 500 | 4.00 | 75/55 | — | — | -2.09/0.40 | 描述性 |
-| DP/200/chrg/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -5.00 | 29/54 | — | — | -9.94/-8.00 | 描述性 |
-| DP/200/chrg/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 0.80 | 48/44 | — | — | -4.47/-2.40 | 描述性 |
-| DP/200/chrg/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | 3.20 | 59/43 | — | — | -2.30/0.00 | 描述性 |
-| DP/200/chrg/libero_10 | full | gate_ablation | — | PAIRED | 500 | 500 | 3.60 | 45/27 | — | — | -1.12/0.80 | 描述性 |
-| DP/200/chrg/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | 2.30 | 66/55 | — | — | -3.86/-1.46 | 描述性 |
-| DP/200/chrg/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | -5.64 | 27/54 | — | — | -10.71/-8.56 | 描述性 |
-| DP/200/chrg/libero_10 | sensitivity | corrector_ablation | — | PAIRED | 479 | 479 | 0.42 | 46/44 | — | — | -5.02/-2.71 | 描述性 |
-| DP/200/chrg/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | 2.09 | 53/43 | — | — | -3.50/-1.25 | 描述性 |
-| DP/200/chrg/libero_10 | sensitivity | gate_ablation | — | PAIRED | 479 | 479 | 2.71 | 40/27 | — | — | -2.06/-0.21 | 描述性 |
-| DP/200/chrg/libero_spatial | full | control | — | PAIRED | 500 | 500 | 2.80 | 38/24 | — | — | -1.62/0.40 | 描述性 |
-| DP/200/chrg/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | 0.00 | 17/17 | — | — | -3.40/-1.80 | 描述性 |
-| DP/200/chrg/libero_spatial | full | corrector_ablation | — | PAIRED | 500 | 500 | 2.20 | 25/14 | — | — | -1.39/0.20 | 描述性 |
-| DP/200/chrg/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | 0.60 | 22/19 | — | — | -3.09/-1.40 | 描述性 |
-| DP/200/chrg/libero_spatial | full | gate_ablation | — | PAIRED | 500 | 500 | -1.20 | 9/15 | — | — | -4.07/-2.80 | 描述性 |
-| DP/200/chrg/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | 2.45 | 36/24 | — | — | -2.01/0.00 | 描述性 |
-| DP/200/chrg/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | -0.20 | 16/17 | — | — | -3.63/-2.04 | 描述性 |
-| DP/200/chrg/libero_spatial | sensitivity | corrector_ablation | — | PAIRED | 489 | 489 | 2.25 | 25/14 | — | — | -1.42/0.20 | 描述性 |
-| DP/200/chrg/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | 0.61 | 22/19 | — | — | -3.16/-1.43 | 描述性 |
-| DP/200/chrg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | -1.43 | 8/15 | — | — | -4.30/-3.07 | 描述性 |
 | DP/200/cr/libero_10 | full | control | — | PAIRED | 500 | 500 | -28.60 | 30/173 | — | — | -34.87/-32.60 | 描述性 |
 | DP/200/cr/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -17.20 | 36/122 | — | — | -23.32/-21.00 | 描述性 |
 | DP/200/cr/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 2.20 | 70/59 | — | — | -3.88/-1.40 | 描述性 |
@@ -1231,70 +815,6 @@ Receipt status is information only. Cells with fewer than 500 accepted episodes 
 | DP/300/cg/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | 1.43 | 28/21 | — | — | -2.65/-0.82 | 描述性 |
 | DP/300/cg/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | -0.20 | 20/21 | — | — | -3.97/-2.25 | 描述性 |
 | DP/300/cg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | 0.82 | 14/10 | — | — | -2.15/-0.82 | 描述性 |
-| DP/300/ch/libero_10 | full | control | — | PAIRED | 500 | 500 | 3.20 | 66/50 | — | — | -2.61/-0.20 | 描述性 |
-| DP/300/ch/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -2.00 | 28/38 | — | — | -6.53/-4.60 | 描述性 |
-| DP/300/ch/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | 25.00 | 136/11 | — | — | 19.44/21.80 | 描述性 |
-| DP/300/ch/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | 2.09 | 58/48 | — | — | -3.74/-1.25 | 描述性 |
-| DP/300/ch/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | -2.30 | 25/36 | — | — | -6.85/-5.01 | 描述性 |
-| DP/300/ch/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | 24.22 | 127/11 | — | — | 18.54/20.88 | 描述性 |
-| DP/300/ch/libero_spatial | full | control | — | PAIRED | 500 | 500 | -0.60 | 31/34 | — | — | -5.12/-3.20 | 描述性 |
-| DP/300/ch/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | -0.80 | 20/24 | — | — | -4.60/-2.80 | 描述性 |
-| DP/300/ch/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | -1.20 | 18/24 | — | — | -4.91/-3.20 | 描述性 |
-| DP/300/ch/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -0.82 | 30/34 | — | — | -5.40/-3.48 | 描述性 |
-| DP/300/ch/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | -1.02 | 18/23 | — | — | -4.78/-3.07 | 描述性 |
-| DP/300/ch/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | -1.43 | 17/24 | — | — | -5.18/-3.48 | 描述性 |
-| DP/300/chg/libero_10 | full | control | — | PAIRED | 500 | 500 | 7.40 | 72/35 | — | — | 1.84/4.20 | 描述性 |
-| DP/300/chg/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -0.40 | 32/34 | — | — | -4.95/-3.00 | 描述性 |
-| DP/300/chg/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | 4.80 | 46/22 | — | — | 0.23/2.20 | 描述性 |
-| DP/300/chg/libero_10 | full | gate_ablation | — | PAIRED | 500 | 500 | 4.20 | 36/15 | — | — | 0.19/2.00 | 描述性 |
-| DP/300/chg/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | 6.47 | 64/33 | — | — | 0.90/3.13 | 描述性 |
-| DP/300/chg/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | -0.63 | 31/34 | — | — | -5.34/-3.34 | 描述性 |
-| DP/300/chg/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | 4.59 | 43/21 | — | — | -0.05/1.88 | 描述性 |
-| DP/300/chg/libero_10 | sensitivity | gate_ablation | — | PAIRED | 479 | 479 | 4.38 | 34/13 | — | — | 0.37/2.09 | 描述性 |
-| DP/300/chg/libero_spatial | full | control | — | PAIRED | 500 | 500 | 0.60 | 31/28 | — | — | -3.74/-1.80 | 描述性 |
-| DP/300/chg/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | -0.20 | 19/20 | — | — | -3.81/-2.20 | 描述性 |
-| DP/300/chg/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | -1.00 | 21/26 | — | — | -4.91/-3.20 | 描述性 |
-| DP/300/chg/libero_spatial | full | gate_ablation | — | PAIRED | 500 | 500 | 1.20 | 15/9 | — | — | -1.70/-0.40 | 描述性 |
-| DP/300/chg/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | 0.41 | 30/28 | — | — | -3.99/-2.04 | 描述性 |
-| DP/300/chg/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | -0.41 | 17/19 | — | — | -3.96/-2.45 | 描述性 |
-| DP/300/chg/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | -1.02 | 20/25 | — | — | -4.94/-3.27 | 描述性 |
-| DP/300/chg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | 1.23 | 14/8 | — | — | -1.62/-0.41 | 描述性 |
-| DP/300/chr/libero_10 | full | control | — | PAIRED | 500 | 500 | 1.80 | 64/55 | — | — | -4.08/-1.60 | 描述性 |
-| DP/300/chr/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -5.80 | 27/56 | — | — | -10.71/-8.80 | 描述性 |
-| DP/300/chr/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | -1.40 | 36/43 | — | — | -6.32/-4.20 | 描述性 |
-| DP/300/chr/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | 20.80 | 124/20 | — | — | 14.96/17.40 | 描述性 |
-| DP/300/chr/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | 1.25 | 57/51 | — | — | -4.62/-2.10 | 描述性 |
-| DP/300/chr/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | -5.43 | 26/52 | — | — | -10.42/-8.56 | 描述性 |
-| DP/300/chr/libero_10 | sensitivity | corrector_ablation | — | PAIRED | 479 | 479 | -0.84 | 34/38 | — | — | -5.76/-3.55 | 描述性 |
-| DP/300/chr/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | 20.46 | 118/20 | — | — | 14.46/16.91 | 描述性 |
-| DP/300/chr/libero_spatial | full | control | — | PAIRED | 500 | 500 | 3.00 | 32/17 | — | — | -0.97/0.80 | 描述性 |
-| DP/300/chr/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | 0.40 | 14/12 | — | — | -2.62/-1.20 | 描述性 |
-| DP/300/chr/libero_spatial | full | corrector_ablation | — | PAIRED | 500 | 500 | 3.60 | 28/10 | — | — | 0.11/1.60 | 描述性 |
-| DP/300/chr/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | -0.20 | 14/15 | — | — | -3.36/-2.00 | 描述性 |
-| DP/300/chr/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | 2.86 | 30/16 | — | — | -1.08/0.61 | 描述性 |
-| DP/300/chr/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | 0.41 | 14/12 | — | — | -2.67/-1.23 | 描述性 |
-| DP/300/chr/libero_spatial | sensitivity | corrector_ablation | — | PAIRED | 489 | 489 | 3.68 | 27/9 | — | — | 0.20/1.84 | 描述性 |
-| DP/300/chr/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | -0.20 | 13/14 | — | — | -3.33/-1.84 | 描述性 |
-| DP/300/chrg/libero_10 | full | control | — | PAIRED | 500 | 500 | 6.60 | 74/41 | — | — | 0.84/3.20 | 描述性 |
-| DP/300/chrg/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -2.40 | 31/43 | — | — | -7.16/-5.20 | 描述性 |
-| DP/300/chrg/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | -0.80 | 27/31 | — | — | -5.10/-3.20 | 描述性 |
-| DP/300/chrg/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | 1.40 | 42/35 | — | — | -3.48/-1.60 | 描述性 |
-| DP/300/chrg/libero_10 | full | gate_ablation | — | PAIRED | 500 | 500 | 4.80 | 38/14 | — | — | 0.78/2.40 | 描述性 |
-| DP/300/chrg/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | 5.85 | 66/38 | — | — | 0.09/2.51 | 描述性 |
-| DP/300/chrg/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | -2.09 | 30/40 | — | — | -6.93/-5.01 | 描述性 |
-| DP/300/chrg/libero_10 | sensitivity | corrector_ablation | — | PAIRED | 479 | 479 | -0.63 | 26/29 | — | — | -5.00/-3.13 | 描述性 |
-| DP/300/chrg/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | 1.04 | 38/33 | — | — | -3.86/-1.88 | 描述性 |
-| DP/300/chrg/libero_10 | sensitivity | gate_ablation | — | PAIRED | 479 | 479 | 4.59 | 36/14 | — | — | 0.46/2.30 | 描述性 |
-| DP/300/chrg/libero_spatial | full | control | — | PAIRED | 500 | 500 | 3.00 | 32/17 | — | — | -0.97/0.80 | 描述性 |
-| DP/300/chrg/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | 0.20 | 11/10 | — | — | -2.54/-1.40 | 描述性 |
-| DP/300/chrg/libero_spatial | full | corrector_ablation | — | PAIRED | 500 | 500 | 2.40 | 23/11 | — | — | -0.96/0.60 | 描述性 |
-| DP/300/chrg/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | 1.20 | 22/16 | — | — | -2.37/-0.80 | 描述性 |
-| DP/300/chrg/libero_spatial | full | gate_ablation | — | PAIRED | 500 | 500 | 0.00 | 7/7 | — | — | -2.30/-1.20 | 描述性 |
-| DP/300/chrg/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | 2.86 | 30/16 | — | — | -1.08/0.61 | 描述性 |
-| DP/300/chrg/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | 0.20 | 11/10 | — | — | -2.60/-1.23 | 描述性 |
-| DP/300/chrg/libero_spatial | sensitivity | corrector_ablation | — | PAIRED | 489 | 489 | 2.45 | 22/10 | — | — | -0.89/0.61 | 描述性 |
-| DP/300/chrg/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | 1.43 | 22/15 | — | — | -2.17/-0.61 | 描述性 |
-| DP/300/chrg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | 0.00 | 7/7 | — | — | -2.35/-1.23 | 描述性 |
 | DP/300/cr/libero_10 | full | control | — | PAIRED | 500 | 500 | -19.00 | 38/133 | — | — | -25.27/-22.80 | 描述性 |
 | DP/300/cr/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -7.60 | 38/76 | — | — | -13.22/-11.00 | 描述性 |
 | DP/300/cr/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 2.80 | 57/43 | — | — | -2.66/-0.40 | 描述性 |
@@ -1343,70 +863,6 @@ Receipt status is information only. Cells with fewer than 500 accepted episodes 
 | DP/400/cg/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | 0.82 | 30/26 | — | — | -3.52/-1.64 | 描述性 |
 | DP/400/cg/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | -0.82 | 12/16 | — | — | -3.98/-2.66 | 描述性 |
 | DP/400/cg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | -0.82 | 10/14 | — | — | -3.77/-2.45 | 描述性 |
-| DP/400/ch/libero_10 | full | control | — | PAIRED | 500 | 500 | 2.20 | 69/58 | — | — | -3.84/-1.40 | 描述性 |
-| DP/400/ch/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -3.00 | 24/39 | — | — | -7.41/-5.60 | 描述性 |
-| DP/400/ch/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | 20.60 | 124/21 | — | — | 14.72/17.20 | 描述性 |
-| DP/400/ch/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | 1.04 | 61/56 | — | — | -5.03/-2.51 | 描述性 |
-| DP/400/ch/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | -3.34 | 22/38 | — | — | -7.83/-6.05 | 描述性 |
-| DP/400/ch/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | 19.62 | 114/20 | — | — | 13.68/16.28 | 描述性 |
-| DP/400/ch/libero_spatial | full | control | — | PAIRED | 500 | 500 | 0.40 | 33/31 | — | — | -4.10/-2.20 | 描述性 |
-| DP/400/ch/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | 0.20 | 16/15 | — | — | -3.06/-1.60 | 描述性 |
-| DP/400/ch/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | -1.40 | 19/26 | — | — | -5.22/-3.60 | 描述性 |
-| DP/400/ch/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | 0.20 | 31/30 | — | — | -4.29/-2.45 | 描述性 |
-| DP/400/ch/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | 0.00 | 14/14 | — | — | -3.18/-1.84 | 描述性 |
-| DP/400/ch/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | -1.43 | 18/25 | — | — | -5.26/-3.48 | 描述性 |
-| DP/400/chg/libero_10 | full | control | — | PAIRED | 500 | 500 | 6.00 | 77/47 | — | — | 0.04/2.40 | 描述性 |
-| DP/400/chg/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -1.80 | 29/38 | — | — | -6.36/-4.60 | 描述性 |
-| DP/400/chg/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | -0.20 | 36/37 | — | — | -4.96/-3.00 | 描述性 |
-| DP/400/chg/libero_10 | full | gate_ablation | — | PAIRED | 500 | 500 | 3.80 | 41/22 | — | — | -0.64/1.20 | 描述性 |
-| DP/400/chg/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | 4.59 | 67/45 | — | — | -1.36/1.04 | 描述性 |
-| DP/400/chg/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | -2.51 | 25/37 | — | — | -7.08/-5.22 | 描述性 |
-| DP/400/chg/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | -1.04 | 31/36 | — | — | -5.81/-3.76 | 描述性 |
-| DP/400/chg/libero_10 | sensitivity | gate_ablation | — | PAIRED | 479 | 479 | 3.55 | 38/21 | — | — | -0.95/1.04 | 描述性 |
-| DP/400/chg/libero_spatial | full | control | — | PAIRED | 500 | 500 | -0.20 | 32/33 | — | — | -4.73/-2.80 | 描述性 |
-| DP/400/chg/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | -1.00 | 17/22 | — | — | -4.59/-3.00 | 描述性 |
-| DP/400/chg/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | -1.00 | 24/29 | — | — | -5.12/-3.40 | 描述性 |
-| DP/400/chg/libero_spatial | full | gate_ablation | — | PAIRED | 500 | 500 | -0.60 | 9/12 | — | — | -3.33/-2.00 | 描述性 |
-| DP/400/chg/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -0.20 | 30/31 | — | — | -4.70/-2.66 | 描述性 |
-| DP/400/chg/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | -1.02 | 16/21 | — | — | -4.61/-3.07 | 描述性 |
-| DP/400/chg/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | -1.02 | 22/27 | — | — | -5.09/-3.27 | 描述性 |
-| DP/400/chg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | -0.41 | 9/11 | — | — | -3.14/-1.84 | 描述性 |
-| DP/400/chr/libero_10 | full | control | — | PAIRED | 500 | 500 | 4.80 | 70/46 | — | — | -1.00/1.40 | 描述性 |
-| DP/400/chr/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -2.80 | 27/41 | — | — | -7.37/-5.60 | 描述性 |
-| DP/400/chr/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 2.60 | 44/31 | — | — | -2.22/-0.20 | 描述性 |
-| DP/400/chr/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | 20.80 | 126/22 | — | — | 14.86/17.20 | 描述性 |
-| DP/400/chr/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | 4.80 | 65/42 | — | — | -1.04/1.46 | 描述性 |
-| DP/400/chr/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | -1.88 | 27/36 | — | — | -6.51/-4.59 | 描述性 |
-| DP/400/chr/libero_10 | sensitivity | corrector_ablation | — | PAIRED | 479 | 479 | 3.76 | 43/25 | — | — | -1.04/1.04 | 描述性 |
-| DP/400/chr/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | 20.67 | 120/21 | — | — | 14.61/17.12 | 描述性 |
-| DP/400/chr/libero_spatial | full | control | — | PAIRED | 500 | 500 | 1.80 | 33/24 | — | — | -2.47/-0.60 | 描述性 |
-| DP/400/chr/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | -0.80 | 13/17 | — | — | -4.00/-2.60 | 描述性 |
-| DP/400/chr/libero_spatial | full | corrector_ablation | — | PAIRED | 500 | 500 | 1.40 | 19/12 | — | — | -1.85/-0.40 | 描述性 |
-| DP/400/chr/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | -1.80 | 14/23 | — | — | -5.28/-3.80 | 描述性 |
-| DP/400/chr/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | 1.64 | 31/23 | — | — | -2.63/-0.82 | 描述性 |
-| DP/400/chr/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | -0.82 | 12/16 | — | — | -3.98/-2.66 | 描述性 |
-| DP/400/chr/libero_spatial | sensitivity | corrector_ablation | — | PAIRED | 489 | 489 | 1.43 | 18/11 | — | — | -1.79/-0.41 | 描述性 |
-| DP/400/chr/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | -1.84 | 14/23 | — | — | -5.40/-3.89 | 描述性 |
-| DP/400/chrg/libero_10 | full | control | — | PAIRED | 500 | 500 | 8.00 | 81/41 | — | — | 2.12/4.40 | 描述性 |
-| DP/400/chrg/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -1.00 | 31/36 | — | — | -5.58/-3.80 | 描述性 |
-| DP/400/chrg/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 2.00 | 41/31 | — | — | -2.74/-0.80 | 描述性 |
-| DP/400/chrg/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | 0.00 | 37/37 | — | — | -4.79/-2.80 | 描述性 |
-| DP/400/chrg/libero_10 | full | gate_ablation | — | PAIRED | 500 | 500 | 3.20 | 36/20 | — | — | -1.02/0.80 | 描述性 |
-| DP/400/chrg/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | 7.72 | 74/37 | — | — | 1.84/4.18 | 描述性 |
-| DP/400/chrg/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | -0.21 | 30/31 | — | — | -4.80/-2.92 | 描述性 |
-| DP/400/chrg/libero_10 | sensitivity | corrector_ablation | — | PAIRED | 479 | 479 | 3.13 | 40/25 | — | — | -1.58/0.42 | 描述性 |
-| DP/400/chrg/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | 0.21 | 35/34 | — | — | -4.64/-2.51 | 描述性 |
-| DP/400/chrg/libero_10 | sensitivity | gate_ablation | — | PAIRED | 479 | 479 | 2.92 | 34/20 | — | — | -1.41/0.63 | 描述性 |
-| DP/400/chrg/libero_spatial | full | control | — | PAIRED | 500 | 500 | 2.20 | 32/21 | — | — | -1.93/-0.20 | 描述性 |
-| DP/400/chrg/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | -0.60 | 12/15 | — | — | -3.65/-2.40 | 描述性 |
-| DP/400/chrg/libero_spatial | full | corrector_ablation | — | PAIRED | 500 | 500 | 2.40 | 24/12 | — | — | -1.06/0.40 | 描述性 |
-| DP/400/chrg/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | -0.40 | 20/22 | — | — | -4.13/-2.40 | 描述性 |
-| DP/400/chrg/libero_spatial | full | gate_ablation | — | PAIRED | 500 | 500 | 0.40 | 7/5 | — | — | -1.75/-0.80 | 描述性 |
-| DP/400/chrg/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | 2.04 | 30/20 | — | — | -2.07/-0.20 | 描述性 |
-| DP/400/chrg/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | -0.61 | 11/14 | — | — | -3.63/-2.25 | 描述性 |
-| DP/400/chrg/libero_spatial | sensitivity | corrector_ablation | — | PAIRED | 489 | 489 | 2.25 | 22/11 | — | — | -1.15/0.41 | 描述性 |
-| DP/400/chrg/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | -0.41 | 19/21 | — | — | -4.13/-2.45 | 描述性 |
-| DP/400/chrg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | 0.41 | 7/5 | — | — | -1.79/-0.82 | 描述性 |
 | DP/400/cr/libero_10 | full | control | — | PAIRED | 500 | 500 | -16.00 | 43/123 | — | — | -22.32/-19.80 | 描述性 |
 | DP/400/cr/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -4.60 | 39/62 | — | — | -10.01/-7.80 | 描述性 |
 | DP/400/cr/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 2.40 | 63/51 | — | — | -3.37/-1.00 | 描述性 |
@@ -1447,54 +903,6 @@ Receipt status is information only. Cells with fewer than 500 accepted episodes 
 | DP/500/cg/libero_spatial | full | gate_ablation | — | PAIRED | 500 | 500 | -1.60 | 10/18 | — | — | -4.67/-3.20 | 描述性 |
 | DP/500/cg/libero_spatial | sensitivity | control | F500 | PAIRED | 489 | 489 | 1.64 | 30/22 | -5.16 | -2.66 | -2.56/-0.61 | 描述性 |
 | DP/500/cg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | -1.43 | 10/17 | — | — | -4.52/-3.07 | 描述性 |
-| DP/500/ch/libero_10 | full | control | F500 | PAIRED | 500 | 500 | 5.20 | 73/47 | -4.37 | -1.20 | -0.68/1.60 | 未证明 |
-| DP/500/ch/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | 20.00 | 116/16 | — | — | 14.42/16.80 | 描述性 |
-| DP/500/ch/libero_10 | sensitivity | control | F500 | PAIRED | 479 | 479 | 4.38 | 66/45 | -5.26 | -1.98 | -1.55/0.84 | 描述性 |
-| DP/500/ch/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | 19.21 | 107/15 | — | — | 13.57/15.87 | 描述性 |
-| DP/500/ch/libero_spatial | full | control | F500 | PAIRED | 500 | 500 | 0.20 | 28/27 | -6.61 | -4.20 | -4.01/-2.20 | 未证明 |
-| DP/500/ch/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | -3.20 | 12/28 | — | — | -6.75/-5.20 | 描述性 |
-| DP/500/ch/libero_spatial | sensitivity | control | F500 | PAIRED | 489 | 489 | 0.20 | 26/25 | -6.53 | -3.99 | -3.95/-2.25 | 描述性 |
-| DP/500/ch/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | -2.86 | 12/26 | — | — | -6.42/-4.91 | 描述性 |
-| DP/500/chg/libero_10 | full | control | F500 | PAIRED | 500 | 500 | 7.80 | 79/40 | -1.68 | 1.30 | 1.98/4.40 | PASS |
-| DP/500/chg/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | 0.00 | 30/30 | — | — | -4.37/-2.60 | 描述性 |
-| DP/500/chg/libero_10 | full | gate_ablation | — | PAIRED | 500 | 500 | 2.60 | 26/13 | — | — | -0.98/0.60 | 描述性 |
-| DP/500/chg/libero_10 | sensitivity | control | F500 | PAIRED | 479 | 479 | 7.10 | 72/38 | -2.46 | 0.84 | 1.22/3.55 | 描述性 |
-| DP/500/chg/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | 0.63 | 30/27 | — | — | -3.83/-1.88 | 描述性 |
-| DP/500/chg/libero_10 | sensitivity | gate_ablation | — | PAIRED | 479 | 479 | 2.71 | 25/12 | — | — | -0.93/0.63 | 描述性 |
-| DP/500/chg/libero_spatial | full | control | F500 | PAIRED | 500 | 500 | 0.80 | 29/25 | -5.96 | -3.60 | -3.37/-1.60 | 未证明 |
-| DP/500/chg/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | -1.00 | 17/22 | — | — | -4.59/-3.00 | 描述性 |
-| DP/500/chg/libero_spatial | full | gate_ablation | — | PAIRED | 500 | 500 | 0.60 | 8/5 | — | — | -1.62/-0.60 | 描述性 |
-| DP/500/chg/libero_spatial | sensitivity | control | F500 | PAIRED | 489 | 489 | 0.82 | 27/23 | -5.86 | -3.37 | -3.30/-1.43 | 描述性 |
-| DP/500/chg/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | -0.82 | 16/20 | — | — | -4.36/-2.86 | 描述性 |
-| DP/500/chg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | 0.61 | 8/5 | — | — | -1.66/-0.61 | 描述性 |
-| DP/500/chr/libero_10 | full | control | F500 | PAIRED | 500 | 500 | 7.60 | 76/38 | -1.71 | 1.60 | 1.88/4.20 | PASS |
-| DP/500/chr/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 2.40 | 39/27 | — | — | -2.15/-0.20 | 描述性 |
-| DP/500/chr/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | 19.00 | 110/15 | — | — | 13.54/15.80 | 描述性 |
-| DP/500/chr/libero_10 | sensitivity | control | F500 | PAIRED | 479 | 479 | 6.68 | 68/36 | -2.66 | 0.42 | 0.94/3.34 | 描述性 |
-| DP/500/chr/libero_10 | sensitivity | corrector_ablation | — | PAIRED | 479 | 479 | 2.30 | 37/26 | — | — | -2.36/-0.42 | 描述性 |
-| DP/500/chr/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | 18.16 | 102/15 | — | — | 12.60/14.82 | 描述性 |
-| DP/500/chr/libero_spatial | full | control | F500 | PAIRED | 500 | 500 | 2.60 | 32/19 | -3.97 | -1.60 | -1.45/0.40 | 未证明 |
-| DP/500/chr/libero_spatial | full | corrector_ablation | — | PAIRED | 500 | 500 | 2.40 | 22/10 | — | — | -0.87/0.60 | 描述性 |
-| DP/500/chr/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | 0.20 | 20/19 | — | — | -3.41/-1.80 | 描述性 |
-| DP/500/chr/libero_spatial | sensitivity | control | F500 | PAIRED | 489 | 489 | 2.45 | 30/18 | -4.08 | -1.64 | -1.58/0.20 | 描述性 |
-| DP/500/chr/libero_spatial | sensitivity | corrector_ablation | — | PAIRED | 489 | 489 | 2.25 | 21/10 | — | — | -1.05/0.41 | 描述性 |
-| DP/500/chr/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | 0.41 | 20/18 | — | — | -3.24/-1.64 | 描述性 |
-| DP/500/chrg/libero_10 | full | control | F500 | PAIRED | 500 | 500 | 9.00 | 80/35 | -0.30 | 3.00 | 3.29/5.60 | PASS |
-| DP/500/chrg/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 1.20 | 34/28 | — | — | -3.24/-1.40 | 描述性 |
-| DP/500/chrg/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | -0.20 | 28/29 | — | — | -4.47/-2.60 | 描述性 |
-| DP/500/chrg/libero_10 | full | gate_ablation | — | PAIRED | 500 | 500 | 1.40 | 24/17 | — | — | -2.29/-0.60 | 描述性 |
-| DP/500/chrg/libero_10 | sensitivity | control | F500 | PAIRED | 479 | 479 | 7.93 | 72/34 | -1.45 | 2.09 | 2.17/4.59 | 描述性 |
-| DP/500/chrg/libero_10 | sensitivity | corrector_ablation | — | PAIRED | 479 | 479 | 0.84 | 32/28 | — | — | -3.72/-1.67 | 描述性 |
-| DP/500/chrg/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | -0.21 | 27/28 | — | — | -4.59/-2.71 | 描述性 |
-| DP/500/chrg/libero_10 | sensitivity | gate_ablation | — | PAIRED | 479 | 479 | 1.25 | 22/16 | — | — | -2.47/-0.84 | 描述性 |
-| DP/500/chrg/libero_spatial | full | control | F500 | PAIRED | 500 | 500 | 2.80 | 31/17 | -3.59 | -1.10 | -1.14/0.60 | 未证明 |
-| DP/500/chrg/libero_spatial | full | corrector_ablation | — | PAIRED | 500 | 500 | 2.00 | 20/10 | — | — | -1.19/0.20 | 描述性 |
-| DP/500/chrg/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | 0.00 | 18/18 | — | — | -3.48/-2.00 | 描述性 |
-| DP/500/chrg/libero_spatial | full | gate_ablation | — | PAIRED | 500 | 500 | 0.20 | 6/5 | — | — | -1.88/-0.80 | 描述性 |
-| DP/500/chrg/libero_spatial | sensitivity | control | F500 | PAIRED | 489 | 489 | 2.66 | 29/16 | -3.68 | -1.23 | -1.25/0.41 | 描述性 |
-| DP/500/chrg/libero_spatial | sensitivity | corrector_ablation | — | PAIRED | 489 | 489 | 1.84 | 19/10 | — | — | -1.37/0.00 | 描述性 |
-| DP/500/chrg/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | 0.00 | 17/17 | — | — | -3.47/-1.84 | 描述性 |
-| DP/500/chrg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | 0.20 | 6/5 | — | — | -1.92/-0.82 | 描述性 |
 | DP/500/cr/libero_10 | full | control | F500 | PAIRED | 500 | 500 | -11.40 | 46/103 | -21.41 | -18.40 | -17.60/-15.20 | 未证明 |
 | DP/500/cr/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 3.40 | 68/51 | — | — | -2.47/-0.20 | 描述性 |
 | DP/500/cr/libero_10 | sensitivity | control | F500 | PAIRED | 479 | 479 | -11.48 | 44/99 | -21.71 | -18.27 | -17.82/-15.24 | 描述性 |
@@ -1535,70 +943,6 @@ Receipt status is information only. Cells with fewer than 500 accepted episodes 
 | Fast-WAM/50/cg/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -7.16 | 16/51 | — | — | -11.60/-9.82 | 描述性 |
 | Fast-WAM/50/cg/libero_spatial | sensitivity | N500 | Fsize | PAIRED | 489 | 489 | -5.73 | 18/46 | -12.87 | -10.43 | -10.15/-8.38 | 描述性 |
 | Fast-WAM/50/cg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | 5.73 | 44/16 | — | — | 1.35/3.27 | 描述性 |
-| Fast-WAM/50/ch/libero_10 | full | control | — | PAIRED | 500 | 500 | -38.80 | 14/208 | — | — | -44.52/-42.40 | 描述性 |
-| Fast-WAM/50/ch/libero_10 | full | N500 | Fsize | PAIRED | 500 | 500 | -22.80 | 23/137 | -32.10 | -29.40 | -28.60/-26.41 | 未证明 |
-| Fast-WAM/50/ch/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | 13.80 | 97/28 | — | — | 8.03/10.40 | 描述性 |
-| Fast-WAM/50/ch/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -38.62 | 14/199 | — | — | -44.50/-42.38 | 描述性 |
-| Fast-WAM/50/ch/libero_10 | sensitivity | N500 | Fsize | PAIRED | 479 | 479 | -22.76 | 22/131 | -32.25 | -29.65 | -28.68/-26.51 | 描述性 |
-| Fast-WAM/50/ch/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | 13.15 | 91/28 | — | — | 7.24/9.81 | 描述性 |
-| Fast-WAM/50/ch/libero_spatial | full | control | — | PAIRED | 500 | 500 | -5.80 | 28/57 | — | — | -10.76/-8.60 | 描述性 |
-| Fast-WAM/50/ch/libero_spatial | full | N500 | Fsize | PAIRED | 500 | 500 | -4.20 | 30/51 | -12.13 | -9.20 | -9.11/-7.00 | 未证明 |
-| Fast-WAM/50/ch/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | 6.40 | 57/25 | — | — | 1.46/3.60 | 描述性 |
-| Fast-WAM/50/ch/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -6.54 | 25/57 | — | — | -11.50/-9.41 | 描述性 |
-| Fast-WAM/50/ch/libero_spatial | sensitivity | N500 | Fsize | PAIRED | 489 | 489 | -4.50 | 28/50 | -12.45 | -9.82 | -9.42/-7.36 | 描述性 |
-| Fast-WAM/50/ch/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | 6.34 | 56/25 | — | — | 1.31/3.48 | 描述性 |
-| Fast-WAM/50/chg/libero_10 | full | control | — | PAIRED | 500 | 500 | -28.40 | 17/159 | — | — | -34.09/-31.80 | 描述性 |
-| Fast-WAM/50/chg/libero_10 | full | N500 | Fsize | PAIRED | 500 | 500 | -15.00 | 28/103 | -24.11 | -21.00 | -20.66/-18.40 | 未证明 |
-| Fast-WAM/50/chg/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | -3.00 | 48/63 | — | — | -8.67/-6.40 | 描述性 |
-| Fast-WAM/50/chg/libero_10 | full | gate_ablation | — | PAIRED | 500 | 500 | 10.40 | 75/23 | — | — | 5.16/7.39 | 描述性 |
-| Fast-WAM/50/chg/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -27.77 | 17/150 | — | — | -33.60/-31.32 | 描述性 |
-| Fast-WAM/50/chg/libero_10 | sensitivity | N500 | Fsize | PAIRED | 479 | 479 | -14.41 | 28/97 | -23.75 | -20.88 | -20.21/-17.95 | 描述性 |
-| Fast-WAM/50/chg/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | -2.30 | 48/59 | — | — | -8.12/-5.64 | 描述性 |
-| Fast-WAM/50/chg/libero_10 | sensitivity | gate_ablation | — | PAIRED | 479 | 479 | 10.86 | 73/21 | — | — | 5.52/7.72 | 描述性 |
-| Fast-WAM/50/chg/libero_spatial | full | control | — | PAIRED | 500 | 500 | -5.20 | 27/53 | — | — | -10.05/-8.00 | 描述性 |
-| Fast-WAM/50/chg/libero_spatial | full | N500 | Fsize | PAIRED | 500 | 500 | -3.60 | 24/42 | -10.85 | -8.40 | -8.09/-6.20 | 未证明 |
-| Fast-WAM/50/chg/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | 1.40 | 40/33 | — | — | -3.37/-1.40 | 描述性 |
-| Fast-WAM/50/chg/libero_spatial | full | gate_ablation | — | PAIRED | 500 | 500 | 0.60 | 28/25 | — | — | -3.54/-1.80 | 描述性 |
-| Fast-WAM/50/chg/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -5.93 | 24/53 | — | — | -10.77/-8.59 | 描述性 |
-| Fast-WAM/50/chg/libero_spatial | sensitivity | N500 | Fsize | PAIRED | 489 | 489 | -4.09 | 22/42 | -11.36 | -9.10 | -8.59/-6.75 | 描述性 |
-| Fast-WAM/50/chg/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | 1.23 | 39/33 | — | — | -3.61/-1.64 | 描述性 |
-| Fast-WAM/50/chg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | 0.61 | 28/25 | — | — | -3.62/-1.84 | 描述性 |
-| Fast-WAM/50/chr/libero_10 | full | control | — | PAIRED | 500 | 500 | -31.00 | 18/173 | — | — | -36.80/-34.60 | 描述性 |
-| Fast-WAM/50/chr/libero_10 | full | N500 | Fsize | PAIRED | 500 | 500 | -16.20 | 35/116 | -25.90 | -23.00 | -22.23/-20.00 | 未证明 |
-| Fast-WAM/50/chr/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 7.80 | 65/26 | — | — | 2.65/4.80 | 描述性 |
-| Fast-WAM/50/chr/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | 15.60 | 112/34 | — | — | 9.44/12.00 | 描述性 |
-| Fast-WAM/50/chr/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -30.06 | 18/162 | — | — | -36.01/-33.82 | 描述性 |
-| Fast-WAM/50/chr/libero_10 | sensitivity | N500 | Fsize | PAIRED | 479 | 479 | -15.24 | 35/108 | -25.18 | -22.34 | -21.42/-19.00 | 描述性 |
-| Fast-WAM/50/chr/libero_10 | sensitivity | corrector_ablation | — | PAIRED | 479 | 479 | 8.56 | 65/24 | — | — | 3.27/5.43 | 描述性 |
-| Fast-WAM/50/chr/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | 15.87 | 109/33 | — | — | 9.54/12.11 | 描述性 |
-| Fast-WAM/50/chr/libero_spatial | full | control | — | PAIRED | 500 | 500 | -6.20 | 28/59 | — | — | -11.20/-9.00 | 描述性 |
-| Fast-WAM/50/chr/libero_spatial | full | N500 | Fsize | PAIRED | 500 | 500 | -4.80 | 27/51 | -12.56 | -10.00 | -9.60/-7.40 | 未证明 |
-| Fast-WAM/50/chr/libero_spatial | full | corrector_ablation | — | PAIRED | 500 | 500 | -0.40 | 35/37 | — | — | -5.13/-3.20 | 描述性 |
-| Fast-WAM/50/chr/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | 7.60 | 74/36 | — | — | 1.97/4.20 | 描述性 |
-| Fast-WAM/50/chr/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -6.95 | 25/59 | — | — | -11.95/-9.82 | 描述性 |
-| Fast-WAM/50/chr/libero_spatial | sensitivity | N500 | Fsize | PAIRED | 489 | 489 | -5.52 | 24/51 | -13.26 | -10.43 | -10.31/-8.18 | 描述性 |
-| Fast-WAM/50/chr/libero_spatial | sensitivity | corrector_ablation | — | PAIRED | 489 | 489 | -0.41 | 35/37 | — | — | -5.24/-3.27 | 描述性 |
-| Fast-WAM/50/chr/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | 7.77 | 73/35 | — | — | 2.07/4.50 | 描述性 |
-| Fast-WAM/50/chrg/libero_10 | full | control | — | PAIRED | 500 | 500 | -27.00 | 20/155 | — | — | -32.80/-30.60 | 描述性 |
-| Fast-WAM/50/chrg/libero_10 | full | N500 | Fsize | PAIRED | 500 | 500 | -15.40 | 35/112 | -25.04 | -21.80 | -21.39/-19.00 | 未证明 |
-| Fast-WAM/50/chrg/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 1.40 | 46/39 | — | — | -3.69/-1.60 | 描述性 |
-| Fast-WAM/50/chrg/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | -7.20 | 41/77 | — | — | -12.92/-10.60 | 描述性 |
-| Fast-WAM/50/chrg/libero_10 | full | gate_ablation | — | PAIRED | 500 | 500 | 4.00 | 59/39 | — | — | -1.40/0.80 | 描述性 |
-| Fast-WAM/50/chrg/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -26.10 | 20/145 | — | — | -32.03/-29.65 | 描述性 |
-| Fast-WAM/50/chrg/libero_10 | sensitivity | N500 | Fsize | PAIRED | 479 | 479 | -14.41 | 35/104 | -24.28 | -21.19 | -20.54/-18.16 | 描述性 |
-| Fast-WAM/50/chrg/libero_10 | sensitivity | corrector_ablation | — | PAIRED | 479 | 479 | 1.67 | 44/36 | — | — | -3.50/-1.46 | 描述性 |
-| Fast-WAM/50/chrg/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | -6.89 | 39/72 | — | — | -12.70/-10.44 | 描述性 |
-| Fast-WAM/50/chrg/libero_10 | sensitivity | gate_ablation | — | PAIRED | 479 | 479 | 3.97 | 55/36 | — | — | -1.49/0.63 | 描述性 |
-| Fast-WAM/50/chrg/libero_spatial | full | control | — | PAIRED | 500 | 500 | -3.80 | 26/45 | — | — | -8.43/-6.40 | 描述性 |
-| Fast-WAM/50/chrg/libero_spatial | full | N500 | Fsize | PAIRED | 500 | 500 | -1.20 | 33/39 | -8.85 | -6.00 | -5.92/-3.80 | 未证明 |
-| Fast-WAM/50/chrg/libero_spatial | full | corrector_ablation | — | PAIRED | 500 | 500 | 1.40 | 35/28 | — | — | -3.07/-1.20 | 描述性 |
-| Fast-WAM/50/chrg/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | 1.40 | 39/32 | — | — | -3.31/-1.40 | 描述性 |
-| Fast-WAM/50/chrg/libero_spatial | full | gate_ablation | — | PAIRED | 500 | 500 | 2.40 | 29/17 | — | — | -1.47/0.20 | 描述性 |
-| Fast-WAM/50/chrg/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -4.29 | 24/45 | — | — | -8.95/-6.95 | 描述性 |
-| Fast-WAM/50/chrg/libero_spatial | sensitivity | N500 | Fsize | PAIRED | 489 | 489 | -1.64 | 31/39 | -9.34 | -6.54 | -6.39/-4.29 | 描述性 |
-| Fast-WAM/50/chrg/libero_spatial | sensitivity | corrector_ablation | — | PAIRED | 489 | 489 | 1.64 | 35/27 | — | — | -2.90/-1.02 | 描述性 |
-| Fast-WAM/50/chrg/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | 1.43 | 38/31 | — | — | -3.32/-1.43 | 描述性 |
-| Fast-WAM/50/chrg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | 2.66 | 29/16 | — | — | -1.25/0.41 | 描述性 |
 | Fast-WAM/50/cr/libero_10 | full | control | — | PAIRED | 500 | 500 | -46.60 | 11/244 | — | — | -52.17/-50.00 | 描述性 |
 | Fast-WAM/50/cr/libero_10 | full | N500 | Fsize | PAIRED | 500 | 500 | -25.40 | 24/151 | -34.91 | -32.00 | -31.33/-29.20 | 未证明 |
 | Fast-WAM/50/cr/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 6.00 | 55/25 | — | — | 1.10/3.20 | 描述性 |
@@ -1647,70 +991,6 @@ Receipt status is information only. Cells with fewer than 500 accepted episodes 
 | Fast-WAM/100/cg/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -3.68 | 18/36 | — | — | -7.85/-6.13 | 描述性 |
 | Fast-WAM/100/cg/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | -2.25 | 16/27 | — | — | -6.05/-4.50 | 描述性 |
 | Fast-WAM/100/cg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | 4.70 | 34/11 | — | — | 0.87/2.45 | 描述性 |
-| Fast-WAM/100/ch/libero_10 | full | control | — | PAIRED | 500 | 500 | -27.20 | 22/158 | — | — | -33.10/-30.80 | 描述性 |
-| Fast-WAM/100/ch/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -11.20 | 37/93 | — | — | -17.03/-14.80 | 描述性 |
-| Fast-WAM/100/ch/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | 13.40 | 97/30 | — | — | 7.57/10.00 | 描述性 |
-| Fast-WAM/100/ch/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -27.35 | 22/153 | — | — | -33.42/-31.11 | 描述性 |
-| Fast-WAM/100/ch/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | -11.48 | 35/90 | — | — | -17.44/-15.24 | 描述性 |
-| Fast-WAM/100/ch/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | 12.53 | 90/30 | — | — | 6.57/8.98 | 描述性 |
-| Fast-WAM/100/ch/libero_spatial | full | control | — | PAIRED | 500 | 500 | -5.60 | 14/42 | — | — | -9.65/-8.00 | 描述性 |
-| Fast-WAM/100/ch/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | -4.00 | 14/34 | — | — | -7.83/-6.20 | 描述性 |
-| Fast-WAM/100/ch/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | 2.00 | 41/31 | — | — | -2.74/-0.60 | 描述性 |
-| Fast-WAM/100/ch/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -5.32 | 14/40 | — | — | -9.40/-7.77 | 描述性 |
-| Fast-WAM/100/ch/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | -3.27 | 14/30 | — | — | -7.07/-5.52 | 描述性 |
-| Fast-WAM/100/ch/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | 3.07 | 41/26 | — | — | -1.61/0.41 | 描述性 |
-| Fast-WAM/100/chg/libero_10 | full | control | — | PAIRED | 500 | 500 | -25.20 | 19/145 | — | — | -30.89/-28.80 | 描述性 |
-| Fast-WAM/100/chg/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -11.80 | 38/97 | — | — | -17.71/-15.40 | 描述性 |
-| Fast-WAM/100/chg/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | -5.40 | 40/67 | — | — | -10.93/-8.80 | 描述性 |
-| Fast-WAM/100/chg/libero_10 | full | gate_ablation | — | PAIRED | 500 | 500 | 2.00 | 42/32 | — | — | -2.79/-0.80 | 描述性 |
-| Fast-WAM/100/chg/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -24.63 | 19/137 | — | — | -30.47/-28.18 | 描述性 |
-| Fast-WAM/100/chg/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | -11.27 | 37/91 | — | — | -17.31/-15.03 | 描述性 |
-| Fast-WAM/100/chg/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | -4.59 | 39/61 | — | — | -10.20/-7.93 | 描述性 |
-| Fast-WAM/100/chg/libero_10 | sensitivity | gate_ablation | — | PAIRED | 479 | 479 | 2.71 | 40/27 | — | — | -2.06/0.00 | 描述性 |
-| Fast-WAM/100/chg/libero_spatial | full | control | — | PAIRED | 500 | 500 | -5.60 | 18/46 | — | — | -9.93/-8.20 | 描述性 |
-| Fast-WAM/100/chg/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | -4.00 | 14/34 | — | — | -7.83/-6.20 | 描述性 |
-| Fast-WAM/100/chg/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | -2.40 | 19/31 | — | — | -6.38/-4.60 | 描述性 |
-| Fast-WAM/100/chg/libero_spatial | full | gate_ablation | — | PAIRED | 500 | 500 | 0.00 | 15/15 | — | — | -3.21/-1.80 | 描述性 |
-| Fast-WAM/100/chg/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -5.93 | 17/46 | — | — | -10.31/-8.38 | 描述性 |
-| Fast-WAM/100/chg/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | -4.09 | 13/33 | — | — | -7.92/-6.34 | 描述性 |
-| Fast-WAM/100/chg/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | -2.25 | 18/29 | — | — | -6.21/-4.50 | 描述性 |
-| Fast-WAM/100/chg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | -0.61 | 12/15 | — | — | -3.73/-2.25 | 描述性 |
-| Fast-WAM/100/chr/libero_10 | full | control | — | PAIRED | 500 | 500 | -24.80 | 22/146 | — | — | -30.62/-28.40 | 描述性 |
-| Fast-WAM/100/chr/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -10.00 | 40/90 | — | — | -15.88/-13.80 | 描述性 |
-| Fast-WAM/100/chr/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 2.40 | 50/38 | — | — | -2.77/-0.60 | 描述性 |
-| Fast-WAM/100/chr/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | 13.00 | 93/28 | — | — | 7.29/9.60 | 描述性 |
-| Fast-WAM/100/chr/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -24.43 | 21/138 | — | — | -30.36/-27.97 | 描述性 |
-| Fast-WAM/100/chr/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | -9.60 | 39/85 | — | — | -15.61/-13.36 | 描述性 |
-| Fast-WAM/100/chr/libero_10 | sensitivity | corrector_ablation | — | PAIRED | 479 | 479 | 2.92 | 48/34 | — | — | -2.30/-0.21 | 描述性 |
-| Fast-WAM/100/chr/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | 12.94 | 88/26 | — | — | 7.15/9.39 | 描述性 |
-| Fast-WAM/100/chr/libero_spatial | full | control | — | PAIRED | 500 | 500 | -2.80 | 20/34 | — | — | -6.91/-5.20 | 描述性 |
-| Fast-WAM/100/chr/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | -1.40 | 24/31 | — | — | -5.59/-3.80 | 描述性 |
-| Fast-WAM/100/chr/libero_spatial | full | corrector_ablation | — | PAIRED | 500 | 500 | 2.80 | 31/17 | — | — | -1.14/0.60 | 描述性 |
-| Fast-WAM/100/chr/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | 4.60 | 47/24 | — | — | -0.07/2.00 | 描述性 |
-| Fast-WAM/100/chr/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -3.27 | 18/34 | — | — | -7.38/-5.73 | 描述性 |
-| Fast-WAM/100/chr/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | -1.84 | 21/30 | — | — | -5.96/-4.09 | 描述性 |
-| Fast-WAM/100/chr/libero_spatial | sensitivity | corrector_ablation | — | PAIRED | 489 | 489 | 2.04 | 27/17 | — | — | -1.84/-0.20 | 描述性 |
-| Fast-WAM/100/chr/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | 4.50 | 45/23 | — | — | -0.18/1.84 | 描述性 |
-| Fast-WAM/100/chrg/libero_10 | full | control | — | PAIRED | 500 | 500 | -22.20 | 22/133 | — | — | -27.93/-25.60 | 描述性 |
-| Fast-WAM/100/chrg/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -10.60 | 32/85 | — | — | -16.17/-13.80 | 描述性 |
-| Fast-WAM/100/chrg/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 3.00 | 50/35 | — | — | -2.09/-0.20 | 描述性 |
-| Fast-WAM/100/chrg/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | -2.80 | 50/64 | — | — | -8.54/-6.20 | 描述性 |
-| Fast-WAM/100/chrg/libero_10 | full | gate_ablation | — | PAIRED | 500 | 500 | 2.60 | 40/27 | — | — | -1.98/0.00 | 描述性 |
-| Fast-WAM/100/chrg/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -21.92 | 21/126 | — | — | -27.76/-25.47 | 描述性 |
-| Fast-WAM/100/chrg/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | -10.23 | 31/80 | — | — | -15.91/-13.57 | 描述性 |
-| Fast-WAM/100/chrg/libero_10 | sensitivity | corrector_ablation | — | PAIRED | 479 | 479 | 2.71 | 46/33 | — | — | -2.42/-0.42 | 描述性 |
-| Fast-WAM/100/chrg/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | -2.92 | 47/61 | — | — | -8.76/-6.47 | 描述性 |
-| Fast-WAM/100/chrg/libero_10 | sensitivity | gate_ablation | — | PAIRED | 479 | 479 | 2.51 | 38/26 | — | — | -2.18/-0.21 | 描述性 |
-| Fast-WAM/100/chrg/libero_spatial | full | control | — | PAIRED | 500 | 500 | -3.40 | 16/33 | — | — | -7.30/-5.60 | 描述性 |
-| Fast-WAM/100/chrg/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | -0.80 | 20/24 | — | — | -4.60/-3.00 | 描述性 |
-| Fast-WAM/100/chrg/libero_spatial | full | corrector_ablation | — | PAIRED | 500 | 500 | 2.20 | 29/18 | — | — | -1.71/0.00 | 描述性 |
-| Fast-WAM/100/chrg/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | 0.20 | 29/28 | — | — | -4.07/-2.20 | 描述性 |
-| Fast-WAM/100/chrg/libero_spatial | full | gate_ablation | — | PAIRED | 500 | 500 | -0.60 | 20/23 | — | — | -4.36/-2.60 | 描述性 |
-| Fast-WAM/100/chrg/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -3.27 | 16/32 | — | — | -7.23/-5.52 | 描述性 |
-| Fast-WAM/100/chrg/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | -0.61 | 19/22 | — | — | -4.38/-2.66 | 描述性 |
-| Fast-WAM/100/chrg/libero_spatial | sensitivity | corrector_ablation | — | PAIRED | 489 | 489 | 2.66 | 29/16 | — | — | -1.25/0.41 | 描述性 |
-| Fast-WAM/100/chrg/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | 0.61 | 28/25 | — | — | -3.62/-1.84 | 描述性 |
-| Fast-WAM/100/chrg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | 0.00 | 20/20 | — | — | -3.73/-2.04 | 描述性 |
 | Fast-WAM/100/cr/libero_10 | full | control | — | PAIRED | 500 | 500 | -37.80 | 13/202 | — | — | -43.46/-41.20 | 描述性 |
 | Fast-WAM/100/cr/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -16.60 | 26/109 | — | — | -22.26/-20.20 | 描述性 |
 | Fast-WAM/100/cr/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 2.80 | 52/38 | — | — | -2.42/-0.20 | 描述性 |
@@ -1759,70 +1039,6 @@ Receipt status is information only. Cells with fewer than 500 accepted episodes 
 | Fast-WAM/200/cg/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -4.50 | 12/34 | — | — | -8.31/-6.75 | 描述性 |
 | Fast-WAM/200/cg/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | -3.07 | 16/31 | — | — | -7.00/-5.32 | 描述性 |
 | Fast-WAM/200/cg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | 1.84 | 26/17 | — | — | -2.01/-0.20 | 描述性 |
-| Fast-WAM/200/ch/libero_10 | full | control | — | PAIRED | 500 | 500 | -21.40 | 22/129 | — | — | -27.09/-25.00 | 描述性 |
-| Fast-WAM/200/ch/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -5.40 | 35/62 | — | — | -10.69/-8.60 | 描述性 |
-| Fast-WAM/200/ch/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | 13.60 | 95/27 | — | — | 7.89/10.20 | 描述性 |
-| Fast-WAM/200/ch/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -21.09 | 22/123 | — | — | -26.94/-24.63 | 描述性 |
-| Fast-WAM/200/ch/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | -5.22 | 34/59 | — | — | -10.63/-8.56 | 描述性 |
-| Fast-WAM/200/ch/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | 13.99 | 92/25 | — | — | 8.17/10.44 | 描述性 |
-| Fast-WAM/200/ch/libero_spatial | full | control | — | PAIRED | 500 | 500 | -2.00 | 14/24 | — | — | -5.52/-4.00 | 描述性 |
-| Fast-WAM/200/ch/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | -0.40 | 15/17 | — | — | -3.70/-2.20 | 描述性 |
-| Fast-WAM/200/ch/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | 4.40 | 34/12 | — | — | 0.60/2.20 | 描述性 |
-| Fast-WAM/200/ch/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -1.84 | 14/23 | — | — | -5.40/-3.89 | 描述性 |
-| Fast-WAM/200/ch/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | 0.20 | 15/14 | — | — | -3.03/-1.64 | 描述性 |
-| Fast-WAM/200/ch/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | 4.50 | 34/12 | — | — | 0.62/2.25 | 描述性 |
-| Fast-WAM/200/chg/libero_10 | full | control | — | PAIRED | 500 | 500 | -21.20 | 23/129 | — | — | -26.93/-24.80 | 描述性 |
-| Fast-WAM/200/chg/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -7.80 | 34/73 | — | — | -13.25/-11.00 | 描述性 |
-| Fast-WAM/200/chg/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | -4.40 | 46/68 | — | — | -10.11/-7.80 | 描述性 |
-| Fast-WAM/200/chg/libero_10 | full | gate_ablation | — | PAIRED | 500 | 500 | 0.20 | 28/27 | — | — | -4.01/-2.20 | 描述性 |
-| Fast-WAM/200/chg/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -20.88 | 22/122 | — | — | -26.72/-24.43 | 描述性 |
-| Fast-WAM/200/chg/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | -7.52 | 32/68 | — | — | -13.03/-10.86 | 描述性 |
-| Fast-WAM/200/chg/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | -4.18 | 44/64 | — | — | -9.99/-7.72 | 描述性 |
-| Fast-WAM/200/chg/libero_10 | sensitivity | gate_ablation | — | PAIRED | 479 | 479 | 0.21 | 27/26 | — | — | -4.11/-2.30 | 描述性 |
-| Fast-WAM/200/chg/libero_spatial | full | control | — | PAIRED | 500 | 500 | -2.20 | 17/28 | — | — | -6.00/-4.40 | 描述性 |
-| Fast-WAM/200/chg/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | -0.60 | 14/17 | — | — | -3.85/-2.40 | 描述性 |
-| Fast-WAM/200/chg/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | 2.40 | 29/17 | — | — | -1.47/0.20 | 描述性 |
-| Fast-WAM/200/chg/libero_spatial | full | gate_ablation | — | PAIRED | 500 | 500 | -0.20 | 12/13 | — | — | -3.16/-1.80 | 描述性 |
-| Fast-WAM/200/chg/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -2.45 | 16/28 | — | — | -6.29/-4.70 | 描述性 |
-| Fast-WAM/200/chg/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | -0.61 | 13/16 | — | — | -3.84/-2.45 | 描述性 |
-| Fast-WAM/200/chg/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | 2.04 | 27/17 | — | — | -1.84/-0.20 | 描述性 |
-| Fast-WAM/200/chg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | -0.61 | 10/13 | — | — | -3.52/-2.25 | 描述性 |
-| Fast-WAM/200/chr/libero_10 | full | control | — | PAIRED | 500 | 500 | -19.60 | 22/120 | — | — | -25.21/-23.00 | 描述性 |
-| Fast-WAM/200/chr/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -4.80 | 38/62 | — | — | -10.18/-8.20 | 描述性 |
-| Fast-WAM/200/chr/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 1.80 | 41/32 | — | — | -2.97/-1.00 | 描述性 |
-| Fast-WAM/200/chr/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | 9.00 | 78/33 | — | — | 3.39/5.80 | 描述性 |
-| Fast-WAM/200/chr/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -19.42 | 22/115 | — | — | -25.19/-22.96 | 描述性 |
-| Fast-WAM/200/chr/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | -4.59 | 37/59 | — | — | -10.10/-7.93 | 描述性 |
-| Fast-WAM/200/chr/libero_10 | sensitivity | corrector_ablation | — | PAIRED | 479 | 479 | 1.67 | 39/31 | — | — | -3.21/-1.25 | 描述性 |
-| Fast-WAM/200/chr/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | 8.77 | 74/32 | — | — | 3.03/5.43 | 描述性 |
-| Fast-WAM/200/chr/libero_spatial | full | control | — | PAIRED | 500 | 500 | -1.60 | 19/27 | — | — | -5.46/-3.80 | 描述性 |
-| Fast-WAM/200/chr/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | -0.20 | 20/21 | — | — | -3.89/-2.40 | 描述性 |
-| Fast-WAM/200/chr/libero_spatial | full | corrector_ablation | — | PAIRED | 500 | 500 | 0.40 | 18/16 | — | — | -3.00/-1.40 | 描述性 |
-| Fast-WAM/200/chr/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | 2.80 | 28/14 | — | — | -0.90/0.80 | 描述性 |
-| Fast-WAM/200/chr/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -1.84 | 18/27 | — | — | -5.74/-4.09 | 描述性 |
-| Fast-WAM/200/chr/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | -0.41 | 18/20 | — | — | -4.05/-2.45 | 描述性 |
-| Fast-WAM/200/chr/libero_spatial | sensitivity | corrector_ablation | — | PAIRED | 489 | 489 | 0.00 | 16/16 | — | — | -3.38/-1.84 | 描述性 |
-| Fast-WAM/200/chr/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | 2.45 | 26/14 | — | — | -1.25/0.41 | 描述性 |
-| Fast-WAM/200/chrg/libero_10 | full | control | — | PAIRED | 500 | 500 | -16.60 | 26/109 | — | — | -22.26/-20.20 | 描述性 |
-| Fast-WAM/200/chrg/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -5.00 | 37/62 | — | — | -10.35/-8.20 | 描述性 |
-| Fast-WAM/200/chrg/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 4.60 | 50/27 | — | — | -0.25/1.80 | 描述性 |
-| Fast-WAM/200/chrg/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | -4.80 | 40/64 | — | — | -10.27/-8.00 | 描述性 |
-| Fast-WAM/200/chrg/libero_10 | full | gate_ablation | — | PAIRED | 500 | 500 | 3.00 | 35/20 | — | — | -1.19/0.60 | 描述性 |
-| Fast-WAM/200/chrg/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -15.87 | 26/102 | — | — | -21.66/-19.42 | 描述性 |
-| Fast-WAM/200/chrg/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | -4.18 | 36/56 | — | — | -9.59/-7.31 | 描述性 |
-| Fast-WAM/200/chrg/libero_10 | sensitivity | corrector_ablation | — | PAIRED | 479 | 479 | 5.01 | 48/24 | — | — | 0.12/2.30 | 描述性 |
-| Fast-WAM/200/chrg/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | -4.38 | 38/59 | — | — | -9.92/-7.52 | 描述性 |
-| Fast-WAM/200/chrg/libero_10 | sensitivity | gate_ablation | — | PAIRED | 479 | 479 | 3.55 | 34/17 | — | — | -0.66/1.25 | 描述性 |
-| Fast-WAM/200/chrg/libero_spatial | full | control | — | PAIRED | 500 | 500 | -2.20 | 18/29 | — | — | -6.08/-4.40 | 描述性 |
-| Fast-WAM/200/chrg/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | 0.40 | 21/19 | — | — | -3.25/-1.60 | 描述性 |
-| Fast-WAM/200/chrg/libero_spatial | full | corrector_ablation | — | PAIRED | 500 | 500 | 0.00 | 19/19 | — | — | -3.57/-2.00 | 描述性 |
-| Fast-WAM/200/chrg/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | 0.80 | 20/16 | — | — | -2.68/-1.20 | 描述性 |
-| Fast-WAM/200/chrg/libero_spatial | full | gate_ablation | — | PAIRED | 500 | 500 | -0.60 | 9/12 | — | — | -3.33/-2.20 | 描述性 |
-| Fast-WAM/200/chrg/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -2.45 | 17/29 | — | — | -6.37/-4.70 | 描述性 |
-| Fast-WAM/200/chrg/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | 0.20 | 19/18 | — | — | -3.40/-1.84 | 描述性 |
-| Fast-WAM/200/chrg/libero_spatial | sensitivity | corrector_ablation | — | PAIRED | 489 | 489 | 0.00 | 19/19 | — | — | -3.65/-2.04 | 描述性 |
-| Fast-WAM/200/chrg/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | 0.61 | 19/16 | — | — | -2.90/-1.43 | 描述性 |
-| Fast-WAM/200/chrg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | -0.61 | 9/12 | — | — | -3.40/-2.25 | 描述性 |
 | Fast-WAM/200/cr/libero_10 | full | control | — | PAIRED | 500 | 500 | -28.60 | 22/165 | — | — | -34.54/-32.20 | 描述性 |
 | Fast-WAM/200/cr/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -7.40 | 33/70 | — | — | -12.77/-10.60 | 描述性 |
 | Fast-WAM/200/cr/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 6.40 | 54/22 | — | — | 1.63/3.60 | 描述性 |
@@ -1871,70 +1087,6 @@ Receipt status is information only. Cells with fewer than 500 accepted episodes 
 | Fast-WAM/300/cg/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -3.68 | 15/33 | — | — | -7.62/-5.93 | 描述性 |
 | Fast-WAM/300/cg/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | -2.25 | 12/23 | — | — | -5.70/-4.29 | 描述性 |
 | Fast-WAM/300/cg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | 2.45 | 21/9 | — | — | -0.79/0.61 | 描述性 |
-| Fast-WAM/300/ch/libero_10 | full | control | — | PAIRED | 500 | 500 | -19.60 | 23/121 | — | — | -25.26/-23.00 | 描述性 |
-| Fast-WAM/300/ch/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -3.60 | 35/53 | — | — | -8.71/-6.60 | 描述性 |
-| Fast-WAM/300/ch/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | 9.40 | 74/27 | — | — | 4.04/6.40 | 描述性 |
-| Fast-WAM/300/ch/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -19.42 | 23/116 | — | — | -25.24/-22.96 | 描述性 |
-| Fast-WAM/300/ch/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | -3.55 | 34/51 | — | — | -8.80/-6.68 | 描述性 |
-| Fast-WAM/300/ch/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | 9.39 | 71/26 | — | — | 3.91/6.26 | 描述性 |
-| Fast-WAM/300/ch/libero_spatial | full | control | — | PAIRED | 500 | 500 | -2.40 | 16/28 | — | — | -6.15/-4.60 | 描述性 |
-| Fast-WAM/300/ch/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | -0.80 | 12/16 | — | — | -3.90/-2.60 | 描述性 |
-| Fast-WAM/300/ch/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | 3.60 | 30/12 | — | — | -0.07/1.60 | 描述性 |
-| Fast-WAM/300/ch/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -2.66 | 14/27 | — | — | -6.36/-4.70 | 描述性 |
-| Fast-WAM/300/ch/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | -0.61 | 12/15 | — | — | -3.73/-2.25 | 描述性 |
-| Fast-WAM/300/ch/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | 3.48 | 29/12 | — | — | -0.24/1.43 | 描述性 |
-| Fast-WAM/300/chg/libero_10 | full | control | — | PAIRED | 500 | 500 | -16.00 | 24/104 | — | — | -21.53/-19.60 | 描述性 |
-| Fast-WAM/300/chg/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -2.60 | 40/53 | — | — | -7.86/-5.80 | 描述性 |
-| Fast-WAM/300/chg/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | -1.60 | 47/55 | — | — | -7.09/-4.80 | 描述性 |
-| Fast-WAM/300/chg/libero_10 | full | gate_ablation | — | PAIRED | 500 | 500 | 3.60 | 47/29 | — | — | -1.24/0.80 | 描述性 |
-| Fast-WAM/300/chg/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -16.28 | 24/102 | — | — | -22.00/-19.83 | 描述性 |
-| Fast-WAM/300/chg/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | -2.92 | 38/52 | — | — | -8.32/-6.26 | 描述性 |
-| Fast-WAM/300/chg/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | -2.09 | 43/53 | — | — | -7.65/-5.43 | 描述性 |
-| Fast-WAM/300/chg/libero_10 | sensitivity | gate_ablation | — | PAIRED | 479 | 479 | 3.13 | 44/29 | — | — | -1.83/0.21 | 描述性 |
-| Fast-WAM/300/chg/libero_spatial | full | control | — | PAIRED | 500 | 500 | -2.00 | 16/26 | — | — | -5.69/-4.20 | 描述性 |
-| Fast-WAM/300/chg/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | -0.40 | 18/20 | — | — | -3.96/-2.40 | 描述性 |
-| Fast-WAM/300/chg/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | 1.80 | 20/11 | — | — | -1.44/0.00 | 描述性 |
-| Fast-WAM/300/chg/libero_spatial | full | gate_ablation | — | PAIRED | 500 | 500 | 0.40 | 13/11 | — | — | -2.51/-1.20 | 描述性 |
-| Fast-WAM/300/chg/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -2.04 | 15/25 | — | — | -5.73/-4.09 | 描述性 |
-| Fast-WAM/300/chg/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | -0.20 | 17/18 | — | — | -3.72/-2.25 | 描述性 |
-| Fast-WAM/300/chg/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | 1.64 | 19/11 | — | — | -1.63/-0.20 | 描述性 |
-| Fast-WAM/300/chg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | 0.61 | 13/10 | — | — | -2.31/-1.02 | 描述性 |
-| Fast-WAM/300/chr/libero_10 | full | control | — | PAIRED | 500 | 500 | -15.60 | 25/103 | — | — | -21.15/-19.00 | 描述性 |
-| Fast-WAM/300/chr/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -0.80 | 42/46 | — | — | -5.96/-3.80 | 描述性 |
-| Fast-WAM/300/chr/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 4.00 | 46/26 | — | — | -0.71/1.20 | 描述性 |
-| Fast-WAM/300/chr/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | 8.80 | 81/37 | — | — | 3.02/5.60 | 描述性 |
-| Fast-WAM/300/chr/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -15.45 | 25/99 | — | — | -21.17/-19.00 | 描述性 |
-| Fast-WAM/300/chr/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | -0.63 | 41/44 | — | — | -5.92/-3.76 | 描述性 |
-| Fast-WAM/300/chr/libero_10 | sensitivity | corrector_ablation | — | PAIRED | 479 | 479 | 3.97 | 45/26 | — | — | -0.92/1.04 | 描述性 |
-| Fast-WAM/300/chr/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | 8.56 | 77/36 | — | — | 2.65/5.22 | 描述性 |
-| Fast-WAM/300/chr/libero_spatial | full | control | — | PAIRED | 500 | 500 | -1.80 | 15/24 | — | — | -5.37/-3.80 | 描述性 |
-| Fast-WAM/300/chr/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | -0.40 | 17/19 | — | — | -3.88/-2.40 | 描述性 |
-| Fast-WAM/300/chr/libero_spatial | full | corrector_ablation | — | PAIRED | 500 | 500 | 0.60 | 15/12 | — | — | -2.47/-1.00 | 描述性 |
-| Fast-WAM/300/chr/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | 1.60 | 21/13 | — | — | -1.79/-0.20 | 描述性 |
-| Fast-WAM/300/chr/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -1.84 | 15/24 | — | — | -5.49/-3.89 | 描述性 |
-| Fast-WAM/300/chr/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | -0.41 | 16/18 | — | — | -3.87/-2.25 | 描述性 |
-| Fast-WAM/300/chr/libero_spatial | sensitivity | corrector_ablation | — | PAIRED | 489 | 489 | 0.82 | 14/10 | — | — | -2.15/-0.82 | 描述性 |
-| Fast-WAM/300/chr/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | 1.64 | 21/13 | — | — | -1.83/-0.20 | 描述性 |
-| Fast-WAM/300/chrg/libero_10 | full | control | — | PAIRED | 500 | 500 | -12.40 | 24/86 | — | — | -17.70/-15.80 | 描述性 |
-| Fast-WAM/300/chrg/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -0.80 | 45/49 | — | — | -6.11/-4.00 | 描述性 |
-| Fast-WAM/300/chrg/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 3.60 | 48/30 | — | — | -1.29/0.80 | 描述性 |
-| Fast-WAM/300/chrg/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | -2.00 | 45/55 | — | — | -7.44/-5.20 | 描述性 |
-| Fast-WAM/300/chrg/libero_10 | full | gate_ablation | — | PAIRED | 500 | 500 | 3.20 | 38/22 | — | — | -1.15/0.80 | 描述性 |
-| Fast-WAM/300/chrg/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -12.32 | 24/83 | — | — | -17.78/-15.66 | 描述性 |
-| Fast-WAM/300/chrg/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | -0.63 | 44/47 | — | — | -6.08/-3.97 | 描述性 |
-| Fast-WAM/300/chrg/libero_10 | sensitivity | corrector_ablation | — | PAIRED | 479 | 479 | 3.97 | 48/29 | — | — | -1.10/1.04 | 描述性 |
-| Fast-WAM/300/chrg/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | -2.09 | 41/51 | — | — | -7.55/-5.43 | 描述性 |
-| Fast-WAM/300/chrg/libero_10 | sensitivity | gate_ablation | — | PAIRED | 479 | 479 | 3.13 | 36/21 | — | — | -1.30/0.63 | 描述性 |
-| Fast-WAM/300/chrg/libero_spatial | full | control | — | PAIRED | 500 | 500 | -2.40 | 14/26 | — | — | -5.99/-4.40 | 描述性 |
-| Fast-WAM/300/chrg/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | 0.20 | 16/15 | — | — | -3.06/-1.60 | 描述性 |
-| Fast-WAM/300/chrg/libero_spatial | full | corrector_ablation | — | PAIRED | 500 | 500 | -0.40 | 15/17 | — | — | -3.70/-2.20 | 描述性 |
-| Fast-WAM/300/chrg/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | -0.80 | 17/21 | — | — | -4.36/-2.80 | 描述性 |
-| Fast-WAM/300/chrg/libero_spatial | full | gate_ablation | — | PAIRED | 500 | 500 | -0.60 | 8/11 | — | — | -3.21/-2.00 | 描述性 |
-| Fast-WAM/300/chrg/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -2.45 | 13/25 | — | — | -6.03/-4.50 | 描述性 |
-| Fast-WAM/300/chrg/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | 0.20 | 15/14 | — | — | -3.03/-1.64 | 描述性 |
-| Fast-WAM/300/chrg/libero_spatial | sensitivity | corrector_ablation | — | PAIRED | 489 | 489 | -0.41 | 15/17 | — | — | -3.78/-2.25 | 描述性 |
-| Fast-WAM/300/chrg/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | -1.02 | 16/21 | — | — | -4.61/-3.07 | 描述性 |
-| Fast-WAM/300/chrg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | -0.61 | 7/10 | — | — | -3.15/-2.04 | 描述性 |
 | Fast-WAM/300/cr/libero_10 | full | control | — | PAIRED | 500 | 500 | -24.40 | 25/147 | — | — | -30.35/-28.00 | 描述性 |
 | Fast-WAM/300/cr/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -3.20 | 39/55 | — | — | -8.47/-6.40 | 描述性 |
 | Fast-WAM/300/cr/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 4.60 | 47/24 | — | — | -0.07/2.00 | 描述性 |
@@ -1983,70 +1135,6 @@ Receipt status is information only. Cells with fewer than 500 accepted episodes 
 | Fast-WAM/400/cg/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -2.45 | 15/27 | — | — | -6.21/-4.51 | 描述性 |
 | Fast-WAM/400/cg/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | -1.02 | 18/23 | — | — | -4.78/-3.07 | 描述性 |
 | Fast-WAM/400/cg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | 3.07 | 27/12 | — | — | -0.58/1.02 | 描述性 |
-| Fast-WAM/400/ch/libero_10 | full | control | — | PAIRED | 500 | 500 | -17.80 | 20/109 | — | — | -23.22/-21.20 | 描述性 |
-| Fast-WAM/400/ch/libero_10 | full | N500 | — | PAIRED | 500 | 500 | -1.80 | 36/45 | — | — | -6.76/-4.80 | 描述性 |
-| Fast-WAM/400/ch/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | 9.00 | 76/31 | — | — | 3.48/5.80 | 描述性 |
-| Fast-WAM/400/ch/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -17.54 | 20/104 | — | — | -23.11/-20.88 | 描述性 |
-| Fast-WAM/400/ch/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | -1.67 | 35/43 | — | — | -6.76/-4.59 | 描述性 |
-| Fast-WAM/400/ch/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | 8.98 | 72/29 | — | — | 3.37/5.85 | 描述性 |
-| Fast-WAM/400/ch/libero_spatial | full | control | — | PAIRED | 500 | 500 | -2.20 | 20/31 | — | — | -6.23/-4.60 | 描述性 |
-| Fast-WAM/400/ch/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | -0.60 | 14/17 | — | — | -3.85/-2.40 | 描述性 |
-| Fast-WAM/400/ch/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | 3.20 | 31/15 | — | — | -0.65/1.00 | 描述性 |
-| Fast-WAM/400/ch/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -2.25 | 19/30 | — | — | -6.29/-4.50 | 描述性 |
-| Fast-WAM/400/ch/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | -0.20 | 14/15 | — | — | -3.44/-2.04 | 描述性 |
-| Fast-WAM/400/ch/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | 3.27 | 30/14 | — | — | -0.58/1.02 | 描述性 |
-| Fast-WAM/400/chg/libero_10 | full | control | — | PAIRED | 500 | 500 | -12.40 | 25/87 | — | — | -17.75/-15.80 | 描述性 |
-| Fast-WAM/400/chg/libero_10 | full | N500 | — | PAIRED | 500 | 500 | 1.00 | 36/31 | — | — | -3.59/-1.80 | 描述性 |
-| Fast-WAM/400/chg/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | -0.40 | 36/38 | — | — | -5.19/-3.20 | 描述性 |
-| Fast-WAM/400/chg/libero_10 | full | gate_ablation | — | PAIRED | 500 | 500 | 5.40 | 41/14 | — | — | 1.30/3.00 | 描述性 |
-| Fast-WAM/400/chg/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -12.32 | 25/84 | — | — | -17.84/-15.66 | 描述性 |
-| Fast-WAM/400/chg/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | 1.04 | 35/30 | — | — | -3.68/-1.67 | 描述性 |
-| Fast-WAM/400/chg/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | -0.21 | 34/35 | — | — | -5.05/-2.92 | 描述性 |
-| Fast-WAM/400/chg/libero_10 | sensitivity | gate_ablation | — | PAIRED | 479 | 479 | 5.22 | 39/14 | — | — | 1.00/2.92 | 描述性 |
-| Fast-WAM/400/chg/libero_spatial | full | control | — | PAIRED | 500 | 500 | -1.00 | 20/25 | — | — | -4.83/-3.20 | 描述性 |
-| Fast-WAM/400/chg/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | 0.60 | 18/15 | — | — | -2.75/-1.20 | 描述性 |
-| Fast-WAM/400/chg/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | 1.60 | 26/18 | — | — | -2.21/-0.60 | 描述性 |
-| Fast-WAM/400/chg/libero_spatial | full | gate_ablation | — | PAIRED | 500 | 500 | 1.20 | 17/11 | — | — | -1.91/-0.40 | 描述性 |
-| Fast-WAM/400/chg/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -1.23 | 18/24 | — | — | -5.02/-3.27 | 描述性 |
-| Fast-WAM/400/chg/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | 0.61 | 17/14 | — | — | -2.72/-1.23 | 描述性 |
-| Fast-WAM/400/chg/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | 1.23 | 24/18 | — | — | -2.59/-0.82 | 描述性 |
-| Fast-WAM/400/chg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | 1.02 | 16/11 | — | — | -2.11/-0.61 | 描述性 |
-| Fast-WAM/400/chr/libero_10 | full | control | — | PAIRED | 500 | 500 | -14.60 | 23/96 | — | — | -19.99/-17.80 | 描述性 |
-| Fast-WAM/400/chr/libero_10 | full | N500 | — | PAIRED | 500 | 500 | 0.20 | 38/37 | — | — | -4.62/-2.60 | 描述性 |
-| Fast-WAM/400/chr/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 3.20 | 38/22 | — | — | -1.15/0.60 | 描述性 |
-| Fast-WAM/400/chr/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | 5.80 | 60/31 | — | — | 0.60/2.80 | 描述性 |
-| Fast-WAM/400/chr/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -14.41 | 23/92 | — | — | -19.96/-17.75 | 描述性 |
-| Fast-WAM/400/chr/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | 0.42 | 37/35 | — | — | -4.52/-2.51 | 描述性 |
-| Fast-WAM/400/chr/libero_10 | sensitivity | corrector_ablation | — | PAIRED | 479 | 479 | 3.13 | 36/21 | — | — | -1.30/0.63 | 描述性 |
-| Fast-WAM/400/chr/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | 5.43 | 56/30 | — | — | 0.13/2.51 | 描述性 |
-| Fast-WAM/400/chr/libero_spatial | full | control | — | PAIRED | 500 | 500 | -1.60 | 18/26 | — | — | -5.38/-3.80 | 描述性 |
-| Fast-WAM/400/chr/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | -0.20 | 15/16 | — | — | -3.46/-2.00 | 描述性 |
-| Fast-WAM/400/chr/libero_spatial | full | corrector_ablation | — | PAIRED | 500 | 500 | 0.60 | 16/13 | — | — | -2.57/-1.20 | 描述性 |
-| Fast-WAM/400/chr/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | 1.60 | 27/19 | — | — | -2.28/-0.60 | 描述性 |
-| Fast-WAM/400/chr/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -1.84 | 17/26 | — | — | -5.66/-4.09 | 描述性 |
-| Fast-WAM/400/chr/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | -0.41 | 14/16 | — | — | -3.69/-2.25 | 描述性 |
-| Fast-WAM/400/chr/libero_spatial | sensitivity | corrector_ablation | — | PAIRED | 489 | 489 | 0.41 | 15/13 | — | — | -2.78/-1.43 | 描述性 |
-| Fast-WAM/400/chr/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | 1.23 | 25/19 | — | — | -2.67/-1.02 | 描述性 |
-| Fast-WAM/400/chrg/libero_10 | full | control | — | PAIRED | 500 | 500 | -9.80 | 25/74 | — | — | -14.96/-13.00 | 描述性 |
-| Fast-WAM/400/chrg/libero_10 | full | N500 | — | PAIRED | 500 | 500 | 1.80 | 41/32 | — | — | -2.97/-1.00 | 描述性 |
-| Fast-WAM/400/chrg/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 2.60 | 35/22 | — | — | -1.66/0.20 | 描述性 |
-| Fast-WAM/400/chrg/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | -3.00 | 29/44 | — | — | -7.72/-5.80 | 描述性 |
-| Fast-WAM/400/chrg/libero_10 | full | gate_ablation | — | PAIRED | 500 | 500 | 4.80 | 42/18 | — | — | 0.49/2.40 | 描述性 |
-| Fast-WAM/400/chrg/libero_10 | sensitivity | control | — | PAIRED | 479 | 479 | -9.60 | 25/71 | — | — | -14.92/-12.73 | 描述性 |
-| Fast-WAM/400/chrg/libero_10 | sensitivity | N500 | — | PAIRED | 479 | 479 | 2.09 | 39/29 | — | — | -2.73/-0.63 | 描述性 |
-| Fast-WAM/400/chrg/libero_10 | sensitivity | corrector_ablation | — | PAIRED | 479 | 479 | 2.71 | 33/20 | — | — | -1.59/0.21 | 描述性 |
-| Fast-WAM/400/chrg/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | -3.13 | 26/41 | — | — | -7.86/-5.85 | 描述性 |
-| Fast-WAM/400/chrg/libero_10 | sensitivity | gate_ablation | — | PAIRED | 479 | 479 | 4.80 | 40/17 | — | — | 0.41/2.30 | 描述性 |
-| Fast-WAM/400/chrg/libero_spatial | full | control | — | PAIRED | 500 | 500 | -1.60 | 20/28 | — | — | -5.53/-3.80 | 描述性 |
-| Fast-WAM/400/chrg/libero_spatial | full | N500 | — | PAIRED | 500 | 500 | 1.00 | 21/16 | — | — | -2.53/-1.00 | 描述性 |
-| Fast-WAM/400/chrg/libero_spatial | full | corrector_ablation | — | PAIRED | 500 | 500 | -0.60 | 14/17 | — | — | -3.85/-2.40 | 描述性 |
-| Fast-WAM/400/chrg/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | 0.40 | 21/19 | — | — | -3.25/-1.60 | 描述性 |
-| Fast-WAM/400/chrg/libero_spatial | full | gate_ablation | — | PAIRED | 500 | 500 | 0.00 | 8/8 | — | — | -2.43/-1.40 | 描述性 |
-| Fast-WAM/400/chrg/libero_spatial | sensitivity | control | — | PAIRED | 489 | 489 | -1.84 | 19/28 | — | — | -5.81/-4.09 | 描述性 |
-| Fast-WAM/400/chrg/libero_spatial | sensitivity | N500 | — | PAIRED | 489 | 489 | 0.82 | 20/16 | — | — | -2.74/-1.02 | 描述性 |
-| Fast-WAM/400/chrg/libero_spatial | sensitivity | corrector_ablation | — | PAIRED | 489 | 489 | -0.61 | 13/16 | — | — | -3.84/-2.45 | 描述性 |
-| Fast-WAM/400/chrg/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | 0.00 | 19/19 | — | — | -3.65/-2.04 | 描述性 |
-| Fast-WAM/400/chrg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | 0.00 | 8/8 | — | — | -2.49/-1.23 | 描述性 |
 | Fast-WAM/400/cr/libero_10 | full | control | — | PAIRED | 500 | 500 | -20.40 | 23/125 | — | — | -26.10/-23.80 | 描述性 |
 | Fast-WAM/400/cr/libero_10 | full | N500 | — | PAIRED | 500 | 500 | 0.80 | 36/32 | — | — | -3.82/-1.80 | 描述性 |
 | Fast-WAM/400/cr/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 6.40 | 56/24 | — | — | 1.51/3.60 | 描述性 |
@@ -2087,54 +1175,6 @@ Receipt status is information only. Cells with fewer than 500 accepted episodes 
 | Fast-WAM/500/cg/libero_spatial | full | gate_ablation | — | PAIRED | 500 | 500 | 1.40 | 18/11 | — | — | -1.75/-0.40 | 描述性 |
 | Fast-WAM/500/cg/libero_spatial | sensitivity | control | F500 | PAIRED | 489 | 489 | -1.43 | 17/24 | -7.49 | -5.32 | -5.18/-3.68 | 描述性 |
 | Fast-WAM/500/cg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | 1.43 | 18/11 | — | — | -1.79/-0.41 | 描述性 |
-| Fast-WAM/500/ch/libero_10 | full | control | F500 | PAIRED | 500 | 500 | -16.00 | 18/98 | -24.37 | -21.80 | -21.21/-19.20 | 未证明 |
-| Fast-WAM/500/ch/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | 6.60 | 71/38 | — | — | 0.98/3.40 | 描述性 |
-| Fast-WAM/500/ch/libero_10 | sensitivity | control | F500 | PAIRED | 479 | 479 | -15.87 | 18/94 | -24.48 | -21.61 | -21.23/-19.21 | 描述性 |
-| Fast-WAM/500/ch/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | 6.47 | 67/36 | — | — | 0.75/3.13 | 描述性 |
-| Fast-WAM/500/ch/libero_spatial | full | control | F500 | PAIRED | 500 | 500 | -1.60 | 17/25 | -7.58 | -5.40 | -5.30/-3.80 | 未证明 |
-| Fast-WAM/500/ch/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | 1.40 | 26/19 | — | — | -2.45/-0.80 | 描述性 |
-| Fast-WAM/500/ch/libero_spatial | sensitivity | control | F500 | PAIRED | 489 | 489 | -2.04 | 15/25 | -8.00 | -5.93 | -5.73/-4.09 | 描述性 |
-| Fast-WAM/500/ch/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | 0.82 | 23/19 | — | — | -3.00/-1.43 | 描述性 |
-| Fast-WAM/500/chg/libero_10 | full | control | F500 | PAIRED | 500 | 500 | -13.40 | 19/86 | -21.60 | -19.00 | -18.50/-16.60 | 未证明 |
-| Fast-WAM/500/chg/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | -3.20 | 34/50 | — | — | -8.22/-6.20 | 描述性 |
-| Fast-WAM/500/chg/libero_10 | full | gate_ablation | — | PAIRED | 500 | 500 | 2.60 | 39/26 | — | — | -1.92/0.00 | 描述性 |
-| Fast-WAM/500/chg/libero_10 | sensitivity | control | F500 | PAIRED | 479 | 479 | -13.36 | 19/83 | -21.81 | -19.00 | -18.62/-16.49 | 描述性 |
-| Fast-WAM/500/chg/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | -3.13 | 33/48 | — | — | -8.28/-6.05 | 描述性 |
-| Fast-WAM/500/chg/libero_10 | sensitivity | gate_ablation | — | PAIRED | 479 | 479 | 2.51 | 37/25 | — | — | -2.11/0.00 | 描述性 |
-| Fast-WAM/500/chg/libero_spatial | full | control | F500 | PAIRED | 500 | 500 | -1.60 | 18/26 | -7.71 | -5.80 | -5.38/-3.80 | 未证明 |
-| Fast-WAM/500/chg/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | 0.00 | 19/19 | — | — | -3.57/-2.00 | 描述性 |
-| Fast-WAM/500/chg/libero_spatial | full | gate_ablation | — | PAIRED | 500 | 500 | 0.00 | 13/13 | — | — | -3.01/-1.60 | 描述性 |
-| Fast-WAM/500/chg/libero_spatial | sensitivity | control | F500 | PAIRED | 489 | 489 | -1.84 | 17/26 | -8.01 | -5.93 | -5.66/-4.09 | 描述性 |
-| Fast-WAM/500/chg/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | -0.41 | 17/19 | — | — | -3.96/-2.25 | 描述性 |
-| Fast-WAM/500/chg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | 0.20 | 13/12 | — | — | -2.82/-1.43 | 描述性 |
-| Fast-WAM/500/chr/libero_10 | full | control | F500 | PAIRED | 500 | 500 | -14.80 | 25/99 | -23.66 | -21.00 | -20.31/-18.20 | 未证明 |
-| Fast-WAM/500/chr/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 1.20 | 35/29 | — | — | -3.30/-1.40 | 描述性 |
-| Fast-WAM/500/chr/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | 6.40 | 76/44 | — | — | 0.53/3.20 | 描述性 |
-| Fast-WAM/500/chr/libero_10 | sensitivity | control | F500 | PAIRED | 479 | 479 | -14.82 | 25/96 | -23.96 | -20.88 | -20.51/-18.16 | 描述性 |
-| Fast-WAM/500/chr/libero_10 | sensitivity | corrector_ablation | — | PAIRED | 479 | 479 | 1.04 | 34/29 | — | — | -3.61/-1.67 | 描述性 |
-| Fast-WAM/500/chr/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | 5.43 | 69/43 | — | — | -0.52/2.09 | 描述性 |
-| Fast-WAM/500/chr/libero_spatial | full | control | F500 | PAIRED | 500 | 500 | -1.40 | 17/24 | -7.33 | -5.00 | -5.07/-3.40 | 未证明 |
-| Fast-WAM/500/chr/libero_spatial | full | corrector_ablation | — | PAIRED | 500 | 500 | 0.20 | 18/17 | — | — | -3.24/-1.80 | 描述性 |
-| Fast-WAM/500/chr/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | 1.00 | 25/20 | — | — | -2.85/-1.20 | 描述性 |
-| Fast-WAM/500/chr/libero_spatial | sensitivity | control | F500 | PAIRED | 489 | 489 | -1.43 | 16/23 | -7.35 | -5.11 | -5.09/-3.48 | 描述性 |
-| Fast-WAM/500/chr/libero_spatial | sensitivity | corrector_ablation | — | PAIRED | 489 | 489 | 0.61 | 18/15 | — | — | -2.81/-1.23 | 描述性 |
-| Fast-WAM/500/chr/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | 1.02 | 24/19 | — | — | -2.83/-1.23 | 描述性 |
-| Fast-WAM/500/chrg/libero_10 | full | control | F500 | PAIRED | 500 | 500 | -11.60 | 24/82 | -20.05 | -17.60 | -16.84/-14.80 | 未证明 |
-| Fast-WAM/500/chrg/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 1.80 | 38/29 | — | — | -2.79/-0.80 | 描述性 |
-| Fast-WAM/500/chrg/libero_10 | full | long_ablation | — | PAIRED | 500 | 500 | -3.40 | 35/52 | — | — | -8.49/-6.40 | 描述性 |
-| Fast-WAM/500/chrg/libero_10 | full | gate_ablation | — | PAIRED | 500 | 500 | 3.20 | 42/26 | — | — | -1.41/0.40 | 描述性 |
-| Fast-WAM/500/chrg/libero_10 | sensitivity | control | F500 | PAIRED | 479 | 479 | -11.69 | 23/79 | -20.33 | -17.64 | -17.06/-15.03 | 描述性 |
-| Fast-WAM/500/chrg/libero_10 | sensitivity | corrector_ablation | — | PAIRED | 479 | 479 | 1.67 | 35/27 | — | — | -2.95/-1.04 | 描述性 |
-| Fast-WAM/500/chrg/libero_10 | sensitivity | long_ablation | — | PAIRED | 479 | 479 | -3.55 | 32/49 | — | — | -8.68/-6.68 | 描述性 |
-| Fast-WAM/500/chrg/libero_10 | sensitivity | gate_ablation | — | PAIRED | 479 | 479 | 3.13 | 39/24 | — | — | -1.51/0.42 | 描述性 |
-| Fast-WAM/500/chrg/libero_spatial | full | control | F500 | PAIRED | 500 | 500 | -2.60 | 16/29 | -8.71 | -6.40 | -6.38/-4.80 | 未证明 |
-| Fast-WAM/500/chrg/libero_spatial | full | corrector_ablation | — | PAIRED | 500 | 500 | -1.00 | 14/19 | — | — | -4.33/-2.80 | 描述性 |
-| Fast-WAM/500/chrg/libero_spatial | full | long_ablation | — | PAIRED | 500 | 500 | -2.00 | 15/25 | — | — | -5.60/-4.00 | 描述性 |
-| Fast-WAM/500/chrg/libero_spatial | full | gate_ablation | — | PAIRED | 500 | 500 | -1.20 | 5/11 | — | — | -3.58/-2.60 | 描述性 |
-| Fast-WAM/500/chrg/libero_spatial | sensitivity | control | F500 | PAIRED | 489 | 489 | -2.66 | 15/28 | -8.77 | -6.54 | -6.44/-4.91 | 描述性 |
-| Fast-WAM/500/chrg/libero_spatial | sensitivity | corrector_ablation | — | PAIRED | 489 | 489 | -0.82 | 14/18 | — | — | -4.18/-2.66 | 描述性 |
-| Fast-WAM/500/chrg/libero_spatial | sensitivity | long_ablation | — | PAIRED | 489 | 489 | -2.04 | 14/24 | — | — | -5.64/-4.09 | 描述性 |
-| Fast-WAM/500/chrg/libero_spatial | sensitivity | gate_ablation | — | PAIRED | 489 | 489 | -1.23 | 5/11 | — | — | -3.66/-2.66 | 描述性 |
 | Fast-WAM/500/cr/libero_10 | full | control | F500 | PAIRED | 500 | 500 | -21.20 | 24/130 | -30.48 | -27.20 | -26.98/-24.60 | 未证明 |
 | Fast-WAM/500/cr/libero_10 | full | corrector_ablation | — | PAIRED | 500 | 500 | 1.40 | 47/40 | — | — | -3.75/-1.60 | 描述性 |
 | Fast-WAM/500/cr/libero_10 | sensitivity | control | F500 | PAIRED | 479 | 479 | -20.25 | 23/120 | -29.66 | -26.41 | -26.12/-23.59 | 描述性 |
@@ -2162,40 +1202,40 @@ Receipt status is information only. Cells with fewer than 500 accepted episodes 
 |---|---|---|---|---|
 | F500 | DP | c | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
 | F500 | DP | cr | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
-| F500 | DP | ch | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
-| F500 | DP | chr | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
+| F500 | DP | ch | PENDING | PENDING |
+| F500 | DP | chr | PENDING | PENDING |
 | F500 | DP | cg | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
 | F500 | DP | crg | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
-| F500 | DP | chg | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
-| F500 | DP | chrg | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
+| F500 | DP | chg | PENDING | PENDING |
+| F500 | DP | chrg | PENDING | PENDING |
 | F500 | Fast-WAM | c | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
 | F500 | Fast-WAM | cr | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
-| F500 | Fast-WAM | ch | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
-| F500 | Fast-WAM | chr | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
+| F500 | Fast-WAM | ch | PENDING | PENDING |
+| F500 | Fast-WAM | chr | PENDING | PENDING |
 | F500 | Fast-WAM | cg | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
 | F500 | Fast-WAM | crg | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
-| F500 | Fast-WAM | chg | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
-| F500 | Fast-WAM | chrg | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
+| F500 | Fast-WAM | chg | PENDING | PENDING |
+| F500 | Fast-WAM | chrg | PENDING | PENDING |
 | F500 | Cosmos | c | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
 | F500 | Cosmos | cr | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
 | F500 | Cosmos | cg | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
 | F500 | Cosmos | crg | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
 | Fsize | DP | c | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
 | Fsize | DP | cr | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
-| Fsize | DP | ch | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
-| Fsize | DP | chr | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
+| Fsize | DP | ch | PENDING | PENDING |
+| Fsize | DP | chr | PENDING | PENDING |
 | Fsize | DP | cg | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
 | Fsize | DP | crg | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
-| Fsize | DP | chg | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
-| Fsize | DP | chrg | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
+| Fsize | DP | chg | PENDING | PENDING |
+| Fsize | DP | chrg | PENDING | PENDING |
 | Fsize | Fast-WAM | c | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
 | Fsize | Fast-WAM | cr | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
-| Fsize | Fast-WAM | ch | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
-| Fsize | Fast-WAM | chr | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
+| Fsize | Fast-WAM | ch | PENDING | PENDING |
+| Fsize | Fast-WAM | chr | PENDING | PENDING |
 | Fsize | Fast-WAM | cg | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
 | Fsize | Fast-WAM | crg | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
-| Fsize | Fast-WAM | chg | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
-| Fsize | Fast-WAM | chrg | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
+| Fsize | Fast-WAM | chg | PENDING | PENDING |
+| Fsize | Fast-WAM | chrg | PENDING | PENDING |
 | Fsize | Cosmos | c | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
 | Fsize | Cosmos | cr | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |
 | Fsize | Cosmos | cg | NI_NOT_ESTABLISHED | NOT_ESTABLISHED |

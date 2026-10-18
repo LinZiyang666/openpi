@@ -130,12 +130,21 @@ def timestamp(row):
     return row.get("ts", row.get("time", 0)) or 0
 
 
-def accepted_terminal(rows, diagnostics=None):
+def infrastructure_error(row):
+    error = row.get('error') or ''
+    return 'FatalEpisodeError' in error and 'retry budget exhausted' in error
+
+
+def accepted_terminal(rows, diagnostics=None, infra_errors=None):
     out = {}
     for r in rows:
         if r.get("accepted") is not True:
             continue
         uid = r["task_uid"]
+        if infrastructure_error(r):
+            if diagnostics is not None:diagnostics['infrastructure_errors'] += 1
+            if infra_errors is not None:infra_errors.add(uid)
+            continue
         if uid in out:
             if diagnostics is not None:
                 diagnostics["duplicates"] += 1
@@ -206,7 +215,8 @@ def load_lane(run, snapshot, sources, sizes, suites=SUITES):
         cells[cell]
         task_cells[uid] = cell, key
     diagnostic = {name: Counter() for name in ("journal", "attempts")}
-    journal = accepted_terminal(evidence_rows(segments, "journal.jsonl", sources), diagnostic["journal"])
+    infra_errors = set()
+    journal = accepted_terminal(evidence_rows(segments, "journal.jsonl", sources), diagnostic["journal"], infra_errors)
     attempts = accepted_terminal(evidence_rows(segments, "attempts.jsonl", sources), diagnostic["attempts"])
     by_uid = {}
     for uid, r in journal.items():
@@ -256,6 +266,8 @@ def load_lane(run, snapshot, sources, sizes, suites=SUITES):
     snapshot["cost_episodes"] = sum("cost" in d for d in by_uid.values())
     snapshot["missing_cost_episodes"] = snapshot["accepted_episodes"] - snapshot["cost_episodes"]
     snapshot["terminal_duplicates"] = {k: dict(v) for k, v in diagnostic.items()}
+    snapshot["infrastructure_error_task_uids"] = sorted(infra_errors & task_cells.keys())
+    snapshot["missing_infrastructure_error_task_uids"] = sorted((infra_errors & task_cells.keys()) - journal.keys())
     snapshot["duplicate_step_rows"] = step_duplicates
     result = {}
     for cell, data in cells.items():

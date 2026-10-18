@@ -1,5 +1,41 @@
 # R17 per-task knob analysis
 
+LIBERO formal-A launch units now use short `fa_<model>_<mode>_<arm>_<stage>`
+names, preserving plans and serving while respecting the frozen MPS pipe limit.
+The [name map](../filter_failed_knob/formal_a_1016/NAME_MAP.json) is authoritative;
+analysis resolves old aliases through it. See the
+[current CPU handback and GPU orders](../filter_failed_knob/formal_a_1016/short_names_1017/HANDBACK.md).
+This is a naming repair; the test-A selection and off-cell rule below are unchanged.
+
+## Formal design (owner ruling)
+
+- No development set for IR knob tuning on any benchmark. The cache library is
+  built from the development pool (LIBERO B pool, MetaWorld seed 8), so tuning
+  on it means tuning on the library's own data.
+- The per-task IR knob is descended directly on the test set: LIBERO uses the
+  whole test set A (500 episodes per suite = 10 tasks × 50 initial states,
+  indices 0–49); MetaWorld MT50 uses seed 7 (50 tasks × 50 initial states).
+- For every task, measure the levels on the test set from the most expensive
+  level downwards, 50 episodes per task per level. A level passes when it has at
+  most 2 fewer successes than same-step-count pure inference on the same GPU and
+  the same initial states (integer comparison). The first failing level freezes
+  the previous level. The reference is always same-step-count pure inference
+  (reduced-step knob vs reduced-step pure inference, full-step vs full-step).
+- Library cells whose complete system with the knob off (stall gate only)
+  already reaches the same-step pure-inference success rate are not tuned; they
+  use that knob-off result.
+- All earlier LIBERO knob results that chose levels on a development set (then
+  tested or raised on test set A) are withdrawn and are being deleted and re-run
+  under this design: original and success-filtered libraries, all models (DP,
+  Fast-WAM, Cosmos, π0.5, GR00T), full and reduced steps. MetaWorld knob results
+  already followed this design and stay valid.
+
+The LIBERO path described below (`descent.py` on B inits 0–29 at 30 episodes
+per level with a 5 pp rule, then `test.py` A tests and `raise.json` rounds) is
+that withdrawn procedure; do not use it to choose LIBERO levels. The MT50 path
+(`descent.py` on seed-7 lanes, two-success tolerance, direct selection) follows
+the formal design.
+
 Run from the repository root with `.venv/bin/python`. These scripts only read
 input lanes and write the specified output directory; all outcome and campaign
 cost parsing uses the unchanged cache loader, including resume ancestors.
@@ -31,7 +67,9 @@ missing counters produce a null IR rather than an estimate. Nominal knob
 targets never substitute for measured IR. `--library-root` and `--control-root`
 allow temporary fixtures; defaults are the fixed `/data` locations.
 
-Set the following six variables to the eventual campaign directories (data
+The following LIBERO dev/test commands run the withdrawn dev-set procedure and
+are kept only as a record of how the withdrawn results were produced. Set the
+following six variables to the eventual campaign directories (data
 does not exist yet), then run:
 
 ```bash
@@ -94,3 +132,69 @@ including complete capture counters:
 | Fast-WAM | libero_10 | 282/300 (94.00%) | 462/500 (92.40%) |
 | Cosmos | libero_spatial | 269/300 (89.67%) | 465/500 (93.00%) |
 | Cosmos | libero_10 | 290/300 (96.67%) | 479/500 (95.80%) |
+
+## Superseded full-grid draft — 2026-10-16
+
+Both library arms now have independent, fixed-level test-A grids; no dev outcomes
+are read and no dev-chosen levels select tasks or levels. Per-task first failure uses a ≤2-success deficit versus same-step
+pure A on the same GPU; a qualifying complete off cell is reported directly.
+The active [handback](../filter_failed_knob/formal_a_1016/HANDBACK.md) and
+[48-job inventory](../filter_failed_knob/formal_a_1016/CAMPAIGNS.json) supersede
+the historical LIBERO dev/test/raise commands below or above. They define
+544,450 new episodes and reuse standalone off/pure references. π0.5 full is
+on hold for a matching existing H100 pure-A reference; five source timing
+profiles remain unavailable after outcome cleanup. Do not rebuild queued or
+launched runs. Entry point:
+
+```bash
+env CUDA_VISIBLE_DEVICES= JAX_PLATFORMS=cpu PYTHONPATH=.:src .venv/bin/python \
+  -m exp.offline_search.rounds.r17.filter_failed_knob.formal_a analyze
+```
+
+## Off-first queue revision — coordinator review
+
+The active [formal queue handback](../filter_failed_knob/formal_a_1016/HANDBACK.md)
+implements dispatch pruning: complete off SR ≥ same-step pure SR removes all
+non-off levels of that cell, independently per arm. Full modes run an off-only
+stage first and build the non-off stage from analysed off results. Incomplete
+cohorts wait. The two authorized shared π0.5 full H100 pure references release
+the earlier reference hold. Use the new ordered NAME lists and parent-directory
+prepare/launch aliases; earlier full-grid commands are superseded.
+
+## Decision-head clock withdrawal and rerun — 2026-10-18
+
+The [long-segment handback](../longseg_1017/HANDBACK.md) supersedes the
+withdrawn R17 DP/Fast-WAM LIBERO and DP/GR00T/Fast-WAM MetaWorld outcomes
+and queue entries. A decision now consists of one segment head and all its
+tails; recipe, knob, stall, corrector and RNG clocks advance only on heads.
+The initial no-recalibration handback is superseded by the owner ruling below.
+Cosmos, π0.5 and legacy VLA pipelines remain unchanged. See the handback for the
+complete sampled audit, rename-only backup manifest, fresh definitions,
+matching pure references and the two replacement queue lists.
+
+`knobsmokedp1355` is backup only, with no rerun. The Fast-WAM MetaWorld
+cache-variant replacement is `fa_ls_v02_s` (R3, sizes 250/500/1000) plus
+`fa_ls_v02_b` (R2, sizes 1500/2000/2500), 60,000 episodes each. Additive
+`fa_ls_*` prepare/launch wrappers exist in `filter_failed_knob/commands`.
+Do not dispatch withdrawn names still present in old queues. New LIBERO
+levels are built only from the new off results and same-step test-A pure
+references; neither old off results nor development-chosen levels are used.
+
+## Owner decision-clock recalibration — 2026-10-18
+
+[RECALIBRATION.md](../longseg_1017/RECALIBRATION.md) records 840 potential
+level fits and 42 C10 Q3 refits. Level IR is M/N over segment heads; tails
+count in neither. Predicted and reported level IR use that definition;
+latency-weighted IR remains a separate measured quantity. The tolerance is
+absolute .005. Two original-library DP spatial size-100 k10 entries
+(full/reduced) have an irreducible confirmed-Q3 call floor 134/1265 = .105928854;
+they are explicitly marked outside tolerance. No target or gate rule is relaxed.
+
+C10 Q3 uses the original successful-library LOEO q90 residual/q10 advance
+procedure on decision sequences, preserving the minimum references, window
+rules and metric bytes. C5 artifacts are unchanged. New Q3 files live beside
+the originals, ending `_decision1018`; retrieval fits and correctors are
+unchanged. Regenerated gated definitions preserve task UIDs/inits/seeds and
+carry new recipe identities. Deferred LIBERO levels consume the same map after
+the new OFF cell rule. The coordinator controls `[recal] released`; chain
+scripts and running/independent campaigns are not changed by recalibration.
