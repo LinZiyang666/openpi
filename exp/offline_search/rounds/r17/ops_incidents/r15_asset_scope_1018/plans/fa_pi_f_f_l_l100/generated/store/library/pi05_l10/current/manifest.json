@@ -1,0 +1,402 @@
+{
+ "schema": "offline_search.library.v1",
+ "lib": "pi05_l10",
+ "name": "current",
+ "model": "pi05",
+ "suite": "l10",
+ "suite_full": "libero_10",
+ "status": "ok",
+ "errors": [],
+ "complete": true,
+ "tok_complete": true,
+ "limit_episodes": null,
+ "counts": {
+  "rows": 2640,
+  "episodes": 50,
+  "tok_rows": 2640,
+  "tok_episodes": 50,
+  "success_episodes": 50,
+  "tasks": 10
+ },
+ "H": 10,
+ "Drs": 32,
+ "key_dim": 32768,
+ "tok_shape": [
+  256,
+  2048
+ ],
+ "img_shape": [
+  224,
+  224,
+  3
+ ],
+ "img_source_keys": {
+  "img0": "input_images/base_0_rgb",
+  "img1": "input_images/left_wrist_0_rgb"
+ },
+ "act_valid_dims": 7,
+ "exec_steps": 5,
+ "rs_valid_dims": 8,
+ "gripper_dim": 6,
+ "facts_note": "action chunks (H,32): only dims 0..6 valid (6 = gripper), pi05 7..31 ~0.001 padding, groot 7..31 noise-like padding; only the first 5 steps are executed. robot_state: pi05 32-d with 0..7 valid (rest 0), groot 8-d all valid. Arrays are stored raw/full; action statistics use [:5, :7].",
+ "key_source": "copied bit-exactly from the pickle entries (query_keys vision_0/vision_1/robot_state, payload.action_chunk)",
+ "tasks": {
+  "0": "put both the alphabet soup and the tomato sauce in the basket",
+  "1": "put both the cream cheese box and the butter in the basket",
+  "2": "turn on the stove and put the moka pot on it",
+  "3": "put the black bowl in the bottom drawer of the cabinet and close it",
+  "4": "put the white mug on the left plate and put the yellow and white mug on the right plate",
+  "5": "pick up the book and place it in the back compartment of the caddy",
+  "6": "put the white mug on the plate and put the chocolate pudding to the right of the plate",
+  "7": "put both the alphabet soup and the cream cheese box in the basket",
+  "8": "put both moka pots on the stove",
+  "9": "put the yellow and white mug in the microwave and close it"
+ },
+ "task_map": {
+  "put both the alphabet soup and the tomato sauce in the basket": 0,
+  "put both the cream cheese box and the butter in the basket": 1,
+  "turn on the stove and put the moka pot on it": 2,
+  "put the black bowl in the bottom drawer of the cabinet and close it": 3,
+  "put the white mug on the left plate and put the yellow and white mug on the right plate": 4,
+  "pick up the book and place it in the back compartment of the caddy": 5,
+  "put the white mug on the plate and put the chocolate pudding to the right of the plate": 6,
+  "put both the alphabet soup and the cream cheese box in the basket": 7,
+  "put both moka pots on the stove": 8,
+  "put the yellow and white mug in the microwave and close it": 9
+ },
+ "task_map_source": {
+  "trace_runs": [
+   "tr_pi05_l10_inf",
+   "tr_pi05_l10_cache"
+  ],
+  "n_files": {
+   "tr_pi05_l10_inf": 500,
+   "tr_pi05_l10_cache": 500
+  },
+  "attr": "task -> task_id"
+ },
+ "tok_episodes": [
+  "episode_0003_20260421_145442_230258",
+  "episode_0004_20260421_145514_975870",
+  "episode_0000_20260421_145256_951882",
+  "episode_0002_20260421_145406_965462",
+  "episode_0001_20260421_145332_810413",
+  "episode_0004_20260421_154909_939096",
+  "episode_0006_20260421_145620_818834",
+  "episode_0005_20260421_145548_769987",
+  "episode_0007_20260421_145652_045135",
+  "episode_0008_20260421_145723_705415",
+  "episode_0010_20260421_154931_315472",
+  "episode_0009_20260421_145756_420411",
+  "episode_0012_20260421_154958_870693",
+  "episode_0011_20260421_150015_983808",
+  "episode_0012_20260421_150109_113391",
+  "episode_0013_20260421_150147_027824",
+  "episode_0015_20260421_150306_477081",
+  "episode_0014_20260421_155029_148974",
+  "episode_0014_20260421_150234_937358",
+  "episode_0015_20260421_155056_818708",
+  "episode_0016_20260421_150341_358525",
+  "episode_0017_20260421_150415_357328",
+  "episode_0016_20260421_155154_891362",
+  "episode_0019_20260421_150552_473180",
+  "episode_0018_20260421_150514_387668",
+  "episode_0020_20260421_150623_961895",
+  "episode_0018_20260421_155250_742134",
+  "episode_0021_20260421_150651_911856",
+  "episode_0022_20260421_150717_548811",
+  "episode_0024_20260421_150808_433812",
+  "episode_0025_20260421_150833_216666",
+  "episode_0023_20260421_150743_357926",
+  "episode_0026_20260421_150856_396048",
+  "episode_0027_20260421_150917_326437",
+  "episode_0029_20260421_151037_202698",
+  "episode_0030_20260421_151104_740343",
+  "episode_0032_20260421_151156_252142",
+  "episode_0031_20260421_151130_944018",
+  "episode_0034_20260421_151316_981830",
+  "episode_0035_20260421_151345_521435",
+  "episode_0038_20260421_151615_368946",
+  "episode_0039_20260421_151648_760002",
+  "episode_0040_20260421_151756_437258",
+  "episode_0041_20260421_151903_896858",
+  "episode_0045_20260421_152322_258450",
+  "episode_0042_20260421_152010_071054",
+  "episode_0046_20260421_152356_583015",
+  "episode_0044_20260421_152242_971237",
+  "episode_0047_20260421_152429_961806",
+  "episode_0049_20260421_152610_845700"
+ ],
+ "sources": {
+  "pkl": "/data/oscl_h100/mirror/home/weiland/trace_runs/dual_20260923/libs/libero_10/cp1_spatial_pool_16.pkl",
+  "pkl_sha256": "f13517ad907817a0739d5702b2d3244f85be8659e5a7f3eebfbc4424eb848ce8",
+  "pickle_meta": {
+   "key_builder_type": "cp1_spatial_pool_16",
+   "checkpoint_id": "CP1",
+   "vector_dims": {
+    "vision_0": 32768,
+    "vision_1": 32768,
+    "prompt_emb": 2048,
+    "robot_state": 32
+   },
+   "query_key_fields": [
+    "prompt_emb",
+    "robot_state",
+    "vision_0",
+    "vision_1",
+    "vision_2"
+   ]
+  },
+  "build_dir": "/data/oscl_h100/mirror/home/weiland/projects/openpi/exp/common/data/db/libero_cache/libero_10",
+  "build_dir_realpath": "/data/oscl_h100/mirror/home/weiland/projects/openpi/exp/common/data/db/libero_cache/libero_10",
+  "build_on_archive_hdd": false,
+  "audit_memmaps": "/data/oscl_h100/mirror/home/weiland/trace_runs/dual_20260923/audit/libs/pi05_libero_10",
+  "init_source": null
+ },
+ "verification": {
+  "id_vs_trajectory_fields_mismatch": 0,
+  "ids_unresolved": 0,
+  "task_key_vs_h5_task_mismatch": 0,
+  "episodes_num_steps_vs_groups_mismatch": 0,
+  "prev_next_vs_pickle": {
+   "prev_mismatch": 0,
+   "next_mismatch": 0,
+   "dangling_prev": 0,
+   "dangling_next": 0,
+   "multi_link_entries": 0
+  },
+  "steps_increasing_within_episode": true,
+  "keys_vs_pool16_of_h5_tokens": {
+   "v0": {
+    "n": 2640,
+    "min_cos": 0.9999999999999998,
+    "mean_cos": 1.0,
+    "n_bit_exact": 2640,
+    "all_bit_exact": true,
+    "max_abs_diff": 0.0
+   },
+   "v1": {
+    "n": 2640,
+    "min_cos": 0.9999999999999998,
+    "mean_cos": 1.0,
+    "n_bit_exact": 2640,
+    "all_bit_exact": true,
+    "max_abs_diff": 0.0
+   }
+  },
+  "rs_vs_h5_max_abs_diff": 0.0,
+  "action_vs_h5_clean_action_max_abs_diff": 0.0,
+  "action_vs_h5_clean_action_max_abs_diff_exec_5x7": 0.0,
+  "n_trajectories": 50,
+  "all_source_episodes_success": true,
+  "n_source_episodes_failed": 0,
+  "n_episodes_fully_included": 50,
+  "n_episodes_contiguous_rows": 50,
+  "rows_per_task": {
+   "0": 284,
+   "1": 241,
+   "2": 268,
+   "3": 299,
+   "4": 220,
+   "5": 166,
+   "6": 224,
+   "7": 258,
+   "8": 399,
+   "9": 281
+  },
+  "episodes_per_task": {
+   "0": 5,
+   "1": 5,
+   "2": 5,
+   "3": 5,
+   "4": 5,
+   "5": 5,
+   "6": 5,
+   "7": 5,
+   "8": 5,
+   "9": 5
+  },
+  "init_lookup_disagreements": [],
+  "tok_rows_written": 2640,
+  "pkl_sha256": "f13517ad907817a0739d5702b2d3244f85be8659e5a7f3eebfbc4424eb848ce8",
+  "trace_library_sha256": [
+   "f13517ad907817a0739d5702b2d3244f85be8659e5a7f3eebfbc4424eb848ce8"
+  ],
+  "pkl_sha256_matches_trace": true,
+  "audit_memmaps_equal": {
+   "available": true,
+   "ids_equal": true,
+   "vision_0": true,
+   "vision_1": true,
+   "robot_state": true,
+   "action": true
+  }
+ },
+ "run": {
+  "wall_s": 8.2,
+  "episodes": 50,
+  "workers": 16,
+  "serial_io": false,
+  "reader_s": null,
+  "reader_bytes": null,
+  "reader_MBps": null,
+  "worker_s_total": 90.3
+ },
+ "build": {
+  "started": {
+   "utc": "2026-09-26T18:57:06+00:00",
+   "local": "2026-09-26T13:57:06-05:00"
+  },
+  "finished": {
+   "utc": "2026-09-26T18:57:21+00:00",
+   "local": "2026-09-26T13:57:21-05:00"
+  },
+  "wall_s": 15.2,
+  "host": "weilandserver",
+  "argv": [
+   "/data/oscl_h100/mirror/home/weiland/projects/openpi/exp/offline_search/r0/build_library_store.py",
+   "--out",
+   "/data/oscl_h100/store/library",
+   "--libs",
+   "pi05_spatial,pi05_l10"
+  ],
+  "workers": 16
+ },
+ "arrays": {
+  "key_v0.npy": {
+   "shape": [
+    2640,
+    32768
+   ],
+   "dtype": "float32",
+   "bytes": 346030208
+  },
+  "key_v1.npy": {
+   "shape": [
+    2640,
+    32768
+   ],
+   "dtype": "float32",
+   "bytes": 346030208
+  },
+  "rs.npy": {
+   "shape": [
+    2640,
+    32
+   ],
+   "dtype": "float32",
+   "bytes": 338048
+  },
+  "action.npy": {
+   "shape": [
+    2640,
+    10,
+    32
+   ],
+   "dtype": "float32",
+   "bytes": 3379328
+  },
+  "task_id.npy": {
+   "shape": [
+    2640
+   ],
+   "dtype": "int16",
+   "bytes": 5408
+  },
+  "episode.npy": {
+   "shape": [
+    2640
+   ],
+   "dtype": "int32",
+   "bytes": 10688
+  },
+  "step.npy": {
+   "shape": [
+    2640
+   ],
+   "dtype": "int16",
+   "bytes": 5408
+  },
+  "ep_len.npy": {
+   "shape": [
+    2640
+   ],
+   "dtype": "int16",
+   "bytes": 5408
+  },
+  "progress.npy": {
+   "shape": [
+    2640
+   ],
+   "dtype": "float32",
+   "bytes": 10688
+  },
+  "success.npy": {
+   "shape": [
+    2640
+   ],
+   "dtype": "bool",
+   "bytes": 2768
+  },
+  "prev.npy": {
+   "shape": [
+    2640
+   ],
+   "dtype": "int32",
+   "bytes": 10688
+  },
+  "next.npy": {
+   "shape": [
+    2640
+   ],
+   "dtype": "int32",
+   "bytes": 10688
+  },
+  "tok/rows.npy": {
+   "shape": [
+    2640
+   ],
+   "dtype": "int64",
+   "bytes": 21248
+  },
+  "tok/v0.npy": {
+   "shape": [
+    2640,
+    256,
+    2048
+   ],
+   "dtype": "float16",
+   "bytes": 2768240768
+  },
+  "tok/v1.npy": {
+   "shape": [
+    2640,
+    256,
+    2048
+   ],
+   "dtype": "float16",
+   "bytes": 2768240768
+  },
+  "tok/img0.npy": {
+   "shape": [
+    2640,
+    224,
+    224,
+    3
+   ],
+   "dtype": "uint8",
+   "bytes": 397394048
+  },
+  "tok/img1.npy": {
+   "shape": [
+    2640,
+    224,
+    224,
+    3
+   ],
+   "dtype": "uint8",
+   "bytes": 397394048
+  }
+ },
+ "bytes_total": 7027130416
+}

@@ -48,16 +48,26 @@ gain. Select a measured treatment before a baseline and freeze it for its arms.
   recycling. Fast-WAM treatment v2 enforces those resource fields, including
   the distinction between a null automatic EGL allowlist and an explicit list.
   Equivalent effective placement is insufficient if the sealed fields differ.
-- **Worker count is fixed at baseline.** The coordinator must refuse arms
-  unless resource topology is identical; Fast-WAM's pairing pins enforce this.
-  An arm cannot compensate for a slow baseline with more workers,
-  replicas, a different batch/window or MPS. Use
-  `--runtime-from /data/mw_finetune/eval/<closed_baseline>` for its frozen
-  server/model/worker runtime. Fast-WAM `--paired-control` also inherits it;
-  DP requires explicit `--runtime-from`. Never reseal arms from the working tree.
-  DP's current runtime verifier checks model/server/batching/MPS; it does not
-  independently enforce every replica/worker resource field. Compare those
-  sealed baseline fields explicitly when preparing DP's queue.
+- **Autoscaling is currently OFF (owner incident rollback, 2026-10-18).** The single preparation switch is `exp/offline_search/rounds/r17/autoscale_1017/ENABLED`; missing/off means native fixed worker counts, native payloads and native recycling. Do not turn it on until both owner-run R17 and legacy trials pass. When enabled, worker counts are desired maxima and the runtime decides active counts.
+  With the switch ON after acceptance, new campaigns inherit the shared policy. The runtime chooses
+  active counts throughout the run using node memory/PSI and accepted throughput;
+  it never exceeds explicit per-node/global maxima. With no explicit maximum,
+  renderer hardware defaults are LIBERO **timan1 GPU2 83, timan107 104, local 83**;
+  MetaWorld **332, 440, 332**, respectively. Local GPU admission also reserves
+  resident server growth. timan108 stays excluded even while OFF. Old hand-tuned
+  fixed counts are raised to these physical maxima when ON; explicit larger maxima
+  survive. A smaller limit requires `worker_hard_limits` with a technical reason.
+  Simultaneous dynamic campaigns share the node ledger fairly and return borrowed
+  capacity at episode boundaries. Maxima do not reserve live environments at startup.
+  Baseline/arm scientific pairing still pins model, seeds, inits, replica and
+  batch/window/MPS settings, and records desired maxima separately from the
+  observed active-count curve. Worker scheduling never changes planned UIDs.
+  New worker/driver orchestration overlays retain frozen model/server bytes.
+  Native fixed continuations retain their exact source orchestration pins and
+  report `kept_fixed`; an already prepared campaign requires explicit unlaunched
+  re-preparation to change mode. MetaWorld recycles at episode boundaries after
+  32 episodes or 30 minutes. Every scaling decision has an append-only JSONL
+  record with signals, reason and resulting counts.
 - Every batched Fast-WAM arm needs `--paired-control /data/mw_finetune/eval/<baseline>`:
   a completed, closed PASS K10/C5 official-50 baseline covering its suites,
   with valid composition audit and matching treatment. DP needs the same
@@ -448,8 +458,11 @@ bash exp/r17_integration/ops/formal_eval.sh \
   (timan1 44 + timan107 39 + local 2) the worker round trip was p50 0.95 s / p90 4.1 s, while the server cost
   was p50 0.19–0.37 s. Workers mostly queued behind the B1 replicas. Retiring timan107 and local, leaving 44
   workers, raised the rate from ~55 to ~73–86 episodes/min (5-minute windows), with the H100 at 100%. It
-  also freed ~90 GB RAM on timan107 (each Cosmos LIBERO worker holds 2.5–3 GB RSS). Use ~40 workers for
-  H100 R8 Cosmos; more workers only lengthen the queue and load the worker host.
+  also freed ~90 GB RAM on timan107 (each Cosmos LIBERO worker holds 2.5–3 GB RSS). This is the fixed-mode
+  reference for the tuner, not a new static cap. Autoscaling is currently OFF after the two 2026-10-18
+  incidents, so new prepares retain native counts. After both owner-run validation lanes pass and the
+  owner enables it, counts become desired maxima; the runtime determines active counts from memory
+  and throughput (LIBERO physical defaults: timan1 GPU2 83, timan107 104).
 - **Bottleneck:** native K5 GPU work for the full baseline, then worker
   rendering/recycling/arrival supply atK2. Previously GPU0 renderer saturation
   caused driver growth and D-state stalls; distributing workers is mandatory.

@@ -1,0 +1,44 @@
+{
+  "status": "PASS",
+  "rows": [
+    {
+      "run": "/data/mw_finetune/eval/fa_co_r_u_l",
+      "receipt": {
+        "status": "PASS",
+        "run": "/data/mw_finetune/eval/fa_co_r_u_l",
+        "original_receipt": "/data/mw_finetune/eval/fa_co_r_u_l/RECEIPT.before_cpu_refinalize_20261018T103310248712Z.json",
+        "completed_episodes": 30000
+      },
+      "status": "PASS",
+      "formal_a_accepted": 30000,
+      "longseg_accepted": 30000,
+      "same_unique_task_init_level_keys": true,
+      "seconds": 572.5316404689802,
+      "driver_returncode": 0
+    },
+    {
+      "run": "/data/mw_finetune/eval/fa_co_f_f_oc1",
+      "receipt": {
+        "status": "PASS",
+        "run": "/data/mw_finetune/eval/fa_co_f_f_oc1",
+        "original_receipt": "/data/mw_finetune/eval/fa_co_f_f_oc1/RECEIPT.before_cpu_refinalize_20261018T104230677691Z.json",
+        "completed_episodes": 6000
+      },
+      "status": "PASS",
+      "formal_a_accepted": 6000,
+      "longseg_accepted": 6000,
+      "same_unique_task_init_level_keys": true,
+      "seconds": 372.3184900850756,
+      "driver_returncode": 2
+    }
+  ],
+  "cpu_only": true,
+  "io": {
+    "files": 9,
+    "logical_bytes": 3410276641,
+    "physical_bytes": 858648576,
+    "physical_read_cap_mib_per_second": 4,
+    "PSI_full_avg10_limit": 20,
+    "all_closed_signatures_unchanged": true
+  }
+}

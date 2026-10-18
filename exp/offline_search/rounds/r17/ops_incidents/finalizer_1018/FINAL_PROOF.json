@@ -1,0 +1,63 @@
+{
+  "status": "PASS",
+  "rows": [
+    {
+      "name": "fa_co_r_u_l",
+      "status": "PASS",
+      "segment_accepted": 30000,
+      "merged_accepted": 30000,
+      "driver_returncode": 0,
+      "recovered_worker_shutdown": false,
+      "original_receipt": "/data/mw_finetune/eval/fa_co_r_u_l/RECEIPT.before_cpu_refinalize_20261018T103310248712Z.json",
+      "unchanged_native_pins": {
+        "runtime.tar": true,
+        "workers.tar": true,
+        "campaign.json": true,
+        "assets/model_spec.json": true,
+        "assets/model_manifest.json": true,
+        "assets/load.json": true,
+        "assets/benchmark.json": true,
+        "assets/full.yaml": true,
+        "assets/CACHE_STUDY.json": true
+      },
+      "original_broken_CPU_archive_preserved": true,
+      "formal_a_and_longseg_unique_outcomes_equal": true
+    },
+    {
+      "name": "fa_co_f_f_oc1",
+      "status": "PASS",
+      "segment_accepted": 3015,
+      "merged_accepted": 6000,
+      "driver_returncode": 2,
+      "recovered_worker_shutdown": true,
+      "original_receipt": "/data/mw_finetune/eval/fa_co_f_f_oc1/RECEIPT.before_cpu_refinalize_20261018T104230677691Z.json",
+      "unchanged_native_pins": {
+        "runtime.tar": true,
+        "workers.tar": true,
+        "campaign.json": true,
+        "assets/model_spec.json": true,
+        "assets/model_manifest.json": true,
+        "assets/load.json": true,
+        "assets/benchmark.json": true,
+        "assets/full.yaml": true,
+        "assets/CACHE_STUDY.json": true
+      },
+      "original_broken_CPU_archive_preserved": true,
+      "formal_a_and_longseg_unique_outcomes_equal": true
+    }
+  ],
+  "other_closed_timeout_runs": [],
+  "receipts_scanned": 167,
+  "targeted_tests_passed": 13,
+  "cpu_only": true,
+  "experiment_processes_started": 0,
+  "chain_scripts_changed": false,
+  "io": {
+    "files": 9,
+    "logical_bytes": 3410276641,
+    "physical_bytes": 858648576,
+    "physical_read_cap_mib_per_second": 4,
+    "PSI_full_avg10_limit": 20,
+    "all_closed_signatures_unchanged": true
+  }
+}

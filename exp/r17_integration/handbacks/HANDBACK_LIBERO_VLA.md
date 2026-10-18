@@ -154,6 +154,34 @@ success rates, and current H100 asset/environment availability remain unverified
 
 ## Follow-up: per-task reduced K1 IR knob
 
+**Formal design (owner ruling).**
+- No development set for IR knob tuning on any benchmark. The cache library is
+  built from the development pool (LIBERO B pool, MetaWorld seed 8), so tuning
+  on it means tuning on the library's own data.
+- The per-task IR knob is descended directly on the test set: LIBERO uses the
+  whole test set A (500 episodes per suite = 10 tasks × 50 initial states,
+  indices 0–49); MetaWorld MT50 uses seed 7 (50 tasks × 50 initial states).
+- For every task, measure the levels on the test set from the most expensive
+  level downwards, 50 episodes per task per level. A level passes when it has at
+  most 2 fewer successes than same-step-count pure inference on the same GPU and
+  the same initial states (integer comparison). The first failing level freezes
+  the previous level. The reference is always same-step-count pure inference
+  (reduced-step knob vs reduced-step pure inference, full-step vs full-step).
+- Library cells whose complete system with the knob off (stall gate only)
+  already reaches the same-step pure-inference success rate are not tuned; they
+  use that knob-off result.
+- All earlier LIBERO knob results that chose levels on a development set (then
+  tested or raised on test set A) are withdrawn and are being deleted and re-run
+  under this design: original and success-filtered libraries, all models (DP,
+  Fast-WAM, Cosmos, π0.5, GR00T), full and reduced steps. MetaWorld knob results
+  already followed this design and stay valid.
+
+The LIBERO DEV/TEST procedure prepared below (B0–29 K1 reference, `cache_knob dev`
+campaign on B, `descent` at 5 points over 30 episodes, A50 test and raise rounds)
+is that withdrawn dev-set procedure. Keep it only as a record; do not run it.
+An A0–49 same-step pure run (`pl_k1a`/`gl_k1a`) can serve as the formal
+reference only when it ran on the same GPU as the knob run.
+
 `ops/cache_knob.py` accepts both selectors for DEV/TEST, explicit `--source`
 studies, wrapped descent/raise tables, and CPU `calibrate`. It generates C10 +
 Corrector + Q3 + Periodic configurations with **every model call K1**, preserving
@@ -190,7 +218,7 @@ The checkpoints/norms are the same paths and historical sources listed above.
 Calibration uses the existing B-library LOEO **model-call proxy** (vision=0,
 miss=1); GPU stage costs, measured IR, VRAM and success rates need later runs.
 
-Exact later order: finish the capture/fit steps above, then K1 B/A references →
+Withdrawn under the formal design (record only, do not run). Exact later order: finish the capture/fit steps above, then K1 B/A references →
 CPU calibration/DEV preparation → DEV GPU run → descent → TEST GPU run/analysis →
 partial reruns. Reuse the `pi`, `gr`, `pt`, `gt`, `common` and environment setup
 above: π 4090 R5/MPS/B1 pinned to NUMA1; GR H100 R2/MPS/B1, timan107 EGL0..7/N4.

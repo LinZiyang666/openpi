@@ -1,0 +1,322 @@
+{
+  "rows": [
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r11_pi05_l10_200_periodic_ir25.pkl",
+      "exists": true,
+      "symlink": false,
+      "sha256": "a8a3b4409ddc295f229276e170e9bf329a2eae038bacd17067bae38080adc158",
+      "size": 44377213,
+      "mtime_ns": 1791017761477153596
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r11_pi05_l10_50_periodic_ir25.pkl",
+      "exists": true,
+      "symlink": false,
+      "sha256": "2637acdc5758bfb7a93725e73504f135b015bd0a79c4d44980a2f686b6356ee5",
+      "size": 31245413,
+      "mtime_ns": 1790998652880081396
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r11_pi05_l10_50_periodic_ir32.pkl",
+      "exists": true,
+      "symlink": false,
+      "sha256": "19307ab93276d6e02e074fb58632939f0336dec8829c1108c1844eddbc007713",
+      "size": 31245413,
+      "mtime_ns": 1790998298119043543
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r11_pi05_l10_50_periodic_ir40.pkl",
+      "exists": true,
+      "symlink": false,
+      "sha256": "4fc93dbb88df9d3c25a290358c113097eea73ace56a42baf7c85e80cf42e3738",
+      "size": 31245412,
+      "mtime_ns": 1790998601412074895
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r11_pi05_spatial_50_periodic_ir25.pkl",
+      "exists": true,
+      "symlink": false,
+      "sha256": "0b3c04a21528b6de02a236ce992174b419180c9c48ca7f52b1ee2626c519c007",
+      "size": 28525226,
+      "mtime_ns": 1790998102086032413
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r11_pi05_spatial_50_periodic_ir32.pkl",
+      "exists": true,
+      "symlink": false,
+      "sha256": "194f8a96de6bb05411411ab15c2be4e6f27cf38a4728928e15fc2aa2e93b964b",
+      "size": 28525226,
+      "mtime_ns": 1790998330450046188
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r11_pi05_spatial_50_periodic_ir40.pkl",
+      "exists": true,
+      "symlink": false,
+      "sha256": "cefd75a910229dd303b107e5e78e27a5cd766d3ea77179a11393ceeb879b9e28",
+      "size": 28525225,
+      "mtime_ns": 1791017637054133112
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_l10_100_ir25.pkl",
+      "exists": true,
+      "symlink": false,
+      "sha256": "6b3ab93f26c451c184ca36137981239d5dfa74beda53999e82b858a2035e0c16",
+      "size": 35631769,
+      "mtime_ns": 1791231213625142724
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_l10_100_ir32.pkl",
+      "exists": true,
+      "symlink": false,
+      "sha256": "969e3f0fd07deb667da3e93a091954649a87db8b7e88aa0ec4166d9ce9dfc257",
+      "size": 35631769,
+      "mtime_ns": 1791228118291085058
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_l10_100_ir40.pkl",
+      "exists": true,
+      "symlink": false,
+      "sha256": "a5e0ae67295576d18d3baf29324a1c4a82421d1ac04f11d407927e0310a8fec7",
+      "size": 35631768,
+      "mtime_ns": 1791220453409918787
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_l10_100_ir45.pkl",
+      "exists": true,
+      "symlink": false,
+      "sha256": "91933390bf0b7152c8d49dff4a561259c9e5d19ad9f2bc412c13fa878dda3b71",
+      "size": 35631769,
+      "mtime_ns": 1791216413757392149
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_spatial_100_ir25.pkl",
+      "exists": true,
+      "symlink": false,
+      "sha256": "9961a708e09f779d255bf7bdde2de775f10e551dd503ea79ea3cddde1c2fa38b",
+      "size": 30239145,
+      "mtime_ns": 1791231822839668527
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_spatial_100_ir32.pkl",
+      "exists": true,
+      "symlink": false,
+      "sha256": "5435a2932a71282f8dc0214b1d12f0fe2df2b4a87cb76d4b2acd9ceabe5d17fb",
+      "size": 30239145,
+      "mtime_ns": 1791228647902653226
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_spatial_100_ir40.pkl",
+      "exists": true,
+      "symlink": false,
+      "sha256": "11451d7b923610a1d921dcac36b558998430e72b5b821bb34257c018f6dce4d1",
+      "size": 30239144,
+      "mtime_ns": 1791221036614066625
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_spatial_100_ir45.pkl",
+      "exists": true,
+      "symlink": false,
+      "sha256": "b2c41cfe63c5979395adc8b78bbb1be717812107626ad8929440e09451ec1905",
+      "size": 30239145,
+      "mtime_ns": 1791217335805276953
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r13/knob/artifacts/pi05_l10_200_periodic_0p32.pkl",
+      "exists": true,
+      "symlink": false,
+      "sha256": "a3eecea7995aea898ccb46eb75fe0d01f97815abdf7cae7b5cb59c49db5f9ae3",
+      "size": 44378064,
+      "mtime_ns": 1791142305049435825
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r13/knob/artifacts/pi05_l10_200_periodic_0p4.pkl",
+      "exists": true,
+      "symlink": false,
+      "sha256": "319c22a97688b848a2e4160b8fbba872a3888a8b21d0905ac4ef120e703c23c2",
+      "size": 44378062,
+      "mtime_ns": 1791142306236435383
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r13/knob/artifacts/pi05_l10_200_periodic_0p45.pkl",
+      "exists": true,
+      "symlink": false,
+      "sha256": "41c58f9f39e2623d337b77dc607acadff8b2f391aedd0851c1456ace96253958",
+      "size": 44378064,
+      "mtime_ns": 1791142307525434903
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r13/knob/artifacts/pi05_l10_50_periodic_0p45.pkl",
+      "exists": true,
+      "symlink": false,
+      "sha256": "56a54f2c832c37b62940be5c7fa061701a0bb3216cd97964b16a22c1b19cca3a",
+      "size": 31246263,
+      "mtime_ns": 1792334632124126756
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r13/knob/artifacts/pi05_spatial_50_periodic_0p45.pkl",
+      "exists": true,
+      "symlink": false,
+      "sha256": "257a18adb75d88ffef2f1a15ed0c4a75d09010dda79e38523f9d061427c64480",
+      "size": 28526080,
+      "mtime_ns": 1791145811592364956
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_l10_100_ir25.pkl",
+      "exists": true,
+      "symlink": false,
+      "sha256": "a25e7479eec248c406b98b6b3b69af716a3c5022adac6ce4b04cccf7c71b5a61",
+      "size": 34199465,
+      "mtime_ns": 1792334984230038986
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_l10_100_ir32.pkl",
+      "exists": true,
+      "symlink": false,
+      "sha256": "b44c8a9fba9421b30a494bbfb59ec754112e9faf82dee3e016c6e7c8a700a9d9",
+      "size": 34199465,
+      "mtime_ns": 1792334983972039050
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_l10_100_ir40.pkl",
+      "exists": true,
+      "symlink": false,
+      "sha256": "3744007c9f3f238c0012639f7e0889e1933c3401c30b55cf6c5f1fab0f1785e8",
+      "size": 34199464,
+      "mtime_ns": 1792334983711039115
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_l10_100_ir45.pkl",
+      "exists": true,
+      "symlink": false,
+      "sha256": "068472ee21f36b53ee26e7b4f80135fcb95591e43403168e0960a106c1345b0a",
+      "size": 34199465,
+      "mtime_ns": 1792334983429039185
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_l10_50_ir25.pkl",
+      "exists": true,
+      "symlink": false,
+      "sha256": "104c09656f0096bd57056149fe956ecb93cc4b5de78b3cfd6a22821d9952ebda",
+      "size": 30464099,
+      "mtime_ns": 1792334870082067369
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_l10_50_ir32.pkl",
+      "exists": true,
+      "symlink": false,
+      "sha256": "3038b42cf7032786cdfec958f4f27c9e42fa970098819b1933dec5da746bc10a",
+      "size": 30464099,
+      "mtime_ns": 1792334869852067426
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_l10_50_ir40.pkl",
+      "exists": true,
+      "symlink": false,
+      "sha256": "53d72866cd2f88ffb5639698e2342aa891fed114a60635242c326bb173c9a129",
+      "size": 30464098,
+      "mtime_ns": 1792334869626067483
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_l10_50_ir45.pkl",
+      "exists": true,
+      "symlink": false,
+      "sha256": "18181b82862dbdeff58be67b0c1c459d95749b94ca390ae0770f7bdec17615e9",
+      "size": 30464949,
+      "mtime_ns": 1792334869359067549
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_100_ir25.pkl",
+      "exists": false,
+      "symlink": false
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_100_ir32.pkl",
+      "exists": false,
+      "symlink": false
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_100_ir40.pkl",
+      "exists": false,
+      "symlink": false
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_100_ir45.pkl",
+      "exists": false,
+      "symlink": false
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_200_ir25.pkl",
+      "exists": false,
+      "symlink": false
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_200_ir32.pkl",
+      "exists": false,
+      "symlink": false
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_200_ir40.pkl",
+      "exists": false,
+      "symlink": false
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_200_ir45.pkl",
+      "exists": false,
+      "symlink": false
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_500_ir25.pkl",
+      "exists": false,
+      "symlink": false
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_500_ir32.pkl",
+      "exists": false,
+      "symlink": false
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_500_ir40.pkl",
+      "exists": false,
+      "symlink": false
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_500_ir45.pkl",
+      "exists": false,
+      "symlink": false
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_50_ir25.pkl",
+      "exists": true,
+      "symlink": false,
+      "sha256": "8776ee13dc162239882654a01583a23ba97f469491a3a1974430e8926f0938a5",
+      "size": 28304823,
+      "mtime_ns": 1792335063388019334
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_50_ir32.pkl",
+      "exists": true,
+      "symlink": false,
+      "sha256": "22e0327fb2ab090d5b0284fce351899fd916220f331de58dbf099dbca90f6391",
+      "size": 28304823,
+      "mtime_ns": 1792335063186019384
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_50_ir40.pkl",
+      "exists": true,
+      "symlink": false,
+      "sha256": "783632bd0cde6c08373c36e178f8f902b5c0e0fbaea490e6b6919bdc5a5512f1",
+      "size": 28304822,
+      "mtime_ns": 1792335062980019435
+    },
+    {
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_50_ir45.pkl",
+      "exists": true,
+      "symlink": false,
+      "sha256": "e584f75ca21829161954b0fa5cd0c47e43521e4db7602fee1e012149bd6aa0cd",
+      "size": 28305677,
+      "mtime_ns": 1792335062742019494
+    }
+  ],
+  "bytes_read": 1051954564,
+  "seconds": 31.649250665097497
+}

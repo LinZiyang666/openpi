@@ -1,0 +1,5 @@
+Coordinator: while the GPUs run formal work, finish what blocks the closed-loop pilot (CLOSEDLOOP_PILOT_1018.md said: formal transfer, worker trace wiring and renderer slots are not done yet). CPU only; no launches.
+1. Make each model's paired closed-loop pilot (pure + cache arms, 500 episodes per arm per GPU, same plan/inits/seeds on both GPUs) launchable through the normal formal prepare/launch path, with the autoscale switch OFF (native worker counts), using timan1 GPU2 and timan107 workers only (never timan108). Give per-campaign prepare/launch commands like the queue scripts use, so I can append them to the H100 and 4090 chains.
+2. DP: start localising the remaining cache-path drift after TF32-off (51/2304 over budget, all cache): which continuous cache computation (retrieval distances, corrector, blending, action post-processing) differs across GPUs, with a CPU replay of the recorded inputs if possible.
+3. Order the remaining big-memory concurrent rounds (pi05 44/44 GiB, GR00T 42/76, Cosmos 47/76) so each fits a lane boundary; I will slot them.
+Reply in Chinese, short: the commands, per-campaign GPU hours, the DP drift finding.

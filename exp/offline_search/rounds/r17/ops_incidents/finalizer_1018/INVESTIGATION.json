@@ -1,0 +1,431 @@
+{
+  "rows": [
+    {
+      "name": "fa_co_r_u_l",
+      "status": "FAIL",
+      "completion": {
+        "accepted_episodes": 30000,
+        "error_attempts": 0,
+        "recovered_retried_errors": false,
+        "recovered_worker_shutdown": false,
+        "resolved_retry_errors": [],
+        "returncode": 0,
+        "verified_completion": true
+      },
+      "all_owned_closed": true,
+      "finalizer_alive": false,
+      "finalizer_log": "Traceback (most recent call last):\n  File \"<string>\", line 2, in <module>\n  File \"/data/mw_finetune/qualification/formal_evidence_f435802cae1d1c65f6c157897f869ed8431adb5e9bbd2228059ab01474abba75/exp/r17_integration/ops/formal_eval.py\", line 356, in <module>\n    from exp.offline_search.rounds.r17.filter_failed import timan1_gpu2 as _autoscale_gpu2\nModuleNotFoundError: No module named 'exp.offline_search.rounds.r17'\n",
+      "last_phase": [
+        {
+          "phase": "command tether exec",
+          "started": "2026-10-18T09:12:47.280114+00:00",
+          "ended": "2026-10-18T09:12:48.051451+00:00",
+          "seconds": 0.7713538589887321,
+          "status": "PASS"
+        },
+        {
+          "phase": "command tether exec",
+          "started": "2026-10-18T09:12:48.121874+00:00",
+          "ended": "2026-10-18T09:12:48.326620+00:00",
+          "seconds": 0.20476274203974754,
+          "status": "PASS"
+        },
+        {
+          "phase": "command tether exec",
+          "started": "2026-10-18T09:12:48.355328+00:00",
+          "ended": "2026-10-18T09:12:48.973229+00:00",
+          "seconds": 0.6179210380651057,
+          "status": "PASS"
+        },
+        {
+          "phase": "command tether exec",
+          "started": "2026-10-18T09:12:49.005355+00:00",
+          "ended": "2026-10-18T09:12:50.001642+00:00",
+          "seconds": 0.9963064349722117,
+          "status": "PASS"
+        },
+        {
+          "phase": "command tether exec",
+          "started": "2026-10-18T09:12:50.039202+00:00",
+          "ended": "2026-10-18T09:12:50.369832+00:00",
+          "seconds": 0.3306540680350736,
+          "status": "PASS"
+        }
+      ],
+      "start": 1792314795.081169,
+      "receipt_written": 1792314825.1771724,
+      "input_pins": 205,
+      "input_bytes": 3195115245,
+      "snapshot_archives": [
+        "driver_runtime.tar",
+        "workers.tar",
+        "runtime.tar",
+        "evidence_runtime.tar",
+        "startup_assets.tar"
+      ],
+      "transfers": [],
+      "frozen_cpu_modules": [
+        "exp/r17_integration/ops/cache_study.py",
+        "exp/r17_integration/ops/worker_storage.py"
+      ],
+      "cache_resume_source": null,
+      "cleanup": [
+        {
+          "alive": false,
+          "child_alive": false,
+          "closure_confirmed": true,
+          "exit_code": -15,
+          "label": "proxy",
+          "node": "h100",
+          "status": "CLOSED",
+          "supervisor_alive": false
+        },
+        {
+          "alive": false,
+          "child_alive": false,
+          "closure_confirmed": true,
+          "exit_code": 0,
+          "label": "replica_7",
+          "node": "h100",
+          "status": "CLOSED",
+          "supervisor_alive": false
+        },
+        {
+          "alive": false,
+          "child_alive": false,
+          "closure_confirmed": true,
+          "exit_code": 0,
+          "label": "replica_6",
+          "node": "h100",
+          "status": "CLOSED",
+          "supervisor_alive": false
+        },
+        {
+          "alive": false,
+          "child_alive": false,
+          "closure_confirmed": true,
+          "exit_code": 0,
+          "label": "replica_5",
+          "node": "h100",
+          "status": "CLOSED",
+          "supervisor_alive": false
+        },
+        {
+          "alive": false,
+          "child_alive": false,
+          "closure_confirmed": true,
+          "exit_code": 0,
+          "label": "replica_4",
+          "node": "h100",
+          "status": "CLOSED",
+          "supervisor_alive": false
+        },
+        {
+          "alive": false,
+          "child_alive": false,
+          "closure_confirmed": true,
+          "exit_code": 0,
+          "label": "replica_3",
+          "node": "h100",
+          "status": "CLOSED",
+          "supervisor_alive": false
+        },
+        {
+          "alive": false,
+          "child_alive": false,
+          "closure_confirmed": true,
+          "exit_code": 0,
+          "label": "replica_2",
+          "node": "h100",
+          "status": "CLOSED",
+          "supervisor_alive": false
+        },
+        {
+          "alive": false,
+          "child_alive": false,
+          "closure_confirmed": true,
+          "exit_code": 0,
+          "label": "replica_1",
+          "node": "h100",
+          "status": "CLOSED",
+          "supervisor_alive": false
+        },
+        {
+          "alive": false,
+          "child_alive": false,
+          "closure_confirmed": true,
+          "exit_code": 0,
+          "label": "replica_0",
+          "node": "h100",
+          "status": "CLOSED",
+          "supervisor_alive": false
+        },
+        {
+          "alive": false,
+          "child_alive": false,
+          "closure_confirmed": true,
+          "exit_code": 0,
+          "label": "workers",
+          "node": "local",
+          "owned_worker_survivors": [],
+          "status": "CLOSED",
+          "supervisor_alive": false
+        },
+        {
+          "alive": false,
+          "child_alive": false,
+          "closure_confirmed": true,
+          "exit_code": -15,
+          "label": "workers",
+          "node": "timan1",
+          "owned_worker_survivors": [],
+          "status": "CLOSED",
+          "supervisor_alive": false
+        },
+        {
+          "alive": false,
+          "child_alive": false,
+          "closure_confirmed": true,
+          "exit_code": 0,
+          "label": "workers",
+          "node": "timan107",
+          "owned_worker_survivors": [],
+          "status": "CLOSED",
+          "supervisor_alive": false
+        },
+        {
+          "alive": false,
+          "child_alive": false,
+          "closure_confirmed": true,
+          "exit_code": 0,
+          "label": "mps_guard",
+          "node": "h100",
+          "status": "CLOSED",
+          "supervisor_alive": false
+        },
+        {
+          "closure_confirmed": true,
+          "label": "driver",
+          "status": "closed"
+        },
+        {
+          "closure_confirmed": true,
+          "label": "mps_daemon"
+        }
+      ]
+    },
+    {
+      "name": "fa_co_f_f_oc1",
+      "status": "FAIL",
+      "completion": {
+        "accepted_episodes": 3015,
+        "error_attempts": 0,
+        "recovered_retried_errors": false,
+        "recovered_worker_shutdown": true,
+        "resolved_retry_errors": [],
+        "returncode": 2,
+        "verified_completion": true
+      },
+      "all_owned_closed": true,
+      "finalizer_alive": false,
+      "finalizer_log": "Traceback (most recent call last):\n  File \"<string>\", line 2, in <module>\n  File \"/data/mw_finetune/qualification/formal_evidence_3d66f2d7ed82db4350e431c38e0e76012947fd5b5f3ed36e1b1abefab23a88d6/exp/r17_integration/ops/formal_eval.py\", line 356, in <module>\n    from exp.offline_search.rounds.r17.filter_failed import timan1_gpu2 as _autoscale_gpu2\nModuleNotFoundError: No module named 'exp.offline_search.rounds.r17'\n",
+      "last_phase": [
+        {
+          "phase": "command tether exec",
+          "started": "2026-10-18T10:14:29.623599+00:00",
+          "ended": "2026-10-18T10:14:29.804363+00:00",
+          "seconds": 0.18078456504736096,
+          "status": "PASS"
+        },
+        {
+          "phase": "command tether exec",
+          "started": "2026-10-18T10:14:29.832503+00:00",
+          "ended": "2026-10-18T10:14:30.386126+00:00",
+          "seconds": 0.5536507309880108,
+          "status": "PASS"
+        },
+        {
+          "phase": "command tether exec",
+          "started": "2026-10-18T10:14:30.424229+00:00",
+          "ended": "2026-10-18T10:14:30.753850+00:00",
+          "seconds": 0.32963876193389297,
+          "status": "PASS"
+        },
+        {
+          "phase": "command tether exec",
+          "started": "2026-10-18T10:14:30.782733+00:00",
+          "ended": "2026-10-18T10:14:31.880415+00:00",
+          "seconds": 1.097700614016503,
+          "status": "PASS"
+        },
+        {
+          "phase": "command tether exec",
+          "started": "2026-10-18T10:14:31.907765+00:00",
+          "ended": "2026-10-18T10:14:32.268606+00:00",
+          "seconds": 0.360862210043706,
+          "status": "PASS"
+        }
+      ],
+      "start": 1792318476.46778,
+      "receipt_written": 1792318506.5587795,
+      "input_pins": 171,
+      "input_bytes": 649692455,
+      "snapshot_archives": [
+        "workers.tar",
+        "runtime.tar",
+        "evidence_runtime.tar",
+        "startup_assets.tar"
+      ],
+      "transfers": [],
+      "frozen_cpu_modules": [
+        "exp/r17_integration/ops/cache_study.py",
+        "exp/r17_integration/ops/worker_storage.py"
+      ],
+      "cache_resume_source": "/data/mw_finetune/eval/fa_co_f_f_o",
+      "cleanup": [
+        {
+          "alive": false,
+          "child_alive": false,
+          "closure_confirmed": true,
+          "exit_code": -15,
+          "label": "proxy",
+          "node": "h100",
+          "status": "CLOSED",
+          "supervisor_alive": false
+        },
+        {
+          "alive": false,
+          "child_alive": false,
+          "closure_confirmed": true,
+          "exit_code": 0,
+          "label": "replica_7",
+          "node": "h100",
+          "status": "CLOSED",
+          "supervisor_alive": false
+        },
+        {
+          "alive": false,
+          "child_alive": false,
+          "closure_confirmed": true,
+          "exit_code": 0,
+          "label": "replica_6",
+          "node": "h100",
+          "status": "CLOSED",
+          "supervisor_alive": false
+        },
+        {
+          "alive": false,
+          "child_alive": false,
+          "closure_confirmed": true,
+          "exit_code": 0,
+          "label": "replica_5",
+          "node": "h100",
+          "status": "CLOSED",
+          "supervisor_alive": false
+        },
+        {
+          "alive": false,
+          "child_alive": false,
+          "closure_confirmed": true,
+          "exit_code": 0,
+          "label": "replica_4",
+          "node": "h100",
+          "status": "CLOSED",
+          "supervisor_alive": false
+        },
+        {
+          "alive": false,
+          "child_alive": false,
+          "closure_confirmed": true,
+          "exit_code": 0,
+          "label": "replica_3",
+          "node": "h100",
+          "status": "CLOSED",
+          "supervisor_alive": false
+        },
+        {
+          "alive": false,
+          "child_alive": false,
+          "closure_confirmed": true,
+          "exit_code": 0,
+          "label": "replica_2",
+          "node": "h100",
+          "status": "CLOSED",
+          "supervisor_alive": false
+        },
+        {
+          "alive": false,
+          "child_alive": false,
+          "closure_confirmed": true,
+          "exit_code": 0,
+          "label": "replica_1",
+          "node": "h100",
+          "status": "CLOSED",
+          "supervisor_alive": false
+        },
+        {
+          "alive": false,
+          "child_alive": false,
+          "closure_confirmed": true,
+          "exit_code": 0,
+          "label": "replica_0",
+          "node": "h100",
+          "status": "CLOSED",
+          "supervisor_alive": false
+        },
+        {
+          "alive": false,
+          "child_alive": false,
+          "closure_confirmed": true,
+          "exit_code": 0,
+          "label": "workers",
+          "node": "local",
+          "owned_worker_survivors": [],
+          "status": "CLOSED",
+          "supervisor_alive": false
+        },
+        {
+          "alive": false,
+          "child_alive": false,
+          "closure_confirmed": true,
+          "exit_code": -15,
+          "label": "workers",
+          "node": "timan1",
+          "owned_worker_survivors": [],
+          "status": "CLOSED",
+          "supervisor_alive": false
+        },
+        {
+          "alive": false,
+          "child_alive": false,
+          "closure_confirmed": true,
+          "exit_code": 0,
+          "label": "workers",
+          "node": "timan107",
+          "owned_worker_survivors": [],
+          "status": "CLOSED",
+          "supervisor_alive": false
+        },
+        {
+          "alive": false,
+          "child_alive": false,
+          "closure_confirmed": true,
+          "exit_code": 0,
+          "label": "mps_guard",
+          "node": "h100",
+          "status": "CLOSED",
+          "supervisor_alive": false
+        },
+        {
+          "closure_confirmed": true,
+          "label": "driver",
+          "status": "closed"
+        },
+        {
+          "closure_confirmed": true,
+          "label": "mps_daemon"
+        }
+      ]
+    }
+  ]
+}

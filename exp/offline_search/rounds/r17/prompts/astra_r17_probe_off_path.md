@@ -1,0 +1,9 @@
+TOP PRIORITY (blocks every R17 campaign on both GPUs):
+
+With ENABLED=off (native prepares), the H100 R17 campaign fa_ls_gr_r_p_m (original library, GR00T, MT50, reduced, pure+long control; prepared 09:31 by the h100lx chain) ran from 09:35 and died at 09:40:25 with 939/2500 accepted, rc=2, RECEIPT FAIL, all_owned_closed=false. Driver: "ValueError: worker probe changed during the campaign". driver/rejected_worker_probes.json: worker_id fa_ls_gr_r_p_m_timan1_18, only renderer.pid differs (921639 -> 952777). Same signature as the dynamic failure at 05:22 (fa_ls_fw_r_p_m_timan1_0). Earlier native R17 MT50 campaigns before your patch (e.g. ffk1015_pi05_mt50_reduced_descent, 90,000 eps, finished 09:04) never hit this. So some patched code is active even with the switch off — my guess is timan1_gpu2.py (your patch set MT50 recycling to N32/1800 s) or worker_lifetime/formal_workers reusing the slot worker_id for a new generation.
+
+Do now, CPU only:
+1. Find exactly which patched code makes an OFF-mode R17 worker restart its renderer under the same worker_id, and make OFF truly native for every file your patch touched (timan1_gpu2, worker_lifetime, formal_workers, worker_entry, local_workers, src/openpi/conductor/worker.py/driver.py/agent.py, ...). Prove with a CPU test that reproduces the 09:40 failure on the patched OFF path and passes after the fix, plus a byte/behaviour comparison of OFF-mode worker payload and driver release against the pre-patch sources.
+2. Give me the continuation/reset command for fa_ls_gr_r_p_m (939 accepted must be kept, the remaining 1,561 run) and the reset+launch for fa_ls_fw_r_p_m (remote mps_control leftover).
+3. When verified, tell me; I will write "[autoscale] r17 fixed" to release the R17 parts of both chains (h100ly, 4090lt).
+The trial-fix items from my previous message come after this.

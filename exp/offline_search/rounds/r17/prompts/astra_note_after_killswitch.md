@@ -1,0 +1,4 @@
+Coordinator note for your next turn:
+- Kill switch accepted (ENABLED=off, 06:13). The H100 chain was restarted at 06:17 as ffk-h100lv with native prepares; the 4090 chain ffk-4090ls (starts ~11:00) will also prepare natively. Keep ENABLED=off until both real small-lane acceptance runs pass.
+- I re-ran fa_pi_f_f_o's prepare natively (its earlier prepare had begun under dynamic). fa_pi_f_u_o is queued right after it with a plain re-prepare + launch; if that is unsafe because of the failed dynamic attempt's state on timan107 (runs/fa_pi_f_u_o_*/.../autoscale, driver.owner.json), tell me immediately and give the reset command.
+- Equivalence (for the other astra thread's study, FYI): the DP concurrent-server runs finished on both GPUs, two rounds each, rc=0: 4090 evidence/run_concurrent_4090_dp_r2_{1,2}.log, H100 evidence/run_concurrent_h100_dp_{1,2}.log (results on the H100 under /home/exouser/xgpu_1017/results).

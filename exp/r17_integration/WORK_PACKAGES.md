@@ -75,7 +75,7 @@ CPU acceptance：
 - canonical50unique/tasksdifficulty28/11/6/5、正式500exactids，Sept默认20绝不泄入正式；idx→sameMT1taskdatafixture，不将idx作resetseed；promptduplicate依然taskidentity独立。
 - 原MWfakekernel与newrunner动作序列/obs帧/settle/success/cap逐步parity；中途success/truncation/exception正确标Result、episode_end、actualcontrols；wronginputshape/NaN拒绝。
 - fakeWS两YAML跨episode切换与clientreuse、断连重建、未知bundle；P1runtime不接受A default-onlywrapper作为完整接入。
-- 50tasksyntheticdescent queue：parallelpull least-busycompatibleendpoint、per-episodeattemptpersist、late/duplicateresult不计入cohort、firstfail终止、freezehash后test；n_dev20gate正确，不复制R16n30。
+- 50tasksyntheticdescent queue：parallelpull least-busycompatibleendpoint、per-episodeattemptpersist、late/duplicateresult不计入cohort、firstfail终止、freezehash；正式设计不设旋钮开发集：逐任务旋钮直接在测试集上从最贵档往下降（LIBERO 整个测试集 A；MT50 seed 7，库为 seed 8），每任务每档 50 局，比同 GPU、同起点的同步数纯推理少成功不超过 2 局即通过，首次不通过冻结到上一档；关旋钮（只用停滞门）已达同步数纯推理的库格不调。
 - nativeMujoco-model/data fake：qpos/qvel/object/contactforce无`.sim`依赖、float64capture、capabilitymissing列明确；server请求/control applied clip分别保存；MWgoal地图先对smoketask加cert，其余仍rawphysics且unsupportedgoalstatus。
 - πoneviewkeyvsoriginalπpoolmath；MWnorm/4Dinverse、maskedwrists不进retrievallib；commit10/H5必须config拒绝，H5/replan1tail最多5和formalprotocol分开。
 - `WorkerAgent/WorkerLoop`client-onlypayload在Python3.11可import，没有torch/JAX/vendor依赖；rendererlockfirst-render/closefakes验证。

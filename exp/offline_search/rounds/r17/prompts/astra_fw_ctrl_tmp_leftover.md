@@ -1,0 +1,5 @@
+Coordinator: fa_ls_fw_r_p_m still cannot run.
+- 11:59 your fixed reset_zero --reprepare succeeded (backup fa_ls_fw_r_p_m.before_native_retry_0930, local + H100 /data dirs).
+- 12:05 launch failed in 33 s: on the H100 `FileExistsError: /tmp/r17_formal/fa_ls_fw_r_p_m/server/mps_guard.process.json` (log openpi_ext/scratch/r17_ops/ff/fa_ls_fw_r_p_m_rz.run.log). That /tmp/r17_formal/fa_ls_fw_r_p_m tree on the H100 was left by the 05:19 dynamic attempt (files dated 05:2x CDT); no live process referenced it. I renamed it on the H100 to /tmp/r17_formal/fa_ls_fw_r_p_m.stale_0519_moved_1210.
+- RECEIPT is now PARTIAL with all_owned_closed=false, so reset_zero refuses ("requires FAIL receipt and all_owned_closed=true").
+Do: (1) verify what the 12:05 launch actually started (read-only checks on the H100/workers) and finalize its closure properly so the receipt reflects the truth; (2) make reset_zero also back up the H100 /tmp/r17_formal/<run> staging tree (rename, never delete); (3) give me the reset + launch commands. CPU/read-only except the closure step. Reply in Chinese, short.

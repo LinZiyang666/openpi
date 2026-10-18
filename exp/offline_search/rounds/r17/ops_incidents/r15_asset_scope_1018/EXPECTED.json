@@ -1,0 +1,490 @@
+{
+  "checks": [
+    {
+      "run": "fa_pi_f_u_l_l50",
+      "arms": 4,
+      "episodes": 2000,
+      "namespace": "sha256-v1",
+      "generated": 4,
+      "fresh_native_legacy_process": true
+    },
+    {
+      "run": "fa_pi_f_u_l_l100",
+      "arms": 4,
+      "episodes": 2000,
+      "namespace": "sha256-v1",
+      "generated": 4,
+      "fresh_native_legacy_process": true
+    },
+    {
+      "run": "fa_pi_f_u_l_l200",
+      "arms": 4,
+      "episodes": 2000,
+      "namespace": "sha256-v1",
+      "generated": 4,
+      "fresh_native_legacy_process": true
+    },
+    {
+      "run": "fa_pi_f_u_l_s50",
+      "arms": 4,
+      "episodes": 2000,
+      "namespace": "sha256-v1",
+      "generated": 4,
+      "fresh_native_legacy_process": true
+    },
+    {
+      "run": "fa_pi_f_u_l_s100",
+      "arms": 4,
+      "episodes": 2000,
+      "namespace": "sha256-v1",
+      "generated": 4,
+      "fresh_native_legacy_process": true
+    },
+    {
+      "run": "fa_pi_f_f_l_l50",
+      "arms": 4,
+      "episodes": 2000,
+      "namespace": "sha256-v1",
+      "generated": 4,
+      "fresh_native_legacy_process": true
+    },
+    {
+      "run": "fa_pi_f_f_l_l100",
+      "arms": 4,
+      "episodes": 2000,
+      "namespace": "sha256-v1",
+      "generated": 4,
+      "fresh_native_legacy_process": true
+    },
+    {
+      "run": "fa_pi_f_f_l_s50",
+      "arms": 4,
+      "episodes": 2000,
+      "namespace": "sha256-v1",
+      "generated": 4,
+      "fresh_native_legacy_process": true
+    },
+    {
+      "run": "fa_pi_f_f_l_s100",
+      "arms": 4,
+      "episodes": 2000,
+      "namespace": "sha256-v1",
+      "generated": 4,
+      "fresh_native_legacy_process": true
+    },
+    {
+      "run": "fa_pi_f_f_l_s200",
+      "arms": 4,
+      "episodes": 2000,
+      "namespace": "sha256-v1",
+      "generated": 4,
+      "fresh_native_legacy_process": true
+    },
+    {
+      "run": "fa_pi_f_f_l_s500",
+      "arms": 4,
+      "episodes": 2000,
+      "namespace": "sha256-v1",
+      "generated": 4,
+      "fresh_native_legacy_process": true
+    }
+  ],
+  "rows": [
+    {
+      "unit": "fa_pi_f_u_l",
+      "run": "fa_pi_f_u_l_l50",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r11_pi05_l10_50_periodic_ir32.pkl",
+      "new_rel": "generated/sha256/19307ab93276d6e02e074fb58632939f0336dec8829c1108c1844eddbc007713/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r11_pi05_l10_50_periodic_ir32.pkl",
+      "expected_sha256": "19307ab93276d6e02e074fb58632939f0336dec8829c1108c1844eddbc007713",
+      "source_sha256": "f6e316d2b9ff953df8322256ae6ee354552bdeb6a2e79f92215c157261723f35",
+      "size": 31245413
+    },
+    {
+      "unit": "fa_pi_f_u_l",
+      "run": "fa_pi_f_u_l_l50",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r11_pi05_l10_50_periodic_ir25.pkl",
+      "new_rel": "generated/sha256/2637acdc5758bfb7a93725e73504f135b015bd0a79c4d44980a2f686b6356ee5/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r11_pi05_l10_50_periodic_ir25.pkl",
+      "expected_sha256": "2637acdc5758bfb7a93725e73504f135b015bd0a79c4d44980a2f686b6356ee5",
+      "source_sha256": "25cc8f2627bd09f5024761cfa8435a3ee7ac156082622441ceee1bdf9bedeb65",
+      "size": 31245413
+    },
+    {
+      "unit": "fa_pi_f_u_l",
+      "run": "fa_pi_f_u_l_l50",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r11_pi05_l10_50_periodic_ir40.pkl",
+      "new_rel": "generated/sha256/4fc93dbb88df9d3c25a290358c113097eea73ace56a42baf7c85e80cf42e3738/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r11_pi05_l10_50_periodic_ir40.pkl",
+      "expected_sha256": "4fc93dbb88df9d3c25a290358c113097eea73ace56a42baf7c85e80cf42e3738",
+      "source_sha256": "611af25dcb13420cf7e53a9cb3b52262fb494cec26b67f9fa7ce0e51d3a0c291",
+      "size": 31245412
+    },
+    {
+      "unit": "fa_pi_f_u_l",
+      "run": "fa_pi_f_u_l_l50",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r13/knob/artifacts/pi05_l10_50_periodic_0p45.pkl",
+      "new_rel": "generated/sha256/56a54f2c832c37b62940be5c7fa061701a0bb3216cd97964b16a22c1b19cca3a/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r13/knob/artifacts/pi05_l10_50_periodic_0p45.pkl",
+      "expected_sha256": "56a54f2c832c37b62940be5c7fa061701a0bb3216cd97964b16a22c1b19cca3a",
+      "source_sha256": "091755b38f91eea9fb9e6bc7dd0ac4a53b309fcbdd66a043fe31c54dca79e02e",
+      "size": 31246263
+    },
+    {
+      "unit": "fa_pi_f_u_l",
+      "run": "fa_pi_f_u_l_l100",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_l10_100_ir40.pkl",
+      "new_rel": "generated/sha256/337a2b36d25be83e4bbf05f7459a329a52448674dff4c5e629c3fb24ab3c91c6/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_l10_100_ir40.pkl",
+      "expected_sha256": "337a2b36d25be83e4bbf05f7459a329a52448674dff4c5e629c3fb24ab3c91c6",
+      "source_sha256": "fa67fb9e6b946894f13718891df621269ac8a0a2d0d5b7a54db3d62a645a3e79",
+      "size": 35631779
+    },
+    {
+      "unit": "fa_pi_f_u_l",
+      "run": "fa_pi_f_u_l_l100",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_l10_100_ir25.pkl",
+      "new_rel": "generated/sha256/4c3acf89ca61bf3917df3f7f003e75ad9691a40eb9a86ac7fa5f5587ed5d71b3/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_l10_100_ir25.pkl",
+      "expected_sha256": "4c3acf89ca61bf3917df3f7f003e75ad9691a40eb9a86ac7fa5f5587ed5d71b3",
+      "source_sha256": "1263ca850946e0ef456b2847ee1c0ab2d188026276cac3bf91b64b0bd9ffc293",
+      "size": 35631780
+    },
+    {
+      "unit": "fa_pi_f_u_l",
+      "run": "fa_pi_f_u_l_l100",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_l10_100_ir32.pkl",
+      "new_rel": "generated/sha256/7c259784cbdcd7972c3925eab96e02234d78d3d8a9587facf67cf376c5a0121b/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_l10_100_ir32.pkl",
+      "expected_sha256": "7c259784cbdcd7972c3925eab96e02234d78d3d8a9587facf67cf376c5a0121b",
+      "source_sha256": "80a4347317e46ddb67c795ad667fd139114355716026c465c1d6a396ae8a4fee",
+      "size": 35631780
+    },
+    {
+      "unit": "fa_pi_f_u_l",
+      "run": "fa_pi_f_u_l_l100",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_l10_100_ir45.pkl",
+      "new_rel": "generated/sha256/91933390bf0b7152c8d49dff4a561259c9e5d19ad9f2bc412c13fa878dda3b71/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_l10_100_ir45.pkl",
+      "expected_sha256": "91933390bf0b7152c8d49dff4a561259c9e5d19ad9f2bc412c13fa878dda3b71",
+      "source_sha256": "9614ca78753715da451c75145d0b19e88124ff10c494aa01160cff02af5f38d6",
+      "size": 35631769
+    },
+    {
+      "unit": "fa_pi_f_u_l",
+      "run": "fa_pi_f_u_l_l200",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r13/knob/artifacts/pi05_l10_200_periodic_0p4.pkl",
+      "new_rel": "generated/sha256/319c22a97688b848a2e4160b8fbba872a3888a8b21d0905ac4ef120e703c23c2/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r13/knob/artifacts/pi05_l10_200_periodic_0p4.pkl",
+      "expected_sha256": "319c22a97688b848a2e4160b8fbba872a3888a8b21d0905ac4ef120e703c23c2",
+      "source_sha256": "6dcde9be18abf16a80bd23cab90128ee5a9b0ad65b6d1f56868ac319a3ab2033",
+      "size": 44378062
+    },
+    {
+      "unit": "fa_pi_f_u_l",
+      "run": "fa_pi_f_u_l_l200",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r13/knob/artifacts/pi05_l10_200_periodic_0p45.pkl",
+      "new_rel": "generated/sha256/41c58f9f39e2623d337b77dc607acadff8b2f391aedd0851c1456ace96253958/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r13/knob/artifacts/pi05_l10_200_periodic_0p45.pkl",
+      "expected_sha256": "41c58f9f39e2623d337b77dc607acadff8b2f391aedd0851c1456ace96253958",
+      "source_sha256": "78a2a29e5c73e36faeb79e59f7bbb1f53fa751716a07bf5e9ea8e8b22788419f",
+      "size": 44378064
+    },
+    {
+      "unit": "fa_pi_f_u_l",
+      "run": "fa_pi_f_u_l_l200",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r13/knob/artifacts/pi05_l10_200_periodic_0p32.pkl",
+      "new_rel": "generated/sha256/a3eecea7995aea898ccb46eb75fe0d01f97815abdf7cae7b5cb59c49db5f9ae3/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r13/knob/artifacts/pi05_l10_200_periodic_0p32.pkl",
+      "expected_sha256": "a3eecea7995aea898ccb46eb75fe0d01f97815abdf7cae7b5cb59c49db5f9ae3",
+      "source_sha256": "b11a8e8793549e0b905c8045aa3d35c2529c4cc42d1a6056dea51c7c28bcb4a9",
+      "size": 44378064
+    },
+    {
+      "unit": "fa_pi_f_u_l",
+      "run": "fa_pi_f_u_l_l200",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r11_pi05_l10_200_periodic_ir25.pkl",
+      "new_rel": "generated/sha256/a8a3b4409ddc295f229276e170e9bf329a2eae038bacd17067bae38080adc158/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r11_pi05_l10_200_periodic_ir25.pkl",
+      "expected_sha256": "a8a3b4409ddc295f229276e170e9bf329a2eae038bacd17067bae38080adc158",
+      "source_sha256": "e285e2638b072dea57b6028e9bb2c28983654580d73f8cc9ebca4ab9e71ebcc9",
+      "size": 44377213
+    },
+    {
+      "unit": "fa_pi_f_u_l",
+      "run": "fa_pi_f_u_l_s50",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r11_pi05_spatial_50_periodic_ir25.pkl",
+      "new_rel": "generated/sha256/0b3c04a21528b6de02a236ce992174b419180c9c48ca7f52b1ee2626c519c007/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r11_pi05_spatial_50_periodic_ir25.pkl",
+      "expected_sha256": "0b3c04a21528b6de02a236ce992174b419180c9c48ca7f52b1ee2626c519c007",
+      "source_sha256": "05f5b26065f4377867fecea84e606bf3ce404935565dbcbf17363c51931de084",
+      "size": 28525226
+    },
+    {
+      "unit": "fa_pi_f_u_l",
+      "run": "fa_pi_f_u_l_s50",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r11_pi05_spatial_50_periodic_ir32.pkl",
+      "new_rel": "generated/sha256/194f8a96de6bb05411411ab15c2be4e6f27cf38a4728928e15fc2aa2e93b964b/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r11_pi05_spatial_50_periodic_ir32.pkl",
+      "expected_sha256": "194f8a96de6bb05411411ab15c2be4e6f27cf38a4728928e15fc2aa2e93b964b",
+      "source_sha256": "b72defad826bf9e0a720e06f391299a7644c0cf9ce49a18b2bc381d3c3bf8b76",
+      "size": 28525226
+    },
+    {
+      "unit": "fa_pi_f_u_l",
+      "run": "fa_pi_f_u_l_s50",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r13/knob/artifacts/pi05_spatial_50_periodic_0p45.pkl",
+      "new_rel": "generated/sha256/257a18adb75d88ffef2f1a15ed0c4a75d09010dda79e38523f9d061427c64480/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r13/knob/artifacts/pi05_spatial_50_periodic_0p45.pkl",
+      "expected_sha256": "257a18adb75d88ffef2f1a15ed0c4a75d09010dda79e38523f9d061427c64480",
+      "source_sha256": "733afeadf7eb348d9bca117988dba51a4e001e9ea4471cf2550033e3ebd02882",
+      "size": 28526080
+    },
+    {
+      "unit": "fa_pi_f_u_l",
+      "run": "fa_pi_f_u_l_s50",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r11_pi05_spatial_50_periodic_ir40.pkl",
+      "new_rel": "generated/sha256/cefd75a910229dd303b107e5e78e27a5cd766d3ea77179a11393ceeb879b9e28/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r11_pi05_spatial_50_periodic_ir40.pkl",
+      "expected_sha256": "cefd75a910229dd303b107e5e78e27a5cd766d3ea77179a11393ceeb879b9e28",
+      "source_sha256": "f47608a8c72276e722f31249dd2d8d222276cd514d329335a37b501e8f6fa8b6",
+      "size": 28525225
+    },
+    {
+      "unit": "fa_pi_f_u_l",
+      "run": "fa_pi_f_u_l_s100",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_spatial_100_ir25.pkl",
+      "new_rel": "generated/sha256/216d857c8107d4f756026be0e315f6c6503143eb36b75c04fe82756e76170a3d/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_spatial_100_ir25.pkl",
+      "expected_sha256": "216d857c8107d4f756026be0e315f6c6503143eb36b75c04fe82756e76170a3d",
+      "source_sha256": "d092daed29c466437974b8f2b38ea68fc8a3f9014ff7ae56d208f9fd7f002e21",
+      "size": 30239156
+    },
+    {
+      "unit": "fa_pi_f_u_l",
+      "run": "fa_pi_f_u_l_s100",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_spatial_100_ir32.pkl",
+      "new_rel": "generated/sha256/42a5a2b140c65f941f4caa8d947bed0826d3bbf2dbea7d82c1f9c106c67ec005/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_spatial_100_ir32.pkl",
+      "expected_sha256": "42a5a2b140c65f941f4caa8d947bed0826d3bbf2dbea7d82c1f9c106c67ec005",
+      "source_sha256": "6cd22d29bdaa6e91a7f272981baa958956eea776104226e4c15d1020dbf4d2a1",
+      "size": 30239156
+    },
+    {
+      "unit": "fa_pi_f_u_l",
+      "run": "fa_pi_f_u_l_s100",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_spatial_100_ir40.pkl",
+      "new_rel": "generated/sha256/92b3f413823f3a0ea4ee3396f827ab12140a138e0dcc8f1f0f4b34a3a7b8ec67/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_spatial_100_ir40.pkl",
+      "expected_sha256": "92b3f413823f3a0ea4ee3396f827ab12140a138e0dcc8f1f0f4b34a3a7b8ec67",
+      "source_sha256": "32bd9ebf43dff0c7e6448183b405e5468203cf3673d6e1f7683aca5125471f5b",
+      "size": 30239155
+    },
+    {
+      "unit": "fa_pi_f_u_l",
+      "run": "fa_pi_f_u_l_s100",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_spatial_100_ir45.pkl",
+      "new_rel": "generated/sha256/b2c41cfe63c5979395adc8b78bbb1be717812107626ad8929440e09451ec1905/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_spatial_100_ir45.pkl",
+      "expected_sha256": "b2c41cfe63c5979395adc8b78bbb1be717812107626ad8929440e09451ec1905",
+      "source_sha256": "09d60f4111316a507df1fb9280f16b33bd396f1f26322109b2ca82d6497c473c",
+      "size": 30239145
+    },
+    {
+      "unit": "fa_pi_f_f_l",
+      "run": "fa_pi_f_f_l_l50",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_l10_50_ir25.pkl",
+      "new_rel": "generated/sha256/104c09656f0096bd57056149fe956ecb93cc4b5de78b3cfd6a22821d9952ebda/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_l10_50_ir25.pkl",
+      "expected_sha256": "104c09656f0096bd57056149fe956ecb93cc4b5de78b3cfd6a22821d9952ebda",
+      "source_sha256": "5eb4847c3ac369386dabbcbac2574bb301754be3776a89fcfa5ae2d059a90b22",
+      "size": 30464099
+    },
+    {
+      "unit": "fa_pi_f_f_l",
+      "run": "fa_pi_f_f_l_l50",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_l10_50_ir45.pkl",
+      "new_rel": "generated/sha256/18181b82862dbdeff58be67b0c1c459d95749b94ca390ae0770f7bdec17615e9/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_l10_50_ir45.pkl",
+      "expected_sha256": "18181b82862dbdeff58be67b0c1c459d95749b94ca390ae0770f7bdec17615e9",
+      "source_sha256": "c81ade6e64c8f667307aa71e5c0c7e36d6f84a2bf9360c341ace03578cb931e3",
+      "size": 30464949
+    },
+    {
+      "unit": "fa_pi_f_f_l",
+      "run": "fa_pi_f_f_l_l50",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_l10_50_ir32.pkl",
+      "new_rel": "generated/sha256/3038b42cf7032786cdfec958f4f27c9e42fa970098819b1933dec5da746bc10a/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_l10_50_ir32.pkl",
+      "expected_sha256": "3038b42cf7032786cdfec958f4f27c9e42fa970098819b1933dec5da746bc10a",
+      "source_sha256": "c0ae93ddf20e5cdc4cd272995f185cf1b7698cb81b173e6638579984995ee1fd",
+      "size": 30464099
+    },
+    {
+      "unit": "fa_pi_f_f_l",
+      "run": "fa_pi_f_f_l_l50",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_l10_50_ir40.pkl",
+      "new_rel": "generated/sha256/53d72866cd2f88ffb5639698e2342aa891fed114a60635242c326bb173c9a129/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_l10_50_ir40.pkl",
+      "expected_sha256": "53d72866cd2f88ffb5639698e2342aa891fed114a60635242c326bb173c9a129",
+      "source_sha256": "4e078af757c074c3974c97a1743f1ad8be14cf9cb9bf086f626d72e68128d96a",
+      "size": 30464098
+    },
+    {
+      "unit": "fa_pi_f_f_l",
+      "run": "fa_pi_f_f_l_l100",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_l10_100_ir45.pkl",
+      "new_rel": "generated/sha256/068472ee21f36b53ee26e7b4f80135fcb95591e43403168e0960a106c1345b0a/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_l10_100_ir45.pkl",
+      "expected_sha256": "068472ee21f36b53ee26e7b4f80135fcb95591e43403168e0960a106c1345b0a",
+      "source_sha256": "2709a593f27bd8522dea896c15732189f026fa948b3baad7d09a4764cecec951",
+      "size": 34199465
+    },
+    {
+      "unit": "fa_pi_f_f_l",
+      "run": "fa_pi_f_f_l_l100",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_l10_100_ir40.pkl",
+      "new_rel": "generated/sha256/3744007c9f3f238c0012639f7e0889e1933c3401c30b55cf6c5f1fab0f1785e8/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_l10_100_ir40.pkl",
+      "expected_sha256": "3744007c9f3f238c0012639f7e0889e1933c3401c30b55cf6c5f1fab0f1785e8",
+      "source_sha256": "c894ac07d744a1f4c4b25717553b8e45a73f04ba3790afe86d6cf435dbbdb285",
+      "size": 34199464
+    },
+    {
+      "unit": "fa_pi_f_f_l",
+      "run": "fa_pi_f_f_l_l100",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_l10_100_ir25.pkl",
+      "new_rel": "generated/sha256/a25e7479eec248c406b98b6b3b69af716a3c5022adac6ce4b04cccf7c71b5a61/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_l10_100_ir25.pkl",
+      "expected_sha256": "a25e7479eec248c406b98b6b3b69af716a3c5022adac6ce4b04cccf7c71b5a61",
+      "source_sha256": "3d328ecff2f38c01cdc7950619f47e2dbd675e69522f9579efd2464da8b4e7fa",
+      "size": 34199465
+    },
+    {
+      "unit": "fa_pi_f_f_l",
+      "run": "fa_pi_f_f_l_l100",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_l10_100_ir32.pkl",
+      "new_rel": "generated/sha256/b44c8a9fba9421b30a494bbfb59ec754112e9faf82dee3e016c6e7c8a700a9d9/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_l10_100_ir32.pkl",
+      "expected_sha256": "b44c8a9fba9421b30a494bbfb59ec754112e9faf82dee3e016c6e7c8a700a9d9",
+      "source_sha256": "0a77a2ac7dda4f12f35b6f6519050a2f8c8ef8776619b28030a29c09228f1d5d",
+      "size": 34199465
+    },
+    {
+      "unit": "fa_pi_f_f_l",
+      "run": "fa_pi_f_f_l_s50",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_50_ir32.pkl",
+      "new_rel": "generated/sha256/22e0327fb2ab090d5b0284fce351899fd916220f331de58dbf099dbca90f6391/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_50_ir32.pkl",
+      "expected_sha256": "22e0327fb2ab090d5b0284fce351899fd916220f331de58dbf099dbca90f6391",
+      "source_sha256": "9bba3597d8aeaf488b31c8ca4909a897c87f468a246c428b3deb6b5eb6c04432",
+      "size": 28304823
+    },
+    {
+      "unit": "fa_pi_f_f_l",
+      "run": "fa_pi_f_f_l_s50",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_50_ir40.pkl",
+      "new_rel": "generated/sha256/783632bd0cde6c08373c36e178f8f902b5c0e0fbaea490e6b6919bdc5a5512f1/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_50_ir40.pkl",
+      "expected_sha256": "783632bd0cde6c08373c36e178f8f902b5c0e0fbaea490e6b6919bdc5a5512f1",
+      "source_sha256": "71e4c780dcce96e3a82ce907c1c5e944f45642562f6b3d35b5971980b2cfe060",
+      "size": 28304822
+    },
+    {
+      "unit": "fa_pi_f_f_l",
+      "run": "fa_pi_f_f_l_s50",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_50_ir25.pkl",
+      "new_rel": "generated/sha256/8776ee13dc162239882654a01583a23ba97f469491a3a1974430e8926f0938a5/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_50_ir25.pkl",
+      "expected_sha256": "8776ee13dc162239882654a01583a23ba97f469491a3a1974430e8926f0938a5",
+      "source_sha256": "faeeae1fc65af22fff8e0a0491c579200fc1c043bb68ca04362468b25ab63977",
+      "size": 28304823
+    },
+    {
+      "unit": "fa_pi_f_f_l",
+      "run": "fa_pi_f_f_l_s50",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_50_ir45.pkl",
+      "new_rel": "generated/sha256/e584f75ca21829161954b0fa5cd0c47e43521e4db7602fee1e012149bd6aa0cd/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_50_ir45.pkl",
+      "expected_sha256": "e584f75ca21829161954b0fa5cd0c47e43521e4db7602fee1e012149bd6aa0cd",
+      "source_sha256": "52a01dff58c660331a1435a3f6cbc22d5c7bc6ed780ee046edc62782e195a628",
+      "size": 28305677
+    },
+    {
+      "unit": "fa_pi_f_f_l",
+      "run": "fa_pi_f_f_l_s100",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_100_ir25.pkl",
+      "new_rel": "generated/sha256/153c3410462b01ff0600590bb2966daf1fa4d105628d7a59859c0de3d634d752/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_100_ir25.pkl",
+      "expected_sha256": "153c3410462b01ff0600590bb2966daf1fa4d105628d7a59859c0de3d634d752",
+      "source_sha256": "92e9b6be37409ff018e58d021d73e52e0b174a6a4759ba1d29a7317fd56dd027",
+      "size": 29908591
+    },
+    {
+      "unit": "fa_pi_f_f_l",
+      "run": "fa_pi_f_f_l_s100",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_100_ir32.pkl",
+      "new_rel": "generated/sha256/61399d253196c56b9618545ad4489dda0c8873ef7da53e5cf6c0b13af4ce32c0/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_100_ir32.pkl",
+      "expected_sha256": "61399d253196c56b9618545ad4489dda0c8873ef7da53e5cf6c0b13af4ce32c0",
+      "source_sha256": "a97dbeef582a8ca7bf015a82ae05176307d4e74e9753274eee90fb9659df75d8",
+      "size": 29908591
+    },
+    {
+      "unit": "fa_pi_f_f_l",
+      "run": "fa_pi_f_f_l_s100",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_100_ir40.pkl",
+      "new_rel": "generated/sha256/91d9cb9e878fc3f5c0895c164dc6b52b7dee657904e14d5dd8844bdae528087d/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_100_ir40.pkl",
+      "expected_sha256": "91d9cb9e878fc3f5c0895c164dc6b52b7dee657904e14d5dd8844bdae528087d",
+      "source_sha256": "82f7fe42cb8eadf264c4ebf389233e5ba06d8a0f4ef3c10341d2f12e295efa8b",
+      "size": 29908590
+    },
+    {
+      "unit": "fa_pi_f_f_l",
+      "run": "fa_pi_f_f_l_s100",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_100_ir45.pkl",
+      "new_rel": "generated/sha256/c894ceafbc14f43b173d5f2d2a02df7be98921066a1aa275db9e913dfa86ebb8/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_100_ir45.pkl",
+      "expected_sha256": "c894ceafbc14f43b173d5f2d2a02df7be98921066a1aa275db9e913dfa86ebb8",
+      "source_sha256": "098d21d16eb6e912abcc9061cebf8aec4096aeabb03d9533854185701df08f52",
+      "size": 29908591
+    },
+    {
+      "unit": "fa_pi_f_f_l",
+      "run": "fa_pi_f_f_l_s200",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_200_ir40.pkl",
+      "new_rel": "generated/sha256/2f6923330b7a1b97bc97962212e701a4d0c55bbd2a3ab5cb04366e82ac2e3973/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_200_ir40.pkl",
+      "expected_sha256": "2f6923330b7a1b97bc97962212e701a4d0c55bbd2a3ab5cb04366e82ac2e3973",
+      "source_sha256": "9180c1f5d16eefd5fb65dfa57ef66be4293e336b5df21abbc5a52570d6d53788",
+      "size": 33177797
+    },
+    {
+      "unit": "fa_pi_f_f_l",
+      "run": "fa_pi_f_f_l_s200",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_200_ir45.pkl",
+      "new_rel": "generated/sha256/ab858884c3c26cbe336ae391acb3d16371b2abaec735b19da1d2e72bfdbefeb3/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_200_ir45.pkl",
+      "expected_sha256": "ab858884c3c26cbe336ae391acb3d16371b2abaec735b19da1d2e72bfdbefeb3",
+      "source_sha256": "3768ecdc9177abb83a5a0ebc228886c8b3ea37f5a447a8e85997becb2ad4c200",
+      "size": 33177798
+    },
+    {
+      "unit": "fa_pi_f_f_l",
+      "run": "fa_pi_f_f_l_s200",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_200_ir32.pkl",
+      "new_rel": "generated/sha256/cd90731a197970111303d3132e88f0eed91383583e97fa905ef7a9bc1dfeb175/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_200_ir32.pkl",
+      "expected_sha256": "cd90731a197970111303d3132e88f0eed91383583e97fa905ef7a9bc1dfeb175",
+      "source_sha256": "673541ace39a4655010ea9b330682f6bbda36a3d390deebce0afc31b6abd87be",
+      "size": 33177798
+    },
+    {
+      "unit": "fa_pi_f_f_l",
+      "run": "fa_pi_f_f_l_s200",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_200_ir25.pkl",
+      "new_rel": "generated/sha256/f3c2cd135574dabae5f11c6c074f3781f0987656d48fe01eb8af3c7a5eca3b1d/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_200_ir25.pkl",
+      "expected_sha256": "f3c2cd135574dabae5f11c6c074f3781f0987656d48fe01eb8af3c7a5eca3b1d",
+      "source_sha256": "70edea298fbbb8b93d31c99f41f64712268dbd7b3a5b544b5e42c03c8954f984",
+      "size": 33177798
+    },
+    {
+      "unit": "fa_pi_f_f_l",
+      "run": "fa_pi_f_f_l_s500",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_500_ir40.pkl",
+      "new_rel": "generated/sha256/227c1e785ca937de190a3463ec6b422e39f21f605cb6c6c0a67fc37093e303ed/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_500_ir40.pkl",
+      "expected_sha256": "227c1e785ca937de190a3463ec6b422e39f21f605cb6c6c0a67fc37093e303ed",
+      "source_sha256": "82fe59594eccb7b88e73ec26de9d151e7ceb15cd6b76eafd4b31dd1a4b5f7a86",
+      "size": 42859224
+    },
+    {
+      "unit": "fa_pi_f_f_l",
+      "run": "fa_pi_f_f_l_s500",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_500_ir32.pkl",
+      "new_rel": "generated/sha256/7838030da9796f35e6f6637e46de2f80a48290510b9dc85f1b5b5db29af46a9e/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_500_ir32.pkl",
+      "expected_sha256": "7838030da9796f35e6f6637e46de2f80a48290510b9dc85f1b5b5db29af46a9e",
+      "source_sha256": "3220ef3562106bc3aa264c7f3063293aca51fe94f5b4134c47e93054ff92ff67",
+      "size": 42859225
+    },
+    {
+      "unit": "fa_pi_f_f_l",
+      "run": "fa_pi_f_f_l_s500",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_500_ir25.pkl",
+      "new_rel": "generated/sha256/8af2a7bc4612f69d38e7c76fe3b1d6a0104acf039b1aed7d63d3cadedd7ea319/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_500_ir25.pkl",
+      "expected_sha256": "8af2a7bc4612f69d38e7c76fe3b1d6a0104acf039b1aed7d63d3cadedd7ea319",
+      "source_sha256": "4b9107f06ddef68cd80ef67e2c7ec3a0edb611c37bafcbc4f1adb35ce12beefb",
+      "size": 42859225
+    },
+    {
+      "unit": "fa_pi_f_f_l",
+      "run": "fa_pi_f_f_l_s500",
+      "rel": "mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_500_ir45.pkl",
+      "new_rel": "generated/sha256/9fb123f4eb1a392b2762197e1dba49e2d04141c224895717af41d04e70b530ef/mirror/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/fits/pi05_spatial_500_ir45.pkl",
+      "expected_sha256": "9fb123f4eb1a392b2762197e1dba49e2d04141c224895717af41d04e70b530ef",
+      "source_sha256": "42d6849999b205e9ca96e43e51abd35aca03613c5ee4f1e449d2547bbb549e5b",
+      "size": 42859225
+    }
+  ]
+}

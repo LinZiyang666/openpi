@@ -4,6 +4,8 @@ Coordinator brief, 2026-10-04 CDT. It goes to the explorer (astra); the coding a
 
 **Status:** this is the offline design phase. Closed-loop runs come after the R13 test grid, which occupies the GPUs for the next 2–3 days. Small B-dev requests can be interleaved.
 
+**Formal design (owner ruling; supersedes the B-dev per-task allocation in Part B and R14's B-pool descent).** No development set for IR knob tuning on any benchmark: the cache library is built from the development pool (LIBERO B pool, MetaWorld seed 8), so tuning on it means tuning on the library's own data. The per-task IR knob is descended directly on the test set: LIBERO uses the whole test set A (500 episodes per suite = 10 tasks × 50 initial states, indices 0–49); MetaWorld MT50 uses seed 7 (50 tasks × 50 initial states). For every task, measure the levels on the test set from the most expensive level downwards, 50 episodes per task per level; a level passes when it has at most 2 fewer successes than same-step-count pure inference on the same GPU and the same initial states (integer comparison); the first failing level freezes the previous level; the reference is always same-step-count pure inference. Library cells whose complete system with the knob off (stall gate only) already reaches the same-step pure-inference success rate are not tuned and use that knob-off result. R14's dev-selected LIBERO knob results are withdrawn and will be re-run under this design.
+
 ## 1. The owner's goal
 Owner, 10-04: "之后把沿任务分治也做了" — after R13, do layer 5 as well.
 

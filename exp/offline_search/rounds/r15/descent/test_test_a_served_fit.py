@@ -187,6 +187,30 @@ def test_A_loader_rejects_another_roots_remote_run(tmp_path, monkeypatch):
         a.load_a(cell, levels, uniform, p, caps, a.Reader(), template)
 
 
+@pytest.mark.parametrize('tamper', (False, True))
+def test_content_addressed_relocation_is_bound_to_recomputed_fit(tmp_path, monkeypatch, tamper):
+    from exp.offline_search.closed_loop.ops.h100.assets import generated_rel
+    cell, levels, uniform, p, caps, template, target = fake_a(tmp_path, monkeypatch, remote=True)
+    row = json.loads((target / 'arms.json').read_text())[0]
+    fit = flag(row['plugin_args'], '--os-fit-artifact')
+    verifier = a.AServedFitVerifier(target, row, b.sha(Path(fit).read_bytes()), a.Reader())
+    digest = verifier.relocated_hash()
+    rel = str(Path(remap(fit, target, tmp_path / 'store', Path('/custom/h100'))).relative_to('/custom/h100'))
+    path = target / 'h100_sync/plan.json'
+    plan = json.loads(path.read_text())
+    scoped = generated_rel(rel, digest)
+    plan.update(generated_asset_namespace='sha256-v1', files=[dict(original=fit, unscoped_rel=rel,
+        source_sha256=verifier.source_sha256, sha256=digest, rel=scoped + ('.bad' if tamper else ''))])
+    dump(path, plan)
+    verifier = a.AServedFitVerifier(target, row, b.sha(Path(fit).read_bytes()), a.Reader())
+    if tamper:
+        with pytest.raises(ValueError, match='Wrong content-addressed H100 fit binding'):
+            verifier.check_path('/custom/h100/' + scoped)
+    else:
+        assert verifier.check_path('/custom/h100/' + scoped) == 'h100_relocated'
+        assert verifier.check(digest) == 'h100_relocated'
+
+
 def test_A_hash_snapshot_does_not_read_outcomes_and_defers_running_tail(tmp_path, monkeypatch):
     cell, levels, uniform, p, caps, template, target = fake_a(tmp_path, monkeypatch)
     row = json.loads((target / 'arms.json').read_bytes())[0]

@@ -260,6 +260,20 @@ class AServedFitVerifier(ServedFitVerifier):
             expected = Path(remap(str(self.fit), self.root,
                                  Path(flag(self.row['plugin_args'], '--os-root')),
                                  Path(self.remote_run).parent.parent))
+            plan = self.reader.json(self.root / 'h100_sync/plan.json')
+            if plan.get('generated_asset_namespace') == 'sha256-v1':
+                from exp.offline_search.closed_loop.ops.h100.assets import generated_rel
+                base = Path(self.remote_run).parent.parent
+                rel = str(expected.relative_to(base))
+                entries = [f for f in plan['files'] if f['original'] == str(self.fit)]
+                require(len(entries) == 1, 'Missing or duplicate scoped H100 fit')
+                if entries[0].get('unscoped_rel') is not None:
+                    expected = base / generated_rel(rel, self.relocated_sha256)
+                    require(entries[0]['unscoped_rel'] == rel and
+                            entries[0]['source_sha256'] == self.source_sha256 and
+                            entries[0]['sha256'] == self.relocated_sha256 and
+                            entries[0]['rel'] == str(expected.relative_to(base)),
+                            'Wrong content-addressed H100 fit binding')
             require(path == expected, 'Wrong served artifact: neither frozen source nor deterministic H100 path')
             self.relocated_path = str(expected)
             branch = 'h100_relocated'

@@ -1,0 +1,11 @@
+URGENT, second real failure (I interrupted you again; this comes before everything else):
+
+R15 fa_pi_f_u_o (H100, pi05 full knob-off, legacy path, dynamic by default) launched 05:58, servers ready 05:59, then 3 attempts x 2 min with complete=0 and ARM_FAILED at 06:05. On timan107, /scratch/zixuans8/openpi_trace_h100/os_cl/runs/fa_pi_f_u_o_l50/ffk1015_pi05_libero_full_formal_A_original_off_pi05_l10_50_off/: driver.log is 8.6 MB of "agent: spawning worker wNN", and autoscale/wNN.recycle.json shows every worker exiting immediately with {"completed_episodes": 4, "elapsed_seconds": 0.05, "maximum_episodes": 4, "reason": "episode_boundary"}: the legacy N4 recycle counter starts at its maximum, so workers exit before running any episode and the agent respawns them forever.
+
+Together with the R17 probe failure (fa_ls_fw_r_p_m), the default-on autoscaler has now failed on its first real R17 run and its first real legacy run. The H100 is idle and the 4090 chain starts around 11:00 with an R16 item.
+
+Do in this order:
+1. Within about 15 minutes: a global kill switch, default OFF for now, that makes EVERY prepare path (R17 formal_eval / stage / resume / formal_a_queue / build-levels, R16 conductor, R15 run_arm/fleet) produce exactly the pre-patch native behaviour: no overlay workers, no governor, no recycle changes, original worker counts. One place to flip it (a single constant or file, e.g. autoscale_1017/ENABLED with value off), honoured everywhere. Prove it by CPU prepare dry runs of fa_pi_f_u_o (R15), fa_pi_r_f_l (R16) and fa_ls_gr_r_p_m (R17) whose campaign/worker/launch artefacts match what the pre-patch code produces for the same inputs. Tell me the moment the switch is in the tree and verified; I will restart the chains.
+2. Then fix both bugs (R17 probe identity across generations; legacy recycle counter), each reproduced first with the real code path in a CPU test.
+3. Then, before the switch may be turned on again: one real small lane per path (R17 and legacy) of a few hundred episodes, run by me, with your acceptance checks. Only after both pass do we flip it on. Include the maxima raise and fairness work in that same verified switch-on.
+Also give me the reset command for fa_ls_fw_r_p_m (0 accepted) and for fa_pi_f_u_o (0 accepted; per-arm dirs fa_pi_f_u_o_{s,l}{50,100,200,500}).
