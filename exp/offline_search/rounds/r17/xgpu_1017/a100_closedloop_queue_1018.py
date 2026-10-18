@@ -77,7 +77,13 @@ def main():
    r=ROOT/'runs'/f'{a.model}_{arm}_cold{cold}'/'RUN.json';run=json.loads(r.read_text())
    if run['status']!='COMPLETE' or not run['mps_cleanup']['daemon_closed']:raise RuntimeError('run did not close cleanly')
    state['completed'].append(dict(arm=arm,cold=cold));save()
-  analyse(a.model);state['status']='COMPLETE'
+  analyse(a.model)
+  if a.model=='dp':
+   environment=dict(os.environ,CUDA_VISIBLE_DEVICES='',OPENBLAS_NUM_THREADS='1',OMP_NUM_THREADS='1')
+   subprocess.run([sys.executable,str(Path(__file__).with_name('dp_distance_replay_1018.py')),
+      str(ROOT/'runs/dp_cache_cold1/servers'),str(ROOT/'runs/dp_cache_cold2/servers'),
+      '--output',str(ROOT/'analysis/dp_DISTANCE.json')],env=environment,check=True)
+  state['status']='COMPLETE'
  except BaseException as e:state.update(status='FAILED',error=repr(e));raise
  finally:state['ended']=time.time();save()
 

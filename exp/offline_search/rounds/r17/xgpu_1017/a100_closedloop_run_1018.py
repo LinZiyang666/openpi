@@ -94,6 +94,9 @@ def child(a):
   from pilot_readmap import install
   aliases=read(ROOT/c['model']/c['xgpu_arm']/'READMAP.json')
   with install(aliases):
+   if c.get('xgpu_distance_capture'):
+    from dp_distance_capture_1018 import install as capture_distance
+    capture_distance(Path(a.directory)/'dp_distance_heads')
    sys.argv=['formal_server','--campaign',a.campaign,'--port',str(a.port),'--directory',a.directory]
    if c.get('xgpu_cuda_graph'):sys.argv+=['--cuda-graph']
    boot=Path(c['assets'])/'ffk_bootstrap.py'

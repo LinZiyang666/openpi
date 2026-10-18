@@ -32,9 +32,12 @@ def reverse_stage(model,tools_only=False):
  for name in ('websockets','websockets-16.0.dist-info'):
   source=Path('/home/weiland/projects/openpi/.venv/lib/python3.11/site-packages')/name
   if source.is_dir():shutil.copytree(source,extra/name,dirs_exist_ok=True,ignore=shutil.ignore_patterns('__pycache__','*.pyc'))
- for name in ('a100_closedloop_run_1018.py','a100_closedloop_queue_1018.py','client_trace.py','pilot_readmap.py','paired_sr.py',
+ for name in ('a100_closedloop_run_1018.py','a100_closedloop_queue_1018.py','dp_distance_capture_1018.py','dp_distance_replay_1018.py','client_trace.py','pilot_readmap.py','paired_sr.py',
               'replay.py','artifacts.py','capture.py','inventory.py','concurrent_server.py'):
   shutil.copyfile(HERE/name,tools/name)
+ snapshot=root/'execution_tools';snapshot.mkdir(exist_ok=True)
+ for source in tools.glob('*.py'):shutil.copyfile(source,snapshot/source.name)
+ write(root/'EXECUTION_TOOLS.json',{p.name:sha(p) for p in snapshot.glob('*.py')})
  for arm in ('pure','cache'):
   d=root/arm
   if not (d/'DEPENDENCIES.json').exists():write(d/'DEPENDENCIES.json',{})
@@ -77,6 +80,7 @@ def reverse_stage(model,tools_only=False):
    subprocess.run(cmd,check=True)
   copy(OUT,'payload',['--include=/tools/***','--include=/serving_extra/***','--include=/'+model+'/',
        '--include=/'+model+'/pure/***','--include=/'+model+'/cache/***',
+       '--include=/'+model+'/execution_tools/***','--include=/'+model+'/EXECUTION_TOOLS.json',
        '--include=/'+model+'/libero_config/***',
        '--include=/'+model+'/MODEL_PATHS.json','--include=/'+model+'/WORKER.json',
        '--include=/'+model+'/RESOURCES.json','--exclude=*'])
