@@ -1,0 +1,22 @@
+{
+  "campaign.json": {
+    "worker_max_episodes": 0,
+    "worker_max_seconds": null,
+    "autoscale": null,
+    "execution_worker_nodes": {
+      "local": 11,
+      "timan1": 24,
+      "timan107": 5
+    },
+    "worker_id": null
+  },
+  "timan1.json": {
+    "worker_max_episodes": 32,
+    "worker_max_seconds": null,
+    "autoscale": null,
+    "execution_worker_nodes": {
+      "timan1": 23
+    },
+    "worker_id": null
+  }
+}

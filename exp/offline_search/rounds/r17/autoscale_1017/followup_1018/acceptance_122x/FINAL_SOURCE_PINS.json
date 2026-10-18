@@ -1,0 +1,15 @@
+{
+  "files": {
+    "release.py": "f04102448bfbe5efed0bdef5af15d9e4025a2e51d443d610ca6d9986c6b87b50",
+    "kernel_evidence.py": "c61dc64e3551be449bf90ea2285b785ae75d65224c8c2713667c262b1e6aacff",
+    "trial_lane.py": "da1ae2bc9d473321895c30c9ffd5d0f9601ef72fd837340e85939b0ecb3eb68a",
+    "tests/test_acceptance_fixes.py": "29ac43fb2bfbae34e53ea8c378ebf8b9e2fa34842a1a4a7c63189650443e4b6c",
+    "tests/test_validation_lane.py": "9044929c1e9ffe31fd6b3fa08811e1c70c29f87ecb427ce5cc34147b0decf8d9",
+    "TRIAL.md": "8855fcedfe83caf61a7152b935168f5a810f8487ef933fab098c7f7c272d0571",
+    "HANDOFF_OFF.md": "1b686d5339bdf03643e7a18c172c29b0d9ea64de31d6b2fd50758f598bee2731",
+    "ENABLED": "b470b84cf0cd3189e10615bffea7d5cbd9f61134ba1c2cfd513ddd45b776a5f6"
+  },
+  "global_switch": "off",
+  "remote_prepare_executed": false,
+  "launch_executed": false
+}

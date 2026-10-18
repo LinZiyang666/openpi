@@ -1,0 +1,81 @@
+{
+  "status": "CPU_ONLY",
+  "rows": [
+    {
+      "file": "GENERATION_BEFORE.xml",
+      "passed": 0,
+      "failed": 1,
+      "failures": {
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_generation_identity::test_real_driver_fleet_recycle_has_distinct_attested_worker_identity": "ValueError: worker probe changed during the campaign"
+      }
+    },
+    {
+      "file": "GENERATION_AFTER.xml",
+      "passed": 1,
+      "failed": 0,
+      "failures": {}
+    },
+    {
+      "file": "LEGACY_RED02.xml",
+      "passed": 0,
+      "failed": 2,
+      "failures": {
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_legacy_recycle::test_legacy_agent_real_runner_completes_four_before_recycle[R15]": "assert False\n +  where False = all(<generator object test_legacy_agent_real_runner_completes_four_before_recycle.<locals>.spawn.<locals>.<genexpr> at 0x75c344fbb920>)",
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_legacy_recycle::test_legacy_agent_real_runner_completes_four_before_recycle[R16]": "assert False\n +  where False = all(<generator object test_legacy_agent_real_runner_completes_four_before_recycle.<locals>.spawn.<locals>.<genexpr> at 0x75c344e8cfb0>)"
+      }
+    },
+    {
+      "file": "BUGS_GREEN02.xml",
+      "passed": 11,
+      "failed": 0,
+      "failures": {}
+    },
+    {
+      "file": "VALIDATION_FINAL06.xml",
+      "passed": 11,
+      "failed": 0,
+      "failures": {}
+    },
+    {
+      "file": "RESET_NATIVE.xml",
+      "passed": 13,
+      "failed": 0,
+      "failures": {}
+    },
+    {
+      "file": "VALIDATION_FINAL07.xml",
+      "passed": 11,
+      "failed": 0,
+      "failures": {}
+    },
+    {
+      "file": "R16_MODES.xml",
+      "passed": 4,
+      "failed": 0,
+      "failures": {}
+    },
+    {
+      "file": "RESET_HARDLINKS.xml",
+      "passed": 9,
+      "failed": 0,
+      "failures": {}
+    },
+    {
+      "file": "KERNEL_EMPTY_RED02.xml",
+      "passed": 4,
+      "failed": 2,
+      "failures": {
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_formal::test_empty_kernel_window_needs_retention_anchor_not_a_new_message[covered-]": "AssertionError: assert 'UNKNOWN' == 'PASS'\n  \n  - PASS\n  + UNKNOWN",
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_formal::test_empty_kernel_window_needs_retention_anchor_not_a_new_message[covered--- No entries --\\n]": "AssertionError: assert 'UNKNOWN' == 'PASS'\n  \n  - PASS\n  + UNKNOWN"
+      }
+    },
+    {
+      "file": "KERNEL_EMPTY_GREEN.xml",
+      "passed": 27,
+      "failed": 0,
+      "failures": {}
+    }
+  ],
+  "live_trials": "NOT_RUN",
+  "global_switch": "off"
+}

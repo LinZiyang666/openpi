@@ -1,0 +1,12 @@
+{
+  "command": [
+    "/home/weiland/projects/openpi/.venv/bin/python",
+    "-c",
+    "from types import SimpleNamespace as S; from exp.offline_search.rounds.r17.autoscale_1017.cpu_only import pytest_sessionstart; pytest_sessionstart(S(config=S(option=S()))); import runpy; runpy.run_module('exp.offline_search.rounds.r17.longseg_1017.check',run_name='__main__')",
+    "--local-only",
+    "--out",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_final/longseg_check/CPU_PROOF.json"
+  ],
+  "code": 0,
+  "seconds": 213.9894096851349
+}

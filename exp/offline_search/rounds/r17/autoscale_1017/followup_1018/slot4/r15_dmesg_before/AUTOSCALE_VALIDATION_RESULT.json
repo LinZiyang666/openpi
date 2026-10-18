@@ -1,0 +1,48 @@
+{
+  "status": "FAIL",
+  "checks": {
+    "original_uid_plan_bound": true,
+    "native_closed_success": true,
+    "no_probe_conflicts": true,
+    "every_uid_once": true,
+    "accepted_errors_zero": true,
+    "recycled_generations": true,
+    "above_critical": true,
+    "zero_oom": false,
+    "scaling_reasons": true
+  },
+  "accepted": 256,
+  "expected": 256,
+  "accepted_errors": 0,
+  "recycled_generations": 60,
+  "active_curve": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/slot4/r15_dmesg_before/AUTOSCALE_ACTIVE.csv",
+  "global_switch": "off",
+  "kernel_evidence": [
+    {
+      "started": 1792332398.615915,
+      "ended": 1792333757.8450973,
+      "status": "UNKNOWN",
+      "oom_lines": [],
+      "source": "counters",
+      "coverage": false,
+      "counter_sources": [],
+      "counter_start": null,
+      "counter_end": {
+        "time": 1792339185.2698026,
+        "host": "timan107",
+        "uid": 1310580,
+        "vmstat": {
+          "oom_kill": 45
+        },
+        "cgroups": {},
+        "errors": {
+          "cgroup": "current process is not inside a persistent user slice"
+        },
+        "boot_id": "4410d5e3-74c9-43f9-a82f-a43f8c61c6df",
+        "uptime": "339760.89",
+        "boot_epoch": 1791999424.3798025
+      },
+      "reason": "no comparable start/end counters covering lane"
+    }
+  ]
+}

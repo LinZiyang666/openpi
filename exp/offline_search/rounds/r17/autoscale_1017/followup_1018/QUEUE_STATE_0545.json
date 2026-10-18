@@ -1,0 +1,68 @@
+[
+  {
+    "name": "fa_co_f_f_oc1",
+    "markers": [
+      "PREPARED.json",
+      "LAUNCH.json",
+      "RECEIPT.json"
+    ],
+    "desired": null,
+    "execution": {
+      "timan107": 18
+    }
+  },
+  {
+    "name": "fa_ls_fw_r_p_m",
+    "markers": [
+      "PREPARED.json",
+      "LAUNCH.json",
+      "RECEIPT.json"
+    ],
+    "desired": {
+      "timan1": 60,
+      "timan107": 60
+    },
+    "execution": {
+      "timan1": 60
+    }
+  },
+  {
+    "name": "fa_ls_gr_r_p_m",
+    "markers": [],
+    "desired": null,
+    "execution": {
+      "timan1": 20,
+      "timan107": 20
+    }
+  },
+  {
+    "name": "fa_pi_r_f_l",
+    "markers": [],
+    "desired": null,
+    "execution": null
+  },
+  {
+    "name": "fa_gr_r_u_l",
+    "markers": [],
+    "desired": null,
+    "execution": null
+  },
+  {
+    "name": "fa_ls_dp_r_b_l",
+    "markers": [],
+    "desired": null,
+    "execution": {
+      "timan1": 24,
+      "timan107": 24
+    }
+  },
+  {
+    "name": "fa_ls_dp_r_u_m",
+    "markers": [],
+    "desired": null,
+    "execution": {
+      "timan1": 60,
+      "timan107": 60
+    }
+  }
+]

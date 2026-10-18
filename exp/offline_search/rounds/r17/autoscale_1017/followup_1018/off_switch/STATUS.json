@@ -1,0 +1,7 @@
+{
+  "switch": "off",
+  "verification": "6 CPU tests passed; native prepare R15/R16/R17; worker source SHA equality",
+  "live_trials_passed": false,
+  "dynamic_activation_permitted": false,
+  "coordinator_reuseaddr_preserved": true
+}

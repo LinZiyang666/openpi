@@ -1,0 +1,243 @@
+[
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/DONE.json",
+    "bytes": 34,
+    "mtime_ns": 1792301503092643135
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/LEGACY_AUTOSCALE.json",
+    "bytes": 5429,
+    "mtime_ns": 1792301503082643128
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/agent_lease.json",
+    "bytes": 340,
+    "mtime_ns": 1792301503090643133
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/autoscale_releases/e9f9bbe5134a2fa64b1366ba3c904f8860dadb57fc777a1177a56241a1f97e7d/exp/__init__.py",
+    "bytes": 75,
+    "mtime_ns": 1792301501266641844
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/autoscale_releases/e9f9bbe5134a2fa64b1366ba3c904f8860dadb57fc777a1177a56241a1f97e7d/exp/offline_search/__init__.py",
+    "bytes": 75,
+    "mtime_ns": 1792301501266641844
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/autoscale_releases/e9f9bbe5134a2fa64b1366ba3c904f8860dadb57fc777a1177a56241a1f97e7d/exp/offline_search/closed_loop/ops/h100/node.py",
+    "bytes": 28783,
+    "mtime_ns": 1792301501262641841
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/autoscale_releases/e9f9bbe5134a2fa64b1366ba3c904f8860dadb57fc777a1177a56241a1f97e7d/exp/offline_search/closed_loop/ops/h100/run_arm.sh",
+    "bytes": 4948,
+    "mtime_ns": 1792301501262641841
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/autoscale_releases/e9f9bbe5134a2fa64b1366ba3c904f8860dadb57fc777a1177a56241a1f97e7d/exp/offline_search/rounds/r16/__init__.py",
+    "bytes": 75,
+    "mtime_ns": 1792301501266641844
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/autoscale_releases/e9f9bbe5134a2fa64b1366ba3c904f8860dadb57fc777a1177a56241a1f97e7d/exp/offline_search/rounds/r16/conductor.py",
+    "bytes": 34099,
+    "mtime_ns": 1792301501263641842
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/autoscale_releases/e9f9bbe5134a2fa64b1366ba3c904f8860dadb57fc777a1177a56241a1f97e7d/exp/offline_search/rounds/r16/conductor_runner.py",
+    "bytes": 14988,
+    "mtime_ns": 1792301501263641842
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/autoscale_releases/e9f9bbe5134a2fa64b1366ba3c904f8860dadb57fc777a1177a56241a1f97e7d/exp/offline_search/rounds/r17/autoscale_1017/__init__.py",
+    "bytes": 76,
+    "mtime_ns": 1792301501263641842
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/autoscale_releases/e9f9bbe5134a2fa64b1366ba3c904f8860dadb57fc777a1177a56241a1f97e7d/exp/offline_search/rounds/r17/autoscale_1017/bootstrap.py",
+    "bytes": 779,
+    "mtime_ns": 1792301501263641842
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/autoscale_releases/e9f9bbe5134a2fa64b1366ba3c904f8860dadb57fc777a1177a56241a1f97e7d/exp/offline_search/rounds/r17/autoscale_1017/bundle.py",
+    "bytes": 1125,
+    "mtime_ns": 1792301501263641842
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/autoscale_releases/e9f9bbe5134a2fa64b1366ba3c904f8860dadb57fc777a1177a56241a1f97e7d/exp/offline_search/rounds/r17/autoscale_1017/defaults.py",
+    "bytes": 3888,
+    "mtime_ns": 1792301501263641842
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/autoscale_releases/e9f9bbe5134a2fa64b1366ba3c904f8860dadb57fc777a1177a56241a1f97e7d/exp/offline_search/rounds/r17/autoscale_1017/driver.py",
+    "bytes": 11677,
+    "mtime_ns": 1792301501264641842
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/autoscale_releases/e9f9bbe5134a2fa64b1366ba3c904f8860dadb57fc777a1177a56241a1f97e7d/exp/offline_search/rounds/r17/autoscale_1017/fleet.py",
+    "bytes": 7782,
+    "mtime_ns": 1792301501264641842
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/autoscale_releases/e9f9bbe5134a2fa64b1366ba3c904f8860dadb57fc777a1177a56241a1f97e7d/exp/offline_search/rounds/r17/autoscale_1017/kernel_evidence.py",
+    "bytes": 2865,
+    "mtime_ns": 1792301501264641842
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/autoscale_releases/e9f9bbe5134a2fa64b1366ba3c904f8860dadb57fc777a1177a56241a1f97e7d/exp/offline_search/rounds/r17/autoscale_1017/legacy.py",
+    "bytes": 6013,
+    "mtime_ns": 1792301501264641842
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/autoscale_releases/e9f9bbe5134a2fa64b1366ba3c904f8860dadb57fc777a1177a56241a1f97e7d/exp/offline_search/rounds/r17/autoscale_1017/legacy_release.py",
+    "bytes": 5760,
+    "mtime_ns": 1792301501264641842
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/autoscale_releases/e9f9bbe5134a2fa64b1366ba3c904f8860dadb57fc777a1177a56241a1f97e7d/exp/offline_search/rounds/r17/autoscale_1017/node.py",
+    "bytes": 14749,
+    "mtime_ns": 1792301501264641842
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/autoscale_releases/e9f9bbe5134a2fa64b1366ba3c904f8860dadb57fc777a1177a56241a1f97e7d/exp/offline_search/rounds/r17/autoscale_1017/policy.py",
+    "bytes": 9638,
+    "mtime_ns": 1792301501264641842
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/autoscale_releases/e9f9bbe5134a2fa64b1366ba3c904f8860dadb57fc777a1177a56241a1f97e7d/exp/offline_search/rounds/r17/autoscale_1017/worker.py",
+    "bytes": 6138,
+    "mtime_ns": 1792301501264641842
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/autoscale_releases/e9f9bbe5134a2fa64b1366ba3c904f8860dadb57fc777a1177a56241a1f97e7d/exp/offline_search/rounds/r17/filter_failed/__init__.py",
+    "bytes": 75,
+    "mtime_ns": 1792301501267641844
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/autoscale_releases/e9f9bbe5134a2fa64b1366ba3c904f8860dadb57fc777a1177a56241a1f97e7d/exp/offline_search/rounds/r17/filter_failed/timan1_gpu2.py",
+    "bytes": 14986,
+    "mtime_ns": 1792301501264641842
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/autoscale_releases/e9f9bbe5134a2fa64b1366ba3c904f8860dadb57fc777a1177a56241a1f97e7d/exp/r17_integration/ops/formal_process.py",
+    "bytes": 6985,
+    "mtime_ns": 1792301501265641843
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/autoscale_releases/e9f9bbe5134a2fa64b1366ba3c904f8860dadb57fc777a1177a56241a1f97e7d/exp/r17_integration/ops/local_workers.py",
+    "bytes": 12049,
+    "mtime_ns": 1792301501265641843
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/autoscale_releases/e9f9bbe5134a2fa64b1366ba3c904f8860dadb57fc777a1177a56241a1f97e7d/exp/r17_integration/ops/timan1_workers.py",
+    "bytes": 7256,
+    "mtime_ns": 1792301501265641843
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/autoscale_releases/e9f9bbe5134a2fa64b1366ba3c904f8860dadb57fc777a1177a56241a1f97e7d/exp/r17_integration/ops/worker_gpu.py",
+    "bytes": 14683,
+    "mtime_ns": 1792301501265641843
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/autoscale_releases/e9f9bbe5134a2fa64b1366ba3c904f8860dadb57fc777a1177a56241a1f97e7d/exp/r17_integration/ops/worker_memory.py",
+    "bytes": 5785,
+    "mtime_ns": 1792301501265641843
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/autoscale_releases/e9f9bbe5134a2fa64b1366ba3c904f8860dadb57fc777a1177a56241a1f97e7d/sitecustomize.py",
+    "bytes": 248,
+    "mtime_ns": 1792301501267641844
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/autoscale_releases/e9f9bbe5134a2fa64b1366ba3c904f8860dadb57fc777a1177a56241a1f97e7d/src/openpi/__init__.py",
+    "bytes": 75,
+    "mtime_ns": 1792301501266641844
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/autoscale_releases/e9f9bbe5134a2fa64b1366ba3c904f8860dadb57fc777a1177a56241a1f97e7d/src/openpi/conductor/__init__.py",
+    "bytes": 2094,
+    "mtime_ns": 1792301501265641843
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/autoscale_releases/e9f9bbe5134a2fa64b1366ba3c904f8860dadb57fc777a1177a56241a1f97e7d/src/openpi/conductor/agent.py",
+    "bytes": 12464,
+    "mtime_ns": 1792301501265641843
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/autoscale_releases/e9f9bbe5134a2fa64b1366ba3c904f8860dadb57fc777a1177a56241a1f97e7d/src/openpi/conductor/driver.py",
+    "bytes": 30497,
+    "mtime_ns": 1792301501265641843
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/autoscale_releases/e9f9bbe5134a2fa64b1366ba3c904f8860dadb57fc777a1177a56241a1f97e7d/src/openpi/conductor/health.py",
+    "bytes": 3530,
+    "mtime_ns": 1792301501265641843
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/autoscale_releases/e9f9bbe5134a2fa64b1366ba3c904f8860dadb57fc777a1177a56241a1f97e7d/src/openpi/conductor/journal.py",
+    "bytes": 6760,
+    "mtime_ns": 1792301501266641844
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/autoscale_releases/e9f9bbe5134a2fa64b1366ba3c904f8860dadb57fc777a1177a56241a1f97e7d/src/openpi/conductor/monitor.py",
+    "bytes": 2197,
+    "mtime_ns": 1792301501266641844
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/autoscale_releases/e9f9bbe5134a2fa64b1366ba3c904f8860dadb57fc777a1177a56241a1f97e7d/src/openpi/conductor/protocol.py",
+    "bytes": 5090,
+    "mtime_ns": 1792301501266641844
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/autoscale_releases/e9f9bbe5134a2fa64b1366ba3c904f8860dadb57fc777a1177a56241a1f97e7d/src/openpi/conductor/scheduler.py",
+    "bytes": 17511,
+    "mtime_ns": 1792301501266641844
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/autoscale_releases/e9f9bbe5134a2fa64b1366ba3c904f8860dadb57fc777a1177a56241a1f97e7d/src/openpi/conductor/sharding.py",
+    "bytes": 6474,
+    "mtime_ns": 1792301501266641844
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/autoscale_releases/e9f9bbe5134a2fa64b1366ba3c904f8860dadb57fc777a1177a56241a1f97e7d/src/openpi/conductor/strategy.py",
+    "bytes": 5100,
+    "mtime_ns": 1792301501266641844
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/autoscale_releases/e9f9bbe5134a2fa64b1366ba3c904f8860dadb57fc777a1177a56241a1f97e7d/src/openpi/conductor/task.py",
+    "bytes": 14254,
+    "mtime_ns": 1792301501266641844
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/autoscale_releases/e9f9bbe5134a2fa64b1366ba3c904f8860dadb57fc777a1177a56241a1f97e7d/src/openpi/conductor/worker.py",
+    "bytes": 10274,
+    "mtime_ns": 1792301501266641844
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/autoscale_releases/e9f9bbe5134a2fa64b1366ba3c904f8860dadb57fc777a1177a56241a1f97e7d.tar",
+    "bytes": 409600,
+    "mtime_ns": 1792301501277641851
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/manifest.json",
+    "bytes": 6903,
+    "mtime_ns": 1792301501253641834
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/reference.json",
+    "bytes": 3507,
+    "mtime_ns": 1792301501255641836
+  },
+  {
+    "path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/tmp_defaults_07/test_coordinator_owned_lifecyc0/runner_state.json",
+    "bytes": 3167,
+    "mtime_ns": 1792301503088643132
+  },
+  {
+    "path": "/tmp/r17_direct_rsync.lock",
+    "bytes": 0,
+    "mtime_ns": 1791864188615627877,
+    "note": "shared transfer lock; later calls may update metadata"
+  }
+]

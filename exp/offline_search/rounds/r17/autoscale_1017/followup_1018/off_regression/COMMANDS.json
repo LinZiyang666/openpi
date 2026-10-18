@@ -1,0 +1,492 @@
+[
+  {
+    "suite": "h100",
+    "variant": "before",
+    "code": 1,
+    "seconds": 3.396644353866577,
+    "command": [
+      "/home/weiland/projects/openpi/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-p",
+      "exp.offline_search.rounds.r17.autoscale_1017.cpu_only",
+      "exp/offline_search/closed_loop/ops/h100",
+      "-vv",
+      "--tb=short",
+      "--basetemp=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/h100_before_tmp",
+      "--junitxml=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/h100_before.xml",
+      "--deselect=exp/offline_search/closed_loop/ops/h100/test_h100.py::test_resumable_daemon_pull_checks_exact_content",
+      "-o",
+      "cache_dir=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/h100_before_cache"
+    ],
+    "cwd": "/home/weiland/projects/openpi",
+    "dependency_sha256": {
+      "exp/r17_integration/common/serving.py": "1594011d8fa438fb67747beb8e19a541a2d77940c97ba4098057b75f94823890",
+      "exp/r17_integration/ops/cache_study.py": "5c588a83687b3d6a5711f2ef38d83090f768464ac2fe2da528d55fe52e61ed82",
+      "exp/r17_integration/ops/cache_knob.py": "f556916b8e018e7d175ffea4fa6d281ded128a5ca3fcb5882925bdf6d8b1dd4d",
+      "exp/r17_integration/ops/library_campaign.py": "edf15e46b879881fe0fd76bb4d06da9b749efc6b083b1c214396a581930fbfac"
+    }
+  },
+  {
+    "suite": "h100",
+    "variant": "after",
+    "code": 1,
+    "seconds": 3.0466463565826416,
+    "command": [
+      "/home/weiland/projects/openpi/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-p",
+      "exp.offline_search.rounds.r17.autoscale_1017.cpu_only",
+      "exp/offline_search/closed_loop/ops/h100",
+      "-vv",
+      "--tb=short",
+      "--basetemp=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/h100_after_tmp",
+      "--junitxml=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/h100_after.xml",
+      "--deselect=exp/offline_search/closed_loop/ops/h100/test_h100.py::test_resumable_daemon_pull_checks_exact_content",
+      "-o",
+      "cache_dir=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/h100_after_cache"
+    ],
+    "cwd": "/home/weiland/projects/openpi",
+    "dependency_sha256": {
+      "exp/r17_integration/common/serving.py": "1594011d8fa438fb67747beb8e19a541a2d77940c97ba4098057b75f94823890",
+      "exp/r17_integration/ops/cache_study.py": "5c588a83687b3d6a5711f2ef38d83090f768464ac2fe2da528d55fe52e61ed82",
+      "exp/r17_integration/ops/cache_knob.py": "f556916b8e018e7d175ffea4fa6d281ded128a5ca3fcb5882925bdf6d8b1dd4d",
+      "exp/r17_integration/ops/library_campaign.py": "edf15e46b879881fe0fd76bb4d06da9b749efc6b083b1c214396a581930fbfac"
+    }
+  },
+  {
+    "suite": "r16",
+    "variant": "before",
+    "code": 1,
+    "seconds": 71.46173858642578,
+    "command": [
+      "/home/weiland/projects/openpi/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-p",
+      "exp.offline_search.rounds.r17.autoscale_1017.cpu_only",
+      "exp/offline_search/rounds/r16",
+      "-vv",
+      "--tb=short",
+      "--basetemp=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/r16_before_tmp",
+      "--junitxml=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/r16_before.xml",
+      "--deselect=exp/offline_search/closed_loop/ops/h100/test_h100.py::test_resumable_daemon_pull_checks_exact_content",
+      "-o",
+      "cache_dir=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/r16_before_cache"
+    ],
+    "cwd": "/home/weiland/projects/openpi",
+    "dependency_sha256": {
+      "exp/r17_integration/common/serving.py": "1594011d8fa438fb67747beb8e19a541a2d77940c97ba4098057b75f94823890",
+      "exp/r17_integration/ops/cache_study.py": "5c588a83687b3d6a5711f2ef38d83090f768464ac2fe2da528d55fe52e61ed82",
+      "exp/r17_integration/ops/cache_knob.py": "f556916b8e018e7d175ffea4fa6d281ded128a5ca3fcb5882925bdf6d8b1dd4d",
+      "exp/r17_integration/ops/library_campaign.py": "edf15e46b879881fe0fd76bb4d06da9b749efc6b083b1c214396a581930fbfac"
+    }
+  },
+  {
+    "suite": "r16",
+    "variant": "after",
+    "code": 1,
+    "seconds": 71.39433979988098,
+    "command": [
+      "/home/weiland/projects/openpi/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-p",
+      "exp.offline_search.rounds.r17.autoscale_1017.cpu_only",
+      "exp/offline_search/rounds/r16",
+      "-vv",
+      "--tb=short",
+      "--basetemp=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/r16_after_tmp",
+      "--junitxml=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/r16_after.xml",
+      "--deselect=exp/offline_search/closed_loop/ops/h100/test_h100.py::test_resumable_daemon_pull_checks_exact_content",
+      "-o",
+      "cache_dir=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/r16_after_cache"
+    ],
+    "cwd": "/home/weiland/projects/openpi",
+    "dependency_sha256": {
+      "exp/r17_integration/common/serving.py": "1594011d8fa438fb67747beb8e19a541a2d77940c97ba4098057b75f94823890",
+      "exp/r17_integration/ops/cache_study.py": "5c588a83687b3d6a5711f2ef38d83090f768464ac2fe2da528d55fe52e61ed82",
+      "exp/r17_integration/ops/cache_knob.py": "f556916b8e018e7d175ffea4fa6d281ded128a5ca3fcb5882925bdf6d8b1dd4d",
+      "exp/r17_integration/ops/library_campaign.py": "edf15e46b879881fe0fd76bb4d06da9b749efc6b083b1c214396a581930fbfac"
+    }
+  },
+  {
+    "suite": "ff",
+    "variant": "before",
+    "code": 1,
+    "seconds": 3.8103513717651367,
+    "command": [
+      "/home/weiland/projects/openpi/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-p",
+      "exp.offline_search.rounds.r17.autoscale_1017.cpu_only",
+      "exp/offline_search/rounds/r17/filter_failed",
+      "-vv",
+      "--tb=short",
+      "--basetemp=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/ff_before_tmp",
+      "--junitxml=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/ff_before.xml",
+      "--deselect=exp/offline_search/closed_loop/ops/h100/test_h100.py::test_resumable_daemon_pull_checks_exact_content",
+      "-o",
+      "cache_dir=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/ff_before_cache"
+    ],
+    "cwd": "/home/weiland/projects/openpi",
+    "dependency_sha256": {
+      "exp/r17_integration/common/serving.py": "1594011d8fa438fb67747beb8e19a541a2d77940c97ba4098057b75f94823890",
+      "exp/r17_integration/ops/cache_study.py": "5c588a83687b3d6a5711f2ef38d83090f768464ac2fe2da528d55fe52e61ed82",
+      "exp/r17_integration/ops/cache_knob.py": "f556916b8e018e7d175ffea4fa6d281ded128a5ca3fcb5882925bdf6d8b1dd4d",
+      "exp/r17_integration/ops/library_campaign.py": "edf15e46b879881fe0fd76bb4d06da9b749efc6b083b1c214396a581930fbfac"
+    }
+  },
+  {
+    "suite": "ff",
+    "variant": "after",
+    "code": 1,
+    "seconds": 3.782648801803589,
+    "command": [
+      "/home/weiland/projects/openpi/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-p",
+      "exp.offline_search.rounds.r17.autoscale_1017.cpu_only",
+      "exp/offline_search/rounds/r17/filter_failed",
+      "-vv",
+      "--tb=short",
+      "--basetemp=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/ff_after_tmp",
+      "--junitxml=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/ff_after.xml",
+      "--deselect=exp/offline_search/closed_loop/ops/h100/test_h100.py::test_resumable_daemon_pull_checks_exact_content",
+      "-o",
+      "cache_dir=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/ff_after_cache"
+    ],
+    "cwd": "/home/weiland/projects/openpi",
+    "dependency_sha256": {
+      "exp/r17_integration/common/serving.py": "1594011d8fa438fb67747beb8e19a541a2d77940c97ba4098057b75f94823890",
+      "exp/r17_integration/ops/cache_study.py": "5c588a83687b3d6a5711f2ef38d83090f768464ac2fe2da528d55fe52e61ed82",
+      "exp/r17_integration/ops/cache_knob.py": "f556916b8e018e7d175ffea4fa6d281ded128a5ca3fcb5882925bdf6d8b1dd4d",
+      "exp/r17_integration/ops/library_campaign.py": "edf15e46b879881fe0fd76bb4d06da9b749efc6b083b1c214396a581930fbfac"
+    }
+  },
+  {
+    "suite": "ffk",
+    "variant": "before",
+    "code": 1,
+    "seconds": 8.746477127075195,
+    "command": [
+      "/home/weiland/projects/openpi/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-p",
+      "exp.offline_search.rounds.r17.autoscale_1017.cpu_only",
+      "exp/offline_search/rounds/r17/filter_failed_knob",
+      "-vv",
+      "--tb=short",
+      "--basetemp=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/ffk_before_tmp",
+      "--junitxml=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/ffk_before.xml",
+      "--deselect=exp/offline_search/closed_loop/ops/h100/test_h100.py::test_resumable_daemon_pull_checks_exact_content",
+      "-o",
+      "cache_dir=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/ffk_before_cache"
+    ],
+    "cwd": "/home/weiland/projects/openpi",
+    "dependency_sha256": {
+      "exp/r17_integration/common/serving.py": "1594011d8fa438fb67747beb8e19a541a2d77940c97ba4098057b75f94823890",
+      "exp/r17_integration/ops/cache_study.py": "5c588a83687b3d6a5711f2ef38d83090f768464ac2fe2da528d55fe52e61ed82",
+      "exp/r17_integration/ops/cache_knob.py": "f556916b8e018e7d175ffea4fa6d281ded128a5ca3fcb5882925bdf6d8b1dd4d",
+      "exp/r17_integration/ops/library_campaign.py": "edf15e46b879881fe0fd76bb4d06da9b749efc6b083b1c214396a581930fbfac"
+    }
+  },
+  {
+    "suite": "ffk",
+    "variant": "after",
+    "code": 1,
+    "seconds": 8.728413343429565,
+    "command": [
+      "/home/weiland/projects/openpi/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-p",
+      "exp.offline_search.rounds.r17.autoscale_1017.cpu_only",
+      "exp/offline_search/rounds/r17/filter_failed_knob",
+      "-vv",
+      "--tb=short",
+      "--basetemp=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/ffk_after_tmp",
+      "--junitxml=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/ffk_after.xml",
+      "--deselect=exp/offline_search/closed_loop/ops/h100/test_h100.py::test_resumable_daemon_pull_checks_exact_content",
+      "-o",
+      "cache_dir=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/ffk_after_cache"
+    ],
+    "cwd": "/home/weiland/projects/openpi",
+    "dependency_sha256": {
+      "exp/r17_integration/common/serving.py": "1594011d8fa438fb67747beb8e19a541a2d77940c97ba4098057b75f94823890",
+      "exp/r17_integration/ops/cache_study.py": "5c588a83687b3d6a5711f2ef38d83090f768464ac2fe2da528d55fe52e61ed82",
+      "exp/r17_integration/ops/cache_knob.py": "f556916b8e018e7d175ffea4fa6d281ded128a5ca3fcb5882925bdf6d8b1dd4d",
+      "exp/r17_integration/ops/library_campaign.py": "edf15e46b879881fe0fd76bb4d06da9b749efc6b083b1c214396a581930fbfac"
+    }
+  },
+  {
+    "suite": "core_conductor",
+    "variant": "before",
+    "code": 0,
+    "seconds": 5.904799222946167,
+    "command": [
+      "/home/weiland/projects/openpi/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-p",
+      "exp.offline_search.rounds.r17.autoscale_1017.cpu_only",
+      "tests/conductor",
+      "-vv",
+      "--tb=short",
+      "--basetemp=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/core_conductor_before_tmp",
+      "--junitxml=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/core_conductor_before.xml",
+      "--deselect=exp/offline_search/closed_loop/ops/h100/test_h100.py::test_resumable_daemon_pull_checks_exact_content",
+      "-o",
+      "cache_dir=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/core_conductor_before_cache"
+    ],
+    "cwd": "/home/weiland/projects/openpi",
+    "dependency_sha256": {
+      "exp/r17_integration/common/serving.py": "1594011d8fa438fb67747beb8e19a541a2d77940c97ba4098057b75f94823890",
+      "exp/r17_integration/ops/cache_study.py": "5c588a83687b3d6a5711f2ef38d83090f768464ac2fe2da528d55fe52e61ed82",
+      "exp/r17_integration/ops/cache_knob.py": "f556916b8e018e7d175ffea4fa6d281ded128a5ca3fcb5882925bdf6d8b1dd4d",
+      "exp/r17_integration/ops/library_campaign.py": "edf15e46b879881fe0fd76bb4d06da9b749efc6b083b1c214396a581930fbfac"
+    }
+  },
+  {
+    "suite": "core_conductor",
+    "variant": "after",
+    "code": 0,
+    "seconds": 5.910321474075317,
+    "command": [
+      "/home/weiland/projects/openpi/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-p",
+      "exp.offline_search.rounds.r17.autoscale_1017.cpu_only",
+      "tests/conductor",
+      "-vv",
+      "--tb=short",
+      "--basetemp=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/core_conductor_after_tmp",
+      "--junitxml=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/core_conductor_after.xml",
+      "--deselect=exp/offline_search/closed_loop/ops/h100/test_h100.py::test_resumable_daemon_pull_checks_exact_content",
+      "-o",
+      "cache_dir=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/core_conductor_after_cache"
+    ],
+    "cwd": "/home/weiland/projects/openpi",
+    "dependency_sha256": {
+      "exp/r17_integration/common/serving.py": "1594011d8fa438fb67747beb8e19a541a2d77940c97ba4098057b75f94823890",
+      "exp/r17_integration/ops/cache_study.py": "5c588a83687b3d6a5711f2ef38d83090f768464ac2fe2da528d55fe52e61ed82",
+      "exp/r17_integration/ops/cache_knob.py": "f556916b8e018e7d175ffea4fa6d281ded128a5ca3fcb5882925bdf6d8b1dd4d",
+      "exp/r17_integration/ops/library_campaign.py": "edf15e46b879881fe0fd76bb4d06da9b749efc6b083b1c214396a581930fbfac"
+    }
+  },
+  {
+    "suite": "r17_conductor",
+    "variant": "before",
+    "code": 1,
+    "seconds": 20.4351167678833,
+    "command": [
+      "/home/weiland/projects/openpi/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-p",
+      "exp.offline_search.rounds.r17.autoscale_1017.cpu_only",
+      "exp/r17_integration/tests/conductor",
+      "-vv",
+      "--tb=short",
+      "--basetemp=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/r17_conductor_before_tmp",
+      "--junitxml=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/r17_conductor_before.xml",
+      "--deselect=exp/offline_search/closed_loop/ops/h100/test_h100.py::test_resumable_daemon_pull_checks_exact_content",
+      "-o",
+      "cache_dir=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/r17_conductor_before_cache"
+    ],
+    "cwd": "/home/weiland/projects/openpi",
+    "dependency_sha256": {
+      "exp/r17_integration/common/serving.py": "1594011d8fa438fb67747beb8e19a541a2d77940c97ba4098057b75f94823890",
+      "exp/r17_integration/ops/cache_study.py": "5c588a83687b3d6a5711f2ef38d83090f768464ac2fe2da528d55fe52e61ed82",
+      "exp/r17_integration/ops/cache_knob.py": "f556916b8e018e7d175ffea4fa6d281ded128a5ca3fcb5882925bdf6d8b1dd4d",
+      "exp/r17_integration/ops/library_campaign.py": "edf15e46b879881fe0fd76bb4d06da9b749efc6b083b1c214396a581930fbfac"
+    }
+  },
+  {
+    "suite": "r17_conductor",
+    "variant": "after",
+    "code": 1,
+    "seconds": 21.37111473083496,
+    "command": [
+      "/home/weiland/projects/openpi/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-p",
+      "exp.offline_search.rounds.r17.autoscale_1017.cpu_only",
+      "exp/r17_integration/tests/conductor",
+      "-vv",
+      "--tb=short",
+      "--basetemp=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/r17_conductor_after_tmp",
+      "--junitxml=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/r17_conductor_after.xml",
+      "--deselect=exp/offline_search/closed_loop/ops/h100/test_h100.py::test_resumable_daemon_pull_checks_exact_content",
+      "-o",
+      "cache_dir=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/r17_conductor_after_cache"
+    ],
+    "cwd": "/home/weiland/projects/openpi",
+    "dependency_sha256": {
+      "exp/r17_integration/common/serving.py": "1594011d8fa438fb67747beb8e19a541a2d77940c97ba4098057b75f94823890",
+      "exp/r17_integration/ops/cache_study.py": "5c588a83687b3d6a5711f2ef38d83090f768464ac2fe2da528d55fe52e61ed82",
+      "exp/r17_integration/ops/cache_knob.py": "f556916b8e018e7d175ffea4fa6d281ded128a5ca3fcb5882925bdf6d8b1dd4d",
+      "exp/r17_integration/ops/library_campaign.py": "edf15e46b879881fe0fd76bb4d06da9b749efc6b083b1c214396a581930fbfac"
+    }
+  },
+  {
+    "suite": "other_importers",
+    "variant": "before",
+    "code": 1,
+    "seconds": 40.00527882575989,
+    "command": [
+      "/home/weiland/projects/openpi/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-p",
+      "exp.offline_search.rounds.r17.autoscale_1017.cpu_only",
+      "exp/r17_integration/tests/debug/test_library_capture.py",
+      "exp/r17_integration/tests/debug/test_review_worker_entry.py",
+      "exp/r17_integration/tests/benchmarks/test_libero_worker_recycle.py",
+      "exp/r17_integration/tests/benchmarks/test_libero_memory.py",
+      "exp/r17_integration/tests/models/pi05/test_pi05_libero.py",
+      "exp/r17_integration/tests/models/pi05/test_pi05_batching.py",
+      "exp/r17_integration/tests/models/pi05/test_pi05.py",
+      "exp/r17_integration/tests/models/dp/test_dp_formal_launch.py",
+      "exp/r17_integration/tests/models/groot/test_groot_batching.py",
+      "exp/r17_integration/tests/models/groot/test_fix_round1.py",
+      "exp/r17_integration/tests/models/groot/test_libero.py",
+      "exp/r17_integration/tests/models/fastwam/test_fastwam_cache_study.py",
+      "exp/r17_integration/tests/models/fastwam/test_mps.py",
+      "exp/r17_integration/tests/models/fastwam/test_fastwam_formal_batching.py",
+      "tests/robocasa365/test_ws2_harness.py",
+      "tests/robocasa365/test_robocasa_episode_runner.py",
+      "tests/robocasa365/test_collection_artifacts.py",
+      "tests/robocasa365/test_ws2_g2_contracts.py",
+      "tests/robocasa365/test_robocasa_collect_strategy.py",
+      "tests/exp/test_rl_router_sweep_mixture.py",
+      "tests/exp/metaworld/test_runner.py",
+      "tests/exp/step_diag/test_self13_queue.py",
+      "-vv",
+      "--tb=short",
+      "--basetemp=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/other_importers_before_tmp",
+      "--junitxml=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/other_importers_before.xml",
+      "--deselect=exp/offline_search/closed_loop/ops/h100/test_h100.py::test_resumable_daemon_pull_checks_exact_content",
+      "-o",
+      "cache_dir=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/other_importers_before_cache"
+    ],
+    "cwd": "/home/weiland/projects/openpi",
+    "dependency_sha256": {
+      "exp/r17_integration/common/serving.py": "1594011d8fa438fb67747beb8e19a541a2d77940c97ba4098057b75f94823890",
+      "exp/r17_integration/ops/cache_study.py": "5c588a83687b3d6a5711f2ef38d83090f768464ac2fe2da528d55fe52e61ed82",
+      "exp/r17_integration/ops/cache_knob.py": "f556916b8e018e7d175ffea4fa6d281ded128a5ca3fcb5882925bdf6d8b1dd4d",
+      "exp/r17_integration/ops/library_campaign.py": "edf15e46b879881fe0fd76bb4d06da9b749efc6b083b1c214396a581930fbfac"
+    }
+  },
+  {
+    "suite": "other_importers",
+    "variant": "after",
+    "code": 1,
+    "seconds": 40.9473819732666,
+    "command": [
+      "/home/weiland/projects/openpi/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-p",
+      "exp.offline_search.rounds.r17.autoscale_1017.cpu_only",
+      "exp/r17_integration/tests/debug/test_library_capture.py",
+      "exp/r17_integration/tests/debug/test_review_worker_entry.py",
+      "exp/r17_integration/tests/benchmarks/test_libero_worker_recycle.py",
+      "exp/r17_integration/tests/benchmarks/test_libero_memory.py",
+      "exp/r17_integration/tests/models/pi05/test_pi05_libero.py",
+      "exp/r17_integration/tests/models/pi05/test_pi05_batching.py",
+      "exp/r17_integration/tests/models/pi05/test_pi05.py",
+      "exp/r17_integration/tests/models/dp/test_dp_formal_launch.py",
+      "exp/r17_integration/tests/models/groot/test_groot_batching.py",
+      "exp/r17_integration/tests/models/groot/test_fix_round1.py",
+      "exp/r17_integration/tests/models/groot/test_libero.py",
+      "exp/r17_integration/tests/models/fastwam/test_fastwam_cache_study.py",
+      "exp/r17_integration/tests/models/fastwam/test_mps.py",
+      "exp/r17_integration/tests/models/fastwam/test_fastwam_formal_batching.py",
+      "tests/robocasa365/test_ws2_harness.py",
+      "tests/robocasa365/test_robocasa_episode_runner.py",
+      "tests/robocasa365/test_collection_artifacts.py",
+      "tests/robocasa365/test_ws2_g2_contracts.py",
+      "tests/robocasa365/test_robocasa_collect_strategy.py",
+      "tests/exp/test_rl_router_sweep_mixture.py",
+      "tests/exp/metaworld/test_runner.py",
+      "tests/exp/step_diag/test_self13_queue.py",
+      "-vv",
+      "--tb=short",
+      "--basetemp=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/other_importers_after_tmp",
+      "--junitxml=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/other_importers_after.xml",
+      "--deselect=exp/offline_search/closed_loop/ops/h100/test_h100.py::test_resumable_daemon_pull_checks_exact_content",
+      "-o",
+      "cache_dir=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/other_importers_after_cache"
+    ],
+    "cwd": "/home/weiland/projects/openpi",
+    "dependency_sha256": {
+      "exp/r17_integration/common/serving.py": "1594011d8fa438fb67747beb8e19a541a2d77940c97ba4098057b75f94823890",
+      "exp/r17_integration/ops/cache_study.py": "5c588a83687b3d6a5711f2ef38d83090f768464ac2fe2da528d55fe52e61ed82",
+      "exp/r17_integration/ops/cache_knob.py": "f556916b8e018e7d175ffea4fa6d281ded128a5ca3fcb5882925bdf6d8b1dd4d",
+      "exp/r17_integration/ops/library_campaign.py": "edf15e46b879881fe0fd76bb4d06da9b749efc6b083b1c214396a581930fbfac"
+    }
+  },
+  {
+    "suite": "ops",
+    "variant": "before",
+    "code": 1,
+    "seconds": 2249.1455578804016,
+    "command": [
+      "/home/weiland/projects/openpi/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-p",
+      "exp.offline_search.rounds.r17.autoscale_1017.cpu_only",
+      "exp/r17_integration/tests/ops",
+      "-vv",
+      "--tb=short",
+      "--basetemp=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/ops_before_tmp",
+      "--junitxml=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/ops_before.xml",
+      "--deselect=exp/offline_search/closed_loop/ops/h100/test_h100.py::test_resumable_daemon_pull_checks_exact_content",
+      "-o",
+      "cache_dir=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/ops_before_cache"
+    ],
+    "cwd": "/home/weiland/projects/openpi",
+    "dependency_sha256": {
+      "exp/r17_integration/common/serving.py": "1594011d8fa438fb67747beb8e19a541a2d77940c97ba4098057b75f94823890",
+      "exp/r17_integration/ops/cache_study.py": "5c588a83687b3d6a5711f2ef38d83090f768464ac2fe2da528d55fe52e61ed82",
+      "exp/r17_integration/ops/cache_knob.py": "f556916b8e018e7d175ffea4fa6d281ded128a5ca3fcb5882925bdf6d8b1dd4d",
+      "exp/r17_integration/ops/library_campaign.py": "edf15e46b879881fe0fd76bb4d06da9b749efc6b083b1c214396a581930fbfac"
+    }
+  },
+  {
+    "suite": "ops",
+    "variant": "after",
+    "code": 1,
+    "seconds": 2218.79753613472,
+    "command": [
+      "/home/weiland/projects/openpi/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-p",
+      "exp.offline_search.rounds.r17.autoscale_1017.cpu_only",
+      "exp/r17_integration/tests/ops",
+      "-vv",
+      "--tb=short",
+      "--basetemp=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/ops_after_tmp",
+      "--junitxml=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/ops_after.xml",
+      "--deselect=exp/offline_search/closed_loop/ops/h100/test_h100.py::test_resumable_daemon_pull_checks_exact_content",
+      "-o",
+      "cache_dir=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_regression/ops_after_cache"
+    ],
+    "cwd": "/home/weiland/projects/openpi",
+    "dependency_sha256": {
+      "exp/r17_integration/common/serving.py": "1594011d8fa438fb67747beb8e19a541a2d77940c97ba4098057b75f94823890",
+      "exp/r17_integration/ops/cache_study.py": "5c588a83687b3d6a5711f2ef38d83090f768464ac2fe2da528d55fe52e61ed82",
+      "exp/r17_integration/ops/cache_knob.py": "f556916b8e018e7d175ffea4fa6d281ded128a5ca3fcb5882925bdf6d8b1dd4d",
+      "exp/r17_integration/ops/library_campaign.py": "edf15e46b879881fe0fd76bb4d06da9b749efc6b083b1c214396a581930fbfac"
+    }
+  }
+]

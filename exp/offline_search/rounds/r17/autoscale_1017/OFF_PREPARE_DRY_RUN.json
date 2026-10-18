@@ -1,0 +1,50 @@
+{
+  "status": "PASS",
+  "production_switch": "off",
+  "actual_prepares": 0,
+  "remote_calls": 0,
+  "launches": 0,
+  "rows": {
+    "fa_pi_r_f_l": {
+      "status": "PASS",
+      "arms": 1,
+      "workers_per_arm": 64,
+      "overlay": false,
+      "evidence": "followup_1018/off_final/own_all_tmp/test_native_queue_prepare_fa_p1/NATIVE_COMPARISON.json",
+      "external_effects_stubbed": true
+    },
+    "fa_pi_f_u_o": {
+      "status": "PASS",
+      "arms": 8,
+      "workers_per_arm": 39,
+      "overlay": false,
+      "evidence": "followup_1018/off_final/own_all_tmp/test_native_queue_prepare_fa_p0/NATIVE_COMPARISON.json",
+      "external_effects_stubbed": true
+    },
+    "fa_ls_gr_r_p_m": {
+      "status": "PASS",
+      "workers": {
+        "timan1": 20,
+        "timan107": 20
+      },
+      "autoscale_present": false,
+      "recycle_episodes": 0,
+      "same_fixture_artifact_sha256": {
+        "workers.tar": "3859f93a2e1c63c5dc8c9d45fb8f8ae8460e2ee49d22b66d015da7df79aac029",
+        "runtime.tar": "52e2ac6934fd7c43d9b969af95e9d22e3afbb3f96ad31dcdee889a6e781591a2",
+        "EPISODE_PLAN.json": "acf41b11ffa12feee84c664a12a46ed0619882997208c518d6533b2999db2506",
+        "PREPARED.json": "da6b701c5a99d2e112090b329261baff68bb1f9ce797e53ca65028134ad018f5"
+      },
+      "real_campaign_metadata": true,
+      "frozen_plan_fixture": true,
+      "external_effects_stubbed": true,
+      "evidence": "followup_1018/off_final/own_all_tmp/test_r17_native_stage_matches_0/after/fa_ls_gr_r_p_m"
+    }
+  },
+  "native_source_proof": "tests/test_off_switch.py::test_native_worker_bundle_matches_verified_prepatch_bytes",
+  "full_real_plan_proof": "new_chain_dry_run/ plus tests/test_reset_zero.py::test_failed_formal_campaign_frozen_planner_keeps_real_uids_inits_seeds",
+  "exceptions": [
+    "timan108 remains excluded; its configured share is routed to timan107 without increasing total",
+    "owner SO_REUSEADDR transport-probe fix retained"
+  ]
+}

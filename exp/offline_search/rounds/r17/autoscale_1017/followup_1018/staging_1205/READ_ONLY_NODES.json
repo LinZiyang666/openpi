@@ -1,0 +1,335 @@
+{
+  "h100": {
+    "status": "PASS",
+    "time": 1792343461.3861437,
+    "request": {
+      "roots": [
+        "/data/mw_finetune/eval/fa_ls_fw_r_p_m",
+        "/tmp/r17_formal/fa_ls_fw_r_p_m",
+        "/tmp/r17_formal/fa_ls_fw_r_p_m.stale_0519_moved_1210"
+      ]
+    },
+    "paths": [
+      {
+        "path": "/data/mw_finetune/eval/fa_ls_fw_r_p_m",
+        "exists": true,
+        "markers": {
+          "mps_control": true,
+          "mps": false,
+          "MPS_READY.json": false,
+          "driver/journal.jsonl": false,
+          "servers": false
+        }
+      },
+      {
+        "path": "/tmp/r17_formal/fa_ls_fw_r_p_m",
+        "exists": false
+      },
+      {
+        "path": "/tmp/r17_formal/fa_ls_fw_r_p_m.stale_0519_moved_1210",
+        "exists": true,
+        "markers": {
+          "mps_control": false,
+          "mps": false,
+          "MPS_READY.json": false,
+          "driver/journal.jsonl": false,
+          "servers": false
+        }
+      }
+    ],
+    "files": [
+      {
+        "path": "/data/mw_finetune/eval/fa_ls_fw_r_p_m/assets/manifest.json",
+        "sha256": "736018e1580342ddd09e86f58a2b5225e84ac5dc15ca1d99053fe780c78db3c8",
+        "mtime": 1792342965.9834962,
+        "status": null
+      },
+      {
+        "path": "/data/mw_finetune/eval/fa_ls_fw_r_p_m/assets/model_manifest.json",
+        "sha256": "1ec68240c6eec85bba60a80618166c3fb7f4652279156c90eda8e2b322e79323",
+        "mtime": 1792342965.9837291,
+        "status": null
+      },
+      {
+        "path": "/tmp/r17_formal/fa_ls_fw_r_p_m.stale_0519_moved_1210/server/mps_guard.process.json",
+        "sha256": "4e645b2a2e4743dcfd9ca0e21b1a1b76e6b5ed2004c32e92b1c3e7b400afa874",
+        "mtime": 1792318965.6210494,
+        "status": "CLOSED"
+      },
+      {
+        "path": "/tmp/r17_formal/fa_ls_fw_r_p_m.stale_0519_moved_1210/server/proxy.process.json",
+        "sha256": "aaec5ef1f84595d3a9e92890791cb8b53bb6ea6a0b348a21fba225a9c4671e6f",
+        "mtime": 1792318960.3371263,
+        "status": "CLOSED"
+      },
+      {
+        "path": "/tmp/r17_formal/fa_ls_fw_r_p_m.stale_0519_moved_1210/server/replica_0.process.json",
+        "sha256": "e75a8ab9c0a4753d2c7dd573bca548e64fe9dcb189124ffceb6a75ea9de67ef6",
+        "mtime": 1792318963.8392024,
+        "status": "CLOSED"
+      },
+      {
+        "path": "/tmp/r17_formal/fa_ls_fw_r_p_m.stale_0519_moved_1210/server/replica_1.process.json",
+        "sha256": "050a6c2e3b4eb9f16752ddda2f601e5e3a607ba41882f35264ca57087113413a",
+        "mtime": 1792318962.005314,
+        "status": "CLOSED"
+      }
+    ],
+    "identities": [
+      {
+        "source": "/tmp/r17_formal/fa_ls_fw_r_p_m.stale_0519_moved_1210/server/mps_guard.process.json",
+        "pid": 1098476,
+        "start_ticks": "77825515",
+        "pgid": 1098476,
+        "alive": false
+      },
+      {
+        "source": "/tmp/r17_formal/fa_ls_fw_r_p_m.stale_0519_moved_1210/server/mps_guard.process.json",
+        "pid": 1098475,
+        "start_ticks": "77825506",
+        "pgid": 1098475,
+        "alive": false
+      },
+      {
+        "source": "/tmp/r17_formal/fa_ls_fw_r_p_m.stale_0519_moved_1210/server/proxy.process.json",
+        "pid": 1098623,
+        "start_ticks": "77830413",
+        "pgid": 1098623,
+        "alive": false
+      },
+      {
+        "source": "/tmp/r17_formal/fa_ls_fw_r_p_m.stale_0519_moved_1210/server/proxy.process.json",
+        "pid": 1098622,
+        "start_ticks": "77830404",
+        "pgid": 1098622,
+        "alive": false
+      },
+      {
+        "source": "/tmp/r17_formal/fa_ls_fw_r_p_m.stale_0519_moved_1210/server/replica_0.process.json",
+        "pid": 1098506,
+        "start_ticks": "77825701",
+        "pgid": 1098506,
+        "alive": false
+      },
+      {
+        "source": "/tmp/r17_formal/fa_ls_fw_r_p_m.stale_0519_moved_1210/server/replica_0.process.json",
+        "pid": 1098505,
+        "start_ticks": "77825692",
+        "pgid": 1098505,
+        "alive": false
+      },
+      {
+        "source": "/tmp/r17_formal/fa_ls_fw_r_p_m.stale_0519_moved_1210/server/replica_1.process.json",
+        "pid": 1098517,
+        "start_ticks": "77825748",
+        "pgid": 1098517,
+        "alive": false
+      },
+      {
+        "source": "/tmp/r17_formal/fa_ls_fw_r_p_m.stale_0519_moved_1210/server/replica_1.process.json",
+        "pid": 1098516,
+        "start_ticks": "77825739",
+        "pgid": 1098516,
+        "alive": false
+      }
+    ],
+    "live": [],
+    "unreadable_process_fields": {
+      "identity": 0,
+      "cmdline": 0,
+      "cwd": 2
+    },
+    "processes_signalled": 0
+  },
+  "local": {
+    "status": "PASS",
+    "time": 1792343461.5213954,
+    "request": {
+      "roots": [
+        "/data/mw_finetune/eval/fa_ls_fw_r_p_m",
+        "/tmp/r17_formal/fa_ls_fw_r_p_m",
+        "/tmp/r17_formal/fa_ls_fw_r_p_m/local"
+      ],
+      "launcher_pids": [
+        1838393
+      ]
+    },
+    "paths": [
+      {
+        "path": "/data/mw_finetune/eval/fa_ls_fw_r_p_m",
+        "exists": true,
+        "markers": {
+          "mps_control": false,
+          "mps": false,
+          "MPS_READY.json": false,
+          "driver/journal.jsonl": false,
+          "servers": false
+        }
+      },
+      {
+        "path": "/tmp/r17_formal/fa_ls_fw_r_p_m",
+        "exists": true,
+        "markers": {
+          "mps_control": false,
+          "mps": false,
+          "MPS_READY.json": false,
+          "driver/journal.jsonl": false,
+          "servers": false
+        }
+      },
+      {
+        "path": "/tmp/r17_formal/fa_ls_fw_r_p_m/local",
+        "exists": true,
+        "markers": {
+          "mps_control": false,
+          "mps": false,
+          "MPS_READY.json": false,
+          "driver/journal.jsonl": false,
+          "servers": false
+        }
+      }
+    ],
+    "files": [
+      {
+        "path": "/data/mw_finetune/eval/fa_ls_fw_r_p_m/.startup_inputs/assets/cache_inputs/manifest.json",
+        "sha256": "71a87069f823e9afb4f8b662100481d5a5b43cd7209966cfe02d26c6c33cd0d9",
+        "mtime": 1792343128.7422457,
+        "status": null
+      },
+      {
+        "path": "/data/mw_finetune/eval/fa_ls_fw_r_p_m/.startup_inputs/assets/manifest.json",
+        "sha256": "736018e1580342ddd09e86f58a2b5225e84ac5dc15ca1d99053fe780c78db3c8",
+        "mtime": 1792343132.0592442,
+        "status": null
+      },
+      {
+        "path": "/data/mw_finetune/eval/fa_ls_fw_r_p_m/.startup_inputs/assets/model_manifest.json",
+        "sha256": "1ec68240c6eec85bba60a80618166c3fb7f4652279156c90eda8e2b322e79323",
+        "mtime": 1792343132.0592442,
+        "status": null
+      },
+      {
+        "path": "/data/mw_finetune/eval/fa_ls_fw_r_p_m/assets/cache_inputs/manifest.json",
+        "sha256": "71a87069f823e9afb4f8b662100481d5a5b43cd7209966cfe02d26c6c33cd0d9",
+        "mtime": 1792298907.133905,
+        "status": null
+      },
+      {
+        "path": "/data/mw_finetune/eval/fa_ls_fw_r_p_m/assets/manifest.json",
+        "sha256": "736018e1580342ddd09e86f58a2b5225e84ac5dc15ca1d99053fe780c78db3c8",
+        "mtime": 1792296409.631436,
+        "status": null
+      },
+      {
+        "path": "/data/mw_finetune/eval/fa_ls_fw_r_p_m/assets/model_manifest.json",
+        "sha256": "1ec68240c6eec85bba60a80618166c3fb7f4652279156c90eda8e2b322e79323",
+        "mtime": 1792047051.180929,
+        "status": null
+      },
+      {
+        "path": "/data/mw_finetune/eval/fa_ls_fw_r_p_m/longseg_server_assets/manifest.json",
+        "sha256": "736018e1580342ddd09e86f58a2b5225e84ac5dc15ca1d99053fe780c78db3c8",
+        "mtime": 1792296409.631436,
+        "status": null
+      },
+      {
+        "path": "/data/mw_finetune/eval/fa_ls_fw_r_p_m/longseg_server_assets/model_manifest.json",
+        "sha256": "1ec68240c6eec85bba60a80618166c3fb7f4652279156c90eda8e2b322e79323",
+        "mtime": 1792047051.180929,
+        "status": null
+      }
+    ],
+    "identities": [],
+    "live": [],
+    "unreadable_process_fields": {
+      "identity": 0,
+      "cmdline": 0,
+      "cwd": 1
+    },
+    "processes_signalled": 0
+  },
+  "timan1": {
+    "status": "PASS",
+    "time": 1792343461.7982595,
+    "request": {
+      "roots": [
+        "/scratch/zixuans8/mw_r17/formal/stage/fa_ls_fw_r_p_m/timan1"
+      ]
+    },
+    "paths": [
+      {
+        "path": "/scratch/zixuans8/mw_r17/formal/stage/fa_ls_fw_r_p_m/timan1",
+        "exists": true,
+        "markers": {
+          "mps_control": false,
+          "mps": false,
+          "MPS_READY.json": false,
+          "driver/journal.jsonl": false,
+          "servers": false
+        }
+      }
+    ],
+    "files": [
+      {
+        "path": "/scratch/zixuans8/mw_r17/formal/stage/fa_ls_fw_r_p_m/timan1/workers.process.json",
+        "sha256": "fe431af647b719f3101c8bf6bf7f383c964fcd021b0ff4190f86ee187ff48d27",
+        "mtime": 1792318964.5277421,
+        "status": "CLOSED"
+      }
+    ],
+    "identities": [
+      {
+        "source": "/scratch/zixuans8/mw_r17/formal/stage/fa_ls_fw_r_p_m/timan1/workers.process.json",
+        "pid": 635776,
+        "start_ticks": "13957521",
+        "pgid": 635776,
+        "alive": false
+      },
+      {
+        "source": "/scratch/zixuans8/mw_r17/formal/stage/fa_ls_fw_r_p_m/timan1/workers.process.json",
+        "pid": 635772,
+        "start_ticks": "13957516",
+        "pgid": 635772,
+        "alive": false
+      }
+    ],
+    "live": [],
+    "unreadable_process_fields": {
+      "identity": 0,
+      "cmdline": 0,
+      "cwd": 1
+    },
+    "processes_signalled": 0
+  },
+  "timan107": {
+    "status": "PASS",
+    "time": 1792343462.1553576,
+    "request": {
+      "roots": [
+        "/tmp/r17_formal/fa_ls_fw_r_p_m/timan107"
+      ]
+    },
+    "paths": [
+      {
+        "path": "/tmp/r17_formal/fa_ls_fw_r_p_m/timan107",
+        "exists": true,
+        "markers": {
+          "mps_control": false,
+          "mps": false,
+          "MPS_READY.json": false,
+          "driver/journal.jsonl": false,
+          "servers": false
+        }
+      }
+    ],
+    "files": [],
+    "identities": [],
+    "live": [],
+    "unreadable_process_fields": {
+      "identity": 0,
+      "cmdline": 0,
+      "cwd": 1
+    },
+    "processes_signalled": 0
+  }
+}

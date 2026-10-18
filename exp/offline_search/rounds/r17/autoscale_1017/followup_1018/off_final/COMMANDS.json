@@ -1,0 +1,215 @@
+[
+  {
+    "name": "r17_conductor_after",
+    "command": [
+      "/home/weiland/projects/openpi/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-p",
+      "exp.offline_search.rounds.r17.autoscale_1017.cpu_only",
+      "exp/r17_integration/tests/conductor",
+      "-q",
+      "--tb=short",
+      "--basetemp=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_final/r17_conductor_after_tmp",
+      "--junitxml=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_final/r17_conductor_after.xml",
+      "--deselect=exp/offline_search/closed_loop/ops/h100/test_h100.py::test_resumable_daemon_pull_checks_exact_content",
+      "-o",
+      "cache_dir=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_final/r17_conductor_after_cache"
+    ],
+    "code": 1,
+    "seconds": 20.1517231464386
+  },
+  {
+    "name": "core_conductor_after",
+    "command": [
+      "/home/weiland/projects/openpi/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-p",
+      "exp.offline_search.rounds.r17.autoscale_1017.cpu_only",
+      "tests/conductor",
+      "-q",
+      "--tb=short",
+      "--basetemp=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_final/core_conductor_after_tmp",
+      "--junitxml=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_final/core_conductor_after.xml",
+      "--deselect=exp/offline_search/closed_loop/ops/h100/test_h100.py::test_resumable_daemon_pull_checks_exact_content",
+      "-o",
+      "cache_dir=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_final/core_conductor_after_cache"
+    ],
+    "code": 0,
+    "seconds": 5.921106815338135
+  },
+  {
+    "name": "ff_after",
+    "command": [
+      "/home/weiland/projects/openpi/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-p",
+      "exp.offline_search.rounds.r17.autoscale_1017.cpu_only",
+      "exp/offline_search/rounds/r17/filter_failed",
+      "-q",
+      "--tb=short",
+      "--basetemp=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_final/ff_after_tmp",
+      "--junitxml=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_final/ff_after.xml",
+      "--deselect=exp/offline_search/closed_loop/ops/h100/test_h100.py::test_resumable_daemon_pull_checks_exact_content",
+      "-o",
+      "cache_dir=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_final/ff_after_cache"
+    ],
+    "code": 1,
+    "seconds": 3.615128993988037
+  },
+  {
+    "name": "ffk_after",
+    "command": [
+      "/home/weiland/projects/openpi/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-p",
+      "exp.offline_search.rounds.r17.autoscale_1017.cpu_only",
+      "exp/offline_search/rounds/r17/filter_failed_knob",
+      "-q",
+      "--tb=short",
+      "--basetemp=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_final/ffk_after_tmp",
+      "--junitxml=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_final/ffk_after.xml",
+      "--deselect=exp/offline_search/closed_loop/ops/h100/test_h100.py::test_resumable_daemon_pull_checks_exact_content",
+      "-o",
+      "cache_dir=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_final/ffk_after_cache"
+    ],
+    "code": 1,
+    "seconds": 9.002066612243652
+  },
+  {
+    "name": "r16_after",
+    "command": [
+      "/home/weiland/projects/openpi/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-p",
+      "exp.offline_search.rounds.r17.autoscale_1017.cpu_only",
+      "exp/offline_search/rounds/r16",
+      "-q",
+      "--tb=short",
+      "--basetemp=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_final/r16_after_tmp",
+      "--junitxml=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_final/r16_after.xml",
+      "--deselect=exp/offline_search/closed_loop/ops/h100/test_h100.py::test_resumable_daemon_pull_checks_exact_content",
+      "-o",
+      "cache_dir=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_final/r16_after_cache"
+    ],
+    "code": 1,
+    "seconds": 71.70561742782593
+  },
+  {
+    "name": "h100_after",
+    "command": [
+      "/home/weiland/projects/openpi/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-p",
+      "exp.offline_search.rounds.r17.autoscale_1017.cpu_only",
+      "exp/offline_search/closed_loop/ops/h100",
+      "-q",
+      "--tb=short",
+      "--basetemp=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_final/h100_after_tmp",
+      "--junitxml=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_final/h100_after.xml",
+      "--deselect=exp/offline_search/closed_loop/ops/h100/test_h100.py::test_resumable_daemon_pull_checks_exact_content",
+      "-o",
+      "cache_dir=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_final/h100_after_cache"
+    ],
+    "code": 1,
+    "seconds": 3.1274003982543945
+  },
+  {
+    "name": "other_importers_after",
+    "command": [
+      "/home/weiland/projects/openpi/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-p",
+      "exp.offline_search.rounds.r17.autoscale_1017.cpu_only",
+      "exp/r17_integration/tests/debug/test_library_capture.py",
+      "exp/r17_integration/tests/debug/test_review_worker_entry.py",
+      "exp/r17_integration/tests/benchmarks/test_libero_worker_recycle.py",
+      "exp/r17_integration/tests/benchmarks/test_libero_memory.py",
+      "exp/r17_integration/tests/models/pi05/test_pi05_libero.py",
+      "exp/r17_integration/tests/models/pi05/test_pi05_batching.py",
+      "exp/r17_integration/tests/models/pi05/test_pi05.py",
+      "exp/r17_integration/tests/models/dp/test_dp_formal_launch.py",
+      "exp/r17_integration/tests/models/groot/test_groot_batching.py",
+      "exp/r17_integration/tests/models/groot/test_fix_round1.py",
+      "exp/r17_integration/tests/models/groot/test_libero.py",
+      "exp/r17_integration/tests/models/fastwam/test_fastwam_cache_study.py",
+      "exp/r17_integration/tests/models/fastwam/test_mps.py",
+      "exp/r17_integration/tests/models/fastwam/test_fastwam_formal_batching.py",
+      "tests/robocasa365/test_ws2_harness.py",
+      "tests/robocasa365/test_robocasa_episode_runner.py",
+      "tests/robocasa365/test_collection_artifacts.py",
+      "tests/robocasa365/test_ws2_g2_contracts.py",
+      "tests/robocasa365/test_robocasa_collect_strategy.py",
+      "tests/exp/test_rl_router_sweep_mixture.py",
+      "tests/exp/metaworld/test_runner.py",
+      "tests/exp/step_diag/test_self13_queue.py",
+      "-q",
+      "--tb=short",
+      "--basetemp=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_final/other_importers_after_tmp",
+      "--junitxml=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_final/other_importers_after.xml",
+      "--deselect=exp/offline_search/closed_loop/ops/h100/test_h100.py::test_resumable_daemon_pull_checks_exact_content",
+      "-o",
+      "cache_dir=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_final/other_importers_after_cache"
+    ],
+    "code": 1,
+    "seconds": 40.50243878364563
+  },
+  {
+    "name": "own_all",
+    "command": [
+      "/home/weiland/projects/openpi/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-p",
+      "exp.offline_search.rounds.r17.autoscale_1017.cpu_only",
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests",
+      "-q",
+      "--tb=short",
+      "--basetemp=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_final/own_all_tmp",
+      "--junitxml=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_final/own_all.xml",
+      "--deselect=exp/offline_search/closed_loop/ops/h100/test_h100.py::test_resumable_daemon_pull_checks_exact_content",
+      "-o",
+      "cache_dir=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_final/own_all_cache"
+    ],
+    "code": 0,
+    "seconds": 80.2643301486969
+  },
+  {
+    "name": "longseg_unit",
+    "command": [
+      "/home/weiland/projects/openpi/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-p",
+      "exp.offline_search.rounds.r17.autoscale_1017.cpu_only",
+      "exp/offline_search/rounds/r17/longseg_1017",
+      "-q",
+      "--tb=short",
+      "--basetemp=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_final/longseg_unit_tmp",
+      "--junitxml=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_final/longseg_unit.xml",
+      "--deselect=exp/offline_search/closed_loop/ops/h100/test_h100.py::test_resumable_daemon_pull_checks_exact_content",
+      "-o",
+      "cache_dir=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_final/longseg_unit_cache"
+    ],
+    "code": 0,
+    "seconds": 7.6785523891448975
+  },
+  {
+    "name": "longseg_check",
+    "command": [
+      "/home/weiland/projects/openpi/.venv/bin/python",
+      "-m",
+      "exp.offline_search.rounds.r17.longseg_1017.check",
+      "--local-only",
+      "--output-dir",
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_final/longseg_check"
+    ],
+    "code": 2
+  }
+]

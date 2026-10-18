@@ -1,0 +1,78 @@
+{
+  "src/openpi/conductor/worker.py": {
+    "sha256": "74b8cea7a870b9ce2473f69aaa77071d6697b0da74009e7bea5fc20c3c6d23e7",
+    "proposed_sha256": "a7b29e679b28d1cb15a82b149cabd9d9b3d7857a9a356cc8453e088642141cdf"
+  },
+  "src/openpi/conductor/driver.py": {
+    "sha256": "fb50124bee79924591cb690dcf31a6e4a24a771b8beb6f3515ad21b2d040ba8a",
+    "proposed_sha256": "e1ecad083b2bd24f25a42c0bcc922cc2e75ddbf0f3ec3870fee63cdef8be89a2"
+  },
+  "src/openpi/conductor/agent.py": {
+    "sha256": "9e39391d7c1412446abee160f6d0280be940150293dd0399ee769a5e6072d3d2",
+    "proposed_sha256": "cefffd9ad23063f8b36be2bb0924179118cc987806f277ecc2105bb47bcd9bc7"
+  },
+  "exp/r17_integration/qualification/driver.py": {
+    "sha256": "06257104d1b307c7196b36583a43a0b651fea8c3fed6494c9f3ecc44f4c142a7",
+    "proposed_sha256": "3f7cf032a832929de833b351851bab2f4d0f5cb0440c586795a3ebcedd8dc95d"
+  },
+  "exp/r17_integration/conductor/worker_entry.py": {
+    "sha256": "f02a49707a14f9ef503cc9b4dffbaed30c88f2e0d2d38d72baaedf300799ca70",
+    "proposed_sha256": "ef6c1a741027e01e01c6cee3b5665ec21d2e85571862b67e2abec65305fff595"
+  },
+  "exp/r17_integration/ops/formal_process.py": {
+    "sha256": "3bac95e27a7f90b00600e6517e540e2c82efdcf0e800689653e678f7fa75e8c0",
+    "proposed_sha256": "91a151d3e3f36d5c81b7398fd45a08ddbce19104e3ec0cd12c393a7d3d35e852"
+  },
+  "exp/r17_integration/ops/worker_lifetime.py": {
+    "sha256": "86c193735c69208c404ca8f2cb160791310932d4946be775cd7d929b31bcc5cc",
+    "proposed_sha256": "417d702df22eedca799610b7c7420d5b32a1125014b8ab6362c0e64d983f1d3f"
+  },
+  "exp/r17_integration/ops/formal_workers.py": {
+    "sha256": "f7f59a9da55c82db9be066390b6e1e9c8a3eee22ebd2d0bbc43ca8917c7fbc59",
+    "proposed_sha256": "e0b17bf8f7dc7d0b52834823a945d6e5164b92b2c09965a3a1b3db4322b16b37"
+  },
+  "exp/r17_integration/ops/worker_memory.py": {
+    "sha256": "55acfa23d324d470f7cb17c06ff6b5c7eaef0424309f4b485a624a1e766339cf",
+    "proposed_sha256": "f61e420232503361b85e6e62da961418523ed19eb6d1135dac0f86969aa62a9e"
+  },
+  "exp/r17_integration/ops/worker_gpu.py": {
+    "sha256": "c73851145cc49bec7d4bf67c261251656b2579adce5a8e857c8900d4761c72f6",
+    "proposed_sha256": "d33e467217116567f954c9bebd1420028698194e9ee73bf66d47846633f6efae"
+  },
+  "exp/r17_integration/ops/local_workers.py": {
+    "sha256": "9bbe3a166a58e40e16c3ce693ad24b535ef48a057e904c842a6832af75ae6bbe",
+    "proposed_sha256": "26bee5c2530873367c65dc30700f061ede6fa4558e0ef043f7f0c1721306b40d"
+  },
+  "exp/offline_search/rounds/r17/filter_failed/timan1_gpu2.py": {
+    "sha256": "c66b3006d463c40fa9c8a423f290a4bbf3d8418f21cf4a20c496f206a50b3959",
+    "proposed_sha256": "b189227e2e1ffc01038c912633aca44dbb0dbbacc5bd47889faeaafc150a1441"
+  },
+  "exp/offline_search/rounds/r17/filter_failed/worker_resilience.py": {
+    "sha256": "e9f3c532640cb4edcf7e4d589a0b76933aa488cbc94eeb5937252bd5d549eb04",
+    "proposed_sha256": "5ca4276a2e0616c5a43fe4be8130cee8d6a2fb1944af69436e6156af9c584edd"
+  },
+  "exp/r17_integration/ops/formal_eval.py": {
+    "sha256": "46396d159c593daacd72eeab5cbc1a68f9b76d240706cb104855dbb95ce9c788",
+    "proposed_sha256": "439daf1bc05763ac22f9465dcfab45d8ad017f2635ef6a71cd424c19efd49eb1"
+  },
+  "exp/r17_integration/ops/driver_release.py": {
+    "sha256": "0b4e7bc4b3a47cdbdd960ed5c4808895f9767ca4080db499b745c4f0563d3852",
+    "proposed_sha256": "b325495d8d261587aef754ccf7e5c0cbb2667277c6f75d6ccc8f8fb757eda76a"
+  },
+  "exp/offline_search/rounds/r16/conductor.py": {
+    "sha256": "9e3152694d9f0959817b6ee6a06cc6bc663cfd2b641f74f83c1a3575c42af0c4",
+    "proposed_sha256": "8e96036cf995ddeefa85ad102d2c9a9a23dd224c988fdee7a70eb2bad1bfad24"
+  },
+  "exp/offline_search/closed_loop/ops/h100/fleet.py": {
+    "sha256": "1e5fbe7c8d8516c43456023a911f37c730b4a1648e3fa9ba65ded309ba1b9f65",
+    "proposed_sha256": "71893492e4829df771681affe9f67986d2e98c536ec783bfbf3b93979e5132a2"
+  },
+  "exp/offline_search/closed_loop/ops/h100/control.py": {
+    "sha256": "7ed8a434061e8040d0f55799fe152e0941811c892a100267558f765d498eb8cc",
+    "proposed_sha256": "642f49e9ae26016e5edc0ca49a782867ec1073f5681e4d0cc3867b24f6c86606"
+  },
+  "exp/offline_search/closed_loop/ops/h100/run_arm.sh": {
+    "sha256": "7b30e83e41c69beca3c5ad100fa1b16ef5cbe20b6ffca7a41dc52a3c3d08eb19",
+    "proposed_sha256": "db67735620ac3ee8d10a4bbd4f569d33f0b77c78a0646899e35f6b6cee8757dc"
+  }
+}

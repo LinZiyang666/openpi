@@ -1,0 +1,78 @@
+{
+  "rows": [
+    {
+      "suite": "test_acceptance_fixes",
+      "before": {
+        "passed": 20,
+        "failed": 0,
+        "skipped": 0
+      },
+      "after": {
+        "passed": 20,
+        "failed": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "suite": "test_reset_zero",
+      "before": {
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0
+      },
+      "after": {
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "suite": "test_slot4",
+      "before": {
+        "passed": 12,
+        "failed": 0,
+        "skipped": 0
+      },
+      "after": {
+        "passed": 12,
+        "failed": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "suite": "test_staging_reset",
+      "before": {
+        "passed": 7,
+        "failed": 7,
+        "skipped": 0
+      },
+      "after": {
+        "passed": 14,
+        "failed": 0,
+        "skipped": 0
+      }
+    }
+  ],
+  "regressions": [],
+  "missing": [],
+  "per_test_timeout_seconds": 90,
+  "timeouts": 0,
+  "before_xml": "exp/offline_search/rounds/r17/autoscale_1017/followup_1018/staging_1205/before.xml",
+  "after_xml": "exp/offline_search/rounds/r17/autoscale_1017/followup_1018/staging_1205/after.xml",
+  "existing_cases": 42,
+  "added_cases": 14,
+  "baseline_method": "Read-only import of pre-edit reset_zero.py/reset_remote.py snapshots; no working-tree restore.",
+  "test_fixture_adaptation": "Existing mock now accepts check_only keyword and uses a sibling remote backup matching the synthetic root.",
+  "control_py": {
+    "changed": false,
+    "SO_REUSEADDR_preserved": true,
+    "sha256": "d20af06602d4cb4e1f3a27c7b7c29414e3e4b11cf8e1a65b0251e96d26b934f1"
+  },
+  "modified_source_sha256": {
+    "exp/offline_search/rounds/r17/autoscale_1017/reset_zero.py": "4bdea3d83d8e2a4ee75efbe5ef47593b6690b120bf2a1356d24f87adfd0942ce",
+    "exp/offline_search/rounds/r17/autoscale_1017/reset_remote.py": "23ab1b67f271a532e34b346f6acf6a5856283a6e228a6a8d35abc257d382862e",
+    "exp/offline_search/rounds/r17/autoscale_1017/prestart_closure.py": "c4339ec159ba17507ebd82fbf52e580f7e9e2d9d7f173d214b8cd8b9686eda8d",
+    "exp/offline_search/rounds/r17/autoscale_1017/tests/test_staging_reset.py": "e9e3cf7919baacd5693b6fea4a36a5b0b9f2be625f6e28c5e7b805f803c239e2",
+    "exp/offline_search/rounds/r17/autoscale_1017/tests/test_acceptance_fixes.py": "c7a9bd9897544e7f2593ae06fa8984360309abde015e7c9d50646f591b6a925f"
+  }
+}

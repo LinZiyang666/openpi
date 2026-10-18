@@ -1,0 +1,10 @@
+{
+  "expected_episodes": 2500,
+  "source_closure_required_at_prepare": true,
+  "success_selection": false,
+  "retained": 939,
+  "missing": 1561,
+  "overlap": false,
+  "source_receipt_closed": false,
+  "plan_sha256": "97060221e1e623a599143bf33e1f2a136431e4c126f73b98f9423f348d14e93a"
+}

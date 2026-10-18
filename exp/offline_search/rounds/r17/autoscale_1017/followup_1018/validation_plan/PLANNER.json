@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "actual": 256,
+  "expected": 256,
+  "full_task_dicts_identical": true,
+  "source": "/data/mw_finetune/eval/formal_fastwam_mw_mt50_500_20261009_223917_0b845f00",
+  "remote_calls": 0,
+  "launches": 0
+}

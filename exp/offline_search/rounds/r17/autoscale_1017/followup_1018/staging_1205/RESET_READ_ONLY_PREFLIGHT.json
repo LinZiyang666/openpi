@@ -1,0 +1,96 @@
+[
+  {
+    "node": "h100",
+    "status": "READY",
+    "request": {
+      "root": "/data/mw_finetune/eval/fa_ls_fw_r_p_m",
+      "backup": "/data/mw_finetune/eval/fa_ls_fw_r_p_m.before_retry_1205"
+    },
+    "unreadable_process_fields": {
+      "identity": 0,
+      "cmdline": 0,
+      "cwd": 2,
+      "receipt_stat": 0
+    }
+  },
+  {
+    "node": "h100",
+    "status": "ABSENT",
+    "request": {
+      "root": "/tmp/r17_formal/fa_ls_fw_r_p_m",
+      "backup": "/tmp/r17_formal/fa_ls_fw_r_p_m.before_retry_1205"
+    }
+  },
+  {
+    "node": "local",
+    "status": "READY",
+    "request": {
+      "root": "/tmp/r17_formal/fa_ls_fw_r_p_m",
+      "backup": "/tmp/r17_formal/fa_ls_fw_r_p_m.before_retry_1205"
+    },
+    "unreadable_process_fields": {
+      "identity": 0,
+      "cmdline": 0,
+      "cwd": 3,
+      "receipt_stat": 0
+    }
+  },
+  {
+    "node": "local",
+    "status": "ABSENT",
+    "request": {
+      "root": "/data/mw_finetune/qualification/local_workers/runs/fa_ls_fw_r_p_m_local",
+      "backup": "/data/mw_finetune/qualification/local_workers/runs/fa_ls_fw_r_p_m_local.before_retry_1205"
+    }
+  },
+  {
+    "node": "timan1",
+    "status": "READY",
+    "request": {
+      "root": "/scratch/zixuans8/mw_r17/formal/stage/fa_ls_fw_r_p_m",
+      "backup": "/scratch/zixuans8/mw_r17/formal/stage/fa_ls_fw_r_p_m.before_retry_1205"
+    },
+    "unreadable_process_fields": {
+      "identity": 0,
+      "cmdline": 0,
+      "cwd": 2,
+      "receipt_stat": 0
+    }
+  },
+  {
+    "node": "timan1",
+    "status": "READY",
+    "request": {
+      "root": "/scratch/zixuans8/mw_r17/formal/runs/fa_ls_fw_r_p_m_timan1",
+      "backup": "/scratch/zixuans8/mw_r17/formal/runs/fa_ls_fw_r_p_m_timan1.before_retry_1205"
+    },
+    "unreadable_process_fields": {
+      "identity": 0,
+      "cmdline": 0,
+      "cwd": 2,
+      "receipt_stat": 0
+    }
+  },
+  {
+    "node": "timan107",
+    "status": "READY",
+    "request": {
+      "root": "/tmp/r17_formal/fa_ls_fw_r_p_m",
+      "backup": "/tmp/r17_formal/fa_ls_fw_r_p_m.before_retry_1205"
+    },
+    "unreadable_process_fields": {
+      "identity": 0,
+      "cmdline": 0,
+      "cwd": 3,
+      "receipt_stat": 0
+    }
+  },
+  {
+    "node": "timan107",
+    "status": "ABSENT",
+    "request": {
+      "root": "/scratch/zixuans8/mw_r17/formal/runs/fa_ls_fw_r_p_m_timan107",
+      "backup": "/scratch/zixuans8/mw_r17/formal/runs/fa_ls_fw_r_p_m_timan107.before_retry_1205"
+    }
+  }
+]

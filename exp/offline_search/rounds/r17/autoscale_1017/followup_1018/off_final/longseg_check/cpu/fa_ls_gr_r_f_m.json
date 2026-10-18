@@ -1,0 +1,56 @@
+{
+  "name": "fa_ls_gr_r_f_m",
+  "status": "PASS_LOCAL",
+  "native_strict_loader_proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/startup_checks/ffk1015_groot_mt50_reduced_descent.json",
+  "native_strict_loader_path": "groot.loader.checkpoint_manifest (load_checkpoint descriptor path)",
+  "descriptor_bytes_equal": {
+    "load.json": true,
+    "model_spec.json": true,
+    "model_manifest.json": true,
+    "benchmark.json": true,
+    "full.yaml": true
+  },
+  "fresh_frozen_interpreter_probe": null,
+  "model_identity_equal": true,
+  "sealed_metadata_equal_to_actual": true,
+  "weights_and_fit_reread": false,
+  "immutable_inputs_same_inodes": true,
+  "planner_episodes": 90000,
+  "unique_task_uids": 90000,
+  "source_native_plan_equal": false,
+  "mps_pipe": "/data/mw_finetune/eval/fa_ls_gr_r_f_m/mps/e2823e/p",
+  "mps_pipe_bytes": 50,
+  "remote_interpreter_repeated": false,
+  "cached_remote_cpu_probe": {
+    "packages": {
+      "torch": "2.5.1",
+      "torchvision": "0.20.1",
+      "diffusers": "0.30.2",
+      "transformers": "4.51.3",
+      "numpy": "1.26.4",
+      "safetensors": "0.8.0"
+    },
+    "python": "/home/exouser/gr00t_n15_venv/.venv/bin/python",
+    "bootstrap_imported": true,
+    "cuda_initialized": false
+  },
+  "cached_remote_receipt": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/cpu/fa_ls_gr_r_f_m.json",
+  "local_bootstrap_syntax_and_pin_checked": true,
+  "fresh_native_dp_startup_admission_checked": false,
+  "decision_clock_recalibration": {
+    "Q3_artifacts": [
+      "566f3a038c16fc35fb6d9cf1b33667ecd093a972453198eeb46fd5182cbd680e",
+      "58d4589c4ac5d45da51964d8acd31fcf04db0570ecc50fe6ba67c5b82de191ca",
+      "64803623494116f3e5b7505c78371d846486ca859f83746d1c44d747b0b146a9",
+      "88adb2f4175f99c2254d4632274a246ccbf993e3c1a9fb754c1eb0e428d7734d",
+      "98becc6ae85220cf204f81bb458ccfc2a3853cf79e1c7b5d75be24b86d24fe3b",
+      "edde482b8aa729291b68ca3e32a60f1d2cbc6c3c0910f44465a3fdbad816e361"
+    ],
+    "new_artifact_inodes_verified": true,
+    "frozen_metric_identical": true,
+    "UID_namespace_preserved": true,
+    "frozen_driver_plan_overlay_imported": false,
+    "level_ir": "M/N_segment_heads",
+    "tolerance": 0.005
+  }
+}

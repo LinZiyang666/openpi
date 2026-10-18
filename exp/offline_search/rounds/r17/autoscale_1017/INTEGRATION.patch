@@ -1,0 +1,1067 @@
+--- a/src/openpi/conductor/worker.py
++++ b/src/openpi/conductor/worker.py
+@@ -98,6 +98,12 @@
+         # callers that predate the field.
+         self._probe = probe
+         self._probe_sent = False
++        self._observer = None
++        import importlib, os
++        observer = os.environ.get('OPENPI_WORKER_OBSERVER')
++        if observer:
++            module, name = observer.split(':', 1)
++            self._observer = getattr(importlib.import_module(module), name)(worker_id, runner)
+ 
+     # -- one request/response round against the driver --
+ 
+@@ -108,11 +114,15 @@
+         payload: dict = {"worker_id": self._worker_id, "server_host": self._server_key}
+         if self._probe is not None and not self._probe_sent:
+             payload["probe"] = self._probe
++        if self._observer is not None:
++            payload['_autoscale'] = self._observer.payload()
+         _proto.send_message(sock, _proto.MSG_PULL, payload)
+         # Sent once per connection: the driver keys its census by connection, and
+         # a reconnect after a transport error must re-introduce the worker.
+         self._probe_sent = True
+         msg_type, payload = _proto.recv_message(sock)
++        if self._observer is not None:
++            self._observer.response(payload)
+         if msg_type == _proto.MSG_SHUTDOWN:
+             return None
+         if msg_type != _proto.MSG_ASSIGN:
+@@ -122,7 +132,10 @@
+         return _proto.task_from_wire(payload["task"])
+ 
+     def _report_result(self, sock: socket.socket, result: _task.EpisodeResult) -> None:
+-        _proto.send_message(sock, _proto.MSG_REPORT_RESULT, _proto.result_to_wire(result))
++        payload = _proto.result_to_wire(result)
++        if self._observer is not None:
++            payload['_autoscale_episode'] = self._observer.result()
++        _proto.send_message(sock, _proto.MSG_REPORT_RESULT, payload)
+ 
+     def _run_one(self, sock: socket.socket, task: _task.EpisodeTask) -> None:
+         def report(step: int, actions_per_s: float, hit_type: str | None) -> None:
+@@ -133,6 +146,7 @@
+                     sock,
+                     _proto.MSG_REPORT_PROGRESS,
+                     {
++                        "_autoscale": self._observer.payload() if self._observer is not None else {},
+                         "worker_id": self._worker_id,
+                         "task_uid": task.task_uid,
+                         "step": step,
+@@ -146,6 +160,8 @@
+         # utilisation figure that silently drops those intervals reads high for
+         # exactly the run that went worst.
+         started = time.monotonic()
++        if self._observer is not None:
++            self._observer.begin(task)
+         try:
+             result = self._runner.run(task, report)
+         except Exception as exc:
+@@ -163,11 +179,13 @@
+             duration_s=result.duration_s if result.duration_s is not None else elapsed,
+         )
+         self._report_result(sock, result)
++        if self._observer is not None:
++            self._observer.recycle()
+ 
+     def run_forever(self, stop: Callable[[], bool] | None = None) -> None:
+         """Main loop. ``stop`` is an optional predicate to break the loop."""
+         backoff = 1.0
+-        should_stop = stop or (lambda: False)
++        should_stop = lambda: bool(stop and stop()) or bool(self._observer and self._observer.stop_requested())
+         try:
+             while not should_stop():
+                 try:
+--- a/src/openpi/conductor/driver.py
++++ b/src/openpi/conductor/driver.py
+@@ -183,6 +183,10 @@
+         # (accepted, attempt) alone. Stamping the run on both sides gives the
+         # finalizer a discriminator that survives the restart.
+         self._run_id = uuid.uuid4().hex[:12]
++        # Runtime policy is injectable; core has no experiment imports.
++        import importlib, os
++        module = os.environ.get('OPENPI_AUTOSCALE_DRIVER_MODULE')
++        self._autoscaler = importlib.import_module(module).from_environment(self) if module else None
+ 
+     # -- ctl connection pool --
+ 
+@@ -296,6 +300,8 @@
+     def _stage_loop(self, stop: Callable[[], bool]) -> None:
+         while not stop() and not self._scheduler.all_done():
+             self.drive_stages_once()
++            if self._autoscaler is not None:
++                self._autoscaler.tick()
+             # Wall-clock episode timeout: requeue tasks stuck on a hung worker
+             # (plan §9.2 — worker alive but blocked in infer, never reports).
+             self._scheduler.requeue_timed_out(timeout_s=self._episode_timeout_s)
+@@ -403,10 +409,16 @@
+                 accepted=accepted,
+                 error=result.error,
+             )
++        if self._autoscaler is not None:
++            self._autoscaler.result(payload, accepted and terminal and evidence_safe)
+         if self._monitor is not None:
+             self._monitor.on_result(result)
+ 
+     def handle_progress(self, payload: dict[str, Any]) -> None:
++        if self._autoscaler is not None:
++            with self._autoscaler.lock:
++                self._autoscaler.ingest(payload.get('_autoscale', {}))
++                self._autoscaler.tick()
+         if self._monitor is not None:
+             self._monitor.on_progress(payload)
+ 
+@@ -444,7 +456,19 @@
+                     # Reuse handle_pull so the assign/none/shutdown/backoff logic
+                     # lives in one place; honour the returned message type so an
+                     # all-done run can hand the worker a clean MSG_SHUTDOWN.
+-                    out_type, assign_payload = self.handle_pull(key)
++                    retire = bool(payload.get('_autoscale', {}).get('retire'))
++                    control = None
++                    if self._autoscaler is not None:
++                        retire, control = self._autoscaler.pull(payload)
++                    if retire:
++                        out_type, assign_payload = _proto.MSG_SHUTDOWN, {}
++                        local = getattr(self, '_shutdown_local', None)
++                        if local is not None:
++                            local.sent_shutdown = True
++                    else:
++                        out_type, assign_payload = self.handle_pull(key)
++                    if control is not None:
++                        assign_payload['_autoscale_control'] = control
+                     if "task" in assign_payload:
+                         task = assign_payload["task"]
+                         inflight[task["task_uid"]] = task.get("attempt")
+--- a/src/openpi/conductor/agent.py
++++ b/src/openpi/conductor/agent.py
+@@ -203,10 +203,17 @@
+         self._handles: dict[str, WorkerHandle] = {}
+         self._restart_counts: dict[str, int] = {}
+         self._stop = threading.Event()
+-
+-    def _spawn(self, spec: WorkerSpec) -> None:
++        import importlib
++        module = os.environ.get('OPENPI_WORKER_GOVERNOR')
++        self._governor = importlib.import_module(module).from_environment(self) if module else None
++
++    def _spawn(self, spec: WorkerSpec) -> bool:
+         logger.info("agent: spawning worker %s on GPU %s", spec.worker_id, spec.gpu_id)
+-        self._handles[spec.worker_id] = self._spawn_fn(spec, self._driver_host, self._driver_port)
++        handle = (self._governor.spawn(spec, self._spawn_fn, self._driver_host, self._driver_port)
++                  if self._governor is not None else self._spawn_fn(spec, self._driver_host, self._driver_port))
++        if handle is not None:
++            self._handles[spec.worker_id] = handle
++        return handle is not None
+ 
+     def start(self) -> None:
+         for spec in self._specs:
+@@ -216,6 +223,8 @@
+         """One supervision pass: respawn any worker whose process has exited."""
+         if self._stop.is_set():
+             return
++        if self._governor is not None:
++            self._governor.tick()
+         for spec in self._specs:
+             handle = self._handles.get(spec.worker_id)
+             if handle is None or handle.poll() is not None:
+@@ -226,11 +235,9 @@
+                     if wait_fn is not None:
+                         with contextlib.suppress(Exception):
+                             wait_fn(timeout=5)
+-                self._restart_counts[spec.worker_id] = self._restart_counts.get(spec.worker_id, 0) + 1
+-                logger.warning(
+-                    "agent: worker %s died; restart #%d", spec.worker_id, self._restart_counts[spec.worker_id]
+-                )
+-                self._spawn(spec)
++                if self._spawn(spec):
++                    self._restart_counts[spec.worker_id] = self._restart_counts.get(spec.worker_id, 0) + 1
++                    logger.warning("agent: worker %s restart #%d", spec.worker_id, self._restart_counts[spec.worker_id])
+ 
+     def run(self) -> None:
+         """Resident supervision loop until ``stop`` is called."""
+--- a/exp/r17_integration/qualification/driver.py
++++ b/exp/r17_integration/qualification/driver.py
+@@ -76,10 +76,11 @@
+             super().run(stop=self._shutdown_external_stop,poll_s=poll_s)
+             until=time.monotonic()+self.shutdown_seconds
+             while self.scheduler.all_done() and not self._shutdown_external_stop() and time.monotonic()<until:
++                if getattr(self, '_autoscaler', None) is not None:self._autoscaler.tick()
+                 with self._shutdown_lock:
+                     workers=set(self._shutdown_workers)
+                     active=len(self._shutdown_connections)
+-                if len(workers)==self.expected_workers and not active:
++                if not active and (getattr(self, '_autoscaler', None) is not None or len(workers)==self.expected_workers):
+                     self.worker_shutdown=dict(status='PASS',workers=sorted(workers),active_connections=0)
+                     break
+                 time.sleep(.025)
+--- a/exp/r17_integration/conductor/worker_entry.py
++++ b/exp/r17_integration/conductor/worker_entry.py
+@@ -162,7 +162,12 @@
+         runner.capture_sink = capture
+         runner.execution_ack = lambda row: None
+     try:
+-        probe = attest()
++        import os
++        if os.environ.get('OPENPI_AUTOSCALE_NODE'):
++            from exp.offline_search.rounds.r17.autoscale_1017.worker import creation_lock
++            with creation_lock():probe = attest()
++        else:
++            probe = attest()
+         WorkerLoop(a.worker_id, a.server_key, runner,
+                    connect=lambda: socket.create_connection((a.driver_host, a.driver_port)), probe=probe).run_forever()
+     finally:
+--- a/exp/r17_integration/ops/formal_process.py
++++ b/exp/r17_integration/ops/formal_process.py
+@@ -127,6 +127,8 @@
+         result = {**json.loads(Path(request['receipt']).read_text()), 'stop': result['stop']}
+         if result.get('child') and alive(result['child']):
+             result['orphan_child_cleanup'] = stop_group(result['child'])
++    from exp.offline_search.rounds.r17.autoscale_1017.driver import status_result
++    status_result(request, result)
+     result['supervisor_alive'] = alive(result['supervisor'])
+     result['child_alive'] = bool(result.get('child') and alive(result['child']))
+     result['alive'] = result['supervisor_alive'] or result['child_alive']
+@@ -144,6 +146,8 @@
+     """One remote session renews/checks all owned services on this node."""
+     result = {}
+     for entry in entries:
++        from exp.offline_search.rounds.r17.autoscale_1017.driver import control_entry
++        control_entry(entry)
+         request = entry['request']
+         manage(request,'renew')
+         result[entry['label']] = manage(request,'status')
+--- a/exp/r17_integration/ops/worker_lifetime.py
++++ b/exp/r17_integration/ops/worker_lifetime.py
+@@ -1,6 +1,7 @@
+ """Recycle owned LIBERO workers only after reporting complete episodes."""
+ import argparse
+ import os
++import time
+ from pathlib import Path
+ 
+ from .formal_process import ticks, write_json
+@@ -8,7 +9,7 @@
+ RECYCLE_EXIT = 75
+ 
+ 
+-def limited_loop(base, maximum, marker):
++def limited_loop(base, maximum, marker, seconds=1800):
+     class LimitedLoop(base):
+         completed = 0
+ 
+@@ -18,11 +19,13 @@
+             self.completed += 1
+ 
+         def run_forever(self, stop=None):
+-            super().run_forever(stop=lambda: self.completed >= maximum or bool(stop and stop()))
+-            if self.completed >= maximum:
++            started = time.monotonic()
++            expired = lambda: self.completed > 0 and time.monotonic() - started >= seconds
++            super().run_forever(stop=lambda: self.completed >= maximum or expired() or bool(stop and stop()))
++            if self.completed >= maximum or expired():
+                 write_json(marker, dict(schema='r17.worker_recycle.v1', pid=os.getpid(),
+                     start_ticks=ticks(os.getpid()), completed_episodes=self.completed,
+-                    maximum_episodes=maximum, reason='episode_boundary'))
++                    maximum_episodes=maximum, maximum_seconds=seconds, elapsed_seconds=time.monotonic()-started, reason='episode_boundary'))
+                 raise SystemExit(RECYCLE_EXIT)
+     return LimitedLoop
+ 
+@@ -38,7 +41,9 @@
+     return (marker.get('schema') == 'r17.worker_recycle.v1' and marker.get('pid') == entry['pid'] and
+             marker.get('start_ticks') == entry['start_ticks'] and marker.get('reason') == 'episode_boundary' and
+             type(marker.get('maximum_episodes')) is int and marker['maximum_episodes'] > 0 and
+-            marker.get('completed_episodes') == marker['maximum_episodes'])
++            (marker.get('completed_episodes') == marker['maximum_episodes'] or
++             0 < marker.get('completed_episodes', 0) <= marker['maximum_episodes'] and
++             marker.get('elapsed_seconds', 0) >= marker.get('maximum_seconds', float('inf'))))
+ 
+ 
+ def main(argv=None):
+--- a/exp/r17_integration/ops/formal_workers.py
++++ b/exp/r17_integration/ops/formal_workers.py
+@@ -43,8 +43,10 @@
+     if child.poll() is None:
+         return dict(admitted=False, reason='old worker has not exited')
+     entry['exit_code'] = child.wait(timeout=5)
+-    if not report['memory_admission'].get('admitted'):
+-        pass
++    from .worker_memory import capacity, RAM_HEADROOM_MIB, MIB
++    _, available = capacity()
++    if available < RAM_HEADROOM_MIB*MIB:
++        return dict(admitted=False, reason='below RAM floor; do not refill recycled slot')
+     if hasattr(gpu_lock, 'reuse'):
+         gpu = gpu_lock.reuse(entry['index'], entry)
+     else:
+@@ -120,6 +122,10 @@
+     fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+     started = time.monotonic()
+     restarts, pending = {}, {}
++    autoscaler = None
++    if campaign.get('autoscale'):
++        from exp.offline_search.rounds.r17.autoscale_1017.node import LocalGovernor
++        autoscaler = LocalGovernor(campaign, run)
+     gpu_lock = None
+     drain_requested = lambda:False
+     class DrainedBeforeStart(Exception):
+@@ -153,13 +159,19 @@
+             env.update(MUJOCO_EGL_DEVICE_ID=str(device), MUJOCO_GL='egl', PYOPENGL_PLATFORM='egl')
+             if campaign['domain'] == 'libero':
+                 env['CUDA_VISIBLE_DEVICES'] = ''  # render ordinal stays physical; no worker CUDA model
++        if autoscaler is not None:
++            env.update(autoscaler.worker_env(worker_id))
++            if assignment:env['OPENPI_AUTOSCALE_GPU_UUID'] = assignment['uuid']
+         log = (run / f'worker_{index}_generation_{generation}.log').open('wb')
+         logs[index] = log
+         def parent_death():
+             import ctypes
+             ctypes.CDLL(None).prctl(1, signal.SIGTERM)
++        if autoscaler is not None:
++            env['OPENPI_AUTOSCALE_PARENT_PID'] = str(os.getpid())
++            argv = [sys.executable, '-B', '-m', 'exp.offline_search.rounds.r17.autoscale_1017.bootstrap', '--', *argv]
+         child = subprocess.Popen(argv, stdout=log, stderr=subprocess.STDOUT,
+-            preexec_fn=parent_death, cwd=workspace, env=env)
++            preexec_fn=None if autoscaler is not None else parent_death, cwd=workspace, env=env)
+         entry = dict(pid=child.pid, start_ticks=ticks(child.pid), argv=argv, worker_id=worker_id,
+                      node=campaign.get('worker_node'),policy_endpoint=campaign.get('policy_endpoint',campaign.get('endpoint')),
+                      index=index, generation=generation, exit_code=None, recycle_receipt=str(workspace/'RECYCLE.json'))
+@@ -181,119 +193,124 @@
+                 return native_launch(index,generation)
+     try:
+         if drain_requested():raise DrainedBeforeStart
+-        from .worker_gpu import acquire
+-        gpu_lock = acquire(campaign, run)
+-        if hasattr(gpu_lock, 'result'):
+-            report['gpu_admission'] = gpu_lock.result
+-            campaign['worker_gpu_assignments'] = report['worker_gpu_assignments'] = gpu_lock.result['assignments']
+-            write_json(run/'receipt.json', report)
+-        from .worker_memory import admission
+-        with (run.parent/'.memory_admission.lock').open('a') as memory_lock:
+-            fcntl.flock(memory_lock, fcntl.LOCK_EX)
+-            report['memory_admission'] = admission(campaign, run)
+-            if not report['memory_admission']['admitted']:
+-                report.update(status='PARTIAL', reason=report['memory_admission']['reason'])
++        if autoscaler is not None:
++            from exp.offline_search.rounds.r17.autoscale_1017.fleet import run_fleet
++            run_fleet(campaign, run, report, children, logs, launch,
++                      lambda: stopped, drain_requested, autoscaler)
++        else:
++            from .worker_gpu import acquire
++            gpu_lock = acquire(campaign, run)
++            if hasattr(gpu_lock, 'result'):
++                report['gpu_admission'] = gpu_lock.result
++                campaign['worker_gpu_assignments'] = report['worker_gpu_assignments'] = gpu_lock.result['assignments']
++                write_json(run/'receipt.json', report)
++            from .worker_memory import admission
++            with (run.parent/'.memory_admission.lock').open('a') as memory_lock:
++                fcntl.flock(memory_lock, fcntl.LOCK_EX)
++                report['memory_admission'] = admission(campaign, run)
++                if not report['memory_admission']['admitted']:
++                    report.update(status='PARTIAL', reason=report['memory_admission']['reason'])
++                else:
++                    report['status'] = 'RUNNING'
++                    for index in range(campaign['node_workers']):
++                        if drain_requested():break
++                        spawned=launch(index)
++                        if spawned is None:break
++                        children.append(spawned)
++            if campaign.get('cache_study'):
++                print(json.dumps(dict(fleet_receipt=str(run/'receipt.json'),status=report['status'],
++                    workers_spawned=len(children),worker_logs=str(run/'worker_*_generation_*.log'),
++                    awaiting_driver=dict(host=campaign['driver_host'],
++                        port=campaign.get('driver_public_port',campaign['driver_port'])))),flush=True)
++            until = started + campaign['seconds']
++            while report['status']=='RUNNING' and not stopped and time.monotonic() < until:
++                drain = drain_requested()
++                if drain:
++                    report['fleet_drain']=dict(requested=True,no_replacements=True,
++                        finish_current_episode=True)
++                codes = [c.poll() for c, _ in children]
++                for index, code in enumerate(codes):
++                    if code is None or code == 0:
++                        continue
++                    child, entry = children[index]
++                    entry['exit_code'] = code
++                    from .worker_lifetime import planned_recycle
++                    planned = planned_recycle(entry, code)
++                    if not planned and entry.get('node')=='timan1':
++                        from .timan1_workers import planned_recycle as wrapped_recycle
++                        planned=wrapped_recycle(entry,code)
++                    if drain or drain_requested():
++                        if planned:
++                            entry['drained_boundary']=True
++                            child.wait(timeout=5)
++                            continue
++                        report.update(status='PARTIAL',reason='worker_failed_during_fleet_drain')
++                        report['worker_failures'].append(dict(index=index,pid=child.pid,exit_code=code,
++                            generation=entry['generation']))
++                        break
++                    if index not in pending:
++                        failure = dict(index=index, pid=child.pid, exit_code=code,
++                            generation=entry['generation'], signal=-code if code < 0 else None)
++                        report['worker_recycles' if planned else 'worker_failures'].append(failure)
++                        if not planned and restarts.get(index, 0) >= campaign.get('worker_restart_limit', 2):
++                            report.update(status='PARTIAL', reason='worker_restart_budget_exhausted')
++                            break
++                        pending[index] = time.monotonic()+RECYCLE_TIMEOUT_SECONDS
++                    with (run.parent/'.memory_admission.lock').open('a') as memory_lock:
++                        fcntl.flock(memory_lock, fcntl.LOCK_EX)
++                        if planned:
++                            allowed = recycle_slot(report,child,entry,gpu_lock)
++                            gpu_allowed = allowed['admitted']
++                        else:
++                            allowed = admission(dict(campaign, node_workers=1), run, replacement=True)
++                            gpu_allowed = not hasattr(gpu_lock, 'check') or gpu_lock.check(index)
++                        report['last_replacement'] = dict(index=index,generation=entry['generation'],
++                            planned_recycle=planned,old_pid=child.pid,admission=allowed,gpu_admitted=gpu_allowed,
++                            remaining_seconds=max(0,pending[index]-time.monotonic()))
++                        disk = disk_admission(run,minimum_bytes(campaign))
++                        report['disk_admission'] = report['last_replacement']['disk_admission'] = disk
++                        if not disk['admitted']:
++                            if report.get('dispatch_pause',{}).get('reason') != 'worker_disk_low':
++                                print('worker recycle paused: '+disk['reason'],flush=True)
++                                report.setdefault('worker_disk_events',[]).append(dict(event='replacement_paused',
++                                    index=index,generation=entry['generation'],disk_admission=disk))
++                            report['dispatch_pause'] = dict(reason='worker_disk_low',disk_admission=disk,
++                                remaining_seconds=max(0,pending[index]-time.monotonic()))
++                        elif report.get('dispatch_pause',{}).get('reason') == 'worker_disk_low':
++                            report.setdefault('worker_disk_events',[]).append(dict(event='replacement_resumed',
++                                index=index,generation=entry['generation'],disk_admission=disk))
++                            report.pop('dispatch_pause')
++                        if allowed['admitted'] and gpu_allowed and disk['admitted']:
++                            # The generation file remains on disk for audit. Its
++                            # parent FD must not accumulate across N4 replacements.
++                            child.wait(timeout=5)
++                            logs[index].close()
++                            if drain_requested():
++                                entry['drained_boundary']=True
++                                continue
++                            if not planned:
++                                restarts[index] = restarts.get(index, 0)+1
++                            spawned=launch(index, entry['generation']+1)
++                            if spawned is None:
++                                entry['drained_boundary']=True
++                                continue
++                            children[index] = spawned
++                            pending.pop(index)
++                        elif time.monotonic() >= pending[index]:
++                            report.update(status='PARTIAL', reason=(disk['reason'] if not disk['admitted'] else
++                                          'worker_restart_resource_timeout'),
++                                          memory_admission=allowed, gpu_admitted=gpu_allowed)
++                            break
++                    write_json(run/'receipt.json', report)
++                if report['status'] != 'RUNNING':
++                    break
++                if all(c == 0 or e.get('drained_boundary') for c,(_,e) in zip(codes,children)):
++                    report.update(status='PASS', reason='fleet_drained' if drain_requested() else 'normal_exit')
++                    break
++                time.sleep(.2)
+             else:
+-                report['status'] = 'RUNNING'
+-                for index in range(campaign['node_workers']):
+-                    if drain_requested():break
+-                    spawned=launch(index)
+-                    if spawned is None:break
+-                    children.append(spawned)
+-        if campaign.get('cache_study'):
+-            print(json.dumps(dict(fleet_receipt=str(run/'receipt.json'),status=report['status'],
+-                workers_spawned=len(children),worker_logs=str(run/'worker_*_generation_*.log'),
+-                awaiting_driver=dict(host=campaign['driver_host'],
+-                    port=campaign.get('driver_public_port',campaign['driver_port'])))),flush=True)
+-        until = started + campaign['seconds']
+-        while report['status']=='RUNNING' and not stopped and time.monotonic() < until:
+-            drain = drain_requested()
+-            if drain:
+-                report['fleet_drain']=dict(requested=True,no_replacements=True,
+-                    finish_current_episode=True)
+-            codes = [c.poll() for c, _ in children]
+-            for index, code in enumerate(codes):
+-                if code is None or code == 0:
+-                    continue
+-                child, entry = children[index]
+-                entry['exit_code'] = code
+-                from .worker_lifetime import planned_recycle
+-                planned = planned_recycle(entry, code)
+-                if not planned and entry.get('node')=='timan1':
+-                    from .timan1_workers import planned_recycle as wrapped_recycle
+-                    planned=wrapped_recycle(entry,code)
+-                if drain or drain_requested():
+-                    if planned:
+-                        entry['drained_boundary']=True
+-                        child.wait(timeout=5)
+-                        continue
+-                    report.update(status='PARTIAL',reason='worker_failed_during_fleet_drain')
+-                    report['worker_failures'].append(dict(index=index,pid=child.pid,exit_code=code,
+-                        generation=entry['generation']))
+-                    break
+-                if index not in pending:
+-                    failure = dict(index=index, pid=child.pid, exit_code=code,
+-                        generation=entry['generation'], signal=-code if code < 0 else None)
+-                    report['worker_recycles' if planned else 'worker_failures'].append(failure)
+-                    if not planned and restarts.get(index, 0) >= campaign.get('worker_restart_limit', 2):
+-                        report.update(status='PARTIAL', reason='worker_restart_budget_exhausted')
+-                        break
+-                    pending[index] = time.monotonic()+RECYCLE_TIMEOUT_SECONDS
+-                with (run.parent/'.memory_admission.lock').open('a') as memory_lock:
+-                    fcntl.flock(memory_lock, fcntl.LOCK_EX)
+-                    if planned:
+-                        allowed = recycle_slot(report,child,entry,gpu_lock)
+-                        gpu_allowed = allowed['admitted']
+-                    else:
+-                        allowed = admission(dict(campaign, node_workers=1), run, replacement=True)
+-                        gpu_allowed = not hasattr(gpu_lock, 'check') or gpu_lock.check(index)
+-                    report['last_replacement'] = dict(index=index,generation=entry['generation'],
+-                        planned_recycle=planned,old_pid=child.pid,admission=allowed,gpu_admitted=gpu_allowed,
+-                        remaining_seconds=max(0,pending[index]-time.monotonic()))
+-                    disk = disk_admission(run,minimum_bytes(campaign))
+-                    report['disk_admission'] = report['last_replacement']['disk_admission'] = disk
+-                    if not disk['admitted']:
+-                        if report.get('dispatch_pause',{}).get('reason') != 'worker_disk_low':
+-                            print('worker recycle paused: '+disk['reason'],flush=True)
+-                            report.setdefault('worker_disk_events',[]).append(dict(event='replacement_paused',
+-                                index=index,generation=entry['generation'],disk_admission=disk))
+-                        report['dispatch_pause'] = dict(reason='worker_disk_low',disk_admission=disk,
+-                            remaining_seconds=max(0,pending[index]-time.monotonic()))
+-                    elif report.get('dispatch_pause',{}).get('reason') == 'worker_disk_low':
+-                        report.setdefault('worker_disk_events',[]).append(dict(event='replacement_resumed',
+-                            index=index,generation=entry['generation'],disk_admission=disk))
+-                        report.pop('dispatch_pause')
+-                    if allowed['admitted'] and gpu_allowed and disk['admitted']:
+-                        # The generation file remains on disk for audit. Its
+-                        # parent FD must not accumulate across N4 replacements.
+-                        child.wait(timeout=5)
+-                        logs[index].close()
+-                        if drain_requested():
+-                            entry['drained_boundary']=True
+-                            continue
+-                        if not planned:
+-                            restarts[index] = restarts.get(index, 0)+1
+-                        spawned=launch(index, entry['generation']+1)
+-                        if spawned is None:
+-                            entry['drained_boundary']=True
+-                            continue
+-                        children[index] = spawned
+-                        pending.pop(index)
+-                    elif time.monotonic() >= pending[index]:
+-                        report.update(status='PARTIAL', reason=(disk['reason'] if not disk['admitted'] else
+-                                      'worker_restart_resource_timeout'),
+-                                      memory_admission=allowed, gpu_admitted=gpu_allowed)
+-                        break
+-                write_json(run/'receipt.json', report)
+-            if report['status'] != 'RUNNING':
+-                break
+-            if all(c == 0 or e.get('drained_boundary') for c,(_,e) in zip(codes,children)):
+-                report.update(status='PASS', reason='fleet_drained' if drain_requested() else 'normal_exit')
+-                break
+-            time.sleep(.2)
+-        else:
+-            if report['status']=='RUNNING':
+-                report.update(status='PARTIAL', reason='interrupted' if stopped else 'worker_deadline')
++                if report['status']=='RUNNING':
++                    report.update(status='PARTIAL', reason='interrupted' if stopped else 'worker_deadline')
+     except DrainedBeforeStart:
+         report.update(status='PASS',reason='fleet_drained',
+             fleet_drain=dict(requested=True,no_replacements=True,finish_current_episode=True))
+@@ -311,6 +328,11 @@
+                 child.kill()
+                 entry['forced'] = True
+             entry['exit_code'] = child.wait(timeout=5)
++        if autoscaler is not None:
++            from exp.offline_search.rounds.r17.autoscale_1017.kernel_evidence import collect
++            collect(run, autoscaler.started_wall)
++        if autoscaler is not None and hasattr(autoscaler, 'slots'):
++            autoscaler.slots.close()
+         for log in logs.values():
+             log.close()
+         report['elapsed_seconds'] = time.monotonic()-started
+--- a/exp/r17_integration/ops/worker_memory.py
++++ b/exp/r17_integration/ops/worker_memory.py
+@@ -5,7 +5,7 @@
+ from .formal_process import alive
+ 
+ MIB = 1024*1024
+-RAM_HEADROOM_MIB = 8192
++RAM_HEADROOM_MIB = 20480
+ CACHE_RAM_MIB = 3584
+ 
+ 
+@@ -110,7 +110,7 @@
+     requested = campaign['node_workers']*per_worker
+     result = dict(total_bytes=total, available_bytes=available, headroom_bytes=headroom,
+                   other_pending_bytes=pending, requested_bytes=requested, other_fleets=observed,
+-                  worker_memory_mib=per_worker//MIB, admitted=True)  # owner 2026-10-10: no RAM admission
++                  worker_memory_mib=per_worker//MIB, admitted=available-requested-pending >= headroom)
+     if not result['admitted']:
+         result['reason'] = ('node worker memory admission refused: requested '+str(campaign['node_workers'])+
+             ' workers at '+str(per_worker//MIB)+' MiB each; available after fleet reservations/headroom '+
+--- a/exp/r17_integration/ops/worker_gpu.py
++++ b/exp/r17_integration/ops/worker_gpu.py
+@@ -107,7 +107,7 @@
+         holding = owner and alive(owner) and not reservation.get('released', False)
+         assignments = reservation.get('assignments', [])
+         if holding:
+-            devices = [(e['index'], e['device']) for e in assignments] if assignments else [
++            devices = [(e['index'], e['device']) for e in assignments] if assignments or reservation.get('autoscale') else [
+                 (i, config['worker_egl_device']) for i in range(config.get('node_workers', data.get('workers',len(live))))]
+         else:
+             devices = [(e.get('index'), e.get('egl_device', config['worker_egl_device'])) for e in live]
+--- a/exp/r17_integration/ops/local_workers.py
++++ b/exp/r17_integration/ops/local_workers.py
+@@ -27,7 +27,7 @@
+     result = {}
+     for part in value.split(','):
+         node, number = part.split('=', 1)
+-        if node not in ('timan107','timan108','local','timan1') or node in result or int(number) < 1 or (node == 'timan1' and int(number) > 40):
++        if node not in ('timan107','local','timan1') or node in result or int(number) < 1:
+             raise ValueError('distinct allowed worker nodes and positive counts required')
+         result[node] = int(number)
+     return result
+@@ -157,6 +157,8 @@
+                   worker_vram_mib=campaign.get('local_worker_vram_mib',RENDERER_VRAM_MIB),
+                   worker_memory_headroom_mib=campaign.get('worker_memory_headroom_mib',RAM_HEADROOM_MIB),
+                   worker_server_vram_headroom_mib=growth)
++    if campaign.get('autoscale') and campaign['domain'] == 'metaworld':
++        worker.update(worker_max_episodes=32, worker_max_seconds=1800)
+     worker['policy_endpoint'] = ('127.0.0.1:'+str(campaign['public_port']) if campaign['server_node']=='local'
+                                  else campaign['endpoint'])
+     return worker
+@@ -178,6 +180,10 @@
+         overlay.append('exp/r17_integration/ops/timan1_workers.py')
+         if campaign.get('cache_capacity_authorization'):
+             overlay.append('exp/r17_integration/ops/cache_capacity.py')
++    if campaign.get('autoscale'):
++        from exp.offline_search.rounds.r17.autoscale_1017.bundle import files
++        overlay += files() + ['src/openpi/conductor/worker.py', 'exp/r17_integration/conductor/worker_entry.py', 'exp/r17_integration/ops/worker_lifetime.py',
++                              'exp/r17_integration/ops/formal_process.py', 'exp/r17_integration/ops/worker_memory.py']
+     with tempfile.TemporaryDirectory(prefix='local_worker_ops_',dir=directory) as temp:
+         temp = Path(temp)
+         for name,data in content.items():
+--- a/exp/offline_search/rounds/r17/filter_failed/timan1_gpu2.py
++++ b/exp/offline_search/rounds/r17/filter_failed/timan1_gpu2.py
+@@ -33,13 +33,13 @@
+         return None
+     domain = c.get('domain')
+     if (domain not in SIZES or domain == 'libero' and not c.get('cache_study') or
+-            type(n) is not int or not 1 <= n <= CAPS[domain]):
++            type(n) is not int or n < 1):
+         raise ValueError('timan1 requires LIBERO cache / MetaWorld workers within GPU2 capacity')
+     vram, ram = SIZES[domain]
+     return dict(schema='r17.timan1_gpu2_lease.v1', workers=n, device=DEVICE,
+                 device_minor=MINOR, uuid=UUID, pci=PCI, excluded_devices=[0, 1, 3],
+                 worker_memory_mib=ram, worker_vram_mib=vram,
+-                worker_max_episodes=4 if domain == 'libero' else 0,
++                worker_max_episodes=4 if domain == 'libero' else 32,
+                 maximum_workers=CAPS[domain])
+ 
+ 
+@@ -47,8 +47,10 @@
+     if worker.get('worker_node') != 'timan1':
+         return worker
+     lease = authorize(campaign)
++    if lease and campaign.get('autoscale'):lease = dict(lease, workers=worker['node_workers'])
+     if not lease or worker['node_workers'] != lease['workers']:
+         raise ValueError('timan1 worker count differs from GPU2 lease')
++    if campaign.get('autoscale'):worker['worker_max_seconds'] = 1800
+     worker.update(worker_egl_device=DEVICE, worker_egl_devices=[DEVICE],
+                   timan1_worker_lease=lease,
+                   worker_ram_reservation_mib=lease['worker_memory_mib'])
+--- a/exp/offline_search/rounds/r17/filter_failed/worker_resilience.py
++++ b/exp/offline_search/rounds/r17/filter_failed/worker_resilience.py
+@@ -11,12 +11,14 @@
+ 
+ from . import timan1_gpu2
+ 
+-NODES = ('timan107', 'timan108', 'timan1', 'local')
++NODES = ('timan107', 'timan1', 'local')
+ STATE = 'WORKER_NODE_STATE.json'
+ 
+ 
+ def capacity(node, run, vram, ram, growth=0, server_directory=None):
+     """Self-contained read-only probe: physical usage plus unmaterialized slots."""
++    if node == 'timan108':
++        raise ValueError('timan108 is disabled; no probe allowed')
+     import os
+     from pathlib import Path
+     import json
+@@ -101,7 +103,7 @@
+     memory = max(0, (mem['MemAvailable']-(mem['MemTotal']+9)//10-pending_ram)//ram)
+     hard = {'libero': 83, 'metaworld': 332}
+     cap = min(gpu, memory, hard['libero' if vram == 530 else 'metaworld'] if node == 'timan1' else gpu)
+-    return dict(capacity=cap, gpu_slots=gpu, ram_slots=memory, cards=cards, server_budget_mib=growth,
++    return dict(capacity=cap, gpu_slots=gpu, ram_slots=memory, mem_available_bytes=mem['MemAvailable']*1024**2, cards=cards, server_budget_mib=growth,
+                 boot_id=Path('/proc/sys/kernel/random/boot_id').read_text().strip())
+ 
+ 
+@@ -126,6 +128,9 @@
+                 row = json.loads(f.execute(argv, seconds=92))
+                 if type(row.get('capacity')) is not int or row['capacity'] < 0:
+                     raise ValueError('invalid capacity probe reply')
++                if campaign.get('autoscale'):
++                    row['capacity'] = campaign.get('autoscale_node_maxima', campaign.get('execution_worker_nodes', campaign['worker_nodes'])).get(node, 0)
++                    row['autoscale'] = True
+                 row.update(probe_status='MEASURED', probe_attempts=attempt, probe_errors=errors)
+                 return node, row
+             except Exception as exc:
+@@ -137,26 +142,19 @@
+                           probe_errors=errors,
+                           reason='capacity unknown after two failed probes; node excluded: '+errors[-1])
+     with ThreadPoolExecutor(max_workers=4) as pool:
+-        return dict(pool.map(probe, NODES))
++        return dict(pool.map(probe, tuple(n for n in NODES if not campaign.get('autoscale') or n in campaign.get('autoscale_node_maxima', campaign.get('execution_worker_nodes', campaign['worker_nodes'])))))
+ 
+ 
+ def allocate(requested, measured):
+-    caps = {n: r['capacity'] for n, r in measured.items()
+-            if r['capacity'] is not None and r['capacity'] > 0}
++    from exp.offline_search.rounds.r17.autoscale_1017.policy import place
++    if any(r.get('autoscale') for r in measured.values()):
++        return {n: min(v, measured.get(n, {}).get('capacity') or 0) for n, v in requested.items()
++                if n in NODES and (measured.get(n, {}).get('capacity') or 0) > 0}
++    caps = {n: dict(cap=r['capacity'], headroom=r.get('mem_available_bytes', r['capacity']), valid=True)
++            for n, r in measured.items() if n in NODES and r['capacity'] is not None and r['capacity'] > 0}
+     if not caps:
+         raise RuntimeError('no usable worker node remains')
+-    result = {n: min(requested.get(n, 0), cap) for n, cap in caps.items()}
+-    missing = min(sum(requested.values()), sum(caps.values()))-sum(result.values())
+-    spare = {n: caps[n]-result[n] for n in caps}
+-    total = sum(spare.values())
+-    if missing:
+-        shares = {n: missing*s//total for n, s in spare.items()}
+-        left = missing-sum(shares.values())
+-        order = sorted(spare, key=lambda n: (-(missing*spare[n] % total), n))
+-        for n in order[:left]:
+-            shares[n] += 1
+-        result = {n: result[n]+shares[n] for n in result}
+-    return {n: count for n, count in result.items() if count}
++    return {n: count for n, count in place(sum(requested.values()), caps).items() if count}
+ 
+ 
+ def record(campaign, directory, nodes, measured, phase):
+@@ -345,7 +343,7 @@
+     state_path=campaign_path.parent/'WORKER_NODE_STATE.json'
+     run_name=campaign['run_name']
+     def node_of(worker):
+-        return next((n for n in ('timan107','timan108','timan1','local')
++        return next((n for n in ('timan107','timan1','local')
+                      if isinstance(worker,str) and worker.startswith(run_name+'_'+n+'_')),None)
+     def sync(driver):
+         with driver._node_lock:
+@@ -354,7 +352,10 @@
+                 state=json.loads(state_path.read_text())
+                 driver._node_counts=state['nodes']
+                 driver._node_retired=set(state['retired'])
++                driver._node_worker_retired=set(state.get('retired_workers', []))
+                 driver._node_stamp=stamp
++            # Per-worker memory/throughput retirement is carried in pull metadata
++            # and handled by the core transport only at the next episode boundary.
+             connections=[conn for conn,worker in driver._node_connections.items()
+                          if node_of(worker) not in driver._node_counts]
+             with driver._shutdown_lock:
+@@ -388,7 +389,7 @@
+     def record_pull(self,payload,peer):
+         sync(self)
+         worker=payload.get('worker_id')
+-        self._shutdown_local.node_rejected=node_of(worker) not in self._node_counts
++        self._shutdown_local.node_rejected=(node_of(worker) not in self._node_counts or worker in self._node_worker_retired)
+         if self._shutdown_local.node_rejected:
+             self._shutdown_local.worker_id=worker
+             return worker  # Shutdown, never record a scientific probe rejection.
+--- a/exp/r17_integration/ops/formal_eval.py
++++ b/exp/r17_integration/ops/formal_eval.py
+@@ -61,6 +61,7 @@
+ 
+ 
+ def remote(node, argv, seconds=60, *, replay_safe=False):
++    if node == 'timan108':raise ValueError('timan108 is disabled; no probe allowed')
+     if node == 'local':
+         return execute(argv, seconds=seconds)
+     from .tether_retry import transient
+@@ -350,9 +351,18 @@
+         run=root+'/runs/'+name+'_'+node)
+ 
+ 
++from exp.offline_search.rounds.r17.filter_failed import timan1_gpu2 as _autoscale_gpu2
++
++
++@_autoscale_gpu2.coordinator()
+ def prepare_workers(campaign, directory, *, payload_override=None):
+     from .build_client_bundle import worker_payload_files, build_client_bundle
+     names = worker_payload_files(ROOT)
++    if campaign.get('autoscale'):
++        from exp.offline_search.rounds.r17.autoscale_1017.bundle import files
++        names += files()
++        if payload_override is not None and not campaign.get('autoscale_overlay'):
++            raise ValueError('use autoscale formal_trial prepare to seal a new worker orchestration overlay')
+     closed_capacity_refresh=bool(campaign.get('cache_capacity_authorization') and campaign.get('prepare_only') is True)
+     if closed_capacity_refresh:
+         from .cache_capacity import validate_authorization
+@@ -498,6 +508,10 @@
+         worker = dict(campaign, worker_node=node, node_workers=count,
+             worker_run=paths['run'], worker_private_root=paths['private'],
+             worker_benchmark=stage+'/benchmark.json')
++        if campaign.get('autoscale'):
++            env.update(OPENPI_AUTOSCALE_NODE=paths['run']+'/AUTOSCALE_NODE.json',
++                       OPENPI_AUTOSCALE_CONTROL=paths['run']+'/AUTOSCALE_CONTROL.json')
++            worker['autoscale_initial'] = count
+         if campaign.get('cache_capacity_authorization'):
+             from .cache_capacity import renderer_devices
+             devices=renderer_devices(campaign,node)
+@@ -524,7 +538,7 @@
+             'print(json.dumps(admission('+repr(memory_job)+','+repr(paths['run'])+')))'], replay_safe=True))
+         write_json(directory/(node+'_MEMORY_ADMISSION.json'), memory)
+         from .cache_capacity import can_defer_admission
+-        deferred=can_defer_admission(campaign)
++        deferred=bool(campaign.get('autoscale')) or can_defer_admission(campaign)
+         if not memory['admitted'] and not deferred and (not campaign.get('prepare_only') or campaign.get('cache_worker_orchestration')):
+             raise RuntimeError(node+': '+memory['reason'])
+         if campaign.get('cache_worker_orchestration'):
+@@ -685,6 +699,16 @@
+ 
+ @campaign_retries
+ def prepare(campaign, directory):
++    campaign.setdefault('autoscale', dict(mode='dynamic'))
++    campaign.setdefault('autoscale_maximum', campaign['workers'])
++    from exp.offline_search.rounds.r17.autoscale_1017.policy import Config
++    Config(**campaign['autoscale'])
++    if campaign.get('autoscale') and any(campaign.get(k) for k in ('runtime_from', 'resume_from', 'cache_control')):
++        raise ValueError('autoscale requires a newly prepared release')
++    if campaign.get('domain') == 'metaworld' and not campaign.get('worker_max_episodes'):
++        campaign.update(worker_max_episodes=32, worker_max_seconds=1800)
++    if 'timan108' in campaign.get('execution_worker_nodes', campaign.get('worker_nodes', {})):
++        raise ValueError('timan108 is disabled; choose timan107, timan1 GPU2, or local')
+     from .sync_back import snapshot_run, install_snapshot
+     from .build_client_bundle import sha256
+     if campaign.get('domain') == 'libero' and campaign.get('eval_pool') == 'B' and not campaign.get('cache_study') and not campaign.get('library'):
+@@ -711,7 +735,8 @@
+             ', "H100 free-space admission failed"; print(json.dumps(dict(status="PASS",free_data_bytes=d,free_tmp_bytes=t)))')
+         write_json(directory/'H100_DISK_ADMISSION.json',json.loads(remote('h100',[host_python(campaign),'-c',code])))
+     from .formal_prestage import runtime_release, phase
+-    with phase(directory, 'runtime_build_verify_transfer'):
++    from exp.offline_search.rounds.r17.autoscale_1017.bundle import runtime_sources
++    with runtime_sources(campaign), phase(directory, 'runtime_build_verify_transfer'):
+         runtime_release(sys.modules[__name__],campaign,directory)
+     root = campaign['runtime']
+     write_json(directory / 'campaign.json', campaign)
+@@ -1009,10 +1034,12 @@
+         if UNREACHABLE_UNTIL.get(node, 0) > time.monotonic():
+             continue
+         entries=[dict(label=o['label'],request=o['request']) for o in remote_owned if o['node']==node]
++        from exp.offline_search.rounds.r17.autoscale_1017.driver import status_entries
++        entries=status_entries(entries, directory)
+         owned=next(o for o in remote_owned if o['node']==node)
+         key=node,json.dumps(entries,sort_keys=True)
+         payload=repr(entries)
+-        if len(payload.encode())>8192 and not (globals().get('worker_resilience') and
++        if len(payload.encode())>8192 and not any(e.get('autoscale_control') for e in entries) and not (globals().get('worker_resilience') and
+                 all(o['label']=='workers' for o in entries)):
+             if key not in control_files:
+                 control_files[key]=stage_json(node,entries,directory,str(Path(owned['request']['lease']).parent),
+@@ -1040,10 +1067,13 @@
+             print('R17 probe: '+node+' unreachable through tether; continuing without its status', file=sys.stderr, flush=True)
+             continue
+         for label,value in results.items():status_cache[node,label]=value
++    from exp.offline_search.rounds.r17.autoscale_1017.driver import collect_status
++    collect_status(directory, status_cache)
+     return time.monotonic()
+ 
+ 
+ @campaign_retries
++@_autoscale_gpu2.coordinator()
+ def run_campaign(campaign, directory, deployment):
+     class NativeQualificationComplete(Exception):
+         pass
+@@ -1100,6 +1130,9 @@
+         log = (directory / (label+'.log')).open('ab')
+         handles.append(log)
+         child_env = {**os.environ, **env}
++        if label == 'driver' and campaign.get('autoscale'):
++            child_env.update(OPENPI_AUTOSCALE_CONFIG=str(directory/'campaign.json'),
++                             OPENPI_AUTOSCALE_DRIVER_MODULE='exp.offline_search.rounds.r17.autoscale_1017.driver')
+         if label.startswith('replica_') and child_env.get('CUDA_VISIBLE_DEVICES')=='':
+             # Slot wrappers deliberately hide CUDA from the CPU conductor.
+             # An explicit --run admits only this owned resident to the GPU.
+@@ -1114,6 +1147,8 @@
+         save()
+         return child
+     def spawn_remote(node, label, argv, env, root, python, stage, ownership=None):
++        if node == 'timan1' and label == 'workers' and campaign.get('autoscale'):
++            argv = _autoscale_gpu2.bootstrap(argv[0], ['exp.r17_integration.ops.formal_workers', *argv[4:]], 'fleet')
+         if ownership:
+             from .live_fleets import owned_spawn
+             def record(owned,first):
+@@ -1588,14 +1623,18 @@
+     p = argparse.ArgumentParser(description=__doc__)
+     p.add_argument('mode', nargs='?', choices=('launch', 'seal', 'aggregate'), default='launch')
+     p.add_argument('--campaign')
++    p.add_argument('--semantic-campaign', help='Stable scientific namespace across paired runtime trials')
+     p.add_argument('--model', choices=tuple(DEFAULT_CHECKPOINTS), default='dp_libero')
+     p.add_argument('--checkpoint')
+     p.add_argument('--server-node', choices=('local', 'h100'))
+-    p.add_argument('--worker-node', choices=('timan107', 'timan108','local','timan1'))
++    p.add_argument('--worker-node', choices=('timan107','local','timan1'))
+     from .local_workers import counts
+-    p.add_argument('--worker-counts', type=counts, help='Explicit per-node counts, e.g. timan107=8,local=16; overrides --workers/--worker-node')
++    p.add_argument('--worker-counts', type=counts, help='Desired per-node maxima, e.g. timan1=150,timan107=100; runtime chooses active counts')
+     p.add_argument('--local-worker-memory-mib',type=int,default=4096)
+     p.add_argument('--local-worker-vram-mib',type=int,default=1024)
++    p.add_argument('--worker-autoscale', choices=('dynamic','fixed'), default='dynamic')
++    p.add_argument('--worker-memory-floor-gib', type=float, default=20)
++    p.add_argument('--worker-memory-critical-gib', type=float, default=10)
+     p.add_argument('--extra-workers', type=int, default=0, help='Workers on the other timan node')
+     p.add_argument('--replicas', type=int)
+     p.add_argument('--mps', action='store_true',
+@@ -1728,7 +1767,7 @@
+     if args.native_parity_only and not cosmos:
+         p.error('--native-parity-only is Cosmos only')
+     args.server_node = args.server_node or ('h100' if cosmos or args.model == 'groot_libero' else 'local')
+-    args.worker_node = args.worker_node or ('timan108' if cosmos else 'timan107')
++    args.worker_node = args.worker_node or 'timan107'
+     args.port = args.port if args.port is not None else (23240 if cosmos else 23160)
+     args.driver_port = args.driver_port if args.driver_port is not None else (
+         23112 if cosmos else 23169 if args.model in ('pi05_libero', 'groot_libero') else 23179)
+@@ -1759,7 +1798,7 @@
+     if args.worker_memory_mib is None:
+         args.worker_memory_mib = 6144 if args.model.endswith('libero') else 2048
+     if args.worker_max_episodes is None:
+-        args.worker_max_episodes = 4 if args.model.endswith('libero') else 0
++        args.worker_max_episodes = 4 if args.model.endswith('libero') else 32
+     if args.worker_memory_mib < 1 or args.worker_restart_limit < 0 or args.worker_max_episodes < 0:
+         p.error('positive worker memory and nonnegative worker restart limit required')
+     if not 0 < args.worker_min_free_gib < 1024:
+@@ -1836,8 +1875,8 @@
+     host = 'ziyanglin.com' if args.server_node == 'local' else '149.165.153.233'
+     worker_nodes = args.worker_counts or {args.worker_node:args.workers}
+     if args.extra_workers:
+-        worker_nodes['timan108' if args.worker_node == 'timan107' else 'timan107'] = args.extra_workers
+-    campaign = dict(run_name=name, model=model, domain=domain,
++        worker_nodes['timan1' if args.worker_node == 'timan107' else 'timan107'] = args.extra_workers
++    campaign = dict(run_name=name, semantic_campaign=args.semantic_campaign or name, model=model, domain=domain,
+         checkpoint=args.checkpoint or ('/home/exouser/ckpt' if args.model == 'groot_libero' and args.server_node == 'h100'
+                                       else DEFAULT_CHECKPOINTS[args.model]),
+         device=args.gpu, server_node=args.server_node, worker_nodes=worker_nodes,driver_mode=args.driver_mode,
+@@ -1847,7 +1886,10 @@
+         worker_memory_mib=args.worker_memory_mib, worker_restart_limit=args.worker_restart_limit,
+         worker_min_free_gib=args.worker_min_free_gib,
+         local_worker_memory_mib=args.local_worker_memory_mib,local_worker_vram_mib=args.local_worker_vram_mib,
+-        worker_max_episodes=args.worker_max_episodes,
++        worker_max_episodes=args.worker_max_episodes, worker_max_seconds=1800,
++        autoscale=dict(mode=args.worker_autoscale, floor=int(args.worker_memory_floor_gib*1024**3),
++                       critical=int(args.worker_memory_critical_gib*1024**3)),
++        autoscale_maximum=sum(worker_nodes.values()),
+         public_port=args.port, backend_ports=list(range(args.port+1,args.port+1+args.replicas)),
+         ports=[args.port,*range(args.port+1,args.port+1+args.replicas),args.driver_port],
+         driver_host='ziyanglin.com', driver_port=args.driver_port,
+--- a/exp/r17_integration/ops/driver_release.py
++++ b/exp/r17_integration/ops/driver_release.py
+@@ -25,6 +25,7 @@
+         'exp/r17_integration/ops/cache_resume.py','exp/r17_integration/ops/cache_driver_legacy.py') if n in files)
+     if mode=='group-commit':names.update(OVERLAY)
+     names.update(n for n in LIVE_OVERLAY if n in files)
++    names.update(n for n in files if n.startswith('exp/offline_search/rounds/r17/autoscale_1017/'))
+     return {n:files[n] for n in sorted(names)}
+ 
+ 
+@@ -57,6 +58,9 @@
+     overlay=((*OVERLAY,) if mode=='group-commit' else ())
+     if campaign.get('cache_study'):overlay=(*overlay,*CACHE_OVERLAY)
+     if campaign.get('live_fleets'):overlay=(*overlay,*LIVE_OVERLAY)
++    if campaign.get('autoscale'):
++        from exp.offline_search.rounds.r17.autoscale_1017.release import driver_files as autoscale_files
++        overlay = (*overlay, *autoscale_files())
+     if overlay:
+         selected_archive=directory/'driver_runtime.tar'
+         with tarfile.open(archive) as original,tarfile.open(selected_archive,'w') as target:
+--- a/exp/offline_search/rounds/r16/conductor.py
++++ b/exp/offline_search/rounds/r16/conductor.py
+@@ -535,7 +535,11 @@
+     pool='B' if args.phase=='dev' else 'A'
+     specs=[]
+     servers=[item.partition('=')[0] for item in args.servers.split(',')]
+-    if not 1<=args.workers<=64: raise ValueError('Worker cap is 64')
++    if args.workers < 1: raise ValueError('Positive desired worker maximum required')
++    os.environ.update(OPENPI_WORKER_MEMORY_GUARD='1',
++                      OPENPI_WORKER_GOVERNOR='exp.offline_search.rounds.r17.autoscale_1017.legacy',
++                      OPENPI_AUTOSCALE_MODEL=args.model,
++                      OPENPI_AUTOSCALE_RUN=str(Path('/scratch/zixuans8/mw_r17/autoscale_legacy')/str(os.getpid())))
+     lock_path=Path('/scratch/zixuans8/openpi_trace_h100/os_cl/locks/fleet.lock')
+     # Shares the OLD fleet lock read-only in meaning: fail if that line still
+     # owns the workers; never terminate it or update its code/queue.
+@@ -584,7 +588,7 @@
+     p.add_argument('--port',type=int,default=23179);p.add_argument('--smoke-episodes',type=int)
+     p=sub.add_parser('agent');p.add_argument('--model',choices=('pi05','groot'),required=True)
+     p.add_argument('--phase',choices=('dev','test'),required=True);p.add_argument('--servers',required=True)
+-    p.add_argument('--driver-host',required=True);p.add_argument('--port',type=int,default=23179);p.add_argument('--workers',type=int,default=64)
++    p.add_argument('--driver-host',required=True);p.add_argument('--port',type=int,default=23179);p.add_argument('--workers',type=int,default=64,help='Desired maximum; node memory governor chooses active count')
+     p.add_argument('--lease-stdin',action='store_true')
+     p.add_argument('--lease-file',type=Path);p.add_argument('--lease-token');p.add_argument('--lease-timeout',type=int,default=90)
+     args=ap.parse_args()
+--- a/exp/offline_search/closed_loop/ops/h100/fleet.py
++++ b/exp/offline_search/closed_loop/ops/h100/fleet.py
+@@ -3,15 +3,14 @@
+ from pathlib import Path
+ 
+ FLEETS = {
+-    "timan108": (Path("/scratch/zixuans8/openpi_trace"), tuple(range(4)), 40),
+     "timan107": (Path("/scratch/zixuans8/openpi_trace_h100"), tuple(range(8)), 64),
+ }
+ 
+ 
+ def worker_host():
+-    host = os.environ.get("WORKER_HOST", "timan108")
++    host = os.environ.get("WORKER_HOST", "timan107")
+     if host not in FLEETS:
+-        raise ValueError("WORKER_HOST must be timan108 or timan107")
++        raise ValueError("WORKER_HOST must be timan107; timan108 is disabled")
+     return host
+ 
+ 
+--- a/exp/offline_search/closed_loop/ops/h100/control.py
++++ b/exp/offline_search/closed_loop/ops/h100/control.py
+@@ -25,7 +25,7 @@
+ 
+ HERE = Path(__file__).resolve().parent
+ REPO = HERE.parents[4]
+-REMOTE_NODE = {"h100": str(BASE / "node.py"), "timan108": str(ISLAND / "os_cl/node.py")}
++REMOTE_NODE = {"h100": str(BASE / "node.py")}
+ REMOTE_NODE["timan107"] = str(island("timan107") / "os_cl/node.py")
+ PY = REPO / ".venv/bin/python"
+ T108_STAGE = Path("/srv/local/zixuans8/oscl_sb_stage")  # md0, same disk as /scratch; tether allows /srv
+@@ -68,6 +68,7 @@
+ 
+ 
+ def remote(node, cmd, timeout=300, attempts=None):
++    if node == 'timan108':raise ValueError('timan108 is disabled; no probe allowed')
+     if node == 'local':
+         return run(cmd, timeout=timeout, attempts=1)
+     return run(["tether", "exec", node, "--", "bash", "-c", shlex.join(list(map(str, cmd)))],
+--- a/exp/offline_search/closed_loop/ops/h100/run_arm.sh
++++ b/exp/offline_search/closed_loop/ops/h100/run_arm.sh
+@@ -7,15 +7,14 @@
+ SUITE=${1:?suite}; ARM=${2:?arm}; SERVERS=${3:?servers}; SW=${4:?server-workers}; OUT=${5:?out}
+ shift 5
+ R=/scratch/zixuans8/openpi_trace
+-DEFAULT_WORKER_HOST=timan108
++DEFAULT_WORKER_HOST=timan107
+ if [ "$(readlink -f "$0")" = /scratch/zixuans8/openpi_trace_h100/os_cl/run_arm.sh ]; then
+   DEFAULT_WORKER_HOST=timan107
+   [ "${WORKER_HOST:-timan107}" = timan107 ] || { echo "new island requires WORKER_HOST=timan107" >&2; exit 2; }
+ fi
+ case "${WORKER_HOST:-$DEFAULT_WORKER_HOST}" in
+-  timan108) GPU_IDS=0,1,2,3; GPU_COUNT=4; WORKER_CAP=40 ;;
+   timan107) R=/scratch/zixuans8/openpi_trace_h100; GPU_IDS=0,1,2,3,4,5,6,7; GPU_COUNT=8; WORKER_CAP=64 ;;
+-  *) echo "WORKER_HOST must be timan108 or timan107" >&2; exit 2 ;;
++  *) echo "WORKER_HOST must be timan107; timan108 is disabled" >&2; exit 2 ;;
+ esac
+ # Hold the lock in the driver shell and its run_gtp child for their entire lifetime.
+ mkdir -p "$R/os_cl/locks"
+@@ -23,6 +22,10 @@
+ flock -n 9 || exit 75
+ export HOME=/home/zixuans8
+ export LIBERO_CONFIG_PATH=$R/os_cl/libero
++export OPENPI_WORKER_MEMORY_GUARD=1
++export OPENPI_WORKER_GOVERNOR=exp.offline_search.rounds.r17.autoscale_1017.legacy
++export OPENPI_AUTOSCALE_RUN="$OUT/autoscale"
++export OPENPI_AUTOSCALE_CAMPAIGN="$ARM"
+ export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1
+ export PYTHONPATH=$R/packages/openpi-client/src:$R/src:$R
+ export PATH=/scratch/zixuans8/dsp_bin:/usr/local/bin:/usr/bin:/bin

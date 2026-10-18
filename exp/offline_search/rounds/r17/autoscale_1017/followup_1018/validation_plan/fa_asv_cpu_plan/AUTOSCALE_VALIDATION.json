@@ -1,0 +1,11 @@
+{
+  "schema": "autoscale.owner_validation.v1",
+  "path": "r17",
+  "run": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/validation_plan/fa_asv_cpu_plan",
+  "source": "/data/mw_finetune/eval/formal_fastwam_mw_mt50_500_20261009_223917_0b845f00",
+  "episodes": 256,
+  "maximum": 8,
+  "task_uid_sha256": "9b16e4cbd9a66d892d0738d4f29c0448d514deceee850253a73fb6fdd1ab3464",
+  "global_switch": "off",
+  "scientific_inputs_unchanged": true
+}

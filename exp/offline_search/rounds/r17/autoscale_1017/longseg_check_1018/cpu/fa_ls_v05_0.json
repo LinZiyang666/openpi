@@ -1,0 +1,51 @@
+{
+  "name": "fa_ls_v05_0",
+  "status": "PASS_LOCAL",
+  "native_strict_loader_proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed/startup_checks/ff1015_fastwam_li_18.json",
+  "native_strict_loader_path": "fastwam.loader.seal_descriptor/inspect_config/read_stats -> native CPU scheduler -> make_manifest",
+  "descriptor_bytes_equal": {
+    "load.json": true,
+    "model_spec.json": true,
+    "model_manifest.json": true,
+    "benchmark.json": true,
+    "full.yaml": true
+  },
+  "fresh_frozen_interpreter_probe": null,
+  "model_identity_equal": true,
+  "sealed_metadata_equal_to_actual": true,
+  "weights_and_fit_reread": false,
+  "immutable_inputs_same_inodes": true,
+  "planner_episodes": 4023,
+  "unique_task_uids": 4023,
+  "source_native_plan_equal": false,
+  "mps_pipe": "/data/mw_finetune/eval/fa_ls_v05_0/mps/e2823e/p",
+  "mps_pipe_bytes": 47,
+  "remote_interpreter_repeated": false,
+  "cached_remote_cpu_probe": {
+    "packages": {
+      "torch": "2.7.1+cu128",
+      "torchvision": "0.22.1+cu128",
+      "diffusers": "0.39.0",
+      "transformers": "5.5.4",
+      "numpy": "2.2.6",
+      "safetensors": "0.8.0"
+    },
+    "python": "/data/mw_finetune/envs/fastwam/bin/python",
+    "bootstrap_imported": true,
+    "cuda_initialized": false
+  },
+  "cached_remote_receipt": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/cpu/fa_ls_v05_0.json",
+  "local_bootstrap_syntax_and_pin_checked": true,
+  "fresh_native_dp_startup_admission_checked": false,
+  "decision_clock_recalibration": {
+    "Q3_artifacts": [
+      "624da83e3505996a93f92939c10498f11646d7b54913a160e53f404b66e66970"
+    ],
+    "new_artifact_inodes_verified": true,
+    "frozen_metric_identical": true,
+    "UID_namespace_preserved": true,
+    "frozen_driver_plan_overlay_imported": false,
+    "level_ir": "M/N_segment_heads",
+    "tolerance": 0.005
+  }
+}

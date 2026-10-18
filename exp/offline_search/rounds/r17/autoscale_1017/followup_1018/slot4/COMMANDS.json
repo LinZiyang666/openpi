@@ -1,0 +1,51 @@
+[
+  {
+    "label": "before",
+    "command": [
+      ".venv/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "exp.offline_search.rounds.r17.autoscale_1017.cpu_only",
+      "-p",
+      "no:cacheprovider",
+      "-p",
+      "exp.offline_search.rounds.r17.autoscale_1017.followup_1018.slot4.baseline_plugin",
+      "--ignore=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests/test_slot4.py",
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests",
+      "exp/r17_integration/tests/ops/test_library_salvage.py",
+      "exp/r17_integration/tests/ops/test_local_library_salvage.py",
+      "exp/r17_integration/tests/ops/test_h100_argv_batch.py",
+      "exp/offline_search/rounds/r17/filter_failed/test_resume.py",
+      "exp/offline_search/rounds/r17/filter_failed/test_timan1_gpu2.py",
+      "--basetemp=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/slot4/before_tmp",
+      "--junitxml=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/slot4/before.xml"
+    ],
+    "code": 1,
+    "seconds": 310.95006108283997
+  },
+  {
+    "label": "after",
+    "command": [
+      ".venv/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "exp.offline_search.rounds.r17.autoscale_1017.cpu_only",
+      "-p",
+      "no:cacheprovider",
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests",
+      "exp/r17_integration/tests/ops/test_library_salvage.py",
+      "exp/r17_integration/tests/ops/test_local_library_salvage.py",
+      "exp/r17_integration/tests/ops/test_h100_argv_batch.py",
+      "exp/offline_search/rounds/r17/filter_failed/test_resume.py",
+      "exp/offline_search/rounds/r17/filter_failed/test_timan1_gpu2.py",
+      "--basetemp=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/slot4/after_tmp",
+      "--junitxml=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/slot4/after.xml"
+    ],
+    "code": 1,
+    "seconds": 113.71006870269775
+  }
+]

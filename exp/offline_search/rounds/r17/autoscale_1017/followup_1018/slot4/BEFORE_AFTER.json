@@ -1,0 +1,3383 @@
+{
+  "status": "PASS",
+  "baseline": "Four SHA-recorded pre-slot4 source files via read-only baseline_plugin; current fixtures unchanged on both sides",
+  "suites": [
+    {
+      "suite": "slot4_touched_paths",
+      "before_xml": "exp/offline_search/rounds/r17/autoscale_1017/followup_1018/slot4/before_verified.xml",
+      "after_xml": "exp/offline_search/rounds/r17/autoscale_1017/followup_1018/slot4/after_verified.xml",
+      "before": {
+        "passed": 225,
+        "failed": 6,
+        "skipped": 0,
+        "timeouts": 0,
+        "seconds": 149.76900000000012
+      },
+      "after": {
+        "passed": 237,
+        "failed": 6,
+        "skipped": 0,
+        "timeouts": 0,
+        "seconds": 113.55999999999999
+      },
+      "regressions": [],
+      "missing": [],
+      "cases": {
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_acceptance_fixes::test_actual_collector_falls_back_and_preserves_source": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_acceptance_fixes::test_counter_window_without_kernel_permissions[cgroup-FAIL]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_acceptance_fixes::test_counter_window_without_kernel_permissions[decrease-UNKNOWN]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_acceptance_fixes::test_counter_window_without_kernel_permissions[kill-FAIL]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_acceptance_fixes::test_counter_window_without_kernel_permissions[late_start-UNKNOWN]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_acceptance_fixes::test_counter_window_without_kernel_permissions[lifetime_zero-PASS]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_acceptance_fixes::test_counter_window_without_kernel_permissions[missing-UNKNOWN]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_acceptance_fixes::test_counter_window_without_kernel_permissions[reboot-UNKNOWN]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_acceptance_fixes::test_counter_window_without_kernel_permissions[short_end-UNKNOWN]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_acceptance_fixes::test_counter_window_without_kernel_permissions[zero-PASS]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.872,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.881,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_acceptance_fixes::test_existing_runtime_corruption_is_never_accepted_or_overwritten": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_acceptance_fixes::test_normal_user_counter_reader": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_acceptance_fixes::test_old_runtime_missing_identity_is_promoted_from_exact_archive": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.005,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.005,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_acceptance_fixes::test_pre_driver_reset_requires_closed_no_owned_processes_and_remote_backup": {
+          "before": {
+            "status": "passed",
+            "seconds": 20.922,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.008,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_acceptance_fixes::test_real_old_fw_source_prepare_keeps_all_256_task_fields": {
+          "before": {
+            "status": "passed",
+            "seconds": 10.258,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 11.16,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_acceptance_fixes::test_recreated_cgroup_and_boot_after_lane_do_not_certify_zero": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_acceptance_fixes::test_remote_reset_archives_all_leftovers_without_deleting_and_replays": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.003,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.003,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_acceptance_fixes::test_remote_reset_refuses_live_receipt[RECEIPT.json]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.009,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_acceptance_fixes::test_remote_reset_refuses_live_receipt[receipt.json]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_acceptance_fixes::test_runtime_prepare_stages_same_archive_not_checkout": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.008,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.008,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_defaults::test_continuation_keeps_frozen_mode_and_sealed_preparation_is_not_changed": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_defaults::test_denied_legacy_slots_do_not_resample_the_whole_node_per_slot": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_defaults::test_each_queued_prepare_dispatch_cpu_only[fa_co_f_f_l-R17]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.018,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.02,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_defaults::test_each_queued_prepare_dispatch_cpu_only[fa_co_f_f_oc1-R17-fixed]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.025,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.023,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_defaults::test_each_queued_prepare_dispatch_cpu_only[fa_co_f_u_l-R17]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.02,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.022,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_defaults::test_each_queued_prepare_dispatch_cpu_only[fa_co_r_f_l-R17]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.023,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.022,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_defaults::test_each_queued_prepare_dispatch_cpu_only[fa_gr_f_f_l-R15]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.021,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.022,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_defaults::test_each_queued_prepare_dispatch_cpu_only[fa_gr_f_u_l-R15]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.021,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.022,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_defaults::test_each_queued_prepare_dispatch_cpu_only[fa_gr_r_f_l-R16]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.023,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.022,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_defaults::test_each_queued_prepare_dispatch_cpu_only[fa_gr_r_u_l-R16]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.022,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.024,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_defaults::test_each_queued_prepare_dispatch_cpu_only[fa_pi_f_f_l-R15]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.02,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.02,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_defaults::test_each_queued_prepare_dispatch_cpu_only[fa_pi_f_f_o-R15]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.02,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.02,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_defaults::test_each_queued_prepare_dispatch_cpu_only[fa_pi_f_u_l-R15]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.02,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.021,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_defaults::test_each_queued_prepare_dispatch_cpu_only[fa_pi_f_u_o-R15]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.021,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.021,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_defaults::test_each_queued_prepare_dispatch_cpu_only[fa_pi_r_f_l-R16]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.021,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.023,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_defaults::test_legacy_overlay_imports_new_core_and_preserves_frozen_fallback": {
+          "before": {
+            "status": "passed",
+            "seconds": 1.604,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 1.683,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_defaults::test_legacy_plans_invariant_under_desired_count_and_endpoint_reassignment": {
+          "before": {
+            "status": "passed",
+            "seconds": 1.711,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 2.087,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_defaults::test_legacy_supervisor_recovers_after_bad_frame": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_defaults::test_physical_defaults_and_explicit_overrides[libero-expected0]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_defaults::test_physical_defaults_and_explicit_overrides[metaworld-expected1]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_defaults::test_r15_rpc_uses_new_helper_and_preserves_scoped_lock": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.004,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.004,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_defaults::test_r17_dead_node_refused_before_transport": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_defaults::test_scalar_count_is_an_explicit_desired_maximum": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_defaults::test_supervisor_zero_workers_never_dispatches_an_episode": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_fairness::test_actual_gpu_growth_is_charged_to_its_lane_before_borrowing": {
+          "before": {
+            "status": "passed",
+            "seconds": 1.269,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 1.256,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_fairness::test_different_profiles_and_low_target_borrow_unused_entitlement": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_fairness::test_driver_intent_reclaims_borrowed_share_and_recovers_after_peer_finishes": {
+          "before": {
+            "status": "passed",
+            "seconds": 1.619,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 1.59,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_fairness::test_failed_memory_reader_holds_peer_admission_without_a_recovery_latch": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.016,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.015,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_fairness::test_finished_empty_supervisor_cannot_block_a_peer_after_heartbeat_stops": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.01,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.01,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_fairness::test_global_gpu_pending_counts_different_fleet_roots_and_observed_children": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_fairness::test_gpu_admission_charges_pending_workers_from_another_run_root": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.003,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.003,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_fairness::test_gpu_fragments_cannot_be_combined_into_extra_workers": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_fairness::test_late_unknown_campaign_reclaims_canary_from_full_borrower": {
+          "before": {
+            "status": "passed",
+            "seconds": 1.268,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 1.313,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_fairness::test_libero_and_metaworld_profiles_share_then_borrow_and_finish": {
+          "before": {
+            "status": "passed",
+            "seconds": 1.483,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 1.483,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_fairness::test_native_legacy_preparation_promotes_historical_counts[R15]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_fairness::test_native_legacy_preparation_promotes_historical_counts[R16]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_fairness::test_one_live_peak_outlier_is_not_reserved_for_every_worker": {
+          "before": {
+            "status": "passed",
+            "seconds": 1.233,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 1.207,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_fairness::test_peer_signal_failure_never_suppresses_known_local_critical_retirement": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.941,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.921,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_fairness::test_prepared_frozen_count_and_attested_hard_limit": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_fairness::test_splitting_a_campaign_into_fleets_does_not_multiply_its_share": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.817,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.787,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_fairness::test_two_campaigns_ramp_share_memory_and_gpu_then_return_borrowing[False-25]": {
+          "before": {
+            "status": "passed",
+            "seconds": 3.778,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 4.053,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_fairness::test_two_campaigns_ramp_share_memory_and_gpu_then_return_borrowing[True-27]": {
+          "before": {
+            "status": "passed",
+            "seconds": 4.193,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 4.241,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_formal::test_acceptance_enforces_own_evidence_duplicates_critical_oom_and_rate": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.01,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.01,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_formal::test_acceptance_separates_scheduled_probe_windows_without_rate_cherry_picking": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.004,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.004,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_formal::test_empty_kernel_window_needs_retention_anchor_not_a_new_message[covered--- No entries --\\n]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_formal::test_empty_kernel_window_needs_retention_anchor_not_a_new_message[covered-]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_formal::test_empty_kernel_window_needs_retention_anchor_not_a_new_message[denied--- No entries --\\n]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_formal::test_empty_kernel_window_needs_retention_anchor_not_a_new_message[denied-]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_formal::test_empty_kernel_window_needs_retention_anchor_not_a_new_message[missing--- No entries --\\n]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_formal::test_empty_kernel_window_needs_retention_anchor_not_a_new_message[missing-]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_formal::test_formal_maxima_change_only_resource_fields": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_formal::test_formal_prepare_uses_new_worker_pin_preserves_plan_and_native_server": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.018,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.019,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_formal::test_kernel_collection_once_at_end_and_unknown_is_not_zero_oom": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.003,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.003,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_formal::test_overlay_changes_only_listed_orchestration_files": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.013,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.015,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_formal::test_post_apply_capabilities_available": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_formal::test_shared_patch_defaults_and_dynamic_probe_set": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_formal::test_waiting_formal_queue_drops_dead_node_before_native_topology": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_formal::test_zero_oom_requires_log_retention_covering_run_start": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.003,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.003,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_generation_identity::test_real_driver_fleet_recycle_has_distinct_attested_worker_identity": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.054,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.08,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_generation_identity::test_real_legacy_agent_respawn_keeps_slot_and_uses_new_census_identity[R15]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.109,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.155,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_generation_identity::test_real_legacy_agent_respawn_keeps_slot_and_uses_new_census_identity[R16]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.105,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.13,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_integration::test_actual_r17_queue_identity_is_independent_of_worker_count_and_recycling": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.196,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.194,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_integration::test_applied_shared_modules_compile": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.076,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.081,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_integration::test_bundle_closure_contains_all_runtime_imports_without_server_edits": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_integration::test_gpu_environment_creation_is_serialized_across_threads": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.032,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.032,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_integration::test_legacy_agent_memory_guard_covers_start_and_respawn": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.014,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.01,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_integration::test_patched_driver_rates_count_only_actual_accepted_attempts": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_integration::test_patched_driver_transport_drains_individual_at_next_pull": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_integration::test_patched_worker_reports_before_recycle_and_does_not_mutate_task": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.003,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.003,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_integration::test_plan_comparison_and_closed_receipt_check_are_strict": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.004,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.003,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_integration::test_r17_fleet_recycles_waits_below_floor_then_recovers": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.028,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.027,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_integration::test_time_recycle_only_after_completed_episode": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_integration::test_timing_wraps_server_wait_without_changing_returned_actions": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_integration::test_trial_cli_and_metaworld_recycle_defaults": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.009,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.01,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_legacy_recycle::test_legacy_agent_real_runner_completes_four_before_recycle[R15]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.019,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.018,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_legacy_recycle::test_legacy_agent_real_runner_completes_four_before_recycle[R16]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.018,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.018,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_new_chains::test_deferred_longseg_workflow_uses_shared_stage": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.018,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.018,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_new_chains::test_longseg_check_local_only_never_contacts_h100": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.004,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_new_chains::test_new_chain_prepare[fa_co_f_f_oc1]": {
+          "before": {
+            "status": "passed",
+            "seconds": 20.052,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 1.93,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_new_chains::test_new_chain_prepare[fa_gr_r_u_l]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.025,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.024,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_new_chains::test_new_chain_prepare[fa_ls_dp_r_b_l]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.48,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.473,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_new_chains::test_new_chain_prepare[fa_ls_dp_r_u_m]": {
+          "before": {
+            "status": "passed",
+            "seconds": 39.954,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 40.641,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_new_chains::test_new_chain_prepare[fa_ls_fw_r_p_m]": {
+          "before": {
+            "status": "passed",
+            "seconds": 1.458,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 1.304,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_new_chains::test_new_chain_prepare[fa_ls_gr_r_p_m]": {
+          "before": {
+            "status": "passed",
+            "seconds": 1.313,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 1.312,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_new_chains::test_new_chain_prepare[fa_pi_r_f_l]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.024,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.024,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_off_r17_native::test_off_allocation_preserves_requested_native_nodes": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_off_r17_native::test_off_bootstrap_uses_exact_native_gpu2_source": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_off_r17_native::test_off_driver_release_matches_prepatch_on_same_real_frozen_archive": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.913,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.897,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_off_r17_native::test_off_gpu2_real_driver_survives_more_than_32_episodes_without_renderer_restart": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.176,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.173,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_off_r17_native::test_off_measure_and_legacy_probe_inject_native_capacity": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.058,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.063,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_off_r17_native::test_off_payload_all_patched_worker_modules_match_prepatch_bytes": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.011,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.011,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_off_r17_native::test_off_worker_and_driver_injections_use_native_functions": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.087,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.091,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_off_switch::test_native_queue_prepare[fa_pi_f_u_o-R15]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.007,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.006,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_off_switch::test_native_queue_prepare[fa_pi_r_f_l-R16]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.004,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.004,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_off_switch::test_native_worker_bundle_matches_verified_prepatch_bytes": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.008,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.009,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_off_switch::test_off_never_reseals_a_launched_campaign": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_off_switch::test_off_reprepare_invalidates_old_dynamic_seal_and_preserves_it": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_off_switch::test_off_routes_dead_node_without_raising_native_total": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_off_switch::test_owner_switch_defaults_off_and_no_transport": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_off_switch::test_r17_native_stage_matches_prepatch_same_inputs": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.021,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.023,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_off_switch::test_transport_probe_fix_preserved_and_production_bind_forbidden": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_policy::test_220gib_node_150_max_ramps_to_memory_envelope_and_recovers": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.003,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.003,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_policy::test_convergence_from_owner_maxima_under_twenty_minutes_while_draining": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_policy::test_critical_retires_newest_at_boundary_with_pending_drains_credited": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_policy::test_large_initial_target_is_maximum_even_with_sparse_or_unsettled_evidence": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_policy::test_memory_curve_ramp_floor_critical_recovery": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_policy::test_network_latency_proxy_cannot_shrink_throughput_to_one_worker": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_policy::test_owner_scale_synthetic_plateau_then_faster_server_recovers": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.007,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.008,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_policy::test_p90_recent_same_campaign_generations": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_policy::test_place_headroom_no_local_two_no_dead_node": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_policy::test_psi_unknown_and_hysteresis_reset": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_policy::test_queue_shrinks_toward_littles_law_but_still_probes": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_policy::test_rate_only_descent_finds_cpu_plateau_without_server_timing": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_policy::test_remaining_growth_is_not_double_counted_and_recycled_slots_recheck": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_policy::test_server_plateau_and_later_improvement": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_policy::test_small_headroom_is_not_promoted_to_an_artificial_four_worker_slice": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_policy::test_unknown_service_never_invents_unqueued_cycle_and_fixed_keeps_max": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_reset_legacy_zero::test_backups_every_arm_and_preserves_science": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.006,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.007,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_reset_legacy_zero::test_refuses_all_before_renaming[accepted]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.003,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.003,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_reset_legacy_zero::test_refuses_all_before_renaming[backup]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.003,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.003,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_reset_legacy_zero::test_refuses_all_before_renaming[completed]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.003,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.004,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_reset_legacy_zero::test_refuses_all_before_renaming[no_attestation]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.003,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_reset_zero::test_cli_refuses_before_generation_fix_is_installed": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.003,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.003,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_reset_zero::test_cli_reprepares_same_plan_without_launching": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.007,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.007,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_reset_zero::test_failed_formal_campaign_frozen_planner_keeps_real_uids_inits_seeds": {
+          "before": {
+            "status": "passed",
+            "seconds": 6.225,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 5.756,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_reset_zero::test_reset_keeps_immutable_cache_inodes_but_copies_mutable_metadata": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.011,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.007,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_reset_zero::test_zero_reset_preserves_entire_evidence_and_exact_scientific_inputs": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.006,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.006,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_reset_zero::test_zero_reset_refuses_unsafe_or_nonzero_progress[accepted]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.003,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.003,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_reset_zero::test_zero_reset_refuses_unsafe_or_nonzero_progress[completed]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.003,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.003,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_reset_zero::test_zero_reset_refuses_unsafe_or_nonzero_progress[continuation]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.003,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.003,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_reset_zero::test_zero_reset_refuses_unsafe_or_nonzero_progress[existing_backup]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.003,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.003,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_reset_zero::test_zero_reset_refuses_unsafe_or_nonzero_progress[not_closed]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.003,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.003,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_runtime::test_actual_driver_large_initial_quotas_and_five_window_backoff": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.022,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.009,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_runtime::test_cgroup_and_pid_identity_sampling_is_cpu_only": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.004,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_runtime::test_control_ttl_zero_recovery_and_duplicate_accepted_fences": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.005,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.003,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_runtime::test_done_publishes_even_within_sample_interval": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.01,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_runtime::test_downscale_requires_ack_and_actual_exit_before_moving_quota": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.006,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.004,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_runtime::test_driver_does_not_double_reserve_live_workers_remaining_growth": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.005,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.003,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_runtime::test_node_lost_before_launch_does_not_turn_desired_maximum_into_requirement": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.003,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_runtime::test_node_memory_growth_pause_and_recovery_no_refill": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.021,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.011,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_runtime::test_one_unknown_canary_per_campaign_across_fleets": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.013,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.008,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_runtime::test_periodic_recycling_does_not_prevent_stable_windows_or_upward_probes[30]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.451,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.289,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_runtime::test_periodic_recycling_does_not_prevent_stable_windows_or_upward_probes[None]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.492,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.288,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_slot4::test_closure_refuses_known_group_even_when_cmdline_unreadable": {
+          "before": null,
+          "after": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_slot4::test_many_receipt_files_are_batched_below_argument_limit": {
+          "before": null,
+          "after": {
+            "status": "passed",
+            "seconds": 0.846,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_slot4::test_plain_dmesg_covers_old_acceptance_excludes_later_oom[False]": {
+          "before": null,
+          "after": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_slot4::test_plain_dmesg_covers_old_acceptance_excludes_later_oom[True]": {
+          "before": null,
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_slot4::test_readable_but_rotated_dmesg_retains_source_and_bounds": {
+          "before": null,
+          "after": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_slot4::test_real_large_receipt_closure_uses_node_files_and_bounded_argv": {
+          "before": null,
+          "after": {
+            "status": "passed",
+            "seconds": 1.829,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_slot4::test_receipt_file_identity_mismatch_cannot_prove_closed": {
+          "before": null,
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_slot4::test_reset_skips_uninspectable_unrelated_process[cmdline]": {
+          "before": null,
+          "after": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_slot4::test_reset_skips_uninspectable_unrelated_process[cwd]": {
+          "before": null,
+          "after": {
+            "status": "passed",
+            "seconds": 0.004,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_slot4::test_reset_skips_uninspectable_unrelated_process[stat]": {
+          "before": null,
+          "after": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_slot4::test_reset_still_refuses_run_proven_by_other_readable_field[cmdline]": {
+          "before": null,
+          "after": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_slot4::test_reset_still_refuses_run_proven_by_other_readable_field[cwd]": {
+          "before": null,
+          "after": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_validation_lane::test_legacy_evidence_join_is_bounded_and_missing_evidence_never_passes": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.004,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_validation_lane::test_legacy_shutdown_collects_once_not_on_ticks": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.004,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_validation_lane::test_legacy_validation_keeps_scientific_config_and_first_256_pairs": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.017,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.007,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_validation_lane::test_legacy_validation_uses_native_full_pool_tasks_without_renumbering": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.034,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.014,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_validation_lane::test_live_audit_requires_collected_coverage_and_uses_cumulative_memory_minimum[r15]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.013,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.007,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_validation_lane::test_live_audit_requires_collected_coverage_and_uses_cumulative_memory_minimum[r17]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.013,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.007,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_validation_lane::test_r17_validation_subset_preserves_uids_indices_seeds_and_global_off": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.026,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.014,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_validation_lane::test_rsync_reuseaddr_probe_matches_daemon_without_binding_any_real_port[False]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.004,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_validation_lane::test_rsync_reuseaddr_probe_matches_daemon_without_binding_any_real_port[True]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.004,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_validation_lane::test_validation_never_enables_ordinary_campaign": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.004,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.autoscale_1017.tests.test_validation_lane::test_validation_seals_on_only_inside_its_own_overlay": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.048,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.026,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.filter_failed.test_resume::test_collect_merges_ancestors_and_deduplicates_copied_outcomes": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.004,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.005,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.filter_failed.test_resume::test_fresh_continuation_stage_keeps_inherited_driver_and_control_pins": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.009,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.011,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.filter_failed.test_resume::test_fresh_knob_uses_native_execution_map_and_preserves_canonical_treatment": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.003,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.004,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.filter_failed.test_resume::test_recorded_continuations_follow_only_the_requested_lane": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.003,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.filter_failed.test_resume::test_topology_does_not_bypass_prepared_or_launched_seals[LAUNCH.json]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.filter_failed.test_resume::test_topology_does_not_bypass_prepared_or_launched_seals[PREPARED.json]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.filter_failed.test_resume::test_topology_does_not_bypass_prepared_or_launched_seals[RECEIPT.json]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.filter_failed.test_resume::test_unproved_or_live_source_never_reaches_continuation_clone[False]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.004,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.006,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.filter_failed.test_resume::test_unproved_or_live_source_never_reaches_continuation_clone[True]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.003,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.003,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.offline_search.rounds.r17.filter_failed.test_timan1_gpu2::test_frozen_gpu2_island_admission_and_native_commands": {
+          "before": {
+            "status": "failed",
+            "seconds": 0.021,
+            "timeout": false,
+            "failure": "ValueError: timan1 requires LIBERO cache / MetaWorld workers within GPU2 capacity"
+          },
+          "after": {
+            "status": "failed",
+            "seconds": 0.024,
+            "timeout": false,
+            "failure": "ValueError: timan1 requires LIBERO cache / MetaWorld workers within GPU2 capacity"
+          }
+        },
+        "exp.offline_search.rounds.r17.filter_failed.test_timan1_gpu2::test_stdlib_closure_argv_does_not_trigger_gpu2_bootstrap": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.005,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.005,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.r17_integration.tests.ops.test_h100_argv_batch::test_actual_tether_calls_are_counted_without_running_cli": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.005,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.005,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.r17_integration.tests.ops.test_h100_argv_batch::test_batch_ack_lost_response_replay_and_salvage_failed_latch": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.605,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.682,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.r17_integration.tests.ops.test_h100_argv_batch::test_batch_corruption_never_releases_any_remote_copy[archive]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.288,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.305,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.r17_integration.tests.ops.test_h100_argv_batch::test_batch_corruption_never_releases_any_remote_copy[destination_symlink]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.577,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.526,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.r17_integration.tests.ops.test_h100_argv_batch::test_batch_corruption_never_releases_any_remote_copy[duplicate]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.582,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.522,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.r17_integration.tests.ops.test_h100_argv_batch::test_batch_corruption_never_releases_any_remote_copy[receipt]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.73,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.582,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.r17_integration.tests.ops.test_h100_argv_batch::test_batch_corruption_never_releases_any_remote_copy[remote_changed]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.59,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.54,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.r17_integration.tests.ops.test_h100_argv_batch::test_batch_one_pull_for_eight_then_forced_tail_with_per_shard_receipts": {
+          "before": {
+            "status": "failed",
+            "seconds": 1.083,
+            "timeout": false,
+            "failure": "AssertionError: assert (1 == 1 and 9 == 8)\n +  where 1 = len(['/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/slot4/before_tmp/test_batch..._shards/workers_0b70cf06218f4d1c01a94d2e182f8c96f43b7fa331d6e3a3ba00412ee559adbd_50fe70f445e24b30939ddcc92e600443.tar'])\n +  and   9 = len({'069b18208f55d1be187994797bd858367e12891e3327152306cbdef531b07327': {'cleaned': {'batch_id': 'b22f4cf35b07d6c42d59eaa...dserver/servers/replica_1/capture/shards/b6d7479878bd61d4d48b6686936d053e95accf665ad658d5391bddf5307759d9', ...}}, ...})\n +    where {'069b18208f55d1be187994797bd858367e12891e3327152306cbdef531b07327': {'cleaned': {'batch_id': 'b22f4cf35b07d6c42d59eaa...dserver/servers/replica_1/capture/shards/b6d7479878bd61d4d48b6686936d053e95accf665ad658d5391bddf5307759d9', ...}}, ...} = <exp.r17_integration.ops.library_staging.ShardPump object at 0x774d3fbf2910>.receipts"
+          },
+          "after": {
+            "status": "failed",
+            "seconds": 1.172,
+            "timeout": false,
+            "failure": "AssertionError: assert (1 == 1 and 9 == 8)\n +  where 1 = len(['/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/slot4/after_tmp/test_batch_..._shards/workers_801f771b8a44a4e4178315bfac07b6720e899ece3ceb48f6b785c2f45ea4aa29_3d903f5511244d668576853ef17d6410.tar'])\n +  and   9 = len({'069b18208f55d1be187994797bd858367e12891e3327152306cbdef531b07327': {'cleaned': {'batch_id': 'a88c16ecd88b1496fca80ee...dserver/servers/replica_1/capture/shards/b6d7479878bd61d4d48b6686936d053e95accf665ad658d5391bddf5307759d9', ...}}, ...})\n +    where {'069b18208f55d1be187994797bd858367e12891e3327152306cbdef531b07327': {'cleaned': {'batch_id': 'a88c16ecd88b1496fca80ee...dserver/servers/replica_1/capture/shards/b6d7479878bd61d4d48b6686936d053e95accf665ad658d5391bddf5307759d9', ...}}, ...} = <exp.r17_integration.ops.library_staging.ShardPump object at 0x7efb4eda8550>.receipts"
+          }
+        },
+        "exp.r17_integration.tests.ops.test_h100_argv_batch::test_batch_waits_for_cohort_but_flushes_after_two_minutes_and_ignores_open": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.106,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.108,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.r17_integration.tests.ops.test_h100_argv_batch::test_closed_receipt_arrival_replay_measures_reduced_production_call_rate": {
+          "before": {
+            "status": "passed",
+            "seconds": 8.158,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 8.317,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.r17_integration.tests.ops.test_h100_argv_batch::test_probe_missing_remote_label_fails_closed": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.002,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.r17_integration.tests.ops.test_h100_argv_batch::test_probe_reuses_node_session_every_thirty_seconds_and_renews_each_lease": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.007,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.007,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.r17_integration.tests.ops.test_h100_argv_batch::test_real_linux_large_argument_repro_and_sha_file_repair_admission": {
+          "before": {
+            "status": "failed",
+            "seconds": 0.018,
+            "timeout": false,
+            "failure": "assert (0 == 1)\n +  where 0 = len([])"
+          },
+          "after": {
+            "status": "failed",
+            "seconds": 0.02,
+            "timeout": false,
+            "failure": "assert (0 == 1)\n +  where 0 = len([])"
+          }
+        },
+        "exp.r17_integration.tests.ops.test_h100_argv_batch::test_staged_control_is_verified_and_rechecked_at_use[bytes]": {
+          "before": {
+            "status": "failed",
+            "seconds": 0.011,
+            "timeout": false,
+            "failure": "AssertionError: Regex pattern did not match.\n  Expected regex: 'SHA/path'\n  Actual message: 'Expecting value: line 1 column 1 (char 0)'"
+          },
+          "after": {
+            "status": "failed",
+            "seconds": 0.011,
+            "timeout": false,
+            "failure": "AssertionError: Regex pattern did not match.\n  Expected regex: 'SHA/path'\n  Actual message: 'Expecting value: line 1 column 1 (char 0)'"
+          }
+        },
+        "exp.r17_integration.tests.ops.test_h100_argv_batch::test_staged_control_is_verified_and_rechecked_at_use[returned_sha]": {
+          "before": {
+            "status": "failed",
+            "seconds": 0.009,
+            "timeout": false,
+            "failure": "Failed: DID NOT RAISE <class 'ValueError'>"
+          },
+          "after": {
+            "status": "failed",
+            "seconds": 0.01,
+            "timeout": false,
+            "failure": "Failed: DID NOT RAISE <class 'ValueError'>"
+          }
+        },
+        "exp.r17_integration.tests.ops.test_h100_argv_batch::test_staged_control_is_verified_and_rechecked_at_use[symlink]": {
+          "before": {
+            "status": "failed",
+            "seconds": 0.012,
+            "timeout": false,
+            "failure": "Failed: DID NOT RAISE <class 'ValueError'>"
+          },
+          "after": {
+            "status": "failed",
+            "seconds": 0.012,
+            "timeout": false,
+            "failure": "Failed: DID NOT RAISE <class 'ValueError'>"
+          }
+        },
+        "exp.r17_integration.tests.ops.test_library_salvage::test_actual_bounded_stage_sha_install_ack_cleanup_with_partial_quarantine[False]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.836,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.971,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.r17_integration.tests.ops.test_library_salvage::test_actual_bounded_stage_sha_install_ack_cleanup_with_partial_quarantine[True]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.527,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.564,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.r17_integration.tests.ops.test_library_salvage::test_drop_entire_torn_missing_ack_error_episodes_keep_ordinary_failures_and_originals": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.627,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.374,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.r17_integration.tests.ops.test_library_salvage::test_empty_interrupted_shard_uses_original_manifest_attempt_identity": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.372,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.378,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.r17_integration.tests.ops.test_library_salvage::test_incomplete_or_inconsistent_evidence_is_never_kept[checksum]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.365,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.347,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.r17_integration.tests.ops.test_library_salvage::test_incomplete_or_inconsistent_evidence_is_never_kept[coordinate]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.371,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.322,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.r17_integration.tests.ops.test_library_salvage::test_incomplete_or_inconsistent_evidence_is_never_kept[cost_missing]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.368,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.403,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.r17_integration.tests.ops.test_library_salvage::test_incomplete_or_inconsistent_evidence_is_never_kept[duplicate_ack]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.372,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.327,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.r17_integration.tests.ops.test_library_salvage::test_incomplete_or_inconsistent_evidence_is_never_kept[executed_steps]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.373,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.389,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.r17_integration.tests.ops.test_library_salvage::test_incomplete_or_inconsistent_evidence_is_never_kept[quarantine_corrupt]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.367,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.322,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.r17_integration.tests.ops.test_library_salvage::test_live_or_unreachable_owned_process_refuses_before_transfer": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.001,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.r17_integration.tests.ops.test_library_salvage::test_remote_free_space_failure_and_foreign_campaign_never_delete": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.065,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.061,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.r17_integration.tests.ops.test_library_salvage::test_remote_probe_does_not_mistake_its_inline_helper_for_a_worker": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.098,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.086,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.r17_integration.tests.ops.test_library_salvage::test_salvage_and_discard_seals_fail_closed[original]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.368,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.335,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.r17_integration.tests.ops.test_library_salvage::test_salvage_and_discard_seals_fail_closed[proof]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.375,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.366,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.r17_integration.tests.ops.test_library_salvage::test_salvage_and_discard_seals_fail_closed[seal]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.38,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.361,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.r17_integration.tests.ops.test_library_salvage::test_salvage_and_discard_seals_fail_closed[unquarantined]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.368,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.329,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.r17_integration.tests.ops.test_library_salvage::test_salvage_cli_is_cpu_only_early_dispatch_and_modes_exclusive": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.009,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.011,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.r17_integration.tests.ops.test_library_salvage::test_salvage_recovers_closed_batch_after_node_failure_without_redeploy": {
+          "before": {
+            "status": "passed",
+            "seconds": 1.723,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 1.318,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.r17_integration.tests.ops.test_library_salvage::test_salvage_repair_recollect_missing_only_preserve_seal_then_build_complete_parent[False]": {
+          "before": {
+            "status": "passed",
+            "seconds": 1.008,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.797,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.r17_integration.tests.ops.test_library_salvage::test_salvage_repair_recollect_missing_only_preserve_seal_then_build_complete_parent[True]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.825,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.732,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.r17_integration.tests.ops.test_library_salvage::test_unknown_torn_driver_tail_is_explicit_and_never_accepted": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.475,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.32,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.r17_integration.tests.ops.test_local_library_salvage::test_intent_only_missing_result_is_quarantined_without_a_zero_progress_claim": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.157,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.154,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.r17_integration.tests.ops.test_local_library_salvage::test_local_salvage_and_repair_keep_strict_rejection[checkpoint]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.139,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.14,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.r17_integration.tests.ops.test_local_library_salvage::test_local_salvage_and_repair_keep_strict_rejection[error_after_progress]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.13,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.122,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.r17_integration.tests.ops.test_local_library_salvage::test_local_salvage_and_repair_keep_strict_rejection[quarantine_changed]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.154,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.15,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.r17_integration.tests.ops.test_local_library_salvage::test_local_salvage_and_repair_keep_strict_rejection[returned_incomplete]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.13,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.148,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.r17_integration.tests.ops.test_local_library_salvage::test_local_salvage_and_repair_keep_strict_rejection[source_changed]": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.151,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.176,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.r17_integration.tests.ops.test_local_library_salvage::test_local_salvage_repair_merge_and_parent_exclude_every_old_missing_row": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.407,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.35,
+            "timeout": false,
+            "failure": null
+          }
+        },
+        "exp.r17_integration.tests.ops.test_local_library_salvage::test_local_salvage_separates_missing_results_keeps_failure_and_original_bytes": {
+          "before": {
+            "status": "passed",
+            "seconds": 0.185,
+            "timeout": false,
+            "failure": null
+          },
+          "after": {
+            "status": "passed",
+            "seconds": 0.176,
+            "timeout": false,
+            "failure": null
+          }
+        }
+      }
+    }
+  ],
+  "rechecks": [
+    {
+      "original": "before.xml",
+      "retry": "before_retry.xml",
+      "reason": "One test waited for the production longseg reader lock and timed out; unchanged baseline passed when lock became available"
+    },
+    {
+      "original": "after.xml",
+      "retry": "after_retry.xml",
+      "reason": "A final process_probe edit shifted inspect.getsource line offsets in the already-imported test process; fresh interpreter reran new closure/reset/kernel tests and all affected salvage/resume suites; original reports retained"
+    }
+  ]
+}

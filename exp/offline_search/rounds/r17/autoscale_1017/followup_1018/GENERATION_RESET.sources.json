@@ -1,0 +1,28 @@
+{
+  "baseline_overlay": false,
+  "hashes": {
+    "src/openpi/conductor/worker.py": "b4d9df4d1671186db4c64f4b69a585956abf0849fc0b9c70289acad13a72f7c9",
+    "src/openpi/conductor/driver.py": "d76a2579a6913b92e3970ecab556fdb3ea8f217ee8059e803b2ce5c1b28b5d91",
+    "src/openpi/conductor/agent.py": "524366555203ee1f35ab62b4cb65042e0d1c11a7397e0e382fbf0f5da55efb19",
+    "exp/r17_integration/qualification/driver.py": "3f7cf032a832929de833b351851bab2f4d0f5cb0440c586795a3ebcedd8dc95d",
+    "exp/r17_integration/conductor/worker_entry.py": "ef6c1a741027e01e01c6cee3b5665ec21d2e85571862b67e2abec65305fff595",
+    "exp/r17_integration/ops/formal_process.py": "91a151d3e3f36d5c81b7398fd45a08ddbce19104e3ec0cd12c393a7d3d35e852",
+    "exp/r17_integration/ops/worker_lifetime.py": "417d702df22eedca799610b7c7420d5b32a1125014b8ab6362c0e64d983f1d3f",
+    "exp/r17_integration/ops/formal_workers.py": "e0b17bf8f7dc7d0b52834823a945d6e5164b92b2c09965a3a1b3db4322b16b37",
+    "exp/r17_integration/ops/worker_memory.py": "f61e420232503361b85e6e62da961418523ed19eb6d1135dac0f86969aa62a9e",
+    "exp/r17_integration/ops/worker_gpu.py": "d33e467217116567f954c9bebd1420028698194e9ee73bf66d47846633f6efae",
+    "exp/r17_integration/ops/local_workers.py": "26bee5c2530873367c65dc30700f061ede6fa4558e0ef043f7f0c1721306b40d",
+    "exp/offline_search/rounds/r17/filter_failed/timan1_gpu2.py": "b189227e2e1ffc01038c912633aca44dbb0dbbacc5bd47889faeaafc150a1441",
+    "exp/offline_search/rounds/r17/filter_failed/worker_resilience.py": "0b92dee13b9740baa85d3eb3179be1fba7e39a570448e0be423ca0e400137947",
+    "exp/r17_integration/ops/formal_eval.py": "753ae3eadfb08e1b6bdfe867befe4667fc69668a255ee2a68f7e0f80820ac1fa",
+    "exp/r17_integration/ops/driver_release.py": "b325495d8d261587aef754ccf7e5c0cbb2667277c6f75d6ccc8f8fb757eda76a",
+    "exp/offline_search/rounds/r16/conductor.py": "ffd12db4a3d31e2a2108bfa3fb2c9f765f15354f5231baffad96f264d3f3afc5",
+    "exp/offline_search/closed_loop/ops/h100/fleet.py": "5d0c5ba39675a4071a9c2d82092db08f556bf687a67c02eebcd32b7d72c6028e",
+    "exp/offline_search/closed_loop/ops/h100/control.py": "44b13b841bcd88fb8cd4b2e0be745ced45ee3303873e860f990663089143f5a8",
+    "exp/offline_search/closed_loop/ops/h100/run_arm.sh": "18971c649d61476be3710b3463293ea07dc2591c13b93c54f91ac56a6b774c1d",
+    "exp/r17_integration/common/serving.py": "1594011d8fa438fb67747beb8e19a541a2d77940c97ba4098057b75f94823890",
+    "exp/r17_integration/ops/cache_study.py": "5c588a83687b3d6a5711f2ef38d83090f768464ac2fe2da528d55fe52e61ed82",
+    "exp/r17_integration/ops/cache_knob.py": "f556916b8e018e7d175ffea4fa6d281ded128a5ca3fcb5882925bdf6d8b1dd4d",
+    "exp/r17_integration/ops/library_campaign.py": "edf15e46b879881fe0fd76bb4d06da9b749efc6b083b1c214396a581930fbfac"
+  }
+}

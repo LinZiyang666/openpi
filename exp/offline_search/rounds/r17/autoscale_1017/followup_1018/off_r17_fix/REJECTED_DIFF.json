@@ -1,0 +1,11 @@
+{
+  "worker_id": "fa_ls_gr_r_p_m_timan1_18",
+  "reason": "worker probe changed during the campaign",
+  "changes": [
+    {
+      "field": ".renderer.pid",
+      "before": 921639,
+      "after": 952777
+    }
+  ]
+}

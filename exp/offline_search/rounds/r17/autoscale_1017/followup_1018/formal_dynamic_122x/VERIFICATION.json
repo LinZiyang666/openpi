@@ -1,0 +1,89 @@
+{
+  "before_pass": 207,
+  "after_pass": 220,
+  "old_cases_missing": 0,
+  "new_regressions": 0,
+  "new_cases": 13,
+  "source_changes": {
+    "exp/offline_search/rounds/r17/autoscale_1017/trial_lane.py": {
+      "before": "da1ae2bc9d473321895c30c9ffd5d0f9601ef72fd837340e85939b0ecb3eb68a",
+      "after": "db2b16e59a885453990f86c068d9202b3544ea5130c48c59a857a21a4c414bdb"
+    },
+    "exp/offline_search/rounds/r17/autoscale_1017/policy.py": {
+      "before": "2792e5936ce749cb7cdca12b7642baeb8de58f8489007b0affdc3eea616e6e3e",
+      "after": "b8903f4f643b124e8b6a864249632c1be79f41edee152747fae9fbfcb8ee1b98"
+    },
+    "exp/offline_search/rounds/r17/autoscale_1017/node.py": {
+      "before": "7264044a2fd4c5b9cacb918854afc273926dce98f8505096ec2ec67c5934f81c",
+      "after": "9dad6c0f8bece04c249da040e9ab757f3ea325e009b6d85b53968e8ed420e1f6"
+    },
+    "exp/offline_search/rounds/r17/autoscale_1017/formal_trial.py": {
+      "before": "d34dc60389676910fc899a495b3ec73a9010aadc8ab62110aa8332304f20eddb",
+      "after": "0b65da88b7cc9379fa955c6af30346a8d8f298da70267422db7d6661b999845a"
+    },
+    "exp/offline_search/rounds/r17/autoscale_1017/legacy_release.py": {
+      "before": "8e818f0a3a010f6f652d81dc6fe8781c54c03d7d82a95d6f09c84f98e4912bbf",
+      "after": "8e431b9153c06f8ec76339cceb21fada1bd22bdbe92e1ebfe5e7a6857172f1a7"
+    },
+    "exp/offline_search/rounds/r17/autoscale_1017/legacy.py": {
+      "before": "12b4aa31dcfd1abb08df8ca87ecf18f6385ad53b6748b4c7edfff42aae3d3387",
+      "after": "ca57afab7d06b3d83da0cef4c3b93019e3dfdfad928f48373fe9d14be6000059"
+    },
+    "exp/offline_search/rounds/r17/autoscale_1017/worker.py": {
+      "before": "bfb9dd65ccab3b58e07f1136583dd1f99ee54058dddeaf647126a1f594795258",
+      "after": "2102fde486eb4ed4ece9a003ac6639ea522b208fa7e5591d61dc5cb1da72ed47"
+    },
+    "exp/offline_search/rounds/r17/autoscale_1017/driver.py": {
+      "before": "dba4c972d5799b162a0cd5c010fe33ec6fa499ed10ded66b3b15f9b317c1d453",
+      "after": "24fee966ca2f9cca29622bd074f388296f92f3d250cc289c38f6f16232961106"
+    },
+    "exp/offline_search/closed_loop/ops/h100/control.py": {
+      "before": "d20af06602d4cb4e1f3a27c7b7c29414e3e4b11cf8e1a65b0251e96d26b934f1",
+      "after": "db6b0c5a7430445a97e35e27b3f7fa0127b6325caa139a21ce0f4dbf4eda2d1c"
+    },
+    "exp/offline_search/rounds/r17/autoscale_1017/formal_dynamic.py": {
+      "before": null,
+      "after": "3601b0f34a6bf9eb4ad42786e6cefdf5beb6bca18efad187e9fefeb2e021a69d"
+    },
+    "exp/offline_search/rounds/r17/autoscale_1017/formal_dynamic_audit.py": {
+      "before": null,
+      "after": "c9c08646d1b96fb77ed09f894c36c377a989e9deb21ed29797a64ec598a8d71a"
+    },
+    "exp/offline_search/rounds/r17/autoscale_1017/tests/test_formal_dynamic.py": {
+      "before": null,
+      "after": "fbecb2dbc7864ad3ec7719b00134ad84833868d9712822b94b4fc547ebba96be"
+    },
+    "exp/offline_search/rounds/r17/autoscale_1017/FORMAL_ACCEPTANCE.md": {
+      "before": null,
+      "after": "afa1ae7e770e1b06de63fa49fae54589a681a956c4f02c07335eacf07b8c33b7"
+    },
+    "exp/offline_search/rounds/r17/filter_failed_knob/commands/prepare_fa_ls_fw_f_p_m_dyn.sh": {
+      "before": null,
+      "after": "f9748add69e4c215e81c4c69b87eed0167a1c098206c2a25e72252ec1d682578"
+    },
+    "exp/offline_search/rounds/r17/filter_failed_knob/commands/launch_fa_ls_fw_f_p_m_dyn.sh": {
+      "before": null,
+      "after": "f16e9ce9bd2ac18dbd13c00ad34f618230dff1ef4c950a6dca65550fd74003d6"
+    },
+    "exp/offline_search/rounds/r17/filter_failed_knob/commands/prepare_fa_pi_f_u_l_dyn.sh": {
+      "before": null,
+      "after": "795656b1cbbc762df6d7ec1963696ac4036b27f07c07e2ff436c9ebffff58da1"
+    },
+    "exp/offline_search/rounds/r17/filter_failed_knob/commands/launch_fa_pi_f_u_l_dyn.sh": {
+      "before": null,
+      "after": "f6fb619cfc1e6093c548a95cf9d1a3024663af716cdc86df705ade5f58fdad36"
+    },
+    "exp/offline_search/rounds/r17/filter_failed_knob/commands/prepare_fa_pi_f_f_l_dyn.sh": {
+      "before": null,
+      "after": "d80c003b01f51d4208ef0f8979edf05712dc1afa22b8caa16f2264c0e985899b"
+    },
+    "exp/offline_search/rounds/r17/filter_failed_knob/commands/launch_fa_pi_f_f_l_dyn.sh": {
+      "before": null,
+      "after": "14f89403220733f168529fd0fd0e134196282110237765ce5043568d301a0ab3"
+    }
+  },
+  "existing_wrappers_unchanged": true,
+  "global_switch": "off",
+  "remote_writes": false,
+  "launches": false
+}

@@ -1,0 +1,70 @@
+[
+  {
+    "label": "regression_before",
+    "command": [
+      ".venv/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "exp.offline_search.rounds.r17.autoscale_1017.cpu_only",
+      "-p",
+      "no:cacheprovider",
+      "exp/offline_search/rounds/r17/filter_failed",
+      "exp/offline_search/rounds/r17/filter_failed_knob/test_vla_workers.py",
+      "exp/offline_search/rounds/r17/filter_failed_knob/test_vla_shared.py",
+      "exp/r17_integration/tests/conductor",
+      "tests/conductor",
+      "exp/r17_integration/tests/ops/test_ops.py",
+      "exp/r17_integration/tests/benchmarks/test_libero_worker_recycle.py",
+      "exp/offline_search/closed_loop/ops/h100",
+      "--basetemp=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_r17_fix/regression_before_tmp",
+      "--junitxml=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_r17_fix/regression_before.xml"
+    ],
+    "code": 1,
+    "seconds": 27.926427602767944
+  },
+  {
+    "label": "regression_after",
+    "command": [
+      ".venv/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "exp.offline_search.rounds.r17.autoscale_1017.cpu_only",
+      "-p",
+      "no:cacheprovider",
+      "exp/offline_search/rounds/r17/filter_failed",
+      "exp/offline_search/rounds/r17/filter_failed_knob/test_vla_workers.py",
+      "exp/offline_search/rounds/r17/filter_failed_knob/test_vla_shared.py",
+      "exp/r17_integration/tests/conductor",
+      "tests/conductor",
+      "exp/r17_integration/tests/ops/test_ops.py",
+      "exp/r17_integration/tests/benchmarks/test_libero_worker_recycle.py",
+      "exp/offline_search/closed_loop/ops/h100",
+      "--basetemp=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_r17_fix/regression_after_tmp",
+      "--junitxml=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_r17_fix/regression_after.xml"
+    ],
+    "code": 1,
+    "seconds": 27.526788473129272
+  },
+  {
+    "label": "own_final",
+    "command": [
+      ".venv/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "exp.offline_search.rounds.r17.autoscale_1017.cpu_only",
+      "-p",
+      "no:cacheprovider",
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/tests",
+      "--basetemp=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_r17_fix/own_final_tmp",
+      "--junitxml=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_r17_fix/own_final.xml"
+    ],
+    "code": 0,
+    "seconds": 86.06591892242432
+  }
+]

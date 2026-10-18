@@ -1,0 +1,119 @@
+{
+  "local": {
+    "status": "PASS",
+    "time": 1792343552.053932,
+    "request": {
+      "roots": [
+        "/data/mw_finetune/qualification/local_workers/runs/fa_ls_fw_r_p_m_local"
+      ]
+    },
+    "paths": [
+      {
+        "path": "/data/mw_finetune/qualification/local_workers/runs/fa_ls_fw_r_p_m_local",
+        "exists": false
+      }
+    ],
+    "files": [],
+    "identities": [],
+    "live": [],
+    "unreadable_process_fields": {
+      "identity": 0,
+      "cmdline": 0,
+      "cwd": 1
+    },
+    "processes_signalled": 0
+  },
+  "timan1": {
+    "status": "PASS",
+    "time": 1792343552.324846,
+    "request": {
+      "roots": [
+        "/scratch/zixuans8/mw_r17/formal/runs/fa_ls_fw_r_p_m_timan1"
+      ]
+    },
+    "paths": [
+      {
+        "path": "/scratch/zixuans8/mw_r17/formal/runs/fa_ls_fw_r_p_m_timan1",
+        "exists": true,
+        "markers": {
+          "mps_control": false,
+          "mps": false,
+          "MPS_READY.json": false,
+          "driver/journal.jsonl": false,
+          "servers": false
+        }
+      }
+    ],
+    "files": [
+      {
+        "path": "/scratch/zixuans8/mw_r17/formal/runs/fa_ls_fw_r_p_m_timan1/manifest.json",
+        "sha256": "482ee5f49ece7c9f143845f37a4157c324d6f7eb8b92e6732252e338d9304859",
+        "mtime": 1792318826.5404074,
+        "status": null
+      },
+      {
+        "path": "/scratch/zixuans8/mw_r17/formal/runs/fa_ls_fw_r_p_m_timan1/receipt.json",
+        "sha256": "f8161c2ff9f2a7a7b0f23ef85797999822b923385b5be04311155efea5c921bc",
+        "mtime": 1792318955.4915237,
+        "status": "RUNNING"
+      }
+    ],
+    "identities": [
+      {
+        "source": "/scratch/zixuans8/mw_r17/formal/runs/fa_ls_fw_r_p_m_timan1/receipt.json",
+        "pid": 635791,
+        "start_ticks": "13957528",
+        "alive": false
+      },
+      {
+        "source": "/scratch/zixuans8/mw_r17/formal/runs/fa_ls_fw_r_p_m_timan1/receipt.json",
+        "pid": 635791,
+        "start_ticks": "13957528",
+        "alive": false
+      },
+      {
+        "source": "/scratch/zixuans8/mw_r17/formal/runs/fa_ls_fw_r_p_m_timan1/receipt.json",
+        "pid": 638357,
+        "start_ticks": "13969935",
+        "alive": false
+      },
+      {
+        "source": "/scratch/zixuans8/mw_r17/formal/runs/fa_ls_fw_r_p_m_timan1/receipt.json",
+        "pid": 638473,
+        "start_ticks": "13970437",
+        "alive": false
+      }
+    ],
+    "live": [],
+    "unreadable_process_fields": {
+      "identity": 0,
+      "cmdline": 0,
+      "cwd": 1
+    },
+    "processes_signalled": 0
+  },
+  "timan107": {
+    "status": "PASS",
+    "time": 1792343552.7213216,
+    "request": {
+      "roots": [
+        "/scratch/zixuans8/mw_r17/formal/runs/fa_ls_fw_r_p_m_timan107"
+      ]
+    },
+    "paths": [
+      {
+        "path": "/scratch/zixuans8/mw_r17/formal/runs/fa_ls_fw_r_p_m_timan107",
+        "exists": false
+      }
+    ],
+    "files": [],
+    "identities": [],
+    "live": [],
+    "unreadable_process_fields": {
+      "identity": 0,
+      "cmdline": 0,
+      "cwd": 2
+    },
+    "processes_signalled": 0
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "state": "STAGED_OFF_PENDING_OWNER_TRIALS",
+  "files": {
+    "candidate/legacy_release.py": "8e818f0a3a010f6f652d81dc6fe8781c54c03d7d82a95d6f09c84f98e4912bbf",
+    "candidate/node.py": "f99b61d637d28ada544f181a9a2d839103a912e81532f100502d9e5a810d7f56",
+    "candidate/worker.py": "bfb9dd65ccab3b58e07f1136583dd1f99ee54058dddeaf647126a1f594795258",
+    "candidate/driver.py": "dba4c972d5799b162a0cd5c010fe33ec6fa499ed10ded66b3b15f9b317c1d453",
+    "candidate/bundle.py": "b956736a86995d449c0aedb92a1a711124f63676601331ff687de4c4f6686b58",
+    "candidate/defaults.py": "50340e219ced9d98d539ca2d6abc534369d364a838f619e8915dd4ed0f4355c6",
+    "candidate/fleet.py": "ae205ad727b2c5f9ae3782593ad996acf518469e24052328b1da3cef7f4ff404",
+    "candidate/formal_trial.py": "76a1638574a1e752410ba5dfdea23d5801b6cb7d28e4575147f07c5ce889f05f",
+    "candidate/legacy.py": "25acff99260c1a4f4b40e1653a6d91508e6f82ad295fd4f36c7e7c1d40dbd03b"
+  },
+  "global_switch": "off"
+}

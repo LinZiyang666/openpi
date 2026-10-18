@@ -1,0 +1,28 @@
+{
+  "state": "STAGED_NOT_ACTIVE",
+  "time": "2026-10-18T08:51:58.351602+00:00",
+  "runtime_originals_unchanged": true,
+  "candidate_sha256": {
+    "exp/offline_search/rounds/r17/autoscale_1017/defaults.py": "944df9be9a91da9c35ed6ff7bb2289f54999d06aa316707232a9d0f1a7e631c8",
+    "exp/offline_search/rounds/r17/autoscale_1017/node.py": "f99b61d637d28ada544f181a9a2d839103a912e81532f100502d9e5a810d7f56",
+    "exp/offline_search/rounds/r17/autoscale_1017/fleet.py": "ae205ad727b2c5f9ae3782593ad996acf518469e24052328b1da3cef7f4ff404",
+    "exp/offline_search/rounds/r17/autoscale_1017/legacy.py": "25acff99260c1a4f4b40e1653a6d91508e6f82ad295fd4f36c7e7c1d40dbd03b",
+    "exp/offline_search/rounds/r17/autoscale_1017/bundle.py": "0db2afc426762844263c824a560f232f051494f8c0d19a3f2222536cbac6c3d8",
+    "exp/offline_search/rounds/r17/autoscale_1017/worker.py": "d65202d49ce514426eb7fbe795661e53ae4bd8e684d87c058e6ddd04b8559104",
+    "exp/offline_search/rounds/r17/autoscale_1017/formal_trial.py": "4fcb2b2085dcaade3fdf8a615748a8d9c46f913e889c31a782c08ebde5566196",
+    "exp/offline_search/rounds/r17/autoscale_1017/driver.py": "dba4c972d5799b162a0cd5c010fe33ec6fa499ed10ded66b3b15f9b317c1d453",
+    "exp/offline_search/rounds/r17/autoscale_1017/legacy_release.py": "22f2e392f73945875ab94498c06aa2eb82c2efe0c1835c1c2e092684bb128a69"
+  },
+  "new_modules": {
+    "fairness.py": "4a4e7601dbd2c15e0e673f9edb977697e80a3e69fb3bd701818bec2f721ea1e4"
+  },
+  "explanation": "Live runtime still uses the previously accepted implementation; new fairness module is not in its source closure. Await fresh serial regression before activation.",
+  "final_candidate_frozen_utc": "2026-10-18T09:33:16.452065+00:00",
+  "generation_fix": {
+    "target": "src/openpi/conductor/worker.py",
+    "before_sha256": "a7b29e679b28d1cb15a82b149cabd9d9b3d7857a9a356cc8453e088642141cdf",
+    "after_sha256": "b4d9df4d1671186db4c64f4b69a585956abf0849fc0b9c70289acad13a72f7c9",
+    "reproduction": "GENERATION_BEFORE.xml",
+    "passing_reproduction": "GENERATION_AFTER.xml"
+  }
+}

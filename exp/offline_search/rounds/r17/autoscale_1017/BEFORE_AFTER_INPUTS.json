@@ -1,0 +1,34 @@
+{
+  "ops": [
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/regression_ops_matched/ops_before.xml",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/regression_ops_final/ops_after.xml"
+  ],
+  "r17_conductor": [
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/regression_verified_before/r17_conductor_before.xml",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/regression_01/r17_conductor_after.xml"
+  ],
+  "core_conductor": [
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/regression_verified_before/core_conductor_before.xml",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/regression_01/core_conductor_after.xml"
+  ],
+  "ff": [
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/regression_verified_before/ff_before.xml",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/regression_shared_final/ff_after.xml"
+  ],
+  "ffk": [
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/regression_verified_before/ffk_before.xml",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/regression_shared_final/ffk_after.xml"
+  ],
+  "r16": [
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/regression_verified_before/r16_before.xml",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/regression_shared_final/r16_after.xml"
+  ],
+  "h100": [
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/regression_h100_04/h100_before.xml",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/regression_h100_04/h100_after.xml"
+  ],
+  "other_importers": [
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/regression_importers_final/other_importers_before.xml",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/autoscale_1017/regression_importers_final/other_importers_after.xml"
+  ]
+}

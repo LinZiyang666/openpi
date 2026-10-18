@@ -1,0 +1,26 @@
+{
+  "started": 1792332398.615915,
+  "ended": 1792333757.8450973,
+  "status": "UNKNOWN",
+  "oom_lines": [],
+  "source": "counters",
+  "coverage": false,
+  "counter_sources": [],
+  "counter_start": null,
+  "counter_end": {
+    "time": 1792339185.2698026,
+    "host": "timan107",
+    "uid": 1310580,
+    "vmstat": {
+      "oom_kill": 45
+    },
+    "cgroups": {},
+    "errors": {
+      "cgroup": "current process is not inside a persistent user slice"
+    },
+    "boot_id": "4410d5e3-74c9-43f9-a82f-a43f8c61c6df",
+    "uptime": "339760.89",
+    "boot_epoch": 1791999424.3798025
+  },
+  "reason": "no comparable start/end counters covering lane"
+}

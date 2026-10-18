@@ -1,0 +1,1244 @@
+[
+  {
+    "name": "fa_co_f_f_oc1",
+    "domain": "libero",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan1": 40,
+      "timan107": 45
+    },
+    "hard_limits": null,
+    "egl": null,
+    "egl_by_node": null,
+    "resume": true
+  },
+  {
+    "name": "fa_ls_dp_f_b_l",
+    "domain": "libero",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "local": 48
+    },
+    "hard_limits": null,
+    "egl": null,
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_dp_f_b_m",
+    "domain": "metaworld",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan1": 40,
+      "timan107": 40,
+      "timan108": 40
+    },
+    "hard_limits": null,
+    "egl": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "egl_by_node": {
+      "timan108": [
+        3
+      ]
+    },
+    "resume": false
+  },
+  {
+    "name": "fa_ls_dp_f_f_m",
+    "domain": "metaworld",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan1": 40,
+      "timan107": 40,
+      "timan108": 40
+    },
+    "hard_limits": null,
+    "egl": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "egl_by_node": {
+      "timan108": [
+        3
+      ]
+    },
+    "resume": false
+  },
+  {
+    "name": "fa_ls_dp_f_f_o_l",
+    "domain": "libero",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "local": 48
+    },
+    "hard_limits": null,
+    "egl": null,
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_dp_f_p_l",
+    "domain": "libero",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "local": 48
+    },
+    "hard_limits": null,
+    "egl": null,
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_dp_f_p_m",
+    "domain": "metaworld",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan1": 40,
+      "timan107": 40,
+      "timan108": 40
+    },
+    "hard_limits": null,
+    "egl": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "egl_by_node": {
+      "timan108": [
+        3
+      ]
+    },
+    "resume": false
+  },
+  {
+    "name": "fa_ls_dp_f_u_m",
+    "domain": "metaworld",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan1": 40,
+      "timan107": 40,
+      "timan108": 40
+    },
+    "hard_limits": null,
+    "egl": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "egl_by_node": {
+      "timan108": [
+        3
+      ]
+    },
+    "resume": false
+  },
+  {
+    "name": "fa_ls_dp_f_u_o_l",
+    "domain": "libero",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "local": 48
+    },
+    "hard_limits": null,
+    "egl": null,
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_dp_r_b_l",
+    "domain": "libero",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "local": 48
+    },
+    "hard_limits": null,
+    "egl": null,
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_dp_r_b_m",
+    "domain": "metaworld",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan1": 40,
+      "timan107": 40,
+      "timan108": 40
+    },
+    "hard_limits": null,
+    "egl": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "egl_by_node": {
+      "timan108": [
+        3
+      ]
+    },
+    "resume": false
+  },
+  {
+    "name": "fa_ls_dp_r_b_v",
+    "domain": "metaworld",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan1": 20,
+      "timan107": 30
+    },
+    "hard_limits": null,
+    "egl": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_dp_r_f_m",
+    "domain": "metaworld",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan1": 40,
+      "timan107": 40,
+      "timan108": 40
+    },
+    "hard_limits": null,
+    "egl": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "egl_by_node": {
+      "timan108": [
+        3
+      ]
+    },
+    "resume": false
+  },
+  {
+    "name": "fa_ls_dp_r_f_o_l",
+    "domain": "libero",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "local": 48
+    },
+    "hard_limits": null,
+    "egl": null,
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_dp_r_p_l",
+    "domain": "libero",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "local": 48
+    },
+    "hard_limits": null,
+    "egl": null,
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_dp_r_p_m",
+    "domain": "metaworld",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan1": 40,
+      "timan107": 40,
+      "timan108": 40
+    },
+    "hard_limits": null,
+    "egl": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "egl_by_node": {
+      "timan108": [
+        3
+      ]
+    },
+    "resume": false
+  },
+  {
+    "name": "fa_ls_dp_r_u_m",
+    "domain": "metaworld",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan1": 40,
+      "timan107": 40,
+      "timan108": 40
+    },
+    "hard_limits": null,
+    "egl": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "egl_by_node": {
+      "timan108": [
+        3
+      ]
+    },
+    "resume": false
+  },
+  {
+    "name": "fa_ls_dp_r_u_o_l",
+    "domain": "libero",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "local": 48
+    },
+    "hard_limits": null,
+    "egl": null,
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_fw_f_b_l",
+    "domain": "libero",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan1": 40,
+      "timan107": 45
+    },
+    "hard_limits": null,
+    "egl": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_fw_f_f_m",
+    "domain": "metaworld",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan1": 40,
+      "timan107": 40,
+      "timan108": 40
+    },
+    "hard_limits": null,
+    "egl": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "egl_by_node": {
+      "timan108": [
+        3
+      ]
+    },
+    "resume": false
+  },
+  {
+    "name": "fa_ls_fw_f_f_o_l",
+    "domain": "libero",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan1": 40,
+      "timan107": 45
+    },
+    "hard_limits": null,
+    "egl": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_fw_f_p_l",
+    "domain": "libero",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan1": 40,
+      "timan107": 45
+    },
+    "hard_limits": null,
+    "egl": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_fw_f_p_m",
+    "domain": "metaworld",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan1": 40,
+      "timan107": 40,
+      "timan108": 40
+    },
+    "hard_limits": null,
+    "egl": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "egl_by_node": {
+      "timan108": [
+        3
+      ]
+    },
+    "resume": false
+  },
+  {
+    "name": "fa_ls_fw_f_u_m",
+    "domain": "metaworld",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan1": 40,
+      "timan107": 40,
+      "timan108": 40
+    },
+    "hard_limits": null,
+    "egl": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "egl_by_node": {
+      "timan108": [
+        3
+      ]
+    },
+    "resume": false
+  },
+  {
+    "name": "fa_ls_fw_f_u_o_l",
+    "domain": "libero",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan1": 40,
+      "timan107": 45
+    },
+    "hard_limits": null,
+    "egl": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_fw_r_f_m",
+    "domain": "metaworld",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan1": 40,
+      "timan107": 40,
+      "timan108": 40
+    },
+    "hard_limits": null,
+    "egl": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "egl_by_node": {
+      "timan108": [
+        3
+      ]
+    },
+    "resume": false
+  },
+  {
+    "name": "fa_ls_fw_r_f_o_l",
+    "domain": "libero",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan1": 40,
+      "timan107": 30
+    },
+    "hard_limits": null,
+    "egl": null,
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_fw_r_p_l",
+    "domain": "libero",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan1": 40,
+      "timan107": 30
+    },
+    "hard_limits": null,
+    "egl": null,
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_fw_r_p_m",
+    "domain": "metaworld",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan1": 40,
+      "timan107": 40,
+      "timan108": 40
+    },
+    "hard_limits": null,
+    "egl": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "egl_by_node": {
+      "timan108": [
+        3
+      ]
+    },
+    "resume": false
+  },
+  {
+    "name": "fa_ls_fw_r_u_m",
+    "domain": "metaworld",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan1": 40,
+      "timan107": 40,
+      "timan108": 40
+    },
+    "hard_limits": null,
+    "egl": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "egl_by_node": {
+      "timan108": [
+        3
+      ]
+    },
+    "resume": false
+  },
+  {
+    "name": "fa_ls_fw_r_u_o_l",
+    "domain": "libero",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan1": 40,
+      "timan107": 30
+    },
+    "hard_limits": null,
+    "egl": null,
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_gr_f_f_m",
+    "domain": "metaworld",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan1": 40
+    },
+    "hard_limits": null,
+    "egl": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_gr_f_p_m",
+    "domain": "metaworld",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan1": 40
+    },
+    "hard_limits": null,
+    "egl": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_gr_f_u_m",
+    "domain": "metaworld",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan1": 40
+    },
+    "hard_limits": null,
+    "egl": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_gr_r_f_m",
+    "domain": "metaworld",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan1": 40
+    },
+    "hard_limits": null,
+    "egl": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_gr_r_p_m",
+    "domain": "metaworld",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan1": 40
+    },
+    "hard_limits": null,
+    "egl": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_gr_r_u_m",
+    "domain": "metaworld",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan1": 40
+    },
+    "hard_limits": null,
+    "egl": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_v01_0",
+    "domain": "metaworld",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan1": 20,
+      "timan107": 30
+    },
+    "hard_limits": null,
+    "egl": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_v02_b",
+    "domain": "metaworld",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan1": 20,
+      "timan107": 30
+    },
+    "hard_limits": null,
+    "egl": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "egl_by_node": {
+      "timan108": [
+        3
+      ]
+    },
+    "resume": false
+  },
+  {
+    "name": "fa_ls_v02_s",
+    "domain": "metaworld",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan1": 20,
+      "timan107": 30
+    },
+    "hard_limits": null,
+    "egl": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "egl_by_node": {
+      "timan108": [
+        3
+      ]
+    },
+    "resume": false
+  },
+  {
+    "name": "fa_ls_v03_0",
+    "domain": "metaworld",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan1": 20,
+      "timan107": 40
+    },
+    "hard_limits": null,
+    "egl": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_v03_1",
+    "domain": "metaworld",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan1": 20,
+      "timan107": 40
+    },
+    "hard_limits": null,
+    "egl": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_v04_0",
+    "domain": "libero",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan107": 32
+    },
+    "hard_limits": null,
+    "egl": null,
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_v04_1",
+    "domain": "libero",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan107": 32
+    },
+    "hard_limits": null,
+    "egl": null,
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_v04_2",
+    "domain": "libero",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan107": 32
+    },
+    "hard_limits": null,
+    "egl": null,
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_v04_3",
+    "domain": "libero",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan107": 32
+    },
+    "hard_limits": null,
+    "egl": null,
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_v05_0",
+    "domain": "libero",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan107": 48
+    },
+    "hard_limits": null,
+    "egl": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_v05_1",
+    "domain": "libero",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan107": 48
+    },
+    "hard_limits": null,
+    "egl": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_v05_2",
+    "domain": "libero",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan107": 48
+    },
+    "hard_limits": null,
+    "egl": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_v05_3",
+    "domain": "libero",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan107": 48
+    },
+    "hard_limits": null,
+    "egl": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_v05_4",
+    "domain": "libero",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan107": 48
+    },
+    "hard_limits": null,
+    "egl": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_v06_0",
+    "domain": "libero",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan107": 32
+    },
+    "hard_limits": null,
+    "egl": null,
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_v07_0",
+    "domain": "libero",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan107": 48
+    },
+    "hard_limits": null,
+    "egl": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_v08_1",
+    "domain": "libero",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan107": 48
+    },
+    "hard_limits": null,
+    "egl": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_v09_0",
+    "domain": "libero",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan107": 32
+    },
+    "hard_limits": null,
+    "egl": null,
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_v09_1",
+    "domain": "libero",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan107": 32
+    },
+    "hard_limits": null,
+    "egl": null,
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_v10_0",
+    "domain": "libero",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "local": 48
+    },
+    "hard_limits": null,
+    "egl": null,
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_v11_0",
+    "domain": "libero",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "local": 22
+    },
+    "hard_limits": null,
+    "egl": null,
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_v12_0",
+    "domain": "libero",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "local": 48
+    },
+    "hard_limits": null,
+    "egl": null,
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_v13_0",
+    "domain": "libero",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "local": 22
+    },
+    "hard_limits": null,
+    "egl": null,
+    "egl_by_node": null,
+    "resume": false
+  },
+  {
+    "name": "fa_ls_v14_0",
+    "domain": "metaworld",
+    "prepared": false,
+    "launched": false,
+    "old_workers": {
+      "timan1": 4,
+      "timan107": 4
+    },
+    "hard_limits": null,
+    "egl": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "egl_by_node": null,
+    "resume": false
+  }
+]
