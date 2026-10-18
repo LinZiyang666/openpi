@@ -67,6 +67,23 @@ def test_empty_candidates_skip_retrieval_and_loeo_empty_is_a_miss():
         assert cr.CacheStudyRecipe.query(obj,q).force_miss
 
 
+def test_pre_loeo_frozen_layout_recipe_keeps_native_query():
+    # Frozen releases 211cb3c9/62692e19/cd9bc0a4/b29ef3db/e39cb4b8 predate
+    # LayoutRecipe.serve_loeo_episodes; their native query excludes nothing.
+    from exp.r17_integration.search import cache_recipe as cr
+    from exp.r17_integration.common import serving
+    native=lambda self,q:'native'
+    with patch.object(cr,'verified_fit'),patch.object(cr,'load_stall'),patch.object(cr.CacheStudyRecipe,'query',native),patch.object(cr.CacheStudyRecipe,'force_look',lambda self,r,v,h:False),patch.object(serving.ConnectionPolicy,'infer',serving.ConnectionPolicy.infer):
+        runtime.install({})
+        base=NS(tasks={0:NS(rows=np.array([0,1]))},episode=np.array([7,7]))
+        obj=NS(base=base);request=NS(task_id=0,original_init_idx=3,decision_seq=0)
+        assert not hasattr(base,'serve_loeo_episodes')
+        assert cr.CacheStudyRecipe.query(obj,NS(request=request))=='native'
+        assert not cr.CacheStudyRecipe.force_look(obj,request,[],[])
+        base.tasks={}
+        assert cr.CacheStudyRecipe.query(obj,NS(request=request)).extras['empty_candidates']
+
+
 def test_empty_task_runs_real_serving_model_path_on_every_decision(tmp_path):
     import torch
     from exp.r17_integration.common.fake_adapter import fake_provider

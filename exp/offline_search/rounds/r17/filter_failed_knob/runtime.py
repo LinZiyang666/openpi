@@ -35,7 +35,10 @@ def install(selection):
         table = self.base.tasks.get(request.task_id)
         if table is None or not len(table.rows):
             return True
-        own = self.base.serve_loeo_episodes.get((request.task_id, request.original_init_idx))
+        # Frozen LayoutRecipe releases before 10-11 have no serving LOEO: their
+        # native query never excludes an own episode, so none applies here.
+        loeo = getattr(self.base, 'serve_loeo_episodes', {})
+        own = loeo.get((request.task_id, request.original_init_idx))
         return own is not None and not np.any(self.base.episode[table.rows] != own)
 
     def query(self, q):

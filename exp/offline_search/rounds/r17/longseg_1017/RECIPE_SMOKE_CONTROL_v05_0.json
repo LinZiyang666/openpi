@@ -1,0 +1,359 @@
+{
+  "status": "FAIL",
+  "cpu_only": true,
+  "cuda_visible_devices": "",
+  "rows": [
+    {
+      "name": "fa_ls_v05_0",
+      "model": "fastwam",
+      "domain": "libero",
+      "server_node": "h100",
+      "source_runtime": "/data/mw_finetune/qualification/formal_runtime_211cb3c92204e134f1414ee563d6b24586c6a3e6c0a8f5ceaaa9689d8077c8e4",
+      "selection_cells": 0,
+      "bootstrap": "override",
+      "bootstrap_path": "/data/mw_finetune/eval/fa_ls_v05_0/assets/ffk_bootstrap.py.pre_vfix1018_1792353708412895502",
+      "bootstrap_sha256": "4e07fb3ecbfbc15000886cdaeb6cc16da2fbd346e045df22ad8ac77a1e5e4f5e",
+      "fixed_runtime": "/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9",
+      "runtime_fix_members": [
+        "exp/r17_integration/common/serving.py",
+        "exp/r17_integration/common/websocket_policy_server.py",
+        "exp/r17_integration/search/cache_recipe.py"
+      ],
+      "frozen_layout_recipe_has_serve_loeo_episodes": false,
+      "planned_bundle_tasks": 81,
+      "python": "/data/mw_finetune/envs/fastwam/bin/python",
+      "bundles": [
+        {
+          "base_has_serve_loeo_episodes": false,
+          "bundle_id": "r17cs_sp_c_59aa34f6ae20",
+          "deliveries": 0,
+          "empty_candidate_heads": 0,
+          "empty_tasks": [],
+          "episodes": 0,
+          "errors": [
+            {
+              "error": "AttributeError(\"'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\")",
+              "task_uid": "r17_ca287bdcfd48583a297e_c:eval:0:0",
+              "traceback": "  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in infer\n    if storage is not None:\n                           \n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 11, in measured\n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in <lambda>\n    if storage is not None:\n                            \n  File \"ffk1015_runtime\", line 42, in query\n  File \"ffk1015_runtime\", line 38, in empty\nAttributeError: 'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\n"
+            },
+            {
+              "error": "AttributeError(\"'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\")",
+              "task_uid": "r17_ca287bdcfd48583a297e_c:eval:1:0",
+              "traceback": "  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in infer\n    if storage is not None:\n                           \n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 11, in measured\n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in <lambda>\n    if storage is not None:\n                            \n  File \"ffk1015_runtime\", line 42, in query\n  File \"ffk1015_runtime\", line 38, in empty\nAttributeError: 'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\n"
+            },
+            {
+              "error": "AttributeError(\"'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\")",
+              "task_uid": "r17_ca287bdcfd48583a297e_c:eval:2:0",
+              "traceback": "  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in infer\n    if storage is not None:\n                           \n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 11, in measured\n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in <lambda>\n    if storage is not None:\n                            \n  File \"ffk1015_runtime\", line 42, in query\n  File \"ffk1015_runtime\", line 38, in empty\nAttributeError: 'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\n"
+            }
+          ],
+          "file": "cache_yamls/sp_c.yaml",
+          "heads": 0,
+          "knob_calls": 0,
+          "recipe": "CacheStudyRecipe/LayoutRecipe",
+          "sources": {},
+          "stall_calls": 0
+        },
+        {
+          "base_has_serve_loeo_episodes": false,
+          "bundle_id": "r17cs_sp_cr_0f904484b2bf",
+          "deliveries": 0,
+          "empty_candidate_heads": 0,
+          "empty_tasks": [],
+          "episodes": 0,
+          "errors": [
+            {
+              "error": "AttributeError(\"'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\")",
+              "task_uid": "r17_72e270ba027413207e2e_cr:eval:0:0",
+              "traceback": "  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in infer\n    if storage is not None:\n                           \n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 11, in measured\n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in <lambda>\n    if storage is not None:\n                            \n  File \"ffk1015_runtime\", line 42, in query\n  File \"ffk1015_runtime\", line 38, in empty\nAttributeError: 'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\n"
+            },
+            {
+              "error": "AttributeError(\"'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\")",
+              "task_uid": "r17_72e270ba027413207e2e_cr:eval:1:0",
+              "traceback": "  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in infer\n    if storage is not None:\n                           \n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 11, in measured\n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in <lambda>\n    if storage is not None:\n                            \n  File \"ffk1015_runtime\", line 42, in query\n  File \"ffk1015_runtime\", line 38, in empty\nAttributeError: 'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\n"
+            },
+            {
+              "error": "AttributeError(\"'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\")",
+              "task_uid": "r17_72e270ba027413207e2e_cr:eval:2:0",
+              "traceback": "  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in infer\n    if storage is not None:\n                           \n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 11, in measured\n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in <lambda>\n    if storage is not None:\n                            \n  File \"ffk1015_runtime\", line 42, in query\n  File \"ffk1015_runtime\", line 38, in empty\nAttributeError: 'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\n"
+            }
+          ],
+          "file": "cache_yamls/sp_cr.yaml",
+          "heads": 0,
+          "knob_calls": 0,
+          "recipe": "CacheStudyRecipe/LayoutRecipe",
+          "sources": {},
+          "stall_calls": 0
+        },
+        {
+          "base_has_serve_loeo_episodes": false,
+          "bundle_id": "r17cs_sp_ch_af537b77e4b6",
+          "deliveries": 0,
+          "empty_candidate_heads": 0,
+          "empty_tasks": [],
+          "episodes": 0,
+          "errors": [
+            {
+              "error": "AttributeError(\"'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\")",
+              "task_uid": "r17_7297df8958c1c1b5e8dc_ch:eval:0:0",
+              "traceback": "  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in infer\n    if storage is not None:\n                           \n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 11, in measured\n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in <lambda>\n    if storage is not None:\n                            \n  File \"ffk1015_runtime\", line 42, in query\n  File \"ffk1015_runtime\", line 38, in empty\nAttributeError: 'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\n"
+            },
+            {
+              "error": "AttributeError(\"'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\")",
+              "task_uid": "r17_7297df8958c1c1b5e8dc_ch:eval:1:0",
+              "traceback": "  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in infer\n    if storage is not None:\n                           \n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 11, in measured\n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in <lambda>\n    if storage is not None:\n                            \n  File \"ffk1015_runtime\", line 42, in query\n  File \"ffk1015_runtime\", line 38, in empty\nAttributeError: 'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\n"
+            },
+            {
+              "error": "AttributeError(\"'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\")",
+              "task_uid": "r17_7297df8958c1c1b5e8dc_ch:eval:2:0",
+              "traceback": "  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in infer\n    if storage is not None:\n                           \n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 11, in measured\n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in <lambda>\n    if storage is not None:\n                            \n  File \"ffk1015_runtime\", line 42, in query\n  File \"ffk1015_runtime\", line 38, in empty\nAttributeError: 'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\n"
+            }
+          ],
+          "file": "cache_yamls/sp_ch.yaml",
+          "heads": 0,
+          "knob_calls": 0,
+          "recipe": "CacheStudyRecipe/LayoutRecipe",
+          "sources": {},
+          "stall_calls": 0
+        },
+        {
+          "base_has_serve_loeo_episodes": false,
+          "bundle_id": "r17cs_sp_chr_7e23b37dffe0",
+          "deliveries": 0,
+          "empty_candidate_heads": 0,
+          "empty_tasks": [],
+          "episodes": 0,
+          "errors": [
+            {
+              "error": "AttributeError(\"'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\")",
+              "task_uid": "r17_6cc934fdfd7f9c2595ee_chr:eval:0:0",
+              "traceback": "  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in infer\n    if storage is not None:\n                           \n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 11, in measured\n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in <lambda>\n    if storage is not None:\n                            \n  File \"ffk1015_runtime\", line 42, in query\n  File \"ffk1015_runtime\", line 38, in empty\nAttributeError: 'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\n"
+            },
+            {
+              "error": "AttributeError(\"'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\")",
+              "task_uid": "r17_6cc934fdfd7f9c2595ee_chr:eval:1:0",
+              "traceback": "  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in infer\n    if storage is not None:\n                           \n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 11, in measured\n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in <lambda>\n    if storage is not None:\n                            \n  File \"ffk1015_runtime\", line 42, in query\n  File \"ffk1015_runtime\", line 38, in empty\nAttributeError: 'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\n"
+            },
+            {
+              "error": "AttributeError(\"'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\")",
+              "task_uid": "r17_6cc934fdfd7f9c2595ee_chr:eval:2:0",
+              "traceback": "  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in infer\n    if storage is not None:\n                           \n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 11, in measured\n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in <lambda>\n    if storage is not None:\n                            \n  File \"ffk1015_runtime\", line 42, in query\n  File \"ffk1015_runtime\", line 38, in empty\nAttributeError: 'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\n"
+            }
+          ],
+          "file": "cache_yamls/sp_chr.yaml",
+          "heads": 0,
+          "knob_calls": 0,
+          "recipe": "CacheStudyRecipe/LayoutRecipe",
+          "sources": {},
+          "stall_calls": 0
+        },
+        {
+          "base_has_serve_loeo_episodes": false,
+          "bundle_id": "r17cs_sp_cg_f8e8e8e4c45a",
+          "deliveries": 0,
+          "empty_candidate_heads": 0,
+          "empty_tasks": [],
+          "episodes": 0,
+          "errors": [
+            {
+              "error": "AttributeError(\"'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\")",
+              "task_uid": "r17_92007de1282ac9611650_cg:eval:0:0",
+              "traceback": "  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in infer\n    if storage is not None:\n                           \n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 11, in measured\n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in <lambda>\n    if storage is not None:\n                            \n  File \"ffk1015_runtime\", line 42, in query\n  File \"ffk1015_runtime\", line 38, in empty\nAttributeError: 'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\n"
+            },
+            {
+              "error": "AttributeError(\"'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\")",
+              "task_uid": "r17_92007de1282ac9611650_cg:eval:1:0",
+              "traceback": "  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in infer\n    if storage is not None:\n                           \n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 11, in measured\n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in <lambda>\n    if storage is not None:\n                            \n  File \"ffk1015_runtime\", line 42, in query\n  File \"ffk1015_runtime\", line 38, in empty\nAttributeError: 'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\n"
+            },
+            {
+              "error": "AttributeError(\"'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\")",
+              "task_uid": "r17_92007de1282ac9611650_cg:eval:2:0",
+              "traceback": "  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in infer\n    if storage is not None:\n                           \n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 11, in measured\n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in <lambda>\n    if storage is not None:\n                            \n  File \"ffk1015_runtime\", line 42, in query\n  File \"ffk1015_runtime\", line 38, in empty\nAttributeError: 'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\n"
+            }
+          ],
+          "file": "cache_yamls/sp_cg.yaml",
+          "heads": 0,
+          "knob_calls": 0,
+          "recipe": "CacheStudyRecipe/LayoutRecipe",
+          "sources": {},
+          "stall_calls": 0
+        },
+        {
+          "base_has_serve_loeo_episodes": false,
+          "bundle_id": "r17cs_sp_crg_0673f7d8c6de",
+          "deliveries": 0,
+          "empty_candidate_heads": 0,
+          "empty_tasks": [],
+          "episodes": 0,
+          "errors": [
+            {
+              "error": "AttributeError(\"'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\")",
+              "task_uid": "r17_9951563561c63fe13c25_crg:eval:0:0",
+              "traceback": "  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in infer\n    if storage is not None:\n                           \n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 11, in measured\n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in <lambda>\n    if storage is not None:\n                            \n  File \"ffk1015_runtime\", line 42, in query\n  File \"ffk1015_runtime\", line 38, in empty\nAttributeError: 'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\n"
+            },
+            {
+              "error": "AttributeError(\"'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\")",
+              "task_uid": "r17_9951563561c63fe13c25_crg:eval:1:0",
+              "traceback": "  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in infer\n    if storage is not None:\n                           \n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 11, in measured\n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in <lambda>\n    if storage is not None:\n                            \n  File \"ffk1015_runtime\", line 42, in query\n  File \"ffk1015_runtime\", line 38, in empty\nAttributeError: 'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\n"
+            },
+            {
+              "error": "AttributeError(\"'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\")",
+              "task_uid": "r17_9951563561c63fe13c25_crg:eval:2:0",
+              "traceback": "  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in infer\n    if storage is not None:\n                           \n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 11, in measured\n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in <lambda>\n    if storage is not None:\n                            \n  File \"ffk1015_runtime\", line 42, in query\n  File \"ffk1015_runtime\", line 38, in empty\nAttributeError: 'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\n"
+            }
+          ],
+          "file": "cache_yamls/sp_crg.yaml",
+          "heads": 0,
+          "knob_calls": 0,
+          "recipe": "CacheStudyRecipe/LayoutRecipe",
+          "sources": {},
+          "stall_calls": 0
+        },
+        {
+          "base_has_serve_loeo_episodes": false,
+          "bundle_id": "r17cs_sp_chg_cfcadf9bd5a3",
+          "deliveries": 0,
+          "empty_candidate_heads": 0,
+          "empty_tasks": [],
+          "episodes": 0,
+          "errors": [
+            {
+              "error": "AttributeError(\"'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\")",
+              "task_uid": "r17_2ad141bd11ca47aec87c_chg:eval:0:0",
+              "traceback": "  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in infer\n    if storage is not None:\n                           \n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 11, in measured\n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in <lambda>\n    if storage is not None:\n                            \n  File \"ffk1015_runtime\", line 42, in query\n  File \"ffk1015_runtime\", line 38, in empty\nAttributeError: 'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\n"
+            },
+            {
+              "error": "AttributeError(\"'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\")",
+              "task_uid": "r17_2ad141bd11ca47aec87c_chg:eval:1:0",
+              "traceback": "  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in infer\n    if storage is not None:\n                           \n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 11, in measured\n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in <lambda>\n    if storage is not None:\n                            \n  File \"ffk1015_runtime\", line 42, in query\n  File \"ffk1015_runtime\", line 38, in empty\nAttributeError: 'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\n"
+            },
+            {
+              "error": "AttributeError(\"'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\")",
+              "task_uid": "r17_2ad141bd11ca47aec87c_chg:eval:2:0",
+              "traceback": "  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in infer\n    if storage is not None:\n                           \n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 11, in measured\n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in <lambda>\n    if storage is not None:\n                            \n  File \"ffk1015_runtime\", line 42, in query\n  File \"ffk1015_runtime\", line 38, in empty\nAttributeError: 'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\n"
+            }
+          ],
+          "file": "cache_yamls/sp_chg.yaml",
+          "heads": 0,
+          "knob_calls": 0,
+          "recipe": "CacheStudyRecipe/LayoutRecipe",
+          "sources": {},
+          "stall_calls": 0
+        },
+        {
+          "base_has_serve_loeo_episodes": false,
+          "bundle_id": "r17cs_sp_chrg_68b652001964",
+          "deliveries": 0,
+          "empty_candidate_heads": 0,
+          "empty_tasks": [],
+          "episodes": 0,
+          "errors": [
+            {
+              "error": "AttributeError(\"'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\")",
+              "task_uid": "r17_045524baf02de68a3af4_chrg:eval:0:0",
+              "traceback": "  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in infer\n    if storage is not None:\n                           \n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 11, in measured\n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in <lambda>\n    if storage is not None:\n                            \n  File \"ffk1015_runtime\", line 42, in query\n  File \"ffk1015_runtime\", line 38, in empty\nAttributeError: 'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\n"
+            },
+            {
+              "error": "AttributeError(\"'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\")",
+              "task_uid": "r17_045524baf02de68a3af4_chrg:eval:1:0",
+              "traceback": "  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in infer\n    if storage is not None:\n                           \n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 11, in measured\n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in <lambda>\n    if storage is not None:\n                            \n  File \"ffk1015_runtime\", line 42, in query\n  File \"ffk1015_runtime\", line 38, in empty\nAttributeError: 'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\n"
+            },
+            {
+              "error": "AttributeError(\"'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\")",
+              "task_uid": "r17_045524baf02de68a3af4_chrg:eval:2:0",
+              "traceback": "  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in infer\n    if storage is not None:\n                           \n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 11, in measured\n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in <lambda>\n    if storage is not None:\n                            \n  File \"ffk1015_runtime\", line 42, in query\n  File \"ffk1015_runtime\", line 38, in empty\nAttributeError: 'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\n"
+            }
+          ],
+          "file": "cache_yamls/sp_chrg.yaml",
+          "heads": 0,
+          "knob_calls": 0,
+          "recipe": "CacheStudyRecipe/LayoutRecipe",
+          "sources": {},
+          "stall_calls": 0
+        },
+        {
+          "base_has_serve_loeo_episodes": false,
+          "bundle_id": "r17cs_l10_c_abd0fff4dbb9",
+          "deliveries": 0,
+          "empty_candidate_heads": 0,
+          "empty_tasks": [],
+          "episodes": 0,
+          "errors": [
+            {
+              "error": "AttributeError(\"'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\")",
+              "task_uid": "r17_28e892495a448b493730_c:eval:30:0",
+              "traceback": "  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in infer\n    if storage is not None:\n                           \n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 11, in measured\n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in <lambda>\n    if storage is not None:\n                            \n  File \"ffk1015_runtime\", line 42, in query\n  File \"ffk1015_runtime\", line 38, in empty\nAttributeError: 'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\n"
+            }
+          ],
+          "file": "cache_yamls/l10_c.yaml",
+          "heads": 0,
+          "knob_calls": 0,
+          "recipe": "CacheStudyRecipe/LayoutRecipe",
+          "sources": {},
+          "stall_calls": 0
+        }
+      ],
+      "cuda_initialized": false,
+      "errors": [
+        {
+          "bundle_id": "r17cs_sp_c_59aa34f6ae20",
+          "error": "AttributeError(\"'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\")",
+          "task_uid": "r17_ca287bdcfd48583a297e_c:eval:0:0",
+          "traceback": "  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in infer\n    if storage is not None:\n                           \n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 11, in measured\n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in <lambda>\n    if storage is not None:\n                            \n  File \"ffk1015_runtime\", line 42, in query\n  File \"ffk1015_runtime\", line 38, in empty\nAttributeError: 'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\n"
+        },
+        {
+          "bundle_id": "r17cs_sp_cr_0f904484b2bf",
+          "error": "AttributeError(\"'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\")",
+          "task_uid": "r17_72e270ba027413207e2e_cr:eval:0:0",
+          "traceback": "  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in infer\n    if storage is not None:\n                           \n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 11, in measured\n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in <lambda>\n    if storage is not None:\n                            \n  File \"ffk1015_runtime\", line 42, in query\n  File \"ffk1015_runtime\", line 38, in empty\nAttributeError: 'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\n"
+        },
+        {
+          "bundle_id": "r17cs_sp_ch_af537b77e4b6",
+          "error": "AttributeError(\"'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\")",
+          "task_uid": "r17_7297df8958c1c1b5e8dc_ch:eval:0:0",
+          "traceback": "  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in infer\n    if storage is not None:\n                           \n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 11, in measured\n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in <lambda>\n    if storage is not None:\n                            \n  File \"ffk1015_runtime\", line 42, in query\n  File \"ffk1015_runtime\", line 38, in empty\nAttributeError: 'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\n"
+        },
+        {
+          "bundle_id": "r17cs_sp_chr_7e23b37dffe0",
+          "error": "AttributeError(\"'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\")",
+          "task_uid": "r17_6cc934fdfd7f9c2595ee_chr:eval:0:0",
+          "traceback": "  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in infer\n    if storage is not None:\n                           \n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 11, in measured\n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in <lambda>\n    if storage is not None:\n                            \n  File \"ffk1015_runtime\", line 42, in query\n  File \"ffk1015_runtime\", line 38, in empty\nAttributeError: 'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\n"
+        },
+        {
+          "bundle_id": "r17cs_sp_cg_f8e8e8e4c45a",
+          "error": "AttributeError(\"'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\")",
+          "task_uid": "r17_92007de1282ac9611650_cg:eval:0:0",
+          "traceback": "  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in infer\n    if storage is not None:\n                           \n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 11, in measured\n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in <lambda>\n    if storage is not None:\n                            \n  File \"ffk1015_runtime\", line 42, in query\n  File \"ffk1015_runtime\", line 38, in empty\nAttributeError: 'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\n"
+        },
+        {
+          "bundle_id": "r17cs_sp_crg_0673f7d8c6de",
+          "error": "AttributeError(\"'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\")",
+          "task_uid": "r17_9951563561c63fe13c25_crg:eval:0:0",
+          "traceback": "  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in infer\n    if storage is not None:\n                           \n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 11, in measured\n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in <lambda>\n    if storage is not None:\n                            \n  File \"ffk1015_runtime\", line 42, in query\n  File \"ffk1015_runtime\", line 38, in empty\nAttributeError: 'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\n"
+        },
+        {
+          "bundle_id": "r17cs_sp_chg_cfcadf9bd5a3",
+          "error": "AttributeError(\"'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\")",
+          "task_uid": "r17_2ad141bd11ca47aec87c_chg:eval:0:0",
+          "traceback": "  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in infer\n    if storage is not None:\n                           \n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 11, in measured\n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in <lambda>\n    if storage is not None:\n                            \n  File \"ffk1015_runtime\", line 42, in query\n  File \"ffk1015_runtime\", line 38, in empty\nAttributeError: 'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\n"
+        },
+        {
+          "bundle_id": "r17cs_sp_chrg_68b652001964",
+          "error": "AttributeError(\"'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\")",
+          "task_uid": "r17_045524baf02de68a3af4_chrg:eval:0:0",
+          "traceback": "  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in infer\n    if storage is not None:\n                           \n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 11, in measured\n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in <lambda>\n    if storage is not None:\n                            \n  File \"ffk1015_runtime\", line 42, in query\n  File \"ffk1015_runtime\", line 38, in empty\nAttributeError: 'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\n"
+        },
+        {
+          "bundle_id": "r17cs_l10_c_abd0fff4dbb9",
+          "error": "AttributeError(\"'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\")",
+          "task_uid": "r17_28e892495a448b493730_c:eval:30:0",
+          "traceback": "  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in infer\n    if storage is not None:\n                           \n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 11, in measured\n  File \"/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9/exp/r17_integration/common/serving.py\", line 73, in <lambda>\n    if storage is not None:\n                            \n  File \"ffk1015_runtime\", line 42, in query\n  File \"ffk1015_runtime\", line 38, in empty\nAttributeError: 'LayoutRecipe' object has no attribute 'serve_loeo_episodes'\n"
+        }
+      ],
+      "library_validator": "exp.r17_integration.models.fastwam.provider.configure_library_provider",
+      "stage": "done",
+      "status": "FAIL",
+      "returncode": 0
+    }
+  ]
+}

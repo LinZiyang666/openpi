@@ -1,0 +1,114 @@
+{
+  "status": "PASS",
+  "cpu_only": true,
+  "cuda_visible_devices": "",
+  "rows": [
+    {
+      "name": "fa_ls_v05_1",
+      "model": "fastwam",
+      "domain": "libero",
+      "server_node": "h100",
+      "source_runtime": "/data/mw_finetune/qualification/formal_runtime_7860ba85eec4f93943876bef7e4763e1db2e944cb9b676f7355fc315ca363bc9",
+      "selection_cells": 0,
+      "bootstrap": "preview_repin",
+      "bootstrap_path": "/tmp/r17_recipe_smoke/tmpau59emle/assets/ffk_bootstrap.py",
+      "bootstrap_sha256": "0c08f2fd26f6eac252bf87beeef1cb391ad98bcfef4e74ad774f9803d5d86ac1",
+      "fixed_runtime": "/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9",
+      "runtime_fix_members": [
+        "exp/r17_integration/common/serving.py",
+        "exp/r17_integration/common/websocket_policy_server.py",
+        "exp/r17_integration/search/cache_recipe.py"
+      ],
+      "frozen_layout_recipe_has_serve_loeo_episodes": false,
+      "planned_bundle_tasks": 7,
+      "python": "/data/mw_finetune/envs/fastwam/bin/python",
+      "bundles": [
+        {
+          "base_has_serve_loeo_episodes": false,
+          "bundle_id": "r17cs_l10_c_abd0fff4dbb9",
+          "deliveries": 28,
+          "empty_candidate_heads": 0,
+          "empty_tasks": [],
+          "episodes": 7,
+          "errors": [],
+          "file": "cache_yamls/l10_c.yaml",
+          "heads": 28,
+          "knob_calls": 0,
+          "recipe": "CacheStudyRecipe/LayoutRecipe",
+          "sources": {
+            "library": 28
+          },
+          "stall_calls": 0
+        }
+      ],
+      "cuda_initialized": false,
+      "errors": [],
+      "library_validator": "exp.r17_integration.models.fastwam.provider.configure_library_provider",
+      "stage": "done",
+      "status": "PASS",
+      "returncode": 0
+    },
+    {
+      "name": "fa_ls_v05_2",
+      "model": "fastwam",
+      "domain": "libero",
+      "server_node": "h100",
+      "source_runtime": "/data/mw_finetune/qualification/formal_runtime_7860ba85eec4f93943876bef7e4763e1db2e944cb9b676f7355fc315ca363bc9",
+      "selection_cells": 0,
+      "bootstrap": "preview_repin",
+      "bootstrap_path": "/tmp/r17_recipe_smoke/tmpbyilc2lq/assets/ffk_bootstrap.py",
+      "bootstrap_sha256": "0c08f2fd26f6eac252bf87beeef1cb391ad98bcfef4e74ad774f9803d5d86ac1",
+      "fixed_runtime": "/tmp/r17_recipe_smoke/runtime/3dbfeca6c4adfba4d6c987c76119f72be8e4a0923ee1d1c5f532febcf26e37a9",
+      "runtime_fix_members": [
+        "exp/r17_integration/common/serving.py",
+        "exp/r17_integration/common/websocket_policy_server.py",
+        "exp/r17_integration/search/cache_recipe.py"
+      ],
+      "frozen_layout_recipe_has_serve_loeo_episodes": false,
+      "planned_bundle_tasks": 11,
+      "python": "/data/mw_finetune/envs/fastwam/bin/python",
+      "bundles": [
+        {
+          "base_has_serve_loeo_episodes": false,
+          "bundle_id": "r17cs_l10_c_abd0fff4dbb9",
+          "deliveries": 24,
+          "empty_candidate_heads": 0,
+          "empty_tasks": [],
+          "episodes": 6,
+          "errors": [],
+          "file": "cache_yamls/l10_c.yaml",
+          "heads": 24,
+          "knob_calls": 0,
+          "recipe": "CacheStudyRecipe/LayoutRecipe",
+          "sources": {
+            "library": 24
+          },
+          "stall_calls": 0
+        },
+        {
+          "base_has_serve_loeo_episodes": false,
+          "bundle_id": "r17cs_l10_cr_1a3d7178f8f7",
+          "deliveries": 20,
+          "empty_candidate_heads": 0,
+          "empty_tasks": [],
+          "episodes": 5,
+          "errors": [],
+          "file": "cache_yamls/l10_cr.yaml",
+          "heads": 20,
+          "knob_calls": 0,
+          "recipe": "CacheStudyRecipe/LayoutRecipe",
+          "sources": {
+            "library": 20
+          },
+          "stall_calls": 0
+        }
+      ],
+      "cuda_initialized": false,
+      "errors": [],
+      "library_validator": "exp.r17_integration.models.fastwam.provider.configure_library_provider",
+      "stage": "done",
+      "status": "PASS",
+      "returncode": 0
+    }
+  ]
+}

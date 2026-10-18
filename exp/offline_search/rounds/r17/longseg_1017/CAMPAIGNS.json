@@ -1271,12 +1271,13 @@
       "no_old_outcomes_inherited": true,
       "uid_namespace": "native task/init cohort namespace; RNG seed/campaign unchanged",
       "transport_plan_rebound": true,
-      "bootstrap_sha256": "4e07fb3ecbfbc15000886cdaeb6cc16da2fbd346e045df22ad8ac77a1e5e4f5e",
+      "bootstrap_sha256": "0c08f2fd26f6eac252bf87beeef1cb391ad98bcfef4e74ad774f9803d5d86ac1",
       "evidence_sha256": "034c90299c9c9092ed3285a636ead9d61a8bdd6275ca2c021ed858a3ed4b9ae8",
       "pre_recal_source_full_native_plan_equal": null,
       "recalibrated": true,
       "task_uid_namespace_preserved": true,
-      "scientific_plan_equal_except_recipe_inputs": true
+      "scientific_plan_equal_except_recipe_inputs": true,
+      "vfix1018": true
     },
     {
       "name": "fa_ls_v04_1",
@@ -1307,8 +1308,9 @@
       "no_old_outcomes_inherited": true,
       "uid_namespace": "native task/init cohort namespace; RNG seed/campaign unchanged",
       "transport_plan_rebound": true,
-      "bootstrap_sha256": "4e07fb3ecbfbc15000886cdaeb6cc16da2fbd346e045df22ad8ac77a1e5e4f5e",
-      "evidence_sha256": "ed812fd78746a1ccfceae7ee6a2a9f943808cad52b6b73c31e7e79150dfa7333"
+      "bootstrap_sha256": "0c08f2fd26f6eac252bf87beeef1cb391ad98bcfef4e74ad774f9803d5d86ac1",
+      "evidence_sha256": "ed812fd78746a1ccfceae7ee6a2a9f943808cad52b6b73c31e7e79150dfa7333",
+      "vfix1018": true
     },
     {
       "name": "fa_ls_v04_2",
@@ -1339,8 +1341,9 @@
       "no_old_outcomes_inherited": true,
       "uid_namespace": "native task/init cohort namespace; RNG seed/campaign unchanged",
       "transport_plan_rebound": true,
-      "bootstrap_sha256": "4e07fb3ecbfbc15000886cdaeb6cc16da2fbd346e045df22ad8ac77a1e5e4f5e",
-      "evidence_sha256": "ed812fd78746a1ccfceae7ee6a2a9f943808cad52b6b73c31e7e79150dfa7333"
+      "bootstrap_sha256": "0c08f2fd26f6eac252bf87beeef1cb391ad98bcfef4e74ad774f9803d5d86ac1",
+      "evidence_sha256": "ed812fd78746a1ccfceae7ee6a2a9f943808cad52b6b73c31e7e79150dfa7333",
+      "vfix1018": true
     },
     {
       "name": "fa_ls_v04_3",
@@ -1371,12 +1374,13 @@
       "no_old_outcomes_inherited": true,
       "uid_namespace": "native task/init cohort namespace; RNG seed/campaign unchanged",
       "transport_plan_rebound": true,
-      "bootstrap_sha256": "4e07fb3ecbfbc15000886cdaeb6cc16da2fbd346e045df22ad8ac77a1e5e4f5e",
+      "bootstrap_sha256": "0c08f2fd26f6eac252bf87beeef1cb391ad98bcfef4e74ad774f9803d5d86ac1",
       "evidence_sha256": "034c90299c9c9092ed3285a636ead9d61a8bdd6275ca2c021ed858a3ed4b9ae8",
       "pre_recal_source_full_native_plan_equal": null,
       "recalibrated": true,
       "task_uid_namespace_preserved": true,
-      "scientific_plan_equal_except_recipe_inputs": true
+      "scientific_plan_equal_except_recipe_inputs": true,
+      "vfix1018": true
     },
     {
       "name": "fa_ls_v05_0",
@@ -1407,12 +1411,13 @@
       "no_old_outcomes_inherited": true,
       "uid_namespace": "native task/init cohort namespace; RNG seed/campaign unchanged",
       "transport_plan_rebound": true,
-      "bootstrap_sha256": "4e07fb3ecbfbc15000886cdaeb6cc16da2fbd346e045df22ad8ac77a1e5e4f5e",
+      "bootstrap_sha256": "0c08f2fd26f6eac252bf87beeef1cb391ad98bcfef4e74ad774f9803d5d86ac1",
       "evidence_sha256": "034c90299c9c9092ed3285a636ead9d61a8bdd6275ca2c021ed858a3ed4b9ae8",
       "pre_recal_source_full_native_plan_equal": null,
       "recalibrated": true,
       "task_uid_namespace_preserved": true,
-      "scientific_plan_equal_except_recipe_inputs": true
+      "scientific_plan_equal_except_recipe_inputs": true,
+      "vfix1018": true
     },
     {
       "name": "fa_ls_v05_1",
@@ -1507,8 +1512,9 @@
       "no_old_outcomes_inherited": true,
       "uid_namespace": "native task/init cohort namespace; RNG seed/campaign unchanged",
       "transport_plan_rebound": true,
-      "bootstrap_sha256": "4e07fb3ecbfbc15000886cdaeb6cc16da2fbd346e045df22ad8ac77a1e5e4f5e",
-      "evidence_sha256": "ed812fd78746a1ccfceae7ee6a2a9f943808cad52b6b73c31e7e79150dfa7333"
+      "bootstrap_sha256": "0c08f2fd26f6eac252bf87beeef1cb391ad98bcfef4e74ad774f9803d5d86ac1",
+      "evidence_sha256": "ed812fd78746a1ccfceae7ee6a2a9f943808cad52b6b73c31e7e79150dfa7333",
+      "vfix1018": true
     },
     {
       "name": "fa_ls_v05_4",
@@ -1539,12 +1545,13 @@
       "no_old_outcomes_inherited": true,
       "uid_namespace": "native task/init cohort namespace; RNG seed/campaign unchanged",
       "transport_plan_rebound": true,
-      "bootstrap_sha256": "4e07fb3ecbfbc15000886cdaeb6cc16da2fbd346e045df22ad8ac77a1e5e4f5e",
+      "bootstrap_sha256": "0c08f2fd26f6eac252bf87beeef1cb391ad98bcfef4e74ad774f9803d5d86ac1",
       "evidence_sha256": "034c90299c9c9092ed3285a636ead9d61a8bdd6275ca2c021ed858a3ed4b9ae8",
       "pre_recal_source_full_native_plan_equal": null,
       "recalibrated": true,
       "task_uid_namespace_preserved": true,
-      "scientific_plan_equal_except_recipe_inputs": true
+      "scientific_plan_equal_except_recipe_inputs": true,
+      "vfix1018": true
     },
     {
       "name": "fa_ls_v06_0",
@@ -1575,12 +1582,13 @@
       "no_old_outcomes_inherited": true,
       "uid_namespace": "native task/init cohort namespace; RNG seed/campaign unchanged",
       "transport_plan_rebound": true,
-      "bootstrap_sha256": "4e07fb3ecbfbc15000886cdaeb6cc16da2fbd346e045df22ad8ac77a1e5e4f5e",
+      "bootstrap_sha256": "0c08f2fd26f6eac252bf87beeef1cb391ad98bcfef4e74ad774f9803d5d86ac1",
       "evidence_sha256": "034c90299c9c9092ed3285a636ead9d61a8bdd6275ca2c021ed858a3ed4b9ae8",
       "pre_recal_source_full_native_plan_equal": null,
       "recalibrated": true,
       "task_uid_namespace_preserved": true,
-      "scientific_plan_equal_except_recipe_inputs": true
+      "scientific_plan_equal_except_recipe_inputs": true,
+      "vfix1018": true
     },
     {
       "name": "fa_ls_v07_0",
@@ -1611,12 +1619,13 @@
       "no_old_outcomes_inherited": true,
       "uid_namespace": "native task/init cohort namespace; RNG seed/campaign unchanged",
       "transport_plan_rebound": true,
-      "bootstrap_sha256": "4e07fb3ecbfbc15000886cdaeb6cc16da2fbd346e045df22ad8ac77a1e5e4f5e",
+      "bootstrap_sha256": "0c08f2fd26f6eac252bf87beeef1cb391ad98bcfef4e74ad774f9803d5d86ac1",
       "evidence_sha256": "034c90299c9c9092ed3285a636ead9d61a8bdd6275ca2c021ed858a3ed4b9ae8",
       "pre_recal_source_full_native_plan_equal": null,
       "recalibrated": true,
       "task_uid_namespace_preserved": true,
-      "scientific_plan_equal_except_recipe_inputs": true
+      "scientific_plan_equal_except_recipe_inputs": true,
+      "vfix1018": true
     },
     {
       "name": "fa_ls_v08_1",
@@ -1647,12 +1656,13 @@
       "no_old_outcomes_inherited": true,
       "uid_namespace": "native task/init cohort namespace; RNG seed/campaign unchanged",
       "transport_plan_rebound": true,
-      "bootstrap_sha256": "4e07fb3ecbfbc15000886cdaeb6cc16da2fbd346e045df22ad8ac77a1e5e4f5e",
+      "bootstrap_sha256": "0c08f2fd26f6eac252bf87beeef1cb391ad98bcfef4e74ad774f9803d5d86ac1",
       "evidence_sha256": "034c90299c9c9092ed3285a636ead9d61a8bdd6275ca2c021ed858a3ed4b9ae8",
       "pre_recal_source_full_native_plan_equal": null,
       "recalibrated": true,
       "task_uid_namespace_preserved": true,
-      "scientific_plan_equal_except_recipe_inputs": true
+      "scientific_plan_equal_except_recipe_inputs": true,
+      "vfix1018": true
     },
     {
       "name": "fa_ls_v09_0",
@@ -1683,12 +1693,13 @@
       "no_old_outcomes_inherited": true,
       "uid_namespace": "native task/init cohort namespace; RNG seed/campaign unchanged",
       "transport_plan_rebound": true,
-      "bootstrap_sha256": "4e07fb3ecbfbc15000886cdaeb6cc16da2fbd346e045df22ad8ac77a1e5e4f5e",
+      "bootstrap_sha256": "0c08f2fd26f6eac252bf87beeef1cb391ad98bcfef4e74ad774f9803d5d86ac1",
       "evidence_sha256": "034c90299c9c9092ed3285a636ead9d61a8bdd6275ca2c021ed858a3ed4b9ae8",
       "pre_recal_source_full_native_plan_equal": null,
       "recalibrated": true,
       "task_uid_namespace_preserved": true,
-      "scientific_plan_equal_except_recipe_inputs": true
+      "scientific_plan_equal_except_recipe_inputs": true,
+      "vfix1018": true
     },
     {
       "name": "fa_ls_v09_1",
@@ -1719,12 +1730,13 @@
       "no_old_outcomes_inherited": true,
       "uid_namespace": "native task/init cohort namespace; RNG seed/campaign unchanged",
       "transport_plan_rebound": true,
-      "bootstrap_sha256": "4e07fb3ecbfbc15000886cdaeb6cc16da2fbd346e045df22ad8ac77a1e5e4f5e",
+      "bootstrap_sha256": "0c08f2fd26f6eac252bf87beeef1cb391ad98bcfef4e74ad774f9803d5d86ac1",
       "evidence_sha256": "034c90299c9c9092ed3285a636ead9d61a8bdd6275ca2c021ed858a3ed4b9ae8",
       "pre_recal_source_full_native_plan_equal": null,
       "recalibrated": true,
       "task_uid_namespace_preserved": true,
-      "scientific_plan_equal_except_recipe_inputs": true
+      "scientific_plan_equal_except_recipe_inputs": true,
+      "vfix1018": true
     },
     {
       "name": "fa_ls_v10_0",
