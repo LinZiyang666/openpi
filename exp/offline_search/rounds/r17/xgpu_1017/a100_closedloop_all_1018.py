@@ -61,6 +61,9 @@ def collect(model):
   time.sleep(.3)
   subprocess.run(['rsync','-a','--bwlimit=16384','--contimeout=10','--timeout=120',
      f'rsync://149.165.152.232:29771/analysis/{model}_PAIRED.json',str(destination)+'/'],check=True)
+  if model=='dp':
+   subprocess.run(['rsync','-a','--bwlimit=16384','--contimeout=10','--timeout=120',
+      'rsync://149.165.152.232:29771/analysis/dp_DISTANCE.json',str(destination)+'/'],check=True)
  finally:
   subprocess.run(['tether','exec','--timeout','30s','a100','--','kill','-TERM',str(result['pid'])],check=True)
   write(destination/(model+'_TRANSFER.json'),dict(**result,port=29771,closed=time.time(),per_step=False))
@@ -69,7 +72,7 @@ def collect(model):
 
 def launch(model):
  c=json.loads((OUT/model/'pure/campaign_template.json').read_text())
- argv=[c['server_python'],'-u',str(REMOTE/'tools/a100_closedloop_queue_1018.py'),'--model',model]
+ argv=[c['server_python'],'-u',str(REMOTE/model/'execution_tools/a100_closedloop_queue_1018.py'),'--model',model]
  code=('from pathlib import Path;import subprocess,json; '
        f'r=Path({str(REMOTE)!r});log=(r/{(model+"_queue.log")!r}).open("xb"); '
        f'p=subprocess.Popen({argv!r},stdin=subprocess.DEVNULL,stdout=log,stderr=subprocess.STDOUT,start_new_session=True); '

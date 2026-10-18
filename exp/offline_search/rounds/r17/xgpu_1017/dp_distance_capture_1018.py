@@ -33,12 +33,12 @@ def install(root):
   finally:sys.setprofile(previous)
   needed=('x','y','d2','chosen','pos','wn','distances')
   if any(k not in captured for k in needed):raise ValueError('native early distance locals missing')
-  T=self.tasks[q.task_id];arrays={k:np.asarray(captured[k]).copy() for k in needed}
-  arrays.update(Z=T.Z.copy(),A0=T.early.A0.copy(),n20=T.early.n20.copy(),
-      W0f=T.early.W0f.copy(),c0=T.early.c0.copy(),rows=T.rows.copy(),state=np.asarray(q.state).copy())
+  T=self.tasks[q.task_id];arrays={k:np.asarray(captured[k]).copy(order='K') for k in needed}
+  arrays.update(Z=T.Z.copy(order='K'),A0=T.early.A0.copy(order='K'),n20=T.early.n20.copy(),
+      W0f=T.early.W0f.copy(order='K'),c0=T.early.c0.copy(),rows=T.rows.copy(),state=np.asarray(q.state).copy())
   for i,name in enumerate(self.fields):
    arrays['feature_'+str(i)]=np.asarray(q.features[name]).copy()
-   arrays['pca_B_'+str(i)]=self.pca[name][0].copy();arrays['pca_shift_'+str(i)]=self.pca[name][1].copy()
+   arrays['pca_B_'+str(i)]=self.pca[name][0].copy(order='K');arrays['pca_shift_'+str(i)]=self.pca[name][1].copy()
   arrays['valid_state_indices']=np.asarray(self.layout.valid_state_indices,dtype=np.int64)
   with lock:
    index=count;count+=1

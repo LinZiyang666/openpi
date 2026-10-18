@@ -33,7 +33,10 @@ def replay(directory):
   stable=np.sum((u-yy[None])**2,axis=1)+residual
   plain_euclidean=np.sum((u-yy[None])**2,axis=1)
   req=m['request'];key=tuple(req.get(k) for k in ('task_id','task_name','original_init_idx','seed','decision_seq','explicit_seed'))
+  recorded_weights=weights(z['d2'],z,m)
+  native_weights={int(z['rows'][i]):float(v) for i,v in zip(z['chosen'],z['wn'])}
   rows.append(dict(key=key,file=str(p),
+      native_weight_reconstruction_error=max(abs(native_weights.get(k,0)-recorded_weights.get(k,0)) for k in native_weights.keys()|recorded_weights.keys()),
       native32_vs_recorded_d2=float(np.max(abs(native32-z['d2']))),
       native32_vs_float64_d2=float(np.max(abs(native32-float64))),
       float64_vs_stable_d2=float(np.max(abs(float64-stable))),
@@ -62,6 +65,7 @@ def main():
  report=dict(schema='xgpu.dp.distance.diagnostic.v1',left_heads=len(left),right_heads=len(right),paired_heads=len(values),
      per_head=values,max_weight_drift={k:max(r['max_weight_drift'][k] for r in values) for k in values[0]['max_weight_drift']} if values else {},
      max_cpu32_reconstruction_error=max((r['native32_vs_recorded_d2'] for r in left+right),default=None),
+     max_native_weight_reconstruction_error=max((r['native_weight_reconstruction_error'] for r in left+right),default=None),
      max_float64_vs_stable_error=max((r['float64_vs_stable_d2'] for r in left+right),default=None),
      max_stored_norm_residual=max((r['stored_norm_residual_max'] for r in left+right),default=None),
      formal_recipe_changed=False,scope='same-card first-head diagnostic; cross-card inference requires captured features from both cards',
