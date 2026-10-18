@@ -179,6 +179,11 @@ def run_one(model,arm,cold):
  env.update(PYTHONDONTWRITEBYTECODE='1',HF_HUB_OFFLINE='1',TRANSFORMERS_OFFLINE='1',
             PYTHONPATH=env['PYTHONPATH']+':'+str(HERE)+(':'+str(ROOT/'serving_extra') if model=='pi05' else '')+':/home/exouser/xgpu_1017/tools',
             OPENPI_DATA_HOME='/home/exouser/xgpu_1017/tokenizer',HF_HOME=relocate(desc.get('hf_home',str(ROOT/'model_cache'))))
+ env.update(HF_HUB_DISABLE_IMPLICIT_TOKEN='1',HF_MODULES_CACHE=str(ROOT/'model_cache/hf_modules'),
+       TORCH_HOME=str(ROOT/'model_cache/torch'),XDG_CACHE_HOME=str(ROOT/'model_cache/xdg'),
+       MPLCONFIGDIR=str(ROOT/'model_cache/matplotlib'),NUMBA_CACHE_DIR=str(ROOT/'model_cache/numba'),
+       TORCHINDUCTOR_CACHE_DIR=str(ROOT/'model_cache/inductor'),TRITON_CACHE_DIR=str(ROOT/'model_cache/triton'),
+       NO_ALBUMENTATIONS_UPDATE='1')
  owner=Children(out,env,c['runtime']);mps=None;report=dict(status='STARTING',model=model,arm=arm,cold=cold,
        episodes=pr['episodes'],preregistration=pr,gpu=gpu,started=time.time())
  write(out/'RUN.json',report)
