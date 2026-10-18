@@ -1,0 +1,30 @@
+{
+  "closed": 1792346029.5415902,
+  "commands": [
+    [
+      "rsync",
+      "-a",
+      "--bwlimit=16384",
+      "--contimeout=10",
+      "--timeout=120",
+      "--exclude=__pycache__",
+      "--exclude=*.pyc",
+      "--include=/tools/***",
+      "--include=/pi05/",
+      "--include=/pi05/pure/***",
+      "--include=/pi05/cache/***",
+      "--include=/pi05/MODEL_PATHS.json",
+      "--include=/pi05/WORKER.json",
+      "--exclude=*",
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/a100_closedloop_1018/",
+      "rsync://149.165.152.232:29770/payload/"
+    ]
+  ],
+  "io_after": "some avg10=1.52 avg60=1.38 avg300=1.29 total=41839759932\nfull avg10=1.52 avg60=1.36 avg300=1.27 total=41319122888\n",
+  "io_before": "some avg10=1.52 avg60=1.38 avg300=1.29 total=41839758816\nfull avg10=1.52 avg60=1.36 avg300=1.27 total=41319121775\n",
+  "model": "pi05",
+  "pid": 42544,
+  "port": 29770,
+  "started": 1792346028.716091,
+  "status": "COMPLETE_TOOLS_ONLY"
+}

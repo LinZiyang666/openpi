@@ -1,0 +1,45 @@
+{
+  "identity": "fac4e9a752f99a6e763138d0fb3506b163ffddabc2fc989f1a1b40780f62295c",
+  "provenance": {
+    "history_coverage": "initial queries only",
+    "kind": "tiny_capture",
+    "receipt": {
+      "camera_storage": "unmodified raw simulator pixels",
+      "env_seed": 0,
+      "files": {
+        "raw_observations.npz": "19d04b5d70b78804064a775cf05ed829bfa01d9857a869b058b1299109c59091"
+      },
+      "original_init_idx": 0,
+      "prompt": "pick up the black bowl between the plate and the ramekin and place it on the plate",
+      "proprio_order": "g0,g1,eef_xyz,quat_xyzw",
+      "recorded": true,
+      "render_resolution": 256,
+      "rows": 3,
+      "schema": "r17.cosmos.recorded_observations.v1",
+      "settle_steps": 10,
+      "suite": "libero_spatial",
+      "synthetic": false,
+      "task_id": 0
+    },
+    "seed_policy": "new diagnostic request noise seed195; original env seed retained in receipt",
+    "source_sha256": "19d04b5d70b78804064a775cf05ed829bfa01d9857a869b058b1299109c59091"
+  },
+  "rows": [
+    {
+      "file": "input_0000",
+      "identity": "deee9d50df66d3751afe66f6103da0813058e2acc199eeac781cf0ce5ce8b46b",
+      "sha256": "21fb2ffa4253c9d664ea004af8d27734253106b5accf93bad68b4aeb9366c365"
+    },
+    {
+      "file": "input_0001",
+      "identity": "b1eb994d7ff43df5b0ba12eec4649858345337ebea4a9ecfa844d608f17f01c1",
+      "sha256": "a7ae66172b1c9e7266b5231933a2227ece0510d7cf837ab9bd3aee0913fbfd26"
+    },
+    {
+      "file": "input_0002",
+      "identity": "d08f7471de83c72f00d9c44a52fc3c8ba4269efcbc77e802494ab3319a9b6968",
+      "sha256": "0bede5e8f1adc0b5d17faf1d9480ca098b7cd8d33adb143554a561016a3419ac"
+    }
+  ],
+  "schema": "xgpu.inputs.v1"
+}

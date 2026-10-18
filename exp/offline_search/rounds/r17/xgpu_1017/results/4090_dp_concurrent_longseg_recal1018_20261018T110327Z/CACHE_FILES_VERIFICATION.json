@@ -1,0 +1,17 @@
+{
+  "before": {
+    "identity": "39fda40580296ea1aca75121e568540badd248b90b4bb19c8d6bc558abac0123",
+    "serving_pin": "59b1b483a694396cc035146a3c227cb14dd6bf37d87490fbdea2f34f282ecd39",
+    "files": 9,
+    "bytes": 39146041,
+    "status": "PASS"
+  },
+  "status": "PASS",
+  "after": {
+    "identity": "39fda40580296ea1aca75121e568540badd248b90b4bb19c8d6bc558abac0123",
+    "serving_pin": "59b1b483a694396cc035146a3c227cb14dd6bf37d87490fbdea2f34f282ecd39",
+    "files": 9,
+    "bytes": 39146041,
+    "status": "PASS"
+  }
+}

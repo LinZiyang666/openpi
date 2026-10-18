@@ -1,0 +1,39 @@
+{
+  "batch": 1,
+  "bootstrap_sha256": "3e17b2483037a24405628145f7d0ad8a201643f772bd62a821cdb237e9f72897",
+  "cache_groups": 5,
+  "clients": 44,
+  "data_bytes": 18860017,
+  "files": {
+    "benchmark.json": "6c24129059fb086ca119cce762f73c248f1a06efbfb92a5d44da4a1cfd97d1e3",
+    "cache_yamls/n50_sp_crg_k10.yaml": "d55ff6c3e850653312507e0e891d8e900738b0ab450f5f1dc5a0d5b745f231f3",
+    "cache_yamls/n50_sp_crg_k20.yaml": "d46af37eaa2acef6cd6353c487d977fc42e4a6b43ab928bd792e5355098b0432",
+    "cache_yamls/n50_sp_crg_k30.yaml": "9b5cbb51a64ca3ad83d12e9d659edc80a97dd2a5901ec8a7eb1a7da55148df90",
+    "cache_yamls/n50_sp_crg_k40.yaml": "8bc479cb23a50c27ddb502b4002aa8ef0e7e68ca89c7c62dbc480b7da93f8f8d",
+    "cache_yamls/n50_sp_crg_k50.yaml": "b9e185fa688df31f1320aedae9e3c27ae5c6c92c5ff51cc50bd551e8681c157d",
+    "ffk_bootstrap.py": "3e17b2483037a24405628145f7d0ad8a201643f772bd62a821cdb237e9f72897",
+    "full.yaml": "367d7169386755ab74f5ef45dbb86f022be22f662d3261cb7597596ca40e2051",
+    "load.json": "a8571769b53cbc829b42b172d711e68e28b820ea9d9cecfc295c67e1995ff722",
+    "manifest.json": "32c62b6bcc759e54d5866d8f16df35b6dbe2af49162a9a897907b42560bb3c70",
+    "model_manifest.json": "c23f66334389588bfca91880ea82d468268ec2c3f9075e89442c744d464ce107",
+    "model_spec.json": "0adf5b732d7664dfc018fc0543cad8859218ec889a022706bdb917bcce95ddd9",
+    "selected_groups.json": "727963d00feb8031f9446c5137e063eaf33d7231f226e21b3b4e5a8fc0165321"
+  },
+  "identity": "3fefb6a9fc62581f2fa9d6e69728ed8c05fcecb7bcc717325f79633f6a2cdae8",
+  "memory_budget_gib": 76.0,
+  "model": "cosmos",
+  "mps": {
+    "active_thread_percentage": 100,
+    "compute_mode_change": false,
+    "enabled": true,
+    "private_per_campaign_gpu": true,
+    "schema": "r17.mps.v1"
+  },
+  "replicas": 8,
+  "runtime_identity": "a7a387ed6d45ce9cf5ece2628f32577ee5a55ab55bbcb2a771e25ebc227b4f07",
+  "schema": "xgpu.concurrent.pin.v1",
+  "scope": "one pinned model/domain/K and one library size; not all suites or recipes",
+  "segment_clock_overlay": false,
+  "source": "/data/mw_finetune/eval/fa_co_r_u_l",
+  "source_campaign_sha256": "ad135a903953d1b449a8840ebfa9978e9465192ae70da549ceda2b8a035221ae"
+}

@@ -1,0 +1,13 @@
+{
+  "destination": "/home/exouser/xgpu_1017",
+  "excluded": "teacher H5/RGB datasets; optimizer; logs; runtime.tar; pip/uv/HF caches",
+  "model_and_cache_no_dataset": true,
+  "rootfs_bytes": 913530556,
+  "rootfs_files": 778,
+  "runtime": "/home/exouser/xgpu_1017/rootfs/data/mw_finetune/qualification/formal_runtime_5927a753312bf5981cba81a2e389edea914bde0580523b0dc3c8ea8d58f1fa1e",
+  "runtime_environment_note": "copy the used DP serving island once; create Python3.12 venv on destination; do not copy nonportable python symlinks",
+  "runtime_identity": "5927a753312bf5981cba81a2e389edea914bde0580523b0dc3c8ea8d58f1fa1e",
+  "schema": "xgpu.dp.transfer.v1",
+  "site_packages": "/home/weiland/projects/openpi/.venv/lib/python3.11/site-packages",
+  "source_campaign": "/data/mw_finetune/eval/fa_dp_f_u_o"
+}

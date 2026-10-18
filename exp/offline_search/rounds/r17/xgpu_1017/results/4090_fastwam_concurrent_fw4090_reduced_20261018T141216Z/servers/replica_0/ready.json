@@ -1,0 +1,760 @@
+{
+  "batch_policy": "native_bf16_batch_study_v1",
+  "batch_runtime_capabilities": {
+    "batch_stage1": "enabled_study",
+    "batch_stage2": "enabled_study",
+    "batch_stage3": "enabled_study"
+  },
+  "cache_enabled": false,
+  "cuda_graph": false,
+  "debug_capture": false,
+  "elapsed_load_seconds": 95.29899978497997,
+  "execution_commit_horizon": 5,
+  "execution_sampler": {
+    "config": {
+      "cfg": 1.0,
+      "dtype": "bfloat16",
+      "num_train_timesteps": 1000,
+      "shift": 5.0,
+      "snapshot_semantics": "before_update",
+      "update": "native_scheduler.step"
+    },
+    "family": "shifted_flow",
+    "native_deltas": [
+      -0.021728515625,
+      -0.02587890625,
+      -0.03125,
+      -0.038818359375,
+      -0.049072265625,
+      -0.06396484375,
+      -0.08740234375,
+      -0.1259765625,
+      -0.1982421875,
+      -0.357421875
+    ],
+    "native_timesteps": [
+      1000.0,
+      980.0,
+      952.0,
+      920.0,
+      884.0,
+      832.0,
+      768.0,
+      680.0,
+      556.0,
+      358.0
+    ],
+    "num_steps": 10,
+    "point_kind": "index_encoding",
+    "sampler_id": "fastwam_shifted_flow_v1"
+  },
+  "fastwam_batch_treatment_identity": "29f22a3de22795087c23b708a8cc718dce436700ddd2f713d6393669cea5dcae",
+  "formal_pure_inference": true,
+  "gpu_family": "NVIDIA GeForce RTX 4090",
+  "loader_parity": "raw-Wan vs published sidecar unverified",
+  "pid": 1530117,
+  "r17_batching": {
+    "batch_wait_ms": 5.0,
+    "byte_identical_to_b1": false,
+    "default_off": true,
+    "hardware_qualification": "see BATCHING.md and measurement receipt",
+    "identity": "c4a95a1a3acb492c6ad6798cb879cb86f78a0d9156dd2e65f296cb11edf7f3ff",
+    "max_batch": 16,
+    "numerics_policy": "native_bf16_batch_study_v1",
+    "quality_equivalence": "unverified; matched batched control required",
+    "stage_workers": [
+      1,
+      1,
+      1
+    ]
+  },
+  "r17_execution_protocol": {
+    "default_k": 10,
+    "execution_steps": 5,
+    "fixed_seed": null,
+    "label": "fastwam.libero.system.v1",
+    "model_resize": "torch_antialias_bilinear_256_to_224_per_camera",
+    "seed_rule": "explicit_benchmark_seed",
+    "settle_steps": 10,
+    "suite_control_caps": [
+      [
+        "libero_spatial",
+        220
+      ],
+      [
+        "libero_object",
+        280
+      ],
+      [
+        "libero_goal",
+        300
+      ],
+      [
+        "libero_10",
+        520
+      ]
+    ],
+    "wire_resolution": [
+      256,
+      256
+    ]
+  },
+  "r17_manifest": {
+    "content_digests": {
+      "base_config": "e5682b69d27af9a884fe7279e1e9f18855495bdb83a0372c75d59fc21a5f4eb2",
+      "base_weights": "07a5bf6d73ff5b2713fc83c65b8a4f19c36d41317918198be49eb83c26f441b3",
+      "code:C:common.py": "e15faf44200179d5258407a98a8c9666f4c1ec63cb868ec0b40637adc738a9fa",
+      "code:C:lora.py": "e2d56842bb44285691c2c1a6a8fe4412ace97f62340da86ea1c707918687981c",
+      "code:C:model.py": "829c4cd8c1c6c59ef25d2809db5637abdcbd3241e98ece089342b2f36b6e6ff8",
+      "code:C:raw_wan.py": "7c66e61f41a50b426fe642d8d4272b3498225528f4c1b40165ceeb65c6a7d30d",
+      "code:lerobot:__init__.py": "d27feeba8d4e491e0610511e4bbfdb5fb997f5ce44e99eb328ef4d9fa9a57e5e",
+      "code:lerobot:configuration_fastwam.py": "ca94512bf9a2fd3b988b686e80d777901b8b4bd732b23409db4dbe4ea07bcd9e",
+      "code:lerobot:modeling_fastwam.py": "9cd54f5443cfefb67190d02418a619a2e4562d1a36e488f3ca6ebd1e36f8de09",
+      "code:lerobot:processor_fastwam.py": "b229c5e10a81dc087c0828e8457c6b766609f0261a426c92125c8857e8e2c566",
+      "code:lerobot:wan/__init__.py": "c6784d4796877bb54affcac618d2edae3a5eccd00fdf3c924515d28e760bf3eb",
+      "code:lerobot:wan/adapters.py": "69338876ed16709f58dd26a0027e64b3ac4e160dc0219af80f6458451de46014",
+      "code:lerobot:wan/components.py": "f1627ad1d3ec9e4e7421bb17d93f8f2a6ac58a4ac3623163b61cd908780f0874",
+      "code:lerobot:wan/model.py": "17df8b01f5e35ff8ab8445b44c823ee03a6daea4d90285be8b0c5dc9a022c64d",
+      "code:lerobot:wan/modular.py": "4ae4daacee42945aa66c3a19ed418960646af39a4488d6074a71039e8ce93056",
+      "code:lerobot:wan/video_dit.py": "b03651ad411e23a2fcb1451f6e93ab6d01e9812d508c8bbb22aef7aa575a28bb",
+      "code:r17:__init__.py": "a36bfa49b6dbff064d68f4df202521ba52c81cc3dc5cddd8bd4efed55df90ef1",
+      "code:r17:batch_profile.py": "578712d51baf00e3e172d1728bb597580594251c0d6ce995f69f45484bb45792",
+      "code:r17:batch_runtime.py": "bab9c6e830a8bc0c17240483ae286aad6a2f39bfc927ed6858bc08dc49be7b87",
+      "code:r17:batcher.py": "441cb2b2811c6a6ba82b7faab5a82c4b1e366372db958e3e0fd1d0343370b507",
+      "code:r17:formal_batch_server.py": "95459d1186b207d778faae4247f319ec94e4e0c31573a7954524556b58e2da70",
+      "code:r17:formal_batching.py": "d71f7b80dd62d4007459b1af671fa84531e1cf0a22ae827dd968fb53d6e80781",
+      "code:r17:formal_launch.py": "b0d91140c2a82c34d03a05e91ca0e300c8ab44157b88f8bd646e60c4a56e690f",
+      "code:r17:formal_qualification.py": "9c2aaddc4d293c6a762d74100197798055a252b3ce09aa045861f2ac024e809d",
+      "code:r17:key_builder.py": "623eab70cff64bf3ebd60b3a277542011622d2811777ad883e04ed29736bdfcf",
+      "code:r17:loader.py": "889eb9ce97223958281c7b0f231fe6cbaffb11ba49431e5402d2a498033599c0",
+      "code:r17:loader_parity.py": "7e1b8996e1324b06724c9c4058843369c19866c1de5e659fa18d44642f666961",
+      "code:r17:manifest.py": "402056a980ff871d46ad5a8d1fcf30e52449788c9a84da7a88c30f4dbcfffbf3",
+      "code:r17:measure.py": "f1b31afb305036bbe57dc8c0143ea91671cf4f546ae1b41f1eb5d6c2ff84c846",
+      "code:r17:protocols.py": "c483197eb4090711bc71de31fd89ac084ec0b470edbc034689eadc4620208a40",
+      "code:r17:provider.py": "9259b6d40750a8088cb46152414daee849118c986529be7bd0cd3f095b3acb14",
+      "code:r17:qualify.py": "dcb399a0b32bf00471a13e8499f23a71b0c12bd713710df8d24cc985b6917078",
+      "code:r17:recover_smoke.py": "254e6c46d7479455533885385a7ac812bfa3cb071a453fa774d94db91ff07f15",
+      "code:r17:serve.py": "3ac126c3845692733c667dff127c488c6927f3c6fe773379c63d551d241e419b",
+      "code:r17:staged.py": "3e79cc9b0abbbe3fb9599fb57eb158692449b80ef4a459972d289f438bde8c02",
+      "code:r17:trace.py": "63da946f43b96b208f5f3a5c54a5d7a7428028ee5810dad8a47d267fc1ed1d7c",
+      "code:r17:wire_policy.py": "e3c159e81deb768519b861c654534418b9ec7392f76e5ab68df4c5b11951274b",
+      "code:raw_wan:__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "code:raw_wan:action_dit.py": "631fdf598fbe06a95a41c1a27acd9de16f2187f3a2009e10690197527d18283b",
+      "code:raw_wan:fastwam.py": "154c339efd33fae119fe902d6efb91cde7475e3cfd0e7b50e606278c1c3eac09",
+      "code:raw_wan:fastwam_idm.py": "5ebdaabb42d4e6c0c6543760ad2ea9b3c8ef9415ebab44fbf845f73f52280bba",
+      "code:raw_wan:fastwam_joint.py": "a61aab79cfc607af02ab816849329a13c1dcd0bbcbf63c6584a345d8a67bb2b6",
+      "code:raw_wan:fastwam_optional_idm.py": "bd508293545895bae159a42998992cece9c1f1aca373e6f03521ea05f55749b2",
+      "code:raw_wan:helpers/__init__.py": "f26116de229557a37a4812dc4ee75971f5f9e8b80240786ea4d0e5b0ff703cbf",
+      "code:raw_wan:helpers/gradient.py": "ba5d8f7272eb029dc6cd2849ca99b70f6ad5abb838d21c818beb0590620dc793",
+      "code:raw_wan:helpers/io.py": "1c6c1bc8a975b47092912833194fce25e2e3ac886fbab72d73af3ff5a00b3c62",
+      "code:raw_wan:helpers/loader.py": "792f66bd0609c1365256aa24d43301340f81260c1651d89b04d2ae8224a08726",
+      "code:raw_wan:helpers/state_dict_converters.py": "81d213373e5056a8d8bf31768b9b04164138ea78d0b306e316334841499f4bf9",
+      "code:raw_wan:mot.py": "2383e4cfa00efa9cde889493e0b6c861bc7b17d24d731f5ff38d3ebf8ab7f541",
+      "code:raw_wan:schedulers/scheduler_continuous.py": "2ececce284f7b9fe876965fbf5e11ca7b69caaf693979266b0f63062a589f181",
+      "code:raw_wan:wan22.py": "b85349beeeb018d5be3f5b932bee3d640274d09c5e1e0fa0fa01e8ad0e02356e",
+      "code:raw_wan:wan_video_dit.py": "578712e83fac2815d3e3a3fd9134178028082deba361433122fe3c5764982dd6",
+      "code:raw_wan:wan_video_text_encoder.py": "aedf7f131556a39b99a273deec3a85d67f41b5367cef41f310f33a807ae60a87",
+      "code:raw_wan:wan_video_vae.py": "cb2b1b53f35a1a201c640ec52d12a7c4cb4ba1df322155addd3dc409e04dc07c",
+      "norm:policy_postprocessor.json": "55ee0d102e46080aaf87f08bef0d9c31f3d1128f5713883a56da4b131da6db83",
+      "norm:policy_postprocessor_step_0_unnormalizer_processor.safetensors": "62551308e48835e1c687ba959187c8e0b6a9bc0cd870825fd8a72b951046d290",
+      "norm:policy_preprocessor.json": "3f025858901a978ec0b44a294f9a6b8d974921958a52fc1798a3ea17a5ff0fd1",
+      "norm:policy_preprocessor_step_3_normalizer_processor.safetensors": "62551308e48835e1c687ba959187c8e0b6a9bc0cd870825fd8a72b951046d290",
+      "tokenizer:special_tokens_map.json": "7b8a9f5040adb67b5805abdfd42c1f8d0f3d0e711f10726580eb3789cd0ad61d",
+      "tokenizer:spiece.model": "e3909a67b780650b35cf529ac782ad2b6b26e6d1f849d3fbb6a872905f452458",
+      "tokenizer:tokenizer.json": "6e197b4d3dbd71da14b4eb255f4fa91c9c1f2068b20a2de2472967ca3d22602b",
+      "tokenizer:tokenizer_config.json": "ed9a3a8b0faa71a70a32847e0435fe036e6e112d4df4edb7bb48a921e344dc05",
+      "wan_text_encoder": "7cace0da2b446bbbbc57d031ab6cf163a3d59b366da94e5afe36745b746fd81d",
+      "wan_vae": "20eb789667fa5e60e7516bf509512f6cb61f01b0aa0695eadaea930c13892b36"
+    },
+    "schema": "r17.model_manifest.v1",
+    "spec": {
+      "allowed_benchmark_protocols": [
+        "87e3a7dce0d452269383ea20c144848987c393df7bde4c22628abf8a084f21bf"
+      ],
+      "capabilities": {
+        "features": {
+          "analysis": {
+            "evidence": [],
+            "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+            "status": "implemented_unverified"
+          },
+          "batch_stage1": {
+            "evidence": [],
+            "reason": "production B>1 disabled until GPU batch-composition parity certified; CPU vector hooks only",
+            "status": "unsupported"
+          },
+          "batch_stage2": {
+            "evidence": [],
+            "reason": "production B>1 disabled until GPU batch-composition parity certified; CPU vector hooks only",
+            "status": "unsupported"
+          },
+          "batch_stage3": {
+            "evidence": [],
+            "reason": "production B>1 disabled until GPU batch-composition parity certified; CPU vector hooks only",
+            "status": "unsupported"
+          },
+          "bundle": {
+            "evidence": [],
+            "reason": "CPU stub/native-math certificate; real GPU qualification pending",
+            "status": "supported"
+          },
+          "concurrent": {
+            "evidence": [],
+            "reason": "CPU stub/native-math certificate; real GPU qualification pending",
+            "status": "supported"
+          },
+          "conductor": {
+            "evidence": [],
+            "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+            "status": "implemented_unverified"
+          },
+          "cp1_retrieval": {
+            "evidence": [],
+            "reason": "CPU stub/native-math certificate; real GPU qualification pending",
+            "status": "supported"
+          },
+          "cp2": {
+            "evidence": [],
+            "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+            "status": "implemented_unverified"
+          },
+          "debug_capture": {
+            "evidence": [],
+            "reason": "CPU stub/native-math certificate; real GPU qualification pending",
+            "status": "supported"
+          },
+          "episode": {
+            "evidence": [],
+            "reason": "CPU stub/native-math certificate; real GPU qualification pending",
+            "status": "supported"
+          },
+          "flow_shoot": {
+            "evidence": [],
+            "reason": "no end-to-end certificate for this combination",
+            "status": "unsupported"
+          },
+          "full": {
+            "evidence": [],
+            "reason": "CPU stub/native-math certificate; real GPU qualification pending",
+            "status": "supported"
+          },
+          "k_step": {
+            "evidence": [],
+            "reason": "CPU stub/native-math certificate; real GPU qualification pending",
+            "status": "supported"
+          },
+          "native_warm_reset": {
+            "evidence": [],
+            "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+            "status": "implemented_unverified"
+          },
+          "native_warm_resume": {
+            "evidence": [],
+            "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+            "status": "implemented_unverified"
+          },
+          "offline_replay": {
+            "evidence": [],
+            "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+            "status": "implemented_unverified"
+          },
+          "online_rit": {
+            "evidence": [],
+            "reason": "no end-to-end certificate for this combination",
+            "status": "unsupported"
+          },
+          "recipe": {
+            "evidence": [],
+            "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+            "status": "implemented_unverified"
+          },
+          "shadow_routing": {
+            "evidence": [],
+            "reason": "no end-to-end certificate for this combination",
+            "status": "unsupported"
+          },
+          "split": {
+            "evidence": [],
+            "reason": "no end-to-end certificate for this combination",
+            "status": "unsupported"
+          },
+          "trace_twins": {
+            "evidence": [],
+            "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+            "status": "implemented_unverified"
+          },
+          "warmup_library": {
+            "evidence": [],
+            "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+            "status": "implemented_unverified"
+          },
+          "worker": {
+            "evidence": [],
+            "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+            "status": "implemented_unverified"
+          }
+        }
+      },
+      "checkpoint_identity": "40c31482425c788fa0b3365aa33c1f4972658dc5cbb3614a56de01e08140f36a",
+      "code_digest": "ed44af17b5160c0e86a34f24dc3fbb8af1294c78fe143e6ab57e364b19ebcdee",
+      "default_sampler": {
+        "config": {
+          "cfg": 1.0,
+          "dtype": "bfloat16",
+          "num_train_timesteps": 1000,
+          "shift": 5.0,
+          "snapshot_semantics": "before_update",
+          "update": "native_scheduler.step"
+        },
+        "family": "shifted_flow",
+        "native_deltas": [
+          -0.021728515625,
+          -0.02587890625,
+          -0.03125,
+          -0.038818359375,
+          -0.049072265625,
+          -0.06396484375,
+          -0.08740234375,
+          -0.1259765625,
+          -0.1982421875,
+          -0.357421875
+        ],
+        "native_timesteps": [
+          1000.0,
+          980.0,
+          952.0,
+          920.0,
+          884.0,
+          832.0,
+          768.0,
+          680.0,
+          556.0,
+          358.0
+        ],
+        "num_steps": 10,
+        "point_kind": "index_encoding",
+        "sampler_id": "fastwam_shifted_flow_v1"
+      },
+      "feature_spec": {
+        "active_state_indices": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "fields": {
+          "robot_state": 8,
+          "vision_0": 49152
+        },
+        "hidden_width": 3072,
+        "key_dtype": "float32",
+        "missing_branch_policy": "reject",
+        "norm_digest": "8672adf02916fdcdd002c98d6d3b4b261fd88b99c22034acc873edcfc05d57f4",
+        "policy_digest": "40c31482425c788fa0b3365aa33c1f4972658dc5cbb3614a56de01e08140f36a",
+        "pooling": "adaptive_avg_4x4.fused_real_views.v1",
+        "preprocess_digest": "18bba04713ce31e6406f310ba85e1e026b9c5b8c7c17ad6e560150fc6e029f69",
+        "prompt_dependent": false,
+        "real_cameras": [
+          "image",
+          "image2"
+        ],
+        "source": "video_expert.pre_dit.tokens",
+        "token_grid": [
+          1,
+          7,
+          14
+        ]
+      },
+      "layout": {
+        "action_space_name": "LIBERO_OSC_POSE",
+        "frame": "native benchmark frame",
+        "gripper_channel": 6,
+        "gripper_closed_convention": "published toggle sign(-(2*x-1)); physical closed polarity unqualified",
+        "horizon": 32,
+        "model_action_width": null,
+        "motion_channels": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "output_transform_id": "fastwam.libero.minmax.toggle.v1",
+        "raw_state_fields": [
+          "state"
+        ],
+        "replan_steps": 5,
+        "units": "native controller; physical scale unqualified",
+        "valid_action_dim": 7,
+        "valid_action_indices": [],
+        "valid_state_indices": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ]
+      },
+      "model_id": "fastwam_libero",
+      "norm_identity": "8672adf02916fdcdd002c98d6d3b4b261fd88b99c22034acc873edcfc05d57f4",
+      "python_island": "/data/mw_finetune/envs/fastwam/bin/python"
+    }
+  },
+  "r17_model_spec": {
+    "allowed_benchmark_protocols": [
+      "87e3a7dce0d452269383ea20c144848987c393df7bde4c22628abf8a084f21bf"
+    ],
+    "capabilities": {
+      "features": {
+        "analysis": {
+          "evidence": [],
+          "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+          "status": "implemented_unverified"
+        },
+        "batch_stage1": {
+          "evidence": [],
+          "reason": "production B>1 disabled until GPU batch-composition parity certified; CPU vector hooks only",
+          "status": "unsupported"
+        },
+        "batch_stage2": {
+          "evidence": [],
+          "reason": "production B>1 disabled until GPU batch-composition parity certified; CPU vector hooks only",
+          "status": "unsupported"
+        },
+        "batch_stage3": {
+          "evidence": [],
+          "reason": "production B>1 disabled until GPU batch-composition parity certified; CPU vector hooks only",
+          "status": "unsupported"
+        },
+        "bundle": {
+          "evidence": [],
+          "reason": "CPU stub/native-math certificate; real GPU qualification pending",
+          "status": "supported"
+        },
+        "concurrent": {
+          "evidence": [],
+          "reason": "CPU stub/native-math certificate; real GPU qualification pending",
+          "status": "supported"
+        },
+        "conductor": {
+          "evidence": [],
+          "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+          "status": "implemented_unverified"
+        },
+        "cp1_retrieval": {
+          "evidence": [],
+          "reason": "CPU stub/native-math certificate; real GPU qualification pending",
+          "status": "supported"
+        },
+        "cp2": {
+          "evidence": [],
+          "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+          "status": "implemented_unverified"
+        },
+        "debug_capture": {
+          "evidence": [],
+          "reason": "CPU stub/native-math certificate; real GPU qualification pending",
+          "status": "supported"
+        },
+        "episode": {
+          "evidence": [],
+          "reason": "CPU stub/native-math certificate; real GPU qualification pending",
+          "status": "supported"
+        },
+        "flow_shoot": {
+          "evidence": [],
+          "reason": "no end-to-end certificate for this combination",
+          "status": "unsupported"
+        },
+        "full": {
+          "evidence": [],
+          "reason": "CPU stub/native-math certificate; real GPU qualification pending",
+          "status": "supported"
+        },
+        "k_step": {
+          "evidence": [],
+          "reason": "CPU stub/native-math certificate; real GPU qualification pending",
+          "status": "supported"
+        },
+        "native_warm_reset": {
+          "evidence": [],
+          "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+          "status": "implemented_unverified"
+        },
+        "native_warm_resume": {
+          "evidence": [],
+          "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+          "status": "implemented_unverified"
+        },
+        "offline_replay": {
+          "evidence": [],
+          "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+          "status": "implemented_unverified"
+        },
+        "online_rit": {
+          "evidence": [],
+          "reason": "no end-to-end certificate for this combination",
+          "status": "unsupported"
+        },
+        "recipe": {
+          "evidence": [],
+          "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+          "status": "implemented_unverified"
+        },
+        "shadow_routing": {
+          "evidence": [],
+          "reason": "no end-to-end certificate for this combination",
+          "status": "unsupported"
+        },
+        "split": {
+          "evidence": [],
+          "reason": "no end-to-end certificate for this combination",
+          "status": "unsupported"
+        },
+        "trace_twins": {
+          "evidence": [],
+          "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+          "status": "implemented_unverified"
+        },
+        "warmup_library": {
+          "evidence": [],
+          "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+          "status": "implemented_unverified"
+        },
+        "worker": {
+          "evidence": [],
+          "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+          "status": "implemented_unverified"
+        }
+      }
+    },
+    "checkpoint_identity": "40c31482425c788fa0b3365aa33c1f4972658dc5cbb3614a56de01e08140f36a",
+    "code_digest": "ed44af17b5160c0e86a34f24dc3fbb8af1294c78fe143e6ab57e364b19ebcdee",
+    "default_sampler": {
+      "config": {
+        "cfg": 1.0,
+        "dtype": "bfloat16",
+        "num_train_timesteps": 1000,
+        "shift": 5.0,
+        "snapshot_semantics": "before_update",
+        "update": "native_scheduler.step"
+      },
+      "family": "shifted_flow",
+      "native_deltas": [
+        -0.021728515625,
+        -0.02587890625,
+        -0.03125,
+        -0.038818359375,
+        -0.049072265625,
+        -0.06396484375,
+        -0.08740234375,
+        -0.1259765625,
+        -0.1982421875,
+        -0.357421875
+      ],
+      "native_timesteps": [
+        1000.0,
+        980.0,
+        952.0,
+        920.0,
+        884.0,
+        832.0,
+        768.0,
+        680.0,
+        556.0,
+        358.0
+      ],
+      "num_steps": 10,
+      "point_kind": "index_encoding",
+      "sampler_id": "fastwam_shifted_flow_v1"
+    },
+    "feature_spec": {
+      "active_state_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "fields": {
+        "robot_state": 8,
+        "vision_0": 49152
+      },
+      "hidden_width": 3072,
+      "key_dtype": "float32",
+      "missing_branch_policy": "reject",
+      "norm_digest": "8672adf02916fdcdd002c98d6d3b4b261fd88b99c22034acc873edcfc05d57f4",
+      "policy_digest": "40c31482425c788fa0b3365aa33c1f4972658dc5cbb3614a56de01e08140f36a",
+      "pooling": "adaptive_avg_4x4.fused_real_views.v1",
+      "preprocess_digest": "18bba04713ce31e6406f310ba85e1e026b9c5b8c7c17ad6e560150fc6e029f69",
+      "prompt_dependent": false,
+      "real_cameras": [
+        "image",
+        "image2"
+      ],
+      "source": "video_expert.pre_dit.tokens",
+      "token_grid": [
+        1,
+        7,
+        14
+      ]
+    },
+    "layout": {
+      "action_space_name": "LIBERO_OSC_POSE",
+      "frame": "native benchmark frame",
+      "gripper_channel": 6,
+      "gripper_closed_convention": "published toggle sign(-(2*x-1)); physical closed polarity unqualified",
+      "horizon": 32,
+      "model_action_width": null,
+      "motion_channels": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "output_transform_id": "fastwam.libero.minmax.toggle.v1",
+      "raw_state_fields": [
+        "state"
+      ],
+      "replan_steps": 5,
+      "units": "native controller; physical scale unqualified",
+      "valid_action_dim": 7,
+      "valid_action_indices": [],
+      "valid_state_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    },
+    "model_id": "fastwam_libero",
+    "norm_identity": "8672adf02916fdcdd002c98d6d3b4b261fd88b99c22034acc873edcfc05d57f4",
+    "python_island": "/data/mw_finetune/envs/fastwam/bin/python"
+  },
+  "r17_samplers": {
+    "1": {
+      "config": {
+        "cfg": 1.0,
+        "dtype": "bfloat16",
+        "num_train_timesteps": 1000,
+        "shift": 5.0,
+        "snapshot_semantics": "before_update",
+        "update": "native_scheduler.step"
+      },
+      "family": "shifted_flow",
+      "native_deltas": [
+        -1.0
+      ],
+      "native_timesteps": [
+        1000.0
+      ],
+      "num_steps": 1,
+      "point_kind": "index_encoding",
+      "sampler_id": "fastwam_shifted_flow_v1"
+    },
+    "10": {
+      "config": {
+        "cfg": 1.0,
+        "dtype": "bfloat16",
+        "num_train_timesteps": 1000,
+        "shift": 5.0,
+        "snapshot_semantics": "before_update",
+        "update": "native_scheduler.step"
+      },
+      "family": "shifted_flow",
+      "native_deltas": [
+        -0.021728515625,
+        -0.02587890625,
+        -0.03125,
+        -0.038818359375,
+        -0.049072265625,
+        -0.06396484375,
+        -0.08740234375,
+        -0.1259765625,
+        -0.1982421875,
+        -0.357421875
+      ],
+      "native_timesteps": [
+        1000.0,
+        980.0,
+        952.0,
+        920.0,
+        884.0,
+        832.0,
+        768.0,
+        680.0,
+        556.0,
+        358.0
+      ],
+      "num_steps": 10,
+      "point_kind": "index_encoding",
+      "sampler_id": "fastwam_shifted_flow_v1"
+    },
+    "2": {
+      "config": {
+        "cfg": 1.0,
+        "dtype": "bfloat16",
+        "num_train_timesteps": 1000,
+        "shift": 5.0,
+        "snapshot_semantics": "before_update",
+        "update": "native_scheduler.step"
+      },
+      "family": "shifted_flow",
+      "native_deltas": [
+        -0.1669921875,
+        -0.83203125
+      ],
+      "native_timesteps": [
+        1000.0,
+        832.0
+      ],
+      "num_steps": 2,
+      "point_kind": "index_encoding",
+      "sampler_id": "fastwam_shifted_flow_v1"
+    }
+  },
+  "replica_port": 29601,
+  "resident_execution": "S07 cross-connection native batches; one worker per stage",
+  "text_cache": {
+    "prompts": [
+      "A video recorded from a robot's point of view executing the following instruction: pick up the black bowl between the plate and the ramekin and place it on the plate",
+      "A video recorded from a robot's point of view executing the following instruction: pick up the black bowl from table center and place it on the plate",
+      "A video recorded from a robot's point of view executing the following instruction: pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate",
+      "A video recorded from a robot's point of view executing the following instruction: pick up the black bowl next to the cookie box and place it on the plate",
+      "A video recorded from a robot's point of view executing the following instruction: pick up the black bowl next to the plate and place it on the plate",
+      "A video recorded from a robot's point of view executing the following instruction: pick up the black bowl next to the ramekin and place it on the plate",
+      "A video recorded from a robot's point of view executing the following instruction: pick up the black bowl on the cookie box and place it on the plate",
+      "A video recorded from a robot's point of view executing the following instruction: pick up the black bowl on the ramekin and place it on the plate",
+      "A video recorded from a robot's point of view executing the following instruction: pick up the black bowl on the stove and place it on the plate",
+      "A video recorded from a robot's point of view executing the following instruction: pick up the black bowl on the wooden cabinet and place it on the plate",
+      "A video recorded from a robot's point of view executing the following instruction: pick up the book and place it in the back compartment of the caddy",
+      "A video recorded from a robot's point of view executing the following instruction: put both moka pots on the stove",
+      "A video recorded from a robot's point of view executing the following instruction: put both the alphabet soup and the cream cheese box in the basket",
+      "A video recorded from a robot's point of view executing the following instruction: put both the alphabet soup and the tomato sauce in the basket",
+      "A video recorded from a robot's point of view executing the following instruction: put both the cream cheese box and the butter in the basket",
+      "A video recorded from a robot's point of view executing the following instruction: put the black bowl in the bottom drawer of the cabinet and close it",
+      "A video recorded from a robot's point of view executing the following instruction: put the white mug on the left plate and put the yellow and white mug on the right plate",
+      "A video recorded from a robot's point of view executing the following instruction: put the white mug on the plate and put the chocolate pudding to the right of the plate",
+      "A video recorded from a robot's point of view executing the following instruction: put the yellow and white mug in the microwave and close it",
+      "A video recorded from a robot's point of view executing the following instruction: turn on the stove and put the moka pot on it"
+    ],
+    "text_encoder_device": "cpu"
+  }
+}

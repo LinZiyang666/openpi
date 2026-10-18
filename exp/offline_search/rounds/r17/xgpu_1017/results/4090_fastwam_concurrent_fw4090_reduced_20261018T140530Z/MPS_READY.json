@@ -1,0 +1,29 @@
+{
+  "active_thread_percentage": 100,
+  "background_contexts": [],
+  "compute_mode_change": false,
+  "daemon": {
+    "pid": 1521433,
+    "start_ticks": "77387874"
+  },
+  "directory": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/EQ/mps/e5681f",
+  "enabled": true,
+  "gpu": {
+    "compute_mode": "Default",
+    "free_mib": 48511.0,
+    "index": 0,
+    "uuid": "GPU-98d36ed2-a8e9-fb07-701c-41f337a6c1f9"
+  },
+  "initial": {
+    "clients": {},
+    "daemon_alive": true,
+    "servers": []
+  },
+  "log_directory": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/EQ/mps/e5681f/l",
+  "pipe_directory": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/EQ/mps/e5681f/p",
+  "private_per_campaign_gpu": true,
+  "schema": "r17.mps.v1",
+  "started": 1792332331.5055141,
+  "status": "RUNNING",
+  "uid": 1000
+}

@@ -1,0 +1,14 @@
+{
+  "cache_evidence": false,
+  "clients": 8,
+  "cuda_initialized": false,
+  "model_evidence": false,
+  "protocol_module": "/data/mw_finetune/qualification/formal_runtime_5927a753312bf5981cba81a2e389edea914bde0580523b0dc3c8ea8d58f1fa1e/exp/r17_integration/common/websocket_policy_server.py",
+  "requests_per_round": [
+    64,
+    64
+  ],
+  "runtime_identity": "5927a753312bf5981cba81a2e389edea914bde0580523b0dc3c8ea8d58f1fa1e",
+  "server_closed": true,
+  "status": "CPU_PROTOCOL_PASS"
+}

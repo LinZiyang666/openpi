@@ -1,0 +1,40 @@
+{
+  "batch": 16,
+  "bootstrap_sha256": "3e17b2483037a24405628145f7d0ad8a201643f772bd62a821cdb237e9f72897",
+  "cache_groups": 5,
+  "clients": 12,
+  "data_bytes": 48223700,
+  "files": {
+    "batching.json": "62971d66d004304e963d90bdcb67a86d187305da1d63e54b79d0a72b5fa4a640",
+    "benchmark.json": "cf428cb5d8d20a8ebf66e0c37b10f9816dda37f33289f82e5598f81d6ba4cf36",
+    "cache_yamls/n50_sp_chrg_k10.yaml": "c7dc97cde4226626263350ad9f9eb78e5c0050936581564cf120fd6fa9e7a380",
+    "cache_yamls/n50_sp_chrg_k20.yaml": "5db4c5ca1bf70fc72f6a3975a1f0c555aa3fef7f5a0b25794d7f46a7ab34699f",
+    "cache_yamls/n50_sp_chrg_k30.yaml": "ca37a2aff76ddcc5be960844f651b1a846b8c82dff3101b41b9d50ac8700dc9f",
+    "cache_yamls/n50_sp_chrg_k40.yaml": "f6984b8c86772231a824567240156395ad00cc19241db7519afb23905ab73ad5",
+    "cache_yamls/n50_sp_chrg_k50.yaml": "b2dd220875c617eef6696bb86db218e95a13ac232c276c0c062c8294e1d2610f",
+    "ffk_bootstrap.py": "3e17b2483037a24405628145f7d0ad8a201643f772bd62a821cdb237e9f72897",
+    "full.yaml": "4411b402415fa6f1a2710e12a341e28db5f2fb91ffae9fb07b4d6006193f8d69",
+    "load.json": "fe02349caad41f19612ad3f286269d66853e5614c0550a820168000800811d33",
+    "manifest.json": "b92eb343f93e2616b07dde974bfe27bf123bfca0e0bc73e191169dd0a9f7d2dc",
+    "model_manifest.json": "314939e8db8a8269e98546275f123f903a77212d6586e221dfcc1749a8337ec7",
+    "model_spec.json": "bea8d060a0c03b6db620ca3fa21986d393f2fcbc631d649e8cb8558d51266eaa",
+    "selected_groups.json": "2b1d76690f448e2282f383f1f0a9c27d85efdcbce6b8aff1629acdb07d82dc26"
+  },
+  "identity": "90d1ff87805ac63a0fb793a5145d13f34ec2f5c92effe95bfdd51dba1a15d960",
+  "memory_budget_gib": 54.0,
+  "model": "fastwam",
+  "mps": {
+    "active_thread_percentage": 100,
+    "compute_mode_change": false,
+    "enabled": true,
+    "private_per_campaign_gpu": true,
+    "schema": "r17.mps.v1"
+  },
+  "replicas": 2,
+  "runtime_identity": "a7a387ed6d45ce9cf5ece2628f32577ee5a55ab55bbcb2a771e25ebc227b4f07",
+  "schema": "xgpu.concurrent.pin.v1",
+  "scope": "one pinned model/domain/K and one library size; not all suites or recipes",
+  "segment_clock_overlay": false,
+  "source": "/data/mw_finetune/eval/fa_fw_r_u_l",
+  "source_campaign_sha256": "e09837e35d77110f27e7a3c0cb3b21dbebeeb330553ee8ff24c5b4ab069461ee"
+}

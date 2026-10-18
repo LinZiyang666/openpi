@@ -1,0 +1,44 @@
+{
+  "files": {
+    "/data/mw_finetune/eval/fa_ls_gr_f_u_m/assets/q3_decision1018/4fa8d16185ac17b2d48aab29a4a24ac8f18c055d2999d7d27efd82e90e8e55cd/READY.json": {
+      "bytes": 1227,
+      "sha256": "26d39a41b925a4abbd6224ffbfd3d2c8246329567ef2338d493e3d3a20fc7132"
+    },
+    "/data/mw_finetune/eval/fa_ls_gr_f_u_m/assets/q3_decision1018/4fa8d16185ac17b2d48aab29a4a24ac8f18c055d2999d7d27efd82e90e8e55cd/stall.json": {
+      "bytes": 10085,
+      "sha256": "c407ba5581ec2fe7027627c7ec13803c4f3c4b964dea66aec7dd7139fb169dd9"
+    },
+    "/data/mw_finetune/eval/fa_ls_gr_f_u_m/assets/q3_decision1018/4fa8d16185ac17b2d48aab29a4a24ac8f18c055d2999d7d27efd82e90e8e55cd/stall.loeo.csv": {
+      "bytes": 89290,
+      "sha256": "a5af7bd05d14e64a6e5a2aa9c62ccdb74b84b0f1b22315f9c2ca22d1219c87b9"
+    },
+    "/data/mw_finetune/eval/fa_ls_gr_f_u_m/assets/q3_decision1018/4fa8d16185ac17b2d48aab29a4a24ac8f18c055d2999d7d27efd82e90e8e55cd/stall.pkl": {
+      "bytes": 4311851,
+      "sha256": "d74a1687527c912d294027436836fb9b870a9b3a62289de63ceee6a3501edcd8"
+    },
+    "/data/mw_finetune/eval/grmk1_ful/assets/cache_inputs/mt50/n250_C10/fit/READY.json": {
+      "bytes": 653012,
+      "sha256": "bbd2ae0a7fe776cc554ab932bfaa58743055909f4f29590e28ca457ace4dc720"
+    },
+    "/data/mw_finetune/eval/grmk1_ful/assets/cache_inputs/mt50/n250_C10/fit/fit.npz": {
+      "bytes": 35039694,
+      "sha256": "cb66f9557b6cdf7447b6468651d82442f95451d92506c224e6f34ae3519103f1"
+    },
+    "/data/mw_finetune/eval/grmk1_ful/assets/cache_inputs/mt50/parent/READY.json": {
+      "bytes": 91657272,
+      "sha256": "013f6b82c40a78222f0609ed595bce7eb027d8fa74359921673b1b009b4adc71"
+    },
+    "/data/mw_finetune/eval/grmk1_ful/assets/cache_inputs/mt50/parent/subsets/size_250/VIEW.json": {
+      "bytes": 6272,
+      "sha256": "d6b2327017fd640d928c3d286f348874d26b1e1684653fc7bd9de7604a0d4fb1"
+    },
+    "/data/mw_finetune/eval/grmk1_ful/assets/cache_inputs/mt50/parent/subsets/size_250/row_indices.npy": {
+      "bytes": 37216,
+      "sha256": "4210fbd537ef15f902550b3db31840ccc0a854dcf25164193c697b2460541b98"
+    }
+  },
+  "identity": "2cdc7526740bd332bf784127cae2e97f3992efeb72c847dac6c16768d18ccdae",
+  "schema": "xgpu.cache.files.v1",
+  "scope": "current dependency bytes; not retrospective verification of old runs",
+  "serving_pin": "b0c52248f102bb9e33a10a6dd4b54031c4fea0e82be0b10e80c859a4b9f9a4cf"
+}

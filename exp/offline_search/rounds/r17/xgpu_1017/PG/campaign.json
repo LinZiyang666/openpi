@@ -1,0 +1,499 @@
+{
+  "assets": "/home/exouser/xgpu_1017/pilot/PG/assets",
+  "backend_host": "127.0.0.1",
+  "backend_ports": [
+    23181,
+    23182
+  ],
+  "cache_control": "/data/mw_finetune/eval/hs6fw_res_152931",
+  "cache_control_proof": {
+    "completion": {
+      "accepted_episodes": 2000,
+      "error_attempts": 0,
+      "recovered_retried_errors": false,
+      "recovered_worker_shutdown": false,
+      "resolved_retry_errors": [],
+      "returncode": 0,
+      "verified_completion": true
+    },
+    "control": "/data/mw_finetune/eval/hs6fw_res_152931",
+    "local_worker_exception": null,
+    "non_r17_code_inherited": true,
+    "recovery": null,
+    "runtime_source": "/data/mw_finetune/eval/hs6fw_ctl_143332",
+    "schema": "r17.cache_control.v1",
+    "source_pins": {
+      "/data/mw_finetune/eval/hs6fw_ctl_143332/RECEIPT.json": "e6adb940dfc119b2e25fcf897152a4ec633e7c752838e4c8f88ac0b2e780e63a",
+      "/data/mw_finetune/eval/hs6fw_ctl_143332/assets/benchmark.json": "cf428cb5d8d20a8ebf66e0c37b10f9816dda37f33289f82e5598f81d6ba4cf36",
+      "/data/mw_finetune/eval/hs6fw_ctl_143332/assets/model_manifest.json": "6c39db6b7aca84137ec1a6fbee8aca7ecab55d882d4473607d53ddf51da095fd",
+      "/data/mw_finetune/eval/hs6fw_ctl_143332/assets/model_spec.json": "67b3c380c6fc3588b81b0b89d9ddd29938d0fecaef79ccdcaf30b49c2e174f42",
+      "/data/mw_finetune/eval/hs6fw_ctl_143332/campaign.json": "2e0c7ea26773d22f2d0d8b525d8ebc3329630a723ee6a1cb1d6d0acf9383e736",
+      "/data/mw_finetune/eval/hs6fw_ctl_143332/runtime.tar": "d3cd215878e039631765c67f9b3e3f51951da52c0b1a3f777e0db6edd2aa389c",
+      "/data/mw_finetune/eval/hs6fw_ctl_143332/workers.tar": "e9d40ea8b0f96d1cf1b4c6829ad2f6e358d72fe9d8c69e156328d3102a06304d",
+      "/data/mw_finetune/eval/hs6fw_res_152931/RECEIPT.json": "57b8e803066f3a153c54bd9fa9812c3bf5ccecb83c4bccd13e5bd0f32e892fcd",
+      "/data/mw_finetune/eval/hs6fw_res_152931/RESUME_MERGE.json": "c2488d5f7cd87145005ff665cf41994badb4705547b8c9a88375a756ce8045ca",
+      "/data/mw_finetune/eval/hs6fw_res_152931/SUMMARY.json": "8e5f7d4b9c82593d0bfd11dbc18445e0dcf1b550629d94f51caf5add49681963",
+      "/data/mw_finetune/eval/hs6fw_res_152931/assets/benchmark.json": "cf428cb5d8d20a8ebf66e0c37b10f9816dda37f33289f82e5598f81d6ba4cf36",
+      "/data/mw_finetune/eval/hs6fw_res_152931/assets/model_manifest.json": "6c39db6b7aca84137ec1a6fbee8aca7ecab55d882d4473607d53ddf51da095fd",
+      "/data/mw_finetune/eval/hs6fw_res_152931/assets/model_spec.json": "67b3c380c6fc3588b81b0b89d9ddd29938d0fecaef79ccdcaf30b49c2e174f42",
+      "/data/mw_finetune/eval/hs6fw_res_152931/campaign.json": "92150e45282fb3b7dbc014137963a8ca5db33cc9c151ee9dd72e75c8151ef6e4",
+      "/data/mw_finetune/eval/hs6fw_res_152931/driver/DRIVER_RECEIPT.json": "87dc1b27ff85e59411cd105dc3a6ad2c6ff87b60fe3fc20043cdc5dca6d49960",
+      "/data/mw_finetune/eval/hs6fw_res_152931/driver/journal.jsonl": "6ee71a5aab65a1c4dc666b4988e3013e195b68314be8ebce6a9d8e4ad54f1188",
+      "/data/mw_finetune/eval/hs6fw_res_152931/runtime.tar": "d3cd215878e039631765c67f9b3e3f51951da52c0b1a3f777e0db6edd2aa389c",
+      "/data/mw_finetune/eval/hs6fw_res_152931/workers.tar": "e9d40ea8b0f96d1cf1b4c6829ad2f6e358d72fe9d8c69e156328d3102a06304d"
+    },
+    "worker_topology_changes": {
+      "worker_nodes": {
+        "campaign": {
+          "timan1": 40,
+          "timan107": 30
+        },
+        "control": {
+          "timan107": 48
+        }
+      }
+    }
+  },
+  "cache_control_runtime": "/data/mw_finetune/eval/hs6fw_ctl_143332",
+  "cache_plan_name": "xgpu_preregister_v1_fastwam",
+  "cache_study": false,
+  "cache_worker_orchestration": {
+    "cache_ram_floor_mib": 4096,
+    "cached_actions_unchanged": true,
+    "local_renderer_vram_mib": 1024,
+    "local_server_growth_mib": null,
+    "miss_batch_composition_may_change": true,
+    "owner_authorized": true,
+    "replicas": 2,
+    "schema": "r17.cache_worker_orchestration.v1",
+    "scientific_settings_unchanged": true,
+    "source_nodes": {
+      "timan1": 12,
+      "timan107": 36
+    },
+    "source_replicas": 2,
+    "source_total_workers": 48,
+    "total_workers": 12,
+    "worker_nodes": {
+      "timan107": 12
+    }
+  },
+  "checkpoint": "/data/mw_finetune/models/fastwam_libero",
+  "coordinator_runtime": "/data/mw_finetune/qualification/formal_runtime_a7a387ed6d45ce9cf5ece2628f32577ee5a55ab55bbcb2a771e25ebc227b4f07",
+  "device": "cuda:0",
+  "domain": "libero",
+  "driver_host": "ziyanglin.com",
+  "driver_mode": "group-commit",
+  "driver_module": "exp.r17_integration.ops.formal_driver_fast",
+  "driver_port": 23197,
+  "driver_public_port": 23197,
+  "driver_runtime": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/pilot_driver_releases/formal_driver_b6b7a5837ea4033c4466cdba36f8d4f80210a443279cee32e276762b6a5670f8",
+  "endpoint": "149.165.153.233:23180",
+  "endpoint_host": "149.165.153.233",
+  "endpoint_port": 23180,
+  "episode_seconds": 3600,
+  "eval_pool": "A",
+  "execution_worker_nodes": {
+    "timan107": 12
+  },
+  "execution_workers": 12,
+  "fastwam_batch_treatment": {
+    "batch_implementation_identity": "45757686ede21732549470f29f9e6aee7b1ee1159d98f63defd4cf95818e16ce",
+    "batching": {
+      "batch_wait_ms": 5.0,
+      "byte_identical_to_b1": false,
+      "default_off": true,
+      "hardware_qualification": "see BATCHING.md and measurement receipt",
+      "identity": "c4a95a1a3acb492c6ad6798cb879cb86f78a0d9156dd2e65f296cb11edf7f3ff",
+      "max_batch": 16,
+      "numerics_policy": "native_bf16_batch_study_v1",
+      "quality_equivalence": "unverified; matched batched control required",
+      "stage_workers": [
+        1,
+        1,
+        1
+      ]
+    },
+    "checkpoint": "/data/mw_finetune/models/fastwam_libero",
+    "domain": "libero",
+    "gpu_family": "NVIDIA H100 80GB HBM3",
+    "model": "fastwam",
+    "replicas": 2,
+    "schema": "r17.fastwam.batch_treatment.v2",
+    "stage_streams": true,
+    "stage_workers": [
+      1,
+      1,
+      1
+    ],
+    "worker_egl_device": 0,
+    "worker_egl_devices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "worker_max_episodes": 4,
+    "worker_memory_mib": 2048,
+    "worker_nodes": {
+      "timan107": 12
+    },
+    "worker_restart_limit": 2,
+    "worker_vram_mib": 717,
+    "workers": 12
+  },
+  "fastwam_batch_treatment_identity": "0e3a796b1bf30dff3d2ac1fcde730e7ee456bc7258b357dbc747611db941f3f7",
+  "fastwam_batching": {
+    "batch_wait_ms": 5.0,
+    "byte_identical_to_b1": false,
+    "default_off": true,
+    "hardware_qualification": "see BATCHING.md and measurement receipt",
+    "identity": "c4a95a1a3acb492c6ad6798cb879cb86f78a0d9156dd2e65f296cb11edf7f3ff",
+    "max_batch": 16,
+    "numerics_policy": "native_bf16_batch_study_v1",
+    "quality_equivalence": "unverified; matched batched control required",
+    "stage_workers": [
+      1,
+      1,
+      1
+    ]
+  },
+  "fastwam_text_cache": true,
+  "ffk_bootstrap_sha256": "3e17b2483037a24405628145f7d0ad8a201643f772bd62a821cdb237e9f72897",
+  "ffk_dp_capacity_bridge": false,
+  "ffk_evidence_sha256": "ed812fd78746a1ccfceae7ee6a2a9f943808cad52b6b73c31e7e79150dfa7333",
+  "filter_failed_knob": {
+    "arm": "unfiltered",
+    "cells": {
+      "libero_10/100": {
+        "candidate_view": "/data/r17_library/libero/fastwam/libero_10/bpool/subsets/size_100_keep_success_1015_norefit/VIEW.json",
+        "collected": 100,
+        "empty_tasks": [],
+        "failed": 5,
+        "kept": 95,
+        "labels": "/data/r17_library/libero/fastwam/libero_10/bpool/READY.json#metadata.episodes"
+      },
+      "libero_10/200": {
+        "candidate_view": "/data/r17_library/libero/fastwam/libero_10/bpool/subsets/size_200_keep_success_1015_norefit/VIEW.json",
+        "collected": 200,
+        "empty_tasks": [],
+        "failed": 12,
+        "kept": 188,
+        "labels": "/data/r17_library/libero/fastwam/libero_10/bpool/READY.json#metadata.episodes"
+      },
+      "libero_10/300": {
+        "candidate_view": "/data/r17_library/libero/fastwam/libero_10/bpool/subsets/size_300_keep_success_1015_norefit/VIEW.json",
+        "collected": 300,
+        "empty_tasks": [],
+        "failed": 21,
+        "kept": 279,
+        "labels": "/data/r17_library/libero/fastwam/libero_10/bpool/READY.json#metadata.episodes"
+      },
+      "libero_10/400": {
+        "candidate_view": "/data/r17_library/libero/fastwam/libero_10/bpool/subsets/size_400_keep_success_1015_norefit/VIEW.json",
+        "collected": 400,
+        "empty_tasks": [],
+        "failed": 29,
+        "kept": 371,
+        "labels": "/data/r17_library/libero/fastwam/libero_10/bpool/READY.json#metadata.episodes"
+      },
+      "libero_10/50": {
+        "candidate_view": "/data/r17_library/libero/fastwam/libero_10/bpool/subsets/size_50_keep_success_1015_norefit/VIEW.json",
+        "collected": 50,
+        "empty_tasks": [],
+        "failed": 1,
+        "kept": 49,
+        "labels": "/data/r17_library/libero/fastwam/libero_10/bpool/READY.json#metadata.episodes"
+      },
+      "libero_10/500": {
+        "candidate_view": "/data/r17_library/libero/fastwam/libero_10/bpool/subsets/size_500_keep_success_1015_norefit/VIEW.json",
+        "collected": 500,
+        "empty_tasks": [],
+        "failed": 38,
+        "kept": 462,
+        "labels": "/data/r17_library/libero/fastwam/libero_10/bpool/READY.json#metadata.episodes"
+      },
+      "libero_spatial/100": {
+        "candidate_view": "/data/r17_library/libero/fastwam/libero_spatial/bpool/subsets/size_100_keep_success_1015_norefit/VIEW.json",
+        "collected": 100,
+        "empty_tasks": [],
+        "failed": 15,
+        "kept": 85,
+        "labels": "/data/r17_library/libero/fastwam/libero_spatial/bpool/READY.json#metadata.episodes"
+      },
+      "libero_spatial/200": {
+        "candidate_view": "/data/r17_library/libero/fastwam/libero_spatial/bpool/subsets/size_200_keep_success_1015_norefit/VIEW.json",
+        "collected": 200,
+        "empty_tasks": [],
+        "failed": 25,
+        "kept": 175,
+        "labels": "/data/r17_library/libero/fastwam/libero_spatial/bpool/READY.json#metadata.episodes"
+      },
+      "libero_spatial/300": {
+        "candidate_view": "/data/r17_library/libero/fastwam/libero_spatial/bpool/subsets/size_300_keep_success_1015_norefit/VIEW.json",
+        "collected": 300,
+        "empty_tasks": [],
+        "failed": 41,
+        "kept": 259,
+        "labels": "/data/r17_library/libero/fastwam/libero_spatial/bpool/READY.json#metadata.episodes"
+      },
+      "libero_spatial/400": {
+        "candidate_view": "/data/r17_library/libero/fastwam/libero_spatial/bpool/subsets/size_400_keep_success_1015_norefit/VIEW.json",
+        "collected": 400,
+        "empty_tasks": [],
+        "failed": 55,
+        "kept": 345,
+        "labels": "/data/r17_library/libero/fastwam/libero_spatial/bpool/READY.json#metadata.episodes"
+      },
+      "libero_spatial/50": {
+        "candidate_view": "/data/r17_library/libero/fastwam/libero_spatial/bpool/subsets/size_50_keep_success_1015_norefit/VIEW.json",
+        "collected": 50,
+        "empty_tasks": [],
+        "failed": 7,
+        "kept": 43,
+        "labels": "/data/r17_library/libero/fastwam/libero_spatial/bpool/READY.json#metadata.episodes"
+      },
+      "libero_spatial/500": {
+        "candidate_view": "/data/r17_library/libero/fastwam/libero_spatial/bpool/subsets/size_500_keep_success_1015_norefit/VIEW.json",
+        "collected": 500,
+        "empty_tasks": [],
+        "failed": 68,
+        "kept": 432,
+        "labels": "/data/r17_library/libero/fastwam/libero_spatial/bpool/READY.json#metadata.episodes"
+      }
+    },
+    "method": "frozen_fit_candidate_rows_only",
+    "refit": false,
+    "selection": {},
+    "source": "/data/mw_finetune/eval/knobtestfw_red"
+  },
+  "filter_failed_source": "/data/mw_finetune/eval/knobtestfw_red",
+  "init_count": 50,
+  "library": false,
+  "live_k": 4,
+  "local_assets": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/PG/assets",
+  "local_worker_memory_mib": 4096,
+  "local_worker_vram_mib": 1024,
+  "memory_budget_gib": 54.0,
+  "model": "fastwam",
+  "mps": {
+    "active_thread_percentage": 100,
+    "compute_mode_change": false,
+    "enabled": true,
+    "private_per_campaign_gpu": true,
+    "schema": "r17.mps.v1"
+  },
+  "native_parity_only": false,
+  "official_50": true,
+  "orchestration": {
+    "baseline": {
+      "files": {
+        "exp/r17_integration/conductor/driver.py": "4218b0c07a5dd7b7fdd0bf6830919c9a7549ed2b2b4dcce298d8ce3e8e5d1a92",
+        "exp/r17_integration/conductor/manifest.py": "5603fab68caa3f55695e4355b2643f16c13c526dccba6fb3e0ad7f2acfeb63d6",
+        "exp/r17_integration/conductor/queue.py": "be495f6bcde979266c6bd06ed1dec5163f5c0324cba2f2d1e335bb04c90bd3a2",
+        "exp/r17_integration/conductor/strategy.py": "61150d6e51dc646e2a75949d6d6f51a4a771eed98539172b2251702bd6c925f5",
+        "exp/r17_integration/conductor/worker_entry.py": "f02a49707a14f9ef503cc9b4dffbaed30c88f2e0d2d38d72baaedf300799ca70",
+        "exp/r17_integration/ops/cache_driver_legacy.py": "69a46f022fc472195f468dc303e1627540e2ea8ea1656fb38c253175eb694a81",
+        "exp/r17_integration/ops/cache_resume.py": "ccae83793656785bad335de4f1d3102ea2cdd74423aa5e52c9750aad7cc19a94",
+        "exp/r17_integration/ops/cache_study.py": "1cbb9366fae9e4abb14a7e64a10c51bb1e52dbda9cdc4f8551003df496ae2ca9",
+        "exp/r17_integration/ops/formal_driver.py": "2ed66749c1cddd8c11bb7f4b5a301ec720e4e86ac3f9d3d4b842761dea8a26f9",
+        "exp/r17_integration/ops/formal_driver_fast.py": "09b1bc0fc4512eb89762361655e115c86820b988567a808ef9455504aaf688bb",
+        "exp/r17_integration/ops/formal_eval.py": "5064f63408eff9d1f036cb8a452e96055bcc9a645b4e15731f553e34fd116da5",
+        "exp/r17_integration/ops/group_commit.py": "50895423acd73f81442dc9c3c649734431b56b1bfb6fd292f2481a34581e3bc3",
+        "exp/r17_integration/ops/live_fleet_driver.py": "879716ddfabcad056baa3e249eaf5fc1efe8265627f9bc4eda1aefc527f5a1c0",
+        "exp/r17_integration/ops/live_fleet_worker.py": "b8edf9152b6adc4d4d945a2562b9e38010071c6afaff757364e3a3eae94ff7fe",
+        "exp/r17_integration/ops/live_fleets.py": "e201d79eaf57f598f6c82ecd8ff2faf3f02ee3127b455de2af567e92e8cbed5f",
+        "exp/r17_integration/qualification/driver.py": "06257104d1b307c7196b36583a43a0b651fea8c3fed6494c9f3ecc44f4c142a7",
+        "src/openpi/conductor/__init__.py": "fa50b35cf43b695036181624b161b0a3415c55bdad524b70c5b8a711d238ab48",
+        "src/openpi/conductor/agent.py": "9e39391d7c1412446abee160f6d0280be940150293dd0399ee769a5e6072d3d2",
+        "src/openpi/conductor/driver.py": "fb50124bee79924591cb690dcf31a6e4a24a771b8beb6f3515ad21b2d040ba8a",
+        "src/openpi/conductor/health.py": "ffea06a3bfc5f95f7da1a9abc2626c1be135dd912c0245a6794487c5b1903a44",
+        "src/openpi/conductor/journal.py": "5b2aea9600f54424cdfa9dabbf7262edef4b613ab58c3df3070f03f5efc0b9ae",
+        "src/openpi/conductor/monitor.py": "1fa22e3286862cc00949d1b87f5c3b132b88f9a3729600fd56abc535fec12cfb",
+        "src/openpi/conductor/protocol.py": "d538297a2f951b829e77d1aeab399e6838fd7f7b4dfdd9edcdd6c9fe80c0c683",
+        "src/openpi/conductor/scheduler.py": "80ede7fb1b8c474d9b4c710694e1de7d420d07750a09fc3e80938e2b0d2c934f",
+        "src/openpi/conductor/sharding.py": "df639d641aec56d1f860cfbce90c40aa6374ac2aff9c1a533009954f8d8e5cf2",
+        "src/openpi/conductor/strategy.py": "4d2523d875c777638a4a54347474d3e6062a9eaf4d37bc8ded5f7e4dc72b97dc",
+        "src/openpi/conductor/task.py": "b175d54d8a47b30e74611d4519088eb328bd815bf7b9bc5013e8e16a0a0d84ca",
+        "src/openpi/conductor/worker.py": "74b8cea7a870b9ce2473f69aaa77071d6697b0da74009e7bea5fc20c3c6d23e7"
+      },
+      "identity": "2f1bb0ce3f840735c6d8dc211e1aa7ba5bfad2fce5f766ab22c2bbc8f080e1be",
+      "mode": "group-commit",
+      "module": "exp.r17_integration.ops.formal_driver_fast"
+    },
+    "driver_runtime": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/pilot_driver_releases/formal_driver_b6b7a5837ea4033c4466cdba36f8d4f80210a443279cee32e276762b6a5670f8",
+    "driver_runtime_identity": "b6b7a5837ea4033c4466cdba36f8d4f80210a443279cee32e276762b6a5670f8",
+    "durability": "evidence fsync, terminal journal fsync, then scheduler acceptance; nonterminal diagnostics group committed; resume requires fresh closed-source segment",
+    "model_code_unchanged": true,
+    "overlay_files": [
+      "exp/r17_integration/ops/formal_driver_fast.py"
+    ],
+    "schema": "r17.orchestration_pin.v1",
+    "selected": {
+      "files": {
+        "exp/r17_integration/conductor/driver.py": "4218b0c07a5dd7b7fdd0bf6830919c9a7549ed2b2b4dcce298d8ce3e8e5d1a92",
+        "exp/r17_integration/conductor/manifest.py": "5603fab68caa3f55695e4355b2643f16c13c526dccba6fb3e0ad7f2acfeb63d6",
+        "exp/r17_integration/conductor/queue.py": "be495f6bcde979266c6bd06ed1dec5163f5c0324cba2f2d1e335bb04c90bd3a2",
+        "exp/r17_integration/conductor/strategy.py": "61150d6e51dc646e2a75949d6d6f51a4a771eed98539172b2251702bd6c925f5",
+        "exp/r17_integration/conductor/worker_entry.py": "f02a49707a14f9ef503cc9b4dffbaed30c88f2e0d2d38d72baaedf300799ca70",
+        "exp/r17_integration/ops/cache_driver_legacy.py": "69a46f022fc472195f468dc303e1627540e2ea8ea1656fb38c253175eb694a81",
+        "exp/r17_integration/ops/cache_resume.py": "ccae83793656785bad335de4f1d3102ea2cdd74423aa5e52c9750aad7cc19a94",
+        "exp/r17_integration/ops/cache_study.py": "1cbb9366fae9e4abb14a7e64a10c51bb1e52dbda9cdc4f8551003df496ae2ca9",
+        "exp/r17_integration/ops/formal_driver.py": "2ed66749c1cddd8c11bb7f4b5a301ec720e4e86ac3f9d3d4b842761dea8a26f9",
+        "exp/r17_integration/ops/formal_driver_fast.py": "e46f3a9a2b404bc60d13955722b5e2b3723d434d893fa140a879750f9f986518",
+        "exp/r17_integration/ops/formal_eval.py": "5064f63408eff9d1f036cb8a452e96055bcc9a645b4e15731f553e34fd116da5",
+        "exp/r17_integration/ops/group_commit.py": "50895423acd73f81442dc9c3c649734431b56b1bfb6fd292f2481a34581e3bc3",
+        "exp/r17_integration/ops/live_fleet_driver.py": "879716ddfabcad056baa3e249eaf5fc1efe8265627f9bc4eda1aefc527f5a1c0",
+        "exp/r17_integration/ops/live_fleet_worker.py": "b8edf9152b6adc4d4d945a2562b9e38010071c6afaff757364e3a3eae94ff7fe",
+        "exp/r17_integration/ops/live_fleets.py": "e201d79eaf57f598f6c82ecd8ff2faf3f02ee3127b455de2af567e92e8cbed5f",
+        "exp/r17_integration/qualification/driver.py": "06257104d1b307c7196b36583a43a0b651fea8c3fed6494c9f3ecc44f4c142a7",
+        "src/openpi/conductor/__init__.py": "fa50b35cf43b695036181624b161b0a3415c55bdad524b70c5b8a711d238ab48",
+        "src/openpi/conductor/agent.py": "9e39391d7c1412446abee160f6d0280be940150293dd0399ee769a5e6072d3d2",
+        "src/openpi/conductor/driver.py": "fb50124bee79924591cb690dcf31a6e4a24a771b8beb6f3515ad21b2d040ba8a",
+        "src/openpi/conductor/health.py": "ffea06a3bfc5f95f7da1a9abc2626c1be135dd912c0245a6794487c5b1903a44",
+        "src/openpi/conductor/journal.py": "5b2aea9600f54424cdfa9dabbf7262edef4b613ab58c3df3070f03f5efc0b9ae",
+        "src/openpi/conductor/monitor.py": "1fa22e3286862cc00949d1b87f5c3b132b88f9a3729600fd56abc535fec12cfb",
+        "src/openpi/conductor/protocol.py": "d538297a2f951b829e77d1aeab399e6838fd7f7b4dfdd9edcdd6c9fe80c0c683",
+        "src/openpi/conductor/scheduler.py": "80ede7fb1b8c474d9b4c710694e1de7d420d07750a09fc3e80938e2b0d2c934f",
+        "src/openpi/conductor/sharding.py": "df639d641aec56d1f860cfbce90c40aa6374ac2aff9c1a533009954f8d8e5cf2",
+        "src/openpi/conductor/strategy.py": "4d2523d875c777638a4a54347474d3e6062a9eaf4d37bc8ded5f7e4dc72b97dc",
+        "src/openpi/conductor/task.py": "b175d54d8a47b30e74611d4519088eb328bd815bf7b9bc5013e8e16a0a0d84ca",
+        "src/openpi/conductor/worker.py": "74b8cea7a870b9ce2473f69aaa77071d6697b0da74009e7bea5fc20c3c6d23e7"
+      },
+      "identity": "a5094f20fedc74ecacba7d447170651298d6592e5d6c4cd612b093810822c167",
+      "mode": "group-commit",
+      "module": "exp.r17_integration.ops.formal_driver_fast"
+    },
+    "source_runtime_identity": "a7a387ed6d45ce9cf5ece2628f32577ee5a55ab55bbcb2a771e25ebc227b4f07",
+    "worker_payload_unchanged": true
+  },
+  "ports": [
+    23180,
+    23181,
+    23182,
+    23197
+  ],
+  "prepare_only": true,
+  "public_port": 23180,
+  "replica_startup_width": 1,
+  "replicas": 2,
+  "retries": 0,
+  "run_name": "xph_fastwam_pure",
+  "runtime": "/data/mw_finetune/qualification/formal_runtime_a7a387ed6d45ce9cf5ece2628f32577ee5a55ab55bbcb2a771e25ebc227b4f07",
+  "runtime_from": "/data/mw_finetune/eval/knobtestfw_red",
+  "runtime_identity": "a7a387ed6d45ce9cf5ece2628f32577ee5a55ab55bbcb2a771e25ebc227b4f07",
+  "runtime_source_identity": "a7a387ed6d45ce9cf5ece2628f32577ee5a55ab55bbcb2a771e25ebc227b4f07",
+  "runtime_source_pins": {
+    "RUNTIME_RELEASE.json": "a4cf3248c8914ed382d139dbb9954abed58e0c14e90a9c79dab67a188fa5721a",
+    "WORKER_DEPLOYMENT.json": "d39b7a2b91710527cac085f48630b820fcc230cac437a8faa184427452fd0ca8",
+    "assets/benchmark.json": "cf428cb5d8d20a8ebf66e0c37b10f9816dda37f33289f82e5598f81d6ba4cf36",
+    "assets/model_manifest.json": "314939e8db8a8269e98546275f123f903a77212d6586e221dfcc1749a8337ec7",
+    "assets/model_spec.json": "bea8d060a0c03b6db620ca3fa21986d393f2fcbc631d649e8cb8558d51266eaa",
+    "runtime.tar": "ec9187df090170cdc97593b3daaba4732eb602707ab2e682acc73113844175a5",
+    "workers.tar": "59bd03f445ecab17111026427fede9d6c127d4d5aa4c17eaa5de6c1150cfe2c9"
+  },
+  "seconds": 14400,
+  "semantic_campaign": "xgpu_preregister_v1_fastwam",
+  "server_campaign": "/tmp/r17_formal/xph_fastwam_pure/server/campaign.json",
+  "server_node": "h100",
+  "server_python": "/data/mw_finetune/envs/fastwam/bin/python",
+  "server_run": "/home/exouser/xgpu_1017/pilot/PG/servers",
+  "smoke": false,
+  "smoke_episodes": 4,
+  "suites": [
+    "libero_spatial"
+  ],
+  "vendor": "/home/weiland/projects/openpi_ext/third_party/gr00t_n15",
+  "worker_egl_device": 0,
+  "worker_egl_devices": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "worker_egl_devices_by_node": {
+    "timan1": [
+      2
+    ],
+    "timan107": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ]
+  },
+  "worker_max_episodes": 4,
+  "worker_memory_mib": 2048,
+  "worker_min_free_gib": 8,
+  "worker_node_failover": {
+    "enabled": true,
+    "schema": "r17.worker_node_failover.v1"
+  },
+  "worker_nodes": {
+    "timan107": 12
+  },
+  "worker_restart_limit": 2,
+  "worker_vram_mib": 717,
+  "workers": 12,
+  "xgpu_pilot": {
+    "arm": "pure",
+    "autoscale": false,
+    "bundle": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/concurrent/bundles/fastwam_4090_reduced",
+    "canonical_plan": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/closedloop_pilot_1018/fastwam/pure/PLAN.json",
+    "canonical_plan_sha256": "aca1e756588701d38f933113408449677112d83d2e11e3a1e914a165eb341ed6",
+    "capacity_arm": false,
+    "fixed_worker_nodes": {
+      "timan107": 12
+    },
+    "host": "h100",
+    "model": "fastwam",
+    "native_worker_count": 12,
+    "no_model_gpu_renderers": true,
+    "numerics": "native",
+    "read_aliases": {
+      "/data/mw_finetune/eval/ffk1015_fastwam_libero_reduced_formal_A_original_levels/assets/cache_inputs/libero_spatial/n50_C10/fit/READY.json": "/home/exouser/xgpu_1017/rootfs/data/mw_finetune/eval/ffk1015_fastwam_libero_reduced_formal_A_original_levels/assets/cache_inputs/libero_spatial/n50_C10/fit/READY.json",
+      "/data/mw_finetune/eval/ffk1015_fastwam_libero_reduced_formal_A_original_levels/assets/cache_inputs/libero_spatial/n50_C10/fit/fit.npz": "/home/exouser/xgpu_1017/rootfs/data/mw_finetune/eval/ffk1015_fastwam_libero_reduced_formal_A_original_levels/assets/cache_inputs/libero_spatial/n50_C10/fit/fit.npz",
+      "/data/mw_finetune/eval/ffk1015_fastwam_libero_reduced_formal_A_original_levels/assets/cache_inputs/libero_spatial/n50_C10/stall/READY.json": "/home/exouser/xgpu_1017/rootfs/data/mw_finetune/eval/ffk1015_fastwam_libero_reduced_formal_A_original_levels/assets/cache_inputs/libero_spatial/n50_C10/stall/READY.json",
+      "/data/mw_finetune/eval/ffk1015_fastwam_libero_reduced_formal_A_original_levels/assets/cache_inputs/libero_spatial/n50_C10/stall/stall.json": "/home/exouser/xgpu_1017/rootfs/data/mw_finetune/eval/ffk1015_fastwam_libero_reduced_formal_A_original_levels/assets/cache_inputs/libero_spatial/n50_C10/stall/stall.json",
+      "/data/mw_finetune/eval/ffk1015_fastwam_libero_reduced_formal_A_original_levels/assets/cache_inputs/libero_spatial/n50_C10/stall/stall.loeo.csv": "/home/exouser/xgpu_1017/rootfs/data/mw_finetune/eval/ffk1015_fastwam_libero_reduced_formal_A_original_levels/assets/cache_inputs/libero_spatial/n50_C10/stall/stall.loeo.csv",
+      "/data/mw_finetune/eval/ffk1015_fastwam_libero_reduced_formal_A_original_levels/assets/cache_inputs/libero_spatial/n50_C10/stall/stall.pkl": "/home/exouser/xgpu_1017/rootfs/data/mw_finetune/eval/ffk1015_fastwam_libero_reduced_formal_A_original_levels/assets/cache_inputs/libero_spatial/n50_C10/stall/stall.pkl",
+      "/data/mw_finetune/eval/ffk1015_fastwam_libero_reduced_formal_A_original_levels/assets/cache_inputs/libero_spatial/parent/READY.json": "/home/exouser/xgpu_1017/rootfs/data/mw_finetune/eval/ffk1015_fastwam_libero_reduced_formal_A_original_levels/assets/cache_inputs/libero_spatial/parent/READY.json",
+      "/data/mw_finetune/eval/ffk1015_fastwam_libero_reduced_formal_A_original_levels/assets/cache_inputs/libero_spatial/parent/subsets/size_50/VIEW.json": "/home/exouser/xgpu_1017/rootfs/data/mw_finetune/eval/ffk1015_fastwam_libero_reduced_formal_A_original_levels/assets/cache_inputs/libero_spatial/parent/subsets/size_50/VIEW.json",
+      "/data/mw_finetune/eval/ffk1015_fastwam_libero_reduced_formal_A_original_levels/assets/cache_inputs/libero_spatial/parent/subsets/size_50/row_indices.npy": "/home/exouser/xgpu_1017/rootfs/data/mw_finetune/eval/ffk1015_fastwam_libero_reduced_formal_A_original_levels/assets/cache_inputs/libero_spatial/parent/subsets/size_50/row_indices.npy",
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/PG/assets/CACHE_STUDY.json": "/home/exouser/xgpu_1017/pilot/PG/assets/CACHE_STUDY.json",
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/PG/assets/batching.json": "/home/exouser/xgpu_1017/pilot/PG/assets/batching.json",
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/PG/assets/benchmark.json": "/home/exouser/xgpu_1017/pilot/PG/assets/benchmark.json",
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/PG/assets/cache_yamls/n50_sp_chrg_k10.yaml": "/home/exouser/xgpu_1017/pilot/PG/assets/cache_yamls/n50_sp_chrg_k10.yaml",
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/PG/assets/cache_yamls/n50_sp_chrg_k20.yaml": "/home/exouser/xgpu_1017/pilot/PG/assets/cache_yamls/n50_sp_chrg_k20.yaml",
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/PG/assets/cache_yamls/n50_sp_chrg_k30.yaml": "/home/exouser/xgpu_1017/pilot/PG/assets/cache_yamls/n50_sp_chrg_k30.yaml",
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/PG/assets/cache_yamls/n50_sp_chrg_k40.yaml": "/home/exouser/xgpu_1017/pilot/PG/assets/cache_yamls/n50_sp_chrg_k40.yaml",
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/PG/assets/cache_yamls/n50_sp_chrg_k50.yaml": "/home/exouser/xgpu_1017/pilot/PG/assets/cache_yamls/n50_sp_chrg_k50.yaml",
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/PG/assets/client_trace.py": "/home/exouser/xgpu_1017/pilot/PG/assets/client_trace.py",
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/PG/assets/ffk_bootstrap.py": "/home/exouser/xgpu_1017/pilot/PG/assets/ffk_bootstrap.py",
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/PG/assets/ffk_evidence.py": "/home/exouser/xgpu_1017/pilot/PG/assets/ffk_evidence.py",
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/PG/assets/full.yaml": "/home/exouser/xgpu_1017/pilot/PG/assets/full.yaml",
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/PG/assets/load.json": "/home/exouser/xgpu_1017/pilot/PG/assets/load.json",
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/PG/assets/manifest.json": "/home/exouser/xgpu_1017/pilot/PG/assets/manifest.json",
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/PG/assets/model_manifest.json": "/home/exouser/xgpu_1017/pilot/PG/assets/model_manifest.json",
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/PG/assets/model_spec.json": "/home/exouser/xgpu_1017/pilot/PG/assets/model_spec.json",
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/PG/assets/pilot_readmap.py": "/home/exouser/xgpu_1017/pilot/PG/assets/pilot_readmap.py",
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/PG/assets/pilot_trace.py": "/home/exouser/xgpu_1017/pilot/PG/assets/pilot_trace.py",
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/PG/assets/selected_groups.json": "/home/exouser/xgpu_1017/pilot/PG/assets/selected_groups.json"
+    },
+    "schema": "xgpu.formal_pilot.v1",
+    "serving_pin": "90d1ff87805ac63a0fb793a5145d13f34ec2f5c92effe95bfdd51dba1a15d960",
+    "trace": "native client/ACK, all episodes, no RGB payloads"
+  }
+}

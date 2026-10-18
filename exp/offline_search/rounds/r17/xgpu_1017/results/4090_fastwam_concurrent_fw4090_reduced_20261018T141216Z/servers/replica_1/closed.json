@@ -1,0 +1,22 @@
+{
+  "batching": {
+    "batch_wait_ms": 5.0,
+    "byte_identical_to_b1": false,
+    "default_off": true,
+    "hardware_qualification": "see BATCHING.md and measurement receipt",
+    "identity": "c4a95a1a3acb492c6ad6798cb879cb86f78a0d9156dd2e65f296cb11edf7f3ff",
+    "max_batch": 16,
+    "numerics_policy": "native_bf16_batch_study_v1",
+    "quality_equivalence": "unverified; matched batched control required",
+    "stage_workers": [
+      1,
+      1,
+      1
+    ]
+  },
+  "elapsed_seconds": 264.9497288319981,
+  "peak_allocated_mib": 23794.82275390625,
+  "peak_reserved_mib": 23996.0,
+  "pid": 1531918,
+  "status": "CLOSED"
+}

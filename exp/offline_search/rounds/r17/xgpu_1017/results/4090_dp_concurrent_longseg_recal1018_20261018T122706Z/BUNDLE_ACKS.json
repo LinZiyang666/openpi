@@ -1,0 +1,110 @@
+[
+  {
+    "acknowledgment": {
+      "__ack__": "load_cache_config",
+      "bundle_id": "formal_full_v1",
+      "bundle_identity": "ba7e3f271bae3bffbabcdabaa1c8d596d611d6f78c0d452d290fac3e9618a338",
+      "version": 1,
+      "yaml_path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/concurrent/bundles/dp_longseg_recal1018/assets/full.yaml"
+    },
+    "group": {
+      "bundle_id": "formal_full_v1",
+      "file": "full.yaml",
+      "group": "pure"
+    }
+  },
+  {
+    "acknowledgment": {
+      "__ack__": "load_cache_config",
+      "bundle_id": "ls_libero_spatial_50_chrg_koff_41c39dd94430",
+      "bundle_identity": "a7bf1561a49abae0ceadf949ebad00156c3edb2fb577aeca08b68c239a8bb045",
+      "version": 2,
+      "yaml_path": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/concurrent/bundles/dp_longseg_recal1018/assets/cache_yamls/ls_libero_spatial_50_chrg_koff.yaml"
+    },
+    "group": {
+      "bundle_id": "ls_libero_spatial_50_chrg_koff_41c39dd94430",
+      "bundle_identity": "a7bf1561a49abae0ceadf949ebad00156c3edb2fb577aeca08b68c239a8bb045",
+      "file": "cache_yamls/ls_libero_spatial_50_chrg_koff.yaml",
+      "fit": "/data/r17_library/dp_libero_libero_spatial/bpool/fits/size_50",
+      "fit_digest": "b8be064da38686ea0049bcb521a8dc6bb8050cb1de471770493e156187d9b47b",
+      "fit_rel": "libero_spatial/n50_C10/fit",
+      "group": "chrg_koff",
+      "indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49
+      ],
+      "library": "/data/r17_library/dp_libero_libero_spatial/bpool",
+      "library_size": 50,
+      "num_trials_per_task": 50,
+      "periodic_gap": null,
+      "recipe_identity": "aa45af1b5b568abdc56d44d3a6813b86eb2506d121cadaec45486b576cf1e1a9",
+      "serve_loeo": false,
+      "settings": {
+        "alias": null,
+        "commit": 10,
+        "corrector": true,
+        "gated": true
+      },
+      "sha256": "f579429fdb7434ab73afa750d5b663796d32eb95c653c2c2e328f05c79cbb6f9",
+      "stall": "/data/mw_finetune/eval/fa_ls_dp_f_u_o_l/assets/q3_decision1018/ba45384fa850e10378799e8c579ed4972d8565a25e438dcdb79423ef97d38858",
+      "stall_digest": "940f3c05d3065b5709c96926b33912dbd841f99daf825da95291d47dfae063aa",
+      "stall_rel": "../q3_decision1018/ba45384fa850e10378799e8c579ed4972d8565a25e438dcdb79423ef97d38858",
+      "status": "ARTIFACTS_READY_MODEL_ADMISSION_PENDING",
+      "suite": "libero_spatial",
+      "task_namespace": {
+        "bundle_identity": "41c39dd94430bd64fcad0f5d842d071efe86478851c5ad02e250309707bbfe7c",
+        "recipe_identity": "ca8877963651398812e6777fa0863a4ff16bcca85f7b62ae36ca53b43c579ea5",
+        "yaml_identity": "1a359f1a9b0d38b91bb1f14effc5c9df8eb4b4ee6fea2fa89bc00b0e7f34ae84"
+      },
+      "view_rel": "libero_spatial/parent/subsets/size_50"
+    }
+  }
+]

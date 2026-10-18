@@ -1,0 +1,31 @@
+{
+  "arrays_sha256": "db2aa5057206555efbadf09c4b564747e488ee02eee9064a4cffd2a352dac9f1",
+  "native_dtypes": {
+    "a000000": "uint8",
+    "a000001": "float32"
+  },
+  "tree": {
+    "episode_start": true,
+    "executed_controls_since_last_query": 0,
+    "history": {},
+    "observation": {
+      "observation/image": {
+        "$array": "a000000"
+      },
+      "observation/state": {
+        "$array": "a000001"
+      },
+      "prompt": "Pick up a nut and place it onto a peg"
+    },
+    "request": {
+      "benchmark_protocol": "5200a59f91da158a9770543c831c570392aba126c6192d62755a134b224b8e48",
+      "campaign": "xgpu_MT50_capture",
+      "decision_seq": 0,
+      "explicit_seed": 24386954,
+      "original_init_idx": 0,
+      "seed": 7,
+      "task_id": 0,
+      "task_name": "assembly-v3"
+    }
+  }
+}

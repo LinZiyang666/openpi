@@ -1,0 +1,21 @@
+{
+  "base_prefix": "/home/weiland/.local/share/uv/python/cpython-3.10-linux-x86_64-gnu",
+  "bytes": 129622603,
+  "files": 2222,
+  "missing_distribution_metadata": [],
+  "packages": {
+    "contourpy": "1.3.2",
+    "cycler": "0.12.1",
+    "fonttools": "4.61.1",
+    "kiwisolver": "1.4.9",
+    "matplotlib": "3.10.8",
+    "numpy": "2.2.6",
+    "packaging": "25.0",
+    "pillow": "12.0.0",
+    "pyparsing": "3.2.5",
+    "python-dateutil": "2.9.0.post0",
+    "six": "1.17.0"
+  },
+  "python": "3.10.20 (main, Aug  7 2026, 02:25:15) [Clang 22.1.3 ]",
+  "site": "/home/weiland/projects/openpi_ext/lines/cosmos-policy/.venv/lib/python3.10/site-packages"
+}

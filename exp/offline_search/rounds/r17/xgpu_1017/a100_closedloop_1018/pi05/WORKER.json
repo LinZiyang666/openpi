@@ -1,0 +1,13 @@
+{
+  "env": {
+    "MKL_NUM_THREADS": "1",
+    "MUJOCO_EGL_DEVICE_ID": "0",
+    "MUJOCO_GL": "egl",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYOPENGL_PLATFORM": "egl",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "extra_paths": [],
+  "python": "/home/exouser/xgpu_1017/cl18/simenv/bin/python"
+}

@@ -1,0 +1,22 @@
+{
+  "snapshot": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/harnesses/b888fd3e5382df52f968f46d94bc1d92b28a7a6fad3cf7097be029fe3a290da5",
+  "receipt": {
+    "files": {
+      "artifacts.py": "80cd0a4b9b0249ea812039fd26f96a6219c97e12bda35843d8a5423182e63c2d",
+      "attention_control.py": "a51bcef321d14a80b4a162dd9c2ae325b8a607431aada6cc23753edba54915ee",
+      "batch_telemetry.py": "3fcb9ce5f6c2b71db98a4e0122826f0663b15d13fa205582f03ac68014077618",
+      "cache_files.py": "199ed283e48552dbbad3df7a870416ee33c1aab0532594bc1a2ceeb3ad6e7a89",
+      "cache_telemetry.py": "7b7eaf22c63168572442ff910ddc3f8f2865a21af22ec19a5e956f7f8fd69cb1",
+      "capture.py": "7c5af4017628fa55d46d372cd2c9a4d429b414604f02b0aa58463e36c0d47ba1",
+      "concurrent_clients.py": "82f61e30374f4c3349360b8bf31d8de0b852ec0ab241cdcf33cc32151c36e42d",
+      "concurrent_server.py": "0262abf091d4340fd29de011b87684b3cf3359e4b364739a2220d452b6836d4c",
+      "harness_snapshot.py": "b9d80494309155ce8d5f521b63bf571ea837f6d59477e9976c9d86d7161b0d06",
+      "inventory.py": "1dd9849e1b42919bc2148816a1b5c0a652b6e6269e7657b0c9d9012781174789",
+      "numerics_bootstrap.py": "941e735d3c0b8d0d1dc2bf4e21bd68e51e13ff4a9cc36b59357fab8240b5f242",
+      "replay.py": "d0421366642636c7be1ddd3f7da75fcab202dd333e84d2cc189737e909bf4c6b",
+      "run_concurrent.py": "78b4bf4c9f41528404c65151a21b461c68add7a392bcc9e60f517a1e0204e3dd"
+    },
+    "identity": "b888fd3e5382df52f968f46d94bc1d92b28a7a6fad3cf7097be029fe3a290da5",
+    "schema": "xgpu.harness.snapshot.v1"
+  }
+}

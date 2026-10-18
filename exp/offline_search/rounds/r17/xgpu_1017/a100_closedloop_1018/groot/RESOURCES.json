@@ -1,0 +1,31 @@
+{
+  "bulk_list": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/a100_closedloop_1018/groot/BULK.files",
+  "bytes": 14549737876,
+  "destination": "/home/exouser/xgpu_1017/cl18/models/groot/rootfs",
+  "files": 24790,
+  "interpreter": "/home/exouser/xgpu_1017/python/bin/python3.11",
+  "libero_asset_link": null,
+  "libero_assets": null,
+  "model": "groot",
+  "model_paths": {
+    "/data": "/home/exouser/xgpu_1017/cl18/models/groot/rootfs/data",
+    "/home/exouser/gr00t_n15": "/home/exouser/xgpu_1017/cl18/models/groot/rootfs/home/weiland/projects/openpi_ext/third_party/gr00t_n15",
+    "/home/weiland/projects/openpi_ext/third_party/gr00t_n15": "/home/exouser/xgpu_1017/cl18/models/groot/rootfs/home/weiland/projects/openpi_ext/third_party/gr00t_n15"
+  },
+  "python_version": "3.11",
+  "site": "/home/exouser/xgpu_1017/cl18/models/groot/rootfs/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/lib/python3.11/site-packages",
+  "symlinks": 0,
+  "worker": {
+    "env": {
+      "MKL_NUM_THREADS": "1",
+      "MUJOCO_EGL_DEVICE_ID": "0",
+      "MUJOCO_GL": "egl",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "PYOPENGL_PLATFORM": "egl",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "extra_paths": [],
+    "python": "/home/exouser/xgpu_1017/cl18/simenv/bin/python"
+  }
+}

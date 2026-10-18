@@ -1,0 +1,28 @@
+{
+  "closed": 1792345870.359446,
+  "commands": [
+    [
+      "rsync",
+      "-a",
+      "--bwlimit=16384",
+      "--exclude=__pycache__",
+      "--exclude=*.pyc",
+      "--include=/tools/***",
+      "--include=/pi05/",
+      "--include=/pi05/pure/***",
+      "--include=/pi05/cache/***",
+      "--include=/pi05/MODEL_PATHS.json",
+      "--include=/pi05/WORKER.json",
+      "--exclude=*",
+      "rsync://ziyanglin.com:29770/payload/",
+      "/home/exouser/xgpu_1017/cl18/"
+    ]
+  ],
+  "daemon_pid": 2141297,
+  "daemon_returncode": 0,
+  "io_after": "some avg10=0.34 avg60=0.97 avg300=1.45 total=41837535292\nfull avg10=0.34 avg60=0.97 avg300=1.43 total=41316934617\n",
+  "io_before": "some avg10=1.61 avg60=0.76 avg300=1.58 total=41835792472\nfull avg10=1.61 avg60=0.76 avg300=1.55 total=41315212204\n",
+  "model": "pi05",
+  "port": 29770,
+  "started": 1792345770.8282213
+}

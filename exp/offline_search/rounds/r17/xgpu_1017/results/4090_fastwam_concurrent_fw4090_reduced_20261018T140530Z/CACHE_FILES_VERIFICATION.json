@@ -1,0 +1,17 @@
+{
+  "before": {
+    "identity": "aa5cacc033b73fd71c03794bee8ee33fccbaddfb52d871311405ef6709d1ef7a",
+    "serving_pin": "90d1ff87805ac63a0fb793a5145d13f34ec2f5c92effe95bfdd51dba1a15d960",
+    "files": 9,
+    "bytes": 48223700,
+    "status": "PASS"
+  },
+  "status": "PASS",
+  "after": {
+    "identity": "aa5cacc033b73fd71c03794bee8ee33fccbaddfb52d871311405ef6709d1ef7a",
+    "serving_pin": "90d1ff87805ac63a0fb793a5145d13f34ec2f5c92effe95bfdd51dba1a15d960",
+    "files": 9,
+    "bytes": 48223700,
+    "status": "PASS"
+  }
+}

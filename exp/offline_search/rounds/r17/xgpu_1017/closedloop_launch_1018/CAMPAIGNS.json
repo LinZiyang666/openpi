@@ -1,0 +1,538 @@
+{
+  "autoscale": false,
+  "jobs": [
+    {
+      "analysis_plan": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P0/PAIRED_PLAN.json",
+      "arm": "pure",
+      "episodes": 500,
+      "free_gpu_gib": 44,
+      "gpu_hours_estimate_per_campaign": [
+        0.5,
+        1.0
+      ],
+      "host": "4090",
+      "model": "pi05",
+      "mps": [
+        "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P0/mps/b8fc37",
+        "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P0/mps/b8fc37/p",
+        "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P0/mps/b8fc37/l"
+      ],
+      "name": "xp4_pi05_pure",
+      "paired_analysis_plan_identity": "f322f2d1550d93442afb13877867666a349822e69178f8856812d4c4e0b016d1",
+      "plan_sha256": "eb9932097d293029290a107e0020043256e7ab08079e75bf12876228b5187f72",
+      "replicas": 4,
+      "root": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P0",
+      "worker_nodes": {
+        "timan1": 64,
+        "timan107": 48
+      },
+      "workers": 112
+    },
+    {
+      "analysis_plan": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P1/PAIRED_PLAN.json",
+      "arm": "cache",
+      "episodes": 500,
+      "free_gpu_gib": 44,
+      "gpu_hours_estimate_per_campaign": [
+        0.5,
+        1.0
+      ],
+      "host": "4090",
+      "model": "pi05",
+      "mps": [
+        "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P1/mps/b8fc37",
+        "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P1/mps/b8fc37/p",
+        "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P1/mps/b8fc37/l"
+      ],
+      "name": "xp4_pi05_cache",
+      "paired_analysis_plan_identity": "bc8f7c8c7a753b98d70cee1ab57e8231babe60ab36d1e459ef46bfda323ebfcf",
+      "plan_sha256": "60bd86907a5dd7ea4d14c6cf1da96784c1e1c1384017bab8520aab9826a5d035",
+      "replicas": 4,
+      "root": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P1",
+      "worker_nodes": {
+        "timan1": 64,
+        "timan107": 48
+      },
+      "workers": 112
+    },
+    {
+      "analysis_plan": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P2/PAIRED_PLAN.json",
+      "arm": "pure",
+      "episodes": 500,
+      "free_gpu_gib": 42,
+      "gpu_hours_estimate_per_campaign": [
+        0.5,
+        1.3
+      ],
+      "host": "4090",
+      "model": "groot",
+      "mps": [
+        "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P2/mps/b8fc37",
+        "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P2/mps/b8fc37/p",
+        "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P2/mps/b8fc37/l"
+      ],
+      "name": "xp4_groot_pure",
+      "paired_analysis_plan_identity": "d3b8c0f4ff8871da8da6756bc9b53c7e69b9f6c18b4baf028dc739626dca5ce4",
+      "plan_sha256": "c9106a5b1ee746e7e1f7e6f5bf99bcbc314c8dae8c72141e5728ca6b3a4e5302",
+      "replicas": 6,
+      "root": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P2",
+      "worker_nodes": {
+        "timan1": 20,
+        "timan107": 20
+      },
+      "workers": 40
+    },
+    {
+      "analysis_plan": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P3/PAIRED_PLAN.json",
+      "arm": "cache",
+      "episodes": 500,
+      "free_gpu_gib": 42,
+      "gpu_hours_estimate_per_campaign": [
+        0.5,
+        1.3
+      ],
+      "host": "4090",
+      "model": "groot",
+      "mps": [
+        "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P3/mps/b8fc37",
+        "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P3/mps/b8fc37/p",
+        "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P3/mps/b8fc37/l"
+      ],
+      "name": "xp4_groot_cache",
+      "paired_analysis_plan_identity": "8b371d0201b5293ef2214d13a2e7c11528be9247439a229bdc928790a8db2e8c",
+      "plan_sha256": "bfd44a0786ca93cc97e405bdf8e4c3202a6c8044e64fd1f8d2028bec01ff6fdd",
+      "replicas": 6,
+      "root": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P3",
+      "worker_nodes": {
+        "timan1": 20,
+        "timan107": 20
+      },
+      "workers": 40
+    },
+    {
+      "analysis_plan": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P4/PAIRED_PLAN.json",
+      "arm": "pure",
+      "episodes": 500,
+      "free_gpu_gib": 8,
+      "gpu_hours_estimate_per_campaign": [
+        0.25,
+        0.75
+      ],
+      "host": "4090",
+      "model": "dp",
+      "mps": [
+        "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P4/mps/b8fc37",
+        "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P4/mps/b8fc37/p",
+        "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P4/mps/b8fc37/l"
+      ],
+      "name": "xp4_dp_pure",
+      "paired_analysis_plan_identity": "a22d6f60f903cfc757ac8f0b24581e502451d664e42d5c4128a499d34d1488f5",
+      "plan_sha256": "f93ab5216009b5ba3c7a581a228cd359ac1c98185dd9ec801a3ed7910820361f",
+      "replicas": 4,
+      "root": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P4",
+      "worker_nodes": {
+        "timan107": 48
+      },
+      "workers": 48
+    },
+    {
+      "analysis_plan": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P5/PAIRED_PLAN.json",
+      "arm": "cache",
+      "episodes": 500,
+      "free_gpu_gib": 8,
+      "gpu_hours_estimate_per_campaign": [
+        0.25,
+        0.75
+      ],
+      "host": "4090",
+      "model": "dp",
+      "mps": [
+        "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P5/mps/b8fc37",
+        "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P5/mps/b8fc37/p",
+        "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P5/mps/b8fc37/l"
+      ],
+      "name": "xp4_dp_cache",
+      "paired_analysis_plan_identity": "4c38a59824c42d89bff8c0f88d8a533db31718d8d40533c0b6d92974a88a38f6",
+      "plan_sha256": "d9a4ccdedb0f3a0f5dc1c2c658126c12fa98a4990d04abe6a79d6353f6dceefd",
+      "replicas": 4,
+      "root": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P5",
+      "worker_nodes": {
+        "timan107": 48
+      },
+      "workers": 48
+    },
+    {
+      "analysis_plan": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P6/PAIRED_PLAN.json",
+      "arm": "pure",
+      "episodes": 500,
+      "free_gpu_gib": 42,
+      "gpu_hours_estimate_per_campaign": [
+        0.75,
+        1.5
+      ],
+      "host": "4090",
+      "model": "fastwam",
+      "mps": [
+        "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P6/mps/b8fc37",
+        "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P6/mps/b8fc37/p",
+        "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P6/mps/b8fc37/l"
+      ],
+      "name": "xp4_fastwam_pure",
+      "paired_analysis_plan_identity": "bfdf19a028b7f61acc7fbc2ad5f5bd0c8d4acb28d882f5a48b29f7030db9763a",
+      "plan_sha256": "aca1e756588701d38f933113408449677112d83d2e11e3a1e914a165eb341ed6",
+      "replicas": 2,
+      "root": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P6",
+      "worker_nodes": {
+        "timan107": 12
+      },
+      "workers": 12
+    },
+    {
+      "analysis_plan": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P7/PAIRED_PLAN.json",
+      "arm": "cache",
+      "episodes": 500,
+      "free_gpu_gib": 42,
+      "gpu_hours_estimate_per_campaign": [
+        0.75,
+        1.5
+      ],
+      "host": "4090",
+      "model": "fastwam",
+      "mps": [
+        "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P7/mps/b8fc37",
+        "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P7/mps/b8fc37/p",
+        "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P7/mps/b8fc37/l"
+      ],
+      "name": "xp4_fastwam_cache",
+      "paired_analysis_plan_identity": "9652fa55b7ccd8cb82a7b89a056a504a8f6d63d493cb9cc1dcbae0282fcabc1f",
+      "plan_sha256": "f232cdee67571e1599699b44acc5bbf44e17ea578fec1de8352bec6fa3c81b33",
+      "replicas": 2,
+      "root": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P7",
+      "worker_nodes": {
+        "timan107": 12
+      },
+      "workers": 12
+    },
+    {
+      "analysis_plan": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P8/PAIRED_PLAN.json",
+      "arm": "pure",
+      "episodes": 500,
+      "free_gpu_gib": 47,
+      "gpu_hours_estimate_per_campaign": [
+        0.75,
+        1.5
+      ],
+      "host": "4090",
+      "model": "cosmos",
+      "mps": [
+        "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P8/mps/b8fc37",
+        "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P8/mps/b8fc37/p",
+        "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P8/mps/b8fc37/l"
+      ],
+      "name": "xp4_cosmos_pure",
+      "paired_analysis_plan_identity": "7276b7ec0ab823facb0ded88f362d9df9b48c41f9dcbb8455330d7c0f0d25c21",
+      "plan_sha256": "54dd437c44483f17841614424f4934d79bba0aa93a08901aac2597043a53b091",
+      "replicas": 8,
+      "root": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P8",
+      "worker_nodes": {
+        "timan107": 44
+      },
+      "workers": 44
+    },
+    {
+      "analysis_plan": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P9/PAIRED_PLAN.json",
+      "arm": "cache",
+      "episodes": 500,
+      "free_gpu_gib": 47,
+      "gpu_hours_estimate_per_campaign": [
+        0.75,
+        1.5
+      ],
+      "host": "4090",
+      "model": "cosmos",
+      "mps": [
+        "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P9/mps/b8fc37",
+        "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P9/mps/b8fc37/p",
+        "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P9/mps/b8fc37/l"
+      ],
+      "name": "xp4_cosmos_cache",
+      "paired_analysis_plan_identity": "75057f58fc8071e2ee2bb230cdb988b8a23e67acfe3936468123468b1e719d09",
+      "plan_sha256": "9e711d41e0717d2314b62143fd053fef85417a691e17dfd186df1052a4adf393",
+      "replicas": 8,
+      "root": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/P9",
+      "worker_nodes": {
+        "timan107": 44
+      },
+      "workers": 44
+    },
+    {
+      "analysis_plan": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/PA/PAIRED_PLAN.json",
+      "arm": "pure",
+      "episodes": 500,
+      "free_gpu_gib": 44,
+      "gpu_hours_estimate_per_campaign": [
+        0.5,
+        1.0
+      ],
+      "host": "h100",
+      "model": "pi05",
+      "mps": [
+        "/home/exouser/xgpu_1017/pilot/PA/mps/b8fc37",
+        "/home/exouser/xgpu_1017/pilot/PA/mps/b8fc37/p",
+        "/home/exouser/xgpu_1017/pilot/PA/mps/b8fc37/l"
+      ],
+      "name": "xph_pi05_pure",
+      "paired_analysis_plan_identity": "f322f2d1550d93442afb13877867666a349822e69178f8856812d4c4e0b016d1",
+      "plan_sha256": "eb9932097d293029290a107e0020043256e7ab08079e75bf12876228b5187f72",
+      "replicas": 4,
+      "root": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/PA",
+      "worker_nodes": {
+        "timan1": 64,
+        "timan107": 48
+      },
+      "workers": 112
+    },
+    {
+      "analysis_plan": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/PB/PAIRED_PLAN.json",
+      "arm": "cache",
+      "episodes": 500,
+      "free_gpu_gib": 44,
+      "gpu_hours_estimate_per_campaign": [
+        0.5,
+        1.0
+      ],
+      "host": "h100",
+      "model": "pi05",
+      "mps": [
+        "/home/exouser/xgpu_1017/pilot/PB/mps/b8fc37",
+        "/home/exouser/xgpu_1017/pilot/PB/mps/b8fc37/p",
+        "/home/exouser/xgpu_1017/pilot/PB/mps/b8fc37/l"
+      ],
+      "name": "xph_pi05_cache",
+      "paired_analysis_plan_identity": "bc8f7c8c7a753b98d70cee1ab57e8231babe60ab36d1e459ef46bfda323ebfcf",
+      "plan_sha256": "60bd86907a5dd7ea4d14c6cf1da96784c1e1c1384017bab8520aab9826a5d035",
+      "replicas": 4,
+      "root": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/PB",
+      "worker_nodes": {
+        "timan1": 64,
+        "timan107": 48
+      },
+      "workers": 112
+    },
+    {
+      "analysis_plan": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/PC/PAIRED_PLAN.json",
+      "arm": "pure",
+      "episodes": 500,
+      "free_gpu_gib": 76,
+      "gpu_hours_estimate_per_campaign": [
+        0.3,
+        0.8
+      ],
+      "host": "h100",
+      "model": "groot",
+      "mps": [
+        "/home/exouser/xgpu_1017/pilot/PC/mps/b8fc37",
+        "/home/exouser/xgpu_1017/pilot/PC/mps/b8fc37/p",
+        "/home/exouser/xgpu_1017/pilot/PC/mps/b8fc37/l"
+      ],
+      "name": "xph_groot_pure",
+      "paired_analysis_plan_identity": "d3b8c0f4ff8871da8da6756bc9b53c7e69b9f6c18b4baf028dc739626dca5ce4",
+      "plan_sha256": "c9106a5b1ee746e7e1f7e6f5bf99bcbc314c8dae8c72141e5728ca6b3a4e5302",
+      "replicas": 11,
+      "root": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/PC",
+      "worker_nodes": {
+        "timan1": 20,
+        "timan107": 20
+      },
+      "workers": 40
+    },
+    {
+      "analysis_plan": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/PD/PAIRED_PLAN.json",
+      "arm": "cache",
+      "episodes": 500,
+      "free_gpu_gib": 76,
+      "gpu_hours_estimate_per_campaign": [
+        0.3,
+        0.8
+      ],
+      "host": "h100",
+      "model": "groot",
+      "mps": [
+        "/home/exouser/xgpu_1017/pilot/PD/mps/b8fc37",
+        "/home/exouser/xgpu_1017/pilot/PD/mps/b8fc37/p",
+        "/home/exouser/xgpu_1017/pilot/PD/mps/b8fc37/l"
+      ],
+      "name": "xph_groot_cache",
+      "paired_analysis_plan_identity": "8b371d0201b5293ef2214d13a2e7c11528be9247439a229bdc928790a8db2e8c",
+      "plan_sha256": "bfd44a0786ca93cc97e405bdf8e4c3202a6c8044e64fd1f8d2028bec01ff6fdd",
+      "replicas": 11,
+      "root": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/PD",
+      "worker_nodes": {
+        "timan1": 20,
+        "timan107": 20
+      },
+      "workers": 40
+    },
+    {
+      "analysis_plan": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/PE/PAIRED_PLAN.json",
+      "arm": "pure",
+      "episodes": 500,
+      "free_gpu_gib": 8,
+      "gpu_hours_estimate_per_campaign": [
+        0.25,
+        0.75
+      ],
+      "host": "h100",
+      "model": "dp",
+      "mps": [
+        "/home/exouser/xgpu_1017/pilot/PE/mps/b8fc37",
+        "/home/exouser/xgpu_1017/pilot/PE/mps/b8fc37/p",
+        "/home/exouser/xgpu_1017/pilot/PE/mps/b8fc37/l"
+      ],
+      "name": "xph_dp_pure",
+      "paired_analysis_plan_identity": "a22d6f60f903cfc757ac8f0b24581e502451d664e42d5c4128a499d34d1488f5",
+      "plan_sha256": "f93ab5216009b5ba3c7a581a228cd359ac1c98185dd9ec801a3ed7910820361f",
+      "replicas": 4,
+      "root": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/PE",
+      "worker_nodes": {
+        "timan107": 48
+      },
+      "workers": 48
+    },
+    {
+      "analysis_plan": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/PF/PAIRED_PLAN.json",
+      "arm": "cache",
+      "episodes": 500,
+      "free_gpu_gib": 8,
+      "gpu_hours_estimate_per_campaign": [
+        0.25,
+        0.75
+      ],
+      "host": "h100",
+      "model": "dp",
+      "mps": [
+        "/home/exouser/xgpu_1017/pilot/PF/mps/b8fc37",
+        "/home/exouser/xgpu_1017/pilot/PF/mps/b8fc37/p",
+        "/home/exouser/xgpu_1017/pilot/PF/mps/b8fc37/l"
+      ],
+      "name": "xph_dp_cache",
+      "paired_analysis_plan_identity": "4c38a59824c42d89bff8c0f88d8a533db31718d8d40533c0b6d92974a88a38f6",
+      "plan_sha256": "d9a4ccdedb0f3a0f5dc1c2c658126c12fa98a4990d04abe6a79d6353f6dceefd",
+      "replicas": 4,
+      "root": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/PF",
+      "worker_nodes": {
+        "timan107": 48
+      },
+      "workers": 48
+    },
+    {
+      "analysis_plan": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/PG/PAIRED_PLAN.json",
+      "arm": "pure",
+      "episodes": 500,
+      "free_gpu_gib": 42,
+      "gpu_hours_estimate_per_campaign": [
+        0.75,
+        1.5
+      ],
+      "host": "h100",
+      "model": "fastwam",
+      "mps": [
+        "/home/exouser/xgpu_1017/pilot/PG/mps/b8fc37",
+        "/home/exouser/xgpu_1017/pilot/PG/mps/b8fc37/p",
+        "/home/exouser/xgpu_1017/pilot/PG/mps/b8fc37/l"
+      ],
+      "name": "xph_fastwam_pure",
+      "paired_analysis_plan_identity": "bfdf19a028b7f61acc7fbc2ad5f5bd0c8d4acb28d882f5a48b29f7030db9763a",
+      "plan_sha256": "aca1e756588701d38f933113408449677112d83d2e11e3a1e914a165eb341ed6",
+      "replicas": 2,
+      "root": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/PG",
+      "worker_nodes": {
+        "timan107": 12
+      },
+      "workers": 12
+    },
+    {
+      "analysis_plan": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/PH/PAIRED_PLAN.json",
+      "arm": "cache",
+      "episodes": 500,
+      "free_gpu_gib": 42,
+      "gpu_hours_estimate_per_campaign": [
+        0.75,
+        1.5
+      ],
+      "host": "h100",
+      "model": "fastwam",
+      "mps": [
+        "/home/exouser/xgpu_1017/pilot/PH/mps/b8fc37",
+        "/home/exouser/xgpu_1017/pilot/PH/mps/b8fc37/p",
+        "/home/exouser/xgpu_1017/pilot/PH/mps/b8fc37/l"
+      ],
+      "name": "xph_fastwam_cache",
+      "paired_analysis_plan_identity": "9652fa55b7ccd8cb82a7b89a056a504a8f6d63d493cb9cc1dcbae0282fcabc1f",
+      "plan_sha256": "f232cdee67571e1599699b44acc5bbf44e17ea578fec1de8352bec6fa3c81b33",
+      "replicas": 2,
+      "root": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/PH",
+      "worker_nodes": {
+        "timan107": 12
+      },
+      "workers": 12
+    },
+    {
+      "analysis_plan": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/PI/PAIRED_PLAN.json",
+      "arm": "pure",
+      "episodes": 500,
+      "free_gpu_gib": 76,
+      "gpu_hours_estimate_per_campaign": [
+        0.5,
+        1.0
+      ],
+      "host": "h100",
+      "model": "cosmos",
+      "mps": [
+        "/home/exouser/xgpu_1017/pilot/PI/mps/b8fc37",
+        "/home/exouser/xgpu_1017/pilot/PI/mps/b8fc37/p",
+        "/home/exouser/xgpu_1017/pilot/PI/mps/b8fc37/l"
+      ],
+      "name": "xph_cosmos_pure",
+      "paired_analysis_plan_identity": "7276b7ec0ab823facb0ded88f362d9df9b48c41f9dcbb8455330d7c0f0d25c21",
+      "plan_sha256": "54dd437c44483f17841614424f4934d79bba0aa93a08901aac2597043a53b091",
+      "replicas": 8,
+      "root": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/PI",
+      "worker_nodes": {
+        "timan107": 44
+      },
+      "workers": 44
+    },
+    {
+      "analysis_plan": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/PJ/PAIRED_PLAN.json",
+      "arm": "cache",
+      "episodes": 500,
+      "free_gpu_gib": 76,
+      "gpu_hours_estimate_per_campaign": [
+        0.5,
+        1.0
+      ],
+      "host": "h100",
+      "model": "cosmos",
+      "mps": [
+        "/home/exouser/xgpu_1017/pilot/PJ/mps/b8fc37",
+        "/home/exouser/xgpu_1017/pilot/PJ/mps/b8fc37/p",
+        "/home/exouser/xgpu_1017/pilot/PJ/mps/b8fc37/l"
+      ],
+      "name": "xph_cosmos_cache",
+      "paired_analysis_plan_identity": "75057f58fc8071e2ee2bb230cdb988b8a23e67acfe3936468123468b1e719d09",
+      "plan_sha256": "9e711d41e0717d2314b62143fd053fef85417a691e17dfd186df1052a4adf393",
+      "replicas": 8,
+      "root": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/PJ",
+      "worker_nodes": {
+        "timan107": 44
+      },
+      "workers": 44
+    }
+  ],
+  "launches": 0,
+  "plan_checks": "evidence/pilot_plan_finalcheck_1018.json",
+  "schema": "xgpu.formal.pilots.v1",
+  "status": "CPU_READY_REMOTE_PREPARE_AND_LAUNCH_PENDING",
+  "tests": "evidence/pilot_cpu_suites_1018.json"
+}

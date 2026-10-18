@@ -1,0 +1,34 @@
+{
+  "arrays_sha256": "640de1197243da44a7607d04e5142f1434c2c48059906646ea44c83f16bb7b95",
+  "native_dtypes": {
+    "a000000": "uint8",
+    "a000001": "uint8",
+    "a000002": "float32"
+  },
+  "tree": {
+    "episode_start": true,
+    "history": {},
+    "observation": {
+      "observation/image": {
+        "$array": "a000000"
+      },
+      "observation/state": {
+        "$array": "a000002"
+      },
+      "observation/wrist_image": {
+        "$array": "a000001"
+      },
+      "prompt": "pick up the black bowl between the plate and the ramekin and place it on the plate"
+    },
+    "request": {
+      "benchmark_protocol": "87e3a7dce0d452269383ea20c144848987c393df7bde4c22628abf8a084f21bf",
+      "campaign": "xgpu_1017_recorded",
+      "decision_seq": 0,
+      "explicit_seed": 1530692407,
+      "original_init_idx": 0,
+      "seed": 7,
+      "task_id": 0,
+      "task_name": "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate"
+    }
+  }
+}

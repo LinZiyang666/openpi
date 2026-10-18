@@ -1,0 +1,365 @@
+{
+  "assets": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/concurrent/bundles/dp_longseg_recal1018/assets",
+  "backend_host": "127.0.0.1",
+  "backend_ports": [
+    29601,
+    29602,
+    29603,
+    29604
+  ],
+  "cache_control": "/data/mw_finetune/eval/hs5dp_ctl_142812",
+  "cache_control_proof": {
+    "completion": {
+      "accepted_episodes": 2000,
+      "error_attempts": 0,
+      "recovered_retried_errors": false,
+      "recovered_worker_shutdown": false,
+      "resolved_retry_errors": [],
+      "returncode": 0,
+      "verified_completion": true
+    },
+    "control": "/data/mw_finetune/eval/hs5dp_ctl_142812",
+    "local_worker_exception": null,
+    "non_r17_code_inherited": true,
+    "recovery": null,
+    "runtime_source": "/data/mw_finetune/eval/hs5dp_ctl_142812",
+    "schema": "r17.cache_control.v1",
+    "source_pins": {
+      "/data/mw_finetune/eval/hs5dp_ctl_142812/RECEIPT.json": "78388a3cbd164c21f9e9df911ca4556e66a057b241c7513b01735ce3cf1c6a7c",
+      "/data/mw_finetune/eval/hs5dp_ctl_142812/SUMMARY.json": "db5716a3a79500a00e441a6f6348c67882f46ca1cf2a012600c4803e2291af7a",
+      "/data/mw_finetune/eval/hs5dp_ctl_142812/assets/benchmark.json": "cf428cb5d8d20a8ebf66e0c37b10f9816dda37f33289f82e5598f81d6ba4cf36",
+      "/data/mw_finetune/eval/hs5dp_ctl_142812/assets/model_manifest.json": "5c888aaa945eb4b07fbff23bbdc18f8ff965cb8a262ba152ba15c795a7b9d47f",
+      "/data/mw_finetune/eval/hs5dp_ctl_142812/assets/model_spec.json": "75f593ed0270a9d9d8ccefcabae70cd5fd58779b87da48b40d15979b19a56169",
+      "/data/mw_finetune/eval/hs5dp_ctl_142812/campaign.json": "4c295ab0743d9bb76f3b9fb556b10ad62c01cc37ceda7219989fa3aa79387d3d",
+      "/data/mw_finetune/eval/hs5dp_ctl_142812/driver/DRIVER_RECEIPT.json": "d7a9af260a3c6f9f40d6da998e148aee38df062748699e8da7d5ca1865669fc8",
+      "/data/mw_finetune/eval/hs5dp_ctl_142812/driver/journal.jsonl": "af8c3e07b9438e415610aabeef2e68f2774630644b06de02a69fc8c5d1f64c3a",
+      "/data/mw_finetune/eval/hs5dp_ctl_142812/runtime.tar": "d3cd215878e039631765c67f9b3e3f51951da52c0b1a3f777e0db6edd2aa389c",
+      "/data/mw_finetune/eval/hs5dp_ctl_142812/workers.tar": "e9d40ea8b0f96d1cf1b4c6829ad2f6e358d72fe9d8c69e156328d3102a06304d"
+    },
+    "worker_resource_changes": {
+      "replicas": {
+        "campaign": 4,
+        "control": 2,
+        "reason": "owner cache capacity request; gated MISS batch composition may change"
+      }
+    },
+    "worker_topology_changes": {
+      "worker_nodes": {
+        "campaign": {
+          "local": 48
+        },
+        "control": {
+          "timan107": 32
+        }
+      }
+    }
+  },
+  "cache_control_runtime": "/data/mw_finetune/eval/hs5dp_ctl_142812",
+  "cache_plan_name": "knobtestdp",
+  "cache_study": "/data/mw_finetune/eval/fa_ls_dp_f_u_o_l/STUDY.json",
+  "cache_worker_orchestration": {
+    "cache_ram_floor_mib": 4096,
+    "cached_actions_unchanged": true,
+    "local_renderer_vram_mib": 1024,
+    "local_server_growth_mib": null,
+    "miss_batch_composition_may_change": true,
+    "owner_authorized": true,
+    "replicas": 4,
+    "schema": "r17.cache_worker_orchestration.v1",
+    "scientific_settings_unchanged": true,
+    "source_nodes": {
+      "local": 48
+    },
+    "source_replicas": 4,
+    "source_total_workers": 48,
+    "total_workers": 48,
+    "worker_nodes": {
+      "timan1": 24,
+      "timan107": 24
+    }
+  },
+  "checkpoint": "/data/mw_finetune/dp/libero_policy_100000",
+  "coordinator_runtime": "/data/mw_finetune/qualification/formal_runtime_5927a753312bf5981cba81a2e389edea914bde0580523b0dc3c8ea8d58f1fa1e",
+  "device": "cuda:0",
+  "domain": "libero",
+  "dp_batching": {
+    "arm_steps": [
+      100,
+      10,
+      5
+    ],
+    "batch_wait_ms": 5.0,
+    "byte_identical_to_b1": false,
+    "default_off": true,
+    "identity": "196635a760a15128de6771da718c7ade5612ba79cad9802eefec2e3a3239949a",
+    "language_policy": "frozen CPU B1 prompt embeddings memoized by exact text; 128-entry bound",
+    "max_batch": 8,
+    "noise_policy": "per-request sequential B1 initial/posterior draws; independent of members/order",
+    "numerics_policy": "dp_private_rng_vector_v1",
+    "quality_equivalence": "requires matched-batch control SR; not established by throughput",
+    "stage_workers": [
+      1,
+      1,
+      1
+    ]
+  },
+  "driver_host": "ziyanglin.com",
+  "driver_mode": "group-commit",
+  "driver_module": "exp.r17_integration.ops.formal_driver_fast",
+  "driver_port": 23139,
+  "driver_public_port": 23139,
+  "driver_runtime": "/data/mw_finetune/qualification/formal_driver_5927a753312bf5981cba81a2e389edea914bde0580523b0dc3c8ea8d58f1fa1e",
+  "endpoint": "127.0.0.1:29600",
+  "endpoint_host": "127.0.0.1",
+  "endpoint_port": 29600,
+  "episode_seconds": 1800,
+  "execution_worker_nodes": {
+    "timan1": 24,
+    "timan107": 24
+  },
+  "execution_workers": 48,
+  "ffk_bootstrap_sha256": "4e07fb3ecbfbc15000886cdaeb6cc16da2fbd346e045df22ad8ac77a1e5e4f5e",
+  "ffk_dp_capacity_bridge": false,
+  "ffk_evidence_sha256": "b7c5d06ef219e18387a03f83e438804049d8eab7440d09a81ec970eb6c0c3813",
+  "filter_failed_knob": {
+    "arm": "unfiltered",
+    "cells": {
+      "libero_10/100": {
+        "candidate_view": "/data/r17_library/libero/dp/libero_10/bpool/subsets/size_100_keep_success_1015_norefit/VIEW.json",
+        "collected": 100,
+        "empty_tasks": [],
+        "failed": 18,
+        "kept": 82,
+        "labels": "/data/r17_library/libero/dp/libero_10/bpool/READY.json#metadata.episodes"
+      },
+      "libero_10/200": {
+        "candidate_view": "/data/r17_library/libero/dp/libero_10/bpool/subsets/size_200_keep_success_1015_norefit/VIEW.json",
+        "collected": 200,
+        "empty_tasks": [],
+        "failed": 36,
+        "kept": 164,
+        "labels": "/data/r17_library/libero/dp/libero_10/bpool/READY.json#metadata.episodes"
+      },
+      "libero_10/300": {
+        "candidate_view": "/data/r17_library/libero/dp/libero_10/bpool/subsets/size_300_keep_success_1015_norefit/VIEW.json",
+        "collected": 300,
+        "empty_tasks": [],
+        "failed": 55,
+        "kept": 245,
+        "labels": "/data/r17_library/libero/dp/libero_10/bpool/READY.json#metadata.episodes"
+      },
+      "libero_10/400": {
+        "candidate_view": "/data/r17_library/libero/dp/libero_10/bpool/subsets/size_400_keep_success_1015_norefit/VIEW.json",
+        "collected": 400,
+        "empty_tasks": [],
+        "failed": 70,
+        "kept": 330,
+        "labels": "/data/r17_library/libero/dp/libero_10/bpool/READY.json#metadata.episodes"
+      },
+      "libero_10/50": {
+        "candidate_view": "/data/r17_library/libero/dp/libero_10/bpool/subsets/size_50_keep_success_1015_norefit/VIEW.json",
+        "collected": 50,
+        "empty_tasks": [],
+        "failed": 8,
+        "kept": 42,
+        "labels": "/data/r17_library/libero/dp/libero_10/bpool/READY.json#metadata.episodes"
+      },
+      "libero_10/500": {
+        "candidate_view": "/data/r17_library/libero/dp/libero_10/bpool/subsets/size_500_keep_success_1015_norefit/VIEW.json",
+        "collected": 500,
+        "empty_tasks": [],
+        "failed": 95,
+        "kept": 405,
+        "labels": "/data/r17_library/libero/dp/libero_10/bpool/READY.json#metadata.episodes"
+      },
+      "libero_spatial/100": {
+        "candidate_view": "/data/r17_library/libero/dp/libero_spatial/bpool/subsets/size_100_keep_success_1015_norefit/VIEW.json",
+        "collected": 100,
+        "empty_tasks": [],
+        "failed": 16,
+        "kept": 84,
+        "labels": "/data/r17_library/libero/dp/libero_spatial/bpool/READY.json#metadata.episodes"
+      },
+      "libero_spatial/200": {
+        "candidate_view": "/data/r17_library/libero/dp/libero_spatial/bpool/subsets/size_200_keep_success_1015_norefit/VIEW.json",
+        "collected": 200,
+        "empty_tasks": [],
+        "failed": 23,
+        "kept": 177,
+        "labels": "/data/r17_library/libero/dp/libero_spatial/bpool/READY.json#metadata.episodes"
+      },
+      "libero_spatial/300": {
+        "candidate_view": "/data/r17_library/libero/dp/libero_spatial/bpool/subsets/size_300_keep_success_1015_norefit/VIEW.json",
+        "collected": 300,
+        "empty_tasks": [],
+        "failed": 35,
+        "kept": 265,
+        "labels": "/data/r17_library/libero/dp/libero_spatial/bpool/READY.json#metadata.episodes"
+      },
+      "libero_spatial/400": {
+        "candidate_view": "/data/r17_library/libero/dp/libero_spatial/bpool/subsets/size_400_keep_success_1015_norefit/VIEW.json",
+        "collected": 400,
+        "empty_tasks": [],
+        "failed": 51,
+        "kept": 349,
+        "labels": "/data/r17_library/libero/dp/libero_spatial/bpool/READY.json#metadata.episodes"
+      },
+      "libero_spatial/50": {
+        "candidate_view": "/data/r17_library/libero/dp/libero_spatial/bpool/subsets/size_50_keep_success_1015_norefit/VIEW.json",
+        "collected": 50,
+        "empty_tasks": [],
+        "failed": 8,
+        "kept": 42,
+        "labels": "/data/r17_library/libero/dp/libero_spatial/bpool/READY.json#metadata.episodes"
+      },
+      "libero_spatial/500": {
+        "candidate_view": "/data/r17_library/libero/dp/libero_spatial/bpool/subsets/size_500_keep_success_1015_norefit/VIEW.json",
+        "collected": 500,
+        "empty_tasks": [],
+        "failed": 64,
+        "kept": 436,
+        "labels": "/data/r17_library/libero/dp/libero_spatial/bpool/READY.json#metadata.episodes"
+      }
+    },
+    "method": "frozen_fit_candidate_rows_only",
+    "refit": false,
+    "selection": {},
+    "source": "/data/mw_finetune/eval/knobtestdp"
+  },
+  "filter_failed_source": "/data/mw_finetune/eval/knobtestdp",
+  "live_k": 4,
+  "local_assets": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/concurrent/bundles/dp_longseg_recal1018/assets",
+  "local_worker_memory_mib": 4096,
+  "local_worker_vram_mib": 1024,
+  "longseg_1017": {
+    "Q3_recalibrated": true,
+    "bootstrap_sha256": "4e07fb3ecbfbc15000886cdaeb6cc16da2fbd346e045df22ad8ac77a1e5e4f5e",
+    "calibration_quantum": "C10 decision units exec=commit=1; C5 unchanged",
+    "clock_unit": "segment_decision",
+    "corrector_unchanged": true,
+    "no_refit": false,
+    "recalibration": {
+      "C5_artifacts_unchanged": true,
+      "Q3": "successful-library empirical q90/q10 LOEO; decision stride",
+      "artifact_digests": [
+        "02c7fd106b260bac3586ca910bfe7823647083b3ebfdd8da86c6cb72111ce894",
+        "1a2c75b1088c71f24e9fc18c1d4b79cba32a121e7a94ef0505dd66a86d055ed3",
+        "250f7eed3cb4dc7147d7824ebc31583e07d003d54622b029ec673e4705b2fce7",
+        "33cacf18f318030ccc7faef8a31518e73c80d7fad1baf72f45073e9f75a97643",
+        "4a92d8da02b0186040446f1f181ca69db82bddd15fe0bbfefd668de1e30b6b6d",
+        "4e53c81ed3c1dae9ce33b408b75fa8acf14c1e0653d4f3ab817ec4d90ac623c2",
+        "59bad8456761bc2884ee3f8739429b5c6b129bed51bea62f6bf8e804eb792ccf",
+        "8ff32c9a9345c6bd735b469ead1de9a67e957390b428f40e14d95fdd508e9f05",
+        "940f3c05d3065b5709c96926b33912dbd841f99daf825da95291d47dfae063aa",
+        "9f35a9f26cc82f6372032376839d19aa9b19e019235afa5852932538a098c65d",
+        "b3de4ef75c05b86560d736e9bb5908c59385cdcbb253759312a42b6df450a704",
+        "ba8f173460dff55f0a63f2b566117a9e4da1b0d960f1850ba74819162a305345"
+      ],
+      "clock_unit": "segment_decision",
+      "level_ir": "M/N_heads",
+      "levels_outside_tolerance": [],
+      "tolerance": 0.005
+    },
+    "retrieval_fit_unchanged": true,
+    "tails": "delivery_only",
+    "transport_rebind": {
+      "destination": {
+        "driver_port": 23139,
+        "endpoint": "ziyanglin.com:23130",
+        "endpoint_host": "ziyanglin.com",
+        "endpoint_port": 23130,
+        "public_port": 23130
+      },
+      "model_serving_R_B_MPS_unchanged": true,
+      "reason": "Forward remote workers through native direct-port range; isolate H100 driver from 4090 server/driver ports",
+      "source": {
+        "driver_port": 23110,
+        "endpoint": "127.0.0.1:23400",
+        "endpoint_host": "127.0.0.1",
+        "endpoint_port": 23400,
+        "public_port": 23400
+      },
+      "task_identity_unchanged": true
+    }
+  },
+  "longseg_1017_input_roots": [
+    "/data/mw_finetune/eval/ffk1015_dp_libero_full_formal_A_original/assets/cache_inputs"
+  ],
+  "memory_budget_gib": 40.0,
+  "model": "dp",
+  "mps": {
+    "active_thread_percentage": 100,
+    "compute_mode_change": false,
+    "enabled": true,
+    "private_per_campaign_gpu": true,
+    "schema": "r17.mps.v1"
+  },
+  "native_parity_only": false,
+  "official_50": true,
+  "ports": [
+    29600,
+    29601,
+    29602,
+    29603,
+    29604
+  ],
+  "prepare_only": true,
+  "public_port": 29600,
+  "replica_startup_width": 1,
+  "replicas": 4,
+  "retries": 2,
+  "run_name": "xgpu_4090_dp_concurrent_longseg_recal1018_20261018T123059Z",
+  "runtime": "/data/mw_finetune/qualification/formal_runtime_5927a753312bf5981cba81a2e389edea914bde0580523b0dc3c8ea8d58f1fa1e",
+  "runtime_from": "/data/mw_finetune/eval/knobtestdp",
+  "runtime_identity": "5927a753312bf5981cba81a2e389edea914bde0580523b0dc3c8ea8d58f1fa1e",
+  "seconds": 518400,
+  "server_node": "local",
+  "server_python": "/home/weiland/projects/openpi/.venv/bin/python",
+  "server_run": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/results/4090_dp_concurrent_longseg_recal1018_20261018T123059Z/servers",
+  "smoke": false,
+  "smoke_episodes": 4,
+  "suites": [
+    "libero_spatial",
+    "libero_10"
+  ],
+  "timan1_worker_lease": {
+    "device": 2,
+    "device_minor": 1,
+    "excluded_devices": [
+      0,
+      1,
+      3
+    ],
+    "maximum_workers": 83,
+    "pci": "0000:81:00.0",
+    "schema": "r17.timan1_gpu2_lease.v1",
+    "uuid": "GPU-9bdcf7cc-8a05-a7f9-b1c3-4d53d0a229df",
+    "worker_max_episodes": 4,
+    "worker_memory_mib": 2048,
+    "worker_vram_mib": 530,
+    "workers": 24
+  },
+  "vendor": "/home/weiland/projects/openpi_ext/third_party/gr00t_n15",
+  "worker_egl_device": 0,
+  "worker_egl_devices": null,
+  "worker_max_episodes": 4,
+  "worker_memory_mib": 2048,
+  "worker_min_free_gib": 8,
+  "worker_nodes": {
+    "local": 48
+  },
+  "worker_restart_limit": 2,
+  "worker_vram_mib": 717,
+  "workers": 48,
+  "xgpu_batch_telemetry": true,
+  "xgpu_numerics": [
+    "tf32_off"
+  ],
+  "xgpu_probe": {
+    "allocation_budget_changed": false,
+    "no_lane_mutation": true,
+    "no_workers_started": true,
+    "source_replicas": 4,
+    "topology_changed": false
+  }
+}

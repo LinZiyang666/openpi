@@ -1,0 +1,218 @@
+{
+  "assets": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/closedloop_pilot_1018/pi05/pure/assets",
+  "backend_ports": [
+    23151,
+    23152,
+    23153,
+    23154
+  ],
+  "cache_plan_name": "xgpu_preregister_v1_pi05",
+  "cache_study": false,
+  "cache_worker_orchestration": {
+    "cache_ram_floor_mib": 4096,
+    "cached_actions_unchanged": true,
+    "local_renderer_vram_mib": 1024,
+    "local_server_growth_mib": null,
+    "miss_batch_composition_may_change": true,
+    "owner_authorized": true,
+    "replicas": 4,
+    "schema": "r17.cache_worker_orchestration.v1",
+    "scientific_settings_unchanged": true,
+    "source_nodes": {
+      "timan107": 40
+    },
+    "source_replicas": 3,
+    "source_total_workers": 40,
+    "total_workers": 112,
+    "worker_nodes": {
+      "local": 32,
+      "timan107": 80
+    }
+  },
+  "cache_worker_refresh": {
+    "archive": "/data/mw_finetune/eval/pimk1_fulc4/.startup_inputs/workers.tar",
+    "archive_sha256": "aaa245de8220b8ea2ae2ea46ff27951f65db6faab537954a31eec832c0c34ef6",
+    "files": {
+      "exp/r17_integration/ops/formal_workers.py": "f7f59a9da55c82db9be066390b6e1e9c8a3eee22ebd2d0bbc43ca8917c7fbc59",
+      "exp/r17_integration/ops/worker_disk.py": "c39724e03307bfa094d61fdff82016bcb23b6e0fc739632e3d49e758148eb9dd",
+      "exp/r17_integration/ops/worker_gpu.py": "9e4e395dc42b42c97b94d221bf010f2a989429fa06107239f54a40960aa35a1c"
+    }
+  },
+  "checkpoint": "/data/ckpt/pi05_metaworld_rlinf",
+  "device": "cuda:0",
+  "domain": "metaworld",
+  "driver_host": "ziyanglin.com",
+  "driver_mode": "group-commit",
+  "driver_module": "exp.r17_integration.ops.formal_driver_fast",
+  "driver_port": 29690,
+  "driver_public_port": 23159,
+  "driver_runtime": "/data/mw_finetune/qualification/formal_driver_51bbb2fd4d62b935f4cc0234275fd4dc58898d0038f151877e699188b1743bfc",
+  "endpoint": "127.0.0.1:29600",
+  "endpoint_host": "127.0.0.1",
+  "endpoint_port": 29600,
+  "episode_seconds": 1800,
+  "eval_pool": "A",
+  "execution_worker_nodes": {
+    "local": 32,
+    "timan107": 80
+  },
+  "execution_workers": 112,
+  "init_count": 10,
+  "library": false,
+  "live_k": 4,
+  "local_assets": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/closedloop_pilot_1018/pi05/pure/assets",
+  "local_worker_exception": {
+    "host": "weilandserver",
+    "model_sampler_server_unchanged": true,
+    "node": "local",
+    "schema": "r17.local_worker_exception.v1",
+    "scope": "LIBERO cache study and its renderer smoke",
+    "study_date": "2026-10-10",
+    "workers": {
+      "local": 32,
+      "timan107": 80
+    }
+  },
+  "local_worker_memory_mib": 2048,
+  "local_worker_vram_mib": 1024,
+  "memory_budget_gib": 40.0,
+  "model": "pi05",
+  "mps": {
+    "active_thread_percentage": 100,
+    "compute_mode_change": false,
+    "enabled": true,
+    "private_per_campaign_gpu": true,
+    "schema": "r17.mps.v1"
+  },
+  "native_parity_only": false,
+  "official_50": false,
+  "orchestration": {
+    "baseline": {
+      "files": {
+        "exp/r17_integration/conductor/driver.py": "4218b0c07a5dd7b7fdd0bf6830919c9a7549ed2b2b4dcce298d8ce3e8e5d1a92",
+        "exp/r17_integration/conductor/manifest.py": "327a9195c4a42120e460bf91392a173e7cfc9c8a03eddbe5067acf3e13bfeb6b",
+        "exp/r17_integration/conductor/queue.py": "be495f6bcde979266c6bd06ed1dec5163f5c0324cba2f2d1e335bb04c90bd3a2",
+        "exp/r17_integration/conductor/strategy.py": "61150d6e51dc646e2a75949d6d6f51a4a771eed98539172b2251702bd6c925f5",
+        "exp/r17_integration/conductor/worker_entry.py": "f02a49707a14f9ef503cc9b4dffbaed30c88f2e0d2d38d72baaedf300799ca70",
+        "exp/r17_integration/ops/cache_driver_legacy.py": "69a46f022fc472195f468dc303e1627540e2ea8ea1656fb38c253175eb694a81",
+        "exp/r17_integration/ops/cache_resume.py": "e78d260db7e3ee2e1c056043f7d1fd5be3d5ea44c9f5f506e9361472b5d804f2",
+        "exp/r17_integration/ops/cache_study.py": "c489582b3324a4719d58c4a3a46e016fea64b1f95b1d01e609a1f50b70271a93",
+        "exp/r17_integration/ops/formal_driver.py": "114dca2dddcf8eb225f9fbe019c5e9fe10d098231ddce6c7d66c3cffcede5398",
+        "exp/r17_integration/ops/formal_eval.py": "2d402e1de72368d9e78854830c724036b0a92e4bf9b48fa38212053bec15037c",
+        "exp/r17_integration/ops/live_fleet_driver.py": "879716ddfabcad056baa3e249eaf5fc1efe8265627f9bc4eda1aefc527f5a1c0",
+        "exp/r17_integration/ops/live_fleet_worker.py": "b8edf9152b6adc4d4d945a2562b9e38010071c6afaff757364e3a3eae94ff7fe",
+        "exp/r17_integration/ops/live_fleets.py": "e201d79eaf57f598f6c82ecd8ff2faf3f02ee3127b455de2af567e92e8cbed5f",
+        "exp/r17_integration/qualification/driver.py": "06257104d1b307c7196b36583a43a0b651fea8c3fed6494c9f3ecc44f4c142a7",
+        "src/openpi/conductor/__init__.py": "fa50b35cf43b695036181624b161b0a3415c55bdad524b70c5b8a711d238ab48",
+        "src/openpi/conductor/agent.py": "9e39391d7c1412446abee160f6d0280be940150293dd0399ee769a5e6072d3d2",
+        "src/openpi/conductor/driver.py": "fb50124bee79924591cb690dcf31a6e4a24a771b8beb6f3515ad21b2d040ba8a",
+        "src/openpi/conductor/health.py": "ffea06a3bfc5f95f7da1a9abc2626c1be135dd912c0245a6794487c5b1903a44",
+        "src/openpi/conductor/journal.py": "5b2aea9600f54424cdfa9dabbf7262edef4b613ab58c3df3070f03f5efc0b9ae",
+        "src/openpi/conductor/monitor.py": "1fa22e3286862cc00949d1b87f5c3b132b88f9a3729600fd56abc535fec12cfb",
+        "src/openpi/conductor/protocol.py": "d538297a2f951b829e77d1aeab399e6838fd7f7b4dfdd9edcdd6c9fe80c0c683",
+        "src/openpi/conductor/scheduler.py": "80ede7fb1b8c474d9b4c710694e1de7d420d07750a09fc3e80938e2b0d2c934f",
+        "src/openpi/conductor/sharding.py": "df639d641aec56d1f860cfbce90c40aa6374ac2aff9c1a533009954f8d8e5cf2",
+        "src/openpi/conductor/strategy.py": "4d2523d875c777638a4a54347474d3e6062a9eaf4d37bc8ded5f7e4dc72b97dc",
+        "src/openpi/conductor/task.py": "b175d54d8a47b30e74611d4519088eb328bd815bf7b9bc5013e8e16a0a0d84ca",
+        "src/openpi/conductor/worker.py": "74b8cea7a870b9ce2473f69aaa77071d6697b0da74009e7bea5fc20c3c6d23e7"
+      },
+      "identity": "1bd95fc159c9d28dce52e7da189db36f347a62ab7b3f0c0bee23f095d31e23ae",
+      "mode": "legacy",
+      "module": "exp.r17_integration.ops.formal_driver"
+    },
+    "driver_runtime": "/data/mw_finetune/qualification/formal_driver_51bbb2fd4d62b935f4cc0234275fd4dc58898d0038f151877e699188b1743bfc",
+    "driver_runtime_identity": "51bbb2fd4d62b935f4cc0234275fd4dc58898d0038f151877e699188b1743bfc",
+    "durability": "evidence fsync, terminal journal fsync, then scheduler acceptance; nonterminal diagnostics group committed; resume requires fresh closed-source segment",
+    "model_code_unchanged": true,
+    "overlay_files": [
+      "exp/r17_integration/ops/cache_resume.py"
+    ],
+    "schema": "r17.orchestration_pin.v1",
+    "selected": {
+      "files": {
+        "exp/r17_integration/conductor/driver.py": "4218b0c07a5dd7b7fdd0bf6830919c9a7549ed2b2b4dcce298d8ce3e8e5d1a92",
+        "exp/r17_integration/conductor/manifest.py": "327a9195c4a42120e460bf91392a173e7cfc9c8a03eddbe5067acf3e13bfeb6b",
+        "exp/r17_integration/conductor/queue.py": "be495f6bcde979266c6bd06ed1dec5163f5c0324cba2f2d1e335bb04c90bd3a2",
+        "exp/r17_integration/conductor/strategy.py": "61150d6e51dc646e2a75949d6d6f51a4a771eed98539172b2251702bd6c925f5",
+        "exp/r17_integration/conductor/worker_entry.py": "f02a49707a14f9ef503cc9b4dffbaed30c88f2e0d2d38d72baaedf300799ca70",
+        "exp/r17_integration/ops/cache_driver_legacy.py": "69a46f022fc472195f468dc303e1627540e2ea8ea1656fb38c253175eb694a81",
+        "exp/r17_integration/ops/cache_resume.py": "b60081fbabe4714da43e2f407e5f3de9e679c4d8e745e2304c4fb273cfbe17b9",
+        "exp/r17_integration/ops/cache_study.py": "c489582b3324a4719d58c4a3a46e016fea64b1f95b1d01e609a1f50b70271a93",
+        "exp/r17_integration/ops/formal_driver.py": "114dca2dddcf8eb225f9fbe019c5e9fe10d098231ddce6c7d66c3cffcede5398",
+        "exp/r17_integration/ops/formal_driver_fast.py": "09b1bc0fc4512eb89762361655e115c86820b988567a808ef9455504aaf688bb",
+        "exp/r17_integration/ops/formal_eval.py": "2d402e1de72368d9e78854830c724036b0a92e4bf9b48fa38212053bec15037c",
+        "exp/r17_integration/ops/group_commit.py": "50895423acd73f81442dc9c3c649734431b56b1bfb6fd292f2481a34581e3bc3",
+        "exp/r17_integration/ops/live_fleet_driver.py": "879716ddfabcad056baa3e249eaf5fc1efe8265627f9bc4eda1aefc527f5a1c0",
+        "exp/r17_integration/ops/live_fleet_worker.py": "b8edf9152b6adc4d4d945a2562b9e38010071c6afaff757364e3a3eae94ff7fe",
+        "exp/r17_integration/ops/live_fleets.py": "e201d79eaf57f598f6c82ecd8ff2faf3f02ee3127b455de2af567e92e8cbed5f",
+        "exp/r17_integration/qualification/driver.py": "06257104d1b307c7196b36583a43a0b651fea8c3fed6494c9f3ecc44f4c142a7",
+        "src/openpi/conductor/__init__.py": "fa50b35cf43b695036181624b161b0a3415c55bdad524b70c5b8a711d238ab48",
+        "src/openpi/conductor/agent.py": "9e39391d7c1412446abee160f6d0280be940150293dd0399ee769a5e6072d3d2",
+        "src/openpi/conductor/driver.py": "fb50124bee79924591cb690dcf31a6e4a24a771b8beb6f3515ad21b2d040ba8a",
+        "src/openpi/conductor/health.py": "ffea06a3bfc5f95f7da1a9abc2626c1be135dd912c0245a6794487c5b1903a44",
+        "src/openpi/conductor/journal.py": "5b2aea9600f54424cdfa9dabbf7262edef4b613ab58c3df3070f03f5efc0b9ae",
+        "src/openpi/conductor/monitor.py": "1fa22e3286862cc00949d1b87f5c3b132b88f9a3729600fd56abc535fec12cfb",
+        "src/openpi/conductor/protocol.py": "d538297a2f951b829e77d1aeab399e6838fd7f7b4dfdd9edcdd6c9fe80c0c683",
+        "src/openpi/conductor/scheduler.py": "80ede7fb1b8c474d9b4c710694e1de7d420d07750a09fc3e80938e2b0d2c934f",
+        "src/openpi/conductor/sharding.py": "df639d641aec56d1f860cfbce90c40aa6374ac2aff9c1a533009954f8d8e5cf2",
+        "src/openpi/conductor/strategy.py": "4d2523d875c777638a4a54347474d3e6062a9eaf4d37bc8ded5f7e4dc72b97dc",
+        "src/openpi/conductor/task.py": "b175d54d8a47b30e74611d4519088eb328bd815bf7b9bc5013e8e16a0a0d84ca",
+        "src/openpi/conductor/worker.py": "74b8cea7a870b9ce2473f69aaa77071d6697b0da74009e7bea5fc20c3c6d23e7"
+      },
+      "identity": "67f3499afb3fcc9e1563a7c33e01bc567565b37eaa752dba2df45e147dcd4265",
+      "mode": "group-commit",
+      "module": "exp.r17_integration.ops.formal_driver_fast"
+    },
+    "source_runtime_identity": "cba7a1e035aea90098743ed252834c91ba6280f6f8fa5c3f7619b8671feac1b2",
+    "worker_payload_unchanged": true
+  },
+  "ports": [
+    23150,
+    23151,
+    23152,
+    23153,
+    23154,
+    23159
+  ],
+  "prepare_only": false,
+  "public_port": 29600,
+  "replica_startup_width": 3,
+  "replicas": 4,
+  "retries": 0,
+  "run_name": "xgpu_preregister_v1_pi05_pure",
+  "runtime": "/data/mw_finetune/qualification/formal_runtime_af22613ead3df9625293e6efa813376d3629774be676b022609e3b4438b5b4c1",
+  "runtime_identity": "af22613ead3df9625293e6efa813376d3629774be676b022609e3b4438b5b4c1",
+  "seconds": 518400,
+  "semantic_campaign": "xgpu_preregister_v1_pi05",
+  "server_node": "local",
+  "server_run": "/data/mw_finetune/eval/pimk1_fuld/servers",
+  "smoke": false,
+  "smoke_episodes": 4,
+  "stage_batching": {
+    "batch_wait_ms": 5.0,
+    "max_batch": 8
+  },
+  "suites": null,
+  "vendor": "/home/weiland/projects/openpi_ext/third_party/gr00t_n15",
+  "wire_zlib": true,
+  "worker_egl_device": 0,
+  "worker_egl_devices": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "worker_max_episodes": 0,
+  "worker_memory_mib": 2048,
+  "worker_min_free_gib": 8,
+  "worker_nodes": {
+    "local": 40
+  },
+  "worker_restart_limit": 2,
+  "worker_vram_mib": 1024,
+  "workers": 112
+}

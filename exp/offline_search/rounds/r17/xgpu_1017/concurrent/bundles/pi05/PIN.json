@@ -1,0 +1,39 @@
+{
+  "batch": 8,
+  "bootstrap_sha256": null,
+  "cache_groups": 6,
+  "clients": 112,
+  "data_bytes": 139753123,
+  "files": {
+    "benchmark.json": "ab4214a46a5901bf2a062951657cb97794cd59f33d4e1c67246d91e7cc2efad7",
+    "cache_yamls/n250_mt50_crg_k10.yaml": "e7de006cf2f867251c4102421fa1dceae117dc0f09e8392f684d6a045db81f2c",
+    "cache_yamls/n250_mt50_crg_k20.yaml": "7ddc1fa62ceaee439320dcbd605a240cf1d9c736a13957b0bc8f2a05b8a8c31e",
+    "cache_yamls/n250_mt50_crg_k30.yaml": "35c82f5237deb4a26d7c547f2bee8809045b66611d4efc073208b44815bded35",
+    "cache_yamls/n250_mt50_crg_k40.yaml": "51a6bac4f0d590b825af614049bbeddd1f1090b4eaca462d608aa5e8f4e236ed",
+    "cache_yamls/n250_mt50_crg_k50.yaml": "1284ca54add3f75554479db8005115f5abb892b853e47ad8c51139813d76250d",
+    "cache_yamls/n250_mt50_crg_koff.yaml": "331a0bdcd8d5900533c92d4f14ee26177f8f298a92bba86cd96cba3e652e5f43",
+    "full.yaml": "f2d00567bb9118be269318eed41326356d63ed69a1c674f8ea6d005985890718",
+    "load.json": "5c2da44fe55a31f0571c3a466b3729f90956a775ebdef9e212d3fa30b70add16",
+    "manifest.json": "f7c94354d9062e2ffc97912bc8b46b2923ede536b2e5c23bf62219d3bfdf3821",
+    "model_manifest.json": "044972112baa8e4cef26c075f6fe84010c3fcd3b8bb92edc9176da0803d7f055",
+    "model_spec.json": "217c33f470f5170d60e66c9add1d96ab2917f2dd8c8906cd4f5d8a5fd6b6af9b",
+    "selected_groups.json": "75a77b5a6744bca4b88eed85b0b01c771f111e8812f3acce9f59c1664d21df84"
+  },
+  "identity": "816951310cb5e1d3c6dae96a81836c4ae7436fb0c5f3d861e253963a73316057",
+  "memory_budget_gib": 40.0,
+  "model": "pi05",
+  "mps": {
+    "active_thread_percentage": 100,
+    "compute_mode_change": false,
+    "enabled": true,
+    "private_per_campaign_gpu": true,
+    "schema": "r17.mps.v1"
+  },
+  "replicas": 4,
+  "runtime_identity": "af22613ead3df9625293e6efa813376d3629774be676b022609e3b4438b5b4c1",
+  "schema": "xgpu.concurrent.pin.v1",
+  "scope": "one pinned model/domain/K and one library size; not all suites or recipes",
+  "segment_clock_overlay": false,
+  "source": "/data/mw_finetune/eval/pimk1_fuld",
+  "source_campaign_sha256": "44946ef044a624db03bf5cac0114a081e8e4aeabb26ee2534085d4ffb5664206"
+}

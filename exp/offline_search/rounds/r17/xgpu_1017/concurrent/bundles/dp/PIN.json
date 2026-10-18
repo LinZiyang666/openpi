@@ -1,0 +1,35 @@
+{
+  "batch": 8,
+  "bootstrap_sha256": "4e07fb3ecbfbc15000886cdaeb6cc16da2fbd346e045df22ad8ac77a1e5e4f5e",
+  "cache_groups": 1,
+  "clients": 48,
+  "data_bytes": 39200762,
+  "files": {
+    "benchmark.json": "cf428cb5d8d20a8ebf66e0c37b10f9816dda37f33289f82e5598f81d6ba4cf36",
+    "cache_yamls/ls_libero_spatial_50_chrg_koff.yaml": "1a359f1a9b0d38b91bb1f14effc5c9df8eb4b4ee6fea2fa89bc00b0e7f34ae84",
+    "ffk_bootstrap.py": "4e07fb3ecbfbc15000886cdaeb6cc16da2fbd346e045df22ad8ac77a1e5e4f5e",
+    "full.yaml": "913b808acab7c068ae446eb3a840e8484ec2173f1aaa796e2df56f4d8e2ee454",
+    "load.json": "867a224034590fe8c48d772cb47838df4a72bd60ac237424eea7b554547eb659",
+    "manifest.json": "98100b75633676746b9471c9310fa69dd6c03bc06c963e65d192d1851a00fa15",
+    "model_manifest.json": "3d25d3fdf5f225b643c31f9e653218dbc0857be76b5301219b38e87cb937c715",
+    "model_spec.json": "082d6f9458eaddec744c8671365d77fb3d2f16641d804853d21d9400ef6869d8",
+    "selected_groups.json": "7a46b8b2fdc11c0c8d464924949149268931e78dd9a8be87bb1bb967bde6c7cb"
+  },
+  "identity": "e215a22ab6200c400eb7239ce21950d5de3d417d83693e6c09a9a50228fe669c",
+  "memory_budget_gib": 40.0,
+  "model": "dp",
+  "mps": {
+    "active_thread_percentage": 100,
+    "compute_mode_change": false,
+    "enabled": true,
+    "private_per_campaign_gpu": true,
+    "schema": "r17.mps.v1"
+  },
+  "replicas": 4,
+  "runtime_identity": "5927a753312bf5981cba81a2e389edea914bde0580523b0dc3c8ea8d58f1fa1e",
+  "schema": "xgpu.concurrent.pin.v1",
+  "scope": "one pinned model/domain/K and one library size; not all suites or recipes",
+  "segment_clock_overlay": true,
+  "source": "/data/mw_finetune/eval/fa_ls_dp_f_u_o_l",
+  "source_campaign_sha256": "537d88373a38f53d35909a1d69b2ae284ba1d7eb44e797812ba7206e68a8b73b"
+}

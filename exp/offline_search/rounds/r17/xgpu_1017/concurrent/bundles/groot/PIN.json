@@ -1,0 +1,40 @@
+{
+  "batch": 1,
+  "bootstrap_sha256": "4e07fb3ecbfbc15000886cdaeb6cc16da2fbd346e045df22ad8ac77a1e5e4f5e",
+  "cache_groups": 6,
+  "clients": 40,
+  "data_bytes": 131958340,
+  "files": {
+    "benchmark.json": "ab4214a46a5901bf2a062951657cb97794cd59f33d4e1c67246d91e7cc2efad7",
+    "cache_yamls/n250_mt50_chrg_k10.yaml": "6a65214dc07166ee4777582902570c661425f07ffc7d0cc131937ec96d915134",
+    "cache_yamls/n250_mt50_chrg_k20.yaml": "104ca179418fb35c1ff3f32cb179778e52adbe12ca98da1834c4bfe15adcb2c2",
+    "cache_yamls/n250_mt50_chrg_k30.yaml": "ef5b08b6bbab32ec609ae7e46d6b2b87582f484fb1fbb031c6e015b45a5fcb33",
+    "cache_yamls/n250_mt50_chrg_k40.yaml": "ea567c341052173b048b79ad77e401fb0677e7ab2498153338ad5477bd833e27",
+    "cache_yamls/n250_mt50_chrg_k50.yaml": "8ad5a0a55d8a19478aecaedbf17fc6f593f6c7e3c1f85988a0a85cba02586b14",
+    "cache_yamls/n250_mt50_chrg_koff.yaml": "164866bd64c2b8ea58066cb8328af0eba80816c01c835fcc2ebc15fa79c0879e",
+    "ffk_bootstrap.py": "4e07fb3ecbfbc15000886cdaeb6cc16da2fbd346e045df22ad8ac77a1e5e4f5e",
+    "full.yaml": "0b3fbebd11a016d81c08cd761730837fdc7e176dc17231bed5b8b822c0a79f60",
+    "load.json": "5686710565ea54012a87ce97976f8667b28573c1a3e04cdbcb576825c91ff473",
+    "manifest.json": "ecbb52210989fab256598540f4525fc4c4fb78bfaf567925b9c6a050f20b2629",
+    "model_manifest.json": "17998402fe408f1c9101d83025e0271addf4a6f233681e67bea7bc37595398c4",
+    "model_spec.json": "8a5e9d1912a3adb650424d38848e7dc6592a474fe4530b1c61fff3b96c1d89b6",
+    "selected_groups.json": "e432b74aaef4504f604e103b05707e0f532dc9be7822b59ffac653ddb53eb7f0"
+  },
+  "identity": "387acde43488f5ad0a3454484be57c5129af02b71c9a8157fee718734425e8aa",
+  "memory_budget_gib": 76.0,
+  "model": "groot",
+  "mps": {
+    "active_thread_percentage": 100,
+    "compute_mode_change": false,
+    "enabled": true,
+    "private_per_campaign_gpu": true,
+    "schema": "r17.mps.v1"
+  },
+  "replicas": 11,
+  "runtime_identity": "6a3136e32dc06ee8f76d09340a7d03aebf443ffa6d2c80ec754da981a0e9c394",
+  "schema": "xgpu.concurrent.pin.v1",
+  "scope": "one pinned model/domain/K and one library size; not all suites or recipes",
+  "segment_clock_overlay": true,
+  "source": "/data/mw_finetune/eval/fa_ls_gr_f_u_m",
+  "source_campaign_sha256": "9c170903145f01486de449c39a1f3f993032a1f8638bdf636865c03d71cdae25"
+}

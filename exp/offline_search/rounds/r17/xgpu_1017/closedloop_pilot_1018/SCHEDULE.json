@@ -1,0 +1,194 @@
+{
+  "pi05": {
+    "episodes_per_gpu_per_arm": 500,
+    "arms": [
+      "pure",
+      "cache"
+    ],
+    "two_gpu_total_episodes": 2000,
+    "worker_count": 112,
+    "server_gpu_hours_per_gpu_both_arms": {
+      "4090": [
+        1,
+        2
+      ],
+      "h100": [
+        1,
+        2
+      ]
+    },
+    "gpu_hours_kind": "planning estimate including startup, not measured; excludes renderer GPUs",
+    "renderer_memory_mib_per_remote_worker": 2048,
+    "renderer_vram_mib_per_remote_worker": 1024,
+    "preregistration": "exp/offline_search/rounds/r17/xgpu_1017/closedloop_pilot_1018/pi05/PREREGISTRATION.json",
+    "plans": {
+      "pure": {
+        "path": "exp/offline_search/rounds/r17/xgpu_1017/closedloop_pilot_1018/pi05/pure/PLAN.json",
+        "sha256": "eb9932097d293029290a107e0020043256e7ab08079e75bf12876228b5187f72"
+      },
+      "cache": {
+        "path": "exp/offline_search/rounds/r17/xgpu_1017/closedloop_pilot_1018/pi05/cache/PLAN.json",
+        "sha256": "60bd86907a5dd7ea4d14c6cf1da96784c1e1c1384017bab8520aab9826a5d035"
+      }
+    },
+    "state": "PREPARED_NOT_LAUNCHED",
+    "remaining": [
+      "formal worker/driver transfer and trace wiring",
+      "renderer slot reservation"
+    ]
+  },
+  "groot": {
+    "episodes_per_gpu_per_arm": 500,
+    "arms": [
+      "pure",
+      "cache"
+    ],
+    "two_gpu_total_episodes": 2000,
+    "worker_count": 40,
+    "server_gpu_hours_per_gpu_both_arms": {
+      "4090": [
+        1,
+        2.6
+      ],
+      "h100": [
+        0.6,
+        1.6
+      ]
+    },
+    "gpu_hours_kind": "planning estimate including startup, not measured; excludes renderer GPUs",
+    "renderer_memory_mib_per_remote_worker": 2048,
+    "renderer_vram_mib_per_remote_worker": 1024,
+    "preregistration": "exp/offline_search/rounds/r17/xgpu_1017/closedloop_pilot_1018/groot/PREREGISTRATION.json",
+    "plans": {
+      "pure": {
+        "path": "exp/offline_search/rounds/r17/xgpu_1017/closedloop_pilot_1018/groot/pure/PLAN.json",
+        "sha256": "c9106a5b1ee746e7e1f7e6f5bf99bcbc314c8dae8c72141e5728ca6b3a4e5302"
+      },
+      "cache": {
+        "path": "exp/offline_search/rounds/r17/xgpu_1017/closedloop_pilot_1018/groot/cache/PLAN.json",
+        "sha256": "bfd44a0786ca93cc97e405bdf8e4c3202a6c8044e64fd1f8d2028bec01ff6fdd"
+      }
+    },
+    "state": "PREPARED_NOT_LAUNCHED",
+    "remaining": [
+      "formal worker/driver transfer and trace wiring",
+      "renderer slot reservation",
+      "4090 R6 is an explicit new capacity arm"
+    ]
+  },
+  "dp": {
+    "episodes_per_gpu_per_arm": 500,
+    "arms": [
+      "pure",
+      "cache"
+    ],
+    "two_gpu_total_episodes": 2000,
+    "worker_count": 48,
+    "server_gpu_hours_per_gpu_both_arms": {
+      "4090": [
+        0.5,
+        1.5
+      ],
+      "h100": [
+        0.5,
+        1.5
+      ]
+    },
+    "gpu_hours_kind": "planning estimate including startup, not measured; excludes renderer GPUs",
+    "renderer_memory_mib_per_remote_worker": 2048,
+    "renderer_vram_mib_per_remote_worker": 717,
+    "preregistration": "exp/offline_search/rounds/r17/xgpu_1017/closedloop_pilot_1018/dp/PREREGISTRATION.json",
+    "plans": {
+      "pure": {
+        "path": "exp/offline_search/rounds/r17/xgpu_1017/closedloop_pilot_1018/dp/pure/PLAN.json",
+        "sha256": "f93ab5216009b5ba3c7a581a228cd359ac1c98185dd9ec801a3ed7910820361f"
+      },
+      "cache": {
+        "path": "exp/offline_search/rounds/r17/xgpu_1017/closedloop_pilot_1018/dp/cache/PLAN.json",
+        "sha256": "d9a4ccdedb0f3a0f5dc1c2c658126c12fa98a4990d04abe6a79d6353f6dceefd"
+      }
+    },
+    "state": "PREPARED_NOT_LAUNCHED",
+    "remaining": [
+      "formal worker/driver transfer and trace wiring",
+      "renderer slot reservation"
+    ]
+  },
+  "fastwam": {
+    "episodes_per_gpu_per_arm": 500,
+    "arms": [
+      "pure",
+      "cache"
+    ],
+    "two_gpu_total_episodes": 2000,
+    "worker_count": 12,
+    "server_gpu_hours_per_gpu_both_arms": {
+      "4090": [
+        1.5,
+        3
+      ],
+      "h100": [
+        1.5,
+        3
+      ]
+    },
+    "gpu_hours_kind": "planning estimate including startup, not measured; excludes renderer GPUs",
+    "renderer_memory_mib_per_remote_worker": 2048,
+    "renderer_vram_mib_per_remote_worker": 717,
+    "preregistration": "exp/offline_search/rounds/r17/xgpu_1017/closedloop_pilot_1018/fastwam/PREREGISTRATION.json",
+    "plans": {
+      "pure": {
+        "path": "exp/offline_search/rounds/r17/xgpu_1017/closedloop_pilot_1018/fastwam/pure/PLAN.json",
+        "sha256": "aca1e756588701d38f933113408449677112d83d2e11e3a1e914a165eb341ed6"
+      },
+      "cache": {
+        "path": "exp/offline_search/rounds/r17/xgpu_1017/closedloop_pilot_1018/fastwam/cache/PLAN.json",
+        "sha256": "f232cdee67571e1599699b44acc5bbf44e17ea578fec1de8352bec6fa3c81b33"
+      }
+    },
+    "state": "PREPARED_NOT_LAUNCHED",
+    "remaining": [
+      "formal worker/driver transfer and trace wiring",
+      "renderer slot reservation"
+    ]
+  },
+  "cosmos": {
+    "episodes_per_gpu_per_arm": 500,
+    "arms": [
+      "pure",
+      "cache"
+    ],
+    "two_gpu_total_episodes": 2000,
+    "worker_count": 44,
+    "server_gpu_hours_per_gpu_both_arms": {
+      "4090": [
+        1.5,
+        3
+      ],
+      "h100": [
+        1,
+        2
+      ]
+    },
+    "gpu_hours_kind": "planning estimate including startup, not measured; excludes renderer GPUs",
+    "renderer_memory_mib_per_remote_worker": 3072,
+    "renderer_vram_mib_per_remote_worker": 768,
+    "preregistration": "exp/offline_search/rounds/r17/xgpu_1017/closedloop_pilot_1018/cosmos/PREREGISTRATION.json",
+    "plans": {
+      "pure": {
+        "path": "exp/offline_search/rounds/r17/xgpu_1017/closedloop_pilot_1018/cosmos/pure/PLAN.json",
+        "sha256": "54dd437c44483f17841614424f4934d79bba0aa93a08901aac2597043a53b091"
+      },
+      "cache": {
+        "path": "exp/offline_search/rounds/r17/xgpu_1017/closedloop_pilot_1018/cosmos/cache/PLAN.json",
+        "sha256": "9e711d41e0717d2314b62143fd053fef85417a691e17dfd186df1052a4adf393"
+      }
+    },
+    "state": "PREPARED_NOT_LAUNCHED",
+    "remaining": [
+      "formal worker/driver transfer and trace wiring",
+      "renderer slot reservation",
+      "4090 R8 memory admission"
+    ]
+  }
+}

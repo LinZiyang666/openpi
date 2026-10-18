@@ -1,0 +1,205 @@
+{
+  "assets": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/closedloop_pilot_1018/groot/pure/assets",
+  "backend_ports": [
+    23161,
+    23162,
+    23163,
+    23164,
+    23165,
+    23166,
+    23167,
+    23168,
+    23169,
+    23170,
+    23171
+  ],
+  "cache_plan_name": "xgpu_preregister_v1_groot",
+  "cache_study": false,
+  "cache_worker_orchestration": {
+    "cache_ram_floor_mib": 4096,
+    "cached_actions_unchanged": true,
+    "local_renderer_vram_mib": 1024,
+    "local_server_growth_mib": null,
+    "miss_batch_composition_may_change": true,
+    "owner_authorized": true,
+    "replicas": 11,
+    "schema": "r17.cache_worker_orchestration.v1",
+    "scientific_settings_unchanged": true,
+    "source_nodes": {
+      "timan1": 40
+    },
+    "source_replicas": 11,
+    "source_total_workers": 40,
+    "total_workers": 40,
+    "worker_nodes": {
+      "timan1": 20,
+      "timan107": 20
+    }
+  },
+  "checkpoint": "/data/mw_finetune/groot/4090_mt50/checkpoint-60000",
+  "device": "cuda:0",
+  "domain": "metaworld",
+  "driver_host": "ziyanglin.com",
+  "driver_mode": "group-commit",
+  "driver_module": "exp.r17_integration.ops.formal_driver_fast",
+  "driver_port": 29690,
+  "driver_public_port": 23199,
+  "driver_runtime": "/data/mw_finetune/qualification/formal_driver_6a3136e32dc06ee8f76d09340a7d03aebf443ffa6d2c80ec754da981a0e9c394",
+  "endpoint": "127.0.0.1:29600",
+  "endpoint_host": "127.0.0.1",
+  "endpoint_port": 29600,
+  "episode_seconds": 1800,
+  "eval_pool": "A",
+  "execution_worker_nodes": {
+    "timan1": 20,
+    "timan107": 20
+  },
+  "execution_workers": 40,
+  "ffk_bootstrap_sha256": "4e07fb3ecbfbc15000886cdaeb6cc16da2fbd346e045df22ad8ac77a1e5e4f5e",
+  "ffk_dp_capacity_bridge": false,
+  "ffk_evidence_sha256": "b7c5d06ef219e18387a03f83e438804049d8eab7440d09a81ec970eb6c0c3813",
+  "filter_failed_knob": {
+    "arm": "unfiltered",
+    "cells": {},
+    "method": "frozen_fit_candidate_rows_only",
+    "refit": false,
+    "selection": {},
+    "source": "/data/mw_finetune/eval/grmk1_ful"
+  },
+  "filter_failed_source": "/data/mw_finetune/eval/grmk1_ful",
+  "init_count": 10,
+  "library": false,
+  "live_k": 4,
+  "local_assets": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/closedloop_pilot_1018/groot/pure/assets",
+  "local_worker_memory_mib": 4096,
+  "local_worker_vram_mib": 1024,
+  "longseg_1017": {
+    "Q3_recalibrated": true,
+    "bootstrap_sha256": "4e07fb3ecbfbc15000886cdaeb6cc16da2fbd346e045df22ad8ac77a1e5e4f5e",
+    "calibration_quantum": "C10 decision units exec=commit=1; C5 unchanged",
+    "clock_unit": "segment_decision",
+    "corrector_unchanged": true,
+    "no_refit": false,
+    "recalibration": {
+      "C5_artifacts_unchanged": true,
+      "Q3": "successful-library empirical q90/q10 LOEO; decision stride",
+      "artifact_digests": [
+        "566f3a038c16fc35fb6d9cf1b33667ecd093a972453198eeb46fd5182cbd680e",
+        "58d4589c4ac5d45da51964d8acd31fcf04db0570ecc50fe6ba67c5b82de191ca",
+        "64803623494116f3e5b7505c78371d846486ca859f83746d1c44d747b0b146a9",
+        "88adb2f4175f99c2254d4632274a246ccbf993e3c1a9fb754c1eb0e428d7734d",
+        "98becc6ae85220cf204f81bb458ccfc2a3853cf79e1c7b5d75be24b86d24fe3b",
+        "edde482b8aa729291b68ca3e32a60f1d2cbc6c3c0910f44465a3fdbad816e361"
+      ],
+      "clock_unit": "segment_decision",
+      "level_ir": "M/N_heads",
+      "levels_outside_tolerance": [],
+      "tolerance": 0.005
+    },
+    "retrieval_fit_unchanged": true,
+    "tails": "delivery_only",
+    "transport_rebind": {
+      "destination": {
+        "driver_port": 23199,
+        "endpoint": "149.165.153.233:23160",
+        "endpoint_host": "149.165.153.233",
+        "endpoint_port": 23160,
+        "public_port": 23160
+      },
+      "model_serving_R_B_MPS_unchanged": true,
+      "reason": "Forward remote workers through native direct-port range; isolate H100 driver from 4090 server/driver ports",
+      "source": {
+        "driver_port": 23149,
+        "endpoint": "149.165.153.233:23160",
+        "endpoint_host": "149.165.153.233",
+        "endpoint_port": 23160,
+        "public_port": 23160
+      },
+      "task_identity_unchanged": true
+    }
+  },
+  "longseg_1017_input_roots": [
+    "/data/mw_finetune/eval/grmk1_ful/assets/cache_inputs"
+  ],
+  "memory_budget_gib": 76.0,
+  "model": "groot",
+  "mps": {
+    "active_thread_percentage": 100,
+    "compute_mode_change": false,
+    "enabled": true,
+    "private_per_campaign_gpu": true,
+    "schema": "r17.mps.v1"
+  },
+  "native_parity_only": false,
+  "official_50": false,
+  "ports": [
+    23160,
+    23161,
+    23162,
+    23163,
+    23164,
+    23165,
+    23166,
+    23167,
+    23168,
+    23169,
+    23170,
+    23171,
+    23199
+  ],
+  "prepare_only": true,
+  "public_port": 29600,
+  "replica_startup_width": 4,
+  "replicas": 11,
+  "retries": 0,
+  "run_name": "xgpu_preregister_v1_groot_pure",
+  "runtime": "/data/mw_finetune/qualification/formal_runtime_6a3136e32dc06ee8f76d09340a7d03aebf443ffa6d2c80ec754da981a0e9c394",
+  "runtime_from": "/data/mw_finetune/eval/grmk1_ful",
+  "runtime_identity": "6a3136e32dc06ee8f76d09340a7d03aebf443ffa6d2c80ec754da981a0e9c394",
+  "seconds": 518400,
+  "semantic_campaign": "xgpu_preregister_v1_groot",
+  "server_node": "h100",
+  "server_python": "/home/exouser/gr00t_n15_venv/.venv/bin/python",
+  "server_run": "/data/mw_finetune/eval/fa_ls_gr_f_u_m/servers",
+  "smoke": false,
+  "smoke_episodes": 4,
+  "suites": null,
+  "timan1_worker_lease": {
+    "device": 2,
+    "device_minor": 1,
+    "excluded_devices": [
+      0,
+      1,
+      3
+    ],
+    "maximum_workers": 332,
+    "pci": "0000:81:00.0",
+    "schema": "r17.timan1_gpu2_lease.v1",
+    "uuid": "GPU-9bdcf7cc-8a05-a7f9-b1c3-4d53d0a229df",
+    "worker_max_episodes": 0,
+    "worker_memory_mib": 512,
+    "worker_vram_mib": 133,
+    "workers": 20
+  },
+  "vendor": "/home/exouser/gr00t_n15",
+  "worker_egl_device": 0,
+  "worker_egl_devices": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "worker_max_episodes": 0,
+  "worker_memory_mib": 2048,
+  "worker_min_free_gib": 8,
+  "worker_nodes": {
+    "timan1": 40
+  },
+  "worker_restart_limit": 2,
+  "worker_vram_mib": 1024,
+  "workers": 40
+}

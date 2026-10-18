@@ -1,0 +1,28 @@
+{
+  "batching": {
+    "arm_steps": [
+      100,
+      10,
+      5
+    ],
+    "batch_wait_ms": 5.0,
+    "byte_identical_to_b1": false,
+    "default_off": true,
+    "identity": "196635a760a15128de6771da718c7ade5612ba79cad9802eefec2e3a3239949a",
+    "language_policy": "frozen CPU B1 prompt embeddings memoized by exact text; 128-entry bound",
+    "max_batch": 8,
+    "noise_policy": "per-request sequential B1 initial/posterior draws; independent of members/order",
+    "numerics_policy": "dp_private_rng_vector_v1",
+    "quality_equivalence": "requires matched-batch control SR; not established by throughput",
+    "stage_workers": [
+      1,
+      1,
+      1
+    ]
+  },
+  "elapsed_seconds": 182.59578066598624,
+  "peak_allocated_mib": 466.4951171875,
+  "peak_reserved_mib": 650.0,
+  "pid": 1323006,
+  "status": "CLOSED"
+}

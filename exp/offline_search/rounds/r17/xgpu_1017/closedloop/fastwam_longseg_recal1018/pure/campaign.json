@@ -1,0 +1,412 @@
+{
+  "assets": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/closedloop/fastwam_longseg_recal1018/pure/assets",
+  "backend_ports": [
+    23421,
+    23422
+  ],
+  "cache_control": "/data/mw_finetune/eval/hs6fw_res_152931",
+  "cache_control_proof": {
+    "completion": {
+      "accepted_episodes": 2000,
+      "error_attempts": 0,
+      "recovered_retried_errors": false,
+      "recovered_worker_shutdown": false,
+      "resolved_retry_errors": [],
+      "returncode": 0,
+      "verified_completion": true
+    },
+    "control": "/data/mw_finetune/eval/hs6fw_res_152931",
+    "local_worker_exception": null,
+    "non_r17_code_inherited": true,
+    "recovery": null,
+    "runtime_source": "/data/mw_finetune/eval/hs6fw_ctl_143332",
+    "schema": "r17.cache_control.v1",
+    "source_pins": {
+      "/data/mw_finetune/eval/hs6fw_ctl_143332/RECEIPT.json": "e6adb940dfc119b2e25fcf897152a4ec633e7c752838e4c8f88ac0b2e780e63a",
+      "/data/mw_finetune/eval/hs6fw_ctl_143332/assets/benchmark.json": "cf428cb5d8d20a8ebf66e0c37b10f9816dda37f33289f82e5598f81d6ba4cf36",
+      "/data/mw_finetune/eval/hs6fw_ctl_143332/assets/model_manifest.json": "6c39db6b7aca84137ec1a6fbee8aca7ecab55d882d4473607d53ddf51da095fd",
+      "/data/mw_finetune/eval/hs6fw_ctl_143332/assets/model_spec.json": "67b3c380c6fc3588b81b0b89d9ddd29938d0fecaef79ccdcaf30b49c2e174f42",
+      "/data/mw_finetune/eval/hs6fw_ctl_143332/campaign.json": "2e0c7ea26773d22f2d0d8b525d8ebc3329630a723ee6a1cb1d6d0acf9383e736",
+      "/data/mw_finetune/eval/hs6fw_ctl_143332/runtime.tar": "d3cd215878e039631765c67f9b3e3f51951da52c0b1a3f777e0db6edd2aa389c",
+      "/data/mw_finetune/eval/hs6fw_ctl_143332/workers.tar": "e9d40ea8b0f96d1cf1b4c6829ad2f6e358d72fe9d8c69e156328d3102a06304d",
+      "/data/mw_finetune/eval/hs6fw_res_152931/RECEIPT.json": "57b8e803066f3a153c54bd9fa9812c3bf5ccecb83c4bccd13e5bd0f32e892fcd",
+      "/data/mw_finetune/eval/hs6fw_res_152931/RESUME_MERGE.json": "c2488d5f7cd87145005ff665cf41994badb4705547b8c9a88375a756ce8045ca",
+      "/data/mw_finetune/eval/hs6fw_res_152931/SUMMARY.json": "8e5f7d4b9c82593d0bfd11dbc18445e0dcf1b550629d94f51caf5add49681963",
+      "/data/mw_finetune/eval/hs6fw_res_152931/assets/benchmark.json": "cf428cb5d8d20a8ebf66e0c37b10f9816dda37f33289f82e5598f81d6ba4cf36",
+      "/data/mw_finetune/eval/hs6fw_res_152931/assets/model_manifest.json": "6c39db6b7aca84137ec1a6fbee8aca7ecab55d882d4473607d53ddf51da095fd",
+      "/data/mw_finetune/eval/hs6fw_res_152931/assets/model_spec.json": "67b3c380c6fc3588b81b0b89d9ddd29938d0fecaef79ccdcaf30b49c2e174f42",
+      "/data/mw_finetune/eval/hs6fw_res_152931/campaign.json": "92150e45282fb3b7dbc014137963a8ca5db33cc9c151ee9dd72e75c8151ef6e4",
+      "/data/mw_finetune/eval/hs6fw_res_152931/driver/DRIVER_RECEIPT.json": "87dc1b27ff85e59411cd105dc3a6ad2c6ff87b60fe3fc20043cdc5dca6d49960",
+      "/data/mw_finetune/eval/hs6fw_res_152931/driver/journal.jsonl": "6ee71a5aab65a1c4dc666b4988e3013e195b68314be8ebce6a9d8e4ad54f1188",
+      "/data/mw_finetune/eval/hs6fw_res_152931/runtime.tar": "d3cd215878e039631765c67f9b3e3f51951da52c0b1a3f777e0db6edd2aa389c",
+      "/data/mw_finetune/eval/hs6fw_res_152931/workers.tar": "e9d40ea8b0f96d1cf1b4c6829ad2f6e358d72fe9d8c69e156328d3102a06304d"
+    },
+    "worker_topology_changes": {
+      "worker_nodes": {
+        "campaign": {
+          "timan1": 40,
+          "timan107": 45
+        },
+        "control": {
+          "timan107": 48
+        }
+      }
+    }
+  },
+  "cache_control_runtime": "/data/mw_finetune/eval/hs6fw_ctl_143332",
+  "cache_plan_name": "xgpu_preregister_v1_fastwam",
+  "cache_study": false,
+  "cache_worker_orchestration": {
+    "cache_ram_floor_mib": 4096,
+    "cached_actions_unchanged": true,
+    "local_renderer_vram_mib": 1024,
+    "local_server_growth_mib": null,
+    "miss_batch_composition_may_change": true,
+    "owner_authorized": true,
+    "replicas": 2,
+    "schema": "r17.cache_worker_orchestration.v1",
+    "scientific_settings_unchanged": true,
+    "source_nodes": {
+      "timan107": 45,
+      "timan108": 40
+    },
+    "source_replicas": 2,
+    "source_total_workers": 85,
+    "total_workers": 85,
+    "worker_nodes": {
+      "timan1": 42,
+      "timan107": 43
+    }
+  },
+  "checkpoint": "/data/mw_finetune/models/fastwam_libero",
+  "coordinator_runtime": "/data/mw_finetune/qualification/formal_runtime_20550932745afaeb6bf31e858d1bfb91740727cf98bd0c6a5cd9171a8d9baa21",
+  "defer_control_check": true,
+  "device": "cuda:0",
+  "domain": "libero",
+  "driver_host": "ziyanglin.com",
+  "driver_mode": "group-commit",
+  "driver_module": "exp.r17_integration.ops.formal_driver_fast",
+  "driver_port": 29690,
+  "driver_public_port": 23199,
+  "driver_runtime": "/data/mw_finetune/qualification/formal_driver_20550932745afaeb6bf31e858d1bfb91740727cf98bd0c6a5cd9171a8d9baa21",
+  "endpoint": "127.0.0.1:29600",
+  "endpoint_host": "127.0.0.1",
+  "endpoint_port": 29600,
+  "episode_seconds": 3600,
+  "eval_pool": "A",
+  "execution_worker_nodes": {
+    "timan1": 42,
+    "timan107": 43
+  },
+  "execution_workers": 85,
+  "fastwam_batch_treatment": {
+    "batch_implementation_identity": "1e8ec1aa23d1badbe7cfebda4a7e24c6a2d3116c0b795036ee9ed85415e4e939",
+    "batching": {
+      "batch_wait_ms": 5.0,
+      "byte_identical_to_b1": false,
+      "default_off": true,
+      "hardware_qualification": "see BATCHING.md and measurement receipt",
+      "identity": "c4a95a1a3acb492c6ad6798cb879cb86f78a0d9156dd2e65f296cb11edf7f3ff",
+      "max_batch": 16,
+      "numerics_policy": "native_bf16_batch_study_v1",
+      "quality_equivalence": "unverified; matched batched control required",
+      "stage_workers": [
+        1,
+        1,
+        1
+      ]
+    },
+    "checkpoint": "/data/mw_finetune/models/fastwam_libero",
+    "domain": "libero",
+    "gpu_family": "NVIDIA H100 80GB HBM3",
+    "model": "fastwam",
+    "replicas": 2,
+    "schema": "r17.fastwam.batch_treatment.v2",
+    "stage_streams": true,
+    "stage_workers": [
+      1,
+      1,
+      1
+    ],
+    "worker_egl_device": 0,
+    "worker_egl_devices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "worker_max_episodes": 4,
+    "worker_memory_mib": 2048,
+    "worker_nodes": {
+      "timan1": 40,
+      "timan107": 45
+    },
+    "worker_restart_limit": 2,
+    "worker_vram_mib": 768,
+    "workers": 85
+  },
+  "fastwam_batch_treatment_identity": "d467872b539612695bdd3282290b934739dd11e4ebca850f912f17ecbfc31099",
+  "fastwam_batching": {
+    "batch_wait_ms": 5.0,
+    "byte_identical_to_b1": false,
+    "default_off": true,
+    "hardware_qualification": "see BATCHING.md and measurement receipt",
+    "identity": "c4a95a1a3acb492c6ad6798cb879cb86f78a0d9156dd2e65f296cb11edf7f3ff",
+    "max_batch": 16,
+    "numerics_policy": "native_bf16_batch_study_v1",
+    "quality_equivalence": "unverified; matched batched control required",
+    "stage_workers": [
+      1,
+      1,
+      1
+    ]
+  },
+  "ffk_bootstrap_sha256": "4e07fb3ecbfbc15000886cdaeb6cc16da2fbd346e045df22ad8ac77a1e5e4f5e",
+  "ffk_dp_capacity_bridge": false,
+  "ffk_evidence_sha256": "b7c5d06ef219e18387a03f83e438804049d8eab7440d09a81ec970eb6c0c3813",
+  "filter_failed_knob": {
+    "arm": "unfiltered",
+    "cells": {
+      "libero_10/100": {
+        "candidate_view": "/data/r17_library/libero/fastwam/libero_10/bpool/subsets/size_100_keep_success_1015_norefit/VIEW.json",
+        "collected": 100,
+        "empty_tasks": [],
+        "failed": 5,
+        "kept": 95,
+        "labels": "/data/r17_library/libero/fastwam/libero_10/bpool/READY.json#metadata.episodes"
+      },
+      "libero_10/200": {
+        "candidate_view": "/data/r17_library/libero/fastwam/libero_10/bpool/subsets/size_200_keep_success_1015_norefit/VIEW.json",
+        "collected": 200,
+        "empty_tasks": [],
+        "failed": 12,
+        "kept": 188,
+        "labels": "/data/r17_library/libero/fastwam/libero_10/bpool/READY.json#metadata.episodes"
+      },
+      "libero_10/300": {
+        "candidate_view": "/data/r17_library/libero/fastwam/libero_10/bpool/subsets/size_300_keep_success_1015_norefit/VIEW.json",
+        "collected": 300,
+        "empty_tasks": [],
+        "failed": 21,
+        "kept": 279,
+        "labels": "/data/r17_library/libero/fastwam/libero_10/bpool/READY.json#metadata.episodes"
+      },
+      "libero_10/400": {
+        "candidate_view": "/data/r17_library/libero/fastwam/libero_10/bpool/subsets/size_400_keep_success_1015_norefit/VIEW.json",
+        "collected": 400,
+        "empty_tasks": [],
+        "failed": 29,
+        "kept": 371,
+        "labels": "/data/r17_library/libero/fastwam/libero_10/bpool/READY.json#metadata.episodes"
+      },
+      "libero_10/50": {
+        "candidate_view": "/data/r17_library/libero/fastwam/libero_10/bpool/subsets/size_50_keep_success_1015_norefit/VIEW.json",
+        "collected": 50,
+        "empty_tasks": [],
+        "failed": 1,
+        "kept": 49,
+        "labels": "/data/r17_library/libero/fastwam/libero_10/bpool/READY.json#metadata.episodes"
+      },
+      "libero_10/500": {
+        "candidate_view": "/data/r17_library/libero/fastwam/libero_10/bpool/subsets/size_500_keep_success_1015_norefit/VIEW.json",
+        "collected": 500,
+        "empty_tasks": [],
+        "failed": 38,
+        "kept": 462,
+        "labels": "/data/r17_library/libero/fastwam/libero_10/bpool/READY.json#metadata.episodes"
+      },
+      "libero_spatial/100": {
+        "candidate_view": "/data/r17_library/libero/fastwam/libero_spatial/bpool/subsets/size_100_keep_success_1015_norefit/VIEW.json",
+        "collected": 100,
+        "empty_tasks": [],
+        "failed": 15,
+        "kept": 85,
+        "labels": "/data/r17_library/libero/fastwam/libero_spatial/bpool/READY.json#metadata.episodes"
+      },
+      "libero_spatial/200": {
+        "candidate_view": "/data/r17_library/libero/fastwam/libero_spatial/bpool/subsets/size_200_keep_success_1015_norefit/VIEW.json",
+        "collected": 200,
+        "empty_tasks": [],
+        "failed": 25,
+        "kept": 175,
+        "labels": "/data/r17_library/libero/fastwam/libero_spatial/bpool/READY.json#metadata.episodes"
+      },
+      "libero_spatial/300": {
+        "candidate_view": "/data/r17_library/libero/fastwam/libero_spatial/bpool/subsets/size_300_keep_success_1015_norefit/VIEW.json",
+        "collected": 300,
+        "empty_tasks": [],
+        "failed": 41,
+        "kept": 259,
+        "labels": "/data/r17_library/libero/fastwam/libero_spatial/bpool/READY.json#metadata.episodes"
+      },
+      "libero_spatial/400": {
+        "candidate_view": "/data/r17_library/libero/fastwam/libero_spatial/bpool/subsets/size_400_keep_success_1015_norefit/VIEW.json",
+        "collected": 400,
+        "empty_tasks": [],
+        "failed": 55,
+        "kept": 345,
+        "labels": "/data/r17_library/libero/fastwam/libero_spatial/bpool/READY.json#metadata.episodes"
+      },
+      "libero_spatial/50": {
+        "candidate_view": "/data/r17_library/libero/fastwam/libero_spatial/bpool/subsets/size_50_keep_success_1015_norefit/VIEW.json",
+        "collected": 50,
+        "empty_tasks": [],
+        "failed": 7,
+        "kept": 43,
+        "labels": "/data/r17_library/libero/fastwam/libero_spatial/bpool/READY.json#metadata.episodes"
+      },
+      "libero_spatial/500": {
+        "candidate_view": "/data/r17_library/libero/fastwam/libero_spatial/bpool/subsets/size_500_keep_success_1015_norefit/VIEW.json",
+        "collected": 500,
+        "empty_tasks": [],
+        "failed": 68,
+        "kept": 432,
+        "labels": "/data/r17_library/libero/fastwam/libero_spatial/bpool/READY.json#metadata.episodes"
+      }
+    },
+    "method": "frozen_fit_candidate_rows_only",
+    "refit": false,
+    "selection": {},
+    "source": "/data/mw_finetune/eval/knobtestfw3"
+  },
+  "filter_failed_source": "/data/mw_finetune/eval/knobtestfw3",
+  "init_count": 50,
+  "library": false,
+  "live_k": 4,
+  "local_assets": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/closedloop/fastwam_longseg_recal1018/pure/assets",
+  "local_worker_memory_mib": 4096,
+  "local_worker_vram_mib": 1024,
+  "longseg_1017": {
+    "Q3_recalibrated": true,
+    "bootstrap_sha256": "4e07fb3ecbfbc15000886cdaeb6cc16da2fbd346e045df22ad8ac77a1e5e4f5e",
+    "calibration_quantum": "C10 decision units exec=commit=1; C5 unchanged",
+    "clock_unit": "segment_decision",
+    "corrector_unchanged": true,
+    "no_refit": false,
+    "recalibration": {
+      "C5_artifacts_unchanged": true,
+      "Q3": "successful-library empirical q90/q10 LOEO; decision stride",
+      "artifact_digests": [
+        "02ef6203503d95822c09b0367cad592c47d095bcddab007f1d851d9690d0ddcd",
+        "1e6313cebde7277939df8d5b69a8b5a0c8fd56aff25e5759c4e4c775b6b42689",
+        "29b2e9cb87bd3f3079be5c5a51c0ec42ac70ef674a1c4b4165f361b92f0871d5",
+        "4696fe2cabbbb4ebed8b9bf10038c8c788cd4844c30b4283acc2baa3f72004a4",
+        "624da83e3505996a93f92939c10498f11646d7b54913a160e53f404b66e66970",
+        "6ee570db72809efbd0ca295137346a5e1d6f538a7d03a093268eda4029ff614d",
+        "821996dc966b9cd662fee6dcedc578eb5a3f4d7907ba928d55c12c2a6f520a52",
+        "8aa97673b75ef26a79741c78f774b396319fe54fe8e3cdaa9b90c5f7a9a26e6a",
+        "abb81f599f18489ef9842ecac82edb6f78f91748d9b8d59dd9999d484da210d3",
+        "ca669000390bc71c2119ac607fda5cd45f35e3795bb3e25b3408951183fa17b5",
+        "cc8b4494bb91a42c5664e4baaf54a99f0b7ea31a9c978ecb50425e45d2c5642c",
+        "f23ad5c02a4d8071e64bd1e68fca461725ea0cac80f6ede1ed095c72c6e2f3f3"
+      ],
+      "clock_unit": "segment_decision",
+      "level_ir": "M/N_heads",
+      "levels_outside_tolerance": [],
+      "tolerance": 0.005
+    },
+    "retrieval_fit_unchanged": true,
+    "tails": "delivery_only",
+    "transport_rebind": {
+      "destination": {
+        "driver_port": 23199,
+        "endpoint": "149.165.153.233:23420",
+        "endpoint_host": "149.165.153.233",
+        "endpoint_port": 23420,
+        "public_port": 23420
+      },
+      "model_serving_R_B_MPS_unchanged": true,
+      "reason": "Forward remote workers through native direct-port range; isolate H100 driver from 4090 server/driver ports",
+      "source": {
+        "driver_port": 23111,
+        "endpoint": "149.165.153.233:23420",
+        "endpoint_host": "149.165.153.233",
+        "endpoint_port": 23420,
+        "public_port": 23420
+      },
+      "task_identity_unchanged": true
+    }
+  },
+  "longseg_1017_input_roots": [
+    "/data/mw_finetune/eval/ffk1015_fastwam_libero_full_formal_A_original/assets/cache_inputs"
+  ],
+  "memory_budget_gib": 70.0,
+  "model": "fastwam",
+  "mps": {
+    "active_thread_percentage": 100,
+    "compute_mode_change": false,
+    "enabled": true,
+    "private_per_campaign_gpu": true,
+    "schema": "r17.mps.v1"
+  },
+  "native_parity_only": false,
+  "official_50": true,
+  "ports": [
+    23420,
+    23421,
+    23422,
+    23199
+  ],
+  "prepare_only": true,
+  "public_port": 29600,
+  "replica_startup_width": 2,
+  "replicas": 2,
+  "retries": 0,
+  "run_name": "xgpu_preregister_v1_fastwam_pure",
+  "runtime": "/data/mw_finetune/qualification/formal_runtime_20550932745afaeb6bf31e858d1bfb91740727cf98bd0c6a5cd9171a8d9baa21",
+  "runtime_from": "/data/mw_finetune/eval/knobtestfw3",
+  "runtime_identity": "20550932745afaeb6bf31e858d1bfb91740727cf98bd0c6a5cd9171a8d9baa21",
+  "seconds": 518400,
+  "semantic_campaign": "xgpu_preregister_v1_fastwam",
+  "server_node": "h100",
+  "server_python": "/data/mw_finetune/envs/fastwam/bin/python",
+  "server_run": "/data/mw_finetune/eval/fa_ls_fw_f_u_o_l/servers",
+  "smoke": false,
+  "smoke_episodes": 4,
+  "suites": [
+    "libero_spatial"
+  ],
+  "timan1_worker_lease": {
+    "device": 2,
+    "device_minor": 1,
+    "excluded_devices": [
+      0,
+      1,
+      3
+    ],
+    "maximum_workers": 83,
+    "pci": "0000:81:00.0",
+    "schema": "r17.timan1_gpu2_lease.v1",
+    "uuid": "GPU-9bdcf7cc-8a05-a7f9-b1c3-4d53d0a229df",
+    "worker_max_episodes": 4,
+    "worker_memory_mib": 2048,
+    "worker_vram_mib": 530,
+    "workers": 42
+  },
+  "vendor": "/home/weiland/projects/openpi_ext/third_party/gr00t_n15",
+  "worker_egl_device": 0,
+  "worker_egl_devices": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "worker_max_episodes": 4,
+  "worker_memory_mib": 2048,
+  "worker_min_free_gib": 8,
+  "worker_nodes": {
+    "timan1": 40,
+    "timan107": 45
+  },
+  "worker_restart_limit": 2,
+  "worker_vram_mib": 768,
+  "workers": 85
+}

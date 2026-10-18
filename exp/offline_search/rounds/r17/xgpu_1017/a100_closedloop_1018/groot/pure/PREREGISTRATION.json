@@ -1,0 +1,30 @@
+{
+  "arm": "pure",
+  "capacity": {
+    "allocator_gib": 28,
+    "local_workers": 8,
+    "max_batch": 1,
+    "renderer": "A100 EGL",
+    "replicas": 4
+  },
+  "cold_starts": 2,
+  "confidence": 0.95,
+  "created": 1792346142.5480433,
+  "episodes": 100,
+  "group": null,
+  "io_after": "some avg10=3.20 avg60=2.67 avg300=1.75 total=41843285301\nfull avg10=3.20 avg60=2.67 avg300=1.73 total=41322599109\n",
+  "io_before_plan": "some avg10=3.20 avg60=2.67 avg300=1.75 total=41843285301\nfull avg10=3.20 avg60=2.67 avg300=1.73 total=41322599109\n",
+  "limitations": [
+    "100 pairs cannot certify \u00b12pp even with zero discordance",
+    "A100-local worker placement and explicit capacity arm differ from reference; comparison is deployment-level"
+  ],
+  "margin": 0.02,
+  "model": "groot",
+  "original_uid_namespace": true,
+  "plan_sha256": "2e5c3d451463fd51b509b390ff3a4422ac69306efc5e1641dadc7bfcdc9efceb",
+  "runtime_identity": "13db208bb8cf088097901d2e5c2cb20c7e584d7b0bfdf1a849996f94f8dd30c3",
+  "runtime_source": "/data/mw_finetune/qualification/formal_runtime_13db208bb8cf088097901d2e5c2cb20c7e584d7b0bfdf1a849996f94f8dd30c3",
+  "selection": "all tasks, original init 0..1",
+  "source": "/data/mw_finetune/eval/tgr7h1_full",
+  "source_receipt_status": "PASS"
+}

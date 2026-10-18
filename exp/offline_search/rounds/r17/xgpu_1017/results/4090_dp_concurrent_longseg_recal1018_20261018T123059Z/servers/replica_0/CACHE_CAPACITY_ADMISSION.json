@@ -1,0 +1,10 @@
+{
+  "actual_replicas": 4,
+  "canonical_workers": 48,
+  "control_replicas": 2,
+  "execution_workers": 48,
+  "gated_miss_batch_composition_may_change": true,
+  "native_sampler_batch_recipe_checks_preserved": true,
+  "owner_authorized": true,
+  "schema": "r17.dp_cache_capacity_bridge.v1"
+}

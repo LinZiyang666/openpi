@@ -1,0 +1,48 @@
+{
+  "files": {
+    "/data/mw_finetune/eval/ffk1015_dp_libero_full_formal_A_original/assets/cache_inputs/libero_spatial/n50_C10/fit/READY.json": {
+      "bytes": 171336,
+      "sha256": "7c2634cadc06240f19a96008b52cbd0a54bc56dc5e6797eb0cad56146e45cff6"
+    },
+    "/data/mw_finetune/eval/ffk1015_dp_libero_full_formal_A_original/assets/cache_inputs/libero_spatial/n50_C10/fit/fit.npz": {
+      "bytes": 7958274,
+      "sha256": "b8bb9bc28d86f72176db444b87540180129fa145ab54d2f6cfd23b8f5d7534f8"
+    },
+    "/data/mw_finetune/eval/ffk1015_dp_libero_full_formal_A_original/assets/cache_inputs/libero_spatial/n50_C10/stall/READY.json": {
+      "bytes": 781,
+      "sha256": "944eb42e690542de8e10747236b71988c6f0e0f0b769e972fc01ca999ebee741"
+    },
+    "/data/mw_finetune/eval/ffk1015_dp_libero_full_formal_A_original/assets/cache_inputs/libero_spatial/n50_C10/stall/stall.json": {
+      "bytes": 2885,
+      "sha256": "8bf74eccdb2836b368e7d64174489ec90cf5f5416873f983abb16ade1ad1cb45"
+    },
+    "/data/mw_finetune/eval/ffk1015_dp_libero_full_formal_A_original/assets/cache_inputs/libero_spatial/n50_C10/stall/stall.loeo.csv": {
+      "bytes": 46978,
+      "sha256": "6be101967e38640ee01cc55dbf63d11151f30cdaa58b5eeff7f7d50294f7b24d"
+    },
+    "/data/mw_finetune/eval/ffk1015_dp_libero_full_formal_A_original/assets/cache_inputs/libero_spatial/n50_C10/stall/stall.pkl": {
+      "bytes": 2534637,
+      "sha256": "1ed037a09c5990e3e948a280bd1a65c0d1ba43b1765d4ab425ec09055b28233e"
+    },
+    "/data/mw_finetune/eval/ffk1015_dp_libero_full_formal_A_original/assets/cache_inputs/libero_spatial/parent/READY.json": {
+      "bytes": 28463459,
+      "sha256": "765e307e2aa454dfc91ea966fdaf2732cf4e1991a8cc156adc0df7dcbde75605"
+    },
+    "/data/mw_finetune/eval/ffk1015_dp_libero_full_formal_A_original/assets/cache_inputs/libero_spatial/parent/subsets/size_50/VIEW.json": {
+      "bytes": 12244,
+      "sha256": "056b7cef467654804fbf23725090c0631956150ee460b5fada15a1822d8928df"
+    },
+    "/data/mw_finetune/eval/ffk1015_dp_libero_full_formal_A_original/assets/cache_inputs/libero_spatial/parent/subsets/size_50/row_indices.npy": {
+      "bytes": 10168,
+      "sha256": "8576c247dde429929b62d240537b4e061b56757e6484ec1686cee19ce4b2e499"
+    },
+    "/data/mw_finetune/qualification/assets/dp_libero_gpu_fix1_v1/wire_observations.npz": {
+      "bytes": 448606,
+      "sha256": "4c480ecbb04193a38da09d85c24431547537cdf1150243d6067c019c8170db4a"
+    }
+  },
+  "identity": "8ad91a4734ce2a2205b2b3e2e5867137f47fe7f3da111989f39a81f0ad826cbf",
+  "schema": "xgpu.cache.files.v1",
+  "scope": "current dependency bytes; not retrospective verification of old runs",
+  "serving_pin": "e215a22ab6200c400eb7239ce21950d5de3d417d83693e6c09a9a50228fe669c"
+}

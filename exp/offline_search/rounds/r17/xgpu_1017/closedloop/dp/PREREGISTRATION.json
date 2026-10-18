@@ -1,0 +1,25 @@
+{
+  "analysis": "per model/suite/arm; exact paired CI, exact McNemar, task-cluster sensitivity",
+  "arms": {
+    "cache": {
+      "cache_group": "chrg_koff",
+      "episodes": 500,
+      "plan_sha256": "bf33be68305fb64b17b59411d602e88bfb04730a3ac320b840d7eb07f8522ac1"
+    },
+    "pure": {
+      "cache_group": null,
+      "episodes": 500,
+      "plan_sha256": "a0807dd212e75e56f4d4dbba146907518e2b7bd7ae809a75592f8d19a047d3ce"
+    }
+  },
+  "confidence": 0.95,
+  "inits_per_task": 50,
+  "margin": 0.02,
+  "model": "dp",
+  "renderer_admission": "REQUIRED",
+  "run_status": "PREPARED_NOT_LAUNCHED",
+  "runtime_identity": "5927a753312bf5981cba81a2e389edea914bde0580523b0dc3c8ea8d58f1fa1e",
+  "schema": "xgpu.closedloop.preregistration.v1",
+  "source_campaign_sha256": "537d88373a38f53d35909a1d69b2ae284ba1d7eb44e797812ba7206e68a8b73b",
+  "transport": "no push/pull/expose launcher is called by this preparation"
+}

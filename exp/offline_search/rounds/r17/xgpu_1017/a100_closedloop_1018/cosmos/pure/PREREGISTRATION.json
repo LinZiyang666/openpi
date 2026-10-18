@@ -1,0 +1,31 @@
+{
+  "arm": "pure",
+  "capacity": {
+    "allocator_gib": 19,
+    "local_workers": 8,
+    "max_batch": 1,
+    "renderer": "A100 EGL",
+    "replicas": 2
+  },
+  "cold_starts": 2,
+  "confidence": 0.95,
+  "created": 1792346401.3203578,
+  "episodes": 100,
+  "group": null,
+  "io_after": "some avg10=1.79 avg60=1.91 avg300=1.98 total=41850071174\nfull avg10=1.79 avg60=1.91 avg300=1.98 total=41329344348\n",
+  "io_before_plan": "some avg10=1.79 avg60=1.91 avg300=1.98 total=41850040509\nfull avg10=1.79 avg60=1.91 avg300=1.98 total=41329313686\n",
+  "limitations": [
+    "100 pairs cannot certify \u00b12pp even with zero discordance",
+    "A100-local worker placement and explicit capacity arm differ from reference; comparison is deployment-level"
+  ],
+  "margin": 0.02,
+  "model": "cosmos",
+  "original_uid_namespace": true,
+  "plan_sha256": "60409987a1b5ae1c02cf403e519aba0426a3a44c0b77b0faa683aa4b575f84eb",
+  "runtime_identity": "41f7d6a450fcd53bbb4e9196f2cd932a1502911f7e2235d933b6d01c1f189058",
+  "runtime_kind": "legacy_archive",
+  "runtime_source": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/a100_closedloop_1018/legacy_runtimes/formal_runtime_41f7d6a450fcd53bbb4e9196f2cd932a1502911f7e2235d933b6d01c1f189058",
+  "selection": "all tasks, original init 0..9",
+  "source": "/data/mw_finetune/eval/hs2_cosmos_h100_k2incl_c16_t107_20261010_115120",
+  "source_receipt_status": "PASS"
+}

@@ -1,0 +1,40 @@
+{
+  "identity": "234a5635a9d0712b68f26964362ebd4d99a47f07eb035fbdf78fde2e240e77c1",
+  "provenance": {
+    "env_seed": 7,
+    "history_coverage": "three zero-action-spaced frames, not a policy rollout",
+    "init": 0,
+    "kind": "tiny_real_MT50_CPU_capture",
+    "recorded": true,
+    "renderer": {
+      "GL_RENDERER": "llvmpipe (LLVM 20.1.2, 256 bits)",
+      "GL_VENDOR": "Mesa",
+      "GL_VERSION": "4.5 (Compatibility Profile) Mesa 25.1.7-1ubuntu2~24.04.2"
+    },
+    "synthetic": false,
+    "task": "assembly-v3",
+    "versions": {
+      "metaworld": "3.0.0",
+      "mujoco": "3.14.0",
+      "numpy": "1.26.4"
+    }
+  },
+  "rows": [
+    {
+      "file": "input_0000",
+      "identity": "5561d2b56c5283ed25df8dff8b849ac41cc2e41be06b6a780c4688dcb2a7be42",
+      "sha256": "8dd0ec995403f11e49233256df86c14b8a7233d4984bd2e5b7623cb7b1ebdacb"
+    },
+    {
+      "file": "input_0001",
+      "identity": "0c8efafe443680674feb655f48d95c46a20a47dafdebaa6d890f820a7fef28bd",
+      "sha256": "f9804f8176380699a76bf607050bf26a022b843d8f5c6ccd66f30ccb2ed451ae"
+    },
+    {
+      "file": "input_0002",
+      "identity": "51c0c2f40b7b97ca100ba1eb7a65609c6f7fd2a33e42d9483ffd47a430f35c3e",
+      "sha256": "717520130f7d7dd41f2475b77f5791c8ca274eec4846f7037a0ce433ffe8ea8d"
+    }
+  ],
+  "schema": "xgpu.inputs.v1"
+}

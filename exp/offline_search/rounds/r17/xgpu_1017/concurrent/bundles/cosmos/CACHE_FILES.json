@@ -1,0 +1,44 @@
+{
+  "files": {
+    "/data/mw_finetune/eval/ffk1015_cosmos_libero_reduced_formal_A_original_levels/assets/cache_inputs/libero_spatial/n50_C16/fit/READY.json": {
+      "bytes": 67073,
+      "sha256": "ee0999d938c58db05029bf090d13f1aad47ae3298111b8abe1ef5f6b0af2007f"
+    },
+    "/data/mw_finetune/eval/ffk1015_cosmos_libero_reduced_formal_A_original_levels/assets/cache_inputs/libero_spatial/n50_C16/fit/fit.npz": {
+      "bytes": 8385010,
+      "sha256": "8fa56035cb606c964ca758571fafde3214699c9ce9ec5ee68f492bab7aea1b7f"
+    },
+    "/data/mw_finetune/eval/ffk1015_cosmos_libero_reduced_formal_A_original_levels/assets/cache_inputs/libero_spatial/n50_C16/stall/READY.json": {
+      "bytes": 777,
+      "sha256": "12b0abc372e95a1928a88f4e71c90042095e347b51297b8c05f581e17e1da6bd"
+    },
+    "/data/mw_finetune/eval/ffk1015_cosmos_libero_reduced_formal_A_original_levels/assets/cache_inputs/libero_spatial/n50_C16/stall/stall.json": {
+      "bytes": 2875,
+      "sha256": "783b3bb096b13d7f4d40fa234ff453fac4553063af4483a65b7dd4acde19ca11"
+    },
+    "/data/mw_finetune/eval/ffk1015_cosmos_libero_reduced_formal_A_original_levels/assets/cache_inputs/libero_spatial/n50_C16/stall/stall.loeo.csv": {
+      "bytes": 20751,
+      "sha256": "f4f63af5da9b1d03ea2f9814733decd7cd95690be63865223216b1bcac7600a3"
+    },
+    "/data/mw_finetune/eval/ffk1015_cosmos_libero_reduced_formal_A_original_levels/assets/cache_inputs/libero_spatial/n50_C16/stall/stall.pkl": {
+      "bytes": 1159447,
+      "sha256": "eb2c8e43ea39481730a203922b789960a2b6b8a43ca699c0dd37016d62ec3deb"
+    },
+    "/data/mw_finetune/eval/ffk1015_cosmos_libero_reduced_formal_A_original_levels/assets/cache_inputs/libero_spatial/parent/READY.json": {
+      "bytes": 9214376,
+      "sha256": "bf0c896ee685bb9de104cedd833746d03bf984649e367d024636a18c5c1e23aa"
+    },
+    "/data/mw_finetune/eval/ffk1015_cosmos_libero_reduced_formal_A_original_levels/assets/cache_inputs/libero_spatial/parent/subsets/size_50/VIEW.json": {
+      "bytes": 6564,
+      "sha256": "fceebac77ca3c1cda841bdae15cb7f35dfb86dc5c043e9b25a49328763d0994b"
+    },
+    "/data/mw_finetune/eval/ffk1015_cosmos_libero_reduced_formal_A_original_levels/assets/cache_inputs/libero_spatial/parent/subsets/size_50/row_indices.npy": {
+      "bytes": 3144,
+      "sha256": "3238b6cde198807be13b7697aa30783676d64e7267023c3827c97e6b68118114"
+    }
+  },
+  "identity": "524d52d0d2c62539cda167389a77e48df90947fa9dfb201c5daff65504334ebe",
+  "schema": "xgpu.cache.files.v1",
+  "scope": "current dependency bytes; not retrospective verification of old runs",
+  "serving_pin": "3fefb6a9fc62581f2fa9d6e69728ed8c05fcecb7bcc717325f79633f6a2cdae8"
+}

@@ -1,0 +1,75 @@
+{
+  "closed": 1792345956.2514634,
+  "commands": [
+    [
+      "rsync",
+      "-a",
+      "--bwlimit=16384",
+      "--contimeout=10",
+      "--timeout=120",
+      "--exclude=__pycache__",
+      "--exclude=*.pyc",
+      "--include=/tools/***",
+      "--include=/pi05/",
+      "--include=/pi05/pure/***",
+      "--include=/pi05/cache/***",
+      "--include=/pi05/MODEL_PATHS.json",
+      "--include=/pi05/WORKER.json",
+      "--exclude=*",
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/a100_closedloop_1018/",
+      "rsync://149.165.152.232:29770/payload/"
+    ],
+    [
+      "rsync",
+      "-a",
+      "--bwlimit=16384",
+      "--contimeout=10",
+      "--timeout=120",
+      "--exclude=__pycache__",
+      "--exclude=*.pyc",
+      "/data/mw_finetune/qualification/formal_runtime_77681797bf4771b82c982e54b1e3075c0e219e3040fcee8bbbb2ecb6de940b34/",
+      "rsync://149.165.152.232:29770/runtime0/"
+    ],
+    [
+      "rsync",
+      "-a",
+      "--bwlimit=16384",
+      "--contimeout=10",
+      "--timeout=120",
+      "--exclude=__pycache__",
+      "--exclude=*.pyc",
+      "/data/mw_finetune/qualification/formal_runtime_af22613ead3df9625293e6efa813376d3629774be676b022609e3b4438b5b4c1/",
+      "rsync://149.165.152.232:29770/runtime1/"
+    ],
+    [
+      "rsync",
+      "-a",
+      "--bwlimit=16384",
+      "--contimeout=10",
+      "--timeout=120",
+      "--exclude=__pycache__",
+      "--exclude=*.pyc",
+      "/home/weiland/projects/openpi_ext/envs/metaworld_sim/lib/python3.11/site-packages/",
+      "rsync://149.165.152.232:29770/sim/"
+    ],
+    [
+      "rsync",
+      "-a",
+      "--bwlimit=16384",
+      "--contimeout=10",
+      "--timeout=120",
+      "--exclude=__pycache__",
+      "--exclude=*.pyc",
+      "--files-from=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/a100_closedloop_1018/transfer/reverse_1792345912/deps.files",
+      "/data/mw_finetune/",
+      "rsync://149.165.152.232:29770/deps/"
+    ]
+  ],
+  "io_after": "some avg10=0.41 avg60=0.55 avg300=1.19 total=41838284854\nfull avg10=0.41 avg60=0.53 avg300=1.17 total=41317667304\n",
+  "io_before": "some avg10=0.15 avg60=0.72 avg300=1.33 total=41837949487\nfull avg10=0.15 avg60=0.72 avg300=1.31 total=41317334663\n",
+  "model": "pi05",
+  "pid": 42408,
+  "port": 29770,
+  "started": 1792345912.7027748,
+  "status": "COMPLETE"
+}

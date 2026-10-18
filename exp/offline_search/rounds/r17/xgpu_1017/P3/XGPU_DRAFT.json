@@ -1,0 +1,5 @@
+{
+  "arm": "cache",
+  "host": "4090",
+  "model": "groot"
+}

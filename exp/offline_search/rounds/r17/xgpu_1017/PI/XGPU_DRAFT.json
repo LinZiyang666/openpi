@@ -1,0 +1,5 @@
+{
+  "arm": "pure",
+  "host": "h100",
+  "model": "cosmos"
+}

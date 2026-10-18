@@ -1,0 +1,30 @@
+{
+  "arm": "pure",
+  "capacity": {
+    "allocator_gib": 35,
+    "local_workers": 8,
+    "max_batch": 16,
+    "renderer": "A100 EGL",
+    "replicas": 1
+  },
+  "cold_starts": 2,
+  "confidence": 0.95,
+  "created": 1792346335.0164554,
+  "episodes": 100,
+  "group": null,
+  "io_after": "some avg10=2.14 avg60=2.06 avg300=1.98 total=41848402903\nfull avg10=2.14 avg60=2.06 avg300=1.98 total=41327682843\n",
+  "io_before_plan": "some avg10=2.14 avg60=2.06 avg300=1.98 total=41848391499\nfull avg10=2.14 avg60=2.06 avg300=1.98 total=41327671439\n",
+  "limitations": [
+    "100 pairs cannot certify \u00b12pp even with zero discordance",
+    "A100-local worker placement and explicit capacity arm differ from reference; comparison is deployment-level"
+  ],
+  "margin": 0.02,
+  "model": "fastwam",
+  "original_uid_namespace": true,
+  "plan_sha256": "eeb61796aa72e1fd494b171f7775f4baae10b33c8be6728b1dad056148ff2f1a",
+  "runtime_identity": "1cf76a84a4a35ccd547fa14644bcb8e2ab446675d7fbbc363efe5ee078eab7f7",
+  "runtime_source": "/data/mw_finetune/qualification/formal_runtime_1cf76a84a4a35ccd547fa14644bcb8e2ab446675d7fbbc363efe5ee078eab7f7",
+  "selection": "all tasks, original init 0..9",
+  "source": "/data/mw_finetune/eval/hs6fw_res_152931",
+  "source_receipt_status": "PASS"
+}

@@ -1,0 +1,203 @@
+{
+  "identity": "6c733af80d2c0a49c48945a303dd6524c30a8784a804bfae59f2c6c8c37cc9ab",
+  "provenance": {
+    "historical_run_reconstruction": false,
+    "history_coverage": "initial queries only",
+    "kind": "recorded_frames_new_diagnostic_seeds",
+    "receipt": {
+      "dataset_info": {
+        "chunks_size": 1000,
+        "codebase_version": "v2.0",
+        "data_path": "data/chunk-{episode_chunk:03d}/episode_{episode_index:06d}.parquet",
+        "features": {
+          "actions": {
+            "dtype": "float32",
+            "names": [
+              "actions"
+            ],
+            "shape": [
+              7
+            ]
+          },
+          "episode_index": {
+            "dtype": "int64",
+            "names": null,
+            "shape": [
+              1
+            ]
+          },
+          "frame_index": {
+            "dtype": "int64",
+            "names": null,
+            "shape": [
+              1
+            ]
+          },
+          "image": {
+            "dtype": "image",
+            "names": [
+              "height",
+              "width",
+              "channel"
+            ],
+            "shape": [
+              256,
+              256,
+              3
+            ]
+          },
+          "index": {
+            "dtype": "int64",
+            "names": null,
+            "shape": [
+              1
+            ]
+          },
+          "state": {
+            "dtype": "float32",
+            "names": [
+              "state"
+            ],
+            "shape": [
+              8
+            ]
+          },
+          "task_index": {
+            "dtype": "int64",
+            "names": null,
+            "shape": [
+              1
+            ]
+          },
+          "timestamp": {
+            "dtype": "float32",
+            "names": null,
+            "shape": [
+              1
+            ]
+          },
+          "wrist_image": {
+            "dtype": "image",
+            "names": [
+              "height",
+              "width",
+              "channel"
+            ],
+            "shape": [
+              256,
+              256,
+              3
+            ]
+          }
+        },
+        "fps": 10,
+        "robot_type": "panda",
+        "splits": {
+          "train": "0:1693"
+        },
+        "total_chunks": 2,
+        "total_episodes": 1693,
+        "total_frames": 273465,
+        "total_tasks": 40,
+        "total_videos": 0,
+        "video_path": "videos/chunk-{episode_chunk:03d}/{video_key}/episode_{episode_index:06d}.mp4"
+      },
+      "files": {
+        "fastwam_observations.npz": "403187908f0bbbbbc6196b2e7f6d1224acc382ce99dee34d4199dba33cadb3d2",
+        "wire_observations.npz": "4c480ecbb04193a38da09d85c24431547537cdf1150243d6067c019c8170db4a"
+      },
+      "frames": [
+        {
+          "cameras": {
+            "image": {
+              "encoded_sha256": "1b3043233b240a49958be00b5b21cd581a0142bde3a4fa8ade6dc193805ef315",
+              "rgb_sha256": "5aa654396d263da3b9e1848d3fec397eec4dd5fc49ed84699ed4577a127b06bc"
+            },
+            "wrist_image": {
+              "encoded_sha256": "47a7e57f797503ffbed0cf25fe594926aca3e79a43205bd3dc960006c7693bd2",
+              "rgb_sha256": "c1a5998ea3a383b325094304ae844604e37e99e38d64a9b0491f5f01765bf442"
+            }
+          },
+          "dataset_task_index": 34,
+          "episode_index": 1272,
+          "frame_index": 0
+        },
+        {
+          "cameras": {
+            "image": {
+              "encoded_sha256": "f24983eeaccca3edecbc0c1c14e00010954db90b7e21c24160cbd2420f3baf37",
+              "rgb_sha256": "9b92249f3b4a1339470d31d6a4c74c9668afbca3aff699307ea9333d334b5185"
+            },
+            "wrist_image": {
+              "encoded_sha256": "3523321266014c83b91e2b994af448725675815592537147d354adbb0367c63b",
+              "rgb_sha256": "55849e2ab046443aaaa18f2d6d6228bf92c8d14e3b36647d6aca9ebe7bc217db"
+            }
+          },
+          "dataset_task_index": 34,
+          "episode_index": 1272,
+          "frame_index": 1
+        },
+        {
+          "cameras": {
+            "image": {
+              "encoded_sha256": "dd41525b0f7017130a02a03d65240be656d256a58eee797c06623cd55a7f613e",
+              "rgb_sha256": "224c82dca70cb1648e2cdb4f6411767a755fa3e166fd54deecca17dc0145cc02"
+            },
+            "wrist_image": {
+              "encoded_sha256": "1db603eed7861a8284c90120be71f170f5eeb40c162d89f3c38bcca63c501da3",
+              "rgb_sha256": "ca8d5ce351d8dceef4ab34eca08a3f9135d224f8b1c5473d43bfe25a80bc7993"
+            }
+          },
+          "dataset_task_index": 34,
+          "episode_index": 1272,
+          "frame_index": 2
+        }
+      ],
+      "image_shape": [
+        3,
+        256,
+        256,
+        3
+      ],
+      "language": "pick up the black bowl between the plate and the ramekin and place it on the plate",
+      "quality_claim": false,
+      "real_reset": false,
+      "recorded": true,
+      "rows": 3,
+      "schema": "r17.Q.recorded_observations.v1",
+      "source": "/data/mw_finetune/dp/libero_source/data/chunk-001/episode_001272.parquet",
+      "source_sha256": "ca13795f554eacaeea1e60e2407a4402bf37af937757781609ae1ec66d86354f",
+      "state_shape": [
+        3,
+        8
+      ],
+      "synthetic": false,
+      "wrist_shape": [
+        3,
+        256,
+        256,
+        3
+      ]
+    },
+    "source": "/data/mw_finetune/qualification/assets/dp_libero_night1009_234426/wire_observations.npz",
+    "source_sha256": "4c480ecbb04193a38da09d85c24431547537cdf1150243d6067c019c8170db4a"
+  },
+  "rows": [
+    {
+      "file": "input_0000",
+      "identity": "98675018fcdc824c45dcfe6023afdd7d5dbc3ee9630dcdbd906ed302051b73a7",
+      "sha256": "2043052f41dcfe0a0b7204bee9ea42f663d51e042907f17e25970823e7281282"
+    },
+    {
+      "file": "input_0001",
+      "identity": "c5976e7b8e29451ab42af5c833029de0ef7153a61f1265f1779b399020db8d52",
+      "sha256": "54dd399e4722a66cbca03194eaf76aab925a774624a54b84eb7283da267ddc3c"
+    },
+    {
+      "file": "input_0002",
+      "identity": "e69baa587ec01df6db4e4e1eb6a0f153d39b7192cc05a9107d22fd7378d56891",
+      "sha256": "76535a21a1b60d8a80a4d3a870a96cabf0b71074f7dc57dc76a446a4c8d6faa8"
+    }
+  ],
+  "schema": "xgpu.inputs.v1"
+}

@@ -518,3 +518,6 @@ exp/offline_search/rounds/r17/**/*_editor.html
 /exp/offline_search/rounds/r17/autoscale_1017/followup_1018/generation_before/
 /exp/offline_search/rounds/r17/autoscale_1017/followup_1018/generation_candidate/
 /exp/offline_search/rounds/r17/autoscale_1017/followup_1018/off_switch/exp/
+
+# Tools copied into the A100 transfer payload by a100_closedloop_stage_1018.py.
+/exp/offline_search/rounds/r17/xgpu_1017/a100_closedloop_1018/tools/

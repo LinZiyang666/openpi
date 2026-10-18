@@ -1,0 +1,23 @@
+{
+  "accounting_scope": "clients_plus_private_server_overhead",
+  "clients": {
+    "1521444": [
+      1521437,
+      1524712
+    ]
+  },
+  "daemon_alive": true,
+  "owned_pids": [
+    1521437,
+    1524712
+  ],
+  "owned_total_mib": 27042.0,
+  "per_pid_mib": {
+    "1521437": 13506.0,
+    "1521444": 30.0,
+    "1524712": 13506.0
+  },
+  "servers": [
+    1521444
+  ]
+}
