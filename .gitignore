@@ -524,3 +524,9 @@ exp/offline_search/rounds/r17/**/*_editor.html
 
 # Retired dynamic command copies kept locally by the running coordinator.
 /exp/offline_search/rounds/r17/filter_failed_knob/commands/*.NOT_FOR_RUNNING_*
+
+# Oversized generated plans found in previously unpushed local history.
+/exp/offline_search/rounds/r17/filter_failed_knob/continuation_checks_1016/synthetic_merge/FULL_EPISODE_PLAN.json
+/exp/offline_search/rounds/r17/filter_failed_knob/continuation_checks_1016/synthetic_merge/campaign.json
+/exp/offline_search/rounds/r17/filter_failed_knob/cpu_fixtures/vla/inventory/inventory.json
+/exp/offline_search/rounds/r17/filter_failed_knob/vla/inventory/inventory.json
