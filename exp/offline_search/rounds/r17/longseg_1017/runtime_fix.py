@@ -93,3 +93,41 @@ def apply(archive):
     tmp.write_bytes(buffer.getvalue())
     tmp.replace(archive)
     return receipt
+
+
+def stage(launch, campaign, root):
+    """filter_failed.stage path: run the fixed copy of the inherited archive.
+
+    The campaign's runtime.tar (the frozen source release) is rewritten, then
+    installed as its own content-addressed release locally and, for H100
+    servers, on H100; the campaign points to that release. Returns its sha.
+    """
+    import json
+    from exp.r17_integration.ops.formal_prestage import verify_code
+    from exp.r17_integration.ops.formal_process import write_json
+    from exp.r17_integration.ops.immutable_release import archive_manifest, identity, install, sha
+    root = Path(root)
+    archive = root/'runtime.tar'
+    members = apply(archive)
+    document = archive_manifest(archive)
+    pin, archive_pin = identity(document), sha(archive)
+    release = '/data/mw_finetune/qualification/formal_runtime_'+pin
+    install(archive, release, archive_pin, pin)
+    if campaign['server_node'] == 'h100':
+        directory = '/tmp/r17_formal/'+campaign['run_name']+'/server'
+        launch.remote('h100', ['mkdir', '-p', directory], replay_safe=True)
+        present = json.loads(launch.remote('h100', [launch.host_python(campaign), '-c',
+            verify_code(release, 'RUNTIME_RELEASE.json', pin)], replay_safe=True))['present']
+        if not present:
+            launch.transfer(['rsync', 'push', str(archive), 'h100:'+directory+'/runtime.tar'])
+            launch.transfer(['rsync', 'push', str(REPO/'exp/r17_integration/ops/immutable_release.py'),
+                             'h100:'+directory+'/release_install.py'])
+            launch.remote('h100', [launch.host_python(campaign), directory+'/release_install.py',
+                '--root', release, '--identity', pin, '--archive', directory+'/runtime.tar',
+                '--archive-sha', archive_pin])
+    campaign.update(runtime=release, runtime_identity=pin)
+    write_json(root/'RUNTIME_RELEASE.json', dict(node=campaign['server_node'], archive_sha256=archive_pin,
+        identity=pin, root=release, reused=False, files=len(document['files'])))
+    write_json(root/'LONGSEG_RUNTIME_FIX.json', dict(members=members, runtime=release, identity=pin,
+                                                    archive_sha256=archive_pin))
+    return archive_pin

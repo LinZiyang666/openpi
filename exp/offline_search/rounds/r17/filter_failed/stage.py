@@ -136,7 +136,15 @@ def _stage(root):
     # The standard runtime_release step also makes this coordinator mirror.
     # Reuse the original archive, without cache_control rebuilding any overlay.
     from exp.r17_integration.ops.immutable_release import install, sha
-    install(root/'runtime.tar', campaign['runtime'], sha(source/'runtime.tar'), campaign['runtime_identity'])
+    runtime_sha = sha(source/'runtime.tar')
+    if campaign.get('longseg_1017'):
+        # Long-segment campaigns run the archive with the segment-boundary fix
+        # written into its sources (longseg_1017/runtime_fix.py).
+        if sha(root/'runtime.tar') != runtime_sha and not (root/'LONGSEG_RUNTIME_FIX.json').exists():
+            raise ValueError('runtime.tar is neither the source release nor its fixed copy')
+        from exp.offline_search.rounds.r17.longseg_1017.runtime_fix import stage as fixed_runtime
+        runtime_sha = fixed_runtime(launch, campaign, root)
+    install(root/'runtime.tar', campaign['runtime'], runtime_sha, campaign['runtime_identity'])
     campaign['coordinator_runtime'] = campaign['runtime']
     if campaign.get('local_worker_exception'):
         # payload_override skips local_workers.payload, which normally writes
@@ -177,7 +185,7 @@ def _stage(root):
     write(root/'campaign.json',campaign)
     if not campaign.get('autoscale') or continuation:
         assert sha(root/'workers.tar')==sha(source/'workers.tar')
-    assert sha(root/'runtime.tar')==sha(source/'runtime.tar')
+    assert sha(root/'runtime.tar')==runtime_sha
     write(root/'PREFLIGHT.json',dict(status='PASS',cpu_only=True,episodes=read(root/'EPISODE_PLAN.json')['expected_episodes'],
           worker_nodes=list(deployment),replicas=campaign['replicas'],ports=campaign['ports'],
           model_identity=read(root/'assets/model_spec.json')['checkpoint_identity'],
