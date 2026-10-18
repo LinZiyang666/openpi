@@ -1,0 +1,29 @@
+{
+  "name": "ffk1015_groot_libero_reduced_formal_A_original_off_complete",
+  "startup": "PASS",
+  "native_plugin_rows": 8,
+  "planner_episodes": 1950,
+  "original_serving_tables_equal": true,
+  "candidate_rows_checked": 8,
+  "native_sync_plan_checked": false,
+  "source_model_argv_equal": true,
+  "model_flags": [
+    {
+      "--checkpoint": "/data/ckpt/n15_libero_10",
+      "--denoising-steps": "1"
+    },
+    {
+      "--checkpoint": "/data/ckpt/n15_libero_10",
+      "--denoising-steps": "1"
+    },
+    {
+      "--checkpoint": "/data/ckpt/n15_libero_spatial",
+      "--denoising-steps": "1"
+    },
+    {
+      "--checkpoint": "/data/ckpt/n15_libero_spatial",
+      "--denoising-steps": "1"
+    }
+  ],
+  "server_python": "/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python"
+}

@@ -115,7 +115,7 @@ def next_campaign(model,mode,generation):
     candidate=EVAL/f'knobtest{SHORT[model]}{suffix}_r{generation}'
     if generation and candidate.exists():source=candidate
     row=build(source,f'ffk1015_{key}_test{generation:02d}',table=flat,
-              ladder_source=EVAL/LIBERO[model][mode=='full'])
+              ladder_source=EVAL/LIBERO[model][mode=='full'],cache_inputs_source=EVAL/base)
     print(row)
 
 

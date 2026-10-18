@@ -1,0 +1,22 @@
+{
+  "name": "ffk1015_cosmos_libero_full_formal_A_original_levels",
+  "model": "cosmos",
+  "mode": "full",
+  "arm": "original",
+  "stage": "levels",
+  "gpu": "H100",
+  "replicas": 8,
+  "batch": 1,
+  "workers": {
+    "timan1": 35,
+    "timan107": 25,
+    "timan108": 25
+  },
+  "jobs": [],
+  "status": "WAITING_OFF",
+  "episodes": null,
+  "maximum_episodes": 30000,
+  "dependencies": [
+    "ffk1015_cosmos_libero_full_formal_A_original_off"
+  ]
+}

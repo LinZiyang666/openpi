@@ -1,0 +1,14 @@
+{
+  "mps_daemon": {
+    "pid": 3287352,
+    "start_ticks": "70798483"
+  },
+  "mps_daemon_alive": false,
+  "known_gpu_and_launcher_pids": {
+    "3276308": false,
+    "3287352": false,
+    "3287627": false,
+    "3289638": false,
+    "3332360": false
+  }
+}

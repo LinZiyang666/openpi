@@ -1,0 +1,100 @@
+{
+  "ffk1015_pi05_libero_full_formal_A_pure_l10_r1": {
+    "selected": "timan107",
+    "workers": {
+      "timan107": 39
+    },
+    "probes": {
+      "timan107": {
+        "host": "timan107",
+        "boot_id": "4410d5e3-74c9-43f9-a82f-a43f8c61c6df",
+        "missing": [],
+        "island": "/scratch/zixuans8/openpi_trace_h100",
+        "installed": false,
+        "usable": true
+      },
+      "timan108": {
+        "usable": false,
+        "error": "Command '['tether', 'exec', '--safe', '--timeout', '15s', 'timan108', '--', '/usr/bin/python3', '-B', '-S', '-c', 'import json,socket;from pathlib import Path;print(json.dumps(dict(host=socket.gethostname().split(\".\")[0],boot_id=Path(\"/proc/sys/kernel/random/boot_id\").read_text().strip(),missing=[s for s in [\\'/scratch/zixuans8/openpi/.venv/bin/python\\', \\'/scratch/zixuans8/libero_sim/bin/python\\', \\'/scratch/zixuans8/openpi_trace/os_cl/node.py\\', \\'/scratch/zixuans8/openpi_trace/os_cl/run_arm.sh\\', \\'/scratch/zixuans8/openpi_trace/os_cl/run_gtp_subset.py\\'] if not Path(s).exists()],island=\\'/scratch/zixuans8/openpi_trace\\',installed=Path(\\'/scratch/zixuans8/openpi_trace/worker.sha256\\').is_file())))']' returned non-zero exit status 64.",
+        "host": "timan108"
+      }
+    }
+  },
+  "ffk1015_pi05_libero_reduced_formal_A_original_off_complete": {
+    "selected": "timan107",
+    "workers": {
+      "timan107": 64
+    },
+    "probes": {
+      "timan107": {
+        "host": "timan107",
+        "boot_id": "4410d5e3-74c9-43f9-a82f-a43f8c61c6df",
+        "missing": [],
+        "island": "/scratch/zixuans8/openpi_r16_conductor_v1",
+        "installed": true,
+        "usable": true
+      },
+      "timan1": {
+        "host": "timan1",
+        "boot_id": "1da71e0c-302a-4177-8183-d874ae6c22d6",
+        "missing": [],
+        "island": "/scratch/zixuans8/openpi_r16_conductor_ffk1017",
+        "installed": false,
+        "usable": true
+      }
+    }
+  },
+  "protected_files_unchanged": 238,
+  "held_definitions_unchanged": 72,
+  "original_journal_probe": {
+    "host": "timan108",
+    "status": "OFFLINE",
+    "error": "node_offline: no recent heartbeat",
+    "policy": "whole_500_replacement_only"
+  },
+  "replacement": {
+    "name": "ffk1015_pi05_libero_full_formal_A_pure_l10_r1",
+    "episodes": 500,
+    "unique_task_inits": 500,
+    "source_manifest_byte_equal": true,
+    "scientific_arm_spec_equal": true,
+    "serving_gpu": "H100",
+    "replicas": 3,
+    "batch": 1,
+    "workers": 39,
+    "startup": {
+      "name": "ffk1015_pi05_libero_full_formal_A_pure_l10_r1",
+      "startup": "PASS",
+      "native_plugin_rows": 1,
+      "planner_episodes": 500,
+      "original_serving_tables_equal": null,
+      "candidate_rows_checked": 0,
+      "native_sync_plan_checked": true,
+      "source_model_argv_equal": true,
+      "model_flags": [
+        {
+          "--policy.config": "pi05_libero",
+          "--policy.dir": "/home/exouser/ckpt/pi05_libero_pytorch"
+        }
+      ],
+      "server_python": "/home/exouser/openpi/.venv/bin/python"
+    },
+    "old_segment_merged": false
+  },
+  "script_syntax_pass": 84,
+  "r16_archive_agent_AST_equal": {
+    "run_agent": true,
+    "WorkerSpec": true,
+    "WorkerAgent": true,
+    "_default_spawn": true
+  },
+  "cpu_tests": "test_vla_workers.py + test_timan1_gpu2.py",
+  "old_unit_unchanged": true,
+  "final_protected_hash_check": "PASS",
+  "cpu_tests_passed": 4,
+  "cpu_test_files": [
+    "filter_failed_knob/test_vla_workers.py",
+    "filter_failed/test_timan1_gpu2.py",
+    "filter_failed_knob/test_formal_a.py"
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "name": "fa_gr_f_u_l",
+  "model": "groot",
+  "mode": "full",
+  "arm": "original",
+  "stage": "levels",
+  "gpu": "RTX 4090",
+  "replicas": 4,
+  "batch": 1,
+  "workers": {
+    "timan107": 64
+  },
+  "jobs": [],
+  "status": "WAITING_OFF",
+  "episodes": null,
+  "maximum_episodes": 16000,
+  "dependencies": [
+    "fa_gr_f_u_o"
+  ],
+  "renamed_from": "ffk1015_groot_libero_full_formal_A_original_levels",
+  "worker_host_failover": true
+}

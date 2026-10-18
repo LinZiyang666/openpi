@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "run": "fa_fw_r_u_lc1",
+  "episodes": 13190,
+  "retained": 16810,
+  "total_unique": 30000,
+  "overlap": 0,
+  "native_planner": true,
+  "exact_task_objects": true,
+  "asset_files_identical": 191,
+  "execution_workers": {
+    "timan1": 30,
+    "timan107": 40
+  },
+  "refresh_after_source_closure": false
+}

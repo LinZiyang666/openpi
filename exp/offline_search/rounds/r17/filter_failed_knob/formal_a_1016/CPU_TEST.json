@@ -1,0 +1,7 @@
+{
+  "passed": 2,
+  "failed": 0,
+  "test": "test_formal_a.py",
+  "startup_checks_passed": 47,
+  "analysis_smoke_rows": 104
+}

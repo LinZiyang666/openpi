@@ -1,0 +1,19 @@
+{
+  "name": "ffk1015_groot_libero_full_formal_A_filtered_groot_spatial_200",
+  "startup": "PASS",
+  "native_plugin_rows": 5,
+  "planner_episodes": 2500,
+  "original_serving_tables_equal": null,
+  "candidate_rows_checked": 0,
+  "native_sync_plan_checked": false,
+  "source_model_argv_equal": true,
+  "model_flags": [
+    {
+      "--checkpoint": "/data/ckpt/n15_libero_spatial",
+      "--denoising-steps": "8"
+    }
+  ],
+  "server_python": "/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python",
+  "pipeline": "R15",
+  "cpu_interpreter": "/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python"
+}

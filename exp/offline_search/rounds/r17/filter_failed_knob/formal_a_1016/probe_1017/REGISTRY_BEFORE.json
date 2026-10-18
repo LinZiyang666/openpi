@@ -1,0 +1,19 @@
+{
+  "jobs": [
+    {
+      "name": "ff1015_fastwam_li_18c1",
+      "run": "/data/mw_finetune/eval/ff1015_fastwam_li_18c1",
+      "source": "/data/mw_finetune/eval/ff1015_fastwam_li_18"
+    },
+    {
+      "name": "ffk1015_dp_mt50_reduced_descentc1",
+      "run": "/data/mw_finetune/eval/ffk1015_dp_mt50_reduced_descentc1",
+      "source": "/data/mw_finetune/eval/ffk1015_dp_mt50_reduced_descent"
+    },
+    {
+      "name": "fa_fw_r_u_lc1",
+      "run": "/data/mw_finetune/eval/fa_fw_r_u_lc1",
+      "source": "/data/mw_finetune/eval/fa_fw_r_u_l"
+    }
+  ]
+}

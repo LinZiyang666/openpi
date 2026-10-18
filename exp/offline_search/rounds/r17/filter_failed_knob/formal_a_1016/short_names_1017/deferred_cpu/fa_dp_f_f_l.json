@@ -1,0 +1,13 @@
+{
+  "name": "fa_dp_f_f_l",
+  "startup": "PASS",
+  "source_identity_equal": true,
+  "sealed_descriptor_equal": true,
+  "pinned_packages_equal": true,
+  "original_serving_tables_equal": null,
+  "planner_episodes": 36000,
+  "verification": "immutable_full_ladder_template",
+  "future_run": "/data/mw_finetune/eval/fa_dp_f_f_l",
+  "future_dispatch": "WAITING_OFF",
+  "template": "/data/mw_finetune/eval/ffk1015_dp_libero_full_formal_A_filtered"
+}

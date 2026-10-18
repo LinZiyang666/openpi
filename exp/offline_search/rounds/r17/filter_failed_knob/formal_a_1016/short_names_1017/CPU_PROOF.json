@@ -1,0 +1,918 @@
+{
+  "status": "PASS",
+  "rows": [
+    {
+      "name": "fa_dp_r_u_l",
+      "unit": "fa_dp_r_u_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 47,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_dp_r_u_l.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_dp_r_f_l",
+      "unit": "fa_dp_r_f_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 47,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_dp_r_f_l.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_dp_f_u_o",
+      "unit": "fa_dp_f_u_o",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 47,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_dp_f_u_o.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_dp_f_u_l",
+      "unit": "fa_dp_f_u_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 47,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/short_names_1017/deferred_cpu/fa_dp_f_u_l.json",
+      "verification": "immutable_full_ladder_template"
+    },
+    {
+      "name": "fa_dp_f_f_o",
+      "unit": "fa_dp_f_f_o",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 47,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_dp_f_f_o.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_dp_f_f_l",
+      "unit": "fa_dp_f_f_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 47,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/short_names_1017/deferred_cpu/fa_dp_f_f_l.json",
+      "verification": "immutable_full_ladder_template"
+    },
+    {
+      "name": "fa_fw_r_u_l",
+      "unit": "fa_fw_r_u_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 47,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_fw_r_u_l.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_fw_r_f_l",
+      "unit": "fa_fw_r_f_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 47,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_fw_r_f_l.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_fw_f_u_o",
+      "unit": "fa_fw_f_u_o",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 47,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_fw_f_u_o.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_fw_f_u_l",
+      "unit": "fa_fw_f_u_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 47,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/short_names_1017/deferred_cpu/fa_fw_f_u_l.json",
+      "verification": "immutable_full_ladder_template"
+    },
+    {
+      "name": "fa_fw_f_f_o",
+      "unit": "fa_fw_f_f_o",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 47,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_fw_f_f_o.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_fw_f_f_l",
+      "unit": "fa_fw_f_f_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 47,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/short_names_1017/deferred_cpu/fa_fw_f_f_l.json",
+      "verification": "immutable_full_ladder_template"
+    },
+    {
+      "name": "fa_co_r_f_l",
+      "unit": "fa_co_r_f_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 47,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/short_names_1017/deferred_cpu/fa_co_r_f_l.json",
+      "verification": "immutable_full_ladder_template"
+    },
+    {
+      "name": "fa_co_f_u_o",
+      "unit": "fa_co_f_u_o",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 47,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_co_f_u_o.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_co_f_u_l",
+      "unit": "fa_co_f_u_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 47,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/short_names_1017/deferred_cpu/fa_co_f_u_l.json",
+      "verification": "immutable_full_ladder_template"
+    },
+    {
+      "name": "fa_co_f_f_o",
+      "unit": "fa_co_f_f_o",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 47,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_co_f_f_o.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_co_f_f_l",
+      "unit": "fa_co_f_f_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 47,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/short_names_1017/deferred_cpu/fa_co_f_f_l.json",
+      "verification": "immutable_full_ladder_template"
+    },
+    {
+      "name": "fa_pi_r_u_l",
+      "unit": "fa_pi_r_u_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 47,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/short_names_1017/deferred_cpu/fa_pi_r_u_l.json",
+      "verification": "immutable_full_ladder_template"
+    },
+    {
+      "name": "fa_gr_r_u_l",
+      "unit": "fa_gr_r_u_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 47,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/short_names_1017/deferred_cpu/fa_gr_r_u_l.json",
+      "verification": "immutable_full_ladder_template"
+    },
+    {
+      "name": "fa_gr_r_f_l",
+      "unit": "fa_gr_r_f_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 47,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/short_names_1017/deferred_cpu/fa_gr_r_f_l.json",
+      "verification": "immutable_full_ladder_template"
+    },
+    {
+      "name": "fa_gr_f_u_o_l50",
+      "unit": "fa_gr_f_u_o",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 51,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_gr_f_u_o_l50.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_gr_f_u_o_l100",
+      "unit": "fa_gr_f_u_o",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_gr_f_u_o_l100.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_gr_f_u_o_l200",
+      "unit": "fa_gr_f_u_o",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_gr_f_u_o_l200.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_gr_f_u_o_l500",
+      "unit": "fa_gr_f_u_o",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_gr_f_u_o_l500.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_gr_f_u_o_s50",
+      "unit": "fa_gr_f_u_o",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 51,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_gr_f_u_o_s50.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_gr_f_u_o_s100",
+      "unit": "fa_gr_f_u_o",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_gr_f_u_o_s100.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_gr_f_u_o_s200",
+      "unit": "fa_gr_f_u_o",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_gr_f_u_o_s200.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_gr_f_u_o_s500",
+      "unit": "fa_gr_f_u_o",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_gr_f_u_o_s500.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_gr_f_u_l_l50",
+      "unit": "fa_gr_f_u_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 51,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/short_names_1017/deferred_cpu/fa_gr_f_u_l_l50.json",
+      "verification": "immutable_full_ladder_template"
+    },
+    {
+      "name": "fa_gr_f_u_l_l100",
+      "unit": "fa_gr_f_u_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/short_names_1017/deferred_cpu/fa_gr_f_u_l_l100.json",
+      "verification": "immutable_full_ladder_template"
+    },
+    {
+      "name": "fa_gr_f_u_l_l200",
+      "unit": "fa_gr_f_u_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/short_names_1017/deferred_cpu/fa_gr_f_u_l_l200.json",
+      "verification": "immutable_full_ladder_template"
+    },
+    {
+      "name": "fa_gr_f_u_l_l500",
+      "unit": "fa_gr_f_u_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/short_names_1017/deferred_cpu/fa_gr_f_u_l_l500.json",
+      "verification": "immutable_full_ladder_template"
+    },
+    {
+      "name": "fa_gr_f_u_l_s50",
+      "unit": "fa_gr_f_u_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 51,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/short_names_1017/deferred_cpu/fa_gr_f_u_l_s50.json",
+      "verification": "immutable_full_ladder_template"
+    },
+    {
+      "name": "fa_gr_f_u_l_s100",
+      "unit": "fa_gr_f_u_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/short_names_1017/deferred_cpu/fa_gr_f_u_l_s100.json",
+      "verification": "immutable_full_ladder_template"
+    },
+    {
+      "name": "fa_gr_f_u_l_s200",
+      "unit": "fa_gr_f_u_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/short_names_1017/deferred_cpu/fa_gr_f_u_l_s200.json",
+      "verification": "immutable_full_ladder_template"
+    },
+    {
+      "name": "fa_gr_f_u_l_s500",
+      "unit": "fa_gr_f_u_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/short_names_1017/deferred_cpu/fa_gr_f_u_l_s500.json",
+      "verification": "immutable_full_ladder_template"
+    },
+    {
+      "name": "fa_gr_f_f_o_l50",
+      "unit": "fa_gr_f_f_o",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 51,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_gr_f_f_o_l50.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_gr_f_f_o_l100",
+      "unit": "fa_gr_f_f_o",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_gr_f_f_o_l100.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_gr_f_f_o_l200",
+      "unit": "fa_gr_f_f_o",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_gr_f_f_o_l200.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_gr_f_f_o_l500",
+      "unit": "fa_gr_f_f_o",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_gr_f_f_o_l500.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_gr_f_f_o_s50",
+      "unit": "fa_gr_f_f_o",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 51,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_gr_f_f_o_s50.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_gr_f_f_o_s100",
+      "unit": "fa_gr_f_f_o",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_gr_f_f_o_s100.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_gr_f_f_o_s200",
+      "unit": "fa_gr_f_f_o",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_gr_f_f_o_s200.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_gr_f_f_o_s500",
+      "unit": "fa_gr_f_f_o",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_gr_f_f_o_s500.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_gr_f_f_l_l50",
+      "unit": "fa_gr_f_f_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 51,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/short_names_1017/deferred_cpu/fa_gr_f_f_l_l50.json",
+      "verification": "immutable_full_ladder_template"
+    },
+    {
+      "name": "fa_gr_f_f_l_l100",
+      "unit": "fa_gr_f_f_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/short_names_1017/deferred_cpu/fa_gr_f_f_l_l100.json",
+      "verification": "immutable_full_ladder_template"
+    },
+    {
+      "name": "fa_gr_f_f_l_l200",
+      "unit": "fa_gr_f_f_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/short_names_1017/deferred_cpu/fa_gr_f_f_l_l200.json",
+      "verification": "immutable_full_ladder_template"
+    },
+    {
+      "name": "fa_gr_f_f_l_l500",
+      "unit": "fa_gr_f_f_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/short_names_1017/deferred_cpu/fa_gr_f_f_l_l500.json",
+      "verification": "immutable_full_ladder_template"
+    },
+    {
+      "name": "fa_gr_f_f_l_s50",
+      "unit": "fa_gr_f_f_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 51,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/short_names_1017/deferred_cpu/fa_gr_f_f_l_s50.json",
+      "verification": "immutable_full_ladder_template"
+    },
+    {
+      "name": "fa_gr_f_f_l_s100",
+      "unit": "fa_gr_f_f_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/short_names_1017/deferred_cpu/fa_gr_f_f_l_s100.json",
+      "verification": "immutable_full_ladder_template"
+    },
+    {
+      "name": "fa_gr_f_f_l_s200",
+      "unit": "fa_gr_f_f_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/short_names_1017/deferred_cpu/fa_gr_f_f_l_s200.json",
+      "verification": "immutable_full_ladder_template"
+    },
+    {
+      "name": "fa_gr_f_f_l_s500",
+      "unit": "fa_gr_f_f_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/short_names_1017/deferred_cpu/fa_gr_f_f_l_s500.json",
+      "verification": "immutable_full_ladder_template"
+    },
+    {
+      "name": "fa_pi_r_u_c",
+      "unit": "fa_pi_r_u_c",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 47,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_pi_r_u_c.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_pi_r_f_l",
+      "unit": "fa_pi_r_f_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 47,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_pi_r_f_l.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_gr_r_u_c",
+      "unit": "fa_gr_r_u_c",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 47,
+      "gpu_hash": "e5681f",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_gr_r_u_c.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_co_r_u_l",
+      "unit": "fa_co_r_u_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 47,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_co_r_u_l.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_pi_f_u_o_l50",
+      "unit": "fa_pi_f_u_o",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 51,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_pi_f_u_o_l50.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_pi_f_u_o_l100",
+      "unit": "fa_pi_f_u_o",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_pi_f_u_o_l100.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_pi_f_u_o_l200",
+      "unit": "fa_pi_f_u_o",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_pi_f_u_o_l200.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_pi_f_u_o_l500",
+      "unit": "fa_pi_f_u_o",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_pi_f_u_o_l500.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_pi_f_u_o_s50",
+      "unit": "fa_pi_f_u_o",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 51,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_pi_f_u_o_s50.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_pi_f_u_o_s100",
+      "unit": "fa_pi_f_u_o",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_pi_f_u_o_s100.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_pi_f_u_o_s200",
+      "unit": "fa_pi_f_u_o",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_pi_f_u_o_s200.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_pi_f_u_o_s500",
+      "unit": "fa_pi_f_u_o",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_pi_f_u_o_s500.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_pi_f_u_l_l50",
+      "unit": "fa_pi_f_u_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 51,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/short_names_1017/deferred_cpu/fa_pi_f_u_l_l50.json",
+      "verification": "immutable_full_ladder_template"
+    },
+    {
+      "name": "fa_pi_f_u_l_l100",
+      "unit": "fa_pi_f_u_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/short_names_1017/deferred_cpu/fa_pi_f_u_l_l100.json",
+      "verification": "immutable_full_ladder_template"
+    },
+    {
+      "name": "fa_pi_f_u_l_l200",
+      "unit": "fa_pi_f_u_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/short_names_1017/deferred_cpu/fa_pi_f_u_l_l200.json",
+      "verification": "immutable_full_ladder_template"
+    },
+    {
+      "name": "fa_pi_f_u_l_l500",
+      "unit": "fa_pi_f_u_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/short_names_1017/deferred_cpu/fa_pi_f_u_l_l500.json",
+      "verification": "immutable_full_ladder_template"
+    },
+    {
+      "name": "fa_pi_f_u_l_s50",
+      "unit": "fa_pi_f_u_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 51,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/short_names_1017/deferred_cpu/fa_pi_f_u_l_s50.json",
+      "verification": "immutable_full_ladder_template"
+    },
+    {
+      "name": "fa_pi_f_u_l_s100",
+      "unit": "fa_pi_f_u_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/short_names_1017/deferred_cpu/fa_pi_f_u_l_s100.json",
+      "verification": "immutable_full_ladder_template"
+    },
+    {
+      "name": "fa_pi_f_u_l_s200",
+      "unit": "fa_pi_f_u_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/short_names_1017/deferred_cpu/fa_pi_f_u_l_s200.json",
+      "verification": "immutable_full_ladder_template"
+    },
+    {
+      "name": "fa_pi_f_u_l_s500",
+      "unit": "fa_pi_f_u_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/short_names_1017/deferred_cpu/fa_pi_f_u_l_s500.json",
+      "verification": "immutable_full_ladder_template"
+    },
+    {
+      "name": "fa_pi_f_f_o_l50",
+      "unit": "fa_pi_f_f_o",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 51,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_pi_f_f_o_l50.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_pi_f_f_o_l100",
+      "unit": "fa_pi_f_f_o",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_pi_f_f_o_l100.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_pi_f_f_o_l200",
+      "unit": "fa_pi_f_f_o",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_pi_f_f_o_l200.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_pi_f_f_o_l500",
+      "unit": "fa_pi_f_f_o",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_pi_f_f_o_l500.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_pi_f_f_o_s50",
+      "unit": "fa_pi_f_f_o",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 51,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_pi_f_f_o_s50.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_pi_f_f_o_s100",
+      "unit": "fa_pi_f_f_o",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_pi_f_f_o_s100.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_pi_f_f_o_s200",
+      "unit": "fa_pi_f_f_o",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_pi_f_f_o_s200.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_pi_f_f_o_s500",
+      "unit": "fa_pi_f_f_o",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_pi_f_f_o_s500.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_pi_f_f_l_l50",
+      "unit": "fa_pi_f_f_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 51,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/short_names_1017/deferred_cpu/fa_pi_f_f_l_l50.json",
+      "verification": "immutable_full_ladder_template"
+    },
+    {
+      "name": "fa_pi_f_f_l_l100",
+      "unit": "fa_pi_f_f_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/short_names_1017/deferred_cpu/fa_pi_f_f_l_l100.json",
+      "verification": "immutable_full_ladder_template"
+    },
+    {
+      "name": "fa_pi_f_f_l_l200",
+      "unit": "fa_pi_f_f_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/short_names_1017/deferred_cpu/fa_pi_f_f_l_l200.json",
+      "verification": "immutable_full_ladder_template"
+    },
+    {
+      "name": "fa_pi_f_f_l_l500",
+      "unit": "fa_pi_f_f_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/short_names_1017/deferred_cpu/fa_pi_f_f_l_l500.json",
+      "verification": "immutable_full_ladder_template"
+    },
+    {
+      "name": "fa_pi_f_f_l_s50",
+      "unit": "fa_pi_f_f_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 51,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/short_names_1017/deferred_cpu/fa_pi_f_f_l_s50.json",
+      "verification": "immutable_full_ladder_template"
+    },
+    {
+      "name": "fa_pi_f_f_l_s100",
+      "unit": "fa_pi_f_f_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/short_names_1017/deferred_cpu/fa_pi_f_f_l_s100.json",
+      "verification": "immutable_full_ladder_template"
+    },
+    {
+      "name": "fa_pi_f_f_l_s200",
+      "unit": "fa_pi_f_f_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/short_names_1017/deferred_cpu/fa_pi_f_f_l_s200.json",
+      "verification": "immutable_full_ladder_template"
+    },
+    {
+      "name": "fa_pi_f_f_l_s500",
+      "unit": "fa_pi_f_f_l",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 52,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/short_names_1017/deferred_cpu/fa_pi_f_f_l_s500.json",
+      "verification": "immutable_full_ladder_template"
+    },
+    {
+      "name": "fa_pi_f_ps",
+      "unit": "fa_pi_f_ps",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 46,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_pi_f_ps.json",
+      "verification": "materialized_campaign"
+    },
+    {
+      "name": "fa_pi_f_p10",
+      "unit": "fa_pi_f_p10",
+      "startup": "PASS",
+      "path": "PASS",
+      "pipe_bytes": 47,
+      "gpu_hash": "e2823e",
+      "proof": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/cpu_checks/fa_pi_f_p10.json",
+      "verification": "materialized_campaign"
+    }
+  ],
+  "materialized": 48,
+  "deferred_templates": 42,
+  "queue_units": 34,
+  "scripts_checked": 360,
+  "old_commands_unchanged": 648,
+  "old_inputs_unchanged": 153,
+  "reset": "/data/mw_finetune/eval/ffk1015_cosmos_libero_reduced_formal_A_original_levels/RESET.failed_20261017T111845874672Z.json",
+  "reset_status": "UNSTAGED",
+  "source_mps_limit_unchanged": true,
+  "staging_executed": false,
+  "launches": 0,
+  "cpu_tests_passed": 5,
+  "final_protected_hash_check": "PASS"
+}

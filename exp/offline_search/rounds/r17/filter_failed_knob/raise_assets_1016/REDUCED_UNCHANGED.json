@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "run": "/data/mw_finetune/eval/ffk1015_dp_libero_reduced_test01",
+  "episodes": 150,
+  "current_raise_table_matches_queued_tasks": true,
+  "new_build_step_is_exact_noop": true,
+  "input_inventory_byte_identical": true,
+  "native_input_manifest_byte_identical": true,
+  "native_study_seal_byte_identical": true,
+  "files_verified": 78,
+  "all_queued_files_byte_identical": true,
+  "startup_check_byte_identical": true,
+  "rebuild_performed": false,
+  "prepare_performed": false,
+  "explanation": "Only the cache-input completion step and its workflow argument changed; for this actual raise it adds no files and produces exactly the existing manifest/seal bytes. All other builder steps are unchanged."
+}

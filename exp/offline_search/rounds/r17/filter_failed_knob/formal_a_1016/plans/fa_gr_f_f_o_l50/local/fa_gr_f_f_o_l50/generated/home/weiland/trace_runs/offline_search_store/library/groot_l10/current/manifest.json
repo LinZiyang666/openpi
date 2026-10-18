@@ -1,0 +1,375 @@
+{
+ "schema": "offline_search.library.v1",
+ "lib": "groot_l10",
+ "name": "current",
+ "model": "groot",
+ "suite": "l10",
+ "suite_full": "libero_10",
+ "status": "ok",
+ "errors": [],
+ "complete": true,
+ "tok_complete": true,
+ "limit_episodes": null,
+ "counts": {
+  "rows": 2645,
+  "episodes": 50,
+  "tok_rows": 2645,
+  "tok_episodes": 50,
+  "success_episodes": 50,
+  "tasks": 10
+ },
+ "H": 16,
+ "Drs": 8,
+ "key_dim": 32768,
+ "tok_shape": [
+  256,
+  2048
+ ],
+ "img_shape": null,
+ "img_source_keys": null,
+ "act_valid_dims": 7,
+ "exec_steps": 5,
+ "rs_valid_dims": 8,
+ "gripper_dim": 6,
+ "facts_note": "action chunks (H,32): only dims 0..6 valid (6 = gripper), pi05 7..31 ~0.001 padding, groot 7..31 noise-like padding; only the first 5 steps are executed. robot_state: pi05 32-d with 0..7 valid (rest 0), groot 8-d all valid. Arrays are stored raw/full; action statistics use [:5, :7].",
+ "key_source": "copied bit-exactly from the pickle entries (query_keys vision_0/vision_1/robot_state, payload.action_chunk)",
+ "tasks": {
+  "0": "put both the alphabet soup and the tomato sauce in the basket",
+  "1": "put both the cream cheese box and the butter in the basket",
+  "2": "turn on the stove and put the moka pot on it",
+  "3": "put the black bowl in the bottom drawer of the cabinet and close it",
+  "4": "put the white mug on the left plate and put the yellow and white mug on the right plate",
+  "5": "pick up the book and place it in the back compartment of the caddy",
+  "6": "put the white mug on the plate and put the chocolate pudding to the right of the plate",
+  "7": "put both the alphabet soup and the cream cheese box in the basket",
+  "8": "put both moka pots on the stove",
+  "9": "put the yellow and white mug in the microwave and close it"
+ },
+ "task_map": {
+  "put both the alphabet soup and the tomato sauce in the basket": 0,
+  "put both the cream cheese box and the butter in the basket": 1,
+  "turn on the stove and put the moka pot on it": 2,
+  "put the black bowl in the bottom drawer of the cabinet and close it": 3,
+  "put the white mug on the left plate and put the yellow and white mug on the right plate": 4,
+  "pick up the book and place it in the back compartment of the caddy": 5,
+  "put the white mug on the plate and put the chocolate pudding to the right of the plate": 6,
+  "put both the alphabet soup and the cream cheese box in the basket": 7,
+  "put both moka pots on the stove": 8,
+  "put the yellow and white mug in the microwave and close it": 9
+ },
+ "task_map_source": {
+  "trace_runs": [
+   "tr_groot_l10_inf",
+   "tr_groot_l10_cache"
+  ],
+  "n_files": {
+   "tr_groot_l10_inf": 500,
+   "tr_groot_l10_cache": 500
+  },
+  "attr": "task -> task_id"
+ },
+ "tok_episodes": [
+  "episode_0000_20260823_120811_110222",
+  "episode_0014_20260823_121739_920035",
+  "episode_0026_20260823_122432_061359",
+  "episode_0059_20260823_124504_181218",
+  "episode_0043_20260823_123510_782668",
+  "episode_0058_20260823_124435_374549",
+  "episode_0045_20260823_123642_296463",
+  "episode_0070_20260823_125014_256031",
+  "episode_0080_20260823_125418_070321",
+  "episode_0096_20260823_121519_197102",
+  "episode_0129_20260823_123322_961314",
+  "episode_0127_20260823_123229_341066",
+  "episode_0128_20260823_123255_595673",
+  "episode_0140_20260823_123930_660347",
+  "episode_0158_20260823_124744_421100",
+  "episode_0136_20260823_123741_168543",
+  "episode_0184_20260823_121705_510389",
+  "episode_0181_20260823_121547_413195",
+  "episode_0196_20260823_122218_694334",
+  "episode_0193_20260823_122059_660375",
+  "episode_0202_20260823_122536_647767",
+  "episode_0232_20260823_124126_019623",
+  "episode_0243_20260823_124706_760084",
+  "episode_0230_20260823_123958_392354",
+  "episode_0256_20260823_121005_780929",
+  "episode_0244_20260823_124734_031591",
+  "episode_0267_20260823_121502_562364",
+  "episode_0268_20260823_121522_365697",
+  "episode_0276_20260823_121805_116999",
+  "episode_0280_20260823_121931_034951",
+  "episode_0316_20260823_123749_170749",
+  "episode_0317_20260823_123817_793589",
+  "episode_0338_20260823_121117_965139",
+  "episode_0356_20260823_122313_251486",
+  "episode_0344_20260823_121429_001303",
+  "episode_0337_20260823_121047_993551",
+  "episode_0379_20260823_123508_825983",
+  "episode_0380_20260823_123537_740223",
+  "episode_0399_20260823_124624_693275",
+  "episode_0396_20260823_124445_603582",
+  "episode_0422_20260823_121357_045514",
+  "episode_0445_20260823_123305_554975",
+  "episode_0431_20260823_122105_272524",
+  "episode_0417_20260823_120948_847948",
+  "episode_0439_20260823_122749_496760",
+  "episode_0467_20260823_124542_707886",
+  "episode_0461_20260823_124246_935500",
+  "episode_0490_20260823_125716_481852",
+  "episode_0492_20260823_125801_100990",
+  "episode_0499_20260823_130106_212086"
+ ],
+ "sources": {
+  "pkl": "/data/libero_cache/libraries/libero_10/libero_10_sp16_S3.pkl",
+  "pkl_sha256": "e8e41965e1636f32ba76c70663f236f1a0e2701df0b0fde9098e9c7f3e34517b",
+  "pickle_meta": {
+   "key_builder_type": "cp1_groot_libero_spatial_pool_16",
+   "checkpoint_id": "CP1",
+   "vector_dims": {
+    "vision_0": 32768,
+    "vision_1": 32768,
+    "prompt_emb": 2048,
+    "robot_state": 8
+   },
+   "query_key_fields": [
+    "prompt_emb",
+    "robot_state",
+    "vision_0",
+    "vision_1",
+    "vision_2"
+   ]
+  },
+  "build_dir": "/data/libero_cache/build_libero10/libero_10",
+  "build_dir_realpath": "/archive/libero_cache/build_libero10/libero_10",
+  "build_on_archive_hdd": true,
+  "audit_memmaps": "/home/weiland/trace_runs/dual_20260923/audit/libs/groot_libero_10",
+  "init_source": "/data/libero_cache/build_libero10/results_lane*.json"
+ },
+ "verification": {
+  "id_vs_trajectory_fields_mismatch": 0,
+  "ids_unresolved": 0,
+  "task_key_vs_h5_task_mismatch": 0,
+  "episodes_num_steps_vs_groups_mismatch": 0,
+  "prev_next_vs_pickle": {
+   "prev_mismatch": 0,
+   "next_mismatch": 0,
+   "dangling_prev": 0,
+   "dangling_next": 0,
+   "multi_link_entries": 0
+  },
+  "steps_increasing_within_episode": true,
+  "keys_vs_pool16_of_h5_tokens": {
+   "v0": {
+    "n": 2645,
+    "min_cos": 0.9999999999999998,
+    "mean_cos": 1.0,
+    "n_bit_exact": 2645,
+    "all_bit_exact": true,
+    "max_abs_diff": 0.0
+   },
+   "v1": {
+    "n": 2645,
+    "min_cos": 0.9999999999999998,
+    "mean_cos": 1.0,
+    "n_bit_exact": 2645,
+    "all_bit_exact": true,
+    "max_abs_diff": 0.0
+   }
+  },
+  "rs_vs_h5_max_abs_diff": 0.0,
+  "action_vs_h5_clean_action_max_abs_diff": 0.0,
+  "action_vs_h5_clean_action_max_abs_diff_exec_5x7": 0.0,
+  "n_trajectories": 50,
+  "all_source_episodes_success": true,
+  "n_source_episodes_failed": 0,
+  "n_episodes_fully_included": 50,
+  "n_episodes_contiguous_rows": 50,
+  "rows_per_task": {
+   "0": 276,
+   "1": 248,
+   "2": 266,
+   "3": 225,
+   "4": 243,
+   "5": 188,
+   "6": 233,
+   "7": 264,
+   "8": 417,
+   "9": 285
+  },
+  "episodes_per_task": {
+   "0": 5,
+   "1": 5,
+   "2": 5,
+   "3": 5,
+   "4": 5,
+   "5": 5,
+   "6": 5,
+   "7": 5,
+   "8": 5,
+   "9": 5
+  },
+  "init_lookup_disagreements": [],
+  "tok_rows_written": 2645,
+  "pkl_sha256": "e8e41965e1636f32ba76c70663f236f1a0e2701df0b0fde9098e9c7f3e34517b",
+  "trace_library_sha256": [
+   "e8e41965e1636f32ba76c70663f236f1a0e2701df0b0fde9098e9c7f3e34517b"
+  ],
+  "pkl_sha256_matches_trace": true,
+  "audit_memmaps_equal": {
+   "available": true,
+   "ids_equal": true,
+   "vision_0": true,
+   "vision_1": true,
+   "robot_state": true,
+   "action": true
+  }
+ },
+ "run": {
+  "wall_s": 27.6,
+  "episodes": 50,
+  "workers": 8,
+  "serial_io": true,
+  "reader_s": 25.7,
+  "reader_bytes": 6031976071,
+  "reader_MBps": 235.0,
+  "worker_s_total": 39.1
+ },
+ "build": {
+  "started": {
+   "utc": "2026-09-26T18:58:55+00:00",
+   "local": "2026-09-26T13:58:55-05:00"
+  },
+  "finished": {
+   "utc": "2026-09-26T18:59:36+00:00",
+   "local": "2026-09-26T13:59:36-05:00"
+  },
+  "wall_s": 40.8,
+  "host": "weilandserver",
+  "argv": [
+   "/home/weiland/projects/openpi/exp/offline_search/r0/build_library_store.py",
+   "--out",
+   "/home/weiland/trace_runs/offline_search_store/library",
+   "--libs",
+   "groot_spatial,groot_l10"
+  ],
+  "workers": 8
+ },
+ "arrays": {
+  "key_v0.npy": {
+   "shape": [
+    2645,
+    32768
+   ],
+   "dtype": "float32",
+   "bytes": 346685568
+  },
+  "key_v1.npy": {
+   "shape": [
+    2645,
+    32768
+   ],
+   "dtype": "float32",
+   "bytes": 346685568
+  },
+  "rs.npy": {
+   "shape": [
+    2645,
+    8
+   ],
+   "dtype": "float32",
+   "bytes": 84768
+  },
+  "action.npy": {
+   "shape": [
+    2645,
+    16,
+    32
+   ],
+   "dtype": "float32",
+   "bytes": 5417088
+  },
+  "task_id.npy": {
+   "shape": [
+    2645
+   ],
+   "dtype": "int16",
+   "bytes": 5418
+  },
+  "episode.npy": {
+   "shape": [
+    2645
+   ],
+   "dtype": "int32",
+   "bytes": 10708
+  },
+  "step.npy": {
+   "shape": [
+    2645
+   ],
+   "dtype": "int16",
+   "bytes": 5418
+  },
+  "ep_len.npy": {
+   "shape": [
+    2645
+   ],
+   "dtype": "int16",
+   "bytes": 5418
+  },
+  "progress.npy": {
+   "shape": [
+    2645
+   ],
+   "dtype": "float32",
+   "bytes": 10708
+  },
+  "success.npy": {
+   "shape": [
+    2645
+   ],
+   "dtype": "bool",
+   "bytes": 2773
+  },
+  "prev.npy": {
+   "shape": [
+    2645
+   ],
+   "dtype": "int32",
+   "bytes": 10708
+  },
+  "next.npy": {
+   "shape": [
+    2645
+   ],
+   "dtype": "int32",
+   "bytes": 10708
+  },
+  "tok/rows.npy": {
+   "shape": [
+    2645
+   ],
+   "dtype": "int64",
+   "bytes": 21288
+  },
+  "tok/v0.npy": {
+   "shape": [
+    2645,
+    256,
+    2048
+   ],
+   "dtype": "float16",
+   "bytes": 2773483648
+  },
+  "tok/v1.npy": {
+   "shape": [
+    2645,
+    256,
+    2048
+   ],
+   "dtype": "float16",
+   "bytes": 2773483648
+  }
+ },
+ "bytes_total": 6245923435
+}

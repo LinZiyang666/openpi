@@ -1,0 +1,110 @@
+{
+  "name": "fa_fw_f_f_o",
+  "model": "fastwam",
+  "mode": "full",
+  "arm": "filtered",
+  "stage": "off",
+  "gpu": "H100",
+  "replicas": 2,
+  "batch": 16,
+  "workers": {
+    "timan1": 35,
+    "timan107": 25,
+    "timan108": 25
+  },
+  "jobs": [
+    {
+      "name": "fa_fw_f_f_o",
+      "run": "/data/mw_finetune/eval/fa_fw_f_f_o",
+      "source": "/data/mw_finetune/eval/knobtestfw3",
+      "episodes": 6000,
+      "model": "fastwam",
+      "benchmark": "libero",
+      "gpu": "H100",
+      "workers": {
+        "timan1": 35,
+        "timan107": 25,
+        "timan108": 25
+      },
+      "replicas": 2,
+      "python": "/data/mw_finetune/envs/fastwam/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_20550932745afaeb6bf31e858d1bfb91740727cf98bd0c6a5cd9171a8d9baa21",
+      "unfiltered": false,
+      "mode": "full",
+      "arm": "filtered",
+      "stage": "off",
+      "pipeline": "R17",
+      "batch": 16,
+      "mps": {
+        "active_thread_percentage": 100,
+        "compute_mode_change": false,
+        "enabled": true,
+        "private_per_campaign_gpu": true,
+        "schema": "r17.mps.v1"
+      },
+      "levels": [
+        "koff"
+      ],
+      "off_reuse": null,
+      "renamed_from": "/data/mw_finetune/eval/ffk1015_fastwam_libero_full_formal_A_filtered_off"
+    }
+  ],
+  "status": "BUILT",
+  "episodes": 6000,
+  "maximum_episodes": 30000,
+  "selected_cells": [
+    [
+      "libero_10",
+      50
+    ],
+    [
+      "libero_10",
+      100
+    ],
+    [
+      "libero_10",
+      200
+    ],
+    [
+      "libero_10",
+      300
+    ],
+    [
+      "libero_10",
+      400
+    ],
+    [
+      "libero_10",
+      500
+    ],
+    [
+      "libero_spatial",
+      50
+    ],
+    [
+      "libero_spatial",
+      100
+    ],
+    [
+      "libero_spatial",
+      200
+    ],
+    [
+      "libero_spatial",
+      300
+    ],
+    [
+      "libero_spatial",
+      400
+    ],
+    [
+      "libero_spatial",
+      500
+    ]
+  ],
+  "levels": [
+    "koff"
+  ],
+  "dependencies": [],
+  "renamed_from": "ffk1015_fastwam_libero_full_formal_A_filtered_off"
+}

@@ -1,0 +1,122 @@
+{
+  "observed_utc": "2026-10-17T20:34:08.425379+00:00",
+  "total_mib": 49140,
+  "headroom_mib": 4914,
+  "other_lanes_physical_plus_pending_mib": 2678,
+  "current_server_resident_mib": 30876,
+  "current_private_mps_overhead_mib": 30,
+  "other_lane": "fa_co_f_u_o",
+  "other_lane_reserved_local_slots": 5,
+  "rows": [
+    {
+      "name": "fa_fw_r_f_l",
+      "pipeline": "R17",
+      "replicas": 2,
+      "total_server_reservation_mib": 55296,
+      "per_replica_mib": 27648.0,
+      "local_gpu_slots_under_budget": 0,
+      "local_workers_allowed_by_current_launcher": 0,
+      "local_fleet_eligible": true,
+      "worker_vram_mib": 530
+    },
+    {
+      "name": "fa_pi_r_u_l",
+      "pipeline": "R16",
+      "replicas": 3,
+      "total_server_reservation_mib": 30000,
+      "per_replica_mib": 10000.0,
+      "local_gpu_slots_under_budget": 21,
+      "local_workers_allowed_by_current_launcher": 0,
+      "local_fleet_eligible": false,
+      "worker_vram_mib": 530
+    },
+    {
+      "name": "fa_pi_r_f_l",
+      "pipeline": "R16",
+      "replicas": 3,
+      "total_server_reservation_mib": 30000,
+      "per_replica_mib": 10000.0,
+      "local_gpu_slots_under_budget": 21,
+      "local_workers_allowed_by_current_launcher": 0,
+      "local_fleet_eligible": false,
+      "worker_vram_mib": 530
+    },
+    {
+      "name": "fa_gr_r_u_l",
+      "pipeline": "R16",
+      "replicas": 4,
+      "total_server_reservation_mib": 26000,
+      "per_replica_mib": 6500.0,
+      "local_gpu_slots_under_budget": 29,
+      "local_workers_allowed_by_current_launcher": 0,
+      "local_fleet_eligible": false,
+      "worker_vram_mib": 530
+    },
+    {
+      "name": "fa_gr_r_f_l",
+      "pipeline": "R16",
+      "replicas": 4,
+      "total_server_reservation_mib": 26000,
+      "per_replica_mib": 6500.0,
+      "local_gpu_slots_under_budget": 29,
+      "local_workers_allowed_by_current_launcher": 0,
+      "local_fleet_eligible": false,
+      "worker_vram_mib": 530
+    },
+    {
+      "name": "fa_dp_f_u_l",
+      "pipeline": "R17",
+      "replicas": 4,
+      "total_server_reservation_mib": 40960,
+      "per_replica_mib": 10240.0,
+      "local_gpu_slots_under_budget": 1,
+      "local_workers_allowed_by_current_launcher": 1,
+      "local_fleet_eligible": true,
+      "worker_vram_mib": 530
+    },
+    {
+      "name": "fa_dp_f_f_l",
+      "pipeline": "R17",
+      "replicas": 4,
+      "total_server_reservation_mib": 40960,
+      "per_replica_mib": 10240.0,
+      "local_gpu_slots_under_budget": 1,
+      "local_workers_allowed_by_current_launcher": 1,
+      "local_fleet_eligible": true,
+      "worker_vram_mib": 530
+    },
+    {
+      "name": "fa_gr_f_u_l",
+      "pipeline": "R15",
+      "replicas": 4,
+      "total_server_reservation_mib": 27200,
+      "per_replica_mib": 6800.0,
+      "local_gpu_slots_under_budget": 27,
+      "local_workers_allowed_by_current_launcher": 0,
+      "local_fleet_eligible": false,
+      "worker_vram_mib": 530
+    },
+    {
+      "name": "fa_gr_f_f_l",
+      "pipeline": "R15",
+      "replicas": 4,
+      "total_server_reservation_mib": 27200,
+      "per_replica_mib": 6800.0,
+      "local_gpu_slots_under_budget": 27,
+      "local_workers_allowed_by_current_launcher": 0,
+      "local_fleet_eligible": false,
+      "worker_vram_mib": 530
+    },
+    {
+      "name": "ffk1015_pi05_mt50_reduced_descent",
+      "pipeline": "R17",
+      "replicas": 4,
+      "total_server_reservation_mib": 40960,
+      "per_replica_mib": 10240.0,
+      "local_gpu_slots_under_budget": 4,
+      "local_workers_allowed_by_current_launcher": 4,
+      "local_fleet_eligible": true,
+      "worker_vram_mib": 133
+    }
+  ]
+}

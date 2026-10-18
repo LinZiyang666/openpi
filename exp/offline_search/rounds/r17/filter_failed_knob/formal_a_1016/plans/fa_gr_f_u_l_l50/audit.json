@@ -1,0 +1,42 @@
+{
+  "PASS": true,
+  "records": [
+    {
+      "root": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_groot_libero_full_formal_A_original/ffk1015_groot_libero_full_formal_A_original_groot_l10_50",
+      "host": "local",
+      "arms": 5,
+      "remote_operations": 0,
+      "plan": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/plans/fa_gr_f_u_l_l50/local/ffk1015_groot_libero_full_formal_A_original_groot_l10_50/plan.json",
+      "plan_sha256": "6b5972c169e464d4f1ca55d751abe482cdc053d31171dc5b628dc0ad03678e7e",
+      "fits": [
+        {
+          "arm": "ffk1015_groot_libero_full_formal_A_original_groot_l10_50_ir45",
+          "source_sha256": "b65c799913c880577b21e3d7952588ce2c9aca3ca67c0896eb1325b2e966b0df",
+          "served_sha256": "b65c799913c880577b21e3d7952588ce2c9aca3ca67c0896eb1325b2e966b0df"
+        },
+        {
+          "arm": "ffk1015_groot_libero_full_formal_A_original_groot_l10_50_ir40",
+          "source_sha256": "c77d7dad8a7b098e33f32a14e11d213fbddc244c0233e73733fa5997253e887e",
+          "served_sha256": "c77d7dad8a7b098e33f32a14e11d213fbddc244c0233e73733fa5997253e887e"
+        },
+        {
+          "arm": "ffk1015_groot_libero_full_formal_A_original_groot_l10_50_ir32",
+          "source_sha256": "990d4242519a35c5c2daed945c8a86d35e84c1b9d3b783c16a80456f3ed92007",
+          "served_sha256": "990d4242519a35c5c2daed945c8a86d35e84c1b9d3b783c16a80456f3ed92007"
+        },
+        {
+          "arm": "ffk1015_groot_libero_full_formal_A_original_groot_l10_50_ir25",
+          "source_sha256": "17c5c483c43eb15fa601c583718de33fa84a2b0edcc0facb29a856a5f5a4d5eb",
+          "served_sha256": "17c5c483c43eb15fa601c583718de33fa84a2b0edcc0facb29a856a5f5a4d5eb"
+        },
+        {
+          "arm": "ffk1015_groot_libero_full_formal_A_original_groot_l10_50_off",
+          "source_sha256": "17ddcf6e6eeb477c4c70ada9d4e89a8491bfa6623436c97820db1113324a963c",
+          "served_sha256": "17ddcf6e6eeb477c4c70ada9d4e89a8491bfa6623436c97820db1113324a963c"
+        }
+      ]
+    }
+  ],
+  "remote_operations": 0,
+  "servers": 0
+}

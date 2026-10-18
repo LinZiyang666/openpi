@@ -1,0 +1,366 @@
+{
+  "interpreter": "/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python",
+  "plugin_source": "/home/weiland/projects/openpi_r16_k1ref_server/exp/offline_search/closed_loop/plugin.py",
+  "rows": [
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_original",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_original_groot_l10_100_k1_ir45",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_original",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_original_groot_l10_100_k1_ir40",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_original",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_original_groot_l10_100_k1_ir32",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_original",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_original_groot_l10_100_k1_ir25",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_original",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_original_groot_l10_100_k1_off",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_original",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_original_groot_l10_200_k1_ir45",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_original",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_original_groot_l10_200_k1_ir40",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_original",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_original_groot_l10_200_k1_ir32",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_original",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_original_groot_l10_200_k1_ir25",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_original",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_original_groot_l10_200_k1_off",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_original",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_original_groot_l10_500_k1_ir45",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_original",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_original_groot_l10_500_k1_ir40",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_original",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_original_groot_l10_500_k1_ir32",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_original",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_original_groot_l10_500_k1_ir25",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_original",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_original_groot_l10_500_k1_off",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_original",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_original_groot_l10_50_k1_ir45",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_original",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_original_groot_l10_50_k1_ir40",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_original",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_original_groot_l10_50_k1_ir32",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_original",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_original_groot_l10_50_k1_ir25",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_original",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_original_groot_l10_50_k1_off",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_original",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_original_groot_spatial_100_k1_ir45",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_original",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_original_groot_spatial_100_k1_ir40",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_original",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_original_groot_spatial_100_k1_ir32",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_original",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_original_groot_spatial_100_k1_ir25",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_original",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_original_groot_spatial_100_k1_off",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_original",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_original_groot_spatial_200_k1_ir45",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_original",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_original_groot_spatial_200_k1_ir40",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_original",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_original_groot_spatial_200_k1_ir32",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_original",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_original_groot_spatial_200_k1_ir25",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_original",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_original_groot_spatial_200_k1_off",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_original",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_original_groot_spatial_500_k1_ir45",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_original",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_original_groot_spatial_500_k1_ir40",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_original",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_original_groot_spatial_500_k1_ir32",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_original",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_original_groot_spatial_500_k1_ir25",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_original",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_original_groot_spatial_500_k1_off",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_original",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_original_groot_spatial_50_k1_ir45",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_original",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_original_groot_spatial_50_k1_ir40",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_original",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_original_groot_spatial_50_k1_ir32",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_original",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_original_groot_spatial_50_k1_ir25",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_original",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_original_groot_spatial_50_k1_off",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_filtered",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_filtered_groot_l10_100_k1_ir45",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_filtered",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_filtered_groot_l10_100_k1_ir40",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_filtered",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_filtered_groot_l10_100_k1_ir32",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_filtered",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_filtered_groot_l10_100_k1_ir25",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_filtered",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_filtered_groot_l10_200_k1_ir45",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_filtered",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_filtered_groot_l10_200_k1_ir40",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_filtered",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_filtered_groot_l10_200_k1_ir32",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_filtered",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_filtered_groot_l10_200_k1_ir25",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_filtered",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_filtered_groot_l10_500_k1_ir45",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_filtered",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_filtered_groot_l10_500_k1_ir40",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_filtered",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_filtered_groot_l10_500_k1_ir32",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_filtered",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_filtered_groot_l10_500_k1_ir25",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_filtered",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_filtered_groot_l10_50_k1_ir45",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_filtered",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_filtered_groot_l10_50_k1_ir40",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_filtered",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_filtered_groot_l10_50_k1_ir32",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_filtered",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_filtered_groot_l10_50_k1_ir25",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_filtered",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_filtered_groot_spatial_100_k1_ir45",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_filtered",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_filtered_groot_spatial_100_k1_ir40",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_filtered",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_filtered_groot_spatial_100_k1_ir32",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_filtered",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_filtered_groot_spatial_100_k1_ir25",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_filtered",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_filtered_groot_spatial_200_k1_ir45",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_filtered",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_filtered_groot_spatial_200_k1_ir40",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_filtered",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_filtered_groot_spatial_200_k1_ir32",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_filtered",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_filtered_groot_spatial_200_k1_ir25",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_filtered",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_filtered_groot_spatial_500_k1_ir45",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_filtered",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_filtered_groot_spatial_500_k1_ir40",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_filtered",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_filtered_groot_spatial_500_k1_ir32",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_filtered",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_filtered_groot_spatial_500_k1_ir25",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_filtered",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_filtered_groot_spatial_50_k1_ir45",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_filtered",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_filtered_groot_spatial_50_k1_ir40",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_filtered",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_filtered_groot_spatial_50_k1_ir32",
+      "fit_identity_pass": true
+    },
+    {
+      "job": "ffk1015_groot_libero_reduced_formal_A_filtered",
+      "arm": "ffk1015_groot_libero_reduced_formal_A_filtered_groot_spatial_50_k1_ir25",
+      "fit_identity_pass": true
+    }
+  ]
+}

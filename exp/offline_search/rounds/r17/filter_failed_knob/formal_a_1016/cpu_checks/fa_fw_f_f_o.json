@@ -1,0 +1,9 @@
+{
+  "name": "fa_fw_f_f_o",
+  "startup": "PASS",
+  "source_identity_equal": true,
+  "sealed_descriptor_equal": true,
+  "pinned_packages_equal": true,
+  "original_serving_tables_equal": null,
+  "planner_episodes": 6000
+}

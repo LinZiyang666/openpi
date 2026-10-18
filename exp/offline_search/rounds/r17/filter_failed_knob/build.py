@@ -47,10 +47,10 @@ def publish_study(root,source,campaign,seal):
     bundle=campaign['model']+('_mw' if campaign['domain']=='metaworld' else '_libero')
     # A resumed lane can split a config into several task/init cohorts. The
     # study lists each config once; CACHE_STUDY retains all dispatch cohorts.
-    configurations={(r['suite'],r['library_size'],r['group']):r for r in seal['groups']}
+    configurations={(r['suite'],r.get('library_size',500),r['group']):r for r in seal['groups']}
     manifest.update(models={bundle:[dict(r,file='assets/'+r['file']) for r in configurations.values()]},
                     groups=list(dict.fromkeys(r['group'] for r in seal['groups'])),
-                    library_sizes=sorted({r['library_size'] for r in seal['groups']}),
+                    library_sizes=sorted({r.get('library_size',500) for r in seal['groups']}),
                     eval_pool=seal.get('eval_pool','A'),filter_failed_knob=dict(source=str(source),refit=False))
     manifest['digest']=digest({k:v for k,v in manifest.items() if k!='digest'})
     dump(root/'STUDY.json',manifest)
@@ -85,12 +85,40 @@ def direct_routes(campaign,root):
     open_tunnels(campaign,root)
 
 
-def build(source, name, *, table=None, unfiltered=False, off=False, ladder_source=None, records=None):
+def complete_cache_inputs(root, official, groups, inputs):
+    """Fill raised cells from official A, preserving every existing input byte."""
+    other=read(official/'manifest.json')
+    for name in inputs['files'].keys() & other['files'].keys():
+        pin=inputs['files'][name]
+        if other['files'][name]!=pin or sha(root/name)!=pin or sha(official/name)!=pin:
+            raise ValueError(f'Raise/official-A cache input differs: {name}')
+    required={}
+    for row in groups:
+        if not any((g['suite'],g['library_size'])==(row['suite'],row['library_size']) for g in other['groups']):
+            raise ValueError(f'Official A lacks raised cell: {row["suite"]}/{row["library_size"]}')
+        for prefix in (row['view_rel'],row['fit_rel'],row['stall_rel']):
+            entries={n:p for n,p in other['files'].items() if n.startswith(prefix+'/')}
+            if not entries:raise ValueError(f'Official A lacks cache inputs: {prefix}')
+            required.update(entries)
+        parent=row['suite']+'/parent/READY.json'
+        required[parent]=other['files'][parent]
+    missing={n:p for n,p in required.items() if n not in inputs['files']}
+    # Verify all additions before writing; a sparse or changed A source is not
+    # an alternative model/fit release to silently substitute.
+    for name,pin in missing.items():
+        if sha(official/name)!=pin:raise ValueError(f'Official-A input seal differs: {name}')
+    for name in missing:
+        target=root/name;target.parent.mkdir(parents=True,exist_ok=True)
+        shutil.copyfile(official/name,target)
+    inputs['files'].update(missing)
+
+
+def build(source, name, *, table=None, unfiltered=False, off=False, ladder_source=None, records=None, cache_inputs_source=None, test_levels=None, test_cells=None):
     from exp.r17_integration.common.config import config_from_dict
     from exp.r17_integration.common.recipe import bundle_identity, recipe_identity
     from exp.r17_integration.ops import cache_study
     source = Path(source).resolve()
-    if not name.startswith('ffk1015_'): raise ValueError('New ffk1015_ name required')
+    if not name.startswith(('ffk1015_','fa_')): raise ValueError('New ffk1015_ or formal-A fa_ name required')
     root = EVAL/name
     root.mkdir(exist_ok=False)
     campaign = copy.deepcopy(read(source/'campaign.json'))
@@ -132,11 +160,13 @@ def build(source, name, *, table=None, unfiltered=False, off=False, ladder_sourc
             # Library-independent pure references always come from the source.
             continue
         suite, size = row['suite'], row['library_size']
+        if test_cells is not None and (suite,size) not in test_cells:continue
         cell = index[campaign['model'],suite,size]
         summary_key = f'{suite}/{size}'
         summaries[summary_key] = {k:cell[k] for k in ('collected','kept','failed','empty_tasks','candidate_view','labels')}
         if not unfiltered: selection[row['fit_digest']] = cell['kept_episode_ids']
         level = row['group'].rsplit('_',1)[-1]
+        if test_levels is not None and level not in test_levels:continue
         if off and level not in ('koff', 'pure'):
             row['group'] += '_koff'
             level = 'koff'
@@ -144,16 +174,16 @@ def build(source, name, *, table=None, unfiltered=False, off=False, ladder_sourc
         doc = yaml.safe_load((ladder_source/'assets'/row.pop('_source_file',row['file'])).read_text())
         doc['recipe']['periodic_gap']=row['periodic_gap']
         names = [t for t in doc['recipe']['ordered_tasks'] if suite=='mt50' or t.startswith(suite+'/')]
-        if table is not None:
-            values = table.get({'pi05':'π0.5','groot':'GR00T','dp':'DP','fastwam':'Fast-WAM','cosmos':'Cosmos'}[campaign['model']],table)
+        if table is not None or test_levels is not None:
+            values = table.get({'pi05':'π0.5','groot':'GR00T','dp':'DP','fastwam':'Fast-WAM','cosmos':'Cosmos'}[campaign['model']],table) if table is not None else {}
             chosen = values.get(suite,{}).get(str(size),{})
-            row['tasks'] = [t for t in names if chosen.get(t)==level]
+            row['tasks'] = [t for t in names if chosen.get(t)==level] if table is not None else names
             if not row['tasks']: continue
             # DEV templates become official-A frozen/raise test rows.
             row.update(indices=list(range(50)), serve_loeo=False, num_trials_per_task=50)
             doc['recipe']['serve_loeo'] = False
         # Restore the whole planned cohort even when the source is a resume.
-        if table is None:
+        if table is None and test_levels is None:
             row.pop('tasks',None)
             row['indices'] = list(range(50 if campaign['domain']=='metaworld' or off else 30))
         doc['recipe'].update(store_path=str(root/'assets/cache_inputs'/row['view_rel']),
@@ -180,11 +210,13 @@ def build(source, name, *, table=None, unfiltered=False, off=False, ladder_sourc
             for indices,tasks in buckets.items():
                 selected.append(dict(row,tasks=sorted(tasks),indices=list(indices),num_trials_per_task=50))
     seal.update(groups=selected)
-    if table is not None: seal['eval_pool']='A'
+    if table is not None or test_levels is not None: seal['eval_pool']='A'
     seal['digest'] = digest({k:v for k,v in seal.items() if k!='digest'})
     dump(root/'assets/CACHE_STUDY.json', seal)
     # Input manifest is a byte inventory, not a fitter or calibration step.
     inputs = read(source/'assets/cache_inputs/manifest.json')
+    if cache_inputs_source is not None and Path(cache_inputs_source).resolve()!=source:
+        complete_cache_inputs(root/'assets/cache_inputs',Path(cache_inputs_source)/'assets/cache_inputs',selected,inputs)
     inputs.update(groups=selected)
     inputs['digest'] = digest({k:v for k,v in inputs.items() if k!='digest'})
     dump(root/'assets/cache_inputs/manifest.json',inputs)

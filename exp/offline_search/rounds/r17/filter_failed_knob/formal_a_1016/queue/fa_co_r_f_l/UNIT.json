@@ -1,0 +1,146 @@
+{
+  "name": "fa_co_r_f_l",
+  "model": "cosmos",
+  "mode": "reduced",
+  "arm": "filtered",
+  "stage": "levels",
+  "gpu": "H100",
+  "replicas": 8,
+  "batch": 1,
+  "workers": {
+    "timan1": 35,
+    "timan107": 25,
+    "timan108": 25
+  },
+  "jobs": [],
+  "status": "WAITING_OFF",
+  "episodes": null,
+  "maximum_episodes": 30000,
+  "off_decision": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/off_decisions/cosmos_reduced_filtered.json",
+  "pending_cells": [
+    {
+      "suite": "libero_10",
+      "size": 50,
+      "n": 0,
+      "pure_n": 500,
+      "successes": 0,
+      "pure_successes": 483,
+      "complete": false,
+      "status": "pending"
+    },
+    {
+      "suite": "libero_10",
+      "size": 100,
+      "n": 0,
+      "pure_n": 500,
+      "successes": 0,
+      "pure_successes": 483,
+      "complete": false,
+      "status": "pending"
+    },
+    {
+      "suite": "libero_10",
+      "size": 200,
+      "n": 0,
+      "pure_n": 500,
+      "successes": 0,
+      "pure_successes": 483,
+      "complete": false,
+      "status": "pending"
+    },
+    {
+      "suite": "libero_10",
+      "size": 300,
+      "n": 0,
+      "pure_n": 500,
+      "successes": 0,
+      "pure_successes": 483,
+      "complete": false,
+      "status": "pending"
+    },
+    {
+      "suite": "libero_10",
+      "size": 400,
+      "n": 0,
+      "pure_n": 500,
+      "successes": 0,
+      "pure_successes": 483,
+      "complete": false,
+      "status": "pending"
+    },
+    {
+      "suite": "libero_10",
+      "size": 500,
+      "n": 0,
+      "pure_n": 500,
+      "successes": 0,
+      "pure_successes": 483,
+      "complete": false,
+      "status": "pending"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 50,
+      "n": 0,
+      "pure_n": 500,
+      "successes": 0,
+      "pure_successes": 483,
+      "complete": false,
+      "status": "pending"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 100,
+      "n": 0,
+      "pure_n": 500,
+      "successes": 0,
+      "pure_successes": 483,
+      "complete": false,
+      "status": "pending"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 200,
+      "n": 0,
+      "pure_n": 500,
+      "successes": 0,
+      "pure_successes": 483,
+      "complete": false,
+      "status": "pending"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 300,
+      "n": 0,
+      "pure_n": 500,
+      "successes": 0,
+      "pure_successes": 483,
+      "complete": false,
+      "status": "pending"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 400,
+      "n": 0,
+      "pure_n": 500,
+      "successes": 0,
+      "pure_successes": 483,
+      "complete": false,
+      "status": "pending"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 500,
+      "n": 0,
+      "pure_n": 500,
+      "successes": 0,
+      "pure_successes": 483,
+      "complete": false,
+      "status": "pending"
+    }
+  ],
+  "dependencies": [
+    "ffk1015_cosmos_libero_reduced_off"
+  ],
+  "renamed_from": "ffk1015_cosmos_libero_reduced_formal_A_filtered_levels"
+}

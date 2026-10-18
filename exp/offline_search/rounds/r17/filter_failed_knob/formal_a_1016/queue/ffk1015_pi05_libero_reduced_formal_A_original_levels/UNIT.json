@@ -1,0 +1,104 @@
+{
+  "name": "ffk1015_pi05_libero_reduced_formal_A_original_levels",
+  "model": "pi05",
+  "mode": "reduced",
+  "arm": "original",
+  "stage": "levels",
+  "gpu": "RTX 4090",
+  "replicas": 3,
+  "batch": 1,
+  "workers": {
+    "timan107": 64
+  },
+  "jobs": [],
+  "status": "WAITING_OFF",
+  "episodes": null,
+  "maximum_episodes": 16000,
+  "off_decision": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/off_decisions/pi05_reduced_original.json",
+  "pending_cells": [
+    {
+      "suite": "libero_10",
+      "size": 50,
+      "n": 250,
+      "pure_n": 500,
+      "successes": 173,
+      "pure_successes": 459,
+      "complete": false,
+      "status": "pending"
+    },
+    {
+      "suite": "libero_10",
+      "size": 100,
+      "n": 250,
+      "pure_n": 500,
+      "successes": 199,
+      "pure_successes": 459,
+      "complete": false,
+      "status": "pending"
+    },
+    {
+      "suite": "libero_10",
+      "size": 200,
+      "n": 200,
+      "pure_n": 500,
+      "successes": 171,
+      "pure_successes": 459,
+      "complete": false,
+      "status": "pending"
+    },
+    {
+      "suite": "libero_10",
+      "size": 500,
+      "n": 100,
+      "pure_n": 500,
+      "successes": 90,
+      "pure_successes": 459,
+      "complete": false,
+      "status": "pending"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 50,
+      "n": 200,
+      "pure_n": 500,
+      "successes": 176,
+      "pure_successes": 492,
+      "complete": false,
+      "status": "pending"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 100,
+      "n": 200,
+      "pure_n": 500,
+      "successes": 195,
+      "pure_successes": 492,
+      "complete": false,
+      "status": "pending"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 200,
+      "n": 150,
+      "pure_n": 500,
+      "successes": 149,
+      "pure_successes": 492,
+      "complete": false,
+      "status": "pending"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 500,
+      "n": 150,
+      "pure_n": 500,
+      "successes": 148,
+      "pure_successes": 492,
+      "complete": false,
+      "status": "pending"
+    }
+  ],
+  "dependencies": [
+    "r16_k1ref_pi05_off",
+    "ffk1015_pi05_libero_reduced_formal_A_original_off_complete"
+  ]
+}

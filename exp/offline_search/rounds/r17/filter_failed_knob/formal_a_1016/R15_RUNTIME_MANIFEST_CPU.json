@@ -1,0 +1,32 @@
+{
+  "rows": [
+    {
+      "file": "exp/offline_search/closed_loop/devset.py",
+      "expected": "3dbe3e00954cce6412c3d363a50f9105491054e2b0fbefe54b02fe31c3e378f7",
+      "local_actual": "3dbe3e00954cce6412c3d363a50f9105491054e2b0fbefe54b02fe31c3e378f7",
+      "h100_actual": "3dbe3e00954cce6412c3d363a50f9105491054e2b0fbefe54b02fe31c3e378f7"
+    },
+    {
+      "file": "exp/offline_search/closed_loop/worker_pool.py",
+      "expected": "a4d0c44b24ddb2810662014e7516fc22acc6799ed952014c3ff79f44ab01af63",
+      "local_actual": "a4d0c44b24ddb2810662014e7516fc22acc6799ed952014c3ff79f44ab01af63",
+      "h100_actual": "a4d0c44b24ddb2810662014e7516fc22acc6799ed952014c3ff79f44ab01af63"
+    },
+    {
+      "file": "exp/offline_search/rounds/r15/descent/__init__.py",
+      "expected": "91cecd59a4725182188182aff28b947f844b4aa78f0fbcb24fe31e4269840cb5",
+      "local_actual": "91cecd59a4725182188182aff28b947f844b4aa78f0fbcb24fe31e4269840cb5",
+      "h100_actual": "91cecd59a4725182188182aff28b947f844b4aa78f0fbcb24fe31e4269840cb5"
+    },
+    {
+      "file": "exp/offline_search/rounds/r15/descent/recipe.py",
+      "expected": "3424325cf9e2c8b486aab77c0a0ab3134a2f2b534ea8a3eed90f89462790f602",
+      "local_actual": "3424325cf9e2c8b486aab77c0a0ab3134a2f2b534ea8a3eed90f89462790f602",
+      "h100_actual": "3424325cf9e2c8b486aab77c0a0ab3134a2f2b534ea8a3eed90f89462790f602"
+    }
+  ],
+  "local_root": "/home/weiland/projects/openpi",
+  "h100_root": "/data/oscl_h100/openpi",
+  "h100_check": "read-only tether exec python3 hashlib, all four actual hashes matched",
+  "remote_writes": 0
+}

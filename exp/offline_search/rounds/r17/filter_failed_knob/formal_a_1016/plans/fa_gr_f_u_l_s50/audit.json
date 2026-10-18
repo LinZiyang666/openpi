@@ -1,0 +1,42 @@
+{
+  "PASS": true,
+  "records": [
+    {
+      "root": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_groot_libero_full_formal_A_original/ffk1015_groot_libero_full_formal_A_original_groot_spatial_50",
+      "host": "local",
+      "arms": 5,
+      "remote_operations": 0,
+      "plan": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/plans/fa_gr_f_u_l_s50/local/ffk1015_groot_libero_full_formal_A_original_groot_spatial_50/plan.json",
+      "plan_sha256": "e101e114f30c1cca94bc976c6d1751702d311af6fbe8e6f4aa48f7a30a524eca",
+      "fits": [
+        {
+          "arm": "ffk1015_groot_libero_full_formal_A_original_groot_spatial_50_ir45",
+          "source_sha256": "18aaee4412a1c117eb1327d798a9b5340ac7c5a5eaa51d4105d732c7bf242bc7",
+          "served_sha256": "18aaee4412a1c117eb1327d798a9b5340ac7c5a5eaa51d4105d732c7bf242bc7"
+        },
+        {
+          "arm": "ffk1015_groot_libero_full_formal_A_original_groot_spatial_50_ir40",
+          "source_sha256": "3f8447954227ee79ef5f185148748421ed9107effac6044dffd2f065605fa4ac",
+          "served_sha256": "3f8447954227ee79ef5f185148748421ed9107effac6044dffd2f065605fa4ac"
+        },
+        {
+          "arm": "ffk1015_groot_libero_full_formal_A_original_groot_spatial_50_ir32",
+          "source_sha256": "b7fde0be6a734fae39848d7104619f2717876312aac0c352f471f91f8352739c",
+          "served_sha256": "b7fde0be6a734fae39848d7104619f2717876312aac0c352f471f91f8352739c"
+        },
+        {
+          "arm": "ffk1015_groot_libero_full_formal_A_original_groot_spatial_50_ir25",
+          "source_sha256": "91542c418750b70517e6926a6b9bf2df091f5a3ec4eaf8d19da966934d025c24",
+          "served_sha256": "91542c418750b70517e6926a6b9bf2df091f5a3ec4eaf8d19da966934d025c24"
+        },
+        {
+          "arm": "ffk1015_groot_libero_full_formal_A_original_groot_spatial_50_off",
+          "source_sha256": "4c32362169ad92e3b40ddedfe5d177cbf4ad905f2a49fd147808714f95eee275",
+          "served_sha256": "4c32362169ad92e3b40ddedfe5d177cbf4ad905f2a49fd147808714f95eee275"
+        }
+      ]
+    }
+  ],
+  "remote_operations": 0,
+  "servers": 0
+}

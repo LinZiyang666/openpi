@@ -1,0 +1,112 @@
+{
+  "rows": [
+    {
+      "suite": "libero_10",
+      "size": 50,
+      "n": 500,
+      "pure_n": 500,
+      "successes": 303,
+      "pure_successes": 379,
+      "complete": true
+    },
+    {
+      "suite": "libero_10",
+      "size": 100,
+      "n": 500,
+      "pure_n": 500,
+      "successes": 391,
+      "pure_successes": 379,
+      "complete": true
+    },
+    {
+      "suite": "libero_10",
+      "size": 200,
+      "n": 500,
+      "pure_n": 500,
+      "successes": 416,
+      "pure_successes": 379,
+      "complete": true
+    },
+    {
+      "suite": "libero_10",
+      "size": 300,
+      "n": 500,
+      "pure_n": 500,
+      "successes": 428,
+      "pure_successes": 379,
+      "complete": true
+    },
+    {
+      "suite": "libero_10",
+      "size": 400,
+      "n": 500,
+      "pure_n": 500,
+      "successes": 429,
+      "pure_successes": 379,
+      "complete": true
+    },
+    {
+      "suite": "libero_10",
+      "size": 500,
+      "n": 500,
+      "pure_n": 500,
+      "successes": 441,
+      "pure_successes": 379,
+      "complete": true
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 50,
+      "n": 500,
+      "pure_n": 500,
+      "successes": 414,
+      "pure_successes": 444,
+      "complete": true
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 100,
+      "n": 500,
+      "pure_n": 500,
+      "successes": 456,
+      "pure_successes": 444,
+      "complete": true
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 200,
+      "n": 500,
+      "pure_n": 500,
+      "successes": 475,
+      "pure_successes": 444,
+      "complete": true
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 300,
+      "n": 500,
+      "pure_n": 500,
+      "successes": 475,
+      "pure_successes": 444,
+      "complete": true
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 400,
+      "n": 500,
+      "pure_n": 500,
+      "successes": 471,
+      "pure_successes": 444,
+      "complete": true
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 500,
+      "n": 500,
+      "pure_n": 500,
+      "successes": 468,
+      "pure_successes": 444,
+      "complete": true
+    }
+  ]
+}

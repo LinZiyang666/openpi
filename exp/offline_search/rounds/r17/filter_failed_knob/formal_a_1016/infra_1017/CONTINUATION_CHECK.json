@@ -1,0 +1,33 @@
+{
+  "status": "PASS",
+  "continuation": "fa_fw_r_u_lc1",
+  "planned": 6,
+  "total_unique": 30000,
+  "retained_planned": 29994,
+  "overlap": 0,
+  "exact_task_objects": true,
+  "native_planner": true,
+  "scientific_fields_identical": [
+    "runtime_identity",
+    "server_python",
+    "server_node",
+    "replicas",
+    "fastwam_batching",
+    "fastwam_text_cache",
+    "mps",
+    "memory_budget_gib",
+    "denoising_steps",
+    "filter_failed_knob"
+  ],
+  "asset_files_identical": 191,
+  "no_remote_staging": true,
+  "source_closure_deferred_to_prepare": true,
+  "task_uids": [
+    "r17_0a398b0fbdcabda79f72_n100_chrg_k40:eval:34:21",
+    "r17_0a398b0fbdcabda79f72_n100_chrg_k40:eval:34:28",
+    "r17_0a398b0fbdcabda79f72_n100_chrg_k40:eval:34:49",
+    "r17_0a398b0fbdcabda79f72_n100_chrg_k40:eval:35:28",
+    "r17_0a398b0fbdcabda79f72_n100_chrg_k40:eval:35:42",
+    "r17_0a398b0fbdcabda79f72_n100_chrg_k40:eval:36:46"
+  ]
+}

@@ -1,0 +1,815 @@
+{
+  "jobs": [
+    {
+      "name": "fa_co_f_f_o",
+      "startup": "PASS",
+      "source_identity_equal": true,
+      "sealed_descriptor_equal": true,
+      "pinned_packages_equal": true,
+      "original_serving_tables_equal": null,
+      "planner_episodes": 6000
+    },
+    {
+      "name": "fa_co_f_u_o",
+      "startup": "PASS",
+      "source_identity_equal": true,
+      "sealed_descriptor_equal": true,
+      "pinned_packages_equal": true,
+      "original_serving_tables_equal": true,
+      "planner_episodes": 6000
+    },
+    {
+      "name": "fa_co_r_u_l",
+      "startup": "PASS",
+      "source_identity_equal": true,
+      "sealed_descriptor_equal": true,
+      "pinned_packages_equal": true,
+      "original_serving_tables_equal": true,
+      "planner_episodes": 30000
+    },
+    {
+      "name": "fa_dp_f_f_o",
+      "startup": "PASS",
+      "source_identity_equal": true,
+      "sealed_descriptor_equal": true,
+      "pinned_packages_equal": true,
+      "original_serving_tables_equal": null,
+      "planner_episodes": 6000
+    },
+    {
+      "name": "fa_dp_f_u_o",
+      "startup": "PASS",
+      "source_identity_equal": true,
+      "sealed_descriptor_equal": true,
+      "pinned_packages_equal": true,
+      "original_serving_tables_equal": true,
+      "planner_episodes": 6000
+    },
+    {
+      "name": "fa_dp_r_f_l",
+      "startup": "PASS",
+      "source_identity_equal": true,
+      "sealed_descriptor_equal": true,
+      "pinned_packages_equal": true,
+      "original_serving_tables_equal": null,
+      "planner_episodes": 5000
+    },
+    {
+      "name": "fa_dp_r_u_l",
+      "startup": "PASS",
+      "source_identity_equal": true,
+      "sealed_descriptor_equal": true,
+      "pinned_packages_equal": true,
+      "original_serving_tables_equal": true,
+      "planner_episodes": 5000
+    },
+    {
+      "name": "fa_fw_f_f_o",
+      "startup": "PASS",
+      "source_identity_equal": true,
+      "sealed_descriptor_equal": true,
+      "pinned_packages_equal": true,
+      "original_serving_tables_equal": null,
+      "planner_episodes": 6000
+    },
+    {
+      "name": "fa_fw_f_u_o",
+      "startup": "PASS",
+      "source_identity_equal": true,
+      "sealed_descriptor_equal": true,
+      "pinned_packages_equal": true,
+      "original_serving_tables_equal": true,
+      "planner_episodes": 6000
+    },
+    {
+      "name": "fa_fw_r_f_l",
+      "startup": "PASS",
+      "source_identity_equal": true,
+      "sealed_descriptor_equal": true,
+      "pinned_packages_equal": true,
+      "original_serving_tables_equal": null,
+      "planner_episodes": 22500
+    },
+    {
+      "name": "fa_fw_r_u_l",
+      "startup": "PASS",
+      "source_identity_equal": true,
+      "sealed_descriptor_equal": true,
+      "pinned_packages_equal": true,
+      "original_serving_tables_equal": true,
+      "planner_episodes": 30000
+    },
+    {
+      "name": "fa_gr_f_f_o_l100",
+      "startup": "PASS",
+      "native_plugin_rows": 1,
+      "planner_episodes": 500,
+      "original_serving_tables_equal": null,
+      "candidate_rows_checked": 0,
+      "native_sync_plan_checked": false,
+      "source_model_argv_equal": true,
+      "model_flags": [
+        {
+          "--checkpoint": "/data/ckpt/n15_libero_10",
+          "--denoising-steps": "8"
+        }
+      ],
+      "server_python": "/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python"
+    },
+    {
+      "name": "fa_gr_f_f_o_l200",
+      "startup": "PASS",
+      "native_plugin_rows": 1,
+      "planner_episodes": 500,
+      "original_serving_tables_equal": null,
+      "candidate_rows_checked": 0,
+      "native_sync_plan_checked": false,
+      "source_model_argv_equal": true,
+      "model_flags": [
+        {
+          "--checkpoint": "/data/ckpt/n15_libero_10",
+          "--denoising-steps": "8"
+        }
+      ],
+      "server_python": "/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python"
+    },
+    {
+      "name": "fa_gr_f_f_o_l50",
+      "startup": "PASS",
+      "native_plugin_rows": 1,
+      "planner_episodes": 500,
+      "original_serving_tables_equal": null,
+      "candidate_rows_checked": 0,
+      "native_sync_plan_checked": true,
+      "source_model_argv_equal": true,
+      "model_flags": [
+        {
+          "--checkpoint": "/data/ckpt/n15_libero_10",
+          "--denoising-steps": "8"
+        }
+      ],
+      "server_python": "/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python"
+    },
+    {
+      "name": "fa_gr_f_f_o_l500",
+      "startup": "PASS",
+      "native_plugin_rows": 1,
+      "planner_episodes": 500,
+      "original_serving_tables_equal": null,
+      "candidate_rows_checked": 0,
+      "native_sync_plan_checked": false,
+      "source_model_argv_equal": true,
+      "model_flags": [
+        {
+          "--checkpoint": "/data/ckpt/n15_libero_10",
+          "--denoising-steps": "8"
+        }
+      ],
+      "server_python": "/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python"
+    },
+    {
+      "name": "fa_gr_f_f_o_s100",
+      "startup": "PASS",
+      "native_plugin_rows": 1,
+      "planner_episodes": 500,
+      "original_serving_tables_equal": null,
+      "candidate_rows_checked": 0,
+      "native_sync_plan_checked": false,
+      "source_model_argv_equal": true,
+      "model_flags": [
+        {
+          "--checkpoint": "/data/ckpt/n15_libero_spatial",
+          "--denoising-steps": "8"
+        }
+      ],
+      "server_python": "/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python"
+    },
+    {
+      "name": "fa_gr_f_f_o_s200",
+      "startup": "PASS",
+      "native_plugin_rows": 1,
+      "planner_episodes": 500,
+      "original_serving_tables_equal": null,
+      "candidate_rows_checked": 0,
+      "native_sync_plan_checked": false,
+      "source_model_argv_equal": true,
+      "model_flags": [
+        {
+          "--checkpoint": "/data/ckpt/n15_libero_spatial",
+          "--denoising-steps": "8"
+        }
+      ],
+      "server_python": "/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python"
+    },
+    {
+      "name": "fa_gr_f_f_o_s50",
+      "startup": "PASS",
+      "native_plugin_rows": 1,
+      "planner_episodes": 500,
+      "original_serving_tables_equal": null,
+      "candidate_rows_checked": 0,
+      "native_sync_plan_checked": true,
+      "source_model_argv_equal": true,
+      "model_flags": [
+        {
+          "--checkpoint": "/data/ckpt/n15_libero_spatial",
+          "--denoising-steps": "8"
+        }
+      ],
+      "server_python": "/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python"
+    },
+    {
+      "name": "fa_gr_f_f_o_s500",
+      "startup": "PASS",
+      "native_plugin_rows": 1,
+      "planner_episodes": 500,
+      "original_serving_tables_equal": null,
+      "candidate_rows_checked": 0,
+      "native_sync_plan_checked": false,
+      "source_model_argv_equal": true,
+      "model_flags": [
+        {
+          "--checkpoint": "/data/ckpt/n15_libero_spatial",
+          "--denoising-steps": "8"
+        }
+      ],
+      "server_python": "/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python"
+    },
+    {
+      "name": "fa_gr_f_u_o_l100",
+      "startup": "PASS",
+      "native_plugin_rows": 1,
+      "planner_episodes": 500,
+      "original_serving_tables_equal": true,
+      "candidate_rows_checked": 0,
+      "native_sync_plan_checked": false,
+      "source_model_argv_equal": true,
+      "model_flags": [
+        {
+          "--checkpoint": "/data/ckpt/n15_libero_10",
+          "--denoising-steps": "8"
+        }
+      ],
+      "server_python": "/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python"
+    },
+    {
+      "name": "fa_gr_f_u_o_l200",
+      "startup": "PASS",
+      "native_plugin_rows": 1,
+      "planner_episodes": 500,
+      "original_serving_tables_equal": true,
+      "candidate_rows_checked": 0,
+      "native_sync_plan_checked": false,
+      "source_model_argv_equal": true,
+      "model_flags": [
+        {
+          "--checkpoint": "/data/ckpt/n15_libero_10",
+          "--denoising-steps": "8"
+        }
+      ],
+      "server_python": "/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python"
+    },
+    {
+      "name": "fa_gr_f_u_o_l50",
+      "startup": "PASS",
+      "native_plugin_rows": 1,
+      "planner_episodes": 500,
+      "original_serving_tables_equal": true,
+      "candidate_rows_checked": 0,
+      "native_sync_plan_checked": true,
+      "source_model_argv_equal": true,
+      "model_flags": [
+        {
+          "--checkpoint": "/data/ckpt/n15_libero_10",
+          "--denoising-steps": "8"
+        }
+      ],
+      "server_python": "/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python"
+    },
+    {
+      "name": "fa_gr_f_u_o_l500",
+      "startup": "PASS",
+      "native_plugin_rows": 1,
+      "planner_episodes": 500,
+      "original_serving_tables_equal": true,
+      "candidate_rows_checked": 0,
+      "native_sync_plan_checked": false,
+      "source_model_argv_equal": true,
+      "model_flags": [
+        {
+          "--checkpoint": "/data/ckpt/n15_libero_10",
+          "--denoising-steps": "8"
+        }
+      ],
+      "server_python": "/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python"
+    },
+    {
+      "name": "fa_gr_f_u_o_s100",
+      "startup": "PASS",
+      "native_plugin_rows": 1,
+      "planner_episodes": 500,
+      "original_serving_tables_equal": true,
+      "candidate_rows_checked": 0,
+      "native_sync_plan_checked": false,
+      "source_model_argv_equal": true,
+      "model_flags": [
+        {
+          "--checkpoint": "/data/ckpt/n15_libero_spatial",
+          "--denoising-steps": "8"
+        }
+      ],
+      "server_python": "/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python"
+    },
+    {
+      "name": "fa_gr_f_u_o_s200",
+      "startup": "PASS",
+      "native_plugin_rows": 1,
+      "planner_episodes": 500,
+      "original_serving_tables_equal": true,
+      "candidate_rows_checked": 0,
+      "native_sync_plan_checked": false,
+      "source_model_argv_equal": true,
+      "model_flags": [
+        {
+          "--checkpoint": "/data/ckpt/n15_libero_spatial",
+          "--denoising-steps": "8"
+        }
+      ],
+      "server_python": "/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python"
+    },
+    {
+      "name": "fa_gr_f_u_o_s50",
+      "startup": "PASS",
+      "native_plugin_rows": 1,
+      "planner_episodes": 500,
+      "original_serving_tables_equal": true,
+      "candidate_rows_checked": 0,
+      "native_sync_plan_checked": true,
+      "source_model_argv_equal": true,
+      "model_flags": [
+        {
+          "--checkpoint": "/data/ckpt/n15_libero_spatial",
+          "--denoising-steps": "8"
+        }
+      ],
+      "server_python": "/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python"
+    },
+    {
+      "name": "fa_gr_f_u_o_s500",
+      "startup": "PASS",
+      "native_plugin_rows": 1,
+      "planner_episodes": 500,
+      "original_serving_tables_equal": true,
+      "candidate_rows_checked": 0,
+      "native_sync_plan_checked": false,
+      "source_model_argv_equal": true,
+      "model_flags": [
+        {
+          "--checkpoint": "/data/ckpt/n15_libero_spatial",
+          "--denoising-steps": "8"
+        }
+      ],
+      "server_python": "/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python"
+    },
+    {
+      "name": "fa_gr_r_u_c",
+      "startup": "PASS",
+      "native_plugin_rows": 8,
+      "planner_episodes": 1950,
+      "original_serving_tables_equal": true,
+      "candidate_rows_checked": 8,
+      "native_sync_plan_checked": false,
+      "source_model_argv_equal": true,
+      "model_flags": [
+        {
+          "--checkpoint": "/data/ckpt/n15_libero_10",
+          "--denoising-steps": "1"
+        },
+        {
+          "--checkpoint": "/data/ckpt/n15_libero_10",
+          "--denoising-steps": "1"
+        },
+        {
+          "--checkpoint": "/data/ckpt/n15_libero_spatial",
+          "--denoising-steps": "1"
+        },
+        {
+          "--checkpoint": "/data/ckpt/n15_libero_spatial",
+          "--denoising-steps": "1"
+        }
+      ],
+      "server_python": "/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python"
+    },
+    {
+      "name": "fa_gr_r_u_l",
+      "startup": "PASS",
+      "native_plugin_rows": 24,
+      "planner_episodes": 12000,
+      "original_serving_tables_equal": true,
+      "candidate_rows_checked": 24,
+      "native_sync_plan_checked": false,
+      "source_model_argv_equal": true,
+      "model_flags": [
+        {
+          "--checkpoint": "/data/ckpt/n15_libero_10",
+          "--denoising-steps": "1"
+        },
+        {
+          "--checkpoint": "/data/ckpt/n15_libero_10",
+          "--denoising-steps": "1"
+        },
+        {
+          "--checkpoint": "/data/ckpt/n15_libero_spatial",
+          "--denoising-steps": "1"
+        },
+        {
+          "--checkpoint": "/data/ckpt/n15_libero_spatial",
+          "--denoising-steps": "1"
+        }
+      ],
+      "server_python": "/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python"
+    },
+    {
+      "name": "fa_pi_f_f_o_l100",
+      "startup": "PASS",
+      "native_plugin_rows": 1,
+      "planner_episodes": 500,
+      "original_serving_tables_equal": null,
+      "candidate_rows_checked": 0,
+      "native_sync_plan_checked": false,
+      "source_model_argv_equal": true,
+      "model_flags": [
+        {
+          "--policy.config": "pi05_libero",
+          "--policy.dir": "/home/exouser/ckpt/pi05_libero_pytorch"
+        }
+      ],
+      "server_python": "/home/exouser/openpi/.venv/bin/python"
+    },
+    {
+      "name": "fa_pi_f_f_o_l200",
+      "startup": "PASS",
+      "native_plugin_rows": 1,
+      "planner_episodes": 500,
+      "original_serving_tables_equal": null,
+      "candidate_rows_checked": 0,
+      "native_sync_plan_checked": false,
+      "source_model_argv_equal": true,
+      "model_flags": [
+        {
+          "--policy.config": "pi05_libero",
+          "--policy.dir": "/home/exouser/ckpt/pi05_libero_pytorch"
+        }
+      ],
+      "server_python": "/home/exouser/openpi/.venv/bin/python"
+    },
+    {
+      "name": "fa_pi_f_f_o_l50",
+      "startup": "PASS",
+      "native_plugin_rows": 1,
+      "planner_episodes": 500,
+      "original_serving_tables_equal": null,
+      "candidate_rows_checked": 0,
+      "native_sync_plan_checked": true,
+      "source_model_argv_equal": true,
+      "model_flags": [
+        {
+          "--policy.config": "pi05_libero",
+          "--policy.dir": "/home/exouser/ckpt/pi05_libero_pytorch"
+        }
+      ],
+      "server_python": "/home/exouser/openpi/.venv/bin/python"
+    },
+    {
+      "name": "fa_pi_f_f_o_l500",
+      "startup": "PASS",
+      "native_plugin_rows": 1,
+      "planner_episodes": 500,
+      "original_serving_tables_equal": null,
+      "candidate_rows_checked": 0,
+      "native_sync_plan_checked": false,
+      "source_model_argv_equal": true,
+      "model_flags": [
+        {
+          "--policy.config": "pi05_libero",
+          "--policy.dir": "/home/exouser/ckpt/pi05_libero_pytorch"
+        }
+      ],
+      "server_python": "/home/exouser/openpi/.venv/bin/python"
+    },
+    {
+      "name": "fa_pi_f_f_o_s100",
+      "startup": "PASS",
+      "native_plugin_rows": 1,
+      "planner_episodes": 500,
+      "original_serving_tables_equal": null,
+      "candidate_rows_checked": 0,
+      "native_sync_plan_checked": false,
+      "source_model_argv_equal": true,
+      "model_flags": [
+        {
+          "--policy.config": "pi05_libero",
+          "--policy.dir": "/home/exouser/ckpt/pi05_libero_pytorch"
+        }
+      ],
+      "server_python": "/home/exouser/openpi/.venv/bin/python"
+    },
+    {
+      "name": "fa_pi_f_f_o_s200",
+      "startup": "PASS",
+      "native_plugin_rows": 1,
+      "planner_episodes": 500,
+      "original_serving_tables_equal": null,
+      "candidate_rows_checked": 0,
+      "native_sync_plan_checked": false,
+      "source_model_argv_equal": true,
+      "model_flags": [
+        {
+          "--policy.config": "pi05_libero",
+          "--policy.dir": "/home/exouser/ckpt/pi05_libero_pytorch"
+        }
+      ],
+      "server_python": "/home/exouser/openpi/.venv/bin/python"
+    },
+    {
+      "name": "fa_pi_f_f_o_s50",
+      "startup": "PASS",
+      "native_plugin_rows": 1,
+      "planner_episodes": 500,
+      "original_serving_tables_equal": null,
+      "candidate_rows_checked": 0,
+      "native_sync_plan_checked": true,
+      "source_model_argv_equal": true,
+      "model_flags": [
+        {
+          "--policy.config": "pi05_libero",
+          "--policy.dir": "/home/exouser/ckpt/pi05_libero_pytorch"
+        }
+      ],
+      "server_python": "/home/exouser/openpi/.venv/bin/python"
+    },
+    {
+      "name": "fa_pi_f_f_o_s500",
+      "startup": "PASS",
+      "native_plugin_rows": 1,
+      "planner_episodes": 500,
+      "original_serving_tables_equal": null,
+      "candidate_rows_checked": 0,
+      "native_sync_plan_checked": false,
+      "source_model_argv_equal": true,
+      "model_flags": [
+        {
+          "--policy.config": "pi05_libero",
+          "--policy.dir": "/home/exouser/ckpt/pi05_libero_pytorch"
+        }
+      ],
+      "server_python": "/home/exouser/openpi/.venv/bin/python"
+    },
+    {
+      "name": "fa_pi_f_p10",
+      "startup": "PASS",
+      "native_plugin_rows": 1,
+      "planner_episodes": 500,
+      "original_serving_tables_equal": null,
+      "candidate_rows_checked": 0,
+      "native_sync_plan_checked": true,
+      "source_model_argv_equal": true,
+      "model_flags": [
+        {
+          "--policy.config": "pi05_libero",
+          "--policy.dir": "/home/exouser/ckpt/pi05_libero_pytorch"
+        }
+      ],
+      "server_python": "/home/exouser/openpi/.venv/bin/python"
+    },
+    {
+      "name": "fa_pi_f_ps",
+      "startup": "PASS",
+      "native_plugin_rows": 1,
+      "planner_episodes": 500,
+      "original_serving_tables_equal": null,
+      "candidate_rows_checked": 0,
+      "native_sync_plan_checked": true,
+      "source_model_argv_equal": true,
+      "model_flags": [
+        {
+          "--policy.config": "pi05_libero",
+          "--policy.dir": "/home/exouser/ckpt/pi05_libero_pytorch"
+        }
+      ],
+      "server_python": "/home/exouser/openpi/.venv/bin/python"
+    },
+    {
+      "name": "fa_pi_f_u_o_l100",
+      "startup": "PASS",
+      "native_plugin_rows": 1,
+      "planner_episodes": 500,
+      "original_serving_tables_equal": true,
+      "candidate_rows_checked": 0,
+      "native_sync_plan_checked": false,
+      "source_model_argv_equal": true,
+      "model_flags": [
+        {
+          "--policy.config": "pi05_libero",
+          "--policy.dir": "/home/exouser/ckpt/pi05_libero_pytorch"
+        }
+      ],
+      "server_python": "/home/exouser/openpi/.venv/bin/python"
+    },
+    {
+      "name": "fa_pi_f_u_o_l200",
+      "startup": "PASS",
+      "native_plugin_rows": 1,
+      "planner_episodes": 500,
+      "original_serving_tables_equal": true,
+      "candidate_rows_checked": 0,
+      "native_sync_plan_checked": false,
+      "source_model_argv_equal": true,
+      "model_flags": [
+        {
+          "--policy.config": "pi05_libero",
+          "--policy.dir": "/home/exouser/ckpt/pi05_libero_pytorch"
+        }
+      ],
+      "server_python": "/home/exouser/openpi/.venv/bin/python"
+    },
+    {
+      "name": "fa_pi_f_u_o_l50",
+      "startup": "PASS",
+      "native_plugin_rows": 1,
+      "planner_episodes": 500,
+      "original_serving_tables_equal": true,
+      "candidate_rows_checked": 0,
+      "native_sync_plan_checked": true,
+      "source_model_argv_equal": true,
+      "model_flags": [
+        {
+          "--policy.config": "pi05_libero",
+          "--policy.dir": "/home/exouser/ckpt/pi05_libero_pytorch"
+        }
+      ],
+      "server_python": "/home/exouser/openpi/.venv/bin/python"
+    },
+    {
+      "name": "fa_pi_f_u_o_l500",
+      "startup": "PASS",
+      "native_plugin_rows": 1,
+      "planner_episodes": 500,
+      "original_serving_tables_equal": true,
+      "candidate_rows_checked": 0,
+      "native_sync_plan_checked": false,
+      "source_model_argv_equal": true,
+      "model_flags": [
+        {
+          "--policy.config": "pi05_libero",
+          "--policy.dir": "/home/exouser/ckpt/pi05_libero_pytorch"
+        }
+      ],
+      "server_python": "/home/exouser/openpi/.venv/bin/python"
+    },
+    {
+      "name": "fa_pi_f_u_o_s100",
+      "startup": "PASS",
+      "native_plugin_rows": 1,
+      "planner_episodes": 500,
+      "original_serving_tables_equal": true,
+      "candidate_rows_checked": 0,
+      "native_sync_plan_checked": false,
+      "source_model_argv_equal": true,
+      "model_flags": [
+        {
+          "--policy.config": "pi05_libero",
+          "--policy.dir": "/home/exouser/ckpt/pi05_libero_pytorch"
+        }
+      ],
+      "server_python": "/home/exouser/openpi/.venv/bin/python"
+    },
+    {
+      "name": "fa_pi_f_u_o_s200",
+      "startup": "PASS",
+      "native_plugin_rows": 1,
+      "planner_episodes": 500,
+      "original_serving_tables_equal": true,
+      "candidate_rows_checked": 0,
+      "native_sync_plan_checked": false,
+      "source_model_argv_equal": true,
+      "model_flags": [
+        {
+          "--policy.config": "pi05_libero",
+          "--policy.dir": "/home/exouser/ckpt/pi05_libero_pytorch"
+        }
+      ],
+      "server_python": "/home/exouser/openpi/.venv/bin/python"
+    },
+    {
+      "name": "fa_pi_f_u_o_s50",
+      "startup": "PASS",
+      "native_plugin_rows": 1,
+      "planner_episodes": 500,
+      "original_serving_tables_equal": true,
+      "candidate_rows_checked": 0,
+      "native_sync_plan_checked": true,
+      "source_model_argv_equal": true,
+      "model_flags": [
+        {
+          "--policy.config": "pi05_libero",
+          "--policy.dir": "/home/exouser/ckpt/pi05_libero_pytorch"
+        }
+      ],
+      "server_python": "/home/exouser/openpi/.venv/bin/python"
+    },
+    {
+      "name": "fa_pi_f_u_o_s500",
+      "startup": "PASS",
+      "native_plugin_rows": 1,
+      "planner_episodes": 500,
+      "original_serving_tables_equal": true,
+      "candidate_rows_checked": 0,
+      "native_sync_plan_checked": false,
+      "source_model_argv_equal": true,
+      "model_flags": [
+        {
+          "--policy.config": "pi05_libero",
+          "--policy.dir": "/home/exouser/ckpt/pi05_libero_pytorch"
+        }
+      ],
+      "server_python": "/home/exouser/openpi/.venv/bin/python"
+    },
+    {
+      "name": "fa_pi_r_f_l",
+      "startup": "PASS",
+      "native_plugin_rows": 28,
+      "planner_episodes": 14000,
+      "original_serving_tables_equal": null,
+      "candidate_rows_checked": 28,
+      "native_sync_plan_checked": false,
+      "source_model_argv_equal": true,
+      "model_flags": [
+        {
+          "--policy.config": "pi05_libero",
+          "--policy.dir": "/home/weiland/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
+        },
+        {
+          "--policy.config": "pi05_libero",
+          "--policy.dir": "/home/weiland/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
+        },
+        {
+          "--policy.config": "pi05_libero",
+          "--policy.dir": "/home/weiland/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
+        }
+      ],
+      "server_python": "/home/weiland/projects/openpi/.venv/bin/python"
+    },
+    {
+      "name": "fa_pi_r_u_c",
+      "startup": "PASS",
+      "native_plugin_rows": 8,
+      "planner_episodes": 2500,
+      "original_serving_tables_equal": true,
+      "candidate_rows_checked": 8,
+      "native_sync_plan_checked": false,
+      "source_model_argv_equal": true,
+      "model_flags": [
+        {
+          "--policy.config": "pi05_libero",
+          "--policy.dir": "/home/weiland/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
+        },
+        {
+          "--policy.config": "pi05_libero",
+          "--policy.dir": "/home/weiland/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
+        },
+        {
+          "--policy.config": "pi05_libero",
+          "--policy.dir": "/home/weiland/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
+        }
+      ],
+      "server_python": "/home/weiland/projects/openpi/.venv/bin/python"
+    },
+    {
+      "name": "fa_pi_r_u_l",
+      "startup": "PASS",
+      "native_plugin_rows": 32,
+      "planner_episodes": 16000,
+      "original_serving_tables_equal": true,
+      "candidate_rows_checked": 32,
+      "native_sync_plan_checked": false,
+      "source_model_argv_equal": true,
+      "model_flags": [
+        {
+          "--policy.config": "pi05_libero",
+          "--policy.dir": "/home/weiland/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
+        },
+        {
+          "--policy.config": "pi05_libero",
+          "--policy.dir": "/home/weiland/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
+        },
+        {
+          "--policy.config": "pi05_libero",
+          "--policy.dir": "/home/weiland/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
+        }
+      ],
+      "server_python": "/home/weiland/projects/openpi/.venv/bin/python"
+    }
+  ],
+  "cpu_only": true
+}

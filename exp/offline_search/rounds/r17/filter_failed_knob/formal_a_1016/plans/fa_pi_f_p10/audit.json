@@ -1,0 +1,22 @@
+{
+  "PASS": true,
+  "records": [
+    {
+      "root": "/data/mw_finetune/eval/fa_pi_f_p10",
+      "host": "h100",
+      "arms": 1,
+      "remote_operations": 0,
+      "plan": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/plans/fa_pi_f_p10/h100/fa_pi_f_p10/plan.json",
+      "plan_sha256": "8ea3ce504667edb600373ed3650ccea4f71c83cfa6d20ef2e08bdfcc27279a1d",
+      "fits": [
+        {
+          "arm": "ffk1015_pi05_libero_full_formal_A_pure_l10_r1_c10",
+          "source_sha256": "466e75a09b531ded372cb1c23cc9fe01f0126e740b0abd8383bd52fa5b7b5e97",
+          "served_sha256": "6e7e87e1b8b93b5ea37a81a1b881483c8376a10acda27e6e682edc4a45e2cc5f"
+        }
+      ]
+    }
+  ],
+  "remote_operations": 0,
+  "servers": 0
+}

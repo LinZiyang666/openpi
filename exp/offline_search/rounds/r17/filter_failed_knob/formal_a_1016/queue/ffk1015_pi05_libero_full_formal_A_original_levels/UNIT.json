@@ -1,0 +1,23 @@
+{
+  "name": "ffk1015_pi05_libero_full_formal_A_original_levels",
+  "model": "pi05",
+  "mode": "full",
+  "arm": "original",
+  "stage": "levels",
+  "gpu": "H100",
+  "replicas": 3,
+  "batch": 1,
+  "workers": {
+    "timan108": 39
+  },
+  "jobs": [],
+  "status": "WAITING_OFF",
+  "episodes": null,
+  "maximum_episodes": 16000,
+  "dependencies": [
+    "ffk1015_pi05_libero_full_formal_A_original_off",
+    "ffk1015_pi05_libero_full_formal_A_pure_l10_r1",
+    "ffk1015_pi05_libero_full_formal_A_pure_spatial"
+  ],
+  "worker_host_failover": true
+}

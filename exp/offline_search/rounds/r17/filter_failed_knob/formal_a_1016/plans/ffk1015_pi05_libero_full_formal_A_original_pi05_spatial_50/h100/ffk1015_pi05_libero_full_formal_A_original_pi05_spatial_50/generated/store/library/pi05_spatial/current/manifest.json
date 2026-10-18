@@ -1,0 +1,401 @@
+{
+ "schema": "offline_search.library.v1",
+ "lib": "pi05_spatial",
+ "name": "current",
+ "model": "pi05",
+ "suite": "spatial",
+ "suite_full": "libero_spatial",
+ "status": "ok",
+ "errors": [],
+ "complete": true,
+ "tok_complete": true,
+ "limit_episodes": null,
+ "counts": {
+  "rows": 1018,
+  "episodes": 49,
+  "tok_rows": 1018,
+  "tok_episodes": 49,
+  "success_episodes": 49,
+  "tasks": 10
+ },
+ "H": 10,
+ "Drs": 32,
+ "key_dim": 32768,
+ "tok_shape": [
+  256,
+  2048
+ ],
+ "img_shape": [
+  224,
+  224,
+  3
+ ],
+ "img_source_keys": {
+  "img0": "input_images/base_0_rgb",
+  "img1": "input_images/left_wrist_0_rgb"
+ },
+ "act_valid_dims": 7,
+ "exec_steps": 5,
+ "rs_valid_dims": 8,
+ "gripper_dim": 6,
+ "facts_note": "action chunks (H,32): only dims 0..6 valid (6 = gripper), pi05 7..31 ~0.001 padding, groot 7..31 noise-like padding; only the first 5 steps are executed. robot_state: pi05 32-d with 0..7 valid (rest 0), groot 8-d all valid. Arrays are stored raw/full; action statistics use [:5, :7].",
+ "key_source": "copied bit-exactly from the pickle entries (query_keys vision_0/vision_1/robot_state, payload.action_chunk)",
+ "tasks": {
+  "0": "pick up the black bowl between the plate and the ramekin and place it on the plate",
+  "1": "pick up the black bowl next to the ramekin and place it on the plate",
+  "2": "pick up the black bowl from table center and place it on the plate",
+  "3": "pick up the black bowl on the cookie box and place it on the plate",
+  "4": "pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate",
+  "5": "pick up the black bowl on the ramekin and place it on the plate",
+  "6": "pick up the black bowl next to the cookie box and place it on the plate",
+  "7": "pick up the black bowl on the stove and place it on the plate",
+  "8": "pick up the black bowl next to the plate and place it on the plate",
+  "9": "pick up the black bowl on the wooden cabinet and place it on the plate"
+ },
+ "task_map": {
+  "pick up the black bowl between the plate and the ramekin and place it on the plate": 0,
+  "pick up the black bowl next to the ramekin and place it on the plate": 1,
+  "pick up the black bowl from table center and place it on the plate": 2,
+  "pick up the black bowl on the cookie box and place it on the plate": 3,
+  "pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate": 4,
+  "pick up the black bowl on the ramekin and place it on the plate": 5,
+  "pick up the black bowl next to the cookie box and place it on the plate": 6,
+  "pick up the black bowl on the stove and place it on the plate": 7,
+  "pick up the black bowl next to the plate and place it on the plate": 8,
+  "pick up the black bowl on the wooden cabinet and place it on the plate": 9
+ },
+ "task_map_source": {
+  "trace_runs": [
+   "tr_pi05_sp_inf",
+   "tr_pi05_sp_cache"
+  ],
+  "n_files": {
+   "tr_pi05_sp_inf": 500,
+   "tr_pi05_sp_cache": 500
+  },
+  "attr": "task -> task_id"
+ },
+ "tok_episodes": [
+  "episode_0004_20260410_011001_080633",
+  "episode_0003_20260410_010946_600378",
+  "episode_0000_20260410_013433_002633",
+  "episode_0017_20260410_011417_292749",
+  "episode_0018_20260410_011434_257190",
+  "episode_0015_20260410_011344_869409",
+  "episode_0019_20260410_011451_488353",
+  "episode_0002_20260410_010929_991358",
+  "episode_0016_20260410_011401_521914",
+  "episode_0001_20260410_010833_643988",
+  "episode_0012_20260410_011247_049104",
+  "episode_0013_20260410_011306_565253",
+  "episode_0014_20260410_011325_518817",
+  "episode_0011_20260410_011228_856135",
+  "episode_0010_20260410_011209_792025",
+  "episode_0006_20260410_011042_393597",
+  "episode_0009_20260410_011147_027725",
+  "episode_0008_20260410_011125_742216",
+  "episode_0005_20260410_011022_801344",
+  "episode_0007_20260410_011103_871596",
+  "episode_0025_20260410_011714_535001",
+  "episode_0029_20260410_011847_472194",
+  "episode_0027_20260410_013453_070393",
+  "episode_0028_20260410_011829_055003",
+  "episode_0026_20260410_011732_851293",
+  "episode_0022_20260410_011605_263672",
+  "episode_0020_20260410_011517_357608",
+  "episode_0030_20260410_011910_031319",
+  "episode_0034_20260410_012039_100030",
+  "episode_0033_20260410_012019_825828",
+  "episode_0021_20260410_011542_077616",
+  "episode_0031_20260410_011933_301436",
+  "episode_0024_20260410_011654_131430",
+  "episode_0023_20260410_011629_901435",
+  "episode_0035_20260410_012102_164484",
+  "episode_0032_20260410_011958_314386",
+  "episode_0036_20260410_012124_203616",
+  "episode_0037_20260410_012148_210072",
+  "episode_0038_20260410_012213_950266",
+  "episode_0039_20260410_012242_511766",
+  "episode_0042_20260410_012403_121411",
+  "episode_0041_20260410_012346_185785",
+  "episode_0043_20260410_012421_441671",
+  "episode_0044_20260410_012440_275668",
+  "episode_0045_20260410_012503_265735",
+  "episode_0048_20260410_012613_367191",
+  "episode_0049_20260410_012633_991054",
+  "episode_0046_20260410_012526_676266",
+  "episode_0047_20260410_012550_633036"
+ ],
+ "sources": {
+  "pkl": "/data/oscl_h100/mirror/home/weiland/trace_runs/dual_20260923/libs/libero_spatial/cp1_spatial_pool_16.pkl",
+  "pkl_sha256": "36cd0f3b043fd7215aaee9dd053693325f4813127485580fa23aeb5663a88ffe",
+  "pickle_meta": {
+   "key_builder_type": "cp1_spatial_pool_16",
+   "checkpoint_id": "CP1",
+   "vector_dims": {
+    "vision_0": 32768,
+    "vision_1": 32768,
+    "prompt_emb": 2048,
+    "robot_state": 32
+   },
+   "query_key_fields": [
+    "prompt_emb",
+    "robot_state",
+    "vision_0",
+    "vision_1",
+    "vision_2"
+   ]
+  },
+  "build_dir": "/data/oscl_h100/mirror/home/weiland/projects/openpi/exp/common/data/db/libero_cache/libero_spatial",
+  "build_dir_realpath": "/data/oscl_h100/mirror/home/weiland/projects/openpi/exp/common/data/db/libero_cache/libero_spatial",
+  "build_on_archive_hdd": false,
+  "audit_memmaps": "/data/oscl_h100/mirror/home/weiland/trace_runs/dual_20260923/audit/libs/pi05_libero_spatial",
+  "init_source": "/data/oscl_h100/mirror/home/weiland/projects/openpi/exp/common/data/db/libero_cache/libero_spatial_init_map.json"
+ },
+ "verification": {
+  "id_vs_trajectory_fields_mismatch": 0,
+  "ids_unresolved": 0,
+  "task_key_vs_h5_task_mismatch": 0,
+  "episodes_num_steps_vs_groups_mismatch": 0,
+  "prev_next_vs_pickle": {
+   "prev_mismatch": 0,
+   "next_mismatch": 0,
+   "dangling_prev": 0,
+   "dangling_next": 0,
+   "multi_link_entries": 0
+  },
+  "steps_increasing_within_episode": true,
+  "keys_vs_pool16_of_h5_tokens": {
+   "v0": {
+    "n": 1018,
+    "min_cos": 0.9999999999999998,
+    "mean_cos": 1.0,
+    "n_bit_exact": 1018,
+    "all_bit_exact": true,
+    "max_abs_diff": 0.0
+   },
+   "v1": {
+    "n": 1018,
+    "min_cos": 0.9999999999999998,
+    "mean_cos": 1.0,
+    "n_bit_exact": 1018,
+    "all_bit_exact": true,
+    "max_abs_diff": 0.0
+   }
+  },
+  "rs_vs_h5_max_abs_diff": 0.0,
+  "action_vs_h5_clean_action_max_abs_diff": 0.0,
+  "action_vs_h5_clean_action_max_abs_diff_exec_5x7": 0.0,
+  "n_trajectories": 49,
+  "all_source_episodes_success": true,
+  "n_source_episodes_failed": 0,
+  "n_episodes_fully_included": 49,
+  "n_episodes_contiguous_rows": 49,
+  "rows_per_task": {
+   "0": 80,
+   "1": 112,
+   "2": 98,
+   "3": 85,
+   "4": 125,
+   "5": 93,
+   "6": 111,
+   "7": 124,
+   "8": 74,
+   "9": 116
+  },
+  "episodes_per_task": {
+   "0": 5,
+   "1": 5,
+   "2": 5,
+   "3": 5,
+   "4": 5,
+   "5": 5,
+   "6": 5,
+   "7": 5,
+   "8": 4,
+   "9": 5
+  },
+  "init_lookup_disagreements": [],
+  "tok_rows_written": 1018,
+  "pkl_sha256": "36cd0f3b043fd7215aaee9dd053693325f4813127485580fa23aeb5663a88ffe",
+  "trace_library_sha256": [
+   "36cd0f3b043fd7215aaee9dd053693325f4813127485580fa23aeb5663a88ffe"
+  ],
+  "pkl_sha256_matches_trace": true,
+  "audit_memmaps_equal": {
+   "available": true,
+   "ids_equal": true,
+   "vision_0": true,
+   "vision_1": true,
+   "robot_state": true,
+   "action": true
+  }
+ },
+ "run": {
+  "wall_s": 5.1,
+  "episodes": 49,
+  "workers": 16,
+  "serial_io": false,
+  "reader_s": null,
+  "reader_bytes": null,
+  "reader_MBps": null,
+  "worker_s_total": 68.8
+ },
+ "build": {
+  "started": {
+   "utc": "2026-09-26T18:56:52+00:00",
+   "local": "2026-09-26T13:56:52-05:00"
+  },
+  "finished": {
+   "utc": "2026-09-26T18:57:02+00:00",
+   "local": "2026-09-26T13:57:02-05:00"
+  },
+  "wall_s": 10.2,
+  "host": "weilandserver",
+  "argv": [
+   "/data/oscl_h100/mirror/home/weiland/projects/openpi/exp/offline_search/r0/build_library_store.py",
+   "--out",
+   "/data/oscl_h100/store/library",
+   "--libs",
+   "pi05_spatial,pi05_l10"
+  ],
+  "workers": 16
+ },
+ "arrays": {
+  "key_v0.npy": {
+   "shape": [
+    1018,
+    32768
+   ],
+   "dtype": "float32",
+   "bytes": 133431424
+  },
+  "key_v1.npy": {
+   "shape": [
+    1018,
+    32768
+   ],
+   "dtype": "float32",
+   "bytes": 133431424
+  },
+  "rs.npy": {
+   "shape": [
+    1018,
+    32
+   ],
+   "dtype": "float32",
+   "bytes": 130432
+  },
+  "action.npy": {
+   "shape": [
+    1018,
+    10,
+    32
+   ],
+   "dtype": "float32",
+   "bytes": 1303168
+  },
+  "task_id.npy": {
+   "shape": [
+    1018
+   ],
+   "dtype": "int16",
+   "bytes": 2164
+  },
+  "episode.npy": {
+   "shape": [
+    1018
+   ],
+   "dtype": "int32",
+   "bytes": 4200
+  },
+  "step.npy": {
+   "shape": [
+    1018
+   ],
+   "dtype": "int16",
+   "bytes": 2164
+  },
+  "ep_len.npy": {
+   "shape": [
+    1018
+   ],
+   "dtype": "int16",
+   "bytes": 2164
+  },
+  "progress.npy": {
+   "shape": [
+    1018
+   ],
+   "dtype": "float32",
+   "bytes": 4200
+  },
+  "success.npy": {
+   "shape": [
+    1018
+   ],
+   "dtype": "bool",
+   "bytes": 1146
+  },
+  "prev.npy": {
+   "shape": [
+    1018
+   ],
+   "dtype": "int32",
+   "bytes": 4200
+  },
+  "next.npy": {
+   "shape": [
+    1018
+   ],
+   "dtype": "int32",
+   "bytes": 4200
+  },
+  "tok/rows.npy": {
+   "shape": [
+    1018
+   ],
+   "dtype": "int64",
+   "bytes": 8272
+  },
+  "tok/v0.npy": {
+   "shape": [
+    1018,
+    256,
+    2048
+   ],
+   "dtype": "float16",
+   "bytes": 1067450496
+  },
+  "tok/v1.npy": {
+   "shape": [
+    1018,
+    256,
+    2048
+   ],
+   "dtype": "float16",
+   "bytes": 1067450496
+  },
+  "tok/img0.npy": {
+   "shape": [
+    1018,
+    224,
+    224,
+    3
+   ],
+   "dtype": "uint8",
+   "bytes": 153237632
+  },
+  "tok/img1.npy": {
+   "shape": [
+    1018,
+    224,
+    224,
+    3
+   ],
+   "dtype": "uint8",
+   "bytes": 153237632
+  }
+ },
+ "bytes_total": 2709705414
+}

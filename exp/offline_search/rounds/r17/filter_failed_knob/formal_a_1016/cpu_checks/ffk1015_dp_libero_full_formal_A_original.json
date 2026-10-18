@@ -1,0 +1,11 @@
+{
+  "name": "ffk1015_dp_libero_full_formal_A_original",
+  "startup": "PASS",
+  "source_identity_equal": true,
+  "sealed_descriptor_equal": true,
+  "pinned_packages_equal": true,
+  "original_serving_tables_equal": true,
+  "planner_episodes": 36000,
+  "pipeline": "R17",
+  "cpu_interpreter": "/home/weiland/projects/openpi/.venv/bin/python"
+}

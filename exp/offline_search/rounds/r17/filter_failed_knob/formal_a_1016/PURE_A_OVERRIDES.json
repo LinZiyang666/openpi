@@ -1,0 +1,16 @@
+{
+  "pi05:full:libero_10": {
+    "root": "/data/mw_finetune/eval/fa_pi_f_p10",
+    "arm": "ffk1015_pi05_libero_full_formal_A_pure_l10_r1_c10",
+    "authorized": true,
+    "shared_by_both_arms": true,
+    "replaces": "ffk1015_pi05_libero_full_formal_A_pure_l10",
+    "result_policy": "replacement_only_do_not_merge"
+  },
+  "pi05:full:libero_spatial": {
+    "root": "/data/mw_finetune/eval/fa_pi_f_ps",
+    "arm": "ffk1015_pi05_libero_full_formal_A_pure_spatial_c10",
+    "authorized": true,
+    "shared_by_both_arms": true
+  }
+}

@@ -1,0 +1,164 @@
+{
+  "name": "fa_gr_r_u_l",
+  "model": "groot",
+  "mode": "reduced",
+  "arm": "original",
+  "stage": "levels",
+  "gpu": "RTX 4090",
+  "replicas": 4,
+  "batch": 1,
+  "workers": {
+    "timan107": 64
+  },
+  "jobs": [
+    {
+      "name": "fa_gr_r_u_l",
+      "run": "/data/mw_finetune/eval/fa_gr_r_u_l",
+      "source": "/home/weiland/trace_runs/os_closed_loop/r16_conductor_test_groot_k1_v1",
+      "model": "groot",
+      "mode": "reduced",
+      "arm": "original",
+      "pipeline": "R16",
+      "gpu": "RTX 4090",
+      "replicas": 4,
+      "batch": 1,
+      "workers": {
+        "timan107": 64
+      },
+      "episodes": 12000,
+      "levels": [
+        "ir45",
+        "ir40",
+        "ir32",
+        "ir25"
+      ],
+      "off_reuse": "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/k1ref/runs/off/r16_k1ref_groot_off/group.json",
+      "stage": "levels"
+    }
+  ],
+  "status": "BUILT",
+  "episodes": 12000,
+  "maximum_episodes": 16000,
+  "off_decision": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/off_decisions/groot_reduced_original.json",
+  "pending_cells": [
+    {
+      "suite": "libero_10",
+      "size": 50,
+      "n": 350,
+      "pure_n": 500,
+      "successes": 228,
+      "pure_successes": 441,
+      "complete": false,
+      "status": "pending"
+    },
+    {
+      "suite": "libero_10",
+      "size": 100,
+      "n": 350,
+      "pure_n": 500,
+      "successes": 261,
+      "pure_successes": 441,
+      "complete": false,
+      "status": "pending"
+    },
+    {
+      "suite": "libero_10",
+      "size": 200,
+      "n": 300,
+      "pure_n": 500,
+      "successes": 210,
+      "pure_successes": 441,
+      "complete": false,
+      "status": "pending"
+    },
+    {
+      "suite": "libero_10",
+      "size": 500,
+      "n": 250,
+      "pure_n": 500,
+      "successes": 206,
+      "pure_successes": 441,
+      "complete": false,
+      "status": "pending"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 50,
+      "n": 400,
+      "pure_n": 500,
+      "successes": 363,
+      "pure_successes": 475,
+      "complete": false,
+      "status": "pending"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 100,
+      "n": 150,
+      "pure_n": 500,
+      "successes": 133,
+      "pure_successes": 475,
+      "complete": false,
+      "status": "pending"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 200,
+      "n": 100,
+      "pure_n": 500,
+      "successes": 95,
+      "pure_successes": 475,
+      "complete": false,
+      "status": "pending"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 500,
+      "n": 150,
+      "pure_n": 500,
+      "successes": 143,
+      "pure_successes": 475,
+      "complete": false,
+      "status": "pending"
+    }
+  ],
+  "dependencies": [
+    "r16_k1ref_groot_off",
+    "fa_gr_r_u_c"
+  ],
+  "renamed_from": "ffk1015_groot_libero_reduced_formal_A_original_levels",
+  "worker_host_failover": true,
+  "off_decision_sha256": "db7de2d112a2c48e59234f409b93eed6eabeb993756b3d95ec8f45b57ab391c9",
+  "selected_cells": [
+    [
+      "libero_10",
+      50
+    ],
+    [
+      "libero_10",
+      100
+    ],
+    [
+      "libero_10",
+      200
+    ],
+    [
+      "libero_10",
+      500
+    ],
+    [
+      "libero_spatial",
+      50
+    ],
+    [
+      "libero_spatial",
+      100
+    ]
+  ],
+  "levels": [
+    "ir45",
+    "ir40",
+    "ir32",
+    "ir25"
+  ]
+}

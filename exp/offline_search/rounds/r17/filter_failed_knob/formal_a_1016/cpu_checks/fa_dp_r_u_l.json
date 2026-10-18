@@ -1,0 +1,9 @@
+{
+  "name": "fa_dp_r_u_l",
+  "startup": "PASS",
+  "source_identity_equal": true,
+  "sealed_descriptor_equal": true,
+  "pinned_packages_equal": true,
+  "original_serving_tables_equal": true,
+  "planner_episodes": 5000
+}

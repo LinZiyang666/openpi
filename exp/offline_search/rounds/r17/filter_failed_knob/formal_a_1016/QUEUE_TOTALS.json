@@ -1,0 +1,219 @@
+{
+  "rows": [
+    {
+      "model": "dp",
+      "mode": "reduced",
+      "arm": "original",
+      "ready_episodes": 5000,
+      "deferred_upper_bound": 0,
+      "units": [
+        "fa_dp_r_u_l"
+      ]
+    },
+    {
+      "model": "dp",
+      "mode": "reduced",
+      "arm": "filtered",
+      "ready_episodes": 5000,
+      "deferred_upper_bound": 0,
+      "units": [
+        "fa_dp_r_f_l"
+      ]
+    },
+    {
+      "model": "dp",
+      "mode": "full",
+      "arm": "original",
+      "ready_episodes": 6000,
+      "deferred_upper_bound": 30000,
+      "units": [
+        "fa_dp_f_u_o",
+        "fa_dp_f_u_l"
+      ]
+    },
+    {
+      "model": "dp",
+      "mode": "full",
+      "arm": "filtered",
+      "ready_episodes": 6000,
+      "deferred_upper_bound": 30000,
+      "units": [
+        "fa_dp_f_f_o",
+        "fa_dp_f_f_l"
+      ]
+    },
+    {
+      "model": "fastwam",
+      "mode": "reduced",
+      "arm": "original",
+      "ready_episodes": 30000,
+      "deferred_upper_bound": 0,
+      "units": [
+        "fa_fw_r_u_l"
+      ]
+    },
+    {
+      "model": "fastwam",
+      "mode": "reduced",
+      "arm": "filtered",
+      "ready_episodes": 22500,
+      "deferred_upper_bound": 0,
+      "units": [
+        "fa_fw_r_f_l"
+      ]
+    },
+    {
+      "model": "fastwam",
+      "mode": "full",
+      "arm": "original",
+      "ready_episodes": 6000,
+      "deferred_upper_bound": 30000,
+      "units": [
+        "fa_fw_f_u_o",
+        "fa_fw_f_u_l"
+      ]
+    },
+    {
+      "model": "fastwam",
+      "mode": "full",
+      "arm": "filtered",
+      "ready_episodes": 6000,
+      "deferred_upper_bound": 30000,
+      "units": [
+        "fa_fw_f_f_o",
+        "fa_fw_f_f_l"
+      ]
+    },
+    {
+      "model": "cosmos",
+      "mode": "reduced",
+      "arm": "original",
+      "ready_episodes": 30000,
+      "deferred_upper_bound": 0,
+      "units": [
+        "fa_co_r_u_l"
+      ]
+    },
+    {
+      "model": "cosmos",
+      "mode": "reduced",
+      "arm": "filtered",
+      "ready_episodes": 0,
+      "deferred_upper_bound": 30000,
+      "units": [
+        "fa_co_r_f_l"
+      ]
+    },
+    {
+      "model": "cosmos",
+      "mode": "full",
+      "arm": "original",
+      "ready_episodes": 6000,
+      "deferred_upper_bound": 30000,
+      "units": [
+        "fa_co_f_u_o",
+        "fa_co_f_u_l"
+      ]
+    },
+    {
+      "model": "cosmos",
+      "mode": "full",
+      "arm": "filtered",
+      "ready_episodes": 6000,
+      "deferred_upper_bound": 30000,
+      "units": [
+        "fa_co_f_f_o",
+        "fa_co_f_f_l"
+      ]
+    },
+    {
+      "model": "pi05",
+      "mode": "reduced",
+      "arm": "original",
+      "ready_episodes": 18500,
+      "deferred_upper_bound": 0,
+      "units": [
+        "fa_pi_r_u_c",
+        "fa_pi_r_u_l"
+      ]
+    },
+    {
+      "model": "pi05",
+      "mode": "reduced",
+      "arm": "filtered",
+      "ready_episodes": 14000,
+      "deferred_upper_bound": 0,
+      "units": [
+        "fa_pi_r_f_l"
+      ]
+    },
+    {
+      "model": "pi05",
+      "mode": "full",
+      "arm": "original",
+      "ready_episodes": 14000,
+      "deferred_upper_bound": 0,
+      "units": [
+        "fa_pi_f_u_o",
+        "fa_pi_f_u_l"
+      ]
+    },
+    {
+      "model": "pi05",
+      "mode": "full",
+      "arm": "filtered",
+      "ready_episodes": 16000,
+      "deferred_upper_bound": 0,
+      "units": [
+        "fa_pi_f_f_o",
+        "fa_pi_f_f_l"
+      ]
+    },
+    {
+      "model": "groot",
+      "mode": "reduced",
+      "arm": "original",
+      "ready_episodes": 13950,
+      "deferred_upper_bound": 0,
+      "units": [
+        "fa_gr_r_u_c",
+        "fa_gr_r_u_l"
+      ]
+    },
+    {
+      "model": "groot",
+      "mode": "reduced",
+      "arm": "filtered",
+      "ready_episodes": 0,
+      "deferred_upper_bound": 16000,
+      "units": [
+        "fa_gr_r_f_l"
+      ]
+    },
+    {
+      "model": "groot",
+      "mode": "full",
+      "arm": "original",
+      "ready_episodes": 4000,
+      "deferred_upper_bound": 16000,
+      "units": [
+        "fa_gr_f_u_o",
+        "fa_gr_f_u_l"
+      ]
+    },
+    {
+      "model": "groot",
+      "mode": "full",
+      "arm": "filtered",
+      "ready_episodes": 4000,
+      "deferred_upper_bound": 16000,
+      "units": [
+        "fa_gr_f_f_o",
+        "fa_gr_f_f_l"
+      ]
+    }
+  ],
+  "pure_reference_episodes": 1000,
+  "ready_episodes": 213950,
+  "deferred_upper_bound": 258000
+}

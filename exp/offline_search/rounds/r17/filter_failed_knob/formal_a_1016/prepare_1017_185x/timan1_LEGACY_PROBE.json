@@ -1,0 +1,27 @@
+{
+  "host": "timan1",
+  "boot_id": "1da71e0c-302a-4177-8183-d874ae6c22d6",
+  "missing": [],
+  "island": "/scratch/zixuans8/openpi_r16_conductor_ffk1017",
+  "installed": false,
+  "admission": {
+    "capacity": 39,
+    "gpu_slots": 39,
+    "ram_slots": 181,
+    "cards": {
+      "2": {
+        "total": 49140,
+        "used": 39,
+        "pending": 23320,
+        "processes": {
+          "3112": 4
+        },
+        "server_resident_mib": 0,
+        "server_pending_mib": 0
+      }
+    },
+    "server_budget_mib": 0,
+    "boot_id": "1da71e0c-302a-4177-8183-d874ae6c22d6"
+  },
+  "usable": true
+}

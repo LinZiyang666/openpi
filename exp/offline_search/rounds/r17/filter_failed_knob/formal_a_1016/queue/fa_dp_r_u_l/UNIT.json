@@ -1,0 +1,79 @@
+{
+  "name": "fa_dp_r_u_l",
+  "model": "dp",
+  "mode": "reduced",
+  "arm": "original",
+  "stage": "levels",
+  "gpu": "RTX 4090",
+  "replicas": 4,
+  "batch": 8,
+  "workers": {
+    "local": 24,
+    "timan1": 24
+  },
+  "jobs": [
+    {
+      "name": "fa_dp_r_u_l",
+      "run": "/data/mw_finetune/eval/fa_dp_r_u_l",
+      "source": "/data/mw_finetune/eval/knobtestdp_red",
+      "episodes": 5000,
+      "model": "dp",
+      "benchmark": "libero",
+      "gpu": "RTX 4090",
+      "workers": {
+        "local": 24,
+        "timan1": 24
+      },
+      "replicas": 4,
+      "python": "/home/weiland/projects/openpi/.venv/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_3faa6dcf5cd5dacf9109052a0a85f69b53564282161b9f14f165f7229b8d53d4",
+      "unfiltered": true,
+      "mode": "reduced",
+      "arm": "original",
+      "stage": "levels",
+      "pipeline": "R17",
+      "batch": 8,
+      "mps": {
+        "active_thread_percentage": 100,
+        "compute_mode_change": false,
+        "enabled": true,
+        "private_per_campaign_gpu": true,
+        "schema": "r17.mps.v1"
+      },
+      "levels": [
+        "k50",
+        "k40",
+        "k30",
+        "k20",
+        "k10"
+      ],
+      "off_reuse": null,
+      "renamed_from": "/data/mw_finetune/eval/ffk1015_dp_libero_reduced_formal_A_original_levels"
+    }
+  ],
+  "status": "BUILT",
+  "episodes": 5000,
+  "maximum_episodes": 30000,
+  "off_decision_sha256": "2da0269f798695c6e2059d514482504de982ed2d1814953213e47b18bdda25ea",
+  "selected_cells": [
+    [
+      "libero_10",
+      50
+    ],
+    [
+      "libero_spatial",
+      50
+    ]
+  ],
+  "levels": [
+    "k50",
+    "k40",
+    "k30",
+    "k20",
+    "k10"
+  ],
+  "dependencies": [
+    "fsreddp2"
+  ],
+  "renamed_from": "ffk1015_dp_libero_reduced_formal_A_original_levels"
+}

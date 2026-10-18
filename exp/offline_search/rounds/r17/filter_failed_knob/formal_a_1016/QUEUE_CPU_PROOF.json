@@ -1,0 +1,530 @@
+{
+  "status": "PASS",
+  "ready_episodes": 133950,
+  "new_nonpure_episodes": 132950,
+  "pure_episodes": 1000,
+  "reused_off_planned": 47550,
+  "total_unique_planned": 181500,
+  "duplicate_semantic_episodes": 0,
+  "pruned_nonoff_episodes": 59500,
+  "native_campaigns": [
+    {
+      "name": "ffk1015_dp_libero_reduced_formal_A_original_levels",
+      "pipeline": "R17",
+      "episodes": 5000,
+      "gpu": "RTX 4090",
+      "workers": {
+        "local": 24,
+        "timan1": 24
+      },
+      "unique_root_basename": "ffk1015_dp_libero_reduced_formal_A_original_levels"
+    },
+    {
+      "name": "ffk1015_dp_libero_reduced_formal_A_filtered_levels",
+      "pipeline": "R17",
+      "episodes": 5000,
+      "gpu": "RTX 4090",
+      "workers": {
+        "local": 24,
+        "timan1": 24
+      },
+      "unique_root_basename": "ffk1015_dp_libero_reduced_formal_A_filtered_levels"
+    },
+    {
+      "name": "ffk1015_dp_libero_full_formal_A_original_off",
+      "pipeline": "R17",
+      "episodes": 6000,
+      "gpu": "RTX 4090",
+      "workers": {
+        "local": 24,
+        "timan1": 24
+      },
+      "unique_root_basename": "ffk1015_dp_libero_full_formal_A_original_off"
+    },
+    {
+      "name": "ffk1015_dp_libero_full_formal_A_filtered_off",
+      "pipeline": "R17",
+      "episodes": 6000,
+      "gpu": "RTX 4090",
+      "workers": {
+        "local": 24,
+        "timan1": 24
+      },
+      "unique_root_basename": "ffk1015_dp_libero_full_formal_A_filtered_off"
+    },
+    {
+      "name": "ffk1015_fastwam_libero_reduced_formal_A_original_levels",
+      "pipeline": "R17",
+      "episodes": 30000,
+      "gpu": "RTX 4090",
+      "workers": {
+        "timan1": 30,
+        "timan107": 20,
+        "timan108": 20
+      },
+      "unique_root_basename": "ffk1015_fastwam_libero_reduced_formal_A_original_levels"
+    },
+    {
+      "name": "ffk1015_fastwam_libero_reduced_formal_A_filtered_levels",
+      "pipeline": "R17",
+      "episodes": 22500,
+      "gpu": "RTX 4090",
+      "workers": {
+        "timan1": 30,
+        "timan107": 20,
+        "timan108": 20
+      },
+      "unique_root_basename": "ffk1015_fastwam_libero_reduced_formal_A_filtered_levels"
+    },
+    {
+      "name": "ffk1015_fastwam_libero_full_formal_A_original_off",
+      "pipeline": "R17",
+      "episodes": 6000,
+      "gpu": "H100",
+      "workers": {
+        "timan1": 35,
+        "timan107": 25,
+        "timan108": 25
+      },
+      "unique_root_basename": "ffk1015_fastwam_libero_full_formal_A_original_off"
+    },
+    {
+      "name": "ffk1015_fastwam_libero_full_formal_A_filtered_off",
+      "pipeline": "R17",
+      "episodes": 6000,
+      "gpu": "H100",
+      "workers": {
+        "timan1": 35,
+        "timan107": 25,
+        "timan108": 25
+      },
+      "unique_root_basename": "ffk1015_fastwam_libero_full_formal_A_filtered_off"
+    },
+    {
+      "name": "ffk1015_cosmos_libero_full_formal_A_original_off",
+      "pipeline": "R17",
+      "episodes": 6000,
+      "gpu": "H100",
+      "workers": {
+        "timan1": 35,
+        "timan107": 25,
+        "timan108": 25
+      },
+      "unique_root_basename": "ffk1015_cosmos_libero_full_formal_A_original_off"
+    },
+    {
+      "name": "ffk1015_cosmos_libero_full_formal_A_filtered_off",
+      "pipeline": "R17",
+      "episodes": 6000,
+      "gpu": "H100",
+      "workers": {
+        "timan1": 35,
+        "timan107": 25,
+        "timan108": 25
+      },
+      "unique_root_basename": "ffk1015_cosmos_libero_full_formal_A_filtered_off"
+    },
+    {
+      "name": "ffk1015_pi05_libero_full_formal_A_original_off_pi05_l10_50",
+      "pipeline": "R15",
+      "episodes": 500,
+      "gpu": "H100",
+      "workers": {
+        "timan108": 39
+      },
+      "unique_root_basename": "ffk1015_pi05_libero_full_formal_A_original_off_pi05_l10_50"
+    },
+    {
+      "name": "ffk1015_pi05_libero_full_formal_A_original_off_pi05_l10_100",
+      "pipeline": "R15",
+      "episodes": 500,
+      "gpu": "H100",
+      "workers": {
+        "timan108": 39
+      },
+      "unique_root_basename": "ffk1015_pi05_libero_full_formal_A_original_off_pi05_l10_100"
+    },
+    {
+      "name": "ffk1015_pi05_libero_full_formal_A_original_off_pi05_l10_200",
+      "pipeline": "R15",
+      "episodes": 500,
+      "gpu": "H100",
+      "workers": {
+        "timan108": 39
+      },
+      "unique_root_basename": "ffk1015_pi05_libero_full_formal_A_original_off_pi05_l10_200"
+    },
+    {
+      "name": "ffk1015_pi05_libero_full_formal_A_original_off_pi05_l10_500",
+      "pipeline": "R15",
+      "episodes": 500,
+      "gpu": "H100",
+      "workers": {
+        "timan108": 39
+      },
+      "unique_root_basename": "ffk1015_pi05_libero_full_formal_A_original_off_pi05_l10_500"
+    },
+    {
+      "name": "ffk1015_pi05_libero_full_formal_A_original_off_pi05_spatial_50",
+      "pipeline": "R15",
+      "episodes": 500,
+      "gpu": "H100",
+      "workers": {
+        "timan108": 39
+      },
+      "unique_root_basename": "ffk1015_pi05_libero_full_formal_A_original_off_pi05_spatial_50"
+    },
+    {
+      "name": "ffk1015_pi05_libero_full_formal_A_original_off_pi05_spatial_100",
+      "pipeline": "R15",
+      "episodes": 500,
+      "gpu": "H100",
+      "workers": {
+        "timan108": 39
+      },
+      "unique_root_basename": "ffk1015_pi05_libero_full_formal_A_original_off_pi05_spatial_100"
+    },
+    {
+      "name": "ffk1015_pi05_libero_full_formal_A_original_off_pi05_spatial_200",
+      "pipeline": "R15",
+      "episodes": 500,
+      "gpu": "H100",
+      "workers": {
+        "timan108": 39
+      },
+      "unique_root_basename": "ffk1015_pi05_libero_full_formal_A_original_off_pi05_spatial_200"
+    },
+    {
+      "name": "ffk1015_pi05_libero_full_formal_A_original_off_pi05_spatial_500",
+      "pipeline": "R15",
+      "episodes": 500,
+      "gpu": "H100",
+      "workers": {
+        "timan108": 39
+      },
+      "unique_root_basename": "ffk1015_pi05_libero_full_formal_A_original_off_pi05_spatial_500"
+    },
+    {
+      "name": "ffk1015_pi05_libero_full_formal_A_filtered_off_pi05_l10_50",
+      "pipeline": "R15",
+      "episodes": 500,
+      "gpu": "H100",
+      "workers": {
+        "timan108": 39
+      },
+      "unique_root_basename": "ffk1015_pi05_libero_full_formal_A_filtered_off_pi05_l10_50"
+    },
+    {
+      "name": "ffk1015_pi05_libero_full_formal_A_filtered_off_pi05_l10_100",
+      "pipeline": "R15",
+      "episodes": 500,
+      "gpu": "H100",
+      "workers": {
+        "timan108": 39
+      },
+      "unique_root_basename": "ffk1015_pi05_libero_full_formal_A_filtered_off_pi05_l10_100"
+    },
+    {
+      "name": "ffk1015_pi05_libero_full_formal_A_filtered_off_pi05_l10_200",
+      "pipeline": "R15",
+      "episodes": 500,
+      "gpu": "H100",
+      "workers": {
+        "timan108": 39
+      },
+      "unique_root_basename": "ffk1015_pi05_libero_full_formal_A_filtered_off_pi05_l10_200"
+    },
+    {
+      "name": "ffk1015_pi05_libero_full_formal_A_filtered_off_pi05_l10_500",
+      "pipeline": "R15",
+      "episodes": 500,
+      "gpu": "H100",
+      "workers": {
+        "timan108": 39
+      },
+      "unique_root_basename": "ffk1015_pi05_libero_full_formal_A_filtered_off_pi05_l10_500"
+    },
+    {
+      "name": "ffk1015_pi05_libero_full_formal_A_filtered_off_pi05_spatial_50",
+      "pipeline": "R15",
+      "episodes": 500,
+      "gpu": "H100",
+      "workers": {
+        "timan108": 39
+      },
+      "unique_root_basename": "ffk1015_pi05_libero_full_formal_A_filtered_off_pi05_spatial_50"
+    },
+    {
+      "name": "ffk1015_pi05_libero_full_formal_A_filtered_off_pi05_spatial_100",
+      "pipeline": "R15",
+      "episodes": 500,
+      "gpu": "H100",
+      "workers": {
+        "timan108": 39
+      },
+      "unique_root_basename": "ffk1015_pi05_libero_full_formal_A_filtered_off_pi05_spatial_100"
+    },
+    {
+      "name": "ffk1015_pi05_libero_full_formal_A_filtered_off_pi05_spatial_200",
+      "pipeline": "R15",
+      "episodes": 500,
+      "gpu": "H100",
+      "workers": {
+        "timan108": 39
+      },
+      "unique_root_basename": "ffk1015_pi05_libero_full_formal_A_filtered_off_pi05_spatial_200"
+    },
+    {
+      "name": "ffk1015_pi05_libero_full_formal_A_filtered_off_pi05_spatial_500",
+      "pipeline": "R15",
+      "episodes": 500,
+      "gpu": "H100",
+      "workers": {
+        "timan108": 39
+      },
+      "unique_root_basename": "ffk1015_pi05_libero_full_formal_A_filtered_off_pi05_spatial_500"
+    },
+    {
+      "name": "ffk1015_groot_libero_full_formal_A_original_off_groot_l10_50",
+      "pipeline": "R15",
+      "episodes": 500,
+      "gpu": "RTX 4090",
+      "workers": {
+        "timan107": 64
+      },
+      "unique_root_basename": "ffk1015_groot_libero_full_formal_A_original_off_groot_l10_50"
+    },
+    {
+      "name": "ffk1015_groot_libero_full_formal_A_original_off_groot_l10_100",
+      "pipeline": "R15",
+      "episodes": 500,
+      "gpu": "RTX 4090",
+      "workers": {
+        "timan107": 64
+      },
+      "unique_root_basename": "ffk1015_groot_libero_full_formal_A_original_off_groot_l10_100"
+    },
+    {
+      "name": "ffk1015_groot_libero_full_formal_A_original_off_groot_l10_200",
+      "pipeline": "R15",
+      "episodes": 500,
+      "gpu": "RTX 4090",
+      "workers": {
+        "timan107": 64
+      },
+      "unique_root_basename": "ffk1015_groot_libero_full_formal_A_original_off_groot_l10_200"
+    },
+    {
+      "name": "ffk1015_groot_libero_full_formal_A_original_off_groot_l10_500",
+      "pipeline": "R15",
+      "episodes": 500,
+      "gpu": "RTX 4090",
+      "workers": {
+        "timan107": 64
+      },
+      "unique_root_basename": "ffk1015_groot_libero_full_formal_A_original_off_groot_l10_500"
+    },
+    {
+      "name": "ffk1015_groot_libero_full_formal_A_original_off_groot_spatial_50",
+      "pipeline": "R15",
+      "episodes": 500,
+      "gpu": "RTX 4090",
+      "workers": {
+        "timan107": 64
+      },
+      "unique_root_basename": "ffk1015_groot_libero_full_formal_A_original_off_groot_spatial_50"
+    },
+    {
+      "name": "ffk1015_groot_libero_full_formal_A_original_off_groot_spatial_100",
+      "pipeline": "R15",
+      "episodes": 500,
+      "gpu": "RTX 4090",
+      "workers": {
+        "timan107": 64
+      },
+      "unique_root_basename": "ffk1015_groot_libero_full_formal_A_original_off_groot_spatial_100"
+    },
+    {
+      "name": "ffk1015_groot_libero_full_formal_A_original_off_groot_spatial_200",
+      "pipeline": "R15",
+      "episodes": 500,
+      "gpu": "RTX 4090",
+      "workers": {
+        "timan107": 64
+      },
+      "unique_root_basename": "ffk1015_groot_libero_full_formal_A_original_off_groot_spatial_200"
+    },
+    {
+      "name": "ffk1015_groot_libero_full_formal_A_original_off_groot_spatial_500",
+      "pipeline": "R15",
+      "episodes": 500,
+      "gpu": "RTX 4090",
+      "workers": {
+        "timan107": 64
+      },
+      "unique_root_basename": "ffk1015_groot_libero_full_formal_A_original_off_groot_spatial_500"
+    },
+    {
+      "name": "ffk1015_groot_libero_full_formal_A_filtered_off_groot_l10_50",
+      "pipeline": "R15",
+      "episodes": 500,
+      "gpu": "RTX 4090",
+      "workers": {
+        "timan107": 64
+      },
+      "unique_root_basename": "ffk1015_groot_libero_full_formal_A_filtered_off_groot_l10_50"
+    },
+    {
+      "name": "ffk1015_groot_libero_full_formal_A_filtered_off_groot_l10_100",
+      "pipeline": "R15",
+      "episodes": 500,
+      "gpu": "RTX 4090",
+      "workers": {
+        "timan107": 64
+      },
+      "unique_root_basename": "ffk1015_groot_libero_full_formal_A_filtered_off_groot_l10_100"
+    },
+    {
+      "name": "ffk1015_groot_libero_full_formal_A_filtered_off_groot_l10_200",
+      "pipeline": "R15",
+      "episodes": 500,
+      "gpu": "RTX 4090",
+      "workers": {
+        "timan107": 64
+      },
+      "unique_root_basename": "ffk1015_groot_libero_full_formal_A_filtered_off_groot_l10_200"
+    },
+    {
+      "name": "ffk1015_groot_libero_full_formal_A_filtered_off_groot_l10_500",
+      "pipeline": "R15",
+      "episodes": 500,
+      "gpu": "RTX 4090",
+      "workers": {
+        "timan107": 64
+      },
+      "unique_root_basename": "ffk1015_groot_libero_full_formal_A_filtered_off_groot_l10_500"
+    },
+    {
+      "name": "ffk1015_groot_libero_full_formal_A_filtered_off_groot_spatial_50",
+      "pipeline": "R15",
+      "episodes": 500,
+      "gpu": "RTX 4090",
+      "workers": {
+        "timan107": 64
+      },
+      "unique_root_basename": "ffk1015_groot_libero_full_formal_A_filtered_off_groot_spatial_50"
+    },
+    {
+      "name": "ffk1015_groot_libero_full_formal_A_filtered_off_groot_spatial_100",
+      "pipeline": "R15",
+      "episodes": 500,
+      "gpu": "RTX 4090",
+      "workers": {
+        "timan107": 64
+      },
+      "unique_root_basename": "ffk1015_groot_libero_full_formal_A_filtered_off_groot_spatial_100"
+    },
+    {
+      "name": "ffk1015_groot_libero_full_formal_A_filtered_off_groot_spatial_200",
+      "pipeline": "R15",
+      "episodes": 500,
+      "gpu": "RTX 4090",
+      "workers": {
+        "timan107": 64
+      },
+      "unique_root_basename": "ffk1015_groot_libero_full_formal_A_filtered_off_groot_spatial_200"
+    },
+    {
+      "name": "ffk1015_groot_libero_full_formal_A_filtered_off_groot_spatial_500",
+      "pipeline": "R15",
+      "episodes": 500,
+      "gpu": "RTX 4090",
+      "workers": {
+        "timan107": 64
+      },
+      "unique_root_basename": "ffk1015_groot_libero_full_formal_A_filtered_off_groot_spatial_500"
+    },
+    {
+      "name": "ffk1015_pi05_libero_full_formal_A_pure_l10",
+      "pipeline": "R15",
+      "episodes": 500,
+      "gpu": "H100",
+      "workers": {
+        "timan108": 39
+      },
+      "unique_root_basename": "ffk1015_pi05_libero_full_formal_A_pure_l10"
+    },
+    {
+      "name": "ffk1015_pi05_libero_full_formal_A_pure_spatial",
+      "pipeline": "R15",
+      "episodes": 500,
+      "gpu": "H100",
+      "workers": {
+        "timan108": 39
+      },
+      "unique_root_basename": "ffk1015_pi05_libero_full_formal_A_pure_spatial"
+    },
+    {
+      "name": "ffk1015_pi05_libero_reduced_formal_A_original_off_complete",
+      "pipeline": "R16",
+      "episodes": 2500,
+      "gpu": "RTX 4090",
+      "workers": {
+        "timan107": 64
+      },
+      "unique_root_basename": "ffk1015_pi05_libero_reduced_formal_A_original_off_complete"
+    },
+    {
+      "name": "ffk1015_pi05_libero_reduced_formal_A_filtered_levels",
+      "pipeline": "R16",
+      "episodes": 14000,
+      "gpu": "RTX 4090",
+      "workers": {
+        "timan107": 64
+      },
+      "unique_root_basename": "ffk1015_pi05_libero_reduced_formal_A_filtered_levels"
+    },
+    {
+      "name": "ffk1015_groot_libero_reduced_formal_A_original_off_complete",
+      "pipeline": "R16",
+      "episodes": 1950,
+      "gpu": "RTX 4090",
+      "workers": {
+        "timan107": 64
+      },
+      "unique_root_basename": "ffk1015_groot_libero_reduced_formal_A_original_off_complete"
+    }
+  ],
+  "inputs_sha256": {
+    "/data/mw_finetune/eval/ffk1015_dp_libero_reduced_formal_A_original_levels/EPISODE_PLAN.json": "2a1d6f924bfe3c89135fa527f45dac36e88729e46c732b68507928d1c09a85ea",
+    "/data/mw_finetune/eval/ffk1015_dp_libero_reduced_formal_A_filtered_levels/EPISODE_PLAN.json": "b3936f65e26df82e08c436caf42f1e29ae854a3db950868b6ae3dff397624763",
+    "/data/mw_finetune/eval/ffk1015_dp_libero_full_formal_A_original_off/EPISODE_PLAN.json": "f0ded13e2392e521c3f120fc9de7bdae35ff4728b3b5e39af2e084294cf66d40",
+    "/data/mw_finetune/eval/ffk1015_dp_libero_full_formal_A_filtered_off/EPISODE_PLAN.json": "67aa6afaa39f76583dc4b6901c4731610f2c2ba18a662fc71b60117faecce517",
+    "/data/mw_finetune/eval/ffk1015_fastwam_libero_reduced_formal_A_original_levels/EPISODE_PLAN.json": "ed43a3cd703ab2e4234f04f41cb3896e36ca062e4f97e4233c8cf9559e02748d",
+    "/data/mw_finetune/eval/ffk1015_fastwam_libero_reduced_formal_A_filtered_levels/EPISODE_PLAN.json": "96aac4a030aa1f4cd34027eb019208192b596ddf5c753dbe51178bbb6f4c814c",
+    "/data/mw_finetune/eval/ffk1015_fastwam_libero_full_formal_A_original_off/EPISODE_PLAN.json": "8e21a4bf630695a374bcd9bd3424dca2057454482b32e5c857601646109141fc",
+    "/data/mw_finetune/eval/ffk1015_fastwam_libero_full_formal_A_filtered_off/EPISODE_PLAN.json": "867445849da23622ceb41f0f50e55e0b6732e2ec99108bcb96c53ad696637419",
+    "/data/mw_finetune/eval/ffk1015_cosmos_libero_full_formal_A_original_off/EPISODE_PLAN.json": "b6da7b9d22ca42ed0c107c5660dddcaf043f32613148ff5d5dc6a05794f1d21a",
+    "/data/mw_finetune/eval/ffk1015_cosmos_libero_full_formal_A_filtered_off/EPISODE_PLAN.json": "752d18a0c4cc401b29fac78b1e57ce285abc95fc55dbd5a5f59bec67faee8f5e",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/queue/ffk1015_pi05_libero_reduced_formal_A_original_off_complete/ffk1015_pi05_libero_reduced_formal_A_original_off_complete/group.json": "a5d36a02b83f9fd4a173c2ac510006000874abcfdcf1e82e846b0cf7d7d74d05",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/queue/ffk1015_pi05_libero_reduced_formal_A_filtered_levels/ffk1015_pi05_libero_reduced_formal_A_filtered_levels/group.json": "d5074e24e88733e771fd11d2ab604ef380d22505a63b79b82b72d8fc444817a9",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/queue/ffk1015_groot_libero_reduced_formal_A_original_off_complete/ffk1015_groot_libero_reduced_formal_A_original_off_complete/group.json": "c88721842874bea0e3202a9303e8119d08d4fc764f5c50cd849cd70fefd32cd2",
+    "/data/mw_finetune/eval/fsreddp2/EPISODE_PLAN.json": "ce8fd6f46f8544d0d3c93c4144248b50db41ba56e007f42b5d0148cc0339650e",
+    "/data/mw_finetune/eval/ffk1015_dp_libero_reduced_off/EPISODE_PLAN.json": "7d33d76c1d36640f4476f80c5d5ee3c6ef561e26d673ba345c3a30d5238ab387",
+    "/data/mw_finetune/eval/fsredfw/EPISODE_PLAN.json": "50bf109c30bbb9f15b8a9957bd54d022bce2cd8e1c51303170b027b257c9f08e",
+    "/data/mw_finetune/eval/ffk1015_fastwam_libero_reduced_off/EPISODE_PLAN.json": "2740025d6e3aaaca77d8edc496158431caaa048b6f59b7ff6b1caeab0ce42b76",
+    "/data/mw_finetune/eval/ffk1015_cosmos_libero_reduced_off_u/EPISODE_PLAN.json": "e914866e05fcc1a0a94bb7e1b0ba7f1ce6f4cde6fcbb626ccd23bee72668a0fb",
+    "/data/mw_finetune/eval/ffk1015_cosmos_libero_reduced_off/EPISODE_PLAN.json": "26e6f396174656ae742c2c839fa755542318d1c867e7006ae4dd9a1f01cab306",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/k1ref/runs/off/r16_k1ref_pi05_off/group.json": "e801d9d5dcaacf458703bdd8b7897fcf407c8adb28f76d1611b16d18eb8b8202",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/vla/runs/off/ffk1015_pi05_libero_reduced_off/group.json": "a31a689dd3eb7cf4cb2d68a1c488cda1e0ba293bf60c6194fecaedea109457bc",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r16/k1ref/runs/off/r16_k1ref_groot_off/group.json": "3384ee20890f5912d3ba3e9fa374fc602c7d94fe37343b2899295373abe5456f",
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/vla/runs/off/ffk1015_groot_libero_reduced_off/group.json": "b90e69570786ad0c829aa8cb68ba928d978d5dedd31573ccb75ce0da1ea1ed5c"
+  },
+  "unit_tests_passed": 2,
+  "servers_started": false,
+  "workers_started": false,
+  "gpu_used": false,
+  "startup_checks_passed": 47,
+  "original_serving_table_checks": 23,
+  "analysis_smoke_rows": 104
+}

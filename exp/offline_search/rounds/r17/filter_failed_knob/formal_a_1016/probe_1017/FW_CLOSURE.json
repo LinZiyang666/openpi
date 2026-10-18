@@ -1,0 +1,75 @@
+{
+  "status": "PASS",
+  "all_owned_closed": true,
+  "processes": {
+    "local": [
+      {
+        "pid": 3287264,
+        "start_ticks": "70798373",
+        "alive": false
+      },
+      {
+        "pid": 3287627,
+        "start_ticks": "70798607",
+        "alive": false
+      },
+      {
+        "pid": 3332360,
+        "start_ticks": "70842558",
+        "alive": false
+      },
+      {
+        "pid": 3343490,
+        "start_ticks": "70852539",
+        "alive": false
+      },
+      {
+        "pid": 3349762,
+        "start_ticks": "70858180",
+        "alive": false
+      }
+    ],
+    "remote": {
+      "timan107": [
+        {
+          "pid": 103058,
+          "start_ticks": "26701391",
+          "alive": false
+        },
+        {
+          "pid": 103057,
+          "start_ticks": "26701381",
+          "alive": false
+        }
+      ],
+      "timan1": [
+        {
+          "pid": 1113212,
+          "start_ticks": "8718761",
+          "alive": false
+        },
+        {
+          "pid": 1113211,
+          "start_ticks": "8718751",
+          "alive": false
+        }
+      ],
+      "local": [
+        {
+          "pid": 3287626,
+          "start_ticks": "70798605",
+          "alive": false
+        },
+        {
+          "pid": 3287625,
+          "start_ticks": "70798601",
+          "alive": false
+        }
+      ]
+    }
+  },
+  "source": "/data/mw_finetune/eval/fa_fw_r_u_l",
+  "source_receipt_sha256": "ccbe9c8bb2b649f5d0955b879d9113e60b12d4a6c78b50cf31debb23ec109d64",
+  "source_campaign_sha256": "e09837e35d77110f27e7a3c0cb3b21dbebeeb330553ee8ff24c5b4ab069461ee",
+  "checked_at": "2026-10-17T23:27:06.615529+00:00"
+}

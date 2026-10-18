@@ -1,0 +1,25 @@
+{
+  "root": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/queue/ffk1015_pi05_libero_full_formal_A_original_off/ffk1015_pi05_libero_full_formal_A_original_off_pi05_spatial_500",
+  "final_root": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/queue/ffk1015_pi05_libero_full_formal_A_original_off/ffk1015_pi05_libero_full_formal_A_original_off_pi05_spatial_500",
+  "cell": "pi05_spatial_500",
+  "arms": [
+    "ffk1015_pi05_libero_full_formal_A_original_off_pi05_spatial_500_off"
+  ],
+  "arm_count": 1,
+  "episodes_per_arm": 500,
+  "init_pool": "A",
+  "staged": false,
+  "recording": false,
+  "launches": 0,
+  "intended_host": "h100",
+  "definitions_sha256": {
+    "arms.json": "0d4cb6d0fc7d65dd1698c96f882050648b49130b849430b12bf80c3a0d953802",
+    "arms_in.json": "f17f48eae003b536af243078925ff3732216a67ce2db2973013e08a7db6708c1",
+    "config/ffk1015_pi05_libero_full_formal_A_original_off_pi05_spatial_500_off.yaml": "8a30db28a0f74e0a720f2c792fa6cd6e4456a8c67401469a07fff49f80b332cf",
+    "config/matrix_ffk1015_pi05_libero_full_formal_A_original_off_pi05_spatial_500_off.yaml": "1f59ca902815a8649675a4ba123638709be131d55e25f10b59b8bf8392697100",
+    "eval500.json": "2c3b0477794c04b9f9925100346f0d0adbca4dcfe42f3c2eb26278f18b4d9a29"
+  },
+  "fit_sha256": {
+    "/home/weiland/projects/openpi/exp/offline_search/rounds/r11/knob/artifacts/r15_pi05_spatial_500_off.pkl": "46d7a9d4543bd7812243ec78fe053ce2bb94a827797d1e6d46e2af5b6c26ade2"
+  }
+}

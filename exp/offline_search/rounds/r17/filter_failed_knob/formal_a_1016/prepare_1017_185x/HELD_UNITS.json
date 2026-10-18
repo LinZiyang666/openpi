@@ -1,0 +1,34 @@
+[
+  {
+    "name": "fa_pi_f_u_o",
+    "status": "BUILT",
+    "jobs": 8,
+    "worker_host_failover": true,
+    "episodes": 4000,
+    "maximum_episodes": 16000
+  },
+  {
+    "name": "fa_pi_f_f_o",
+    "status": "BUILT",
+    "jobs": 8,
+    "worker_host_failover": true,
+    "episodes": 4000,
+    "maximum_episodes": 16000
+  },
+  {
+    "name": "fa_pi_f_u_l",
+    "status": "WAITING_OFF",
+    "jobs": 0,
+    "worker_host_failover": true,
+    "episodes": null,
+    "maximum_episodes": 16000
+  },
+  {
+    "name": "fa_pi_f_f_l",
+    "status": "WAITING_OFF",
+    "jobs": 0,
+    "worker_host_failover": true,
+    "episodes": null,
+    "maximum_episodes": 16000
+  }
+]

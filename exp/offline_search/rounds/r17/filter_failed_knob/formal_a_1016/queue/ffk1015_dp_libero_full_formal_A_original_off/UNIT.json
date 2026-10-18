@@ -1,0 +1,106 @@
+{
+  "name": "ffk1015_dp_libero_full_formal_A_original_off",
+  "model": "dp",
+  "mode": "full",
+  "arm": "original",
+  "stage": "off",
+  "gpu": "RTX 4090",
+  "replicas": 4,
+  "batch": 8,
+  "workers": {
+    "local": 24,
+    "timan1": 24
+  },
+  "jobs": [
+    {
+      "name": "ffk1015_dp_libero_full_formal_A_original_off",
+      "run": "/data/mw_finetune/eval/ffk1015_dp_libero_full_formal_A_original_off",
+      "source": "/data/mw_finetune/eval/knobtestdp",
+      "episodes": 6000,
+      "model": "dp",
+      "benchmark": "libero",
+      "gpu": "RTX 4090",
+      "workers": {
+        "local": 24,
+        "timan1": 24
+      },
+      "replicas": 4,
+      "python": "/home/weiland/projects/openpi/.venv/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_5927a753312bf5981cba81a2e389edea914bde0580523b0dc3c8ea8d58f1fa1e",
+      "unfiltered": true,
+      "mode": "full",
+      "arm": "original",
+      "stage": "off",
+      "pipeline": "R17",
+      "batch": 8,
+      "mps": {
+        "active_thread_percentage": 100,
+        "compute_mode_change": false,
+        "enabled": true,
+        "private_per_campaign_gpu": true,
+        "schema": "r17.mps.v1"
+      },
+      "levels": [
+        "koff"
+      ],
+      "off_reuse": null
+    }
+  ],
+  "status": "BUILT",
+  "episodes": 6000,
+  "maximum_episodes": 30000,
+  "selected_cells": [
+    [
+      "libero_10",
+      50
+    ],
+    [
+      "libero_10",
+      100
+    ],
+    [
+      "libero_10",
+      200
+    ],
+    [
+      "libero_10",
+      300
+    ],
+    [
+      "libero_10",
+      400
+    ],
+    [
+      "libero_10",
+      500
+    ],
+    [
+      "libero_spatial",
+      50
+    ],
+    [
+      "libero_spatial",
+      100
+    ],
+    [
+      "libero_spatial",
+      200
+    ],
+    [
+      "libero_spatial",
+      300
+    ],
+    [
+      "libero_spatial",
+      400
+    ],
+    [
+      "libero_spatial",
+      500
+    ]
+  ],
+  "levels": [
+    "koff"
+  ],
+  "dependencies": []
+}

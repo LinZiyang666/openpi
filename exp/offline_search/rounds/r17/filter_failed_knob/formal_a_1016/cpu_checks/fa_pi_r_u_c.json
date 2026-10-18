@@ -1,0 +1,25 @@
+{
+  "name": "fa_pi_r_u_c",
+  "startup": "PASS",
+  "native_plugin_rows": 8,
+  "planner_episodes": 2500,
+  "original_serving_tables_equal": true,
+  "candidate_rows_checked": 8,
+  "native_sync_plan_checked": false,
+  "source_model_argv_equal": true,
+  "model_flags": [
+    {
+      "--policy.config": "pi05_libero",
+      "--policy.dir": "/home/weiland/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
+    },
+    {
+      "--policy.config": "pi05_libero",
+      "--policy.dir": "/home/weiland/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
+    },
+    {
+      "--policy.config": "pi05_libero",
+      "--policy.dir": "/home/weiland/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
+    }
+  ],
+  "server_python": "/home/weiland/projects/openpi/.venv/bin/python"
+}

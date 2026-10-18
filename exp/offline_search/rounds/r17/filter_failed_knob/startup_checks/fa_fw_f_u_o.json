@@ -1,0 +1,1170 @@
+{
+  "run": "fa_fw_f_u_o",
+  "python": "/data/mw_finetune/envs/fastwam/bin/python",
+  "prefix": "/data/mw_finetune/envs/fastwam",
+  "status": "PASS",
+  "assets": "/data/mw_finetune/eval/knobtestfw2/assets",
+  "model": "fastwam",
+  "identity_path": "fastwam.loader.seal_descriptor/inspect_config/read_stats -> native CPU scheduler -> make_manifest",
+  "package_versions": {
+    "torch": "2.7.1+cu128",
+    "torchvision": "0.22.1+cu128",
+    "diffusers": "0.39.0",
+    "transformers": "5.5.4",
+    "numpy": "2.2.6",
+    "safetensors": "0.8.0"
+  },
+  "pinned_packages_equal": true,
+  "native_content_check": "record_only",
+  "content_seal_equal": true,
+  "content_differences": {},
+  "actual_spec": {
+    "model_id": "fastwam_libero",
+    "checkpoint_identity": "797387415ad9cc178b1067c684e041989b27a6472f5d5ce45bd16b5ca63e025f",
+    "norm_identity": "8672adf02916fdcdd002c98d6d3b4b261fd88b99c22034acc873edcfc05d57f4",
+    "layout": {
+      "horizon": 32,
+      "replan_steps": 5,
+      "valid_action_dim": 7,
+      "valid_state_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "motion_channels": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "gripper_channel": 6,
+      "gripper_closed_convention": "published toggle sign(-(2*x-1)); physical closed polarity unqualified",
+      "raw_state_fields": [
+        "state"
+      ],
+      "action_space_name": "LIBERO_OSC_POSE",
+      "units": "native controller; physical scale unqualified",
+      "frame": "native benchmark frame",
+      "output_transform_id": "fastwam.libero.minmax.toggle.v1",
+      "model_action_width": null,
+      "valid_action_indices": []
+    },
+    "feature_spec": {
+      "source": "video_expert.pre_dit.tokens",
+      "real_cameras": [
+        "image",
+        "image2"
+      ],
+      "fields": {
+        "vision_0": 49152,
+        "robot_state": 8
+      },
+      "token_grid": [
+        1,
+        7,
+        14
+      ],
+      "hidden_width": 3072,
+      "pooling": "adaptive_avg_4x4.fused_real_views.v1",
+      "missing_branch_policy": "reject",
+      "prompt_dependent": false,
+      "key_dtype": "float32",
+      "active_state_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "policy_digest": "797387415ad9cc178b1067c684e041989b27a6472f5d5ce45bd16b5ca63e025f",
+      "norm_digest": "8672adf02916fdcdd002c98d6d3b4b261fd88b99c22034acc873edcfc05d57f4",
+      "preprocess_digest": "18bba04713ce31e6406f310ba85e1e026b9c5b8c7c17ad6e560150fc6e029f69"
+    },
+    "default_sampler": {
+      "sampler_id": "fastwam_shifted_flow_v1",
+      "family": "shifted_flow",
+      "num_steps": 10,
+      "native_timesteps": [
+        1000.0,
+        980.0,
+        952.0,
+        920.0,
+        884.0,
+        832.0,
+        768.0,
+        680.0,
+        556.0,
+        358.0
+      ],
+      "native_deltas": [
+        -0.021728515625,
+        -0.02587890625,
+        -0.03125,
+        -0.038818359375,
+        -0.049072265625,
+        -0.06396484375,
+        -0.08740234375,
+        -0.1259765625,
+        -0.1982421875,
+        -0.357421875
+      ],
+      "config": {
+        "shift": 5.0,
+        "num_train_timesteps": 1000,
+        "dtype": "bfloat16",
+        "cfg": 1.0,
+        "update": "native_scheduler.step",
+        "snapshot_semantics": "before_update"
+      },
+      "point_kind": "index_encoding"
+    },
+    "capabilities": {
+      "features": {
+        "full": {
+          "status": "supported",
+          "reason": "CPU stub/native-math certificate; real GPU qualification pending",
+          "evidence": []
+        },
+        "k_step": {
+          "status": "supported",
+          "reason": "CPU stub/native-math certificate; real GPU qualification pending",
+          "evidence": []
+        },
+        "cp1_retrieval": {
+          "status": "supported",
+          "reason": "CPU stub/native-math certificate; real GPU qualification pending",
+          "evidence": []
+        },
+        "concurrent": {
+          "status": "supported",
+          "reason": "CPU stub/native-math certificate; real GPU qualification pending",
+          "evidence": []
+        },
+        "bundle": {
+          "status": "supported",
+          "reason": "CPU stub/native-math certificate; real GPU qualification pending",
+          "evidence": []
+        },
+        "episode": {
+          "status": "supported",
+          "reason": "CPU stub/native-math certificate; real GPU qualification pending",
+          "evidence": []
+        },
+        "debug_capture": {
+          "status": "supported",
+          "reason": "CPU stub/native-math certificate; real GPU qualification pending",
+          "evidence": []
+        },
+        "warmup_library": {
+          "status": "implemented_unverified",
+          "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+          "evidence": []
+        },
+        "recipe": {
+          "status": "implemented_unverified",
+          "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+          "evidence": []
+        },
+        "offline_replay": {
+          "status": "implemented_unverified",
+          "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+          "evidence": []
+        },
+        "conductor": {
+          "status": "implemented_unverified",
+          "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+          "evidence": []
+        },
+        "worker": {
+          "status": "implemented_unverified",
+          "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+          "evidence": []
+        },
+        "analysis": {
+          "status": "implemented_unverified",
+          "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+          "evidence": []
+        },
+        "trace_twins": {
+          "status": "implemented_unverified",
+          "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+          "evidence": []
+        },
+        "native_warm_resume": {
+          "status": "implemented_unverified",
+          "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+          "evidence": []
+        },
+        "native_warm_reset": {
+          "status": "implemented_unverified",
+          "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+          "evidence": []
+        },
+        "cp2": {
+          "status": "implemented_unverified",
+          "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+          "evidence": []
+        },
+        "batch_stage1": {
+          "status": "unsupported",
+          "reason": "production B>1 disabled until GPU batch-composition parity certified; CPU vector hooks only",
+          "evidence": []
+        },
+        "batch_stage2": {
+          "status": "unsupported",
+          "reason": "production B>1 disabled until GPU batch-composition parity certified; CPU vector hooks only",
+          "evidence": []
+        },
+        "batch_stage3": {
+          "status": "unsupported",
+          "reason": "production B>1 disabled until GPU batch-composition parity certified; CPU vector hooks only",
+          "evidence": []
+        },
+        "split": {
+          "status": "unsupported",
+          "reason": "no end-to-end certificate for this combination",
+          "evidence": []
+        },
+        "shadow_routing": {
+          "status": "unsupported",
+          "reason": "no end-to-end certificate for this combination",
+          "evidence": []
+        },
+        "online_rit": {
+          "status": "unsupported",
+          "reason": "no end-to-end certificate for this combination",
+          "evidence": []
+        },
+        "flow_shoot": {
+          "status": "unsupported",
+          "reason": "no end-to-end certificate for this combination",
+          "evidence": []
+        }
+      }
+    },
+    "allowed_benchmark_protocols": [
+      "87e3a7dce0d452269383ea20c144848987c393df7bde4c22628abf8a084f21bf"
+    ],
+    "code_digest": "c0f27c5059024dac120ea9bd0b8a3ad37d203296350ffe470df7a715152315cb",
+    "python_island": "/data/mw_finetune/envs/fastwam/bin/python"
+  },
+  "spec_equal": true,
+  "cuda_initialized": false,
+  "full_system_startup_checks": [
+    {
+      "group": "chrg_k50",
+      "size": 50,
+      "suite": "libero_spatial",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k40",
+      "size": 50,
+      "suite": "libero_spatial",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k20",
+      "size": 50,
+      "suite": "libero_spatial",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_koff",
+      "size": 50,
+      "suite": "libero_spatial",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_pure",
+      "size": 50,
+      "suite": "libero_spatial",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k50",
+      "size": 50,
+      "suite": "libero_10",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k40",
+      "size": 50,
+      "suite": "libero_10",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k30",
+      "size": 50,
+      "suite": "libero_10",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k20",
+      "size": 50,
+      "suite": "libero_10",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_koff",
+      "size": 50,
+      "suite": "libero_10",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_pure",
+      "size": 50,
+      "suite": "libero_10",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k50",
+      "size": 100,
+      "suite": "libero_spatial",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k40",
+      "size": 100,
+      "suite": "libero_spatial",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k20",
+      "size": 100,
+      "suite": "libero_spatial",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_koff",
+      "size": 100,
+      "suite": "libero_spatial",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_pure",
+      "size": 100,
+      "suite": "libero_spatial",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k50",
+      "size": 100,
+      "suite": "libero_10",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k40",
+      "size": 100,
+      "suite": "libero_10",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k20",
+      "size": 100,
+      "suite": "libero_10",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_koff",
+      "size": 100,
+      "suite": "libero_10",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_pure",
+      "size": 100,
+      "suite": "libero_10",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k50",
+      "size": 200,
+      "suite": "libero_spatial",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k40",
+      "size": 200,
+      "suite": "libero_spatial",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k30",
+      "size": 200,
+      "suite": "libero_spatial",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k20",
+      "size": 200,
+      "suite": "libero_spatial",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_koff",
+      "size": 200,
+      "suite": "libero_spatial",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_pure",
+      "size": 200,
+      "suite": "libero_spatial",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k50",
+      "size": 200,
+      "suite": "libero_10",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k20",
+      "size": 200,
+      "suite": "libero_10",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k10",
+      "size": 200,
+      "suite": "libero_10",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_koff",
+      "size": 200,
+      "suite": "libero_10",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k50",
+      "size": 300,
+      "suite": "libero_spatial",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_koff",
+      "size": 300,
+      "suite": "libero_spatial",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_pure",
+      "size": 300,
+      "suite": "libero_spatial",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k50",
+      "size": 300,
+      "suite": "libero_10",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k20",
+      "size": 300,
+      "suite": "libero_10",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k10",
+      "size": 300,
+      "suite": "libero_10",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_koff",
+      "size": 300,
+      "suite": "libero_10",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_pure",
+      "size": 300,
+      "suite": "libero_10",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k50",
+      "size": 400,
+      "suite": "libero_spatial",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k40",
+      "size": 400,
+      "suite": "libero_spatial",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k20",
+      "size": 400,
+      "suite": "libero_spatial",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_koff",
+      "size": 400,
+      "suite": "libero_spatial",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k30",
+      "size": 400,
+      "suite": "libero_10",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k20",
+      "size": 400,
+      "suite": "libero_10",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k10",
+      "size": 400,
+      "suite": "libero_10",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_koff",
+      "size": 400,
+      "suite": "libero_10",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_pure",
+      "size": 400,
+      "suite": "libero_10",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k50",
+      "size": 500,
+      "suite": "libero_spatial",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k30",
+      "size": 500,
+      "suite": "libero_spatial",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k20",
+      "size": 500,
+      "suite": "libero_spatial",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_koff",
+      "size": 500,
+      "suite": "libero_spatial",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_pure",
+      "size": 500,
+      "suite": "libero_spatial",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k40",
+      "size": 500,
+      "suite": "libero_10",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k30",
+      "size": 500,
+      "suite": "libero_10",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_k20",
+      "size": 500,
+      "suite": "libero_10",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_koff",
+      "size": 500,
+      "suite": "libero_10",
+      "corrector": true,
+      "stall": true
+    },
+    {
+      "group": "chrg_pure",
+      "size": 500,
+      "suite": "libero_10",
+      "corrector": true,
+      "stall": true
+    }
+  ],
+  "source_ready_specs": [
+    {
+      "allowed_benchmark_protocols": [
+        "87e3a7dce0d452269383ea20c144848987c393df7bde4c22628abf8a084f21bf"
+      ],
+      "capabilities": {
+        "features": {
+          "analysis": {
+            "evidence": [],
+            "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+            "status": "implemented_unverified"
+          },
+          "batch_stage1": {
+            "evidence": [],
+            "reason": "production B>1 disabled until GPU batch-composition parity certified; CPU vector hooks only",
+            "status": "unsupported"
+          },
+          "batch_stage2": {
+            "evidence": [],
+            "reason": "production B>1 disabled until GPU batch-composition parity certified; CPU vector hooks only",
+            "status": "unsupported"
+          },
+          "batch_stage3": {
+            "evidence": [],
+            "reason": "production B>1 disabled until GPU batch-composition parity certified; CPU vector hooks only",
+            "status": "unsupported"
+          },
+          "bundle": {
+            "evidence": [],
+            "reason": "CPU stub/native-math certificate; real GPU qualification pending",
+            "status": "supported"
+          },
+          "concurrent": {
+            "evidence": [],
+            "reason": "CPU stub/native-math certificate; real GPU qualification pending",
+            "status": "supported"
+          },
+          "conductor": {
+            "evidence": [],
+            "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+            "status": "implemented_unverified"
+          },
+          "cp1_retrieval": {
+            "evidence": [],
+            "reason": "CPU stub/native-math certificate; real GPU qualification pending",
+            "status": "supported"
+          },
+          "cp2": {
+            "evidence": [],
+            "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+            "status": "implemented_unverified"
+          },
+          "debug_capture": {
+            "evidence": [],
+            "reason": "CPU stub/native-math certificate; real GPU qualification pending",
+            "status": "supported"
+          },
+          "episode": {
+            "evidence": [],
+            "reason": "CPU stub/native-math certificate; real GPU qualification pending",
+            "status": "supported"
+          },
+          "flow_shoot": {
+            "evidence": [],
+            "reason": "no end-to-end certificate for this combination",
+            "status": "unsupported"
+          },
+          "full": {
+            "evidence": [],
+            "reason": "CPU stub/native-math certificate; real GPU qualification pending",
+            "status": "supported"
+          },
+          "k_step": {
+            "evidence": [],
+            "reason": "CPU stub/native-math certificate; real GPU qualification pending",
+            "status": "supported"
+          },
+          "native_warm_reset": {
+            "evidence": [],
+            "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+            "status": "implemented_unverified"
+          },
+          "native_warm_resume": {
+            "evidence": [],
+            "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+            "status": "implemented_unverified"
+          },
+          "offline_replay": {
+            "evidence": [],
+            "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+            "status": "implemented_unverified"
+          },
+          "online_rit": {
+            "evidence": [],
+            "reason": "no end-to-end certificate for this combination",
+            "status": "unsupported"
+          },
+          "recipe": {
+            "evidence": [],
+            "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+            "status": "implemented_unverified"
+          },
+          "shadow_routing": {
+            "evidence": [],
+            "reason": "no end-to-end certificate for this combination",
+            "status": "unsupported"
+          },
+          "split": {
+            "evidence": [],
+            "reason": "no end-to-end certificate for this combination",
+            "status": "unsupported"
+          },
+          "trace_twins": {
+            "evidence": [],
+            "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+            "status": "implemented_unverified"
+          },
+          "warmup_library": {
+            "evidence": [],
+            "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+            "status": "implemented_unverified"
+          },
+          "worker": {
+            "evidence": [],
+            "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+            "status": "implemented_unverified"
+          }
+        }
+      },
+      "checkpoint_identity": "797387415ad9cc178b1067c684e041989b27a6472f5d5ce45bd16b5ca63e025f",
+      "code_digest": "c0f27c5059024dac120ea9bd0b8a3ad37d203296350ffe470df7a715152315cb",
+      "default_sampler": {
+        "config": {
+          "cfg": 1.0,
+          "dtype": "bfloat16",
+          "num_train_timesteps": 1000,
+          "shift": 5.0,
+          "snapshot_semantics": "before_update",
+          "update": "native_scheduler.step"
+        },
+        "family": "shifted_flow",
+        "native_deltas": [
+          -0.021728515625,
+          -0.02587890625,
+          -0.03125,
+          -0.038818359375,
+          -0.049072265625,
+          -0.06396484375,
+          -0.08740234375,
+          -0.1259765625,
+          -0.1982421875,
+          -0.357421875
+        ],
+        "native_timesteps": [
+          1000.0,
+          980.0,
+          952.0,
+          920.0,
+          884.0,
+          832.0,
+          768.0,
+          680.0,
+          556.0,
+          358.0
+        ],
+        "num_steps": 10,
+        "point_kind": "index_encoding",
+        "sampler_id": "fastwam_shifted_flow_v1"
+      },
+      "feature_spec": {
+        "active_state_indices": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "fields": {
+          "robot_state": 8,
+          "vision_0": 49152
+        },
+        "hidden_width": 3072,
+        "key_dtype": "float32",
+        "missing_branch_policy": "reject",
+        "norm_digest": "8672adf02916fdcdd002c98d6d3b4b261fd88b99c22034acc873edcfc05d57f4",
+        "policy_digest": "797387415ad9cc178b1067c684e041989b27a6472f5d5ce45bd16b5ca63e025f",
+        "pooling": "adaptive_avg_4x4.fused_real_views.v1",
+        "preprocess_digest": "18bba04713ce31e6406f310ba85e1e026b9c5b8c7c17ad6e560150fc6e029f69",
+        "prompt_dependent": false,
+        "real_cameras": [
+          "image",
+          "image2"
+        ],
+        "source": "video_expert.pre_dit.tokens",
+        "token_grid": [
+          1,
+          7,
+          14
+        ]
+      },
+      "layout": {
+        "action_space_name": "LIBERO_OSC_POSE",
+        "frame": "native benchmark frame",
+        "gripper_channel": 6,
+        "gripper_closed_convention": "published toggle sign(-(2*x-1)); physical closed polarity unqualified",
+        "horizon": 32,
+        "model_action_width": null,
+        "motion_channels": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "output_transform_id": "fastwam.libero.minmax.toggle.v1",
+        "raw_state_fields": [
+          "state"
+        ],
+        "replan_steps": 5,
+        "units": "native controller; physical scale unqualified",
+        "valid_action_dim": 7,
+        "valid_action_indices": [],
+        "valid_state_indices": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ]
+      },
+      "model_id": "fastwam_libero",
+      "norm_identity": "8672adf02916fdcdd002c98d6d3b4b261fd88b99c22034acc873edcfc05d57f4",
+      "python_island": "/data/mw_finetune/envs/fastwam/bin/python"
+    },
+    {
+      "allowed_benchmark_protocols": [
+        "87e3a7dce0d452269383ea20c144848987c393df7bde4c22628abf8a084f21bf"
+      ],
+      "capabilities": {
+        "features": {
+          "analysis": {
+            "evidence": [],
+            "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+            "status": "implemented_unverified"
+          },
+          "batch_stage1": {
+            "evidence": [],
+            "reason": "production B>1 disabled until GPU batch-composition parity certified; CPU vector hooks only",
+            "status": "unsupported"
+          },
+          "batch_stage2": {
+            "evidence": [],
+            "reason": "production B>1 disabled until GPU batch-composition parity certified; CPU vector hooks only",
+            "status": "unsupported"
+          },
+          "batch_stage3": {
+            "evidence": [],
+            "reason": "production B>1 disabled until GPU batch-composition parity certified; CPU vector hooks only",
+            "status": "unsupported"
+          },
+          "bundle": {
+            "evidence": [],
+            "reason": "CPU stub/native-math certificate; real GPU qualification pending",
+            "status": "supported"
+          },
+          "concurrent": {
+            "evidence": [],
+            "reason": "CPU stub/native-math certificate; real GPU qualification pending",
+            "status": "supported"
+          },
+          "conductor": {
+            "evidence": [],
+            "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+            "status": "implemented_unverified"
+          },
+          "cp1_retrieval": {
+            "evidence": [],
+            "reason": "CPU stub/native-math certificate; real GPU qualification pending",
+            "status": "supported"
+          },
+          "cp2": {
+            "evidence": [],
+            "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+            "status": "implemented_unverified"
+          },
+          "debug_capture": {
+            "evidence": [],
+            "reason": "CPU stub/native-math certificate; real GPU qualification pending",
+            "status": "supported"
+          },
+          "episode": {
+            "evidence": [],
+            "reason": "CPU stub/native-math certificate; real GPU qualification pending",
+            "status": "supported"
+          },
+          "flow_shoot": {
+            "evidence": [],
+            "reason": "no end-to-end certificate for this combination",
+            "status": "unsupported"
+          },
+          "full": {
+            "evidence": [],
+            "reason": "CPU stub/native-math certificate; real GPU qualification pending",
+            "status": "supported"
+          },
+          "k_step": {
+            "evidence": [],
+            "reason": "CPU stub/native-math certificate; real GPU qualification pending",
+            "status": "supported"
+          },
+          "native_warm_reset": {
+            "evidence": [],
+            "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+            "status": "implemented_unverified"
+          },
+          "native_warm_resume": {
+            "evidence": [],
+            "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+            "status": "implemented_unverified"
+          },
+          "offline_replay": {
+            "evidence": [],
+            "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+            "status": "implemented_unverified"
+          },
+          "online_rit": {
+            "evidence": [],
+            "reason": "no end-to-end certificate for this combination",
+            "status": "unsupported"
+          },
+          "recipe": {
+            "evidence": [],
+            "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+            "status": "implemented_unverified"
+          },
+          "shadow_routing": {
+            "evidence": [],
+            "reason": "no end-to-end certificate for this combination",
+            "status": "unsupported"
+          },
+          "split": {
+            "evidence": [],
+            "reason": "no end-to-end certificate for this combination",
+            "status": "unsupported"
+          },
+          "trace_twins": {
+            "evidence": [],
+            "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+            "status": "implemented_unverified"
+          },
+          "warmup_library": {
+            "evidence": [],
+            "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+            "status": "implemented_unverified"
+          },
+          "worker": {
+            "evidence": [],
+            "reason": "shared P1/P2/P6 integration or real GPU certificate pending",
+            "status": "implemented_unverified"
+          }
+        }
+      },
+      "checkpoint_identity": "797387415ad9cc178b1067c684e041989b27a6472f5d5ce45bd16b5ca63e025f",
+      "code_digest": "c0f27c5059024dac120ea9bd0b8a3ad37d203296350ffe470df7a715152315cb",
+      "default_sampler": {
+        "config": {
+          "cfg": 1.0,
+          "dtype": "bfloat16",
+          "num_train_timesteps": 1000,
+          "shift": 5.0,
+          "snapshot_semantics": "before_update",
+          "update": "native_scheduler.step"
+        },
+        "family": "shifted_flow",
+        "native_deltas": [
+          -0.021728515625,
+          -0.02587890625,
+          -0.03125,
+          -0.038818359375,
+          -0.049072265625,
+          -0.06396484375,
+          -0.08740234375,
+          -0.1259765625,
+          -0.1982421875,
+          -0.357421875
+        ],
+        "native_timesteps": [
+          1000.0,
+          980.0,
+          952.0,
+          920.0,
+          884.0,
+          832.0,
+          768.0,
+          680.0,
+          556.0,
+          358.0
+        ],
+        "num_steps": 10,
+        "point_kind": "index_encoding",
+        "sampler_id": "fastwam_shifted_flow_v1"
+      },
+      "feature_spec": {
+        "active_state_indices": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "fields": {
+          "robot_state": 8,
+          "vision_0": 49152
+        },
+        "hidden_width": 3072,
+        "key_dtype": "float32",
+        "missing_branch_policy": "reject",
+        "norm_digest": "8672adf02916fdcdd002c98d6d3b4b261fd88b99c22034acc873edcfc05d57f4",
+        "policy_digest": "797387415ad9cc178b1067c684e041989b27a6472f5d5ce45bd16b5ca63e025f",
+        "pooling": "adaptive_avg_4x4.fused_real_views.v1",
+        "preprocess_digest": "18bba04713ce31e6406f310ba85e1e026b9c5b8c7c17ad6e560150fc6e029f69",
+        "prompt_dependent": false,
+        "real_cameras": [
+          "image",
+          "image2"
+        ],
+        "source": "video_expert.pre_dit.tokens",
+        "token_grid": [
+          1,
+          7,
+          14
+        ]
+      },
+      "layout": {
+        "action_space_name": "LIBERO_OSC_POSE",
+        "frame": "native benchmark frame",
+        "gripper_channel": 6,
+        "gripper_closed_convention": "published toggle sign(-(2*x-1)); physical closed polarity unqualified",
+        "horizon": 32,
+        "model_action_width": null,
+        "motion_channels": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "output_transform_id": "fastwam.libero.minmax.toggle.v1",
+        "raw_state_fields": [
+          "state"
+        ],
+        "replan_steps": 5,
+        "units": "native controller; physical scale unqualified",
+        "valid_action_dim": 7,
+        "valid_action_indices": [],
+        "valid_state_indices": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ]
+      },
+      "model_id": "fastwam_libero",
+      "norm_identity": "8672adf02916fdcdd002c98d6d3b4b261fd88b99c22034acc873edcfc05d57f4",
+      "python_island": "/data/mw_finetune/envs/fastwam/bin/python"
+    }
+  ],
+  "identity_passes": true,
+  "descriptor_bytes_equal": {
+    "load.json": true,
+    "model_spec.json": true,
+    "model_manifest.json": true,
+    "full.yaml": true,
+    "benchmark.json": true
+  },
+  "source_assets_read_only": true,
+  "pure_cache_probe_expected_stop": false,
+  "virtual_grid_assets": true,
+  "source_serving_run": "/data/mw_finetune/eval/knobtestfw2",
+  "source_actual_identities": [
+    "797387415ad9cc178b1067c684e041989b27a6472f5d5ce45bd16b5ca63e025f"
+  ],
+  "equals_source_actual": true,
+  "sealed_metadata_drift_matches_source_ready": false
+}

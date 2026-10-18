@@ -1,0 +1,42 @@
+{
+  "PASS": true,
+  "records": [
+    {
+      "root": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/ffk1015_pi05_libero_full_formal_A_filtered_pi05_l10_50",
+      "host": "h100",
+      "arms": 5,
+      "remote_operations": 0,
+      "plan": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/plans/fa_pi_f_f_l_l50/h100/ffk1015_pi05_libero_full_formal_A_filtered_pi05_l10_50/plan.json",
+      "plan_sha256": "d1e9124e5d330955a7cbade5421d203bde592b315dbb892d722355425c875315",
+      "fits": [
+        {
+          "arm": "ffk1015_pi05_libero_full_formal_A_filtered_pi05_l10_50_ir45",
+          "source_sha256": "c81ade6e64c8f667307aa71e5c0c7e36d6f84a2bf9360c341ace03578cb931e3",
+          "served_sha256": "18181b82862dbdeff58be67b0c1c459d95749b94ca390ae0770f7bdec17615e9"
+        },
+        {
+          "arm": "ffk1015_pi05_libero_full_formal_A_filtered_pi05_l10_50_ir40",
+          "source_sha256": "4e078af757c074c3974c97a1743f1ad8be14cf9cb9bf086f626d72e68128d96a",
+          "served_sha256": "53d72866cd2f88ffb5639698e2342aa891fed114a60635242c326bb173c9a129"
+        },
+        {
+          "arm": "ffk1015_pi05_libero_full_formal_A_filtered_pi05_l10_50_ir32",
+          "source_sha256": "c0ae93ddf20e5cdc4cd272995f185cf1b7698cb81b173e6638579984995ee1fd",
+          "served_sha256": "3038b42cf7032786cdfec958f4f27c9e42fa970098819b1933dec5da746bc10a"
+        },
+        {
+          "arm": "ffk1015_pi05_libero_full_formal_A_filtered_pi05_l10_50_ir25",
+          "source_sha256": "5eb4847c3ac369386dabbcbac2574bb301754be3776a89fcfa5ae2d059a90b22",
+          "served_sha256": "104c09656f0096bd57056149fe956ecb93cc4b5de78b3cfd6a22821d9952ebda"
+        },
+        {
+          "arm": "ffk1015_pi05_libero_full_formal_A_filtered_pi05_l10_50_off",
+          "source_sha256": "bb08339762c340dc6a7ba7d04a34660b920a0701ca5fce428232813a4c377e3f",
+          "served_sha256": "0ae7c49fd33dcf10ca7c824eb009d17d0b0aac4c443e1af55175de234467b56b"
+        }
+      ]
+    }
+  ],
+  "remote_operations": 0,
+  "servers": 0
+}

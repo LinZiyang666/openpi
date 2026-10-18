@@ -1,0 +1,22 @@
+{
+  "capacity": 20,
+  "gpu_slots": 20,
+  "ram_slots": 87,
+  "cards": {
+    "0": {
+      "total": 49140,
+      "used": 31618,
+      "pending": 1966,
+      "processes": {
+        "3287627": 15282,
+        "3289638": 30,
+        "3332360": 15594,
+        "3562435": 684
+      },
+      "server_resident_mib": 30876,
+      "server_pending_mib": 0
+    }
+  },
+  "server_budget_mib": 1,
+  "boot_id": "acb804ec-c646-4947-b040-311091cee730"
+}

@@ -1,0 +1,316 @@
+{
+  "rows": [
+    {
+      "name": "fa_dp_r_u_l",
+      "pipeline": "R17",
+      "complete": true,
+      "accepted_rows": 5000,
+      "journals": [
+        "/data/mw_finetune/eval/fa_dp_r_u_l/driver/journal.jsonl"
+      ],
+      "infra_errors": [],
+      "planned_episodes": 5000
+    },
+    {
+      "name": "fa_dp_r_f_l",
+      "pipeline": "R17",
+      "complete": true,
+      "accepted_rows": 5000,
+      "journals": [
+        "/data/mw_finetune/eval/fa_dp_r_f_l/driver/journal.jsonl"
+      ],
+      "infra_errors": [],
+      "planned_episodes": 5000
+    },
+    {
+      "name": "fa_dp_f_u_o",
+      "pipeline": "R17",
+      "complete": true,
+      "accepted_rows": 6000,
+      "journals": [
+        "/data/mw_finetune/eval/fa_dp_f_u_o/driver/journal.jsonl"
+      ],
+      "infra_errors": [],
+      "planned_episodes": 6000
+    },
+    {
+      "name": "fa_dp_f_f_o",
+      "pipeline": "R17",
+      "complete": true,
+      "accepted_rows": 6000,
+      "journals": [
+        "/data/mw_finetune/eval/fa_dp_f_f_o/driver/journal.jsonl"
+      ],
+      "infra_errors": [],
+      "planned_episodes": 6000
+    },
+    {
+      "name": "fa_fw_r_u_l",
+      "pipeline": "R17",
+      "complete": false,
+      "accepted_rows": 2402,
+      "journals": [
+        "/data/mw_finetune/eval/fa_fw_r_u_l/driver/journal.jsonl"
+      ],
+      "infra_errors": [
+        {
+          "task_uid": "r17_0a398b0fbdcabda79f72_n100_chrg_k40:eval:35:42",
+          "error": "FatalEpisodeError: retry budget exhausted; RuntimeError('LIBERO inference failed')",
+          "journal": "/data/mw_finetune/eval/fa_fw_r_u_l/driver/journal.jsonl"
+        },
+        {
+          "task_uid": "r17_0a398b0fbdcabda79f72_n100_chrg_k40:eval:36:46",
+          "error": "FatalEpisodeError: retry budget exhausted; RuntimeError('LIBERO inference failed')",
+          "journal": "/data/mw_finetune/eval/fa_fw_r_u_l/driver/journal.jsonl"
+        },
+        {
+          "task_uid": "r17_0a398b0fbdcabda79f72_n100_chrg_k40:eval:34:28",
+          "error": "FatalEpisodeError: retry budget exhausted; RuntimeError('LIBERO inference failed')",
+          "journal": "/data/mw_finetune/eval/fa_fw_r_u_l/driver/journal.jsonl"
+        },
+        {
+          "task_uid": "r17_0a398b0fbdcabda79f72_n100_chrg_k40:eval:34:49",
+          "error": "FatalEpisodeError: retry budget exhausted; RuntimeError('LIBERO inference failed')",
+          "journal": "/data/mw_finetune/eval/fa_fw_r_u_l/driver/journal.jsonl"
+        },
+        {
+          "task_uid": "r17_0a398b0fbdcabda79f72_n100_chrg_k40:eval:35:28",
+          "error": "FatalEpisodeError: retry budget exhausted; RuntimeError('LIBERO inference failed')",
+          "journal": "/data/mw_finetune/eval/fa_fw_r_u_l/driver/journal.jsonl"
+        },
+        {
+          "task_uid": "r17_0a398b0fbdcabda79f72_n100_chrg_k40:eval:34:21",
+          "error": "FatalEpisodeError: retry budget exhausted; RuntimeError('LIBERO inference failed')",
+          "journal": "/data/mw_finetune/eval/fa_fw_r_u_l/driver/journal.jsonl"
+        }
+      ],
+      "planned_episodes": 30000
+    },
+    {
+      "name": "fa_fw_f_u_o",
+      "pipeline": "R17",
+      "complete": true,
+      "accepted_rows": 6000,
+      "journals": [
+        "/data/mw_finetune/eval/fa_fw_f_u_o/driver/journal.jsonl"
+      ],
+      "infra_errors": [],
+      "planned_episodes": 6000
+    },
+    {
+      "name": "fa_fw_f_f_o",
+      "pipeline": "R17",
+      "complete": true,
+      "accepted_rows": 6000,
+      "journals": [
+        "/data/mw_finetune/eval/fa_fw_f_f_o/driver/journal.jsonl"
+      ],
+      "infra_errors": [],
+      "planned_episodes": 6000
+    },
+    {
+      "name": "fa_co_f_u_o",
+      "pipeline": "R17",
+      "complete": false,
+      "accepted_rows": 1470,
+      "journals": [
+        "/data/mw_finetune/eval/fa_co_f_u_o/driver/journal.jsonl"
+      ],
+      "infra_errors": [],
+      "planned_episodes": 6000
+    },
+    {
+      "name": "fa_gr_f_u_o_l50",
+      "pipeline": "R15",
+      "complete": true,
+      "accepted_rows": 500,
+      "journals": [
+        "/data/mw_finetune/eval/fa_gr_f_u_o_l50/runs/ffk1015_groot_libero_full_formal_A_original_off_groot_l10_50_off/client/journal.jsonl"
+      ],
+      "infra_errors": []
+    },
+    {
+      "name": "fa_gr_f_u_o_l100",
+      "pipeline": "R15",
+      "complete": true,
+      "accepted_rows": 500,
+      "journals": [
+        "/data/mw_finetune/eval/fa_gr_f_u_o_l100/runs/ffk1015_groot_libero_full_formal_A_original_off_groot_l10_100_off/client/journal.jsonl"
+      ],
+      "infra_errors": []
+    },
+    {
+      "name": "fa_gr_f_u_o_l200",
+      "pipeline": "R15",
+      "complete": true,
+      "accepted_rows": 500,
+      "journals": [
+        "/data/mw_finetune/eval/fa_gr_f_u_o_l200/runs/ffk1015_groot_libero_full_formal_A_original_off_groot_l10_200_off/client/journal.jsonl"
+      ],
+      "infra_errors": []
+    },
+    {
+      "name": "fa_gr_f_u_o_l500",
+      "pipeline": "R15",
+      "complete": true,
+      "accepted_rows": 500,
+      "journals": [
+        "/data/mw_finetune/eval/fa_gr_f_u_o_l500/runs/ffk1015_groot_libero_full_formal_A_original_off_groot_l10_500_off/client/journal.jsonl"
+      ],
+      "infra_errors": []
+    },
+    {
+      "name": "fa_gr_f_u_o_s50",
+      "pipeline": "R15",
+      "complete": true,
+      "accepted_rows": 500,
+      "journals": [
+        "/data/mw_finetune/eval/fa_gr_f_u_o_s50/runs/ffk1015_groot_libero_full_formal_A_original_off_groot_spatial_50_off/client/journal.jsonl"
+      ],
+      "infra_errors": []
+    },
+    {
+      "name": "fa_gr_f_u_o_s200",
+      "pipeline": "R15",
+      "complete": true,
+      "accepted_rows": 500,
+      "journals": [
+        "/data/mw_finetune/eval/fa_gr_f_u_o_s200/runs/ffk1015_groot_libero_full_formal_A_original_off_groot_spatial_200_off/client/journal.jsonl"
+      ],
+      "infra_errors": []
+    },
+    {
+      "name": "fa_gr_f_u_o_s500",
+      "pipeline": "R15",
+      "complete": true,
+      "accepted_rows": 500,
+      "journals": [
+        "/data/mw_finetune/eval/fa_gr_f_u_o_s500/runs/ffk1015_groot_libero_full_formal_A_original_off_groot_spatial_500_off/client/journal.jsonl"
+      ],
+      "infra_errors": []
+    },
+    {
+      "name": "fa_gr_f_f_o_l50",
+      "pipeline": "R15",
+      "complete": true,
+      "accepted_rows": 500,
+      "journals": [
+        "/data/mw_finetune/eval/fa_gr_f_f_o_l50/runs/ffk1015_groot_libero_full_formal_A_filtered_off_groot_l10_50_off/client/journal.jsonl"
+      ],
+      "infra_errors": []
+    },
+    {
+      "name": "fa_gr_f_f_o_l100",
+      "pipeline": "R15",
+      "complete": true,
+      "accepted_rows": 500,
+      "journals": [
+        "/data/mw_finetune/eval/fa_gr_f_f_o_l100/runs/ffk1015_groot_libero_full_formal_A_filtered_off_groot_l10_100_off/client/journal.jsonl"
+      ],
+      "infra_errors": []
+    },
+    {
+      "name": "fa_gr_f_f_o_l200",
+      "pipeline": "R15",
+      "complete": true,
+      "accepted_rows": 500,
+      "journals": [
+        "/data/mw_finetune/eval/fa_gr_f_f_o_l200/runs/ffk1015_groot_libero_full_formal_A_filtered_off_groot_l10_200_off/client/journal.jsonl"
+      ],
+      "infra_errors": []
+    },
+    {
+      "name": "fa_gr_f_f_o_l500",
+      "pipeline": "R15",
+      "complete": true,
+      "accepted_rows": 500,
+      "journals": [
+        "/data/mw_finetune/eval/fa_gr_f_f_o_l500/runs/ffk1015_groot_libero_full_formal_A_filtered_off_groot_l10_500_off/client/journal.jsonl"
+      ],
+      "infra_errors": []
+    },
+    {
+      "name": "fa_gr_f_f_o_s50",
+      "pipeline": "R15",
+      "complete": true,
+      "accepted_rows": 500,
+      "journals": [
+        "/data/mw_finetune/eval/fa_gr_f_f_o_s50/runs/ffk1015_groot_libero_full_formal_A_filtered_off_groot_spatial_50_off/client/journal.jsonl"
+      ],
+      "infra_errors": []
+    },
+    {
+      "name": "fa_gr_f_f_o_s100",
+      "pipeline": "R15",
+      "complete": true,
+      "accepted_rows": 500,
+      "journals": [
+        "/data/mw_finetune/eval/fa_gr_f_f_o_s100/runs/ffk1015_groot_libero_full_formal_A_filtered_off_groot_spatial_100_off/client/journal.jsonl"
+      ],
+      "infra_errors": []
+    },
+    {
+      "name": "fa_gr_f_f_o_s200",
+      "pipeline": "R15",
+      "complete": true,
+      "accepted_rows": 500,
+      "journals": [
+        "/data/mw_finetune/eval/fa_gr_f_f_o_s200/runs/ffk1015_groot_libero_full_formal_A_filtered_off_groot_spatial_200_off/client/journal.jsonl"
+      ],
+      "infra_errors": []
+    },
+    {
+      "name": "fa_gr_f_f_o_s500",
+      "pipeline": "R15",
+      "complete": true,
+      "accepted_rows": 500,
+      "journals": [
+        "/data/mw_finetune/eval/fa_gr_f_f_o_s500/runs/ffk1015_groot_libero_full_formal_A_filtered_off_groot_spatial_500_off/client/journal.jsonl"
+      ],
+      "infra_errors": []
+    },
+    {
+      "name": "fa_pi_r_u_c",
+      "pipeline": "R16",
+      "complete": true,
+      "accepted_rows": 2500,
+      "journals": [
+        "/data/mw_finetune/eval/fa_pi_r_u_c/journal.jsonl"
+      ],
+      "infra_errors": []
+    },
+    {
+      "name": "fa_gr_r_u_c",
+      "pipeline": "R16",
+      "complete": true,
+      "accepted_rows": 1950,
+      "journals": [
+        "/data/mw_finetune/eval/fa_gr_r_u_c/journal.jsonl"
+      ],
+      "infra_errors": []
+    },
+    {
+      "name": "fa_pi_f_ps",
+      "pipeline": "R15",
+      "complete": true,
+      "accepted_rows": 500,
+      "journals": [
+        "/data/mw_finetune/eval/fa_pi_f_ps/runs/ffk1015_pi05_libero_full_formal_A_pure_spatial_c10/client/journal.jsonl"
+      ],
+      "infra_errors": []
+    },
+    {
+      "name": "fa_pi_f_p10",
+      "pipeline": "R15",
+      "complete": true,
+      "accepted_rows": 500,
+      "journals": [
+        "/data/mw_finetune/eval/fa_pi_f_p10/runs/ffk1015_pi05_libero_full_formal_A_pure_l10_r1_c10/client/journal.jsonl"
+      ],
+      "infra_errors": []
+    }
+  ],
+  "completed_runs": 25,
+  "completed_without_local_journal": [],
+  "completed_with_infra_errors": []
+}

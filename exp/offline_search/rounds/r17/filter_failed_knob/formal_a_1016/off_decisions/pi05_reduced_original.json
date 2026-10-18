@@ -1,0 +1,81 @@
+{
+  "model": "pi05",
+  "mode": "reduced",
+  "arm": "original",
+  "rows": [
+    {
+      "suite": "libero_10",
+      "size": 50,
+      "n": 500,
+      "pure_n": 500,
+      "successes": 400,
+      "pure_successes": 459,
+      "status": "tune"
+    },
+    {
+      "suite": "libero_10",
+      "size": 100,
+      "n": 500,
+      "pure_n": 500,
+      "successes": 419,
+      "pure_successes": 459,
+      "status": "tune"
+    },
+    {
+      "suite": "libero_10",
+      "size": 200,
+      "n": 500,
+      "pure_n": 500,
+      "successes": 441,
+      "pure_successes": 459,
+      "status": "tune"
+    },
+    {
+      "suite": "libero_10",
+      "size": 500,
+      "n": 500,
+      "pure_n": 500,
+      "successes": 454,
+      "pure_successes": 459,
+      "status": "tune"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 50,
+      "n": 500,
+      "pure_n": 500,
+      "successes": 453,
+      "pure_successes": 492,
+      "status": "tune"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 100,
+      "n": 500,
+      "pure_n": 500,
+      "successes": 483,
+      "pure_successes": 492,
+      "status": "tune"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 200,
+      "n": 500,
+      "pure_n": 500,
+      "successes": 488,
+      "pure_successes": 492,
+      "status": "tune"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 500,
+      "n": 500,
+      "pure_n": 500,
+      "successes": 489,
+      "pure_successes": 492,
+      "status": "tune"
+    }
+  ],
+  "reference": "same-step same-GPU pure A",
+  "dev_outcomes_used": false
+}

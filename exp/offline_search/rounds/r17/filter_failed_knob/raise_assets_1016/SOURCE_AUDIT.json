@@ -1,0 +1,778 @@
+{
+  "status": "PASS",
+  "rows": [
+    {
+      "model": "dp",
+      "mode": "reduced",
+      "template": "knobtestdp_red_r1",
+      "official_A": "knobtestdp_red",
+      "overlap_files": 50,
+      "overlap_bytes_equal": true,
+      "missing_cells": [
+        {
+          "suite": "libero_10",
+          "size": 100
+        },
+        {
+          "suite": "libero_10",
+          "size": 300
+        },
+        {
+          "suite": "libero_10",
+          "size": 400
+        },
+        {
+          "suite": "libero_10",
+          "size": 500
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 300
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 500
+        }
+      ],
+      "A_has_missing_cells": true
+    },
+    {
+      "model": "dp",
+      "mode": "reduced",
+      "template": "knobtestdp_red_r2",
+      "official_A": "knobtestdp_red",
+      "overlap_files": 9,
+      "overlap_bytes_equal": true,
+      "missing_cells": [
+        {
+          "suite": "libero_10",
+          "size": 50
+        },
+        {
+          "suite": "libero_10",
+          "size": 100
+        },
+        {
+          "suite": "libero_10",
+          "size": 200
+        },
+        {
+          "suite": "libero_10",
+          "size": 300
+        },
+        {
+          "suite": "libero_10",
+          "size": 400
+        },
+        {
+          "suite": "libero_10",
+          "size": 500
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 50
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 100
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 200
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 300
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 500
+        }
+      ],
+      "A_has_missing_cells": true
+    },
+    {
+      "model": "dp",
+      "mode": "reduced",
+      "template": "knobtestdp_red_r3",
+      "official_A": "knobtestdp_red",
+      "overlap_files": 9,
+      "overlap_bytes_equal": true,
+      "missing_cells": [
+        {
+          "suite": "libero_10",
+          "size": 50
+        },
+        {
+          "suite": "libero_10",
+          "size": 100
+        },
+        {
+          "suite": "libero_10",
+          "size": 200
+        },
+        {
+          "suite": "libero_10",
+          "size": 300
+        },
+        {
+          "suite": "libero_10",
+          "size": 400
+        },
+        {
+          "suite": "libero_10",
+          "size": 500
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 50
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 100
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 200
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 300
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 500
+        }
+      ],
+      "A_has_missing_cells": true
+    },
+    {
+      "model": "dp",
+      "mode": "reduced",
+      "template": "knobtestdp_red_r4",
+      "official_A": "knobtestdp_red",
+      "overlap_files": 9,
+      "overlap_bytes_equal": true,
+      "missing_cells": [
+        {
+          "suite": "libero_10",
+          "size": 50
+        },
+        {
+          "suite": "libero_10",
+          "size": 100
+        },
+        {
+          "suite": "libero_10",
+          "size": 200
+        },
+        {
+          "suite": "libero_10",
+          "size": 300
+        },
+        {
+          "suite": "libero_10",
+          "size": 400
+        },
+        {
+          "suite": "libero_10",
+          "size": 500
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 50
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 100
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 200
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 300
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 500
+        }
+      ],
+      "A_has_missing_cells": true
+    },
+    {
+      "model": "dp",
+      "mode": "reduced",
+      "template": "knobtestdp_red_r5",
+      "official_A": "knobtestdp_red",
+      "overlap_files": 9,
+      "overlap_bytes_equal": true,
+      "missing_cells": [
+        {
+          "suite": "libero_10",
+          "size": 50
+        },
+        {
+          "suite": "libero_10",
+          "size": 100
+        },
+        {
+          "suite": "libero_10",
+          "size": 200
+        },
+        {
+          "suite": "libero_10",
+          "size": 300
+        },
+        {
+          "suite": "libero_10",
+          "size": 400
+        },
+        {
+          "suite": "libero_10",
+          "size": 500
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 50
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 100
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 200
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 300
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 500
+        }
+      ],
+      "A_has_missing_cells": true
+    },
+    {
+      "model": "dp",
+      "mode": "reduced",
+      "template": "knobtestdp_red_r6",
+      "official_A": "knobtestdp_red",
+      "overlap_files": 9,
+      "overlap_bytes_equal": true,
+      "missing_cells": [
+        {
+          "suite": "libero_10",
+          "size": 50
+        },
+        {
+          "suite": "libero_10",
+          "size": 100
+        },
+        {
+          "suite": "libero_10",
+          "size": 200
+        },
+        {
+          "suite": "libero_10",
+          "size": 300
+        },
+        {
+          "suite": "libero_10",
+          "size": 400
+        },
+        {
+          "suite": "libero_10",
+          "size": 500
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 50
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 100
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 200
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 300
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 500
+        }
+      ],
+      "A_has_missing_cells": true
+    },
+    {
+      "model": "dp",
+      "mode": "full",
+      "template": "knobtestdp_r1",
+      "official_A": "knobtestdp",
+      "overlap_files": 58,
+      "overlap_bytes_equal": true,
+      "missing_cells": [
+        {
+          "suite": "libero_10",
+          "size": 300
+        },
+        {
+          "suite": "libero_10",
+          "size": 500
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 100
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 300
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 500
+        }
+      ],
+      "A_has_missing_cells": true
+    },
+    {
+      "model": "dp",
+      "mode": "full",
+      "template": "knobtestdp_r2",
+      "official_A": "knobtestdp",
+      "overlap_files": 9,
+      "overlap_bytes_equal": true,
+      "missing_cells": [
+        {
+          "suite": "libero_10",
+          "size": 50
+        },
+        {
+          "suite": "libero_10",
+          "size": 100
+        },
+        {
+          "suite": "libero_10",
+          "size": 200
+        },
+        {
+          "suite": "libero_10",
+          "size": 300
+        },
+        {
+          "suite": "libero_10",
+          "size": 400
+        },
+        {
+          "suite": "libero_10",
+          "size": 500
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 100
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 200
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 300
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 400
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 500
+        }
+      ],
+      "A_has_missing_cells": true
+    },
+    {
+      "model": "dp",
+      "mode": "full",
+      "template": "knobtestdp_r3",
+      "official_A": "knobtestdp",
+      "overlap_files": 17,
+      "overlap_bytes_equal": true,
+      "missing_cells": [
+        {
+          "suite": "libero_10",
+          "size": 50
+        },
+        {
+          "suite": "libero_10",
+          "size": 100
+        },
+        {
+          "suite": "libero_10",
+          "size": 200
+        },
+        {
+          "suite": "libero_10",
+          "size": 300
+        },
+        {
+          "suite": "libero_10",
+          "size": 400
+        },
+        {
+          "suite": "libero_10",
+          "size": 500
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 50
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 100
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 200
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 500
+        }
+      ],
+      "A_has_missing_cells": true
+    },
+    {
+      "model": "fastwam",
+      "mode": "reduced",
+      "template": "knobtestfw_red_r1",
+      "official_A": "knobtestfw_red",
+      "overlap_files": 74,
+      "overlap_bytes_equal": true,
+      "missing_cells": [
+        {
+          "suite": "libero_10",
+          "size": 100
+        },
+        {
+          "suite": "libero_10",
+          "size": 300
+        },
+        {
+          "suite": "libero_10",
+          "size": 500
+        }
+      ],
+      "A_has_missing_cells": true
+    },
+    {
+      "model": "fastwam",
+      "mode": "full",
+      "template": "knobtestfw_r1",
+      "official_A": "knobtestfw3",
+      "overlap_files": 74,
+      "overlap_bytes_equal": true,
+      "missing_cells": [
+        {
+          "suite": "libero_10",
+          "size": 500
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 200
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 300
+        }
+      ],
+      "A_has_missing_cells": true
+    },
+    {
+      "model": "cosmos",
+      "mode": "reduced",
+      "template": "knobtestcos_red_r1",
+      "official_A": "knobtestcos_red",
+      "overlap_files": 90,
+      "overlap_bytes_equal": true,
+      "missing_cells": [
+        {
+          "suite": "libero_spatial",
+          "size": 100
+        }
+      ],
+      "A_has_missing_cells": true
+    },
+    {
+      "model": "cosmos",
+      "mode": "reduced",
+      "template": "knobtestcos_red_r2",
+      "official_A": "knobtestcos_red",
+      "overlap_files": 50,
+      "overlap_bytes_equal": true,
+      "missing_cells": [
+        {
+          "suite": "libero_10",
+          "size": 50
+        },
+        {
+          "suite": "libero_10",
+          "size": 100
+        },
+        {
+          "suite": "libero_10",
+          "size": 300
+        },
+        {
+          "suite": "libero_10",
+          "size": 500
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 100
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 200
+        }
+      ],
+      "A_has_missing_cells": true
+    },
+    {
+      "model": "cosmos",
+      "mode": "reduced",
+      "template": "knobtestcos_red_r3",
+      "official_A": "knobtestcos_red",
+      "overlap_files": 9,
+      "overlap_bytes_equal": true,
+      "missing_cells": [
+        {
+          "suite": "libero_10",
+          "size": 50
+        },
+        {
+          "suite": "libero_10",
+          "size": 100
+        },
+        {
+          "suite": "libero_10",
+          "size": 200
+        },
+        {
+          "suite": "libero_10",
+          "size": 300
+        },
+        {
+          "suite": "libero_10",
+          "size": 400
+        },
+        {
+          "suite": "libero_10",
+          "size": 500
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 50
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 100
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 200
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 400
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 500
+        }
+      ],
+      "A_has_missing_cells": true
+    },
+    {
+      "model": "cosmos",
+      "mode": "reduced",
+      "template": "knobtestcos_red_r4",
+      "official_A": "knobtestcos_red",
+      "overlap_files": 9,
+      "overlap_bytes_equal": true,
+      "missing_cells": [
+        {
+          "suite": "libero_10",
+          "size": 50
+        },
+        {
+          "suite": "libero_10",
+          "size": 100
+        },
+        {
+          "suite": "libero_10",
+          "size": 200
+        },
+        {
+          "suite": "libero_10",
+          "size": 300
+        },
+        {
+          "suite": "libero_10",
+          "size": 400
+        },
+        {
+          "suite": "libero_10",
+          "size": 500
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 50
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 100
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 200
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 400
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 500
+        }
+      ],
+      "A_has_missing_cells": true
+    },
+    {
+      "model": "cosmos",
+      "mode": "full",
+      "template": "knobtestcos_r1",
+      "official_A": "knobtestcos2",
+      "overlap_files": 90,
+      "overlap_bytes_equal": true,
+      "missing_cells": [
+        {
+          "suite": "libero_spatial",
+          "size": 100
+        }
+      ],
+      "A_has_missing_cells": true
+    },
+    {
+      "model": "cosmos",
+      "mode": "full",
+      "template": "knobtestcos_r2",
+      "official_A": "knobtestcos2",
+      "overlap_files": 26,
+      "overlap_bytes_equal": true,
+      "missing_cells": [
+        {
+          "suite": "libero_10",
+          "size": 50
+        },
+        {
+          "suite": "libero_10",
+          "size": 100
+        },
+        {
+          "suite": "libero_10",
+          "size": 200
+        },
+        {
+          "suite": "libero_10",
+          "size": 300
+        },
+        {
+          "suite": "libero_10",
+          "size": 500
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 50
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 100
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 200
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 300
+        }
+      ],
+      "A_has_missing_cells": true
+    },
+    {
+      "model": "cosmos",
+      "mode": "full",
+      "template": "knobtestcos_r3",
+      "official_A": "knobtestcos2",
+      "overlap_files": 9,
+      "overlap_bytes_equal": true,
+      "missing_cells": [
+        {
+          "suite": "libero_10",
+          "size": 50
+        },
+        {
+          "suite": "libero_10",
+          "size": 100
+        },
+        {
+          "suite": "libero_10",
+          "size": 200
+        },
+        {
+          "suite": "libero_10",
+          "size": 300
+        },
+        {
+          "suite": "libero_10",
+          "size": 500
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 50
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 100
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 200
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 300
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 400
+        },
+        {
+          "suite": "libero_spatial",
+          "size": 500
+        }
+      ],
+      "A_has_missing_cells": true
+    }
+  ],
+  "templates": 18,
+  "model_modes": 6,
+  "hashed_files": 1198
+}

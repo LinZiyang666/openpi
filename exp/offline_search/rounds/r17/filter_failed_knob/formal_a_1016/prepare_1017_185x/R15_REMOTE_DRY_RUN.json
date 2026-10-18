@@ -1,0 +1,5 @@
+{
+  "returncode": 0,
+  "stdout": "{\"status\": \"PASS\", \"helper\": \"/scratch/zixuans8/openpi_trace_h100/os_cl/node.py\", \"native_script_sha256\": \"7b30e83e41c69beca3c5ad100fa1b16ef5cbe20b6ffca7a41dc52a3c3d08eb19\", \"worker_lock\": \"/scratch/zixuans8/openpi_trace_h100/os_cl/locks/ffk_842bce7968957b97.lock\", \"dry_run\": true, \"started\": false, \"files_written\": false}\n",
+  "stderr": ""
+}

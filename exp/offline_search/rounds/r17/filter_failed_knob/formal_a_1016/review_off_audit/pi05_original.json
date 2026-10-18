@@ -1,0 +1,76 @@
+{
+  "rows": [
+    {
+      "suite": "libero_10",
+      "size": 50,
+      "n": 250,
+      "pure_n": 500,
+      "successes": 173,
+      "pure_successes": 459,
+      "complete": false
+    },
+    {
+      "suite": "libero_10",
+      "size": 100,
+      "n": 250,
+      "pure_n": 500,
+      "successes": 199,
+      "pure_successes": 459,
+      "complete": false
+    },
+    {
+      "suite": "libero_10",
+      "size": 200,
+      "n": 200,
+      "pure_n": 500,
+      "successes": 171,
+      "pure_successes": 459,
+      "complete": false
+    },
+    {
+      "suite": "libero_10",
+      "size": 500,
+      "n": 100,
+      "pure_n": 500,
+      "successes": 90,
+      "pure_successes": 459,
+      "complete": false
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 50,
+      "n": 200,
+      "pure_n": 500,
+      "successes": 176,
+      "pure_successes": 492,
+      "complete": false
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 100,
+      "n": 200,
+      "pure_n": 500,
+      "successes": 195,
+      "pure_successes": 492,
+      "complete": false
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 200,
+      "n": 150,
+      "pure_n": 500,
+      "successes": 149,
+      "pure_successes": 492,
+      "complete": false
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 500,
+      "n": 150,
+      "pure_n": 500,
+      "successes": 148,
+      "pure_successes": 492,
+      "complete": false
+    }
+  ]
+}

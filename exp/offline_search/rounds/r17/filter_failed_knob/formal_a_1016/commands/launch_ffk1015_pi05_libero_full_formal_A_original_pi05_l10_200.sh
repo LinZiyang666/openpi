@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd /home/weiland/projects/openpi
+env -u CUDA_VISIBLE_DEVICES -u JAX_PLATFORMS SERVER_HOST=h100 WORKER_HOST=timan108 PORTS=23230,23231,23232 WPS=13 LOCAL_SERVER_COUNT=3 OMP=1 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONDONTWRITEBYTECODE=1 STAGE1_ONLY=0 STOCK=0 NEED_MB=9000 SYNC_PORT=23196 MAX_ATTEMPTS=3 POLL_SECONDS=60 PYTHONPATH=.:src .venv/bin/python -m exp.offline_search.rounds.r17.filter_failed.legacy chain /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_original/ffk1015_pi05_libero_full_formal_A_original_pi05_l10_200 ffk1015_pi05_libero_full_formal_A_original_pi05_l10_200_ir45 ffk1015_pi05_libero_full_formal_A_original_pi05_l10_200_ir40 ffk1015_pi05_libero_full_formal_A_original_pi05_l10_200_ir32 ffk1015_pi05_libero_full_formal_A_original_pi05_l10_200_ir25 ffk1015_pi05_libero_full_formal_A_original_pi05_l10_200_off

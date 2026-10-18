@@ -1,0 +1,17 @@
+{
+  "name": "ffk1015_pi05_libero_full_formal_A_original_off_pi05_spatial_100",
+  "startup": "PASS",
+  "native_plugin_rows": 1,
+  "planner_episodes": 500,
+  "original_serving_tables_equal": true,
+  "candidate_rows_checked": 0,
+  "native_sync_plan_checked": false,
+  "source_model_argv_equal": true,
+  "model_flags": [
+    {
+      "--policy.config": "pi05_libero",
+      "--policy.dir": "/home/exouser/ckpt/pi05_libero_pytorch"
+    }
+  ],
+  "server_python": "/home/exouser/openpi/.venv/bin/python"
+}

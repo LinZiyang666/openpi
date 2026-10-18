@@ -1,0 +1,18 @@
+{
+  "expected": {
+    "exp/offline_search/closed_loop/devset.py": "3dbe3e00954cce6412c3d363a50f9105491054e2b0fbefe54b02fe31c3e378f7",
+    "exp/offline_search/closed_loop/worker_pool.py": "a4d0c44b24ddb2810662014e7516fc22acc6799ed952014c3ff79f44ab01af63",
+    "exp/offline_search/rounds/r15/descent/__init__.py": "91cecd59a4725182188182aff28b947f844b4aa78f0fbcb24fe31e4269840cb5",
+    "exp/offline_search/rounds/r15/descent/recipe.py": "3424325cf9e2c8b486aab77c0a0ab3134a2f2b534ea8a3eed90f89462790f602"
+  },
+  "h100_actual": {
+    "exp/offline_search/closed_loop/devset.py": "3dbe3e00954cce6412c3d363a50f9105491054e2b0fbefe54b02fe31c3e378f7",
+    "exp/offline_search/closed_loop/worker_pool.py": "a4d0c44b24ddb2810662014e7516fc22acc6799ed952014c3ff79f44ab01af63",
+    "exp/offline_search/rounds/r15/descent/__init__.py": "91cecd59a4725182188182aff28b947f844b4aa78f0fbcb24fe31e4269840cb5",
+    "exp/offline_search/rounds/r15/descent/recipe.py": "3424325cf9e2c8b486aab77c0a0ab3134a2f2b534ea8a3eed90f89462790f602"
+  },
+  "local_equal": true,
+  "h100_equal": true,
+  "remote_operations": "read-only hashlib/procfs",
+  "remote_evaluation_root": "/data/mw_finetune/eval"
+}

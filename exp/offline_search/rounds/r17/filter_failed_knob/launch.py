@@ -6,6 +6,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from .common import HERE, read
+from exp.offline_search.rounds.r17.filter_failed import timan1_gpu2, worker_resilience
 
 
 def bootstrap(*,serve=True):
@@ -37,6 +38,8 @@ def rewrite(value,code,evidence=''):
     return value
 
 
+@timan1_gpu2.coordinator()
+@worker_resilience.coordinator()
 def main(root):
     from exp.r17_integration.ops import formal_eval as f
     from exp.r17_integration.ops.formal_prestage import launch_prepared
@@ -45,10 +48,10 @@ def main(root):
     code=(Path(campaign['local_assets'])/'ffk_bootstrap.py').read_text()
     body=(Path(campaign['local_assets'])/'ffk_evidence.py').read_text()
     evidence='ffk_cpu_evidence={};exec(compile('+repr(body)+',"ffk_cpu_evidence","exec"),ffk_cpu_evidence);ffk_cpu_evidence["install"]()'
-    def new_popen(argv,*a,**kw):return popen(rewrite(argv,code,evidence),*a,**kw)
+    def new_popen(argv,*a,**kw):return popen(worker_resilience.driver_command(rewrite(argv,code,evidence)),*a,**kw)
     from exp.offline_search.rounds.r17.filter_failed.launch import worker_command
     # Also lift the frozen workers' other-user GPU gate (see filter_failed.launch).
-    def new_remote(node,argv,*a,**kw):return remote(node,worker_command(rewrite(argv,code,evidence)),*a,**kw)
+    def new_remote(node,argv,*a,**kw):return remote(node,worker_command(rewrite(argv,code,evidence),node),*a,**kw)
     from exp.r17_integration.ops import cache_study
     with patch.object(f.subprocess,'Popen',new_popen),patch.object(f,'remote',new_remote),patch(
             'exp.r17_integration.ops.cache_control.refresh_prepared_workers',

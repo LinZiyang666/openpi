@@ -1,0 +1,270 @@
+{
+  "jobs": [
+    {
+      "name": "ffk1015_dp_libero_reduced_formal_A_original",
+      "episodes": 30000,
+      "source_plan": "/data/mw_finetune/eval/knobtestdp_red/EPISODE_PLAN.json",
+      "source_test_identity_equal": true,
+      "fields": [
+        "benchmark_protocol",
+        "protocol_id",
+        "task_table_identity",
+        "partition",
+        "model_identity",
+        "norm_identity",
+        "layout_identity",
+        "num_steps",
+        "commit_horizon",
+        "expected_controls",
+        "task_data_hash",
+        "num_trials_per_task",
+        "init_pool",
+        "serve_loeo"
+      ]
+    },
+    {
+      "name": "ffk1015_dp_libero_reduced_formal_A_filtered",
+      "episodes": 30000,
+      "source_plan": "/data/mw_finetune/eval/knobtestdp_red/EPISODE_PLAN.json",
+      "source_test_identity_equal": true,
+      "fields": [
+        "benchmark_protocol",
+        "protocol_id",
+        "task_table_identity",
+        "partition",
+        "model_identity",
+        "norm_identity",
+        "layout_identity",
+        "num_steps",
+        "commit_horizon",
+        "expected_controls",
+        "task_data_hash",
+        "num_trials_per_task",
+        "init_pool",
+        "serve_loeo"
+      ]
+    },
+    {
+      "name": "ffk1015_dp_libero_full_formal_A_original",
+      "episodes": 36000,
+      "source_plan": "/data/mw_finetune/eval/knobtestdp/EPISODE_PLAN.json",
+      "source_test_identity_equal": true,
+      "fields": [
+        "benchmark_protocol",
+        "protocol_id",
+        "task_table_identity",
+        "partition",
+        "model_identity",
+        "norm_identity",
+        "layout_identity",
+        "num_steps",
+        "commit_horizon",
+        "expected_controls",
+        "task_data_hash",
+        "num_trials_per_task",
+        "init_pool",
+        "serve_loeo"
+      ]
+    },
+    {
+      "name": "ffk1015_dp_libero_full_formal_A_filtered",
+      "episodes": 36000,
+      "source_plan": "/data/mw_finetune/eval/knobtestdp/EPISODE_PLAN.json",
+      "source_test_identity_equal": true,
+      "fields": [
+        "benchmark_protocol",
+        "protocol_id",
+        "task_table_identity",
+        "partition",
+        "model_identity",
+        "norm_identity",
+        "layout_identity",
+        "num_steps",
+        "commit_horizon",
+        "expected_controls",
+        "task_data_hash",
+        "num_trials_per_task",
+        "init_pool",
+        "serve_loeo"
+      ]
+    },
+    {
+      "name": "ffk1015_fastwam_libero_reduced_formal_A_original",
+      "episodes": 30000,
+      "source_plan": "/data/mw_finetune/eval/knobtestfw_red/EPISODE_PLAN.json",
+      "source_test_identity_equal": true,
+      "fields": [
+        "benchmark_protocol",
+        "protocol_id",
+        "task_table_identity",
+        "partition",
+        "model_identity",
+        "norm_identity",
+        "layout_identity",
+        "num_steps",
+        "commit_horizon",
+        "expected_controls",
+        "task_data_hash",
+        "num_trials_per_task",
+        "init_pool",
+        "serve_loeo"
+      ]
+    },
+    {
+      "name": "ffk1015_fastwam_libero_reduced_formal_A_filtered",
+      "episodes": 30000,
+      "source_plan": "/data/mw_finetune/eval/knobtestfw_red/EPISODE_PLAN.json",
+      "source_test_identity_equal": true,
+      "fields": [
+        "benchmark_protocol",
+        "protocol_id",
+        "task_table_identity",
+        "partition",
+        "model_identity",
+        "norm_identity",
+        "layout_identity",
+        "num_steps",
+        "commit_horizon",
+        "expected_controls",
+        "task_data_hash",
+        "num_trials_per_task",
+        "init_pool",
+        "serve_loeo"
+      ]
+    },
+    {
+      "name": "ffk1015_fastwam_libero_full_formal_A_original",
+      "episodes": 36000,
+      "source_plan": "/data/mw_finetune/eval/knobtestfw3/EPISODE_PLAN.json",
+      "source_test_identity_equal": true,
+      "fields": [
+        "benchmark_protocol",
+        "protocol_id",
+        "task_table_identity",
+        "partition",
+        "model_identity",
+        "norm_identity",
+        "layout_identity",
+        "num_steps",
+        "commit_horizon",
+        "expected_controls",
+        "task_data_hash",
+        "num_trials_per_task",
+        "init_pool",
+        "serve_loeo"
+      ]
+    },
+    {
+      "name": "ffk1015_fastwam_libero_full_formal_A_filtered",
+      "episodes": 36000,
+      "source_plan": "/data/mw_finetune/eval/knobtestfw3/EPISODE_PLAN.json",
+      "source_test_identity_equal": true,
+      "fields": [
+        "benchmark_protocol",
+        "protocol_id",
+        "task_table_identity",
+        "partition",
+        "model_identity",
+        "norm_identity",
+        "layout_identity",
+        "num_steps",
+        "commit_horizon",
+        "expected_controls",
+        "task_data_hash",
+        "num_trials_per_task",
+        "init_pool",
+        "serve_loeo"
+      ]
+    },
+    {
+      "name": "ffk1015_cosmos_libero_reduced_formal_A_original",
+      "episodes": 30000,
+      "source_plan": "/data/mw_finetune/eval/knobtestcos_red/EPISODE_PLAN.json",
+      "source_test_identity_equal": true,
+      "fields": [
+        "benchmark_protocol",
+        "protocol_id",
+        "task_table_identity",
+        "partition",
+        "model_identity",
+        "norm_identity",
+        "layout_identity",
+        "num_steps",
+        "commit_horizon",
+        "expected_controls",
+        "task_data_hash",
+        "num_trials_per_task",
+        "init_pool",
+        "serve_loeo"
+      ]
+    },
+    {
+      "name": "ffk1015_cosmos_libero_reduced_formal_A_filtered",
+      "episodes": 30000,
+      "source_plan": "/data/mw_finetune/eval/knobtestcos_red/EPISODE_PLAN.json",
+      "source_test_identity_equal": true,
+      "fields": [
+        "benchmark_protocol",
+        "protocol_id",
+        "task_table_identity",
+        "partition",
+        "model_identity",
+        "norm_identity",
+        "layout_identity",
+        "num_steps",
+        "commit_horizon",
+        "expected_controls",
+        "task_data_hash",
+        "num_trials_per_task",
+        "init_pool",
+        "serve_loeo"
+      ]
+    },
+    {
+      "name": "ffk1015_cosmos_libero_full_formal_A_original",
+      "episodes": 36000,
+      "source_plan": "/data/mw_finetune/eval/knobtestcos2/EPISODE_PLAN.json",
+      "source_test_identity_equal": true,
+      "fields": [
+        "benchmark_protocol",
+        "protocol_id",
+        "task_table_identity",
+        "partition",
+        "model_identity",
+        "norm_identity",
+        "layout_identity",
+        "num_steps",
+        "commit_horizon",
+        "expected_controls",
+        "task_data_hash",
+        "num_trials_per_task",
+        "init_pool",
+        "serve_loeo"
+      ]
+    },
+    {
+      "name": "ffk1015_cosmos_libero_full_formal_A_filtered",
+      "episodes": 36000,
+      "source_plan": "/data/mw_finetune/eval/knobtestcos2/EPISODE_PLAN.json",
+      "source_test_identity_equal": true,
+      "fields": [
+        "benchmark_protocol",
+        "protocol_id",
+        "task_table_identity",
+        "partition",
+        "model_identity",
+        "norm_identity",
+        "layout_identity",
+        "num_steps",
+        "commit_horizon",
+        "expected_controls",
+        "task_data_hash",
+        "num_trials_per_task",
+        "init_pool",
+        "serve_loeo"
+      ]
+    }
+  ],
+  "paired_R17_plans_equal": true,
+  "duplicate_semantic_episodes": 0
+}

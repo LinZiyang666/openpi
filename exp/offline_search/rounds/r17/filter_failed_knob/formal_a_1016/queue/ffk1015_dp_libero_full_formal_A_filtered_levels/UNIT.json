@@ -1,0 +1,21 @@
+{
+  "name": "ffk1015_dp_libero_full_formal_A_filtered_levels",
+  "model": "dp",
+  "mode": "full",
+  "arm": "filtered",
+  "stage": "levels",
+  "gpu": "RTX 4090",
+  "replicas": 4,
+  "batch": 8,
+  "workers": {
+    "local": 24,
+    "timan1": 24
+  },
+  "jobs": [],
+  "status": "WAITING_OFF",
+  "episodes": null,
+  "maximum_episodes": 30000,
+  "dependencies": [
+    "ffk1015_dp_libero_full_formal_A_filtered_off"
+  ]
+}

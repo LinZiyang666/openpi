@@ -120,6 +120,8 @@ def r17(model,benchmark,mode,inventory_only):
 
 
 def vla_rows(mode):
+    full=HERE/'vla_full_r15/RESULTS.json'
+    if mode=='full' and full.exists():return read(full)['rows']
     source=Path('/home/weiland/projects/openpi/exp/offline_search/rounds/r16/k1ref/results/retest.json')
     old=read(source);final=read(HERE/'vla/FINAL.json') if (HERE/'vla/FINAL.json').exists() else None
     rows=[]

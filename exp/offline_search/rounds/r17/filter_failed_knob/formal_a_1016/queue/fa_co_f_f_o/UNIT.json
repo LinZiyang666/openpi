@@ -1,0 +1,110 @@
+{
+  "name": "fa_co_f_f_o",
+  "model": "cosmos",
+  "mode": "full",
+  "arm": "filtered",
+  "stage": "off",
+  "gpu": "H100",
+  "replicas": 8,
+  "batch": 1,
+  "workers": {
+    "timan1": 35,
+    "timan107": 25,
+    "timan108": 25
+  },
+  "jobs": [
+    {
+      "name": "fa_co_f_f_o",
+      "run": "/data/mw_finetune/eval/fa_co_f_f_o",
+      "source": "/data/mw_finetune/eval/knobtestcos2",
+      "episodes": 6000,
+      "model": "cosmos",
+      "benchmark": "libero",
+      "gpu": "H100",
+      "workers": {
+        "timan1": 35,
+        "timan107": 25,
+        "timan108": 25
+      },
+      "replicas": 8,
+      "python": "/data/cosmos/cosmos-policy/.venv/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_3faa6dcf5cd5dacf9109052a0a85f69b53564282161b9f14f165f7229b8d53d4",
+      "unfiltered": false,
+      "mode": "full",
+      "arm": "filtered",
+      "stage": "off",
+      "pipeline": "R17",
+      "batch": 1,
+      "mps": {
+        "active_thread_percentage": 100,
+        "compute_mode_change": false,
+        "enabled": true,
+        "private_per_campaign_gpu": true,
+        "schema": "r17.mps.v1"
+      },
+      "levels": [
+        "koff"
+      ],
+      "off_reuse": null,
+      "renamed_from": "/data/mw_finetune/eval/ffk1015_cosmos_libero_full_formal_A_filtered_off"
+    }
+  ],
+  "status": "BUILT",
+  "episodes": 6000,
+  "maximum_episodes": 30000,
+  "selected_cells": [
+    [
+      "libero_10",
+      50
+    ],
+    [
+      "libero_10",
+      100
+    ],
+    [
+      "libero_10",
+      200
+    ],
+    [
+      "libero_10",
+      300
+    ],
+    [
+      "libero_10",
+      400
+    ],
+    [
+      "libero_10",
+      500
+    ],
+    [
+      "libero_spatial",
+      50
+    ],
+    [
+      "libero_spatial",
+      100
+    ],
+    [
+      "libero_spatial",
+      200
+    ],
+    [
+      "libero_spatial",
+      300
+    ],
+    [
+      "libero_spatial",
+      400
+    ],
+    [
+      "libero_spatial",
+      500
+    ]
+  ],
+  "levels": [
+    "koff"
+  ],
+  "dependencies": [],
+  "renamed_from": "ffk1015_cosmos_libero_full_formal_A_filtered_off"
+}

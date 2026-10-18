@@ -1,0 +1,29 @@
+{
+  "name": "fa_pi_r_u_l",
+  "startup": "PASS",
+  "native_plugin_rows": 40,
+  "planner_episodes": 18500,
+  "original_serving_tables_equal": true,
+  "candidate_rows_checked": 40,
+  "native_sync_plan_checked": false,
+  "source_model_argv_equal": true,
+  "model_flags": [
+    {
+      "--policy.config": "pi05_libero",
+      "--policy.dir": "/home/weiland/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
+    },
+    {
+      "--policy.config": "pi05_libero",
+      "--policy.dir": "/home/weiland/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
+    },
+    {
+      "--policy.config": "pi05_libero",
+      "--policy.dir": "/home/weiland/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch"
+    }
+  ],
+  "server_python": "/home/weiland/projects/openpi/.venv/bin/python",
+  "verification": "immutable_full_ladder_template",
+  "future_run": "/data/mw_finetune/eval/fa_pi_r_u_l",
+  "future_dispatch": "WAITING_OFF",
+  "template": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_reduced_formal_A_original"
+}

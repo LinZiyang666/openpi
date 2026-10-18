@@ -12,6 +12,8 @@ import subprocess
 import inspect
 import textwrap
 import ast
+import base64
+import zlib
 
 from .common import HERE, read, dump, sha
 
@@ -54,16 +56,36 @@ def native_fastwam_content(descriptor,actual,result):
     return ast.unparse(ast.fix_missing_locations(tree))
 
 
-def check(job):
+def check(job, *, virtual_assets=False, installed_source=None):
     from exp.r17_integration.ops import formal_eval as f
     root=Path(job['run']);c=read(root/'campaign.json');source=Path(job['source'])
     names=('load.json','model_spec.json','model_manifest.json','full.yaml','benchmark.json','execution_sampler.json')
     equality={n:sha(root/'assets'/n)==sha(source/'assets'/n) for n in names if (source/'assets'/n).exists()}
     assert all(equality.values())
+    if installed_source is not None:
+        installed_source=Path(installed_source)
+        assert all(sha(source/'assets'/n)==sha(installed_source/'assets'/n)
+                   for n in names if (source/'assets'/n).exists())
+        old,new=read(source/'campaign.json'),read(installed_source/'campaign.json')
+        for key in ('runtime_identity','runtime_archive','replicas','fastwam_batching','mps'):
+            assert old.get(key)==new.get(key),(key,old.get(key),new.get(key))
+        original_inputs=read(source/'assets/cache_inputs/manifest.json')['files']
+        installed_inputs=read(installed_source/'assets/cache_inputs/manifest.json')['files']
+        assert all(installed_inputs.get(n)==pin for n,pin in original_inputs.items())
+        source=installed_source
     local=c['server_node']=='local'
     # CPU loader reads exactly the descriptors copied into this new campaign.
     actual=dict(c)
     if not local:actual.update(assets=str(source/'assets'),local_assets=str(source/'assets'))
+    overrides={}
+    if virtual_assets and not local:
+        # Probe new grids on installed, byte-identical source inputs without
+        # staging or writing on H100. Only YAML paths and the group list move.
+        seal=read(root/'assets/CACHE_STUDY.json')
+        overrides[str(source/'assets/CACHE_STUDY.json')]=json.dumps(seal)
+        for row in seal['groups']:
+            overrides[str(source/'assets'/row['file'])]=(root/'assets'/row['file']).read_text().replace(
+                str(c['assets']),str(source/'assets')).replace(str(root/'assets'),str(source/'assets'))
     body=descriptor_code()
     from exp.offline_search.rounds.r17.filter_failed.build import register_metadata
     payload=(root/'assets/ffk_bootstrap.py').read_text()
@@ -107,11 +129,17 @@ def check(job):
     code=(body+'\nfrom unittest.mock import patch\n'
           'native=Path.read_text\n'
           'def read_text(self,*a,**kw):\n'
-          '    return '+repr(json.dumps(actual))+' if str(self)=='+repr(virtual)+' else native(self,*a,**kw)\n'
+          '    if str(self)=='+repr(virtual)+':return '+repr(json.dumps(actual))+'\n'
+          '    overrides='+repr(overrides)+'\n'
+          '    return overrides[str(self)] if str(self) in overrides else native(self,*a,**kw)\n'
           'with patch.object(Path,"read_text",read_text):\n'
           '    result=probe('+repr(virtual)+')\ntry:\n'+textwrap.indent(extra,'    ')+
           '\nexcept Exception:\n    import traceback\n    result["full_system_startup_error"]=traceback.format_exc()\n'+
           'print(json.dumps(result))\n')
+    # A complete test grid carries many repeated YAMLs. Compress the CPU-only
+    # probe to fit the OS argv limit without staging files on the server.
+    packed=base64.b64encode(zlib.compress(code.encode(),9)).decode()
+    code='import base64,zlib;exec(zlib.decompress(base64.b64decode('+repr(packed)+')))'
     env=dict(f.server_env(c,c['runtime']),CUDA_VISIBLE_DEVICES='',JAX_PLATFORMS='cpu',PYTHONDONTWRITEBYTECODE='1')
     argv=['env',*[k+'='+str(v) for k,v in env.items()],c['server_python'],'-c',code]
     if local:
@@ -124,7 +152,8 @@ def check(job):
     identity=bool(result.get('spec_equal') and result.get('pinned_packages_equal'))
     expected_stop=False
     result.update(identity_passes=identity,descriptor_bytes_equal=equality,
-                  source_assets_read_only=not local,pure_cache_probe_expected_stop=expected_stop)
+                  source_assets_read_only=not local,pure_cache_probe_expected_stop=expected_stop,
+                  virtual_grid_assets=bool(overrides))
     ready_specs=list(result.get('source_ready_specs',[]))
     ready=[s['checkpoint_identity'] for s in ready_specs]
     ready_source=source

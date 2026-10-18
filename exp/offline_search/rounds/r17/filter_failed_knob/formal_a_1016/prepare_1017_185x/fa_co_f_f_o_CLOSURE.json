@@ -1,0 +1,161 @@
+{
+  "status": "PASS",
+  "all_owned_closed": true,
+  "processes": {
+    "local": [
+      {
+        "pid": 224411,
+        "start_ticks": "71768085",
+        "alive": false
+      }
+    ],
+    "remote": {
+      "h100": [
+        {
+          "pid": 1040558,
+          "start_ticks": "73528862",
+          "alive": false
+        },
+        {
+          "pid": 1040557,
+          "start_ticks": "73528853",
+          "alive": false
+        },
+        {
+          "pid": 1040587,
+          "start_ticks": "73529107",
+          "alive": false
+        },
+        {
+          "pid": 1040586,
+          "start_ticks": "73529098",
+          "alive": false
+        },
+        {
+          "pid": 1040688,
+          "start_ticks": "73532284",
+          "alive": false
+        },
+        {
+          "pid": 1040687,
+          "start_ticks": "73532276",
+          "alive": false
+        },
+        {
+          "pid": 1040830,
+          "start_ticks": "73535397",
+          "alive": false
+        },
+        {
+          "pid": 1040829,
+          "start_ticks": "73535388",
+          "alive": false
+        },
+        {
+          "pid": 1040973,
+          "start_ticks": "73538508",
+          "alive": false
+        },
+        {
+          "pid": 1040972,
+          "start_ticks": "73538499",
+          "alive": false
+        },
+        {
+          "pid": 1041133,
+          "start_ticks": "73541877",
+          "alive": false
+        },
+        {
+          "pid": 1041132,
+          "start_ticks": "73541869",
+          "alive": false
+        },
+        {
+          "pid": 1041248,
+          "start_ticks": "73545168",
+          "alive": false
+        },
+        {
+          "pid": 1041247,
+          "start_ticks": "73545159",
+          "alive": false
+        },
+        {
+          "pid": 1041407,
+          "start_ticks": "73548475",
+          "alive": false
+        },
+        {
+          "pid": 1041406,
+          "start_ticks": "73548467",
+          "alive": false
+        },
+        {
+          "pid": 1041563,
+          "start_ticks": "73551773",
+          "alive": false
+        },
+        {
+          "pid": 1041562,
+          "start_ticks": "73551765",
+          "alive": false
+        },
+        {
+          "pid": 1041700,
+          "start_ticks": "73555109",
+          "alive": false
+        },
+        {
+          "pid": 1041699,
+          "start_ticks": "73555100",
+          "alive": false
+        }
+      ],
+      "timan107": [
+        {
+          "pid": 711986,
+          "start_ticks": "27643551",
+          "alive": false
+        },
+        {
+          "pid": 711961,
+          "start_ticks": "27643540",
+          "alive": false
+        }
+      ],
+      "timan1": [
+        {
+          "pid": 1643979,
+          "start_ticks": "9660920",
+          "alive": false
+        },
+        {
+          "pid": 1643978,
+          "start_ticks": "9660914",
+          "alive": false
+        }
+      ],
+      "local": [
+        {
+          "pid": 193745,
+          "start_ticks": "71740769",
+          "alive": false
+        },
+        {
+          "pid": 193744,
+          "start_ticks": "71740765",
+          "alive": false
+        }
+      ]
+    }
+  },
+  "source": "/data/mw_finetune/eval/fa_co_f_f_o",
+  "source_receipt_sha256": "93ae1b78b49d1da90e08e52f607c4a1c26dd71a00cb1890a23c26cc55bf0da90",
+  "source_campaign_sha256": "cf179bb41e43b00c30d72ad730408373b2800fbb1bd11da11f2cffb4f999b989",
+  "checked_at": "2026-10-17T23:55:50.862330+00:00",
+  "continuation_counts": {
+    "retained_task_uids": 2985,
+    "missing_task_uids": 3015
+  }
+}

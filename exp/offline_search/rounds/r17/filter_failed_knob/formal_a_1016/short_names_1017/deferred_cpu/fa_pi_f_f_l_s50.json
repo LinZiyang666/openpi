@@ -1,0 +1,21 @@
+{
+  "name": "fa_pi_f_f_l_s50",
+  "startup": "PASS",
+  "native_plugin_rows": 5,
+  "planner_episodes": 2500,
+  "original_serving_tables_equal": null,
+  "candidate_rows_checked": 0,
+  "native_sync_plan_checked": true,
+  "source_model_argv_equal": true,
+  "model_flags": [
+    {
+      "--policy.config": "pi05_libero",
+      "--policy.dir": "/home/exouser/ckpt/pi05_libero_pytorch"
+    }
+  ],
+  "server_python": "/home/exouser/openpi/.venv/bin/python",
+  "verification": "immutable_full_ladder_template",
+  "future_run": "/data/mw_finetune/eval/fa_pi_f_f_l_s50",
+  "future_dispatch": "WAITING_OFF",
+  "template": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_pi05_libero_full_formal_A_filtered/ffk1015_pi05_libero_full_formal_A_filtered_pi05_spatial_50"
+}

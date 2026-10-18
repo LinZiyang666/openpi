@@ -1,0 +1,31 @@
+{
+  "current_spare": 3,
+  "current_ram_slots": 10,
+  "current_gpu_slots": 3,
+  "running_h100_reservations": {
+    "0": 5,
+    "1": 5,
+    "2": 5,
+    "3": 5,
+    "4": 5,
+    "5": 5,
+    "6": 5,
+    "7": 4
+  },
+  "after_release": {
+    "gpu_slots": 42,
+    "ram_slots": 49,
+    "per_card": {
+      "0": 5,
+      "1": 5,
+      "2": 5,
+      "3": 7,
+      "4": 5,
+      "5": 5,
+      "6": 5,
+      "7": 5
+    }
+  },
+  "prediction_only": true,
+  "launch_reprobes": true
+}

@@ -1,0 +1,22 @@
+{
+  "PASS": true,
+  "records": [
+    {
+      "root": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/queue/ffk1015_pi05_libero_full_formal_A_filtered_off/ffk1015_pi05_libero_full_formal_A_filtered_off_pi05_spatial_50",
+      "host": "h100",
+      "arms": 1,
+      "remote_operations": 0,
+      "plan": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/plans/ffk1015_pi05_libero_full_formal_A_filtered_off_pi05_spatial_50/h100/ffk1015_pi05_libero_full_formal_A_filtered_off_pi05_spatial_50/plan.json",
+      "plan_sha256": "e40231cd85389e30aed2571e48fb56f7dc5e4056ac5c1564c7bd9819828d4043",
+      "fits": [
+        {
+          "arm": "ffk1015_pi05_libero_full_formal_A_filtered_off_pi05_spatial_50_off",
+          "source_sha256": "6d92c599c742a17fabaaeca51dd5e6f5ae706be84a05f23e21807d7b8028cfbf",
+          "served_sha256": "137bb03610cd6655e68967add9bfd1a761f4784ac245a172b0aa626d86a557f2"
+        }
+      ]
+    }
+  ],
+  "remote_operations": 0,
+  "servers": 0
+}

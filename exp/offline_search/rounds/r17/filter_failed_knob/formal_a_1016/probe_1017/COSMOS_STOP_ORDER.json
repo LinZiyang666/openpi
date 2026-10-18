@@ -1,0 +1,208 @@
+{
+  "launcher_pid": 187415,
+  "launcher_start_ticks": "71735806",
+  "native_cleanup_order": [
+    {
+      "child": {
+        "pgid": 1041700,
+        "pid": 1041700,
+        "start_ticks": "73555109"
+      },
+      "label": "proxy",
+      "node": "h100",
+      "receipt": "/tmp/r17_formal/fa_co_f_f_o/server/proxy.process.json",
+      "supervisor": {
+        "pgid": 1041699,
+        "pid": 1041699,
+        "start_ticks": "73555100"
+      }
+    },
+    {
+      "child": {
+        "pgid": 1041563,
+        "pid": 1041563,
+        "start_ticks": "73551773"
+      },
+      "label": "replica_7",
+      "node": "h100",
+      "receipt": "/tmp/r17_formal/fa_co_f_f_o/server/replica_7.process.json",
+      "supervisor": {
+        "pgid": 1041562,
+        "pid": 1041562,
+        "start_ticks": "73551765"
+      }
+    },
+    {
+      "child": {
+        "pgid": 1041407,
+        "pid": 1041407,
+        "start_ticks": "73548475"
+      },
+      "label": "replica_6",
+      "node": "h100",
+      "receipt": "/tmp/r17_formal/fa_co_f_f_o/server/replica_6.process.json",
+      "supervisor": {
+        "pgid": 1041406,
+        "pid": 1041406,
+        "start_ticks": "73548467"
+      }
+    },
+    {
+      "child": {
+        "pgid": 1041248,
+        "pid": 1041248,
+        "start_ticks": "73545168"
+      },
+      "label": "replica_5",
+      "node": "h100",
+      "receipt": "/tmp/r17_formal/fa_co_f_f_o/server/replica_5.process.json",
+      "supervisor": {
+        "pgid": 1041247,
+        "pid": 1041247,
+        "start_ticks": "73545159"
+      }
+    },
+    {
+      "child": {
+        "pgid": 1041133,
+        "pid": 1041133,
+        "start_ticks": "73541877"
+      },
+      "label": "replica_4",
+      "node": "h100",
+      "receipt": "/tmp/r17_formal/fa_co_f_f_o/server/replica_4.process.json",
+      "supervisor": {
+        "pgid": 1041132,
+        "pid": 1041132,
+        "start_ticks": "73541869"
+      }
+    },
+    {
+      "child": {
+        "pgid": 1040973,
+        "pid": 1040973,
+        "start_ticks": "73538508"
+      },
+      "label": "replica_3",
+      "node": "h100",
+      "receipt": "/tmp/r17_formal/fa_co_f_f_o/server/replica_3.process.json",
+      "supervisor": {
+        "pgid": 1040972,
+        "pid": 1040972,
+        "start_ticks": "73538499"
+      }
+    },
+    {
+      "child": {
+        "pgid": 1040830,
+        "pid": 1040830,
+        "start_ticks": "73535397"
+      },
+      "label": "replica_2",
+      "node": "h100",
+      "receipt": "/tmp/r17_formal/fa_co_f_f_o/server/replica_2.process.json",
+      "supervisor": {
+        "pgid": 1040829,
+        "pid": 1040829,
+        "start_ticks": "73535388"
+      }
+    },
+    {
+      "child": {
+        "pgid": 1040688,
+        "pid": 1040688,
+        "start_ticks": "73532284"
+      },
+      "label": "replica_1",
+      "node": "h100",
+      "receipt": "/tmp/r17_formal/fa_co_f_f_o/server/replica_1.process.json",
+      "supervisor": {
+        "pgid": 1040687,
+        "pid": 1040687,
+        "start_ticks": "73532276"
+      }
+    },
+    {
+      "child": {
+        "pgid": 1040587,
+        "pid": 1040587,
+        "start_ticks": "73529107"
+      },
+      "label": "replica_0",
+      "node": "h100",
+      "receipt": "/tmp/r17_formal/fa_co_f_f_o/server/replica_0.process.json",
+      "supervisor": {
+        "pgid": 1040586,
+        "pid": 1040586,
+        "start_ticks": "73529098"
+      }
+    },
+    {
+      "child": {
+        "pgid": 193745,
+        "pid": 193745,
+        "start_ticks": "71740769"
+      },
+      "label": "workers",
+      "node": "local",
+      "receipt": "/tmp/r17_formal/fa_co_f_f_o/local/workers.process.json",
+      "supervisor": {
+        "pgid": 193744,
+        "pid": 193744,
+        "start_ticks": "71740765"
+      }
+    },
+    {
+      "child": {
+        "pgid": 1643979,
+        "pid": 1643979,
+        "start_ticks": "9660920"
+      },
+      "label": "workers",
+      "node": "timan1",
+      "receipt": "/scratch/zixuans8/mw_r17/formal/stage/fa_co_f_f_o/timan1/workers.process.json",
+      "supervisor": {
+        "pgid": 1643978,
+        "pid": 1643978,
+        "start_ticks": "9660914"
+      }
+    },
+    {
+      "child": {
+        "pgid": 711986,
+        "pid": 711986,
+        "start_ticks": "27643551"
+      },
+      "label": "workers",
+      "node": "timan107",
+      "receipt": "/tmp/r17_formal/fa_co_f_f_o/timan107/workers.process.json",
+      "supervisor": {
+        "pgid": 711961,
+        "pid": 711961,
+        "start_ticks": "27643540"
+      }
+    },
+    {
+      "child": {
+        "pgid": 1040558,
+        "pid": 1040558,
+        "start_ticks": "73528862"
+      },
+      "label": "mps_guard",
+      "node": "h100",
+      "receipt": "/tmp/r17_formal/fa_co_f_f_o/server/mps_guard.process.json",
+      "supervisor": {
+        "pgid": 1040557,
+        "pid": 1040557,
+        "start_ticks": "73528853"
+      }
+    },
+    {
+      "label": "driver",
+      "node": "local",
+      "pgid": 224411,
+      "pid": 224411,
+      "start_ticks": "71768085"
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "status": "PASS",
+  "run": "/data/mw_finetune/eval/ffk1015_dp_libero_full_test01",
+  "episodes": 700,
+  "groups": 14,
+  "cells": 10,
+  "run_archive": "/data/mw_finetune/eval/bad_assets_1016_ffk1015_dp_libero_full_test01",
+  "changed_files": [
+    "assets/CACHE_STUDY.json",
+    "assets/cache_inputs/manifest.json"
+  ],
+  "added_files": [
+    "assets/cache_inputs/libero_10/n300_C10/fit/READY.json",
+    "assets/cache_inputs/libero_10/n300_C10/fit/fit.npz",
+    "assets/cache_inputs/libero_10/n300_C10/stall/READY.json",
+    "assets/cache_inputs/libero_10/n300_C10/stall/stall.json",
+    "assets/cache_inputs/libero_10/n300_C10/stall/stall.loeo.csv",
+    "assets/cache_inputs/libero_10/n300_C10/stall/stall.pkl",
+    "assets/cache_inputs/libero_10/parent/subsets/size_300/VIEW.json",
+    "assets/cache_inputs/libero_10/parent/subsets/size_300/row_indices.npy",
+    "assets/cache_inputs/libero_spatial/n100_C10/fit/READY.json",
+    "assets/cache_inputs/libero_spatial/n100_C10/fit/fit.npz",
+    "assets/cache_inputs/libero_spatial/n100_C10/stall/READY.json",
+    "assets/cache_inputs/libero_spatial/n100_C10/stall/stall.json",
+    "assets/cache_inputs/libero_spatial/n100_C10/stall/stall.loeo.csv",
+    "assets/cache_inputs/libero_spatial/n100_C10/stall/stall.pkl",
+    "assets/cache_inputs/libero_spatial/n300_C10/fit/READY.json",
+    "assets/cache_inputs/libero_spatial/n300_C10/fit/fit.npz",
+    "assets/cache_inputs/libero_spatial/n300_C10/stall/READY.json",
+    "assets/cache_inputs/libero_spatial/n300_C10/stall/stall.json",
+    "assets/cache_inputs/libero_spatial/n300_C10/stall/stall.loeo.csv",
+    "assets/cache_inputs/libero_spatial/n300_C10/stall/stall.pkl",
+    "assets/cache_inputs/libero_spatial/n500_C10/fit/READY.json",
+    "assets/cache_inputs/libero_spatial/n500_C10/fit/fit.npz",
+    "assets/cache_inputs/libero_spatial/n500_C10/stall/READY.json",
+    "assets/cache_inputs/libero_spatial/n500_C10/stall/stall.json",
+    "assets/cache_inputs/libero_spatial/n500_C10/stall/stall.loeo.csv",
+    "assets/cache_inputs/libero_spatial/n500_C10/stall/stall.pkl",
+    "assets/cache_inputs/libero_spatial/parent/subsets/size_100/VIEW.json",
+    "assets/cache_inputs/libero_spatial/parent/subsets/size_100/row_indices.npy",
+    "assets/cache_inputs/libero_spatial/parent/subsets/size_300/VIEW.json",
+    "assets/cache_inputs/libero_spatial/parent/subsets/size_300/row_indices.npy",
+    "assets/cache_inputs/libero_spatial/parent/subsets/size_500/VIEW.json",
+    "assets/cache_inputs/libero_spatial/parent/subsets/size_500/row_indices.npy"
+  ],
+  "removed_files": [],
+  "added_cells": [
+    {
+      "suite": "libero_10",
+      "size": 300
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 100
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 300
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 500
+    }
+  ],
+  "campaign_byte_identical": true,
+  "episode_plan_byte_identical": true,
+  "runtime_worker_archives_byte_identical": true,
+  "recipes_and_candidate_selection_byte_identical": true,
+  "all_input_pins_verified": true,
+  "manifest_and_seal_digests_verified": true,
+  "queued_reduced_unchanged": true,
+  "servers_started": false,
+  "workers_started": false,
+  "prepare_performed": false,
+  "startup": "PASS",
+  "startup_groups": 14,
+  "startup_equals_source_actual": true,
+  "cuda_initialized": false,
+  "code_sha256": {
+    "build.py": "488e83a8a84f19d11c3c6ca8602bb755a9dcc810800be15311bc42dad3466afc",
+    "workflow.py": "093241d402156a4e8f98e3bcd5a50afb0c5f5486f6c540b2ef3cbcb4c8c66725",
+    "test_raise_assets.py": "4edc9f5a6d13880f3b9a9b8ee5a25d46c6ac61fd0c48d4f577793581848f9cc0"
+  },
+  "targeted_test": "1 passed"
+}

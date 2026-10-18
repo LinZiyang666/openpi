@@ -1,5 +1,55 @@
 # Filter-failed full-system knob ablation — 2026-10-15
 
+2026-10-17 18:5x: [Continuation prepare and shared legacy fleets](formal_a_1016/prepare_1017_185x/HANDBACK.md).
+Both native parent-closure probes now pass through stage's GPU2 wrappers.
+Cosmos prepare will freeze 3,015 remaining UIDs; Fast-WAM retains 13,190.
+Future R15/R16 formal-A launches use scoped worker locks and measured capacity,
+so an unrelated timan107 fleet's host lock does not block them. The linked
+handback gives the unchanged command pairs and H100 re-queue order.
+
+2026-10-17 18:3x: [Control-probe UNKNOWN policy and replacement continuations](formal_a_1016/probe_1017/HANDBACK.md).
+Worker status uses 90 seconds; UNKNOWN is retained for five minutes and reset
+on successful status. Fast-WAM source closure is proved; `fa_fw_r_u_lc1` now
+contains 13,190 episodes and supersedes the archived six-episode draft.
+`fa_co_f_f_oc1` has a 3,333-episode draft; prepare freezes its final remaining
+UIDs after the coordinator stops the still-running source through native cleanup.
+
+2026-10-17 15:3x: [4090 server reservation and infra-error continuation](formal_a_1016/infra_1017/HANDBACK.md).
+The local probe now reserves the sealed whole-server budget. The six-episode
+`fa_fw_r_u_lc1` draft is registered and awaits its parent's closure before
+prepare. Infra errors remain missing until valid continuation outcomes arrive;
+25 other completed formal-A lanes/cells have none of these errors. See the
+dated per-campaign capacity table and exact commands in that handback.
+
+2026-10-17 09:4x: [H100 asset staging repair and remaining queue](formal_a_1016/h100_assets_1017/HANDBACK.md).
+H100 preparation now mirrors the sealed assets at both the pinned recipe address
+and the short `local_assets` address. Original Fast-WAM full off was reset and
+prepared successfully; read-only H100 checks pass for 334 asset hashes and 77
+referenced inputs. Filtered full off still needs the remote rename-only reset
+exception described in that handback. No scientific inputs were rebuilt.
+
+2026-10-17: all formal-A launch units now use short `fa_` names. The
+[current handback](formal_a_1016/short_names_1017/HANDBACK.md),
+[NAME_MAP.json](formal_a_1016/NAME_MAP.json), and regenerated GPU order lists
+supersede earlier naming/count snapshots below. All 90 built/potential native
+paths and startup identities pass CPU checks. The failed Cosmos run is
+UNSTAGED and rebuilt as `fa_co_r_u_l`; π0.5's 500-episode pure_l10 replacement
+is `fa_pi_f_p10` (never merge the unreachable old outcomes). Running chains
+and old command files remain unchanged; R15/R16 host selection is retained.
+
+## Queue revision — coordinator review, 2026-10-16
+
+The active [queue handback](formal_a_1016/HANDBACK.md) supersedes the earlier
+full-grid instructions. Two 500-episode π0.5 H100 pure-A references are authorized
+and registered; the hold is released. Off-qualified cells are removed before
+dispatch. Full modes run off first, then build only non-qualifying cells.
+There are 34 chain NAMEs with parent-directory prepare/launch aliases: 133,950
+episodes built and at most 352,000 deferred. Source off data is still incomplete
+for Cosmos, filtered GR00T and the original reduced VLA partial cells; exact
+dependencies and off-completion jobs are in the handback. R17 fleets now include
+timan1 GPU2 (cap83) and multiple worker machines. Existing queues are untouched.
+
+
 CPU preparation only. The coordinator stages and launches every campaign. No
 server, worker, driver, chain, GPU operation, package installation, commit, or
 remote write was performed here. Existing `ff1015_*` runs, their definitions,
@@ -16,6 +66,36 @@ restored. `LAUNCHED_RUN_AUDIT.json` records the change. Its last inspected recei
 was `PENDING_EVIDENCE`, with owned processes closed and GPU released; that is
 not a claim of scientific completion. The native launcher itself updated
 `EPISODE_PLAN.json` at 21:44:53, before the later bootstrap freeze.
+
+## Formal design (owner ruling)
+
+- No development set for IR knob tuning on any benchmark. The cache library is
+  built from the development pool (LIBERO B pool, MetaWorld seed 8), so tuning
+  on it means tuning on the library's own data.
+- The per-task IR knob is descended directly on the test set: LIBERO uses the
+  whole test set A (500 episodes per suite = 10 tasks × 50 initial states,
+  indices 0–49); MetaWorld MT50 uses seed 7 (50 tasks × 50 initial states).
+- For every task, measure the levels on the test set from the most expensive
+  level downwards, 50 episodes per task per level. A level passes when it has at
+  most 2 fewer successes than same-step-count pure inference on the same GPU and
+  the same initial states (integer comparison). The first failing level freezes
+  the previous level. The reference is always same-step-count pure inference
+  (reduced-step knob vs reduced-step pure inference, full-step vs full-step).
+- Library cells whose complete system with the knob off (stall gate only)
+  already reaches the same-step pure-inference success rate are not tuned; they
+  use that knob-off result.
+- All earlier LIBERO knob results that chose levels on a development set (then
+  tested or raised on test set A) are withdrawn and are being deleted and re-run
+  under this design: original and success-filtered libraries, all models (DP,
+  Fast-WAM, Cosmos, π0.5, GR00T), full and reduced steps. MetaWorld knob results
+  already followed this design and stay valid.
+
+In this handback the MT50 path already follows the formal design. Every LIBERO
+dev-set step below (R17 B inits 0–29 dev campaigns and `workflow descent`, the
+A `build-test`/`test` raise generations, the R16 `vla.sh dev` waves, `freeze`
+and `test` raise loop, and the R15 full-step dev roots) is withdrawn: do not
+prepare or launch it. Knob-off A campaigns remain valid, because they decide
+which cells need no tuning under the formal design.
 
 ## Method and serving inputs
 
@@ -75,11 +155,11 @@ pricing. No target is recalibrated after filtering.
   The workflow supplies these to the unchanged `descent.py --control` path.
   Other references retain the source defaults. Fast-WAM reduced's unfiltered
   result can remain pending until `fwmk1_redx` finishes.
-* R17 LIBERO retains B inits 0–29 with LOEO and the 5 pp first-failure ladder.
-  Full-step teacher references include failed teacher episodes. Reduced pure-B
-  references are loaded only from the original unfiltered pure arms; cache
-  outcomes from those lanes are never merged into filtered dev results.
-  A tests retain official 50-per-task cohorts and the original raise rule.
+* R17 LIBERO was prepared here with B inits 0–29, LOEO, the 5 pp first-failure
+  ladder and the A raise rule; that dev-set procedure is withdrawn. Under the
+  formal design the filtered LIBERO knob is descended directly on test set A,
+  50 episodes per task per level, with at most 2 fewer successes than
+  same-step pure inference on the same GPU and A initial states.
   Cosmos keeps the source's literal `crg_*` names: `cache_study.full_group`
   selects `crg` because its native horizon is already 16; `chrg` is the alias
   with the same corrector, Q3 gate and C16 settings.
@@ -94,17 +174,18 @@ pricing. No target is recalibrated after filtering.
   guessing which cells satisfy the no-knob rule. A fresh filtered dev inventory
   needs at most five waves (ir45, ir40, ir32, ir25, off), whereas the old
   supplement needed at most four because it reused already measured cache levels.
-* **Pending owner choice: LIBERO π0.5/GR00T full steps.** R14 size-50's original
-  release audit fails on current code. Four closure hashes differ (`devset.py`,
-  `ops/h100/assets.py`, `plugin.py`, `worker_pool.py`); R15's runtime manifest has
-  zero mismatches. The 12 R14 analyzer tests pass, which does not restore that
-  release. Evidence: `VLA_FULL_COMPATIBILITY.json`, `r14_release_check.log`.
-  Proposed alternative: the sealed R16 conductor with full K10/K4, 4090 servers,
-  timan107 workers, with both unfiltered and filtered arms for all 16 cells.
-  Reuse pure references only where serving environment and identities match;
-  otherwise rerun them once for both arms. Upper bound before raises: 80,000
-  library-dependent episodes plus up to 4,400 shared pure-reference episodes.
-  **This alternative has not been built.**
+  These dev waves are withdrawn under the formal design; only the knob-off A
+  result is kept.
+* **Decided 2026-10-16: LIBERO π0.5/GR00T full steps use R15.** Filtered arms
+  cover 50/100/200/500; no unfiltered knob arms are rerun. Size 50 compares
+  with existing R14, explicitly crossing R14→R15; sizes 100/200/500 compare
+  with existing R15 results. Size 50 uses existing
+  R13 catalog artifacts through R15's unchanged size-agnostic serving code.
+  The R16 full-step alternative has not been built. Commands, counts and
+  CPU evidence: [R15 full-step handback](vla_full_r15/HANDBACK.md).
+  Withdrawn under the formal design: R14/R15 chose levels on B-pool dev
+  inits, so their results are withdrawn and the R15 full-step dev roots are
+  not to be launched.
 * **Pending owner interpretation: terminal pure deficits.** The brief says
   “until all pass”; the source `test.raised_level` and k1ref `raise_level` stop
   raising an already-pure task even when it remains below tolerance. The source
@@ -219,7 +300,9 @@ done
 # Repeat with --mode full after those campaigns complete.
 ```
 
-R17 LIBERO: run the new off A campaigns and the dev campaigns in the resource
+R17 LIBERO, **withdrawn under the formal design** (record only; do not run the
+dev campaigns, B descent or raise generations below; the off A campaigns stay
+valid): run the new off A campaigns and the dev campaigns in the resource
 order below. After a model/mode's dev and any required off A finish:
 
 ```bash
@@ -257,7 +340,9 @@ raise loop; reproduce that source phase with a fresh analysis generation:
 # If it raises tasks, build the following generation and follow stage/launch/test.
 ```
 
-R16 π0.5/GR00T reduced:
+R16 π0.5/GR00T reduced (the off A commands stay valid; the dev waves, `freeze`
+and the `test` raise loop are **withdrawn under the formal design** and must not
+be run):
 
 ```bash
 # Off A is already defined: 4,000 per model, not the old supplement's 3,550 total.
@@ -321,6 +406,8 @@ lane and must all finish before its descent analysis.
 Apply the same node/port conflict rule to the existing live `ff1015_*` and
 unfiltered lanes; this preparation does not reserve or stop any fleet.
 
+The LIBERO dev, frozen-A and raise counts in this section belong to the
+withdrawn dev-set procedure; formal-design LIBERO runs are counted afresh.
 Future stages: each R17 LIBERO model/mode has at most 6,000 initial A simulations,
 less whole-cell no-knob reuse; each raise is 50 times its raised-task count.
 R16 has at most 2,400 dev episodes per model per wave (five waves), at most 4,000
@@ -451,3 +538,157 @@ Read-only native closure checks passed on the coordinator, H100, timan107 and
 timan108; the original FAIL receipt is preserved. Workflow and analysis resolve
 the registered continuation automatically. Exact prepare/launch/descent commands
 and CPU coverage proofs: [continuation handback](continuation_checks_1016/HANDBACK.md).
+
+## 2026-10-16 LIBERO VLA full steps on R15
+
+The owner's corrected R15 decision is implemented under `vla_full_r15/`: only
+16 filtered knob cells at 50/100/200/500. The four never-launched size-50 control
+definitions, fit copies and script entries were removed before staging.
+The original R15 100/200/500 results remain the baselines for those sizes.
+Size 50 compares with the existing R14 result; JSON and reporting explicitly
+label that comparison **R14→R15, across pipelines**. Size 50 is
+expressed by a configuration/catalog extension using existing fits; serving
+method code is unchanged. No R16 full-step alternative was built.
+
+There are 24,000 B dev episodes in five waves (2,400/model/wave), then 16,000 A episodes through
+R15's uniform/per-task emitter. R15 has no A raise loop. Two additional π0.5
+pure-A arms add 1,000 episodes: the archived R15 π0.5 A pure references actually
+ran on the 4090, while its cache cells ran on H100. Matching GR00T A references
+and all four B references are reused unchanged. These two pure-inference
+references are separate from knob arms. Total new simulations: **41,000**
+(π0.5 21,000; GR00T 20,000), 10,000 fewer after removing the controls.
+
+π0.5 uses H100/timan108 (39–40 workers); GR00T uses 4090/timan107 (48–64), with
+the actual source arm's server/worker counts retained. No timan1 is used.
+CPU checks pass: 114 native startup identity rows, 34 native plans, 24 keep-all
+source-fit replays, actual serving-interpreter probes, and five targeted tests.
+Exact stage commands, counts and provenance: [R15 handback](vla_full_r15/HANDBACK.md).
+
+## 2026-10-16 raise-template cache input completion
+
+`workflow build-test` now passes its model/mode's official-A `TEST_SOURCE` to
+the builder. For a separate raise template, the builder verifies the actual
+bytes and manifest pins of all overlapping cache inputs, then copies only
+missing inputs needed by the selected cells (view, fit, stall and parent
+metadata). It extends the existing input inventory before the normal manifest
+and study sealing steps. Runtime, worker archive, serving release, topology,
+level caps and the in-memory candidate filter are unchanged. A missing or
+different official-A input stops the build.
+
+All 18 existing source raise templates were inspected. All six model/modes
+have sparse templates; actual overlapping bytes match their official-A source.
+First-round omissions, out of 12 official-A cells:
+
+| Model | Full R1 omitted cells | Reduced R1 omitted cells |
+|---|---:|---:|
+| DP | 5 | 6 |
+| Fast-WAM | 3 | 3 |
+| Cosmos | 1 | 1 |
+
+Later raise templates are sparse too; per-template counts and byte checks are
+in [SOURCE_AUDIT.json](raise_assets_1016/SOURCE_AUDIT.json).
+
+Only `ffk1015_dp_libero_full_test01` was rebuilt, from the same
+`results/dp_libero_full/test00/raise.json`: **700 episodes / 14 groups / 10 cells**,
+RTX 4090, R4, local × 48 workers. Its frozen CPU startup passes, including native
+DP admission and all 14 recipes, with identity equal to the source's actual
+ready records and no CUDA initialization. Four missing cells were completed:
+libero_spatial 100/300/500 and libero_10 300. Exactly 32 input files were added;
+only `assets/cache_inputs/manifest.json` and `assets/CACHE_STUDY.json` changed
+among existing files. The campaign and episode plan remain byte-identical.
+
+The old directory was renamed to
+`/data/mw_finetune/eval/bad_assets_1016_ffk1015_dp_libero_full_test01` (outside
+the workflow's test-lane glob). The failed startup receipt was renamed to
+`startup_checks/ffk1015_dp_libero_full_test01.bad_assets_1016.json`. Neither was
+deleted. [RENAMED.json](raise_assets_1016/RENAMED.json) and
+[REBUILD.json](raise_assets_1016/REBUILD.json) retain the hashes and comparisons.
+
+Queued `ffk1015_dp_libero_reduced_test01` was not rebuilt, prepared or modified.
+The current raise table matches its selected tasks. With writes blocked, the
+new completion step is an exact no-op for its two size-50 cells; reconstructing
+the native input manifest and study seal produces the existing bytes. All 78
+queued run files and its startup receipt retain their original hashes. See
+[REDUCED_UNCHANGED.json](raise_assets_1016/REDUCED_UNCHANGED.json).
+
+One targeted regression test passes:
+
+```bash
+cd /home/weiland/projects/openpi
+env CUDA_VISIBLE_DEVICES= JAX_PLATFORMS=cpu PYTHONDONTWRITEBYTECODE=1 \
+  OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONPATH=.:src \
+  .venv/bin/python -m pytest -q exp/offline_search/rounds/r17/filter_failed_knob/test_raise_assets.py
+```
+
+The rebuilt full run is ready for coordinator preparation and launch. No
+preparation, server, worker, driver or chain was started for this repair:
+
+```bash
+cd /home/weiland/projects/openpi
+RUN=/data/mw_finetune/eval/ffk1015_dp_libero_full_test01
+M=exp.offline_search.rounds.r17.filter_failed_knob
+env CUDA_VISIBLE_DEVICES= JAX_PLATFORMS=cpu PYTHONDONTWRITEBYTECODE=1 \
+  OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONPATH=.:src \
+  .venv/bin/python -m "$M.stage" --run "$RUN"
+env -u CUDA_VISIBLE_DEVICES -u JAX_PLATFORMS PYTHONDONTWRITEBYTECODE=1 \
+  OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONPATH=.:src \
+  .venv/bin/python -m "$M.launch" --run "$RUN"
+```
+
+## Superseded full-grid draft — 2026-10-16
+
+Both library arms now have independent, fixed-level test-A grids; no dev outcomes
+are read and no dev-chosen levels select tasks or levels. Per-task first failure uses a ≤2-success deficit versus same-step
+pure A on the same GPU; a qualifying complete off cell is reported directly.
+The active [handback](../filter_failed_knob/formal_a_1016/HANDBACK.md) and
+[48-job inventory](../filter_failed_knob/formal_a_1016/CAMPAIGNS.json) supersede
+the historical LIBERO dev/test/raise commands below or above. They define
+544,450 new episodes and reuse standalone off/pure references. π0.5 full is
+on hold for a matching existing H100 pure-A reference; five source timing
+profiles remain unavailable after outcome cleanup. Do not rebuild queued or
+launched runs. Entry point:
+
+```bash
+env CUDA_VISIBLE_DEVICES= JAX_PLATFORMS=cpu PYTHONPATH=.:src .venv/bin/python \
+  -m exp.offline_search.rounds.r17.filter_failed_knob.formal_a analyze
+```
+
+## Decision-head clock withdrawal and rerun — 2026-10-18
+
+The [long-segment handback](../longseg_1017/HANDBACK.md) supersedes the
+withdrawn R17 DP/Fast-WAM LIBERO and DP/GR00T/Fast-WAM MetaWorld outcomes
+and queue entries. A decision now consists of one segment head and all its
+tails; recipe, knob, stall, corrector and RNG clocks advance only on heads.
+The initial no-recalibration handback is superseded by the owner ruling below.
+Cosmos, π0.5 and legacy VLA pipelines remain unchanged. See the handback for the
+complete sampled audit, rename-only backup manifest, fresh definitions,
+matching pure references and the two replacement queue lists.
+
+`knobsmokedp1355` is backup only, with no rerun. The Fast-WAM MetaWorld
+cache-variant replacement is `fa_ls_v02_s` (R3, sizes 250/500/1000) plus
+`fa_ls_v02_b` (R2, sizes 1500/2000/2500), 60,000 episodes each. Additive
+`fa_ls_*` prepare/launch wrappers exist in `filter_failed_knob/commands`.
+Do not dispatch withdrawn names still present in old queues. New LIBERO
+levels are built only from the new off results and same-step test-A pure
+references; neither old off results nor development-chosen levels are used.
+
+## Owner decision-clock recalibration — 2026-10-18
+
+[RECALIBRATION.md](../longseg_1017/RECALIBRATION.md) is the current calibration
+handback: 840 potential level definitions and 42 C10 Q3 artifacts. Level IR is
+M/N over segment heads, absolute tolerance .005; latency-weighted IR remains
+separate. Both prediction and level-result analysis exclude tails. Two
+original-library DP spatial size-100 k10 entries (full/reduced) have the
+confirmed-Q3 call floor 134/1265 = .105928854 and remain explicitly outside
+tolerance; no target or Q3 rule is relaxed.
+
+Q3 reproduces the original successful-library LOEO q90 residual/q10 advance
+procedure on decision sequences with the same reference/window constants.
+C5 artifacts stay unchanged. New C10 artifacts end `_decision1018` beside the
+old files, with per-campaign aliases under `assets/q3_decision1018` for H100
+metadata staging. Retrieval metrics/PCA/whitening and correctors are unchanged.
+Only never-prepared dependent definitions are regenerated in place; UIDs,
+inits, seeds and serving topology are preserved. Eight deferred level units
+apply the new inputs after their new OFF results. Prepare/launch NAMEs are
+unchanged. The coordinator's live queues and recalibration release gate are
+authoritative; this work does not release or launch anything.

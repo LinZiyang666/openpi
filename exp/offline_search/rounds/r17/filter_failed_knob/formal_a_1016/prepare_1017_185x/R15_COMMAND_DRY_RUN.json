@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "argv": [
+    "/home/weiland/projects/openpi/.venv/bin/python",
+    "-m",
+    "exp.offline_search.rounds.r17.filter_failed.legacy",
+    "sync",
+    "--concurrent",
+    "/data/mw_finetune/eval/fa_pi_f_u_o_l50",
+    "ffk1015_pi05_libero_full_formal_A_original_off_pi05_l10_50_off"
+  ],
+  "execution": {
+    "WORKER_HOST": "timan107",
+    "SERVER_HOST": "h100",
+    "PORTS": "23230,23231,23232",
+    "WPS": "13",
+    "FFK_WORKER_FLEET_ROOT": "/data/mw_finetune/eval/fa_pi_f_u_o_l50"
+  },
+  "executed": false
+}

@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "destinations": [
+    "/data/mw_finetune/eval/ffk1015_fastwam_libero_full_formal_A_original_off/assets",
+    "/data/mw_finetune/eval/fa_fw_f_u_o/assets"
+  ],
+  "files_per_tree": 167,
+  "hashes_checked": 334,
+  "referenced_paths": 77,
+  "errors": [],
+  "run": "/data/mw_finetune/eval/fa_fw_f_u_o",
+  "cpu_only": true,
+  "remote_read_only": true
+}

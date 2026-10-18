@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd /home/weiland/projects/openpi
+bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/commands/launch_ffk1015_groot_libero_full_formal_A_filtered_groot_l10_50.sh
+bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/commands/launch_ffk1015_groot_libero_full_formal_A_filtered_groot_l10_100.sh
+bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/commands/launch_ffk1015_groot_libero_full_formal_A_filtered_groot_l10_200.sh
+bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/commands/launch_ffk1015_groot_libero_full_formal_A_filtered_groot_l10_500.sh
+bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/commands/launch_ffk1015_groot_libero_full_formal_A_filtered_groot_spatial_50.sh
+bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/commands/launch_ffk1015_groot_libero_full_formal_A_filtered_groot_spatial_100.sh
+bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/commands/launch_ffk1015_groot_libero_full_formal_A_filtered_groot_spatial_200.sh
+bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/commands/launch_ffk1015_groot_libero_full_formal_A_filtered_groot_spatial_500.sh

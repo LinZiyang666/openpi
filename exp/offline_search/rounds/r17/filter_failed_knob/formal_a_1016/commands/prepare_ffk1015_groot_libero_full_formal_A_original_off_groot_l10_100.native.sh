@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd /home/weiland/projects/openpi
+env CUDA_VISIBLE_DEVICES= JAX_PLATFORMS=cpu SERVER_HOST=local WORKER_HOST=timan107 PORTS=23100,23101,23102,23103 WPS=16 LOCAL_SERVER_COUNT=4 OMP=1 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONDONTWRITEBYTECODE=1 STAGE1_ONLY=0 STOCK=0 NEED_MB=6800 SYNC_PORT=23195 MAX_ATTEMPTS=3 POLL_SECONDS=60 PYTHONPATH=.:src .venv/bin/python -m exp.offline_search.rounds.r17.filter_failed.legacy sync --concurrent /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/queue/ffk1015_groot_libero_full_formal_A_original_off/ffk1015_groot_libero_full_formal_A_original_off_groot_l10_100 ffk1015_groot_libero_full_formal_A_original_off_groot_l10_100_off

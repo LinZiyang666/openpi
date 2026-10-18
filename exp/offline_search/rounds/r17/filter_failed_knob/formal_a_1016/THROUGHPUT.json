@@ -1,0 +1,65 @@
+{
+  "rows": [
+    {
+      "model": "dp",
+      "mode": "full",
+      "source": "knobtestdp",
+      "episodes": 6000,
+      "start": 1791770732.3028562,
+      "end": "2026-10-12T03:52:51.588701+00:00",
+      "seconds": 6439.285844802856,
+      "episodes_per_hour": 3354.409249813525,
+      "authority": "LAUNCH.started / RECEIPT.sealed_at / driver_completion.accepted_episodes captured before parallel cleanup; no SR/journal/step/result reads",
+      "includes_startup_cleanup": true
+    },
+    {
+      "model": "dp",
+      "mode": "reduced",
+      "source": "knobtestdp_red",
+      "episodes": 6000,
+      "start": 1791795676.4692025,
+      "end": "2026-10-12T10:26:41.861409+00:00",
+      "seconds": 5125.392206430435,
+      "episodes_per_hour": 4214.311633146853,
+      "authority": "LAUNCH.started / RECEIPT.sealed_at / driver_completion.accepted_episodes captured before parallel cleanup; no SR/journal/step/result reads",
+      "includes_startup_cleanup": true
+    },
+    {
+      "model": "fastwam",
+      "mode": "reduced",
+      "source": "knobtestfw_red",
+      "episodes": 6000,
+      "start": 1791845103.259384,
+      "end": "2026-10-13T00:34:34.407201+00:00",
+      "seconds": 6571.147817134857,
+      "episodes_per_hour": 3287.0969579585567,
+      "authority": "LAUNCH.started / RECEIPT.sealed_at / driver_completion.accepted_episodes captured before parallel cleanup; no SR/journal/step/result reads",
+      "includes_startup_cleanup": true
+    },
+    {
+      "model": "cosmos",
+      "mode": "full",
+      "source": "knobtestcos2",
+      "episodes": 6000,
+      "start": 1791815501.6221957,
+      "end": "2026-10-12T17:11:55.161505+00:00",
+      "seconds": 9613.53930926323,
+      "episodes_per_hour": 2246.831193500929,
+      "authority": "LAUNCH.started / RECEIPT.sealed_at / driver_completion.accepted_episodes captured before parallel cleanup; no SR/journal/step/result reads",
+      "includes_startup_cleanup": true
+    },
+    {
+      "model": "cosmos",
+      "mode": "reduced",
+      "source": "knobtestcos_red",
+      "episodes": 6000,
+      "start": 1791847576.3512003,
+      "end": "2026-10-13T01:22:20.255644+00:00",
+      "seconds": 6963.904443740845,
+      "episodes_per_hour": 3101.7082693336024,
+      "authority": "LAUNCH.started / RECEIPT.sealed_at / driver_completion.accepted_episodes captured before parallel cleanup; no SR/journal/step/result reads",
+      "includes_startup_cleanup": true
+    }
+  ],
+  "captured_before_parallel_cleanup": true
+}

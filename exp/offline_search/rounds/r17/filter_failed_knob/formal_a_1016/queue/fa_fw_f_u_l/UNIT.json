@@ -1,0 +1,23 @@
+{
+  "name": "fa_fw_f_u_l",
+  "model": "fastwam",
+  "mode": "full",
+  "arm": "original",
+  "stage": "levels",
+  "gpu": "H100",
+  "replicas": 2,
+  "batch": 16,
+  "workers": {
+    "timan1": 35,
+    "timan107": 25,
+    "timan108": 25
+  },
+  "jobs": [],
+  "status": "WAITING_OFF",
+  "episodes": null,
+  "maximum_episodes": 30000,
+  "dependencies": [
+    "fa_fw_f_u_o"
+  ],
+  "renamed_from": "ffk1015_fastwam_libero_full_formal_A_original_levels"
+}
