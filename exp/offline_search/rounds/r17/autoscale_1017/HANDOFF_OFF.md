@@ -1,3 +1,5 @@
+13:09队列状态修正：FW已由链提前OFF启动，保持不动；正式动态验收改用授权GR fallback fa_ls_gr_f_p_m，见FORMAL_ACCEPTANCE.md。
+
 最新 ruling（2026-10-18 12:2x，覆盖旧side-lane段落）：4/8上限没有owner授权，已移除。只对正式 fa_ls_fw_f_p_m / fa_pi_f_u_l / fa_pi_f_f_l 提供 _dyn 包装器；全局OFF，现有链/包装器/运行目录不改。详见 [FORMAL_ACCEPTANCE.md](FORMAL_ACCEPTANCE.md)。过滤臂用原生journal续跑，不重置；107内存预算96GiB+非ledger峰值增长，10秒一个spawn，guard无需跳过任何动态campaign。
 
 当前交接：全局 OFF 已验证，普通队列使用原生路径。两个故障修复、物理 maxima 和共享账本公平分配已在工作树中，均处于 OFF 开关之后；只有 owner 的两条真实 lane 都 PASS 后才允许开启。
