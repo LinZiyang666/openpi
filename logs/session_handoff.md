@@ -58,6 +58,35 @@ owner 的常驻指令，逐字有效：
 
 ### ★★★★★★ 2026-10-14 14:55 CDT 总状态（compact 后最先读这一块；下面各「增量」块是细节，按时间倒序）
 
+### ★★★★★★★★★★★★★★★★★★★★ 2026-10-19 10:3x CDT 总状态（compact 后最先读这块；下面 02:0x、00:4x、22:0x… 是细节）
+
+**现在在跑（10:37）**
+| 服务机 | 链 | 当前 | 之后 |
+|---|---|---|---|
+| H100 | **ffk-h100m19**（已 hold，跑完当前即停）→ **ffk-h100m21**（等 `[ffk-h100m19] queue done`） | **fa_co_f_u_l**（原库 · Cosmos · LIBERO · 全步 · 各档，30,000，10:30 时 12,277，约 40 局/分，H100 GPU 100%） | h100m21：fa_ls_gr_r_f_m（成功过滤库 · GR00T · MetaWorld · 减步 · 旋钮下降，05:43 启动即失败已修已 reset）fa_co_f_f_l fa_ls_gr_r_u_m fa_ls_v03_0 fa_ls_v03_1 fa_ls_gr_f_f_m fa_ls_gr_f_u_m fa_ls_v05_1_rz fa_ls_v05_2_rz fa_ls_fw_f_u_m fa_ls_v02_b fa_ls_fw_f_f_l_l fa_ls_fw_f_u_l_l fa_ls_v08_1 fa_ls_fw_r_u_m fa_ls_fw_f_f_m fa_ls_fw_r_f_m fa_ls_v05_3 fa_ls_v05_4 fa_ls_v05_0 |
+| 4090 | **ffk-g4090o** → **ffk-g4090p**（等 `[ffk-g4090o] queue done`） | **fa_ls_fw_r_u_l_lc1**（原库 · Fast-WAM · LIBERO · 减步 · 各档 续跑；保留 11,341、剩 18,659；10:27 start；本机安全线 5 GB） | g4090o：fa_ls_dp_r_f_l_l fa_ls_dp_r_u_l_l fa_ls_fw_r_f_l_l fa_ls_dp_r_f_m fa_ls_dp_r_u_m fa_ls_v01_0 fa_ls_v10_0 fa_ls_v11_0 fa_ls_v12_0 fa_ls_v13_0 fa_ls_dp_f_f_o_l fa_ls_dp_f_u_o_l fa_ls_dp_f_f_l_l fa_ls_dp_f_u_l_l fa_ls_dp_f_f_m fa_ls_dp_f_u_m fa_ls_v04_0 fa_ls_v04_3 fa_ls_v06_0 fa_ls_v09_0 fa_ls_v09_1 fa_gr_f_u_l_dyn fa_gr_f_f_l_dyn；g4090p：fa_cs_pi_r fa_cs_gr_r（#135 无门四组） |
+| h100-temp | 停用（h100tmp14 STOPPED） | — | 机主 184.33.133.25 一直在线，自己的 humaneval 任务占 66 GB；01:56 外部 SIGTERM 了我们的 FW 服务。owner 未说可再用之前不碰。 |
+- **Cosmos fa_co_f_u_l 在线限流（10:33，未停服务）**：它在饱和的 H100 上占了 222 个 worker（每局 sim 26 s、等服务 139 s）。做法：在 `/data/mw_finetune/eval/fa_co_f_u_l/WORKER_NODE_STATE.json` 的 `retired` 加 `timan1`、`timan107`（备份 `WORKER_NODE_STATE.before_owner_cap_*.json`），driver 每轮读这个列表把两台目标设 0，worker 在局边界退出；保留 h100 33 + a100 ~14。后台 b4sh7gg05 10:44 报 drain 情况和 Cosmos 速度；**若 Cosmos 掉速明显，把 timan1 从 retired 删掉**。注意 launcher 的 worker_resilience 在 retire 事件时会重写这个文件。
+- 今天完成：成功过滤库 · Cosmos · LIBERO · 减步 · 各档（fa_co_r_f，30,000，lc1..lc8）；成功过滤库 · Fast-WAM · LIBERO · 全步 · 旋钮关（lc7 PASS）；原库 · Fast-WAM · LIBERO · 全步 · 旋钮关（6,000 PASS）；GR00T 全步旋钮关 16/16（s100 补齐）；DP 多批（MT50 纯推理参照 b_m/b_v/f_b_m、长执行段 p_m/f_p_l/f_p_m、LIBERO f_b_l、旋钮关 r_f_o_l/r_u_o_l 各 6,000）；FW r_f_o_l / r_u_o_l 各 6,000；fa_ls_v04_1/v04_2。
+
+**owner 今天新规矩（都已进记忆）**
+- ⛔ 加 worker / 放宽余量不准停正在跑的服务；worker 和 server 是独立进程，要动就只动 worker（停/限 worker 或改默认值等下一批）。4090 本机安全线 5 GB 是给 worker 的线：显存不够就停 worker，不停服务。
+- ⛔ 本机（4090 协调机）统计/扫描脚本必须 timeout + 限内存（10-18 一个统计脚本跑 8 h 吃 194 GB，拖慢全部）。
+- h100-temp（驱动 590.48）不放渲染 worker（Xid 31）；机主在用就不碰。
+
+**待 owner 定**
+1. **#182 π0.5/GR00T LIBERO 旋钮批次用的是旧停滞门（R8 noprog_span n=3 eps=.5 / --os-judge guard_only），不是 Q3**：选 A 移植 Q3 重标定重跑 / B 认可 / C 只报无门组。π0.5 全步各档两批（fa_pi_f_f_l_dyn fa_pi_f_u_l_dyn）已不在任何链里；GR00T 全步各档（fa_gr_f_u_l_dyn fa_gr_f_f_l_dyn）在 g4090o 末尾，轮到前未定就撤。
+2. h100-temp 还能不能用。
+3. #135 带门四组（等 #182）；cr 组 C5 沿用 C10 修正头只执行前 5 步；C5 无尾段服务首次上 GPU 要看 decisions。
+
+**自己的待办**
+- fa_ls_v02_s（成功过滤库 · Fast-WAM · MetaWorld · 减步 · 缓存变体 60,000，已收 2,942）续跑到 H100：源批次路由已 alias 到 h100-temp（execution_host/driver 23194/endpoint 149.165.172.126；verify-closed 会去 h100-temp 找 mps_guard.process.json）→ 用 alias env 做关闭证明，continuation 路由字段按 `campaign.json.before_alias_*` 还原、`source_closure_required_at_prepare` 置 False，再排进 H100 链。fa_ls_v07_0 也已 alias（未启动），去 alias 后排。
+- fa_ls_v14_0（原库 · DP · MetaWorld · 缓存研究重跑，8 局 8/8）RECEIPT FAIL：`native CPU evidence aggregate is incomplete`，补 finalize。
+- 每 25–30 分钟巡检；Monitor（链日志）到期重挂；报告用白话「库 · 模型 · benchmark · 全步/减步 · 阶段」。
+
+**今天的代码改动（全部已推 origin/Ziyang）**
+autoscale 调节器：无计时也计入接受局、按窗口均值判稳（8af60107）→ 删"只看速度往下试探"（429d4c28）→ server_queue 只看等待占比（dce695fe，服务端 service 已含排队，原条件永不成立）；4090 own-server 空闲时保底 28 GB（68a38759，owner 嫌多后只在无本机批次时生效）；H100 同机预留回 4 GB（5c80fd09）；h100-temp 不加 h100 节点（569b4a59）；filter_failed.resume 沿整条续跑链继承（5dc33427）；formal_runtime.check_pins 缺 pins 不报错（64fa219a）；longseg recalibrate 先建 longseg_1017 块（d84708ea）；longseg build.commands 原子替换脚本（f327c58c）；local_workers 安全线 16→5 GB（64456627）；R15 servers_up 等显存 15 min（ba665484）；formal_dynamic 删 require_legacy_idle。
+
 ### ★ 2026-10-19 02:0x 增补（最先读，再读下面 00:4x）
 - **h100-temp 01:56 被外部结束**：fa_ls_v02_s（成功过滤库 · Fast-WAM · MetaWorld · 减步 · 缓存变体，60,000 局，已收 2,942）三个服务副本 06:56:00Z 同时收到 SIGTERM 正常退出（exit 0，formal_server 的 SIGTERM→request_stop）；我方无任何 stop（FW 启动器只有 30 s 状态轮询，supervisor 无 stop_reason/cleanup，MPS 06:56:42 才由我方清理），supervisor 和 MPS 都没被杀，只结束了 nvidia-smi 能看到的 GPU 进程；机器主人 184.33.133.25 06:45Z 起在线（bash_history 有多次 nvidia-smi）。按规矩**不在 h100-temp 重跑**，已 PushNotification。链 h100tmp14 已 STOPPED（hold）。
 - h100-temp 余下未动批次接到 **ffk-h100m20**（等 `[ffk-h100m19] queue done`）：fa_ls_v02_b fa_ls_fw_f_f_l_l fa_ls_fw_f_u_l_l fa_ls_v08_1 fa_ls_fw_r_u_m fa_ls_fw_f_f_m fa_ls_fw_r_f_m fa_ls_v05_3 fa_ls_v05_4 fa_ls_v05_0（这些 campaign 本来就是 H100 路由或未建）。**待办**：fa_ls_v02_s（要从 v02_s 续跑，源批次路由已 alias 到 h100-temp：execution_host/driver 23194/endpoint 149.165.172.126，且 verify-closed 会去 h100-temp 找 mps_guard.process.json；需用 alias env 证明关闭、把 continuation 的路由字段按 `campaign.json.before_alias_*` 还原回 H100、并把 source_closure_required_at_prepare 置 False）和 fa_ls_v07_0（已 alias，未启动，按 longseg ports.execution_host 的说明 reset 后去掉 alias 字段）。
