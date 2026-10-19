@@ -118,7 +118,7 @@ ALIAS_ENV = ('R17_H100_NODE', 'R17_H100_HOST', 'R17_DRIVER_PORT')
 # reverse SSH tunnels to the H100, whose public ports public_port..public_port+R forward
 # to the same pod ports, so R17_H100_HOST is the H100's IP (149.165.153.233).
 POD_BASE = '/home/ziyang10/zl_r17'
-POD_PROFILES = {'jupyter-ziyang10': dict(public_port=23470), 'jupyter-ziyang10-02': dict(public_port=23472)}
+POD_PROFILES = {'jupyter-ziyang10': dict(public_port=23470), 'jupyter-ziyang10-02': dict(public_port=23474)}  # +R backends each
 
 
 def h100_alias():

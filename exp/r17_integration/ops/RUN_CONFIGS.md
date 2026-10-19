@@ -732,8 +732,9 @@ about 1/8 of an H100), 32 GiB container RAM, 16 cores, no root, no `/data`, no p
   `permitlisten 127.0.0.1:2447x`) plus `~/zl_tunnel/fwd.py` on the H100 forward H100 public port P to the
   same port P on the pod. Each pod needs its public port and every backend port forwarded (R1: 2 ports),
   because the launcher checks each backend from weilandserver. `wait_port` treats an immediately
-  closed tunnel connection as not ready. Profiles: `jupyter-ziyang10` P=23470 (+23471),
-  `jupyter-ziyang10-02` P=23472 (+23473, not yet permitted on the H100). Drivers: 23191 / 23192.
+  closed tunnel connection as not ready. Profiles: `jupyter-ziyang10` P=23470 (backends 23471, 23472
+  for R2), `jupyter-ziyang10-02` P=23474 (23475, 23476). The H100 key permits local ports 24470/24471
+  only (pod 1, R1); R2 or pod 2 needs more `permitlisten` entries. Drivers: 23191 / 23192.
 - **GPU checks.** `nvidia-smi --query-*` prints `[Insufficient Permissions]` on the slice; those rows are
   skipped (GPU_MEMORY.json records 0). Plain `nvidia-smi` shows the slice's used MiB in its MIG table.
 - **MPS works on the slice** (private pipe dir; `get_server_list` shows the server; quits cleanly).
