@@ -58,6 +58,19 @@ owner 的常驻指令，逐字有效：
 
 ### ★★★★★★ 2026-10-14 14:55 CDT 总状态（compact 后最先读这一块；下面各「增量」块是细节，按时间倒序）
 
+### ★★★★★★★★★★★★★★★★★ 2026-10-18 21:3x CDT 总状态（compact 后最先读这块；它取代下面 21:0x 块里的「现在在跑」表，其余规矩/基础设施/续跑流程仍以 21:0x 块为准）
+
+**现在在跑（21:34）**
+| 服务机 | 链（PID） | 当前 | 之后 |
+|---|---|---|---|
+| H100 | **ffk-h100m15**（3237940，chain_ffk.run.sh） | **fa_co_r_f_lc5**（成功过滤库 · Cosmos · LIBERO · 减步 · 各档 续跑；lc1..lc4 共保留到 lc4 的 946 局；21:33 prepare，Cosmos 8 副本启动约 8 min；节点 h100 40 / a100 80 / local 83 / timan1 166 / timan107 104） | fa_gr_f_u_o fa_gr_f_f_o（GR00T 全步旋钮关 R15，8,000 局）→ fa_ls_gr_r_f_m fa_co_f_u_l fa_co_f_f_l fa_ls_gr_r_u_m fa_ls_v03_0 fa_ls_v03_1 fa_ls_gr_f_f_m fa_ls_gr_f_u_m fa_ls_v05_1_rz fa_ls_v05_2_rz fa_ls_fw_f_u_m |
+| h100-temp | **ffk-h100tmp12**（3024635，chain_ffk_stop.run.sh；alias env 三件套） | **fa_ls_fw_f_f_o_lc5**（成功过滤库 · Fast-WAM · LIBERO · 全步 · 旋钮关 续跑；21:15 start；h100-temp 本机 36 worker、GPU 约 100%、约 33 局/分） | fa_ls_fw_f_u_o_l fa_ls_v02_s fa_ls_v02_b fa_ls_fw_f_f_l_l fa_ls_fw_f_u_l_l fa_ls_v08_1 fa_ls_fw_r_u_m fa_ls_fw_f_f_m fa_ls_fw_r_f_m fa_ls_v07_0 fa_ls_v05_3 fa_ls_v05_4 fa_ls_v05_0 |
+| 4090 | **ffk-g4090f**（2404340，已挂 hold）→ **ffk-g4090h**（3191197，等 `[ffk-g4090f] queue done`） | **fa_ls_dp_r_p_l**（成功过滤库 · DP · LIBERO · 减步 · 长执行段，1,000；21:30 start） | fa_ls_dp_r_b_m fa_ls_dp_r_b_v（21:27 被跳过，已修 driver_release.validate）→ fa_ls_dp_r_p_m fa_ls_fw_r_p_l fa_ls_dp_f_b_l … fa_ls_v09_1（原 g4090f 余下）→ fa_gr_f_u_l_dyn fa_gr_f_f_l_dyn |
+- 已撤的链：h100m13（停于 lc4 后）、h100m14、h100tmp10/11、g4090g。tmux cx_t107_guard（PID 2078568）阈值 12 GiB。链监控 bojofp9d0（22:00 过期，到期重挂）。后台 b9xwyzbrl：等 lc5 出 30 局后报各节点 worker、H100 GPU、速度。
+- 今晚完成：R16 fa_gr_r_f_l（10,000）、fa_ls_dp_r_b_l（1,000）。
+- **21:0x 之后新增的改动**（都已提交推送到 origin/Ziyang）：上限 h100 机器 40 / A100 80（worker 多在等推理）；卡显存预留 10% 封顶 2 GiB（fairness.py、worker_gpu.py、worker_resilience.capacity）；同机服务增长预留 4 GB（h100_workers.route）；4090 起服务的批次自动加 local 节点（defaults.apply）；driver_release.validate 缺 ORCHESTRATION.json 时用 campaign['orchestration']（fa_ls_t_* 源模板下的 8 批 DP MT50 + v01_0 原本都会失败）。
+- **开放问题**：①fairness 按各批上限平分节点（Cosmos 已满 GPU 仍占 A100 份额），应按各批实际缺口分；②服务跨批次常驻（yaml 热切换）评估：服务按批写 server_run、端口/回执按批，改动大，收益约 3 h，暂缓（owner 问过）；③π0.5 全步各档两批（#174）、#135 八组缓存部件研究未排；④xgpu_1017 下 A100 代理未提交文件待提交；⑤剩余时长估算约 3 天（调整后 H100 约 73 h、h100-temp 约 69 h、4090 约 56 h）。
+
 ### ★★★★★★★★★★★★★★★★ 2026-10-18 21:0x CDT 总状态（compact 后最先读这一块；下面 20:0x、19:3x、19:1x、18:5x 块是细节）
 
 **owner 今晚新增规矩（都已写进记忆，违反即失职）**
