@@ -123,9 +123,9 @@ saturation. Desire uses two signals:
 
 States (re-evaluated every 30 s; `active` = total live workers, `remaining` = pending + in-flight tasks):
 - `done` -> 0.
-- start: `desired = min(remaining, 8)`.
-- grow: `desired = active + max(4, ceil(active / 4))`, then wait until live workers reach >= 95% of that (or 3 min),
-  then measure the rate for 5 min.
+- start: `desired = min(remaining, 16)` (or the last desire this batch directory recorded).
+- grow: double (`active + max(8, active)`) until a step first fails to pay off, then `active + max(4, ceil(active / 4))`; wait until live workers reach >= 95% of that (or 2 min),
+  then measure the rate for 3 min.
 - after a grow step: if `rate_after - rate_before < (1/3) * rate_before * (active_after - active_before) / active_before`
   the step did not help -> hold; else grow again.
 - `gpu_util >= 90%` at any time -> hold (skip probing).

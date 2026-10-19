@@ -15,9 +15,9 @@ TICK_S = 2
 REPORT_S = 15
 DESIRE_S = 30
 FRESH_S = 90  # a node snapshot older than this no longer counts
-START = 8  # first desire
-SETTLE_S = 180  # after a step, wait at most this long for live workers to reach 95% of desired
-MEASURE_S = 300  # accepted-rate window after a step
+START = 16  # first desire
+SETTLE_S = 120  # after a step, wait at most this long for live workers to reach 95% of desired
+MEASURE_S = 180  # accepted-rate window after a step
 HOLD_S = 900  # time in hold before one probe step
 BUSY_UTIL = 90  # server GPU utilization (%) that forces hold
 STABLE_TOLERANCE = .05  # per shared node, |active - target| <= max(1, 5%) counts as equal (recycling gaps)
@@ -68,6 +68,7 @@ class BatchClient:
         self.targets = dict.fromkeys(self.nodes, 0)
         self.done = False
         self.desired, self.phase, self.since, self.base, self.samples = 0, 'start', self.clock(), None, []
+        self.failed = False  # a step has not paid off yet: growth doubles
         self.stable_since = None
         self.last_tick = self.last_desire = self.last_report = float('-inf')
         self.posting = False
@@ -167,9 +168,12 @@ class BatchClient:
                     self.note('incomparable', base_mix=self.base[2], mix=mix, rate=rate, base_rate=self.base[0])
                 if self.base is None or mixed or helped(self.base, point):
                     self.base = point
-                    self.desired, self.phase, self.since = active + max(4, math.ceil(active / 4)), 'settle', now
+                    # Double until a step first fails to pay off, then grow by a quarter.
+                    step = max(4, math.ceil(active / 4)) if self.failed else max(8, active)
+                    self.desired, self.phase, self.since = active + step, 'settle', now
                 else:
                     # Hold at the count before the step: holding at `active` would keep every failed step.
+                    self.failed = True
                     self.desired, self.phase, self.since = round(self.base[1]), 'hold', now
                 self.note('step', rate=point[0], mean_active=point[1], base=self.base)
         elif not busy and now - self.since >= HOLD_S:
