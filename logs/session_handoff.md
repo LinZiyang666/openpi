@@ -58,6 +58,10 @@ owner 的常驻指令，逐字有效：
 
 ### ★★★★★★ 2026-10-14 14:55 CDT 总状态（compact 后最先读这一块；下面各「增量」块是细节，按时间倒序）
 
+### ★ 2026-10-19 15:xx 增补（最先读）
+- **中央 worker 调度器重写（#186，owner 设计）**：中间层只调度、流量不经过；按实际用量公平分（渐进填充 + DRF），有空余就给要得多的；公共池 a100（只 LIBERO）/timan1/timan107 给所有实验；H100、4090 本机 worker 只给本机服务、等公共池分配稳定 10 分钟后才加；LIBERO+MT50 一起分；放 **A100:23500**（owner：不放 4090，不准用 racknerd）；无状态；旧 autoscale_1017 整体拔掉不兼容，新批次缺新包就报错。设计：`/home/weiland/projects/openpi_sched/exp/offline_search/rounds/r17/scheduler/DESIGN.md`（git worktree，分支 sched-1019，未合并）。4 个 opus 代理在做：A 调度器、B 节点执行、C R17 接入+打包（默认开 wire_zlib 无损压缩：LIBERO 图 2.4×，4090 入口当时 28.5 MB/s 近 33 MB/s 上限）、D R15/R16。切换计划：审 diff → A100 部署 → jtest 两小批 → 链边界合并 → 已 PREPARED 的排队批次重新 prepare → 旧批次全部结束后删 autoscale_1017。
+- 新规矩已进记忆：两类 worker（取代「worker 就近」）、基础设施一步到位、按实际用量分。
+
 ### ★ 2026-10-19 14:2x 增补（最先读）
 - **两台 jupyter 服务机**（jupyter-ziyang10、-02；H200 MIG 1g.18gb、32 GB 内存、16 核、无公网、MIG 不能 EGL）：owner 准许自选内网穿透、不准 tether。已打通：pod 内生成专用钥匙（在 .tether-agent/.ssh/zl_tunnel），H100 `~/.ssh/authorized_keys` 加了 `restrict,port-forwarding,permitlisten="127.0.0.1:24470/24471",command="/bin/false"` 一条（备份 authorized_keys.before_zl_tunnel_*）；pod `~/zl_tunnel/tunnel.sh 24470 18080` 保活 ssh -R；H100 `~/zl_tunnel/fwd.py 23470 24470`（setsid）把公网 23470 转到本地。A100/timan107 实测通，~20 ms、~100 MB/s。已派 opus 代理做：pod 装 DP（可能 Fast-WAM）服务环境、启动器支持 jupyter 服务节点（复用 R17_H100_NODE 别名）、jtest 小批次端到端实测；交回后由我起正式批次。
 - A100 公网 IP 实为 **149.165.152.232**（旧文档 .105 错）。A100 `~/.ssh/authorized_keys` 也加了同一把 zl_tunnel 钥匙（permitlisten 127.0.0.1:24470–24473，备份 authorized_keys.before_zl_tunnel_*）。`tunnel.sh <远端端口> <pod端口> [host]`；实测 pod1:18080 → A100 127.0.0.1:24472，A100 本机 ~19 ms、~107 MB/s。A100 worker 连本机端口，timan worker 走 H100 公网 23470。
