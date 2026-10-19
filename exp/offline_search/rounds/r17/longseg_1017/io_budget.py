@@ -14,7 +14,12 @@ _state=threading.local()
 
 @contextmanager
 def filesystem_budget(data_prefix='/data/'):
-    """Budget Python archive/hash I/O during a new coordinator prepare only."""
+    """Budget Python archive/hash I/O during a new coordinator prepare only.
+
+    Owner 10-18: no blocking or rate-limited read gates; this is a no-op.
+    """
+    yield
+    return
     import builtins,io
     native_builtin,native_io=builtins.open,io.open
     class File:

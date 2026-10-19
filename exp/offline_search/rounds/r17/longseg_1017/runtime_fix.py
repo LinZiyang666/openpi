@@ -112,6 +112,10 @@ def stage(launch, campaign, root):
     document = archive_manifest(archive)
     pin, archive_pin = identity(document), sha(archive)
     release = '/data/mw_finetune/qualification/formal_runtime_'+pin
+    # Mark the rewrite before any install/transfer, so a retry after a failed
+    # transfer recognizes runtime.tar as the fixed copy (apply is idempotent).
+    write_json(root/'LONGSEG_RUNTIME_FIX.json', dict(members=members, runtime=release, identity=pin,
+                                                    archive_sha256=archive_pin, installed=False))
     install(archive, release, archive_pin, pin)
     if campaign['server_node'] == 'h100':
         directory = '/tmp/r17_formal/'+campaign['run_name']+'/server'

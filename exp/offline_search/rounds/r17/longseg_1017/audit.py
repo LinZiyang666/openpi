@@ -26,7 +26,8 @@ def classify(r):
 
 
 def io_ready(limit=20.):
-    """No /data read until kernel full avg10 is below the owner's ceiling."""
+    """Owner 10-18: no blocking I/O gates; reads proceed (rsync keeps its bwlimit)."""
+    return
     waits=0
     while True:
         full=next(s for s in Path('/proc/pressure/io').read_text().splitlines() if s.startswith('full '))

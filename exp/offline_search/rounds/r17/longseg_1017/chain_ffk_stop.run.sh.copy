@@ -1,0 +1,36 @@
+#!/bin/bash
+# chain_ffk_stop: chain_ffk.run.sh that stops at the first failed item instead of moving on (first used by the
+# h100-temp alias lane: export R17_H100_NODE / R17_H100_HOST / R17_DRIVER_PORT before starting it).
+# Item = job name (prepare -> launch, sequentially) or WAIT:<regex> (block until <regex> appears in chain.log).
+# WAIT items keep 4090 and H100 jobs that share timan107/timan1 workers apart: the frozen worker packages
+# still apply EGL VRAM admission against other fleets' reservations.
+# After a launch the queue waits until the background evidence finalizer turns RECEIPT.json from
+# PENDING_EVIDENCE into its final status (normally 1-2 min), so the next item never starts on an unsealed one.
+# A non-zero prepare or launch rc, or a final receipt other than PASS, logs
+# "STOPPED after failure: <item> rc=<rc>" (rc of that prepare/launch), touches $M/hold_ff_<tag> and exits.
+# Nothing is retried. A deferred LIBERO levels unit whose prepare prints SKIP_OFF_SUFFICIENT has no job: logged, skipped.
+# Touch $M/hold_ff_<tag> to stop between items.
+TAG=$1; WAIT=$2; shift 2
+M=/home/weiland/projects/openpi_ext/scratch/r17_ops/mw; D=/home/weiland/projects/openpi_ext/scratch/r17_ops/ff
+C=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/commands; E=/data/mw_finetune/eval
+log(){ echo "$(date +%H:%M:%S) [ffk-$TAG] $*" >> $M/chain.log; }
+stop(){ log "STOPPED after failure: $1 rc=$2"; touch $M/hold_ff_$TAG; exit 1; }
+receipt(){ python3 -c "import json;print(json.load(open('$E/$1/RECEIPT.json')).get('status'))" 2>/dev/null; }
+until grep -qE "$WAIT" $M/chain.log; do sleep 30; done
+log "queue start: $*${R17_H100_NODE:+ (h100 alias $R17_H100_NODE $R17_H100_HOST, driver port $R17_DRIVER_PORT)}"
+for J in "$@"; do
+  [ -f $M/hold_ff_$TAG ] && { log "hold file present, stop before $J"; break; }
+  case $J in WAIT:*) log "waiting for ${J#WAIT:}"; until grep -qE "${J#WAIT:}" $M/chain.log; do sleep 30; done; continue;; esac
+  case $TAG in 4090*) until [ "$(nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits | tr -d ' ')" -lt 2000 ]; do sleep 20; done;; esac
+  log "prepare $J"; bash $C/prepare_$J.sh > $D/$J.prep.log 2>&1; rc=$?
+  [ $rc -eq 0 ] || { log "$J prepare FAILED rc=$rc"; stop $J $rc; }
+  grep -qx "SKIP_OFF_SUFFICIENT $J" $D/$J.prep.log && { log "$J skipped: OFF sufficient, no levels job"; continue; }
+  log "start $J"; bash $C/launch_$J.sh > $D/$J.run.log 2>&1; rc=$?
+  J2=$E/$J/driver/journal.jsonl
+  R=$(receipt $J); w=0
+  while [ $rc -eq 0 ] && [ "$R" = PENDING_EVIDENCE ] && [ $w -lt 8000 ]; do sleep 20; w=$((w+20)); R=$(receipt $J); done
+  log "$J ended rc=$rc accepted=$(grep -c '"accepted": true' $J2 2>/dev/null || echo -) receipt=$R"
+  [ $rc -eq 0 ] && [ "$R" = PASS ] || stop $J $rc
+  sleep 60
+done
+log "queue done"
