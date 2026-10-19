@@ -858,7 +858,14 @@ def chain(runroot, names):
                 (state / "current").write_text(arm + "\n")
                 event(f"ARM_START arm={arm} suite={row['suite']} ports={','.join(map(str,ports))} workers={wps*len(ports)} expect={expect}")
                 def servers_up():
-                    free = int(remote(server, ["nvidia-smi", "--query-gpu=memory.free", "--format=csv,noheader,nounits"]).splitlines()[-1])
+                    # Renderers of lanes served elsewhere leave the card at episode
+                    # boundaries once this machine runs no own batch: wait for them.
+                    deadline = time.monotonic() + 900
+                    while True:
+                        free = int(remote(server, ["nvidia-smi", "--query-gpu=memory.free", "--format=csv,noheader,nounits"]).splitlines()[-1])
+                        if free >= sum(x["need_mb"] for x in specs) or time.monotonic() > deadline:
+                            break
+                        time.sleep(20)
                     if free < sum(x["need_mb"] for x in specs):
                         if server == 'local':
                             raise RuntimeError(f"GPU_TIGHT server_host=local free={free} need={sum(x['need_mb'] for x in specs)}")
