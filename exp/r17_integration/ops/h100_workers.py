@@ -72,9 +72,9 @@ def route(worker, campaign):
     worker.update(worker_egl_device=0, worker_egl_devices=[0], worker_vram_mib=vram,
                   worker_memory_mib=ram, worker_ram_reservation_mib=ram,
                   # On the server's machine the card also runs the model: keep room for its growth.
-                  # 4 GB was too little on h100-temp: Fast-WAM grew 44->51 GB and 40 renderers
-                  # filled the card (Xid 31 MMU faults, workers aborted, node retired 10-18 21:50).
-                  worker_server_vram_headroom_mib=12288 if node == 'h100' else 0,
+                  # h100-temp gets no own-machine renderers (Xid 31, defaults.apply); on the H100
+                  # itself Cosmos holds ~6.2 GB/replica steadily, and 12 GB capped it at ~10 workers.
+                  worker_server_vram_headroom_mib=4096 if node == 'h100' else 0,
                   policy_endpoint=('127.0.0.1:'+str(campaign['public_port']) if node == 'h100'
                                    else campaign['endpoint']))
     return worker
