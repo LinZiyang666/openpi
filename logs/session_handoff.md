@@ -62,7 +62,8 @@ owner 的常驻指令，逐字有效：
 - owner：A100 自己就能喂满 H100，timan 不该给 Cosmos；自适应 worker 不该有那么多限制。已做：Cosmos fa_co_f_u_l 的 retired = timan1、timan107（11:09，timan 全给 4090 的 FW lc1，FW 78→~105 局/分）；A100 上 Cosmos 的 worker 组又换了两次（s2：hold_s 10、60 s 即按实测；s3：A100 这种纯 worker 机对满 60 s 的 worker 按当下 RSS 记账、不预留峰值增长，e9d2bc0b，defaults `autoscale_reactive_nodes=['a100']`、`autoscale_mature_s=60`）。11:18 A100 49 个、调度 memory_ok、份额 60；H100 10 次采样全 100%。换组共丢了 12+12+34+47 局在途进度（driver 重派）。
 - H100 本机 Cosmos 组卡 33（上限 40）是显存：Cosmos 服务占约 65 GB，正常。
 - 11:21 s3（8 GB 底线）一起爬坡冲到 62 个、可用 3–4 GB，shed_kill 13 次；11:30 又爬到 64 个、剩 23 GB → 11:32 换成 s4：A100 底线 16 GB/紧急 6 GB（defaults ff246444 同步），预计稳在 ~50。
-- 现行 A100 运行目录：`runs/fa_co_f_u_l_a100_s1_s2_s3_s4`（旧目录的 AUTOSCALE_NODE.json 链式软链到最新）。swap 脚本 `openpi_ext/scratch/r17_ops/swap_node_fleet.py` 已带 reactive/mature/hold 与 payload policy.py 一行补丁。
+- 11:40 s4 仍冲到 69 个（新 worker 满 60 s 时 RSS 还低）→ 11:41 换 s5：纯 worker 机按「满 5 分钟的同组 worker 的 RSS 中位数」记账（80d0f0e1，起始值 autoscale_typical_rss=2.4 GiB）。11:48 A100 64 个、可用 42 GB、无强杀，调度 memory_growth 自停。Cosmos worker RSS：<5 分钟 ~0.9 GB、5–15 分钟 ~1.9 GB。**之后不再换组，交调度自己维持。** 今天换 A100 组累计打断在途局约 206 局 + 强杀约 16 次（driver 均重派）。
+- 现行 A100 运行目录：`runs/fa_co_f_u_l_a100_s1_s2_s3_s4_s5`（旧目录的 AUTOSCALE_NODE.json 链式软链到最新）。swap 脚本 `openpi_ext/scratch/r17_ops/swap_node_fleet.py` 已带 reactive/mature/hold 与 payload policy.py 一行补丁。
 
 ### ★ 2026-10-19 11:1x 增补（最先读，再读下面 10:3x 总状态）
 - **A100 规矩（owner）**：纯 worker 机、**只给服务在 H100 的批次用**。defaults.apply 只在 `server_node=='h100'` 的 LIBERO 批次加 a100（4610a767）；已准备的 4090 批次 fa_ls_dp_r_u_l_l、fa_ls_fw_r_f_l_l 的 campaign.json 已去掉 a100（备份 `campaign.json.before_a100_h100only_*`）；在跑的 fa_ls_fw_r_u_l_lc1 已把 a100 加进 `WORKER_NODE_STATE.json` retired。
