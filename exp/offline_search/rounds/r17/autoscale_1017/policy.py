@@ -156,8 +156,11 @@ class Tuner:
             self.queue_floor = 0
             self.exploring_down = False
         wait_ratio = wait_s / max(sim_s + wait_s, 1e-9)
+        # service_s is measured at the server and already includes its queue, so
+        # wait_s ~= service_s for a saturated server (Cosmos 10-19: 139 s vs 138 s);
+        # the old "wait > 1.5 x service" clause never fired. Waiting share alone decides.
         queueing = (service_s is not None and wait_ratio >= self.c.wait_fraction
-                    and wait_s > 1.5 * service_s and queue_inflight > 0)
+                    and queue_inflight > 0)
         if (not comparable or samples < self.c.min_samples or rate <= 0
                 or now - self.last_change < self.c.window_s):
             return before, 'insufficient_or_unsettled_window'
