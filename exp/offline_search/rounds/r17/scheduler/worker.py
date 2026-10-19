@@ -12,6 +12,8 @@ import time
 
 from .node import ROOT, atomic, identity, read
 
+CREATION_SLOTS = 4  # concurrent environment creations per physical GPU
+
 
 @contextmanager
 def creation_lock():
@@ -24,11 +26,27 @@ def creation_lock():
             if fields.get('Device Minor', '').strip() == minor:
                 gpu = fields.get('GPU UUID', '').strip()
                 break
-    # Unknown physical mapping serializes all unknown devices, conservatively.
+    # Unknown physical mapping shares the slots of all unknown devices, conservatively.
     key = hashlib.sha256((gpu or 'unknown-physical-gpu').encode()).hexdigest()[:24]
-    with (ROOT / ('creation-' + key + '.lock')).open('a') as lock:
-        fcntl.flock(lock, fcntl.LOCK_EX)
+    # CREATION_SLOTS concurrent creations per GPU: one slot queued 40-60 workers per card for ~100 s
+    # per episode (10-19); 0 errors with ~5 concurrent creations per GPU.
+    slots = [ROOT / ('creation-%s-%d.lock' % (key, i)) for i in range(CREATION_SLOTS)]
+    streams = []
+    try:
+        for path in slots:
+            stream = path.open('a')
+            streams.append(stream)
+            try:
+                fcntl.flock(stream, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                break
+            except BlockingIOError:
+                continue
+        else:
+            fcntl.flock(streams[os.getpid() % CREATION_SLOTS], fcntl.LOCK_EX)
         yield
+    finally:
+        for stream in streams:
+            stream.close()
 
 
 class TimedClient:
