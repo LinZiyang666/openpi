@@ -56,11 +56,12 @@ def plan(states, available, floor, *, now):
     groups={}
     for s in states:
         key=s['fairness_campaign']
-        row=groups.setdefault(key,dict(target=0,peak=1,vram=0,server_reserve=0,workers=[]))
+        row=groups.setdefault(key,dict(target=0,peak=1,vram=0,server_reserve=0,server_floor=0,workers=[]))
         row['target']=max(row['target'],s['target'])
         row['peak']=max(row['peak'],s['projected_peak'])
         row['vram']=max(row['vram'],s.get('worker_vram_mib',0))
         row['server_reserve']=max(row['server_reserve'],s.get('server_vram_headroom_mib',0))
+        row['server_floor']=max(row['server_floor'],s.get('server_vram_floor_mib',0))
         row['workers'].extend(dict(w,fleet=s['fleet']) for w in s['workers'])
     for g in groups.values():
         # Charge each live outlier once, not as the assumed cost of every
@@ -75,13 +76,17 @@ def plan(states, available, floor, *, now):
         view=max(views,key=lambda v:v['time'])
         owned={pid for g in groups.values() for w in g['workers'] for pid in w.get('gpu_pids',[w['pid']])}
         reserve=sum(g['server_reserve'] for g in groups.values() if g['target'] or g['workers'])
+        # Lanes served elsewhere keep this much of the card for the machine's own servers,
+        # counting what non-worker processes already hold (owner 10-18: same-machine first).
+        server_floor=max((g['server_floor'] for g in groups.values() if g['target'] or g['workers']),default=0)
         quantum=min((g['vram'] for g in groups.values() if g['vram']>0 and (g['target'] or g['workers'])),default=1)
         gpu=0
         for c in view['cards']:
             if not c.get('usable'):continue
             observed=sum(p.get('used_mib') or 0 for p in c.get('processes',[]) if p['pid'] in owned)
             # Card reserve: 10% capped at 2 GiB (an 80 GB card does not need 8 GB idle).
-            reclaimable=max(0,c['total_mib']-c['used_mib']-max(512,min(2048,math.ceil(c['total_mib']/10)))-reserve+observed)
+            keep=max(0,server_floor-max(0,c['used_mib']-observed))
+            reclaimable=max(0,c['total_mib']-c['used_mib']-max(512,min(2048,math.ceil(c['total_mib']/10)))-reserve-keep+observed)
             # Per-card fragments cannot be pooled into a cross-GPU renderer.
             gpu+=math.floor(reclaimable/quantum)*quantum
         capacities['vram']=gpu

@@ -245,6 +245,7 @@ class LocalGovernor:
             target=getattr(self,'fairness_target',self.target),requested_target=self.target,
             worker_vram_mib=self.campaign.get('worker_vram_mib',0),gpu_view=self.gpu_view,
             server_vram_headroom_mib=self.campaign.get('worker_server_vram_headroom_mib',0),
+            server_vram_floor_mib=self.campaign.get('worker_server_vram_floor_mib',0),
             last_spawn=self.last_spawn if self.last_spawn != float('-inf') else None,
             workers=list(self.entries.values()),projected_peak=self.snapshot.get('projected_peak',0))
 
