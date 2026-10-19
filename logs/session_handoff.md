@@ -80,6 +80,8 @@ owner 的常驻指令，逐字有效：
 - R16 fa_gr_r_f_l（10,000）20:53 已完成。
 - **估算（21:00）**：调整后 H100 约 73 h、h100-temp 约 69 h、4090 约 56 h → 约 3 天（不含 #135 八组缓存部件研究、π0.5 全步各档两批 #174 未排）。12 批 MT50 旋钮下降（各 9 万局）占约六成。速度表 `tmp/rates.json`、队列清单 `tmp/queue_rows.json`。
 
+**21:2x 增补**：h100-temp 链改为 **ffk-h100tmp12**（FW lc4 停于 1,442 → **fa_ls_fw_f_f_o_lc5**，21:15 start，节点 h100 40 + a100 80 + timan1 + timan107；h100tmp11 已撤），列表同 h100tmp11 但 lc5 在首。上限改为 h100 机器 40、A100 80（worker 多在等推理，A100 29 进程负载才 5）；卡预留 10% 封顶 2 GiB；同机服务增长预留 16→4 GB；4090 上起服务的批次自动加 local 节点（defaults.apply）。lc5 起来后 h100-temp 本机 30 个 worker、GPU 到 100%。待改：fairness 按上限平分节点（Cosmos 已满仍占 A100 份额），应按实际缺口分。服务跨批次常驻（yaml 热切换）评估过：要改服务输出目录/端口/回执，约 3 h 收益，暂缓。
+
 **今晚做成的 worker 基础设施**
 - 自适应全线开（ENABLED=on）。修过：观测上报带 2.3 MB 快照挤满下行（worker.py 去掉 workers 列表）；driver place() 把校准中的节点切成 0 的死循环；VRAM 加滞回（≥2 个余量才加、超额≤1 不减、每次最多减 2）；10 s 远程超时；timan1_gpu2 嵌入代码的 switch import；动态续跑（续跑重建 driver）；状态轮询按 (节点, 代码目录, python) 分组（同机服务端旧运行时吞掉 worker 控制）；校准键改为 model/domain/worker 换代设置（续跑沿用），无记录时按已知峰值起步（LIBERO 3.5 GiB、MetaWorld 1 GiB），不再等 canary 跑完 4 局；timan107 floor 24 GiB/critical 16/spawn 2 s；内存守护 12 GiB（tmux cx_t107_guard）。
 - 新 worker 节点 **h100**（=lane 的 server 机，loopback，上限 16，预留 16 GB 显存给 server）与 **a100**（公网 endpoint，上限 28），共用 `exp/r17_integration/ops/h100_workers.py`，ROOT `/data/mw_finetune/qualification/h100_workers`（env.tar 7.2 GB + extra.tar〔cusparselt〕；setup 修 LIBERO assets 软链）。三台都已装好。defaults.apply：server_node=='h100' 的 LIBERO 批自动加 h100、所有 LIBERO 批自动加 a100；**续跑会沿用上一批上限，要带新节点需在续跑 campaign.json 删 autoscale_node_maxima/autoscale_maxima_policy 并改 execution_worker_nodes**（今晚 lc2/lc3/lc4 都这么做）。
