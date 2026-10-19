@@ -26,9 +26,12 @@ def commands(name):
     for verb,module in (('prepare','exp.offline_search.rounds.r17.filter_failed.stage'),
                         ('launch','exp.offline_search.rounds.r17.filter_failed_knob.launch')):
         path=COMMANDS/f'{verb}_{name}.sh'
-        path.write_text('#!/usr/bin/env bash\nset -euo pipefail\ncd '+shlex.quote(str(REPO))+'\n'+
+        # Replace, never rewrite in place: this runs inside the very prepare script
+        # being replaced, and bash keeps reading the open file by offset.
+        tmp=path.with_name(path.name+'.tmp')
+        tmp.write_text('#!/usr/bin/env bash\nset -euo pipefail\ncd '+shlex.quote(str(REPO))+'\n'+
             shlex.quote(str(REPO/'.venv/bin/python'))+' -m '+module+' --run '+shlex.quote(str(EVAL/name))+'\n')
-        path.chmod(0o755)
+        tmp.chmod(0o755);tmp.replace(path)
 
 def pin(root,c):
     from exp.offline_search.rounds.r17.filter_failed_knob.build import freeze_bootstrap
