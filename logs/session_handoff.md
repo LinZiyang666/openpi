@@ -58,6 +58,11 @@ owner 的常驻指令，逐字有效：
 
 ### ★★★★★★ 2026-10-14 14:55 CDT 总状态（compact 后最先读这一块；下面各「增量」块是细节，按时间倒序）
 
+### ★★★★★★★★★★★★★★★★★★ 2026-10-18 21:4x CDT 增量（先读这块，再读 21:3x 块）
+- **队列改动（21:43）**：GR00T 全步旋钮关其实 10-17 已完成 15/16 组（`formal_a_1016/off_decisions/groot_full_original.json` 只剩 libero_spatial 100 pending），且它的服务在 **4090**（SERVER_HOST local，端口 23100–23103），不该在 H100 链里。→ h100m15 已挂 hold（跑完 lc5 停）；**ffk-h100m16**（等 `[ffk-h100m15] queue done`）= fa_ls_gr_r_f_m fa_co_f_u_l fa_co_f_f_l fa_ls_gr_r_u_m fa_ls_v03_0 fa_ls_v03_1 fa_ls_gr_f_f_m fa_ls_gr_f_u_m fa_ls_v05_1_rz fa_ls_v05_2_rz fa_ls_fw_f_u_m。g4090h 已杀（只在等）→ **ffk-g4090i**（等 `[ffk-g4090f] queue done`）= **fa_gr_f_u_o_s100**（500 局，旧流程从 journal 续）→ 原 g4090h 列表 → fa_gr_f_u_l_dyn fa_gr_f_f_l_dyn。新链 **ffk-h100r15**（21:43 起）= fa_pi_f_f_l_dyn fa_pi_f_u_l_dyn（成功过滤库/原库 · π0.5 · LIBERO · 全步 · 各档，R15，H100 服务 3 副本 23230–23232，worker 只在 timan107），与 Cosmos lc5 同卡并行（Cosmos 约 41 GB + π0.5 约 27 GB）。旧流程 fleet 锁按批次根目录分（vla_shared.fleet_lock），可多批共用 timan107；formal_dynamic.legacy_job 启动前的 require_legacy_idle 挡路检查已删。
+- **⛔ 自适应调节器之前从没真正工作**（这就是"按上限平分节点"的根因）：driver 每窗口都判 `insufficient_or_unsettled_window`——①settled 要求各节点目标与在跑数在一个窗口内不变，节点因内存准入/校准/换代一直小幅增减，永远不稳定；②longseg 批（fa_ls_*）的 worker 不带 `_autoscale_episode` 计时，driver.result 直接丢弃，样本数 0。已改 `autoscale_1017/driver.py`（commit 8af60107）：无计时的接受局也计入吞吐；settled 改为"窗口内在跑总数波动 ≤ max(4, 30%) 且距上次调节 ≥ 一个窗口"，measured_capacity 用窗口均值。**只对新 prepare 的批次生效**（driver 随 driver_runtime.tar 打包）；在跑的 lc5 / FW lc5 / DP r_p_l 仍是旧行为。新批次起来后看 AUTOSCALE_DECISIONS.jsonl 的 global reason 是否出现 throughput_probe_down / queue_rate_rollback 等。
+- 工作区已由 sonnet 全部提交（63a12c74..97d1befe，含 xgpu_1017）。#135 八组缓存部件研究的定义派 Explore 代理去查了。
+
 ### ★★★★★★★★★★★★★★★★★ 2026-10-18 21:3x CDT 总状态（compact 后最先读这块；它取代下面 21:0x 块里的「现在在跑」表，其余规矩/基础设施/续跑流程仍以 21:0x 块为准）
 
 **现在在跑（21:34）**
