@@ -104,6 +104,8 @@ def apply(campaign, directory=None, *, force=False):
     from .formal_dynamic import NODE_CONFIG
     c.setdefault('autoscale_node_config', copy.deepcopy(NODE_CONFIG))
     c.setdefault('autoscale_external_legacy_nodes', sorted(c['autoscale_node_config']))
+    # Owner 10-19: the A100 is a pure worker machine (no server), so it keeps only a small RAM floor.
+    c['autoscale_node_config'].setdefault('a100', dict(floor=8*2**30, critical=4*2**30))
     if c.get('autoscale_maxima_policy')=='physical-v2' and c.get('autoscale_node_maxima') and not force:
         return c  # preserve per-node views made by worker_resilience.prepare
     domain = c.get('domain', 'libero')
