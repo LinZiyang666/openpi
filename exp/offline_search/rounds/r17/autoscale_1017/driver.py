@@ -35,6 +35,7 @@ class DriverController:
         self.last_distribution = None
         self.last_counts = None
         self.active_anchor, self.stable_peak = {}, {}
+        self.active_history = deque()
         self.changed = self.clock()
         self.control = {}
         self.root.mkdir(parents=True, exist_ok=True)
@@ -63,13 +64,16 @@ class DriverController:
             return bool(data.get('retire')), dict(self.control)
 
     def result(self, payload, accepted):
-        timing = payload.get('_autoscale_episode')
-        if not accepted or not isinstance(timing, dict):
+        if not accepted:
             return
+        # Workers whose runtime carries no episode timing still count toward
+        # the accepted rate; without it the tuner never leaves the maximum.
+        timing = payload.get('_autoscale_episode')
+        timing = dict(timing) if isinstance(timing, dict) else {}
         # This call happens after the scheduler's attempt fence and durable
         # terminal evidence, not merely after receiving a wire result.
         with self.results_lock:
-            self.results.append((self.clock(), dict(timing)))
+            self.results.append((self.clock(), timing))
         if timing.get('node'):
             event(self.root/'AUTOSCALE_ACCEPTED.jsonl', timing['node'], 0, 'accepted_episode',
                 dict(task_uid=timing.get('task_uid'), attempt=timing.get('attempt')),
@@ -120,6 +124,15 @@ class DriverController:
             else:
                 self.stable_peak = {n:max(self.stable_peak.get(n, 0), observed[n]) for n in self.caps}
             self.last_counts = counts
+            # Per-node counts churn (memory admission, calibration, recycling);
+            # a window is comparable when the lane's total stays near its mean.
+            self.active_history.append((now, active))
+            while self.active_history and self.active_history[0][0] < now - self.config.window_s:
+                self.active_history.popleft()
+            history = [a for _, a in self.active_history]
+            mean_active = sum(history) / max(1, len(history))
+            steady = (bool(history) and self.active_history[0][0] <= now - self.config.window_s + 3 * self.config.sample_s
+                      and max(history) - min(history) <= max(4, .3 * mean_active))
             with self.results_lock:
                 while self.results and self.results[0][0] <= now - self.config.window_s:
                     self.results.popleft()
@@ -144,9 +157,9 @@ class DriverController:
                 # not an invented count of requests inside the H100 queue.
                 scheduler = self.driver.scheduler
                 busy = sum(scheduler.busy().values()) if hasattr(scheduler, 'busy') else len(getattr(scheduler, '_dispatch_ts', {}))
-                settled = now - self.changed >= max(0, self.config.window_s-self.config.sample_s) and all(r['valid'] for n,r in rows.items()
+                settled = steady and now - self.tuner.last_change >= max(0, self.config.window_s-self.config.sample_s) and all(r['valid'] for n,r in rows.items()
                     if self.targets[n] or self.nodes.get(n, {}).get('active', 0))
-                measured_capacity = (sum(self.targets.values()) if within_band else sum(self.stable_peak.values())) if settled else active
+                measured_capacity = round(mean_active) if settled else active
                 probing = bool(self.tuner.exploring_down or (self.tuner.previous and self.tuner.target > self.tuner.previous[0]))
                 _, reason = self.tuner.update(now, active=measured_capacity,
                     rate=len(samples) / self.config.window_s, samples=len(samples),

@@ -127,7 +127,6 @@ def record_r17(root, before):
 def legacy_job(action, job):
     from .defaults import physical_maximum
     from . import legacy_release
-    from .trial_lane import require_legacy_idle
     from exp.offline_search.closed_loop.ops.h100 import control
     from exp.offline_search.rounds.r17.filter_failed.legacy import rsync_transport
     from exp.offline_search.rounds.r17.filter_failed_knob import vla_shared
@@ -154,7 +153,7 @@ def legacy_job(action, job):
                 desired_maxima={'timan107':maximum},node_config=NODE_CONFIG,native_resume=True,
                 retained_done_arms=[p.name for p in (root/'state').glob('*.DONE')],global_switch='off'))
         else:
-            require_legacy_idle()
+            # Legacy fleets lock per run root (vla_shared.fleet_lock); several share timan107 by capacity.
             control.chain(root,names)  # native DONE skipping and journal replay
 
 
