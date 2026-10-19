@@ -157,8 +157,9 @@ def route(worker, campaign):
                   worker_vram_mib=campaign.get('local_worker_vram_mib',RENDERER_VRAM_MIB),
                   worker_memory_headroom_mib=campaign.get('worker_memory_headroom_mib',RAM_HEADROOM_MIB),
                   worker_server_vram_headroom_mib=growth,
-                  # Served elsewhere: leave the 4090's own servers room to start (GR00T R15 needs 27 GB).
-                  worker_server_vram_floor_mib=0 if campaign['server_node']=='local' else 30720)
+                  # Served elsewhere: while the 4090 runs no own batch, leave room for its next
+                  # server to start (largest: GR00T R15, 4 x 6.8 GB). No reserve while one runs.
+                  worker_server_vram_floor_mib=0 if campaign['server_node']=='local' else 28672)
     if campaign.get('autoscale') and campaign['domain'] == 'metaworld':
         worker.update(worker_max_episodes=32, worker_max_seconds=1800)
     worker['policy_endpoint'] = ('127.0.0.1:'+str(campaign['public_port']) if campaign['server_node']=='local'

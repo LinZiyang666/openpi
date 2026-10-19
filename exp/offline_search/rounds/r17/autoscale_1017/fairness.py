@@ -76,9 +76,11 @@ def plan(states, available, floor, *, now):
         view=max(views,key=lambda v:v['time'])
         owned={pid for g in groups.values() for w in g['workers'] for pid in w.get('gpu_pids',[w['pid']])}
         reserve=sum(g['server_reserve'] for g in groups.values() if g['target'] or g['workers'])
-        # Lanes served elsewhere keep this much of the card for the machine's own servers,
-        # counting what non-worker processes already hold (owner 10-18: same-machine first).
-        server_floor=max((g['server_floor'] for g in groups.values() if g['target'] or g['workers']),default=0)
+        # While no batch served on this machine is active, lanes served elsewhere leave room for
+        # the machine's next own server to start (what servers already hold counts toward it).
+        # Once an own-server lane is active (floor 0) nothing extra is kept.
+        active_floors=[g['server_floor'] for g in groups.values() if g['target'] or g['workers']]
+        server_floor=min(active_floors) if active_floors else 0
         quantum=min((g['vram'] for g in groups.values() if g['vram']>0 and (g['target'] or g['workers'])),default=1)
         gpu=0
         for c in view['cards']:
