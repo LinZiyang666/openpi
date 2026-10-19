@@ -5,6 +5,7 @@ Counts are desired maxima. CPU occupancy and RAM are runtime signals, not an
 assumption of one blocked renderer per CPU core.
 """
 import copy
+import os
 from pathlib import Path
 
 from .policy import Config, NODES
@@ -114,7 +115,9 @@ def apply(campaign, directory=None, *, force=False):
         selected = ({'timan107':int(specified['timan108'])}
                     if specified and set(specified)=={'timan108'} and int(specified['timan108'])>0
                     else maxima(domain, ('timan107',)))
-    if c.get('server_node') == 'h100' and domain == 'libero':
+    # h100-temp (R17_H100_NODE alias) renderers hit NVRM Xid 31 MMU faults and abort
+    # (10-18 21:18-22:21, also with 15 GB free); the H100 itself shows none.
+    if c.get('server_node') == 'h100' and domain == 'libero' and os.environ.get('R17_H100_NODE', 'h100') == 'h100':
         # Owner 10-18: workers on the server's own machine serve it first.
         selected.setdefault('h100', physical_maximum('h100', domain))
     if c.get('server_node') == 'local':
