@@ -105,7 +105,8 @@ def apply(campaign, directory=None, *, force=False):
     c.setdefault('autoscale_node_config', copy.deepcopy(NODE_CONFIG))
     c.setdefault('autoscale_external_legacy_nodes', sorted(c['autoscale_node_config']))
     # Owner 10-19: the A100 is a pure worker machine (no server), so it keeps only a small RAM floor.
-    c['autoscale_node_config'].setdefault('a100', dict(floor=8*2**30, critical=4*2**30, hold_s=10))
+    # 10-19: 62 LIBERO workers ramping together hit 4 GB free at an 8 GiB floor; 16 GiB absorbs the swing.
+    c['autoscale_node_config'].setdefault('a100', dict(floor=16*2**30, critical=6*2**30, hold_s=10))
     c.setdefault('autoscale_mature_s', 60)  # a LIBERO/MetaWorld worker has loaded its env within a minute
     c.setdefault('autoscale_reactive_nodes', ['a100'])  # worker-only machines charge live RSS
     if c.get('autoscale_maxima_policy')=='physical-v2' and c.get('autoscale_node_maxima') and not force:
