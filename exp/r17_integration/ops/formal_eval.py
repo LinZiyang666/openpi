@@ -1902,11 +1902,11 @@ def main(argv=None):
         from .cache_resume import prepare as prepare_cache_resume
         from .formal_prestage import launch_prepared
         target=prepare_cache_resume(args.cache_resume_from,args.run_name or 'cc'+str(time.time_ns())[-10:])
-        if args.run:return launch_prepared(target)
+        if args.run:return _gpu2_coordinator(launch_prepared)(target)
         print(json.dumps(dict(status='PASS',cpu_only=True,run=str(target))));return 0
     if args.prepared_run is not None:
         from .formal_prestage import launch_prepared
-        return launch_prepared(args.prepared_run)
+        return _gpu2_coordinator(launch_prepared)(args.prepared_run)
     if args.mode == 'seal':
         seal(json.loads(Path(args.campaign).read_text()))
         return 0
