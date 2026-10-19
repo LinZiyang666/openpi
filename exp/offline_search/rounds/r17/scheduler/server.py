@@ -40,9 +40,15 @@ class Scheduler:
 
     def recompute(self):
         now = time.time()
+        # Operator caps on desire ({batch: workers}, re-read every recompute): batches whose frozen client
+        # cannot measure throughput (sched-1019 group-commit drivers) and whose server GPU is unreadable.
+        try:
+            caps = json.loads((self.log.parent / 'caps.json').read_text())
+        except (OSError, ValueError):
+            caps = {}
         with self.lock:
             self.reports = live(self.reports, now)
-            reports = dict(self.reports)
+            reports = {b: dict(r, desired=min(r['desired'], caps[b])) if b in caps else r for b, r in self.reports.items()}
             previous = self.state['targets']
         result = plan(reports, now, previous)
         with self.lock:
