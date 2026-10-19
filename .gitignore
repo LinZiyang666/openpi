@@ -496,6 +496,7 @@ exp/offline_search/rounds/r17/**/*_editor.html
 /exp/offline_search/rounds/r17/autoscale_1017/ENABLED
 /exp/offline_search/rounds/r17/autoscale_1017/followup_1018/PUBLICATION_HOLD
 /exp/offline_search/rounds/r17/longseg_1017/*.pre_recal1018_*
+/exp/offline_search/rounds/r17/longseg_1017/*.pre_vfix1018_*
 /exp/offline_search/rounds/r17/longseg_1017/commands/*.cpu_validation_only_*
 /exp/offline_search/rounds/r17/xgpu_1017/**/legacy_runtimes/
 /exp/offline_search/rounds/r17/xgpu_1017/a100_closedloop_1018/serving_extra/
