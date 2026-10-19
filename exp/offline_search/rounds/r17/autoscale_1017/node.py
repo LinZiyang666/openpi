@@ -14,6 +14,7 @@ import time
 from .policy import Config, MemoryGuard, Peaks
 
 MATURE_S = 300  # a worker this old has loaded its env and run episodes; its own high-water is representative
+SETTLED_S = 300  # worker-only nodes: RSS of workers this old is the steady per-worker footprint
 
 
 def read(path, default=None):
@@ -275,23 +276,34 @@ class LocalGovernor:
         # Unknown new campaign: one canary, using half of currently free
         # headroom as a provisional envelope, never a permanent per-worker cap.
         projection = projection or max(1, (available - self.config.floor) // 2)
-        own = []
+        sampled = []
         for worker_id, entry in self.entries.items():
             sample = self.process_reader(entry['pid'], entry['start_ticks'])
             if sample is None:
                 continue
             entry['rss'], peak = sample
             entry['peak'] = max(entry['peak'], peak)
-            # Owner 10-19: charging every live worker the lane's p90 envelope assumes all of them
-            # peak at once. Past its first minutes a worker is charged its own high-water (+margin).
-            mature = self.clock() - entry['born'] >= self.campaign.get('autoscale_mature_s', MATURE_S)
-            if mature and self.node in self.campaign.get('autoscale_reactive_nodes', ()):
-                # Pure worker machine (owner 10-19): no server to protect, an OOM costs one re-dispatched
-                # episode. Charge what the worker holds now; the floor absorbs fluctuation, the guard sheds.
-                entry['projected_peak'] = entry['rss']
-            else:
+            sampled.append((worker_id, entry))
+        now_mono = self.clock()
+        if self.node in self.campaign.get('autoscale_reactive_nodes', ()):
+            # Worker-only machine (owner 10-19): no server to protect, an OOM costs one re-dispatched
+            # episode. Each worker is charged the steady RSS its settled siblings hold (median), or its
+            # own if larger; a fresh worker is not charged its low start-up RSS (that overshot to 62-69
+            # LIBERO workers on the A100). The floor absorbs fluctuation, the guard sheds.
+            settled = sorted(e['rss'] for _, e in sampled if now_mono - e['born'] >= SETTLED_S)
+            typical = min(projection, settled[len(settled) // 2] if len(settled) >= 5 else
+                          self.campaign.get('autoscale_typical_rss', projection))
+            for _, entry in sampled:
+                entry['projected_peak'] = max(entry['rss'], typical)
+        else:
+            for _, entry in sampled:
+                # Owner 10-19: charging every live worker the lane's p90 envelope assumes all of them
+                # peak at once. Past its first minutes a worker is charged its own high-water (+margin).
+                mature = now_mono - entry['born'] >= self.campaign.get('autoscale_mature_s', MATURE_S)
                 entry['projected_peak'] = (max(entry['peak'], min(projection, int(entry['peak'] * self.config.peak_margin)))
                                            if mature else max(projection, entry['peak']))
+        own = []
+        for worker_id, entry in sampled:
             entry['draining'] = worker_id in self.retired
             entry['gpu_pids']=process_ids(entry['pid'],entry['start_ticks']) or [entry['pid']]
             own.append(dict(entry, owned=True))
