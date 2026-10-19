@@ -18,5 +18,17 @@
     "fa_gr_f_u_o"
   ],
   "renamed_from": "ffk1015_groot_libero_full_formal_A_original_levels",
-  "worker_host_failover": true
+  "worker_host_failover": true,
+  "off_decision": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/off_decisions/groot_full_original.json",
+  "pending_cells": [
+    {
+      "suite": "libero_spatial",
+      "size": 100,
+      "n": 0,
+      "pure_n": 500,
+      "successes": 0,
+      "pure_successes": 477,
+      "status": "pending"
+    }
+  ]
 }

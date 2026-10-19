@@ -205,8 +205,8 @@
       "model": "groot",
       "mode": "full",
       "arm": "filtered",
-      "ready_episodes": 4000,
-      "deferred_upper_bound": 16000,
+      "ready_episodes": 14000,
+      "deferred_upper_bound": 0,
       "units": [
         "fa_gr_f_f_o",
         "fa_gr_f_f_l"
@@ -214,6 +214,6 @@
     }
   ],
   "pure_reference_episodes": 1000,
-  "ready_episodes": 253950,
-  "deferred_upper_bound": 212000
+  "ready_episodes": 263950,
+  "deferred_upper_bound": 196000
 }

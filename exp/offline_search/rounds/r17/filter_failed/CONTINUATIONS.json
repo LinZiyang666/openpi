@@ -39,6 +39,36 @@
       "name": "fa_co_r_f_lc3",
       "run": "/data/mw_finetune/eval/fa_co_r_f_lc3",
       "source": "/data/mw_finetune/eval/fa_co_r_f_lc2"
+    },
+    {
+      "name": "fa_ls_fw_f_f_o_lc2",
+      "run": "/data/mw_finetune/eval/fa_ls_fw_f_f_o_lc2",
+      "source": "/data/mw_finetune/eval/fa_ls_fw_f_f_o_lc1"
+    },
+    {
+      "name": "fa_ls_fw_f_f_o_lc3",
+      "run": "/data/mw_finetune/eval/fa_ls_fw_f_f_o_lc3",
+      "source": "/data/mw_finetune/eval/fa_ls_fw_f_f_o_lc2"
+    },
+    {
+      "name": "fa_ls_fw_f_f_o_lc4",
+      "run": "/data/mw_finetune/eval/fa_ls_fw_f_f_o_lc4",
+      "source": "/data/mw_finetune/eval/fa_ls_fw_f_f_o_lc3"
+    },
+    {
+      "name": "fa_co_r_f_lc4",
+      "run": "/data/mw_finetune/eval/fa_co_r_f_lc4",
+      "source": "/data/mw_finetune/eval/fa_co_r_f_lc3"
+    },
+    {
+      "name": "fa_ls_fw_f_f_o_lc5",
+      "run": "/data/mw_finetune/eval/fa_ls_fw_f_f_o_lc5",
+      "source": "/data/mw_finetune/eval/fa_ls_fw_f_f_o_lc4"
+    },
+    {
+      "name": "fa_co_r_f_lc5",
+      "run": "/data/mw_finetune/eval/fa_co_r_f_lc5",
+      "source": "/data/mw_finetune/eval/fa_co_r_f_lc4"
     }
   ]
 }
