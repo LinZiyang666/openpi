@@ -58,6 +58,12 @@ owner 的常驻指令，逐字有效：
 
 ### ★★★★★★ 2026-10-14 14:55 CDT 总状态（compact 后最先读这一块；下面各「增量」块是细节，按时间倒序）
 
+### 2026-10-18 23:0x 增补（最先读）
+- **H100 链改为 ffk-h100m18**（run_ffk_h100m18.sh）：**fa_co_r_f_lc7**（23:03 start；从 lc6 续，保留 15,138、剩 14,862）→ H100 余下同 h100m17。π0.5 全步各档改由 **ffk-h100r18** 等 `fa_co_r_f_lc7 ended`。h100m17/h100r17 已撤。
+- 原因：调节器的"只看速度往下试探"（throughput_probe_down）在 lc6 上把 Cosmos 从 92 压到 64，速度掉了却抢不回被别的批次占走的名额，目标一路降到 69、53→26 局/分、H100 0–52%。已删掉这条分支（policy.py，commit 429d4c28）：缺 worker 的批次保持需求，只有服务端排队（wait 占比 ≥65%）才缩。lc7 起生效。
+- 4090：g4090k 在跑 fa_ls_dp_r_b_v（重置后 22:44 重启成功）。
+- 答 owner：GR00T 满步 LIBERO 8 步（服务日志 denoising steps: 8；IR 分母按 8 步，rounds/r16/cost.py ← cost_groot_libero_measured.json num_steps 8）、MT50 4 步（tgr7h1_full 46,808 次调用 actual_nfe 全为 4）；MT50 减步 2。
+
 ### 2026-10-18 22:3x 增补（读完再读下面 22:0x 块）
 - GR00T 全步旋钮关 s100 22:21 补齐（500/500，成功 483；10-17 那次局已跑完只是收尾失败）→ GR00T 全步旋钮关 16/16 齐。
 - 4090 队列：g4090j 跑 fa_ls_dp_r_p_m（22:26 start，已挂 hold）→ **ffk-g4090k**（等 `[ffk-g4090j] queue done`）= fa_ls_dp_r_b_v（22:24 副本启动时 `servers/manifest.json.part` 竞争失败——封存运行时的老 write_json，仓库已改 per-pid；已 filter_failed.reset 回 PREPARED）→ fa_ls_fw_r_p_l … fa_ls_v09_1 → fa_gr_f_u_l_dyn fa_gr_f_f_l_dyn。fa_ls_dp_r_b_m 22:15 完成（2,500）。
