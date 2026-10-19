@@ -85,7 +85,7 @@ def remote(node, argv, seconds=60, *, replay_safe=False):
             prefix = argv[:argv.index('-m')]
             code = ('from pathlib import Path; p=Path('+repr(spawn_request['receipt'])+'); '
                     'print(p.read_text() if p.exists() else "null")')
-            value = execute(['tether','exec','--safe','--timeout','10s',node,'--',*prefix,'-c',code],20)
+            value = execute(['tether','exec','--safe','--timeout','10s',node,'--',*node_argv(node,[*prefix,'-c',code])],20)
             receipt = json.loads(value)
             if receipt is None:
                 raise lost_spawn
@@ -93,7 +93,7 @@ def remote(node, argv, seconds=60, *, replay_safe=False):
                 raise ValueError('lost spawn receipt belongs to a different request')
             return value
         try:
-            return execute(['tether', 'exec', '--safe', '--timeout', str(seconds)+'s', node, '--', *argv], seconds+10)
+            return execute(['tether', 'exec', '--safe', '--timeout', str(seconds)+'s', node, '--', *node_argv(node, argv)], seconds+10)
         except Exception as exc:
             if spawn_request is not None and transient(exc,replay_safe=True) and not transient(exc):
                 lost_spawn = exc
@@ -112,6 +112,13 @@ def transfer(argv, *, heartbeat=lambda: None):
 DIRECT_PORTS = range(23100, 23200)
 H100_NODE, H100_IP = 'h100', '149.165.153.233'
 ALIAS_ENV = ('R17_H100_NODE', 'R17_H100_HOST', 'R17_DRIVER_PORT')
+# Jupyter pods (H200 MIG slices): no root, no /data, no public IP. Every command runs
+# through the pod's r17x (proot with POD_BASE/data bound at /data; ops/pod/setup.sh);
+# files move through weilandserver's rsync daemon (the pod connects out). The pod keeps
+# reverse SSH tunnels to the H100, whose public ports public_port..public_port+R forward
+# to the same pod ports, so R17_H100_HOST is the H100's IP (149.165.153.233).
+POD_BASE = '/home/ziyang10/zl_r17'
+POD_PROFILES = {'jupyter-ziyang10': dict(public_port=23470), 'jupyter-ziyang10-02': dict(public_port=23472)}
 
 
 def h100_alias():
@@ -121,6 +128,8 @@ def h100_alias():
     (this lane's coordinator driver port) are set together. Every tether call,
     spawn, rsync transfer and release install of this process that names 'h100'
     then reaches that machine. Campaigns keep server_node='h100'.
+    A POD_PROFILES node also fixes the lane's public port, wraps commands in r17x
+    and has no inbound transfers.
     """
     values = [os.environ.get(key, '') for key in ALIAS_ENV]
     if not any(values):
@@ -128,7 +137,17 @@ def h100_alias():
     node, host, port = values
     if not all(values) or node == H100_NODE or not port.isdigit() or int(port) not in DIRECT_PORTS:
         raise ValueError('set '+', '.join(ALIAS_ENV)+' together: alias tether node, its public IP, driver port 23100-23199')
-    return dict(node=node, host=host, driver_port=int(port))
+    pod = POD_PROFILES.get(node)
+    return dict(node=node, host=host, driver_port=int(port), public_port=pod and pod['public_port'],
+                wrap=pod and POD_BASE+'/bin/r17x', inbound=pod is None)
+
+
+def node_argv(node, argv):
+    """Physical tether node -> argv as executed there (pods: under r17x)."""
+    alias = h100_alias()
+    if alias and alias['wrap'] and node == alias['node']:
+        return [alias['wrap'], *argv]
+    return list(argv)
 
 
 def physical_node(node):
@@ -1295,12 +1314,23 @@ def run_campaign(campaign, directory, deployment):
                 require_service_alive(owned['label'], status, owned['node']+':'+path,
                     lambda: remote(owned['node'], ['tail', '-c', '6000', path], seconds=10, replay_safe=True))
         if worker_state is not None:worker_state.require_workers()
+    alias = h100_alias()
+    pod = bool(alias and alias['wrap'] and campaign['server_node'] == 'h100')
     def wait_port(host, port, seconds=600, required_label=None):
         bound = min(until, time.monotonic()+seconds)
         while time.monotonic() < bound:
             check(required_label)
             try:
-                with socket.create_connection((host, port), timeout=1):
+                with socket.create_connection((host, port), timeout=1) as probe:
+                    if pod and host != '127.0.0.1':
+                        # Pod reverse tunnel: the H100 forwarder accepts before the pod service
+                        # listens, then closes at once; a listening service keeps it open.
+                        probe.settimeout(2)
+                        try:
+                            if probe.recv(1) == b'':
+                                raise OSError('tunnel open, pod service not listening yet')
+                        except socket.timeout:
+                            pass
                     return
             except OSError:
                 time.sleep(.5)
@@ -1483,6 +1513,8 @@ def run_campaign(campaign, directory, deployment):
                 memory = {}
                 for line in listing.splitlines():
                     pid, mib = (field.strip() for field in line.split(','))
+                    if not (pid.isdigit() and mib.replace('.','',1).isdigit()):
+                        continue  # MIG slice in a container: "[Insufficient Permissions]" (record only)
                     if int(pid) in owners:
                         memory[str(pid)] = memory.get(str(pid),0) + float(mib)
                 used_mib = sum(memory.values())
@@ -1704,6 +1736,7 @@ def parse_args(argv=None):
     p.add_argument('--worker-node', choices=('timan107','local','timan1'))
     from .local_workers import counts
     p.add_argument('--worker-counts', type=counts, help='Desired per-node maxima, e.g. timan1=150,timan107=100; runtime chooses active counts')
+    p.add_argument('--worker-hard-limits', type=counts, help='Per-node caps the autoscaler never exceeds (trials), e.g. a100=10,timan107=20')
     p.add_argument('--local-worker-memory-mib',type=int,default=4096)
     p.add_argument('--local-worker-vram-mib',type=int,default=1024)
     p.add_argument('--worker-autoscale', choices=('dynamic','fixed'), default='dynamic')
@@ -1951,6 +1984,10 @@ def main(argv=None):
     model, suffix = args.model.rsplit('_', 1)
     domain = 'libero' if suffix == 'libero' else 'metaworld'
     host = 'ziyanglin.com' if args.server_node == 'local' else h100_host()
+    alias = h100_alias() if args.server_node == 'h100' else None
+    if alias:  # fresh campaign on the R17_H100_NODE machine: its driver port and, for a pod, its tunnel ports
+        args.driver_port = alias['driver_port']
+        args.port = alias['public_port'] or args.port
     from exp.offline_search.rounds.r17.autoscale_1017.defaults import physical_maximum
     worker_nodes = args.worker_counts or {args.worker_node: args.workers if args.workers is not None else physical_maximum(args.worker_node, domain)}
     if args.extra_workers:
@@ -1980,6 +2017,11 @@ def main(argv=None):
         local_assets=str(directory / 'assets'), assets=str(FORMAL_ROOT / name / 'assets'),
         server_run=str(FORMAL_ROOT / name / 'servers'), runtime=str(ROOT),
         vendor='/home/weiland/projects/openpi_ext/third_party/gr00t_n15', live_k=4)
+    if alias:
+        campaign['execution_host'] = alias['node']
+    if args.worker_hard_limits:
+        campaign['worker_hard_limits'] = {n: dict(maximum=v, reason='coordinator trial cap (--worker-hard-limits)')
+                                          for n, v in args.worker_hard_limits.items()}
     if args.eval_pool == 'B':campaign['eval_pool']='B'
     if args.init_count is not None:campaign['init_count']=args.init_count
     if model == 'groot' and args.denoising_steps is not None:

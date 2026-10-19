@@ -119,7 +119,9 @@ def transfer(argv, *, remote, execute, heartbeat=lambda: None):
     with open('/tmp/r17_direct_rsync.lock','a') as lock:
         fcntl.flock(lock,fcntl.LOCK_EX)
         heartbeat()
-        if node == 'h100':
+        from .formal_eval import h100_alias
+        alias = h100_alias()
+        if node == 'h100' and (alias is None or alias['inbound']):
             from .formal_eval import h100_host  # R17_H100_HOST alias; remote() maps the node
             root = str(Path(path).parent/('.'+token))
             # Source hardlinks stay on their source filesystem; no extra archive copy.
@@ -133,7 +135,7 @@ def transfer(argv, *, remote, execute, heartbeat=lambda: None):
                 complete = True
             finally:
                 call(close_daemon,server,path if complete and direction == 'push' else None)
-        else:
+        else:  # worker nodes and jupyter pods (no inbound): they connect to weilandserver
             local.parent.mkdir(parents=True,exist_ok=True)
             root = str(local.parent/('.'+token))
             server = daemon(root,token,PORT,str(local) if direction == 'push' else None)

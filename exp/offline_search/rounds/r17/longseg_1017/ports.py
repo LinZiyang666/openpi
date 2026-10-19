@@ -38,16 +38,21 @@ def execution_host(c,root):
     alias=h100_alias()
     if alias is None or c['server_node']!='h100':
         check_execution_host(c);return c
-    if (c.get('execution_host'),c['driver_port'],c['endpoint_host'])==(alias['node'],alias['driver_port'],alias['host']):
+    if (c.get('execution_host'),c['driver_port'],c['endpoint_host'])==(alias['node'],alias['driver_port'],alias['host']) and (
+            not alias['public_port'] or c['public_port']==alias['public_port']):
         return c
     if alias['driver_port']==23199:raise ValueError('R17_DRIVER_PORT must differ from the H100 lane driver 23199')
     root=Path(root)
     if any((root/n).exists() for n in ('PREPARED.json','LAUNCH.json','RECEIPT.json')):
         raise ValueError('prepared for '+c.get('execution_host','h100')+'; reset it before moving it to '+alias['node'])
     keys=('ports','driver_port','driver_host','driver_public_port','endpoint_host','endpoint_port','endpoint',
-          'backend_host','execution_host')
+          'backend_host','execution_host','public_port','backend_ports')
     new=copy.deepcopy(c)
-    new['ports']=[p for p in c['ports'] if p!=c['driver_port']]+[alias['driver_port']]
+    if alias['public_port']:  # jupyter pod: the ports its tunnels forward (formal_eval.POD_PROFILES)
+        new['public_port']=alias['public_port']
+        new['backend_ports']=list(range(alias['public_port']+1,alias['public_port']+1+c['replicas']))
+        new['ports']=[new['public_port'],*new['backend_ports'],c['driver_port']]
+    new['ports']=[p for p in new['ports'] if p!=c['driver_port']]+[alias['driver_port']]
     new['driver_port']=alias['driver_port']
     assert len(new['ports'])==len(set(new['ports']))
     projected=copy.deepcopy(new)

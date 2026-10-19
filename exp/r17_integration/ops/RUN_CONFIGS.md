@@ -714,6 +714,75 @@ Sources: [completed summary](/data/mw_finetune/eval/formal_fastwam_mw_mt50_500_2
 [resident allocation](/data/mw_finetune/eval/formal_fastwam_mw_mt50_500_20261009_223917_0b845f00/servers/replica_0/closed.json),
 [P3 handback](../handbacks/HANDBACK_P3.md), [P6 handback](../handbacks/HANDBACK_P6.md).
 
+## Jupyter pods as DP servers (H200 MIG 1g.18gb, 2026-10-19)
+
+`jupyter-ziyang10` and `jupyter-ziyang10-02`: one MIG 1g.18gb slice each (16 GiB usable, 16 SMs,
+about 1/8 of an H100), 32 GiB container RAM, 16 cores, no root, no `/data`, no public IP, no EGL
+(server only). Shared NFS home `/home/ziyang10`. A lane on a pod is an H100 lane under the
+`R17_H100_NODE` alias; `formal_eval.POD_PROFILES` adds what a pod needs:
+
+- **Paths.** The pod cannot create `/data` or mount. Every launcher command on the pod runs through
+  `/home/ziyang10/zl_r17/bin/r17x`, which runs it under proot (static v5.5.0) with the pod-local
+  `/tmp/zl_r17/data` bound at `/data`, and returns when the command exits (detached supervisors and
+  servers stay traced). Overhead: 40 ms per call; imports ~2x slower (torch+transformers+diffusers
+  7.6 s); serving is unaffected (ioctls and sockets are not traced).
+- **Files.** The pod has no inbound connections, so `direct_transfer` uses the worker-node path: the
+  pod runs rsync against weilandserver's daemon (`ziyanglin.com:23118`).
+- **Endpoint.** Reverse SSH tunnels from the pod to the H100 (`~/zl_tunnel/tunnel.sh`, key restricted to
+  `permitlisten 127.0.0.1:2447x`) plus `~/zl_tunnel/fwd.py` on the H100 forward H100 public port P to the
+  same port P on the pod. Each pod needs its public port and every backend port forwarded (R1: 2 ports),
+  because the launcher checks each backend from weilandserver. `wait_port` treats an immediately
+  closed tunnel connection as not ready. Profiles: `jupyter-ziyang10` P=23470 (+23471),
+  `jupyter-ziyang10-02` P=23472 (+23473, not yet permitted on the H100). Drivers: 23191 / 23192.
+- **GPU checks.** `nvidia-smi --query-*` prints `[Insufficient Permissions]` on the slice; those rows are
+  skipped (GPU_MEMORY.json records 0). Plain `nvidia-smi` shows the slice's used MiB in its MIG table.
+- **MPS works on the slice** (private pipe dir; `get_server_list` shows the server; quits cleanly).
+
+Setup (per pod; repeat after a pod restart since the data root is pod-local): start a read-only rsync
+daemon on the H100 (modules `<token>_mw` = `/data/mw_finetune`, `<token>_xwam` = `/data/xwam`, port 23117,
+`hosts allow 141.142.218.57`, the pods' egress IP), then on the pod
+`bash /home/ziyang10/zl_r17/setup.sh dp rsync://149.165.153.233:23117/<token>` (script:
+[`ops/pod/setup.sh`](pod/setup.sh); 8.7 GB: Fast-WAM venv 7.3 GB that DP's venv reads, Python 3.12.3
+via uv, DP LIBERO/MT50 checkpoints, CLIP text encoder; ~5 min at 30 MB/s). Close the daemon afterwards.
+Tunnels (pod, then H100): `cd ~/zl_tunnel && setsid -f ./tunnel.sh 24470 23470 >tunnel24470.log 2>&1 </dev/null`
+(same for 24471 23471); `cd ~/zl_tunnel && setsid -f python3 fwd.py 23471 24471 >fwd23471.log 2>&1 </dev/null`.
+
+Launch (fresh campaign; `--worker-hard-limits` caps trial fleets, a100 is added automatically):
+
+```bash
+export R17_H100_NODE=jupyter-ziyang10 R17_H100_HOST=149.165.153.233 R17_DRIVER_PORT=23191
+bash exp/r17_integration/ops/formal_eval.sh --model dp_libero --checkpoint /data/mw_finetune/dp/libero_policy_100000 \
+  --server-node h100 --gpu cuda:0 --replicas 1 --replica-startup-width 1 --memory-budget-gib 14 \
+  --max-batch 8 --batch-wait-ms 5 --driver-mode group-commit --denoising-steps 10 --official-50 \
+  --worker-counts timan107=20 --worker-hard-limits a100=10,timan107=20 --worker-memory-mib 2048 \
+  --worker-max-episodes 4 --seconds 7200 --episode-seconds 1800 --retries 2 --run-name RUN --prepare-only
+bash exp/r17_integration/ops/formal_eval.sh --prepared-run /data/mw_finetune/eval/RUN --run
+```
+
+H100-built campaigns go through `filter_failed.stage` as for h100-temp; `longseg_1017.ports.execution_host`
+also moves their public/backend ports to the pod profile. A 4090-built (`server_node: local`) DP
+campaign cannot be moved by the alias: it needs a pod build (R1 or R2+MPS, ≤14 GiB budget).
+
+**Measured (`jtest_dp2`, DP LIBERO K10, R1 B8/5 ms, no MPS, 60 episodes, timan107 + A100 workers, PASS):**
+prepare 59 s; launch to replica spawn 24 s; replica ready (load + CUDA graphs B1..8) 15 s; first
+accepted episodes ~1.5 min later (worker start). 0 errored attempts, tunnels never reconnected.
+Server per call p50 65 / mean 72 ms (4090 R4 B8 MPS `fa_ls_dp_r_b_l`: 67 / 75 ms); worker round trip per
+call 108 ms (4090 lane with remote workers: 206 ms through the weilandserver ingress). 19 episodes/min
+with ~24 workers (worker-bound; 12.4 calls/s, batch fill 1.05). Pod RAM 1.2 GiB, slice 1.1 GiB, 0.55 cores.
+Supply on the slice (DP K10 MT50 descriptor, `supply_proc`, calls/s; MPS daemon on):
+
+| | B1 | B4 | B8 | B16 | B32 |
+|---|---:|---:|---:|---:|---:|
+| R1 call | 22.7 | 70.5 | 90.0 | 117 | 134 |
+| R2 call (total) | 32.2 | 101 | 117 | 163 | 177 |
+| R1 hit | 234 | 543 | 694 | 821 | 888 |
+
+H100 R4 MPS for comparison: B8 298, B16 479, B32 663 calls/s. Estimate (not measured): a LIBERO worker
+asks ~0.95 calls/s, so one slice should feed ~50-70 DP K10 workers before calls queue; R2+MPS adds ~30%.
+DP K100 (10x the denoising work per call) is a poor fit. Fast-WAM does not load into 16 GiB as is: the
+loader builds the umt5-xxl text encoder (~11 GB bf16) on the GPU with the 5B model before
+`fastwam_text_cache` can move it off.
+
 ## Measurement evidence and grouped driver
 
 **P3/S/Q recommendations are resolved.** Server capacity replays, live campaign
@@ -980,6 +1049,19 @@ workers tops out near 100 requests/s whatever its replicas do. Lanes whose worke
 a server those workers reach without this link (H100 has its own public IP), or keep local workers on 127.0.0.1 (but do
 not put EGL renderers on a GPU that runs an MPS lane). Measure with `/proc/net/dev` on `enp8s0` and per-port
 `ss -tin` `bytes_received` deltas.
+
+### DP LIBERO servers off the 4090 need the CUDA-graph probe frames
+
+`--cuda-graph` (always on for DP) self-checks on `assets/wire_observations.npz`, else
+`/data/mw_finetune/qualification/assets/dp_libero_gpu_fix1_v1/wire_observations.npz`, else the 96x96
+`libero_96` fixture, which fails with `DP LIBERO image resolution differs from the bound benchmark protocol`
+(`jtest_dp1`, 2026-10-19). Only weilandserver has that file; the pod setup copies it, the H100 has none.
+
+### A daemon started from a tool shell can inherit a socket on stdin
+
+`rsync --daemon` whose stdin is a socket runs in inetd mode: it serves stdin once, never listens, and
+the calling shell hangs. Start temporary daemons with `</dev/null`. Connections through `ziyanglin.com`
+arrive from localhost, so `hosts allow` cannot name the remote host on weilandserver.
 
 ### Watch per-stage latency right after launching a changed configuration
 
