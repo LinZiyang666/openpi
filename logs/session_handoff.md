@@ -62,6 +62,7 @@ owner 的常驻指令，逐字有效：
 - **A100 实测上限约 60 个 LIBERO worker（内存）**：一个 worker 稳定约 2 GB（Python 0.63 + 活环境 ~1.35；无每局泄漏；EGL 上下文仅 15 MB），已写 RUN_CONFIGS（661c8ed0）。A100+H100 本机 96 个只能跑 Cosmos 23–29 局/分。owner 同意「把timan加回来」：12:08 fa_co_f_u_l retired 清空（timan1/timan107 与 FW lc1 按公平份额分）。12:12 Cosmos 44 局/分（1 分钟 52），FW lc1 暂降到 ~82（timan1 份额迁移中）。
 - A100 组不再换；现行 `runs/fa_co_f_u_l_a100_s1_s2_s3_s4_s5`，稳在 51–63 个。
 - 12:20 H100 连续 15 次 100%、Cosmos 44.6 局/分，但 Cosmos 占 ~152–162 个 worker（喂满只需 ~110–120），FW lc1 掉到 66–76、4090 ~58%。12:24 把 timan107 从 Cosmos 再撤回给 FW（retired=[timan107]），timan1 两批共享。A100 s5 组累计 10 次强杀/紧急退役，自己维持在 40–44 个、可用 ~29 GB，不再换。
+- **14:04 原库 · Fast-WAM · LIBERO · 减步 · 各档 全部跑完**：fa_ls_fw_r_u_l_lc1 rc=0 accepted 18,659（+ 原批 11,341 = 30,000），RECEIPT=PENDING_EVIDENCE（evidence_pending，证据异步汇总中，待核对转 PASS）。g4090o 接 fa_ls_dp_r_f_l_l。h100-temp：组员（owner 的组员）的 codex 在跑 HumanEval 复现诊断，14:00 起两组各 ≤1400 s，k256 阶段预算将用完；之后要组员本人再批，owner 允许查看其工作。
 - 13:54 巡检：Cosmos 19,564/30,000（15 分钟均 46.5，H100 100%）；FW lc1 18,153/18,659（剩 ~500，约 7 分钟），4090 ~49%。
 - 13:23 巡检：Cosmos 18,351/30,000（15 分钟均 47.1，H100 100%）；FW lc1 15,649/18,659（106.6 局/分，4090 ~52%），约 25 分钟后结束，之后 g4090o 接 fa_ls_dp_r_f_l_l。
 - 12:53 巡检：Cosmos 17,008/30,000，15 分钟均 47.3 局/分，H100 ~100%（A100 60 + H100 33 + timan1 56）；FW lc1 12,584/18,659，15 分钟均 102.5 局/分，4090 ~47%（timan107 正往 62 涨）。预计 FW lc1 约 1 小时跑完，Cosmos 约 4.8 小时。
