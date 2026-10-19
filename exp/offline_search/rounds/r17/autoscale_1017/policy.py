@@ -216,14 +216,11 @@ class Tuner:
         elif not settled:
             return before, 'insufficient_or_unsettled_window'
         elif active > 1 and (self.exploring_down or (not self.plateau and self.previous is None)):
-            # Starting at the maximum leaves no upward gradient to measure.
-            # A rate-only downward experiment also works when timing is absent
-            # or the bottleneck is simulation/CPU rather than the server queue.
-            self.queue_previous = (active, rate)
-            self.exploring_down = True
-            self.target = max(1, math.floor(min(active, before) * self.c.decrease))
-            self.last_probe = now
-            reason = 'throughput_probe_down'
+            # No rate-only downward probe: a worker-bound lane that drops 30% cannot
+            # win its slots back from other lanes on shared nodes, and the probe then
+            # ratchets its demand down (Cosmos lc6 10-18 22:31-22:49: 92 -> 69 workers,
+            # 53 -> 26 episodes/min, H100 half idle). Only server queueing shrinks a lane.
+            reason = 'hold_at_demand'
         elif self.plateau and now - self.last_probe >= self.c.probe_s:
             self.previous = (active, rate)
             self.last_probe = now
