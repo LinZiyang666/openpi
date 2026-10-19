@@ -284,7 +284,7 @@ class LocalGovernor:
             entry['peak'] = max(entry['peak'], peak)
             # Owner 10-19: charging every live worker the lane's p90 envelope assumes all of them
             # peak at once. Past its first minutes a worker is charged its own high-water (+margin).
-            mature = self.clock() - entry['born'] >= MATURE_S
+            mature = self.clock() - entry['born'] >= self.campaign.get('autoscale_mature_s', MATURE_S)
             entry['projected_peak'] = (max(entry['peak'], min(projection, int(entry['peak'] * self.config.peak_margin)))
                                        if mature else max(projection, entry['peak']))
             entry['draining'] = worker_id in self.retired
