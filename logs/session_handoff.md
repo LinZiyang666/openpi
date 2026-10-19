@@ -58,6 +58,12 @@ owner 的常驻指令，逐字有效：
 
 ### ★★★★★★ 2026-10-14 14:55 CDT 总状态（compact 后最先读这一块；下面各「增量」块是细节，按时间倒序）
 
+### 2026-10-18 22:3x 增补（读完再读下面 22:0x 块）
+- GR00T 全步旋钮关 s100 22:21 补齐（500/500，成功 483；10-17 那次局已跑完只是收尾失败）→ GR00T 全步旋钮关 16/16 齐。
+- 4090 队列：g4090j 跑 fa_ls_dp_r_p_m（22:26 start，已挂 hold）→ **ffk-g4090k**（等 `[ffk-g4090j] queue done`）= fa_ls_dp_r_b_v（22:24 副本启动时 `servers/manifest.json.part` 竞争失败——封存运行时的老 write_json，仓库已改 per-pid；已 filter_failed.reset 回 PREPARED）→ fa_ls_fw_r_p_l … fa_ls_v09_1 → fa_gr_f_u_l_dyn fa_gr_f_f_l_dyn。fa_ls_dp_r_b_m 22:15 完成（2,500）。
+- h100-temp 22:21 在只用 65/80 GB 时仍出 Xid 31 → 不是显存满，是那台机器（驱动 590.48）的 EGL 渲染问题；defaults.apply 在 R17_H100_NODE≠h100 时不再加 h100 节点（commit 569b4a59，已写进设备记忆）。FW lc7 的 h100 节点已被自动退役，h100-temp 只靠 a100/timan1/timan107 worker，GPU 16–36%，27 局/分（缺 worker）。
+- 调节器修复生效：Cosmos lc6 22:31 首次 throughput_probe_down（473→64；当时 92 个 worker、53 局/分、sim 17 s / wait 2 s，是缺 worker 不是缺 GPU）；预期下个窗口降速 >5% 即 queue_rate_rollback 回到 ~92，再每 10 min +10% 探测。timan1 上 fairness 给 fa_ls_dp_r_p_m（MetaWorld，worker 便宜）163–225 份额，Cosmos 27、FW ~38。
+
 ### ★★★★★★★★★★★★★★★★★★★ 2026-10-18 22:0x CDT 增量（最先读这块）
 **现在在跑（22:08）**
 | 服务机 | 链 | 当前 | 之后 |
