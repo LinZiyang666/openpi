@@ -60,6 +60,7 @@ owner 的常驻指令，逐字有效：
 
 ### ★ 2026-10-19 14:2x 增补（最先读）
 - **两台 jupyter 服务机**（jupyter-ziyang10、-02；H200 MIG 1g.18gb、32 GB 内存、16 核、无公网、MIG 不能 EGL）：owner 准许自选内网穿透、不准 tether。已打通：pod 内生成专用钥匙（在 .tether-agent/.ssh/zl_tunnel），H100 `~/.ssh/authorized_keys` 加了 `restrict,port-forwarding,permitlisten="127.0.0.1:24470/24471",command="/bin/false"` 一条（备份 authorized_keys.before_zl_tunnel_*）；pod `~/zl_tunnel/tunnel.sh 24470 18080` 保活 ssh -R；H100 `~/zl_tunnel/fwd.py 23470 24470`（setsid）把公网 23470 转到本地。A100/timan107 实测通，~20 ms、~100 MB/s。已派 opus 代理做：pod 装 DP（可能 Fast-WAM）服务环境、启动器支持 jupyter 服务节点（复用 R17_H100_NODE 别名）、jtest 小批次端到端实测；交回后由我起正式批次。
+- owner：jupyter 随时可能下线，下线就 PushNotification，他再打开。后台跑 `openpi_ext/scratch/r17_ops/jupyter_watch.sh`（连续两次非 ONLINE 才退出报警；退出后要重挂）。pod 恢复后要重起隧道：pod 上 `~/zl_tunnel/tunnel.sh`（HOME=.tether-agent），H100 上 `~/zl_tunnel/fwd.py`；副本在 openpi_ext/scratch/r17_ops/{tunnel.sh,fwd.py}。
 - 4090 14:08 起 fa_ls_dp_r_f_l_l（原库 · DP · LIBERO · 减步 · 各档，5,000 局，~60 局/分，worker local/timan，无 A100）。
 
 ### ★ 2026-10-19 12:1x 增补（最先读）
