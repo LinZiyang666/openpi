@@ -1097,13 +1097,16 @@ def refresh_remote_owned(remote_owned, directory, status_cache, control_files, l
         return last_status
     from .remote_json import stage_json, expression
     remote_owned = [o for o in remote_owned if not o.get('retired_worker_node')]
-    for node in sorted({o['node'] for o in remote_owned}):
+    # One session per (node, release): a worker fleet on its model server's machine
+    # ('h100') must be controlled by its own payload, not the server runtime.
+    for node, root, python in sorted({(o['node'], o['root'], o['python']) for o in remote_owned}):
         if UNREACHABLE_UNTIL.get(node, 0) > time.monotonic():
             continue
-        entries=[dict(label=o['label'],request=o['request']) for o in remote_owned if o['node']==node]
+        group=[o for o in remote_owned if (o['node'], o['root'], o['python'])==(node, root, python)]
+        entries=[dict(label=o['label'],request=o['request']) for o in group]
         from exp.offline_search.rounds.r17.autoscale_1017.driver import status_entries
         entries=status_entries(entries, directory)
-        owned=next(o for o in remote_owned if o['node']==node)
+        owned=group[0]
         key=node,json.dumps(entries,sort_keys=True)
         payload=repr(entries)
         if len(payload.encode())>8192 and not any(e.get('autoscale_control') for e in entries) and not (globals().get('worker_resilience') and

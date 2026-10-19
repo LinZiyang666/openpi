@@ -23,10 +23,10 @@ while [ -d "$G" ]; do
   if [ "$free_vram" -gt 6144 ] && [ "$free_ram" -gt 40 ]; then
     id=$(printf "r16_groot_local_%03d" $n); n=$((n+1))
     port=$((23150 + n % 4)); a=$(echo "$args" | sed -E "s/--server-key ([^:]+):[0-9]+/--server-key \1:$port/")
-    setsid bash -c "env PYTHONPATH=$I/packages/openpi-client/src:$I/src:$I HOME=/home/weiland MUJOCO_GL=egl PYOPENGL_PLATFORM=egl MUJOCO_EGL_DEVICE_ID=0 CUDA_VISIBLE_DEVICES=0 OMP_NUM_THREADS=1 LIBERO_CONFIG_PATH=$I/os_cl/libero $PY -m examples.libero.worker_entry --worker-id $id $a >> $I/logs/$id.log 2>&1" > /dev/null 2>&1 < /dev/null &
+    setsid bash -c "env PYTHONPATH=$I/loopback:$I/packages/openpi-client/src:$I/src:$I HOME=/home/weiland MUJOCO_GL=egl PYOPENGL_PLATFORM=egl MUJOCO_EGL_DEVICE_ID=0 CUDA_VISIBLE_DEVICES=0 OMP_NUM_THREADS=1 LIBERO_CONFIG_PATH=$I/os_cl/libero $PY -m examples.libero.worker_entry --worker-id $id $a >> $I/logs/$id.log 2>&1" > /dev/null 2>&1 < /dev/null &
     log "spawn $id (live $live, free VRAM ${free_vram} MiB, RAM ${free_ram} GiB)"
   fi
   # A finished group shuts its workers down; stop when none of ours remain after we had some.
   [ $n -gt 0 ] && [ "$(pgrep -fc "[w]orker-id r16_groot_local_")" -eq 0 ] && { log "group finished"; break; }
-  sleep 30
+  sleep 10
 done

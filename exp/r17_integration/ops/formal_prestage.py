@@ -416,21 +416,7 @@ def launch_prepared(directory):
                 # A dynamic fleet's counts are maxima; its governor places by RAM.
                 if resilience and not admission['admitted'] and not campaign.get('autoscale'):
                     raise RuntimeError(node+': worker RAM admission refused')
-                # Same immutable asset/dependency releases, no install or native imports.
-                dependency=item.get('dependencies')
-                if dependency:
-                    code=('from exp.r17_integration.ops.worker_installs import verify_dependencies; '
-                        'verify_dependencies('+repr(dependency)+')')
-                    # Hashing the dependency release can take minutes on the busy /data disk.
-                    launch.remote(node,['env','PYTHONPATH='+launch.pythonpath(item['payload']),item['python'],'-c',code],600,replay_safe=True)
-                config=item.get('private_config')
-                pins={item['stage']+'/benchmark.json':sha(Path(campaign['local_assets'])/'benchmark.json')}
-                if config:
-                    pins[config['path']+'/config.yaml']=config['sha256']
-                code=('import hashlib; from pathlib import Path; assert all('
-                    'hashlib.sha256(Path(n).read_bytes()).hexdigest()==s for n,s in '+repr(pins)+'.items()), '
-                    '"prepared worker benchmark/config changed"')
-                launch.remote(node,[item['python'],'-c',code],replay_safe=True)
+                # Owner 10-18: no launch-time self-checks of prepared releases (hash re-verification).
                 path=directory/(node+'_launch.json')
                 write_json(path,worker)
                 if resilience:item.update(workers=worker['node_workers'],worker_vram_mib=worker['worker_vram_mib'],
