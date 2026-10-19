@@ -58,6 +58,10 @@ owner 的常驻指令，逐字有效：
 
 ### ★★★★★★ 2026-10-14 14:55 CDT 总状态（compact 后最先读这一块；下面各「增量」块是细节，按时间倒序）
 
+### ★ 2026-10-19 16:0x 增补（最先读）
+- **中央调度器已合并进 Ziyang（4c88b88f）并上线**：A100 `149.165.152.232:23500`（`scheduler/deploy_a100.sh start|stop|status`，代码在 A100 `/home/exouser/scheduler/code_23500`，日志 run_23500）。四个 opus 代理实现、我审过 allocate/client/node/defaults；R15/R16 只用 timan107（+R16 4090 本机）；R15 各 arm 共用一个 scheduler 目录，客户端从上次需求续起。
+- **切换**：hold 了 g4090o、g4090p、h100m21（当前批次 Cosmos fa_co_f_u_l、DP fa_ls_dp_r_u_l_l 用旧代码跑完）。验证：jtest_sl1（DP · LIBERO 纯推理 500 局，服务 jupyter-ziyang10，worker 全由调度器分），4090 空出后再起 MetaWorld 测试批次（服务 4090，验证本机层）。通过后用新链跑剩余项；已 PREPARED 的旧批次（fa_ls_gr_r_f_m、fa_ls_fw_r_f_l_l 等）要 `filter_failed.stage --run <dir> --reprepare`；16 个 R15 cell 要 `control.install_scheduler`（命令见 D 交回，handoff 此块下方补）。autoscale_1017 目录等旧批次全结束后另删。
+
 ### ★ 2026-10-19 15:xx 增补（最先读）
 - **中央 worker 调度器重写（#186，owner 设计）**：中间层只调度、流量不经过；按实际用量公平分（渐进填充 + DRF），有空余就给要得多的；公共池 a100（只 LIBERO）/timan1/timan107 给所有实验；H100、4090 本机 worker 只给本机服务、等公共池分配稳定 10 分钟后才加；LIBERO+MT50 一起分；放 **A100:23500**（owner：不放 4090，不准用 racknerd）；无状态；旧 autoscale_1017 整体拔掉不兼容，新批次缺新包就报错。设计：`/home/weiland/projects/openpi_sched/exp/offline_search/rounds/r17/scheduler/DESIGN.md`（git worktree，分支 sched-1019，未合并）。4 个 opus 代理在做：A 调度器、B 节点执行、C R17 接入+打包（默认开 wire_zlib 无损压缩：LIBERO 图 2.4×，4090 入口当时 28.5 MB/s 近 33 MB/s 上限）、D R15/R16。切换计划：审 diff → A100 部署 → jtest 两小批 → 链边界合并 → 已 PREPARED 的排队批次重新 prepare → 旧批次全部结束后删 autoscale_1017。
 - 新规矩已进记忆：两类 worker（取代「worker 就近」）、基础设施一步到位、按实际用量分。
