@@ -58,6 +58,14 @@ owner 的常驻指令，逐字有效：
 
 ### ★★★★★★ 2026-10-14 14:55 CDT 总状态（compact 后最先读这一块；下面各「增量」块是细节，按时间倒序）
 
+### ★★★★★★★★★★★★★★★ 2026-10-18 20:0x CDT 更新（先读这块）
+- owner：⛔ A100 不做等价性了，改当 worker 机；A100 磁盘已清（删 cl18/models 的模型副本 34 GB，cl18/runs 结果保留）；A100 上研究进程已按 PID 停。xgpu_1017 下代理未提交文件待提交。
+- owner：⛔ R16 driver 的 worker 自检（主机名必须 timan107 + 池/步长比对）已删（`rounds/r16/conductor.py::_record_pull` 直接返回）。19:42 我起的本机 R16 worker 触发该自检把 R16 整批弄崩（已从断点续跑，链 ffk-g4090d）。
+- **4090 本机 R16 worker**：本机解了同一个 `r16/conductor_deployment/worker.tar`（sha 校验过）到 `/data/mw_finetune/qualification/r16_local_island`，LIBERO 配置指本机 libero_sim（mujoco 3.2.3/robosuite 1.4.0/numpy 1.22.4 与 timan107 一致）。`attach_local.sh <group>`（仓库副本 `filter_failed_knob/r16_local/`）：照抄 timan107 一个 worker 的参数，本机空闲显存>6 GB 且内存>40 GB 时每 30 s 加一个。已挂进 `launch_fa_gr_f_u_l_dyn.sh`、`launch_fa_gr_f_f_l_dyn.sh`；当前 fa_gr_r_f_l（剩约 1,400 局）的发布是删自检前构建的，不加本机。
+- timan107：yurenh2 占 31.6 GB 显存、约 19 核；我们的显存份额约 19 GB（R16 15–20 + lc3 16–18）。内存守护 60→12 GiB（已重启 tmux cx_t107_guard）；NODE_CONFIG timan107 floor 96→24 GiB、critical 60→16、spawn_interval 10→2 s（新批次生效）。调度器：显存余量≥2 个 worker 才加、超额≤1 不减、每次最多减 2（node.py）。
+- **h100 / a100 worker 节点**：h100-temp 已装好（env.tar + extra.tar〔cusparselt，torch 导入需要〕；setup 里把 LIBERO 依赖内绝对路径的 assets 软链改指本机；EGL 渲染已实测 OK）。**FW 续跑 fa_ls_fw_f_f_o_lc2**（链 ffk-h100tmp8，20:00 start；节点 h100 16 + timan1 166 + timan107 104）。a100 节点：同一 ROOT `/data/mw_finetune/qualification/h100_workers`，worker 走公网 endpoint，上限 28；defaults.apply 给所有 LIBERO 批自动加 a100。后台 push_node.sh：先 A100 再 H100（传完自动 setup）。
+- 20:00 速度：H100 lc3 约 40 局/分（GPU 100%）；4090 R16 约 30–37 局/分（GPU 8–66%，worker 不够）；h100-temp FW lc2 启动中。
+
 ### ★★★★★★★★★★★★★★ 2026-10-18 19:3x CDT 更新（先读这块）
 - **lc2 → lc3**（19:22）：driver 的 place() 会把 <4 个的节点切成 0，本机校准期间只允许 1 个 → 校准 worker 被退役 → 死循环。`autoscale_1017/driver.py` 已修（暂停加人/校准中的节点保留现有 worker）。H100 现跑 **fa_co_r_f_lc3**（链 ffk-h100m12，19:29 start；timan107 这次进了）。
 - **10 s 超时**：worker_resilience.coordinator.call 把 ≤60 s 的远程调用压到 10 s → timan107 忙时装依赖必超时 → 整机被跳过。已改为按调用方时限；install_worker_dependencies 给 1800 s。

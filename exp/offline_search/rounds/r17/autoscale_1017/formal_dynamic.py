@@ -27,7 +27,7 @@ EXTERNAL_FLOORS = dict(external_peak_floor=4*GIB, external_peak_floor_metaworld=
 # Owner 10-18 19:3x: timan107 RAM is not the binding resource (its 8 GB cards are);
 # keep only a safety margin above the 12 GiB coordinator guard.
 NODE_CONFIG = {'timan107': dict(floor=24*GIB, critical=16*GIB, hysteresis=8*GIB,
-                              spawn_interval_s=10, **EXTERNAL_FLOORS),
+                              spawn_interval_s=2, **EXTERNAL_FLOORS),
                'timan1': dict(EXTERNAL_FLOORS)}
 
 

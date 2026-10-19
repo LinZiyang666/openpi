@@ -19,8 +19,10 @@ HOME = ROOT+'/home'
 DEPENDENCY = ROOT+'/dependencies/libero311_42f0e80603054ed9f4bab84a6ce71bdbc71958c6c5c0329f9b5c892d917b3fe9'
 ASSETS = ROOT+'/assets/libero_3eb6e3e7ee3a03663dba84ccc6d6cf9dbb4ae21fb20558ca4097abc066be57dc/assets'
 CONFIG_SOURCE = ROOT+'/original_paths.yaml'
-# 20 cores, shared with the model server and its proxy: one renderer per core.
-CPU_WORKERS = 16
+# One renderer per core: the H100 machines' 20 cores are shared with the model
+# server; the A100 (owner 10-18: worker machine only) has 32.
+CPU_WORKERS = {'h100': 16, 'a100': 28}
+NODES = tuple(CPU_WORKERS)
 
 SETUP = r'''
 set -euo pipefail
@@ -31,6 +33,11 @@ if [ ! -f $R/.unpacked ]; then tar -xf %(tar)s -C $R && touch $R/.unpacked; fi
 site=$($R/env311/bin/python -c 'import site; print(site.getsitepackages()[0])')
 echo $R/base_site > $site/r17_readonly_base.pth
 mkdir -p %(home)s/.cache
+[ -d $R/extra ] || true
+for x in $R/extra*.tar; do [ -f "$x" ] && [ ! -f "$x.unpacked" ] && tar -xf "$x" -C $R/base_site && touch "$x.unpacked"; done
+# The release links its assets by the local node's absolute path; point it here.
+chmod u+w %(dependency)s/libero/libero
+ln -sfn %(assets)s %(dependency)s/libero/libero/assets
 ln -sfn %(assets)s %(home)s/.cache/libero_assets
 cat > %(config)s <<YAML
 assets: %(assets)s
@@ -48,22 +55,24 @@ def setup_script():
                         dependency=DEPENDENCY)
 
 
-def install(remote, payload):
+def install(remote, payload, node='h100'):
     """The unpacked dependency/asset releases, as install_worker_dependencies returns them."""
-    remote('h100', ['bash', '-c', setup_script()], 900)
+    remote(node, ['bash', '-c', setup_script()], 900)
     return dict(private_dependencies=DEPENDENCY, assets=ASSETS, config_source=CONFIG_SOURCE,
                 copied=['libero', 'robosuite', 'bddl', 'easydict', 'robomimic', 'thop', 'future', 'past'],
                 content_identity=DEPENDENCY.rsplit('_', 1)[1], asset_release=ASSETS.rsplit('/', 1)[0])
 
 
 def route(worker, campaign):
-    if worker.get('worker_node') != 'h100':
+    node = worker.get('worker_node')
+    if node not in NODES:
         return worker
     from exp.offline_search.rounds.r17.filter_failed.timan1_gpu2 import SIZES
     vram, ram = SIZES[campaign['domain']]
     worker.update(worker_egl_device=0, worker_egl_devices=[0], worker_vram_mib=vram,
                   worker_memory_mib=ram, worker_ram_reservation_mib=ram,
-                  # The card also runs the model server: keep room for its growth.
-                  worker_server_vram_headroom_mib=16384,
-                  policy_endpoint='127.0.0.1:'+str(campaign['public_port']))
+                  # On the server's machine the card also runs the model: keep room for its growth.
+                  worker_server_vram_headroom_mib=16384 if node == 'h100' else 0,
+                  policy_endpoint=('127.0.0.1:'+str(campaign['public_port']) if node == 'h100'
+                                   else campaign['endpoint']))
     return worker

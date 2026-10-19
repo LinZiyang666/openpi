@@ -27,7 +27,7 @@ def counts(value):
     result = {}
     for part in value.split(','):
         node, number = part.split('=', 1)
-        if node not in ('timan107','local','timan1','h100') or node in result or int(number) < 1:
+        if node not in ('timan107','local','timan1','h100','a100') or node in result or int(number) < 1:
             raise ValueError('distinct allowed worker nodes and positive counts required')
         result[node] = int(number)
     return result

@@ -352,9 +352,9 @@ def install_worker_dependencies(node, destination, payload, inherited=None):
     if node == 'local':
         from .local_workers import install
         return install(payload)
-    if node == 'h100':
+    if node in ('h100', 'a100'):
         from .h100_workers import install
-        return install(remote, payload)
+        return install(remote, payload, node)
     if node == 'timan1':
         from .timan1_workers import PYTHON
         return json.loads(remote(node,['env','PYTHONPATH='+pythonpath(payload),PYTHON,'-c',
@@ -386,13 +386,13 @@ def worker_paths(campaign, node):
     name = campaign['run_name']
     if not name or name in ('.','..') or any(c not in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.-' for c in name):
         raise ValueError('campaign name must be a single safe path component')
-    if node not in ('timan107', 'timan108', 'local','timan1','h100'):
+    if node not in ('timan107', 'timan108', 'local','timan1','h100','a100'):
         raise ValueError('unknown worker node')
     root = WORKER_ROOT
     if node == 'local':
         from .local_workers import ROOT as local_root
         root = str(local_root)
-    if node == 'h100':
+    if node in ('h100', 'a100'):
         from .h100_workers import ROOT as h100_root
         root = h100_root
     return dict(stage=(root+'/stage/' if node == 'timan1' else '/tmp/r17_formal/')+name+'/'+node,
@@ -514,7 +514,7 @@ def prepare_workers(campaign, directory, *, payload_override=None):
         elif node == 'local':
             from .local_workers import environment
             worker_python = environment()
-        elif node == 'h100':
+        elif node in ('h100', 'a100'):
             from .h100_workers import PYTHON as worker_python
         extra = dependency['private_dependencies'] if dependency else ''
         env = dict(HOME='/home/zixuans8', PYTHONPATH=pythonpath(destination, extra),
@@ -524,7 +524,7 @@ def prepare_workers(campaign, directory, *, payload_override=None):
         if node == 'local':
             from .local_workers import LOCAL_HOME
             env['HOME'] = LOCAL_HOME
-        if node == 'h100':
+        if node in ('h100', 'a100'):
             from .h100_workers import HOME as h100_home
             env['HOME'] = h100_home
         if campaign.get('wire_zlib'):
@@ -593,7 +593,7 @@ def prepare_workers(campaign, directory, *, payload_override=None):
         if node == 'timan1':
             from .timan1_workers import route
             route(worker,campaign)
-        if node == 'h100':
+        if node in ('h100', 'a100'):
             from .h100_workers import route
             route(worker,campaign)
         if campaign.get('cache_study'):

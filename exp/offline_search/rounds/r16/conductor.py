@@ -411,19 +411,8 @@ class R16Driver(ConductorDriver):
             self._scheduler.enabled_fallbacks=set(self._graph.stages)
 
     def _record_pull(self,payload,peer):
-        worker=super()._record_pull(payload,peer)
-        group=self._strategy.group
-        if 'pool_digests' not in group:return worker  # synthetic unit fixtures
-        entry=self.worker_census.get(worker,{})
-        probe=entry.get('probe') or {}
-        expected_size=256 if group['model']=='groot' else 224
-        if (probe.get('hostname','').split('.')[0]!='timan107' or probe.get('num_steps_wait')!=10 or
-            probe.get('replan_steps')!=5 or probe.get('resize_size')!=expected_size or
-            probe.get('max_steps')!={'libero_10':520,'libero_spatial':220} or
-            probe.get('per_task_digests')!=group['pool_digests'] or entry.get('probe_conflict')):
-            self.fatal_error='worker fleet/pool/horizon attestation mismatch'
-            raise ValueError('FatalEpisodeError: worker fleet/pool/horizon attestation mismatch')
-        return worker
+        # Owner 10-18: no worker attestation gate; any worker host may serve.
+        return super()._record_pull(payload,peer)
 
     def handle_result(self, payload):
         with self.result_lock:

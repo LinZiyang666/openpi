@@ -55,7 +55,7 @@ def client_release(launch, node, directory, stage, destination, payload, *, clos
     if node == 'local':
         from .local_workers import environment
         python = environment()
-    if node == 'h100':
+    if node in ('h100', 'a100'):
         from .h100_workers import PYTHON, setup_script
         launch.remote(node, ['bash', '-c', setup_script()], 900)
         python = PYTHON
@@ -399,7 +399,7 @@ def launch_prepared(directory):
                     route(worker,campaign)
                     if campaign.get('domain') == 'libero':
                         launch.install_worker_dependencies(node,'unused',item['payload'])
-                if node == 'h100':
+                if node in ('h100', 'a100'):
                     from .h100_workers import route
                     route(worker,campaign)
                 if campaign.get('cache_study'):
