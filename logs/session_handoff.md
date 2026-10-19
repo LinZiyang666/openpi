@@ -69,6 +69,12 @@ owner 的常驻指令，逐字有效：
 - 现在 fleet：timan107 fx1、a100 fx1、local fx1、timan1 fx4（两批）；17:23 timan1 FW 33/123、DP 爬坡中。
 - fa_ls_dp_r_b_m_j（pod 纯推理对照 2,500）driver PASS 2500，但 RECEIPT FAIL：`native CPU evidence aggregate is incomplete`（换 fleet 把 kernel evidence 拆进 _fx 目录）→ 待合并证据重出 receipt，数据完整可用。
 
+**18:5x 增补（worker 慢 7 倍的根因与临时处置）**：
+- 根因：`scheduler/worker.py creation_lock` 每局建环境按物理 GPU 串行（一卡一把锁），中央调度器每卡放 40–60 个 worker、多批共卡 → 每局排队 ~100 s（MetaWorld 单局 sim 15–17 s → 115–150 s；h100-temp/H100 GPU 闲）。新批次已改每卡 4 个并发（2e0d7dd6）。
+- 在跑批次不重启 worker 的处置：timan107/timan1/a100 上 `python3 /tmp/zl_lock_rotate.py`（每 0.2 s 用新空文件替换 `/tmp/openpi-autoscale-*/creation-*.lock`；停：`touch /tmp/zl_lock_rotate.stop`）。0 错误。效果：合计 ~300 → ~510 局/分（h100-temp 28→84、GR00T 97→143、pod1 91→143、pod2 38→80、4090 FW 48→60；A100 LIBERO sim 50→12 s）。⛔ 它也会轮换新代码的 4 槽锁文件（等于不限并发）；在跑的旧批次都结束后停掉它。
+- 107 MetaWorld 仍 ~90 s/局（timan1 35 s）：GPU0–4 89–100%（0/1 有别人计算），5–7 空；待查每卡锁键是否按真实 GPU 对应。
+- timan1 LIBERO 不再每 4 局换代（5ed3c20f，新批次）；pod1 cap 降到 220；/data 方案见任务 #191（owner：先只记方案）。
+
 **17:5x 增补**：
 - h100-temp owner 放行，只临时分担：**ffk-h100tmp15**（chain_ffk_stop，alias env R17_H100_NODE=h100-temp R17_H100_HOST=149.165.172.126 R17_DRIVER_PORT=23194）跑 **fa_ls_v02_s_c1**（成功过滤库 · Fast-WAM · MetaWorld · 减步 · 缓存变体续跑，剩 57,058；filter_failed.resume --remaining --verify-closed 建）。跑完一次只领一批 H100 队列里还没开始的；⛔ 不碰 4090 队列。
 - 调度器加 `caps.json`（A100 /home/exouser/scheduler/run_23500/caps.json，每次重算重读）：现 `{"fa_ls_dp_r_u_m_j": 300}`（旧 driver 测速恒 0 + pod 读不到 GPU，需求涨到 706 挤别人）。该批跑完删这项。
