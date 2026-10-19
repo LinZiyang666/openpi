@@ -54,6 +54,23 @@ owner 的常驻指令，逐字有效：
 
 ## 1. 现在在哪（2026-10-19 16:3x CDT；**最先读下面 10-19 16:3x 总状态**，10-14 及更早的总状态块已过时只作背景）
 
+### ★★★★★★★★★★★★★★★★★★★★★★ 2026-10-19 17:2x CDT 增量（最先读；下面 16:3x 总状态仍有效，除这里改了的）
+
+**调度器修了三个 bug（sched-1019b，c87ae723 / 510b21c1 / 之后一提交撤回 107 优先）**
+1. 节点换代同 worker_id：worker 退役后同槽新一代读到旧快照里自己在 retired → 立刻 exit 0 → fleet 当成 driver 终止信号、整台机永久停 spawn。修：`node.finished()` 立刻重写快照。
+2. 放置每 5 s 抖动（7/9↔8/8）→ 反复退役/补起。修：`allocate.plan(previous=上次 targets)` 粘住上次目标（服务端内存，重启丢了退回按 active）。
+3. 测速恒 0：`formal_driver_fast.AsyncCampaignDriver.handle_result` 没调 `_autoscaler.result` → 所有 group-commit/cache_study 批次 step rate=0，desire 只靠服务机 GPU≥90% 刹车（pod 读不到 GPU → 只涨不停）。修了，只对新 prepare 的批次生效。
+- 另：`scheduler_channel_run` 字段让替换的 fleet 沿用原 run 的 control/snapshot 文件。VERSION 升 sched-1019b → 旧包批次 launch 会被 require 拒绝，排队的 prepare 脚本都已带 `--reprepare`（含 3 个 _j）。
+- ⛔ owner 纠正：107 全部可用（别人进程不是少放理由），但**不是先放满 107 再用 timan1**；放置照常按余量。调度器记 RAM 用 RSS × 目标数，会高估（owner：107 实际只用 160 GB）→ 待改 PSS + 实测空闲，节点侧改动等新批次带上，不再原地换在跑 fleet。
+
+**在跑批次 worker 组被我原地换过（fx 后缀），timan1 一度全丢**
+- 工具 `openpi_ext/scratch/r17_ops/swap_sched_fleet.py`（经 tmp/swap.sh 用 tether exec 发；会复制 payload_*_swap<suffix>、改 argv 里所有 launch_campaign 路径和 payload 路径）。⛔ 同一后缀不要跑两次（会把刚起好的新组当旧组杀掉）；被 owner 打断的工具调用可能已经执行。
+- 第一次在 timan1 换失败 → 三批 launcher 把 timan1 退役（不续租约、不收发状态、driver 拒 timan1 worker）。补救：两批 `WORKER_NODE_STATE.json` 把 timan1 加回（备份 `.before_timan1_rejoin.json`）+ `openpi_ext/scratch/r17_ops/timan1_control_relay.sh <batch>`（后台两个：fa_ls_dp_r_u_m_j、fa_ls_fw_r_f_l_l；每 ~15 s 续 timan1 lease、转 control、回传 timan1 快照到 AUTOSCALE_NODES.json；driver done 后自退）。⛔ 这两批跑完前别杀 relay；杀 relay 只能按 PID（pgrep 字符类会匹配到自己 shell）。
+- 现在 fleet：timan107 fx1、a100 fx1、local fx1、timan1 fx4（两批）；17:23 timan1 FW 33/123、DP 爬坡中。
+- fa_ls_dp_r_b_m_j（pod 纯推理对照 2,500）driver PASS 2500，但 RECEIPT FAIL：`native CPU evidence aggregate is incomplete`（换 fleet 把 kernel evidence 拆进 _fx 目录）→ 待合并证据重出 receipt，数据完整可用。
+
+**链**：Cosmos fa_co_f_u_l 30,000 17:20 结束（receipt PENDING_EVIDENCE）；h100m22 17:21 起，prepare fa_ls_gr_r_f_m；pod2a 17:11 起 fa_ls_dp_r_f_m_j；pod1a 在跑 fa_ls_dp_r_u_m_j（17:23 约 180 局/分，107 257 个）；g4090q 在跑 fa_ls_fw_r_f_l_l（约 44 局/分）。
+
 ### ★★★★★★★★★★★★★★★★★★★★★ 2026-10-19 16:3x CDT 总状态（compact 后最先读这块；下面 16:0x、15:xx、14:2x、12:1x、11:2x、11:1x、10:3x 是今天的细节）
 
 **一句话**：今天把 worker 调度整体换成了**中央调度器**（A100:23500），4090 已切到新代码在跑；H100 还在用旧代码跑完 Cosmos，跑完后要我手动起新 H100 链；两台 jupyter（H200 MIG 切片）接成了 DP 服务机，第三条链在准备。
