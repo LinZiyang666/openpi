@@ -9,12 +9,49 @@
   "batch": 1,
   "workers": {
     "timan1": 35,
-    "timan107": 25,
-    "timan108": 25
+    "timan107": 50
   },
-  "jobs": [],
-  "status": "WAITING_OFF",
-  "episodes": null,
+  "jobs": [
+    {
+      "name": "fa_co_r_f_l",
+      "run": "/data/mw_finetune/eval/fa_co_r_f_l",
+      "source": "/data/mw_finetune/eval/knobtestcos_red",
+      "episodes": 30000,
+      "model": "cosmos",
+      "benchmark": "libero",
+      "gpu": "H100",
+      "workers": {
+        "timan1": 35,
+        "timan107": 50
+      },
+      "replicas": 8,
+      "python": "/data/cosmos/cosmos-policy/.venv/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_a7a387ed6d45ce9cf5ece2628f32577ee5a55ab55bbcb2a771e25ebc227b4f07",
+      "unfiltered": false,
+      "mode": "reduced",
+      "arm": "filtered",
+      "stage": "levels",
+      "pipeline": "R17",
+      "batch": 1,
+      "mps": {
+        "active_thread_percentage": 100,
+        "compute_mode_change": false,
+        "enabled": true,
+        "private_per_campaign_gpu": true,
+        "schema": "r17.mps.v1"
+      },
+      "levels": [
+        "k50",
+        "k40",
+        "k30",
+        "k20",
+        "k10"
+      ],
+      "off_reuse": null
+    }
+  ],
+  "status": "BUILT",
+  "episodes": 30000,
   "maximum_episodes": 30000,
   "off_decision": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/off_decisions/cosmos_reduced_filtered.json",
   "pending_cells": [
@@ -142,5 +179,63 @@
   "dependencies": [
     "ffk1015_cosmos_libero_reduced_off"
   ],
-  "renamed_from": "ffk1015_cosmos_libero_reduced_formal_A_filtered_levels"
+  "renamed_from": "ffk1015_cosmos_libero_reduced_formal_A_filtered_levels",
+  "off_decision_sha256": "5c9ce975458dab2b97ad2c69091ea8edf6ee9765c765ebe36075b5e2b8cd267e",
+  "selected_cells": [
+    [
+      "libero_10",
+      50
+    ],
+    [
+      "libero_10",
+      100
+    ],
+    [
+      "libero_10",
+      200
+    ],
+    [
+      "libero_10",
+      300
+    ],
+    [
+      "libero_10",
+      400
+    ],
+    [
+      "libero_10",
+      500
+    ],
+    [
+      "libero_spatial",
+      50
+    ],
+    [
+      "libero_spatial",
+      100
+    ],
+    [
+      "libero_spatial",
+      200
+    ],
+    [
+      "libero_spatial",
+      300
+    ],
+    [
+      "libero_spatial",
+      400
+    ],
+    [
+      "libero_spatial",
+      500
+    ]
+  ],
+  "levels": [
+    "k50",
+    "k40",
+    "k30",
+    "k20",
+    "k10"
+  ]
 }

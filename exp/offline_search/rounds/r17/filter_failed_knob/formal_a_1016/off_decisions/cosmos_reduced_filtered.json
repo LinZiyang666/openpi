@@ -2,128 +2,116 @@
   "model": "cosmos",
   "mode": "reduced",
   "arm": "filtered",
-  "source_audit": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/review_off_audit/cosmos_filtered.json",
-  "source_audit_sha256": "77584f9991e91d525d1dc9042e56a900a4edd0b7a54ff016db1c28a139bb45b5",
   "rows": [
     {
       "suite": "libero_10",
       "size": 50,
-      "n": 0,
+      "n": 500,
       "pure_n": 500,
-      "successes": 0,
+      "successes": 187,
       "pure_successes": 483,
-      "complete": false,
-      "status": "pending"
+      "status": "tune"
     },
     {
       "suite": "libero_10",
       "size": 100,
-      "n": 0,
+      "n": 500,
       "pure_n": 500,
-      "successes": 0,
+      "successes": 322,
       "pure_successes": 483,
-      "complete": false,
-      "status": "pending"
+      "status": "tune"
     },
     {
       "suite": "libero_10",
       "size": 200,
-      "n": 0,
+      "n": 500,
       "pure_n": 500,
-      "successes": 0,
+      "successes": 387,
       "pure_successes": 483,
-      "complete": false,
-      "status": "pending"
+      "status": "tune"
     },
     {
       "suite": "libero_10",
       "size": 300,
-      "n": 0,
+      "n": 500,
       "pure_n": 500,
-      "successes": 0,
+      "successes": 410,
       "pure_successes": 483,
-      "complete": false,
-      "status": "pending"
+      "status": "tune"
     },
     {
       "suite": "libero_10",
       "size": 400,
-      "n": 0,
+      "n": 500,
       "pure_n": 500,
-      "successes": 0,
+      "successes": 414,
       "pure_successes": 483,
-      "complete": false,
-      "status": "pending"
+      "status": "tune"
     },
     {
       "suite": "libero_10",
       "size": 500,
-      "n": 0,
+      "n": 500,
       "pure_n": 500,
-      "successes": 0,
+      "successes": 418,
       "pure_successes": 483,
-      "complete": false,
-      "status": "pending"
+      "status": "tune"
     },
     {
       "suite": "libero_spatial",
       "size": 50,
-      "n": 0,
+      "n": 500,
       "pure_n": 500,
-      "successes": 0,
+      "successes": 217,
       "pure_successes": 483,
-      "complete": false,
-      "status": "pending"
+      "status": "tune"
     },
     {
       "suite": "libero_spatial",
       "size": 100,
-      "n": 0,
+      "n": 500,
       "pure_n": 500,
-      "successes": 0,
+      "successes": 409,
       "pure_successes": 483,
-      "complete": false,
-      "status": "pending"
+      "status": "tune"
     },
     {
       "suite": "libero_spatial",
       "size": 200,
-      "n": 0,
+      "n": 500,
       "pure_n": 500,
-      "successes": 0,
+      "successes": 482,
       "pure_successes": 483,
-      "complete": false,
-      "status": "pending"
+      "status": "tune"
     },
     {
       "suite": "libero_spatial",
       "size": 300,
-      "n": 0,
+      "n": 500,
       "pure_n": 500,
-      "successes": 0,
+      "successes": 481,
       "pure_successes": 483,
-      "complete": false,
-      "status": "pending"
+      "status": "tune"
     },
     {
       "suite": "libero_spatial",
       "size": 400,
-      "n": 0,
+      "n": 500,
       "pure_n": 500,
-      "successes": 0,
+      "successes": 481,
       "pure_successes": 483,
-      "complete": false,
-      "status": "pending"
+      "status": "tune"
     },
     {
       "suite": "libero_spatial",
       "size": 500,
-      "n": 0,
+      "n": 500,
       "pure_n": 500,
-      "successes": 0,
+      "successes": 480,
       "pure_successes": 483,
-      "complete": false,
-      "status": "pending"
+      "status": "tune"
     }
-  ]
+  ],
+  "reference": "same-step same-GPU pure A",
+  "dev_outcomes_used": false
 }
