@@ -58,6 +58,27 @@ owner 的常驻指令，逐字有效：
 
 ### ★★★★★★ 2026-10-14 14:55 CDT 总状态（compact 后最先读这一块；下面各「增量」块是细节，按时间倒序）
 
+### ★★★★★★★★★★★★★★ 2026-10-18 19:3x CDT 更新（先读这块）
+- **lc2 → lc3**（19:22）：driver 的 place() 会把 <4 个的节点切成 0，本机校准期间只允许 1 个 → 校准 worker 被退役 → 死循环。`autoscale_1017/driver.py` 已修（暂停加人/校准中的节点保留现有 worker）。H100 现跑 **fa_co_r_f_lc3**（链 ffk-h100m12，19:29 start；timan107 这次进了）。
+- **10 s 超时**：worker_resilience.coordinator.call 把 ≤60 s 的远程调用压到 10 s → timan107 忙时装依赖必超时 → 整机被跳过。已改为按调用方时限；install_worker_dependencies 给 1800 s。
+- **R16 自适应生效**：timan107 60–68 个，R16 约 45 局/分；4090 利用率 54–95%。
+- **更正**：h100-temp Fast-WAM 之前每步约 0.5 s 的主因是 2.3 MB 快照随每步进度同步上报（下行满载），不是 timan1 卡被别人占用；瘦身后同样在 timan1 上 49 个 worker 达 60–100 局/分（19:30）。h100 节点仍按同机规则做，但不再是救急。
+- **新 worker 节点 'h100'**（owner：同机 worker 优先给同机 server；h100-temp 线 alias 下 'h100' 即 h100-temp）：
+  - 新模块 `exp/r17_integration/ops/h100_workers.py`（ROOT=/data/mw_finetune/qualification/h100_workers；env.tar 解包：python311 + base_site〔本机 .venv 的 worker 依赖包+nvidia〕+ LIBERO 依赖 libero311_42f0… + 资产 libero_3eb6…；setup 建 env311 venv + .pth + original_paths.yaml；CPU_WORKERS=16；loopback 连本机 server；预留 16 GB 显存给 server）。
+  - 改动：formal_eval（worker_paths/install_worker_dependencies/worker_python/HOME/route/local_worker_entry 入包）、formal_prestage（client_release 用 h100 python 并先 setup；worker_preflight route）、formal_workers（h100 同 local 走 local_worker_entry loopback）、worker_resilience（NODES、call 走 alias 原生 remote、measure 用 physical_node、node_of、capacity 上限 16）、autoscale policy.NODES、defaults.physical_maximum('h100')=16、apply 对 server_node=='h100' 的 LIBERO 批自动加 h100 节点、local_workers.counts。
+  - 环境包 `tmp/h100w/h100_workers_env.tar`（7.2 GB）；后台 b9wcdtqc0：等 lc3 出局后依次 push h100-temp → h100（全局 rsync 锁 /tmp/r17_direct_rsync.lock：大文件传输会挡住所有批次的准备传输，别在批次准备时传）。
+  - **下一步**：env 到位后先在 h100-temp 用：停 fa_ls_fw_f_f_o_lc1（timan1-only 慢）→ 续跑 lc2，campaign 里删 autoscale_node_maxima/autoscale_maxima_policy、execution_worker_nodes 写 {h100:16, timan107:104, timan1:166}（续跑会沿用上一批的上限，不会自动加 h100）。H100 主线 lc3 视 GPU 利用率决定是否再续跑加 h100。
+
+### ★★★★★★★★★★★★★ 2026-10-18 19:1x CDT 更新（先读这块，再读下面 18:5x 块）
+- owner 新规矩：⛔ 不写/不跑测试自检，修好直接上实验；⛔ worker 优先给同机 server（4090 本机 worker 先给 4090 线，H100/h100-temp 本机 worker 先给自己）。都已写进记忆。
+- **全部改成自适应**（19:00–19:16）：
+  - H100：lc1 停（167 局）→ **fa_co_r_f_lc2**（动态续跑，maxima local 83 / timan1 166；timan107 在 prepare 时异常被吞，已改 worker_resilience 打印 traceback）。链 **ffk-h100m11**（`ff/run_ffk_h100m11.sh`）：lc2 → fa_ls_gr_r_f_m（formal_dynamic，private_on 已改为 ON 时直通）→ 原 h100m10 余下。
+  - 4090：R16 fa_gr_r_f_l 停（7,233 局）→ **fa_gr_r_f_l_dyn**（vla_workers prepare 写 LEGACY_AUTOSCALE.json，timan107 max 104，NODE_CONFIG 96 GiB 底线；launch 带 VLA_WORKER_HOST=timan107 走 run_r16_selected，R16 从自身状态续跑）。链 **ffk-g4090b**：R16 三组 _dyn → 原 g4090a 的 R17 列表。新 wrapper `commands/{prepare,launch}_fa_gr_{r_f_l,f_u_l,f_f_l}_dyn.sh`（f_u_l/f_f_l 的 prepare 先跑原生 prepare 再 stage）。
+  - h100-temp：fa_ls_fw_f_f_o_l 停（88 局；timan1 4 卡被别人 97–100% 占用 → 渲染每步约 0.5 s，h100-temp GPU 0–5%）→ **fa_ls_fw_f_f_o_lc1**（timan1 166 / timan107 104 / local 83）。链 **ffk-h100tmp7**（stop runner，alias env）：lc1 → tmp5 余下 → v07_0（已 vfix 重置）/v05_3/v05_4/v05_0。tmp5/tmp6 已停。
+- **带宽事故已修**：自适应 worker 每步进度上报都附带 2.3 MB 的节点快照（governor 的 workers 列表含完整 argv），22 MB/s 挤满本机下行（上限约 36 MB/s），R16 观测流被饿死、4090 利用率低。`autoscale_1017/worker.py::payload` 去掉 workers 列表；timan1 上 live payload 也已改并重启那 82 个 worker。现下行 ≈0。
+- 代码改动（已由 sonnet 提交推送到 origin/Ziyang，7 个 commit 至 ab1df34b；之后又改了 worker_resilience traceback 未提交）：defaults.apply（cache 续跑也动态、默认写 autoscale_node_config=NODE_CONFIG）、formal_dynamic.private_on、formal_eval（续跑也套 worker overlay）、filter_failed/stage（动态续跑重建 driver）、formal_prestage（动态批不因 RAM 准入丢节点）、timan1_gpu2 去 switch import、worker.py 瘦身。
+- **下一步**：把两台 H100 接成 worker 节点（各 20 核 / ~207 GB 空闲；H100 有 uv python3.11 + libEGL_nvidia；h100-temp 只有 3.12/3.13，需拷 3.11）；需改 worker_paths / prepare_workers / install_worker_dependencies / NODES / capacity 等，按 'local' 节点的写法做。4090 本机 R16 worker 仍未做。A100 opus 代理继续跑 Cosmos 与扩展块（不碰正式线）。
+
 ### ★★★★★★★★★★★★ 2026-10-18 18:5x CDT 总状态（compact 后最先读这一块；10-18 下午细节在下面 10-16 16:3x 块末尾的「>」条目）
 
 **owner 新规矩（都已写进记忆，违反即失职）**
