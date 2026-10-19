@@ -66,13 +66,14 @@ owner 的常驻指令，逐字有效：
 - **两台 jupyter 服务机**（jupyter-ziyang10、-02；H200 MIG 1g.18gb、32 GB 内存、16 核、无公网、MIG 不能 EGL）：owner 准许自选内网穿透、不准 tether。已打通：pod 内生成专用钥匙（在 .tether-agent/.ssh/zl_tunnel），H100 `~/.ssh/authorized_keys` 加了 `restrict,port-forwarding,permitlisten="127.0.0.1:24470/24471",command="/bin/false"` 一条（备份 authorized_keys.before_zl_tunnel_*）；pod `~/zl_tunnel/tunnel.sh 24470 18080` 保活 ssh -R；H100 `~/zl_tunnel/fwd.py 23470 24470`（setsid）把公网 23470 转到本地。A100/timan107 实测通，~20 ms、~100 MB/s。已派 opus 代理做：pod 装 DP（可能 Fast-WAM）服务环境、启动器支持 jupyter 服务节点（复用 R17_H100_NODE 别名）、jtest 小批次端到端实测；交回后由我起正式批次。
 - A100 公网 IP 实为 **149.165.152.232**（旧文档 .105 错）。A100 `~/.ssh/authorized_keys` 也加了同一把 zl_tunnel 钥匙（permitlisten 127.0.0.1:24470–24473，备份 authorized_keys.before_zl_tunnel_*）。`tunnel.sh <远端端口> <pod端口> [host]`；实测 pod1:18080 → A100 127.0.0.1:24472，A100 本机 ~19 ms、~107 MB/s。A100 worker 连本机端口，timan worker 走 H100 公网 23470。
 - owner：jupyter 随时可能下线，下线就 PushNotification，他再打开。后台跑 `openpi_ext/scratch/r17_ops/jupyter_watch.sh`（连续两次非 ONLINE 才退出报警；退出后要重挂）。pod 恢复后要重起隧道：pod 上 `~/zl_tunnel/tunnel.sh`（HOME=.tether-agent），H100 上 `~/zl_tunnel/fwd.py`；副本在 openpi_ext/scratch/r17_ops/{tunnel.sh,fwd.py}。
-- 4090 14:08 起 fa_ls_dp_r_f_l_l（原库 · DP · LIBERO · 减步 · 各档，5,000 局，~60 局/分，worker local/timan，无 A100）。
+- 4090 14:08 起 fa_ls_dp_r_f_l_l（成功过滤库 · DP · LIBERO · 减步 · 各档，5,000 局，~60 局/分，worker local/timan，无 A100）。
 
 ### ★ 2026-10-19 12:1x 增补（最先读）
 - **A100 实测上限约 60 个 LIBERO worker（内存）**：一个 worker 稳定约 2 GB（Python 0.63 + 活环境 ~1.35；无每局泄漏；EGL 上下文仅 15 MB），已写 RUN_CONFIGS（661c8ed0）。A100+H100 本机 96 个只能跑 Cosmos 23–29 局/分。owner 同意「把timan加回来」：12:08 fa_co_f_u_l retired 清空（timan1/timan107 与 FW lc1 按公平份额分）。12:12 Cosmos 44 局/分（1 分钟 52），FW lc1 暂降到 ~82（timan1 份额迁移中）。
 - A100 组不再换；现行 `runs/fa_co_f_u_l_a100_s1_s2_s3_s4_s5`，稳在 51–63 个。
 - 12:20 H100 连续 15 次 100%、Cosmos 44.6 局/分，但 Cosmos 占 ~152–162 个 worker（喂满只需 ~110–120），FW lc1 掉到 66–76、4090 ~58%。12:24 把 timan107 从 Cosmos 再撤回给 FW（retired=[timan107]），timan1 两批共享。A100 s5 组累计 10 次强杀/紧急退役，自己维持在 40–44 个、可用 ~29 GB，不再换。
 - **14:04 原库 · Fast-WAM · LIBERO · 减步 · 各档 全部跑完**：fa_ls_fw_r_u_l_lc1 rc=0 accepted 18,659（+ 原批 11,341 = 30,000），RECEIPT=PENDING_EVIDENCE（evidence_pending，证据异步汇总中，待核对转 PASS）。g4090o 接 fa_ls_dp_r_f_l_l。h100-temp：组员（owner 的组员）的 codex 在跑 HumanEval 复现诊断，14:00 起两组各 ≤1400 s，k256 阶段预算将用完；之后要组员本人再批，owner 允许查看其工作。
+- 15:10 fa_ls_dp_r_f_l_l（**成功过滤库** · DP · LIBERO · 减步 · 各档，命名第二位 f=成功过滤库/u=原库，之前误写成原库）5,000 rc=0 PENDING_EVIDENCE；15:11 g4090o 准备 fa_ls_dp_r_u_l_l（原库 · DP · LIBERO · 减步 · 各档）。
 - 15:00 巡检：Cosmos 22,657/30,000，最近几分钟掉到 15–25 局/分、H100 ~0%：这段任务缓存命中高（每局只 ~6 次推理、仿真 ~139 s），是 worker 仿真瓶颈 → timan107 放回 Cosmos（retired 清空）。DP fa_ls_dp_r_f_l_l 4,450/5,000（118 局/分），4090 入口 22 MB/s。tether broker（racknerd 23.95.48.156）偶发连不上，启动器重试已恢复。
 - 14:24 巡检：FW lc1 RECEIPT 已转 PASS（原库 · Fast-WAM · LIBERO · 减步 · 各档 30,000 收口）；Cosmos 20,825/30,000（15 分钟均 58.7）；DP fa_ls_dp_r_f_l_l 836/5,000（72.6 局/分），4090 ~55%。
 - 13:54 巡检：Cosmos 19,564/30,000（15 分钟均 46.5，H100 100%）；FW lc1 18,153/18,659（剩 ~500，约 7 分钟），4090 ~49%。
