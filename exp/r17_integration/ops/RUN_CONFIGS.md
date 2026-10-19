@@ -780,9 +780,13 @@ Supply on the slice (DP K10 MT50 descriptor, `supply_proc`, calls/s; MPS daemon 
 
 H100 R4 MPS for comparison: B8 298, B16 479, B32 663 calls/s. Estimate (not measured): a LIBERO worker
 asks ~0.95 calls/s, so one slice should feed ~50-70 DP K10 workers before calls queue; R2+MPS adds ~30%.
-DP K100 (10x the denoising work per call) is a poor fit. Fast-WAM does not load into 16 GiB as is: the
-loader builds the umt5-xxl text encoder (~11 GB bf16) on the GPU with the 5B model before
-`fastwam_text_cache` can move it off.
+DP K100 (10x the denoising work per call) is a poor fit. Fast-WAM does not load into 16 GiB as is
+(measured on `jupyter-ziyang10-02`, assets installed with `setup.sh fastwam`, 52 GB): loading fails
+while `raw_wan.load_text` moves the umt5-xxl encoder (11.4 GB bf16) to the GPU next to the 12 GB policy;
+`fastwam_text_cache` moves T5 off only after loading. Serving it needs a loader that keeps T5 on the CPU
+from the start (the 4090 text-cache lane measured 13.5 GB per replica at B16), a model-side change.
+On the slice any CUDA out-of-memory surfaces as `NVML_SUCCESS == r INTERNAL ASSERT FAILED at
+CUDACachingAllocator.cpp:1016`: PyTorch's OOM report calls NVML, which the container may not query.
 
 ## Measurement evidence and grouped driver
 
