@@ -125,8 +125,9 @@ def apply(campaign, directory=None, *, force=False):
     if c.get('server_node') == 'local':
         # Owner 10-18: the 4090's own workers serve the 4090's server first.
         selected.setdefault('local', physical_maximum('local', domain))
-    if domain == 'libero':
-        selected.setdefault('a100', physical_maximum('a100', domain))  # owner 10-18: worker machine
+    if domain == 'libero' and c.get('server_node') == 'h100':
+        # Owner 10-18: worker machine; 10-19: it serves the H100's batches only.
+        selected.setdefault('a100', physical_maximum('a100', domain))
     selected=desired_maxima(domain,selected,c.get('worker_hard_limits'))
     c.update(execution_worker_nodes=selected, execution_workers=sum(selected.values()),
              autoscale_node_maxima=selected, autoscale_maximum=sum(selected.values()),
