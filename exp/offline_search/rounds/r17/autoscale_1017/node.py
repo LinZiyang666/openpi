@@ -285,8 +285,13 @@ class LocalGovernor:
             # Owner 10-19: charging every live worker the lane's p90 envelope assumes all of them
             # peak at once. Past its first minutes a worker is charged its own high-water (+margin).
             mature = self.clock() - entry['born'] >= self.campaign.get('autoscale_mature_s', MATURE_S)
-            entry['projected_peak'] = (max(entry['peak'], min(projection, int(entry['peak'] * self.config.peak_margin)))
-                                       if mature else max(projection, entry['peak']))
+            if mature and self.node in self.campaign.get('autoscale_reactive_nodes', ()):
+                # Pure worker machine (owner 10-19): no server to protect, an OOM costs one re-dispatched
+                # episode. Charge what the worker holds now; the floor absorbs fluctuation, the guard sheds.
+                entry['projected_peak'] = entry['rss']
+            else:
+                entry['projected_peak'] = (max(entry['peak'], min(projection, int(entry['peak'] * self.config.peak_margin)))
+                                           if mature else max(projection, entry['peak']))
             entry['draining'] = worker_id in self.retired
             entry['gpu_pids']=process_ids(entry['pid'],entry['start_ticks']) or [entry['pid']]
             own.append(dict(entry, owned=True))
@@ -317,7 +322,7 @@ class LocalGovernor:
             other_canary |= state['campaign'] == self.key and bool(state['workers'])
             peers.append(state)
             for w in state['workers']:
-                workers.append(dict(w, owned=False, projected_peak=max(w.get('peak', 0), w.get('projected_peak', state['projected_peak']))))
+                workers.append(dict(w, owned=False, projected_peak=w.get('projected_peak', max(w.get('peak', 0), state['projected_peak']))))
         unmanaged = []
         if self.node in self.campaign.get('autoscale_external_legacy_nodes', []):
             covered = {pid for w in workers for pid in w.get('gpu_pids', [w['pid']])}

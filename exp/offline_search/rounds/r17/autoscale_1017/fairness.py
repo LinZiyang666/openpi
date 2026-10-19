@@ -67,7 +67,7 @@ def plan(states, available, floor, *, now):
         # Charge each live outlier once, not as the assumed cost of every
         # worker in its lane. New-worker RAM admission still uses p90.
         if g['workers']:
-            g['peak']=sum(max(w.get('projected_peak',g['peak']),w.get('peak',0),w.get('rss',0))
+            g['peak']=sum(max(w.get('projected_peak',max(g['peak'],w.get('peak',0))),w.get('rss',0))
                           for w in g['workers'])/len(g['workers'])
     ram=max(0,available-floor+sum(w.get('rss',0) for g in groups.values() for w in g['workers']))
     capacities=dict(ram=ram)

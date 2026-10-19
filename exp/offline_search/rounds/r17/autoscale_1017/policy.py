@@ -66,7 +66,8 @@ class Peaks:
 
 def remaining_growth(workers):
     # Both RSS and peak are process-tree aggregates measured by their owner.
-    return sum(max(0, max(w['projected_peak'], w['peak']) - w['rss']) for w in workers)
+    # projected_peak already includes the worker's own high-water except on reactive worker-only nodes.
+    return sum(max(0, w.get('projected_peak', w['peak']) - w['rss']) for w in workers)
 
 
 class MemoryGuard:
