@@ -58,6 +58,10 @@ owner 的常驻指令，逐字有效：
 
 ### ★★★★★★ 2026-10-14 14:55 CDT 总状态（compact 后最先读这一块；下面各「增量」块是细节，按时间倒序）
 
+### ★ 2026-10-19 14:2x 增补（最先读）
+- **两台 jupyter 服务机**（jupyter-ziyang10、-02；H200 MIG 1g.18gb、32 GB 内存、16 核、无公网、MIG 不能 EGL）：owner 准许自选内网穿透、不准 tether。已打通：pod 内生成专用钥匙（在 .tether-agent/.ssh/zl_tunnel），H100 `~/.ssh/authorized_keys` 加了 `restrict,port-forwarding,permitlisten="127.0.0.1:24470/24471",command="/bin/false"` 一条（备份 authorized_keys.before_zl_tunnel_*）；pod `~/zl_tunnel/tunnel.sh 24470 18080` 保活 ssh -R；H100 `~/zl_tunnel/fwd.py 23470 24470`（setsid）把公网 23470 转到本地。A100/timan107 实测通，~20 ms、~100 MB/s。已派 opus 代理做：pod 装 DP（可能 Fast-WAM）服务环境、启动器支持 jupyter 服务节点（复用 R17_H100_NODE 别名）、jtest 小批次端到端实测；交回后由我起正式批次。
+- 4090 14:08 起 fa_ls_dp_r_f_l_l（原库 · DP · LIBERO · 减步 · 各档，5,000 局，~60 局/分，worker local/timan，无 A100）。
+
 ### ★ 2026-10-19 12:1x 增补（最先读）
 - **A100 实测上限约 60 个 LIBERO worker（内存）**：一个 worker 稳定约 2 GB（Python 0.63 + 活环境 ~1.35；无每局泄漏；EGL 上下文仅 15 MB），已写 RUN_CONFIGS（661c8ed0）。A100+H100 本机 96 个只能跑 Cosmos 23–29 局/分。owner 同意「把timan加回来」：12:08 fa_co_f_u_l retired 清空（timan1/timan107 与 FW lc1 按公平份额分）。12:12 Cosmos 44 局/分（1 分钟 52），FW lc1 暂降到 ~82（timan1 份额迁移中）。
 - A100 组不再换；现行 `runs/fa_co_f_u_l_a100_s1_s2_s3_s4_s5`，稳在 51–63 个。
