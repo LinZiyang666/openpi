@@ -58,6 +58,45 @@ owner 的常驻指令，逐字有效：
 
 ### ★★★★★★ 2026-10-14 14:55 CDT 总状态（compact 后最先读这一块；下面各「增量」块是细节，按时间倒序）
 
+### ★★★★★★★★★★★★★★★★★★★★★ 2026-10-19 16:3x CDT 总状态（compact 后最先读这块；下面 16:0x、15:xx、14:2x、12:1x、11:2x、11:1x、10:3x 是今天的细节）
+
+**一句话**：今天把 worker 调度整体换成了**中央调度器**（A100:23500），4090 已切到新代码在跑；H100 还在用旧代码跑完 Cosmos，跑完后要我手动起新 H100 链；两台 jupyter（H200 MIG 切片）接成了 DP 服务机，第三条链在准备。
+
+**现在在跑（16:30）**
+| 机器 | 链 | 当前批次 | 代码 | 之后 |
+|---|---|---|---|---|
+| H100 | ffk-h100m19（已 hold） | fa_co_f_u_l 原库 · Cosmos · LIBERO · 全步 · 各档，~27,100/30,000，~65 局/分，约 17:15 跑完 | 旧 autoscale_1017 | h100m21 已 hold（hold_ff_h100m21），会立刻 queue done。**我要手动起新 H100 链**（见下） |
+| 4090 | **ffk-g4090q**（新代码） | fa_ls_fw_r_f_l_l 成功过滤库 · Fast-WAM · LIBERO · 减步 · 各档 25,000，16:25 start（新代码第一个正式批次，要核：出局、4090 本机层 worker 稳定 600 s 后才加） | 中央调度器 | v01_0 v10–13_0 dp_f_f/u_o_l dp_f_f/u_l_l dp_f_f/u_m v04_0 v04_3 v06_0 v09_0 v09_1 fa_cs_pi_r fa_cs_gr_r |
+| jupyter-ziyang10 | — | jtest_sl1（调度器验证，DP LIBERO 纯推理 500 局）收尾 | 新 | pod 链 |
+| jupyter-ziyang10-02 | — | 空 | — | pod 链（见下） |
+
+**新 H100 链（Cosmos 结束后起）**：`setsid nohup bash /home/weiland/projects/openpi_ext/scratch/r17_ops/ff/chain_ffk.run.sh h100m22 '\[ffk-h100m21\] queue done' fa_ls_gr_r_f_m fa_co_f_f_l fa_ls_gr_r_u_m fa_ls_v03_0 fa_ls_v03_1 fa_ls_gr_f_f_m fa_ls_gr_f_u_m fa_ls_v05_1_rz fa_ls_v05_2_rz fa_ls_fw_f_u_m fa_ls_v02_b fa_ls_fw_f_f_l_l fa_ls_fw_f_u_l_l fa_ls_v08_1 fa_ls_fw_r_u_m fa_ls_fw_f_f_m fa_ls_fw_r_f_m fa_ls_v05_3 fa_ls_v05_4 fa_ls_v05_0 >/dev/null 2>&1 </dev/null &`（30 个 longseg prepare 脚本已加 `--reprepare`；fa_co_f_f_l 走 formal_a_queue dispatch prepare 新建；v05_1/2_rz 走 longseg vfix retry）。另有老待办：fa_ls_v02_s（FW MT50 缓存变体，2,942/60,000，路由 alias 在 h100-temp，要按 campaign.json.before_alias_* 改回 H100 再续跑）、fa_ls_v07_0。
+
+**中央调度器（#186，owner 设计，代码 `exp/offline_search/rounds/r17/scheduler/`，DESIGN.md / INTEGRATION_NOTES.md）**
+- 服务在 A100 `http://149.165.152.232:23500`（`/healthz` `/v1/state` `/v1/report`），`bash exp/offline_search/rounds/r17/scheduler/deploy_a100.sh start|stop|status`；A100 上代码 `/home/exouser/scheduler/code_23500`、日志 `run_23500`。无状态（报告 TTL 60 s，每 5 s 重算），只调度、流量不经过。
+- 分配：渐进填充 + DRF（RAM/VRAM/CPU 实测）；公共池 a100（只 LIBERO）、timan1、timan107 给所有实验；本机层 h100、local(4090) 只给本机服务、该批共享层稳定 ≥600 s 才加；h100-temp / jupyter 服务无本机层；MetaWorld 不派 a100/h100。
+- 需求（每批 driver 侧 BatchClient）：起 16（或续同目录上次需求），翻倍直到第一次"加了没用"，之后每档 +25%；settle ≤2 min、测速 3 min；服务机 GPU ≥90% 就 hold；15 min 后试探；yaml cohort 占比变 >0.2 不下结论（yaml 热切换照常支持）。
+- 节点 NodeExecutor：按目标起停（局边界退）、换代补位不限速、内存底线 a100 16/6、timan107 24/16、其他 20/10 GiB、低于 critical/2 强杀；每 tick 增长 1 个。
+- 启动唯一检查 `scheduler.defaults.require`：运行包含当前 VERSION（sched-1019）+ healthz；旧包批次报错要 `filter_failed.stage --run <dir> --reprepare`。新批次默认 `wire_zlib`（无损图像压缩，LIBERO 2.4×）。
+- R15/R16：只用 timan107（R16 另加 4090 local）；R15 各 arm 共用 `os_cl/runs/<root>/scheduler/`。16 个已 stage 的 R15 cell 重新装包命令（合并后执行，还没跑）：`cd openpi && env CUDA_VISIBLE_DEVICES= JAX_PLATFORMS=cpu PYTHONPATH=.:src .venv/bin/python -c 'import sys; from exp.offline_search.closed_loop.ops.h100.control import install_scheduler; [install_scheduler(r) for r in sys.argv[1:]]' /data/mw_finetune/eval/fa_pi_f_u_l_{l50,l100,l200,s50,s100} /data/mw_finetune/eval/fa_pi_f_f_l_{l50,l100,s50,s100,s200,s500} /data/mw_finetune/eval/fa_gr_f_f_l_{l50,l100,l200,s50,s100}`（这些等 #182 定了再跑）。
+- 修过的坑：formal_eval 直接跑时 timan1 GPU2 补丁不生效（`__main__` 1d245aa0；`--prepared-run` 没套 coordinator c6a61375）。
+- autoscale_1017 目录还在磁盘上（fa_co_f_u_l 用旧代码），它结束后另一次提交删掉（xgpu 试点、旧测试、两个 rz 旧脚本会随之失效，都已作废）。
+- 在跑批次参数不对：`openpi_ext/scratch/r17_ops/swap_node_fleet.py` 原地换某机 worker 组（只动 worker）。
+
+**两台 jupyter（#185/#187）**：H200 MIG 1g.18gb（18 GB、约 1/7 算力）、32 GB 内存、无公网、MIG 不能 EGL（只当服务机）。隧道：pod → H100 反向 SSH（H100 `~/.ssh/authorized_keys` 受限钥匙 permitlisten 24470–24475；pod `~/zl_tunnel/tunnel.sh`；H100 `~/zl_tunnel/fwd.py 23470 24470` 等），A100 也登记了同一钥匙（24470–24473）。批次用 `R17_H100_NODE=jupyter-ziyang10 R17_H100_HOST=149.165.153.233 R17_DRIVER_PORT=23191 --server-node h100`；装机 `exp/r17_integration/ops/pod/setup.sh`；DP 跑通（jtest_dp2 PASS），Fast-WAM 装不下（T5）。**owner 同意**：DP · MetaWorld · 减步 · 旋钮下降 原库 fa_ls_dp_r_u_m + 成功过滤库 fa_ls_dp_r_f_m（各 9 万）+ pod 同卡 DP MT50 减步纯推理 2,500 放 pod 跑（DP 跨卡动作不等价），jupyter 代理在 prepare，交回后我建 pod 链。jupyter 随时可能下线：后台 `openpi_ext/scratch/r17_ops/jupyter_watch.sh`（连续两次非 ONLINE 退出）→ PushNotification owner，重开后重起隧道。
+
+**h100-temp**：机主是 owner 的组员，其 codex 在跑 HumanEval 复现诊断（`/home/exouser/ljy/dlm`，owner 允许查看），GPU 断续占用，16:09 还在开新计划（下一轮原生 ≤2000 s）；未释放前不用。
+
+**剩余时长估算（16:2x）**：H100 ≈4.8 天（瓶颈：Cosmos 成功过滤库各档 3 万≈11 h、GR00T MT50 ~48 万≈18 h、Fast-WAM MT50 ~51 万 + LIBERO ~11 万≈85 h）、4090 ≈2.9 天、pod ≈1.1 天；h100-temp 若可借分走一半 H100 队列 → 总计约 3 天；#182 的 R15 若跑 H100 再加约 18 h。
+
+**今天 owner 新规矩（已进记忆）**：只停/换 worker 不停服务；两类 worker（公共池 vs H100/4090 本机专用、最后加）；按实际用量公平分；基础设施一步到位、旧逻辑直接拔、新包缺失就报错；中间层无状态、不放 4090、不用 racknerd；jupyter 下线就通知；A100 是纯 worker 机（LIBERO 约 60 个上限，内存每个 ~2 GB）。
+
+**待 owner 定**：#182（R15/R16 旋钮批次旧停滞门）；h100-temp 何时可借；pod 上 Fast-WAM 要不要改 T5 放 CPU；是否用 4090 空出来后接 H100 的 Fast-WAM（需在 4090 重跑对照）。
+
+**今天完成**：原库 · Fast-WAM · LIBERO · 减步 · 各档 30,000 PASS；成功过滤库 · DP · LIBERO · 减步 · 各档 5,000 PASS；原库 · DP · LIBERO · 减步 · 各档 5,000（16:17，receipt 待核 PASS）；（凌晨）成功过滤库 · Cosmos · LIBERO · 减步 · 各档 30,000 等，见 10:3x 块。
+
+**今天提交**：4c88b88f 调度器；1d245aa0、c6a61375 formal_eval 修；0ddaabb5 爬坡；4b4772f2 prepare --reprepare；e4c2fa40/1a7303a5/e9d2bc0b/80d0f0e1/ff246444 A100 记账（旧系统，已被新调度器取代）；661c8ed0 RUN_CONFIGS LIBERO worker 内存；jupyter：a5b5a4f8、28420674、c17010a1；以及各 handoff 提交。
+
 ### ★ 2026-10-19 16:0x 增补（最先读）
 - **中央调度器已合并进 Ziyang（4c88b88f）并上线**：A100 `149.165.152.232:23500`（`scheduler/deploy_a100.sh start|stop|status`，代码在 A100 `/home/exouser/scheduler/code_23500`，日志 run_23500）。四个 opus 代理实现、我审过 allocate/client/node/defaults；R15/R16 只用 timan107（+R16 4090 本机）；R15 各 arm 共用一个 scheduler 目录，客户端从上次需求续起。
 - 16:0x jtest_sl1 真机跑通：调度器收到上报、按实测容量分 worker（A100 只剩 ~2 GB 给新 worker，旧系统 Cosmos 占满）、desire 8→measure。修了两处 formal_eval 直跑漏洞（__main__ 下 timan1 GPU2 补丁不生效 1d245aa0；--prepared-run 没套 timan1 coordinator c6a61375），爬坡改快（起 16、翻倍到第一次无收益，0ddaabb5，下一批生效）。
