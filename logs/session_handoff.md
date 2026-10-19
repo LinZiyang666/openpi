@@ -58,6 +58,12 @@ owner 的常驻指令，逐字有效：
 
 ### ★★★★★★ 2026-10-14 14:55 CDT 总状态（compact 后最先读这一块；下面各「增量」块是细节，按时间倒序）
 
+### ★ 2026-10-19 02:0x 增补（最先读，再读下面 00:4x）
+- **h100-temp 01:56 被外部结束**：fa_ls_v02_s（成功过滤库 · Fast-WAM · MetaWorld · 减步 · 缓存变体，60,000 局，已收 2,942）三个服务副本 06:56:00Z 同时收到 SIGTERM 正常退出（exit 0，formal_server 的 SIGTERM→request_stop）；我方无任何 stop（FW 启动器只有 30 s 状态轮询，supervisor 无 stop_reason/cleanup，MPS 06:56:42 才由我方清理），supervisor 和 MPS 都没被杀，只结束了 nvidia-smi 能看到的 GPU 进程；机器主人 184.33.133.25 06:45Z 起在线（bash_history 有多次 nvidia-smi）。按规矩**不在 h100-temp 重跑**，已 PushNotification。链 h100tmp14 已 STOPPED（hold）。
+- h100-temp 余下未动批次接到 **ffk-h100m20**（等 `[ffk-h100m19] queue done`）：fa_ls_v02_b fa_ls_fw_f_f_l_l fa_ls_fw_f_u_l_l fa_ls_v08_1 fa_ls_fw_r_u_m fa_ls_fw_f_f_m fa_ls_fw_r_f_m fa_ls_v05_3 fa_ls_v05_4 fa_ls_v05_0（这些 campaign 本来就是 H100 路由或未建）。**待办**：fa_ls_v02_s（要从 v02_s 续跑，源批次路由已 alias 到 h100-temp：execution_host/driver 23194/endpoint 149.165.172.126，且 verify-closed 会去 h100-temp 找 mps_guard.process.json；需用 alias env 证明关闭、把 continuation 的路由字段按 `campaign.json.before_alias_*` 还原回 H100、并把 source_closure_required_at_prepare 置 False）和 fa_ls_v07_0（已 alias，未启动，按 longseg ports.execution_host 的说明 reset 后去掉 alias 字段）。
+- H100：Cosmos 改为 **fa_co_r_f_lc8**（链 ffk-h100m19，02:01 start，剩 8,041，保留 21,959）。原因：lc7 的 H100 本机 worker 被 12 GB 同机预留压到 9–15 个（速度 80→25–35 局/分）；h100-temp 已不放渲染 worker，所以 h100_workers.route 预留改回 4 GB（commit 5c80fd09）。π0.5 全步各档不再挂队列（等停滞门决定）。
+- 4090：g4090k 在跑 fa_ls_v04_2（原库 · DP · LIBERO · 缓存研究重跑第二批）；之后队列照旧，末尾 g4090l = #135 两批。
+
 ### ★ 2026-10-19 00:4x 待 owner 定（最先读）
 - **⛔ π0.5/GR00T 的 LIBERO formal-A 旋钮批次用的是旧停滞门，不是 Q3。** R16 减步 16 个"旋钮关" fit 全是 `TriggerCommitJudge`/`TriggerGrootCommitJudge` + `progress_guard=noprog_span`（n=3、eps=.5，即 R8 NoProgressGuard）；R15 全步插件是 `--os-judge guard_only` + `R13Knob`（guard 取 `os_force_miss`）。与 10-13 裁定（Q3 only，LIBERO 和 MetaWorld 都适用；`project-stall-gate-q3-only`）不一致。来源：#135 代理 `filter_failed_knob/cache_study_1019/HANDBACK.md` §没解决 2，我已核对 R13Knob 源码（recipe.py:100 guard=os_force_miss）。影响：#155 里 π0.5/GR00T 的旋钮关与各档（已跑的 GR00T 全步旋钮关 16 组、R16 减步各档等）。**已暂停**：π0.5 全步各档两批（`mw/hold_ff_h100r18`，H100 继续跑 R17 余下批次）；GR00T 全步各档在 g4090k 末尾，十几小时后才轮到，届时 owner 未定就先撤。可选：A 把 Q3 移植进 R16/R15（半天到一天，需在 R16 库上重新标定）；B 认可现状；C 这两个模型只报无门组。
 - **#135 八组缓存部件研究**：无门四组 c/cr/ch/chr 已建（R16 流程、原库、减步 K1、8 库格 × 4 组 × 500 = 每模型 16,000，合计 32,000），排在 **ffk-g4090l**（等 `[ffk-g4090k] queue done`）：fa_cs_pi_r fa_cs_gr_r。带门四组等上面的 Q3 决定。另两点待 owner 认可：cr 组 C5 下沿用 C10 拟合的修正头只执行前 5 步；C5 不开尾段的服务方式没在 GPU 上跑过（上线后看 decisions：c/cr 每次新检索，ch/chr 隔一次 cache_blind，所有组 0 次 MISS）。
