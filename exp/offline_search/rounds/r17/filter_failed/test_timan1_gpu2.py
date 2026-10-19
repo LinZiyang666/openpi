@@ -46,7 +46,8 @@ def test_frozen_gpu2_island_admission_and_native_commands(tmp_path, monkeypatch)
     source = Path(p.__file__).read_text()
     monkeypatch.setattr(p, 'SOURCE', source, raising=False)
     read_bytes = Path.read_bytes
-    assert p.CAPS == {'libero': 83, 'metaworld': 332}
+    assert p.GPU2_CAPS == {'libero': 83, 'metaworld': 332}
+    assert p.CAPS == {'libero': 166, 'metaworld': 664}  # GPU2 + GPU1
     for archive, domain in zip(archives, ('libero', 'metaworld')):
         with monkeypatch.context() as m, tarfile.open(archive) as tar:
             modules = {}
@@ -68,7 +69,7 @@ def test_frozen_gpu2_island_admission_and_native_commands(tmp_path, monkeypatch)
             m.setattr(os, 'uname', lambda: types.SimpleNamespace(nodename='timan1'))
             m.setattr(Path, 'read_bytes', lambda path: guard if str(path) == p.GUARD+'/sitecustomize.py' else read_bytes(path))
             m.setattr(os, 'environ', p.environment(dict(os.environ, R17_GPU2_DEVICE_ISOLATION='1')))
-            n = p.CAPS[domain]
+            n = p.GPU2_CAPS[domain]  # a lease from before GPU1 keeps the GPU2-only cap
             c = dict(domain=domain, cache_study='frozen', execution_worker_nodes={'timan1': n},
                      worker_node='timan1', node_workers=n, worker_egl_device=3,
                      worker_egl_devices=[3], timan1_worker_lease={'device': 3},
@@ -170,6 +171,6 @@ def test_frozen_gpu2_island_admission_and_native_commands(tmp_path, monkeypatch)
                      execution_worker_nodes={'timan1': n})
             timan1_workers.route(c, c)
             assert worker_memory.reservation_mib(c) == p.SIZES[domain][1]
-            assert c['worker_egl_devices'] == [2]
+            assert c['worker_egl_devices'] == [2, 1]  # new coordinator leases add GPU1
     assert timan1_workers.authorize is native_authorize
     assert pins == [hashlib.sha256(a.read_bytes()).hexdigest() for a in archives]

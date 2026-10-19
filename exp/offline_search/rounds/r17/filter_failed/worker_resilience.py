@@ -15,7 +15,7 @@ NODES = ('timan107', 'timan1', 'local')
 STATE = 'WORKER_NODE_STATE.json'
 
 
-def capacity(node, run, vram, ram, growth=0, server_directory=None):
+def capacity(node, run, vram, ram, growth=0, server_directory=None, timan1_cards=None):
     """Self-contained read-only probe: physical usage plus unmaterialized slots."""
     if node == 'timan108':
         raise ValueError('timan108 is disabled; no probe allowed')
@@ -31,26 +31,44 @@ def capacity(node, run, vram, ram, growth=0, server_directory=None):
             return stat[0] != 'Z' and stat[19] == str(p['start_ticks'])
         except (OSError, KeyError):
             return False
+    # timan1: PCI -> (UUID, kernel minor, NVML index), GPU2 first. The default is
+    # the GPU2-only lease; new prepares/launches also pass GPU1 (owner 2026-10-18).
+    timan1 = timan1_cards or {'0000:81:00.0': ('GPU-9bdcf7cc-8a05-a7f9-b1c3-4d53d0a229df', 1, 2)}
+    optional = set(list(timan1)[1:]) if node == 'timan1' else set()
     cards, devices = {}, {}
     for info in Path('/proc/driver/nvidia/gpus').glob('*/information'):
         fields = dict(line.split(':', 1) for line in info.read_text().splitlines() if ':' in line)
         minor = int(fields['Device Minor'].strip())
-        if node == 'timan1' and info.parent.name != '0000:81:00.0' or node == 'timan108' and minor in (1, 2):
+        if node == 'timan1' and info.parent.name not in timan1 or node == 'timan108' and minor in (1, 2):
             continue
         devices[info.parent.name] = minor
+    if node == 'timan1' and next(iter(timan1)) not in devices:
+        devices = {}  # the namespace never starts without GPU2; GPU1 alone is unused
+    def query(pcis):
+        xml = subprocess.run(['nvidia-smi', '-i', ','.join(pcis), '-q', '-x'],
+                             capture_output=True, text=True, check=True, timeout=30).stdout
+        return {c.findtext('pci/pci_bus_id').lower().replace('00000000:', '0000:'): c
+                for c in ET.fromstring(xml).findall('gpu')}
     if devices:
         # One query for eligible PCI devices only. Cold GPUs without persistence
         # can take tens of seconds; protected cards are never queried.
-        xml = subprocess.run(['nvidia-smi', '-i', ','.join(devices), '-q', '-x'],
-                             capture_output=True, text=True, check=True, timeout=30).stdout
-        observed = {c.findtext('pci/pci_bus_id').lower().replace('00000000:', '0000:'): c
-                    for c in ET.fromstring(xml).findall('gpu')}
+        try:
+            observed = query(devices)
+        except (subprocess.SubprocessError, ET.ParseError):
+            if not optional & set(devices):
+                raise
+            observed = {}  # an unhealthy GPU1 must not hide GPU2: ask each card alone
+            for pci in devices:
+                try:observed.update(query([pci]))
+                except (subprocess.SubprocessError, ET.ParseError):pass
     for pci, minor in devices.items():
+        if pci.lower() not in observed and pci in optional:
+            continue  # unhealthy GPU1 contributes no slots; GPU2 replies stay mandatory
         card = observed[pci.lower()]  # Missing/partial replies are probe errors.
-        if node == 'timan1' and (card.findtext('uuid') != 'GPU-9bdcf7cc-8a05-a7f9-b1c3-4d53d0a229df' or minor != 1):
-            raise ValueError('timan1 GPU2 identity changed')
+        if node == 'timan1' and (card.findtext('uuid') != timan1[pci][0] or minor != timan1[pci][1]):
+            raise ValueError('timan1 GPU'+str(timan1[pci][2])+' identity changed')
         number = lambda s: int(s.split()[0])
-        device = 2 if node == 'timan1' else minor
+        device = timan1[pci][2] if node == 'timan1' else minor
         cards[device] = dict(total=number(card.findtext('fb_memory_usage/total')),
             used=number(card.findtext('fb_memory_usage/used')), pending=0,
             processes={int(p.findtext('pid')): number(p.findtext('used_memory'))
@@ -102,7 +120,7 @@ def capacity(node, run, vram, ram, growth=0, server_directory=None):
     gpu = sum(max(0, (c['total']-c['used']-c['pending']-(c['total']+9)//10-c['server_pending_mib'])//vram) for c in cards.values())
     memory = max(0, (mem['MemAvailable']-(mem['MemTotal']+9)//10-pending_ram)//ram)
     hard = {'libero': 83, 'metaworld': 332}
-    cap = min(gpu, memory, hard['libero' if vram == 530 else 'metaworld'] if node == 'timan1' else gpu)
+    cap = min(gpu, memory, hard['libero' if vram == 530 else 'metaworld']*len(timan1) if node == 'timan1' else gpu)
     return dict(capacity=cap, gpu_slots=gpu, ram_slots=memory, mem_available_bytes=mem['MemAvailable']*1024**2, cards=cards, server_budget_mib=growth,
                 boot_id=Path('/proc/sys/kernel/random/boot_id').read_text().strip())
 
@@ -120,7 +138,8 @@ def measure(campaign, directory, excluded=()):
         # before applying each replica's limit. Never multiply that total by R.
         from math import ceil
         growth = ceil(campaign['memory_budget_gib']*1024) if node == 'local' and campaign['server_node'] == 'local' else 0
-        code = function_source(capacity)+'\nprint(__import__("json").dumps(capacity('+repr(node)+','+repr(run)+','+repr(vram)+','+repr(ram)+','+repr(growth)+','+repr(str(directory))+')))'
+        cards = ','+repr(timan1_gpu2.capacity_cards()) if node == 'timan1' else ''  # GPU2 then GPU1
+        code = function_source(capacity)+'\nprint(__import__("json").dumps(capacity('+repr(node)+','+repr(run)+','+repr(vram)+','+repr(ram)+','+repr(growth)+','+repr(str(directory))+cards+')))'
         argv = ['/usr/bin/python3', '-B', '-S', '-c', code]
         if node != 'local':
             argv = ['tether', 'exec', '--safe', '--timeout', '90s', node, '--', *argv]
@@ -174,6 +193,9 @@ def record(campaign, directory, nodes, measured, phase):
     from exp.r17_integration.ops.worker_topology import redistribute
     if nodes != campaign.get('execution_worker_nodes', campaign['worker_nodes']):
         redistribute(campaign, nodes, directory)
+    if 'timan1' in nodes:
+        # Receipts must name the cards this prepare/launch actually leases.
+        campaign['timan1_worker_lease'] = timan1_gpu2.authorize(campaign)
     if 'local' in nodes and not (Path(directory)/'LOCAL_WORKER_ORCHESTRATION.json').exists():
         from exp.r17_integration.ops.immutable_release import sha
         write_json(Path(directory)/'LOCAL_WORKER_ORCHESTRATION.json',dict(

@@ -153,7 +153,8 @@ def _stage(root):
         # payload_override skips local_workers.payload, which normally writes
         # this receipt. run_campaign reads it before spawning anything. Its
         # original archive pin remains correct because that archive is reused.
-        shutil.copyfile(source/'LOCAL_WORKER_ORCHESTRATION.json', root/'LOCAL_WORKER_ORCHESTRATION.json')
+        if (source/'LOCAL_WORKER_ORCHESTRATION.json').exists():
+            shutil.copyfile(source/'LOCAL_WORKER_ORCHESTRATION.json', root/'LOCAL_WORKER_ORCHESTRATION.json')
     write(root/'campaign.json', campaign)
     if (root/'PREPARED.json').exists():
         # PREPARED seals local inputs, not ephemeral /tmp copies. A repeated
@@ -173,8 +174,12 @@ def _stage(root):
         # Existing orchestration overlay supports task/init subsets. It leaves
         # model code and renderer/worker payloads in their original releases.
         prepare(campaign,root,REPO)
-    # A native continuation already inherited the exact source driver/control
-    # pins; provision only its new worker/server paths, without rebuilding them.
+    elif campaign.get('autoscale'):
+        # A dynamic continuation needs the driver's autoscale hook: rebuild the
+        # driver over the same remaining plan (checked below).
+        prepare(campaign,root,REPO)
+    # A fixed continuation inherits the exact source driver/control pins;
+    # provision only its new worker/server paths, without rebuilding them.
     write(root/'campaign.json',campaign)
     assert planned_tasks(campaign,root)==read(root/'EPISODE_PLAN.json')['tasks']
     shutil.copyfile(source/'WORKER_DEPLOYMENT.json',root/'WORKER_DEPLOYMENT.json')
@@ -186,7 +191,7 @@ def _stage(root):
         stage_server_inputs(launch, campaign, root)
         stage_worker_inputs(launch, campaign, root, deployment)
     write(root/'campaign.json',campaign)
-    if not campaign.get('autoscale') or continuation:
+    if not campaign.get('autoscale'):
         assert sha(root/'workers.tar')==sha(source/'workers.tar')
     assert sha(root/'runtime.tar')==runtime_sha
     write(root/'PREFLIGHT.json',dict(status='PASS',cpu_only=True,episodes=read(root/'EPISODE_PLAN.json')['expected_episodes'],

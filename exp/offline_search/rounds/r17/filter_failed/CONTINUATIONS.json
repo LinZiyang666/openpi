@@ -19,6 +19,16 @@
       "name": "fa_ls_gr_r_p_m_c2",
       "run": "/data/mw_finetune/eval/fa_ls_gr_r_p_m_c2",
       "source": "/data/mw_finetune/eval/fa_ls_gr_r_p_m"
+    },
+    {
+      "name": "fa_co_r_f_lc1",
+      "run": "/data/mw_finetune/eval/fa_co_r_f_lc1",
+      "source": "/data/mw_finetune/eval/fa_co_r_f_l"
+    },
+    {
+      "name": "fa_co_r_f_lc2",
+      "run": "/data/mw_finetune/eval/fa_co_r_f_lc2",
+      "source": "/data/mw_finetune/eval/fa_co_r_f_lc1"
     }
   ]
 }
