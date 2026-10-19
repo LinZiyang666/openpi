@@ -69,6 +69,11 @@ owner 的常驻指令，逐字有效：
 - 现在 fleet：timan107 fx1、a100 fx1、local fx1、timan1 fx4（两批）；17:23 timan1 FW 33/123、DP 爬坡中。
 - fa_ls_dp_r_b_m_j（pod 纯推理对照 2,500）driver PASS 2500，但 RECEIPT FAIL：`native CPU evidence aggregate is incomplete`（换 fleet 把 kernel evidence 拆进 _fx 目录）→ 待合并证据重出 receipt，数据完整可用。
 
+**17:5x 增补**：
+- h100-temp owner 放行，只临时分担：**ffk-h100tmp15**（chain_ffk_stop，alias env R17_H100_NODE=h100-temp R17_H100_HOST=149.165.172.126 R17_DRIVER_PORT=23194）跑 **fa_ls_v02_s_c1**（成功过滤库 · Fast-WAM · MetaWorld · 减步 · 缓存变体续跑，剩 57,058；filter_failed.resume --remaining --verify-closed 建）。跑完一次只领一批 H100 队列里还没开始的；⛔ 不碰 4090 队列。
+- 调度器加 `caps.json`（A100 /home/exouser/scheduler/run_23500/caps.json，每次重算重读）：现 `{"fa_ls_dp_r_u_m_j": 300}`（旧 driver 测速恒 0 + pod 读不到 GPU，需求涨到 706 挤别人）。该批跑完删这项。
+- 17:53：H100 GR00T fa_ls_gr_r_f_m 60 worker、22 局/分、GPU 0–11%（需求还在翻倍爬）；4090 FW 144 worker、60 局/分；pod1 298 个 162 局/分；pod2 105 个 57 局/分。FW timan1 卡在 67/118：LIBERO worker_max_episodes=4，换代吃掉 timan1 的补起速度（约 8 s/个），见任务表。
+
 **链**：Cosmos fa_co_f_u_l 30,000 17:20 结束（receipt PENDING_EVIDENCE）；h100m22 17:21 起，prepare fa_ls_gr_r_f_m；pod2a 17:11 起 fa_ls_dp_r_f_m_j；pod1a 在跑 fa_ls_dp_r_u_m_j（17:23 约 180 局/分，107 257 个）；g4090q 在跑 fa_ls_fw_r_f_l_l（约 44 局/分）。
 
 ### ★★★★★★★★★★★★★★★★★★★★★ 2026-10-19 16:3x CDT 总状态（compact 后最先读这块；下面 16:0x、15:xx、14:2x、12:1x、11:2x、11:1x、10:3x 是今天的细节）
