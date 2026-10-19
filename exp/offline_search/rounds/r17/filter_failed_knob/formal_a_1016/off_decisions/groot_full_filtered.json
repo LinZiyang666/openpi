@@ -1,0 +1,81 @@
+{
+  "model": "groot",
+  "mode": "full",
+  "arm": "filtered",
+  "rows": [
+    {
+      "suite": "libero_10",
+      "size": 50,
+      "n": 500,
+      "pure_n": 500,
+      "successes": 350,
+      "pure_successes": 440,
+      "status": "tune"
+    },
+    {
+      "suite": "libero_10",
+      "size": 100,
+      "n": 500,
+      "pure_n": 500,
+      "successes": 372,
+      "pure_successes": 440,
+      "status": "tune"
+    },
+    {
+      "suite": "libero_10",
+      "size": 200,
+      "n": 500,
+      "pure_n": 500,
+      "successes": 414,
+      "pure_successes": 440,
+      "status": "tune"
+    },
+    {
+      "suite": "libero_10",
+      "size": 500,
+      "n": 500,
+      "pure_n": 500,
+      "successes": 442,
+      "pure_successes": 440,
+      "status": "skip"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 50,
+      "n": 500,
+      "pure_n": 500,
+      "successes": 450,
+      "pure_successes": 477,
+      "status": "tune"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 100,
+      "n": 500,
+      "pure_n": 500,
+      "successes": 476,
+      "pure_successes": 477,
+      "status": "tune"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 200,
+      "n": 500,
+      "pure_n": 500,
+      "successes": 482,
+      "pure_successes": 477,
+      "status": "skip"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 500,
+      "n": 500,
+      "pure_n": 500,
+      "successes": 484,
+      "pure_successes": 477,
+      "status": "skip"
+    }
+  ],
+  "reference": "same-step same-GPU pure A",
+  "dev_outcomes_used": false
+}
