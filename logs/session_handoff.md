@@ -58,6 +58,10 @@ owner 的常驻指令，逐字有效：
 
 ### ★★★★★★ 2026-10-14 14:55 CDT 总状态（compact 后最先读这一块；下面各「增量」块是细节，按时间倒序）
 
+### ★ 2026-10-19 12:1x 增补（最先读）
+- **A100 实测上限约 60 个 LIBERO worker（内存）**：一个 worker 稳定约 2 GB（Python 0.63 + 活环境 ~1.35；无每局泄漏；EGL 上下文仅 15 MB），已写 RUN_CONFIGS（661c8ed0）。A100+H100 本机 96 个只能跑 Cosmos 23–29 局/分。owner 同意「把timan加回来」：12:08 fa_co_f_u_l retired 清空（timan1/timan107 与 FW lc1 按公平份额分）。12:12 Cosmos 44 局/分（1 分钟 52），FW lc1 暂降到 ~82（timan1 份额迁移中）。
+- A100 组不再换；现行 `runs/fa_co_f_u_l_a100_s1_s2_s3_s4_s5`，稳在 51–63 个。
+
 ### ★ 2026-10-19 11:2x 增补（最先读）
 - owner：A100 自己就能喂满 H100，timan 不该给 Cosmos；自适应 worker 不该有那么多限制。已做：Cosmos fa_co_f_u_l 的 retired = timan1、timan107（11:09，timan 全给 4090 的 FW lc1，FW 78→~105 局/分）；A100 上 Cosmos 的 worker 组又换了两次（s2：hold_s 10、60 s 即按实测；s3：A100 这种纯 worker 机对满 60 s 的 worker 按当下 RSS 记账、不预留峰值增长，e9d2bc0b，defaults `autoscale_reactive_nodes=['a100']`、`autoscale_mature_s=60`）。11:18 A100 49 个、调度 memory_ok、份额 60；H100 10 次采样全 100%。换组共丢了 12+12+34+47 局在途进度（driver 重派）。
 - H100 本机 Cosmos 组卡 33（上限 40）是显存：Cosmos 服务占约 65 GB，正常。
