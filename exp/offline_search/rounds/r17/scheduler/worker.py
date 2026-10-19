@@ -123,6 +123,8 @@ class Observer:
     def recycle(self):
         maximum = int(os.environ.get('OPENPI_AUTOSCALE_MAX_EPISODES', '32'))
         seconds = float(os.environ.get('OPENPI_AUTOSCALE_MAX_SECONDS', '1800'))
+        if maximum <= 0:  # recycling off (LIBERO)
+            return
         if self.completed and (self.completed >= maximum or time.monotonic() - self.started >= seconds):
             path = os.environ.get('R17_WORKER_RECYCLE_RECEIPT')
             if path:

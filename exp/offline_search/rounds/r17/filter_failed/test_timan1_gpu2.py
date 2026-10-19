@@ -124,7 +124,8 @@ def test_frozen_gpu2_island_admission_and_native_commands(tmp_path, monkeypatch)
             _, argv = f.worker_command(routed, 0, '/unused/python')
             assert argv[:4] == ['/unused/python', '-B', '-u', '-c']
             assert argv[argv.index('--egl-device')+1] == '2'
-            target = 'worker_lifetime'  # Both benchmarks recycle at episode boundaries
+            # MetaWorld recycles at episode boundaries; LIBERO does not recycle (owner 10-19).
+            target = 'worker_lifetime' if domain == 'metaworld' else 'cache_study_worker'
             assert argv[argv.index('-m')+1] == 'exp.r17_integration.ops.'+target
             m.setattr(sys, 'argv', ['-c', *argv[5:]])
             m.setattr(sys, 'orig_argv', argv)
@@ -143,12 +144,15 @@ def test_frozen_gpu2_island_admission_and_native_commands(tmp_path, monkeypatch)
                     cli.setattr(sys, 'orig_argv', ['python', '--egl-device', device])
                     with pytest.raises(ValueError, match='guard refused'):
                         runtime_guard.check()
-            if domain == 'libero':
+            if domain == 'metaworld':
+                assert routed['worker_max_episodes'] == 32 and routed['worker_max_seconds'] == 1800
                 marker = tmp_path/'RECYCLE.json'
                 marker.write_text(json.dumps(dict(schema='r17.worker_recycle.v1', pid=123, start_ticks='456',
-                    completed_episodes=4, maximum_episodes=4, reason='episode_boundary')))
+                    completed_episodes=32, maximum_episodes=32, reason='episode_boundary')))
                 assert modules['worker_lifetime'].planned_recycle(
                     dict(pid=123, start_ticks='456', recycle_receipt=str(marker)), 75)
+            else:
+                assert routed['worker_max_episodes'] == 0 and routed['worker_max_seconds'] == 0
 
     request = dict(argv=['/frozen/python', '-u', '-m', p.WORKER, '--campaign', '/sealed.json'],
                    env={'PYTHONPATH': p.GUARD+':/frozen'})

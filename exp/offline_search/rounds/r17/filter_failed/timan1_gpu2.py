@@ -80,7 +80,8 @@ def authorize(c, devices=ORDER):
     lease = dict(schema=LEASE, workers=n, device=DEVICE,
                  device_minor=MINOR, uuid=UUID, pci=PCI, excluded_devices=[0, 1, 3],
                  worker_memory_mib=ram, worker_vram_mib=vram,
-                 worker_max_episodes=4 if domain == 'libero' else 32,
+                 # LIBERO workers do not leak per episode (10-19): no recycling (owner 10-19).
+                 worker_max_episodes=0 if domain == 'libero' else 32,
                  maximum_workers=caps(devices)[domain])
     if devices != [DEVICE]:
         lease.update(schema=CARD_LEASE, devices=devices,
@@ -93,7 +94,7 @@ def route(worker, campaign, devices=ORDER):
     if worker.get('worker_node') != 'timan1':
         return worker
     lease = dict(authorize(campaign, devices), workers=worker['node_workers'])
-    worker['worker_max_seconds'] = 1800
+    worker['worker_max_seconds'] = 1800 if lease['worker_max_episodes'] else 0
     worker.update(worker_egl_device=DEVICE, worker_egl_devices=list(lease.get('devices', [DEVICE])),
                   timan1_worker_lease=lease,
                   worker_ram_reservation_mib=lease['worker_memory_mib'])
