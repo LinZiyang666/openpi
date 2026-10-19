@@ -58,6 +58,21 @@ owner 的常驻指令，逐字有效：
 
 ### ★★★★★★ 2026-10-14 14:55 CDT 总状态（compact 后最先读这一块；下面各「增量」块是细节，按时间倒序）
 
+### ★★★★★★★★★★★★★★★★★★★ 2026-10-18 22:0x CDT 增量（最先读这块）
+**现在在跑（22:08）**
+| 服务机 | 链 | 当前 | 之后 |
+|---|---|---|---|
+| H100 | **ffk-h100m17**（run_ffk_h100m17.sh） | **fa_co_r_f_lc6**（成功过滤库 · Cosmos · LIBERO · 减步 · 各档 续跑，剩 16,104；22:06 prepare） | fa_ls_gr_r_f_m fa_co_f_u_l fa_co_f_f_l fa_ls_gr_r_u_m fa_ls_v03_0 fa_ls_v03_1 fa_ls_gr_f_f_m fa_ls_gr_f_u_m fa_ls_v05_1_rz fa_ls_v05_2_rz fa_ls_fw_f_u_m |
+| H100（并行） | **ffk-h100r17**（等 `fa_co_r_f_lc6 ended`） | — | fa_pi_f_f_l_dyn fa_pi_f_u_l_dyn（成功过滤库/原库 · π0.5 · LIBERO · 全步 · 各档，R15；3 副本要 27 GB，Cosmos 8 副本在时只剩 25.6 GB，所以排在 Cosmos 后） |
+| h100-temp | **ffk-h100tmp14**（run_ffk_h100tmp14.sh，stop runner，alias env） | **fa_ls_fw_f_f_o_lc7**（成功过滤库 · Fast-WAM · LIBERO · 全步 · 旋钮关 续跑，从 lc5 建，剩 3,048；lc6 只准备未启动即作废） | fa_ls_fw_f_u_o_l fa_ls_v02_s fa_ls_v02_b fa_ls_fw_f_f_l_l fa_ls_fw_f_u_l_l fa_ls_v08_1 fa_ls_fw_r_u_m fa_ls_fw_f_f_m fa_ls_fw_r_f_m fa_ls_v07_0 fa_ls_v05_3 fa_ls_v05_4 fa_ls_v05_0 |
+| 4090 | **ffk-g4090i**（已 hold）→ **ffk-g4090j**（等 `[ffk-g4090i] queue done`） | **fa_ls_dp_r_b_m**（成功过滤库 · DP · MetaWorld · 减步 · 纯推理参照，21:58 start） | g4090j：fa_gr_f_u_o_s100（GR00T 全步旋钮关缺的一组，21:56 GPU_TIGHT 失败过）→ fa_ls_dp_r_b_v … fa_ls_v09_1 → fa_gr_f_u_l_dyn fa_gr_f_f_l_dyn |
+- 已撤：h100m15/16、h100r15/16、h100tmp12/13、g4090f/h。
+- **⛔ 续跑只继承直接父批的接受局**（filter_failed.resume.infra_error_selection 只读 source 的 journal），每续一次就把更早几批的成果重新排进去重跑：Cosmos lc6 原计划 29,430 局里 13,326 局早已跑完，FW lc6 多 1,442 局。数据没丢（analyze_cache.resume_segments 沿整条链取、同 UID 取最新），只是白跑。已改为沿整条续跑链计已完成（commit 5dc33427）。Cosmos lc6 带 refresh_after_source_closure，prepare 时自动按新代码重算 → 16,104。
+- **h100-temp Xid 31**（不是被人杀）：21:18 起本机渲染 worker 成批 SIGABRT（-6），内核 1,181 条 NVRM Xid 31 MMU fault（ENGINE GRAPHICS），只有 h100-temp（驱动 590.48）有，H100（595.99）/A100 没有；Fast-WAM 服务 44→51 GB + 40 个渲染约 21 GB 把卡吃满。64 次失败用完重启额度 → 21:50 h100 节点被 worker_resilience 退役 → h100-temp GPU 掉到 30%。改：h100_workers.route 同机服务预留 4→12 GB（commit 9858cf2d）。
+- **4090 被 Cosmos 本机 worker 占满**（22 GB）→ GR00T s100（4×6.8 GB）GPU_TIGHT。改：服务在别处的批次在 local 节点带 `worker_server_vram_floor_mib=28672`，fairness 只在本机没有自有服务批次活跃时才保留（已占服务显存计入；owner 22:0x 批评过 30 GB 太多，所以只在空闲时生效）（commit 68a38759）；R15 servers_up 显存不足时最多等 15 分钟（commit ba665484）。
+- 调节器修复（8af60107）对 lc6/lc7 起生效；起来后看 AUTOSCALE_DECISIONS global reason。
+- #135 八组缓存部件研究：定义已查清（见任务 #135 描述），待队列稳定后自己建。
+
 ### ★★★★★★★★★★★★★★★★★★ 2026-10-18 21:4x CDT 增量（先读这块，再读 21:3x 块）
 - **队列改动（21:43）**：GR00T 全步旋钮关其实 10-17 已完成 15/16 组（`formal_a_1016/off_decisions/groot_full_original.json` 只剩 libero_spatial 100 pending），且它的服务在 **4090**（SERVER_HOST local，端口 23100–23103），不该在 H100 链里。→ h100m15 已挂 hold（跑完 lc5 停）；**ffk-h100m16**（等 `[ffk-h100m15] queue done`）= fa_ls_gr_r_f_m fa_co_f_u_l fa_co_f_f_l fa_ls_gr_r_u_m fa_ls_v03_0 fa_ls_v03_1 fa_ls_gr_f_f_m fa_ls_gr_f_u_m fa_ls_v05_1_rz fa_ls_v05_2_rz fa_ls_fw_f_u_m。g4090h 已杀（只在等）→ **ffk-g4090i**（等 `[ffk-g4090f] queue done`）= **fa_gr_f_u_o_s100**（500 局，旧流程从 journal 续）→ 原 g4090h 列表 → fa_gr_f_u_l_dyn fa_gr_f_f_l_dyn。新链 **ffk-h100r15**（21:43 起）= fa_pi_f_f_l_dyn fa_pi_f_u_l_dyn（成功过滤库/原库 · π0.5 · LIBERO · 全步 · 各档，R15，H100 服务 3 副本 23230–23232，worker 只在 timan107），与 Cosmos lc5 同卡并行（Cosmos 约 41 GB + π0.5 约 27 GB）。旧流程 fleet 锁按批次根目录分（vla_shared.fleet_lock），可多批共用 timan107；formal_dynamic.legacy_job 启动前的 require_legacy_idle 挡路检查已删。
 - **⛔ 自适应调节器之前从没真正工作**（这就是"按上限平分节点"的根因）：driver 每窗口都判 `insufficient_or_unsettled_window`——①settled 要求各节点目标与在跑数在一个窗口内不变，节点因内存准入/校准/换代一直小幅增减，永远不稳定；②longseg 批（fa_ls_*）的 worker 不带 `_autoscale_episode` 计时，driver.result 直接丢弃，样本数 0。已改 `autoscale_1017/driver.py`（commit 8af60107）：无计时的接受局也计入吞吐；settled 改为"窗口内在跑总数波动 ≤ max(4, 30%) 且距上次调节 ≥ 一个窗口"，measured_capacity 用窗口均值。**只对新 prepare 的批次生效**（driver 随 driver_runtime.tar 打包）；在跑的 lc5 / FW lc5 / DP r_p_l 仍是旧行为。新批次起来后看 AUTOSCALE_DECISIONS.jsonl 的 global reason 是否出现 throughput_probe_down / queue_rate_rollback 等。
