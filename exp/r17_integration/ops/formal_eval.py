@@ -2050,4 +2050,7 @@ def main(argv=None):
 
 
 if __name__ == '__main__':
-    raise SystemExit(main())
+    # Run the imported module, not __main__: timan1_gpu2.coordinator patches
+    # exp.r17_integration.ops.formal_eval.remote, which __main__ would not see.
+    from exp.r17_integration.ops import formal_eval
+    raise SystemExit(formal_eval.main())
