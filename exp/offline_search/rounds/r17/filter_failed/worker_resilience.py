@@ -117,11 +117,11 @@ def capacity(node, run, vram, ram, growth=0, server_directory=None, timan1_cards
     for c in cards.values():
         c['server_resident_mib'] = sum(c['processes'].get(pid, 0) for pid in owners)
         c['server_pending_mib'] = max(0, growth-c['server_resident_mib'])
-    gpu = sum(max(0, (c['total']-c['used']-c['pending']-(c['total']+9)//10-c['server_pending_mib'])//vram) for c in cards.values())
+    gpu = sum(max(0, (c['total']-c['used']-c['pending']-max(512,min(2048,(c['total']+9)//10))-c['server_pending_mib'])//vram) for c in cards.values())
     memory = max(0, (mem['MemAvailable']-(mem['MemTotal']+9)//10-pending_ram)//ram)
     hard = {'libero': 83, 'metaworld': 332}
     if node in ('h100', 'a100'):
-        gpu = min(gpu, {'h100': 16, 'a100': 28}[node])  # one renderer per core
+        gpu = min(gpu, {'h100': 40, 'a100': 80}[node])
     cap = min(gpu, memory, hard['libero' if vram == 530 else 'metaworld']*len(timan1) if node == 'timan1' else gpu)
     return dict(capacity=cap, gpu_slots=gpu, ram_slots=memory, mem_available_bytes=mem['MemAvailable']*1024**2, cards=cards, server_budget_mib=growth,
                 boot_id=Path('/proc/sys/kernel/random/boot_id').read_text().strip())

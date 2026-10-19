@@ -21,7 +21,7 @@ ASSETS = ROOT+'/assets/libero_3eb6e3e7ee3a03663dba84ccc6d6cf9dbb4ae21fb20558ca40
 CONFIG_SOURCE = ROOT+'/original_paths.yaml'
 # One renderer per core: the H100 machines' 20 cores are shared with the model
 # server; the A100 (owner 10-18: worker machine only) has 32.
-CPU_WORKERS = {'h100': 16, 'a100': 28}
+CPU_WORKERS = {'h100': 40, 'a100': 80}  # workers mostly wait on inference (A100: 29 workers, load 5)
 NODES = tuple(CPU_WORKERS)
 
 SETUP = r'''
@@ -72,7 +72,7 @@ def route(worker, campaign):
     worker.update(worker_egl_device=0, worker_egl_devices=[0], worker_vram_mib=vram,
                   worker_memory_mib=ram, worker_ram_reservation_mib=ram,
                   # On the server's machine the card also runs the model: keep room for its growth.
-                  worker_server_vram_headroom_mib=16384 if node == 'h100' else 0,
+                  worker_server_vram_headroom_mib=4096 if node == 'h100' else 0,
                   policy_endpoint=('127.0.0.1:'+str(campaign['public_port']) if node == 'h100'
                                    else campaign['endpoint']))
     return worker

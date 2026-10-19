@@ -80,7 +80,8 @@ def plan(states, available, floor, *, now):
         for c in view['cards']:
             if not c.get('usable'):continue
             observed=sum(p.get('used_mib') or 0 for p in c.get('processes',[]) if p['pid'] in owned)
-            reclaimable=max(0,c['total_mib']-c['used_mib']-max(512,math.ceil(c['total_mib']/10))-reserve+observed)
+            # Card reserve: 10% capped at 2 GiB (an 80 GB card does not need 8 GB idle).
+            reclaimable=max(0,c['total_mib']-c['used_mib']-max(512,min(2048,math.ceil(c['total_mib']/10)))-reserve+observed)
             # Per-card fragments cannot be pooled into a cross-GPU renderer.
             gpu+=math.floor(reclaimable/quantum)*quantum
         capacities['vram']=gpu

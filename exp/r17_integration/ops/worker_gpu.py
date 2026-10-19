@@ -142,7 +142,7 @@ def admission(campaign, run, *, observed=None, ignore_index=None, count=None):
         server_headroom = campaign.get('worker_server_vram_headroom_mib', 0)
         if type(server_headroom) is not int or server_headroom < 0:
             raise ValueError('nonnegative server VRAM headroom required')
-        reserve = max(512, (card['total_mib']+9)//10) + server_headroom
+        reserve = max(512, min(2048, (card['total_mib']+9)//10)) + server_headroom
         card = dict(card, headroom_mib=reserve, server_headroom_mib=server_headroom,pending_mib=pending[device])
         cards[device] = card
         # Owner 2026-10-10: no VRAM admission cap; keep round-robin device spreading only.
