@@ -90,7 +90,9 @@ def prepare(campaign,directory,checkout):
 
 def validate(campaign,directory):
     directory=Path(directory)
-    document=json.loads((directory/'ORCHESTRATION.json').read_text())
+    # Rebuilt source templates (longseg_1017) carry the pin only in campaign.json.
+    path=directory/'ORCHESTRATION.json'
+    document=json.loads(path.read_text()) if path.exists() else campaign['orchestration']
     if document!=campaign['orchestration'] or document['selected']['mode']!=campaign['driver_mode']:
         pass
     selected=dict(document['selected']);expected=selected.pop('identity')
