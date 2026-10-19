@@ -128,9 +128,10 @@ def attach(campaign, source):
 
 
 def check_pins(campaign):
+    # Pins are informational (no gate); campaigns prepared by formal_dynamic record none.
+    if not campaign.get('runtime_from'):
+        return
     source = Path(campaign['runtime_from'])
-    if any(sha(source/name) != pin for name, pin in campaign['runtime_source_pins'].items()):
-        pass
     if campaign.get('paired_control') and Path(campaign['paired_control']).resolve() != source.resolve():
         paired_lineage(campaign, source)
 
