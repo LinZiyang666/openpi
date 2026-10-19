@@ -42,7 +42,7 @@ Package: `exp/offline_search/rounds/r17/scheduler/`. stdlib only on the schedule
 | `channels.py` | `status_entries`, `status_result`, `control_entry`, `collect_status` (moved from autoscale_1017/driver.py) |
 | `bootstrap.py`, `kernel_evidence.py` | moved unchanged |
 | `defaults.py` | eligibility, caps, campaign fields |
-| `__init__.py` | `VERSION = 'sched-1019'` |
+| `__init__.py` | `VERSION = 'sched-1019b'` |
 
 ## Scheduler API
 
@@ -84,7 +84,7 @@ Package: `exp/offline_search/rounds/r17/scheduler/`. stdlib only on the schedule
 
 Response: `{"targets": {"a100": 44, "timan1": 62, "timan107": 0, "h100": 33}, "time": 1792430001.2}`.
 `GET /v1/state` returns all live reports, per-node capacity, the allocation and per-batch shares (for humans).
-`GET /healthz` returns `{"ok": true, "version": "sched-1019"}`.
+`GET /healthz` returns `{"ok": true, "version": "sched-1019b"}`.
 
 Stateless: reports live in memory for 60 s; a restarted scheduler is correct again after one report period.
 

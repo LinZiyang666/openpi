@@ -155,8 +155,10 @@ class NodeExecutor:
         from .kernel_evidence import begin
         begin(self.run)
         self.started_wall = time.time()
-        self.snapshot_path = self.run / 'AUTOSCALE_NODE.json'
-        self.control_path = self.run / 'AUTOSCALE_CONTROL.json'
+        # A replacement fleet (swap_node_fleet.py) keeps the channel files the launcher feeds and polls.
+        channel = Path(campaign.get('scheduler_channel_run') or self.run)
+        self.snapshot_path = channel / 'AUTOSCALE_NODE.json'
+        self.control_path = channel / 'AUTOSCALE_CONTROL.json'
         self.events = self.run / 'AUTOSCALE_DECISIONS.jsonl'
         self.entries, self.retired = {}, set()
         self.slots = None
@@ -193,6 +195,10 @@ class NodeExecutor:
     def finished(self, worker_id, normal=False):
         entry = self.entries.pop(worker_id)
         self.retired.discard(worker_id)
+        if self.snapshot_path.exists():
+            # The next generation of this slot reuses the worker id: it must not find itself retired.
+            self.snapshot['retired'] = sorted(self.retired)
+            atomic(self.snapshot_path, self.snapshot)
         self.recycled += bool(normal)
         if entry.get('last'):
             self.history.append(entry['last'])

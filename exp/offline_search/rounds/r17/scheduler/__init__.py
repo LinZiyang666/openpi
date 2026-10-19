@@ -1,1 +1,1 @@
-VERSION = 'sched-1019'
+VERSION = 'sched-1019b'

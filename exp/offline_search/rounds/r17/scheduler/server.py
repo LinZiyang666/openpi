@@ -43,7 +43,8 @@ class Scheduler:
         with self.lock:
             self.reports = live(self.reports, now)
             reports = dict(self.reports)
-        result = plan(reports, now)
+            previous = self.state['targets']
+        result = plan(reports, now, previous)
         with self.lock:
             changed = result['targets'] != self.state['targets']
             self.state = dict(result, time=now, ready=now - self.started >= STARTUP_S)

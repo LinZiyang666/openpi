@@ -50,8 +50,12 @@ def costs(report):
     return result
 
 
-def plan(reports, now):
-    """Targets plus the per-node capacity and per-batch shared dominant share they were computed from."""
+def plan(reports, now, previous=None):
+    """Targets plus the per-node capacity and per-batch shared dominant share they were computed from.
+
+    `previous` (the last targets, kept only in memory) makes placement sticky for workers not yet
+    running: without it, small capacity changes move them between nodes every recompute."""
+    previous = previous or {}
     reports = live(reports, now)
     capacity = capacities(reports)
     room = {n: dict(c) for n, c in capacity.items()}
@@ -82,7 +86,8 @@ def plan(reports, now):
             if not open_nodes:
                 return
             b = min(open_nodes, key=lambda b: (share(b, groups[b]), b))
-            keep = [n for n in open_nodes[b] if alloc[b][n] < reports[b]['active'].get(n, 0)]
+            keep = [n for n in open_nodes[b] if alloc[b][n] < max(reports[b]['active'].get(n, 0),
+                                                                    previous.get(b, {}).get(n, 0))]
             n = max(keep or open_nodes[b], key=headroom)  # nodes are sorted: ties go to the first name
             alloc[b][n] += 1
             for x in RESOURCES:
