@@ -58,6 +58,40 @@ owner 的常驻指令，逐字有效：
 
 ### ★★★★★★ 2026-10-14 14:55 CDT 总状态（compact 后最先读这一块；下面各「增量」块是细节，按时间倒序）
 
+### ★★★★★★★★★★★★★★★★ 2026-10-18 21:0x CDT 总状态（compact 后最先读这一块；下面 20:0x、19:3x、19:1x、18:5x 块是细节）
+
+**owner 今晚新增规矩（都已写进记忆，违反即失职）**
+- ⛔ 主线关键活自己做；不写/不跑测试自检，修好直接上真实批次；不设挡路自检（今晚删掉的：R16 driver worker 主机名/池校验、启动前依赖/配置哈希复验、10 s 远程超时）。
+- ⛔ worker 就近：哪台机器的 worker 优先给同机 server（4090 本机→4090 的 R16；H100/h100-temp 本机→各自 server）。
+- ⛔ timan107 的卡是我们的，别人（yurenh2 占约 31 GB 显存、约 19 核）占了也要在上面多起 worker；worker 吃 GPU 很少，不会饿死。
+- ⛔ A100 不再做等价性，只当 worker 机；磁盘已清（删 cl18/models 模型副本，cl18/runs 结果保留）；xgpu_1017 下代理未提交的文档/证据仍待提交（`exp/offline_search/rounds/r17/xgpu_1017/`）。
+- ⛔ 大文件别从本机上传（本机上行约 16 MB/s）：云内三台（H100 149.165.153.233、h100-temp 149.165.172.126、A100 149.165.152.105）互传约 240 MB/s，在有文件的那台开临时 rsync 服务（如 23117），别的机器去拉，传完关；A100 入站 231xx 被拦，只能它去拉。⛔ 别用 direct_transfer（全局锁 `/tmp/r17_direct_rsync.lock` + 23118）传大文件，它会挡住所有批次准备；中断传输后按 PID 清两端残留 `rsync --daemon`。
+- 先答再干；汇报写白话「成功过滤库/原库 · 模型 · benchmark · 全步/减步 · 阶段」。
+
+**现在在跑（21:01）**
+| 服务机 | 链（PID） | 当前批次 | worker 机 |
+|---|---|---|---|
+| H100 | **ffk-h100m13**（2828834，已挂 hold，跑完当前即停）→ **ffk-h100m14**（2923615，等 `[ffk-h100m13] queue done`） | **fa_co_r_f_lc4**（成功过滤库 · Cosmos · LIBERO · 减步 · 各档 续跑，剩约 13,400；20:54 start，Cosmos 8 副本启动约 8 分钟） | h100(H100 本机)16、a100 28、local 83、timan1 166、timan107 104 |
+| h100-temp | **ffk-h100tmp10**（2670344，stop runner，已挂 hold）→ **ffk-h100tmp11**（2923617，等 `[ffk-h100tmp10] (queue done|STOPPED)`） | **fa_ls_fw_f_f_o_lc4**（成功过滤库 · Fast-WAM · LIBERO · 全步 · 旋钮关 续跑，6,000 中剩约 3,300；20:37 start，约 50–60 局/分，h100-temp GPU 已到 100%） | h100(=h100-temp 本机)、a100、timan1、timan107 |
+| 4090 | **ffk-g4090f**（2404340）→ **ffk-g4090g**（2923616，等 `[ffk-g4090f] queue done`） | **fa_ls_dp_r_b_l**（成功过滤库 · DP · LIBERO · 减步 · 纯推理参照，1,000，21:01 start），之后 DP/FW 长列表 | timan107 等 |
+- h100m14 列表：fa_gr_f_u_o fa_gr_f_f_o（**GR00T 全步旋钮关，R15，16 组×500=8,000 局；之前从没排进任何链，是 fa_gr_f_u_l/f_f_l 的前置**）→ fa_ls_gr_r_f_m fa_co_f_u_l fa_co_f_f_l fa_ls_gr_r_u_m fa_ls_v03_0 fa_ls_v03_1 fa_ls_gr_f_f_m fa_ls_gr_f_u_m fa_ls_v05_1_rz fa_ls_v05_2_rz → fa_ls_fw_f_u_m（从 h100-temp 挪来平衡）。
+- h100tmp11 列表：fa_ls_fw_f_u_o_l fa_ls_v02_s fa_ls_v02_b fa_ls_fw_f_f_l_l fa_ls_fw_f_u_l_l fa_ls_v08_1 fa_ls_fw_r_u_m fa_ls_fw_f_f_m fa_ls_fw_r_f_m fa_ls_v07_0 fa_ls_v05_3 fa_ls_v05_4 fa_ls_v05_0（env R17_H100_NODE=h100-temp R17_H100_HOST=149.165.172.126 R17_DRIVER_PORT=23194；被别人杀不重跑、推通知）。
+- g4090g：fa_gr_f_u_l_dyn fa_gr_f_f_l_dyn（GR00T 全步各档 R16；20:55 因前置旋钮关未跑被跳过）。
+- R16 fa_gr_r_f_l（10,000）20:53 已完成。
+- **估算（21:00）**：调整后 H100 约 73 h、h100-temp 约 69 h、4090 约 56 h → 约 3 天（不含 #135 八组缓存部件研究、π0.5 全步各档两批 #174 未排）。12 批 MT50 旋钮下降（各 9 万局）占约六成。速度表 `tmp/rates.json`、队列清单 `tmp/queue_rows.json`。
+
+**今晚做成的 worker 基础设施**
+- 自适应全线开（ENABLED=on）。修过：观测上报带 2.3 MB 快照挤满下行（worker.py 去掉 workers 列表）；driver place() 把校准中的节点切成 0 的死循环；VRAM 加滞回（≥2 个余量才加、超额≤1 不减、每次最多减 2）；10 s 远程超时；timan1_gpu2 嵌入代码的 switch import；动态续跑（续跑重建 driver）；状态轮询按 (节点, 代码目录, python) 分组（同机服务端旧运行时吞掉 worker 控制）；校准键改为 model/domain/worker 换代设置（续跑沿用），无记录时按已知峰值起步（LIBERO 3.5 GiB、MetaWorld 1 GiB），不再等 canary 跑完 4 局；timan107 floor 24 GiB/critical 16/spawn 2 s；内存守护 12 GiB（tmux cx_t107_guard）。
+- 新 worker 节点 **h100**（=lane 的 server 机，loopback，上限 16，预留 16 GB 显存给 server）与 **a100**（公网 endpoint，上限 28），共用 `exp/r17_integration/ops/h100_workers.py`，ROOT `/data/mw_finetune/qualification/h100_workers`（env.tar 7.2 GB + extra.tar〔cusparselt〕；setup 修 LIBERO assets 软链）。三台都已装好。defaults.apply：server_node=='h100' 的 LIBERO 批自动加 h100、所有 LIBERO 批自动加 a100；**续跑会沿用上一批上限，要带新节点需在续跑 campaign.json 删 autoscale_node_maxima/autoscale_maxima_policy 并改 execution_worker_nodes**（今晚 lc2/lc3/lc4 都这么做）。
+- **4090 本机 R16 worker**：`/data/mw_finetune/qualification/r16_local_island`（同一 r16 worker.tar，sha 校验过），`attach_local.sh <group>`（照抄 timan107 一个 R16 worker 的参数，空闲显存>6 GB 且内存>40 GB 每 10 s 加一个）+ `loopback/sitecustomize.py`（ziyanglin.com→127.0.0.1，不走公网回环）。已挂进 `launch_fa_gr_f_u_l_dyn.sh`、`launch_fa_gr_f_f_l_dyn.sh`（及 r_f_l）。仓库副本 `filter_failed_knob/r16_local/`。R16 driver 自检已删（`rounds/r16/conductor.py::_record_pull`）。
+- 续跑流程（手动，今晚用了 6 次）：touch hold → SIGTERM `pgrep -f "[l]aunch --run <run>"` → 等退出 → 三机核无残留 → RECEIPT 备份后写 all_owned_closed+coordinator_closure → `filter_failed.resume --source <run> --name <新名> --remaining --verify-closed --worker-counts ...`（h100-temp 线带三个 alias env）→ 改 campaign.json 节点 → 复制 prepare/launch wrapper（Cosmos 用 lc1 模板 filter_failed_knob.stage/launch；FW 用 gr_r_p_m_c2 模板 filter_failed.stage/launch）→ 新链。
+
+**待办（按顺序）**
+1. 盯 Cosmos lc4（约 21:02 出局）与 FW lc4 的 worker 数和速度；h100m14 起来后确认 GR00T 旋钮关 R15 正常跑（R15 自适应之前出过换代死循环，已修并验收 256/256）。
+2. 提交 xgpu_1017 的未提交文件。
+3. π0.5 全步各档两批（#174）排进 H100；#135 八组缓存部件研究定规模后排。
+4. 每 30 分钟巡检：链日志 `openpi_ext/scratch/r17_ops/mw/chain.log`、各机 GPU、Monitor 重挂（当前 b62tttfui，21:28 过期）。
+
 ### ★★★★★★★★★★★★★★★ 2026-10-18 20:0x CDT 更新（先读这块）
 - owner：⛔ A100 不做等价性了，改当 worker 机；A100 磁盘已清（删 cl18/models 的模型副本 34 GB，cl18/runs 结果保留）；A100 上研究进程已按 PID 停。xgpu_1017 下代理未提交文件待提交。
 - owner：⛔ R16 driver 的 worker 自检（主机名必须 timan107 + 池/步长比对）已删（`rounds/r16/conductor.py::_record_pull` 直接返回）。19:42 我起的本机 R16 worker 触发该自检把 R16 整批弄崩（已从断点续跑，链 ffk-g4090d）。
