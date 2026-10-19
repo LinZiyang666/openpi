@@ -174,6 +174,13 @@ class DriverController:
             self.demand_targets = place(self.tuner.target, intent_rows, min_slice=self.config.min_slice)
             desired = (dict(self.targets) if not self.nodes else
                        place(self.tuner.target, rows, min_slice=self.config.min_slice))
+            # A node that is holding (calibrating its first worker, or memory
+            # not admitting) keeps its live workers: consolidating its 1..3
+            # slots away would retire the calibration worker forever.
+            for n, r in rows.items():
+                s = self.nodes.get(n, {})
+                if r['valid'] and not s.get('admit', False) and s.get('active', 0):
+                    desired[n] = max(desired.get(n, 0), min(s['active'], r['cap']))
             # Do not move quotas on every tiny fluctuation in MemAvailable.
             # Keep current placements if they fit and the desired total is steady.
             if sum(self.targets.values()) == self.tuner.target and all(rows[n]['valid'] and self.targets[n] <= rows[n]['cap'] for n in self.targets if self.targets[n]):

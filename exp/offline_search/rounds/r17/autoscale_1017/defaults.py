@@ -17,6 +17,9 @@ def physical_maximum(node, domain='libero'):
         raise ValueError('disabled/unknown worker node: ' + node)
     if node == 'timan1':
         return CAPS[domain]
+    if node == 'h100':
+        from exp.r17_integration.ops.h100_workers import CPU_WORKERS
+        return CPU_WORKERS
     vram = SIZES[domain][0]
     cards = [8192] * 8 if node == 'timan107' else [49140]
     # Ten percent framebuffer reserve; current residents/server growth are
@@ -111,6 +114,9 @@ def apply(campaign, directory=None, *, force=False):
         selected = ({'timan107':int(specified['timan108'])}
                     if specified and set(specified)=={'timan108'} and int(specified['timan108'])>0
                     else maxima(domain, ('timan107',)))
+    if c.get('server_node') == 'h100' and domain == 'libero':
+        # Owner 10-18: workers on the server's own machine serve it first.
+        selected.setdefault('h100', physical_maximum('h100', domain))
     selected=desired_maxima(domain,selected,c.get('worker_hard_limits'))
     c.update(execution_worker_nodes=selected, execution_workers=sum(selected.values()),
              autoscale_node_maxima=selected, autoscale_maximum=sum(selected.values()),

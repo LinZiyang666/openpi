@@ -355,6 +355,9 @@ class LocalGovernor:
         group_live=group['workers']
         returning=sum(bool(w.get('draining')) for w in group_live)
         fair_excess=max(0,len(group_live)-returning-fair_limit)
+        # VRAM quotas move with other users' cards: ignore a one-worker excess
+        # and shed at most two per sample, so a fluctuation is not a full churn.
+        fair_excess=0 if fair_excess<=1 else min(fair_excess,2)
         newest=sorted((w for w in group_live if not w.get('draining')),
                       key=lambda w:(w['born'],w['fleet'],w['worker_id']),reverse=True)
         fair_retire={w['worker_id'] for w in newest[:fair_excess] if w['fleet']==self.fleet} if valid and sharing['campaigns']>1 else set()
@@ -395,7 +398,8 @@ class LocalGovernor:
         decision['admit'] &= self.legacy or fresh
         fair_admit=len(group_live)<fair_limit
         if sharing['vram_headroom'] is not None:
-            fair_admit &= sharing['vram_headroom']>=group['vram']
+            # Grow only with room for two more renderers (hysteresis vs. the shed above).
+            fair_admit &= sharing['vram_headroom']>=2*group['vram']
         if decision['admit'] and not fair_admit:decision['reason']='fair_share_wait'
         decision['admit'] &= fair_admit
         decision['fairness']={k:v for k,v in sharing.items() if k!='groups'}

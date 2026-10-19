@@ -24,7 +24,9 @@ NAMES = ('fa_ls_fw_f_p_m', 'fa_ls_gr_f_p_m', 'fa_pi_f_u_l', 'fa_pi_f_f_l', 'fa_l
 # Non-ledger worker floors: LIBERO from the measured R16 high-water (3.37 GiB x 1.15);
 # MetaWorld at twice the measured 512 MiB R17 renderer reservation.
 EXTERNAL_FLOORS = dict(external_peak_floor=4*GIB, external_peak_floor_metaworld=1*GIB)
-NODE_CONFIG = {'timan107': dict(floor=96*GIB, critical=60*GIB, hysteresis=8*GIB,
+# Owner 10-18 19:3x: timan107 RAM is not the binding resource (its 8 GB cards are);
+# keep only a safety margin above the 12 GiB coordinator guard.
+NODE_CONFIG = {'timan107': dict(floor=24*GIB, critical=16*GIB, hysteresis=8*GIB,
                               spawn_interval_s=10, **EXTERNAL_FLOORS),
                'timan1': dict(EXTERNAL_FLOORS)}
 

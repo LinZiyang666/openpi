@@ -6,7 +6,7 @@ from dataclasses import dataclass
 import math
 
 GIB = 1024 ** 3
-NODES = ('timan107', 'timan1', 'local')
+NODES = ('timan107', 'timan1', 'local', 'h100')
 
 
 @dataclass(frozen=True)
