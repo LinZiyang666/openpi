@@ -58,6 +58,11 @@ owner 的常驻指令，逐字有效：
 
 ### ★★★★★★ 2026-10-14 14:55 CDT 总状态（compact 后最先读这一块；下面各「增量」块是细节，按时间倒序）
 
+### ★ 2026-10-19 00:4x 待 owner 定（最先读）
+- **⛔ π0.5/GR00T 的 LIBERO formal-A 旋钮批次用的是旧停滞门，不是 Q3。** R16 减步 16 个"旋钮关" fit 全是 `TriggerCommitJudge`/`TriggerGrootCommitJudge` + `progress_guard=noprog_span`（n=3、eps=.5，即 R8 NoProgressGuard）；R15 全步插件是 `--os-judge guard_only` + `R13Knob`（guard 取 `os_force_miss`）。与 10-13 裁定（Q3 only，LIBERO 和 MetaWorld 都适用；`project-stall-gate-q3-only`）不一致。来源：#135 代理 `filter_failed_knob/cache_study_1019/HANDBACK.md` §没解决 2，我已核对 R13Knob 源码（recipe.py:100 guard=os_force_miss）。影响：#155 里 π0.5/GR00T 的旋钮关与各档（已跑的 GR00T 全步旋钮关 16 组、R16 减步各档等）。**已暂停**：π0.5 全步各档两批（`mw/hold_ff_h100r18`，H100 继续跑 R17 余下批次）；GR00T 全步各档在 g4090k 末尾，十几小时后才轮到，届时 owner 未定就先撤。可选：A 把 Q3 移植进 R16/R15（半天到一天，需在 R16 库上重新标定）；B 认可现状；C 这两个模型只报无门组。
+- **#135 八组缓存部件研究**：无门四组 c/cr/ch/chr 已建（R16 流程、原库、减步 K1、8 库格 × 4 组 × 500 = 每模型 16,000，合计 32,000），排在 **ffk-g4090l**（等 `[ffk-g4090k] queue done`）：fa_cs_pi_r fa_cs_gr_r。带门四组等上面的 Q3 决定。另两点待 owner 认可：cr 组 C5 下沿用 C10 拟合的修正头只执行前 5 步；C5 不开尾段的服务方式没在 GPU 上跑过（上线后看 decisions：c/cr 每次新检索，ch/chr 隔一次 cache_blind，所有组 0 次 MISS）。
+- 其余见下面 23:0x 块；夜里 Fast-WAM lc7（成功过滤库 · 全步 · 旋钮关）3,048 PASS，DP 多批完成，h100-temp 在跑 fa_ls_fw_f_u_o_l。
+
 ### 2026-10-18 23:0x 增补（最先读）
 - **H100 链改为 ffk-h100m18**（run_ffk_h100m18.sh）：**fa_co_r_f_lc7**（23:03 start；从 lc6 续，保留 15,138、剩 14,862）→ H100 余下同 h100m17。π0.5 全步各档改由 **ffk-h100r18** 等 `fa_co_r_f_lc7 ended`。h100m17/h100r17 已撤。
 - 原因：调节器的"只看速度往下试探"（throughput_probe_down）在 lc6 上把 Cosmos 从 92 压到 64，速度掉了却抢不回被别的批次占走的名额，目标一路降到 69、53→26 局/分、H100 0–52%。已删掉这条分支（policy.py，commit 429d4c28）：缺 worker 的批次保持需求，只有服务端排队（wait 占比 ≥65%）才缩。lc7 起生效。
