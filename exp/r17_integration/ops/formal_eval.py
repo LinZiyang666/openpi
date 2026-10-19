@@ -466,7 +466,7 @@ def prepare_workers(campaign, directory, *, payload_override=None):
     if payload_override is None and (campaign.get('live_fleets') or {'local','timan1'} & set(execution_nodes)):
         from .local_workers import payload as local_payload
         payload = local_payload(campaign,directory,ROOT,payload)
-    if campaign.get('autoscale') and not campaign.get('cache_resume_selection'):
+    if campaign.get('autoscale'):
         from exp.offline_search.rounds.r17.autoscale_1017.release import refresh_worker
         payload = refresh_worker(campaign, Path(directory), ROOT, payload)
     digest = payload['archive_sha256']
@@ -1147,7 +1147,8 @@ def run_campaign(campaign, directory, deployment):
             execution_workers=campaign.get('execution_workers',campaign['workers']),replicas=campaign['replicas'])
     if campaign.get('local_worker_exception'):
         report.update(local_worker_exception=campaign['local_worker_exception'],worker_nodes=campaign.get('execution_worker_nodes',campaign['worker_nodes']),
-            local_worker_orchestration=json.loads((directory/'LOCAL_WORKER_ORCHESTRATION.json').read_text()))
+            local_worker_orchestration=json.loads((directory/'LOCAL_WORKER_ORCHESTRATION.json').read_text())
+                if (directory/'LOCAL_WORKER_ORCHESTRATION.json').exists() else None)
     if campaign.get('cache_worker_orchestration'):
         report.update(cache_worker_orchestration=campaign['cache_worker_orchestration'],
                       worker_nodes=campaign.get('execution_worker_nodes',campaign['worker_nodes']),

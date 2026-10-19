@@ -99,8 +99,10 @@ class Observer:
 
     def payload(self):
         snapshot = read(os.environ.get('OPENPI_AUTOSCALE_NODE', ''), {}) or {}
-        return dict(node=snapshot, worker_id=self.worker_id, generation=self.generation,
-                    retire=self.worker_id in snapshot.get('retired', []))
+        # Sent with every pull/progress frame: the driver reads only node-level
+        # fields, never the governor's per-worker list (megabytes of argv).
+        return dict(node={k: v for k, v in snapshot.items() if k != 'workers'}, worker_id=self.worker_id,
+                    generation=self.generation, retire=self.worker_id in snapshot.get('retired', []))
 
     def response(self, payload):
         control = payload.get('_autoscale_control')

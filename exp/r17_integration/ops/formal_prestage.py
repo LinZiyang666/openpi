@@ -406,7 +406,8 @@ def launch_prepared(directory):
                 # Recorded only: owner 2026-10-10, no RAM admission. Archived worker
                 # releases from before that ruling still compute a refusal.
                 write_json(directory/(node+'_LAUNCH_ADMISSION.json'),admission)
-                if resilience and not admission['admitted']:
+                # A dynamic fleet's counts are maxima; its governor places by RAM.
+                if resilience and not admission['admitted'] and not campaign.get('autoscale'):
                     raise RuntimeError(node+': worker RAM admission refused')
                 # Same immutable asset/dependency releases, no install or native imports.
                 dependency=item.get('dependencies')

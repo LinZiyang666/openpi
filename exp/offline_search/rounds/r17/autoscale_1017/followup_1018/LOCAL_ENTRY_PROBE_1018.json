@@ -1,0 +1,346 @@
+{
+ "cpu_only": true,
+ "python": "/data/mw_finetune/qualification/local_workers/env311/bin/python",
+ "dependencies": "/data/mw_finetune/qualification/local_workers/dependencies/libero311_42f0e80603054ed9f4bab84a6ce71bdbc71958c6c5c0329f9b5c892d917b3fe9",
+ "rows": [
+  {
+   "campaign": "fa_ls_v07_0",
+   "mode": "prepared_payload",
+   "source": "/data/mw_finetune/eval/csmf1010/workers.tar",
+   "source_sha256": "053966401d8f2117abc00d91e646f36cdecb010e679b4b114413e4044c505fab",
+   "archive_sha256": "2573dcf4fabae1f0622ba8d36f0241f5a8669302d0c8d5afa3ccfe5c9a753561",
+   "returncode": 1,
+   "error": "ModuleNotFoundError: No module named 'exp.r17_integration.ops.local_worker_entry'"
+  },
+  {
+   "campaign": "fa_ls_v07_0",
+   "mode": "frozen_source",
+   "source": "/data/mw_finetune/eval/csmf1010/workers.tar",
+   "source_sha256": "053966401d8f2117abc00d91e646f36cdecb010e679b4b114413e4044c505fab",
+   "archive_sha256": "053966401d8f2117abc00d91e646f36cdecb010e679b4b114413e4044c505fab",
+   "returncode": 0,
+   "module": "exp.r17_integration.ops.worker_lifetime",
+   "target": "exp.r17_integration.ops.worker_lifetime",
+   "entry_file": "/tmp/local_probe_afsb8d_t/053966401d8f2117abc00d91e646f36cdecb010e679b4b114413e4044c505fab/exp/r17_integration/ops/worker_lifetime.py",
+   "probe": {
+    "python": "3.11.15",
+    "client_only": true,
+    "benchmark_protocol": "3e84e999dc3d70662595e8dfb3ece7ac8e67cee8db1afb0294d85e9cd7dfc8d7"
+   }
+  },
+  {
+   "campaign": "fa_ls_v07_0",
+   "mode": "dynamic_overlay",
+   "source": "/data/mw_finetune/eval/csmf1010/workers.tar",
+   "source_sha256": "053966401d8f2117abc00d91e646f36cdecb010e679b4b114413e4044c505fab",
+   "archive_sha256": "74b4ad5d8b0f36c885b75ea0d16ac09651c27b9cd5a1e7ac3bc2bea2ba663b5a",
+   "returncode": 0,
+   "module": "exp.r17_integration.ops.local_worker_entry",
+   "target": "exp.r17_integration.ops.worker_lifetime",
+   "entry_file": "/tmp/local_probe_afsb8d_t/74b4ad5d8b0f36c885b75ea0d16ac09651c27b9cd5a1e7ac3bc2bea2ba663b5a/exp/r17_integration/ops/local_worker_entry.py",
+   "probe": {
+    "python": "3.11.15",
+    "client_only": true,
+    "benchmark_protocol": "3e84e999dc3d70662595e8dfb3ece7ac8e67cee8db1afb0294d85e9cd7dfc8d7"
+   },
+   "scientific_bytes_unchanged": true
+  },
+  {
+   "campaign": "fa_ls_v05_3",
+   "mode": "frozen_source",
+   "source": "/data/mw_finetune/eval/fastwamc5232306668/workers.tar",
+   "source_sha256": "4d2953044a7bbc5be9fbe942d97e901742ace3b8cc59fe38339e7c920d13f45a",
+   "archive_sha256": "4d2953044a7bbc5be9fbe942d97e901742ace3b8cc59fe38339e7c920d13f45a",
+   "returncode": 0,
+   "module": "exp.r17_integration.ops.local_worker_entry",
+   "target": "exp.r17_integration.ops.worker_lifetime",
+   "entry_file": "/tmp/local_probe_afsb8d_t/4d2953044a7bbc5be9fbe942d97e901742ace3b8cc59fe38339e7c920d13f45a/exp/r17_integration/ops/local_worker_entry.py",
+   "probe": {
+    "python": "3.11.15",
+    "client_only": true,
+    "benchmark_protocol": "3e84e999dc3d70662595e8dfb3ece7ac8e67cee8db1afb0294d85e9cd7dfc8d7"
+   }
+  },
+  {
+   "campaign": "fa_ls_v05_3",
+   "mode": "dynamic_overlay",
+   "source": "/data/mw_finetune/eval/fastwamc5232306668/workers.tar",
+   "source_sha256": "4d2953044a7bbc5be9fbe942d97e901742ace3b8cc59fe38339e7c920d13f45a",
+   "archive_sha256": "74b4ad5d8b0f36c885b75ea0d16ac09651c27b9cd5a1e7ac3bc2bea2ba663b5a",
+   "returncode": 0,
+   "module": "exp.r17_integration.ops.local_worker_entry",
+   "target": "exp.r17_integration.ops.worker_lifetime",
+   "entry_file": "/tmp/local_probe_afsb8d_t/74b4ad5d8b0f36c885b75ea0d16ac09651c27b9cd5a1e7ac3bc2bea2ba663b5a/exp/r17_integration/ops/local_worker_entry.py",
+   "probe": {
+    "python": "3.11.15",
+    "client_only": true,
+    "benchmark_protocol": "3e84e999dc3d70662595e8dfb3ece7ac8e67cee8db1afb0294d85e9cd7dfc8d7"
+   },
+   "scientific_bytes_unchanged": true
+  },
+  {
+   "campaign": "fa_ls_v05_4",
+   "mode": "frozen_source",
+   "source": "/data/mw_finetune/eval/fastwamc5481985003/workers.tar",
+   "source_sha256": "bbed5e351ba9c83c7bea471596b13548fe01fa3a8114b64d1edfc4bd5882e455",
+   "archive_sha256": "bbed5e351ba9c83c7bea471596b13548fe01fa3a8114b64d1edfc4bd5882e455",
+   "returncode": 0,
+   "module": "exp.r17_integration.ops.local_worker_entry",
+   "target": "exp.r17_integration.ops.worker_lifetime",
+   "entry_file": "/tmp/local_probe_afsb8d_t/bbed5e351ba9c83c7bea471596b13548fe01fa3a8114b64d1edfc4bd5882e455/exp/r17_integration/ops/local_worker_entry.py",
+   "probe": {
+    "python": "3.11.15",
+    "client_only": true,
+    "benchmark_protocol": "3e84e999dc3d70662595e8dfb3ece7ac8e67cee8db1afb0294d85e9cd7dfc8d7"
+   }
+  },
+  {
+   "campaign": "fa_ls_v05_4",
+   "mode": "dynamic_overlay",
+   "source": "/data/mw_finetune/eval/fastwamc5481985003/workers.tar",
+   "source_sha256": "bbed5e351ba9c83c7bea471596b13548fe01fa3a8114b64d1edfc4bd5882e455",
+   "archive_sha256": "74b4ad5d8b0f36c885b75ea0d16ac09651c27b9cd5a1e7ac3bc2bea2ba663b5a",
+   "returncode": 0,
+   "module": "exp.r17_integration.ops.local_worker_entry",
+   "target": "exp.r17_integration.ops.worker_lifetime",
+   "entry_file": "/tmp/local_probe_afsb8d_t/74b4ad5d8b0f36c885b75ea0d16ac09651c27b9cd5a1e7ac3bc2bea2ba663b5a/exp/r17_integration/ops/local_worker_entry.py",
+   "probe": {
+    "python": "3.11.15",
+    "client_only": true,
+    "benchmark_protocol": "3e84e999dc3d70662595e8dfb3ece7ac8e67cee8db1afb0294d85e9cd7dfc8d7"
+   },
+   "scientific_bytes_unchanged": true
+  },
+  {
+   "campaign": "fa_ls_v05_0",
+   "mode": "frozen_source",
+   "source": "/data/mw_finetune/eval/csl10f/workers.tar",
+   "source_sha256": "a57c9f4b6fd21810361490c532d5b62e30db80d05771501d7f236004a46f334a",
+   "archive_sha256": "a57c9f4b6fd21810361490c532d5b62e30db80d05771501d7f236004a46f334a",
+   "returncode": 0,
+   "module": "exp.r17_integration.ops.worker_lifetime",
+   "target": "exp.r17_integration.ops.worker_lifetime",
+   "entry_file": "/tmp/local_probe_afsb8d_t/a57c9f4b6fd21810361490c532d5b62e30db80d05771501d7f236004a46f334a/exp/r17_integration/ops/worker_lifetime.py",
+   "probe": {
+    "python": "3.11.15",
+    "client_only": true,
+    "benchmark_protocol": "3e84e999dc3d70662595e8dfb3ece7ac8e67cee8db1afb0294d85e9cd7dfc8d7"
+   }
+  },
+  {
+   "campaign": "fa_ls_v05_0",
+   "mode": "dynamic_overlay",
+   "source": "/data/mw_finetune/eval/csl10f/workers.tar",
+   "source_sha256": "a57c9f4b6fd21810361490c532d5b62e30db80d05771501d7f236004a46f334a",
+   "archive_sha256": "74b4ad5d8b0f36c885b75ea0d16ac09651c27b9cd5a1e7ac3bc2bea2ba663b5a",
+   "returncode": 0,
+   "module": "exp.r17_integration.ops.local_worker_entry",
+   "target": "exp.r17_integration.ops.worker_lifetime",
+   "entry_file": "/tmp/local_probe_afsb8d_t/74b4ad5d8b0f36c885b75ea0d16ac09651c27b9cd5a1e7ac3bc2bea2ba663b5a/exp/r17_integration/ops/local_worker_entry.py",
+   "probe": {
+    "python": "3.11.15",
+    "client_only": true,
+    "benchmark_protocol": "3e84e999dc3d70662595e8dfb3ece7ac8e67cee8db1afb0294d85e9cd7dfc8d7"
+   },
+   "scientific_bytes_unchanged": true
+  },
+  {
+   "campaign": "fa_ls_dp_f_b_l",
+   "mode": "frozen_source",
+   "source": "/data/mw_finetune/eval/knobtestdp/workers.tar",
+   "source_sha256": "958f9e485f56ddf7405fe94e26adb3f4fce8e55aa1bc450db69990777325ef77",
+   "archive_sha256": "958f9e485f56ddf7405fe94e26adb3f4fce8e55aa1bc450db69990777325ef77",
+   "returncode": 0,
+   "module": "exp.r17_integration.ops.local_worker_entry",
+   "target": "exp.r17_integration.ops.worker_lifetime",
+   "entry_file": "/tmp/local_probe_afsb8d_t/958f9e485f56ddf7405fe94e26adb3f4fce8e55aa1bc450db69990777325ef77/exp/r17_integration/ops/local_worker_entry.py",
+   "probe": {
+    "python": "3.11.15",
+    "client_only": true,
+    "benchmark_protocol": "3e84e999dc3d70662595e8dfb3ece7ac8e67cee8db1afb0294d85e9cd7dfc8d7"
+   }
+  },
+  {
+   "campaign": "fa_ls_dp_f_b_l",
+   "mode": "dynamic_overlay",
+   "source": "/data/mw_finetune/eval/knobtestdp/workers.tar",
+   "source_sha256": "958f9e485f56ddf7405fe94e26adb3f4fce8e55aa1bc450db69990777325ef77",
+   "archive_sha256": "04ddbbec92d8415cd3509fa25db277661d9d017f2f22d82857c97c386e69f905",
+   "returncode": 0,
+   "module": "exp.r17_integration.ops.local_worker_entry",
+   "target": "exp.r17_integration.ops.worker_lifetime",
+   "entry_file": "/tmp/local_probe_afsb8d_t/04ddbbec92d8415cd3509fa25db277661d9d017f2f22d82857c97c386e69f905/exp/r17_integration/ops/local_worker_entry.py",
+   "probe": {
+    "python": "3.11.15",
+    "client_only": true,
+    "benchmark_protocol": "3e84e999dc3d70662595e8dfb3ece7ac8e67cee8db1afb0294d85e9cd7dfc8d7"
+   },
+   "scientific_bytes_unchanged": true
+  },
+  {
+   "campaign": "fa_ls_dp_r_b_l",
+   "mode": "frozen_source",
+   "source": "/data/mw_finetune/eval/knobtestdp_red/workers.tar",
+   "source_sha256": "958f9e485f56ddf7405fe94e26adb3f4fce8e55aa1bc450db69990777325ef77",
+   "archive_sha256": "958f9e485f56ddf7405fe94e26adb3f4fce8e55aa1bc450db69990777325ef77",
+   "returncode": 0,
+   "module": "exp.r17_integration.ops.local_worker_entry",
+   "target": "exp.r17_integration.ops.worker_lifetime",
+   "entry_file": "/tmp/local_probe_afsb8d_t/958f9e485f56ddf7405fe94e26adb3f4fce8e55aa1bc450db69990777325ef77/exp/r17_integration/ops/local_worker_entry.py",
+   "probe": {
+    "python": "3.11.15",
+    "client_only": true,
+    "benchmark_protocol": "3e84e999dc3d70662595e8dfb3ece7ac8e67cee8db1afb0294d85e9cd7dfc8d7"
+   }
+  },
+  {
+   "campaign": "fa_ls_dp_r_b_l",
+   "mode": "dynamic_overlay",
+   "source": "/data/mw_finetune/eval/knobtestdp_red/workers.tar",
+   "source_sha256": "958f9e485f56ddf7405fe94e26adb3f4fce8e55aa1bc450db69990777325ef77",
+   "archive_sha256": "04ddbbec92d8415cd3509fa25db277661d9d017f2f22d82857c97c386e69f905",
+   "returncode": 0,
+   "module": "exp.r17_integration.ops.local_worker_entry",
+   "target": "exp.r17_integration.ops.worker_lifetime",
+   "entry_file": "/tmp/local_probe_afsb8d_t/04ddbbec92d8415cd3509fa25db277661d9d017f2f22d82857c97c386e69f905/exp/r17_integration/ops/local_worker_entry.py",
+   "probe": {
+    "python": "3.11.15",
+    "client_only": true,
+    "benchmark_protocol": "3e84e999dc3d70662595e8dfb3ece7ac8e67cee8db1afb0294d85e9cd7dfc8d7"
+   },
+   "scientific_bytes_unchanged": true
+  },
+  {
+   "campaign": "fa_ls_v10_0",
+   "mode": "frozen_source",
+   "source": "/data/mw_finetune/eval/ffk1015_dp_libero_reduced_off/workers.tar",
+   "source_sha256": "1e8a813b18f4a6fe77190dc70772d2c33851b2c371b74a9cdd67ebaa8c38ca8b",
+   "archive_sha256": "1e8a813b18f4a6fe77190dc70772d2c33851b2c371b74a9cdd67ebaa8c38ca8b",
+   "returncode": 0,
+   "module": "exp.r17_integration.ops.local_worker_entry",
+   "target": "exp.r17_integration.ops.worker_lifetime",
+   "entry_file": "/tmp/local_probe_afsb8d_t/1e8a813b18f4a6fe77190dc70772d2c33851b2c371b74a9cdd67ebaa8c38ca8b/exp/r17_integration/ops/local_worker_entry.py",
+   "probe": {
+    "python": "3.11.15",
+    "client_only": true,
+    "benchmark_protocol": "3e84e999dc3d70662595e8dfb3ece7ac8e67cee8db1afb0294d85e9cd7dfc8d7"
+   }
+  },
+  {
+   "campaign": "fa_ls_v10_0",
+   "mode": "dynamic_overlay",
+   "source": "/data/mw_finetune/eval/ffk1015_dp_libero_reduced_off/workers.tar",
+   "source_sha256": "1e8a813b18f4a6fe77190dc70772d2c33851b2c371b74a9cdd67ebaa8c38ca8b",
+   "archive_sha256": "08ee2b9f24bd5dc62d6dd6d952f23327e4a64c41211b0c0aa49439473a41d5ac",
+   "returncode": 0,
+   "module": "exp.r17_integration.ops.local_worker_entry",
+   "target": "exp.r17_integration.ops.worker_lifetime",
+   "entry_file": "/tmp/local_probe_afsb8d_t/08ee2b9f24bd5dc62d6dd6d952f23327e4a64c41211b0c0aa49439473a41d5ac/exp/r17_integration/ops/local_worker_entry.py",
+   "probe": {
+    "python": "3.11.15",
+    "client_only": true,
+    "benchmark_protocol": "3e84e999dc3d70662595e8dfb3ece7ac8e67cee8db1afb0294d85e9cd7dfc8d7"
+   },
+   "scientific_bytes_unchanged": true
+  },
+  {
+   "campaign": "fa_ls_v11_0",
+   "mode": "frozen_source",
+   "source": "/data/mw_finetune/eval/ffk1015_fastwam_libero_reduced_off/workers.tar",
+   "source_sha256": "1e8a813b18f4a6fe77190dc70772d2c33851b2c371b74a9cdd67ebaa8c38ca8b",
+   "archive_sha256": "1e8a813b18f4a6fe77190dc70772d2c33851b2c371b74a9cdd67ebaa8c38ca8b",
+   "returncode": 0,
+   "module": "exp.r17_integration.ops.local_worker_entry",
+   "target": "exp.r17_integration.ops.worker_lifetime",
+   "entry_file": "/tmp/local_probe_afsb8d_t/1e8a813b18f4a6fe77190dc70772d2c33851b2c371b74a9cdd67ebaa8c38ca8b/exp/r17_integration/ops/local_worker_entry.py",
+   "probe": {
+    "python": "3.11.15",
+    "client_only": true,
+    "benchmark_protocol": "3e84e999dc3d70662595e8dfb3ece7ac8e67cee8db1afb0294d85e9cd7dfc8d7"
+   }
+  },
+  {
+   "campaign": "fa_ls_v11_0",
+   "mode": "dynamic_overlay",
+   "source": "/data/mw_finetune/eval/ffk1015_fastwam_libero_reduced_off/workers.tar",
+   "source_sha256": "1e8a813b18f4a6fe77190dc70772d2c33851b2c371b74a9cdd67ebaa8c38ca8b",
+   "archive_sha256": "08ee2b9f24bd5dc62d6dd6d952f23327e4a64c41211b0c0aa49439473a41d5ac",
+   "returncode": 0,
+   "module": "exp.r17_integration.ops.local_worker_entry",
+   "target": "exp.r17_integration.ops.worker_lifetime",
+   "entry_file": "/tmp/local_probe_afsb8d_t/08ee2b9f24bd5dc62d6dd6d952f23327e4a64c41211b0c0aa49439473a41d5ac/exp/r17_integration/ops/local_worker_entry.py",
+   "probe": {
+    "python": "3.11.15",
+    "client_only": true,
+    "benchmark_protocol": "3e84e999dc3d70662595e8dfb3ece7ac8e67cee8db1afb0294d85e9cd7dfc8d7"
+   },
+   "scientific_bytes_unchanged": true
+  },
+  {
+   "campaign": "fa_ls_v12_0",
+   "mode": "frozen_source",
+   "source": "/data/mw_finetune/eval/fsreddp2/workers.tar",
+   "source_sha256": "1e8a813b18f4a6fe77190dc70772d2c33851b2c371b74a9cdd67ebaa8c38ca8b",
+   "archive_sha256": "1e8a813b18f4a6fe77190dc70772d2c33851b2c371b74a9cdd67ebaa8c38ca8b",
+   "returncode": 0,
+   "module": "exp.r17_integration.ops.local_worker_entry",
+   "target": "exp.r17_integration.ops.worker_lifetime",
+   "entry_file": "/tmp/local_probe_afsb8d_t/1e8a813b18f4a6fe77190dc70772d2c33851b2c371b74a9cdd67ebaa8c38ca8b/exp/r17_integration/ops/local_worker_entry.py",
+   "probe": {
+    "python": "3.11.15",
+    "client_only": true,
+    "benchmark_protocol": "3e84e999dc3d70662595e8dfb3ece7ac8e67cee8db1afb0294d85e9cd7dfc8d7"
+   }
+  },
+  {
+   "campaign": "fa_ls_v12_0",
+   "mode": "dynamic_overlay",
+   "source": "/data/mw_finetune/eval/fsreddp2/workers.tar",
+   "source_sha256": "1e8a813b18f4a6fe77190dc70772d2c33851b2c371b74a9cdd67ebaa8c38ca8b",
+   "archive_sha256": "08ee2b9f24bd5dc62d6dd6d952f23327e4a64c41211b0c0aa49439473a41d5ac",
+   "returncode": 0,
+   "module": "exp.r17_integration.ops.local_worker_entry",
+   "target": "exp.r17_integration.ops.worker_lifetime",
+   "entry_file": "/tmp/local_probe_afsb8d_t/08ee2b9f24bd5dc62d6dd6d952f23327e4a64c41211b0c0aa49439473a41d5ac/exp/r17_integration/ops/local_worker_entry.py",
+   "probe": {
+    "python": "3.11.15",
+    "client_only": true,
+    "benchmark_protocol": "3e84e999dc3d70662595e8dfb3ece7ac8e67cee8db1afb0294d85e9cd7dfc8d7"
+   },
+   "scientific_bytes_unchanged": true
+  },
+  {
+   "campaign": "fa_ls_v13_0",
+   "mode": "frozen_source",
+   "source": "/data/mw_finetune/eval/fsredfw/workers.tar",
+   "source_sha256": "1e8a813b18f4a6fe77190dc70772d2c33851b2c371b74a9cdd67ebaa8c38ca8b",
+   "archive_sha256": "1e8a813b18f4a6fe77190dc70772d2c33851b2c371b74a9cdd67ebaa8c38ca8b",
+   "returncode": 0,
+   "module": "exp.r17_integration.ops.local_worker_entry",
+   "target": "exp.r17_integration.ops.worker_lifetime",
+   "entry_file": "/tmp/local_probe_afsb8d_t/1e8a813b18f4a6fe77190dc70772d2c33851b2c371b74a9cdd67ebaa8c38ca8b/exp/r17_integration/ops/local_worker_entry.py",
+   "probe": {
+    "python": "3.11.15",
+    "client_only": true,
+    "benchmark_protocol": "3e84e999dc3d70662595e8dfb3ece7ac8e67cee8db1afb0294d85e9cd7dfc8d7"
+   }
+  },
+  {
+   "campaign": "fa_ls_v13_0",
+   "mode": "dynamic_overlay",
+   "source": "/data/mw_finetune/eval/fsredfw/workers.tar",
+   "source_sha256": "1e8a813b18f4a6fe77190dc70772d2c33851b2c371b74a9cdd67ebaa8c38ca8b",
+   "archive_sha256": "08ee2b9f24bd5dc62d6dd6d952f23327e4a64c41211b0c0aa49439473a41d5ac",
+   "returncode": 0,
+   "module": "exp.r17_integration.ops.local_worker_entry",
+   "target": "exp.r17_integration.ops.worker_lifetime",
+   "entry_file": "/tmp/local_probe_afsb8d_t/08ee2b9f24bd5dc62d6dd6d952f23327e4a64c41211b0c0aa49439473a41d5ac/exp/r17_integration/ops/local_worker_entry.py",
+   "probe": {
+    "python": "3.11.15",
+    "client_only": true,
+    "benchmark_protocol": "3e84e999dc3d70662595e8dfb3ece7ac8e67cee8db1afb0294d85e9cd7dfc8d7"
+   },
+   "scientific_bytes_unchanged": true
+  }
+ ]
+}

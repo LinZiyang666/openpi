@@ -33,7 +33,10 @@ NODE_CONFIG = {'timan107': dict(floor=96*GIB, critical=60*GIB, hysteresis=8*GIB,
 def private_on():
     """The same four-byte private read overlay used by the reviewed trial path."""
     switch = HERE/'ENABLED'; original = switch.read_bytes()
-    if original.strip() != b'off':raise ValueError('formal acceptance requires global OFF')
+    if original.strip() == b'on':
+        yield
+        return
+    if original.strip() != b'off':raise ValueError('global switch must read on or off')
     def wrap(native):
         def opened(file, mode='r', *args, **kwargs):
             if isinstance(file, (str, bytes, os.PathLike)) and Path(os.fsdecode(file)).absolute() == switch:

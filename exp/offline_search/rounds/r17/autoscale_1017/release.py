@@ -16,7 +16,10 @@ def worker_files():
     return files() + ['src/openpi/conductor/worker.py', 'exp/r17_integration/conductor/worker_entry.py'] + [
         'exp/r17_integration/ops/' + n + '.py' for n in
         ('formal_process', 'formal_workers', 'worker_lifetime', 'worker_gpu', 'worker_memory',
-         'local_workers', 'timan1_workers', 'worker_installs', 'worker_disk')]
+         'local_workers', 'timan1_workers', 'worker_installs', 'worker_disk',
+         # formal_workers starts local fleets through this entry (routing only);
+         # frozen 10-10 payloads predate it.
+         'local_worker_entry')]
 
 
 def overlay_worker(source, destination, checkout):

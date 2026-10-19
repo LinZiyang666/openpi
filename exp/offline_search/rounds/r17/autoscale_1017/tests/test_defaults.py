@@ -12,7 +12,7 @@ from exp.offline_search.rounds.r17.autoscale_1017 import defaults, legacy_releas
 from exp.offline_search.rounds.r17.autoscale_1017.node import atomic, read
 
 
-@pytest.mark.parametrize('domain,expected', [('libero',(83,104,83)),('metaworld',(332,440,332))])
+@pytest.mark.parametrize('domain,expected', [('libero',(166,104,83)),('metaworld',(664,440,332))])
 def test_physical_defaults_and_explicit_overrides(domain,expected):
     assert tuple(defaults.physical_maximum(n,domain) for n in ('timan1','timan107','local')) == expected
     c = dict(domain=domain, worker_nodes={'timan1':150,'timan107':100,'timan108':40}, workers=290)

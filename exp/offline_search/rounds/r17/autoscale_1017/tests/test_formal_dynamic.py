@@ -432,3 +432,10 @@ def test_fleet_replaces_simultaneous_recycles_in_one_pass_while_growth_keeps_ram
     assert len(replacements)==6 and report['status']=='PASS' and not report['worker_failures']
     # Replacements are neither ramped nor limited to one per 2 s sample.
     assert (max(replacements)-min(replacements)==0) == (per_sample>=6)
+
+
+def test_dynamic_worker_overlay_carries_the_local_fleet_entry():
+    # formal_workers starts a local fleet via ops.local_worker_entry; 10-10
+    # frozen payloads lack it (fa_ls_v07_0: every local worker died at import).
+    from exp.offline_search.rounds.r17.autoscale_1017.release import worker_files
+    assert 'exp/r17_integration/ops/local_worker_entry.py' in worker_files()

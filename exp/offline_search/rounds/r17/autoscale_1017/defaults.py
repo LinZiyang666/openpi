@@ -4,6 +4,7 @@ VRAM inventory: devices.md §2.1/2.5; GPU2 identity/profile: timan1_gpu2.
 Counts are desired maxima. CPU occupancy and RAM are runtime signals, not an
 assumption of one blocked renderer per CPU core.
 """
+import copy
 from pathlib import Path
 
 from .policy import Config, NODES
@@ -80,15 +81,25 @@ def apply(campaign, directory=None, *, force=False):
         from .node import read
         source = (c.get('cache_resume_selection') or {}).get('source') or c.get('resume_from')
         inherited = read(Path(source)/'campaign.json', {}) if source else {}
-        if not inherited.get('autoscale'):
+        if inherited.get('autoscale'):
+            c['autoscale'] = dict(inherited['autoscale'])
+        elif not c.get('cache_resume_selection'):
+            # resume_from replays the source driver in place; only cache
+            # continuations rebuild their driver (filter_failed.stage).
             c.update(autoscale=None, autoscale_disposition='kept_fixed',
                      autoscale_reason='native continuation retains source driver/control/worker pins')
             return c
-        c['autoscale'] = dict(inherited['autoscale'])
+        else:
+            c['autoscale'] = dict(mode='dynamic')
     c.setdefault('autoscale', dict(mode='dynamic'))
     if c['autoscale'] is None:
         c['autoscale'] = dict(mode='dynamic')
     Config(**c['autoscale'])
+    # timan107 floor above the memory guard, and RAM charged for non-ledger
+    # (R15/R16) fleets on every node.
+    from .formal_dynamic import NODE_CONFIG
+    c.setdefault('autoscale_node_config', copy.deepcopy(NODE_CONFIG))
+    c.setdefault('autoscale_external_legacy_nodes', sorted(c['autoscale_node_config']))
     if c.get('autoscale_maxima_policy')=='physical-v2' and c.get('autoscale_node_maxima') and not force:
         return c  # preserve per-node views made by worker_resilience.prepare
     domain = c.get('domain', 'libero')
