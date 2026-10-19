@@ -10,6 +10,8 @@ import statistics
 TTL_S = 60  # a report is live this long after it arrived
 STABLE_S = 600  # shared-pool stability a batch needs before it gets local workers
 RESOURCES = ('ram', 'vram', 'cpu')
+# Shared-pool placement order (owner 2026-10-19): timan107 is entirely ours, fill it first.
+PREFERENCE = ('timan107',)
 GIB = 2 ** 30
 DEFAULT_COST = {'libero': dict(ram=2.2 * GIB, vram=650, cpu=.3),
                 'metaworld': dict(ram=1.0 * GIB, vram=300, cpu=.5)}
@@ -88,7 +90,8 @@ def plan(reports, now, previous=None):
             b = min(open_nodes, key=lambda b: (share(b, groups[b]), b))
             keep = [n for n in open_nodes[b] if alloc[b][n] < max(reports[b]['active'].get(n, 0),
                                                                     previous.get(b, {}).get(n, 0))]
-            n = max(keep or open_nodes[b], key=headroom)  # nodes are sorted: ties go to the first name
+            # Preferred nodes first, then the most headroom; nodes are sorted: ties go to the first name.
+            n = max(keep or open_nodes[b], key=lambda n: (n in PREFERENCE, headroom(n)))
             alloc[b][n] += 1
             for x in RESOURCES:
                 room[n][x] -= cost[b][n][x]

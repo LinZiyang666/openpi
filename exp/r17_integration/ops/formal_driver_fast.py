@@ -134,6 +134,8 @@ class AsyncCampaignDriver(ProbeRecordingDriver):
             evidence['journal.jsonl']=[record]
         def committed():
             self._scheduler.committed(result)
+            # The central scheduler's step test counts durably accepted terminal episodes.
+            if getattr(self,'_autoscaler',None) is not None:self._autoscaler.result(payload,terminal)
             if self._monitor is not None:self._monitor.on_result(result)
         self.evidence.submit(evidence,committed if accepted else None)
 
