@@ -20,7 +20,7 @@ LOCAL_HOME = '/home/weiland'
 STUDY_DATE = '2026-10-10'
 RAM_HEADROOM_MIB = 8192
 RENDERER_VRAM_MIB = 717  # ceil(0.7 GiB * 1024)
-SERVER_VRAM_HEADROOM_MIB = 16384
+SERVER_VRAM_HEADROOM_MIB = 5120  # owner 10-19: 4090 own-server safety line 5 GB (was 16 GB)
 
 
 def counts(value):
