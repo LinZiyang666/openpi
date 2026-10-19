@@ -74,7 +74,8 @@ def worker_command(campaign, index, python=sys.executable):
         argv[argv.index('-m')+1] = 'exp.r17_integration.ops.cache_study_worker'
     if campaign.get('domain') == 'libero' and (campaign.get('library') or campaign.get('eval_pool')=='B'):
         argv += ['--init-states-dir',campaign['worker_init_states_dir']]
-    if campaign.get('worker_node') == 'local':
+    if campaign.get('worker_node') in ('local', 'h100'):
+        # Same-machine workers reach their model server over loopback.
         argv[argv.index('-m')+1] = 'exp.r17_integration.ops.local_worker_entry'
     if campaign.get('worker_node') == 'timan1':
         from .timan1_workers import wrapper,route
@@ -145,7 +146,7 @@ def main():
         if campaign.get('worker_node')=='timan1':
             import secrets
             env['R17_T1_GENERATION_TOKEN']=secrets.token_hex(32)
-        if campaign.get('worker_node') == 'local':
+        if campaign.get('worker_node') in ('local', 'h100'):
             target = ('exp.r17_integration.ops.worker_lifetime' if campaign.get('worker_max_episodes',0) else
                       'exp.r17_integration.ops.cache_study_worker' if campaign.get('cache_study') else
                       'exp.r17_integration.conductor.worker_entry')

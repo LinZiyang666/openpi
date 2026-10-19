@@ -55,6 +55,10 @@ def client_release(launch, node, directory, stage, destination, payload, *, clos
     if node == 'local':
         from .local_workers import environment
         python = environment()
+    if node == 'h100':
+        from .h100_workers import PYTHON, setup_script
+        launch.remote(node, ['bash', '-c', setup_script()], 900)
+        python = PYTHON
     document = payload.get('manifest')
     if document:
         existing = json.loads(launch.remote(node, [python, '-c',
@@ -395,6 +399,9 @@ def launch_prepared(directory):
                     route(worker,campaign)
                     if campaign.get('domain') == 'libero':
                         launch.install_worker_dependencies(node,'unused',item['payload'])
+                if node == 'h100':
+                    from .h100_workers import route
+                    route(worker,campaign)
                 if campaign.get('cache_study'):
                     from .worker_memory import reservation_mib
                     worker['worker_memory_mib']=reservation_mib(worker)

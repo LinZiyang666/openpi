@@ -352,6 +352,9 @@ def install_worker_dependencies(node, destination, payload, inherited=None):
     if node == 'local':
         from .local_workers import install
         return install(payload)
+    if node == 'h100':
+        from .h100_workers import install
+        return install(remote, payload)
     if node == 'timan1':
         from .timan1_workers import PYTHON
         return json.loads(remote(node,['env','PYTHONPATH='+pythonpath(payload),PYTHON,'-c',
@@ -368,7 +371,7 @@ def install_worker_dependencies(node, destination, payload, inherited=None):
               'assert sha(d["config_source"])==d["config_sha256"],"sealed simulator config changed"; '
               'print(json.dumps(d))')
         return json.loads(remote(node,['env','PYTHONPATH='+pythonpath(payload),
-            '/scratch/zixuans8/openpi/.venv/bin/python','-c',code],replay_safe=True))
+            '/scratch/zixuans8/openpi/.venv/bin/python','-c',code],1800,replay_safe=True))
     config = '/home/zixuans8/.libero/config.yaml' if node == 'timan108' else '/scratch/zixuans8/openpi_trace_h100/os_cl/libero/config.yaml'
     code = ('from exp.r17_integration.ops.worker_installs import install_dependencies; import json; '
         'print(json.dumps(install_dependencies("/scratch/zixuans8/libero_sim/lib/python3.8/site-packages",'+
@@ -376,19 +379,22 @@ def install_worker_dependencies(node, destination, payload, inherited=None):
         repr(payload+'/exp/r17_integration/qualification/specs/libero_original_assets.json')+
         ',original_assets="/home/zixuans8/.cache/libero/assets")))')
     return json.loads(remote(node, ['env','PYTHONPATH='+pythonpath(payload),
-        '/scratch/zixuans8/openpi/.venv/bin/python','-c',code]))
+        '/scratch/zixuans8/openpi/.venv/bin/python','-c',code], 1800))
 
 
 def worker_paths(campaign, node):
     name = campaign['run_name']
     if not name or name in ('.','..') or any(c not in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.-' for c in name):
         raise ValueError('campaign name must be a single safe path component')
-    if node not in ('timan107', 'timan108', 'local','timan1'):
+    if node not in ('timan107', 'timan108', 'local','timan1','h100'):
         raise ValueError('unknown worker node')
     root = WORKER_ROOT
     if node == 'local':
         from .local_workers import ROOT as local_root
         root = str(local_root)
+    if node == 'h100':
+        from .h100_workers import ROOT as h100_root
+        root = h100_root
     return dict(stage=(root+'/stage/' if node == 'timan1' else '/tmp/r17_formal/')+name+'/'+node,
         private=root+'/campaigns/'+name+'/'+node,
         run=root+'/runs/'+name+'_'+node)
@@ -434,7 +440,7 @@ def prepare_workers(campaign, directory, *, payload_override=None):
                   ('live_fleet_worker','local_workers','local_worker_entry','timan1_workers')]
     if campaign.get('cache_study'):
         names.append('exp/r17_integration/ops/cache_study_worker.py')
-    if 'local' in execution_nodes:
+    if {'local', 'h100'} & set(execution_nodes):
         names.append('exp/r17_integration/ops/local_worker_entry.py')
     if 'timan1' in execution_nodes:
         from .timan1_workers import authorize
@@ -463,7 +469,7 @@ def prepare_workers(campaign, directory, *, payload_override=None):
         payload = worker_payload(campaign, directory)
     else:
         payload = build_client_bundle(ROOT, sorted(set(names)), directory / 'workers.tar')
-    if payload_override is None and (campaign.get('live_fleets') or {'local','timan1'} & set(execution_nodes)):
+    if payload_override is None and (campaign.get('live_fleets') or {'local','timan1','h100'} & set(execution_nodes)):
         from .local_workers import payload as local_payload
         payload = local_payload(campaign,directory,ROOT,payload)
     if campaign.get('autoscale'):
@@ -508,6 +514,8 @@ def prepare_workers(campaign, directory, *, payload_override=None):
         elif node == 'local':
             from .local_workers import environment
             worker_python = environment()
+        elif node == 'h100':
+            from .h100_workers import PYTHON as worker_python
         extra = dependency['private_dependencies'] if dependency else ''
         env = dict(HOME='/home/zixuans8', PYTHONPATH=pythonpath(destination, extra),
             PYTHONDONTWRITEBYTECODE='1', OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1', MKL_NUM_THREADS='1',
@@ -516,6 +524,9 @@ def prepare_workers(campaign, directory, *, payload_override=None):
         if node == 'local':
             from .local_workers import LOCAL_HOME
             env['HOME'] = LOCAL_HOME
+        if node == 'h100':
+            from .h100_workers import HOME as h100_home
+            env['HOME'] = h100_home
         if campaign.get('wire_zlib'):
             env['OPENPI_WIRE_ZLIB'] = '1'
         if dependency:
@@ -581,6 +592,9 @@ def prepare_workers(campaign, directory, *, payload_override=None):
             route(worker,campaign)
         if node == 'timan1':
             from .timan1_workers import route
+            route(worker,campaign)
+        if node == 'h100':
+            from .h100_workers import route
             route(worker,campaign)
         if campaign.get('cache_study'):
             from .worker_memory import reservation_mib

@@ -11,7 +11,7 @@ from unittest.mock import patch
 
 from . import timan1_gpu2
 
-NODES = ('timan107', 'timan1', 'local')
+NODES = ('timan107', 'timan1', 'local', 'h100')
 STATE = 'WORKER_NODE_STATE.json'
 
 
@@ -120,6 +120,8 @@ def capacity(node, run, vram, ram, growth=0, server_directory=None, timan1_cards
     gpu = sum(max(0, (c['total']-c['used']-c['pending']-(c['total']+9)//10-c['server_pending_mib'])//vram) for c in cards.values())
     memory = max(0, (mem['MemAvailable']-(mem['MemTotal']+9)//10-pending_ram)//ram)
     hard = {'libero': 83, 'metaworld': 332}
+    if node == 'h100':
+        gpu = min(gpu, 16)  # one renderer per core of 20, shared with the model server
     cap = min(gpu, memory, hard['libero' if vram == 530 else 'metaworld']*len(timan1) if node == 'timan1' else gpu)
     return dict(capacity=cap, gpu_slots=gpu, ram_slots=memory, mem_available_bytes=mem['MemAvailable']*1024**2, cards=cards, server_budget_mib=growth,
                 boot_id=Path('/proc/sys/kernel/random/boot_id').read_text().strip())
@@ -142,7 +144,7 @@ def measure(campaign, directory, excluded=()):
         code = function_source(capacity)+'\nprint(__import__("json").dumps(capacity('+repr(node)+','+repr(run)+','+repr(vram)+','+repr(ram)+','+repr(growth)+','+repr(str(directory))+cards+')))'
         argv = ['/usr/bin/python3', '-B', '-S', '-c', code]
         if node != 'local':
-            argv = ['tether', 'exec', '--safe', '--timeout', '90s', node, '--', *argv]
+            argv = ['tether', 'exec', '--safe', '--timeout', '90s', f.physical_node(node), '--', *argv]
         errors = []
         for attempt in (1, 2):
             try:
@@ -238,6 +240,7 @@ def prepare(campaign, directory, native):
             try:
                 result.update(native(single, directory))
             except Exception:
+                import traceback;traceback.print_exc()  # the node is retried elsewhere; keep why
                 failed.add(node)
                 break
         else:
@@ -280,6 +283,7 @@ def launch_workers(campaign, directory, deployment, preflight):
             try:
                 preflight(node, deployment[node])
             except Exception:
+                import traceback;traceback.print_exc()  # the node is retried elsewhere; keep why
                 failed.add(node)
                 break
         else:
@@ -379,7 +383,7 @@ def install_driver():
     def node_of(worker):
         # Recognize historical identities solely to fence their existing driver
         # sockets. Disabled nodes remain absent from NODES/probes/spawn targets.
-        identities=set(campaign.get('worker_nodes',{}))|{'timan107','timan1','local'}
+        identities=set(campaign.get('worker_nodes',{}))|{'timan107','timan1','local','h100'}
         return next((n for n in identities
                      if isinstance(worker,str) and worker.startswith(run_name+'_'+n+'_')),None)
     def sync(driver):
@@ -502,12 +506,13 @@ def coordinator():
     def call(node, argv, seconds=60, **kw):
         # Bounded single calls on worker machines; failed/ambiguous starts are
         # retired, never replayed. Server transport retains its native policy.
-        if node not in NODES or node == 'local':
+        # 'h100' is the lane's server machine (alias-aware native transport).
+        if node not in NODES or node in ('local', 'h100'):
             return remote(node, argv, seconds=seconds, **kw)
         if node=='timan1':argv=timan1_gpu2.auxiliary(argv)
-        # Dependency hashing may legitimately take minutes. Control probes and
-        # spawn are short; a read-only verification retains its caller's bound.
-        bound=seconds if seconds>60 else min(seconds,10)
+        # Dependency hashing may legitimately take minutes; a busy worker host
+        # (tens of renderers) answers even short probes in well over 10 s.
+        bound=seconds
         return f.execute(['tether', 'exec', '--safe', '--timeout', str(bound)+'s', node, '--', *argv], seconds=bound+2)
     def local_route(worker, campaign):
         worker = route(worker, campaign)
