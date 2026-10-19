@@ -318,7 +318,9 @@ def recipe_inputs(root,campaign,seal,index=None,*,aliases=True):
     manifest.update(groups=copy.deepcopy(seal['groups']),decision_clock_recalibration=artifacts)
     manifest['digest']=digest({k:v for k,v in manifest.items() if k!='digest'})
     replace_metadata(manifest_path,manifest)
-    campaign['longseg_1017']['recalibration']=dict(clock_unit='segment_decision',level_ir='M/N_heads',
+    # The longseg block is created by build.pin after this step; sources from the
+    # original pipeline have none yet.
+    campaign.setdefault('longseg_1017',{})['recalibration']=dict(clock_unit='segment_decision',level_ir='M/N_heads',
         tolerance=TOLERANCE,Q3='successful-library empirical q90/q10 LOEO; decision stride',
         C5_artifacts_unchanged=True,artifact_digests=sorted(v['digest'] for v in artifacts.values()),
         levels_outside_tolerance=[dict(suite=g['suite'],size=g.get('library_size',500),level=g['group'],
