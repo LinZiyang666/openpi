@@ -61,6 +61,7 @@ owner 的常驻指令，逐字有效：
 ### ★ 2026-10-19 16:0x 增补（最先读）
 - **中央调度器已合并进 Ziyang（4c88b88f）并上线**：A100 `149.165.152.232:23500`（`scheduler/deploy_a100.sh start|stop|status`，代码在 A100 `/home/exouser/scheduler/code_23500`，日志 run_23500）。四个 opus 代理实现、我审过 allocate/client/node/defaults；R15/R16 只用 timan107（+R16 4090 本机）；R15 各 arm 共用一个 scheduler 目录，客户端从上次需求续起。
 - 16:0x jtest_sl1 真机跑通：调度器收到上报、按实测容量分 worker（A100 只剩 ~2 GB 给新 worker，旧系统 Cosmos 占满）、desire 8→measure。修了两处 formal_eval 直跑漏洞（__main__ 下 timan1 GPU2 补丁不生效 1d245aa0；--prepared-run 没套 timan1 coordinator c6a61375），爬坡改快（起 16、翻倍到第一次无收益，0ddaabb5，下一批生效）。
+- 16:19 **4090 切到新代码**：DP fa_ls_dp_r_u_l_l 5,000 跑完后起 **ffk-g4090q**（fa_ls_fw_r_f_l_l → v01_0 → v10–13 → dp_f_*_o_l → dp_f_*_l_l → dp_f_*_m → v04_0 v04_3 v06_0 v09_0 v09_1 → fa_cs_pi_r fa_cs_gr_r；不含移去 pod 的 dp_r_*_m 和待 #182 的 gr dyn）。29 个排队 longseg prepare 脚本加了 `--reprepare`。H100 链仍 hold（Cosmos 跑完后同样切）。剩余时长估算：H100 ≈4.8 天（瓶颈）、4090 ≈2.9 天、pod ≈1.1 天；h100-temp 可借则总计约 3 天。
 - **jupyter 第三条链（owner 同意）**：DP · MetaWorld · 减步 · 旋钮下降 原库 fa_ls_dp_r_u_m + 成功过滤库 fa_ls_dp_r_f_m 移出 4090 队列，按 pod 服务重新准备，加 pod 同卡 DP MT50 减步纯推理 2,500 局对照（DP 跨卡动作不等价，#171）。jupyter 代理在 prepare，之后我建 pod 链。
 - **切换**：hold 了 g4090o、g4090p、h100m21（当前批次 Cosmos fa_co_f_u_l、DP fa_ls_dp_r_u_l_l 用旧代码跑完）。验证：jtest_sl1（DP · LIBERO 纯推理 500 局，服务 jupyter-ziyang10，worker 全由调度器分），4090 空出后再起 MetaWorld 测试批次（服务 4090，验证本机层）。通过后用新链跑剩余项；已 PREPARED 的旧批次（fa_ls_gr_r_f_m、fa_ls_fw_r_f_l_l 等）要 `filter_failed.stage --run <dir> --reprepare`；16 个 R15 cell 要 `control.install_scheduler`（命令见 D 交回，handoff 此块下方补）。autoscale_1017 目录等旧批次全结束后另删。
 
