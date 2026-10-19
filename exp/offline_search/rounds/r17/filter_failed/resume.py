@@ -62,16 +62,21 @@ def infra_error_selection(source, *, include_missing=False):
     The parent may still be running. Its closure is checked by normal staging
     before this continuation can be prepared, rather than asserted at build.
     """
-    from exp.offline_search.rounds.r17.cache.analyze_cache import Sources, infrastructure_error
+    from exp.offline_search.rounds.r17.cache.analyze_cache import Sources, infrastructure_error, resume_segments
     from exp.r17_integration.ops.immutable_release import sha
     plan=read(source/('FULL_EPISODE_PLAN.json' if (source/'FULL_EPISODE_PLAN.json').exists() else 'EPISODE_PLAN.json'))
     tasks=[t['task_uid'] for t in plan['tasks']]
     terminals={}
-    for r in Sources().rows(source/'driver/journal.jsonl'):
-        if r.get('accepted') is True and r.get('status') in ('done','failed'):
-            uid=r['task_uid']
-            if uid in terminals:raise ValueError('duplicate accepted terminal cache episode: '+uid)
-            terminals[uid]=r
+    # Every segment of the continuation chain counts (analysis reads them all,
+    # resume_segments); only the direct parent's journal re-ran ancestors' work.
+    sources=Sources()
+    for run,_ in resume_segments(source,sources):
+        for r in sources.rows(run/'driver/journal.jsonl'):
+            if r.get('accepted') is True and r.get('status') in ('done','failed'):
+                uid=r['task_uid']
+                if uid in terminals and terminals[uid].get('error') is None and not infrastructure_error(terminals[uid]):
+                    continue
+                terminals[uid]=r
     errors={u:r for u,r in terminals.items() if infrastructure_error(r)}
     missing=(set(tasks)-{u for u,r in terminals.items() if r.get('error') is None}
              if include_missing else set(errors))
