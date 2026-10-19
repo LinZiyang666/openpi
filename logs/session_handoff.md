@@ -58,6 +58,12 @@ owner 的常驻指令，逐字有效：
 
 ### ★★★★★★ 2026-10-14 14:55 CDT 总状态（compact 后最先读这一块；下面各「增量」块是细节，按时间倒序）
 
+### ★ 2026-10-19 11:1x 增补（最先读，再读下面 10:3x 总状态）
+- **A100 规矩（owner）**：纯 worker 机、**只给服务在 H100 的批次用**。defaults.apply 只在 `server_node=='h100'` 的 LIBERO 批次加 a100（4610a767）；已准备的 4090 批次 fa_ls_dp_r_u_l_l、fa_ls_fw_r_f_l_l 的 campaign.json 已去掉 a100（备份 `campaign.json.before_a100_h100only_*`）；在跑的 fa_ls_fw_r_u_l_lc1 已把 a100 加进 `WORKER_NODE_STATE.json` retired。
+- **A100 记账改了（e4c2fa40）**：原来 A100 用默认 20 GB 内存底线、每个 worker 一律按 p90×1.15≈3.9 GB 记账且假设同时到峰值 → 只放 27 个（实测每个 PSS≈1.7 GB）。现在 a100 底线 8 GB/紧急 4 GB；worker 跑满 5 分钟（node.MATURE_S）后按自身峰值×1.15（不超过 p90 包络）记账。
+- **在跑批次只换 worker 组、不动服务**：`openpi_ext/scratch/r17_ops/swap_node_fleet.py <run> <suffix> <patch_dir> [node] [node_config_json]`，在 worker 节点上跑（我用 tether exec + base64 传文件，补丁在 A100 `/tmp/zl_a100s1/`）。它等启动器 30 s 续租后立刻 SIGKILL 旧 worker 组、把回执挪成 `workers.process.before_<suffix>.json`、用同一回执/租约/日志路径 spawn 新 supervisor（新 payload 副本 `payload_*_<suffix>`、新 worker_run `<old>_<suffix>`），新 run 的 AUTOSCALE_CONTROL.json 软链到旧路径（启动器写），旧 run 的 AUTOSCALE_NODE.json 软链到新 run（启动器读）。新管理进程先有 60 s memory_hold，driver 期间给 0，之后自动抬。10:55 换了 FW lc1 的 A100 组、11:01 换了 Cosmos fa_co_f_u_l 的 A100 组，都在正常领局。批次结束时启动器照常按回执停新 supervisor。
+- Cosmos 限流已全部撤销：timan1（10:42）、timan107（11:02）都放回，retired 为空（owner 指出 H100 使用率 0：只剩 94 个 worker 时 H100 平均约 36%）。
+
 ### ★★★★★★★★★★★★★★★★★★★★ 2026-10-19 10:3x CDT 总状态（compact 后最先读这块；下面 02:0x、00:4x、22:0x… 是细节）
 
 **现在在跑（10:37）**
