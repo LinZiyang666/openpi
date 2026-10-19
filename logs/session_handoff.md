@@ -63,6 +63,7 @@ owner 的常驻指令，逐字有效：
 - H100 本机 Cosmos 组卡 33（上限 40）是显存：Cosmos 服务占约 65 GB，正常。
 - 11:21 s3（8 GB 底线）一起爬坡冲到 62 个、可用 3–4 GB，shed_kill 13 次；11:30 又爬到 64 个、剩 23 GB → 11:32 换成 s4：A100 底线 16 GB/紧急 6 GB（defaults ff246444 同步），预计稳在 ~50。
 - 11:40 s4 仍冲到 69 个（新 worker 满 60 s 时 RSS 还低）→ 11:41 换 s5：纯 worker 机按「满 5 分钟的同组 worker 的 RSS 中位数」记账（80d0f0e1，起始值 autoscale_typical_rss=2.4 GiB）。11:48 A100 64 个、可用 42 GB、无强杀，调度 memory_growth 自停。Cosmos worker RSS：<5 分钟 ~0.9 GB、5–15 分钟 ~1.9 GB。**之后不再换组，交调度自己维持。** 今天换 A100 组累计打断在途局约 206 局 + 强杀约 16 次（driver 均重派）。
+- 11:59：A100 稳在 63 个（内存是唯一瓶颈：可用 ~20 GB；CPU 64% 空闲、GPU 67%），无强杀。但 Cosmos 只有 23–29 局/分、H100 ~55%（06–10 点 110–120 个 worker 含 timan 时 42–49 局/分）。计划：12:20 用不受换组干扰的数据再看，若仍 <35 局/分且 H100 未满，就把 timan107 放回 Cosmos（已告知 owner）。
 - 现行 A100 运行目录：`runs/fa_co_f_u_l_a100_s1_s2_s3_s4_s5`（旧目录的 AUTOSCALE_NODE.json 链式软链到最新）。swap 脚本 `openpi_ext/scratch/r17_ops/swap_node_fleet.py` 已带 reactive/mature/hold 与 payload policy.py 一行补丁。
 
 ### ★ 2026-10-19 11:1x 增补（最先读，再读下面 10:3x 总状态）
