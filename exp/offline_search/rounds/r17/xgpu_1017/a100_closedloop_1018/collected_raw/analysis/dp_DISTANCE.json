@@ -1,0 +1,1722 @@
+{
+  "schema": "xgpu.dp.distance.diagnostic.v1",
+  "left_heads": 100,
+  "right_heads": 100,
+  "paired_heads": 100,
+  "per_head": [
+    {
+      "key": [
+        0,
+        "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+        3,
+        7,
+        0,
+        3192465586
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        0,
+        "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+        7,
+        7,
+        0,
+        550989259
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        4,
+        "libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate",
+        6,
+        7,
+        0,
+        3374544638
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0001373291015625,
+        "replay32": 0.0001373291015625,
+        "float64_fixed_y": 0.0001036226749420166,
+        "stable_fixed_y": 0.0001036226749420166,
+        "euclidean_changes_artifact": 0.00010357052087783813
+      }
+    },
+    {
+      "key": [
+        4,
+        "libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate",
+        9,
+        7,
+        0,
+        3124810473
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0004091709852218628,
+        "replay32": 0.0004091709852218628,
+        "float64_fixed_y": 9.037554264068604e-05,
+        "stable_fixed_y": 9.037554264068604e-05,
+        "euclidean_changes_artifact": 9.039044380187988e-05
+      }
+    },
+    {
+      "key": [
+        5,
+        "libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate",
+        5,
+        7,
+        0,
+        2262196765
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        5,
+        "libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate",
+        8,
+        7,
+        0,
+        1740253628
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        6,
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate",
+        5,
+        7,
+        0,
+        1280045518
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0002069622278213501,
+        "replay32": 0.0002069622278213501,
+        "float64_fixed_y": 7.705390453338623e-05,
+        "stable_fixed_y": 7.705390453338623e-05,
+        "euclidean_changes_artifact": 7.709860801696777e-05
+      }
+    },
+    {
+      "key": [
+        6,
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate",
+        7,
+        7,
+        0,
+        508210412
+      ],
+      "max_weight_drift": {
+        "recorded": 0.00028271228075027466,
+        "replay32": 0.00028271228075027466,
+        "float64_fixed_y": 0.00018391013145446777,
+        "stable_fixed_y": 0.00018391013145446777,
+        "euclidean_changes_artifact": 0.00018380582332611084
+      }
+    },
+    {
+      "key": [
+        6,
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate",
+        9,
+        7,
+        0,
+        2163040485
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        7,
+        "libero_spatial/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate",
+        5,
+        7,
+        0,
+        1840778413
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0002996399998664856,
+        "replay32": 0.0002996399998664856,
+        "float64_fixed_y": 0.00016555190086364746,
+        "stable_fixed_y": 0.00016555190086364746,
+        "euclidean_changes_artifact": 0.00016551464796066284
+      }
+    },
+    {
+      "key": [
+        7,
+        "libero_spatial/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate",
+        6,
+        7,
+        0,
+        4258124232
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        8,
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate",
+        3,
+        7,
+        0,
+        2790098804
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        1,
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate",
+        1,
+        7,
+        0,
+        1727841038
+      ],
+      "max_weight_drift": {
+        "recorded": 7.338076829910278e-05,
+        "replay32": 7.338076829910278e-05,
+        "float64_fixed_y": 1.8406659364700317e-05,
+        "stable_fixed_y": 1.8406659364700317e-05,
+        "euclidean_changes_artifact": 1.8406659364700317e-05
+      }
+    },
+    {
+      "key": [
+        8,
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate",
+        4,
+        7,
+        0,
+        1242698700
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        9,
+        "libero_spatial/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate",
+        0,
+        7,
+        0,
+        3437324990
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        9,
+        "libero_spatial/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate",
+        6,
+        7,
+        0,
+        3915364287
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        1,
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate",
+        4,
+        7,
+        0,
+        4024310943
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        1,
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate",
+        7,
+        7,
+        0,
+        2637965093
+      ],
+      "max_weight_drift": {
+        "recorded": 1.9282102584838867e-05,
+        "replay32": 1.9282102584838867e-05,
+        "float64_fixed_y": 8.17514955997467e-06,
+        "stable_fixed_y": 8.17514955997467e-06,
+        "euclidean_changes_artifact": 8.17514955997467e-06
+      }
+    },
+    {
+      "key": [
+        1,
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate",
+        9,
+        7,
+        0,
+        3010733897
+      ],
+      "max_weight_drift": {
+        "recorded": 4.08664345741272e-05,
+        "replay32": 4.08664345741272e-05,
+        "float64_fixed_y": 4.036165773868561e-05,
+        "stable_fixed_y": 4.036165773868561e-05,
+        "euclidean_changes_artifact": 4.036352038383484e-05
+      }
+    },
+    {
+      "key": [
+        2,
+        "libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate",
+        7,
+        7,
+        0,
+        4077720227
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0001066252589225769,
+        "replay32": 0.0001066252589225769,
+        "float64_fixed_y": 3.1620264053344727e-05,
+        "stable_fixed_y": 3.1620264053344727e-05,
+        "euclidean_changes_artifact": 3.1635165214538574e-05
+      }
+    },
+    {
+      "key": [
+        3,
+        "libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate",
+        1,
+        7,
+        0,
+        489298484
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        3,
+        "libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate",
+        6,
+        7,
+        0,
+        153446919
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        3,
+        "libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate",
+        9,
+        7,
+        0,
+        3709691017
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        0,
+        "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+        0,
+        7,
+        0,
+        3500044960
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        0,
+        "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+        4,
+        7,
+        0,
+        1538628492
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0001888573169708252,
+        "replay32": 0.0001888573169708252,
+        "float64_fixed_y": 1.449882984161377e-05,
+        "stable_fixed_y": 1.449882984161377e-05,
+        "euclidean_changes_artifact": 1.449882984161377e-05
+      }
+    },
+    {
+      "key": [
+        4,
+        "libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate",
+        3,
+        7,
+        0,
+        2087895279
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        4,
+        "libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate",
+        4,
+        7,
+        0,
+        4192814543
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0001571252942085266,
+        "replay32": 0.0001571252942085266,
+        "float64_fixed_y": 7.066130638122559e-05,
+        "stable_fixed_y": 7.066130638122559e-05,
+        "euclidean_changes_artifact": 7.061660289764404e-05
+      }
+    },
+    {
+      "key": [
+        5,
+        "libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate",
+        1,
+        7,
+        0,
+        764160247
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        5,
+        "libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate",
+        2,
+        7,
+        0,
+        3527957682
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        5,
+        "libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate",
+        9,
+        7,
+        0,
+        4046914624
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        6,
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate",
+        0,
+        7,
+        0,
+        2300094027
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        6,
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate",
+        4,
+        7,
+        0,
+        2803236590
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        6,
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate",
+        8,
+        7,
+        0,
+        549770832
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        7,
+        "libero_spatial/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate",
+        4,
+        7,
+        0,
+        3617902327
+      ],
+      "max_weight_drift": {
+        "recorded": 0.00015939772129058838,
+        "replay32": 0.00015939772129058838,
+        "float64_fixed_y": 9.275972843170166e-05,
+        "stable_fixed_y": 9.275972843170166e-05,
+        "euclidean_changes_artifact": 9.270012378692627e-05
+      }
+    },
+    {
+      "key": [
+        7,
+        "libero_spatial/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate",
+        9,
+        7,
+        0,
+        483428284
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        1,
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate",
+        2,
+        7,
+        0,
+        3276273822
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        8,
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate",
+        2,
+        7,
+        0,
+        2338453958
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        8,
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate",
+        6,
+        7,
+        0,
+        376068983
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0001322329044342041,
+        "replay32": 0.0001322329044342041,
+        "float64_fixed_y": 0.0001755058765411377,
+        "stable_fixed_y": 0.0001755058765411377,
+        "euclidean_changes_artifact": 0.00017549097537994385
+      }
+    },
+    {
+      "key": [
+        8,
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate",
+        8,
+        7,
+        0,
+        394340760
+      ],
+      "max_weight_drift": {
+        "recorded": 0.00018221884965896606,
+        "replay32": 0.00018221884965896606,
+        "float64_fixed_y": 6.174296140670776e-05,
+        "stable_fixed_y": 6.174296140670776e-05,
+        "euclidean_changes_artifact": 6.175041198730469e-05
+      }
+    },
+    {
+      "key": [
+        9,
+        "libero_spatial/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate",
+        3,
+        7,
+        0,
+        1909913009
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        9,
+        "libero_spatial/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate",
+        5,
+        7,
+        0,
+        767702260
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        9,
+        "libero_spatial/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate",
+        9,
+        7,
+        0,
+        1807230454
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        1,
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate",
+        5,
+        7,
+        0,
+        873336312
+      ],
+      "max_weight_drift": {
+        "recorded": 0.00012077391147613525,
+        "replay32": 0.00012077391147613525,
+        "float64_fixed_y": 5.206465721130371e-05,
+        "stable_fixed_y": 5.206465721130371e-05,
+        "euclidean_changes_artifact": 5.207955837249756e-05
+      }
+    },
+    {
+      "key": [
+        1,
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate",
+        8,
+        7,
+        0,
+        3537462258
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        2,
+        "libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate",
+        1,
+        7,
+        0,
+        1966055738
+      ],
+      "max_weight_drift": {
+        "recorded": 0.00018386542797088623,
+        "replay32": 0.00018386542797088623,
+        "float64_fixed_y": 2.1710991859436035e-05,
+        "stable_fixed_y": 2.1710991859436035e-05,
+        "euclidean_changes_artifact": 2.1710991859436035e-05
+      }
+    },
+    {
+      "key": [
+        2,
+        "libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate",
+        6,
+        7,
+        0,
+        4021202680
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        2,
+        "libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate",
+        9,
+        7,
+        0,
+        2475003891
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        3,
+        "libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate",
+        4,
+        7,
+        0,
+        776454905
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        3,
+        "libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate",
+        7,
+        7,
+        0,
+        2161896009
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        0,
+        "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+        1,
+        7,
+        0,
+        1465011250
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        0,
+        "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+        5,
+        7,
+        0,
+        1822255151
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        4,
+        "libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate",
+        5,
+        7,
+        0,
+        3894583169
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0001140981912612915,
+        "replay32": 0.0001140981912612915,
+        "float64_fixed_y": 3.2611191272735596e-05,
+        "stable_fixed_y": 3.2611191272735596e-05,
+        "euclidean_changes_artifact": 3.262609243392944e-05
+      }
+    },
+    {
+      "key": [
+        4,
+        "libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate",
+        7,
+        7,
+        0,
+        1176674498
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        5,
+        "libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate",
+        3,
+        7,
+        0,
+        170060173
+      ],
+      "max_weight_drift": {
+        "recorded": 8.767098188400269e-05,
+        "replay32": 8.767098188400269e-05,
+        "float64_fixed_y": 5.0321221351623535e-05,
+        "stable_fixed_y": 5.0321221351623535e-05,
+        "euclidean_changes_artifact": 5.034357309341431e-05
+      }
+    },
+    {
+      "key": [
+        5,
+        "libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate",
+        4,
+        7,
+        0,
+        1857826693
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        6,
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate",
+        1,
+        7,
+        0,
+        343482161
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        6,
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate",
+        6,
+        7,
+        0,
+        3117083746
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        7,
+        "libero_spatial/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate",
+        1,
+        7,
+        0,
+        3639139905
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        7,
+        "libero_spatial/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate",
+        2,
+        7,
+        0,
+        825687639
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        7,
+        "libero_spatial/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate",
+        8,
+        7,
+        0,
+        3583399203
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        8,
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate",
+        0,
+        7,
+        0,
+        4583162
+      ],
+      "max_weight_drift": {
+        "recorded": 0.00012923777103424072,
+        "replay32": 0.00012923777103424072,
+        "float64_fixed_y": 5.646049976348877e-05,
+        "stable_fixed_y": 5.646049976348877e-05,
+        "euclidean_changes_artifact": 5.6430697441101074e-05
+      }
+    },
+    {
+      "key": [
+        1,
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate",
+        0,
+        7,
+        0,
+        4175623026
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        8,
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate",
+        5,
+        7,
+        0,
+        3279620968
+      ],
+      "max_weight_drift": {
+        "recorded": 5.224347114562988e-05,
+        "replay32": 5.224347114562988e-05,
+        "float64_fixed_y": 9.074807167053223e-06,
+        "stable_fixed_y": 9.074807167053223e-06,
+        "euclidean_changes_artifact": 9.074807167053223e-06
+      }
+    },
+    {
+      "key": [
+        9,
+        "libero_spatial/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate",
+        1,
+        7,
+        0,
+        2771566803
+      ],
+      "max_weight_drift": {
+        "recorded": 8.149445056915283e-05,
+        "replay32": 8.149445056915283e-05,
+        "float64_fixed_y": 4.3295323848724365e-05,
+        "stable_fixed_y": 4.3295323848724365e-05,
+        "euclidean_changes_artifact": 4.3295323848724365e-05
+      }
+    },
+    {
+      "key": [
+        9,
+        "libero_spatial/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate",
+        2,
+        7,
+        0,
+        3360880462
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0001515895128250122,
+        "replay32": 0.0001515895128250122,
+        "float64_fixed_y": 0.00011989474296569824,
+        "stable_fixed_y": 0.00011989474296569824,
+        "euclidean_changes_artifact": 0.0001199766993522644
+      }
+    },
+    {
+      "key": [
+        9,
+        "libero_spatial/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate",
+        8,
+        7,
+        0,
+        1252236642
+      ],
+      "max_weight_drift": {
+        "recorded": 0.00018683820962905884,
+        "replay32": 0.00018683820962905884,
+        "float64_fixed_y": 4.725903272628784e-05,
+        "stable_fixed_y": 4.725903272628784e-05,
+        "euclidean_changes_artifact": 4.7244131565093994e-05
+      }
+    },
+    {
+      "key": [
+        1,
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate",
+        3,
+        7,
+        0,
+        1135776364
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        2,
+        "libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate",
+        2,
+        7,
+        0,
+        3357875283
+      ],
+      "max_weight_drift": {
+        "recorded": 0.000291675329208374,
+        "replay32": 0.000291675329208374,
+        "float64_fixed_y": 2.1245330572128296e-05,
+        "stable_fixed_y": 2.1245330572128296e-05,
+        "euclidean_changes_artifact": 2.1245330572128296e-05
+      }
+    },
+    {
+      "key": [
+        2,
+        "libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate",
+        4,
+        7,
+        0,
+        2307075306
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0001674368977546692,
+        "replay32": 0.0001674368977546692,
+        "float64_fixed_y": 4.976987838745117e-05,
+        "stable_fixed_y": 4.976987838745117e-05,
+        "euclidean_changes_artifact": 4.976987838745117e-05
+      }
+    },
+    {
+      "key": [
+        3,
+        "libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate",
+        0,
+        7,
+        0,
+        213129012
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0001484304666519165,
+        "replay32": 0.0001484304666519165,
+        "float64_fixed_y": 0.00014741718769073486,
+        "stable_fixed_y": 0.00014741718769073486,
+        "euclidean_changes_artifact": 0.00014741718769073486
+      }
+    },
+    {
+      "key": [
+        3,
+        "libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate",
+        2,
+        7,
+        0,
+        3129890514
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        3,
+        "libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate",
+        8,
+        7,
+        0,
+        4105055015
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        4,
+        "libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate",
+        0,
+        7,
+        0,
+        1487450140
+      ],
+      "max_weight_drift": {
+        "recorded": 0.00014529377222061157,
+        "replay32": 0.00014529377222061157,
+        "float64_fixed_y": 1.595914363861084e-05,
+        "stable_fixed_y": 1.595914363861084e-05,
+        "euclidean_changes_artifact": 1.595914363861084e-05
+      }
+    },
+    {
+      "key": [
+        0,
+        "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+        2,
+        7,
+        0,
+        1648786209
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        0,
+        "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+        6,
+        7,
+        0,
+        1305270223
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        3,
+        "libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate",
+        5,
+        7,
+        0,
+        3750373413
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        4,
+        "libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate",
+        1,
+        7,
+        0,
+        4206757212
+      ],
+      "max_weight_drift": {
+        "recorded": 6.308406591415405e-05,
+        "replay32": 6.308406591415405e-05,
+        "float64_fixed_y": 5.4448843002319336e-05,
+        "stable_fixed_y": 5.4448843002319336e-05,
+        "euclidean_changes_artifact": 5.4463744163513184e-05
+      }
+    },
+    {
+      "key": [
+        4,
+        "libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate",
+        2,
+        7,
+        0,
+        892744851
+      ],
+      "max_weight_drift": {
+        "recorded": 5.137547850608826e-05,
+        "replay32": 5.137547850608826e-05,
+        "float64_fixed_y": 2.3428350687026978e-05,
+        "stable_fixed_y": 2.3428350687026978e-05,
+        "euclidean_changes_artifact": 2.34358012676239e-05
+      }
+    },
+    {
+      "key": [
+        4,
+        "libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate",
+        8,
+        7,
+        0,
+        3555798901
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        5,
+        "libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate",
+        0,
+        7,
+        0,
+        2629810080
+      ],
+      "max_weight_drift": {
+        "recorded": 0.00015205144882202148,
+        "replay32": 0.00015205144882202148,
+        "float64_fixed_y": 2.874433994293213e-05,
+        "stable_fixed_y": 2.874433994293213e-05,
+        "euclidean_changes_artifact": 2.874433994293213e-05
+      }
+    },
+    {
+      "key": [
+        5,
+        "libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate",
+        6,
+        7,
+        0,
+        4053091758
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        5,
+        "libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate",
+        7,
+        7,
+        0,
+        2218576265
+      ],
+      "max_weight_drift": {
+        "recorded": 0.00016450881958007812,
+        "replay32": 0.00016450881958007812,
+        "float64_fixed_y": 4.7907233238220215e-05,
+        "stable_fixed_y": 4.7907233238220215e-05,
+        "euclidean_changes_artifact": 4.7907233238220215e-05
+      }
+    },
+    {
+      "key": [
+        6,
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate",
+        2,
+        7,
+        0,
+        1907684218
+      ],
+      "max_weight_drift": {
+        "recorded": 4.704296588897705e-05,
+        "replay32": 4.704296588897705e-05,
+        "float64_fixed_y": 1.058727502822876e-05,
+        "stable_fixed_y": 1.058727502822876e-05,
+        "euclidean_changes_artifact": 1.0579824447631836e-05
+      }
+    },
+    {
+      "key": [
+        6,
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate",
+        3,
+        7,
+        0,
+        1433084230
+      ],
+      "max_weight_drift": {
+        "recorded": 6.384402513504028e-05,
+        "replay32": 6.384402513504028e-05,
+        "float64_fixed_y": 4.217028617858887e-05,
+        "stable_fixed_y": 4.217028617858887e-05,
+        "euclidean_changes_artifact": 4.217028617858887e-05
+      }
+    },
+    {
+      "key": [
+        7,
+        "libero_spatial/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate",
+        0,
+        7,
+        0,
+        4139378880
+      ],
+      "max_weight_drift": {
+        "recorded": 0.00018678605556488037,
+        "replay32": 0.00018678605556488037,
+        "float64_fixed_y": 5.918741226196289e-05,
+        "stable_fixed_y": 5.918741226196289e-05,
+        "euclidean_changes_artifact": 5.917996168136597e-05
+      }
+    },
+    {
+      "key": [
+        0,
+        "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+        8,
+        7,
+        0,
+        3664265037
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        7,
+        "libero_spatial/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate",
+        3,
+        7,
+        0,
+        1733291169
+      ],
+      "max_weight_drift": {
+        "recorded": 8.183717727661133e-05,
+        "replay32": 8.183717727661133e-05,
+        "float64_fixed_y": 6.011873483657837e-05,
+        "stable_fixed_y": 6.011873483657837e-05,
+        "euclidean_changes_artifact": 6.00963830947876e-05
+      }
+    },
+    {
+      "key": [
+        7,
+        "libero_spatial/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate",
+        7,
+        7,
+        0,
+        540128116
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        8,
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate",
+        1,
+        7,
+        0,
+        568768791
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        8,
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate",
+        7,
+        7,
+        0,
+        1162558415
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        8,
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate",
+        9,
+        7,
+        0,
+        3157120496
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        9,
+        "libero_spatial/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate",
+        4,
+        7,
+        0,
+        1044057212
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        9,
+        "libero_spatial/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate",
+        7,
+        7,
+        0,
+        1327359488
+      ],
+      "max_weight_drift": {
+        "recorded": 5.43743371963501e-05,
+        "replay32": 5.43743371963501e-05,
+        "float64_fixed_y": 1.0117888450622559e-05,
+        "stable_fixed_y": 1.0117888450622559e-05,
+        "euclidean_changes_artifact": 1.0117888450622559e-05
+      }
+    },
+    {
+      "key": [
+        0,
+        "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+        9,
+        7,
+        0,
+        3634828106
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        1,
+        "libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate",
+        6,
+        7,
+        0,
+        2012336114
+      ],
+      "max_weight_drift": {
+        "recorded": 8.525699377059937e-05,
+        "replay32": 8.525699377059937e-05,
+        "float64_fixed_y": 9.441375732421875e-05,
+        "stable_fixed_y": 9.441375732421875e-05,
+        "euclidean_changes_artifact": 9.444355964660645e-05
+      }
+    },
+    {
+      "key": [
+        2,
+        "libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate",
+        0,
+        7,
+        0,
+        1155021369
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0002951771020889282,
+        "replay32": 0.0002951771020889282,
+        "float64_fixed_y": 8.069723844528198e-05,
+        "stable_fixed_y": 8.069723844528198e-05,
+        "euclidean_changes_artifact": 8.067861199378967e-05
+      }
+    },
+    {
+      "key": [
+        2,
+        "libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate",
+        3,
+        7,
+        0,
+        2757829203
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        2,
+        "libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate",
+        5,
+        7,
+        0,
+        1692506271
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        2,
+        "libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate",
+        8,
+        7,
+        0,
+        1324212495
+      ],
+      "max_weight_drift": {
+        "recorded": 0.0,
+        "replay32": 0.0,
+        "float64_fixed_y": 0.0,
+        "stable_fixed_y": 0.0,
+        "euclidean_changes_artifact": 0.0
+      }
+    },
+    {
+      "key": [
+        3,
+        "libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate",
+        3,
+        7,
+        0,
+        4223645630
+      ],
+      "max_weight_drift": {
+        "recorded": 0.00020295381546020508,
+        "replay32": 0.00020295381546020508,
+        "float64_fixed_y": 0.0001621544361114502,
+        "stable_fixed_y": 0.0001621544361114502,
+        "euclidean_changes_artifact": 0.00016216188669204712
+      }
+    }
+  ],
+  "max_weight_drift": {
+    "recorded": 0.0004091709852218628,
+    "replay32": 0.0004091709852218628,
+    "float64_fixed_y": 0.00018391013145446777,
+    "stable_fixed_y": 0.00018391013145446777,
+    "euclidean_changes_artifact": 0.00018380582332611084
+  },
+  "max_cpu32_reconstruction_error": 0.0,
+  "max_native_weight_reconstruction_error": 0.0,
+  "max_float64_vs_stable_error": 4.656612873077393e-10,
+  "max_stored_norm_residual": 0.028945842292159796,
+  "formal_recipe_changed": false,
+  "scope": "same-card first-head diagnostic; cross-card inference requires captured features from both cards",
+  "limitation": "plain Euclidean distance discards an artifact rounding residual and therefore changes its metric; not a formal recipe repair"
+}

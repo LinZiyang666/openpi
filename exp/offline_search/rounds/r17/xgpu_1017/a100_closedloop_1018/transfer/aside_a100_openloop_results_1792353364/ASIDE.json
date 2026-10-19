@@ -1,0 +1,31 @@
+{
+  "a100_mode_file": "/home/exouser/xgpu_1017/cl18/transfer/modes_a100_openloop_results_1792353364.json",
+  "base": "/home/exouser/xgpu_1017",
+  "changed_directories": 0,
+  "closed": 1792353808.9219139,
+  "command": [
+    "rsync",
+    "-a",
+    "--remove-source-files",
+    "--bwlimit=16384",
+    "--contimeout=10",
+    "--timeout=300",
+    "--files-from=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/a100_closedloop_1018/transfer/aside_a100_openloop_results_1792353364/files.txt",
+    "rsync://149.165.152.232:29770/aside/",
+    "/home/weiland/xgpu_1017_a100_aside/a100_openloop_results_1792353364/"
+  ],
+  "daemon_closed": "SIGTERM by PID",
+  "daemon_pid": 78021,
+  "destination": "/home/weiland/xgpu_1017_a100_aside/a100_openloop_results_1792353364",
+  "files": 118015,
+  "files_left_under_roots": 0,
+  "io_after": "some avg10=15.25 avg60=11.75 avg300=8.52 total=42191302324\nfull avg10=14.97 avg60=11.64 avg300=8.44 total=41668043031\n",
+  "io_before": "some avg10=4.36 avg60=4.69 avg300=4.03 total=42148349106\nfull avg10=4.36 avg60=4.66 avg300=3.99 total=41625439516\n",
+  "local_bytes": 2285061927,
+  "missing_locally": [],
+  "name": "a100_openloop_results",
+  "port": 29770,
+  "started": 1792353365.6122148,
+  "status": "MOVED",
+  "verified": true
+}

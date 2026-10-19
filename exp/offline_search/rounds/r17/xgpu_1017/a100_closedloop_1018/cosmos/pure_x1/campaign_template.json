@@ -1,0 +1,67 @@
+{
+  "assets": "/home/exouser/xgpu_1017/cl18/cosmos/pure_x1/assets",
+  "backend_host": "127.0.0.1",
+  "backend_ports": [
+    29701,
+    29702
+  ],
+  "checkpoint": "/data/mw_finetune/models/cosmos_libero",
+  "coordinator_runtime": "/home/exouser/xgpu_1017/cl18/runtimes/formal_runtime_41f7d6a450fcd53bbb4e9196f2cd932a1502911f7e2235d933b6d01c1f189058",
+  "denoising_steps": 2,
+  "device": "cuda:0",
+  "domain": "libero",
+  "driver_host": "127.0.0.1",
+  "driver_port": 29730,
+  "driver_public_port": 14011,
+  "endpoint": "127.0.0.1:29700",
+  "endpoint_host": "127.0.0.1",
+  "endpoint_port": 29700,
+  "episode_seconds": 1800,
+  "execution_worker_nodes": {
+    "a100": 8
+  },
+  "execution_workers": 8,
+  "live_fleets": false,
+  "live_k": 4,
+  "local_assets": "/home/exouser/xgpu_1017/cl18/cosmos/pure_x1/assets",
+  "memory_budget_gib": 19,
+  "model": "cosmos",
+  "native_parity_only": false,
+  "official_50": true,
+  "ports": [
+    23240,
+    23241,
+    23242,
+    23249
+  ],
+  "prepare_only": false,
+  "public_port": 29700,
+  "replicas": 2,
+  "retries": 2,
+  "run_name": "hs2_cosmos_h100_k2incl_c16_t107_20261010_115120",
+  "runtime": "/home/exouser/xgpu_1017/cl18/runtimes/formal_runtime_41f7d6a450fcd53bbb4e9196f2cd932a1502911f7e2235d933b6d01c1f189058",
+  "seconds": 14400,
+  "server_campaign": "/tmp/r17_formal/hs2_cosmos_h100_k2incl_c16_t107_20261010_115120/server/campaign.json",
+  "server_node": "local",
+  "server_python": "/home/exouser/xgpu_1017/cl18/models/cosmos/env/bin/python",
+  "server_run": "/data/mw_finetune/eval/hs2_cosmos_h100_k2incl_c16_t107_20261010_115120/servers",
+  "smoke": false,
+  "smoke_episodes": 4,
+  "suites": [
+    "libero_spatial",
+    "libero_10"
+  ],
+  "vendor": "/data/cosmos/cosmos-policy",
+  "worker_egl_device": 0,
+  "worker_max_episodes": 8,
+  "worker_memory_mib": 4096,
+  "worker_nodes": {
+    "a100": 8
+  },
+  "worker_restart_limit": 2,
+  "workers": 8,
+  "xgpu_arm": "pure_x1",
+  "xgpu_distance_capture": false,
+  "xgpu_group": null,
+  "xgpu_subset": "/home/exouser/xgpu_1017/cl18/cosmos/pure_x1/PLAN.json"
+}

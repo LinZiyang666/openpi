@@ -1,0 +1,22 @@
+{
+  "/data/mw_finetune/eval/ff1015_groot_mt_10/assets/cache_inputs/mt50/n1000_C5/fit/READY.json": {
+    "bytes": 6981247,
+    "sha256": "eae9e121db53df4312b4db93854e45ba9ab0fe7209d48a19cc8d80483d243f87"
+  },
+  "/data/mw_finetune/eval/ff1015_groot_mt_10/assets/cache_inputs/mt50/n1000_C5/fit/fit.npz": {
+    "bytes": 64038590,
+    "sha256": "76f1edff2ca1da463892c2eb55e1de752456714547dfa02db119c345c22351bf"
+  },
+  "/data/mw_finetune/eval/ff1015_groot_mt_10/assets/cache_inputs/mt50/parent/READY.json": {
+    "bytes": 91657272,
+    "sha256": "013f6b82c40a78222f0609ed595bce7eb027d8fa74359921673b1b009b4adc71"
+  },
+  "/data/mw_finetune/eval/ff1015_groot_mt_10/assets/cache_inputs/mt50/parent/subsets/size_1000/VIEW.json": {
+    "bytes": 9690,
+    "sha256": "29274fda26ac0754c5331a0816f8315385ab9d4d1ca2b448035339c49c415e4d"
+  },
+  "/data/mw_finetune/eval/ff1015_groot_mt_10/assets/cache_inputs/mt50/parent/subsets/size_1000/row_indices.npy": {
+    "bytes": 148760,
+    "sha256": "706340bf8d055560dbc6d4421a251989006fa85893733e89608b7a9057a89a71"
+  }
+}

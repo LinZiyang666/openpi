@@ -1,0 +1,11 @@
+{
+  "/data/mw_finetune/eval/pimk1_ful/assets/cache_inputs/mt50/n250_C5/fit/READY.json": "/home/exouser/xgpu_1017/cl18/deps/data/mw_finetune/eval/pimk1_ful/assets/cache_inputs/mt50/n250_C5/fit/READY.json",
+  "/data/mw_finetune/eval/pimk1_ful/assets/cache_inputs/mt50/n250_C5/fit/fit.npz": "/home/exouser/xgpu_1017/cl18/deps/data/mw_finetune/eval/pimk1_ful/assets/cache_inputs/mt50/n250_C5/fit/fit.npz",
+  "/data/mw_finetune/eval/pimk1_ful/assets/cache_inputs/mt50/n250_C5/stall/READY.json": "/home/exouser/xgpu_1017/cl18/deps/data/mw_finetune/eval/pimk1_ful/assets/cache_inputs/mt50/n250_C5/stall/READY.json",
+  "/data/mw_finetune/eval/pimk1_ful/assets/cache_inputs/mt50/n250_C5/stall/stall.json": "/home/exouser/xgpu_1017/cl18/deps/data/mw_finetune/eval/pimk1_ful/assets/cache_inputs/mt50/n250_C5/stall/stall.json",
+  "/data/mw_finetune/eval/pimk1_ful/assets/cache_inputs/mt50/n250_C5/stall/stall.loeo.csv": "/home/exouser/xgpu_1017/cl18/deps/data/mw_finetune/eval/pimk1_ful/assets/cache_inputs/mt50/n250_C5/stall/stall.loeo.csv",
+  "/data/mw_finetune/eval/pimk1_ful/assets/cache_inputs/mt50/n250_C5/stall/stall.pkl": "/home/exouser/xgpu_1017/cl18/deps/data/mw_finetune/eval/pimk1_ful/assets/cache_inputs/mt50/n250_C5/stall/stall.pkl",
+  "/data/mw_finetune/eval/pimk1_ful/assets/cache_inputs/mt50/parent/READY.json": "/home/exouser/xgpu_1017/cl18/deps/data/mw_finetune/eval/pimk1_ful/assets/cache_inputs/mt50/parent/READY.json",
+  "/data/mw_finetune/eval/pimk1_ful/assets/cache_inputs/mt50/parent/subsets/size_250/VIEW.json": "/home/exouser/xgpu_1017/cl18/deps/data/mw_finetune/eval/pimk1_ful/assets/cache_inputs/mt50/parent/subsets/size_250/VIEW.json",
+  "/data/mw_finetune/eval/pimk1_ful/assets/cache_inputs/mt50/parent/subsets/size_250/row_indices.npy": "/home/exouser/xgpu_1017/cl18/deps/data/mw_finetune/eval/pimk1_ful/assets/cache_inputs/mt50/parent/subsets/size_250/row_indices.npy"
+}

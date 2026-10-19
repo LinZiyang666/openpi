@@ -1,0 +1,7 @@
+{
+  "/data/mw_finetune/eval/ff1015_groot_mt_10/assets/cache_inputs/mt50/n1000_C5/fit/READY.json": "/home/exouser/xgpu_1017/cl18/deps/data/mw_finetune/eval/ff1015_groot_mt_10/assets/cache_inputs/mt50/n1000_C5/fit/READY.json",
+  "/data/mw_finetune/eval/ff1015_groot_mt_10/assets/cache_inputs/mt50/n1000_C5/fit/fit.npz": "/home/exouser/xgpu_1017/cl18/deps/data/mw_finetune/eval/ff1015_groot_mt_10/assets/cache_inputs/mt50/n1000_C5/fit/fit.npz",
+  "/data/mw_finetune/eval/ff1015_groot_mt_10/assets/cache_inputs/mt50/parent/READY.json": "/home/exouser/xgpu_1017/cl18/deps/data/mw_finetune/eval/ff1015_groot_mt_10/assets/cache_inputs/mt50/parent/READY.json",
+  "/data/mw_finetune/eval/ff1015_groot_mt_10/assets/cache_inputs/mt50/parent/subsets/size_1000/VIEW.json": "/home/exouser/xgpu_1017/cl18/deps/data/mw_finetune/eval/ff1015_groot_mt_10/assets/cache_inputs/mt50/parent/subsets/size_1000/VIEW.json",
+  "/data/mw_finetune/eval/ff1015_groot_mt_10/assets/cache_inputs/mt50/parent/subsets/size_1000/row_indices.npy": "/home/exouser/xgpu_1017/cl18/deps/data/mw_finetune/eval/ff1015_groot_mt_10/assets/cache_inputs/mt50/parent/subsets/size_1000/row_indices.npy"
+}

@@ -1,8 +1,9 @@
 {
   "bulk_list": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/a100_closedloop_1018/dp/BULK.files",
-  "bytes": 9946777362,
+  "bytes": 10068079409,
   "destination": "/home/exouser/xgpu_1017/cl18/models/dp/rootfs",
-  "files": 35408,
+  "disk_headroom_bytes": 2147483648,
+  "files": 36759,
   "interpreter": "/home/exouser/xgpu_1017/python312/bin/python3.12",
   "libero_asset_link": "/home/exouser/xgpu_1017/cl18/models/dp/rootfs/data/mw_finetune/qualification/local_workers/dependencies/libero311_42f0e80603054ed9f4bab84a6ce71bdbc71958c6c5c0329f9b5c892d917b3fe9/libero/libero/assets",
   "libero_assets": "/home/exouser/xgpu_1017/cl18/models/dp/rootfs/data/mw_finetune/qualification/local_workers/assets/libero_3eb6e3e7ee3a03663dba84ccc6d6cf9dbb4ae21fb20558ca4097abc066be57dc/assets",

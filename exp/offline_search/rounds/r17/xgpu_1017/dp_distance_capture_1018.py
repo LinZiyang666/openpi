@@ -13,7 +13,7 @@ import threading
 import numpy as np
 
 
-def install(root):
+def install(root,campaign=None):
  from exp.r17_integration.common.layers.recipe import LayoutRecipe
  original=LayoutRecipe._retrieve;root=Path(root);root.mkdir(parents=True,exist_ok=True)
  lock=threading.Lock();count=0
@@ -23,7 +23,8 @@ def install(root):
    return original(self,q,*args,**kwargs)
   request=asdict(q.request) if is_dataclass(q.request) else dict(vars(q.request))
   # Exclude recipe fit/qualification queries; these are actual formal episodes.
-  if request.get('decision_seq')!=0:return original(self,q,*args,**kwargs)
+  if request.get('decision_seq')!=0 or campaign is not None and request.get('campaign')!=campaign:
+   return original(self,q,*args,**kwargs)
   previous=sys.getprofile();captured={}
   def profile(frame,event,arg):
    if event=='return' and frame.f_code is original.__code__:captured.update(frame.f_locals)

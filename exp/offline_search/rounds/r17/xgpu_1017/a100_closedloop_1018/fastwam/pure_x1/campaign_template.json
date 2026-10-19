@@ -1,0 +1,226 @@
+{
+  "assets": "/home/exouser/xgpu_1017/cl18/fastwam/pure_x1/assets",
+  "backend_host": "127.0.0.1",
+  "backend_ports": [
+    29701
+  ],
+  "checkpoint": "/data/mw_finetune/models/fastwam_libero",
+  "coordinator_runtime": "/home/exouser/xgpu_1017/cl18/runtimes/formal_runtime_1cf76a84a4a35ccd547fa14644bcb8e2ab446675d7fbbc363efe5ee078eab7f7",
+  "device": "cuda:0",
+  "domain": "libero",
+  "driver_host": "127.0.0.1",
+  "driver_mode": "group-commit",
+  "driver_module": "exp.r17_integration.ops.formal_driver_fast",
+  "driver_port": 29730,
+  "driver_runtime": "/data/mw_finetune/qualification/formal_driver_1cf76a84a4a35ccd547fa14644bcb8e2ab446675d7fbbc363efe5ee078eab7f7",
+  "endpoint": "127.0.0.1:29700",
+  "endpoint_host": "127.0.0.1",
+  "endpoint_port": 29700,
+  "episode_seconds": 3600,
+  "execution_worker_nodes": {
+    "a100": 8
+  },
+  "execution_workers": 8,
+  "fastwam_batching": {
+    "batch_wait_ms": 5.0,
+    "byte_identical_to_b1": false,
+    "default_off": true,
+    "hardware_qualification": "see BATCHING.md and measurement receipt",
+    "identity": "c4a95a1a3acb492c6ad6798cb879cb86f78a0d9156dd2e65f296cb11edf7f3ff",
+    "max_batch": 16,
+    "numerics_policy": "native_bf16_batch_study_v1",
+    "quality_equivalence": "unverified; matched batched control required",
+    "stage_workers": [
+      1,
+      1,
+      1
+    ]
+  },
+  "live_fleets": false,
+  "live_k": 4,
+  "local_assets": "/home/exouser/xgpu_1017/cl18/fastwam/pure_x1/assets",
+  "memory_budget_gib": 35,
+  "model": "fastwam",
+  "mps": {
+    "active_thread_percentage": 100,
+    "compute_mode_change": false,
+    "enabled": true,
+    "private_per_campaign_gpu": true,
+    "schema": "r17.mps.v1"
+  },
+  "native_parity_only": false,
+  "official_50": true,
+  "orchestration": {
+    "baseline": {
+      "files": {
+        "exp/r17_integration/conductor/driver.py": "a358843a2c8cf76abd8630c662edc59fc13b9c54df4709f7b5ff021fd1ca7f10",
+        "exp/r17_integration/conductor/manifest.py": "c2a195389c3d7a294d5ab91ff9a63a922463e36bd52117c76b76fecdeea6df0f",
+        "exp/r17_integration/conductor/queue.py": "be495f6bcde979266c6bd06ed1dec5163f5c0324cba2f2d1e335bb04c90bd3a2",
+        "exp/r17_integration/conductor/strategy.py": "32831669bd69d83edee46a9e8936c3967477adc1294ae994c4b2d27d850c85ce",
+        "exp/r17_integration/conductor/worker_entry.py": "5d6f3d940a35743a1452a1fece0f4b3f9a5f17110957a842a5efed30d875846c",
+        "exp/r17_integration/ops/formal_driver.py": "ce49d2987fcf819219e5f0a6b0ba0d88d0d1d9e15f94c1cb696a8e399e4e8b0a",
+        "exp/r17_integration/ops/formal_driver_fast.py": "f6331fea709c73a6a827514f1434eff8f2c7ff604bc76d9f9ada4bf63575b2ee",
+        "exp/r17_integration/ops/formal_eval.py": "c41c465f5e943de01fb9bbe457df9e26200fc5ed960bb56b34d8fd83fb3855f3",
+        "exp/r17_integration/ops/group_commit.py": "6a77137014db4391966c8496f41cfa6097cf0d9597dea063ff56271d53a38a8a",
+        "exp/r17_integration/qualification/driver.py": "06257104d1b307c7196b36583a43a0b651fea8c3fed6494c9f3ecc44f4c142a7",
+        "src/openpi/conductor/__init__.py": "fa50b35cf43b695036181624b161b0a3415c55bdad524b70c5b8a711d238ab48",
+        "src/openpi/conductor/agent.py": "9e39391d7c1412446abee160f6d0280be940150293dd0399ee769a5e6072d3d2",
+        "src/openpi/conductor/driver.py": "fb50124bee79924591cb690dcf31a6e4a24a771b8beb6f3515ad21b2d040ba8a",
+        "src/openpi/conductor/health.py": "ffea06a3bfc5f95f7da1a9abc2626c1be135dd912c0245a6794487c5b1903a44",
+        "src/openpi/conductor/journal.py": "5b2aea9600f54424cdfa9dabbf7262edef4b613ab58c3df3070f03f5efc0b9ae",
+        "src/openpi/conductor/monitor.py": "1fa22e3286862cc00949d1b87f5c3b132b88f9a3729600fd56abc535fec12cfb",
+        "src/openpi/conductor/protocol.py": "d538297a2f951b829e77d1aeab399e6838fd7f7b4dfdd9edcdd6c9fe80c0c683",
+        "src/openpi/conductor/scheduler.py": "80ede7fb1b8c474d9b4c710694e1de7d420d07750a09fc3e80938e2b0d2c934f",
+        "src/openpi/conductor/sharding.py": "df639d641aec56d1f860cfbce90c40aa6374ac2aff9c1a533009954f8d8e5cf2",
+        "src/openpi/conductor/strategy.py": "4d2523d875c777638a4a54347474d3e6062a9eaf4d37bc8ded5f7e4dc72b97dc",
+        "src/openpi/conductor/task.py": "b175d54d8a47b30e74611d4519088eb328bd815bf7b9bc5013e8e16a0a0d84ca",
+        "src/openpi/conductor/worker.py": "74b8cea7a870b9ce2473f69aaa77071d6697b0da74009e7bea5fc20c3c6d23e7"
+      },
+      "identity": "d01dba41b140dc7043f35720ed235cef50ed714672e01ff69ad9f82acb775f9c",
+      "mode": "group-commit",
+      "module": "exp.r17_integration.ops.formal_driver_fast"
+    },
+    "driver_runtime": "/data/mw_finetune/qualification/formal_driver_1cf76a84a4a35ccd547fa14644bcb8e2ab446675d7fbbc363efe5ee078eab7f7",
+    "driver_runtime_identity": "1cf76a84a4a35ccd547fa14644bcb8e2ab446675d7fbbc363efe5ee078eab7f7",
+    "durability": "evidence fsync, terminal journal fsync, then scheduler acceptance; nonterminal diagnostics group committed; resume requires fresh closed-source segment",
+    "model_code_unchanged": true,
+    "overlay_files": [],
+    "schema": "r17.orchestration_pin.v1",
+    "selected": {
+      "files": {
+        "exp/r17_integration/conductor/driver.py": "a358843a2c8cf76abd8630c662edc59fc13b9c54df4709f7b5ff021fd1ca7f10",
+        "exp/r17_integration/conductor/manifest.py": "c2a195389c3d7a294d5ab91ff9a63a922463e36bd52117c76b76fecdeea6df0f",
+        "exp/r17_integration/conductor/queue.py": "be495f6bcde979266c6bd06ed1dec5163f5c0324cba2f2d1e335bb04c90bd3a2",
+        "exp/r17_integration/conductor/strategy.py": "32831669bd69d83edee46a9e8936c3967477adc1294ae994c4b2d27d850c85ce",
+        "exp/r17_integration/conductor/worker_entry.py": "5d6f3d940a35743a1452a1fece0f4b3f9a5f17110957a842a5efed30d875846c",
+        "exp/r17_integration/ops/formal_driver.py": "ce49d2987fcf819219e5f0a6b0ba0d88d0d1d9e15f94c1cb696a8e399e4e8b0a",
+        "exp/r17_integration/ops/formal_driver_fast.py": "f6331fea709c73a6a827514f1434eff8f2c7ff604bc76d9f9ada4bf63575b2ee",
+        "exp/r17_integration/ops/formal_eval.py": "c41c465f5e943de01fb9bbe457df9e26200fc5ed960bb56b34d8fd83fb3855f3",
+        "exp/r17_integration/ops/group_commit.py": "6a77137014db4391966c8496f41cfa6097cf0d9597dea063ff56271d53a38a8a",
+        "exp/r17_integration/qualification/driver.py": "06257104d1b307c7196b36583a43a0b651fea8c3fed6494c9f3ecc44f4c142a7",
+        "src/openpi/conductor/__init__.py": "fa50b35cf43b695036181624b161b0a3415c55bdad524b70c5b8a711d238ab48",
+        "src/openpi/conductor/agent.py": "9e39391d7c1412446abee160f6d0280be940150293dd0399ee769a5e6072d3d2",
+        "src/openpi/conductor/driver.py": "fb50124bee79924591cb690dcf31a6e4a24a771b8beb6f3515ad21b2d040ba8a",
+        "src/openpi/conductor/health.py": "ffea06a3bfc5f95f7da1a9abc2626c1be135dd912c0245a6794487c5b1903a44",
+        "src/openpi/conductor/journal.py": "5b2aea9600f54424cdfa9dabbf7262edef4b613ab58c3df3070f03f5efc0b9ae",
+        "src/openpi/conductor/monitor.py": "1fa22e3286862cc00949d1b87f5c3b132b88f9a3729600fd56abc535fec12cfb",
+        "src/openpi/conductor/protocol.py": "d538297a2f951b829e77d1aeab399e6838fd7f7b4dfdd9edcdd6c9fe80c0c683",
+        "src/openpi/conductor/scheduler.py": "80ede7fb1b8c474d9b4c710694e1de7d420d07750a09fc3e80938e2b0d2c934f",
+        "src/openpi/conductor/sharding.py": "df639d641aec56d1f860cfbce90c40aa6374ac2aff9c1a533009954f8d8e5cf2",
+        "src/openpi/conductor/strategy.py": "4d2523d875c777638a4a54347474d3e6062a9eaf4d37bc8ded5f7e4dc72b97dc",
+        "src/openpi/conductor/task.py": "b175d54d8a47b30e74611d4519088eb328bd815bf7b9bc5013e8e16a0a0d84ca",
+        "src/openpi/conductor/worker.py": "74b8cea7a870b9ce2473f69aaa77071d6697b0da74009e7bea5fc20c3c6d23e7"
+      },
+      "identity": "d01dba41b140dc7043f35720ed235cef50ed714672e01ff69ad9f82acb775f9c",
+      "mode": "group-commit",
+      "module": "exp.r17_integration.ops.formal_driver_fast"
+    },
+    "source_runtime_identity": "1cf76a84a4a35ccd547fa14644bcb8e2ab446675d7fbbc363efe5ee078eab7f7",
+    "worker_payload_unchanged": true
+  },
+  "ports": [
+    23173,
+    23174,
+    23175,
+    23177
+  ],
+  "prepare_only": false,
+  "public_port": 29700,
+  "replica_startup_width": 2,
+  "replicas": 1,
+  "retries": 2,
+  "run_name": "hs6fw_res_152931",
+  "runtime": "/home/exouser/xgpu_1017/cl18/runtimes/formal_runtime_1cf76a84a4a35ccd547fa14644bcb8e2ab446675d7fbbc363efe5ee078eab7f7",
+  "runtime_identity": "1cf76a84a4a35ccd547fa14644bcb8e2ab446675d7fbbc363efe5ee078eab7f7",
+  "seconds": 14400,
+  "semantic_campaign": "hs6fw_ctl_143332",
+  "server_campaign": "/tmp/r17_formal/hs6fw_res_152931/server/campaign.json",
+  "server_node": "local",
+  "server_python": "/home/exouser/xgpu_1017/cl18/models/fastwam/env/bin/python",
+  "server_run": "/data/mw_finetune/eval/hs6fw_res_152931/servers",
+  "smoke": false,
+  "smoke_episodes": 4,
+  "suites": [
+    "libero_spatial",
+    "libero_object",
+    "libero_goal",
+    "libero_10"
+  ],
+  "vendor": "/home/weiland/projects/openpi_ext/third_party/gr00t_n15",
+  "worker_egl_device": 0,
+  "worker_egl_devices": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "worker_max_episodes": 4,
+  "worker_memory_mib": 2048,
+  "worker_nodes": {
+    "a100": 8
+  },
+  "worker_restart_limit": 2,
+  "worker_vram_mib": 768,
+  "workers": 8,
+  "xgpu_arm": "pure_x1",
+  "xgpu_distance_capture": false,
+  "xgpu_group": null,
+  "xgpu_source_batch_treatment": {
+    "identity": "ec35c19a05d89550774b355718b5bb63a4680894dceadb45818a48be33435666",
+    "note": "A100 explicit capacity arm R1/B16, 8 A100-local workers. The source treatment seal binds H100 R2 / 48 timan107 workers / gpu_family and the frozen 1cf76a84 server refuses any other GPU; the seal is not presented. fastwam_batching (B16, 5 ms, native_bf16_batch_study_v1) is unchanged and the resident batch implementation identity equals the sealed f8bc81d5... (CPU check 1018b). Later FW runtime 205509 disables the same guards.",
+    "treatment": {
+      "batch_implementation_identity": "f8bc81d545b06a998ee29e048b8931ac6029906729b4407230cbb5a7eedf3210",
+      "batching": {
+        "batch_wait_ms": 5.0,
+        "byte_identical_to_b1": false,
+        "default_off": true,
+        "hardware_qualification": "see BATCHING.md and measurement receipt",
+        "identity": "c4a95a1a3acb492c6ad6798cb879cb86f78a0d9156dd2e65f296cb11edf7f3ff",
+        "max_batch": 16,
+        "numerics_policy": "native_bf16_batch_study_v1",
+        "quality_equivalence": "unverified; matched batched control required",
+        "stage_workers": [
+          1,
+          1,
+          1
+        ]
+      },
+      "checkpoint": "/data/mw_finetune/models/fastwam_libero",
+      "domain": "libero",
+      "gpu_family": "NVIDIA H100 80GB HBM3",
+      "model": "fastwam",
+      "replicas": 2,
+      "schema": "r17.fastwam.batch_treatment.v2",
+      "stage_streams": true,
+      "stage_workers": [
+        1,
+        1,
+        1
+      ],
+      "worker_egl_device": 0,
+      "worker_egl_devices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "worker_max_episodes": 4,
+      "worker_memory_mib": 2048,
+      "worker_nodes": {
+        "timan107": 48
+      },
+      "worker_restart_limit": 2,
+      "worker_vram_mib": 768,
+      "workers": 48
+    }
+  },
+  "xgpu_subset": "/home/exouser/xgpu_1017/cl18/fastwam/pure_x1/PLAN.json"
+}

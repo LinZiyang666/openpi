@@ -1,0 +1,31 @@
+{
+  "a100_mode_file": "/home/exouser/xgpu_1017/cl18/transfer/modes_fastwam_only_1792360041.json",
+  "base": "/home/exouser/xgpu_1017/cl18/models/dp/rootfs",
+  "changed_directories": 525,
+  "closed": 1792363172.5660212,
+  "command": [
+    "rsync",
+    "-a",
+    "--remove-source-files",
+    "--bwlimit=16384",
+    "--contimeout=10",
+    "--timeout=300",
+    "--files-from=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/a100_closedloop_1018/transfer/aside_fastwam_only_1792360041/files.txt",
+    "rsync://149.165.152.232:29770/aside/",
+    "/tmp/xgpu_1017_a100_aside/fastwam_only_1792360041/"
+  ],
+  "daemon_closed": "SIGTERM by PID",
+  "daemon_pid": 173621,
+  "destination": "/tmp/xgpu_1017_a100_aside/fastwam_only_1792360041",
+  "files": 700,
+  "files_left_under_roots": 39537,
+  "io_after": "some avg10=5.87 avg60=5.94 avg300=7.72 total=43156176503\nfull avg10=5.77 avg60=5.85 avg300=7.62 total=42624875419\n",
+  "io_before": "some avg10=6.53 avg60=6.57 avg300=8.15 total=42872123237\nfull avg10=6.45 avg60=6.49 avg300=8.07 total=42343495400\n",
+  "local_bytes": 26251766098,
+  "missing_locally": [],
+  "name": "fastwam_only",
+  "port": 29770,
+  "started": 1792360042.5895088,
+  "status": "MOVED",
+  "verified": true
+}

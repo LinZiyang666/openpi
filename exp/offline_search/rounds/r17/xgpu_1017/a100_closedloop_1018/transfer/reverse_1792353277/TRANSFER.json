@@ -1,0 +1,82 @@
+{
+  "bulk_delta_bytes": 55818536,
+  "closed": 1792353299.4920676,
+  "commands": [
+    [
+      "rsync",
+      "-a",
+      "--bwlimit=16384",
+      "--contimeout=10",
+      "--timeout=120",
+      "--exclude=__pycache__",
+      "--exclude=*.pyc",
+      "--include=/tools/***",
+      "--include=/serving_extra/***",
+      "--include=/dp/",
+      "--include=/dp/pure/***",
+      "--include=/dp/cache/***",
+      "--include=/dp/execution_tools/***",
+      "--include=/dp/EXECUTION_TOOLS.json",
+      "--include=/dp/libero_config/***",
+      "--include=/dp/MODEL_PATHS.json",
+      "--include=/dp/WORKER.json",
+      "--include=/dp/RESOURCES.json",
+      "--exclude=*",
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/a100_closedloop_1018/",
+      "rsync://149.165.152.232:29770/payload/"
+    ],
+    [
+      "rsync",
+      "-a",
+      "--bwlimit=16384",
+      "--contimeout=10",
+      "--timeout=120",
+      "--exclude=__pycache__",
+      "--exclude=*.pyc",
+      "/data/mw_finetune/qualification/formal_runtime_1cf76a84a4a35ccd547fa14644bcb8e2ab446675d7fbbc363efe5ee078eab7f7/",
+      "rsync://149.165.152.232:29770/runtime0/"
+    ],
+    [
+      "rsync",
+      "-a",
+      "--bwlimit=16384",
+      "--contimeout=10",
+      "--timeout=120",
+      "--exclude=__pycache__",
+      "--exclude=*.pyc",
+      "/data/mw_finetune/qualification/formal_runtime_62692e198a28b32f9eece681d458d644e30b9ae5a1bd33f84eded015b5bff6c0/",
+      "rsync://149.165.152.232:29770/runtime1/"
+    ],
+    [
+      "rsync",
+      "-a",
+      "--bwlimit=16384",
+      "--contimeout=10",
+      "--timeout=120",
+      "--exclude=__pycache__",
+      "--exclude=*.pyc",
+      "--files-from=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/a100_closedloop_1018/dp/BULK.files",
+      "//",
+      "rsync://149.165.152.232:29770/bulk/"
+    ],
+    [
+      "rsync",
+      "-a",
+      "--bwlimit=16384",
+      "--contimeout=10",
+      "--timeout=120",
+      "--exclude=__pycache__",
+      "--exclude=*.pyc",
+      "--files-from=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/a100_closedloop_1018/transfer/reverse_1792353277/deps.files",
+      "/data/mw_finetune/",
+      "rsync://149.165.152.232:29770/deps/"
+    ]
+  ],
+  "io_after": "some avg10=3.91 avg60=5.20 avg300=3.86 total=42144931924\nfull avg10=3.90 avg60=5.15 avg300=3.81 total=41622062211\n",
+  "io_before": "some avg10=6.08 avg60=5.51 avg300=3.79 total=42143820226\nfull avg10=5.99 avg60=5.44 avg300=3.74 total=41620965464\n",
+  "model": "dp",
+  "pid": 77683,
+  "port": 29770,
+  "started": 1792353277.8608963,
+  "status": "COMPLETE"
+}

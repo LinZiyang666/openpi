@@ -1,0 +1,22 @@
+{
+  "/data/mw_finetune/eval/ff1015_fastwam_li_18/assets/cache_inputs/libero_spatial/n50_C5/fit/READY.json": {
+    "bytes": 501052,
+    "sha256": "f1ec03aa737b0f35eed8b08efd307de2b39d882966007fb129bac85db0af7002"
+  },
+  "/data/mw_finetune/eval/ff1015_fastwam_li_18/assets/cache_inputs/libero_spatial/n50_C5/fit/fit.npz": {
+    "bytes": 16010777,
+    "sha256": "5dfabb6fc0b7003bdb81e9e18e3dc46cee1b720e5c18bc30e0fc78a1c0a760ca"
+  },
+  "/data/mw_finetune/eval/ff1015_fastwam_li_18/assets/cache_inputs/libero_spatial/parent/READY.json": {
+    "bytes": 29291626,
+    "sha256": "f96377a4fd5adb338aed678ba1aaafcba3964fe8eda876143dc6d1ccaff02b05"
+  },
+  "/data/mw_finetune/eval/ff1015_fastwam_li_18/assets/cache_inputs/libero_spatial/parent/subsets/size_50/VIEW.json": {
+    "bytes": 6596,
+    "sha256": "a755643331855b6d6021b1f86f743dbdf4ed43f7e5a2e418c8154be14c7e1727"
+  },
+  "/data/mw_finetune/eval/ff1015_fastwam_li_18/assets/cache_inputs/libero_spatial/parent/subsets/size_50/row_indices.npy": {
+    "bytes": 10256,
+    "sha256": "b5122eb7864b98d4aa2b947a9bc9ad7d7ad82c71812d966dfd0ca10f53cda659"
+  }
+}

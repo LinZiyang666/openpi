@@ -1,0 +1,22 @@
+{
+  "/data/mw_finetune/eval/ff1015_dp_li_14_u/assets/cache_inputs/libero_spatial/n50_C5/fit/READY.json": {
+    "bytes": 170667,
+    "sha256": "89c6795f63a6613f24a06788e78eb42685543810f8d520b46feda5240db2ccbc"
+  },
+  "/data/mw_finetune/eval/ff1015_dp_li_14_u/assets/cache_inputs/libero_spatial/n50_C5/fit/fit.npz": {
+    "bytes": 6759438,
+    "sha256": "2464950ba4ac6aabd2eb2cf45929fc678b0740fae98bf972849d92a4bbb9b08b"
+  },
+  "/data/mw_finetune/eval/ff1015_dp_li_14_u/assets/cache_inputs/libero_spatial/parent/READY.json": {
+    "bytes": 28463459,
+    "sha256": "765e307e2aa454dfc91ea966fdaf2732cf4e1991a8cc156adc0df7dcbde75605"
+  },
+  "/data/mw_finetune/eval/ff1015_dp_li_14_u/assets/cache_inputs/libero_spatial/parent/subsets/size_50/VIEW.json": {
+    "bytes": 12244,
+    "sha256": "056b7cef467654804fbf23725090c0631956150ee460b5fada15a1822d8928df"
+  },
+  "/data/mw_finetune/eval/ff1015_dp_li_14_u/assets/cache_inputs/libero_spatial/parent/subsets/size_50/row_indices.npy": {
+    "bytes": 10168,
+    "sha256": "8576c247dde429929b62d240537b4e061b56757e6484ec1686cee19ce4b2e499"
+  }
+}

@@ -1,7 +1,15 @@
 {
-  "completed": [],
-  "current": "pi05",
-  "pid": 2359563,
-  "started": 1792347198.7619963,
-  "status": "RUNNING"
+  "completed": [
+    "pi05",
+    "groot"
+  ],
+  "current": "dp",
+  "ended": 1792350409.6139753,
+  "error": "CalledProcessError(1, ['/home/weiland/projects/openpi/.venv/bin/python', '/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/a100_closedloop_stage_1018.py', 'dp'])",
+  "launch": {
+    "pid": 59965
+  },
+  "pid": 2468669,
+  "started": 1792348020.760529,
+  "status": "FAILED"
 }

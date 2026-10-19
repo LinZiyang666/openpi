@@ -1,0 +1,82 @@
+{
+  "bulk_delta_bytes": 0,
+  "closed": 1792364812.8574562,
+  "commands": [
+    [
+      "rsync",
+      "-a",
+      "--bwlimit=16384",
+      "--contimeout=10",
+      "--timeout=120",
+      "--exclude=__pycache__",
+      "--exclude=*.pyc",
+      "--include=/tools/***",
+      "--include=/serving_extra/***",
+      "--include=/cosmos/",
+      "--include=/cosmos/pure/***",
+      "--include=/cosmos/cache/***",
+      "--include=/cosmos/execution_tools/***",
+      "--include=/cosmos/EXECUTION_TOOLS.json",
+      "--include=/cosmos/libero_config/***",
+      "--include=/cosmos/MODEL_PATHS.json",
+      "--include=/cosmos/WORKER.json",
+      "--include=/cosmos/RESOURCES.json",
+      "--exclude=*",
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/a100_closedloop_1018/",
+      "rsync://149.165.152.232:29770/payload/"
+    ],
+    [
+      "rsync",
+      "-a",
+      "--bwlimit=16384",
+      "--contimeout=10",
+      "--timeout=120",
+      "--exclude=__pycache__",
+      "--exclude=*.pyc",
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/a100_closedloop_1018/legacy_runtimes/formal_runtime_41f7d6a450fcd53bbb4e9196f2cd932a1502911f7e2235d933b6d01c1f189058/",
+      "rsync://149.165.152.232:29770/runtime0/"
+    ],
+    [
+      "rsync",
+      "-a",
+      "--bwlimit=16384",
+      "--contimeout=10",
+      "--timeout=120",
+      "--exclude=__pycache__",
+      "--exclude=*.pyc",
+      "/data/mw_finetune/qualification/formal_runtime_a7a387ed6d45ce9cf5ece2628f32577ee5a55ab55bbcb2a771e25ebc227b4f07/",
+      "rsync://149.165.152.232:29770/runtime1/"
+    ],
+    [
+      "rsync",
+      "-a",
+      "--bwlimit=16384",
+      "--contimeout=10",
+      "--timeout=120",
+      "--exclude=__pycache__",
+      "--exclude=*.pyc",
+      "--files-from=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/a100_closedloop_1018/cosmos/BULK.files",
+      "//",
+      "rsync://149.165.152.232:29770/bulk/"
+    ],
+    [
+      "rsync",
+      "-a",
+      "--bwlimit=16384",
+      "--contimeout=10",
+      "--timeout=120",
+      "--exclude=__pycache__",
+      "--exclude=*.pyc",
+      "--files-from=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/a100_closedloop_1018/transfer/reverse_1792364783/deps.files",
+      "/data/mw_finetune/",
+      "rsync://149.165.152.232:29770/deps/"
+    ]
+  ],
+  "io_after": "some avg10=9.29 avg60=11.20 avg300=13.74 total=43333298533\nfull avg10=9.05 avg60=10.93 avg300=13.57 total=42799908752\n",
+  "io_before": "some avg10=9.72 avg60=12.56 avg300=14.23 total=43330507276\nfull avg10=9.33 avg60=12.28 avg300=14.08 total=42797154073\n",
+  "model": "cosmos",
+  "pid": 201428,
+  "port": 29770,
+  "started": 1792364783.6841896,
+  "status": "COMPLETE"
+}

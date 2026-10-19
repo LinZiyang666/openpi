@@ -1,5 +1,53 @@
 # 跨 GPU 部署等价性调查（2026-10-17）
 
+## 2026-10-18 接管：既有闭环配对与 A100 实跑
+
+**本次只运行 A100；4090/H100/timan1/timan107 没有执行命令或启动工作。** 既有正式目录只读，未读 per_step bulk，journal 单读者串行读取并记录前后 IO PSI。全部新脚本/证据在本目录，A100 新运行位于 `/home/exouser/xgpu_1017/cl18/`。无 sudo、无登录/凭据操作、无 chain 修改。公网 rsync 接收端改放 A100，端口29770（回收29771）、16MiB/s 单流、传完按 PID 关闭；本机29770不在交换机转发范围，首次连接失败已记录并关闭，没有借用231xx。
+
+**已发现的完整跨卡对照均需要语义映射，不能称相同 UID/身份的 GPU 等价证据。** 全目录 census 有611个子目录；69个 PASS campaign，另查448个非 smoke/library campaign 的正式 YAML 身份交集。GR00T 提示中的两组实际 task_uid、checkpoint/code/preprocess/layout/YAML 身份不同；下表按相同 task/init/seed/step 对齐 accepted 二元结果，差值统一为 **4090−H100**，b/c 为仅4090/仅H100成功。原始 group mean 不代替逐episode SR。
+
+| 4090 / H100 campaign；suite | N | ΔSR pp | b/c | exact McNemar p | 保守 exact 95% CI，pp |
+|---|---:|---:|---:|---:|---:|
+| tgr7_0502 / tgr7h1_full；MT50 K4 | 2500 | +0.160 | 45/41 | .74653 | [−1.050,+1.369] |
+| tgr7k2_1044 / tgr7h1_k2；MT50 K2 | 2500 | 0 | 50/50 | 1 | [−1.299,+1.299] |
+| tdp7_0729 / tdp7h1_full2；MT50 DDPM100 | 2500 | +0.200 | 9/4 | .26685 | [−.305,+.699] |
+| hs7fwk1_4090c / hs6fw_k1；spatial K1 | 500 | +1.200 | 11/5 | .21011 | [−1.542,+3.899] |
+| 同上；libero_10 K1 | 500 | 0 | 20/20 | 1 | [−4.149,+4.149] |
+| tfw7_0755 / tfw7full_0944；MT50 K10，未完成 | 1674/2500 | −1.971 | 48/81 | .00465 | [−4.119,+.187] |
+
+最后一组科学字段和 YAML 相同但 UID namespace 不同，4090 缺826集；该行仅描述已完成子集，存在完成选择偏差，不裁决完整总体。前五行中GR/DP的数值区间落入±2pp，但模型/运行时身份不匹配，**不签发跨GPU等价结论**。逐episode差值、缺测、journal SHA/PSI、task-cluster bootstrap 和详细身份差异见 [existing_formal_pairs_1018.json](evidence/existing_formal_pairs_1018.json)；完整 YAML 交集见 [all_campaign_yaml_overlap_1018.json](evidence/all_campaign_yaml_overlap_1018.json)。
+
+**A100 已开始真实 formal 闭环。** 保留原 A50 benchmark 与原 UID，以完整正式 planner 生成任务后只筛原 UID；不修改 init_count 重建 namespace。10/10 planner/源UID/科学字段/accepted参考检查通过，见 [CPU_CHECKS](a100_closedloop_1018/CPU_CHECKS.json)。π0.5因权重和serving环境仍在A100，最先启动。每臂独立两次冷启动；常规基础设施重试保留相同UID。首次缺 websocket wheel 在进入GPU/episode前退出，已补同版本16.0用户级overlay，启动失败现场保留，未增加已接受episode预算。
+
+| 模型 | 原正式 pure / cache 来源 | 每臂每冷启动集数 | 显式 A100 容量臂；8个A100本机 EGL worker |
+|---|---|---:|---|
+| π0.5 MT50 | tpi7_0536 / pimk1_fuld（原4段最早accepted provenance） | 100 / 100 | R2/B8；20GiB allocator；cache n250/crg_k50 |
+| GR00T MT50 | tgr7h1_full / ff1015_groot_mt_10 | 100 / 98 | R4/B1；28GiB；cache n1000/c，正式原计划仅49任务×2init |
+| DP spatial | hs7dpctl_full / ff1015_dp_li_14_u | 100 / 100 | R4/B8；40GiB；cache n50/c，无knob |
+| Fast-WAM spatial | hs6fw_res_152931 / ff1015_fastwam_li_18 | 100 / 100 | R1/B16；35GiB；cache n50/c |
+| Cosmos spatial | hs2_cosmos_h100_k2incl_c16_t107_20261010_115120 / fa_co_r_u_l | 100 / 100 | R2/B1；19GiB；cache n50/crg_k50 |
+
+**π0.5 已完成4/4次、共400个物理episode，全部原UID accepted、driver PASS、无error、私有MPS已关闭。** 原正式参考与两次A100的成功数，pure为58/58/57，cache为54/52/52（各分母100）。同卡discordance为pure **3/100（2/1）**、cache **2/100（1/1）**；跨卡对各冷启动为pure **2/100、1/100**，cache **2/100、2/100**，没有高于本次同卡floor。不是同卡与跨卡总体discordance率相等的统计证明。
+
+| π0.5配对；差值=A100−4090（同卡为cold1−cold2） | ΔSR pp | b/c | exact McNemar p | 保守 exact 95% CI，pp |
+|---|---:|---:|---:|---:|
+| pure同卡两冷启动 | +1 | 2/1 | 1 | [−6.044,+7.865] |
+| cache同卡两冷启动 | 0 | 1/1 | 1 | [−6.199,+6.199] |
+| pure cold1 / tpi7_0536 | 0 | 1/1 | 1 | [−6.199,+6.199] |
+| pure cold2 / tpi7_0536 | −1 | 0/1 | 1 | [−6.212,+4.275] |
+| cache cold1 / pimk1参考 | −2 | 0/2 | .5 | [−7.878,+4.120] |
+| cache cold2 / pimk1参考 | −2 | 0/2 | .5 | [−7.878,+4.120] |
+
+全部区间未满足±2pp等价门槛；不合并两次相关冷启动扩大N。逐episode结果见 [pi05_PAIRED.json](a100_closedloop_1018/collected/pi05_PAIRED.json)。配对回收已用29771公共rsync完成、daemon按PID关闭；400集结束后，仅清理本研究旧π权重7,473,099,921 bytes，结果/trace/env/tokenizer保留。后继协调器首次误用resolved基础Python而缺YAML，在GR准备前退出；已用项目`.venv/bin/python`恢复，跳过完成的π。最新提交见 [resume submission](evidence/a100_all_models_resume_submission_1018.json)，当前GR资源串行传输，后接DP→FW→Cosmos，未重复任何已accepted的π episode。
+
+各臂绑定自己的原正式 serving runtime、实际 resident ModelSpec、sampler/K/C、原 YAML/fit 和ACK协议；pure/cache不作同K收益对照。π/GR选各task原init0–1，LIBERO选spatial原init0–9。GR cache的98集在查看其结果前按原计划49个eligible任务固定。某些历史cache整campaign receipt不是PASS，但**这批预先固定的UID全部有无error的accepted结果**；来源状态与逐条provenance保留在各PREREGISTRATION/REFERENCE，不追认全campaign。旧Cosmos纯推理runtime从其原7MB archive恢复，archive SHA=原runtime目录后缀，逐文件单独封存，不替换代码。
+
+样本、±2pp、两次冷启动固定；100对即使零discordance也不足以认证±2pp，原4090/H100每臂500集pilot不变。本轮A100拓扑/renderer/并发与来源不同，比较的是明确容量臂的部署结果，不能单独归因GPU架构。FW虽上限B16，8个worker不能证明访问满B16。模型串行，前一模型四次COMPLETE、私有MPS关闭、配对统计已回收后才清理本研究权重/环境；保留所有结果和trace。自动队列 [ALL_MODELS.json](a100_closedloop_1018/ALL_MODELS.json)，提交PID与日志见 [submission](evidence/a100_all_models_submission_1018.json)。
+
+所选旧正式 **DP n50/c 容量臂**额外记录第一head的原生 stage1 feature、projected x、early y、raw d2；返回对象、recipe、weights不改，采样开销明确记diagnostic timing arm，两次A100冷启动一致启用、无额外物理episode。之后GPU关闭期间CPU比较float32、float64及保留`n20−||Z A0||²`残差的无抵消式。该fit/recipe不是原51个跨卡失败请求的longseg TF32-off arm，不能替代其归因验证。直接`||Z A0−y||²`会丢掉封存n20的量化残差，属于另一metric，不能当同recipe修复。CPU代数/文件seal/donor对齐fixture已通过，**不是实测float64修复证据**。现有4090/H100记录没有query feature/x/y/d2，且本任务禁止触碰两卡，尚不能回答跨卡权重漂移是否被float64消除。脚本 [capture](dp_distance_capture_1018.py)、[CPU replay](dp_distance_replay_1018.py)；A100同卡诊断结果到达后保存`analysis/dp_DISTANCE.json`。
+
+已运行总入口（不要重复提交）：`.venv/bin/python exp/offline_search/rounds/r17/xgpu_1017/a100_closedloop_all_1018.py --run`。查看进度：`cat exp/offline_search/rounds/r17/xgpu_1017/a100_closedloop_1018/ALL_MODELS.json`。单模型完成后按需回收：`.venv/bin/python exp/offline_search/rounds/r17/xgpu_1017/a100_closedloop_all_1018.py --collect pi05`（模型名可替换）。所有传输都由临时A100 daemon执行并关闭，无tether expose/push/pull。
+
 **目前不能认定五模型的跨GPU正式部署等价，也没有已验证恢复等价的开关组合。** 历史A100下降可靠（见§1）。本轮范围已升级到真实并发路径；B1仅作筛查。A100专用于本研究、允许任意时长，公共rsync已打通。最新状态和证据见下方§0。最初B1阶段命令保存在COMMANDS_B1_ARCHIVE.md，仅供审计。
 
 工作目录为本文件所在目录，下文相对路径以仓库根目录为基准；`evidence/` 等链接相对本文件。`file:line` 指本次读取时的行号；运行中的仓库文件可能继续变化，冻结 runtime identity 和本目录证据优先。新的 A100 授权覆盖设备文档中“不能使用”的旧状态，但不把它加入正式实验设备。

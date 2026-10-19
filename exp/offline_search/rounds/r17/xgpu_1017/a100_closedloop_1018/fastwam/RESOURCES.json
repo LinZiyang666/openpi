@@ -1,17 +1,18 @@
 {
   "bulk_list": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/a100_closedloop_1018/fastwam/BULK.files",
-  "bytes": 35331389058,
-  "destination": "/home/exouser/xgpu_1017/cl18/models/fastwam/rootfs",
-  "files": 36065,
+  "bytes": 35452691105,
+  "destination": "/home/exouser/xgpu_1017/cl18/models/dp/rootfs",
+  "disk_headroom_bytes": 1073741824,
+  "files": 37416,
   "interpreter": "/home/exouser/xgpu_1017/python312/bin/python3.12",
-  "libero_asset_link": "/home/exouser/xgpu_1017/cl18/models/fastwam/rootfs/data/mw_finetune/qualification/local_workers/dependencies/libero311_42f0e80603054ed9f4bab84a6ce71bdbc71958c6c5c0329f9b5c892d917b3fe9/libero/libero/assets",
-  "libero_assets": "/home/exouser/xgpu_1017/cl18/models/fastwam/rootfs/data/mw_finetune/qualification/local_workers/assets/libero_3eb6e3e7ee3a03663dba84ccc6d6cf9dbb4ae21fb20558ca4097abc066be57dc/assets",
+  "libero_asset_link": "/home/exouser/xgpu_1017/cl18/models/dp/rootfs/data/mw_finetune/qualification/local_workers/dependencies/libero311_42f0e80603054ed9f4bab84a6ce71bdbc71958c6c5c0329f9b5c892d917b3fe9/libero/libero/assets",
+  "libero_assets": "/home/exouser/xgpu_1017/cl18/models/dp/rootfs/data/mw_finetune/qualification/local_workers/assets/libero_3eb6e3e7ee3a03663dba84ccc6d6cf9dbb4ae21fb20558ca4097abc066be57dc/assets",
   "model": "fastwam",
   "model_paths": {
-    "/data": "/home/exouser/xgpu_1017/cl18/models/fastwam/rootfs/data"
+    "/data": "/home/exouser/xgpu_1017/cl18/models/dp/rootfs/data"
   },
   "python_version": "3.12",
-  "site": "/home/exouser/xgpu_1017/cl18/models/fastwam/rootfs/data/mw_finetune/envs/fastwam/lib/python3.12/site-packages",
+  "site": "/home/exouser/xgpu_1017/cl18/models/dp/rootfs/data/mw_finetune/envs/fastwam/lib/python3.12/site-packages",
   "symlinks": 28,
   "worker": {
     "env": {
@@ -26,8 +27,8 @@
       "TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD": "1"
     },
     "extra_paths": [
-      "/home/exouser/xgpu_1017/cl18/models/fastwam/rootfs/data/mw_finetune/qualification/local_workers/dependencies/libero311_42f0e80603054ed9f4bab84a6ce71bdbc71958c6c5c0329f9b5c892d917b3fe9",
-      "/home/exouser/xgpu_1017/cl18/models/fastwam/rootfs/home/weiland/projects/openpi/.venv/lib/python3.11/site-packages"
+      "/home/exouser/xgpu_1017/cl18/models/dp/rootfs/data/mw_finetune/qualification/local_workers/dependencies/libero311_42f0e80603054ed9f4bab84a6ce71bdbc71958c6c5c0329f9b5c892d917b3fe9",
+      "/home/exouser/xgpu_1017/cl18/models/dp/rootfs/home/weiland/projects/openpi/.venv/lib/python3.11/site-packages"
     ],
     "python": "/home/exouser/xgpu_1017/cl18/liberoenv/bin/python"
   }

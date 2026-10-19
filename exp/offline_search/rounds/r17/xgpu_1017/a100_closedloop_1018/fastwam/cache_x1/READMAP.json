@@ -1,0 +1,7 @@
+{
+  "/data/mw_finetune/eval/ff1015_fastwam_li_18/assets/cache_inputs/libero_spatial/n50_C5/fit/READY.json": "/home/exouser/xgpu_1017/cl18/deps/data/mw_finetune/eval/ff1015_fastwam_li_18/assets/cache_inputs/libero_spatial/n50_C5/fit/READY.json",
+  "/data/mw_finetune/eval/ff1015_fastwam_li_18/assets/cache_inputs/libero_spatial/n50_C5/fit/fit.npz": "/home/exouser/xgpu_1017/cl18/deps/data/mw_finetune/eval/ff1015_fastwam_li_18/assets/cache_inputs/libero_spatial/n50_C5/fit/fit.npz",
+  "/data/mw_finetune/eval/ff1015_fastwam_li_18/assets/cache_inputs/libero_spatial/parent/READY.json": "/home/exouser/xgpu_1017/cl18/deps/data/mw_finetune/eval/ff1015_fastwam_li_18/assets/cache_inputs/libero_spatial/parent/READY.json",
+  "/data/mw_finetune/eval/ff1015_fastwam_li_18/assets/cache_inputs/libero_spatial/parent/subsets/size_50/VIEW.json": "/home/exouser/xgpu_1017/cl18/deps/data/mw_finetune/eval/ff1015_fastwam_li_18/assets/cache_inputs/libero_spatial/parent/subsets/size_50/VIEW.json",
+  "/data/mw_finetune/eval/ff1015_fastwam_li_18/assets/cache_inputs/libero_spatial/parent/subsets/size_50/row_indices.npy": "/home/exouser/xgpu_1017/cl18/deps/data/mw_finetune/eval/ff1015_fastwam_li_18/assets/cache_inputs/libero_spatial/parent/subsets/size_50/row_indices.npy"
+}

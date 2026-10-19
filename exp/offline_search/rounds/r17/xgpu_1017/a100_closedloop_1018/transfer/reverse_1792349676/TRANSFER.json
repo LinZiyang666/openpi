@@ -1,0 +1,68 @@
+{
+  "closed": 1792350409.5745926,
+  "commands": [
+    [
+      "rsync",
+      "-a",
+      "--bwlimit=16384",
+      "--contimeout=10",
+      "--timeout=120",
+      "--exclude=__pycache__",
+      "--exclude=*.pyc",
+      "--include=/tools/***",
+      "--include=/serving_extra/***",
+      "--include=/dp/",
+      "--include=/dp/pure/***",
+      "--include=/dp/cache/***",
+      "--include=/dp/execution_tools/***",
+      "--include=/dp/EXECUTION_TOOLS.json",
+      "--include=/dp/libero_config/***",
+      "--include=/dp/MODEL_PATHS.json",
+      "--include=/dp/WORKER.json",
+      "--include=/dp/RESOURCES.json",
+      "--exclude=*",
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/a100_closedloop_1018/",
+      "rsync://149.165.152.232:29770/payload/"
+    ],
+    [
+      "rsync",
+      "-a",
+      "--bwlimit=16384",
+      "--contimeout=10",
+      "--timeout=120",
+      "--exclude=__pycache__",
+      "--exclude=*.pyc",
+      "/data/mw_finetune/qualification/formal_runtime_1cf76a84a4a35ccd547fa14644bcb8e2ab446675d7fbbc363efe5ee078eab7f7/",
+      "rsync://149.165.152.232:29770/runtime0/"
+    ],
+    [
+      "rsync",
+      "-a",
+      "--bwlimit=16384",
+      "--contimeout=10",
+      "--timeout=120",
+      "--exclude=__pycache__",
+      "--exclude=*.pyc",
+      "/data/mw_finetune/qualification/formal_runtime_62692e198a28b32f9eece681d458d644e30b9ae5a1bd33f84eded015b5bff6c0/",
+      "rsync://149.165.152.232:29770/runtime1/"
+    ],
+    [
+      "rsync",
+      "-a",
+      "--bwlimit=16384",
+      "--contimeout=10",
+      "--timeout=120",
+      "--exclude=__pycache__",
+      "--exclude=*.pyc",
+      "--files-from=/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/a100_closedloop_1018/dp/BULK.files",
+      "//",
+      "rsync://149.165.152.232:29770/bulk/"
+    ]
+  ],
+  "io_after": "some avg10=0.31 avg60=1.16 avg300=4.55 total=42072709035\nfull avg10=0.31 avg60=1.15 avg300=4.53 total=41550471472\n",
+  "io_before": "some avg10=1.29 avg60=1.08 avg300=5.95 total=42032741712\nfull avg10=1.29 avg60=1.07 avg300=5.88 total=41510746965\n",
+  "model": "dp",
+  "pid": 75424,
+  "port": 29770,
+  "started": 1792349676.9575288
+}

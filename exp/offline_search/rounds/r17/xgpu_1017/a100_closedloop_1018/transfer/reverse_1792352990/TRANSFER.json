@@ -1,0 +1,35 @@
+{
+  "closed": 1792352992.0941522,
+  "commands": [
+    [
+      "rsync",
+      "-a",
+      "--bwlimit=16384",
+      "--contimeout=10",
+      "--timeout=120",
+      "--exclude=__pycache__",
+      "--exclude=*.pyc",
+      "--include=/tools/***",
+      "--include=/serving_extra/***",
+      "--include=/dp/",
+      "--include=/dp/pure/***",
+      "--include=/dp/cache/***",
+      "--include=/dp/execution_tools/***",
+      "--include=/dp/EXECUTION_TOOLS.json",
+      "--include=/dp/libero_config/***",
+      "--include=/dp/MODEL_PATHS.json",
+      "--include=/dp/WORKER.json",
+      "--include=/dp/RESOURCES.json",
+      "--exclude=*",
+      "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/a100_closedloop_1018/",
+      "rsync://149.165.152.232:29770/payload/"
+    ]
+  ],
+  "io_after": "some avg10=0.71 avg60=0.63 avg300=0.49 total=42125860317\nfull avg10=0.68 avg60=0.60 avg300=0.48 total=41603223245\n",
+  "io_before": "some avg10=0.87 avg60=0.65 avg300=0.49 total=42125860164\nfull avg10=0.83 avg60=0.63 avg300=0.48 total=41603223096\n",
+  "model": "dp",
+  "pid": 77093,
+  "port": 29770,
+  "started": 1792352991.1738353,
+  "status": "COMPLETE_TOOLS_ONLY"
+}
