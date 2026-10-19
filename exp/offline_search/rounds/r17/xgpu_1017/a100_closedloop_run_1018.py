@@ -29,12 +29,19 @@ def write(p,v):
 
 
 def sha(p):
- with Path(p).open('rb') as f:return hashlib.file_digest(f,'sha256').hexdigest()
+ # Python 3.10 (Cosmos island) has no hashlib.file_digest.
+ h=hashlib.sha256()
+ with Path(p).open('rb') as f:
+  for block in iter(lambda:f.read(1<<20),b''):h.update(block)
+ return h.hexdigest()
 
 
-def paths(c):
- r=Path(c['runtime']);sys.path[:0]=[str(r),str(r/'src'),str(r/'packages/openpi-client/src'),str(HERE)]
- if c['model']=='pi05':sys.path.insert(0,str(ROOT/'serving_extra'))
+def paths(c,mode=None):
+ r=Path(c['runtime'])
+ # LIBERO formal workers run their campaign's own sealed workers.tar payload.
+ if mode=='worker' and c.get('xgpu_worker_payload'):r=Path(c['xgpu_worker_payload'])
+ sys.path[:0]=[str(r),str(r/'src'),str(r/'packages/openpi-client/src'),str(HERE)]
+ if c['model'] in ('pi05','dp'):sys.path.insert(0,str(ROOT/'serving_extra'))  # openpi island lacks websockets
 
 
 def filtered_plan(c):
@@ -74,7 +81,7 @@ def filtered_plan(c):
 
 
 def child(a):
- c=read(a.campaign);paths(c)
+ c=read(a.campaign);paths(c,a.mode)
  if a.mode=='driver':
   planner=filtered_plan(c)
   bm,spec,tasks,eps=planner(c)
@@ -96,11 +103,16 @@ def child(a):
   with install(aliases):
    if c.get('xgpu_distance_capture'):
     from dp_distance_capture_1018 import install as capture_distance
-    capture_distance(Path(a.directory)/'dp_distance_heads')
+    capture_distance(Path(a.directory)/'dp_distance_heads',campaign=c.get('cache_plan_name',c['run_name']))
    sys.argv=['formal_server','--campaign',a.campaign,'--port',str(a.port),'--directory',a.directory]
    if c.get('xgpu_cuda_graph'):sys.argv+=['--cuda-graph']
    boot=Path(c['assets'])/'ffk_bootstrap.py'
-   if boot.exists():exec(compile(boot.read_text(),str(boot),'exec'),{'__name__':'__main__','__file__':str(boot)})
+   if c.get('xgpu_dp_capacity_bridge'):
+    # Formal filter_failed DP R4 cache launch path (filter_failed/launch.py
+    # server_command): frozen server_cli presents R2 to the admission only.
+    sys.argv=['server_cli','--campaign',a.campaign,'--port',str(a.port),'--directory',a.directory]+(['--cuda-graph'] if c.get('xgpu_cuda_graph') else [])
+    runpy.run_path(str(HERE/'filter_failed_server_cli.py'),run_name='__main__')
+   elif boot.exists():exec(compile(boot.read_text(),str(boot),'exec'),{'__name__':'__main__','__file__':str(boot)})
    else:runpy.run_module('exp.r17_integration.ops.formal_server',run_name='__main__')
 
 
@@ -176,11 +188,17 @@ def run_one(model,arm,cold):
   c['graph_probe_observations']=relocate('/data/mw_finetune/qualification/observations/dp_libero_v2')
  expected=att[0]['metadata']['r17_model_spec']
  c['vendor']=relocate(c.get('vendor',''))
+ payload=base/'worker_payload'
+ if payload.is_dir():
+  seal=read(base/'WORKER_PAYLOAD.json')
+  for name,pin in seal['files'].items():
+   if sha(payload/name)!=pin:raise ValueError('formal worker payload changed '+name)
+  c['xgpu_worker_payload']=str(payload)
  write(out/'campaign.json',c)
  env=dict(os.environ,**server_env(c,c['runtime']))
  env['PYTHONPATH']=':'.join(relocate(p) for p in env['PYTHONPATH'].split(':'))
  env.update(PYTHONDONTWRITEBYTECODE='1',HF_HUB_OFFLINE='1',TRANSFORMERS_OFFLINE='1',
-            PYTHONPATH=env['PYTHONPATH']+':'+str(HERE)+(':'+str(ROOT/'serving_extra') if model=='pi05' else '')+':/home/exouser/xgpu_1017/tools',
+            PYTHONPATH=env['PYTHONPATH']+':'+str(HERE)+(':'+str(ROOT/'serving_extra') if model in ('pi05','dp') else '')+':/home/exouser/xgpu_1017/tools',
             OPENPI_DATA_HOME='/home/exouser/xgpu_1017/tokenizer',HF_HOME=relocate(desc.get('hf_home',str(ROOT/'model_cache'))))
  env.update(HF_HUB_DISABLE_IMPLICIT_TOKEN='1',HF_MODULES_CACHE=str(ROOT/'model_cache/hf_modules'),
        TORCH_HOME=str(ROOT/'model_cache/torch'),XDG_CACHE_HOME=str(ROOT/'model_cache/xdg'),
@@ -233,7 +251,8 @@ def run_one(model,arm,cold):
   owner.port(c['driver_port'],time.monotonic()+120)
   worker_config=read(ROOT/model/'WORKER.json');wenv=dict(env,**worker_config['env'])
   # Use worker code from this arm's immutable formal runtime.
-  wenv['PYTHONPATH']=':'.join([c['runtime']+'/packages/openpi-client/src',c['runtime']+'/src',c['runtime'],str(HERE),*worker_config.get('extra_paths',[])])
+  wroot=c.get('xgpu_worker_payload',c['runtime'])
+  wenv['PYTHONPATH']=':'.join([wroot+'/packages/openpi-client/src',wroot+'/src',wroot,str(HERE),*worker_config.get('extra_paths',[])])
   workers=[]
   for i in range(8):
    wd=out/'workers'/str(i);wd.mkdir(parents=True)
@@ -270,7 +289,7 @@ def run_one(model,arm,cold):
 
 def main():
  p=argparse.ArgumentParser();p.add_argument('mode',choices=['run','driver','worker','resident'])
- p.add_argument('--model');p.add_argument('--arm',choices=['pure','cache']);p.add_argument('--cold',type=int,choices=[1,2])
+ p.add_argument('--model');p.add_argument('--arm');p.add_argument('--cold',type=int,choices=[1,2])
  p.add_argument('--campaign');p.add_argument('--directory');p.add_argument('--port',type=int)
  # Native worker argv follows an explicit -- and must not consume run options.
  argv=sys.argv[1:];native=[]

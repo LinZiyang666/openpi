@@ -1,0 +1,350 @@
+[
+ {
+  "accepted": 100,
+  "accepted_equals_plan": true,
+  "accepted_errors": 0,
+  "commit_horizon": {
+   "5": 4716,
+   "None": 100
+  },
+  "cursor": {
+   "0": 2358,
+   "None": 2458
+  },
+  "driver_receipt_status": "PASS",
+  "ended": 1792353902.2605793,
+  "episodes_planned": 100,
+  "gpu": {
+   "free_mib": 40442.0,
+   "index": 0,
+   "name": "NVIDIA A100-SXM4-40GB",
+   "used_mib": 0.0,
+   "uuid": "GPU-363d0755-3192-ba27-c781-68eeed8d2eef"
+  },
+  "mps_daemon_closed": true,
+  "owned_children": 14,
+  "owned_children_reaped": true,
+  "per_step_rows": 4816,
+  "residents": 4,
+  "run": "dp_pure_cold1",
+  "server_timing_clock_unit": {
+   "None": 4816
+  },
+  "server_timing_key_sets": {
+   "": 2458,
+   "infer_ms": 8,
+   "infer_ms|prev_total_ms": 2350
+  },
+  "server_timing_segment_head": {
+   "None": 4816
+  },
+  "source": {
+   "None": 100,
+   "policy": 4716
+  },
+  "started": 1792353524.58194,
+  "status": "COMPLETE",
+  "successes": 89,
+  "trace_clock_unit": {
+   "None": 2358
+  },
+  "trace_executed_count": {
+   "1": 19,
+   "2": 14,
+   "3": 15,
+   "4": 25,
+   "5": 2285
+  },
+  "trace_queries": 2358
+ },
+ {
+  "accepted": 100,
+  "accepted_equals_plan": true,
+  "accepted_errors": 0,
+  "commit_horizon": {
+   "5": 4730,
+   "None": 100
+  },
+  "cursor": {
+   "0": 2365,
+   "None": 2465
+  },
+  "driver_receipt_status": "PASS",
+  "ended": 1792354282.2170587,
+  "episodes_planned": 100,
+  "gpu": {
+   "free_mib": 40442.0,
+   "index": 0,
+   "name": "NVIDIA A100-SXM4-40GB",
+   "used_mib": 0.0,
+   "uuid": "GPU-363d0755-3192-ba27-c781-68eeed8d2eef"
+  },
+  "mps_daemon_closed": true,
+  "owned_children": 14,
+  "owned_children_reaped": true,
+  "per_step_rows": 4830,
+  "residents": 4,
+  "run": "dp_pure_cold2",
+  "server_timing_clock_unit": {
+   "None": 4830
+  },
+  "server_timing_key_sets": {
+   "": 2465,
+   "infer_ms": 8,
+   "infer_ms|prev_total_ms": 2357
+  },
+  "server_timing_segment_head": {
+   "None": 4830
+  },
+  "source": {
+   "None": 100,
+   "policy": 4730
+  },
+  "started": 1792353902.6090915,
+  "status": "COMPLETE",
+  "successes": 89,
+  "trace_clock_unit": {
+   "None": 2365
+  },
+  "trace_executed_count": {
+   "1": 22,
+   "2": 13,
+   "3": 15,
+   "4": 22,
+   "5": 2293
+  },
+  "trace_queries": 2365
+ },
+ {
+  "accepted": 100,
+  "accepted_equals_plan": true,
+  "accepted_errors": 0,
+  "commit_horizon": {
+   "5": 5832,
+   "None": 100
+  },
+  "cursor": {
+   "0": 2916,
+   "None": 3016
+  },
+  "driver_receipt_status": "PASS",
+  "ended": 1792357000.6993074,
+  "episodes_planned": 100,
+  "gpu": {
+   "free_mib": 40442.0,
+   "index": 0,
+   "name": "NVIDIA A100-SXM4-40GB",
+   "used_mib": 0.0,
+   "uuid": "GPU-363d0755-3192-ba27-c781-68eeed8d2eef"
+  },
+  "mps_daemon_closed": true,
+  "owned_children": 14,
+  "owned_children_reaped": true,
+  "per_step_rows": 5932,
+  "residents": 4,
+  "run": "dp_cache_cold1",
+  "server_timing_clock_unit": {
+   "None": 5932
+  },
+  "server_timing_key_sets": {
+   "": 3016,
+   "infer_ms": 8,
+   "infer_ms|prev_total_ms": 2908
+  },
+  "server_timing_segment_head": {
+   "None": 5932
+  },
+  "source": {
+   "None": 100,
+   "library": 5832
+  },
+  "started": 1792356837.510219,
+  "status": "COMPLETE",
+  "successes": 70,
+  "trace_clock_unit": {
+   "None": 2916
+  },
+  "trace_executed_count": {
+   "1": 11,
+   "2": 13,
+   "3": 13,
+   "4": 16,
+   "5": 2863
+  },
+  "trace_queries": 2916
+ },
+ {
+  "accepted": 100,
+  "accepted_equals_plan": true,
+  "accepted_errors": 0,
+  "commit_horizon": {
+   "5": 5824,
+   "None": 100
+  },
+  "cursor": {
+   "0": 2912,
+   "None": 3012
+  },
+  "driver_receipt_status": "PASS",
+  "ended": 1792357178.4076188,
+  "episodes_planned": 100,
+  "gpu": {
+   "free_mib": 40442.0,
+   "index": 0,
+   "name": "NVIDIA A100-SXM4-40GB",
+   "used_mib": 0.0,
+   "uuid": "GPU-363d0755-3192-ba27-c781-68eeed8d2eef"
+  },
+  "mps_daemon_closed": true,
+  "owned_children": 14,
+  "owned_children_reaped": true,
+  "per_step_rows": 5924,
+  "residents": 4,
+  "run": "dp_cache_cold2",
+  "server_timing_clock_unit": {
+   "None": 5924
+  },
+  "server_timing_key_sets": {
+   "": 3012,
+   "infer_ms": 8,
+   "infer_ms|prev_total_ms": 2904
+  },
+  "server_timing_segment_head": {
+   "None": 5924
+  },
+  "source": {
+   "None": 100,
+   "library": 5824
+  },
+  "started": 1792357001.0693035,
+  "status": "COMPLETE",
+  "successes": 71,
+  "trace_clock_unit": {
+   "None": 2912
+  },
+  "trace_executed_count": {
+   "1": 12,
+   "2": 11,
+   "3": 20,
+   "4": 11,
+   "5": 2858
+  },
+  "trace_queries": 2912
+ },
+ {
+  "accepted": 400,
+  "accepted_equals_plan": true,
+  "accepted_errors": 0,
+  "commit_horizon": {
+   "5": 18630,
+   "None": 400
+  },
+  "cursor": {
+   "0": 9315,
+   "None": 9715
+  },
+  "driver_receipt_status": "PASS",
+  "ended": 1792355604.0583074,
+  "episodes_planned": 400,
+  "gpu": {
+   "free_mib": 40442.0,
+   "index": 0,
+   "name": "NVIDIA A100-SXM4-40GB",
+   "used_mib": 0.0,
+   "uuid": "GPU-363d0755-3192-ba27-c781-68eeed8d2eef"
+  },
+  "mps_daemon_closed": true,
+  "owned_children": 14,
+  "owned_children_reaped": true,
+  "per_step_rows": 19030,
+  "residents": 4,
+  "run": "dp_pure_x1_cold1",
+  "server_timing_clock_unit": {
+   "None": 19030
+  },
+  "server_timing_key_sets": {
+   "": 9715,
+   "infer_ms": 8,
+   "infer_ms|prev_total_ms": 9307
+  },
+  "server_timing_segment_head": {
+   "None": 19030
+  },
+  "source": {
+   "None": 400,
+   "policy": 18630
+  },
+  "started": 1792354370.3901327,
+  "status": "COMPLETE",
+  "successes": 359,
+  "trace_clock_unit": {
+   "None": 9315
+  },
+  "trace_executed_count": {
+   "1": 70,
+   "2": 78,
+   "3": 67,
+   "4": 67,
+   "5": 9033
+  },
+  "trace_queries": 9315
+ },
+ {
+  "accepted": 400,
+  "accepted_equals_plan": true,
+  "accepted_errors": 0,
+  "commit_horizon": {
+   "5": 18608,
+   "None": 400
+  },
+  "cursor": {
+   "0": 9304,
+   "None": 9704
+  },
+  "driver_receipt_status": "PASS",
+  "ended": 1792356836.4494376,
+  "episodes_planned": 400,
+  "gpu": {
+   "free_mib": 40442.0,
+   "index": 0,
+   "name": "NVIDIA A100-SXM4-40GB",
+   "used_mib": 0.0,
+   "uuid": "GPU-363d0755-3192-ba27-c781-68eeed8d2eef"
+  },
+  "mps_daemon_closed": true,
+  "owned_children": 14,
+  "owned_children_reaped": true,
+  "per_step_rows": 19008,
+  "residents": 4,
+  "run": "dp_pure_x1_cold2",
+  "server_timing_clock_unit": {
+   "None": 19008
+  },
+  "server_timing_key_sets": {
+   "": 9704,
+   "infer_ms": 8,
+   "infer_ms|prev_total_ms": 9296
+  },
+  "server_timing_segment_head": {
+   "None": 19008
+  },
+  "source": {
+   "None": 400,
+   "policy": 18608
+  },
+  "started": 1792355604.3965065,
+  "status": "COMPLETE",
+  "successes": 360,
+  "trace_clock_unit": {
+   "None": 9304
+  },
+  "trace_executed_count": {
+   "1": 76,
+   "2": 84,
+   "3": 66,
+   "4": 65,
+   "5": 9013
+  },
+  "trace_queries": 9304
+ }
+]

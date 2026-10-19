@@ -1,0 +1,63 @@
+{
+  "arm": "cache",
+  "block": "x1",
+  "capacity": {
+    "allocator_gib": 20,
+    "local_workers": 8,
+    "max_batch": 8,
+    "renderer": "A100 EGL",
+    "replicas": 2
+  },
+  "cold_starts": 2,
+  "confidence": 0.95,
+  "created": 1792354088.3325543,
+  "diagnostic_observer": null,
+  "episodes": 400,
+  "extension_of": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/a100_closedloop_1018/pi05/cache",
+  "group": {
+    "bundle_id": "r17cs_n250_mt50_crg_k50_3490c1ff5f9d",
+    "bundle_identity": "3490c1ff5f9d9288f17721718e2dddc4881d10f08208cb9a91292081c2988d3b",
+    "file": "cache_yamls/n250_mt50_crg_k50.yaml",
+    "fit": "/data/r17_library/pi05_mw_mt50/bpool/fits/size_5",
+    "fit_digest": "7c0fb33098bc78810e01b72798be2895589cd12108bfef2cef449b360466c836",
+    "fit_rel": "mt50/n250_C5/fit",
+    "group": "crg_k50",
+    "library": "/data/r17_library/pi05_mw_mt50/bpool",
+    "library_size": 250,
+    "num_steps": 10,
+    "periodic_gap": 0.9659,
+    "recipe_identity": "956148f55fdb25de0284b438e6d3222c5438318930b24333ddd7cc0906452b4c",
+    "serve_loeo": false,
+    "settings": {
+      "alias": null,
+      "commit": 5,
+      "corrector": true,
+      "gated": true
+    },
+    "sha256": "1284ca54add3f75554479db8005115f5abb892b853e47ad8c51139813d76250d",
+    "stall": "/data/r17_library/studies_mt50/pi_k2/artifacts/n250/pi05_mw_mt50/C5/stall",
+    "stall_digest": "b1e5d36740bf8d8b91fecc4e79f78bee3cbc1d79bb65db47e60d6f04df756b96",
+    "stall_rel": "mt50/n250_C5/stall",
+    "status": "ARTIFACTS_READY_MODEL_ADMISSION_PENDING",
+    "suite": "mt50",
+    "view_rel": "mt50/parent/subsets/size_250"
+  },
+  "io_after": "some avg10=14.06 avg60=12.22 avg300=9.54 total=42219381958\nfull avg10=13.81 avg60=12.04 avg300=9.41 total=41695716410\n",
+  "io_before_plan": "some avg10=13.34 avg60=11.98 avg300=9.43 total=42218579101\nfull avg10=13.15 avg60=11.82 avg300=9.31 total=41694921350\n",
+  "limitations": [
+    "100 pairs cannot certify \u00b12pp even with zero discordance",
+    "A100-local worker placement and explicit capacity arm differ from reference; comparison is deployment-level"
+  ],
+  "margin": 0.02,
+  "model": "pi05",
+  "name": "cache_x1",
+  "original_uid_namespace": true,
+  "plan_sha256": "f1b81103750e334cc1a88cbb7f341f143c373b912fe6a8343f2c6406994a24e6",
+  "runtime_identity": "af22613ead3df9625293e6efa813376d3629774be676b022609e3b4438b5b4c1",
+  "runtime_kind": "manifest",
+  "runtime_source": "/data/mw_finetune/qualification/formal_runtime_af22613ead3df9625293e6efa813376d3629774be676b022609e3b4438b5b4c1",
+  "selection": "all MT50 tasks, original init 2..9",
+  "source": "/data/mw_finetune/eval/pimk1_fuld",
+  "source_receipt_status": "PASS",
+  "stopping_rule": "fixed block order; time-based only, never outcome-based"
+}

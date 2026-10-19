@@ -1,0 +1,234 @@
+[
+ {
+  "accepted": 100,
+  "accepted_equals_plan": true,
+  "accepted_errors": 0,
+  "commit_horizon": {
+   "5": 4788,
+   "None": 100
+  },
+  "cursor": {
+   "0": 2394,
+   "None": 2494
+  },
+  "driver_receipt_status": "PASS",
+  "ended": 1792359063.2429428,
+  "episodes_planned": 100,
+  "gpu": {
+   "free_mib": 40442.0,
+   "index": 0,
+   "name": "NVIDIA A100-SXM4-40GB",
+   "used_mib": 0.0,
+   "uuid": "GPU-363d0755-3192-ba27-c781-68eeed8d2eef"
+  },
+  "mps_daemon_closed": true,
+  "owned_children": 11,
+  "owned_children_reaped": true,
+  "per_step_rows": 4888,
+  "residents": 1,
+  "run": "fastwam_pure_cold1",
+  "server_timing_clock_unit": {
+   "None": 4888
+  },
+  "server_timing_key_sets": {
+   "": 2494,
+   "infer_ms": 8,
+   "infer_ms|prev_total_ms": 2386
+  },
+  "server_timing_segment_head": {
+   "None": 4888
+  },
+  "source": {
+   "None": 100,
+   "policy": 4788
+  },
+  "started": 1792358420.1924715,
+  "status": "COMPLETE",
+  "successes": 90,
+  "trace_clock_unit": {
+   "None": 2394
+  },
+  "trace_executed_count": {
+   "1": 16,
+   "2": 16,
+   "3": 18,
+   "4": 22,
+   "5": 2322
+  },
+  "trace_queries": 2394
+ },
+ {
+  "accepted": 100,
+  "accepted_equals_plan": true,
+  "accepted_errors": 0,
+  "commit_horizon": {
+   "5": 4820,
+   "None": 100
+  },
+  "cursor": {
+   "0": 2410,
+   "None": 2510
+  },
+  "driver_receipt_status": "PASS",
+  "ended": 1792359646.9431734,
+  "episodes_planned": 100,
+  "gpu": {
+   "free_mib": 40442.0,
+   "index": 0,
+   "name": "NVIDIA A100-SXM4-40GB",
+   "used_mib": 0.0,
+   "uuid": "GPU-363d0755-3192-ba27-c781-68eeed8d2eef"
+  },
+  "mps_daemon_closed": true,
+  "owned_children": 11,
+  "owned_children_reaped": true,
+  "per_step_rows": 4920,
+  "residents": 1,
+  "run": "fastwam_pure_cold2",
+  "server_timing_clock_unit": {
+   "None": 4920
+  },
+  "server_timing_key_sets": {
+   "": 2510,
+   "infer_ms": 8,
+   "infer_ms|prev_total_ms": 2402
+  },
+  "server_timing_segment_head": {
+   "None": 4920
+  },
+  "source": {
+   "None": 100,
+   "policy": 4820
+  },
+  "started": 1792359063.6105611,
+  "status": "COMPLETE",
+  "successes": 90,
+  "trace_clock_unit": {
+   "None": 2410
+  },
+  "trace_executed_count": {
+   "1": 19,
+   "2": 15,
+   "3": 25,
+   "4": 18,
+   "5": 2333
+  },
+  "trace_queries": 2410
+ },
+ {
+  "accepted": 100,
+  "accepted_equals_plan": true,
+  "accepted_errors": 0,
+  "commit_horizon": {
+   "5": 5688,
+   "None": 100
+  },
+  "cursor": {
+   "0": 2844,
+   "None": 2944
+  },
+  "driver_receipt_status": "PASS",
+  "ended": 1792359820.2863667,
+  "episodes_planned": 100,
+  "gpu": {
+   "free_mib": 40442.0,
+   "index": 0,
+   "name": "NVIDIA A100-SXM4-40GB",
+   "used_mib": 0.0,
+   "uuid": "GPU-363d0755-3192-ba27-c781-68eeed8d2eef"
+  },
+  "mps_daemon_closed": true,
+  "owned_children": 11,
+  "owned_children_reaped": true,
+  "per_step_rows": 5788,
+  "residents": 1,
+  "run": "fastwam_cache_cold1",
+  "server_timing_clock_unit": {
+   "None": 5788
+  },
+  "server_timing_key_sets": {
+   "": 2944,
+   "infer_ms": 8,
+   "infer_ms|prev_total_ms": 2836
+  },
+  "server_timing_segment_head": {
+   "None": 5788
+  },
+  "source": {
+   "None": 100,
+   "library": 5688
+  },
+  "started": 1792359647.309555,
+  "status": "COMPLETE",
+  "successes": 70,
+  "trace_clock_unit": {
+   "None": 2844
+  },
+  "trace_executed_count": {
+   "1": 18,
+   "2": 20,
+   "3": 11,
+   "4": 10,
+   "5": 2785
+  },
+  "trace_queries": 2844
+ },
+ {
+  "accepted": 100,
+  "accepted_equals_plan": true,
+  "accepted_errors": 0,
+  "commit_horizon": {
+   "5": 5448,
+   "None": 100
+  },
+  "cursor": {
+   "0": 2724,
+   "None": 2824
+  },
+  "driver_receipt_status": "PASS",
+  "ended": 1792359986.4894335,
+  "episodes_planned": 100,
+  "gpu": {
+   "free_mib": 40442.0,
+   "index": 0,
+   "name": "NVIDIA A100-SXM4-40GB",
+   "used_mib": 0.0,
+   "uuid": "GPU-363d0755-3192-ba27-c781-68eeed8d2eef"
+  },
+  "mps_daemon_closed": true,
+  "owned_children": 11,
+  "owned_children_reaped": true,
+  "per_step_rows": 5548,
+  "residents": 1,
+  "run": "fastwam_cache_cold2",
+  "server_timing_clock_unit": {
+   "None": 5548
+  },
+  "server_timing_key_sets": {
+   "": 2824,
+   "infer_ms": 8,
+   "infer_ms|prev_total_ms": 2716
+  },
+  "server_timing_segment_head": {
+   "None": 5548
+  },
+  "source": {
+   "None": 100,
+   "library": 5448
+  },
+  "started": 1792359820.653337,
+  "status": "COMPLETE",
+  "successes": 74,
+  "trace_clock_unit": {
+   "None": 2724
+  },
+  "trace_executed_count": {
+   "1": 15,
+   "2": 17,
+   "3": 13,
+   "4": 18,
+   "5": 2661
+  },
+  "trace_queries": 2724
+ }
+]

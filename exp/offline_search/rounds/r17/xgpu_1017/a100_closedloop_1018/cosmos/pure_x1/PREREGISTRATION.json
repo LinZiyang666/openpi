@@ -1,0 +1,36 @@
+{
+  "arm": "pure",
+  "block": "x1",
+  "capacity": {
+    "allocator_gib": 19,
+    "local_workers": 8,
+    "max_batch": 1,
+    "renderer": "A100 EGL",
+    "replicas": 2
+  },
+  "cold_starts": 2,
+  "confidence": 0.95,
+  "created": 1792354031.9116902,
+  "diagnostic_observer": null,
+  "episodes": 400,
+  "extension_of": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/a100_closedloop_1018/cosmos/pure",
+  "group": null,
+  "io_after": "some avg10=11.81 avg60=9.14 avg300=8.52 total=42211177196\nfull avg10=11.63 avg60=8.99 avg300=8.41 total=41687600261\n",
+  "io_before_plan": "some avg10=11.81 avg60=9.14 avg300=8.52 total=42211159272\nfull avg10=11.63 avg60=8.99 avg300=8.41 total=41687582365\n",
+  "limitations": [
+    "100 pairs cannot certify \u00b12pp even with zero discordance",
+    "A100-local worker placement and explicit capacity arm differ from reference; comparison is deployment-level"
+  ],
+  "margin": 0.02,
+  "model": "cosmos",
+  "name": "pure_x1",
+  "original_uid_namespace": true,
+  "plan_sha256": "c4f81bfd1a279ab8f61c44caad721b5477c17d96b5fd3c3d175d99e9f3f0d4bc",
+  "runtime_identity": "41f7d6a450fcd53bbb4e9196f2cd932a1502911f7e2235d933b6d01c1f189058",
+  "runtime_kind": "legacy_archive",
+  "runtime_source": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/a100_closedloop_1018/legacy_runtimes/formal_runtime_41f7d6a450fcd53bbb4e9196f2cd932a1502911f7e2235d933b6d01c1f189058",
+  "selection": "libero_spatial, original init 10..49",
+  "source": "/data/mw_finetune/eval/hs2_cosmos_h100_k2incl_c16_t107_20261010_115120",
+  "source_receipt_status": "PASS",
+  "stopping_rule": "fixed block order; time-based only, never outcome-based"
+}

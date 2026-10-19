@@ -40,10 +40,11 @@ def analyse(model):
 
 
 def main():
- p=argparse.ArgumentParser();p.add_argument('--model',required=True,choices=['pi05','groot','dp','fastwam','cosmos']);p.add_argument('--analyse-only',action='store_true');p.add_argument('--resume-startup',action='store_true')
+ p=argparse.ArgumentParser();p.add_argument('--model',required=True,choices=['pi05','groot','dp','fastwam','cosmos']);p.add_argument('--analyse-only',action='store_true');p.add_argument('--resume-startup',action='store_true');p.add_argument('--wait-lock',action='store_true')
  a=p.parse_args()
  if a.analyse_only:return analyse(a.model)
- lock=(ROOT/'exclusive_gpu.lock').open('a');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
+ # --wait-lock queues this model directly behind the current GPU holder (no idle gap).
+ lock=(ROOT/'exclusive_gpu.lock').open('a');fcntl.flock(lock,fcntl.LOCK_EX if a.wait_lock else fcntl.LOCK_EX|fcntl.LOCK_NB)
  names=subprocess.check_output(['nvidia-smi','--query-gpu=name','--format=csv,noheader'],text=True)
  if 'A100' not in names or 'H100' in names:raise ValueError('dedicated A100 only')
  root=ROOT/'queue';root.mkdir(exist_ok=True)
@@ -77,7 +78,8 @@ def main():
    r=ROOT/'runs'/f'{a.model}_{arm}_cold{cold}'/'RUN.json';run=json.loads(r.read_text())
    if run['status']!='COMPLETE' or not run['mps_cleanup']['daemon_closed']:raise RuntimeError('run did not close cleanly')
    state['completed'].append(dict(arm=arm,cold=cold));save()
-  analyse(a.model)
+  # Model islands may lack scipy (Fast-WAM); pairing runs in the openpi island (CPU only).
+  subprocess.run(['/home/exouser/xgpu_1017/env/bin/python',__file__,'--model',a.model,'--analyse-only'],check=True,env=dict(os.environ,CUDA_VISIBLE_DEVICES=''))
   if a.model=='dp':
    environment=dict(os.environ,CUDA_VISIBLE_DEVICES='',OPENBLAS_NUM_THREADS='1',OMP_NUM_THREADS='1')
    subprocess.run([sys.executable,str(Path(__file__).with_name('dp_distance_replay_1018.py')),

@@ -1,0 +1,424 @@
+{
+ "schema": "xgpu.a100.extension.prereg.v1",
+ "written": 1792354141.9011776,
+ "rule": "Blocks are disjoint from the base 100-episode arms, selected only by original init range from the same formal plan/bundle; frozen before any extension outcome exists; run in fixed order x1 (pure c1, cache c1, pure c2, cache c2) then x2; stopping is time-based only. Analysis pools disjoint blocks of the same cold index; cold starts are never merged.",
+ "order": [
+  "dp x1",
+  "dp x2 (pure only)",
+  "dp r1/r2/r3 same-card replicates (fillers during transfers)",
+  "fastwam x1",
+  "cosmos x1",
+  "groot x1",
+  "pi05 x1",
+  "groot x2",
+  "pi05 x2"
+ ],
+ "blocks": [
+  {
+   "model": "dp",
+   "name": "cache_x1",
+   "arm": "cache",
+   "block": "x1",
+   "episodes": 400,
+   "selection": "libero_spatial, original init 10..49",
+   "source": "/data/mw_finetune/eval/ff1015_dp_li_14_u",
+   "plan_sha256": "ec4b638dab8f809fafbe214ffe7336eae96ee9fdbc5a9754268c4a7efa2e4557",
+   "created": 1792353683.470246,
+   "uids_sha256": "28ad67bba89dee5bdcbe707573c3e38899f9901953d0e03d6695e19f718839cd",
+   "capacity": {
+    "allocator_gib": 40,
+    "local_workers": 8,
+    "max_batch": 8,
+    "renderer": "A100 EGL",
+    "replicas": 4
+   },
+   "runtime_identity": "62692e198a28b32f9eece681d458d644e30b9ae5a1bd33f84eded015b5bff6c0"
+  },
+  {
+   "model": "dp",
+   "name": "pure_x1",
+   "arm": "pure",
+   "block": "x1",
+   "episodes": 400,
+   "selection": "libero_spatial, original init 10..49",
+   "source": "/data/mw_finetune/eval/hs7dpctl_full",
+   "plan_sha256": "77fe4dcd3a0e67593c01d69710d495b177ba5965a819551d83c2efd77e737bfb",
+   "created": 1792353679.0727837,
+   "uids_sha256": "f650f4a197710bb59017dded3a8d97916ca5f137465f998564131b5b8570fa77",
+   "capacity": {
+    "allocator_gib": 40,
+    "local_workers": 8,
+    "max_batch": 8,
+    "renderer": "A100 EGL",
+    "replicas": 4
+   },
+   "runtime_identity": "1cf76a84a4a35ccd547fa14644bcb8e2ab446675d7fbbc363efe5ee078eab7f7"
+  },
+  {
+   "model": "fastwam",
+   "name": "cache_x1",
+   "arm": "cache",
+   "block": "x1",
+   "episodes": 400,
+   "selection": "libero_spatial, original init 10..49",
+   "source": "/data/mw_finetune/eval/ff1015_fastwam_li_18",
+   "plan_sha256": "0e347ac156ffe818f84e904696cb3acc441cfebc0c672d28d2f0e1fab31b5b61",
+   "created": 1792354024.954558,
+   "uids_sha256": "d38b6037175895292c4df84e20053d669f375ed39b1f49caaa1a5cf269a1e572",
+   "capacity": {
+    "allocator_gib": 35,
+    "local_workers": 8,
+    "max_batch": 16,
+    "renderer": "A100 EGL",
+    "replicas": 1
+   },
+   "runtime_identity": "b29ef3db350bf6e4d0973813a81944eeac306abbc9f8e96197398432b15132a9"
+  },
+  {
+   "model": "fastwam",
+   "name": "pure_x1",
+   "arm": "pure",
+   "block": "x1",
+   "episodes": 400,
+   "selection": "libero_spatial, original init 10..49",
+   "source": "/data/mw_finetune/eval/hs6fw_res_152931",
+   "plan_sha256": "4e4aad05aada4744471ab6fad589e9cf30e8690a708f98e7cdebb3e072209bb6",
+   "created": 1792354020.8049192,
+   "uids_sha256": "ccdc0ac3d077767ff02c647216d63675b68dc1500a1a0f42acdc965cea2f48ab",
+   "capacity": {
+    "allocator_gib": 35,
+    "local_workers": 8,
+    "max_batch": 16,
+    "renderer": "A100 EGL",
+    "replicas": 1
+   },
+   "runtime_identity": "1cf76a84a4a35ccd547fa14644bcb8e2ab446675d7fbbc363efe5ee078eab7f7"
+  },
+  {
+   "model": "cosmos",
+   "name": "cache_x1",
+   "arm": "cache",
+   "block": "x1",
+   "episodes": 400,
+   "selection": "libero_spatial, original init 10..49",
+   "source": "/data/mw_finetune/eval/fa_co_r_u_l",
+   "plan_sha256": "ea6c4d80514d9222009db8e680ecb844684648522d50d014e17cea829863a6f6",
+   "created": 1792354038.0615675,
+   "uids_sha256": "b54c9c7903539f924fe3ea9813329deedbcba389f4a076eecfbbf3158683abe5",
+   "capacity": {
+    "allocator_gib": 19,
+    "local_workers": 8,
+    "max_batch": 1,
+    "renderer": "A100 EGL",
+    "replicas": 2
+   },
+   "runtime_identity": "a7a387ed6d45ce9cf5ece2628f32577ee5a55ab55bbcb2a771e25ebc227b4f07"
+  },
+  {
+   "model": "cosmos",
+   "name": "pure_x1",
+   "arm": "pure",
+   "block": "x1",
+   "episodes": 400,
+   "selection": "libero_spatial, original init 10..49",
+   "source": "/data/mw_finetune/eval/hs2_cosmos_h100_k2incl_c16_t107_20261010_115120",
+   "plan_sha256": "c4f81bfd1a279ab8f61c44caad721b5477c17d96b5fd3c3d175d99e9f3f0d4bc",
+   "created": 1792354031.9116902,
+   "uids_sha256": "27aa559b86d3b62f21c7d153367620439ad9b897258e0a0d3ca110335168c92b",
+   "capacity": {
+    "allocator_gib": 19,
+    "local_workers": 8,
+    "max_batch": 1,
+    "renderer": "A100 EGL",
+    "replicas": 2
+   },
+   "runtime_identity": "41f7d6a450fcd53bbb4e9196f2cd932a1502911f7e2235d933b6d01c1f189058"
+  },
+  {
+   "model": "pi05",
+   "name": "cache_x1",
+   "arm": "cache",
+   "block": "x1",
+   "episodes": 400,
+   "selection": "all MT50 tasks, original init 2..9",
+   "source": "/data/mw_finetune/eval/pimk1_fuld",
+   "plan_sha256": "f1b81103750e334cc1a88cbb7f341f143c373b912fe6a8343f2c6406994a24e6",
+   "created": 1792354088.3325543,
+   "uids_sha256": "a3d1e536e8e23c4681cc7afb51ac20810055f7ae72a0933af43a7396f46eb34e",
+   "capacity": {
+    "allocator_gib": 20,
+    "local_workers": 8,
+    "max_batch": 8,
+    "renderer": "A100 EGL",
+    "replicas": 2
+   },
+   "runtime_identity": "af22613ead3df9625293e6efa813376d3629774be676b022609e3b4438b5b4c1"
+  },
+  {
+   "model": "pi05",
+   "name": "cache_x2",
+   "arm": "cache",
+   "block": "x2",
+   "episodes": 2000,
+   "selection": "all MT50 tasks, original init 10..49",
+   "source": "/data/mw_finetune/eval/pimk1_fuld",
+   "plan_sha256": "62b27bdc3dcdc8420cfc916faa66b4a5b74ae44726a1504fc66bedbc712d6528",
+   "created": 1792354104.2556376,
+   "uids_sha256": "ed3c1118a8f8cf46591c37f088a7f695a2b71d1aa8ac28331d973bbb6c5d0e6f",
+   "capacity": {
+    "allocator_gib": 20,
+    "local_workers": 8,
+    "max_batch": 8,
+    "renderer": "A100 EGL",
+    "replicas": 2
+   },
+   "runtime_identity": "af22613ead3df9625293e6efa813376d3629774be676b022609e3b4438b5b4c1"
+  },
+  {
+   "model": "pi05",
+   "name": "pure_x1",
+   "arm": "pure",
+   "block": "x1",
+   "episodes": 400,
+   "selection": "all MT50 tasks, original init 2..9",
+   "source": "/data/mw_finetune/eval/tpi7_0536",
+   "plan_sha256": "cacfc17557afa4393d664de44e190cd543758e8d40331c23c768e7f79cc2a3b2",
+   "created": 1792354077.001523,
+   "uids_sha256": "1a764c3d8f98e0ed7dd9310390e781a6a1fc1cf8cf11db05f83597362bc82217",
+   "capacity": {
+    "allocator_gib": 20,
+    "local_workers": 8,
+    "max_batch": 8,
+    "renderer": "A100 EGL",
+    "replicas": 2
+   },
+   "runtime_identity": "77681797bf4771b82c982e54b1e3075c0e219e3040fcee8bbbb2ecb6de940b34"
+  },
+  {
+   "model": "pi05",
+   "name": "pure_x2",
+   "arm": "pure",
+   "block": "x2",
+   "episodes": 2000,
+   "selection": "all MT50 tasks, original init 10..49",
+   "source": "/data/mw_finetune/eval/tpi7_0536",
+   "plan_sha256": "11b39c9f2bf9857520e472766b8fe0d19c6dc0189100c2b221246e2573384dbd",
+   "created": 1792354094.4198308,
+   "uids_sha256": "8e80a46c869f1b5d1abe570b143382449fb02f32d629d68962d67ee6a23e7a65",
+   "capacity": {
+    "allocator_gib": 20,
+    "local_workers": 8,
+    "max_batch": 8,
+    "renderer": "A100 EGL",
+    "replicas": 2
+   },
+   "runtime_identity": "77681797bf4771b82c982e54b1e3075c0e219e3040fcee8bbbb2ecb6de940b34"
+  },
+  {
+   "model": "groot",
+   "name": "cache_x1",
+   "arm": "cache",
+   "block": "x1",
+   "episodes": 392,
+   "selection": "all MT50 tasks, original init 2..9",
+   "source": "/data/mw_finetune/eval/ff1015_groot_mt_10",
+   "plan_sha256": "70784b802e3281be97d9062ea4706b491a6c4bfaf43ff3f72d70f2d29bddf0c0",
+   "created": 1792354116.214407,
+   "uids_sha256": "88cb05ff838df6e39bfc639e3c2a6a29ffd72c8b5912c6c96d44e4f4d50a8b20",
+   "capacity": {
+    "allocator_gib": 28,
+    "local_workers": 8,
+    "max_batch": 1,
+    "renderer": "A100 EGL",
+    "replicas": 4
+   },
+   "runtime_identity": "966ab88a2b07680fe52eaf7e42fae2cb72f7cb45e571996ac5dff3aaf69e9da3"
+  },
+  {
+   "model": "groot",
+   "name": "cache_x2",
+   "arm": "cache",
+   "block": "x2",
+   "episodes": 1960,
+   "selection": "all MT50 tasks, original init 10..49",
+   "source": "/data/mw_finetune/eval/ff1015_groot_mt_10",
+   "plan_sha256": "bf8ce69230ef894cb57e81d7f6bd33a94cb8053dd39fe17a762f5fcff43ec8bc",
+   "created": 1792354128.7980468,
+   "uids_sha256": "9f5db25ced62dfe6c2e816f8d722fd8cdf0af89850df1677e84734d307531296",
+   "capacity": {
+    "allocator_gib": 28,
+    "local_workers": 8,
+    "max_batch": 1,
+    "renderer": "A100 EGL",
+    "replicas": 4
+   },
+   "runtime_identity": "966ab88a2b07680fe52eaf7e42fae2cb72f7cb45e571996ac5dff3aaf69e9da3"
+  },
+  {
+   "model": "groot",
+   "name": "pure_x1",
+   "arm": "pure",
+   "block": "x1",
+   "episodes": 400,
+   "selection": "all MT50 tasks, original init 2..9",
+   "source": "/data/mw_finetune/eval/tgr7h1_full",
+   "plan_sha256": "05faf7ec250db801bb182362ebfaf1a438108fe23c1a1bc5b32a68a43fb05267",
+   "created": 1792354110.0433922,
+   "uids_sha256": "8b95079242c877c5967bf13418f63e1c28822c9f2765c11aed0bd7ff4cf65644",
+   "capacity": {
+    "allocator_gib": 28,
+    "local_workers": 8,
+    "max_batch": 1,
+    "renderer": "A100 EGL",
+    "replicas": 4
+   },
+   "runtime_identity": "13db208bb8cf088097901d2e5c2cb20c7e584d7b0bfdf1a849996f94f8dd30c3"
+  },
+  {
+   "model": "groot",
+   "name": "pure_x2",
+   "arm": "pure",
+   "block": "x2",
+   "episodes": 2000,
+   "selection": "all MT50 tasks, original init 10..49",
+   "source": "/data/mw_finetune/eval/tgr7h1_full",
+   "plan_sha256": "66addd6ef12bb4d4f5b1b3e4900cd0d176da15b4269304567b5dce11018b683c",
+   "created": 1792354122.1684246,
+   "uids_sha256": "8790be89f588903003931efb301aca9ac463aff158a112b6b0c4a30c4039d8bf",
+   "capacity": {
+    "allocator_gib": 28,
+    "local_workers": 8,
+    "max_batch": 1,
+    "renderer": "A100 EGL",
+    "replicas": 4
+   },
+   "runtime_identity": "13db208bb8cf088097901d2e5c2cb20c7e584d7b0bfdf1a849996f94f8dd30c3"
+  },
+  {
+   "model": "dp",
+   "name": "pure_x2",
+   "arm": "pure",
+   "block": "x2",
+   "episodes": 500,
+   "selection": "libero_10, original init 0..49",
+   "source": "/data/mw_finetune/eval/hs7dpctl_full",
+   "plan_sha256": "26396d7cde4f5cce0e34e4ce20fc236d20c2da1bf94f44ba218223ae2e5fbbf9",
+   "created": 1792358733.9796145,
+   "uids_sha256": "d83fe248bc18bfda44c907c2eac038311b5d550a48eaeb6de61c5390e9132866",
+   "capacity": {
+    "allocator_gib": 40,
+    "local_workers": 8,
+    "max_batch": 8,
+    "renderer": "A100 EGL",
+    "replicas": 4
+   },
+   "runtime_identity": "1cf76a84a4a35ccd547fa14644bcb8e2ab446675d7fbbc363efe5ee078eab7f7",
+   "added": "1018b filler block, pure arm only (cache bundle is spatial-only)"
+  },
+  {
+   "model": "dp",
+   "name": "pure_r1",
+   "arm": "pure",
+   "block": "r1",
+   "episodes": 100,
+   "selection": "replicate of base: libero_spatial, original init 0..9",
+   "source": "/data/mw_finetune/eval/hs7dpctl_full",
+   "plan_sha256": "a28d4d4ce9442cd699d34d379c21555d321e8f17d73127563c25793e17ae4042",
+   "created": 1792360842.644056,
+   "uids_sha256": "c5a083dddd4e15b50ed72e57472b59ad8c721b5a091298ef3466a60f899a5c66",
+   "capacity": {
+    "allocator_gib": 40,
+    "local_workers": 8,
+    "max_batch": 8,
+    "renderer": "A100 EGL",
+    "replicas": 4
+   },
+   "runtime_identity": "1cf76a84a4a35ccd547fa14644bcb8e2ab446675d7fbbc363efe5ee078eab7f7",
+   "added": "1018b same-card replicate (cold 3/4) of the base arm UIDs; observer off"
+  },
+  {
+   "model": "dp",
+   "name": "cache_r1",
+   "arm": "cache",
+   "block": "r1",
+   "episodes": 100,
+   "selection": "replicate of base: libero_spatial, original init 0..9",
+   "source": "/data/mw_finetune/eval/ff1015_dp_li_14_u",
+   "plan_sha256": "6f5f48dafdbdb62be37245e82ccc13f7414826c2be6cc59cb3e11e8394d53293",
+   "created": 1792360846.8915188,
+   "uids_sha256": "22d2ced799d1d1ed5e9f6854cf109216bc5ef1f13909ee763d98922bf97cc852",
+   "capacity": {
+    "allocator_gib": 40,
+    "local_workers": 8,
+    "max_batch": 8,
+    "renderer": "A100 EGL",
+    "replicas": 4
+   },
+   "runtime_identity": "62692e198a28b32f9eece681d458d644e30b9ae5a1bd33f84eded015b5bff6c0",
+   "added": "1018b same-card replicate (cold 3/4) of the base arm UIDs; observer off"
+  },
+  {
+   "model": "dp",
+   "name": "pure_r2",
+   "arm": "pure",
+   "block": "r2",
+   "episodes": 400,
+   "selection": "replicate of x1: libero_spatial, original init 10..49",
+   "source": "/data/mw_finetune/eval/hs7dpctl_full",
+   "plan_sha256": "77fe4dcd3a0e67593c01d69710d495b177ba5965a819551d83c2efd77e737bfb",
+   "created": 1792361498.5456262,
+   "uids_sha256": "f650f4a197710bb59017dded3a8d97916ca5f137465f998564131b5b8570fa77",
+   "capacity": {
+    "allocator_gib": 40,
+    "local_workers": 8,
+    "max_batch": 8,
+    "renderer": "A100 EGL",
+    "replicas": 4
+   },
+   "runtime_identity": "1cf76a84a4a35ccd547fa14644bcb8e2ab446675d7fbbc363efe5ee078eab7f7",
+   "added": "1018b same-card replicate (cold 3/4) of the x1 UIDs; observer off"
+  },
+  {
+   "model": "dp",
+   "name": "cache_r2",
+   "arm": "cache",
+   "block": "r2",
+   "episodes": 400,
+   "selection": "replicate of x1: libero_spatial, original init 10..49",
+   "source": "/data/mw_finetune/eval/ff1015_dp_li_14_u",
+   "plan_sha256": "ec4b638dab8f809fafbe214ffe7336eae96ee9fdbc5a9754268c4a7efa2e4557",
+   "created": 1792361502.9284174,
+   "uids_sha256": "28ad67bba89dee5bdcbe707573c3e38899f9901953d0e03d6695e19f718839cd",
+   "capacity": {
+    "allocator_gib": 40,
+    "local_workers": 8,
+    "max_batch": 8,
+    "renderer": "A100 EGL",
+    "replicas": 4
+   },
+   "runtime_identity": "62692e198a28b32f9eece681d458d644e30b9ae5a1bd33f84eded015b5bff6c0",
+   "added": "1018b same-card replicate (cold 3/4) of the x1 UIDs; observer off"
+  },
+  {
+   "model": "dp",
+   "name": "pure_r3",
+   "arm": "pure",
+   "block": "r3",
+   "episodes": 500,
+   "selection": "replicate of x2: libero_10, original init 0..49",
+   "source": "/data/mw_finetune/eval/hs7dpctl_full",
+   "plan_sha256": "26396d7cde4f5cce0e34e4ce20fc236d20c2da1bf94f44ba218223ae2e5fbbf9",
+   "created": 1792367961.9198124,
+   "uids_sha256": "d83fe248bc18bfda44c907c2eac038311b5d550a48eaeb6de61c5390e9132866",
+   "capacity": {
+    "allocator_gib": 40,
+    "local_workers": 8,
+    "max_batch": 8,
+    "renderer": "A100 EGL",
+    "replicas": 4
+   },
+   "runtime_identity": "1cf76a84a4a35ccd547fa14644bcb8e2ab446675d7fbbc363efe5ee078eab7f7",
+   "added": "1018b same-card replicate (cold 3/4) of the x2 libero_10 UIDs; filler"
+  }
+ ]
+}

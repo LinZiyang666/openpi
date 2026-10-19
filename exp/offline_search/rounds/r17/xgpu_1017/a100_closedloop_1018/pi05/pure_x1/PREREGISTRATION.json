@@ -1,0 +1,36 @@
+{
+  "arm": "pure",
+  "block": "x1",
+  "capacity": {
+    "allocator_gib": 20,
+    "local_workers": 8,
+    "max_batch": 8,
+    "renderer": "A100 EGL",
+    "replicas": 2
+  },
+  "cold_starts": 2,
+  "confidence": 0.95,
+  "created": 1792354077.001523,
+  "diagnostic_observer": null,
+  "episodes": 400,
+  "extension_of": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/a100_closedloop_1018/pi05/pure",
+  "group": null,
+  "io_after": "some avg10=14.09 avg60=11.97 avg300=9.38 total=42217843244\nfull avg10=13.75 avg60=11.79 avg300=9.25 total=41694188741\n",
+  "io_before_plan": "some avg10=14.09 avg60=11.97 avg300=9.38 total=42217804582\nfull avg10=13.75 avg60=11.79 avg300=9.25 total=41694150764\n",
+  "limitations": [
+    "100 pairs cannot certify \u00b12pp even with zero discordance",
+    "A100-local worker placement and explicit capacity arm differ from reference; comparison is deployment-level"
+  ],
+  "margin": 0.02,
+  "model": "pi05",
+  "name": "pure_x1",
+  "original_uid_namespace": true,
+  "plan_sha256": "cacfc17557afa4393d664de44e190cd543758e8d40331c23c768e7f79cc2a3b2",
+  "runtime_identity": "77681797bf4771b82c982e54b1e3075c0e219e3040fcee8bbbb2ecb6de940b34",
+  "runtime_kind": "manifest",
+  "runtime_source": "/data/mw_finetune/qualification/formal_runtime_77681797bf4771b82c982e54b1e3075c0e219e3040fcee8bbbb2ecb6de940b34",
+  "selection": "all MT50 tasks, original init 2..9",
+  "source": "/data/mw_finetune/eval/tpi7_0536",
+  "source_receipt_status": "PASS",
+  "stopping_rule": "fixed block order; time-based only, never outcome-based"
+}

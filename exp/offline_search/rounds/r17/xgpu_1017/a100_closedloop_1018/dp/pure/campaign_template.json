@@ -173,7 +173,7 @@
   },
   "seconds": 14400,
   "server_node": "local",
-  "server_python": "/home/exouser/xgpu_1017/cl18/models/dp/env/bin/python",
+  "server_python": "/home/exouser/xgpu_1017/env/bin/python",
   "server_run": "/data/mw_finetune/eval/hs7dpctl_full/servers",
   "smoke": false,
   "smoke_episodes": 4,

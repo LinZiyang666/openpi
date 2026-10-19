@@ -1,0 +1,1906 @@
+[
+  {
+    "model": "pi05",
+    "arm": "pure",
+    "episodes": 100,
+    "same_card": {
+      "pairs": 100,
+      "only_a": 2,
+      "only_b": 1,
+      "difference": 0.01,
+      "CI95": [
+        -0.06044115269739973,
+        0.07864969363467132
+      ],
+      "method": "conservative exact marginal Clopper-Pearson union bound; paired multinomial cells",
+      "mcnemar_p": 1.0,
+      "margin": 0.02,
+      "equivalent": false,
+      "assumption": "independent episode pairs; task/seed clustering requires separate cluster sensitivity analysis"
+    },
+    "a100_cold1_vs_formal": {
+      "pairs": 100,
+      "only_a": 1,
+      "only_b": 1,
+      "difference": 0.0,
+      "CI95": [
+        -0.06199344029982074,
+        0.06199344029982074
+      ],
+      "method": "conservative exact marginal Clopper-Pearson union bound; paired multinomial cells",
+      "mcnemar_p": 1.0,
+      "margin": 0.02,
+      "equivalent": false,
+      "assumption": "independent episode pairs; task/seed clustering requires separate cluster sensitivity analysis"
+    },
+    "a100_cold2_vs_formal": {
+      "pairs": 100,
+      "only_a": 0,
+      "only_b": 1,
+      "difference": -0.01,
+      "CI95": [
+        -0.062119220210932954,
+        0.04274825032732631
+      ],
+      "method": "conservative exact marginal Clopper-Pearson union bound; paired multinomial cells",
+      "mcnemar_p": 1.0,
+      "margin": 0.02,
+      "equivalent": false,
+      "assumption": "independent episode pairs; task/seed clustering requires separate cluster sensitivity analysis"
+    },
+    "per_episode": [
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:0:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:0:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:1:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:1:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:2:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:2:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:3:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:3:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:4:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:4:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:5:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:5:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:6:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:6:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:7:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:7:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:8:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:8:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:9:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:9:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:10:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:10:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:11:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:11:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:12:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:12:1",
+        "formal": 1,
+        "cold1": 0,
+        "cold2": 1,
+        "same_card_difference": -1,
+        "cold1_vs_formal": -1,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:13:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:13:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:14:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:14:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:15:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:15:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:16:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:16:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:17:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:17:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:18:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:18:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:19:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:19:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:20:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:20:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:21:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:21:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:22:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:22:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:23:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:23:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:24:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:24:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:25:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:25:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:26:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:26:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:27:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:27:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:28:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:28:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 0,
+        "same_card_difference": 1,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": -1
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:29:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:29:1",
+        "formal": 0,
+        "cold1": 1,
+        "cold2": 0,
+        "same_card_difference": 1,
+        "cold1_vs_formal": 1,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:30:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:30:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:31:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:31:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:32:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:32:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:33:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:33:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:34:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:34:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:35:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:35:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:36:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:36:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:37:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:37:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:38:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:38:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:39:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:39:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:40:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:40:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:41:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:41:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:42:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:42:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:43:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:43:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:44:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:44:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:45:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:45:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:46:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:46:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:47:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:47:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:48:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:48:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:49:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_836ebdda0a842bb7228c_full:eval:49:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      }
+    ]
+  },
+  {
+    "model": "pi05",
+    "arm": "cache",
+    "episodes": 100,
+    "same_card": {
+      "pairs": 100,
+      "only_a": 1,
+      "only_b": 1,
+      "difference": 0.0,
+      "CI95": [
+        -0.06199344029982074,
+        0.06199344029982074
+      ],
+      "method": "conservative exact marginal Clopper-Pearson union bound; paired multinomial cells",
+      "mcnemar_p": 1.0,
+      "margin": 0.02,
+      "equivalent": false,
+      "assumption": "independent episode pairs; task/seed clustering requires separate cluster sensitivity analysis"
+    },
+    "a100_cold1_vs_formal": {
+      "pairs": 100,
+      "only_a": 0,
+      "only_b": 2,
+      "difference": -0.02,
+      "CI95": [
+        -0.07877547354578354,
+        0.041195962724905305
+      ],
+      "method": "conservative exact marginal Clopper-Pearson union bound; paired multinomial cells",
+      "mcnemar_p": 0.5,
+      "margin": 0.02,
+      "equivalent": false,
+      "assumption": "independent episode pairs; task/seed clustering requires separate cluster sensitivity analysis"
+    },
+    "a100_cold2_vs_formal": {
+      "pairs": 100,
+      "only_a": 0,
+      "only_b": 2,
+      "difference": -0.02,
+      "CI95": [
+        -0.07877547354578354,
+        0.041195962724905305
+      ],
+      "method": "conservative exact marginal Clopper-Pearson union bound; paired multinomial cells",
+      "mcnemar_p": 0.5,
+      "margin": 0.02,
+      "equivalent": false,
+      "assumption": "independent episode pairs; task/seed clustering requires separate cluster sensitivity analysis"
+    },
+    "per_episode": [
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:0:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:0:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:1:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:1:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:2:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:2:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:3:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:3:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:4:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:4:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:5:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:5:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:6:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:6:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:7:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:7:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:8:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:8:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:9:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:9:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:10:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:10:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:11:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:11:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:12:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:12:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:13:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:13:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:14:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:14:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:15:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:15:1",
+        "formal": 1,
+        "cold1": 0,
+        "cold2": 1,
+        "same_card_difference": -1,
+        "cold1_vs_formal": -1,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:16:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:16:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:17:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:17:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:18:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:18:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:19:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:19:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:20:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:20:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:21:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:21:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:22:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:22:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:23:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:23:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:24:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:24:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:25:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:25:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:26:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:26:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:27:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:27:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:28:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:28:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:29:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:29:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:30:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:30:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:31:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:31:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:32:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:32:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:33:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:33:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:34:0",
+        "formal": 1,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": -1,
+        "cold2_vs_formal": -1
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:34:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:35:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:35:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:36:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:36:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:37:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:37:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:38:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:38:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:39:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:39:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:40:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:40:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:41:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:41:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:42:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:42:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:43:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:43:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:44:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:44:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:45:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 0,
+        "same_card_difference": 1,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": -1
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:45:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:46:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:46:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:47:0",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:47:1",
+        "formal": 0,
+        "cold1": 0,
+        "cold2": 0,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:48:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:48:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:49:0",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      },
+      {
+        "uid": "r17_352d648bfe9ad023de99_n250_crg_k50:eval:49:1",
+        "formal": 1,
+        "cold1": 1,
+        "cold2": 1,
+        "same_card_difference": 0,
+        "cold1_vs_formal": 0,
+        "cold2_vs_formal": 0
+      }
+    ]
+  }
+]

@@ -1,0 +1,36 @@
+{
+  "arm": "pure",
+  "block": "x2",
+  "capacity": {
+    "allocator_gib": 40,
+    "local_workers": 8,
+    "max_batch": 8,
+    "renderer": "A100 EGL",
+    "replicas": 4
+  },
+  "cold_starts": 2,
+  "confidence": 0.95,
+  "created": 1792358733.9796145,
+  "diagnostic_observer": null,
+  "episodes": 500,
+  "extension_of": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/a100_closedloop_1018/dp/pure",
+  "group": null,
+  "io_after": "some avg10=5.67 avg60=6.93 avg300=7.60 total=42713871204\nfull avg10=5.67 avg60=6.89 avg300=7.54 total=42186493355\n",
+  "io_before_plan": "some avg10=5.67 avg60=6.93 avg300=7.60 total=42713858053\nfull avg10=5.67 avg60=6.89 avg300=7.54 total=42186480535\n",
+  "limitations": [
+    "100 pairs cannot certify \u00b12pp even with zero discordance",
+    "A100-local worker placement and explicit capacity arm differ from reference; comparison is deployment-level"
+  ],
+  "margin": 0.02,
+  "model": "dp",
+  "name": "pure_x2",
+  "original_uid_namespace": true,
+  "plan_sha256": "26396d7cde4f5cce0e34e4ce20fc236d20c2da1bf94f44ba218223ae2e5fbbf9",
+  "runtime_identity": "1cf76a84a4a35ccd547fa14644bcb8e2ab446675d7fbbc363efe5ee078eab7f7",
+  "runtime_kind": "manifest",
+  "runtime_source": "/data/mw_finetune/qualification/formal_runtime_1cf76a84a4a35ccd547fa14644bcb8e2ab446675d7fbbc363efe5ee078eab7f7",
+  "selection": "libero_10, original init 0..49",
+  "source": "/data/mw_finetune/eval/hs7dpctl_full",
+  "source_receipt_status": "PASS",
+  "stopping_rule": "fixed block order; time-based only, never outcome-based"
+}

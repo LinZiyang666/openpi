@@ -1,0 +1,118 @@
+[
+ {
+  "accepted": 400,
+  "accepted_equals_plan": true,
+  "accepted_errors": 0,
+  "commit_horizon": {
+   "5": 22958,
+   "None": 400
+  },
+  "cursor": {
+   "0": 11479,
+   "None": 11879
+  },
+  "driver_receipt_status": "PASS",
+  "ended": 1792357977.3512027,
+  "episodes_planned": 400,
+  "gpu": {
+   "free_mib": 40442.0,
+   "index": 0,
+   "name": "NVIDIA A100-SXM4-40GB",
+   "used_mib": 0.0,
+   "uuid": "GPU-363d0755-3192-ba27-c781-68eeed8d2eef"
+  },
+  "mps_daemon_closed": true,
+  "owned_children": 14,
+  "owned_children_reaped": true,
+  "per_step_rows": 23358,
+  "residents": 4,
+  "run": "dp_cache_x1_cold1",
+  "server_timing_clock_unit": {
+   "None": 23358
+  },
+  "server_timing_key_sets": {
+   "": 11879,
+   "infer_ms": 8,
+   "infer_ms|prev_total_ms": 11471
+  },
+  "server_timing_segment_head": {
+   "None": 23358
+  },
+  "source": {
+   "None": 400,
+   "library": 22958
+  },
+  "started": 1792357537.1054435,
+  "status": "COMPLETE",
+  "successes": 288,
+  "trace_clock_unit": {
+   "None": 11479
+  },
+  "trace_executed_count": {
+   "1": 64,
+   "2": 56,
+   "3": 58,
+   "4": 51,
+   "5": 11250
+  },
+  "trace_queries": 11479
+ },
+ {
+  "accepted": 400,
+  "accepted_equals_plan": true,
+  "accepted_errors": 0,
+  "commit_horizon": {
+   "5": 23156,
+   "None": 400
+  },
+  "cursor": {
+   "0": 11578,
+   "None": 11978
+  },
+  "driver_receipt_status": "PASS",
+  "ended": 1792358419.127956,
+  "episodes_planned": 400,
+  "gpu": {
+   "free_mib": 40442.0,
+   "index": 0,
+   "name": "NVIDIA A100-SXM4-40GB",
+   "used_mib": 0.0,
+   "uuid": "GPU-363d0755-3192-ba27-c781-68eeed8d2eef"
+  },
+  "mps_daemon_closed": true,
+  "owned_children": 14,
+  "owned_children_reaped": true,
+  "per_step_rows": 23556,
+  "residents": 4,
+  "run": "dp_cache_x1_cold2",
+  "server_timing_clock_unit": {
+   "None": 23556
+  },
+  "server_timing_key_sets": {
+   "": 11978,
+   "infer_ms": 8,
+   "infer_ms|prev_total_ms": 11570
+  },
+  "server_timing_segment_head": {
+   "None": 23556
+  },
+  "source": {
+   "None": 400,
+   "library": 23156
+  },
+  "started": 1792357977.6916516,
+  "status": "COMPLETE",
+  "successes": 283,
+  "trace_clock_unit": {
+   "None": 11578
+  },
+  "trace_executed_count": {
+   "1": 56,
+   "2": 54,
+   "3": 60,
+   "4": 56,
+   "5": 11352
+  },
+  "trace_queries": 11578
+ }
+]

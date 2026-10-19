@@ -13,9 +13,11 @@ SIMASSETS=LOCAL/'assets/libero_3eb6e3e7ee3a03663dba84ccc6d6cf9dbb4ae21fb20558ca4
 
 
 def prepare(model):
- root=OUT/model;dest=REMOTE/'models'/model/'rootfs';files=set();symlinks=set()
+ # DP and Fast-WAM share one A100 rootfs (same fastwam island + LIBERO sources).
+ root=OUT/model;dest=REMOTE/'models'/('dp' if model in ('dp','fastwam') else model)/'rootfs';files=set();symlinks=set()
  def add(p):
   p=Path(p)
+  if p.name=='auth.json':return
   if p.suffix in ('.h5','.hdf5','.mp4','.tar') or '__pycache__' in p.parts or p.suffix=='.pyc':return
   if p.is_symlink():symlinks.add(p)
   elif p.is_file():files.add(p)
@@ -69,12 +71,19 @@ def prepare(model):
   # Preserve the exact installed LIBERO Python source, BDDL/init pools, visual
   # assets and worker wheel versions used by the existing local formal fleet.
   tree(SIMDEPS);tree(SIMASSETS)
-  pending=['mujoco','gymnasium','PyOpenGL','glfw','numba','lxml','h5py','opencv-python',
-           'pillow','imageio','imageio-ffmpeg','scipy','cloudpickle','tyro','websockets','msgpack','msgpack-numpy']
+  # cv2 binary installed in the local island is the headless wheel's (RPATH
+  # ../opencv_python_headless.libs); both distributions claim cv2/.
+  pending=['mujoco','gymnasium','PyOpenGL','glfw','numba','lxml','h5py','opencv-python','opencv-python-headless',
+           'pillow','imageio','imageio-ffmpeg','scipy','cloudpickle','tyro','websockets','msgpack','msgpack-numpy',
+           # Complete import closure of the frozen LIBERO worker modules (CPU OSMesa
+           # census 1018b); torch/CUDA wheels come from the A100 openpi island.
+           'matplotlib','cycler','kiwisolver','pyparsing','python-dateutil','dill','draccus','docstring_parser',
+           'termcolor','tqdm','PyYAML','nvidia-ml-py','typing_extensions','packaging','Farama-Notifications']
+  island_provided={'torch','triton','torchvision'}
   seen=set();worker_sites=set()
   while pending:
    name=canonicalize_name(pending.pop())
-   if name in seen:continue
+   if name in seen or name in island_provided or (name.startswith('nvidia-') and name!='nvidia-ml-py'):continue
    seen.add(name)
    try:dist=md.distribution(name)
    except md.PackageNotFoundError:raise ValueError('worker dependency not installed: '+name)
@@ -104,7 +113,10 @@ def prepare(model):
  # scientific identities remain intact across both old and current recipes.
  for arm in ('pure','cache'):
   d=root/arm;c=json.loads((d/'campaign_template.json').read_text())
-  c['server_python']=str(REMOTE/'models'/model/'env/bin/python');write(d/'campaign_template.json',c)
+  # DP formal identity binds torch/transformers/numpy versions; the sealed
+  # identity is reproduced only by the openpi island (CPU probe 1018b).
+  c['server_python']='/home/exouser/xgpu_1017/env/bin/python' if model=='dp' else str(REMOTE/'models'/model/'env/bin/python')
+  write(d/'campaign_template.json',c)
   dep=json.loads((d/'DEPENDENCIES.json').read_text())
   write(d/'READMAP.json',{old:str(REMOTE/'deps'/old.lstrip('/')) for old in dep})
  # Do not follow the installed LIBERO assets symlink into a second copy.
@@ -116,6 +128,7 @@ def prepare(model):
        ('python' if python=='3.11' else 'python312' if python=='3.12' else 'python310')+'/bin/python'+python,
        site=str(dest/str(site).lstrip('/')),destination=str(dest),
        files=len(files),symlinks=len(symlinks),bytes=sum(sizes.values()),
+       disk_headroom_bytes=2**30 if model=='fastwam' else 2*2**30,
        bulk_list=str(listing),model_paths=mappings,worker=worker,
        libero_asset_link=str(dest/str(SIMDEPS/'libero/libero/assets').lstrip('/')) if model!='groot' else None,
        libero_assets=str(dest/str(SIMASSETS).lstrip('/')) if model!='groot' else None)

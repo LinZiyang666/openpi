@@ -1,0 +1,118 @@
+{
+ "pi05/pure": {
+  "same": 56,
+  "differ": [],
+  "absent_in_runtime": [
+   "examples/__init__.py",
+   "exp/libero_groot/emit_task_map.py",
+   "PAYLOAD.json"
+  ]
+ },
+ "pi05/cache": {
+  "same": 57,
+  "differ": [],
+  "absent_in_runtime": [
+   "examples/__init__.py",
+   "PAYLOAD.json"
+  ]
+ },
+ "groot/pure": {
+  "same": 57,
+  "differ": [],
+  "absent_in_runtime": [
+   "examples/__init__.py",
+   "PAYLOAD.json"
+  ]
+ },
+ "groot/cache": {
+  "same": 58,
+  "differ": [],
+  "absent_in_runtime": [
+   "examples/__init__.py",
+   "PAYLOAD.json"
+  ]
+ },
+ "dp/pure": {
+  "same": 51,
+  "differ": [
+   "exp/r17_integration/ops/formal_workers.py",
+   "exp/r17_integration/ops/worker_gpu.py",
+   "exp/r17_integration/ops/worker_memory.py"
+  ],
+  "absent_in_runtime": [
+   "examples/__init__.py",
+   "exp/libero_groot/emit_task_map.py",
+   "exp/r17_integration/ops/local_worker_entry.py",
+   "exp/r17_integration/ops/worker_disk.py",
+   "PAYLOAD.json"
+  ]
+ },
+ "dp/cache": {
+  "same": 51,
+  "differ": [
+   "exp/r17_integration/ops/formal_workers.py",
+   "exp/r17_integration/ops/local_worker_entry.py",
+   "exp/r17_integration/ops/sync_back.py",
+   "exp/r17_integration/ops/worker_gpu.py",
+   "exp/r17_integration/ops/worker_memory.py"
+  ],
+  "absent_in_runtime": [
+   "examples/__init__.py",
+   "exp/libero_groot/emit_task_map.py",
+   "exp/r17_integration/ops/worker_disk.py",
+   "PAYLOAD.json"
+  ]
+ },
+ "fastwam/pure": {
+  "same": 54,
+  "differ": [],
+  "absent_in_runtime": [
+   "examples/__init__.py",
+   "exp/libero_groot/emit_task_map.py",
+   "PAYLOAD.json"
+  ]
+ },
+ "fastwam/cache": {
+  "same": 50,
+  "differ": [
+   "exp/r17_integration/ops/formal_resume.py",
+   "exp/r17_integration/ops/formal_workers.py",
+   "exp/r17_integration/ops/local_worker_entry.py",
+   "exp/r17_integration/ops/sync_back.py",
+   "exp/r17_integration/ops/worker_gpu.py",
+   "exp/r17_integration/ops/worker_memory.py"
+  ],
+  "absent_in_runtime": [
+   "examples/__init__.py",
+   "exp/libero_groot/emit_task_map.py",
+   "exp/r17_integration/ops/cache_capacity.py",
+   "exp/r17_integration/ops/timan1_workers.py",
+   "exp/r17_integration/ops/worker_disk.py",
+   "PAYLOAD.json"
+  ]
+ },
+ "cosmos/pure": {
+  "same": 53,
+  "differ": [],
+  "absent_in_runtime": [
+   "examples/__init__.py",
+   "exp/libero_groot/emit_task_map.py",
+   "PAYLOAD.json"
+  ]
+ },
+ "cosmos/cache": {
+  "same": 53,
+  "differ": [
+   "exp/r17_integration/benchmarks/libero_bridge.py",
+   "exp/r17_integration/benchmarks/metaworld.py",
+   "exp/r17_integration/common/contracts.py",
+   "exp/r17_integration/conductor/manifest.py",
+   "exp/r17_integration/conductor/worker_entry.py"
+  ],
+  "absent_in_runtime": [
+   "examples/__init__.py",
+   "exp/libero_groot/emit_task_map.py",
+   "PAYLOAD.json"
+  ]
+ }
+}

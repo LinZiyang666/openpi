@@ -16,6 +16,28 @@ def remote(argv,seconds='120s'):
  return subprocess.run(['tether','exec','--timeout',seconds,'a100','--',*map(str,argv)],check=True,text=True)
 
 
+def symlink_code(link,target):
+ """Idempotent symlink in a sealed read-only parent: owner-write is granted
+ only for the one directory, then its recorded mode is restored (no sudo)."""
+ return ('import os,stat\nfrom pathlib import Path\n'
+   f'link=Path({str(link)!r});target={str(target)!r}\n'
+   'stale=link.is_symlink() and os.readlink(link)!=target\n'
+   'if stale:\n'
+   ' # Only this study\'s own alias left behind by a same-filesystem rootfs move.\n'
+   ' assert os.readlink(link).startswith("/home/exouser/xgpu_1017/cl18/models/") and not os.path.exists(os.readlink(link)),(str(link),os.readlink(link))\n'
+   'if link.is_symlink() and not stale:\n'
+   ' assert os.readlink(link)==target,(str(link),os.readlink(link))\n'
+   'else:\n'
+   ' assert stale or not link.exists(),str(link)\n'
+   ' parent=link.parent;mode=stat.S_IMODE(parent.stat().st_mode)\n'
+   ' os.chmod(parent,mode|stat.S_IWUSR)\n'
+   ' try:\n'
+   '  if stale:link.unlink()\n'
+   '  link.symlink_to(target,target_is_directory=True)\n'
+   ' finally:os.chmod(parent,mode)\n'
+   'assert os.path.isdir(link)\nprint("SYMLINK_OK",link,"->",target)\n')
+
+
 def reverse_stage(model,tools_only=False):
  """A100 has public ingress; local NAT only forwards the forbidden 231xx range."""
  root=OUT/model;tools=OUT/'tools';tools.mkdir(exist_ok=True)
@@ -24,7 +46,8 @@ def reverse_stage(model,tools_only=False):
   from a100_closedloop_resources_1018 import prepare
   resource=prepare(model)
   # A future model may not overwrite the execution tools of a live queue.
-  code='from pathlib import Path;import json; r=Path("/home/exouser/xgpu_1017/cl18/queue"); active=[p.name for p in r.glob("*.json") if json.loads(p.read_text()).get("status")=="RUNNING"]; assert not active, active'
+  # Only this model's own live queue protects its execution snapshot.
+  code=f'from pathlib import Path;import json; r=Path("/home/exouser/xgpu_1017/cl18/queue"); active=[p.name for p in r.glob("{model}*.json") if json.loads(p.read_text()).get("status")=="RUNNING"]; assert not active, active'
   remote(['python3','-c',code],'30s')
  # The pre-existing A100 openpi island omitted the formal socket server wheel.
  # Copy the exact installed serving version into a separate user overlay.
@@ -33,7 +56,7 @@ def reverse_stage(model,tools_only=False):
   source=Path('/home/weiland/projects/openpi/.venv/lib/python3.11/site-packages')/name
   if source.is_dir():shutil.copytree(source,extra/name,dirs_exist_ok=True,ignore=shutil.ignore_patterns('__pycache__','*.pyc'))
  for name in ('a100_closedloop_run_1018.py','a100_closedloop_queue_1018.py','dp_distance_capture_1018.py','dp_distance_replay_1018.py','client_trace.py','pilot_readmap.py','paired_sr.py',
-              'replay.py','artifacts.py','capture.py','inventory.py','concurrent_server.py'):
+              'replay.py','artifacts.py','capture.py','inventory.py','concurrent_server.py','filter_failed_server_cli.py'):
   shutil.copyfile(HERE/name,tools/name)
  snapshot=root/'execution_tools';snapshot.mkdir(exist_ok=True)
  for source in tools.glob('*.py'):shutil.copyfile(source,snapshot/source.name)
@@ -58,8 +81,10 @@ def reverse_stage(model,tools_only=False):
  for i,arm in enumerate(('pure','cache')):
   p=Path(json.loads((root/arm/'PREREGISTRATION.json').read_text())['runtime_source'])
   modules['runtime'+str(i)]=str(REMOTE/'runtimes'/p.name);runtime_sources['runtime'+str(i)]=p
- subprocess.run(['ss','-ltn'],check=True);remote(['ss','-ltn'],'30s')
- port=29770;daemon_root=REMOTE/'transfer'/transfer.name
+ subprocess.run(['ss','-ltn'],check=True)
+ busy=subprocess.run(['tether','exec','--timeout','30s','a100','--','ss','-ltn'],check=True,text=True,capture_output=True).stdout
+ # Concurrent study transfers may hold 29770; never use 23100-23199.
+ port=next(p for p in (29770,29772,29773,29774) if f':{p} ' not in busy);daemon_root=REMOTE/'transfer'/transfer.name
  config='use chroot = false\nread only = false\nlist = false\nhosts allow = 192.80.109.240\n'+f'pid file = {daemon_root}/daemon.pid\nlog file = {daemon_root}/daemon.log\n'
  for name,dest in modules.items():config+=f'[{name}]\npath = {dest}\nread only = false\nlist = false\n'
  code=('from pathlib import Path; import subprocess,json; '
@@ -89,7 +114,13 @@ def reverse_stage(model,tools_only=False):
    return
   for name,source in runtime_sources.items():copy(source,name)
   if resource:
-   remote(['python3','-c','import shutil; assert shutil.disk_usage("/home/exouser/xgpu_1017/cl18").free > '+str(resource['bytes']+2*2**30)+', "insufficient disk for one model plus 2GiB headroom"'],'30s')
+   # Admission on the actual remaining delta (files already present with the
+   # same size/mtime are skipped by rsync), plus the recorded result headroom.
+   dry=subprocess.run(['rsync','-a','--dry-run','--stats','--contimeout=10','--timeout=120','--files-from='+resource['bulk_list'],'/',
+        f'rsync://149.165.152.232:{port}/bulk/'],check=True,text=True,capture_output=True).stdout
+   delta=int(next(l for l in dry.splitlines() if l.startswith('Total transferred file size')).split(':')[1].split()[0].replace(',',''))
+   journal['bulk_delta_bytes']=delta;write(transfer/'TRANSFER.json',journal)
+   remote(['python3','-c','import shutil; assert shutil.disk_usage("/home/exouser/xgpu_1017/cl18").free > '+str(delta+resource['disk_headroom_bytes'])+', "insufficient disk for one model and recorded result headroom"'],'30s')
    copy('/','bulk',['--files-from='+resource['bulk_list']])
    model_env=REMOTE/'models'/model/'env'
    remote([resource['interpreter'],'-m','venv','--without-pip',model_env])
@@ -100,14 +131,18 @@ def reverse_stage(model,tools_only=False):
     remote(['/home/exouser/xgpu_1017/python/bin/python3.11','-m','venv','--without-pip',REMOTE/'liberoenv'])
     code=('from pathlib import Path; '
       f'p=Path({str(REMOTE/"liberoenv/lib/python3.11/site-packages/formal_source.pth")!r});'
-      'p.write_text("/home/exouser/xgpu_1017/env/lib/python3.11/site-packages\\n"); '
-      f'link=Path({resource["libero_asset_link"]!r}); '
-      f'assert not link.exists() and not link.is_symlink();link.symlink_to({resource["libero_assets"]!r},target_is_directory=True)')
+      'p.write_text("/home/exouser/xgpu_1017/env/lib/python3.11/site-packages\\n")')
     remote(['python3','-c',code],'30s')
+    remote(['python3','-c',symlink_code(resource['libero_asset_link'],resource['libero_assets'])],'30s')
    if model=='cosmos':
     vendor=resource['model_paths']['/data/cosmos/cosmos-policy']
-    code=f'from pathlib import Path;p=Path({vendor!r})/".venv";assert not p.exists();p.symlink_to({str(model_env)!r},target_is_directory=True)'
-    remote(['python3','-c',code],'30s')
+    # The staged vendor tree already holds the real .venv/site-packages (resources
+    # site path); only an absent .venv gets the model-env alias.
+    venv=Path(vendor)/'.venv'
+    probe=subprocess.run(['tether','exec','--timeout','30s','a100','--','python3','-c',
+        f'import os;p={str(venv)!r};print("real" if os.path.isdir(p) and not os.path.islink(p) and os.path.isdir(p+"/lib/python3.10/site-packages") else "other")'],
+        check=True,text=True,capture_output=True).stdout.strip()
+    if probe!='real':remote(['python3','-c',symlink_code(venv,model_env)],'30s')
   else:
    remote(['/home/exouser/xgpu_1017/python/bin/python3.11','-m','venv','--without-pip',REMOTE/'simenv'])
    copy('/home/weiland/projects/openpi_ext/envs/metaworld_sim/lib/python3.11/site-packages','sim')

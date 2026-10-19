@@ -1,0 +1,36 @@
+{
+  "arm": "pure",
+  "block": "x1",
+  "capacity": {
+    "allocator_gib": 28,
+    "local_workers": 8,
+    "max_batch": 1,
+    "renderer": "A100 EGL",
+    "replicas": 4
+  },
+  "cold_starts": 2,
+  "confidence": 0.95,
+  "created": 1792354110.0433922,
+  "diagnostic_observer": null,
+  "episodes": 400,
+  "extension_of": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/a100_closedloop_1018/groot/pure",
+  "group": null,
+  "io_after": "some avg10=10.92 avg60=11.78 avg300=9.61 total=42221794395\nfull avg10=10.81 avg60=11.60 avg300=9.48 total=41698106180\n",
+  "io_before_plan": "some avg10=10.92 avg60=11.78 avg300=9.61 total=42221764554\nfull avg10=10.81 avg60=11.60 avg300=9.48 total=41698076404\n",
+  "limitations": [
+    "100 pairs cannot certify \u00b12pp even with zero discordance",
+    "A100-local worker placement and explicit capacity arm differ from reference; comparison is deployment-level"
+  ],
+  "margin": 0.02,
+  "model": "groot",
+  "name": "pure_x1",
+  "original_uid_namespace": true,
+  "plan_sha256": "05faf7ec250db801bb182362ebfaf1a438108fe23c1a1bc5b32a68a43fb05267",
+  "runtime_identity": "13db208bb8cf088097901d2e5c2cb20c7e584d7b0bfdf1a849996f94f8dd30c3",
+  "runtime_kind": "manifest",
+  "runtime_source": "/data/mw_finetune/qualification/formal_runtime_13db208bb8cf088097901d2e5c2cb20c7e584d7b0bfdf1a849996f94f8dd30c3",
+  "selection": "all MT50 tasks, original init 2..9",
+  "source": "/data/mw_finetune/eval/tgr7h1_full",
+  "source_receipt_status": "PASS",
+  "stopping_rule": "fixed block order; time-based only, never outcome-based"
+}

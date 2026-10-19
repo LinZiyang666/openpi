@@ -1,0 +1,3136 @@
+{
+ "schema": "xgpu.dp.capture_analysis.v1",
+ "heads": {
+  "cold1": 100,
+  "cold2": 100
+ },
+ "paired_episodes": 100,
+ "all_y_reproduced": true,
+ "all_native32_reproduce_recorded_d2": true,
+ "largest_summand_max": 718592.6899632206,
+ "d2_min_min": 108.53521085511602,
+ "heads_with_nonzero_feature_drift": 39,
+ "feature_rel_max_drift": 0.0004601463534699713,
+ "y_max_abs_drift": 0.015397316944415707,
+ "summary": {
+  "native32": {
+   "max_weight_drift": 0.0004091709852218628,
+   "max_distance_drift": 0.012178421020507812,
+   "episodes_with_donor_order_change": 3
+  },
+  "float64": {
+   "max_weight_drift": 0.00018377602100372314,
+   "max_distance_drift": 0.012216846060443487,
+   "episodes_with_donor_order_change": 0
+  },
+  "stable": {
+   "max_weight_drift": 0.00018377602100372314,
+   "max_distance_drift": 0.01221684605975426,
+   "episodes_with_donor_order_change": 0
+  }
+ },
+ "per_episode": [
+  {
+   "key": [
+    0,
+    "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+    0,
+    7,
+    0,
+    3500044960
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    0,
+    "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+    1,
+    7,
+    0,
+    1465011250
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    0,
+    "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+    2,
+    7,
+    0,
+    1648786209
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    0,
+    "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+    3,
+    7,
+    0,
+    3192465586
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    0,
+    "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+    4,
+    7,
+    0,
+    1538628492
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.00020901970547481652,
+   "y_max_abs_drift": 0.006293428923093813,
+   "native32": {
+    "max_weight_drift": 0.0001888573169708252,
+    "max_distance_drift": 0.002777099609375,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 1.4446675777435303e-05,
+    "max_distance_drift": 0.0022536710219114298,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 1.4446675777435303e-05,
+    "max_distance_drift": 0.0022536710220251166,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    0,
+    "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+    5,
+    7,
+    0,
+    1822255151
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    0,
+    "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+    6,
+    7,
+    0,
+    1305270223
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    0,
+    "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+    7,
+    7,
+    0,
+    550989259
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    0,
+    "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+    8,
+    7,
+    0,
+    3664265037
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    0,
+    "libero_spatial/pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+    9,
+    7,
+    0,
+    3634828106
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    1,
+    "libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate",
+    0,
+    7,
+    0,
+    4175623026
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    1,
+    "libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate",
+    1,
+    7,
+    0,
+    1727841038
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.00011935499309362832,
+   "y_max_abs_drift": 0.0060719335751002745,
+   "native32": {
+    "max_weight_drift": 7.338076829910278e-05,
+    "max_distance_drift": 0.00649261474609375,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 1.8503516912460327e-05,
+    "max_distance_drift": 0.006501487985417498,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 1.8503516912460327e-05,
+    "max_distance_drift": 0.006501487985246968,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    1,
+    "libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate",
+    2,
+    7,
+    0,
+    3276273822
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    1,
+    "libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate",
+    3,
+    7,
+    0,
+    1135776364
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    1,
+    "libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate",
+    4,
+    7,
+    0,
+    4024310943
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    1,
+    "libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate",
+    5,
+    7,
+    0,
+    873336312
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.00011734956798474152,
+   "y_max_abs_drift": 0.004595673992923821,
+   "native32": {
+    "max_weight_drift": 0.00012077391147613525,
+    "max_distance_drift": 0.003383636474609375,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 5.2131712436676025e-05,
+    "max_distance_drift": 0.0029752585344553495,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 5.2131712436676025e-05,
+    "max_distance_drift": 0.0029752585346152216,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    1,
+    "libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate",
+    6,
+    7,
+    0,
+    2012336114
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0001764042721669067,
+   "y_max_abs_drift": 0.01499114940301638,
+   "native32": {
+    "max_weight_drift": 8.525699377059937e-05,
+    "max_distance_drift": 0.005397796630859375,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 9.419023990631104e-05,
+    "max_distance_drift": 0.005267929445164299,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 9.419023990631104e-05,
+    "max_distance_drift": 0.005267929444901398,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    1,
+    "libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate",
+    7,
+    7,
+    0,
+    2637965093
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 6.998242940646826e-05,
+   "y_max_abs_drift": 0.003992075318734578,
+   "native32": {
+    "max_weight_drift": 1.9282102584838867e-05,
+    "max_distance_drift": 0.004459381103515625,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 8.21426510810852e-06,
+    "max_distance_drift": 0.0043874473090070865,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 8.21426510810852e-06,
+    "max_distance_drift": 0.004387447309206038,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    1,
+    "libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate",
+    8,
+    7,
+    0,
+    3537462258
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    1,
+    "libero_spatial/pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate",
+    9,
+    7,
+    0,
+    3010733897
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.00015381474716863,
+   "y_max_abs_drift": 0.010448405840804753,
+   "native32": {
+    "max_weight_drift": 4.08664345741272e-05,
+    "max_distance_drift": 0.005168914794921875,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 4.032626748085022e-05,
+    "max_distance_drift": 0.004988562630366289,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 4.032626748085022e-05,
+    "max_distance_drift": 0.004988562630746429,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    2,
+    "libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate",
+    0,
+    7,
+    0,
+    1155021369
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0001620012486935073,
+   "y_max_abs_drift": 0.005312002848143038,
+   "native32": {
+    "max_weight_drift": 0.0002951771020889282,
+    "max_distance_drift": 0.0069141387939453125,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 8.143112063407898e-05,
+    "max_distance_drift": 0.0065678486074354225,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 8.143112063407898e-05,
+    "max_distance_drift": 0.0065678486075597675,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    2,
+    "libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate",
+    1,
+    7,
+    0,
+    1966055738
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.00026974449288878684,
+   "y_max_abs_drift": 0.004463160261245491,
+   "native32": {
+    "max_weight_drift": 0.00018386542797088623,
+    "max_distance_drift": 0.0026111602783203125,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 2.1748244762420654e-05,
+    "max_distance_drift": 0.001708820890552687,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 2.1748244762420654e-05,
+    "max_distance_drift": 0.0017088208907480862,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    2,
+    "libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate",
+    2,
+    7,
+    0,
+    3357875283
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.00016477671474504006,
+   "y_max_abs_drift": 0.004726776533551913,
+   "native32": {
+    "max_weight_drift": 0.000291675329208374,
+    "max_distance_drift": 0.0021953582763671875,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 2.146884799003601e-05,
+    "max_distance_drift": 0.002673311685452262,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 2.146884799003601e-05,
+    "max_distance_drift": 0.002673311685228441,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    2,
+    "libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate",
+    3,
+    7,
+    0,
+    2757829203
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    2,
+    "libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate",
+    4,
+    7,
+    0,
+    2307075306
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.00019418821166339046,
+   "y_max_abs_drift": 0.0050440592594567235,
+   "native32": {
+    "max_weight_drift": 0.0001674368977546692,
+    "max_distance_drift": 0.001708984375,
+    "donor_order_changes": 1
+   },
+   "float64": {
+    "max_weight_drift": 4.985928535461426e-05,
+    "max_distance_drift": 0.0015927618656839115,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 4.985928535461426e-05,
+    "max_distance_drift": 0.0015927618658189147,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    2,
+    "libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate",
+    5,
+    7,
+    0,
+    1692506271
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    2,
+    "libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate",
+    6,
+    7,
+    0,
+    4021202680
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    2,
+    "libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate",
+    7,
+    7,
+    0,
+    4077720227
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.00014583520958245236,
+   "y_max_abs_drift": 0.004723556928560413,
+   "native32": {
+    "max_weight_drift": 0.0001066252589225769,
+    "max_distance_drift": 0.0020570755004882812,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 3.196299076080322e-05,
+    "max_distance_drift": 0.0024477576956343228,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 3.196299076080322e-05,
+    "max_distance_drift": 0.0024477576953501057,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    2,
+    "libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate",
+    8,
+    7,
+    0,
+    1324212495
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    2,
+    "libero_spatial/pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate",
+    9,
+    7,
+    0,
+    2475003891
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    3,
+    "libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate",
+    0,
+    7,
+    0,
+    213129012
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.00016937149893987355,
+   "y_max_abs_drift": 0.005435047819538852,
+   "native32": {
+    "max_weight_drift": 0.0001484304666519165,
+    "max_distance_drift": 0.0012378692626953125,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.00014829635620117188,
+    "max_distance_drift": 0.0011943404438063965,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.00014829635620117188,
+    "max_distance_drift": 0.0011943404438952143,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    3,
+    "libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate",
+    1,
+    7,
+    0,
+    489298484
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    3,
+    "libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate",
+    2,
+    7,
+    0,
+    3129890514
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    3,
+    "libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate",
+    3,
+    7,
+    0,
+    4223645630
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0002743865737377595,
+   "y_max_abs_drift": 0.005249851173303455,
+   "native32": {
+    "max_weight_drift": 0.00020295381546020508,
+    "max_distance_drift": 0.001476287841796875,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.00016207993030548096,
+    "max_distance_drift": 0.0014077899185060971,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.00016207993030548096,
+    "max_distance_drift": 0.0014077899187832088,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    3,
+    "libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate",
+    4,
+    7,
+    0,
+    776454905
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    3,
+    "libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate",
+    5,
+    7,
+    0,
+    3750373413
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    3,
+    "libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate",
+    6,
+    7,
+    0,
+    153446919
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    3,
+    "libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate",
+    7,
+    7,
+    0,
+    2161896009
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    3,
+    "libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate",
+    8,
+    7,
+    0,
+    4105055015
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    3,
+    "libero_spatial/pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate",
+    9,
+    7,
+    0,
+    3709691017
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    4,
+    "libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate",
+    0,
+    7,
+    0,
+    1487450140
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0001383629349335995,
+   "y_max_abs_drift": 0.006559163332958917,
+   "native32": {
+    "max_weight_drift": 0.00014529377222061157,
+    "max_distance_drift": 0.0005397796630859375,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 1.5795230865478516e-05,
+    "max_distance_drift": 0.0002920661094094612,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 1.5795230865478516e-05,
+    "max_distance_drift": 0.0002920661097931543,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    4,
+    "libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate",
+    1,
+    7,
+    0,
+    4206757212
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.00019977862316337565,
+   "y_max_abs_drift": 0.007253131822004377,
+   "native32": {
+    "max_weight_drift": 6.308406591415405e-05,
+    "max_distance_drift": 0.003936767578125,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 5.440413951873779e-05,
+    "max_distance_drift": 0.004234021181495962,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 5.440413951873779e-05,
+    "max_distance_drift": 0.004234021181630965,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    4,
+    "libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate",
+    2,
+    7,
+    0,
+    892744851
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.00016279445366374387,
+   "y_max_abs_drift": 0.005848868863182588,
+   "native32": {
+    "max_weight_drift": 5.137547850608826e-05,
+    "max_distance_drift": 0.0013885498046875,
+    "donor_order_changes": 1
+   },
+   "float64": {
+    "max_weight_drift": 2.3398548364639282e-05,
+    "max_distance_drift": 0.0012920676430532296,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 2.3398548364639282e-05,
+    "max_distance_drift": 0.0012920676427832234,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    4,
+    "libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate",
+    3,
+    7,
+    0,
+    2087895279
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    4,
+    "libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate",
+    4,
+    7,
+    0,
+    4192814543
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.000215068086939092,
+   "y_max_abs_drift": 0.015397316944415707,
+   "native32": {
+    "max_weight_drift": 0.0001571252942085266,
+    "max_distance_drift": 0.012178421020507812,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 7.05420970916748e-05,
+    "max_distance_drift": 0.012216846060443487,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 7.05420970916748e-05,
+    "max_distance_drift": 0.01221684605975426,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    4,
+    "libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate",
+    5,
+    7,
+    0,
+    3894583169
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.00012683921910611754,
+   "y_max_abs_drift": 0.006381876398918962,
+   "native32": {
+    "max_weight_drift": 0.0001140981912612915,
+    "max_distance_drift": 0.00313568115234375,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 3.2573938369750977e-05,
+    "max_distance_drift": 0.002657054614196852,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 3.2573938369750977e-05,
+    "max_distance_drift": 0.002657054614530807,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    4,
+    "libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate",
+    6,
+    7,
+    0,
+    3374544638
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.00015607113363050686,
+   "y_max_abs_drift": 0.004615336618037702,
+   "native32": {
+    "max_weight_drift": 0.0001373291015625,
+    "max_distance_drift": 0.002239227294921875,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.00010386109352111816,
+    "max_distance_drift": 0.0019938777123122975,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.00010386109352111816,
+    "max_distance_drift": 0.0019938777125751983,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    4,
+    "libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate",
+    7,
+    7,
+    0,
+    1176674498
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    4,
+    "libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate",
+    8,
+    7,
+    0,
+    3555798901
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    4,
+    "libero_spatial/pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate",
+    9,
+    7,
+    0,
+    3124810473
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0001678211513749041,
+   "y_max_abs_drift": 0.0055801906541042,
+   "native32": {
+    "max_weight_drift": 0.0004091709852218628,
+    "max_distance_drift": 0.0007877349853515625,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 9.091198444366455e-05,
+    "max_distance_drift": 0.0005743498370236466,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 9.091198444366455e-05,
+    "max_distance_drift": 0.0005743498363735,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    5,
+    "libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate",
+    0,
+    7,
+    0,
+    2629810080
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.00013529259093594863,
+   "y_max_abs_drift": 0.004344756087149904,
+   "native32": {
+    "max_weight_drift": 0.00015205144882202148,
+    "max_distance_drift": 0.002170562744140625,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 2.8654932975769043e-05,
+    "max_distance_drift": 0.0020785143590060784,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 2.8654932975769043e-05,
+    "max_distance_drift": 0.002078514359098449,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    5,
+    "libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate",
+    1,
+    7,
+    0,
+    764160247
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    5,
+    "libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate",
+    2,
+    7,
+    0,
+    3527957682
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    5,
+    "libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate",
+    3,
+    7,
+    0,
+    170060173
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.00025620403445762355,
+   "y_max_abs_drift": 0.008094072819616827,
+   "native32": {
+    "max_weight_drift": 8.767098188400269e-05,
+    "max_distance_drift": 0.0051116943359375,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 5.002319812774658e-05,
+    "max_distance_drift": 0.004903020359527943,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 5.002319812774658e-05,
+    "max_distance_drift": 0.004903020359623866,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    5,
+    "libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate",
+    4,
+    7,
+    0,
+    1857826693
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    5,
+    "libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate",
+    5,
+    7,
+    0,
+    2262196765
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    5,
+    "libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate",
+    6,
+    7,
+    0,
+    4053091758
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    5,
+    "libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate",
+    7,
+    7,
+    0,
+    2218576265
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0001438481230596233,
+   "y_max_abs_drift": 0.00438466969893625,
+   "native32": {
+    "max_weight_drift": 0.00016450881958007812,
+    "max_distance_drift": 0.0029888153076171875,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 4.772841930389404e-05,
+    "max_distance_drift": 0.0023163187068178104,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 4.772841930389404e-05,
+    "max_distance_drift": 0.0023163187076491454,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    5,
+    "libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate",
+    8,
+    7,
+    0,
+    1740253628
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    5,
+    "libero_spatial/pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate",
+    9,
+    7,
+    0,
+    4046914624
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    6,
+    "libero_spatial/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate",
+    0,
+    7,
+    0,
+    2300094027
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    6,
+    "libero_spatial/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate",
+    1,
+    7,
+    0,
+    343482161
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    6,
+    "libero_spatial/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate",
+    2,
+    7,
+    0,
+    1907684218
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.00017933165221758538,
+   "y_max_abs_drift": 0.007839311735612142,
+   "native32": {
+    "max_weight_drift": 4.704296588897705e-05,
+    "max_distance_drift": 0.0076808929443359375,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 1.0572373867034912e-05,
+    "max_distance_drift": 0.007584745528280479,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 1.0572373867034912e-05,
+    "max_distance_drift": 0.007584745527736914,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    6,
+    "libero_spatial/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate",
+    3,
+    7,
+    0,
+    1433084230
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.00018847079876530343,
+   "y_max_abs_drift": 0.005317367105043047,
+   "native32": {
+    "max_weight_drift": 6.384402513504028e-05,
+    "max_distance_drift": 0.001956939697265625,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 4.215538501739502e-05,
+    "max_distance_drift": 0.002047825472324405,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 4.215538501739502e-05,
+    "max_distance_drift": 0.002047825472459408,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    6,
+    "libero_spatial/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate",
+    4,
+    7,
+    0,
+    2803236590
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    6,
+    "libero_spatial/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate",
+    5,
+    7,
+    0,
+    1280045518
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0001620166403032739,
+   "y_max_abs_drift": 0.009589449557267926,
+   "native32": {
+    "max_weight_drift": 0.0002069622278213501,
+    "max_distance_drift": 0.0029926300048828125,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 7.686018943786621e-05,
+    "max_distance_drift": 0.0028263810892497077,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 7.686018943786621e-05,
+    "max_distance_drift": 0.0028263810893278674,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    6,
+    "libero_spatial/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate",
+    6,
+    7,
+    0,
+    3117083746
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    6,
+    "libero_spatial/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate",
+    7,
+    7,
+    0,
+    508210412
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0004601463534699713,
+   "y_max_abs_drift": 0.010832943100783865,
+   "native32": {
+    "max_weight_drift": 0.00028271228075027466,
+    "max_distance_drift": 0.00476837158203125,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.00018377602100372314,
+    "max_distance_drift": 0.004728598361722902,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.00018377602100372314,
+    "max_distance_drift": 0.004728598361793956,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    6,
+    "libero_spatial/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate",
+    8,
+    7,
+    0,
+    549770832
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    6,
+    "libero_spatial/pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate",
+    9,
+    7,
+    0,
+    2163040485
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    7,
+    "libero_spatial/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate",
+    0,
+    7,
+    0,
+    4139378880
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0001605977148644805,
+   "y_max_abs_drift": 0.006154430558041213,
+   "native32": {
+    "max_weight_drift": 0.00018678605556488037,
+    "max_distance_drift": 0.0048580169677734375,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 5.933642387390137e-05,
+    "max_distance_drift": 0.004489504694568325,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 5.933642387390137e-05,
+    "max_distance_drift": 0.004489504695065705,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    7,
+    "libero_spatial/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate",
+    1,
+    7,
+    0,
+    3639139905
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    7,
+    "libero_spatial/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate",
+    2,
+    7,
+    0,
+    825687639
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    7,
+    "libero_spatial/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate",
+    3,
+    7,
+    0,
+    1733291169
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.00017263941908948614,
+   "y_max_abs_drift": 0.0053643833747401,
+   "native32": {
+    "max_weight_drift": 8.183717727661133e-05,
+    "max_distance_drift": 0.0043354034423828125,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 6.033480167388916e-05,
+    "max_distance_drift": 0.003855344984664555,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 6.033480167388916e-05,
+    "max_distance_drift": 0.0038553449850908805,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    7,
+    "libero_spatial/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate",
+    4,
+    7,
+    0,
+    3617902327
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0001958949763934784,
+   "y_max_abs_drift": 0.0056985364534867244,
+   "native32": {
+    "max_weight_drift": 0.00015939772129058838,
+    "max_distance_drift": 0.00031280517578125,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 9.118020534515381e-05,
+    "max_distance_drift": 0.00020639888917628468,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 9.118020534515381e-05,
+    "max_distance_drift": 0.0002063988888423296,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    7,
+    "libero_spatial/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate",
+    5,
+    7,
+    0,
+    1840778413
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.00016647931074363826,
+   "y_max_abs_drift": 0.006347536334942561,
+   "native32": {
+    "max_weight_drift": 0.0002996399998664856,
+    "max_distance_drift": 0.0006084442138671875,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.00016610324382781982,
+    "max_distance_drift": 0.0006345253033650522,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.00016610324382781982,
+    "max_distance_drift": 0.0006345253030879405,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    7,
+    "libero_spatial/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate",
+    6,
+    7,
+    0,
+    4258124232
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    7,
+    "libero_spatial/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate",
+    7,
+    7,
+    0,
+    540128116
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    7,
+    "libero_spatial/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate",
+    8,
+    7,
+    0,
+    3583399203
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    7,
+    "libero_spatial/pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate",
+    9,
+    7,
+    0,
+    483428284
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    8,
+    "libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate",
+    0,
+    7,
+    0,
+    4583162
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0001821186871712262,
+   "y_max_abs_drift": 0.0059742491230991845,
+   "native32": {
+    "max_weight_drift": 0.00012923777103424072,
+    "max_distance_drift": 0.003582000732421875,
+    "donor_order_changes": 1
+   },
+   "float64": {
+    "max_weight_drift": 5.608797073364258e-05,
+    "max_distance_drift": 0.0034814636643574204,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 5.608797073364258e-05,
+    "max_distance_drift": 0.003481463664858353,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    8,
+    "libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate",
+    1,
+    7,
+    0,
+    568768791
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    8,
+    "libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate",
+    2,
+    7,
+    0,
+    2338453958
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    8,
+    "libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate",
+    3,
+    7,
+    0,
+    2790098804
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    8,
+    "libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate",
+    4,
+    7,
+    0,
+    1242698700
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    8,
+    "libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate",
+    5,
+    7,
+    0,
+    3279620968
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0003111335481716291,
+   "y_max_abs_drift": 0.007885236929560335,
+   "native32": {
+    "max_weight_drift": 5.224347114562988e-05,
+    "max_distance_drift": 0.008031845092773438,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 9.216368198394775e-06,
+    "max_distance_drift": 0.007577707263767053,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 9.216368198394775e-06,
+    "max_distance_drift": 0.0075777072638949505,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    8,
+    "libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate",
+    6,
+    7,
+    0,
+    376068983
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.00016642424474956104,
+   "y_max_abs_drift": 0.006555843544319373,
+   "native32": {
+    "max_weight_drift": 0.0001322329044342041,
+    "max_distance_drift": 0.0021724700927734375,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.00017532706260681152,
+    "max_distance_drift": 0.0024583136202736,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.00017532706260681152,
+    "max_distance_drift": 0.0024583136212328327,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    8,
+    "libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate",
+    7,
+    7,
+    0,
+    1162558415
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    8,
+    "libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate",
+    8,
+    7,
+    0,
+    394340760
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.00019203972590309647,
+   "y_max_abs_drift": 0.007383420401552598,
+   "native32": {
+    "max_weight_drift": 0.00018221884965896606,
+    "max_distance_drift": 0.008762359619140625,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 6.187707185745239e-05,
+    "max_distance_drift": 0.00821784954127125,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 6.187707185745239e-05,
+    "max_distance_drift": 0.008217849541662048,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    8,
+    "libero_spatial/pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate",
+    9,
+    7,
+    0,
+    3157120496
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    9,
+    "libero_spatial/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate",
+    0,
+    7,
+    0,
+    3437324990
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    9,
+    "libero_spatial/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate",
+    1,
+    7,
+    0,
+    2771566803
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.00014524257892367903,
+   "y_max_abs_drift": 0.005600573674769294,
+   "native32": {
+    "max_weight_drift": 8.149445056915283e-05,
+    "max_distance_drift": 0.002223968505859375,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 4.3369829654693604e-05,
+    "max_distance_drift": 0.0024253427703087027,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 4.3369829654693604e-05,
+    "max_distance_drift": 0.00242534277034423,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    9,
+    "libero_spatial/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate",
+    2,
+    7,
+    0,
+    3360880462
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.00015748224894140148,
+   "y_max_abs_drift": 0.007953065241160573,
+   "native32": {
+    "max_weight_drift": 0.0001515895128250122,
+    "max_distance_drift": 0.0040645599365234375,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.00012002885341644287,
+    "max_distance_drift": 0.0037746139791572375,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.00012002885341644287,
+    "max_distance_drift": 0.0037746139790471034,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    9,
+    "libero_spatial/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate",
+    3,
+    7,
+    0,
+    1909913009
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    9,
+    "libero_spatial/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate",
+    4,
+    7,
+    0,
+    1044057212
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    9,
+    "libero_spatial/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate",
+    5,
+    7,
+    0,
+    767702260
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    9,
+    "libero_spatial/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate",
+    6,
+    7,
+    0,
+    3915364287
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    9,
+    "libero_spatial/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate",
+    7,
+    7,
+    0,
+    1327359488
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.00014904948661372195,
+   "y_max_abs_drift": 0.006056835984701081,
+   "native32": {
+    "max_weight_drift": 5.43743371963501e-05,
+    "max_distance_drift": 0.00254058837890625,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 1.0192394256591797e-05,
+    "max_distance_drift": 0.0027714016819118115,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 1.0192394256591797e-05,
+    "max_distance_drift": 0.002771401681940233,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    9,
+    "libero_spatial/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate",
+    8,
+    7,
+    0,
+    1252236642
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.00020818974543517554,
+   "y_max_abs_drift": 0.009301371570074934,
+   "native32": {
+    "max_weight_drift": 0.00018683820962905884,
+    "max_distance_drift": 0.0030612945556640625,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 4.7184526920318604e-05,
+    "max_distance_drift": 0.002859992457690197,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 4.7184526920318604e-05,
+    "max_distance_drift": 0.0028599924572887403,
+    "donor_order_changes": 0
+   }
+  },
+  {
+   "key": [
+    9,
+    "libero_spatial/pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate",
+    9,
+    7,
+    0,
+    1807230454
+   ],
+   "heads": [
+    1,
+    1
+   ],
+   "feature_rel_max_drift": 0.0,
+   "y_max_abs_drift": 0.0,
+   "native32": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "float64": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   },
+   "stable": {
+    "max_weight_drift": 0.0,
+    "max_distance_drift": 0.0,
+    "donor_order_changes": 0
+   }
+  }
+ ],
+ "formal_recipe_changed": false,
+ "scope": "A100 same-card, closed-loop first heads of the C5 ff1015 DP recipe; not the 4090/H100 longseg arm"
+}

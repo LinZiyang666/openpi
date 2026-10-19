@@ -21,56 +21,6 @@
     "a100": 8
   },
   "execution_workers": 8,
-  "fastwam_batch_treatment": {
-    "batch_implementation_identity": "f8bc81d545b06a998ee29e048b8931ac6029906729b4407230cbb5a7eedf3210",
-    "batching": {
-      "batch_wait_ms": 5.0,
-      "byte_identical_to_b1": false,
-      "default_off": true,
-      "hardware_qualification": "see BATCHING.md and measurement receipt",
-      "identity": "c4a95a1a3acb492c6ad6798cb879cb86f78a0d9156dd2e65f296cb11edf7f3ff",
-      "max_batch": 16,
-      "numerics_policy": "native_bf16_batch_study_v1",
-      "quality_equivalence": "unverified; matched batched control required",
-      "stage_workers": [
-        1,
-        1,
-        1
-      ]
-    },
-    "checkpoint": "/data/mw_finetune/models/fastwam_libero",
-    "domain": "libero",
-    "gpu_family": "NVIDIA H100 80GB HBM3",
-    "model": "fastwam",
-    "replicas": 2,
-    "schema": "r17.fastwam.batch_treatment.v2",
-    "stage_streams": true,
-    "stage_workers": [
-      1,
-      1,
-      1
-    ],
-    "worker_egl_device": 0,
-    "worker_egl_devices": [
-      0,
-      1,
-      2,
-      3,
-      4,
-      5,
-      6,
-      7
-    ],
-    "worker_max_episodes": 4,
-    "worker_memory_mib": 2048,
-    "worker_nodes": {
-      "timan107": 48
-    },
-    "worker_restart_limit": 2,
-    "worker_vram_mib": 768,
-    "workers": 48
-  },
-  "fastwam_batch_treatment_identity": "ec35c19a05d89550774b355718b5bb63a4680894dceadb45818a48be33435666",
   "fastwam_batching": {
     "batch_wait_ms": 5.0,
     "byte_identical_to_b1": false,
@@ -218,5 +168,58 @@
   "workers": 8,
   "xgpu_arm": "pure",
   "xgpu_group": null,
+  "xgpu_source_batch_treatment": {
+    "identity": "ec35c19a05d89550774b355718b5bb63a4680894dceadb45818a48be33435666",
+    "note": "A100 explicit capacity arm R1/B16, 8 A100-local workers. The source treatment seal binds H100 R2 / 48 timan107 workers / gpu_family and the frozen 1cf76a84 server refuses any other GPU; the seal is not presented. fastwam_batching (B16, 5 ms, native_bf16_batch_study_v1) is unchanged and the resident batch implementation identity equals the sealed f8bc81d5... (CPU check 1018b). Later FW runtime 205509 disables the same guards.",
+    "treatment": {
+      "batch_implementation_identity": "f8bc81d545b06a998ee29e048b8931ac6029906729b4407230cbb5a7eedf3210",
+      "batching": {
+        "batch_wait_ms": 5.0,
+        "byte_identical_to_b1": false,
+        "default_off": true,
+        "hardware_qualification": "see BATCHING.md and measurement receipt",
+        "identity": "c4a95a1a3acb492c6ad6798cb879cb86f78a0d9156dd2e65f296cb11edf7f3ff",
+        "max_batch": 16,
+        "numerics_policy": "native_bf16_batch_study_v1",
+        "quality_equivalence": "unverified; matched batched control required",
+        "stage_workers": [
+          1,
+          1,
+          1
+        ]
+      },
+      "checkpoint": "/data/mw_finetune/models/fastwam_libero",
+      "domain": "libero",
+      "gpu_family": "NVIDIA H100 80GB HBM3",
+      "model": "fastwam",
+      "replicas": 2,
+      "schema": "r17.fastwam.batch_treatment.v2",
+      "stage_streams": true,
+      "stage_workers": [
+        1,
+        1,
+        1
+      ],
+      "worker_egl_device": 0,
+      "worker_egl_devices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "worker_max_episodes": 4,
+      "worker_memory_mib": 2048,
+      "worker_nodes": {
+        "timan107": 48
+      },
+      "worker_restart_limit": 2,
+      "worker_vram_mib": 768,
+      "workers": 48
+    }
+  },
   "xgpu_subset": "/home/exouser/xgpu_1017/cl18/fastwam/pure/PLAN.json"
 }

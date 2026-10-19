@@ -1,0 +1,36 @@
+{
+  "arm": "pure",
+  "block": "x1",
+  "capacity": {
+    "allocator_gib": 35,
+    "local_workers": 8,
+    "max_batch": 16,
+    "renderer": "A100 EGL",
+    "replicas": 1
+  },
+  "cold_starts": 2,
+  "confidence": 0.95,
+  "created": 1792354020.8049192,
+  "diagnostic_observer": null,
+  "episodes": 400,
+  "extension_of": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/xgpu_1017/a100_closedloop_1018/fastwam/pure",
+  "group": null,
+  "io_after": "some avg10=10.81 avg60=8.64 avg300=8.41 total=42209861155\nfull avg10=10.67 avg60=8.49 avg300=8.29 total=41686310661\n",
+  "io_before_plan": "some avg10=10.81 avg60=8.64 avg300=8.41 total=42209838764\nfull avg10=10.67 avg60=8.49 avg300=8.29 total=41686288345\n",
+  "limitations": [
+    "100 pairs cannot certify \u00b12pp even with zero discordance",
+    "A100-local worker placement and explicit capacity arm differ from reference; comparison is deployment-level"
+  ],
+  "margin": 0.02,
+  "model": "fastwam",
+  "name": "pure_x1",
+  "original_uid_namespace": true,
+  "plan_sha256": "4e4aad05aada4744471ab6fad589e9cf30e8690a708f98e7cdebb3e072209bb6",
+  "runtime_identity": "1cf76a84a4a35ccd547fa14644bcb8e2ab446675d7fbbc363efe5ee078eab7f7",
+  "runtime_kind": "manifest",
+  "runtime_source": "/data/mw_finetune/qualification/formal_runtime_1cf76a84a4a35ccd547fa14644bcb8e2ab446675d7fbbc363efe5ee078eab7f7",
+  "selection": "libero_spatial, original init 10..49",
+  "source": "/data/mw_finetune/eval/hs6fw_res_152931",
+  "source_receipt_status": "PASS",
+  "stopping_rule": "fixed block order; time-based only, never outcome-based"
+}

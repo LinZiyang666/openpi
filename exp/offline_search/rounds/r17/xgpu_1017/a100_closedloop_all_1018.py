@@ -52,21 +52,22 @@ def collect(model):
  # Derived paired statistics and per-episode binary outcomes only; no per_step.
  code=('from pathlib import Path;import subprocess,json,socket; '
     f'r=Path({str(REMOTE)!r});d=r/"transfer"/({("collect_"+model+"_")!r}+str(__import__("time").time_ns()));d.mkdir(); '
-    's=socket.socket();s.bind(("0.0.0.0",29771));s.close(); '
+    'port=next(q for q in (29771,29773,29775,29776) if not __import__("subprocess").run(["bash","-c","ss -ltn | grep -q :%d\\ "%q]).returncode==0); '
+    's=socket.socket();s.bind(("0.0.0.0",port));s.close(); '
     'c=d/"rsyncd.conf";c.write_text("use chroot = false\\nread only = true\\nlist = false\\nhosts allow = 192.80.109.240\\npid file = "+str(d/"pid")+"\\nlog file = "+str(d/"log")+"\\n[analysis]\\npath = "+str(r/"analysis")+"\\n"); '
-    'log=(d/"stdio").open("ab");p=subprocess.Popen(["rsync","--daemon","--no-detach","--config="+str(c),"--port=29771"],stdin=subprocess.DEVNULL,stdout=log,stderr=log,start_new_session=True); '
-    'print(json.dumps(dict(pid=p.pid,directory=str(d))))')
+    'log=(d/"stdio").open("ab");p=subprocess.Popen(["rsync","--daemon","--no-detach","--config="+str(c),"--port="+str(port)],stdin=subprocess.DEVNULL,stdout=log,stderr=log,start_new_session=True); '
+    'print(json.dumps(dict(pid=p.pid,directory=str(d),port=port)))')
  result=control(code);destination=OUT/'collected';destination.mkdir(exist_ok=True)
  try:
   time.sleep(.3)
   subprocess.run(['rsync','-a','--bwlimit=16384','--contimeout=10','--timeout=120',
-     f'rsync://149.165.152.232:29771/analysis/{model}_PAIRED.json',str(destination)+'/'],check=True)
+     f'rsync://149.165.152.232:{result["port"]}/analysis/{model}_PAIRED.json',str(destination)+'/'],check=True)
   if model=='dp':
    subprocess.run(['rsync','-a','--bwlimit=16384','--contimeout=10','--timeout=120',
-      'rsync://149.165.152.232:29771/analysis/dp_DISTANCE.json',str(destination)+'/'],check=True)
+      f'rsync://149.165.152.232:{result["port"]}/analysis/dp_DISTANCE.json',str(destination)+'/'],check=True)
  finally:
   subprocess.run(['tether','exec','--timeout','30s','a100','--','kill','-TERM',str(result['pid'])],check=True)
-  write(destination/(model+'_TRANSFER.json'),dict(**result,port=29771,closed=time.time(),per_step=False))
+  write(destination/(model+'_TRANSFER.json'),dict(**result,closed=time.time(),per_step=False))
  return destination/(model+'_PAIRED.json')
 
 
@@ -81,7 +82,7 @@ def launch(model):
 
 
 def main():
- p=argparse.ArgumentParser();p.add_argument('--run',action='store_true');p.add_argument('--collect',choices=['pi05','groot','dp','fastwam','cosmos']);a=p.parse_args()
+ p=argparse.ArgumentParser();p.add_argument('--run',action='store_true');p.add_argument('--resume',action='store_true');p.add_argument('--collect',choices=['pi05','groot','dp','fastwam','cosmos']);a=p.parse_args()
  if a.collect:return collect(a.collect)
  if not a.run:
   print('wait pi05; collect; cleanup only its study weights; groot -> dp -> fastwam -> cosmos, each stage + four cold starts + collect + cleanup')
@@ -90,18 +91,28 @@ def main():
  with (OUT/'all_models.lock').open('a') as lock:
   fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
   receipt=OUT/'ALL_MODELS.json'
-  if receipt.exists():raise ValueError('serial coordinator already submitted; inspect receipt before any continuation')
-  s=dict(status='RUNNING',pid=os.getpid(),started=time.time(),current='pi05',completed=[])
+  completed=[]
+  if receipt.exists():
+   previous=json.loads(receipt.read_text())
+   if not a.resume or previous['status']!='FAILED':raise ValueError('serial coordinator already submitted; only a failed coordinator may resume')
+   completed=previous['completed']
+   receipt.rename(receipt.with_name('ALL_MODELS_FAILED_'+str(int(time.time()))+'.json'))
+  s=dict(status='RUNNING',pid=os.getpid(),started=time.time(),current='pi05',completed=completed)
   def save():write(receipt,s)
   save()
   try:
-   wait('pi05');collect('pi05');s['completed'].append('pi05');save();cleanup('pi05')
+   if 'pi05' not in s['completed']:
+    wait('pi05');collect('pi05');s['completed'].append('pi05');save();cleanup('pi05')
    for model in ('groot','dp','fastwam','cosmos'):
+    if model in s['completed']:continue
     s['current']=model;save()
     log=OUT/(model+'_stage.log')
-    with log.open('xb') as f:
-     subprocess.run([sys.executable,str(HERE/'a100_closedloop_stage_1018.py'),model],stdout=f,stderr=subprocess.STDOUT,check=True)
-    s['launch']=launch(model);save()
+    remote_state=state(model)
+    if remote_state is None:
+     if log.exists():log.rename(log.with_name(log.stem+'_failed_'+str(int(time.time()))+'.log'))
+     with log.open('xb') as f:
+      subprocess.run([sys.executable,str(HERE/'a100_closedloop_stage_1018.py'),model],stdout=f,stderr=subprocess.STDOUT,check=True)
+     s['launch']=launch(model);save()
     wait(model);collect(model);s['completed'].append(model);save();cleanup(model)
    s['status']='COMPLETE'
   except BaseException as e:s.update(status='FAILED',error=repr(e));raise
