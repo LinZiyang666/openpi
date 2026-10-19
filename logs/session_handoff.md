@@ -66,6 +66,7 @@ owner 的常驻指令，逐字有效：
 | jupyter-ziyang10 | — | jtest_sl1（调度器验证，DP LIBERO 纯推理 500 局）收尾 | 新 | pod 链 |
 | jupyter-ziyang10-02 | — | 空 | — | pod 链（见下） |
 
+**16:3x 更新**：jtest_sl1 500 PASS（pod1 空出）；**h100m22 已预挂**（等 `[ffk-h100m21] queue done`，Cosmos 跑完自动接，下面命令已执行，不要重复起）；**pod2a 链已起**（jupyter-ziyang10-02：fa_ls_dp_r_b_m_j 对照 → fa_ls_dp_r_f_m_j），pod1 的 fa_ls_dp_r_u_m_j jupyter 代理在 prepare，好了我起 pod1 链；三个 _j 的 prepare/launch 包装已放进 filter_failed_knob/commands。
 **新 H100 链（Cosmos 结束后起）**：`setsid nohup bash /home/weiland/projects/openpi_ext/scratch/r17_ops/ff/chain_ffk.run.sh h100m22 '\[ffk-h100m21\] queue done' fa_ls_gr_r_f_m fa_co_f_f_l fa_ls_gr_r_u_m fa_ls_v03_0 fa_ls_v03_1 fa_ls_gr_f_f_m fa_ls_gr_f_u_m fa_ls_v05_1_rz fa_ls_v05_2_rz fa_ls_fw_f_u_m fa_ls_v02_b fa_ls_fw_f_f_l_l fa_ls_fw_f_u_l_l fa_ls_v08_1 fa_ls_fw_r_u_m fa_ls_fw_f_f_m fa_ls_fw_r_f_m fa_ls_v05_3 fa_ls_v05_4 fa_ls_v05_0 >/dev/null 2>&1 </dev/null &`（30 个 longseg prepare 脚本已加 `--reprepare`；fa_co_f_f_l 走 formal_a_queue dispatch prepare 新建；v05_1/2_rz 走 longseg vfix retry）。另有老待办：fa_ls_v02_s（FW MT50 缓存变体，2,942/60,000，路由 alias 在 h100-temp，要按 campaign.json.before_alias_* 改回 H100 再续跑）、fa_ls_v07_0。
 
 **中央调度器（#186，owner 设计，代码 `exp/offline_search/rounds/r17/scheduler/`，DESIGN.md / INTEGRATION_NOTES.md）**
