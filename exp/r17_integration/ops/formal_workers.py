@@ -15,7 +15,6 @@ from .formal_process import ticks, write_json
 from .worker_disk import admission as disk_admission, minimum_bytes
 
 
-RECYCLE_TIMEOUT_SECONDS = 600
 LIVE_FLEET_PROTOCOL = 1
 
 
@@ -36,24 +35,6 @@ def stage_snapshot(archive, key, transfer, *, cache_study=False):
         return result
     finally:
         archive_stage.MAX_BYTES = previous
-
-
-def recycle_slot(report, child, entry, gpu_lock):
-    """Reap the old child, then reuse its already-admitted RAM/EGL slot."""
-    if child.poll() is None:
-        return dict(admitted=False, reason='old worker has not exited')
-    entry['exit_code'] = child.wait(timeout=5)
-    from .worker_memory import capacity, RAM_HEADROOM_MIB, MIB
-    _, available = capacity()
-    if available < RAM_HEADROOM_MIB*MIB:
-        return dict(admitted=False, reason='below RAM floor; do not refill recycled slot')
-    if hasattr(gpu_lock, 'reuse'):
-        gpu = gpu_lock.reuse(entry['index'], entry)
-    else:
-        # CPU fixtures / exclusive non-LIBERO lease retain the same fleet slot.
-        gpu = dict(admitted=True, reused=True)
-    return dict(admitted=gpu['admitted'], ram_slot_reused=True, requested_extra_ram_bytes=0,
-                requested_extra_gpu_mib=0, gpu=gpu)
 
 
 def worker_command(campaign, index, python=sys.executable):
@@ -92,10 +73,7 @@ def main():
     campaign = json.loads(Path(args.campaign).read_text())
     if campaign.get('live_fleet_authorization'):
         from .live_fleet_worker import authorization
-        from .build_client_bundle import sha256
         authorization(campaign)
-        if sha256(args.campaign)!=os.environ.get('R17_LIVE_FLEET_CONFIG_SHA256'):
-            pass
     run = Path(campaign['worker_run'])
     disk = disk_admission(run,minimum_bytes(campaign))
     if not disk['admitted']:
@@ -122,12 +100,8 @@ def main():
     lock = (run / '.eval.lock').open('a')
     fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
     started = time.monotonic()
-    restarts, pending = {}, {}
-    autoscaler = None
-    if campaign.get('autoscale'):
-        from exp.offline_search.rounds.r17.autoscale_1017.node import LocalGovernor
-        autoscaler = LocalGovernor(campaign, run)
-    gpu_lock = None
+    from exp.offline_search.rounds.r17.scheduler.node import NodeExecutor
+    executor = NodeExecutor(campaign, run)
     drain_requested = lambda:False
     class DrainedBeforeStart(Exception):
         pass
@@ -136,8 +110,6 @@ def main():
         drain_requested = lambda:draining(campaign)
     def launch(index, generation=0):
         report['disk_admission'] = disk_admission(run,minimum_bytes(campaign))
-        if not report['disk_admission']['admitted']:
-            pass
         worker_id, argv = worker_command(campaign, index)
         workspace = run/'scratch'/('worker_'+str(index))/('generation_'+str(generation))
         workspace.mkdir(parents=True, exist_ok=False)
@@ -160,19 +132,13 @@ def main():
             env.update(MUJOCO_EGL_DEVICE_ID=str(device), MUJOCO_GL='egl', PYOPENGL_PLATFORM='egl')
             if campaign['domain'] == 'libero':
                 env['CUDA_VISIBLE_DEVICES'] = ''  # render ordinal stays physical; no worker CUDA model
-        if autoscaler is not None:
-            env.update(autoscaler.worker_env(worker_id))
-            if assignment:env['OPENPI_AUTOSCALE_GPU_UUID'] = assignment['uuid']
+        env.update(executor.worker_env(worker_id), OPENPI_AUTOSCALE_PARENT_PID=str(os.getpid()))
+        if assignment:env['OPENPI_AUTOSCALE_GPU_UUID'] = assignment['uuid']
         log = (run / f'worker_{index}_generation_{generation}.log').open('wb')
         logs[index] = log
-        def parent_death():
-            import ctypes
-            ctypes.CDLL(None).prctl(1, signal.SIGTERM)
-        if autoscaler is not None:
-            env['OPENPI_AUTOSCALE_PARENT_PID'] = str(os.getpid())
-            argv = [sys.executable, '-B', '-m', 'exp.offline_search.rounds.r17.autoscale_1017.bootstrap', '--', *argv]
-        child = subprocess.Popen(argv, stdout=log, stderr=subprocess.STDOUT,
-            preexec_fn=None if autoscaler is not None else parent_death, cwd=workspace, env=env)
+        # The bootstrap sets parent-death ownership in the child (the fleet is multithreaded).
+        argv = [sys.executable, '-B', '-m', 'exp.offline_search.rounds.r17.scheduler.bootstrap', '--', *argv]
+        child = subprocess.Popen(argv, stdout=log, stderr=subprocess.STDOUT, cwd=workspace, env=env)
         entry = dict(pid=child.pid, start_ticks=ticks(child.pid), argv=argv, worker_id=worker_id,
                      node=campaign.get('worker_node'),policy_endpoint=campaign.get('policy_endpoint',campaign.get('endpoint')),
                      index=index, generation=generation, exit_code=None, recycle_receipt=str(workspace/'RECYCLE.json'))
@@ -194,124 +160,8 @@ def main():
                 return native_launch(index,generation)
     try:
         if drain_requested():raise DrainedBeforeStart
-        if autoscaler is not None:
-            from exp.offline_search.rounds.r17.autoscale_1017.fleet import run_fleet
-            run_fleet(campaign, run, report, children, logs, launch,
-                      lambda: stopped, drain_requested, autoscaler)
-        else:
-            from .worker_gpu import acquire
-            gpu_lock = acquire(campaign, run)
-            if hasattr(gpu_lock, 'result'):
-                report['gpu_admission'] = gpu_lock.result
-                campaign['worker_gpu_assignments'] = report['worker_gpu_assignments'] = gpu_lock.result['assignments']
-                write_json(run/'receipt.json', report)
-            from .worker_memory import admission
-            with (run.parent/'.memory_admission.lock').open('a') as memory_lock:
-                fcntl.flock(memory_lock, fcntl.LOCK_EX)
-                report['memory_admission'] = admission(campaign, run)
-                if not report['memory_admission']['admitted']:
-                    report.update(status='PARTIAL', reason=report['memory_admission']['reason'])
-                else:
-                    report['status'] = 'RUNNING'
-                    for index in range(campaign['node_workers']):
-                        if drain_requested():break
-                        spawned=launch(index)
-                        if spawned is None:break
-                        children.append(spawned)
-            if campaign.get('cache_study'):
-                print(json.dumps(dict(fleet_receipt=str(run/'receipt.json'),status=report['status'],
-                    workers_spawned=len(children),worker_logs=str(run/'worker_*_generation_*.log'),
-                    awaiting_driver=dict(host=campaign['driver_host'],
-                        port=campaign.get('driver_public_port',campaign['driver_port'])))),flush=True)
-            until = started + campaign['seconds']
-            while report['status']=='RUNNING' and not stopped and time.monotonic() < until:
-                drain = drain_requested()
-                if drain:
-                    report['fleet_drain']=dict(requested=True,no_replacements=True,
-                        finish_current_episode=True)
-                codes = [c.poll() for c, _ in children]
-                for index, code in enumerate(codes):
-                    if code is None or code == 0:
-                        continue
-                    child, entry = children[index]
-                    entry['exit_code'] = code
-                    from .worker_lifetime import planned_recycle
-                    planned = planned_recycle(entry, code)
-                    if not planned and entry.get('node')=='timan1':
-                        from .timan1_workers import planned_recycle as wrapped_recycle
-                        planned=wrapped_recycle(entry,code)
-                    if drain or drain_requested():
-                        if planned:
-                            entry['drained_boundary']=True
-                            child.wait(timeout=5)
-                            continue
-                        report.update(status='PARTIAL',reason='worker_failed_during_fleet_drain')
-                        report['worker_failures'].append(dict(index=index,pid=child.pid,exit_code=code,
-                            generation=entry['generation']))
-                        break
-                    if index not in pending:
-                        failure = dict(index=index, pid=child.pid, exit_code=code,
-                            generation=entry['generation'], signal=-code if code < 0 else None)
-                        report['worker_recycles' if planned else 'worker_failures'].append(failure)
-                        if not planned and restarts.get(index, 0) >= campaign.get('worker_restart_limit', 2):
-                            report.update(status='PARTIAL', reason='worker_restart_budget_exhausted')
-                            break
-                        pending[index] = time.monotonic()+RECYCLE_TIMEOUT_SECONDS
-                    with (run.parent/'.memory_admission.lock').open('a') as memory_lock:
-                        fcntl.flock(memory_lock, fcntl.LOCK_EX)
-                        if planned:
-                            allowed = recycle_slot(report,child,entry,gpu_lock)
-                            gpu_allowed = allowed['admitted']
-                        else:
-                            allowed = admission(dict(campaign, node_workers=1), run, replacement=True)
-                            gpu_allowed = not hasattr(gpu_lock, 'check') or gpu_lock.check(index)
-                        report['last_replacement'] = dict(index=index,generation=entry['generation'],
-                            planned_recycle=planned,old_pid=child.pid,admission=allowed,gpu_admitted=gpu_allowed,
-                            remaining_seconds=max(0,pending[index]-time.monotonic()))
-                        disk = disk_admission(run,minimum_bytes(campaign))
-                        report['disk_admission'] = report['last_replacement']['disk_admission'] = disk
-                        if not disk['admitted']:
-                            if report.get('dispatch_pause',{}).get('reason') != 'worker_disk_low':
-                                print('worker recycle paused: '+disk['reason'],flush=True)
-                                report.setdefault('worker_disk_events',[]).append(dict(event='replacement_paused',
-                                    index=index,generation=entry['generation'],disk_admission=disk))
-                            report['dispatch_pause'] = dict(reason='worker_disk_low',disk_admission=disk,
-                                remaining_seconds=max(0,pending[index]-time.monotonic()))
-                        elif report.get('dispatch_pause',{}).get('reason') == 'worker_disk_low':
-                            report.setdefault('worker_disk_events',[]).append(dict(event='replacement_resumed',
-                                index=index,generation=entry['generation'],disk_admission=disk))
-                            report.pop('dispatch_pause')
-                        if allowed['admitted'] and gpu_allowed and disk['admitted']:
-                            # The generation file remains on disk for audit. Its
-                            # parent FD must not accumulate across N4 replacements.
-                            child.wait(timeout=5)
-                            logs[index].close()
-                            if drain_requested():
-                                entry['drained_boundary']=True
-                                continue
-                            if not planned:
-                                restarts[index] = restarts.get(index, 0)+1
-                            spawned=launch(index, entry['generation']+1)
-                            if spawned is None:
-                                entry['drained_boundary']=True
-                                continue
-                            children[index] = spawned
-                            pending.pop(index)
-                        elif time.monotonic() >= pending[index]:
-                            report.update(status='PARTIAL', reason=(disk['reason'] if not disk['admitted'] else
-                                          'worker_restart_resource_timeout'),
-                                          memory_admission=allowed, gpu_admitted=gpu_allowed)
-                            break
-                    write_json(run/'receipt.json', report)
-                if report['status'] != 'RUNNING':
-                    break
-                if all(c == 0 or e.get('drained_boundary') for c,(_,e) in zip(codes,children)):
-                    report.update(status='PASS', reason='fleet_drained' if drain_requested() else 'normal_exit')
-                    break
-                time.sleep(.2)
-            else:
-                if report['status']=='RUNNING':
-                    report.update(status='PARTIAL', reason='interrupted' if stopped else 'worker_deadline')
+        from exp.offline_search.rounds.r17.scheduler.fleet import run_fleet
+        run_fleet(campaign, run, report, children, logs, launch, lambda: stopped, drain_requested, executor)
     except DrainedBeforeStart:
         report.update(status='PASS',reason='fleet_drained',
             fleet_drain=dict(requested=True,no_replacements=True,finish_current_episode=True))
@@ -329,18 +179,15 @@ def main():
                 child.kill()
                 entry['forced'] = True
             entry['exit_code'] = child.wait(timeout=5)
-        if autoscaler is not None:
-            from exp.offline_search.rounds.r17.autoscale_1017.kernel_evidence import collect
-            collect(run, autoscaler.started_wall)
-        if autoscaler is not None and hasattr(autoscaler, 'slots'):
-            autoscaler.slots.close()
+        from exp.offline_search.rounds.r17.scheduler.kernel_evidence import collect
+        collect(run, executor.started_wall)
+        if executor.slots is not None:
+            executor.slots.close()
         for log in logs.values():
             log.close()
         report['elapsed_seconds'] = time.monotonic()-started
         write_json(run / 'receipt.json', report)
         lock.close()
-        if gpu_lock is not None:
-            gpu_lock.close()
     print(json.dumps(dict(fleet_receipt=str(run/'receipt.json'), status=report['status'],
                          reason=report.get('reason'), worker_failures=report['worker_failures'])), flush=True)
     from .sync_back import snapshot_run

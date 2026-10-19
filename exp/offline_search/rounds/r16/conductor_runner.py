@@ -7,12 +7,22 @@ import json
 import os
 from pathlib import Path
 import shlex
+import sys
 import threading
 import time
 import uuid
 
 from .prepare import HERE, REPO, write_json
 from .conductor import read_group, run_driver
+
+LOCAL_ISLAND = '/data/mw_finetune/qualification/r16_local_island'  # same worker.tar, local libero_sim config
+SERVER_TREE = Path('/home/weiland/projects/openpi_r16_k1ref_server')  # frozen R16 server checkout (k1ref/snapshot.py)
+LOOPBACK = REPO/'exp/offline_search/rounds/r17/filter_failed_knob/r16_local/sitecustomize.py'
+# A group's worker agents: the island's timan107 (shared class) and the 4090 itself (local class, its servers).
+AGENTS = {'timan107': dict(python='/scratch/zixuans8/openpi/.venv/bin/python', home='/home/zixuans8',
+                           path='/scratch/zixuans8/dsp_bin:/usr/local/bin:/usr/bin:/bin', driver_host='ziyanglin.com'),
+          'local': dict(python=sys.executable, home='/home/weiland',
+                        path='/home/weiland/miniconda3/bin:/usr/local/bin:/usr/bin:/bin', driver_host='127.0.0.1')}
 
 
 def server_count(group, groot_servers_per_suite=None):
@@ -141,16 +151,14 @@ def prepare_servers(group,args):
 
 
 def _run(args):
-    # Own receipt + fleet lock; this code never stops any other coordinator line.
+    # Own receipts; this code never stops any other coordinator line. Worker counts per node
+    # come from the central scheduler (driver BatchClient, one NodeExecutor per agent).
     from exp.offline_search.closed_loop.ops.h100 import local_server
     from exp.offline_search.closed_loop.ops.h100 import control
+    from exp.offline_search.rounds.r17.scheduler import legacy
+    from exp.offline_search.rounds.r17.scheduler.defaults import require
     global BASE_COMMAND
     group=read_group(args.group);root=Path(group['root'])
-    from exp.offline_search.rounds.r17.autoscale_1017.switch import enabled
-    if args.workers is None:
-        from exp.offline_search.rounds.r17.autoscale_1017.defaults import physical_maximum
-        args.workers = physical_maximum('timan107') if enabled() else 64
-    if args.workers < 1:raise ValueError('Positive desired maximum required')
     if not 23100<=args.port<=23199:raise ValueError('Use the local public forwarded port range')
     if (root/'DONE.json').exists():
         if json.loads((root/'DONE.json').read_bytes())['group_sha256']!=group['group_sha256']:raise ValueError('Changed DONE group')
@@ -166,14 +174,25 @@ def _run(args):
     remote_repo=args.agent_island
     if remote_repo=='/scratch/zixuans8/openpi_trace_h100' or not remote_repo.startswith('/scratch/zixuans8/openpi_r16_conductor_'):
         raise ValueError('Use an isolated R16 conductor worker island')
-    # Fail before starting models if the old line owns the worker fleet.
-    control.remote('timan107',['flock','-n','/scratch/zixuans8/openpi_trace_h100/os_cl/locks/fleet.lock','true'])
-    if enabled() and not os.environ.get('OPENPI_AUTOSCALE_REMOTE'):
-        from exp.offline_search.rounds.r17.autoscale_1017.legacy_release import stage as stage_autoscale
-        prepared_autoscale = stage_autoscale(root, 'timan107', pipeline='R16', maximum=args.workers, base=remote_repo)
-        os.environ['OPENPI_AUTOSCALE_REMOTE'] = prepared_autoscale['remote']
+    islands=dict(timan107=remote_repo,local=LOCAL_ISLAND)
+    campaign=legacy.campaign(root.name,'local',tuple(islands))
+    legacy.install(root,islands,[(HERE/'conductor.py','exp/offline_search/rounds/r16/conductor.py'),
+                                 (LOOPBACK,'loopback/sitecustomize.py')])
+    require(campaign,root)
+    agents={}
+    for node,island in islands.items():
+        folder=island+'/r16_agents/'+group['group_sha256'][:20]
+        agents[node]=dict(island=island,lease=folder+'/lease.json',log=folder+'/agent.log',
+                          config=folder+'/scheduler/campaign.json',lock=folder+'/scheduler/agent.lock')
+        # The node's campaign; fail before starting models if this group's previous agent still runs there.
+        script=('from pathlib import Path;p=Path('+repr(agents[node]['config'])+');p.parent.mkdir(parents=True,exist_ok=True);'
+                'p.write_text('+repr(json.dumps(legacy.node_campaign(campaign,node)))+')')
+        control.remote(node,['python3','-c',script],timeout=30)
+        control.remote(node,['flock','-n',agents[node]['lock'],'true'],timeout=30)
+    write_json(root/'scheduler/campaign.json',campaign)
     specs=prepare_servers(group,args)
-    BASE_COMMAND=local_server.command;local_server.command=resident_command
+    BASE_COMMAND,tree=local_server.command,local_server.TREE
+    local_server.command,local_server.TREE=resident_command,SERVER_TREE
     try:
         for spec in specs:
             print(local_server.start(spec),flush=True)
@@ -184,65 +203,56 @@ def _run(args):
                 if time.monotonic()>deadline:raise TimeoutError('Resident startup timed out')
                 time.sleep(1)
             # Models start one at a time; startup peaks do not overlap.
-    finally:local_server.command=BASE_COMMAND
+    finally:local_server.command,local_server.TREE=BASE_COMMAND,tree
     endpoints=','.join(f'ziyanglin.com:{s["port"]}'+('='+s['suite'] if group['model']=='groot' else '') for s in specs)
-    py='/scratch/zixuans8/openpi/.venv/bin/python'
-    lease_path=remote_repo+'/r16_agents/'+group['group_sha256'][:20]+'/lease.json'
     token=uuid.uuid4().hex
-    agent=[py,'-B','-m','exp.offline_search.rounds.r16.conductor','agent','--model',group['model'],
-           '--phase',group['phase'],'--servers',endpoints,'--driver-host','ziyanglin.com',
-           '--port',str(args.port),'--workers',str(args.workers),'--lease-file',lease_path,'--lease-token',token]
-    # bash -c receives one properly quoted argument; no JSON-as-shell quoting.
-    env=dict(HOME='/home/zixuans8',LIBERO_CONFIG_PATH=remote_repo+'/os_cl/libero',
-             OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='1',
-             PYTHONPATH=remote_repo+'/packages/openpi-client/src:'+remote_repo+'/src:'+remote_repo,
-             PYTHONDONTWRITEBYTECODE='1',
-             OPENPI_AUTOSCALE_CAMPAIGN=group['group_sha256'],
-             OPENPI_AUTOSCALE_MODEL=group['model'],
-             OPENPI_AUTOSCALE_RUN=str(Path(lease_path).parent/'autoscale'),
-             PATH='/scratch/zixuans8/dsp_bin:/usr/local/bin:/usr/bin:/bin')
-    if not enabled():
-        for key in list(env):
-            if key.startswith('OPENPI_AUTOSCALE'):env.pop(key)
-    overlay = os.environ.get('OPENPI_AUTOSCALE_REMOTE') if enabled() else None
-    if overlay:
-        env['OPENPI_AUTOSCALE_BASE_PYTHONPATH'] = env['PYTHONPATH']
-        env['PYTHONPATH'] = overlay + ':' + overlay + '/src:' + env['PYTHONPATH']
     def renew(active):
-        script=('import json,os,time;from pathlib import Path;'
-                'p=Path('+repr(lease_path)+');p.parent.mkdir(parents=True,exist_ok=True);'
-                'q=p.with_suffix(".new");q.write_text(json.dumps(dict(token='+repr(token)+
-                ',active='+repr(active)+',ts=time.time())));os.replace(q,p)')
-        control.remote('timan107',['python3','-c',script],timeout=30,attempts=1)
+        for node,a in agents.items():
+            script=('import json,os,time;from pathlib import Path;'
+                    'p=Path('+repr(a['lease'])+');p.parent.mkdir(parents=True,exist_ok=True);'
+                    'q=p.with_suffix(".new");q.write_text(json.dumps(dict(token='+repr(token)+
+                    ',active='+repr(active)+',ts=time.time())));os.replace(q,p)')
+            control.remote(node,['python3','-c',script],timeout=30,attempts=1)
     renew(True)
-    remote_log=str(Path(lease_path).parent/'agent.log')
-    remote='cd '+shlex.quote(remote_repo)+' && nohup env '+shlex.join([f'{k}={v}' for k,v in env.items()]+agent)+\
-           ' >'+shlex.quote(remote_log)+' 2>&1 </dev/null &'
-    control.remote('timan107',['bash','-c',remote],timeout=30)
+    for node,a in agents.items():
+        o,island=AGENTS[node],a['island']
+        agent=[o['python'],'-B','-m','exp.offline_search.rounds.r16.conductor','agent','--node',node,'--model',group['model'],
+               '--phase',group['phase'],'--servers',endpoints,'--driver-host',o['driver_host'],'--port',str(args.port),
+               '--workers',str(campaign['scheduler_nodes'][node]['max']),'--lease-file',a['lease'],'--lease-token',token]
+        # bash -c receives one properly quoted argument; no JSON-as-shell quoting.
+        env=dict(HOME=o['home'],LIBERO_CONFIG_PATH=island+'/os_cl/libero',
+                 OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='1',
+                 PYTHONPATH=island+'/packages/openpi-client/src:'+island+'/src:'+island,
+                 PYTHONDONTWRITEBYTECODE='1',OPENPI_AUTOSCALE_CONFIG=a['config'],PATH=o['path'])
+        command='cd '+shlex.quote(island)+' && nohup env '+shlex.join([f'{k}={v}' for k,v in env.items()]+agent)+\
+                ' >'+shlex.quote(a['log'])+' 2>&1 </dev/null &'
+        control.remote(node,['bash','-c',command],timeout=30)
     lease_stop=threading.Event()
     def heartbeat():
         while not lease_stop.wait(15):
             try:renew(True)
             except Exception as error:print('AGENT_LEASE_RENEW_FAILED '+str(error),flush=True)
     thread=threading.Thread(target=heartbeat,daemon=True);thread.start()
-    write_json(root/'agent_lease.json',dict(host='timan107',lease_path=lease_path,log=remote_log,token=token,
-                                          expires_after_s=90,transport='existing control.remote / tether'))
+    write_json(root/'agent_lease.json',dict(agents=agents,token=token,expires_after_s=90,
+                                          transport='existing control.remote (tether exec / local)'))
     try:
         args.servers=endpoints
-        # The agent retries its connection until driver bind/setup completes.
+        os.environ['OPENPI_AUTOSCALE_CONFIG']=str(root/'scheduler/campaign.json')  # the driver's BatchClient
+        # The agents retry their connections until driver bind/setup completes.
         run_driver(args)
     finally:
         lease_stop.set();thread.join(timeout=35)
         try:
             renew(False)
-            deadline=time.monotonic()+30
-            while True:
-                try:
-                    control.remote('timan107',['flock','-n','/scratch/zixuans8/openpi_trace_h100/os_cl/locks/fleet.lock','true'],timeout=10,attempts=1)
-                    break
-                except Exception:
-                    if time.monotonic()>deadline:raise
-                    time.sleep(1)
+            deadline=time.monotonic()+120  # an agent's shutdown collects its kernel evidence first
+            for node,a in agents.items():
+                while True:
+                    try:
+                        control.remote(node,['flock','-n',a['lock'],'true'],timeout=10,attempts=1)
+                        break
+                    except Exception:
+                        if time.monotonic()>deadline:raise
+                        time.sleep(1)
         except Exception as error:print('AGENT_LEASE_RELEASE_FAILED; own workers expire within 90 seconds: '+str(error),flush=True)
     if (root/'DONE.json').exists():
         stop_servers(specs)
@@ -253,25 +263,16 @@ def _run(args):
 
 def run(args):
     group=read_group(args.group)
-    from exp.offline_search.closed_loop.ops.h100 import control
-    previous={key:os.environ.get(key) for key in ('SERVER_HOST','WORKER_HOST')}
-    os.environ.update(SERVER_HOST='local',WORKER_HOST='timan107')
-    try:
-        # The old chain holds this orchestration lease BETWEEN arms too.
-        # A free remote episode lock alone must never steal its inter-arm gap.
-        with control.fleet_lock(), (Path(group['root'])/'runner.lock').open('a') as lock:
-            fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
-            _run(args)
-    finally:
-        for key,value in previous.items():
-            if value is None:os.environ.pop(key,None)
-            else:os.environ[key]=value
+    # One runner per group; worker nodes are shared with every batch through the central scheduler.
+    with (Path(group['root'])/'runner.lock').open('a') as lock:
+        fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
+        _run(args)
 
 
 def main():
     ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('action',choices=['run'])
     ap.add_argument('--group',type=Path,required=True);ap.add_argument('--agent-island',required=True)
-    ap.add_argument('--workers',type=int,default=None);ap.add_argument('--port',type=int,default=23179)
+    ap.add_argument('--port',type=int,default=23179)
     ap.add_argument('--ports',type=lambda s:list(map(int,s.split(','))))
     ap.add_argument('--groot-servers-per-suite',type=int,
                     help='Identical processes per checkpoint (default: 2; isolated smoke: 1)')

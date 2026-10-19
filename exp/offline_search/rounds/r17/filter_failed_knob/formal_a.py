@@ -9,7 +9,6 @@ from pathlib import Path
 import pickle
 import shlex
 from contextlib import redirect_stdout
-from unittest.mock import patch
 
 import numpy as np
 
@@ -150,7 +149,6 @@ def reduced_vla(model,arm):
 
 
 def commands(jobs):
-    snapshot='/home/weiland/projects/openpi_r16_k1ref_server'
     for job in jobs:
         run=Path(job['run']);prepare=[];launch=[]
         if job['pipeline']=='R17':
@@ -168,14 +166,11 @@ def commands(jobs):
                 launch=[f'{LAUNCH_PREFIX} -m {module} launch --job {job["name"]}']
         else:
             prepare=[f'{PREFIX} -m exp.offline_search.rounds.r17.filter_failed_knob.formal_a check --job {job["name"]}']
-            # Reuse the generic R16 conductor; no inventory/dev-choice loader.
-            launch=[f'cd {snapshot}',f'{LAUNCH_PREFIX} -c '+shlex.quote(
-                'import sys;import exp.offline_search.rounds.r17 as r;r.__path__.append('+repr(str(HERE.parents[0]))+');'
-                'from exp.offline_search.rounds.r17.filter_failed_knob.formal_a import run_r16;run_r16()')+
-                f' run --group {run}/group.json --agent-island /scratch/zixuans8/openpi_r16_conductor_v1 --workers 64 --port 23159 --ports '+('23150,23151,23152' if job['model']=='pi05' else '23150,23151,23152,23153')]
-            if job.get('worker_host_failover'):
-                prepare += [f'{PREFIX} -m exp.offline_search.rounds.r17.filter_failed_knob.vla_workers prepare --job {job["name"]}']
-                launch.insert(0,'export VLA_WORKER_HOST=auto')
+            # Generic R16 conductor from this checkout; its resident servers run the frozen R16
+            # server checkout (conductor_runner.SERVER_TREE), workers come from the central scheduler.
+            launch=[f'{LAUNCH_PREFIX} -m exp.offline_search.rounds.r16.conductor_runner run --group {run}/group.json'
+                    ' --agent-island /scratch/zixuans8/openpi_r16_conductor_v1 --port 23159 --ports '+
+                    ('23150,23151,23152' if job['model']=='pi05' else '23150,23151,23152,23153')]
         for action,lines in [('prepare',prepare),('launch',launch)]:script(ROOT/'commands'/f'{action}_{job["name"]}.sh',lines)
     for model in MODELS:
         for mode in ('reduced','full'):
@@ -184,17 +179,6 @@ def commands(jobs):
                 for action in ('prepare','launch'):
                     script(ROOT/'commands'/f'{action}_profile_{model}_{mode}_{arm}.sh',
                         [f'bash {ROOT}/commands/{action}_{j["name"]}.sh' for j in group])
-
-
-def run_r16():
-    if __import__('os').environ.get('VLA_WORKER_HOST'):
-        from .vla_workers import run_r16_selected
-        return run_r16_selected()
-    from exp.offline_search.rounds.r16.conductor_runner import main
-    from exp.offline_search.closed_loop.ops.h100 import control
-    from exp.offline_search.rounds.r17.filter_failed.legacy import rsync_transport
-    from exp.r17_integration.ops.formal_eval import transfer
-    with patch.object(control,'run',rsync_transport(control.run,transfer)):main()
 
 
 def build_all():

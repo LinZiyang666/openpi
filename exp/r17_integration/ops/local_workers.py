@@ -134,79 +134,19 @@ def config(dependency, destination):
 
 
 def route(worker, campaign):
-    """Driver key is canonical; local policy connection can use loopback."""
+    """Local workers serve only the 4090's own server (loopback); the driver key stays canonical."""
     if worker.get('worker_node') != 'local':
         return worker
-    growth=campaign.get('local_worker_server_vram_headroom_mib',SERVER_VRAM_HEADROOM_MIB)
-    orchestration=campaign.get('cache_worker_orchestration',{})
-    dp_growth=(campaign.get('model')=='dp' and campaign.get('cache_study') and growth==8192 and
-        campaign.get('replicas') in (3,4) and orchestration.get('owner_authorized') is True and
-        orchestration.get('local_server_growth_mib')==growth and
-        orchestration.get('replicas')==campaign['replicas'] and
-        orchestration.get('worker_nodes')==campaign.get('execution_worker_nodes'))
-    if campaign.get('live_fleet_authorization'):
-        from .live_fleet_worker import authorization
-        authorization(campaign)
-        dp_growth = dp_growth or (campaign.get('model')=='dp' and campaign.get('cache_study') and
-            growth==8192 and campaign.get('replicas') in (3,4))
-    if growth!=SERVER_VRAM_HEADROOM_MIB and size_lane_authorization(campaign) is None and not dp_growth:
-        pass
     worker.update(driver_host='127.0.0.1',driver_public_port=campaign['driver_port'],
                   worker_egl_device=0,worker_egl_devices=[0],
                   worker_memory_mib=campaign.get('local_worker_memory_mib',3584),
                   worker_vram_mib=campaign.get('local_worker_vram_mib',RENDERER_VRAM_MIB),
                   worker_memory_headroom_mib=campaign.get('worker_memory_headroom_mib',RAM_HEADROOM_MIB),
-                  worker_server_vram_headroom_mib=growth,
-                  # Served elsewhere: while the 4090 runs no own batch, leave room for its next
-                  # server to start (largest: GR00T R15, 4 x 6.8 GB). No reserve while one runs.
-                  worker_server_vram_floor_mib=0 if campaign['server_node']=='local' else 28672)
-    if campaign.get('autoscale') and campaign['domain'] == 'metaworld':
+                  worker_server_vram_headroom_mib=SERVER_VRAM_HEADROOM_MIB,
+                  policy_endpoint='127.0.0.1:'+str(campaign['public_port']))
+    if campaign['domain'] == 'metaworld':
         worker.update(worker_max_episodes=32, worker_max_seconds=1800)
-    worker['policy_endpoint'] = ('127.0.0.1:'+str(campaign['public_port']) if campaign['server_node']=='local'
-                                 else campaign['endpoint'])
     return worker
-
-
-def payload(campaign, directory, root, base):
-    """Separate ops pin; preserve every simulator/client/worker-entry byte."""
-    import tempfile
-    from .build_client_bundle import verified_members,build_client_bundle
-    from .formal_process import write_json
-    from .immutable_release import sha
-    directory = Path(directory)
-    manifest,content = verified_members(directory/'workers.tar','PAYLOAD.json')
-    overlay = ['exp/r17_integration/ops/'+name+'.py' for name in
-               ('formal_workers','worker_gpu','worker_memory','worker_disk','local_worker_entry')]
-    if campaign.get('live_fleets'):
-        overlay += ['exp/r17_integration/ops/'+n+'.py' for n in ('live_fleet_worker','local_workers')]
-    if campaign.get('live_fleets') or 'timan1' in campaign.get('execution_worker_nodes',campaign.get('worker_nodes',{})):
-        overlay.append('exp/r17_integration/ops/timan1_workers.py')
-        if campaign.get('cache_capacity_authorization'):
-            overlay.append('exp/r17_integration/ops/cache_capacity.py')
-    if campaign.get('autoscale'):
-        from exp.offline_search.rounds.r17.autoscale_1017.bundle import files
-        overlay += files() + ['src/openpi/conductor/worker.py', 'exp/r17_integration/conductor/worker_entry.py', 'exp/r17_integration/ops/worker_lifetime.py',
-                              'exp/r17_integration/ops/formal_process.py', 'exp/r17_integration/ops/worker_memory.py']
-    with tempfile.TemporaryDirectory(prefix='local_worker_ops_',dir=directory) as temp:
-        temp = Path(temp)
-        for name,data in content.items():
-            if name == 'PAYLOAD.json':
-                continue
-            p=temp/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(data)
-        for name in overlay:
-            from exp.offline_search.rounds.r17.autoscale_1017.switch import source as preparation_source
-            p=temp/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(preparation_source(Path(root)/name))
-        result=build_client_bundle(temp,sorted(set(manifest['files'])|set(overlay)),temp/'release.tar')
-        unchanged={n:pin for n,pin in manifest['files'].items() if n not in overlay}
-        if any(result['manifest']['files'].get(n)!=pin for n,pin in unchanged.items()):
-            pass
-        shutil.copyfile(temp/'release.tar',directory/'workers.tar')
-    write_json(directory/'LOCAL_WORKER_ORCHESTRATION.json',dict(schema='r17.local_worker_ops.v1',
-        authorization=campaign.get('local_worker_exception') or campaign.get('timan1_worker_lease') or
-            dict(live_fleets=campaign.get('live_fleets')),original_sha256=base['archive_sha256'],
-        archive_sha256=sha(directory/'workers.tar'),unchanged=unchanged,
-        ops_files={n:result['manifest']['files'][n] for n in overlay}))
-    return result
 
 
 def copy(source, destination):

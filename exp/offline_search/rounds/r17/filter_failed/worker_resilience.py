@@ -128,9 +128,9 @@ def capacity(node, run, vram, ram, growth=0, server_directory=None, timan1_cards
 
 
 def measure(campaign, directory, excluded=()):
+    """Reachability probe of the batch's nodes; a reachable node keeps its hard cap as capacity."""
     from exp.r17_integration.ops import formal_eval as f
-    from exp.offline_search.rounds.r17.autoscale_1017.switch import enabled, function_source
-    dynamic = enabled() and bool(campaign.get('autoscale'))
+    maxima = campaign.get('execution_worker_nodes', campaign['worker_nodes'])
     def probe(node):
         if node in excluded:
             return node, dict(capacity=0, reason='retired in this launch')
@@ -141,7 +141,7 @@ def measure(campaign, directory, excluded=()):
         from math import ceil
         growth = ceil(campaign['memory_budget_gib']*1024) if node == 'local' and campaign['server_node'] == 'local' else 0
         cards = ','+repr(timan1_gpu2.capacity_cards()) if node == 'timan1' else ''  # GPU2 then GPU1
-        code = function_source(capacity)+'\nprint(__import__("json").dumps(capacity('+repr(node)+','+repr(run)+','+repr(vram)+','+repr(ram)+','+repr(growth)+','+repr(str(directory))+cards+')))'
+        code = inspect.getsource(capacity)+'\nprint(__import__("json").dumps(capacity('+repr(node)+','+repr(run)+','+repr(vram)+','+repr(ram)+','+repr(growth)+','+repr(str(directory))+cards+')))'
         argv = ['/usr/bin/python3', '-B', '-S', '-c', code]
         if node != 'local':
             argv = ['tether', 'exec', '--safe', '--timeout', '90s', f.physical_node(node), '--', *argv]
@@ -151,9 +151,7 @@ def measure(campaign, directory, excluded=()):
                 row = json.loads(f.execute(argv, seconds=92))
                 if type(row.get('capacity')) is not int or row['capacity'] < 0:
                     raise ValueError('invalid capacity probe reply')
-                if dynamic:
-                    row['capacity'] = campaign.get('autoscale_node_maxima', campaign.get('execution_worker_nodes', campaign['worker_nodes'])).get(node, 0)
-                    row['autoscale'] = True
+                row['capacity'] = maxima[node]
                 row.update(probe_status='MEASURED', probe_attempts=attempt, probe_errors=errors)
                 return node, row
             except Exception as exc:
@@ -165,29 +163,15 @@ def measure(campaign, directory, excluded=()):
                           probe_errors=errors,
                           reason='capacity unknown after two failed probes; node excluded: '+errors[-1])
     with ThreadPoolExecutor(max_workers=4) as pool:
-        return dict(pool.map(probe, tuple(n for n in NODES if not dynamic or n in campaign.get('autoscale_node_maxima', campaign.get('execution_worker_nodes', campaign['worker_nodes'])))))
+        return dict(pool.map(probe, tuple(n for n in NODES if n in maxima)))
 
 
 def allocate(requested, measured):
-    from exp.offline_search.rounds.r17.autoscale_1017.switch import enabled
-    if enabled() and any(r.get('autoscale') for r in measured.values()):
-        return {n: min(v, measured.get(n, {}).get('capacity') or 0) for n, v in requested.items()
-                if n in NODES and (measured.get(n, {}).get('capacity') or 0) > 0}
-    caps = {n: r['capacity']
-            for n, r in measured.items() if n in NODES and r['capacity'] is not None and r['capacity'] > 0}
-    if not caps:
+    """Hard caps of the reachable nodes; nothing moves between nodes (the scheduler balances)."""
+    result = {n: v for n, v in requested.items() if n in NODES and (measured.get(n, {}).get('capacity') or 0) > 0}
+    if not result:
         raise RuntimeError('no usable worker node remains')
-    result = {n: min(requested.get(n, 0), cap) for n, cap in caps.items()}
-    missing = min(sum(requested.values()), sum(caps.values()))-sum(result.values())
-    spare = {n: caps[n]-result[n] for n in caps}
-    total = sum(spare.values())
-    if missing:
-        shares = {n: missing*s//total for n, s in spare.items()}
-        left = missing-sum(shares.values())
-        order = sorted(spare, key=lambda n: (-(missing*spare[n] % total), n))
-        for n in order[:left]:shares[n] += 1
-        result = {n: result[n]+shares[n] for n in result}
-    return {n: count for n, count in result.items() if count}
+    return result
 
 
 def record(campaign, directory, nodes, measured, phase):
@@ -458,8 +442,7 @@ def driver_command(argv):
     i=argv.index('-m')
     if argv[i+1] not in modules:
         return argv
-    from exp.offline_search.rounds.r17.autoscale_1017.switch import function_source
-    code='import sys,runpy\n'+function_source(install_driver)+'\ninstall_driver()\nm=sys.argv.pop(1);runpy.run_module(m,run_name="__main__",alter_sys=True)\n'
+    code='import sys,runpy\n'+inspect.getsource(install_driver)+'\ninstall_driver()\nm=sys.argv.pop(1);runpy.run_module(m,run_name="__main__",alter_sys=True)\n'
     return [*argv[:i],'-c',code,*argv[i+1:]]
 
 
@@ -495,8 +478,7 @@ def install_worker(inventory_source):
 
 def worker_patch():
     from exp.r17_integration.ops import worker_gpu
-    from exp.offline_search.rounds.r17.autoscale_1017.switch import function_source
-    return function_source(install_worker)+'\ninstall_worker('+repr(function_source(worker_gpu.inventory))+')\n'
+    return inspect.getsource(install_worker)+'\ninstall_worker('+repr(inspect.getsource(worker_gpu.inventory))+')\n'
 
 
 @contextmanager
@@ -517,8 +499,7 @@ def coordinator():
     def local_route(worker, campaign):
         worker = route(worker, campaign)
         vram, ram = timan1_gpu2.SIZES[campaign['domain']]
-        worker.update(worker_vram_mib=vram, worker_memory_mib=ram, worker_ram_reservation_mib=ram,
-                      worker_server_vram_headroom_mib=campaign.get('local_worker_server_vram_headroom_mib', 16384) if campaign['server_node'] == 'local' else 0)
+        worker.update(worker_vram_mib=vram, worker_memory_mib=ram, worker_ram_reservation_mib=ram)
         return worker
     def local_authorize(campaign):
         if campaign.get('domain')!='metaworld':return authorize(campaign)

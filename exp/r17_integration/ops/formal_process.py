@@ -127,8 +127,10 @@ def manage(request, mode):
         result = {**json.loads(Path(request['receipt']).read_text()), 'stop': result['stop']}
         if result.get('child') and alive(result['child']):
             result['orphan_child_cleanup'] = stop_group(result['child'])
-    from exp.offline_search.rounds.r17.autoscale_1017.driver import status_result
-    status_result(request, result)
+    if request.get('env', {}).get('OPENPI_AUTOSCALE_NODE'):
+        # Worker fleets only: their payload carries the scheduler; server runtimes need not.
+        from exp.offline_search.rounds.r17.scheduler.channels import status_result
+        status_result(request, result)
     result['supervisor_alive'] = alive(result['supervisor'])
     result['child_alive'] = bool(result.get('child') and alive(result['child']))
     result['alive'] = result['supervisor_alive'] or result['child_alive']
@@ -146,8 +148,9 @@ def controls(entries):
     """One remote session renews/checks all owned services on this node."""
     result = {}
     for entry in entries:
-        from exp.offline_search.rounds.r17.autoscale_1017.driver import control_entry
-        control_entry(entry)
+        if entry.get('autoscale_control'):
+            from exp.offline_search.rounds.r17.scheduler.channels import control_entry
+            control_entry(entry)
         request = entry['request']
         manage(request,'renew')
         result[entry['label']] = manage(request,'status')

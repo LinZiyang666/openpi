@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
+# Alias of the native unit launch (central worker scheduler for every batch; no separate dynamic variant).
 set -euo pipefail
-cd /home/weiland/projects/openpi
-env -u CUDA_VISIBLE_DEVICES -u JAX_PLATFORMS PYTHONPATH=.:src PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 .venv/bin/python -m exp.offline_search.rounds.r17.autoscale_1017.formal_dynamic launch --name fa_pi_f_f_l
+exec bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/commands/launch_fa_pi_f_f_l.sh

@@ -23,6 +23,9 @@ def redistribute(campaign,counts,directory,*,replicas=None,local_vram_mib=None,l
     # execution/admission uses a separate, explicitly recorded ops map.
     campaign['execution_worker_nodes']=counts
     campaign['execution_workers']=sum(counts.values())
+    if 'scheduler_nodes' in campaign:
+        # The scheduler places workers only where this batch runs fleets, within their caps.
+        campaign['scheduler_nodes']={n:dict(v,max=counts[n]) for n,v in campaign['scheduler_nodes'].items() if n in counts}
     if replicas is not None:
         campaign['replicas']=replicas
         campaign['backend_ports']=list(range(campaign['public_port']+1,campaign['public_port']+1+replicas))
@@ -48,7 +51,7 @@ def redistribute(campaign,counts,directory,*,replicas=None,local_vram_mib=None,l
     campaign.pop('cache_control_proof',None)
     from .cache_control import attach
     attach(campaign,directory)
-    mutable={'execution_worker_nodes','execution_workers','cache_worker_orchestration','local_worker_exception',
+    mutable={'execution_worker_nodes','execution_workers','scheduler_nodes','cache_worker_orchestration','local_worker_exception',
              'timan1_worker_lease','cache_control_proof','replicas','backend_ports','ports',
              'local_worker_vram_mib','local_worker_server_vram_headroom_mib'}
     if {k:v for k,v in before.items() if k not in mutable} != {k:v for k,v in campaign.items() if k not in mutable}:

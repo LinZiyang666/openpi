@@ -7,15 +7,14 @@ repin  Re-pin assets/ffk_bootstrap.py of never-prepared long-segment definitions
        change is the embedded filter_failed_knob/runtime.py fallback; names,
        YAMLs, plan, task UIDs, inits, seeds and ffk_evidence.py are unchanged.
 
-retry  Zero-clean-progress retry of a CLOSED campaign under its own name. As
-       autoscale_1017.reset_zero: the whole directory and every node's owned
-       trees are renamed to explicit backups (nothing deleted, no process
+retry  Zero-clean-progress retry of a CLOSED campaign under its own name. The
+       whole directory and every node's owned trees are renamed to explicit backups (nothing deleted, no process
        signalled) and the scientific definition is copied into a fresh
        directory. Accepted rows may exist only if every one is an error row
        (e.g. FatalEpisodeError); they stay in the backup and are never carried
        over. runtime.tar/RUNTIME_RELEASE.json are restored from the source
        release, so staging writes the segment-boundary fix anew. Then repin
-       and the native preparation (formal_trial.prepare --reprepare).
+       and the native preparation (filter_failed.stage --reprepare).
 """
 from __future__ import annotations
 
@@ -201,7 +200,7 @@ def closed_without_clean_episodes(root):
 
 
 def retry(root, backup, *, remote_backup=None, remote_stage_backup=None, prepare=True):
-    from exp.offline_search.rounds.r17.autoscale_1017.reset_remote import run as archive_remote
+    from .reset_remote import run as archive_remote
     root, backup = Path(root).resolve(), Path(backup).resolve()
     receipt_path = root/'RESET_CLEAN_RECEIPT.json'
     if (root/'RECEIPT.json').exists():
@@ -295,13 +294,8 @@ def retry(root, backup, *, remote_backup=None, remote_stage_backup=None, prepare
             proof['catalogs'] = update
         dump(receipt_path, proof)
     if prepare:
-        import inspect
-        from openpi.conductor.worker import WorkerLoop
-        from exp.offline_search.rounds.r17.autoscale_1017.switch import enabled
-        from exp.offline_search.rounds.r17.autoscale_1017.formal_trial import prepare as native_prepare
-        if enabled() and '__generation_' not in inspect.getsource(WorkerLoop.__init__):
-            raise ValueError('generation identity fix is not installed; no prepare performed')
-        native_prepare(root, None, reprepare=True)
+        from exp.offline_search.rounds.r17.filter_failed.stage import stage
+        stage(root, reprepare=True)
         io_ready()
         if hashlib.sha256((root/'EPISODE_PLAN.json').read_bytes()).hexdigest() != proof['plan_sha256']:
             raise ValueError('reprepare changed the frozen plan; do not launch')

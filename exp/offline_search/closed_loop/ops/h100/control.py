@@ -118,8 +118,7 @@ def rpc(node, action, spec, timeout=300, attempts=None):
     # Concurrent sync is the only new h100 RPC. Its separately deployed helper
     # leaves A's executable helper and application snapshot completely intact.
     helper = str(BASE / "node_sb3.py") if node == "h100" and action == "pull-new" else REMOTE_NODE[node]
-    from exp.offline_search.rounds.r17.autoscale_1017.legacy_release import rpc_command
-    cmd = rpc_command(helper, action, target, spec)
+    cmd = ["python3", helper, action, target]
     out = remote(node, cmd, timeout) if attempts is None else remote(node, cmd, timeout, attempts=attempts)
     return out
 
@@ -159,10 +158,6 @@ def source_files():
                 # Results are research artifacts, not executable source dependencies.
                 if root == "exp/offline_search" and p.suffix != ".py":
                     continue
-                relative = p.relative_to(REPO)
-                autoscale = Path('exp/offline_search/rounds/r17/autoscale_1017')
-                if relative.is_relative_to(autoscale) and len(relative.relative_to(autoscale).parts) > 1:
-                    continue  # CPU receipts, temporary releases and baseline test mirrors
                 result[p.relative_to(REPO)] = p
     # Follow static absolute experiment imports, rather than copying unrelated research trees.
     pending = list(result.values())
@@ -461,14 +456,7 @@ def _sync(runroot, names, plan_only=False, concurrent=False, active=(), workdir=
         for item in plan["files"]:
             if item["rel"] in protected and item["sha256"] != protected[item["rel"]]:
                 raise RuntimeError("ACTIVE_ASSET_CONFLICT " + item["rel"])
-        from exp.offline_search.rounds.r17.autoscale_1017.legacy_release import stage as stage_autoscale
-        desired = FLEETS[worker_host()][2]
-        if 'WPS' in os.environ:
-            autoscale_ports, autoscale_wps = ports_workers()
-            desired = autoscale_wps * len(autoscale_ports)
-        desired = int(os.environ.get('OPENPI_DESIRED_MAXIMUM', desired))
-        if desired < 1:raise ValueError('positive desired maximum required')
-        stage_autoscale(runroot, worker_host(), pipeline='R15', maximum=desired, base=str(island()))
+        install_scheduler(runroot)
         if not local:
             with daemon(work, plan["files"]) as url:
                 spec = dict(dest=str(BASE), files=plan["files"], reserve_files=plan["files"], url=url)
@@ -512,6 +500,14 @@ def _sync(runroot, names, plan_only=False, concurrent=False, active=(), workdir=
         (work / "synced.json").write_text(json.dumps(plan, indent=1))
         print("SYNC_OK")
         return plan
+
+
+def install_scheduler(runroot):
+    """Central worker scheduler: its package, the conductor hooks and this helper/run_arm into the
+    worker island; runroot/workers.tar is what the chain's launch check reads."""
+    from exp.offline_search.rounds.r17.scheduler.legacy import install
+    install(runroot, {worker_host(): island()},
+            [(HERE / "run_arm.sh", "os_cl/run_arm.sh"), (HERE / "node.py", "os_cl/node.py")])
 
 
 def collect(runroot, arm, manifest=None):
@@ -604,23 +600,15 @@ def launch_server_host(root, arm):
     return host
 
 
-def ports_workers():
-    cap = FLEETS[worker_host()][2]
+def server_ports():
     if server_host() == 'local':
         from .local_server import choose_ports
         requested = [int(p) for p in os.environ['PORTS'].split(',')] if 'PORTS' in os.environ else None
-        ports = choose_ports(int(os.environ.get('LOCAL_SERVER_COUNT', '4')), requested=requested)
-        wps = int(os.environ.get('WPS', str(max(1, cap//len(ports)))))
-        if wps < 1:
-            raise ValueError('positive desired maximum required')
-        return ports, wps
+        return choose_ports(int(os.environ.get('LOCAL_SERVER_COUNT', '4')), requested=requested)
     ports = [int(p) for p in os.environ["PORTS"].split(",")]
-    wps = int(os.environ.get("WPS", str(max(1, cap//len(ports)))))
     if len(set(ports)) != len(ports) or any(not 23200 <= p <= 23299 for p in ports):
         raise ValueError("PORTS must be distinct ports in 23200..23299")
-    if wps < 1:
-        raise ValueError('positive desired maximum required')
-    return ports, wps
+    return ports
 
 
 def selection(root, row):
@@ -695,7 +683,7 @@ def chain(runroot, names):
     root = Path(runroot).resolve()
     host, worker_island = worker_host(), island()
     server = server_host()
-    ports, wps = ports_workers()
+    ports = server_ports()
     attempts = int(os.environ.get("MAX_ATTEMPTS", "3"))
     if attempts < 1:
         raise ValueError("MAX_ATTEMPTS must be positive")
@@ -775,6 +763,12 @@ def chain(runroot, names):
                 contract = arm_contract(root, originals[name], load_manifest(selected_path))
                 if plan.get('dev_contracts', {}).get(name) != contract:
                     raise RuntimeError('dev selection/library/fit changed since sync; sync again')
+        # One scheduler batch per run root (all arms); workers only on the island's host.
+        from exp.offline_search.rounds.r17.scheduler import legacy
+        from exp.offline_search.rounds.r17.scheduler.defaults import require
+        campaign = legacy.node_campaign(legacy.campaign(root.name, server, (host,)), host)
+        require(campaign, root)
+        workers = campaign["node_workers"]
         receipt = dict(pid=os.getpid(), starttime=identity(os.getpid()),
                        cmdline=Path(f"/proc/{os.getpid()}/cmdline").read_bytes().hex(), worker_host=host)
         if server == 'local':
@@ -826,12 +820,13 @@ def chain(runroot, names):
                     env.update(OSCL_INIT_POOL='B', OSCL_POOL_CONTRACT=remote_contract,
                                OSCL_POOL_CONTRACT_SHA256=sha(contract_path))
                 env.update(execution_env(row))
-                from exp.offline_search.rounds.r17.autoscale_1017.switch import enabled
-                autoscale = json.loads((root/'LEGACY_AUTOSCALE.json').read_text()) if enabled() else None
-                if autoscale:
-                    env.update(OPENPI_AUTOSCALE_OVERLAY=autoscale['remote'], OPENPI_WORKER_AUTOSCALE=autoscale['mode'],
-                               OPENPI_AUTOSCALE_CAMPAIGN=root.name+':'+arm, OPENPI_AUTOSCALE_MODEL=row['model'],
-                               OPENPI_AUTOSCALE_NODE_CONFIG=json.dumps(autoscale.get('node_config', {})))
+                out = worker_island / "os_cl/runs" / root.name / arm
+                # One scheduler directory per root: arms run in sequence, and each arm's
+                # BatchClient resumes the previous arm's desire from its decisions log.
+                shared = worker_island / "os_cl/runs" / root.name / "scheduler/campaign.json"
+                (dest / "scheduler.json").write_text(json.dumps(campaign))
+                push(host, dest / "scheduler.json", shared)
+                env["OPENPI_AUTOSCALE_CONFIG"] = str(shared)
                 if manifest:
                     saved = dest / "manifest.json"
                     saved.write_bytes(Path(manifest).read_bytes())
@@ -843,9 +838,10 @@ def chain(runroot, names):
                 if pool == 'B':
                     selection_data['init_pool'] = 'B'
                 (dest / "selection.json").write_text(json.dumps(selection_data))
-                driver = dict(role="driver", out=str(worker_island / "os_cl/runs" / root.name / arm), arm=arm,
+                # Spec count = the node's hard cap; the scheduler's target decides how many run.
+                driver = dict(role="driver", out=str(out), arm=arm,
                               suite=row["suite"], servers=[endpoint(p, server) for p in ports],
-                              workers=([autoscale['maximum']//len(ports) + (i < autoscale['maximum']%len(ports)) for i in range(len(ports))] if autoscale else [wps]*len(ports)), env=env)
+                              workers=[workers//len(ports) + (i < workers%len(ports)) for i in range(len(ports))], env=env)
                 if host != "timan108":
                     env["WORKER_HOST"] = host
                 specs = [server_spec(root, row, p) for p in ports]
@@ -856,7 +852,7 @@ def chain(runroot, names):
                     (dest / "h100_launch.json").write_text(json.dumps(launch, indent=1))
                 save_launch()
                 (state / "current").write_text(arm + "\n")
-                event(f"ARM_START arm={arm} suite={row['suite']} ports={','.join(map(str,ports))} workers={wps*len(ports)} expect={expect}")
+                event(f"ARM_START arm={arm} suite={row['suite']} ports={','.join(map(str,ports))} workers={workers} expect={expect}")
                 def servers_up():
                     # Renderers of lanes served elsewhere leave the card at episode
                     # boundaries once this machine runs no own batch: wait for them.

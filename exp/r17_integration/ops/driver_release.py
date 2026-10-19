@@ -16,6 +16,8 @@ CACHE_OVERLAY=('exp/r17_integration/ops/cache_study.py','exp/r17_integration/ops
                'exp/r17_integration/ops/cache_driver_legacy.py')
 LIVE_OVERLAY=tuple('exp/r17_integration/ops/'+name+'.py' for name in
     ('formal_driver','live_fleets','live_fleet_driver','live_fleet_worker'))
+# Every driver runtime, frozen ones included: the central scheduler's BatchClient and its conductor hook.
+HOOK=('src/openpi/conductor/driver.py','src/openpi/conductor/worker.py','exp/r17_integration/qualification/driver.py')
 
 
 def driver_files(files,mode):
@@ -25,7 +27,8 @@ def driver_files(files,mode):
         'exp/r17_integration/ops/cache_resume.py','exp/r17_integration/ops/cache_driver_legacy.py') if n in files)
     if mode=='group-commit':names.update(OVERLAY)
     names.update(n for n in LIVE_OVERLAY if n in files)
-    names.update(n for n in files if n.startswith('exp/offline_search/rounds/r17/autoscale_1017/'))
+    from exp.offline_search.rounds.r17.scheduler.defaults import PACKAGE
+    names.update(n for n in files if n.startswith(PACKAGE+'/'))
     return {n:files[n] for n in sorted(names)}
 
 
@@ -41,7 +44,6 @@ def prepare(campaign,directory,checkout):
     if mode=='group-commit' and (campaign.get('library') or campaign.get('native_parity_only')):
         raise ValueError('grouped driver supports pure inference only')
     archive=directory/'runtime.tar';base=archive_manifest(archive)
-    if identity(base)!=campaign['runtime_identity']:pass
     baseline=None
     source=campaign.get('runtime_from') or campaign.get('resume_from')
     if source:
@@ -49,31 +51,24 @@ def prepare(campaign,directory,checkout):
         if old.get('orchestration'):
             validate(old,source)
             baseline=old['orchestration']['selected']
-        elif old.get('driver_mode','legacy')!='legacy':
-            pass
     if baseline is None:
         baseline=pin(base['files'],'legacy')
         baseline['identity']=identity(baseline)
-    selected_archive=archive
     overlay=((*OVERLAY,) if mode=='group-commit' else ())
     if campaign.get('cache_study'):overlay=(*overlay,*CACHE_OVERLAY)
     if campaign.get('live_fleets'):overlay=(*overlay,*LIVE_OVERLAY)
-    if campaign.get('autoscale'):
-        from exp.offline_search.rounds.r17.autoscale_1017.release import driver_files as autoscale_files
-        overlay = (*overlay, *autoscale_files())
-    if overlay:
-        selected_archive=directory/'driver_runtime.tar'
-        with tarfile.open(archive) as original,tarfile.open(selected_archive,'w') as target:
-            content={m.name:original.extractfile(m).read() for m in original.getmembers()}
-            from exp.offline_search.rounds.r17.autoscale_1017.switch import source as preparation_source
-            content.update({name:preparation_source(checkout/name) for name in overlay})
-            for name,data in sorted(content.items()):
-                member=tarfile.TarInfo(name);member.size=len(data);member.mode=0o444
-                target.addfile(member,io.BytesIO(data))
+    from exp.offline_search.rounds.r17.scheduler.defaults import files as scheduler_files
+    overlay=(*overlay,*scheduler_files(),*HOOK)
+    selected_archive=directory/'driver_runtime.tar'
+    with tarfile.open(archive) as original,tarfile.open(selected_archive,'w') as target:
+        content={m.name:original.extractfile(m).read() for m in original.getmembers()}
+        content.update({name:(checkout/name).read_bytes() for name in overlay})
+        for name,data in sorted(content.items()):
+            member=tarfile.TarInfo(name);member.size=len(data);member.mode=0o444
+            target.addfile(member,io.BytesIO(data))
     selected=archive_manifest(selected_archive)
     delta={name for name in set(base['files'])|set(selected['files'])
            if base['files'].get(name)!=selected['files'].get(name)}
-    if delta-set(overlay):pass
     root='/data/mw_finetune/qualification/formal_driver_'+identity(selected)
     install(selected_archive,root,sha(selected_archive),identity(selected))
     current=pin(selected['files'],mode);current['identity']=identity(current)

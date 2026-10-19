@@ -164,7 +164,7 @@ def main(argv=None):
     try:
         import os
         if os.environ.get('OPENPI_AUTOSCALE_NODE'):
-            from exp.offline_search.rounds.r17.autoscale_1017.worker import creation_lock
+            from exp.offline_search.rounds.r17.scheduler.worker import creation_lock
             with creation_lock():probe = attest()
         else:
             probe = attest()

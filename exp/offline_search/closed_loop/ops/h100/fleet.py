@@ -1,12 +1,10 @@
 """Fixed worker-only topologies; no caller-selected destination trees."""
-from exp.offline_search.rounds.r17.autoscale_1017.switch import enabled
 import os
 from pathlib import Path
 
-from exp.offline_search.rounds.r17.autoscale_1017.defaults import physical_maximum
-
+# host -> (worker island, EGL devices). Worker counts come from the central scheduler.
 FLEETS = {
-    "timan107": (Path("/scratch/zixuans8/openpi_trace_h100"), tuple(range(8)), physical_maximum("timan107") if enabled() else 64),
+    "timan107": (Path("/scratch/zixuans8/openpi_trace_h100"), tuple(range(8))),
 }
 
 

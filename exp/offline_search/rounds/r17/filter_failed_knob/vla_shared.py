@@ -41,7 +41,7 @@ def configure_node(n, lock, marker):
             value = dict(value, env=dict(value['env'], FFK_WORKER_FLEET=marker))
             cmd = value['cmd']
             if cmd[:2] == ['bash', str(n.ISLAND/'os_cl/run_arm.sh')]:
-                source = Path(value['env'].get('OPENPI_AUTOSCALE_RUN_ARM', cmd[1])).read_text()
+                source = Path(cmd[1]).read_text()
                 old = 'exec 9>"$R/os_cl/locks/fleet.lock"'
                 if source.count(old) != 1:
                     raise ValueError('Unknown native run_arm fleet lock')

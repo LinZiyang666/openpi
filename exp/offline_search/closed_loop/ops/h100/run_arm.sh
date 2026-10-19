@@ -22,17 +22,10 @@ exec 9>"$R/os_cl/locks/fleet.lock"
 flock -n 9 || exit 75
 export HOME=/home/zixuans8
 export LIBERO_CONFIG_PATH=$R/os_cl/libero
-if [ -n "${OPENPI_AUTOSCALE_OVERLAY:-}" ] && [ "$(cat "$OPENPI_AUTOSCALE_OVERLAY/exp/offline_search/rounds/r17/autoscale_1017/ENABLED" 2>/dev/null)" = on ]; then
-export OPENPI_WORKER_MEMORY_GUARD=1
-export OPENPI_WORKER_GOVERNOR=exp.offline_search.rounds.r17.autoscale_1017.legacy
-export OPENPI_AUTOSCALE_RUN="$OUT/autoscale"
-export OPENPI_AUTOSCALE_CAMPAIGN="${OPENPI_AUTOSCALE_CAMPAIGN:-$ARM}"
-else
-  unset OPENPI_WORKER_MEMORY_GUARD OPENPI_WORKER_GOVERNOR OPENPI_WORKER_OBSERVER OPENPI_AUTOSCALE_OVERLAY
-fi
+# Central worker scheduler: the driver's BatchClient and the agent's NodeExecutor read $OPENPI_AUTOSCALE_CONFIG.
+export OPENPI_WORKER_MEMORY_GUARD=1 OPENPI_WORKER_GOVERNOR=exp.offline_search.rounds.r17.scheduler.legacy
 export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1
-export OPENPI_AUTOSCALE_BASE_PYTHONPATH=$R/packages/openpi-client/src:$R/src:$R
-export PYTHONPATH=${OPENPI_AUTOSCALE_OVERLAY:+$OPENPI_AUTOSCALE_OVERLAY:$OPENPI_AUTOSCALE_OVERLAY/src:}$OPENPI_AUTOSCALE_BASE_PYTHONPATH
+export PYTHONPATH=$R/packages/openpi-client/src:$R/src:$R
 export PATH=/scratch/zixuans8/dsp_bin:/usr/local/bin:/usr/bin:/bin
 PY=/scratch/zixuans8/openpi/.venv/bin/python
 MANIFEST=${OSCL_MANIFEST:-}
@@ -69,6 +62,8 @@ fi
 if [[ "$ARM" == *groot* ]] || grep -qi groot "$R/os_cl/cfg/$ARM.yaml" 2>/dev/null; then RES=(--resize-size 256); else RES=(); fi
 [ "$MATRIX_RESIZE" != default ] && RES=(--resize-size "$MATRIX_RESIZE")
 echo "RUN_ARM_RESIZE arm=$ARM res=${RES[*]:-none}"
+# Only the total: without --server-workers run_gtp binds spec i to server i % n, so the specs the
+# scheduler's target fills (in order) spread over all servers.
 W=0; for n in $(echo "$SW" | tr ',' ' '); do W=$((W+n)); done
 if [ -n "${OSCL_TASKS:-}" ] && [ -z "${OSCL_EPISODES:-}$MANIFEST" ]; then export OSCL_EPISODES=$(seq -s, 0 49); fi
 [ "$W" -gt 0 ] || { echo "positive desired worker maximum required" >&2; exit 2; }
@@ -89,7 +84,6 @@ $PY "${ENTRY[@]}" \
   --phase eval \
   --task-suite "$SUITE" \
   --servers "$SERVERS" \
-  --server-workers "$SW" \
   --workers "$W" \
   --trials 50 \
   --gpus "$GPU_COUNT" \

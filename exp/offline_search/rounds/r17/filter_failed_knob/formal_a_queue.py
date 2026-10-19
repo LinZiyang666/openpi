@@ -20,10 +20,16 @@ from . import formal_a_names as names
 
 INDEX=f.ROOT/'QUEUE.json'
 DRAFTS=f.ROOT/'QUEUE_DRAFTS.json'
-from exp.offline_search.rounds.r17.autoscale_1017.defaults import maxima, queue_workers
-from exp.offline_search.rounds.r17.autoscale_1017.switch import enabled
-WORKERS = {(model, mode): maxima('libero', ('local', 'timan1') if model == 'dp' else ('timan1', 'timan107'))
-           for model in ('dp', 'fastwam', 'cosmos') for mode in ('full', 'reduced')}
+from exp.offline_search.rounds.r17.scheduler.defaults import SHARED, physical_maximum
+# R17 units: the shared pool (formal-A is LIBERO). Staging applies each batch's eligible nodes.
+WORKERS = {n: physical_maximum(n, 'libero') for n in SHARED}
+
+
+def queue_workers(u):
+    """R17: the shared pool. R15/R16: each listed node at its physical maximum (timan108 -> timan107)."""
+    if u['model'] in f.TEST_SOURCE:
+        return dict(WORKERS)
+    return {n: physical_maximum(n, 'libero') for n in sorted({'timan107' if n == 'timan108' else n for n in u['workers']})}
 
 
 def name(model,mode,arm,stage):
@@ -60,7 +66,7 @@ def unit(model,mode,arm,stage):
             if model in ('pi05','groot') and arm=='original':deps.append(name(model,mode,arm,'off_complete'))
     return dict(name=name(model,mode,arm,stage),model=model,mode=mode,arm=arm,stage=stage,
         gpu=source['gpu'],replicas=source['replicas'],batch=source['batch'],
-        workers=(WORKERS.get((model,mode),source['workers']) if enabled() else source['workers']),jobs=[],status='WAITING_OFF',episodes=None,
+        workers=queue_workers(dict(source,model=model)),jobs=[],status='WAITING_OFF',episodes=None,
         maximum_episodes=len(cells(model))*len(levels(model))*500,dependencies=deps)
 
 

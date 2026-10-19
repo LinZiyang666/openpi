@@ -5,4 +5,5 @@ if __name__=='__main__':
     import argparse
     from pathlib import Path
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--run',type=Path,required=True)
-    stage(p.parse_args().run)
+    p.add_argument('--reprepare',action='store_true',help='Reseal an unlaunched prepared campaign with current orchestration')
+    a=p.parse_args();stage(a.run,a.reprepare)

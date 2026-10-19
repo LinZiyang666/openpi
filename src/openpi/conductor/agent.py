@@ -157,7 +157,7 @@ def _default_spawn(spec: WorkerSpec, driver_host: str, driver_port: int) -> Work
                 p for p in env.get("PATH", "").split(os.pathsep) if p != venv_bin
             )
         env["MUJOCO_GL"] = "egl"
-        env["PYTHONPATH"] = os.pathsep.join((_REPO_ROOT, _SRC_DIR, os.environ.get('OPENPI_AUTOSCALE_BASE_PYTHONPATH', '')))
+        env["PYTHONPATH"] = os.pathsep.join((_REPO_ROOT, _SRC_DIR))
         env_flag = "-p" if ("/" in spec.conda_env or os.path.isabs(spec.conda_env)) else "-n"
         cmd = ["conda", "run", "--no-capture-output", env_flag, spec.conda_env, *base_cmd]
     else:

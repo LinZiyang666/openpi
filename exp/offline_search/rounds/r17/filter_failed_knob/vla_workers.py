@@ -12,16 +12,11 @@ import inspect
 import json
 import os
 from pathlib import Path
-import shlex
 import subprocess
-import sys
-import types
 from unittest.mock import patch
 
-from .common import read, dump, sha
+from .common import read, dump
 from . import formal_a as f
-
-from exp.offline_search.rounds.r17.autoscale_1017.switch import enabled, source as preparation_source
 
 MODULE = 'exp.offline_search.rounds.r17.filter_failed_knob.vla_workers'
 R16_ISLAND = '/scratch/zixuans8/openpi_r16_conductor_ffk1017'
@@ -46,8 +41,7 @@ def probe(host, pipeline):
         from exp.offline_search.rounds.r17.filter_failed.timan1_gpu2 import GUARD
         required += [GUARD+'/sitecustomize.py', '/usr/bin/bwrap']
     from exp.offline_search.rounds.r17.filter_failed.worker_resilience import capacity
-    from exp.offline_search.rounds.r17.autoscale_1017.switch import function_source
-    code = ('import json,socket;from pathlib import Path\n'+function_source(capacity)+'\n'
+    code = ('import json,socket;from pathlib import Path\n'+inspect.getsource(capacity)+'\n'
             'print(json.dumps(dict(host=socket.gethostname().split(".")[0],'
             'boot_id=Path("/proc/sys/kernel/random/boot_id").read_text().strip(),'
             'missing=[s for s in '+repr(required)+' if not Path(s).exists()],'
@@ -72,8 +66,8 @@ def choose(job, requested='auto', *, require_capacity=False):
     candidates = hosts if requested == 'auto' else (requested,)
     with ThreadPoolExecutor(max_workers=len(candidates)) as pool:
         rows = dict(zip(candidates, pool.map(lambda h: probe(h, job['pipeline']), candidates)))
-    # Desired maxima do not need to fit at prepare/launch. Per-spawn RAM/VRAM
-    # admission and the global tuner admit the actual fleet, including N=0.
+    # Capacity need not fit at prepare/launch: the central scheduler sets the
+    # actual worker count, including N=0.
     host = next((h for h in candidates if rows[h]['usable']), None)
     if host is None:
         raise RuntimeError('No online legacy worker island: '+json.dumps(rows))
@@ -81,17 +75,15 @@ def choose(job, requested='auto', *, require_capacity=False):
 
 
 def record(job, host, rows, action):
-    from exp.offline_search.rounds.r17.autoscale_1017.defaults import queue_workers
     root = Path(job['run']); path = root/'WORKER_HOST_SELECTION.json'
     previous = read(path) if path.exists() else dict(history=[])
     previous['history'].append(dict(action=action, host=host, probes=rows))
-    previous.update(schema='ffk.legacy_worker_placement.v1', host=host,
-                    source_workers=job['workers'], execution_workers={host: sum(queue_workers(job).values())},
+    # Worker counts come from the central scheduler at run time.
+    previous.update(schema='ffk.legacy_worker_placement.v1', host=host, source_workers=job['workers'],
                     server_topology_unchanged=True, plans_unchanged=True)
     from .vla_shared import worker_lock
     if rows[host].get('island'):
         previous['worker_lock'] = worker_lock(root, rows[host]['island'])
-    if enabled():previous.update(host_lock_shared_by_capacity=True, capacity_required_at_launch=False, autoscale='dynamic')
     dump(path, previous)
 
 
@@ -101,8 +93,6 @@ def r15_command(job, action, host):
     if action == 'prepare':
         env['OSCL_ISOLATE_GENERATED_ASSETS'] = '1'
     env['FFK_WORKER_FLEET_ROOT'] = str(root)
-    from exp.offline_search.rounds.r17.autoscale_1017.defaults import queue_workers
-    if enabled():env['OPENPI_DESIRED_MAXIMUM'] = str(sum(queue_workers(job).values()))
     names = [r['arm'] for r in read(root/'arms.json')]
     argv = [str(f.REPO/'.venv/bin/python'), '-m',
             'exp.offline_search.rounds.r17.filter_failed.legacy',
@@ -131,114 +121,6 @@ def r15(job, action, requested='auto'):
     if action == 'launch':
         argv, env = r15_command(job, action, host)
         subprocess.run(argv, env=env, cwd=f.REPO, check=True)
-
-
-def routed_code(code, host, lock):
-    """Change only native host/worker-lock literals, including nested closures."""
-    replacements = {'timan107': host,
-                    '/scratch/zixuans8/openpi_trace_h100/os_cl/locks/fleet.lock': lock}
-    return code.replace(co_consts=tuple(
-        routed_code(v, host, lock) if isinstance(v, types.CodeType) else
-        replacements.get(v, v) if isinstance(v, str) else v for v in code.co_consts))
-
-
-def r16_agent_bootstrap(host, island, lock=None):
-    from exp.offline_search.rounds.r17.filter_failed import timan1_gpu2 as gpu2
-    # Original deployment archive remains untouched. The agent's host check and
-    # lock follow placement; all pool/horizon/seed checks remain in native code.
-    lock = lock or (island+'/worker_fleet.lock' if host == 'timan1' else
-            '/scratch/zixuans8/openpi_trace_h100/os_cl/locks/fleet.lock')
-    code = ('import types,sys;from exp.offline_search.rounds.r16 import conductor as c\n'+
-            inspect.getsource(routed_code)+'\n'+
-            'c.run_agent.__code__=routed_code(c.run_agent.__code__,'+repr(host)+','+repr(lock)+')\n')
-    if host == 'timan1':
-        code += ('from openpi.conductor import agent as a\n'
-                 'import subprocess\n'
-                 'Spec=a.WorkerSpec\n'
-                 'def worker_spec(*args,**kwargs):\n'
-                 '    args=list(args);args[2]="2"\n'
-                 '    kwargs["env"].update(MUJOCO_EGL_DEVICE_ID="2",CUDA_VISIBLE_DEVICES="",'
-                 'PYOPENGL_PLATFORM="egl")\n'
-                 '    return Spec(*args,**kwargs)\n'
-                 'a.WorkerSpec=worker_spec\n'
-                 'source='+repr(preparation_source(gpu2.__file__).decode())+'\n'
-                 'native_popen=subprocess.Popen\n'
-                 'def spawn(argv,**kwargs):\n'
-                 '    index=argv.index("python");args=argv[index+1:]\n'
-                 '    python="/scratch/zixuans8/libero_sim/bin/python"\n'
-                 '    boot="s="+repr(source)+";g={\\"SOURCE\\":s};exec(s,g);g[\\"namespace\\"]("+repr(python)+","+repr(args)+",\\"legacy\\")"\n'
-                 '    return native_popen(argv[:index]+["/usr/bin/python3","-B","-S","-c",boot],**kwargs)\n'
-                 'a.subprocess=types.SimpleNamespace(Popen=spawn)\n')
-    return code+'c.main()\n'
-
-
-def stage_r16(host, observation):
-    """Called by coordinator prepare/launch only; existing native island is reused."""
-    if observation['installed']: return
-    if host != 'timan1': raise ValueError('Existing R16 island is missing its worker manifest')
-    from exp.offline_search.closed_loop.ops.h100 import control
-    from exp.r17_integration.ops.formal_eval import transfer
-    archive = f.REPO/'exp/offline_search/rounds/r16/conductor_deployment/worker.tar'
-    target = '/tmp/ffk1017_r16_'+sha(archive)+'.tar'; island = observation['island']
-    transfer(['rsync', 'push', str(archive), host+':'+target])
-    # A dedicated new island; no existing worker release is replaced.
-    script = (f'mkdir -p {shlex.quote(island)} && '
-              f'test "$(sha256sum {shlex.quote(target)} | cut -d " " -f 1)" = {sha(archive)} && '
-              f'tar -xf {shlex.quote(target)} -C {shlex.quote(island)} && '
-              f'cd {shlex.quote(island)} && sha256sum -c worker.sha256')
-    control.remote(host, ['bash', '-c', script])
-
-
-def run_r16_selected():
-    from exp.offline_search.rounds.r17.autoscale_1017.legacy_release import coordinator
-    group_root = Path(sys.argv[sys.argv.index('--group')+1]).parent
-    release = coordinator(group_root, sys.argv)
-    """Opt-in wrapper; existing queued R16 launch commands retain native behavior."""
-    from exp.offline_search.rounds.r16 import conductor as c, conductor_runner as r
-    from exp.offline_search.closed_loop.ops.h100 import control, fleet
-    from exp.offline_search.rounds.r17.filter_failed.legacy import rsync_transport
-    from exp.r17_integration.ops.formal_eval import transfer
-    group = Path(sys.argv[sys.argv.index('--group')+1]); job = lookup(group.parent.name)
-    host, rows = choose(job, os.environ['VLA_WORKER_HOST'], require_capacity=True); stage_r16(host, rows[host])
-    if release and host != release['host']:
-        if any((group_root/n).exists() for n in ('launch.json','runner_state.json','DONE.json')):
-            raise ValueError('legacy failover after launch requires a continuation')
-        from exp.offline_search.rounds.r17.autoscale_1017.legacy_release import stage as stage_autoscale
-        release = stage_autoscale(group_root, host, pipeline='R16', maximum=release['maximum'], base=rows[host]['island'])
-    from . import vla_shared
-    island = rows[host]['island']; lock = vla_shared.worker_lock(job['run'], island)
-    # Every native equality check remains an equality check against the chosen
-    # host. No serving, library, group seal or scientific-plan field is changed.
-    functions = [c.R16Driver._record_pull, c.run_driver, r._run, r.run]
-    originals = [fn.__code__ for fn in functions]
-    native_remote = control.remote
-    bootstrap = r16_agent_bootstrap(host, island, lock)
-    def remote(node, argv, *args, **kw):
-        argv = list(argv)
-        if node == host and argv[:2] == ['bash', '-c']:
-            marker = '-m exp.offline_search.rounds.r16.conductor '
-            if marker in argv[2]:argv[2] = argv[2].replace(marker, '-c '+shlex.quote(bootstrap)+' ', 1)
-        return native_remote(node, argv, *args, **kw)
-    if release:
-        if '--workers' in sys.argv:
-            sys.argv[sys.argv.index('--workers')+1] = str(release['maximum'])
-        else:
-            sys.argv += ['--workers', str(release['maximum'])]
-        os.environ['OPENPI_AUTOSCALE_REMOTE'] = release['remote']
-    old_island = sys.argv[sys.argv.index('--agent-island')+1]
-    sys.argv[sys.argv.index('--agent-island')+1] = island
-    record(job, host, rows, 'launch')
-    try:
-        for fn in functions:fn.__code__ = routed_code(fn.__code__, host, lock)
-        with patch.dict(fleet.FLEETS, {host: (Path(island), (2,), 83)} if host == 'timan1' else {}), \
-             patch.object(control, 'remote', remote), \
-             patch.object(control, 'fleet_lock', vla_shared.fleet_lock), \
-             patch.dict(os.environ, FFK_WORKER_FLEET_ROOT=str(job['run'])), \
-             patch.object(control, 'run', rsync_transport(control.run, transfer)):
-            r.main()
-    finally:
-        for fn, code in zip(functions, originals):fn.__code__ = code
-        sys.argv[sys.argv.index('--agent-island')+1] = old_island
 
 
 def recover_pi05():
@@ -301,19 +183,6 @@ def recover_pi05():
     print('PURE_REPLACEMENT',new_name,500,'replacement_only_do_not_merge',flush=True)
 
 
-def prepare_r16_job(job, requested='auto'):
-    from exp.offline_search.rounds.r17.autoscale_1017.legacy_release import stage
-    from exp.offline_search.rounds.r17.autoscale_1017.defaults import queue_workers, physical_maximum
-    host, rows = choose(job, requested)
-    stage_r16(host, rows[host])
-    counts = queue_workers(job)
-    maximum = sum(counts.values())
-    if enabled() and job.get('workers') == {'timan107': 64} and not job.get('worker_maxima_explicit'):
-        maximum = physical_maximum(host)
-    stage(Path(job['run']), host, pipeline='R16', maximum=maximum, base=rows[host]['island'])
-    record(job, host, rows, 'prepare')
-
-
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('action', choices=('prepare', 'launch', 'probe', 'recover-pi05', 'prepare-unit', 'launch-unit'))
@@ -322,21 +191,12 @@ def main():
     if args.action == 'recover-pi05':return recover_pi05()
     if args.action.endswith('-unit'):
         from . import formal_a_queue as q
-        action=args.action.removesuffix('-unit')
-        os.environ['VLA_WORKER_HOST']=args.worker_host
-        q.dispatch(action,args.unit)
-        if action=='prepare':
-            unit=next(u for u in read(q.INDEX)['units'] if u['name']==args.unit)
-            for job in unit['jobs']:
-                prepare_r16_job(job,args.worker_host)
-        return
+        return q.dispatch(args.action.removesuffix('-unit'),args.unit)
     job = lookup(args.job)
     if args.action == 'probe':
         host, rows = choose(job, args.worker_host);print(json.dumps(dict(host=host, probes=rows)));return
     if job['pipeline'] == 'R15':return r15(job, args.action, args.worker_host)
-    if args.action == 'prepare':
-        prepare_r16_job(job,args.worker_host);return
-    raise ValueError('R16: use its native launch command with VLA_WORKER_HOST=auto')
+    raise ValueError('R16: prepare with formal_a check, launch with rounds.r16.conductor_runner run')
 
 
 if __name__ == '__main__':main()

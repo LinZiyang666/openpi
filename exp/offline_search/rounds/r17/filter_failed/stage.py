@@ -2,7 +2,9 @@
 
 It starts no model server, worker, driver or chain.
 Native server/runtime and scientific worker bytes are reused from the baseline;
-new dynamic campaigns receive a separately pinned orchestration overlay.
+the driver runtime and worker payload receive the central scheduler overlay.
+--reprepare reseals an unlaunched prepared campaign (e.g. one prepared before
+the scheduler); its previous seal stays beside it.
 """
 from __future__ import annotations
 
@@ -88,10 +90,15 @@ def stage_server_inputs(launch, campaign, root):
         launch.transfer(['rsync', 'push', str(root/'campaign.json'), 'h100:'+directory+'/'+name])
 
 
-def stage(root):
+def stage(root, reprepare=False):
     from exp.r17_integration.ops.formal_prestage import preparation_lock
     root = Path(root).resolve()
     with preparation_lock(root):
+        if reprepare and (root/'PREPARED.json').exists():
+            if any((root/name).exists() for name in ('LAUNCH.json', 'RECEIPT.json')):
+                raise ValueError('campaign was already launched; use filter_failed.reset for a pre-start failure')
+            import time
+            (root/'PREPARED.json').rename(root/('PREPARED.before_reprepare_'+str(time.time_ns())+'.json'))
         if read(root/'campaign.json').get('longseg_1017'):
             from exp.offline_search.rounds.r17.longseg_1017.io_budget import filesystem_budget
             from exp.r17_integration.ops import direct_transfer
@@ -132,8 +139,9 @@ def _stage(root):
     # R17_H100_NODE lane: serve this H100 job on the alias machine (routing fields only).
     from exp.offline_search.rounds.r17.longseg_1017.ports import execution_host
     campaign = execution_host(campaign, root)
-    from exp.offline_search.rounds.r17.autoscale_1017.defaults import apply
-    apply(campaign, root)
+    from exp.offline_search.rounds.r17.scheduler.defaults import apply
+    # A new preparation places fleets on every eligible node; a prepared one only restages.
+    apply(campaign, root, force=not (root/'PREPARED.json').exists())
     from exp.r17_integration.ops.formal_ports import prepare_admission
     prepare_admission(campaign)
     # The standard runtime_release step also makes this coordinator mirror.
@@ -149,12 +157,6 @@ def _stage(root):
         runtime_sha = fixed_runtime(launch, campaign, root)
     install(root/'runtime.tar', campaign['runtime'], runtime_sha, campaign['runtime_identity'])
     campaign['coordinator_runtime'] = campaign['runtime']
-    if campaign.get('local_worker_exception'):
-        # payload_override skips local_workers.payload, which normally writes
-        # this receipt. run_campaign reads it before spawning anything. Its
-        # original archive pin remains correct because that archive is reused.
-        if (source/'LOCAL_WORKER_ORCHESTRATION.json').exists():
-            shutil.copyfile(source/'LOCAL_WORKER_ORCHESTRATION.json', root/'LOCAL_WORKER_ORCHESTRATION.json')
     write(root/'campaign.json', campaign)
     if (root/'PREPARED.json').exists():
         # PREPARED seals local inputs, not ephemeral /tmp copies. A repeated
@@ -171,15 +173,9 @@ def _stage(root):
         attach(campaign,source)
         from exp.r17_integration.ops.cache_control import attach as attach_control
         attach_control(campaign,root)
-        # Existing orchestration overlay supports task/init subsets. It leaves
-        # model code and renderer/worker payloads in their original releases.
-        prepare(campaign,root,REPO)
-    elif campaign.get('autoscale'):
-        # A dynamic continuation needs the driver's autoscale hook: rebuild the
-        # driver over the same remaining plan (checked below).
-        prepare(campaign,root,REPO)
-    # A fixed continuation inherits the exact source driver/control pins;
-    # provision only its new worker/server paths, without rebuilding them.
+    # The orchestration overlay (task/init subsets, the scheduler's BatchClient) over
+    # the same plan, checked below; model code stays in its original release.
+    prepare(campaign,root,REPO)
     write(root/'campaign.json',campaign)
     assert planned_tasks(campaign,root)==read(root/'EPISODE_PLAN.json')['tasks']
     shutil.copyfile(source/'WORKER_DEPLOYMENT.json',root/'WORKER_DEPLOYMENT.json')
@@ -191,8 +187,6 @@ def _stage(root):
         stage_server_inputs(launch, campaign, root)
         stage_worker_inputs(launch, campaign, root, deployment)
     write(root/'campaign.json',campaign)
-    if not campaign.get('autoscale'):
-        assert sha(root/'workers.tar')==sha(source/'workers.tar')
     assert sha(root/'runtime.tar')==runtime_sha
     write(root/'PREFLIGHT.json',dict(status='PASS',cpu_only=True,episodes=read(root/'EPISODE_PLAN.json')['expected_episodes'],
           worker_nodes=list(deployment),replicas=campaign['replicas'],ports=campaign['ports'],
@@ -206,4 +200,5 @@ def _stage(root):
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--run',type=Path,required=True)
-    args=p.parse_args();stage(args.run)
+    p.add_argument('--reprepare',action='store_true',help='Reseal an unlaunched prepared campaign with current orchestration')
+    args=p.parse_args();stage(args.run,args.reprepare)

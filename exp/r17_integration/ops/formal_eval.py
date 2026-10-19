@@ -28,6 +28,11 @@ CONTROL_PYTHON = str(ROOT / '.venv/bin/python')
 FORMAL_ROOT = Path('/data/mw_finetune/eval')
 PROBE_SECONDS = 30
 WORKER_ROOT = '/scratch/zixuans8/mw_r17/formal'
+# Overlaid on every worker payload with the scheduler package: its fleet loop's hooks and launch path.
+WORKER_OVERLAY = ('src/openpi/conductor/worker.py', 'exp/r17_integration/conductor/worker_entry.py', *(
+    'exp/r17_integration/ops/'+n+'.py' for n in ('formal_process', 'formal_workers', 'worker_lifetime', 'worker_gpu',
+    'worker_memory', 'worker_disk', 'worker_installs', 'local_workers', 'local_worker_entry', 'timan1_workers',
+    'live_fleet_worker', 'cache_capacity')))
 DEFAULT_CHECKPOINTS = {
     'dp_libero': '/data/mw_finetune/dp/libero_policy_100000',
     'dp_mw': '/data/mw_finetune/dp/mt50_policy_100000',
@@ -435,65 +440,41 @@ def _gpu2_coordinator(function):
 
 @_gpu2_coordinator
 def prepare_workers(campaign, directory, *, payload_override=None):
-    from .build_client_bundle import worker_payload_files, build_client_bundle
-    from exp.offline_search.rounds.r17.autoscale_1017.defaults import apply
+    from .build_client_bundle import worker_payload_files, build_client_bundle, overlay
+    from exp.offline_search.rounds.r17.scheduler.defaults import apply, files as scheduler_files
     apply(campaign, directory)
     names = worker_payload_files(ROOT)
-    if campaign.get('autoscale'):
-        from exp.offline_search.rounds.r17.autoscale_1017.bundle import files
-        names += files()
     closed_capacity_refresh=bool(campaign.get('cache_capacity_authorization') and campaign.get('prepare_only') is True)
     if closed_capacity_refresh:
         from .cache_capacity import validate_authorization
         validate_authorization(campaign)
-        if any((Path(directory)/name).exists() for name in ('LAUNCH.json','RECEIPT.json')):
-            pass
     capacity_transfer_options=['--force'] if closed_capacity_refresh else []
     execution_nodes=campaign.get('execution_worker_nodes',campaign['worker_nodes'])
     names += ['exp/r17_integration/ops/'+n+'.py' for n in
-              ('formal_process', 'formal_workers', 'formal_resume', 'worker_lifetime', 'worker_gpu', 'worker_disk', 'build_client_bundle', 'sync_back', 'deploy', 'tether_retry', 'remote_json', 'worker_installs', 'worker_memory')]
+              ('formal_resume', 'build_client_bundle', 'sync_back', 'deploy', 'tether_retry', 'remote_json')]
     names += ['exp/r17_integration/qualification/archive_stage.py']
-    if campaign.get('live_fleets'):
-        # Include all attachable client routes in the initial immutable pin.
-        names += ['exp/r17_integration/ops/'+n+'.py' for n in
-                  ('live_fleet_worker','local_workers','local_worker_entry','timan1_workers')]
     if campaign.get('cache_study'):
         names.append('exp/r17_integration/ops/cache_study_worker.py')
-    if {'local', 'h100'} & set(execution_nodes):
-        names.append('exp/r17_integration/ops/local_worker_entry.py')
     if 'timan1' in execution_nodes:
         from .timan1_workers import authorize
         campaign['timan1_worker_lease']=authorize(campaign)
-        names.append('exp/r17_integration/ops/timan1_workers.py')
     if campaign.get('domain') == 'libero' or not execution_nodes:
         names += ['exp/r17_integration/qualification/specs/libero_original_assets.json']
     if campaign.get('domain') == 'libero' and (campaign.get('library') or campaign.get('eval_pool')=='B'):
         names += ['exp/r17_integration/ops/library_init.py']
     if payload_override is not None:
-        from .build_client_bundle import verified_members
-        from .immutable_release import sha
-        from .live_fleet_worker import authorization
-        record=authorization(campaign)
-        if record is None or sha(payload_override)!=record['worker_archive_sha256']:
-            pass
-        manifest,_=verified_members(payload_override,'PAYLOAD.json')
         import shutil
         shutil.copyfile(payload_override,Path(directory)/'workers.tar')
-        payload=dict(archive_sha256=sha(payload_override),manifest=manifest)
     elif campaign.get('cache_control'):
         from .cache_control import worker_payload
-        payload = worker_payload(campaign, directory, ROOT, sorted(set(names)))
+        worker_payload(campaign, directory, ROOT, sorted(set(names)))
     elif campaign.get('runtime_from'):
         from .formal_runtime import worker_payload
-        payload = worker_payload(campaign, directory)
+        worker_payload(campaign, directory)
     else:
-        payload = build_client_bundle(ROOT, sorted(set(names)), directory / 'workers.tar')
-    if payload_override is None and (campaign.get('live_fleets') or {'local','timan1','h100'} & set(execution_nodes)):
-        from .local_workers import payload as local_payload
-        payload = local_payload(campaign,directory,ROOT,payload)
-    if campaign.get('autoscale'):
-        from exp.offline_search.rounds.r17.autoscale_1017.release import refresh_worker
-        payload = refresh_worker(campaign, Path(directory), ROOT, payload)
+        build_client_bundle(ROOT, sorted(set(names)), directory / 'workers.tar')
+    # Every payload, frozen ones included, carries the scheduler's node side and current orchestration.
+    payload = overlay(Path(directory)/'workers.tar', ROOT, [*scheduler_files(), *WORKER_OVERLAY])
     digest = payload['archive_sha256']
     if campaign.get('live_fleets'):
         from .live_fleet_worker import check_payload_protocol
@@ -595,10 +576,8 @@ def prepare_workers(campaign, directory, *, payload_override=None):
         worker = dict(campaign, worker_node=node, node_workers=count,
             worker_run=paths['run'], worker_private_root=paths['private'],
             worker_benchmark=stage+'/benchmark.json')
-        if campaign.get('autoscale'):
-            env.update(OPENPI_AUTOSCALE_NODE=paths['run']+'/AUTOSCALE_NODE.json',
-                       OPENPI_AUTOSCALE_CONTROL=paths['run']+'/AUTOSCALE_CONTROL.json')
-            worker['autoscale_initial'] = count
+        env.update(OPENPI_AUTOSCALE_NODE=paths['run']+'/AUTOSCALE_NODE.json',
+                   OPENPI_AUTOSCALE_CONTROL=paths['run']+'/AUTOSCALE_CONTROL.json')
         if campaign.get('cache_capacity_authorization'):
             from .cache_capacity import renderer_devices
             devices=renderer_devices(campaign,node)
@@ -621,29 +600,8 @@ def prepare_workers(campaign, directory, *, payload_override=None):
         if campaign['domain'] == 'libero':
             worker.setdefault('worker_memory_mib', 6144)
             worker.setdefault('worker_max_episodes', 4)
-        memory_job = {key:worker[key] for key in ('domain', 'node_workers', 'worker_memory_mib',
-                                                'worker_memory_headroom_mib') if key in worker}
-        if campaign.get('autoscale'):
-            memory = dict(admitted=True, deferred=True, desired_maximum=count,
-                          reason='Node supervisor must admit every spawn from live memory/PSI/growth')
-        else:
-            memory = json.loads(remote(node, ['env','PYTHONPATH='+pythonpath(destination),worker_python,'-c',
-                'from exp.r17_integration.ops.worker_memory import admission; import json; '
-                'print(json.dumps(admission('+repr(memory_job)+','+repr(paths['run'])+')))'], replay_safe=True))
-        write_json(directory/(node+'_MEMORY_ADMISSION.json'), memory)
-        from .cache_capacity import can_defer_admission
-        deferred=bool(campaign.get('autoscale')) or can_defer_admission(campaign)
-        if not memory['admitted'] and not deferred and (not campaign.get('prepare_only') or campaign.get('cache_worker_orchestration')):
-            raise RuntimeError(node+': '+memory['reason'])
-        if campaign.get('cache_worker_orchestration'):
-            gpu_job={key:worker[key] for key in ('worker_node','node_workers','worker_egl_device',
-                'worker_egl_devices','worker_vram_mib','worker_server_vram_headroom_mib') if key in worker}
-            gpu=json.loads(remote(node,['env','PYTHONPATH='+pythonpath(destination),worker_python,'-c',
-                'from exp.r17_integration.ops.worker_gpu import admission; import json; '
-                'print(json.dumps(admission('+repr(gpu_job)+','+repr(paths['run'])+')))'],replay_safe=True))
-            write_json(directory/(node+'_GPU_ADMISSION.json'),gpu)
-            if not gpu['admitted'] and not deferred:
-                pass
+        write_json(directory/(node+'_MEMORY_ADMISSION.json'), dict(admitted=True, deferred=True, maximum=count,
+            reason='the node executor admits every spawn from live memory and GPU slots'))
         if campaign.get('domain') == 'libero' and (campaign.get('library') or campaign.get('eval_pool')=='B'):
             init_digest = campaign['bpool_transfer']['archive_sha256']
             transfer(['rsync','push',campaign['bpool_archive'],node+':'+stage+'/bpool_inputs.tar'])
@@ -651,8 +609,6 @@ def prepare_workers(campaign, directory, *, payload_override=None):
                 'print(json.dumps(install_init_archive('+repr(stage+'/bpool_inputs.tar')+','+
                 repr(paths['private']+'/bpool_'+init_digest)+','+repr(init_digest)+')))')
             installed_b = json.loads(remote(node,['env','PYTHONPATH='+pythonpath(destination),worker_python,'-c',code]))
-            if installed_b['manifest'] != campaign['bpool_transfer']['manifest']:
-                pass
             worker['worker_init_states_dir'] = ','.join(k+'='+v for k,v in sorted(installed_b['directories'].items()))
             write_json(directory/(node+'_BPOOL.json'),installed_b)
         write_json(directory / (node+'.json'), worker)
@@ -793,7 +749,7 @@ def failed_fleet(node, item, status):
 
 @campaign_retries
 def prepare(campaign, directory):
-    from exp.offline_search.rounds.r17.autoscale_1017.defaults import apply
+    from exp.offline_search.rounds.r17.scheduler.defaults import apply
     apply(campaign, directory)
     from .sync_back import snapshot_run, install_snapshot
     from .build_client_bundle import sha256
@@ -821,8 +777,7 @@ def prepare(campaign, directory):
             ', "H100 free-space admission failed"; print(json.dumps(dict(status="PASS",free_data_bytes=d,free_tmp_bytes=t)))')
         write_json(directory/'H100_DISK_ADMISSION.json',json.loads(remote('h100',[host_python(campaign),'-c',code])))
     from .formal_prestage import runtime_release, phase
-    from exp.offline_search.rounds.r17.autoscale_1017.bundle import runtime_sources
-    with runtime_sources(campaign), phase(directory, 'runtime_build_verify_transfer'):
+    with phase(directory, 'runtime_build_verify_transfer'):
         runtime_release(sys.modules[__name__],campaign,directory)
     root = campaign['runtime']
     write_json(directory / 'campaign.json', campaign)
@@ -1123,7 +1078,7 @@ def refresh_remote_owned(remote_owned, directory, status_cache, control_files, l
             continue
         group=[o for o in remote_owned if (o['node'], o['root'], o['python'])==(node, root, python)]
         entries=[dict(label=o['label'],request=o['request']) for o in group]
-        from exp.offline_search.rounds.r17.autoscale_1017.driver import status_entries
+        from exp.offline_search.rounds.r17.scheduler.channels import status_entries
         entries=status_entries(entries, directory)
         owned=group[0]
         key=node,json.dumps(entries,sort_keys=True)
@@ -1156,7 +1111,7 @@ def refresh_remote_owned(remote_owned, directory, status_cache, control_files, l
             print('R17 probe: '+node+' unreachable through tether; continuing without its status', file=sys.stderr, flush=True)
             continue
         for label,value in results.items():status_cache[node,label]=value
-    from exp.offline_search.rounds.r17.autoscale_1017.driver import collect_status
+    from exp.offline_search.rounds.r17.scheduler.channels import collect_status
     collect_status(directory, status_cache)
     return time.monotonic()
 
@@ -1164,7 +1119,7 @@ def refresh_remote_owned(remote_owned, directory, status_cache, control_files, l
 @campaign_retries
 @_gpu2_coordinator
 def run_campaign(campaign, directory, deployment):
-    from exp.offline_search.rounds.r17.filter_failed import timan1_gpu2 as _autoscale_gpu2
+    from exp.offline_search.rounds.r17.filter_failed import timan1_gpu2
     class NativeQualificationComplete(Exception):
         pass
     from .sync_back import install_snapshot
@@ -1223,9 +1178,9 @@ def run_campaign(campaign, directory, deployment):
         log = (directory / (label+'.log')).open('ab')
         handles.append(log)
         child_env = {**os.environ, **env}
-        if label == 'driver' and campaign.get('autoscale'):
+        if label == 'driver':
             child_env.update(OPENPI_AUTOSCALE_CONFIG=str(directory/'campaign.json'),
-                             OPENPI_AUTOSCALE_DRIVER_MODULE='exp.offline_search.rounds.r17.autoscale_1017.driver')
+                             OPENPI_AUTOSCALE_DRIVER_MODULE='exp.offline_search.rounds.r17.scheduler.client')
         if label.startswith('replica_') and child_env.get('CUDA_VISIBLE_DEVICES')=='':
             # Slot wrappers deliberately hide CUDA from the CPU conductor.
             # An explicit --run admits only this owned resident to the GPU.
@@ -1240,8 +1195,8 @@ def run_campaign(campaign, directory, deployment):
         save()
         return child
     def spawn_remote(node, label, argv, env, root, python, stage, ownership=None):
-        if node == 'timan1' and label == 'workers' and campaign.get('autoscale'):
-            argv = _autoscale_gpu2.bootstrap(argv[0], ['exp.r17_integration.ops.formal_workers', *argv[4:]], 'fleet')
+        if node == 'timan1' and label == 'workers':
+            argv = timan1_gpu2.bootstrap(argv[0], ['exp.r17_integration.ops.formal_workers', *argv[4:]], 'fleet')
         if ownership:
             from .live_fleets import owned_spawn
             def record(owned,first):
@@ -1735,13 +1690,9 @@ def parse_args(argv=None):
     p.add_argument('--server-node', choices=('local', 'h100'))
     p.add_argument('--worker-node', choices=('timan107','local','timan1'))
     from .local_workers import counts
-    p.add_argument('--worker-counts', type=counts, help='Desired per-node maxima, e.g. timan1=150,timan107=100; runtime chooses active counts')
-    p.add_argument('--worker-hard-limits', type=counts, help='Per-node caps the autoscaler never exceeds (trials), e.g. a100=10,timan107=20')
+    p.add_argument('--worker-counts', type=counts, help='Canonical topology label, e.g. timan1=150,timan107=100; the central scheduler places workers')
     p.add_argument('--local-worker-memory-mib',type=int,default=4096)
     p.add_argument('--local-worker-vram-mib',type=int,default=1024)
-    p.add_argument('--worker-autoscale', choices=('dynamic','fixed'), default='dynamic')
-    p.add_argument('--worker-memory-floor-gib', type=float, default=20)
-    p.add_argument('--worker-memory-critical-gib', type=float, default=10)
     p.add_argument('--extra-workers', type=int, default=0, help='Workers on the other timan node')
     p.add_argument('--replicas', type=int)
     p.add_argument('--mps', action='store_true',
@@ -1751,7 +1702,6 @@ def parse_args(argv=None):
     p.add_argument('--max-batch', type=int, default=1,
                    help='Native cross-connection batching (pi05/GR00T/Fast-WAM/DP, LIBERO or MT50)')
     p.add_argument('--batch-wait-ms', type=float, default=5., help='Native stage batching window, milliseconds')
-    p.add_argument('--wire-zlib', action='store_true', help='Workers zlib-compress large uint8 arrays (lossless; server accepts both)')
     p.add_argument('--node-egl-devices', help='Per-node EGL devices (kernel minors), e.g. timan1=2;timan107=0,1,2,3,4,5,6,7')
     p.add_argument('--paired-control', type=Path,
                    help='Completed same-GPU/batching official-50 Fast-WAM K10/C5 control; required for batched arms')
@@ -1761,7 +1711,7 @@ def parse_args(argv=None):
                    help='Separately pinned orchestration; group-commit leaves frozen model/worker code unchanged')
     p.add_argument('--batch-qualification-observations', type=Path,
                    help='Smoke only: recorded Fast-WAM observations on server for startup B1/B8 parity and throughput')
-    p.add_argument('--workers', type=int, default=None, help='Desired maximum; omitted: benchmark renderer hardware limit')
+    p.add_argument('--workers', type=int, default=None, help='Canonical worker count label; omitted: the node\'s renderer hard cap')
     p.add_argument('--worker-memory-mib', type=int,
                    help='Node RAM reservation per worker (default LIBERO6144, MW2048 MiB)')
     p.add_argument('--worker-min-free-gib',type=float,default=8,
@@ -1876,9 +1826,8 @@ def parse_args(argv=None):
     args.server_node = args.server_node or ('h100' if cosmos or args.model == 'groot_libero' else 'local')
     args.worker_node = args.worker_node or 'timan107'
     if args.workers is None:
-        from exp.offline_search.rounds.r17.autoscale_1017.defaults import physical_maximum
-        from exp.offline_search.rounds.r17.autoscale_1017.switch import enabled
-        args.workers = physical_maximum(args.worker_node, 'libero' if args.model.endswith('_libero') else 'metaworld') if enabled() else 24
+        from exp.offline_search.rounds.r17.scheduler.defaults import physical_maximum
+        args.workers = physical_maximum(args.worker_node, 'libero' if args.model.endswith('_libero') else 'metaworld')
     args.port = args.port if args.port is not None else (23240 if cosmos else 23160)
     args.driver_port = args.driver_port if args.driver_port is not None else (
         23112 if cosmos else 23169 if args.model in ('pi05_libero', 'groot_libero') else 23179)
@@ -1988,7 +1937,7 @@ def main(argv=None):
     if alias:  # fresh campaign on the R17_H100_NODE machine: its driver port and, for a pod, its tunnel ports
         args.driver_port = alias['driver_port']
         args.port = alias['public_port'] or args.port
-    from exp.offline_search.rounds.r17.autoscale_1017.defaults import physical_maximum
+    from exp.offline_search.rounds.r17.scheduler.defaults import physical_maximum
     worker_nodes = args.worker_counts or {args.worker_node: args.workers if args.workers is not None else physical_maximum(args.worker_node, domain)}
     if args.extra_workers:
         worker_nodes['timan1' if args.worker_node == 'timan107' else 'timan107'] = args.extra_workers
@@ -2003,9 +1952,6 @@ def main(argv=None):
         worker_min_free_gib=args.worker_min_free_gib,
         local_worker_memory_mib=args.local_worker_memory_mib,local_worker_vram_mib=args.local_worker_vram_mib,
         worker_max_episodes=args.worker_max_episodes, worker_max_seconds=1800,
-        autoscale=dict(mode=args.worker_autoscale, floor=int(args.worker_memory_floor_gib*1024**3),
-                       critical=int(args.worker_memory_critical_gib*1024**3)),
-        autoscale_maximum=sum(worker_nodes.values()),
         public_port=args.port, backend_ports=list(range(args.port+1,args.port+1+args.replicas)),
         ports=[args.port,*range(args.port+1,args.port+1+args.replicas),args.driver_port],
         driver_host='ziyanglin.com', driver_port=args.driver_port,
@@ -2019,9 +1965,6 @@ def main(argv=None):
         vendor='/home/weiland/projects/openpi_ext/third_party/gr00t_n15', live_k=4)
     if alias:
         campaign['execution_host'] = alias['node']
-    if args.worker_hard_limits:
-        campaign['worker_hard_limits'] = {n: dict(maximum=v, reason='coordinator trial cap (--worker-hard-limits)')
-                                          for n, v in args.worker_hard_limits.items()}
     if args.eval_pool == 'B':campaign['eval_pool']='B'
     if args.init_count is not None:campaign['init_count']=args.init_count
     if model == 'groot' and args.denoising_steps is not None:
@@ -2045,9 +1988,6 @@ def main(argv=None):
     if 'local' in worker_nodes:
         from .local_workers import authorize
         campaign['local_worker_exception'] = authorize(campaign)
-    if 'timan1' in worker_nodes:
-        from .timan1_workers import authorize
-        campaign['timan1_worker_lease']=authorize(campaign)
     if args.defer_control_check:
         campaign['defer_control_check']=True
     if args.commit_horizon is not None:
@@ -2073,8 +2013,6 @@ def main(argv=None):
     elif args.max_batch > 1 and model in ('pi05', 'groot'):
         from exp.r17_integration.common.batch_runtime import BatchConfig
         campaign['stage_batching'] = BatchConfig(args.max_batch, args.batch_wait_ms).metadata()
-    if args.wire_zlib:
-        campaign['wire_zlib'] = True
     if args.node_egl_devices:
         campaign['worker_egl_devices_by_node'] = {n: [int(d) for d in v.split(',')] for n, v in (x.split('=') for x in args.node_egl_devices.split(';'))}
     if args.batch_qualification_observations:
@@ -2094,6 +2032,8 @@ def main(argv=None):
             check_resume(campaign, args.resume_from)
         from .formal_resume import attach
         attach(campaign, args.resume_from)
+    from exp.offline_search.rounds.r17.scheduler.defaults import apply, require
+    apply(campaign, directory)  # execution nodes decide the endpoints below
     tunnels = []
     try:
         if not args.prepare_only:
@@ -2103,6 +2043,7 @@ def main(argv=None):
         if args.prepare_only:
             print(json.dumps(dict(status='PASS', cpu_only=True, run=str(directory))))
             return 0
+        require(campaign, directory)
         return run_campaign(campaign, directory, deployment)
     finally:
         close_tunnels(tunnels,directory)

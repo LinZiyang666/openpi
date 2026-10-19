@@ -466,11 +466,14 @@ def import_reuse(group, journal_path):
                            success=y,accepted=True,attempt=0,run_id='reuse_'+sha(e['reuse'])[:12])
 
 
+LEGACY = 'exp.offline_search.rounds.r17.scheduler.legacy'
+# LIBERO simulator environment per worker node; the 4090's is the same build (r16_local_island).
+CONDA = {'timan107': '/scratch/zixuans8/libero_sim', 'local': '/home/weiland/projects/openpi_ext/envs/libero_sim'}
+
+
 def run_driver(args):
-    from exp.offline_search.rounds.r17.autoscale_1017.switch import enabled
-    if enabled():
-        os.environ.update(OPENPI_WORKER_MEMORY_GUARD='1',
-                          OPENPI_WORKER_GOVERNOR='exp.offline_search.rounds.r17.autoscale_1017.legacy')
+    # Central worker scheduler: BatchClient on the campaign named by OPENPI_AUTOSCALE_CONFIG (conductor_runner).
+    os.environ.update(OPENPI_WORKER_MEMORY_GUARD='1', OPENPI_WORKER_GOVERNOR=LEGACY)
     group=read_group(args.group); root=Path(group['root'])
     from .analyze import Reader,verify
     rr=Reader();verify(rr);rr.stable()
@@ -496,7 +499,6 @@ def run_driver(args):
         driver=R16Driver(strategy,endpoints,yaml_weights={a:len(e['pairs']) for a,e in strategy.entries.items()},
                          servers=servers,journal_path=str(journal),ctl_factory=ctl,
                          bind_host='0.0.0.0',bind_port=args.port,per_step_writer=writer)
-        started=time.monotonic()
         stop=threading.Event()
         for sig in (signal.SIGTERM,signal.SIGINT): signal.signal(sig,lambda *_:stop.set())
         write_json(root/'launch.json',dict(server_host='local',worker_host='timan107',STAGE1_ONLY=0,
@@ -506,8 +508,6 @@ def run_driver(args):
             proc=getattr(args,'agent_process',None)
             if proc is not None and proc.poll() is not None:stop.set()
             if driver.fatal_error:stop.set()
-            if time.monotonic()-started>120 and not driver.worker_census:
-                driver.fatal_error='No attested timan107 workers connected within 120 seconds';stop.set()
             return stop.is_set()
         driver.run(stopped)
         write_json(root/'progress.json',dict(progress=driver._scheduler.progress(),
@@ -520,37 +520,28 @@ def run_driver(args):
 
 
 def run_agent(args):
-    # Runs ONLY when coordinator invokes agent on timan107. Isolated island;
-    # never overwrite the checkout used by the old coordinator line.
-    import socket
-    if socket.gethostname().split('.')[0]!='timan107': raise ValueError('Agent requires timan107')
+    # Runs ONLY when the coordinator invokes it on a worker node, from that node's isolated
+    # island (conductor_runner). The scheduler's NodeExecutor decides how many specs run.
     from openpi.conductor.agent import WorkerAgent,WorkerSpec
+    os.environ.update(OPENPI_WORKER_MEMORY_GUARD='1', OPENPI_WORKER_GOVERNOR=LEGACY)
     pool='B' if args.phase=='dev' else 'A'
     specs=[]
     servers=[item.partition('=')[0] for item in args.servers.split(',')]
-    if args.workers is None:
-        from exp.offline_search.rounds.r17.autoscale_1017.defaults import physical_maximum
-        from exp.offline_search.rounds.r17.autoscale_1017.switch import enabled
-        args.workers = physical_maximum('timan107') if enabled() else 64
-    if args.workers < 1: raise ValueError('Positive desired worker maximum required')
-    from exp.offline_search.rounds.r17.autoscale_1017.switch import enabled
-    if enabled():
-        os.environ.update(OPENPI_WORKER_MEMORY_GUARD='1',
-                          OPENPI_WORKER_GOVERNOR='exp.offline_search.rounds.r17.autoscale_1017.legacy',
-                          OPENPI_AUTOSCALE_MODEL=args.model)
-        os.environ.setdefault('OPENPI_AUTOSCALE_RUN',str(Path('/scratch/zixuans8/mw_r17/autoscale_legacy')/str(os.getpid())))
-    lock_path=Path('/scratch/zixuans8/openpi_trace_h100/os_cl/locks/fleet.lock')
-    # Shares the OLD fleet lock read-only in meaning: fail if that line still
-    # owns the workers; never terminate it or update its code/queue.
-    lock_path.parent.mkdir(parents=True,exist_ok=True)
+    env=dict(MUJOCO_GL='egl')
+    if args.node=='local':
+        # Driver and servers run on this machine: ziyanglin.com resolves to loopback (sitecustomize).
+        env.update(PYTHONPATH=f'{REPO}/loopback:{REPO}:{REPO}/src',PYOPENGL_PLATFORM='egl')
+    prefix=f'r16_{args.model}_' if args.node=='timan107' else f'r16_{args.model}_{args.node}_'
+    # One agent per group per node: fail if this group's previous agent still runs here.
+    lock_path=Path(os.environ['OPENPI_AUTOSCALE_CONFIG']).parent/'agent.lock'
     with lock_path.open('a') as lock:
         fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
         for i in range(args.workers):
             suffix='' if pool=='B' else '_apool'
             pools=','.join(f'{s}={REPO}/exp/common/data/db_init/libero/{s}{suffix}' for s in ('libero_10','libero_spatial'))
-            specs.append(WorkerSpec(f'r16_{args.model}_{i:02d}',servers[i%len(servers)],str(i%8),
-                         conda_env='/scratch/zixuans8/libero_sim',init_states_dir=pools,resize_size=256 if args.model=='groot' else 224,
-                         replan_steps=5,seed=SEED,probe=True,env=dict(MUJOCO_GL='egl',MUJOCO_EGL_DEVICE_ID=str(i%8))))
+            specs.append(WorkerSpec(f'{prefix}{i:02d}',servers[i%len(servers)],str(i%8),
+                         conda_env=CONDA[args.node],init_states_dir=pools,resize_size=256 if args.model=='groot' else 224,
+                         replan_steps=5,seed=SEED,probe=True,env=dict(env,MUJOCO_EGL_DEVICE_ID=str(i%8))))
         agent=WorkerAgent(specs,args.driver_host,args.port)
         for sig in (signal.SIGTERM,signal.SIGINT,signal.SIGHUP): signal.signal(sig,lambda *_:agent.stop())
         if args.lease_stdin:
@@ -587,7 +578,9 @@ def main():
     p.add_argument('--port',type=int,default=23179);p.add_argument('--smoke-episodes',type=int)
     p=sub.add_parser('agent');p.add_argument('--model',choices=('pi05','groot'),required=True)
     p.add_argument('--phase',choices=('dev','test'),required=True);p.add_argument('--servers',required=True)
-    p.add_argument('--driver-host',required=True);p.add_argument('--port',type=int,default=23179);p.add_argument('--workers',type=int,default=None,help='Desired maximum; node memory governor chooses active count')
+    p.add_argument('--driver-host',required=True);p.add_argument('--port',type=int,default=23179)
+    p.add_argument('--node',choices=tuple(CONDA),required=True)
+    p.add_argument('--workers',type=int,required=True,help="Specs = the node's hard cap; the scheduler's target decides how many run")
     p.add_argument('--lease-stdin',action='store_true')
     p.add_argument('--lease-file',type=Path);p.add_argument('--lease-token');p.add_argument('--lease-timeout',type=int,default=90)
     args=ap.parse_args()

@@ -43,7 +43,7 @@ def test_retry_discards_only_error_rows_and_restores_source_runtime(tmp_path):
     def archive(*args, check_only=False):
         archived.append((args, check_only))
         return dict(status='READY' if check_only else 'ARCHIVED')
-    with patch('exp.offline_search.rounds.r17.autoscale_1017.reset_remote.run', archive), \
+    with patch('exp.offline_search.rounds.r17.longseg_1017.reset_remote.run', archive), \
             patch.object(vfix, 'repin', return_value=dict(status='REPINNED', name='fa_ls_x', bootstrap_sha256='new')), \
             patch.object(vfix, 'update_catalogs', return_value=[]):
         proof = vfix.retry(root, tmp_path/'fa_ls_x.before_retry_1435', prepare=False)

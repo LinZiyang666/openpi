@@ -51,8 +51,7 @@ def build_client_bundle(root, files, output):
         source = root / relative
         if source.is_symlink() or not source.resolve().is_relative_to(root):
             raise ValueError("symlink/escaped payload source")
-        from exp.offline_search.rounds.r17.autoscale_1017.switch import source as preparation_source
-        content[name] = preparation_source(source)
+        content[name] = source.read_bytes()
     manifest = dict(schema="r17.client_payload.v1", python="3.11", files={
         name: hashlib.sha256(data).hexdigest() for name, data in content.items()})
     manifest["digest"] = hashlib.sha256(json_bytes(manifest)).hexdigest()
@@ -68,6 +67,22 @@ def build_client_bundle(root, files, output):
         os.fsync(f.fileno())
     os.replace(part, output)
     return dict(archive_sha256=sha256(output), manifest=manifest)
+
+
+def overlay(archive, root, names):
+    """Add or replace checkout files in a client payload of any origin, in place."""
+    _, content = verified_members(archive, "PAYLOAD.json")
+    content.update({name: (Path(root) / safe_name(name)).read_bytes() for name in names})
+    manifest = dict(schema="r17.client_payload.v1", python="3.11", files={
+        name: hashlib.sha256(data).hexdigest() for name, data in sorted(content.items())})
+    manifest["digest"] = hashlib.sha256(json_bytes(manifest)).hexdigest()
+    part = Path(archive).with_name(Path(archive).name + ".part")
+    with tarfile.open(part, "w") as tar:
+        for name, data in sorted(content.items()):
+            add_bytes(tar, name, data)
+        add_bytes(tar, "PAYLOAD.json", json_bytes(manifest))
+    os.replace(part, archive)
+    return dict(archive_sha256=sha256(archive), manifest=manifest)
 
 
 def worker_payload_files(root, *, debug=False):

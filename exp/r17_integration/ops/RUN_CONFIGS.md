@@ -48,26 +48,19 @@ gain. Select a measured treatment before a baseline and freeze it for its arms.
   recycling. Fast-WAM treatment v2 enforces those resource fields, including
   the distinction between a null automatic EGL allowlist and an explicit list.
   Equivalent effective placement is insufficient if the sealed fields differ.
-- **Autoscaling is currently OFF (owner incident rollback, 2026-10-18).** The single preparation switch is `exp/offline_search/rounds/r17/autoscale_1017/ENABLED`; missing/off means native fixed worker counts, native payloads and native recycling. Do not turn it on until both owner-run R17 and legacy trials pass. When enabled, worker counts are desired maxima and the runtime decides active counts.
-  With the switch ON after acceptance, new campaigns inherit the shared policy. The runtime chooses
-  active counts throughout the run using node memory/PSI and accepted throughput;
-  it never exceeds explicit per-node/global maxima. With no explicit maximum,
-  renderer hardware defaults are LIBERO **timan1 GPU2 83, timan107 104, local 83**;
-  MetaWorld **332, 440, 332**, respectively. Local GPU admission also reserves
-  resident server growth. timan108 stays excluded even while OFF. Old hand-tuned
-  fixed counts are raised to these physical maxima when ON; explicit larger maxima
-  survive. A smaller limit requires `worker_hard_limits` with a technical reason.
-  Simultaneous dynamic campaigns share the node ledger fairly and return borrowed
-  capacity at episode boundaries. Maxima do not reserve live environments at startup.
-  Baseline/arm scientific pairing still pins model, seeds, inits, replica and
-  batch/window/MPS settings, and records desired maxima separately from the
-  observed active-count curve. Worker scheduling never changes planned UIDs.
-  New worker/driver orchestration overlays retain frozen model/server bytes.
-  Native fixed continuations retain their exact source orchestration pins and
-  report `kept_fixed`; an already prepared campaign requires explicit unlaunched
-  re-preparation to change mode. MetaWorld recycles at episode boundaries after
-  32 episodes or 30 minutes. Every scaling decision has an append-only JSONL
-  record with signals, reason and resulting counts.
+- **Worker counts: central scheduler (owner 2026-10-19), always on; no switch, no fixed-count path.**
+  Code: `exp/offline_search/rounds/r17/scheduler/` (DESIGN.md). The scheduler runs on the A100
+  (`http://149.165.152.232:23500`) and only sets per-node worker targets; every batch's driver reports
+  to it and every node fleet (`NodeExecutor`) follows the target. Prepare (`scheduler.defaults.apply`)
+  puts a fleet on every eligible node at its physical hard cap (target starts at 0): shared pool
+  a100 (LIBERO only, 80), timan1 (LIBERO 166 / MT50 664), timan107 (104 / 440); local layer
+  4090 `local` (83 / 332) only when the server is on the 4090 (5 GiB server VRAM line), `h100` (LIBERO 40)
+  only when the server is on the H100 (4 GiB). MetaWorld never uses a100/h100; servers on h100-temp or
+  jupyter pods get no local layer. `wire_zlib` is always on. `--worker-counts`/`--workers` only
+  label the canonical topology. Launch (`scheduler.defaults.require`) fails unless the scheduler answers
+  `/healthz` and the driver runtime and `workers.tar` carry the current scheduler `VERSION`;
+  re-prepare such a batch (`filter_failed.stage --run <dir> --reprepare`). MetaWorld recycles at episode
+  boundaries after 32 episodes or 30 minutes, LIBERO after 4 episodes.
 - Every batched Fast-WAM arm needs `--paired-control /data/mw_finetune/eval/<baseline>`:
   a completed, closed PASS K10/C5 official-50 baseline covering its suites,
   with valid composition audit and matching treatment. DP needs the same

@@ -265,8 +265,6 @@ def launch(spec):
         # exec the supervisor; it records starttime and always appends the same exit marker.
         nodefile = Path(__file__).resolve()
         jobfile = out / (name + ".job.json")
-        if role == 'driver' and env.get('OPENPI_AUTOSCALE_OVERLAY'):
-            env['OPENPI_AUTOSCALE_RUN_ARM'] = str(Path(env['OPENPI_AUTOSCALE_OVERLAY'])/'exp/offline_search/closed_loop/ops/h100/run_arm.sh')
         atomic(jobfile, dict(cmd=cmd, env=env, cwd=str(cwd), log=str(log), pidfile=str(pidfile),
                              receipt=str(receipt_path), role=role))
         launchfile.write_text("#!/bin/bash\nexec python3 " + shlex.join([str(nodefile), "supervise", str(jobfile)]) + "\n")
@@ -281,9 +279,6 @@ def supervise(path):
     job = json.loads(Path(path).read_text())
     with open(job["log"], "a", buffering=1) as log:
         env = {**os.environ, **job["env"]}
-        if job['role'] == 'driver' and env.get('OPENPI_AUTOSCALE_RUN_ARM') and job['cmd'][:1] == ['bash'] and job['cmd'][1] != '-c':
-            cmd = job['cmd']
-            job['cmd'] = ['bash', '-c', Path(env['OPENPI_AUTOSCALE_RUN_ARM']).read_text(), cmd[1], *cmd[2:]]
         proc = subprocess.Popen(job["cmd"], cwd=job["cwd"], env=env, stdout=log, stderr=log,
                                 start_new_session=True)
         atomic(job["pidfile"], {"pid": proc.pid, "starttime": identity(proc.pid)})

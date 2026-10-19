@@ -310,23 +310,17 @@ def launch_prepared(directory):
     # Exclusive one-shot claim: two queues cannot dispatch the same plan.
     with preparation_lock(directory):
         campaign, deployment = validate_prepared(directory)
+        from exp.offline_search.rounds.r17.scheduler.defaults import require
+        require(campaign, directory)
         launch.check_execution_host(campaign)
         resilience=getattr(launch,'worker_resilience',None)
         if resilience:campaign,deployment=resilience.select(campaign,directory,deployment)
         # Coordinator-only boundary hold: never affect the already live child.
         if (directory/'DISPATCH_HOLD.json').exists():
             raise RuntimeError('coordinator dispatch hold before launch claim: '+str(directory))
-        if campaign.get('cache_capacity_authorization') and 'timan1' in campaign.get('execution_worker_nodes',{}):
-            from .cache_capacity import t1_ready
-            if not t1_ready(Path(campaign['cache_study']).parent/'evidence/t1_recycle_fix.json'):
-                pass
         if resilience is None and campaign.get('cache_capacity_authorization',{}).get('preclaim_admission'):
             from .cache_capacity import wait_admission
             wait_admission(dict(name=campaign['run_name'],run=str(directory),model=campaign['model']+'_libero'),{},directory)
-        if 'local' in campaign.get('execution_worker_nodes',campaign.get('worker_nodes',{})):
-            from .local_workers import authorize
-            if authorize(campaign)!=campaign.get('local_worker_exception'):
-                pass
         from .worker_disk import prepared as disk_admission
         if resilience is None:disk_admission(campaign,directory,deployment)
         if campaign.get('cache_study') and campaign.get('cache_control'):
@@ -405,17 +399,7 @@ def launch_prepared(directory):
                 if campaign.get('cache_study'):
                     from .worker_memory import reservation_mib
                     worker['worker_memory_mib']=reservation_mib(worker)
-                memory_job={key:worker[key] for key in ('domain','node_workers','worker_memory_mib',
-                                                      'worker_memory_headroom_mib') if key in worker}
-                admission=json.loads(launch.remote(node,['env','PYTHONPATH='+launch.pythonpath(item['payload']),
-                    item['python'],'-c','from exp.r17_integration.ops.worker_memory import admission; import json; '
-                    'print(json.dumps(admission('+repr(memory_job)+','+repr(item['worker_run'])+')))'],replay_safe=True))
-                # Recorded only: owner 2026-10-10, no RAM admission. Archived worker
-                # releases from before that ruling still compute a refusal.
-                write_json(directory/(node+'_LAUNCH_ADMISSION.json'),admission)
-                # A dynamic fleet's counts are maxima; its governor places by RAM.
-                if resilience and not admission['admitted'] and not campaign.get('autoscale'):
-                    raise RuntimeError(node+': worker RAM admission refused')
+                # Node counts are hard caps; the node executor admits every spawn.
                 # Owner 10-18: no launch-time self-checks of prepared releases (hash re-verification).
                 path=directory/(node+'_launch.json')
                 write_json(path,worker)

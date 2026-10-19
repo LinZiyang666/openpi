@@ -17,17 +17,13 @@ from __future__ import annotations
 import argparse
 import copy
 import json
-import os
 import pickle
-import sys
 from pathlib import Path
-from unittest.mock import patch
 
 from ..common import read, dump, sha
 
 HERE = Path(__file__).resolve().parent
 KNOB = HERE.parent
-REPO = KNOB.parents[4]
 EVAL = Path('/data/mw_finetune/eval')
 SOURCE = KNOB/'formal_a_1016/runs/ffk1015_{model}_libero_reduced_formal_A_original/group.json'
 CAMPAIGNS = HERE/'CAMPAIGNS.json'
@@ -37,10 +33,6 @@ GROUPS = {'c': (False, False), 'cr': (True, False), 'ch': (False, True), 'chr': 
 NOT_BUILT = ('cg', 'crg', 'chg', 'chrg')
 SPEC = 'exp.offline_search.rounds.r10.recipe.recipe:R10Recipe'
 PAIRS = [[t, i] for t in range(10) for i in range(50)]
-SERVER_CHECKOUT = '/home/weiland/projects/openpi_r16_k1ref_server'
-ISLAND = '/scratch/zixuans8/openpi_r16_conductor_v1'
-PORTS = {'pi05': '23150,23151,23152', 'groot': '23150,23151,23152,23153'}
-DRIVER_PORT = 23159
 
 
 def short(cell):
@@ -53,7 +45,7 @@ def arg(args, flag):
 
 
 def fresh(root):
-    for n in ('launch.json', 'journal.jsonl', 'DONE.json', 'LEGACY_AUTOSCALE.json', 'WORKER_HOST_SELECTION.json'):
+    for n in ('launch.json', 'journal.jsonl', 'DONE.json', 'workers.tar'):
         if (root/n).exists():
             raise ValueError(f'Never rebuild a prepared/launched run: {root/n}')
 
@@ -203,31 +195,9 @@ def plan():
 
 
 def prepare(name):
-    """Coordinator chain item: stage the dynamic-worker release on timan107 (tether exec + direct rsync)."""
-    from .. import vla_workers as vw
-    j = job(name)
-    if (Path(j['run'])/'DONE.json').exists():raise ValueError(f'{name} is already DONE')
-    # Repeating prepare after an interrupted launch is allowed: the group resumes from its journal.
-    vw.prepare_r16_job(j, 'timan107')
-
-
-def serve():
-    """Launch body, run from the R16 server checkout; argv as the native R16 launch."""
-    from exp.offline_search.rounds.r17.autoscale_1017.switch import enabled
-    group = Path(sys.argv[sys.argv.index('--group')+1]); j = job(group.parent.name)
-    if enabled():
-        # Same re-exec as legacy_release.coordinator, but booting this module so the
-        # job comes from CAMPAIGNS.json instead of formal_a_1016/QUEUE.json.
-        record = read(group.parent/'LEGACY_AUTOSCALE.json')
-        if os.environ.get('OPENPI_AUTOSCALE_COORDINATOR') != record['digest']:
-            env = dict(os.environ, OPENPI_AUTOSCALE_COORDINATOR=record['digest'], OPENPI_AUTOSCALE_REMOTE=record['remote'])
-            local = record['local']
-            env['PYTHONPATH'] = local+':'+local+'/src:'+env.get('PYTHONPATH', '')+':'+str(REPO)
-            boot = ('import sys;sys.path[:0]='+repr([local, local+'/src'])+';from '+__name__+' import serve;serve()')
-            os.execve(sys.executable, [sys.executable, '-c', boot, *sys.argv[1:]], env)
-    from .. import vla_workers as vw
-    with patch.object(vw, 'lookup', lambda name: j):
-        vw.run_r16_selected()
+    """Coordinator chain item. Launch (rounds.r16.conductor_runner run) installs the scheduler package
+    into the worker islands; a group resumes from its journal, so only a DONE group is refused."""
+    if (Path(job(name)['run'])/'DONE.json').exists():raise ValueError(f'{name} is already DONE')
 
 
 def main():

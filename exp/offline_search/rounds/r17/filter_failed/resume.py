@@ -126,8 +126,8 @@ def build(source,name,worker_counts=None,*,verify_closed=False,infra_errors=Fals
         selection['source_closure_proof']=closure
         campaign['cache_resume_selection']=selection
         write(root/'CACHE_RESUME.json',selection);write(root/'campaign.json',campaign)
-    from exp.offline_search.rounds.r17.autoscale_1017.defaults import apply
-    apply(campaign, root)
+    from exp.offline_search.rounds.r17.scheduler.defaults import apply
+    apply(campaign, root, force=True)  # a new batch: every eligible node, not the source's survivors
     write(root/'campaign.json', campaign)
     if key=='filter_failed_knob':
         job=read(source/'FFK_DEFINITION.json')

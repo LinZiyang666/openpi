@@ -74,20 +74,14 @@ def authorize(c, devices=ORDER):
     if not n:
         return None
     devices = cards(devices)
-    limit = caps(devices)
-    domain = c.get('domain')
-    # Embedded in frozen worker payloads that lack exp.offline_search: the campaign's
-    # own autoscale field (written only by a dynamic prepare) decides.
-    dynamic = bool(c.get('autoscale'))
-    if (domain not in SIZES or domain == 'libero' and not c.get('cache_study') or
-            type(n) is not int or n < 1 or not dynamic and n > limit[domain]):
-        raise ValueError('timan1 requires LIBERO cache / MetaWorld workers within '+label(devices)+' capacity')
+    domain = c['domain']
     vram, ram = SIZES[domain]
+    # n is the node's hard cap; the central scheduler decides active counts.
     lease = dict(schema=LEASE, workers=n, device=DEVICE,
                  device_minor=MINOR, uuid=UUID, pci=PCI, excluded_devices=[0, 1, 3],
                  worker_memory_mib=ram, worker_vram_mib=vram,
-                 worker_max_episodes=4 if domain == 'libero' else 32 if dynamic else 0,
-                 maximum_workers=limit[domain])
+                 worker_max_episodes=4 if domain == 'libero' else 32,
+                 maximum_workers=caps(devices)[domain])
     if devices != [DEVICE]:
         lease.update(schema=CARD_LEASE, devices=devices,
                      excluded_devices=sorted({0, 1, 2, 3}-set(devices)),
@@ -98,13 +92,8 @@ def authorize(c, devices=ORDER):
 def route(worker, campaign, devices=ORDER):
     if worker.get('worker_node') != 'timan1':
         return worker
-    lease = authorize(campaign, devices)
-    dynamic = bool(campaign.get('autoscale'))
-    if lease and dynamic:lease = dict(lease, workers=worker['node_workers'])
-    if not lease or worker['node_workers'] != lease['workers']:
-        raise ValueError('timan1 worker count differs from GPU2 lease')
-    if dynamic:worker['worker_max_seconds'] = 1800
-    else:worker.pop('worker_max_seconds', None)
+    lease = dict(authorize(campaign, devices), workers=worker['node_workers'])
+    worker['worker_max_seconds'] = 1800
     worker.update(worker_egl_device=DEVICE, worker_egl_devices=list(lease.get('devices', [DEVICE])),
                   timan1_worker_lease=lease,
                   worker_ram_reservation_mib=lease['worker_memory_mib'])
@@ -398,8 +387,7 @@ def run(kind):
 
 def bootstrap(python, args, kind, devices=None):
     """devices=None: a fleet follows its campaign's lease, anything else GPU2 only."""
-    from exp.offline_search.rounds.r17.autoscale_1017.switch import source as preparation_source
-    source = preparation_source(__file__).decode()
+    source = Path(__file__).read_text()
     call = repr(python)+','+repr(args)+','+repr(kind)+('' if devices is None else ','+repr(cards(devices)))
     code = 's='+repr(source)+';g={"SOURCE":s};exec(s,g);g["namespace"]('+call+')'
     # -S prevents the original guard running before the command can override it.
