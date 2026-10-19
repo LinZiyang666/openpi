@@ -106,8 +106,9 @@ def memory(proc=Path('/proc')):
 def campaign_key(campaign):
     # run_name / worker placement are deliberately absent; allow recent
     # generations from a continuation with identical scientific configuration.
-    keys = ('semantic_campaign', 'model', 'checkpoint', 'domain', 'benchmark_protocol', 'worker_benchmark_identity',
-            'worker_max_episodes', 'worker_max_seconds', 'runtime_identity')
+    # Worker RSS depends on the simulator/worker release, not on the episode
+    # list: continuations and sibling batches of one model reuse calibration.
+    keys = ('model', 'domain', 'worker_max_episodes', 'worker_max_seconds')
     return hashlib.sha256(json.dumps({k: campaign.get(k) for k in keys}, sort_keys=True).encode()).hexdigest()
 
 
@@ -262,6 +263,11 @@ class LocalGovernor:
         for item in history:
             peaks.add(self.key, item['peak'])
         calibrated = any(item.get('complete') and item.get('peak', 0) > 0 for item in history)
+        if not calibrated:
+            # Owner 10-18: no canary wait. Start from the measured per-worker peak
+            # (LIBERO renderer ~3.3 GiB, MetaWorld <1 GiB); the guard still sheds.
+            peaks.add(self.key, int((3.5 if self.campaign.get('domain') == 'libero' else 1.0) * 2**30))
+            calibrated = True
         projection = peaks.project(self.key)
         # Unknown new campaign: one canary, using half of currently free
         # headroom as a provisional envelope, never a permanent per-worker cap.
