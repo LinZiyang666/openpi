@@ -906,6 +906,21 @@ Evidence: [GPU0 overload](../REQUESTS/D_to_M.md),
 [hs5 worker fields](/data/mw_finetune/eval/hs5dp_ctl_142812/campaign.json),
 [hs6 worker fields](/data/mw_finetune/eval/hs6fw_ctl_143332/campaign.json).
 
+### A LIBERO worker holds ~2 GB of host RAM; the A100 fits ~60
+
+Measured on the A100 (2026-10-19, NVIDIA EGL): Python plus imports 0.63 GB; the first
+live LIBERO env adds ~1.35 GB (scene, textures, render buffers); `close()` returns only
+~0.3 GB to the OS and later envs reuse the rest, so a worker settles at ~2 GB RSS
+(~1.7 GB PSS) with no further growth per episode. A bare EGL context is ~15 MB, so the
+renderer is not the cost. A worker that has not built its env yet reads ~0.9 GB, so do
+not size from fresh workers. The A100 (118 GB RAM, 32 cores, 40 GB VRAM, no server)
+therefore holds ~55-63 LIBERO workers. CPU (~0.09 core/worker) and VRAM (~0.12 GB/worker)
+are far from binding. A Cosmos lane needs ~110-120 workers for 42-49 episodes/min on the
+H100, so the A100 plus the H100's own 33 workers cannot saturate it alone; add timan.
+On worker-only nodes the governor charges each worker the median RSS of siblings older
+than 5 minutes (`autoscale_reactive_nodes`, `autoscale_typical_rss`); charging fresh
+workers their start-up RSS overshot to 62-69 workers and hit the critical line.
+
 ### Decide baseline restart before arms and freeze its runtime
 
 Choose batch/replicas/workers/MPS before collecting a baseline. Any decision to
