@@ -167,7 +167,7 @@ class R17MetaWorldEpisodeRunner(MetaworldEpisodeRunner):
                 "task_data_hash": self.task_data_hash or t.extra.get("task_data_hash"), "arm": t.extra.get("arm", ""),
                 **{k: t.extra[k] for k in ("campaign", "model_identity", "norm_identity", "layout_identity",
                                          "fit_identity", "library_identity", "bundle_generation", "split", "partition",
-                                         "init_pool", "library_episode_id", "suite_task_id", "trial") if k in t.extra}}
+                                         "init_pool", "library_episode_id", "suite_task_id", "trial", "cache_study") if k in t.extra}}
 
     def _kernel(self, env, infer, prompt, **kwargs):
         self.task_data_hash = getattr(env, "_r17_task_data_hash", None)

@@ -303,7 +303,10 @@ def test_two_mt50_yaml_bundles_publish_plan_and_switch(model,tmp_path,monkeypatc
                     hit=out['__hit_meta__']
                     assert hit['source']=='library' and hit['actual_nfe']==0
                     lifetimes.add((hit['resident_pid'],hit['resident_generation']))
-                    await call(client,dict(__ctrl__='episode_end',__execution__=dict(decision_seq=0,executed_count=5,terminal=True)))
+                    end=await call(client,dict(__ctrl__='episode_end',__execution__=dict(decision_seq=0,executed_count=5,terminal=True)))
+                    # cache_study_worker.evidence() compares this final ACK with the client's last receipt.
+                    assert end['execution']['terminal'] is True and end['execution']['decision_seq']==0
+                    assert end['execution']['executed_count']==5 and 'cursor_end' in end['execution']
                 assert len(lifetimes)==1
         finally:
             server.request_stop();await asyncio.wait_for(serving,5)

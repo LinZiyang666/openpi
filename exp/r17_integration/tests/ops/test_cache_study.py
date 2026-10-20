@@ -211,6 +211,24 @@ def test_worker_evidence_is_default_off_and_requires_real_final_ack(monkeypatch)
         execution.end_episode(SimpleNamespace(episode_end=lambda **kwargs:{}),{},[last])
 
 
+
+def test_metaworld_identity_carries_cache_study_into_evidence():
+    # MetaWorld whitelists identity keys; without cache_study the evidence shim never ran (10-19:
+    # every MT50 cache-study receipt lacked resident lifetimes and the server terminal ACK).
+    from openpi.conductor.task import EpisodeTask
+    from exp.r17_integration.benchmarks import execution
+    from exp.r17_integration.benchmarks.metaworld import FORMAL_SPEC, R17MetaWorldEpisodeRunner
+    from exp.r17_integration.ops.cache_study_worker import extend_cost_row
+    runner=R17MetaWorldEpisodeRunner(env_factory=lambda *a:None)
+    runner.current_task=EpisodeTask('mw:eval:0:0','y','eval',FORMAL_SPEC.benchmark,0,0,0,'h',1,'b',
+        extra=dict(cache_study=True,seed=7))
+    identity=runner._identity()
+    assert identity['cache_study'] is True
+    row=extend_cost_row(execution.cost_row)({'__hit_meta__':{'resident_pid':42,'resident_generation':'g'}},identity,0)
+    assert row['resident_pid']==42 and row['resident_generation']=='g'
+    runner.current_task=EpisodeTask('mw:eval:0:0','y','eval',FORMAL_SPEC.benchmark,0,0,0,'h',1,'b',extra=dict(seed=7))
+    assert 'cache_study' not in runner._identity()
+
 @pytest.mark.parametrize('model,max_batch', [('dp_libero',8),('fastwam_libero',16),('cosmos_libero',1)])
 def test_cache_launcher_keeps_control_topology_and_driver(model,max_batch):
     from exp.r17_integration.ops.formal_eval import parse_args
