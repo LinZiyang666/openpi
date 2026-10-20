@@ -69,6 +69,12 @@ owner 的常驻指令，逐字有效：
 - 现在 fleet：timan107 fx1、a100 fx1、local fx1、timan1 fx4（两批）；17:23 timan1 FW 33/123、DP 爬坡中。
 - fa_ls_dp_r_b_m_j（pod 纯推理对照 2,500）driver PASS 2500，但 RECEIPT FAIL：`native CPU evidence aggregate is incomplete`（换 fleet 把 kernel evidence 拆进 _fx 目录）→ 待合并证据重出 receipt，数据完整可用。
 
+**20:5x 增补：四批全部切到新代码续跑**：
+- pod2 fa_ls_dp_r_f_m_jc2（74,877，链 pod2c）：新代码验收 — 24 worker 250 局/分、单局 sim 0.7–1.2 s、0 错；同任务成功率一致（task 2：原 3/23、新 3/27；整体差异是任务覆盖不同）。
+- H100 fa_ls_gr_r_f_mc1（55,190，链 h100m23，后接原 h100m22 余下队列）；pod1 fa_ls_dp_r_u_m_jc1（47,447，链 pod1c）；4090 fa_ls_fw_r_f_l_lc1（8,832，链 g4090s，后接原 g4090q 余下队列含 fa_ls_v01_0）。
+- ⛔ 原地换过 fleet 的批次续跑 prepare 会因「remote ownership receipt identity changed」失败：把各节点 stage 目录 `workers.process.before_fx1.json` 拷回 `workers.process.json`（现状另存 `workers.process.after_swaps.json`）后通过。
+- 三机 lock 轮换已停；timan1 转发 relay 已停；调度器 caps/floors 已清空。
+
 **20:2x 增补：在跑批次切新代码（owner 方案：worker 退役 → 停批 → 续跑）**：
 - ⛔ 不能原地换 worker 组带新代码：rendering.py/worker_entry.py 在 driver 校验的 worker 文件里。
 - ⛔ resume 会复制源批次冻结的 workers.tar；prepare_workers 只叠加 WORKER_OVERLAY → 63b307bb 把 exp/mw_finetune/rendering.py 加进 WORKER_OVERLAY（否则新 worker_entry + 旧 rendering，LIBERO 会 ImportError）。

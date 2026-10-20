@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -euo pipefail
+# Continuation with the shared-EGL worker code (10-19).
+cd /home/weiland/projects/openpi; export PYTHONPATH=.:src
+export R17_H100_NODE=jupyter-ziyang10 R17_H100_HOST=149.165.153.233 R17_DRIVER_PORT=23193
+exec .venv/bin/python -m exp.offline_search.rounds.r17.filter_failed.launch --run /data/mw_finetune/eval/fa_ls_dp_r_u_m_jc1
