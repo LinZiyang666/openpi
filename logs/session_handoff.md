@@ -58,6 +58,8 @@ owner 的常驻指令，逐字有效：
 
 **一句话**：今晚找到并根治了 worker 慢 7 倍的原因（EGL 渲染上下文每局创建/销毁 + 两把串行锁），四个在跑批次都已停下并用新代码续跑；新代码试点（pod2 jc2）358 局/分、0 错、同任务成功率一致。
 
+**05:3x 计划**：pod1/pod2 两批 DP 全步 MT50 约 08:30–09:00 跑完（之后无排队）→ 用 `longseg_1017.pod_copy` 从 4090 队列挪 **fa_ls_dp_f_f_o_l → pod2（23192）**、**fa_ls_dp_f_u_o_l → pod1（23193）**（成功过滤库/原库 · DP · LIBERO · 全步 · 旋钮关，各 6,000；跑完才能建 dp_f_*_l_l 各档），并把 4090 链里这两批的 `filter_failed_knob/commands/prepare_<name>.sh` 改 exit 3（留 .before_pod_move）。pod_copy/stage 现在复制停滞门文件（b2babaae），不碰在跑批次的 inode。4090 v01_0c1 约 08:00 跑完 → g4090v 接 v10_0。
+
 **04:3x**：库复制到 /nvme 完成并核对：`/nvme/weiland/openpi/r17_library` 与 /data 文件 1,020,332 个、路径与大小逐一相同，随机 300 个 sha256 全一致（rsync 未保留硬链接，/nvme 上 139 GB）。r17_frozen 复制中，之后 eval。04:26 局/分：v01_0c1 312、pod2 dp_f_f_m_j 178、pod1 dp_f_u_m_j 230、Cosmos 34（20 min 均值；legacy driver 成批写 journal，10 min 窗口会偏低），0 错。
 
 **02:56**：v01_0c1 303、fa_ls_dp_f_f_m_j 229、fa_ls_dp_f_u_m_j 266、Cosmos LIBERO 21（H100 GPU 87–100% 满，LIBERO 局长、5 min 窗口抖）局/分，0 错；4090 GPU 20%、本机 load 17。待改（白天）：调度器放置在等余量节点间每 ~20 s 来回抖（Cosmos timan1 8↔9 / 107 3↔2），会让 LIBERO worker 白白换代；调度器重启后 previous 目标丢失，粘性只对重启后有效。
