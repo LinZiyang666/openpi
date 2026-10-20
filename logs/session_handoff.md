@@ -58,6 +58,8 @@ owner 的常驻指令，逐字有效：
 
 **一句话**：今晚找到并根治了 worker 慢 7 倍的原因（EGL 渲染上下文每局创建/销毁 + 两把串行锁），四个在跑批次都已停下并用新代码续跑；新代码试点（pod2 jc2）358 局/分、0 错、同任务成功率一致。
 
+**02:2x**：v01_0c1 正常（492 局 0 错，4 副本）。timan1 锁轮换已停（`touch /tmp/zl_lock_rotate.stop`）：在跑四批（v01_0c1、fa_ls_dp_f_f_m_j、fa_ls_dp_f_u_m_j、fa_co_f_f_l）都是新代码（CREATION_SLOTS 5 / BUILD_SLOTS 8），轮换多余。
+
 **02:0x**：fa_ls_v01_0c1 02:00 启动失败（rc=2，0 局）——又是 DP 4 副本同时写 servers/manifest.json 的竞争（冻结运行时 f88fce30 的 write_json；3 次启动撞 2 次）。处置：hold g4090u → `filter_failed.reset`（会把 campaign.json 恢复成启动快照）→ 之后再把 c1 的 `replica_startup_width` 4→1（副本逐个起，备份 campaign.json.before_width1）→ prepare 包装加 `--reprepare` → 链 **g4090v**（02:01，后接原余队）。02:05 start，width=1 已生效，共享停滞门 inode 未变。队列里其余 DP 批次 width 本来就是 1。
 
 **01:4x ⛔ 停滞门文件 ctime 事故（我造成的）**：fa_ls_v01_0（g4090t）01:41 rc=2 FAIL（已收 12,500）：driver 进下一阶段 load_cache_config 时服务端报 "verified stall artifact changed"。原因：服务端缓存 Q3 停滞门文件的 stamp（`cache_recipe._stamp` = dev/ino/size/mtime/ctime/mode），DP · MetaWorld 的 q3_decision1018 停滞门文件在 fa_ls_v01_0、fa_ls_dp_f_f_m、fa_ls_dp_f_u_m、jc1 等 12 处是同一组硬链接 inode；我 01:23 `pod_copy`（io_budget.tree 硬链接）和 01:38 fa_ls_dp_f_f_m_j 的 stage（staging.metadata_tree 硬链接）给它们新增链接 → ctime 变 → 在跑同组批次下一次重载即被拒。jc1 01:46 恰好跑完没撞上。
