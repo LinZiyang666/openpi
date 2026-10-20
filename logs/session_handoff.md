@@ -65,6 +65,11 @@ owner 的常驻指令，逐字有效：
 - floors 现 `{"fa_ls_dp_f_f_m_j": 32, "fa_ls_v11_0": 70}`。
 - 在调研（opus 只读）：H100 队列 ~88 h（4 批 FW MT50 旋钮下降 ~42 h）vs 4090 ~22 h；旋钮下降批次 IR 离线算、可换卡 → 考虑 FW/GR00T MT50 旋钮下降挪 4090、DP LIBERO 旋钮下降挪 pod（需装 openpi 环境）。结论回来前不动队列。
 
+**17:3x 增补（计时收齐 + jupyter 起 DP LIBERO + 修 R16 启动）**
+- 计时收齐：Cosmos LIBERO l10 在 4090 干净 CPU 补测（17:19–17:23），stage1 106.5 / full 281.0 / reduced 59.2 ms，与 10-12 一致；prices 对 Cosmos 所有 LIBERO 套件都取得到。6 个计时档案全在 `longseg_1017/profiles/4090/`（5c7c98ac）。任务 #198 完成。⚠ 发给「tether热更新」的「可以继续」那条仍被它会话扣着（待 owner 放行）。
+- 4090 链：g4090aa 的 fa_cs_pi_r 17:18 rc=1：R16 conductor_runner 用 `cd island && nohup env ... &` 起本机 agent，整串命令在子 shell 后台，捕获输出的 subprocess 一直等到 30 s 超时（3 个 R16 服务端留在 GPU，我按 PID 停了）。修 2fb93ff0（只把 nohup 那段放后台，验证 0.00 s 返回）。链：**g4090ab** = fa_ls_timing_co_l_4（完）→ fa_ls_dp_f_u_l_l（17:28 起，原库 · DP · LIBERO · 全步 · 各档）；**g4090ac** 等 g4090ab 完 → fa_cs_pi_r → fa_cs_gr_r（重跑，旧目录直接重 prepare）。g4090aa 有 hold 文件（已结束）。
+- jupyter DP · LIBERO：H100 暂存 4090 openpi `.venv`（/data/mw_finetune/openpi_venv_4090，8.1 GB），两 pod `setup.sh dp` 拉下来；r17x 把 venv 绑到 `/home/weiland/projects/openpi/.venv`，uv Python 绑到 3.11.15 和 `cpython-3.11-linux-x86_64-gnu`（pyvenv.cfg 用这个短名）两处；server_env 对这个解释器不加 python_deps312（3.12 的 h5py 会遮住 venv 自带的）。两 pod 核对 6 个库版本与 4090 一致、CUDA 可用（04344a68）。旧 `_j` 目录已改名 `*_j.unused_pod_dp_env_identity_20261020`。链：**pod1h** = fa_ls_v09_1_j2（jupyter-ziyang10，23193）；**pod3b** = v09_0_j2 → v04_0_j2 → v04_3_j2 → v06_0_j2（jupyter-ziyang10-03，23192；pod3a 有旧 hold，没用）。调度器 floors = `{fa_ls_v02_s_c2:120, 五个 _j2:32}`。H100 rsync 23117 还开着（prepare 完后关）；本机 23116 已关。
+
 **17:1x 增补（⛔ 规则更正 + 计时 + jupyter）**
 - ⛔ owner 规则（已写记忆）：①h100-temp **不建自己的队列**，空闲时从 H100 队列尾部一次领一批（我 16:0x 建的 h100tmp17 预排 4 批 FW 是错的 → 已撤、4 个 prepare 守卫已恢复原件；H100 链现为 **ffk-h100m25** 全序 + **h100m26**（Cosmos fa_co_f_f_lc1 22 局续跑排在 gr_r_u_m 之后，h100m25 已 hold））。②**计时只在 4090**（batch 1、compile CUDA graph），所有批次（含 H100/pod 上跑的）都用 4090 计价；**输出一致性（parity）与计时无关**；**LIBERO 所有模型只用一份 libero_10 计时**。H100 计时任务已改跳过（prepare 包装 exit 3，原件 .before_skip_h100_timing）。
 - 代码：1ba41a7d（prices 只读 4090、按计时证书/独占/NFE/模型身份判）、785e3eec（LIBERO 一份）、4745044c（新增 fa_ls_timing_{gr_m,fw_m,co_l}_4）、db68153e（certify 非零但计时合格也收；GR00T 本机描述文件映射到本机 vendor，53 文件 sha 全同）、cf0a5f00（certify Cosmos 分支不再冲掉运行时 PYTHONPATH；profiles Cosmos 本机环境；setup.sh/r17x 支持 4090 .venv；POD_PROFILES 加 -03=23472）。
