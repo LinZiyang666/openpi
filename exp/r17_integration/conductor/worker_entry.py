@@ -165,7 +165,6 @@ def main(argv=None):
         runner.capture_sink = capture
         runner.execution_ack = lambda row: None
     try:
-        import os
         if os.environ.get('OPENPI_AUTOSCALE_NODE'):
             from exp.offline_search.rounds.r17.scheduler.worker import creation_lock
             with creation_lock():probe = attest()
