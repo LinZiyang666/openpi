@@ -122,4 +122,6 @@ def tree(source,dest):
         elif src.is_dir():tree(src,dst)
         elif src.name in ('CACHE_STUDY.json','manifest.json','ffk_bootstrap.py','ffk_evidence.py'):
             copy(src,dst)
+        elif any((src.parent/n).exists() for n in ('stall.json','stall.pkl')):
+            copy(src,dst)  # stall artifacts: a link bumps ctime in running servers' stamps (staging.stall_file)
         else:os.link(src,dst)  # immutable descriptors, YAMLs, views and fitted arrays

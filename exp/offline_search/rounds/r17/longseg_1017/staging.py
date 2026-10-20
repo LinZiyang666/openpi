@@ -1,7 +1,17 @@
 """Small server metadata snapshot + reuse of already sealed immutable inputs."""
+import filecmp
 import json
 import os
 from pathlib import Path
+import shutil
+
+
+def stall_file(path):
+    """A Q3 stall artifact file. Servers cache its (inode, size, mtime, ctime) stamp and refuse a
+    changed one; a new hard link bumps ctime on every link, so a prepare that linked a shared stall
+    artifact stopped running batches at their next bundle load (10-20 01:41, fa_ls_v01_0)."""
+    path=Path(path)
+    return any((path.parent/name).exists() for name in ('stall.json','stall.pkl'))
 
 
 def metadata_tree(root):
@@ -14,9 +24,12 @@ def metadata_tree(root):
             for child in src.iterdir():link(child,dst/child.name)
         else:
             if dst.exists() and not dst.samefile(src):
+                if stall_file(src) and filecmp.cmp(src,dst,shallow=False):return
                 import time
                 dst.rename(dst.with_name(dst.name+'.previous_'+str(time.time_ns())))
-            if not dst.exists():os.link(src,dst)
+            if not dst.exists():
+                if stall_file(src):shutil.copy2(src,dst)  # new inode; see stall_file
+                else:os.link(src,dst)
     for src in (root/'assets').iterdir():
         if src.name not in ('cache_inputs','.eval.lock','TRANSFER_SHA256.json'):
             link(src,dest/src.name)
