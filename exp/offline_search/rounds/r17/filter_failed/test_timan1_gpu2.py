@@ -124,15 +124,14 @@ def test_frozen_gpu2_island_admission_and_native_commands(tmp_path, monkeypatch)
             _, argv = f.worker_command(routed, 0, '/unused/python')
             assert argv[:4] == ['/unused/python', '-B', '-u', '-c']
             assert argv[argv.index('--egl-device')+1] == '2'
-            # MetaWorld recycles at episode boundaries; LIBERO does not recycle (owner 10-19).
-            target = 'worker_lifetime' if domain == 'metaworld' else 'cache_study_worker'
-            assert argv[argv.index('-m')+1] == 'exp.r17_integration.ops.'+target
+            # No recycling on timan1 (owner 10-19): the cache-study evidence entry, not worker_lifetime.
+            assert argv[argv.index('-m')+1] == 'exp.r17_integration.ops.cache_study_worker'
             m.setattr(sys, 'argv', ['-c', *argv[5:]])
             m.setattr(sys, 'orig_argv', argv)
             native = Mock()
             m.setattr(runpy, 'run_module', native)
             exec(argv[4], {})  # actual serialized child guard/bootstrap, CPU only
-            native.assert_called_once_with('exp.r17_integration.ops.'+target, run_name='__main__', alter_sys=True)
+            native.assert_called_once_with('exp.r17_integration.ops.cache_study_worker', run_name='__main__', alter_sys=True)
             runtime_guard = sys.modules['sitecustomize']
             m.setattr(runtime_guard, 'deny', Mock(side_effect=ValueError('guard refused')))
             for device in ('0', '1', '3'):
@@ -144,15 +143,13 @@ def test_frozen_gpu2_island_admission_and_native_commands(tmp_path, monkeypatch)
                     cli.setattr(sys, 'orig_argv', ['python', '--egl-device', device])
                     with pytest.raises(ValueError, match='guard refused'):
                         runtime_guard.check()
+            assert routed['worker_max_episodes'] == 0 and routed['worker_max_seconds'] == 0
             if domain == 'metaworld':
-                assert routed['worker_max_episodes'] == 32 and routed['worker_max_seconds'] == 1800
                 marker = tmp_path/'RECYCLE.json'
                 marker.write_text(json.dumps(dict(schema='r17.worker_recycle.v1', pid=123, start_ticks='456',
                     completed_episodes=32, maximum_episodes=32, reason='episode_boundary')))
                 assert modules['worker_lifetime'].planned_recycle(
                     dict(pid=123, start_ticks='456', recycle_receipt=str(marker)), 75)
-            else:
-                assert routed['worker_max_episodes'] == 0 and routed['worker_max_seconds'] == 0
 
     request = dict(argv=['/frozen/python', '-u', '-m', p.WORKER, '--campaign', '/sealed.json'],
                    env={'PYTHONPATH': p.GUARD+':/frozen'})

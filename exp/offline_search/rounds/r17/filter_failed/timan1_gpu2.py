@@ -80,8 +80,11 @@ def authorize(c, devices=ORDER):
     lease = dict(schema=LEASE, workers=n, device=DEVICE,
                  device_minor=MINOR, uuid=UUID, pci=PCI, excluded_devices=[0, 1, 3],
                  worker_memory_mib=ram, worker_vram_mib=vram,
-                 # LIBERO workers do not leak per episode (10-19): no recycling (owner 10-19).
-                 worker_max_episodes=0 if domain == 'libero' else 32,
+                 # No recycling on timan1 (owner 10-19: timan1 workers need no restart). LIBERO workers do
+                 # not leak per episode; MetaWorld workers share one EGL context (13 MiB over 150 episodes).
+                 # Spawns here take 5-9 s each, so MetaWorld's 32-episode/30-min generations started together
+                 # and exited together, leaving timan1 at a few live workers of 50-70 targets (10-19 21:4x).
+                 worker_max_episodes=0,
                  maximum_workers=caps(devices)[domain])
     if devices != [DEVICE]:
         lease.update(schema=CARD_LEASE, devices=devices,
