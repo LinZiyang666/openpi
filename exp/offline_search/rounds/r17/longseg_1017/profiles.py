@@ -121,7 +121,9 @@ def operate(name,verb):
                 if previous.exists():previous.rename(previous.with_name(previous.name+'.previous_'+str(time.time_ns())))
                 f.transfer(['rsync','pull','h100:'+out+'/'+profile_model+'_'+suite+'.json',str(target/(profile_model+'_'+suite+'.json'))])
             else:
-                subprocess.run(argv,cwd=c['runtime'],check=True)
+                # -m puts cwd first on sys.path; from the runtime its plain exp/ package
+                # shadows the bundle's extend_path one, so exp.r17_integration.profile is missing.
+                subprocess.run(argv,cwd=u['destination'],check=True)
                 target=HERE/'profiles/4090'/directory;target.mkdir(parents=True,exist_ok=True)
                 previous=target/(profile_model+'_'+suite+'.json')
                 if previous.exists():previous.rename(previous.with_name(previous.name+'.previous_'+str(time.time_ns())))
