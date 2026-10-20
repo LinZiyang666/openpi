@@ -58,6 +58,12 @@ owner 的常驻指令，逐字有效：
 
 **一句话**：今晚找到并根治了 worker 慢 7 倍的原因（EGL 渲染上下文每局创建/销毁 + 两把串行锁），四个在跑批次都已停下并用新代码续跑；新代码试点（pod2 jc2）358 局/分、0 错、同任务成功率一致。
 
+**01:4x ⛔ 停滞门文件 ctime 事故（我造成的）**：fa_ls_v01_0（g4090t）01:41 rc=2 FAIL（已收 12,500）：driver 进下一阶段 load_cache_config 时服务端报 "verified stall artifact changed"。原因：服务端缓存 Q3 停滞门文件的 stamp（`cache_recipe._stamp` = dev/ino/size/mtime/ctime/mode），DP · MetaWorld 的 q3_decision1018 停滞门文件在 fa_ls_v01_0、fa_ls_dp_f_f_m、fa_ls_dp_f_u_m、jc1 等 12 处是同一组硬链接 inode；我 01:23 `pod_copy`（io_budget.tree 硬链接）和 01:38 fa_ls_dp_f_f_m_j 的 stage（staging.metadata_tree 硬链接）给它们新增链接 → ctime 变 → 在跑同组批次下一次重载即被拒。jc1 01:46 恰好跑完没撞上。
+- 修复 b2babaae：`staging.metadata_tree` 与 `io_budget.tree` 对停滞门目录（含 stall.json/stall.pkl）的文件改为复制（新 inode），其余照旧硬链接；测试 test_staging_stall.py。续跑 `filter_failed.resume` 本来就 copyfile，安全。核对：pod_copy 出的 fa_ls_dp_f_u_m_j 停滞门文件 links=1，共享 inode links 仍 12、ctime 仍 01:38:39。
+- ⛔ 以后：任何会给「在跑批次正在用的停滞门文件」加/删硬链接或改元数据的操作都会在下一阶段停掉那些批次（服务端代码冻结，改不了 stamp）。
+- 恢复：fa_ls_v01_0 → `filter_failed.resume --remaining --verify-closed` → **fa_ls_v01_0c1**（107,500）；新链 **g4090u**（01:49）：v01_0c1 + 原余队（去掉已挪 pod 的 fa_ls_dp_f_f_m / fa_ls_dp_f_u_m；两者 4090 prepare 包装已改 exit 3）。floors = `{"fa_ls_v01_0c1": 100}`。
+- pod1 jc1 01:46 跑完（rc=0，47,447；原库 · DP · MetaWorld · 减步 · 旋钮下降 42,553+47,447 = 90,000 齐）→ `pod_copy --source fa_ls_dp_f_u_m --name fa_ls_dp_f_u_m_j --pod jupyter-ziyang10 --driver-port 23193`（原库 · DP · MetaWorld · 全步 · 旋钮下降，90,000）→ 链 **pod1d**（01:49 prepare）。pod2d 的 fa_ls_dp_f_f_m_j 01:42 start（它的服务端是在 01:38 之后加载的，安全）。
+
 **01:2x**：pod2 jc2 01:20 跑完（rc=0，74,877；源 fa_ls_dp_r_f_m 15,123 + jc2 → 成功过滤库 · DP · MetaWorld · 减步 · 旋钮下降 90,000 收齐）→ floors 去掉 jc2，现 `{"fa_ls_v01_0": 100}`。pod2 空闲 → `longseg_1017.pod_copy --source fa_ls_dp_f_f_m --name fa_ls_dp_f_f_m_j --pod jupyter-ziyang10-02 --driver-port 23192`（成功过滤库 · DP · MetaWorld · 全步 · 旋钮下降，90,000，R1 无 MPS）→ 链 **pod2d**（01:24 prepare）。⛔ 4090 链 g4090t 队列里的原 fa_ls_dp_f_f_m：`filter_failed_knob/commands/prepare_fa_ls_dp_f_f_m.sh` 已改成 exit 3（链会记 "prepare FAILED rc=3, skipped"，这是有意的；原文件 `.before_pod_move`）。
 
 **00:5x**：Cosmos LIBERO fa_co_f_f_l（H100 链）00:30 start、00:39 driver、~00:45 出局，0 错（a100 9 + timan1 7 worker）；H100 GPU 72–100%。4090 v01_0 110 局/分但 GPU 2–3%（desire 只 17）→ floors.json = `{"fa_ls_dp_r_f_m_jc2": 120, "fa_ls_v01_0": 100}`（批结束要清）。jc2 67,908/74,877（~35 min 完），jc1 37,073/47,447。/nvme 库 98/117 GB。

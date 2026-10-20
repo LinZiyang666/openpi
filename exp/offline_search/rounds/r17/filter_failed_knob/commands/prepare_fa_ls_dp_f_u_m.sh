@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
-set -euo pipefail
-exec bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/commands/prepare_fa_ls_dp_f_u_m.sh
+# 10-20 01:4x: moved to jupyter-ziyang10 as fa_ls_dp_f_u_m_j (pod_copy). Original: prepare_fa_ls_dp_f_u_m.sh.before_pod_move
+echo "fa_ls_dp_f_u_m runs on jupyter-ziyang10 as fa_ls_dp_f_u_m_j; skipped on the 4090" >&2
+exit 3
