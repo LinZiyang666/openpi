@@ -58,6 +58,15 @@ owner 的常驻指令，逐字有效：
 
 **一句话**：今晚找到并根治了 worker 慢 7 倍的原因（EGL 渲染上下文每局创建/销毁 + 两把串行锁），四个在跑批次都已停下并用新代码续跑；新代码试点（pod2 jc2）358 局/分、0 错、同任务成功率一致。
 
+**21:4x 增补：MetaWorld 证据字段 bug（opus 只读诊断，我核实）**：
+- `benchmarks/metaworld.py _identity()` 是白名单，没有 `cache_study` → `ops/cache_study_worker.py` 的 evidence shim（`identity.get('cache_study') is True` 才生效）在 MetaWorld 上从没跑过 → 所有 MT50 缓存批次 per_step 行没有 resident_pid/resident_generation、miss_mode、stall_*、corrector_*、donor_*、knob_call，终局行没有 server_terminal_ack → `cache_study.aggregate` PARTIAL → receipt 都 FAIL（不是 fleet 换过的问题；LIBERO 用 `**t.extra` 所以 PASS）。
+- 数字用的字段都在（hit_type、actual_nfe、miss_nfe、commit_horizon、成功、执行回执 executed_count/cursor_end），成功率/IR/执行段核对照常可用；缺的是审计/诊断字段（停滞门/修正器触发次数要从服务端日志找）。
+- 修复 a5b479bf（新 prepare 的批次生效）：白名单加 `cache_study` + 测试（客户端身份；服务端 episode_end 回执带 execution，4 个 MW 模型都测过）。⛔ 下一批新 MetaWorld 批次（H100 链 fa_ls_gr_r_u_m 等）上线后核：per_step 有 resident_pid、无 "terminal execution ACK" 错误。
+- 在跑 jc2/jc1/mc1 不停（合并证据含旧段，停了也救不回 PASS）。fa_ls_dp_r_b_m_j 数据有效（2,500/0 错/1,492 成功，单服务进程），receipt 保持 FAIL。
+- ⛔ 待 owner 知悉：早期 MetaWorld receipt（pimk1_redc、pimk1_fuld、cspi_k2vc、ffk1015_pi05_mt50_full_descent_01/02/03、hspi2_0502）显示 PASS，但当时 finalizer 的 aggregate 检查被写成 `pass`（dcf0aa3e/d14d19e7，05b4b716 恢复），SUMMARY 实为 PARTIAL；现行 formal_finalize.py 另有 20 处检查分支是裸 `pass`。没动。
+- 诊断脚本与 dry-run 副本：`$CLAUDE_JOB_DIR/tmp/receipt_diag/`（ps_stats.py、ack_check.py）。
+- timan1 轮换 21:27 一次 D>10 自停（同时 jc2 cap 让 ~60 个 worker 退役、GR00T 新 worker 启动），21:3x 以 `8 5` 重启，改为连续 3 次（15 s）超标才停；工作树里 CREATION_SLOTS=5、BUILD_SLOTS=8（未提交，等 D 稳定）。
+
 **21:2x 巡检**：sol 无活（日志都停在 10-13）。四批 0 错；合计 ~790 局/分（jc2 295、GR00T 260、jc1 181、FW LIBERO 53）。H100 GPU 仍 12–33%：瓶颈是 worker 机 CPU（timan1 满），主导份额公平分配让 GR00T 只得 56 个 → 21:25 `caps.json` = `{"fa_ls_dp_r_f_m_jc2": 110}`（pod2 之后无排队，H100 链是最长链）。⛔ 两批结束时清掉 caps/floors 里对应条目。新批次槽位代码（CREATION_SLOTS 6、BUILD_SLOTS 8）已改在工作树、未提交，等 timan1 轮换 30 min D 状态确认后提交。
 
 **21:2x 增补（compact 后接着做的）**：
