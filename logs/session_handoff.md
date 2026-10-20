@@ -58,6 +58,8 @@ owner 的常驻指令，逐字有效：
 
 **一句话**：今晚找到并根治了 worker 慢 7 倍的原因（EGL 渲染上下文每局创建/销毁 + 两把串行锁），四个在跑批次都已停下并用新代码续跑；新代码试点（pod2 jc2）358 局/分、0 错、同任务成功率一致。
 
+**21:53 巡检**：sol 无活。四批 0 错，~836 局/分（jc2 251、GR00T 322、jc1 204、FW LIBERO 59）；H100 GPU 37–43%、4090 24–68%；timan1 load 51/48 核、107 load 43/48 → worker CPU 已满，GPU 空闲是 CPU 限制，无可加的活。timan1 D 1、107 D 0。
+
 **22:0x 增补**：
 - timan1 活跃 worker 低的真因：MetaWorld worker 每 32 局或 30 min 换代（formal_eval 默认 32/1800；timan1_gpu2 lease 同），续跑批 20:55 一起起 → 21:25–21:45 一起退出（21:27 那次 D>10 也在这时），timan1 每个 spawn 5–9 s 补不上（GR00T 目标 53 活跃 1）。新批次已改：9998f2b4 timan1 上 MetaWorld 也不换代（LIBERO 早已是 0；owner「timan1上的worker不用重启」）；在跑批次没法改（env 在 spawn 时定），换代时刻会逐渐错开。
 - a5dc7f3f：新批次 CREATION_SLOTS 5 / BUILD_SLOTS 8（timan1 轮换 8/5 跑 20+ min，D 最高 6–7）。timan1 `/tmp/zl_lock_slots.py 8 5` 继续给在跑批次用（12 h timeout；连续 3 次 D>10 自停）。
