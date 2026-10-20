@@ -69,6 +69,8 @@ owner 的常驻指令，逐字有效：
 - 现在 fleet：timan107 fx1、a100 fx1、local fx1、timan1 fx4（两批）；17:23 timan1 FW 33/123、DP 爬坡中。
 - fa_ls_dp_r_b_m_j（pod 纯推理对照 2,500）driver PASS 2500，但 RECEIPT FAIL：`native CPU evidence aggregate is incomplete`（换 fleet 把 kernel evidence 拆进 _fx 目录）→ 待合并证据重出 receipt，数据完整可用。
 
+**19:5x 增补**：EGL 根治 MetaWorld 部分已提交 e1c30fc2（`rendering.share_egl_context`：每 worker 一个上下文复用；每局 MjrContext.free + glFinish，显存 13 MiB/worker 稳定，像素与原方式等价）；LIBERO（robosuite）待做（任务 #193）。在跑批次的有上限轮换：107 `zl_lock_bounded.py 4 2`、timan1 `8 4`、a100 `4 4`（停：`touch /tmp/zl_lock_rotate.stop`）。19:54：GR00T 175、pod1 217、pod2 113、4090 FW 61 局/分，0 错误；107 D=0。h100-temp 空闲（机主停我们后不重跑）。
+
 **19:4x 增补**：
 - ⛔ 不限并发的锁轮换（0.2 s）让 timan107 出现 35 个 D 状态进程、负载 72（timan108 宕机前同样征兆）→ 已停；107 改有上限版 `/tmp/zl_lock_bounded.py 4 2`（全机 4、每卡 2，按 /proc/locks 计持有数），D 0–2；timan1、a100 轮换已停。新批次代码改为全机 4 槽 + 每卡 2 槽（62d7b8ae）。
 - 根治方案 B（每 worker 复用一个 EGL 上下文，exp/mw_finetune/rendering.py share_egl_context，未提交）：像素与原方式差异同原方式自身两次运行之间的噪声（≤1 灰度级、~0.04% 像素）；但 NVIDIA 驱动不归还复用上下文内释放的显存 → 每 worker 显存 ~823 MiB（原 ~130），1080 卡装不下；每 8 局重建一次时 87–317 MiB。待定方案。
