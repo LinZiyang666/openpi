@@ -10,6 +10,10 @@ batching, sampler, Cache recipe, CUDA graph and model code remain frozen.
 def bridge(module):
     native=module.cache_study_admission
     def admission(campaign,*args):
+        # A longseg_1017.pod_copy job serves the source's frozen model, batching and Cache recipe on one MIG
+        # replica without MPS; admission sees the 4090 placement (server node, MPS) the job was copied from.
+        source=(campaign.get('pod_copy') or {}).get('resources_before')
+        if source:campaign=dict(campaign,server_node=source['server_node'],mps=source['mps'])
         return native(dict(campaign,replicas=2),*args)
     module.cache_study_admission=admission
 

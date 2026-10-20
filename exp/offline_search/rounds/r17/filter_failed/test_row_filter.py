@@ -132,6 +132,18 @@ def test_dp_capacity_bridge_only_changes_the_admission_count():
     assert seen==[(dict(original,replicas=2),('cache','batch','provider'))]
 
 
+def test_dp_capacity_bridge_presents_a_pod_copy_with_its_source_placement():
+    from .server_cli import bridge
+    seen=[]
+    module=NS(cache_study_admission=lambda c,*args:seen.append(c))
+    mps={'enabled':True}
+    pod=dict(replicas=1,server_node='h100',mps=None,
+             pod_copy=dict(resources_before=dict(server_node='local',replicas=4,mps=mps)))
+    bridge(module);module.cache_study_admission(pod,'cache','batch','provider')
+    assert pod['server_node']=='h100' and pod['mps'] is None and pod['replicas']==1
+    assert seen==[dict(pod,replicas=2,server_node='local',mps=mps)]
+
+
 def test_server_bridge_preserves_the_outer_mps_launcher():
     from .launch import server_command
     prefix=['python','-m','exp.r17_integration.models.fastwam.ops.mps','client','--ready','ready.json','--','python','-u']
