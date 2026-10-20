@@ -69,6 +69,8 @@ owner 的常驻指令，逐字有效：
 - 现在 fleet：timan107 fx1、a100 fx1、local fx1、timan1 fx4（两批）；17:23 timan1 FW 33/123、DP 爬坡中。
 - fa_ls_dp_r_b_m_j（pod 纯推理对照 2,500）driver PASS 2500，但 RECEIPT FAIL：`native CPU evidence aggregate is incomplete`（换 fleet 把 kernel evidence 拆进 _fx 目录）→ 待合并证据重出 receipt，数据完整可用。
 
+**19:2x 增补：第二把锁（真正的大头）**：`exp/mw_finetune/rendering.py env_build_lock` 是整机一把 `/tmp/rc365_env_build.lock`，MetaWorld 每局拿三次（建 env、首次渲染建 EGL 上下文、close）；107 上 243 个 worker 全排一队（5–7 号卡 118 个 worker 但 GPU 1%）。19:21 三机 lock_rotate 加上这把锁 → MetaWorld 单局 sim 6–15 s（比昨天 15–17 s 还快），0 错误；各批 局/分：h100-temp v02_s_c1 233、GR00T 400、pod1 284、pod2 272、4090 FW 74（合计 ~1,260，修前 ~300）；H100 GPU 72–85%、4090 68–74%。代码改每卡 4 槽（5879eabb，新批次）。⛔ pod1 的"pod 饱和"其实也是这把锁，cap 220 可以再放。
+
 **18:5x 增补（worker 慢 7 倍的根因与临时处置）**：
 - 根因：`scheduler/worker.py creation_lock` 每局建环境按物理 GPU 串行（一卡一把锁），中央调度器每卡放 40–60 个 worker、多批共卡 → 每局排队 ~100 s（MetaWorld 单局 sim 15–17 s → 115–150 s；h100-temp/H100 GPU 闲）。新批次已改每卡 4 个并发（2e0d7dd6）。
 - 在跑批次不重启 worker 的处置：timan107/timan1/a100 上 `python3 /tmp/zl_lock_rotate.py`（每 0.2 s 用新空文件替换 `/tmp/openpi-autoscale-*/creation-*.lock`；停：`touch /tmp/zl_lock_rotate.stop`）。0 错误。效果：合计 ~300 → ~510 局/分（h100-temp 28→84、GR00T 97→143、pod1 91→143、pod2 38→80、4090 FW 48→60；A100 LIBERO sim 50→12 s）。⛔ 它也会轮换新代码的 4 槽锁文件（等于不限并发）；在跑的旧批次都结束后停掉它。
