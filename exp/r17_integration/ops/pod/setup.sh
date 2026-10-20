@@ -7,13 +7,16 @@
 # $BASE (proot, rsync, r17x) is on the shared NFS home; $DATA is on the pod's own
 # disk (NFS takes ~6 MB/s for the venv's small files). Re-run after a pod restart.
 #
-# Usage (on the pod):  bash setup.sh <dp|fastwam> <rsync-url-prefix>
+# Usage (on the pod):  bash setup.sh <dp|dp_libero|fastwam> <rsync-url-prefix>
+#   dp_libero: only what DP LIBERO serves from (the 4090 openpi .venv, LIBERO policy, CLIP text), ~9 GB;
+#   dp adds the MT50 server env (Fast-WAM venv + DP venv, Python 3.12), ~18 GB. Both pods dropped off
+#   together at 18 GB on 10-20 17:38 (no cause visible from inside the pod), so keep pods lean.
 #   <rsync-url-prefix>: a temporary read-only rsync daemon on the H100 with modules
 #   <prefix>_mw = /data/mw_finetune and <prefix>_xwam = /data/xwam, e.g.
 #   rsync://149.165.153.233:23117/zljXXXX   (the H100 has a public IP; the pod pulls).
 # Re-running is cheap: rsync only copies what changed.
 set -euo pipefail
-MODEL=${1:?dp or fastwam}
+MODEL=${1:?dp, dp_libero or fastwam}
 SRC=${2:?rsync url prefix}
 BASE=/home/ziyang10/zl_r17
 DATA=/tmp/zl_r17/data
@@ -75,13 +78,17 @@ relink() {  # venv copied from the H100 (base /usr/bin/python3.12) -> this Pytho
 # 4. The server environment shared by DP and Fast-WAM: the Fast-WAM venv (torch 2.7.1+cu128),
 #    DP's read-only venv on top of it, and the small R17 dependency island.
 SRC_MODULE=${SRC}_mw
-pull envs/fastwam "$D/envs/fastwam"; relink "$D/envs/fastwam"
-pull qualification/python_deps312 "$D/qualification/python_deps312"
+if [ "$MODEL" != dp_libero ]; then
+  pull envs/fastwam "$D/envs/fastwam"; relink "$D/envs/fastwam"
+  pull qualification/python_deps312 "$D/qualification/python_deps312"
+fi
 
-if [ "$MODEL" = dp ]; then
-  pull dp/env "$D/dp/env"; relink "$D/dp/env"
+if [ "$MODEL" = dp ] || [ "$MODEL" = dp_libero ]; then
+  if [ "$MODEL" = dp ]; then
+    pull dp/env "$D/dp/env"; relink "$D/dp/env"
+    pull dp/mt50_policy_100000 "$D/dp/mt50_policy_100000"
+  fi
   pull dp/libero_policy_100000 "$D/dp/libero_policy_100000"
-  pull dp/mt50_policy_100000 "$D/dp/mt50_policy_100000"
   pull dp/clip_text "$D/dp/clip_text"
   # The 4090 openpi .venv + Python 3.11 that DP LIBERO serves from, staged on the H100 (r17x binds them).
   pull openpi_venv_4090 "$D/openpi_venv_4090"
@@ -91,6 +98,7 @@ if [ "$MODEL" = dp ]; then
   mkdir -p "$D/qualification/assets/dp_libero_gpu_fix1_v1"
   cp "$BASE/assets/dp_libero_gpu_fix1_v1/wire_observations.npz" "$D/qualification/assets/dp_libero_gpu_fix1_v1/"
   PROBE=/data/mw_finetune/dp/env/bin/python
+  [ "$MODEL" = dp_libero ] && PROBE=/home/weiland/projects/openpi/.venv/bin/python
 elif [ "$MODEL" = fastwam ]; then
   mkdir -p "$D/models" "$D/vendor" "$D/qualification/observations" "$DATA/xwam"
   pull models/fastwam_libero "$D/models/fastwam_libero"
