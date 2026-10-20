@@ -69,6 +69,8 @@ owner 的常驻指令，逐字有效：
 - 现在 fleet：timan107 fx1、a100 fx1、local fx1、timan1 fx4（两批）；17:23 timan1 FW 33/123、DP 爬坡中。
 - fa_ls_dp_r_b_m_j（pod 纯推理对照 2,500）driver PASS 2500，但 RECEIPT FAIL：`native CPU evidence aggregate is incomplete`（换 fleet 把 kernel evidence 拆进 _fx 目录）→ 待合并证据重出 receipt，数据完整可用。
 
+**20:1x 增补：EGL 根治已提交（新批次生效）**：MetaWorld e1c30fc2（gymnasium OffScreenViewer 共用一个上下文，每局 MjrContext.free + glFinish；像素差异同原方式自身噪声，13 MiB/worker）；LIBERO 38e93544（robosuite MjRenderContext 共用上下文，帧与原方式逐字节相同 9/9，11 MiB/worker；worker_entry LIBERO 分支调用 share_robosuite_egl_context）；9d1574c0 修 worker_entry main 里局部 `import os` 导致的 UnboundLocalError（测试抓到）。⛔ 待验收：各链下一批（新 prepare）上线后看每局 sim 时间、D 状态、成功率；在跑旧批次继续用 zl_lock_bounded。conductor 测试 3 个失败是改动前就有的。
+
 **19:5x 增补**：EGL 根治 MetaWorld 部分已提交 e1c30fc2（`rendering.share_egl_context`：每 worker 一个上下文复用；每局 MjrContext.free + glFinish，显存 13 MiB/worker 稳定，像素与原方式等价）；LIBERO（robosuite）待做（任务 #193）。在跑批次的有上限轮换：107 `zl_lock_bounded.py 4 2`、timan1 `8 4`、a100 `4 4`（停：`touch /tmp/zl_lock_rotate.stop`）。19:54：GR00T 175、pod1 217、pod2 113、4090 FW 61 局/分，0 错误；107 D=0。h100-temp 空闲（机主停我们后不重跑）。
 
 **19:4x 增补**：
