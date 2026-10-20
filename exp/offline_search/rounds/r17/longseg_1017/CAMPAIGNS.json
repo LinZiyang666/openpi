@@ -2,7 +2,7 @@
   "jobs": [
     {
       "name": "fa_ls_dp_r_u_m",
-      "run": "/data/mw_finetune/eval/fa_ls_dp_r_u_m",
+      "run": "/data/mw_finetune/eval/fa_ls_dp_r_u_m_j",
       "source": "/data/mw_finetune/eval/fa_ls_t_a2cd2e01",
       "episodes": 90000,
       "model": "dp",
@@ -30,11 +30,32 @@
       "pre_recal_source_full_native_plan_equal": true,
       "recalibrated": true,
       "task_uid_namespace_preserved": true,
-      "scientific_plan_equal_except_recipe_inputs": true
+      "scientific_plan_equal_except_recipe_inputs": true,
+      "pod_lane": {
+        "built_4090_run": "/data/mw_finetune/eval/fa_ls_dp_r_u_m",
+        "built_4090_never_ran": true,
+        "segments": [
+          {
+            "run": "/data/mw_finetune/eval/fa_ls_dp_r_u_m_j",
+            "accepted": 42553,
+            "receipt": "PARTIAL"
+          },
+          {
+            "run": "/data/mw_finetune/eval/fa_ls_dp_r_u_m_jc1",
+            "accepted": 47447,
+            "receipt": "FAIL"
+          }
+        ],
+        "executed_gpu": "H200 MIG 1g.18gb (jupyter-ziyang10)",
+        "executed_serving": "R1 without MPS on a jupyter H200 MIG 1g.18gb slice; DP batching identity unchanged",
+        "label_policy": "Owner 10-20: analysed as RTX 4090: 4090 references for level selection, 4090 profile for IR; pod references fa_ls_dp_{r,f}_{b,p}_m_j are equivalence evidence only",
+        "union_equals_plan": true,
+        "overlap": 0
+      }
     },
     {
       "name": "fa_ls_dp_r_f_m",
-      "run": "/data/mw_finetune/eval/fa_ls_dp_r_f_m",
+      "run": "/data/mw_finetune/eval/fa_ls_dp_r_f_m_j",
       "source": "/data/mw_finetune/eval/fa_ls_t_ca7540fd",
       "episodes": 90000,
       "model": "dp",
@@ -62,7 +83,28 @@
       "pre_recal_source_full_native_plan_equal": true,
       "recalibrated": true,
       "task_uid_namespace_preserved": true,
-      "scientific_plan_equal_except_recipe_inputs": true
+      "scientific_plan_equal_except_recipe_inputs": true,
+      "pod_lane": {
+        "built_4090_run": "/data/mw_finetune/eval/fa_ls_dp_r_f_m",
+        "built_4090_never_ran": true,
+        "segments": [
+          {
+            "run": "/data/mw_finetune/eval/fa_ls_dp_r_f_m_j",
+            "accepted": 15123,
+            "receipt": "PARTIAL"
+          },
+          {
+            "run": "/data/mw_finetune/eval/fa_ls_dp_r_f_m_jc2",
+            "accepted": 74877,
+            "receipt": "FAIL"
+          }
+        ],
+        "executed_gpu": "H200 MIG 1g.18gb (jupyter-ziyang10-02)",
+        "executed_serving": "R1 without MPS on a jupyter H200 MIG 1g.18gb slice; DP batching identity unchanged",
+        "label_policy": "Owner 10-20: analysed as RTX 4090: 4090 references for level selection, 4090 profile for IR; pod references fa_ls_dp_{r,f}_{b,p}_m_j are equivalence evidence only",
+        "union_equals_plan": true,
+        "overlap": 0
+      }
     },
     {
       "name": "fa_ls_dp_r_p_m",
@@ -122,7 +164,7 @@
     },
     {
       "name": "fa_ls_dp_f_u_m",
-      "run": "/data/mw_finetune/eval/fa_ls_dp_f_u_m",
+      "run": "/data/mw_finetune/eval/fa_ls_dp_f_u_m_j",
       "source": "/data/mw_finetune/eval/fa_ls_t_d0fb8429",
       "episodes": 90000,
       "model": "dp",
@@ -150,11 +192,27 @@
       "pre_recal_source_full_native_plan_equal": true,
       "recalibrated": true,
       "task_uid_namespace_preserved": true,
-      "scientific_plan_equal_except_recipe_inputs": true
+      "scientific_plan_equal_except_recipe_inputs": true,
+      "pod_lane": {
+        "built_4090_run": "/data/mw_finetune/eval/fa_ls_dp_f_u_m",
+        "built_4090_never_ran": true,
+        "segments": [
+          {
+            "run": "/data/mw_finetune/eval/fa_ls_dp_f_u_m_j",
+            "accepted": 90000,
+            "receipt": "PASS"
+          }
+        ],
+        "executed_gpu": "H200 MIG 1g.18gb (jupyter-ziyang10)",
+        "executed_serving": "R1 without MPS on a jupyter H200 MIG 1g.18gb slice; DP batching identity unchanged",
+        "label_policy": "Owner 10-20: analysed as RTX 4090: 4090 references for level selection, 4090 profile for IR; pod references fa_ls_dp_{r,f}_{b,p}_m_j are equivalence evidence only",
+        "union_equals_plan": true,
+        "overlap": 0
+      }
     },
     {
       "name": "fa_ls_dp_f_f_m",
-      "run": "/data/mw_finetune/eval/fa_ls_dp_f_f_m",
+      "run": "/data/mw_finetune/eval/fa_ls_dp_f_f_m_j",
       "source": "/data/mw_finetune/eval/fa_ls_t_7ab163cc",
       "episodes": 90000,
       "model": "dp",
@@ -182,7 +240,23 @@
       "pre_recal_source_full_native_plan_equal": true,
       "recalibrated": true,
       "task_uid_namespace_preserved": true,
-      "scientific_plan_equal_except_recipe_inputs": true
+      "scientific_plan_equal_except_recipe_inputs": true,
+      "pod_lane": {
+        "built_4090_run": "/data/mw_finetune/eval/fa_ls_dp_f_f_m",
+        "built_4090_never_ran": true,
+        "segments": [
+          {
+            "run": "/data/mw_finetune/eval/fa_ls_dp_f_f_m_j",
+            "accepted": 90000,
+            "receipt": "PASS"
+          }
+        ],
+        "executed_gpu": "H200 MIG 1g.18gb (jupyter-ziyang10-02)",
+        "executed_serving": "R1 without MPS on a jupyter H200 MIG 1g.18gb slice; DP batching identity unchanged",
+        "label_policy": "Owner 10-20: analysed as RTX 4090: 4090 references for level selection, 4090 profile for IR; pod references fa_ls_dp_{r,f}_{b,p}_m_j are equivalence evidence only",
+        "union_equals_plan": true,
+        "overlap": 0
+      }
     },
     {
       "name": "fa_ls_dp_f_p_m",
