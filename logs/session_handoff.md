@@ -58,6 +58,11 @@ owner 的常驻指令，逐字有效：
 
 **一句话**：今晚找到并根治了 worker 慢 7 倍的原因（EGL 渲染上下文每局创建/销毁 + 两把串行锁），四个在跑批次都已停下并用新代码续跑；新代码试点（pod2 jc2）358 局/分、0 错、同任务成功率一致。
 
+**23:3x 增补**：
+- ⛔ fa_ls_v01_0（成功过滤库 · DP · MetaWorld · 缓存变体，4090，23:25 start）的 workers.tar 里 metaworld.py 仍是旧版（无 cache_study）：重准备/续跑沿用冻结 worker 包，只刷新 WORKER_OVERLAY。45e52e29 把 `exp/r17_integration/benchmarks/metaworld.py` 加进 WORKER_OVERLAY（冻结版与仓库版只差白名单一行；driver 不比对身份字典）。v01_0 不重来（已出局，合并证据救不回）。⛔ 下一个新准备的 MetaWorld 批次（H100 链 fa_co_f_f_l 之后的 fa_ls_gr_r_u_m）：核 `tar -xOf workers.tar exp/r17_integration/benchmarks/metaworld.py | grep cache_study`、per_step 有 resident_pid、开跑 10 min 内无 "terminal execution ACK" 错误；若出错按续跑流程回退。
+- v01_0 已带新槽位（BUILD_SLOTS 8、CREATION_SLOTS 5）和 share_egl_context。
+- Fast-WAM · LIBERO · 减步 两库完整（RESULTS.json 23:3x）：成功过滤库 − 原库 配对差 libero_10 +1.6/+2.0/−0.6/+1.2/−1.6/+1.0，spatial −0.4/−0.4/+2.2/+2.6/−0.4/−0.8（库大小 50→500）；两库都是 6–9 个任务退回纯推理、调用比例 66–100%，只有成功过滤库 spatial 200/300 整格旋钮关（调用约 4%，成功率 92.6/93.0% > 纯推理 91.6%）。FW 正式 IR 待测时延。
+
 **23:23 巡检**：FW LIBERO lc1 23:17 跑完（rc=0，8,832，receipt PENDING_EVIDENCE）；4090 链 23:18 起准备 fa_ls_v01_0（首个全新代码准备的批次，4090 准备期间空闲）。jc2 301、GR00T 403、jc1 222 局/分，0 错；107 load 28（FW worker 释放）。/nvme 库已 53/117 GB；增量镜像 `mirror_nvme.sh` 等初次复制完自动开始（两个 governor 在跑，旧的随复制结束退出）。
 
 **23:0x 增补（owner 去睡，独自推进）**：
