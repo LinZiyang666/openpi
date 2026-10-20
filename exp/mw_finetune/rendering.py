@@ -44,8 +44,40 @@ def configure(renderer, device_id=0):
     if renderer == "egl":
         os.environ.pop("LIBGL_ALWAYS_SOFTWARE", None)
         os.environ["MUJOCO_EGL_DEVICE_ID"] = str(device_id)
+        share_egl_context()
     else:
         os.environ["LIBGL_ALWAYS_SOFTWARE"] = "1"
+
+
+def share_egl_context():
+    """One EGL context per process and size, reused by every environment.
+
+    gymnasium creates and destroys an EGL context per environment, i.e. per episode; that storm is
+    what the build lock queues (timan108 wedged; 35 D-state processes on timan107 when unbounded).
+    Frames match per-episode contexts within their own run-to-run noise (10-19: <=1 level on ~0.04%
+    of pixels for both). Each environment still builds its own MjrContext inside the shared context;
+    closing frees it and glFinish makes the driver return the memory (without it the pool grew to
+    ~820 MiB per worker; with it 13 MiB over 150 episodes)."""
+    from gymnasium.envs.mujoco import mujoco_rendering
+    from mujoco.egl import GLContext
+    from OpenGL import GL
+    contexts = {}
+
+    def shared(width, height):
+        if (width, height) not in contexts:
+            context = GLContext(width, height)
+            context.free = lambda: None  # released at process exit
+            contexts[(width, height)] = context
+        return contexts[(width, height)]
+
+    def free(viewer):
+        con = getattr(viewer, "con", None)
+        if con is not None:
+            viewer.make_context_current()
+            con.free()
+            GL.glFinish()
+    mujoco_rendering._ALL_RENDERERS["egl"] = shared
+    mujoco_rendering.OffScreenViewer.free = free
 
 
 def renderer_stamp():
