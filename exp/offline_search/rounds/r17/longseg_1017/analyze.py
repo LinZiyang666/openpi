@@ -61,8 +61,20 @@ def stats(data,model,mode,suite,gpu):
         return st
     st['ir']=st['latency_ir']=None;return st
 
+_LANES={}
+
 def lane_data(root):
+    if str(root) in _LANES:return _LANES[str(root)]
     data,_=c.load_knob(continued_lanes([Path(root)]),'A');return data
+
+def prefetch(roots):
+    """Parse each run's lanes in its own process (single-process JSON parsing took >6 min for LIBERO)."""
+    import os
+    from concurrent.futures import ProcessPoolExecutor
+    roots=sorted({str(r) for r in roots if (Path(r)/'RECEIPT.json').exists()}-set(_LANES))
+    if roots:
+        with ProcessPoolExecutor(max_workers=max(1,min(len(roots),(os.cpu_count() or 2)//2))) as pool:
+            _LANES.update(zip(roots,pool.map(lane_data,roots)))
 
 def reference(model,benchmark,mode,gpu,*,long=False):
     registry=read(HERE/'REFERENCE_SELECTION.json')['references']
@@ -145,8 +157,12 @@ def _main():
     all_data=defaultdict(dict);gpu_for={};rows=[];libs=library_cells();active_keys=set()
     recalibration=read(HERE/'RECALIBRATION.json') if (HERE/'RECALIBRATION.json').exists() else {}
     calibration_levels=recalibration.get('level_inventory',[])
-    for j in jobs:
-        if j['stage'] not in ('descent','off','levels') or args.benchmark not in ('all',j['benchmark']):continue
+    selected=[j for j in jobs if j['stage'] in ('descent','off','levels') and args.benchmark in ('all',j['benchmark'])]
+    references=read(HERE/'REFERENCE_SELECTION.json')['references']
+    prefetch([j['run'] for j in selected]+[e['run'] for k,e in references.items()
+              if (args.benchmark=='all' or k.split(':')[1]==args.benchmark) and (Path(e['run'])/'campaign.json').exists()
+              and read(Path(e['run'])/'campaign.json').get('cache_study')])
+    for j in selected:
         key=(j['model'],j['benchmark'],j['mode'],j['arm']);gpu_for[key[:3]]=j['gpu']
         for g in read(Path(j['run'])/'assets/CACHE_STUDY.json')['groups']:
             all_data[key].setdefault((g['suite'],g['library_size']),{})
