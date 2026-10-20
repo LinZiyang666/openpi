@@ -58,6 +58,8 @@ owner 的常驻指令，逐字有效：
 
 **一句话**：今晚找到并根治了 worker 慢 7 倍的原因（EGL 渲染上下文每局创建/销毁 + 两把串行锁），四个在跑批次都已停下并用新代码续跑；新代码试点（pod2 jc2）358 局/分、0 错、同任务成功率一致。
 
+**00:5x**：Cosmos LIBERO fa_co_f_f_l（H100 链）00:30 start、00:39 driver、~00:45 出局，0 错（a100 9 + timan1 7 worker）；H100 GPU 72–100%。4090 v01_0 110 局/分但 GPU 2–3%（desire 只 17）→ floors.json = `{"fa_ls_dp_r_f_m_jc2": 120, "fa_ls_v01_0": 100}`（批结束要清）。jc2 67,908/74,877（~35 min 完），jc1 37,073/47,447。/nvme 库 98/117 GB。
+
 **00:2x**：H100 fa_ls_gr_r_f_mc1 00:25 跑完（rc=0，55,190，PENDING_EVIDENCE）→ floors.json 去掉 GR00T，现 `{"fa_ls_dp_r_f_m_jc2": 120}`（jc2 结束后清空）。H100 链下一批 fa_co_f_f_l（成功过滤库 · Cosmos · LIBERO · 全步）。
 
 **23:5x 增补**：✅ 证据字段修复正式验证（fa_ls_v01_0，g4090t 23:35 start，启动后调度器 23:42 才分 worker）：1,102 局 0 错、0 个 "terminal execution ACK" 错；抽 7,627 条决策行全有 resident_pid，4 个 pid 各 1 代 = replicas 4；终局行带 server_terminal_ack。之后新准备的 MetaWorld 批次都会带全证据。
