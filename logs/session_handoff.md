@@ -58,6 +58,8 @@ owner 的常驻指令，逐字有效：
 
 **一句话**：今晚找到并根治了 worker 慢 7 倍的原因（EGL 渲染上下文每局创建/销毁 + 两把串行锁），四个在跑批次都已停下并用新代码续跑；新代码试点（pod2 jc2）358 局/分、0 错、同任务成功率一致。
 
+**21:5x 纠正**：⛔ 21:25 给 jc2 的 cap 110 是错的——客户端 HPA 把"被压住后速率没涨"判成步长失败，需求一路降到 22（活跃 12），全系统活跃 worker 370→167。21:4x 已撤：`caps.json` = `{}`，`floors.json` = `{"fa_ls_gr_r_f_mc1": 150, "fa_ls_dp_r_f_m_jc2": 120}`（两批结束要清）。以后不要用 cap 压在跑批次让位；要优先某批只用 floor。
+
 **21:4x 增补：MetaWorld 证据字段 bug（opus 只读诊断，我核实）**：
 - `benchmarks/metaworld.py _identity()` 是白名单，没有 `cache_study` → `ops/cache_study_worker.py` 的 evidence shim（`identity.get('cache_study') is True` 才生效）在 MetaWorld 上从没跑过 → 所有 MT50 缓存批次 per_step 行没有 resident_pid/resident_generation、miss_mode、stall_*、corrector_*、donor_*、knob_call，终局行没有 server_terminal_ack → `cache_study.aggregate` PARTIAL → receipt 都 FAIL（不是 fleet 换过的问题；LIBERO 用 `**t.extra` 所以 PASS）。
 - 数字用的字段都在（hit_type、actual_nfe、miss_nfe、commit_horizon、成功、执行回执 executed_count/cursor_end），成功率/IR/执行段核对照常可用；缺的是审计/诊断字段（停滞门/修正器触发次数要从服务端日志找）。
