@@ -58,6 +58,8 @@ owner 的常驻指令，逐字有效：
 
 **一句话**：今晚找到并根治了 worker 慢 7 倍的原因（EGL 渲染上下文每局创建/销毁 + 两把串行锁），四个在跑批次都已停下并用新代码续跑；新代码试点（pod2 jc2）358 局/分、0 错、同任务成功率一致。
 
+**01:2x**：pod2 jc2 01:20 跑完（rc=0，74,877；源 fa_ls_dp_r_f_m 15,123 + jc2 → 成功过滤库 · DP · MetaWorld · 减步 · 旋钮下降 90,000 收齐）→ floors 去掉 jc2，现 `{"fa_ls_v01_0": 100}`。pod2 空闲 → `longseg_1017.pod_copy --source fa_ls_dp_f_f_m --name fa_ls_dp_f_f_m_j --pod jupyter-ziyang10-02 --driver-port 23192`（成功过滤库 · DP · MetaWorld · 全步 · 旋钮下降，90,000，R1 无 MPS）→ 链 **pod2d**（01:24 prepare）。⛔ 4090 链 g4090t 队列里的原 fa_ls_dp_f_f_m：`filter_failed_knob/commands/prepare_fa_ls_dp_f_f_m.sh` 已改成 exit 3（链会记 "prepare FAILED rc=3, skipped"，这是有意的；原文件 `.before_pod_move`）。
+
 **00:5x**：Cosmos LIBERO fa_co_f_f_l（H100 链）00:30 start、00:39 driver、~00:45 出局，0 错（a100 9 + timan1 7 worker）；H100 GPU 72–100%。4090 v01_0 110 局/分但 GPU 2–3%（desire 只 17）→ floors.json = `{"fa_ls_dp_r_f_m_jc2": 120, "fa_ls_v01_0": 100}`（批结束要清）。jc2 67,908/74,877（~35 min 完），jc1 37,073/47,447。/nvme 库 98/117 GB。
 
 **00:2x**：H100 fa_ls_gr_r_f_mc1 00:25 跑完（rc=0，55,190，PENDING_EVIDENCE）→ floors.json 去掉 GR00T，现 `{"fa_ls_dp_r_f_m_jc2": 120}`（jc2 结束后清空）。H100 链下一批 fa_co_f_f_l（成功过滤库 · Cosmos · LIBERO · 全步）。
