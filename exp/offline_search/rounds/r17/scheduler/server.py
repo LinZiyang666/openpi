@@ -42,13 +42,19 @@ class Scheduler:
         now = time.time()
         # Operator caps on desire ({batch: workers}, re-read every recompute): batches whose frozen client
         # cannot measure throughput (sched-1019 group-commit drivers) and whose server GPU is unreadable.
-        try:
-            caps = json.loads((self.log.parent / 'caps.json').read_text())
-        except (OSError, ValueError):
-            caps = {}
+        # floors.json likewise raises desire when a client's step test misreads (stale node snapshots).
+        bounds = {}
+        for name in ('caps', 'floors'):
+            try:
+                bounds[name] = json.loads((self.log.parent / (name + '.json')).read_text())
+            except (OSError, ValueError):
+                bounds[name] = {}
+        def bounded(b, r):
+            desired = max(r['desired'], bounds['floors'].get(b, 0))
+            return dict(r, desired=min(desired, bounds['caps'].get(b, desired))) if not r['done'] else r
         with self.lock:
             self.reports = live(self.reports, now)
-            reports = {b: dict(r, desired=min(r['desired'], caps[b])) if b in caps else r for b, r in self.reports.items()}
+            reports = {b: bounded(b, r) for b, r in self.reports.items()}
             previous = self.state['targets']
         result = plan(reports, now, previous)
         with self.lock:
