@@ -52,7 +52,44 @@ owner 的常驻指令，逐字有效：
 
 
 
-## 1. 现在在哪（2026-10-19 16:3x CDT；**最先读下面 10-19 16:3x 总状态**，10-14 及更早的总状态块已过时只作背景）
+## 1. 现在在哪（2026-10-19 21:0x CDT；**最先读下面 21:0x 总状态**，再读 20:5x / 20:2x / 20:1x / 19:5x / 19:4x / 19:2x / 18:5x / 17:5x / 17:2x / 16:3x 增补；10-14 及更早只作背景）
+
+### ★★★★★★★★★★★★★★★★★★★★★★★ 2026-10-19 21:0x CDT 总状态（compact 后最先读这块）
+
+**一句话**：今晚找到并根治了 worker 慢 7 倍的原因（EGL 渲染上下文每局创建/销毁 + 两把串行锁），四个在跑批次都已停下并用新代码续跑；新代码试点（pod2 jc2）358 局/分、0 错、同任务成功率一致。
+
+**现在在跑（20:55 全部启动，新代码）**
+| 机器 | 链 | 批次 | 剩余 | 之后 |
+|---|---|---|---|---|
+| jupyter-ziyang10-02 | pod2c | fa_ls_dp_r_f_m_jc2 成功过滤库 · DP · MetaWorld · 减步 · 旋钮下降（源 fa_ls_dp_r_f_m 15,123 + jc2） | 74,877 | 无 |
+| H100 | h100m23 | fa_ls_gr_r_f_mc1 成功过滤库 · GR00T · MetaWorld · 减步 · 旋钮下降（源 34,810） | 55,190 | 原 h100m22 余队：fa_co_f_f_l fa_ls_gr_r_u_m fa_ls_v03_0 fa_ls_v03_1 fa_ls_gr_f_f_m fa_ls_gr_f_u_m fa_ls_v05_1_rz fa_ls_v05_2_rz fa_ls_fw_f_u_m fa_ls_v02_b fa_ls_fw_f_f_l_l fa_ls_fw_f_u_l_l fa_ls_v08_1 fa_ls_fw_r_u_m fa_ls_fw_f_f_m fa_ls_fw_r_f_m fa_ls_v05_3 fa_ls_v05_4 fa_ls_v05_0 |
+| jupyter-ziyang10 | pod1c | fa_ls_dp_r_u_m_jc1 原库 · DP · MetaWorld · 减步 · 旋钮下降（源 42,553） | 47,447 | 无 |
+| 4090 | g4090s | fa_ls_fw_r_f_l_lc1 成功过滤库 · Fast-WAM · LIBERO · 减步 · 各档（源 16,168） | 8,832 | 原 g4090q 余队：fa_ls_v01_0 v10–13_0 dp_f_f/u_o_l dp_f_f/u_l_l dp_f_f/u_m v04_0 v04_3 v06_0 v09_0 v09_1 fa_cs_pi_r fa_cs_gr_r |
+| h100-temp | （h100tmp15 STOPPED） | fa_ls_v02_s_c1 成功过滤库 · FW · MetaWorld · 减步 · 缓存变体：机主 19:33 登录、19:37 停了我们的服务；收 6,962/57,058 | — | ⛔ 不重跑，等 owner |
+**待做第一件**：核对后三批开跑后的每局 sim 时间（新代码应 ≲1–5 s）、错误数、timan107 D 状态（`ps -eo stat | grep -c ^D`）。
+
+**worker 慢的根因与根治（今晚主线）**
+1. 每局建环境被两把锁串行：`scheduler/worker.py creation_lock`（每卡一把）+ `exp/mw_finetune/rendering.py env_build_lock`（整机一把 `/tmp/rc365_env_build.lock`，MetaWorld 每局拿三次）。107 上 250 个 worker 排一队 → MetaWorld 单局 sim 15 s → 115–150 s。
+2. 锁的来历（不是多虑）：RoboCasa 时 N 个 worker 同时创建/销毁 EGL 上下文把 NVIDIA 驱动每卡锁挤爆，timan108 45 进程 D 状态宕机；今晚不限并发轮换锁几分钟就让 107 出现 35 个 D 状态、负载 72（已立刻停）。
+3. 根治（新批次生效）：每个 worker 进程只建一个 EGL 上下文复用；每局只释放 MjrContext 并 `glFinish`（不加 glFinish 驱动不还显存，涨到 ~820 MiB/worker；加了 11–13 MiB）。MetaWorld `rendering.share_egl_context`（e1c30fc2，configure('egl') 自动启用）；LIBERO `rendering.share_robosuite_egl_context`（38e93544，worker_entry LIBERO 分支调用）。验证：MetaWorld 像素差与原方式自身两次运行噪声相同（≤1 灰度级、~0.04% 像素），物理状态一致；LIBERO 帧逐字节相同 9/9。锁保留有上限（62d7b8ae：env build 全机 4 槽，creation 每卡 2 槽）。
+4. 相关修复：9d1574c0（worker_entry main 里局部 `import os` → UnboundLocalError）；63b307bb（rendering.py 加进 formal_eval.WORKER_OVERLAY——续跑复制源批次冻结 workers.tar，只有 overlay 文件会刷新；否则新 worker_entry + 旧 rendering）。
+5. 临时手段已全部撤下：三机 `/tmp/zl_lock_bounded.py`、`zl_lock_rotate.py` 已停（`touch /tmp/zl_lock_rotate.stop`）；timan1 `timan1_control_relay.sh` 已停；调度器 `caps.json`/`floors.json` 已清空为 `{}`。
+
+**在跑批次切新代码的流程（owner 方案，今晚用了 4 次）**
+caps.json 设该批 0（A100 `/home/exouser/scheduler/run_23500/caps.json`，调度器每次重算重读）→ 等节点上 `pgrep -f '[-]-worker-id <run>_'` 归零 → touch 链的 hold → SIGTERM `pgrep -f '[l]aunch --run /data/mw_finetune/eval/<run>$'` → RECEIPT all_owned_closed=True → `filter_failed.resume --source <run> --name <run>cN --remaining`（pod/h100-temp 带 `R17_H100_NODE/HOST/DRIVER_PORT`）→ 写 `filter_failed_knob/commands/{prepare,launch}_<new>.sh`（stage/launch，带 alias env）→ 新链（后接原链余队）→ 核 `tar -xOf workers.tar exp/mw_finetune/rendering.py | grep share_egl_context`。
+⛔ 坑：① 被原地换过 worker 组（swap_sched_fleet，fx 后缀）的批次，`--verify-closed` 和续跑 prepare 会报 `remote ownership receipt identity changed` → 把各节点 stage 目录 `workers.process.before_fx1.json` 拷回 `workers.process.json`（现状另存 `.after_swaps.json`）；② 启动阶段就杀 launch 不写 RECEIPT，留下 `formal_driver plan` 小进程要按 PID 杀；③ 不要再用 swap_sched_fleet 原地换带 worker 代码改动的 fleet（driver 校验 worker 文件，会拒收）。
+
+**调度器（sched-1019b）今晚改动**：c87ae723 节点换代后立刻重写快照 + 放置粘住上次目标；510b21c1 group-commit driver 回报接受局（修测速恒 0，新批次生效）；8ff24ab4 撤掉「先满 107」（owner：107 全部可用但不是先满 107）；54f93fcf/5f252b7c `caps.json`/`floors.json`（运维上下限，给冻结旧客户端用）；5ed3c20f timan1 LIBERO 不再每 4 局换代。未做：RAM 记账改 PSS（#189）；爬坡太慢（起 16、每档 ~5 min）可改 settle/measure 各 1 min（新批次）。
+
+**待办**
+- 核新代码三批（上面第一件）；新批次 preparation 都会自动带新代码（WORKER_OVERLAY）。
+- receipt 重出：fa_ls_dp_r_b_m_j（pod 纯推理对照 2,500，driver PASS，CPU evidence 被换 fleet 拆散）（#188）；fa_ls_v02_s_c1（h100-temp 被停）。
+- /data（运维 10-19：71%、剩 1.1T）：owner「先只记方案」→ 任务 #191（垃圾箱 424 GB 挪 /archive 待点头；已入库批次服务端日志挪 /archive；再评估新批次输出改 /nvme）。
+- conductor 测试 3 个失败、cache_capacity 测试 15 个失败：改动前就有。
+- autoscale_1017 目录待删（无旧代码批次在跑了）。
+
+**owner 今晚新规矩（已进记忆）**：问题先答再动手、查到别的问题先报（feedback-answer-first）；Monitor 不刷屏（feedback-no-monitor-spam）；107 八张卡全部可用、别人进程不是少放理由，但不是先满 107（feedback-devices-and-gpus）。
+
 
 ### ★★★★★★★★★★★★★★★★★★★★★★ 2026-10-19 17:2x CDT 增量（最先读；下面 16:3x 总状态仍有效，除这里改了的）
 
