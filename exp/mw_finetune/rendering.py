@@ -10,8 +10,9 @@ import socket
 STAMP = {}
 # Concurrent EGL lifecycle operations per host. One slot queued ~250 workers three times per episode
 # (10-19: MetaWorld 15 s -> 90 s per episode on timan107); unbounded concurrency put 35 processes in
-# D state there within minutes (the storm that wedged timan108). Bounded, not removed.
-BUILD_SLOTS = 4
+# D state there within minutes (the storm that wedged timan108). Bounded, not removed. With the shared
+# EGL context (share_egl_context) a build is model compilation plus one MjrContext; 8 ran on timan1.
+BUILD_SLOTS = 8
 
 
 @contextlib.contextmanager

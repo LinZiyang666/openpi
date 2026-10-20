@@ -12,7 +12,7 @@ import time
 
 from .node import ROOT, atomic, identity, read
 
-CREATION_SLOTS = 2  # concurrent environment creations per physical GPU (bounded: see mw_finetune.rendering)
+CREATION_SLOTS = 5  # concurrent environment creations per physical GPU (bounded: see mw_finetune.rendering)
 
 
 @contextmanager
@@ -29,7 +29,9 @@ def creation_lock():
     # Unknown physical mapping shares the slots of all unknown devices, conservatively.
     key = hashlib.sha256((gpu or 'unknown-physical-gpu').encode()).hexdigest()[:24]
     # CREATION_SLOTS concurrent creations per GPU: one slot queued 40-60 workers per card for ~100 s
-    # per episode (10-19); unbounded concurrency risks the driver lock storm (D state).
+    # per episode (10-19); unbounded concurrency risks the driver lock storm (D state). With one shared
+    # EGL context per worker the section is model compilation; 2 slots still queued ~90 of 125 timan1
+    # workers (all on GPU2); 5-6 via bounded rotation left 3-20 waiting with D state at 1-4.
     slots = [ROOT / ('creation-%s-%d.lock' % (key, i)) for i in range(CREATION_SLOTS)]
     streams = []
     try:
