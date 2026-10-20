@@ -58,6 +58,14 @@ owner 的常驻指令，逐字有效：
 
 **一句话**：今晚找到并根治了 worker 慢 7 倍的原因（EGL 渲染上下文每局创建/销毁 + 两把串行锁），四个在跑批次都已停下并用新代码续跑；新代码试点（pod2 jc2）358 局/分、0 错、同任务成功率一致。
 
+**21:2x 增补（compact 后接着做的）**：
+- 四批新代码全部出局、0 错；21:12 合计 ~680 局/分（DP 成功过滤库 jc2 300、DP 原库 jc1 194、GR00T mc1 139、FW LIBERO lc1 50）。GR00T/FW 启动慢只是服务端加载 ~7 min。
+- ⛔ timan1 新瓶颈：timan1 island 所有 worker 都在 GPU2（UUID 9bdcf7cc，先填 GPU2）→ 每卡 creation 锁只有 2 槽，~90/125 个 worker 排队。新代码下 creation 段只剩 CPU 建模（EGL 上下文已复用）。21:08 起 timan1 跑 `/tmp/zl_lock_slots.py 8 6`（`openpi_ext/scratch/r17_ops/zl_lock_slots.py`：槽位锁文件有上限轮换，整机 8、每卡 6；D 状态 >10 自停并写 `/tmp/zl_lock_rotate.stop`；12 h timeout）。效果：等锁 95→3、timan1 CPU 93%（真瓶颈）、D 4–8→4。Monitor 只在它停掉时报。验证 ~30 min 安全后把 CREATION_SLOTS/BUILD_SLOTS 提到 6/8（新批次生效，#194）。
+- timan107 不排锁；0–5 号卡被 yurenh2 的 vqloop 训练占满 100%，我们的渲染慢（sim 12 s），6/7 号卡空。
+- H100 GR00T GPU 0–12%（worker 只 22、调度器爬坡慢）→ 21:16 `floors.json` = `{"fa_ls_gr_r_f_mc1": 150}`（H100 链后面还有 19 批，是最长的链；jupyter 两条链之后没有排队）。⛔ 该批结束后要清掉这条 floor。
+- fa_ls_dp_r_b_m_j receipt FAIL 原因：SUMMARY violations = 54,033 resident lifetime evidence missing + 2,500 decision/terminal ACK incomplete；RECEIPT transfers 只有 h100_servers（timan1 记为 worker_node_losses、107 exit 2 deferred）。派了 opus 只读诊断（也判断在跑的 pod 续跑会不会同样失败），#188。
+
+
 **现在在跑（20:55 全部启动，新代码）**
 | 机器 | 链 | 批次 | 剩余 | 之后 |
 |---|---|---|---|---|
