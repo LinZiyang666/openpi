@@ -101,6 +101,52 @@
       ],
       "episodes": 0,
       "shared_full_reduced": true
+    },
+    {
+      "name": "fa_ls_timing_gr_m_4",
+      "run": "/data/mw_finetune/eval/fa_ls_gr_r_p_m",
+      "bundle": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/profile_bundles/fa_ls_timing_gr_m_h",
+      "destination": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/profile_bundles/fa_ls_timing_gr_m_h",
+      "gpu": "RTX 4090",
+      "model": "groot",
+      "benchmark": "mt50",
+      "suites": [
+        "mt50"
+      ],
+      "episodes": 0,
+      "shared_full_reduced": true,
+      "timed_on_4090_for_h100_lane": true
+    },
+    {
+      "name": "fa_ls_timing_fw_m_4",
+      "run": "/data/mw_finetune/eval/fa_ls_fw_r_p_m",
+      "bundle": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/profile_bundles/fa_ls_timing_fw_m_h",
+      "destination": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/profile_bundles/fa_ls_timing_fw_m_h",
+      "gpu": "RTX 4090",
+      "model": "fastwam",
+      "benchmark": "mt50",
+      "suites": [
+        "mt50"
+      ],
+      "episodes": 0,
+      "shared_full_reduced": true,
+      "timed_on_4090_for_h100_lane": true
+    },
+    {
+      "name": "fa_ls_timing_co_l_4",
+      "run": "/data/mw_finetune/eval/fa_co_r_u_l",
+      "bundle": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/profile_bundles/fa_ls_timing_co_l_h",
+      "destination": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/profile_bundles/fa_ls_timing_co_l_h",
+      "gpu": "RTX 4090",
+      "model": "cosmos",
+      "benchmark": "libero",
+      "suites": [
+        "libero_10",
+        "libero_spatial"
+      ],
+      "episodes": 0,
+      "shared_full_reduced": true,
+      "timed_on_4090_for_h100_lane": true
     }
   ],
   "artifact_parameters_changed": false

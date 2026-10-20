@@ -17,6 +17,9 @@ from .io_budget import dump,copy,filesystem_budget
 from exp.offline_search.rounds.r17.filter_failed_knob.common import read,REPO
 
 INDEX=HERE/'PROFILES.json'
+# 4090-host serving environments that differ from an H100 lane's campaign (the H100 has its own copies).
+LOCAL_SERVER={'groot':dict(server_python='/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python',
+                           vendor='/home/weiland/projects/openpi_ext/third_party/gr00t_n15')}
 
 def first_row_metadata(parent):
     """Read only the arrays header and first recorded row, at most 16 MiB."""
@@ -93,6 +96,10 @@ def operate(name,verb):
     from exp.r17_integration.ops import formal_eval as f
     u=next(u for u in read(INDEX)['units'] if u['name']==name)
     c=read(Path(u['run'])/'campaign.json');remote=u['gpu']=='H100'
+    if not remote and c.get('server_node')!='local':
+        # Owner 10-20: every lane is timed on the 4090. A lane served on the H100 uses this
+        # host's interpreter and vendor tree and the local server environment.
+        c=dict(c,server_node='local',**LOCAL_SERVER.get(u['model'],{}))
     if verb=='prepare':
         if remote:
             from exp.r17_integration.ops.sync_back import snapshot_run
