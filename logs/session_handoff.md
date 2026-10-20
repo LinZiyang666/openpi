@@ -58,6 +58,11 @@ owner 的常驻指令，逐字有效：
 
 **一句话**：今晚找到并根治了 worker 慢 7 倍的原因（EGL 渲染上下文每局创建/销毁 + 两把串行锁），四个在跑批次都已停下并用新代码续跑；新代码试点（pod2 jc2）358 局/分、0 错、同任务成功率一致。
 
+**22:0x 增补**：
+- timan1 活跃 worker 低的真因：MetaWorld worker 每 32 局或 30 min 换代（formal_eval 默认 32/1800；timan1_gpu2 lease 同），续跑批 20:55 一起起 → 21:25–21:45 一起退出（21:27 那次 D>10 也在这时），timan1 每个 spawn 5–9 s 补不上（GR00T 目标 53 活跃 1）。新批次已改：9998f2b4 timan1 上 MetaWorld 也不换代（LIBERO 早已是 0；owner「timan1上的worker不用重启」）；在跑批次没法改（env 在 spawn 时定），换代时刻会逐渐错开。
+- a5dc7f3f：新批次 CREATION_SLOTS 5 / BUILD_SLOTS 8（timan1 轮换 8/5 跑 20+ min，D 最高 6–7）。timan1 `/tmp/zl_lock_slots.py 8 5` 继续给在跑批次用（12 h timeout；连续 3 次 D>10 自停）。
+- 22:0x 速度：jc2 218、GR00T 276、jc1 228、FW 72（~790/min），0 错；H100 GPU 28–57%。
+
 **21:5x 纠正**：⛔ 21:25 给 jc2 的 cap 110 是错的——客户端 HPA 把"被压住后速率没涨"判成步长失败，需求一路降到 22（活跃 12），全系统活跃 worker 370→167。21:4x 已撤：`caps.json` = `{}`，`floors.json` = `{"fa_ls_gr_r_f_mc1": 150, "fa_ls_dp_r_f_m_jc2": 120}`（两批结束要清）。以后不要用 cap 压在跑批次让位；要优先某批只用 floor。
 
 **21:4x 增补：MetaWorld 证据字段 bug（opus 只读诊断，我核实）**：
