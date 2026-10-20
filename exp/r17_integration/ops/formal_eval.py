@@ -29,7 +29,7 @@ FORMAL_ROOT = Path('/data/mw_finetune/eval')
 PROBE_SECONDS = 30
 WORKER_ROOT = '/scratch/zixuans8/mw_r17/formal'
 # Overlaid on every worker payload with the scheduler package: its fleet loop's hooks and launch path.
-WORKER_OVERLAY = ('src/openpi/conductor/worker.py', 'exp/r17_integration/conductor/worker_entry.py', *(
+WORKER_OVERLAY = ('src/openpi/conductor/worker.py', 'exp/r17_integration/conductor/worker_entry.py', 'exp/mw_finetune/rendering.py', *(
     'exp/r17_integration/ops/'+n+'.py' for n in ('formal_process', 'formal_workers', 'worker_lifetime', 'worker_gpu',
     'worker_memory', 'worker_disk', 'worker_installs', 'local_workers', 'local_worker_entry', 'timan1_workers',
     'live_fleet_worker', 'cache_capacity')))
