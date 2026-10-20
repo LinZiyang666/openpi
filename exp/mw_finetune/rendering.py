@@ -8,8 +8,9 @@ from pathlib import Path
 import socket
 
 STAMP = {}
-# Concurrent EGL lifecycle operations per render device. One host-wide lock queued ~250 workers
-# three times per episode (10-19, MetaWorld 15 s -> 90 s per episode on timan107).
+# Concurrent EGL lifecycle operations per host. One slot queued ~250 workers three times per episode
+# (10-19: MetaWorld 15 s -> 90 s per episode on timan107); unbounded concurrency put 35 processes in
+# D state there within minutes (the storm that wedged timan108). Bounded, not removed.
 BUILD_SLOTS = 4
 
 
@@ -18,8 +19,7 @@ def env_build_lock():
     base = os.environ.get("RC365_ENV_BUILD_LOCK", "/tmp/rc365_env_build.lock")
     if not base:
         raise ValueError("R17 requires a cross-process environment build lock")
-    device = os.environ.get("MUJOCO_EGL_DEVICE_ID", "cpu")
-    paths = [Path(f"{base}.{device}.{i}") for i in range(BUILD_SLOTS)]
+    paths = [Path(f"{base}.{i}") for i in range(BUILD_SLOTS)]
     handles = []
     try:
         for path in paths:
