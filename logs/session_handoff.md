@@ -58,13 +58,15 @@ owner 的常驻指令，逐字有效：
 
 **一句话**：今晚找到并根治了 worker 慢 7 倍的原因（EGL 渲染上下文每局创建/销毁 + 两把串行锁），四个在跑批次都已停下并用新代码续跑；新代码试点（pod2 jc2）358 局/分、0 错、同任务成功率一致。
 
+**09:1x ⛔ DP LIBERO 不能直接 pod_copy**：fa_ls_dp_f_u_o_l_j 在 pod1 准备 20 s 失败：campaign server_python = 本机 `/home/weiland/projects/openpi/.venv/bin/python`（DP LIBERO 服务用 openpi venv），pod 的 r17x 只把 `/tmp/zl_r17/data` 绑成 /data，pod 上没有这个 venv（MT50 DP 用的 `/data/mw_finetune/dp/env` 在 pod 上装过）。已撤回：4090 的 prepare_fa_ls_dp_f_u_o_l.sh 已恢复原样（照原顺序在 4090 跑），目录改名 `fa_ls_dp_f_u_o_l_j.unused_pod_env_missing_20261020`，floors 去掉它。pod1 现在空闲；pod2 ~11:00 跑完 fa_ls_dp_f_f_m_j 后也没有可挪的 DP MT50 批次。要让 pod 接 DP LIBERO / Fast-WAM 需先在 pod 上装对应服务环境与 checkpoint（白天和 owner 定）。
+
 **09:0x**：pod1 fa_ls_dp_f_u_m_j 09:02 跑完（rc=0，90,000 → 原库 · DP · MetaWorld · 全步 · 旋钮下降齐）→ `pod_copy --source fa_ls_dp_f_u_o_l --name fa_ls_dp_f_u_o_l_j --pod jupyter-ziyang10 --driver-port 23193`（原库 · DP · LIBERO · 全步 · 旋钮关，6,000）→ 链 **pod1e**；4090 原 fa_ls_dp_f_u_o_l prepare 已改 exit 3（.before_pod_move）。floors = `{"fa_ls_dp_f_f_m_j": 32, "fa_ls_v10_0": 60, "fa_ls_dp_f_u_o_l_j": 32}`。v10_0 08:20 start，0 错。
 
 **08:1x**：4090 fa_ls_v01_0c1 08:14 跑完（rc=0，107,500；+原 12,500 → 成功过滤库 · DP · MetaWorld · 缓存变体 120,000 齐）→ g4090v 接 fa_ls_v10_0。floors 现 `{"fa_ls_dp_f_f_m_j": 32, "fa_ls_dp_f_u_m_j": 32, "fa_ls_v10_0": 60}`。
 
 **06:27**：v01_0c1 76,070/107,500（306/min）、pod2 dp_f_f_m_j 44,456/90,000（165）、pod1 dp_f_u_m_j 58,750/90,000（326）、Cosmos 11,133（25），0 错；timan1 load 18、107 load 10；/nvme eval 189 GB。
 
-**05:3x 计划**：pod1/pod2 两批 DP 全步 MT50 约 08:30–09:00 跑完（之后无排队）→ 用 `longseg_1017.pod_copy` 从 4090 队列挪 **fa_ls_dp_f_f_o_l → pod2（23192）**、**fa_ls_dp_f_u_o_l → pod1（23193）**（成功过滤库/原库 · DP · LIBERO · 全步 · 旋钮关，各 6,000；跑完才能建 dp_f_*_l_l 各档），并把 4090 链里这两批的 `filter_failed_knob/commands/prepare_<name>.sh` 改 exit 3（留 .before_pod_move）。pod_copy/stage 现在复制停滞门文件（b2babaae），不碰在跑批次的 inode。4090 v01_0c1 约 08:00 跑完 → g4090v 接 v10_0。
+**05:3x 计划（09:1x 作废，见上）**：pod1/pod2 两批 DP 全步 MT50 约 08:30–09:00 跑完（之后无排队）→ 用 `longseg_1017.pod_copy` 从 4090 队列挪 **fa_ls_dp_f_f_o_l → pod2（23192）**、**fa_ls_dp_f_u_o_l → pod1（23193）**（成功过滤库/原库 · DP · LIBERO · 全步 · 旋钮关，各 6,000；跑完才能建 dp_f_*_l_l 各档），并把 4090 链里这两批的 `filter_failed_knob/commands/prepare_<name>.sh` 改 exit 3（留 .before_pod_move）。pod_copy/stage 现在复制停滞门文件（b2babaae），不碰在跑批次的 inode。4090 v01_0c1 约 08:00 跑完 → g4090v 接 v10_0。
 
 **04:3x**：库复制到 /nvme 完成并核对：`/nvme/weiland/openpi/r17_library` 与 /data 文件 1,020,332 个、路径与大小逐一相同，随机 300 个 sha256 全一致（rsync 未保留硬链接，/nvme 上 139 GB）。r17_frozen 复制中，之后 eval。04:26 局/分：v01_0c1 312、pod2 dp_f_f_m_j 178、pod1 dp_f_u_m_j 230、Cosmos 34（20 min 均值；legacy driver 成批写 journal，10 min 窗口会偏低），0 错。
 
