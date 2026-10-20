@@ -58,6 +58,8 @@ owner 的常驻指令，逐字有效：
 
 **一句话**：今晚找到并根治了 worker 慢 7 倍的原因（EGL 渲染上下文每局创建/销毁 + 两把串行锁），四个在跑批次都已停下并用新代码续跑；新代码试点（pod2 jc2）358 局/分、0 错、同任务成功率一致。
 
+**09:0x**：pod1 fa_ls_dp_f_u_m_j 09:02 跑完（rc=0，90,000 → 原库 · DP · MetaWorld · 全步 · 旋钮下降齐）→ `pod_copy --source fa_ls_dp_f_u_o_l --name fa_ls_dp_f_u_o_l_j --pod jupyter-ziyang10 --driver-port 23193`（原库 · DP · LIBERO · 全步 · 旋钮关，6,000）→ 链 **pod1e**；4090 原 fa_ls_dp_f_u_o_l prepare 已改 exit 3（.before_pod_move）。floors = `{"fa_ls_dp_f_f_m_j": 32, "fa_ls_v10_0": 60, "fa_ls_dp_f_u_o_l_j": 32}`。v10_0 08:20 start，0 错。
+
 **08:1x**：4090 fa_ls_v01_0c1 08:14 跑完（rc=0，107,500；+原 12,500 → 成功过滤库 · DP · MetaWorld · 缓存变体 120,000 齐）→ g4090v 接 fa_ls_v10_0。floors 现 `{"fa_ls_dp_f_f_m_j": 32, "fa_ls_dp_f_u_m_j": 32, "fa_ls_v10_0": 60}`。
 
 **06:27**：v01_0c1 76,070/107,500（306/min）、pod2 dp_f_f_m_j 44,456/90,000（165）、pod1 dp_f_u_m_j 58,750/90,000（326）、Cosmos 11,133（25），0 错；timan1 load 18、107 load 10；/nvme eval 189 GB。
