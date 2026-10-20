@@ -14,13 +14,15 @@ and at `local_assets` on the pod. The source directory is only read.
 from __future__ import annotations
 
 import argparse
+import ast
 import json
 from pathlib import Path
 import shlex
+import time
 
 from .audit import EVAL, HERE
 from . import io_budget as budget
-from exp.offline_search.rounds.r17.filter_failed_knob.common import read, REPO
+from exp.offline_search.rounds.r17.filter_failed_knob.common import read, REPO, sha
 
 H100_IP = '149.165.153.233'
 # Fields a prepare/launch adds or rewrites; a finished source drops them (stage recomputes).
@@ -49,6 +51,55 @@ def commands(name, pod, driver_port):
         tmp.replace(path)
         paths[verb] = str(path)
     return paths
+
+
+def pin_bridge(root, c, job):
+    """Embed the current filter_failed/server_cli.py in this copy's own assets/ffk_bootstrap.py.
+
+    The source froze the R4 admission bridge, which presents only replicas=2 to the DP cache-study
+    admission; a pod copy also needs its source's server node and MPS presented (fd9b5be0). Only that
+    module body changes. The old file is renamed aside (its inode may be shared); the bootstrap pins in
+    campaign.json and FFK_DEFINITION.json follow. Refused once the copy has been launched."""
+    if any((root/n).exists() for n in ('LAUNCH.json', 'RECEIPT.json')):
+        raise ValueError('never re-pin a launched copy: '+str(root))
+    boot = root/'assets/ffk_bootstrap.py'
+    if sha(boot) != c['ffk_bootstrap_sha256'] or c['longseg_1017'].get('bootstrap_sha256') != c['ffk_bootstrap_sha256']:
+        raise ValueError('pinned bootstrap bytes differ from campaign.json: '+str(root))
+    from exp.offline_search.rounds.r17.filter_failed import server_cli
+    module, path = server_cli.__name__, Path(server_cli.__file__)
+    head = f'm=types.ModuleType({module!r});sys.modules[{module!r}]=m;exec(compile('
+    tail = ','+repr(str(path))+',"exec"),m.__dict__)'
+    lines = boot.read_text().split('\n')
+    hits = [i for i, line in enumerate(lines) if line.startswith(head) and line.endswith(tail)]
+    if len(hits) != 1:
+        raise ValueError('expected one embedded server_cli module in '+str(boot))
+    old_body = ast.literal_eval(lines[hits[0]][len(head):-len(tail)])
+    new_body = path.read_text()
+    if 'resources_before' in old_body:
+        return dict(status='ALREADY_PINNED', bootstrap_sha256=c['ffk_bootstrap_sha256'])
+    lines[hits[0]] = head+repr(new_body)+tail
+    previous, stamp = c['ffk_bootstrap_sha256'], str(time.time_ns())
+    boot.rename(boot.with_name(boot.name+'.pre_pod_bridge_'+stamp))
+    boot.write_text('\n'.join(lines))
+    c['ffk_bootstrap_sha256'] = c['longseg_1017']['bootstrap_sha256'] = job['bootstrap_sha256'] = sha(boot)
+    receipt = dict(status='REPINNED', previous_bootstrap_sha256=previous, bootstrap_sha256=c['ffk_bootstrap_sha256'],
+                   changed='embedded '+module+' only', commit='fd9b5be0')
+    c['pod_copy']['bridge_repin'] = receipt
+    return receipt
+
+
+def repin(name):
+    """pin_bridge for a copy made before it existed (prepared or not, never launched)."""
+    root = EVAL/name
+    c, job = read(root/'campaign.json'), read(root/'FFK_DEFINITION.json')
+    if 'pod_copy' not in c:
+        raise ValueError('not a pod copy: '+name)
+    receipt = pin_bridge(root, c, job)
+    if receipt['status'] == 'REPINNED':
+        budget.dump(root/'FFK_DEFINITION.json', job)
+        budget.dump(root/'campaign.json', c)
+    print(json.dumps(dict(name=name, **receipt)), flush=True)
+    return receipt
 
 
 def copy_job(source, name, pod, driver_port, *, replicas=1, memory_gib=14):
@@ -92,6 +143,8 @@ def copy_job(source, name, pod, driver_port, *, replicas=1, memory_gib=14):
     job = read(src/'FFK_DEFINITION.json')
     job.update(name=name, run=str(root), gpu='H200 MIG 1g.18gb ('+pod+')', replicas=replicas,
                pod_copy_of=job.get('name', source))
+    if c.get('ffk_dp_capacity_bridge'):
+        pin_bridge(root, c, job)
     budget.dump(root/'FFK_DEFINITION.json', job)
     budget.dump(root/'campaign.json', c)
     paths = commands(name, pod, driver_port)
@@ -102,13 +155,16 @@ def copy_job(source, name, pod, driver_port, *, replicas=1, memory_gib=14):
 
 def main():
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--source', required=True)
+    p.add_argument('--source')
     p.add_argument('--name', required=True)
-    p.add_argument('--pod', required=True)
-    p.add_argument('--driver-port', type=int, required=True)
+    p.add_argument('--pod')
+    p.add_argument('--driver-port', type=int)
+    p.add_argument('--repin-bridge', action='store_true', help='only re-pin an existing copy (pin_bridge)')
     p.add_argument('--replicas', type=int, default=1)
     p.add_argument('--memory-gib', type=float, default=14)
     a = p.parse_args()
+    if a.repin_bridge:
+        return repin(a.name)
     copy_job(a.source, a.name, a.pod, a.driver_port, replicas=a.replicas, memory_gib=a.memory_gib)
 
 
