@@ -224,8 +224,10 @@ def _run(args):
                  OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',MKL_NUM_THREADS='1',
                  PYTHONPATH=island+'/packages/openpi-client/src:'+island+'/src:'+island,
                  PYTHONDONTWRITEBYTECODE='1',OPENPI_AUTOSCALE_CONFIG=a['config'],PATH=o['path'])
-        command='cd '+shlex.quote(island)+' && nohup env '+shlex.join([f'{k}={v}' for k,v in env.items()]+agent)+\
-                ' >'+shlex.quote(a['log'])+' 2>&1 </dev/null &'
+        # Background only the agent: `cd && nohup ... &` backgrounds the whole list in a subshell that keeps
+        # the caller's stdout pipe open, so a local (subprocess) start waited for the agent and timed out.
+        command='cd '+shlex.quote(island)+' && { nohup env '+shlex.join([f'{k}={v}' for k,v in env.items()]+agent)+\
+                ' >'+shlex.quote(a['log'])+' 2>&1 </dev/null & }'
         control.remote(node,['bash','-c',command],timeout=30)
     lease_stop=threading.Event()
     def heartbeat():
