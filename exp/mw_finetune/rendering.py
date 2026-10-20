@@ -8,17 +8,34 @@ from pathlib import Path
 import socket
 
 STAMP = {}
+# Concurrent EGL lifecycle operations per render device. One host-wide lock queued ~250 workers
+# three times per episode (10-19, MetaWorld 15 s -> 90 s per episode on timan107).
+BUILD_SLOTS = 4
 
 
 @contextlib.contextmanager
 def env_build_lock():
-    # Share the established lock with any older worker fleet on this host.
-    path = os.environ.get("RC365_ENV_BUILD_LOCK", "/tmp/rc365_env_build.lock")
-    if not path:
+    base = os.environ.get("RC365_ENV_BUILD_LOCK", "/tmp/rc365_env_build.lock")
+    if not base:
         raise ValueError("R17 requires a cross-process environment build lock")
-    with Path(path).open("a") as handle:
-        fcntl.flock(handle, fcntl.LOCK_EX)
+    device = os.environ.get("MUJOCO_EGL_DEVICE_ID", "cpu")
+    paths = [Path(f"{base}.{device}.{i}") for i in range(BUILD_SLOTS)]
+    handles = []
+    try:
+        for path in paths:
+            handle = path.open("a")
+            handles.append(handle)
+            try:
+                fcntl.flock(handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                break
+            except BlockingIOError:
+                continue
+        else:
+            fcntl.flock(handles[os.getpid() % BUILD_SLOTS], fcntl.LOCK_EX)
         yield
+    finally:
+        for handle in handles:
+            handle.close()
 
 
 def configure(renderer, device_id=0):
