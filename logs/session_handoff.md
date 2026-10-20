@@ -65,6 +65,8 @@ owner 的常驻指令，逐字有效：
 - floors 现 `{"fa_ls_dp_f_f_m_j": 32, "fa_ls_v11_0": 70}`。
 - 在调研（opus 只读）：H100 队列 ~88 h（4 批 FW MT50 旋钮下降 ~42 h）vs 4090 ~22 h；旋钮下降批次 IR 离线算、可换卡 → 考虑 FW/GR00T MT50 旋钮下降挪 4090、DP LIBERO 旋钮下降挪 pod（需装 openpi 环境）。结论回来前不动队列。
 
+**11:4x 增补**：pod 同卡参照四份跑齐（fa_ls_dp_r_b_m_j / r_p_m_j / f_b_m_j / f_p_m_j，各 2,500，0 错；f_p 中途从 pod1 改到 pod2 并行，pod1 那份未准备副本改名 `fa_ls_dp_f_p_m_j.unused_moved_pod2_20261020`）。逐局配对 4090 vs pod：减步纯推理 59.4/59.7%、全步纯推理 61.2/61.0%、减步长段 58.4/58.3%、全步长段 59.7/59.8%；不一致局 26/19/24/13（共 2,500），50 任务无一差 >2/50 → **等价**。建议 _j/jc 批次按 4090 标签接进分析（4090 参照选档、4090 计价算 IR），待 owner 点头再改 CAMPAIGNS.json / REFERENCE_SELECTION.json。4090：v12_0 11:34 完（6,000），v13_0（FW · LIBERO · 缓存变体）11:38 起。floors = `{"fa_ls_v13_0": 80}`。两台 pod 空闲。
+
 **10:2x 增补（pod 同卡参照 + 换卡调研结论）**：
 - opus 只读调研（报告要点）：旋钮下降的 IR 是离线算（次数 × 该卡计时档案），但**选档要和同卡同步数的纯推理参照比、回退用同卡长执行段参照、两库成对同卡**（`longseg_1017/analyze.py:79-110,166`，`REFERENCE_SELECTION.json` 按 `模型:benchmark:步数:卡` 取）；IR 只有该卡有计时档案（profiles/h100|4090）才算得出。⇒ 换卡 = 两库成对一起挪 + 新卡补纯推理与长执行段参照（各 2,500）+ 计时档案 + 改 CAMPAIGNS.json/REFERENCE_SELECTION.json 卡标签。
 - ⛔ 已挪 pod 的 DP · MetaWorld 批次（fa_ls_dp_r_f_m_j/jc1/jc2、fa_ls_dp_r_u_m_j/jc1、fa_ls_dp_f_u_m_j、fa_ls_dp_f_f_m_j）都**没进 CAMPAIGNS.json**，pod 上只有 fa_ls_dp_r_b_m_j 一份参照 → 10:21 补跑：`pod_copy` 出 fa_ls_dp_f_b_m_j、fa_ls_dp_f_p_m_j（链 pod1f，jupyter-ziyang10，23193，10:23 start，0 错）与 fa_ls_dp_r_p_m_j（链 pod2e，等 `[ffk-pod2d] queue done`，jupyter-ziyang10-02，23192）。包装在 filter_failed_knob/commands。共享停滞门 inode 复查未变（links 12，ctime 01:38:39）。之后要把 _j 批次与 pod 参照接进分析登记；pod 用哪张卡的计价算 IR 待 owner 定；减步/全步 DP 部分局在 4090、部分在 pod（续跑跨卡）也要 owner 定口径。
