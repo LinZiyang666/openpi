@@ -69,6 +69,11 @@ owner 的常驻指令，逐字有效：
 - 现在 fleet：timan107 fx1、a100 fx1、local fx1、timan1 fx4（两批）；17:23 timan1 FW 33/123、DP 爬坡中。
 - fa_ls_dp_r_b_m_j（pod 纯推理对照 2,500）driver PASS 2500，但 RECEIPT FAIL：`native CPU evidence aggregate is incomplete`（换 fleet 把 kernel evidence 拆进 _fx 目录）→ 待合并证据重出 receipt，数据完整可用。
 
+**19:4x 增补**：
+- ⛔ 不限并发的锁轮换（0.2 s）让 timan107 出现 35 个 D 状态进程、负载 72（timan108 宕机前同样征兆）→ 已停；107 改有上限版 `/tmp/zl_lock_bounded.py 4 2`（全机 4、每卡 2，按 /proc/locks 计持有数），D 0–2；timan1、a100 轮换已停。新批次代码改为全机 4 槽 + 每卡 2 槽（62d7b8ae）。
+- 根治方案 B（每 worker 复用一个 EGL 上下文，exp/mw_finetune/rendering.py share_egl_context，未提交）：像素与原方式差异同原方式自身两次运行之间的噪声（≤1 灰度级、~0.04% 像素）；但 NVIDIA 驱动不归还复用上下文内释放的显存 → 每 worker 显存 ~823 MiB（原 ~130），1080 卡装不下；每 8 局重建一次时 87–317 MiB。待定方案。
+- h100-temp：机主 19:33（UTC 00:33）登录，19:37 我们的 FW 服务被停（mps_guard exit 0），fa_ls_v02_s_c1 收 6,962/57,058，链 h100tmp15 STOPPED；按规定不重跑，已推通知。
+
 **19:2x 增补：第二把锁（真正的大头）**：`exp/mw_finetune/rendering.py env_build_lock` 是整机一把 `/tmp/rc365_env_build.lock`，MetaWorld 每局拿三次（建 env、首次渲染建 EGL 上下文、close）；107 上 243 个 worker 全排一队（5–7 号卡 118 个 worker 但 GPU 1%）。19:21 三机 lock_rotate 加上这把锁 → MetaWorld 单局 sim 6–15 s（比昨天 15–17 s 还快），0 错误；各批 局/分：h100-temp v02_s_c1 233、GR00T 400、pod1 284、pod2 272、4090 FW 74（合计 ~1,260，修前 ~300）；H100 GPU 72–85%、4090 68–74%。代码改每卡 4 槽（5879eabb，新批次）。⛔ pod1 的"pod 饱和"其实也是这把锁，cap 220 可以再放。
 
 **18:5x 增补（worker 慢 7 倍的根因与临时处置）**：
