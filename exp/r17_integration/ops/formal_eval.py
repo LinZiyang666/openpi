@@ -669,7 +669,10 @@ def host_python(campaign):
 
 def server_env(campaign, root):
     h100_native = campaign['server_node'] == 'h100' and campaign['model'] in ('pi05', 'groot')
-    extra = '/data/mw_finetune/qualification/python_deps312' if campaign['server_node'] == 'h100' and not h100_native else ''
+    # python_deps312 supplies h5py to the Python 3.12 server envs; the 4090 openpi .venv (Python 3.11, DP LIBERO
+    # served on a pod) has its own, and the 3.12 build shadows it and fails to import.
+    own_deps = campaign.get('server_python') == CONTROL_PYTHON
+    extra = '/data/mw_finetune/qualification/python_deps312' if campaign['server_node'] == 'h100' and not h100_native and not own_deps else ''
     if campaign['model'] == 'fastwam':
         extra += ':/data/mw_finetune/vendor/lerobot/src:/data/mw_finetune/vendor/FastWAM/src'
     if campaign['model'] == 'groot':

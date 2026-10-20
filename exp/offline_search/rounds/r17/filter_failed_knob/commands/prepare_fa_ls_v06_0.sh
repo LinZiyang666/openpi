@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
-set -euo pipefail
-exec bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/commands/prepare_fa_ls_v06_0.sh
+# 10-20: moved to a jupyter pod as fa_ls_v06_0_j2 (owner: jupyter takes 4090 work except timing). Restore .before_pod_move to run on the 4090.
+echo "moved to pod as fa_ls_v06_0_j2"; exit 3

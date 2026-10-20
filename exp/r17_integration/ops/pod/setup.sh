@@ -42,7 +42,9 @@ export PATH=$BASE/tools/bin:$PATH
 V=$DATA/mw_finetune/openpi_venv_4090
 BINDS=(-b "$DATA:/data")
 [ -d "$V/venv" ] && BINDS+=(-b "$V/venv:/home/weiland/projects/openpi/.venv")
-[ -d "$V/uvpy" ] && BINDS+=(-b "$V/uvpy:/home/weiland/.local/share/uv/python/cpython-3.11.15-linux-x86_64-gnu")
+# The venv's python and pyvenv.cfg name uv's short alias cpython-3.11-... (a symlink to 3.11.15 on the 4090).
+[ -d "$V/uvpy" ] && BINDS+=(-b "$V/uvpy:/home/weiland/.local/share/uv/python/cpython-3.11.15-linux-x86_64-gnu"
+                            -b "$V/uvpy:/home/weiland/.local/share/uv/python/cpython-3.11-linux-x86_64-gnu")
 d=$(mktemp -d /tmp/r17x.XXXXXXXX)
 R17X_DIR=$d setsid -w "$BASE/bin/proot" "${BINDS[@]}" -w "$PWD" /bin/sh -c \
   '"$@" >"$R17X_DIR/out" 2>"$R17X_DIR/err" </dev/null; echo $? >"$R17X_DIR/rc.part"; mv "$R17X_DIR/rc.part" "$R17X_DIR/rc"' \

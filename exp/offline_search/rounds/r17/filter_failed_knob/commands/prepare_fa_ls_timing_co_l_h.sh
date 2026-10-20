@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
-set -euo pipefail
-exec bash /home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/commands/prepare_fa_ls_timing_co_l_h.sh
+# 10-20: timing is measured on the 4090 only (owner); the H100 timing units are skipped (rc 3).
+# Restore prepare_fa_ls_timing_co_l_h.sh.before_skip_h100_timing to run it.
+echo "H100 timing skipped: timing runs on the 4090"; exit 3
