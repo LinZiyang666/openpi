@@ -58,6 +58,13 @@ owner 的常驻指令，逐字有效：
 
 **一句话**：一夜独自推进。收齐：DP · MetaWorld · 减步 · 旋钮下降（成功过滤库 + 原库各 90,000）、原库 · DP · MetaWorld · 全步 · 旋钮下降 90,000、成功过滤库 · GR00T · MetaWorld · 减步 · 旋钮下降、成功过滤库 · Fast-WAM · LIBERO · 减步 · 各档、成功过滤库 · DP · MetaWorld · 缓存变体 120,000（fa_ls_v01_0 + c1）、DP · LIBERO · 缓存变体 fa_ls_v10_0 6,000。修了 4 个系统问题（见下），出过 1 次我造成的事故（停滞门 ctime）。
 
+**10:0x 增补（⛔ /nvme 复制拖慢所有批次，已暂停）**：
+- 现象：Cosmos fa_co_f_f_l 速率从 01–02 点的 ~45 局/分降到 09 点的 ~13 局/分，H100 GPU 0–18%，worker 229 个却大多空等。拆分延迟：派发→首次服务调用 3 s、服务调用段 10 s、**最后一次服务调用→driver 记账 中位 716 s**（00–02 点只有 ~20 s，05 点起随 eval 复制上升）。
+- 根因：Cosmos 用旧版 `exp.r17_integration.ops.formal_driver`（cache_study.run_driver，冻结 driver 0860cb80），`handle_result` 在 scheduler 锁内逐行 `append('per_step.jsonl')`，每行一次 fsync（每局 ~17 次）；/data 是 sda 机械盘（ext4，mq-deadline），fsync 空闲时中位 73 ms（/nvme 1.3 ms），复制读盘时更慢。driver 线程 88% 采样在 `jbd2_log_wait_commit`。新版 `formal_driver_fast`（v11_0、pod2）是批量提交，受影响小。
+- 处置：09:56 按 PID SIGSTOP 复制 rsync（3726105/3726106/3729764）和两个 governor（3343372/3951564）。效果（同一时刻对比）：Cosmos 15→60 局/分、pod2 DP 85→250、v11_0 50→125（v11_0 同时 floor 40→70）。⛔ **复制保持暂停**；剩 ~190 GB（eval 533/~720 GB）以后找没有 driver 在跑、或可接受的短窗口一次性不限速跑完，不要再长时间节流慢跑。恢复命令：`kill -CONT 3343372 3951564 3726105 3726106 3729764`。记忆 reference-weilandserver-data 已加这条。
+- floors 现 `{"fa_ls_dp_f_f_m_j": 32, "fa_ls_v11_0": 70}`。
+- 在调研（opus 只读）：H100 队列 ~88 h（4 批 FW MT50 旋钮下降 ~42 h）vs 4090 ~22 h；旋钮下降批次 IR 离线算、可换卡 → 考虑 FW/GR00T MT50 旋钮下降挪 4090、DP LIBERO 旋钮下降挪 pod（需装 openpi 环境）。结论回来前不动队列。
+
 **现在在跑（09:44）**
 | 机器 | 链 | 批次 | 进度 | 之后 |
 |---|---|---|---|---|
