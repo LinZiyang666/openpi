@@ -20,6 +20,9 @@ INDEX=HERE/'PROFILES.json'
 # 4090-host serving environments that differ from an H100 lane's campaign (the H100 has its own copies).
 LOCAL_SERVER={'groot':dict(server_python='/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python',
                            vendor='/home/weiland/projects/openpi_ext/third_party/gr00t_n15')}
+# The GR00T descriptor names the H100 vendor tree; the 4090 copy is byte-identical (10-20: 53 code files, same
+# sha256), and the code digest hashes names and contents only, so a 4090 run reads it from here.
+LOCAL_DESCRIPTOR_PATHS={'groot':('/home/exouser/gr00t_n15','/home/weiland/projects/openpi_ext/third_party/gr00t_n15')}
 
 def first_row_metadata(parent):
     """Read only the arrays header and first recorded row, at most 16 MiB."""
@@ -92,6 +95,11 @@ def initialize():
                 shlex.quote(str(REPO/'.venv/bin/python'))+' -m exp.offline_search.rounds.r17.longseg_1017.profiles '+verb+' --name '+n+'\n');path.chmod(0o755)
     dump(INDEX,dict(units=units,artifact_parameters_changed=False))
 
+def timing_certified(r):
+    """Same test as analyze.prices: certified graph replay on an exclusive device with the expected NFE."""
+    return (r.get('certified') is True and r.get('device_exclusive',{}).get('exclusive') is True
+            and all(n==c['expected_actual_nfe'] for c in r.get('cells',{}).values() for n in c.get('actual_nfe_by_iteration',[])))
+
 def operate(name,verb):
     from exp.r17_integration.ops import formal_eval as f
     u=next(u for u in read(INDEX)['units'] if u['name']==name)
@@ -112,13 +120,18 @@ def operate(name,verb):
         print('PREPARED small profile overlay',name);return
     env=f.server_env(c,c['runtime']);env['PYTHONPATH']=u['destination']+':'+env['PYTHONPATH']
     profile_model=u['model']+('_mw' if u['benchmark']=='mt50' else '_libero')
+    descriptor=u['destination']+'/load.json'
+    if not remote and u['model'] in LOCAL_DESCRIPTOR_PATHS:
+        old,new=LOCAL_DESCRIPTOR_PATHS[u['model']]
+        descriptor=u['destination']+'/load_4090.json'
+        Path(descriptor).write_text((Path(u['destination'])/'load.json').read_text().replace(old,new))
     for suite in (u['suites'] if u['benchmark']=='mt50' else ['libero_10']):  # one LIBERO timing (owner 10-20)
         for cached in ([False,True] if u['model']=='fastwam' and suite!='mt50' else [False]):
             directory='results_cached_text' if cached else 'results_mt50' if suite=='mt50' else 'results'
             out=u['destination']+'/'+directory
             args=[c['server_python'],'-m','exp.r17_integration.profile.certify','--model',profile_model,
                 '--suite',suite,'--python',c['server_python'],'--out-dir',out,
-                '--descriptor',u['destination']+'/load.json','--observations',u['destination']+'/'+suite+'.npz']
+                '--descriptor',descriptor,'--observations',u['destination']+'/'+suite+'.npz']
             if cached:args+=['--precompute-text']
             argv=['env',*[k+'='+str(v) for k,v in env.items()],*args]
             if remote:
@@ -130,7 +143,12 @@ def operate(name,verb):
             else:
                 # -m puts cwd first on sys.path; from the runtime its plain exp/ package
                 # shadows the bundle's extend_path one, so exp.r17_integration.profile is missing.
-                subprocess.run(argv,cwd=u['destination'],check=True)
+                done=subprocess.run(argv,cwd=u['destination'])
+                # certify exits nonzero for any invalid receipt; eager-vs-compiled parity does not
+                # bear on the timing (owner 10-20), so keep a receipt whose timing is certified.
+                receipt=read(Path(out)/(profile_model+'_'+suite+'.json'))
+                if done.returncode and not timing_certified(receipt):
+                    raise RuntimeError(f'{name} {suite}: timing not certified (rc {done.returncode})')
                 target=HERE/'profiles/4090'/directory;target.mkdir(parents=True,exist_ok=True)
                 previous=target/(profile_model+'_'+suite+'.json')
                 if previous.exists():previous.rename(previous.with_name(previous.name+'.previous_'+str(time.time_ns())))
