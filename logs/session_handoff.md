@@ -65,6 +65,12 @@ owner 的常驻指令，逐字有效：
 - floors 现 `{"fa_ls_dp_f_f_m_j": 32, "fa_ls_v11_0": 70}`。
 - 在调研（opus 只读）：H100 队列 ~88 h（4 批 FW MT50 旋钮下降 ~42 h）vs 4090 ~22 h；旋钮下降批次 IR 离线算、可换卡 → 考虑 FW/GR00T MT50 旋钮下降挪 4090、DP LIBERO 旋钮下降挪 pod（需装 openpi 环境）。结论回来前不动队列。
 
+**10:2x 增补（pod 同卡参照 + 换卡调研结论）**：
+- opus 只读调研（报告要点）：旋钮下降的 IR 是离线算（次数 × 该卡计时档案），但**选档要和同卡同步数的纯推理参照比、回退用同卡长执行段参照、两库成对同卡**（`longseg_1017/analyze.py:79-110,166`，`REFERENCE_SELECTION.json` 按 `模型:benchmark:步数:卡` 取）；IR 只有该卡有计时档案（profiles/h100|4090）才算得出。⇒ 换卡 = 两库成对一起挪 + 新卡补纯推理与长执行段参照（各 2,500）+ 计时档案 + 改 CAMPAIGNS.json/REFERENCE_SELECTION.json 卡标签。
+- ⛔ 已挪 pod 的 DP · MetaWorld 批次（fa_ls_dp_r_f_m_j/jc1/jc2、fa_ls_dp_r_u_m_j/jc1、fa_ls_dp_f_u_m_j、fa_ls_dp_f_f_m_j）都**没进 CAMPAIGNS.json**，pod 上只有 fa_ls_dp_r_b_m_j 一份参照 → 10:21 补跑：`pod_copy` 出 fa_ls_dp_f_b_m_j、fa_ls_dp_f_p_m_j（链 pod1f，jupyter-ziyang10，23193，10:23 start，0 错）与 fa_ls_dp_r_p_m_j（链 pod2e，等 `[ffk-pod2d] queue done`，jupyter-ziyang10-02，23192）。包装在 filter_failed_knob/commands。共享停滞门 inode 复查未变（links 12，ctime 01:38:39）。之后要把 _j 批次与 pod 参照接进分析登记；pod 用哪张卡的计价算 IR 待 owner 定；减步/全步 DP 部分局在 4090、部分在 pod（续跑跨卡）也要 owner 定口径。
+- 调研的换卡评估：H100 队列实际 ~94 h（GR00T 旋钮批次实测 ~282/min → 每批 ~5.3 h，计划写 3–3.7 h 偏乐观）、4090 ~22 h。能挪的只有成对未准备的：GR00T MT50 全步两库（4090 合格形状 R6/B1/MPS/42 GiB，NUMA 1；需新 4090 参照+计时档案，省 H100 ~11 h）；FW MT50 在 4090 只合格 R1（约 H100 的 0.42×）→ 不挪，除非 R2+文本缓存实测 ≥100/min。fa_ls_gr_r_u_m（配对已在 H100 跑完）、FW LIBERO 各档（由 H100 旋钮关结果生成）不能挪。DP LIBERO 上 pod：pod 自带 `/data/mw_finetune/dp/env` 能服务 DP LIBERO（jtest_dp2），给 pod_copy 加 server_python 覆盖即可，但也要 pod 同卡参照。最大杠杆是 h100-temp（同为 H100，可直接用 H100 参照）——等 owner。
+- floors 现 `{"fa_ls_dp_f_f_m_j": 32, "fa_ls_v11_0": 70, "fa_ls_dp_f_b_m_j": 32}`。
+
 **现在在跑（09:44）**
 | 机器 | 链 | 批次 | 进度 | 之后 |
 |---|---|---|---|---|
