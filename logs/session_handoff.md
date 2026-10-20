@@ -58,6 +58,8 @@ owner 的常驻指令，逐字有效：
 
 **一句话**：今晚找到并根治了 worker 慢 7 倍的原因（EGL 渲染上下文每局创建/销毁 + 两把串行锁），四个在跑批次都已停下并用新代码续跑；新代码试点（pod2 jc2）358 局/分、0 错、同任务成功率一致。
 
+**02:3x ✅ 4090 被公网入口卡住（新发现）**：v01_0c1 100 个远程 worker 只有 133 局/分、4090 GPU 8–10%：服务端每次推理 0.03 s，worker 每次调用等 2.3 s；本机 enp8s0 入站 35.6 MB/s（公网入口 ~33 MB/s 满）——MT50 图片从 timan 传进来把入口塞满。调度器原本只在共享池分配「稳定 10 min」后才给本机（local）worker，而 timan1/107 之间的放置每十几秒抖动，计时总被重置，且 floor 已由远程填满 → 本机 worker 永远 0。修复 b65d6eca（`allocate.LOCAL_FIRST = ('local',)`：4090 主机自己的 worker 先填、不等稳定；H100 仍放最后，因为它的 GPU 被模型占满）+ test_allocate.py，`deploy_a100.sh start` 重启调度器。效果：5 min 后 v01_0c1 本机 32 个 worker → 366 局/分，入站 1 MB/s，4090 GPU 35%（本机 worker 继续加到 100）。之前 4090 批次 GPU 偏低（24–69%）大概率同因。floors 现 `{"fa_ls_v01_0c1": 100, "fa_ls_dp_f_f_m_j": 32, "fa_ls_dp_f_u_m_j": 32}`（pod 两批 DP 全步在 MIG R1 上 16→32 worker 只 +26%，HPA 判失败退回 16；worker CPU 空，floor 32 白赚）。
+
 **02:2x**：v01_0c1 正常（492 局 0 错，4 副本）。timan1 锁轮换已停（`touch /tmp/zl_lock_rotate.stop`）：在跑四批（v01_0c1、fa_ls_dp_f_f_m_j、fa_ls_dp_f_u_m_j、fa_co_f_f_l）都是新代码（CREATION_SLOTS 5 / BUILD_SLOTS 8），轮换多余。
 
 **02:0x**：fa_ls_v01_0c1 02:00 启动失败（rc=2，0 局）——又是 DP 4 副本同时写 servers/manifest.json 的竞争（冻结运行时 f88fce30 的 write_json；3 次启动撞 2 次）。处置：hold g4090u → `filter_failed.reset`（会把 campaign.json 恢复成启动快照）→ 之后再把 c1 的 `replica_startup_width` 4→1（副本逐个起，备份 campaign.json.before_width1）→ prepare 包装加 `--reprepare` → 链 **g4090v**（02:01，后接原余队）。02:05 start，width=1 已生效，共享停滞门 inode 未变。队列里其余 DP 批次 width 本来就是 1。
