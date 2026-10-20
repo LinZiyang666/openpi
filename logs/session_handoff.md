@@ -65,6 +65,11 @@ owner 的常驻指令，逐字有效：
 - floors 现 `{"fa_ls_dp_f_f_m_j": 32, "fa_ls_v11_0": 70}`。
 - 在调研（opus 只读）：H100 队列 ~88 h（4 批 FW MT50 旋钮下降 ~42 h）vs 4090 ~22 h；旋钮下降批次 IR 离线算、可换卡 → 考虑 FW/GR00T MT50 旋钮下降挪 4090、DP LIBERO 旋钮下降挪 pod（需装 openpi 环境）。结论回来前不动队列。
 
+**18:5x 增补（h100-temp：c3 + 从 H100 队尾领 v05_0）**
+- fa_ls_v02_s_c2（Fast-WAM · MetaWorld，h100-temp）18:46 收齐 50,108 局，回执 FAIL：587 局重试耗尽（服务端 CUDA OOM：R3 三个 ~26 GiB 副本把 80 GB 卡占满；RUN_CONFIGS 的 FW 一节本就写 R3 放不下）。错误集中 18:15–18:31，之后 0 错。c3 = 这 587 局（`resume --remaining --verify-closed`，⚠ 必须带 h100-temp alias 环境，否则去本机找 mps_guard.process.json）。
+- h100-temp 链 **h100tmp18**（alias 环境在链进程上）：fa_ls_v02_s_c3 → **fa_ls_v05_0**（Fast-WAM · LIBERO · 缓存变体 4,023 局，H100 链 h100m26 的最后一项）。领取守卫：`filter_failed_knob/commands/prepare_fa_ls_v05_0.sh` 在无 alias 且存在 `mw/claim_h100temp_fa_ls_v05_0` 时 exit 3（原件 `.before_h100temp_claim`）。v05_0 的 worker 只在 timan107（不在 h100-temp）。⚠ 若 h100-temp 中途被停：不重跑、通知 owner；v05_0 删领取文件让 H100 链跑或建续批。floors 加 c3:120、v05_0:48，去掉 c2。
+- 进度 18:45：jupyter -02 v09_0_j4 1,315/6,350（~110/分）；jupyter-10 v09_1_j4 起跑（33,650 局）；4090 dp_f_u_l_l 4,110/5,000；H100 gr_r_u_m 47,717/90,000。
+
 **18:3x 增补（jupyter 掉线恢复；DP LIBERO 在 pod 上跑起来）**
 - 17:38 jupyter-ziyang10 与 -03 同时掉线（容器重启、/tmp 清空；当时两台 /tmp 各 18 GB；pod 内看不到原因），已 PushNotification。owner 恢复后在线：jupyter-ziyang10、**jupyter-ziyang10-02**（主机名 jupyter-ziyang10--test，同一块 H200 另一 MIG 片）；-03 没回来 → 原 -03 的批次改派 -02（驱动口 23192）。pod cgroup 内存上限 32 GiB（现 anon ≤1.5 GB）。
 - 精简安装 `setup.sh dp_libero`（只拉 openpi .venv + LIBERO 策略 + CLIP 文本，9.3 GB；3b3b55c9），两台核对 torch 2.7.1+cu126 与 4090 相同。隧道重建（pod 上 tunnel.sh：-10 24470/24471→23470/23471，-02 24472/24473→23474/23475）。H100 rsync 23117 已关。
