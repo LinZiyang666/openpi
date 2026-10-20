@@ -105,7 +105,7 @@ def operate(name,verb):
         print('PREPARED small profile overlay',name);return
     env=f.server_env(c,c['runtime']);env['PYTHONPATH']=u['destination']+':'+env['PYTHONPATH']
     profile_model=u['model']+('_mw' if u['benchmark']=='mt50' else '_libero')
-    for suite in u['suites']:
+    for suite in (u['suites'] if u['benchmark']=='mt50' else ['libero_10']):  # one LIBERO timing (owner 10-20)
         for cached in ([False,True] if u['model']=='fastwam' and suite!='mt50' else [False]):
             directory='results_cached_text' if cached else 'results_mt50' if suite=='mt50' else 'results'
             out=u['destination']+'/'+directory

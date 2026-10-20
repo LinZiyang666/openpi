@@ -27,6 +27,9 @@ def prices(label,suite,gpu):
         proof=read(HERE/'cpu'/f'{job["name"]}.json')
         spec=read(Path(proof['native_strict_loader_proof']))['actual_spec']
     keys=('model_id','checkpoint_identity','code_digest','norm_identity','layout','feature_spec','python_island')
+    # Owner 10-20: LIBERO is priced from one timing (libero_10) for every suite; the suites share the
+    # model and input shapes, so the per-call cost is the same.
+    suite='mt50' if suite=='mt50' else 'libero_10'
     suffix='_mw_mt50.json' if suite=='mt50' else '_libero_'+suite+'.json'
     paths=[Path('results_mt50' if suite=='mt50' else 'results')/(model+suffix)]
     if model=='fastwam' and suite!='mt50':paths.append(Path('results_cached_text')/(model+suffix))
