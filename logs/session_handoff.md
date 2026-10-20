@@ -58,6 +58,8 @@ owner 的常驻指令，逐字有效：
 
 **一句话**：今晚找到并根治了 worker 慢 7 倍的原因（EGL 渲染上下文每局创建/销毁 + 两把串行锁），四个在跑批次都已停下并用新代码续跑；新代码试点（pod2 jc2）358 局/分、0 错、同任务成功率一致。
 
+**23:3x 增补 2**：fa_ls_v01_0 23:28 rc=2 FAIL：DP 4 副本同时写 `servers/manifest.json`，冻结运行时 `formal_runtime_f88fce30…` 的 `formal_process.write_json` 用固定 `.part` 名（仓库版早已改为带 pid），replica_2 的 os.replace 失败 → 整批停。无 driver、0 局。处置：hold g4090s → `filter_failed.reset --run …/fa_ls_v01_0`（证据改名保留，RESET.failed_20261020T043059…json，PREPARED）→ 新链 **g4090t**（23:31，从 fa_ls_v01_0 起，后接原余队）；链内 prepare `--reprepare` 会按当前 WORKER_OVERLAY（含 metaworld.py）重封 → 这批证据可完整。⛔ 同一竞争可能再发生（运行时冻结）；再失败就再 reset。
+
 **23:3x 增补**：
 - ⛔ fa_ls_v01_0（成功过滤库 · DP · MetaWorld · 缓存变体，4090，23:25 start）的 workers.tar 里 metaworld.py 仍是旧版（无 cache_study）：重准备/续跑沿用冻结 worker 包，只刷新 WORKER_OVERLAY。45e52e29 把 `exp/r17_integration/benchmarks/metaworld.py` 加进 WORKER_OVERLAY（冻结版与仓库版只差白名单一行；driver 不比对身份字典）。v01_0 不重来（已出局，合并证据救不回）。⛔ 下一个新准备的 MetaWorld 批次（H100 链 fa_co_f_f_l 之后的 fa_ls_gr_r_u_m）：核 `tar -xOf workers.tar exp/r17_integration/benchmarks/metaworld.py | grep cache_study`、per_step 有 resident_pid、开跑 10 min 内无 "terminal execution ACK" 错误；若出错按续跑流程回退。
 - v01_0 已带新槽位（BUILD_SLOTS 8、CREATION_SLOTS 5）和 share_egl_context。
