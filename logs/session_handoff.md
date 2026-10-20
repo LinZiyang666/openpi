@@ -52,7 +52,50 @@ owner 的常驻指令，逐字有效：
 
 
 
-## 1. 现在在哪（2026-10-19 21:0x CDT；**最先读下面 21:0x 总状态**，再读 20:5x / 20:2x / 20:1x / 19:5x / 19:4x / 19:2x / 18:5x / 17:5x / 17:2x / 16:3x 增补；10-14 及更早只作背景）
+## 1. 现在在哪（2026-10-20 09:4x CDT；**最先读下面 10-20 09:4x 总状态**，再读其后各增补（09:29 → 21:2x 倒序）与 10-19 21:0x 总状态；10-14 及更早只作背景）
+
+### ★★★★★★★★★★★★★★★★★★★★★★★★ 2026-10-20 09:4x CDT 总状态（compact 后最先读这块）
+
+**一句话**：一夜独自推进。收齐：DP · MetaWorld · 减步 · 旋钮下降（成功过滤库 + 原库各 90,000）、原库 · DP · MetaWorld · 全步 · 旋钮下降 90,000、成功过滤库 · GR00T · MetaWorld · 减步 · 旋钮下降、成功过滤库 · Fast-WAM · LIBERO · 减步 · 各档、成功过滤库 · DP · MetaWorld · 缓存变体 120,000（fa_ls_v01_0 + c1）、DP · LIBERO · 缓存变体 fa_ls_v10_0 6,000。修了 4 个系统问题（见下），出过 1 次我造成的事故（停滞门 ctime）。
+
+**现在在跑（09:44）**
+| 机器 | 链 | 批次 | 进度 | 之后 |
+|---|---|---|---|---|
+| 4090 | g4090v | fa_ls_v11_0 Fast-WAM · LIBERO · 缓存变体（09:33 start） | 99 局（刚起步） | v12_0 v13_0 fa_ls_dp_f_f_o_l fa_ls_dp_f_u_o_l fa_ls_dp_f_f_l_l fa_ls_dp_f_u_l_l v04_0 v04_3 v06_0 v09_0 v09_1 fa_cs_pi_r fa_cs_gr_r（fa_ls_dp_f_f_m / fa_ls_dp_f_u_m 已从此链拿掉，挪 pod 跑完/在跑） |
+| H100 | h100m23 | fa_co_f_f_l 成功过滤库 · Cosmos · LIBERO · 全步（00:30 start，GPU 87–100% 满） | 14,477，~30 局/分（legacy driver 成批写 journal，10–20 min 窗口会偏低） | fa_ls_gr_r_u_m fa_ls_v03_0 fa_ls_v03_1 fa_ls_gr_f_f_m fa_ls_gr_f_u_m fa_ls_v05_1_rz fa_ls_v05_2_rz fa_ls_fw_f_u_m fa_ls_v02_b fa_ls_fw_f_f_l_l fa_ls_fw_f_u_l_l fa_ls_v08_1 fa_ls_fw_r_u_m fa_ls_fw_f_f_m fa_ls_fw_r_f_m fa_ls_v05_3 fa_ls_v05_4 fa_ls_v05_0 |
+| jupyter-ziyang10-02 | pod2d | fa_ls_dp_f_f_m_j 成功过滤库 · DP · MetaWorld · 全步 · 旋钮下降（pod_copy 自 4090，01:42 start） | 79,706/90,000（~110–240/min，~11:00 完） | 无 |
+| jupyter-ziyang10 | — | 空闲（09:02 起） | — | DP LIBERO 不能直接 pod_copy（见下） |
+| h100-temp | — | 空闲；机主（exouser，184.33.133.25，ljy=JunyuLiao / chw 两人共用）每隔几小时登录，跑 codex / opencode / 一个远程驱动的 bash，项目 ~/ljy/dlm（HumanEval 评测、value-aware cross-step reuse），今天有 HumanEval 结果目录 → 他们间歇用 GPU | — | ⛔ 不重跑，等 owner；owner 只问了使用情况 |
+调度器 floors.json = `{"fa_ls_dp_f_f_m_j": 32, "fa_ls_v11_0": 40}`、caps.json = `{}`（A100 `/home/exouser/scheduler/run_23500/`，批结束要把名字换掉/清掉；新批次爬坡从 16 起很慢，靠 floor 补）。timan1 锁轮换已停（所有在跑批次都是新槽位代码）。
+
+**本夜代码修复（都已提交 push 到 Ziyang 分支）**
+1. a5b479bf + 45e52e29：MetaWorld 证据字段——`benchmarks/metaworld.py _identity` 白名单加 `cache_study`（以前所有 MT50 缓存批次从没记 resident_pid/generation、服务端终局回执 → receipt 全 FAIL；数字字段都在）；并把 metaworld.py 加进 `formal_eval.WORKER_OVERLAY`（冻结 worker 包只刷新 overlay 文件）。fa_ls_v01_0 起验证：resident_pid 全有、4 pid 各 1 代、终局回执齐、0 错。
+2. a5dc7f3f：新批次 CREATION_SLOTS 5（每卡）/ BUILD_SLOTS 8（整机）；9998f2b4：timan1 上 MetaWorld 也不换代（原 32 局/30 min 同步换代让 timan1 只剩个位数 worker）。
+3. b2babaae：⛔ 停滞门 ctime 事故的修复——`staging.metadata_tree` 与 `io_budget.tree` 对停滞门目录（含 stall.json/stall.pkl）改复制不硬链接；test_staging_stall.py。记忆 feedback-stall-artifact-inodes。
+4. b65d6eca：调度器 `allocate.LOCAL_FIRST=('local',)`——4090 主机本机 worker 先填、不等 10 min 稳定（远程 worker 把本机 ~33 MB/s 公网入口塞满：GPU 8%、每次调用等 2.3 s 而服务 0.03 s；改后 133→366 局/分，入站 35.6→1 MB/s）；test_allocate.py；已 `deploy_a100.sh start`。
+5. 861f3fe7：longseg analyze 按 run 进程池并行（owner：44 核 88 线程别单线程跑；记忆 feedback-parallel-analysis）。
+
+**本夜事故与恢复（详见下方各增补）**
+- 01:41 我 pod_copy/准备时给共享停滞门 inode 加硬链接 → 在跑 fa_ls_v01_0 下一阶段被拒（"verified stall artifact changed"），12,500 局保留 → 续跑 c1 → b2babaae 修复。
+- fa_ls_v01_0 / c1 启动时 3 次撞 2 次 DP 4 副本同时写 servers/manifest.json 的竞争（冻结运行时 f88fce30 的 write_json）→ `filter_failed.reset` + 把 c1 的 replica_startup_width 改 1 + `--reprepare`；队列里其余 DP 批 width 本来 1。
+- 21:25 给 jc2 设 cap 让 HPA 判步长失败、需求塌到 22 → 撤，只用 floor。
+- 09:04 DP LIBERO 不能 pod_copy：服务用本机 openpi `.venv`，pod 上没有（r17x 只把 /tmp/zl_r17/data 绑成 /data）→ 撤回（4090 包装恢复，目录改名 `fa_ls_dp_f_u_o_l_j.unused_pod_env_missing_20261020`）。
+
+**/data → /nvme（owner 10-19：「/data盘不可信」「/nvme 你想用多少用多少」；任务 #195）**
+- `/nvme/weiland/openpi/{r17_library,r17_frozen,eval}`；库已核对（1,020,332 文件路径/大小全同、300 个 sha256 全同；rsync 没 -H 所以 139 GB）；r17_frozen 完；eval 521/~720 GB 复制中（`$CLAUDE_JOB_DIR/tmp/copy_to_nvme.sh`，排除在跑批次）。`copy_governor.sh`（两个实例）在 IO some avg10 >12 时 SIGSTOP、<6 SIGCONT；`mirror_nvme.sh` 等初次复制完后每小时增量镜像（*.jsonl --append-verify）。
+- ⛔ 不要把 /data/mw_finetune/eval 或 /data/r17_library 整个换软链：formal_eval.py:1920（`directory.resolve().parent != FORMAL_ROOT`）、incremental_sync（resolve/禁软链）、cache_knob.py:148（写解析后的库路径）、formal_runtime（resolve 比较）会断；且 mv/ln/rm 会改停滞门 inode。正式路径切 /nvme 要改这些检查并用真实 prepare 验证（白天，和 owner 定）。台账 `~/gpu_share/LEDGER.md` /nvme 节已登记。
+
+**结果（已出）**
+- LIBERO（RESULTS.json，`.venv/bin/python -m exp.offline_search.rounds.r17.longseg_1017.analyze --benchmark libero`，4 min）：DP 减步 成功过滤库 vs 原库 12 格 9 格成功率更高（+0.4~+5.6 pp）、10 格调用比例更低；库 ≥100 整格旋钮关即达纯推理（调用 4–9%、IR≈0.015）。FW 减步两库差 −1.6~+2.6 pp，多数任务退回纯推理（调用 66–100%），只有成功过滤库 spatial 200/300 整格旋钮关（调用 ~4%）。「未达标任务」是 owner 的 no_knob 规则（整格达纯推理就不调），不是 bug。
+- MetaWorld 新旋钮下降：DP 减步两库、DP 全步原库已齐，可分析；GR00T 减步成功过滤库已齐；DP 全步成功过滤库 ~11:00。
+
+**待办 / 待 owner**
+- 早期 MetaWorld receipt（pimk1_redc、pimk1_fuld、cspi_k2vc、ffk1015_pi05_mt50_full_descent_01/02/03、hspi2_0502）PASS 不可信（当时 aggregate 检查被写成 pass）；formal_finalize.py 另有 20 处裸 pass——只报告，未动。
+- pod1/pod2 接 DP LIBERO / Fast-WAM 需先在 pod 装服务环境与 checkpoint。
+- 调度器：放置在节点间每 ~20 s 抖（Cosmos timan1 8↔9、107 3↔2）；RAM 记账 PSS（#189）；新批次爬坡太慢；autoscale_1017 待删。
+- receipt 重出 #188 已被字段 bug 解释（MetaWorld 旧批次 receipt 只能 FAIL）。
+- h100-temp：等 owner 决定是否再借（建议先和机主约时段）。
+
 
 ### ★★★★★★★★★★★★★★★★★★★★★★★ 2026-10-19 21:0x CDT 总状态（compact 后最先读这块）
 
