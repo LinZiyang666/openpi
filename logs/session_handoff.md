@@ -58,6 +58,11 @@ owner 的常驻指令，逐字有效：
 
 **一句话**：今晚找到并根治了 worker 慢 7 倍的原因（EGL 渲染上下文每局创建/销毁 + 两把串行锁），四个在跑批次都已停下并用新代码续跑；新代码试点（pod2 jc2）358 局/分、0 错、同任务成功率一致。
 
+**22:2x 增补**：
+- owner 10-19：「/data盘不可信，不应让其承担重要数据」「你没有限额，这个盘你想用多少用多少」→ 任务 #195：库 117 GB + r17_frozen 11 GB + eval 706 GB 单路 rsync 到 `/nvme/weiland/openpi/{r17_library,r17_frozen,eval}`（脚本 `$CLAUDE_JOB_DIR/tmp/copy_to_nvme.sh`，日志 `copy_to_nvme.log`，排除在跑 4 批）；库里 >10 万小 npz → 5–20 MB/s、/data IO 压力 18% → `copy_governor.sh` 在 /proc/pressure/io some avg10 >12 时 SIGSTOP rsync、<6 时 SIGCONT。复制核对后用 RENAME_EXCHANGE 把 `/data/mw_finetune/eval`、`/data/r17_library` 换成指向 /nvme 的软链（在跑批次留 /data 经软链接回）；换前查冻结代码里 `resolve()` 对 FORMAL_ROOT 的比较（formal_queue.py:185/302、local_workers.copy）。台账与记忆已更新。
+- LIBERO 结果（并行版 analyze，861f3fe7，17 进程 4 min）：DP 减步 成功过滤库 vs 原库 12 格中 9 格成功率更高（+0.4~+5.6 pp）、10 格调用比例更低；size≥100 全部任务旋钮关即可，调用 4–9%、IR≈0.015，成功率高于纯推理；但多数格有 1 个任务按 ≤2/50 未达标（选档规则判达标，口径不一致待查）。FW 减步原库基本退回纯推理（调用 68–100%）；成功过滤库各档在跑。MetaWorld 新旋钮下降无一跑完。
+- timan1 轮换 22:11 第二次因 D 自停；22:15 轮换停着时 D=11 而我们的 python 只占 2 个（其余 df/falcon/ngspice）→ 守卫改为只数自己的 python 进程，22:1x 以 8/5 重启。
+
 **21:53 巡检**：sol 无活。四批 0 错，~836 局/分（jc2 251、GR00T 322、jc1 204、FW LIBERO 59）；H100 GPU 37–43%、4090 24–68%；timan1 load 51/48 核、107 load 43/48 → worker CPU 已满，GPU 空闲是 CPU 限制，无可加的活。timan1 D 1、107 D 0。
 
 **22:0x 增补**：
