@@ -58,6 +58,8 @@ owner 的常驻指令，逐字有效：
 
 **一句话**：今晚找到并根治了 worker 慢 7 倍的原因（EGL 渲染上下文每局创建/销毁 + 两把串行锁），四个在跑批次都已停下并用新代码续跑；新代码试点（pod2 jc2）358 局/分、0 错、同任务成功率一致。
 
+**04:3x**：库复制到 /nvme 完成并核对：`/nvme/weiland/openpi/r17_library` 与 /data 文件 1,020,332 个、路径与大小逐一相同，随机 300 个 sha256 全一致（rsync 未保留硬链接，/nvme 上 139 GB）。r17_frozen 复制中，之后 eval。04:26 局/分：v01_0c1 312、pod2 dp_f_f_m_j 178、pod1 dp_f_u_m_j 230、Cosmos 34（20 min 均值；legacy driver 成批写 journal，10 min 窗口会偏低），0 错。
+
 **02:56**：v01_0c1 303、fa_ls_dp_f_f_m_j 229、fa_ls_dp_f_u_m_j 266、Cosmos LIBERO 21（H100 GPU 87–100% 满，LIBERO 局长、5 min 窗口抖）局/分，0 错；4090 GPU 20%、本机 load 17。待改（白天）：调度器放置在等余量节点间每 ~20 s 来回抖（Cosmos timan1 8↔9 / 107 3↔2），会让 LIBERO worker 白白换代；调度器重启后 previous 目标丢失，粘性只对重启后有效。
 
 **02:3x ✅ 4090 被公网入口卡住（新发现）**：v01_0c1 100 个远程 worker 只有 133 局/分、4090 GPU 8–10%：服务端每次推理 0.03 s，worker 每次调用等 2.3 s；本机 enp8s0 入站 35.6 MB/s（公网入口 ~33 MB/s 满）——MT50 图片从 timan 传进来把入口塞满。调度器原本只在共享池分配「稳定 10 min」后才给本机（local）worker，而 timan1/107 之间的放置每十几秒抖动，计时总被重置，且 floor 已由远程填满 → 本机 worker 永远 0。修复 b65d6eca（`allocate.LOCAL_FIRST = ('local',)`：4090 主机自己的 worker 先填、不等稳定；H100 仍放最后，因为它的 GPU 被模型占满）+ test_allocate.py，`deploy_a100.sh start` 重启调度器。效果：5 min 后 v01_0c1 本机 32 个 worker → 366 局/分，入站 1 MB/s，4090 GPU 35%（本机 worker 继续加到 100）。之前 4090 批次 GPU 偏低（24–69%）大概率同因。floors 现 `{"fa_ls_v01_0c1": 100, "fa_ls_dp_f_f_m_j": 32, "fa_ls_dp_f_u_m_j": 32}`（pod 两批 DP 全步在 MIG R1 上 16→32 worker 只 +26%，HPA 判失败退回 16；worker CPU 空，floor 32 白赚）。
