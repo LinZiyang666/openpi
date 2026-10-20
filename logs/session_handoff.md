@@ -65,6 +65,14 @@ owner 的常驻指令，逐字有效：
 - floors 现 `{"fa_ls_dp_f_f_m_j": 32, "fa_ls_v11_0": 70}`。
 - 在调研（opus 只读）：H100 队列 ~88 h（4 批 FW MT50 旋钮下降 ~42 h）vs 4090 ~22 h；旋钮下降批次 IR 离线算、可换卡 → 考虑 FW/GR00T MT50 旋钮下降挪 4090、DP LIBERO 旋钮下降挪 pod（需装 openpi 环境）。结论回来前不动队列。
 
+**18:3x 增补（jupyter 掉线恢复；DP LIBERO 在 pod 上跑起来）**
+- 17:38 jupyter-ziyang10 与 -03 同时掉线（容器重启、/tmp 清空；当时两台 /tmp 各 18 GB；pod 内看不到原因），已 PushNotification。owner 恢复后在线：jupyter-ziyang10、**jupyter-ziyang10-02**（主机名 jupyter-ziyang10--test，同一块 H200 另一 MIG 片）；-03 没回来 → 原 -03 的批次改派 -02（驱动口 23192）。pod cgroup 内存上限 32 GiB（现 anon ≤1.5 GB）。
+- 精简安装 `setup.sh dp_libero`（只拉 openpi .venv + LIBERO 策略 + CLIP 文本，9.3 GB；3b3b55c9），两台核对 torch 2.7.1+cu126 与 4090 相同。隧道重建（pod 上 tunnel.sh：-10 24470/24471→23470/23471，-02 24472/24473→23474/23475）。H100 rsync 23117 已关。
+- 两个新坑：①DP LIBERO 缓存研究的冻结准入要求 R2/MPS/local4090 → server_cli 桥接对 pod 副本按 `pod_copy.resources_before` 过准入（fd9b5be0，实际服务不变）；②桥接代码冻结在各批 `assets/ffk_bootstrap.py`，改仓库不生效 → `pod_copy.pin_bridge`（073fc0fe）只换嵌入的 server_cli 模块并改 3 处 sha（复制时自动做；已有副本用 `--repin-bridge`，v04_0/v04_3/v06_0_j2 已做）；③pod 上源地址 assets 被失败批次装过旧快照 → 改名 `assets.stale_j3_20261020` 后再准备。
+- 失败目录：`fa_ls_v09_{0,1}_j2.failed_pod_admission_20261020`、`fa_ls_v09_{0,1}_j3.failed_frozen_bridge_20261020`（都 0 局）。
+- 现链：**pod2i**（-02）fa_ls_v09_0_j4（18:33 起，18:37 36 局 0 错）→ v04_0_j2 → v04_3_j2 → v06_0_j2；**pod1j**（-10）fa_ls_v09_1_j4。floors `{fa_ls_v02_s_c2:120, 五批 DP LIBERO 各 32}`。
+- 速度（17:45→17:50）：H100 原库 · GR00T · MetaWorld ~630/分；h100-temp v02_s_c2 ~380/分；4090 原库 · DP · LIBERO · 全步 · 各档 ~42/分（5,000 局，预计 ~19:30 完，之后 g4090ac 跑 fa_cs_pi_r → fa_cs_gr_r）。
+
 **17:3x 增补（计时收齐 + jupyter 起 DP LIBERO + 修 R16 启动）**
 - 计时收齐：Cosmos LIBERO l10 在 4090 干净 CPU 补测（17:19–17:23），stage1 106.5 / full 281.0 / reduced 59.2 ms，与 10-12 一致；prices 对 Cosmos 所有 LIBERO 套件都取得到。6 个计时档案全在 `longseg_1017/profiles/4090/`（5c7c98ac）。任务 #198 完成。⚠ 发给「tether热更新」的「可以继续」那条仍被它会话扣着（待 owner 放行）。
 - 4090 链：g4090aa 的 fa_cs_pi_r 17:18 rc=1：R16 conductor_runner 用 `cd island && nohup env ... &` 起本机 agent，整串命令在子 shell 后台，捕获输出的 subprocess 一直等到 30 s 超时（3 个 R16 服务端留在 GPU，我按 PID 停了）。修 2fb93ff0（只把 nohup 那段放后台，验证 0.00 s 返回）。链：**g4090ab** = fa_ls_timing_co_l_4（完）→ fa_ls_dp_f_u_l_l（17:28 起，原库 · DP · LIBERO · 全步 · 各档）；**g4090ac** 等 g4090ab 完 → fa_cs_pi_r → fa_cs_gr_r（重跑，旧目录直接重 prepare）。g4090aa 有 hold 文件（已结束）。
