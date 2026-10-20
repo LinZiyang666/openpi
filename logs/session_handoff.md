@@ -58,6 +58,10 @@ owner 的常驻指令，逐字有效：
 
 **一句话**：今晚找到并根治了 worker 慢 7 倍的原因（EGL 渲染上下文每局创建/销毁 + 两把串行锁），四个在跑批次都已停下并用新代码续跑；新代码试点（pod2 jc2）358 局/分、0 错、同任务成功率一致。
 
+**23:0x 增补（owner 去睡，独自推进）**：
+- LIBERO「未达标任务」不是口径 bug：`formal_a_analysis.choose` 的 no_knob = 旋钮关整格成功数 ≥ 纯推理整格成功数 → 整格不调旋钮（owner 10-13 规则，见记忆 feedback-knob-per-task-match-pure），这些格里个别任务少 >2/50 不触发逐任务下降。
+- /nvme 迁移方案修订（#195）：⛔ 不要把 `/data/mw_finetune/eval` 或 `/data/r17_library` 整个换成软链——`formal_eval.py:1920`（准备新批次时 `directory.resolve().parent != FORMAL_ROOT`）、`incremental_sync.py`（多处 `resolve()!=path`、禁止软链，收尾时会用）、`cache_knob.py:148`（写入解析后的库路径）、`formal_runtime.py`（paired_control/resume 的 resolve 比较）都会断。今晚只做：完整复制 + 核对（文件数/大小 + 关键文件 sha256）→ 之后每小时增量镜像在跑/新批次（*.jsonl 用 --append-verify，其余正常）。改正式路径到 /nvme 要改这些检查并用真实 prepare 验证，白天做。
+
 **22:54 巡检**：sol 无活。四批 0 错，~700 局/分（jc2 199、GR00T 241、jc1 195、FW LIBERO 65）；H100 GPU 21–30%（worker CPU 限制）、4090 59–69%；timan1 load 50/48、107 load 63/48（CPU 满）；D 正常。/nvme 复制被 IO 节流，库已 25/117 GB。
 
 **22:2x 增补**：
