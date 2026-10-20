@@ -105,8 +105,11 @@ def main():
     # The Cosmos island needs the formal server's environment (LIBERO deps, config, HF cache, pip CUDA libraries).
     if args.model == "cosmos_libero":
         from exp.r17_integration.ops.formal_eval import server_env
+        previous = env["PYTHONPATH"]
         env.update(server_env(dict(model="cosmos", server_node="local",
                                    vendor="/home/weiland/projects/openpi_ext/lines/cosmos-policy"), str(ROOT)))
+        # server_env rebuilds PYTHONPATH from ROOT alone; keep the caller's entries (a frozen runtime's exp tree).
+        env["PYTHONPATH"] = previous + ":" + env["PYTHONPATH"]
     if args.model in MT50_MODELS:
         # Match the formal model islands' local vendor imports.
         extra_paths = {"fastwam_mw": ("/data/mw_finetune/vendor/lerobot/src", "/data/mw_finetune/vendor/FastWAM/src"),

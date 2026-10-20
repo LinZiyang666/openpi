@@ -37,8 +37,14 @@ cat > "$BASE/bin/r17x.part" <<'EOF'
 BASE=/home/ziyang10/zl_r17
 DATA=/tmp/zl_r17/data
 export PATH=$BASE/tools/bin:$PATH
+# DP LIBERO serves from the 4090's openpi .venv (its model identity pins the dependency versions);
+# a copy of it and of its Python 3.11 appear at the 4090 paths when installed.
+V=$DATA/mw_finetune/openpi_venv_4090
+BINDS=(-b "$DATA:/data")
+[ -d "$V/venv" ] && BINDS+=(-b "$V/venv:/home/weiland/projects/openpi/.venv")
+[ -d "$V/uvpy" ] && BINDS+=(-b "$V/uvpy:/home/weiland/.local/share/uv/python/cpython-3.11.15-linux-x86_64-gnu")
 d=$(mktemp -d /tmp/r17x.XXXXXXXX)
-R17X_DIR=$d setsid -w "$BASE/bin/proot" -b "$DATA:/data" -w "$PWD" /bin/sh -c \
+R17X_DIR=$d setsid -w "$BASE/bin/proot" "${BINDS[@]}" -w "$PWD" /bin/sh -c \
   '"$@" >"$R17X_DIR/out" 2>"$R17X_DIR/err" </dev/null; echo $? >"$R17X_DIR/rc.part"; mv "$R17X_DIR/rc.part" "$R17X_DIR/rc"' \
   r17x "$@" </dev/null >/dev/null 2>"$d/proot.err" &
 pid=$!
@@ -75,6 +81,8 @@ if [ "$MODEL" = dp ]; then
   pull dp/libero_policy_100000 "$D/dp/libero_policy_100000"
   pull dp/mt50_policy_100000 "$D/dp/mt50_policy_100000"
   pull dp/clip_text "$D/dp/clip_text"
+  # The 4090 openpi .venv + Python 3.11 that DP LIBERO serves from, staged on the H100 (r17x binds them).
+  pull openpi_venv_4090 "$D/openpi_venv_4090"
   # CUDA-graph self-check frames that formal_batch_server reads for LIBERO (256x256 wire
   # observations; the H100 has no copy). Copied once from weilandserver
   # /data/mw_finetune/qualification/assets/dp_libero_gpu_fix1_v1/ to $BASE/assets (sha256 4c480ecb...).

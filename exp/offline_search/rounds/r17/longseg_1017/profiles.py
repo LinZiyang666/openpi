@@ -19,10 +19,13 @@ from exp.offline_search.rounds.r17.filter_failed_knob.common import read,REPO
 INDEX=HERE/'PROFILES.json'
 # 4090-host serving environments that differ from an H100 lane's campaign (the H100 has its own copies).
 LOCAL_SERVER={'groot':dict(server_python='/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python',
-                           vendor='/home/weiland/projects/openpi_ext/third_party/gr00t_n15')}
+                           vendor='/home/weiland/projects/openpi_ext/third_party/gr00t_n15'),
+              'cosmos':dict(server_python='/home/weiland/projects/openpi_ext/lines/cosmos-policy/.venv/bin/python',
+                            vendor='/home/weiland/projects/openpi_ext/lines/cosmos-policy')}
 # The GR00T descriptor names the H100 vendor tree; the 4090 copy is byte-identical (10-20: 53 code files, same
 # sha256), and the code digest hashes names and contents only, so a 4090 run reads it from here.
-LOCAL_DESCRIPTOR_PATHS={'groot':('/home/exouser/gr00t_n15','/home/weiland/projects/openpi_ext/third_party/gr00t_n15')}
+LOCAL_DESCRIPTOR_PATHS={'groot':('/home/exouser/gr00t_n15','/home/weiland/projects/openpi_ext/third_party/gr00t_n15'),
+                        'cosmos':('/data/cosmos/cosmos-policy','/home/weiland/projects/openpi_ext/lines/cosmos-policy')}
 
 def first_row_metadata(parent):
     """Read only the arrays header and first recorded row, at most 16 MiB."""
