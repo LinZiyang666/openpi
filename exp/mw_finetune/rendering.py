@@ -80,6 +80,31 @@ def share_egl_context():
     mujoco_rendering.OffScreenViewer.free = free
 
 
+def share_robosuite_egl_context():
+    """LIBERO counterpart of share_egl_context: robosuite's MjRenderContext creates one EGL context per
+    environment (per episode) and destroys it in __del__. Reuse one per process, size and device;
+    each render context frees only its MjrContext, then glFinish returns the memory."""
+    from robosuite.utils import binding_utils
+    from OpenGL import GL
+    native = binding_utils.GLContext
+    contexts = {}
+
+    def shared(max_width, max_height, device_id=0):
+        key = (max_width, max_height, device_id)
+        if key not in contexts:
+            context = native(max_width=max_width, max_height=max_height, device_id=device_id)
+            context.free = lambda: None  # released at process exit
+            contexts[key] = context
+        return contexts[key]
+
+    def release(render_context):
+        render_context.gl_ctx.make_current()
+        render_context.con.free()
+        GL.glFinish()
+    binding_utils.GLContext = shared
+    binding_utils.MjRenderContext.__del__ = release
+
+
 def renderer_stamp():
     from OpenGL import GL
     values = {name: GL.glGetString(getattr(GL, name)) for name in ("GL_RENDERER", "GL_VENDOR", "GL_VERSION")}

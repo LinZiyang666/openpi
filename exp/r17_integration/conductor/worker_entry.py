@@ -94,6 +94,9 @@ def main(argv=None):
         from exp.r17_integration.benchmarks.libero_bridge import LiberoBenchmarkAdapter, LiberoBenchmarkSpec, SUITES
         from examples.libero import main as native
         from examples.libero.worker_entry import _build_episode_setup, build_probe
+        if os.environ.get("MUJOCO_GL") == "egl":
+            from exp.mw_finetune.rendering import share_robosuite_egl_context
+            share_robosuite_egl_context()
         spec = load_benchmark_spec(a.benchmark_spec, register=False)
         if not isinstance(spec, LiberoBenchmarkSpec) or spec.identity != LiberoBenchmarkSpec.from_official(
                 seed=spec.seed, seed_mode=spec.seed_mode, settle_steps=spec.settle_steps, replan_steps=spec.replan_steps,
