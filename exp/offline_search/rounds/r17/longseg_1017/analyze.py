@@ -30,10 +30,17 @@ def prices(label,suite,gpu):
     suffix='_mw_mt50.json' if suite=='mt50' else '_libero_'+suite+'.json'
     paths=[Path('results_mt50' if suite=='mt50' else 'results')/(model+suffix)]
     if model=='fastwam' and suite!='mt50':paths.append(Path('results_cached_text')/(model+suffix))
-    for root in (HERE/'profiles'/('h100' if gpu=='H100' else '4090'),ir.PROFILE):
-        if all((root/p).exists() and read(root/p).get('valid') is True and
-               all(read(root/p).get('model_spec',{}).get(k)==spec.get(k) for k in keys) and
-               ('H100' in read(root/p).get('gpu_name','') if gpu=='H100' else '4090' in read(root/p).get('gpu_name','')) for p in paths):
+    # Owner 10-20: timing is measured on the 4090 only (batch 1, compiled CUDA graphs), for every
+    # lane whatever GPU served it. A receipt counts when the timing itself is certified on an
+    # exclusive device with the expected NFE; eager-vs-compiled output parity is reported by the
+    # profiler but does not bear on the timing.
+    def timed(r):
+        return (r.get('certified') is True and r.get('device_exclusive',{}).get('exclusive') is True
+                and '4090' in r.get('gpu_name','') and all(n==c['expected_actual_nfe']
+                for c in r.get('cells',{}).values() for n in c.get('actual_nfe_by_iteration',[])))
+    for root in (HERE/'profiles'/'4090',ir.PROFILE):
+        if all((root/p).exists() and timed(read(root/p)) and
+               all(read(root/p).get('model_spec',{}).get(k)==spec.get(k) for k in keys) for p in paths):
             with patch.object(ir,'PROFILE',root):return ir.coefficients(label,suite)
     return None,None
 
@@ -126,7 +133,7 @@ def unaffected_libero():
     """Reuse the accepted formal-A analysis without rewriting its old output.
 
     Legacy VLA keeps its original per-decision cost ledger. Cosmos uses only
-    a valid matching H100 timing receipt, or reports formal IR as missing.
+    a certified matching 4090 timing receipt, or reports formal IR as missing.
     """
     from exp.offline_search.rounds.r17.filter_failed_knob import formal_a as f
     from exp.offline_search.rounds.r17.filter_failed_knob import formal_a_analysis as old
