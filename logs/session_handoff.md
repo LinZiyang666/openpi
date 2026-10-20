@@ -58,6 +58,8 @@ owner 的常驻指令，逐字有效：
 
 **一句话**：今晚找到并根治了 worker 慢 7 倍的原因（EGL 渲染上下文每局创建/销毁 + 两把串行锁），四个在跑批次都已停下并用新代码续跑；新代码试点（pod2 jc2）358 局/分、0 错、同任务成功率一致。
 
+**09:29**：4090 fa_ls_v10_0 跑完（rc=0，6,000）→ g4090v 接 fa_ls_v11_0（Fast-WAM · LIBERO · 缓存变体）；floors = `{"fa_ls_dp_f_f_m_j": 32, "fa_ls_v11_0": 40}`。/nvme eval 516 GB。
+
 **09:1x ⛔ DP LIBERO 不能直接 pod_copy**：fa_ls_dp_f_u_o_l_j 在 pod1 准备 20 s 失败：campaign server_python = 本机 `/home/weiland/projects/openpi/.venv/bin/python`（DP LIBERO 服务用 openpi venv），pod 的 r17x 只把 `/tmp/zl_r17/data` 绑成 /data，pod 上没有这个 venv（MT50 DP 用的 `/data/mw_finetune/dp/env` 在 pod 上装过）。已撤回：4090 的 prepare_fa_ls_dp_f_u_o_l.sh 已恢复原样（照原顺序在 4090 跑），目录改名 `fa_ls_dp_f_u_o_l_j.unused_pod_env_missing_20261020`，floors 去掉它。pod1 现在空闲；pod2 ~11:00 跑完 fa_ls_dp_f_f_m_j 后也没有可挪的 DP MT50 批次。要让 pod 接 DP LIBERO / Fast-WAM 需先在 pod 上装对应服务环境与 checkpoint（白天和 owner 定）。
 
 **09:0x**：pod1 fa_ls_dp_f_u_m_j 09:02 跑完（rc=0，90,000 → 原库 · DP · MetaWorld · 全步 · 旋钮下降齐）→ `pod_copy --source fa_ls_dp_f_u_o_l --name fa_ls_dp_f_u_o_l_j --pod jupyter-ziyang10 --driver-port 23193`（原库 · DP · LIBERO · 全步 · 旋钮关，6,000）→ 链 **pod1e**；4090 原 fa_ls_dp_f_u_o_l prepare 已改 exit 3（.before_pod_move）。floors = `{"fa_ls_dp_f_f_m_j": 32, "fa_ls_v10_0": 60, "fa_ls_dp_f_u_o_l_j": 32}`。v10_0 08:20 start，0 错。
