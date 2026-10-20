@@ -9,6 +9,7 @@ import statistics
 
 TTL_S = 60  # a report is live this long after it arrived
 STABLE_S = 600  # shared-pool stability a batch needs before it gets local workers
+LOCAL_FIRST = ('local',)  # local nodes filled before the shared pool (see plan)
 RESOURCES = ('ram', 'vram', 'cpu')
 GIB = 2 ** 30
 DEFAULT_COST = {'libero': dict(ram=2.2 * GIB, vram=650, cpu=.3),
@@ -93,12 +94,21 @@ def plan(reports, now, previous=None):
             for x in RESOURCES:
                 room[n][x] -= cost[b][n][x]
 
+    local_nodes = sorted({n for r in reports.values() for n, v in r['nodes'].items() if v['class'] == 'local'})
+
+    def own(node):
+        return {b: [node] for b, r in reports.items()
+                if r['server_host'] == node and r['nodes'].get(node, {}).get('class') == 'local'}
+    # The RTX 4090 host's own workers come first, without the stability wait: remote workers reach its
+    # server through that host's public ingress (~33 MB/s), which one MT50 batch's images saturate
+    # (10-20: 100 remote workers, GPU 8%, 2.3 s per call for 0.03 s of service). Other local nodes
+    # (the H100, whose GPU the model saturates) keep local workers last, after a stable shared pool.
+    for node in [n for n in local_nodes if n in LOCAL_FIRST]:
+        fill(own(node))
     fill(shared)
     shares = {b: share(b, shared[b]) for b in reports}
-    for node in sorted({n for r in reports.values() for n, v in r['nodes'].items() if v['class'] == 'local'}):
-        fill({b: [node] for b, r in reports.items()
-              if r['server_host'] == node and r['nodes'].get(node, {}).get('class') == 'local'
-              and r['shared_stable_s'] >= STABLE_S})
+    for node in [n for n in local_nodes if n not in LOCAL_FIRST]:
+        fill({b: nodes for b, nodes in own(node).items() if reports[b]['shared_stable_s'] >= STABLE_S})
     return dict(targets=alloc, capacity=capacity, shares=shares)
 
 
