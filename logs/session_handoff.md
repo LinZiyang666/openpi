@@ -69,6 +69,12 @@ owner 的常驻指令，逐字有效：
 - 现在 fleet：timan107 fx1、a100 fx1、local fx1、timan1 fx4（两批）；17:23 timan1 FW 33/123、DP 爬坡中。
 - fa_ls_dp_r_b_m_j（pod 纯推理对照 2,500）driver PASS 2500，但 RECEIPT FAIL：`native CPU evidence aggregate is incomplete`（换 fleet 把 kernel evidence 拆进 _fx 目录）→ 待合并证据重出 receipt，数据完整可用。
 
+**20:2x 增补：在跑批次切新代码（owner 方案：worker 退役 → 停批 → 续跑）**：
+- ⛔ 不能原地换 worker 组带新代码：rendering.py/worker_entry.py 在 driver 校验的 worker 文件里。
+- ⛔ resume 会复制源批次冻结的 workers.tar；prepare_workers 只叠加 WORKER_OVERLAY → 63b307bb 把 exp/mw_finetune/rendering.py 加进 WORKER_OVERLAY（否则新 worker_entry + 旧 rendering，LIBERO 会 ImportError）。
+- 流程：caps.json 设该批 0 → 等节点上该批 worker 进程归零 → SIGTERM `filter_failed(_knob).launch --run <dir>` → RECEIPT all_owned_closed → `filter_failed.resume --source <dir> --name <dir>cN --remaining --verify-closed`（pod/h100-temp 带 alias env）→ 写 prepare/launch 包装 → 新链。核 workers.tar 里 rendering.py 含 share_egl_context。
+- 试点：pod2 fa_ls_dp_r_f_m_j（15,123）→ jc1 作废（旧 rendering，未出局即停）→ **jc2**（74,877，链 pod2c，20:21 start，新代码已核）。下一步 GR00T H100 / pod1 / 4090 FW 同法。
+
 **20:1x 增补：EGL 根治已提交（新批次生效）**：MetaWorld e1c30fc2（gymnasium OffScreenViewer 共用一个上下文，每局 MjrContext.free + glFinish；像素差异同原方式自身噪声，13 MiB/worker）；LIBERO 38e93544（robosuite MjRenderContext 共用上下文，帧与原方式逐字节相同 9/9，11 MiB/worker；worker_entry LIBERO 分支调用 share_robosuite_egl_context）；9d1574c0 修 worker_entry main 里局部 `import os` 导致的 UnboundLocalError（测试抓到）。⛔ 待验收：各链下一批（新 prepare）上线后看每局 sim 时间、D 状态、成功率；在跑旧批次继续用 zl_lock_bounded。conductor 测试 3 个失败是改动前就有的。
 
 **19:5x 增补**：EGL 根治 MetaWorld 部分已提交 e1c30fc2（`rendering.share_egl_context`：每 worker 一个上下文复用；每局 MjrContext.free + glFinish，显存 13 MiB/worker 稳定，像素与原方式等价）；LIBERO（robosuite）待做（任务 #193）。在跑批次的有上限轮换：107 `zl_lock_bounded.py 4 2`、timan1 `8 4`、a100 `4 4`（停：`touch /tmp/zl_lock_rotate.stop`）。19:54：GR00T 175、pod1 217、pod2 113、4090 FW 61 局/分，0 错误；107 D=0。h100-temp 空闲（机主停我们后不重跑）。
