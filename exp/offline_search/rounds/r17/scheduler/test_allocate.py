@@ -36,3 +36,9 @@ def test_cpu_bound_replicas_stop_the_work_conserving_doubling():
     assert saturation([0, 102, 102, 102, 102, 102]) == 50
     assert saturation([40, 50, 60, 70]) == 100
     assert saturation([40, 50], gpu_util=95.) == 50
+
+
+def test_operator_cap_bounds_the_work_conserving_pass():
+    r = report('local', ('local', 'timan1'), 50)
+    r['cap'] = 60
+    assert sum(plan({'b': r}, 1.)['targets']['b'].values()) == 60

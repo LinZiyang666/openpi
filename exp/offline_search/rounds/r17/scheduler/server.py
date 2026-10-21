@@ -51,7 +51,8 @@ class Scheduler:
                 bounds[name] = {}
         def bounded(b, r):
             desired = max(r['desired'], bounds['floors'].get(b, 0))
-            return dict(r, desired=min(desired, bounds['caps'].get(b, desired))) if not r['done'] else r
+            cap = bounds['caps'].get(b)
+            return dict(r, desired=min(desired, desired if cap is None else cap), cap=cap) if not r['done'] else r
         with self.lock:
             self.reports = live(self.reports, now)
             reports = {b: bounded(b, r) for b, r in self.reports.items()}

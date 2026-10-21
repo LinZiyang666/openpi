@@ -143,7 +143,8 @@ def plan(reports, now, previous=None):
     # before new workers finish an episode) no longer leaves worker machines idle.
     for b, r in reports.items():
         if not r['done']:
-            want[b] = max(want[b], min(sum(v['max'] for v in r['nodes'].values()), explore(r)))
+            limit = min(sum(v['max'] for v in r['nodes'].values()), explore(r))
+            want[b] = max(want[b], limit if r.get('cap') is None else min(limit, r['cap']))  # an operator cap holds here too
     rounds()
     shares = {b: share(b, shared[b]) for b in reports}
     return dict(targets=alloc, capacity=capacity, shares=shares)
