@@ -52,7 +52,7 @@ owner 的常驻指令，逐字有效：
 
 
 
-## 1. 现在在哪（2026-10-21 11:5x CDT；**最先读「10-21 12:0x 增补」，再读「10-21 11:5x 增补（compact 前总状态）」，再读「10-21 00:3x 增补」，再读「10-21 00:0x 增补（compact 前总状态）」，再读「22:5x」「22:1x」「21:4x」增补，再读「21:3x 增补（compact 前总状态）」**，再读 20:5x 旧门事故、其余增补与 09:4x 总状态，再读其后各增补（09:29 → 21:2x 倒序）与 10-19 21:0x 总状态；10-14 及更早只作背景）
+## 1. 现在在哪（2026-10-21 11:5x CDT；**最先读「10-21 13:2x 增补」，再读「10-21 12:0x 增补」，再读「10-21 11:5x 增补（compact 前总状态）」，再读「10-21 00:3x 增补」，再读「10-21 00:0x 增补（compact 前总状态）」，再读「22:5x」「22:1x」「21:4x」增补，再读「21:3x 增补（compact 前总状态）」**，再读 20:5x 旧门事故、其余增补与 09:4x 总状态，再读其后各增补（09:29 → 21:2x 倒序）与 10-19 21:0x 总状态；10-14 及更早只作背景）
 
 ### ★★★★★★★★★★★★★★★★★★★★★★★★ 2026-10-20 09:4x CDT 总状态（compact 后最先读这块）
 
@@ -64,6 +64,13 @@ owner 的常驻指令，逐字有效：
 - 处置：09:56 按 PID SIGSTOP 复制 rsync（3726105/3726106/3729764）和两个 governor（3343372/3951564）。效果（同一时刻对比）：Cosmos 15→60 局/分、pod2 DP 85→250、v11_0 50→125（v11_0 同时 floor 40→70）。⛔ **复制保持暂停**；剩 ~190 GB（eval 533/~720 GB）以后找没有 driver 在跑、或可接受的短窗口一次性不限速跑完，不要再长时间节流慢跑。恢复命令：`kill -CONT 3343372 3951564 3726105 3726106 3729764`。记忆 reference-weilandserver-data 已加这条。
 - floors 现 `{"fa_ls_dp_f_f_m_j": 32, "fa_ls_v11_0": 70}`。
 - 在调研（opus 只读）：H100 队列 ~88 h（4 批 FW MT50 旋钮下降 ~42 h）vs 4090 ~22 h；旋钮下降批次 IR 离线算、可换卡 → 考虑 FW/GR00T MT50 旋钮下降挪 4090、DP LIBERO 旋钮下降挪 pod（需装 openpi 环境）。结论回来前不动队列。
+
+**10-21 13:2x 增补：Fast-WAM 文本编码表（owner：prompt 固定，T5 不进 GPU 也不进 CPU）**
+- Fast-WAM = 策略 ~12 GB（6.02B 参数）+ umT5-xxl 11.4 GB；H100 每副本 27 GB 里近一半是 T5，且每次未命中都把整批 prompt 重跑 T5。
+- cd8b73d5：`models/fastwam/text_table.py`（按层把 T5 流过 GPU，~1.5 GB，算每条 prompt 的 batch-1 编码）；campaign `fastwam_text_table`（绝对路径）→ 加载器不建 T5（MT50 build_model 内部重装加载器也拦住）、encode_prompt 查表、缺 prompt 直接报错；longseg runtime_fix 对这类 campaign 把 4 个文件整份覆盖进冻结包（冻结包里这 4 个原本 = HEAD，已在 v02_b 包副本上试过）。
+- 编码表：H100 上 89 条（MT50 49 + LIBERO 40），`/home/exouser/fw_text_tables/table_h100.pt`（H100）+ `/nvme/weiland/openpi/fw_text_tables/table_h100.pt`。**H100 上 batch 2–16 共 62 行和 batch-1 逐位相同** → 查表与现行批量 T5 数值完全一样。本机 CPU 加载 v02_b 实测：text_encoder None、49 条全命中、查表行逐位一致。
+- **fa_ls_v02_b**（原库 · Fast-WAM · MetaWorld · 减步 · 缓存变体，60,000）campaign 已改：fastwam_text_table、memory_budget_gib 76→44、server_threads 8→4（原件 campaign.json.before_texttable_1021）。~15:50 由 h100m28 起；起来后核对：副本显存 ~14 GB、ready.json 的 text_cache、0 错、速度 vs fw_f_u_m（~220 局/分）。通过后：R15 π0.5 剩余 arm 改回 3 副本（QUEUE.json）、其余 FW 批次（v08_1、fw_r_u_m、fw_f_f_m、fw_r_f_mc2、fw_*_l_l）同样加表；考虑 FW R3；pod 装 FW（需 env + 模型 + T5 文件仅供 seal 哈希）。
+- ⚠ 我在 13:1x 跑测试对比时用了 git stash（链在写仓库里的 JSON），pop 无冲突；以后不再用 stash。
 
 **10-21 12:0x 增补（compact 后）**
 - ⛔ owner：「谁让你用h100 temp了」——我在 compact 后自作主张准备把 fw_r_f_mc2 认领到 h100-temp（只做了只读查看，没起进程没写文件），已撤。记忆改为：h100-temp 没有 owner 当次明说一律不用。
