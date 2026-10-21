@@ -1,15 +1,21 @@
-"""Copy a 4090 long-segment job (built, or already run) to a new job served on a jupyter pod.
+"""Copy a 4090 DP or H100 GR00T long-segment job (built, or already run) to a new job served on a jupyter pod.
 
 Only where the model is served changes: server_node 'h100' (bound to the pod by the
-R17_H100_NODE alias when filter_failed.stage runs), one replica without MPS, a 14 GiB
-budget. The scientific definition is the source's: assets and YAML bytes (linked),
+R17_H100_NODE alias when filter_failed.stage runs), R replicas without MPS (DP 1, GR00T 2),
+a 14 GiB budget. The scientific definition is the source's: assets and YAML bytes (linked),
 STUDY.json, EPISODE_PLAN.json (task UIDs), FFK_DEFINITION, the frozen runtime and
 worker archives of its filter_failed_source. `assets` keeps the source address because
 the frozen YAMLs name it (stall_path); stage installs the same snapshot at that address
-and at `local_assets` on the pod. The source directory is only read.
+and at `local_assets` on the pod. The source directory is only read. The scheduler fields
+are dropped: stage places fleets afresh, and a pod server gets only the shared pool.
+GR00T serves from the H100 env, vendor and checkpoint that ops/pod/setup.sh groot installs
+on the pod and r17x binds at their H100 paths; the pod needs tunnels for its public port
+and R backend ports (formal_eval.POD_PROFILES).
 
     python -m exp.offline_search.rounds.r17.longseg_1017.pod_copy \
         --source fa_ls_dp_r_f_m --name fa_ls_dp_r_f_m_j --pod jupyter-ziyang10-02 --driver-port 23192
+    python -m exp.offline_search.rounds.r17.longseg_1017.pod_copy \
+        --source fa_ls_gr_f_u_m --name fa_ls_gr_f_u_m_j --pod jupyter-ziyang10-02 --driver-port 23192
 """
 from __future__ import annotations
 
@@ -38,7 +44,9 @@ def environment(pod, driver_port):
 
 
 def commands(name, pod, driver_port):
-    """prepare_/launch_<name>.sh beside the other long-segment commands, with the pod alias."""
+    """prepare_/launch_<name>.sh beside the other long-segment commands, with the pod alias,
+    and the filter_failed_knob/commands wrappers that chain_ffk*.run.sh runs (when absent)."""
+    from exp.offline_search.rounds.r17.filter_failed_knob.common import HERE as KNOB
     paths = {}
     for verb, module in (('prepare', 'exp.offline_search.rounds.r17.filter_failed.stage'),
                          ('launch', 'exp.offline_search.rounds.r17.filter_failed_knob.launch')):
@@ -50,6 +58,10 @@ def commands(name, pod, driver_port):
         tmp.chmod(0o755)
         tmp.replace(path)
         paths[verb] = str(path)
+        wrapper = KNOB/'commands'/path.name
+        if not wrapper.exists():
+            wrapper.write_text('#!/usr/bin/env bash\nset -euo pipefail\nexec bash '+shlex.quote(str(path))+'\n')
+            wrapper.chmod(0o755)
     return paths
 
 
@@ -102,7 +114,7 @@ def repin(name):
     return receipt
 
 
-def copy_job(source, name, pod, driver_port, *, replicas=1, memory_gib=14):
+def copy_job(source, name, pod, driver_port, *, replicas=None, memory_gib=14, startup_width=1):
     from exp.r17_integration.ops.formal_eval import POD_PROFILES
     if pod not in POD_PROFILES:
         raise ValueError('unknown pod '+pod)
@@ -110,21 +122,25 @@ def copy_job(source, name, pod, driver_port, *, replicas=1, memory_gib=14):
     if root.exists():
         raise ValueError(str(root)+' exists')
     c = read(src/'campaign.json')
-    if c['server_node'] != 'local' or c['model'] != 'dp':
-        raise ValueError('expects a 4090 DP job')
+    dp = (c['server_node'], c['model']) == ('local', 'dp')
+    if not dp and (c['server_node'], c['model']) != ('h100', 'groot'):
+        raise ValueError('expects a 4090 DP job or an H100 GR00T job')
+    if replicas is None:
+        replicas = 1 if dp else 2
     ran = any((src/n).exists() for n in ('PREPARED.json', 'LAUNCH.json', 'RECEIPT.json'))
     origin = Path(c['filter_failed_source'])
     release = read(origin/'RUNTIME_RELEASE.json')
+    # Stage re-derives the fleet table (scheduler.defaults.apply): shared pool only for a pod server.
+    for key in [k for k in c if k.startswith(('autoscale', 'scheduler_')) or (ran and k in PREPARED)]:
+        del c[key]
     if ran:
-        for key in [k for k in c if k.startswith(('autoscale', 'scheduler_')) or k in PREPARED]:
-            del c[key]
         if c['domain'] == 'metaworld':
             c['worker_max_episodes'] = 0  # as built; scheduler.defaults.apply sets MT50 recycling (32 / 1800 s)
         # Unfixed source runtime, as built; stage applies the long-segment fix and installs it
         # (stage's driver_release.prepare rebuilds driver_runtime).
         c.update(runtime=release['root'], runtime_identity=release['identity'],
                  driver_runtime='/data/mw_finetune/qualification/formal_driver_'+release['identity'])
-    resources = dict(server_node='h100', replicas=replicas, replica_startup_width=1,
+    resources = dict(server_node='h100', replicas=replicas, replica_startup_width=min(startup_width, replicas),
                      memory_budget_gib=float(memory_gib), mps=None)
     before = {k: c.get(k) for k in resources}
     c.update(run_name=name, local_assets=str(root/'assets'), server_run=str(root/'servers'),
@@ -132,7 +148,7 @@ def copy_job(source, name, pod, driver_port, *, replicas=1, memory_gib=14):
     c['pod_copy'] = dict(source=str(src), source_ran=ran, pod=pod, driver_port=driver_port,
                          resources_before=before, resources_after=resources,
                          scientific_definition_unchanged=True,
-                         reason='serve on a jupyter pod MIG slice (R1 without MPS: the MPS guard cannot read MIG via nvidia-smi)')
+                         reason='serve on a jupyter pod MIG slice (R'+str(replicas)+' without MPS: the MPS guard cannot read MIG via nvidia-smi)')
     root.mkdir()
     budget.tree(src/'assets', root/'assets')
     for name_ in DEFINITION:
@@ -143,15 +159,21 @@ def copy_job(source, name, pod, driver_port, *, replicas=1, memory_gib=14):
     job = read(src/'FFK_DEFINITION.json')
     job.update(name=name, run=str(root), gpu='H200 MIG 1g.18gb ('+pod+')', replicas=replicas,
                pod_copy_of=job.get('name', source))
-    # The bridge presents the source's 4090 placement to the DP cache-study admission; a pod copy needs it
-    # even when the source itself (R2) did not (fa_ls_v04_0_j2 was refused at 19:39).
-    c['ffk_dp_capacity_bridge'] = True
-    pin_bridge(root, c, job)
+    if dp:
+        # The bridge presents the source's 4090 placement to the DP cache-study admission; a pod copy needs it
+        # even when the source itself (R2) did not (fa_ls_v04_0_j2 was refused at 19:39).
+        # GR00T has no cache-study resource admission (its server only caps VRAM at budget/replicas).
+        c['ffk_dp_capacity_bridge'] = True
+        pin_bridge(root, c, job)
+    elif 'cache_worker_orchestration' in c:
+        c['cache_worker_orchestration']['replicas'] = replicas  # record only (no check reads it for GR00T)
     budget.dump(root/'FFK_DEFINITION.json', job)
     budget.dump(root/'campaign.json', c)
     paths = commands(name, pod, driver_port)
+    public = POD_PROFILES[pod]['public_port']
     print(json.dumps(dict(name=name, source=source, pod=pod, driver_port=driver_port, replicas=replicas,
-                          memory_budget_gib=memory_gib, episodes=job.get('episodes'), **paths)), flush=True)
+                          memory_budget_gib=memory_gib, episodes=job.get('episodes'),
+                          pod_ports=list(range(public, public+replicas+1)), **paths)), flush=True)
     return paths
 
 
@@ -162,12 +184,14 @@ def main():
     p.add_argument('--pod')
     p.add_argument('--driver-port', type=int)
     p.add_argument('--repin-bridge', action='store_true', help='only re-pin an existing copy (pin_bridge)')
-    p.add_argument('--replicas', type=int, default=1)
+    p.add_argument('--replicas', type=int, help='default: DP 1, GR00T 2')
     p.add_argument('--memory-gib', type=float, default=14)
+    p.add_argument('--startup-width', type=int, default=1, help='replicas loading at once')
     a = p.parse_args()
     if a.repin_bridge:
         return repin(a.name)
-    copy_job(a.source, a.name, a.pod, a.driver_port, replicas=a.replicas, memory_gib=a.memory_gib)
+    copy_job(a.source, a.name, a.pod, a.driver_port, replicas=a.replicas, memory_gib=a.memory_gib,
+             startup_width=a.startup_width)
 
 
 if __name__ == '__main__':

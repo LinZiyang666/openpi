@@ -1279,7 +1279,8 @@ def run_campaign(campaign, directory, deployment):
         if worker_state is not None:worker_state.require_workers()
     alias = h100_alias()
     pod = bool(alias and alias['wrap'] and campaign['server_node'] == 'h100')
-    def wait_port(host, port, seconds=600, required_label=None):
+    # A pod resident loads under proot from the NFS home (GR00T: venv imports, 7.6 GB of weights hashed, then read).
+    def wait_port(host, port, seconds=1800 if pod else 600, required_label=None):
         bound = min(until, time.monotonic()+seconds)
         while time.monotonic() < bound:
             check(required_label)

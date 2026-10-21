@@ -7,16 +7,24 @@
 # $BASE (proot, rsync, r17x) is on the shared NFS home; $DATA is on the pod's own
 # disk (NFS takes ~6 MB/s for the venv's small files). Re-run after a pod restart.
 #
-# Usage (on the pod):  bash setup.sh <dp|dp_libero|fastwam> <rsync-url-prefix>
+# Usage (on the pod):  bash setup.sh <dp|dp_libero|fastwam|groot> <rsync-url-prefix>
 #   dp_libero: only what DP LIBERO serves from (the 4090 openpi .venv, LIBERO policy, CLIP text), ~9 GB;
 #   dp adds the MT50 server env (Fast-WAM venv + DP venv, Python 3.12), ~18 GB. Both pods dropped off
 #   together at 18 GB on 10-20 17:38 (no cause visible from inside the pod), so keep pods lean.
+#   groot: the H100's GR00T MetaWorld server env, ~15 GB, all on the NFS home ($BASE/groot, not /tmp):
+#   its venv (6.8 GB, torch 2.5.1+cu124) and uv Python 3.11.16, the Isaac-GR00T source (code and Eagle
+#   tokenizer files are part of the model identity), its HF cache (trust_remote_code modules) and the
+#   serving files of checkpoint-60000 (no optimizer/trainer state). r17x binds them at the H100 paths.
 #   <rsync-url-prefix>: a temporary read-only rsync daemon on the H100 with modules
 #   <prefix>_mw = /data/mw_finetune and <prefix>_xwam = /data/xwam, e.g.
 #   rsync://149.165.153.233:23117/zljXXXX   (the H100 has a public IP; the pod pulls).
-# Re-running is cheap: rsync only copies what changed.
+#   groot instead reads <prefix>_venv = /home/exouser/gr00t_n15_venv,
+#   <prefix>_uv = /home/exouser/.local/share/uv/python/cpython-3.11.16-linux-x86_64-gnu,
+#   <prefix>_vendor = /home/exouser/gr00t_n15, <prefix>_hf = /home/exouser/.cache/huggingface,
+#   <prefix>_ckpt = /data/mw_finetune/groot/4090_mt50/checkpoint-60000.
+# Re-running is cheap: rsync only copies what changed (groot skips trees already on the NFS home).
 set -euo pipefail
-MODEL=${1:?dp, dp_libero or fastwam}
+MODEL=${1:?dp, dp_libero, fastwam or groot}
 SRC=${2:?rsync url prefix}
 BASE=/home/ziyang10/zl_r17
 DATA=/tmp/zl_r17/data
@@ -48,6 +56,17 @@ BINDS=(-b "$DATA:/data")
 # The venv's python and pyvenv.cfg name uv's short alias cpython-3.11-... (a symlink to 3.11.15 on the 4090).
 [ -d "$V/uvpy" ] && BINDS+=(-b "$V/uvpy:/home/weiland/.local/share/uv/python/cpython-3.11.15-linux-x86_64-gnu"
                             -b "$V/uvpy:/home/weiland/.local/share/uv/python/cpython-3.11-linux-x86_64-gnu")
+# GR00T serves from the H100's env (setup.sh groot), kept on the NFS home and bound at the H100 paths. The venv's
+# python and pyvenv.cfg name uv's short alias cpython-3.11-... (a symlink to 3.11.16 on the H100).
+G=$BASE/groot
+[ -d "$G/venv/.venv" ] && BINDS+=(-b "$G/venv:/home/exouser/gr00t_n15_venv")
+[ -d "$G/uvpy/bin" ] && BINDS+=(-b "$G/uvpy:/home/exouser/.local/share/uv/python/cpython-3.11.16-linux-x86_64-gnu"
+                                -b "$G/uvpy:/home/exouser/.local/share/uv/python/cpython-3.11-linux-x86_64-gnu")
+[ -d "$G/vendor/gr00t" ] && BINDS+=(-b "$G/vendor:/home/exouser/gr00t_n15")
+[ -d "$G/hf_home" ] && BINDS+=(-b "$G/hf_home:/home/exouser/.cache/huggingface")
+# Nested in the /data binding (proot resolves the deepest binding first).
+C=$G/ckpt/4090_mt50/checkpoint-60000
+[ -f "$C/config.json" ] && BINDS+=(-b "$C:/data/mw_finetune/groot/4090_mt50/checkpoint-60000")
 d=$(mktemp -d /tmp/r17x.XXXXXXXX)
 R17X_DIR=$d setsid -w "$BASE/bin/proot" "${BINDS[@]}" -w "$PWD" /bin/sh -c \
   '"$@" >"$R17X_DIR/out" 2>"$R17X_DIR/err" </dev/null; echo $? >"$R17X_DIR/rc.part"; mv "$R17X_DIR/rc.part" "$R17X_DIR/rc"' \
@@ -61,8 +80,8 @@ cat "$d/out"; cat "$d/err" >&2; rc=$(cat "$d/rc"); rm -rf "$d"; exit "$rc"
 EOF
 chmod +x "$BASE/bin/r17x.part" && mv "$BASE/bin/r17x.part" "$BASE/bin/r17x"
 
-# 3. Python 3.12.3 (python-build-standalone via uv), at the path the venvs will name.
-if [ ! -x "$D/python/$PY/bin/python3.12" ]; then
+# 3. Python 3.12.3 (python-build-standalone via uv), at the path the venvs will name (GR00T brings its own 3.11).
+if [ "$MODEL" != groot ] && [ ! -x "$D/python/$PY/bin/python3.12" ]; then
   UV_PYTHON_INSTALL_DIR=$D/python uv python install 3.12.3
   [ -x "$D/python/$PY/bin/python3.12" ] || { ls "$D/python"; echo "uv python layout differs"; exit 1; }
 fi
@@ -78,7 +97,7 @@ relink() {  # venv copied from the H100 (base /usr/bin/python3.12) -> this Pytho
 # 4. The server environment shared by DP and Fast-WAM: the Fast-WAM venv (torch 2.7.1+cu128),
 #    DP's read-only venv on top of it, and the small R17 dependency island.
 SRC_MODULE=${SRC}_mw
-if [ "$MODEL" != dp_libero ]; then
+if [ "$MODEL" != dp_libero ] && [ "$MODEL" != groot ]; then
   pull envs/fastwam "$D/envs/fastwam"; relink "$D/envs/fastwam"
   pull qualification/python_deps312 "$D/qualification/python_deps312"
 fi
@@ -107,10 +126,28 @@ elif [ "$MODEL" = fastwam ]; then
   pull qualification/observations/libero_original256_fix2_v1 "$D/qualification/observations/libero_original256_fix2_v1"
   SRC_MODULE=${SRC}_xwam pull wan22_5b "$DATA/xwam/wan22_5b"
   PROBE=/data/mw_finetune/envs/fastwam/bin/python
+elif [ "$MODEL" = groot ]; then
+  G=$BASE/groot
+  # <module suffix> <destination> [rsync filters]: one H100 tree per module, onto the NFS home. $G/.pulled_<suffix>
+  # marks a completed pull; a pulled tree is kept (the sources are frozen), so the daemon needs only missing modules.
+  gpull() {
+    if [ -e "$G/.pulled_$1" ]; then echo "have $1"; return; fi
+    mkdir -p "$2"; "$BASE/tools/bin/rsync" -a --bwlimit=$BW --timeout=120 "${@:3}" "${SRC}_$1/" "$2/"
+    touch "$G/.pulled_$1"; echo "pulled $1"
+  }
+  gpull uv "$G/uvpy"
+  gpull venv "$G/venv"
+  gpull vendor "$G/vendor" --exclude=/.git --exclude=/media --exclude=/demo_data
+  gpull hf "$G/hf_home"
+  gpull ckpt "$G/ckpt/4090_mt50/checkpoint-60000" --include='model-*.safetensors' --include=model.safetensors.index.json \
+    --include=config.json --include='experiment_cfg/***' --exclude='*'
+  # The formal server's PYTHONPATH and HF_HOME for an H100 GR00T resident (formal_eval.server_env).
+  PROBE="env PYTHONPATH=/home/exouser/gr00t_n15 HF_HOME=/home/exouser/.cache/huggingface NO_ALBUMENTATIONS_UPDATE=1 /home/exouser/gr00t_n15_venv/.venv/bin/python"
 else
   echo "unknown model $MODEL"; exit 2
 fi
 
 # 5. Probe under r17x: imports and the MIG slice.
 "$BASE/bin/r17x" $PROBE -c 'import torch,sys; print(sys.version.split()[0], torch.__version__, torch.cuda.is_available(), torch.cuda.get_device_name(0), [round(x/2**30,2) for x in torch.cuda.mem_get_info()])'
+[ "$MODEL" = groot ] && "$BASE/bin/r17x" $PROBE -c 'import time; t=time.time(); import flash_attn, transformers, gr00t.model.policy; from pathlib import Path; c=Path("/data/mw_finetune/groot/4090_mt50/checkpoint-60000"); print("gr00t imports", round(time.time()-t,1), "s; transformers", transformers.__version__, "flash_attn", flash_attn.__version__, "; checkpoint", sorted(p.name for p in c.iterdir()))'
 echo "setup $MODEL done: $(du -sh "$DATA" | cut -f1) under $DATA"
