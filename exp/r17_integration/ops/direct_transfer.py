@@ -36,8 +36,9 @@ def daemon(root, module, port, source=None):
     subprocess.run(['rsync','--daemon','--port='+str(port),
         '--config='+str(config)],stdout=log,stderr=log,stdin=subprocess.DEVNULL,check=True,timeout=10)
     log.close()
+    # rsync creates the pid file before writing the number; reading it empty leaked the daemon and its port.
     for _ in range(100):
-        if (root/'pid').exists():
+        if (root/'pid').exists() and (root/'pid').read_text().strip():
             break
         time.sleep(.05)
     pid = int((root/'pid').read_text())
