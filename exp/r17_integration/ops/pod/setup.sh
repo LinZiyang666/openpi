@@ -11,6 +11,10 @@
 #   dp_libero: only what DP LIBERO serves from (the 4090 openpi .venv, LIBERO policy, CLIP text), ~9 GB;
 #   dp adds the MT50 server env (Fast-WAM venv + DP venv, Python 3.12), ~18 GB. Both pods dropped off
 #   together at 18 GB on 10-20 17:38 (no cause visible from inside the pod), so keep pods lean.
+#   fastwam_nfs: Fast-WAM MT50 served without umT5-xxl (campaign fastwam_text_table), ~37 GB, all on the NFS
+#   home ($BASE/fastwam): the Fast-WAM venv, R17 deps, LeRobot/FastWAM sources, the LIBERO base and MT50
+#   checkpoints, the Wan VAE + T5 file (read only for the model's content identity) + tokenizer, and the
+#   H100 prompt-encoding table. Modules <prefix>_{env,deps,lerobot,fwsrc,base,mt50,wan,table}.
 #   groot: the H100's GR00T MetaWorld server env, ~15 GB, all on the NFS home ($BASE/groot, not /tmp):
 #   its venv (6.8 GB, torch 2.5.1+cu124) and uv Python 3.11.16, the Isaac-GR00T source (code and Eagle
 #   tokenizer files are part of the model identity), its HF cache (trust_remote_code modules) and the
@@ -24,7 +28,7 @@
 #   <prefix>_ckpt = /data/mw_finetune/groot/4090_mt50/checkpoint-60000.
 # Re-running is cheap: rsync only copies what changed (groot skips trees already on the NFS home).
 set -euo pipefail
-MODEL=${1:?dp, dp_libero, fastwam or groot}
+MODEL=${1:?dp, dp_libero, fastwam, fastwam_nfs or groot}
 SRC=${2:?rsync url prefix}
 BASE=/home/ziyang10/zl_r17
 DATA=/tmp/zl_r17/data
@@ -65,6 +69,14 @@ G=$BASE/groot
 [ -d "$G/vendor/gr00t" ] && BINDS+=(-b "$G/vendor:/home/exouser/gr00t_n15")
 [ -d "$G/hf_home" ] && BINDS+=(-b "$G/hf_home:/home/exouser/.cache/huggingface")
 # Nested in the /data binding (proot resolves the deepest binding first).
+# Fast-WAM (setup.sh fastwam_nfs): NFS trees bound at the H100 paths, nested in the /data binding.
+F=$BASE/fastwam
+for pair in env:/data/mw_finetune/envs/fastwam deps:/data/mw_finetune/qualification/python_deps312 \
+            lerobot:/data/mw_finetune/vendor/lerobot fwsrc:/data/mw_finetune/vendor/FastWAM \
+            base:/data/mw_finetune/models/fastwam_libero mt50:/data/mw_finetune/fastwam/mt50_frozen_b128/policy_016001 \
+            wan:/data/xwam/wan22_5b table:/data/mw_finetune/fastwam_text_tables; do
+  [ -e "$F/.pulled_${pair%%:*}" ] && BINDS+=(-b "$F/${pair%%:*}:${pair#*:}")
+done
 C=$G/ckpt/4090_mt50/checkpoint-60000
 [ -f "$C/config.json" ] && BINDS+=(-b "$C:/data/mw_finetune/groot/4090_mt50/checkpoint-60000")
 d=$(mktemp -d /tmp/r17x.XXXXXXXX)
@@ -97,7 +109,7 @@ relink() {  # venv copied from the H100 (base /usr/bin/python3.12) -> this Pytho
 # 4. The server environment shared by DP and Fast-WAM: the Fast-WAM venv (torch 2.7.1+cu128),
 #    DP's read-only venv on top of it, and the small R17 dependency island.
 SRC_MODULE=${SRC}_mw
-if [ "$MODEL" != dp_libero ] && [ "$MODEL" != groot ]; then
+if [ "$MODEL" != dp_libero ] && [ "$MODEL" != groot ] && [ "$MODEL" != fastwam_nfs ]; then
   pull envs/fastwam "$D/envs/fastwam"; relink "$D/envs/fastwam"
   pull qualification/python_deps312 "$D/qualification/python_deps312"
 fi
@@ -126,6 +138,19 @@ elif [ "$MODEL" = fastwam ]; then
   pull qualification/observations/libero_original256_fix2_v1 "$D/qualification/observations/libero_original256_fix2_v1"
   SRC_MODULE=${SRC}_xwam pull wan22_5b "$DATA/xwam/wan22_5b"
   PROBE=/data/mw_finetune/envs/fastwam/bin/python
+elif [ "$MODEL" = fastwam_nfs ]; then
+  F=$BASE/fastwam
+  fpull() {  # <module> [rsync filters]: $F/<module>, marked $F/.pulled_<module>; mount point made under $DATA
+    if [ -e "$F/.pulled_$1" ]; then echo "have $1"; return; fi
+    mkdir -p "$F/$1"; "$BASE/tools/bin/rsync" -a --bwlimit=$BW --timeout=120 "${@:2}" "${SRC}_$1/" "$F/$1/"
+    touch "$F/.pulled_$1"; echo "pulled $1 ($(du -sh "$F/$1" | cut -f1))"
+  }
+  fpull env; relink "$F/env"
+  fpull deps; fpull lerobot; fpull fwsrc; fpull base; fpull mt50; fpull table
+  fpull wan --include=Wan2.2_VAE.pth --include=models_t5_umt5-xxl-enc-bf16.pth --include='google/***' --exclude='*'
+  mkdir -p "$D/envs/fastwam" "$D/qualification/python_deps312" "$D/vendor/lerobot" "$D/vendor/FastWAM" "$D/models/fastwam_libero" \
+           "$D/fastwam/mt50_frozen_b128/policy_016001" "$D/fastwam_text_tables" "$DATA/xwam/wan22_5b"
+  PROBE=/data/mw_finetune/envs/fastwam/bin/python
 elif [ "$MODEL" = groot ]; then
   G=$BASE/groot
   # <module suffix> <destination> [rsync filters]: one H100 tree per module, onto the NFS home. $G/.pulled_<suffix>
@@ -150,4 +175,5 @@ fi
 # 5. Probe under r17x: imports and the MIG slice.
 "$BASE/bin/r17x" $PROBE -c 'import torch,sys; print(sys.version.split()[0], torch.__version__, torch.cuda.is_available(), torch.cuda.get_device_name(0), [round(x/2**30,2) for x in torch.cuda.mem_get_info()])'
 [ "$MODEL" = groot ] && "$BASE/bin/r17x" $PROBE -c 'import time; t=time.time(); import flash_attn, transformers, gr00t.model.policy; from pathlib import Path; c=Path("/data/mw_finetune/groot/4090_mt50/checkpoint-60000"); print("gr00t imports", round(time.time()-t,1), "s; transformers", transformers.__version__, "flash_attn", flash_attn.__version__, "; checkpoint", sorted(p.name for p in c.iterdir()))'
+[ "$MODEL" = fastwam_nfs ] && "$BASE/bin/r17x" $PROBE -c 'import torch; from pathlib import Path; t=torch.load("/data/mw_finetune/fastwam_text_tables/table_h100.pt", weights_only=True); print("table", len(t["table"]), "; mt50", sorted(p.name for p in Path("/data/mw_finetune/fastwam/mt50_frozen_b128/policy_016001").iterdir())[:4], "; wan", sorted(p.name for p in Path("/data/xwam/wan22_5b").iterdir()))'
 echo "setup $MODEL done: $(du -sh "$DATA" | cut -f1) under $DATA"

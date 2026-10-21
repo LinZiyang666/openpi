@@ -1,4 +1,4 @@
-"""Copy a 4090 DP or H100 GR00T long-segment job (built, or already run) to a new job served on a jupyter pod.
+"""Copy a 4090 DP or H100 GR00T/Fast-WAM long-segment job (built, or already run) to a new job served on a jupyter pod.
 
 Only where the model is served changes: server_node 'h100' (bound to the pod by the
 R17_H100_NODE alias when filter_failed.stage runs), R replicas without MPS (DP 1, GR00T 2),
@@ -9,7 +9,9 @@ the frozen YAMLs name it (stall_path); stage installs the same snapshot at that 
 and at `local_assets` on the pod. The source directory is only read. The scheduler fields
 are dropped: stage places fleets afresh, and a pod server gets only the shared pool.
 GR00T serves from the H100 env, vendor and checkpoint that ops/pod/setup.sh groot installs
-on the pod and r17x binds at their H100 paths; the pod needs tunnels for its public port
+on the pod and r17x binds at their H100 paths; Fast-WAM likewise (setup.sh fastwam_nfs), R1 and built
+without umT5-xxl: prompt encodings come from the H100 table (fastwam_text_table, POD_TEXT_TABLE),
+which fits the 16 GiB slice (~14.5 GiB reserved at B16). The pod needs tunnels for its public port
 and R backend ports (formal_eval.POD_PROFILES).
 
     python -m exp.offline_search.rounds.r17.longseg_1017.pod_copy \
@@ -31,6 +33,7 @@ from . import io_budget as budget
 from exp.offline_search.rounds.r17.filter_failed_knob.common import read, REPO, sha
 
 H100_IP = '149.165.153.233'
+POD_TEXT_TABLE = '/data/mw_finetune/fastwam_text_tables/table_h100.pt'  # setup.sh fastwam_nfs binds it
 # Fields a prepare/launch adds or rewrites; a finished source drops them (stage recomputes).
 PREPARED = ('coordinator_runtime', 'local_worker_exception', 'orchestration', 'runtime_source_identity',
             'runtime_source_pins', 'worker_max_seconds', 'worker_node_failover', 'server_campaign',
@@ -114,7 +117,7 @@ def repin(name):
     return receipt
 
 
-def copy_job(source, name, pod, driver_port, *, replicas=None, memory_gib=14, startup_width=1):
+def copy_job(source, name, pod, driver_port, *, replicas=None, memory_gib=14, startup_width=1, max_batch=None):
     from exp.r17_integration.ops.formal_eval import POD_PROFILES
     if pod not in POD_PROFILES:
         raise ValueError('unknown pod '+pod)
@@ -123,10 +126,11 @@ def copy_job(source, name, pod, driver_port, *, replicas=None, memory_gib=14, st
         raise ValueError(str(root)+' exists')
     c = read(src/'campaign.json')
     dp = (c['server_node'], c['model']) == ('local', 'dp')
-    if not dp and (c['server_node'], c['model']) != ('h100', 'groot'):
-        raise ValueError('expects a 4090 DP job or an H100 GR00T job')
+    fw = (c['server_node'], c['model']) == ('h100', 'fastwam')
+    if not dp and not fw and (c['server_node'], c['model']) != ('h100', 'groot'):
+        raise ValueError('expects a 4090 DP job or an H100 GR00T/Fast-WAM job')
     if replicas is None:
-        replicas = 1 if dp else 2
+        replicas = 1 if dp or fw else 2
     ran = any((src/n).exists() for n in ('PREPARED.json', 'LAUNCH.json', 'RECEIPT.json'))
     origin = Path(c['filter_failed_source'])
     release = read(origin/'RUNTIME_RELEASE.json')
@@ -145,6 +149,12 @@ def copy_job(source, name, pod, driver_port, *, replicas=None, memory_gib=14, st
     before = {k: c.get(k) for k in resources}
     c.update(run_name=name, local_assets=str(root/'assets'), server_run=str(root/'servers'),
              cache_study=str(root/'STUDY.json'), prepare_only=True, **resources)
+    if fw:
+        c['fastwam_text_table'] = POD_TEXT_TABLE
+        if max_batch:  # B8 keeps the slice under ~14 GiB with a cache library (B16 reserves 14.5 GiB before it)
+            for doc in (c['fastwam_batching'], c.get('fastwam_batch_treatment', {}).get('batching', {})):
+                doc['max_batch'] = int(max_batch)
+            c['pod_copy_max_batch'] = int(max_batch)
     c['pod_copy'] = dict(source=str(src), source_ran=ran, pod=pod, driver_port=driver_port,
                          resources_before=before, resources_after=resources,
                          scientific_definition_unchanged=True,
@@ -188,11 +198,12 @@ def main():
     p.add_argument('--replicas', type=int, help='default: DP 1, GR00T 2')
     p.add_argument('--memory-gib', type=float, default=14)
     p.add_argument('--startup-width', type=int, default=1, help='replicas loading at once')
+    p.add_argument('--max-batch', type=int, help='Fast-WAM only: stage batch cap on the slice')
     a = p.parse_args()
     if a.repin_bridge:
         return repin(a.name)
     copy_job(a.source, a.name, a.pod, a.driver_port, replicas=a.replicas, memory_gib=a.memory_gib,
-             startup_width=a.startup_width)
+             startup_width=a.startup_width, max_batch=a.max_batch)
 
 
 if __name__ == '__main__':
