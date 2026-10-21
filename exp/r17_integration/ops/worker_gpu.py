@@ -19,14 +19,19 @@ DEFAULT_VRAM_MIB = 1024
 PROTECTED = {'timan108': {1, 2},'timan1':{0,1,2}}
 
 
+def protected_for(node, devices=None):
+    """Cards never queried or used. R16 on timan1 names our own minors 1/2 (GPU2/GPU1); PROTECTED['timan1'] is
+    the GPU3 island's view, which aliases its one card as device 3."""
+    if node == 'timan1' and devices and set(devices) <= {1, 2}:
+        return set()
+    return PROTECTED.get(node, set())
+
+
 def inventory(node, devices=None):
     """Skip protected GPUs before making any NVIDIA query; fail closed per card."""
-    excluded = PROTECTED.get(node, set())
-    if node == 'timan1':
-        if devices is not None and devices and set(devices) <= {1, 2}:
-            excluded = set()  # R16 renders directly on minors 1/2 = GPU2/GPU1, the cards authorized 10-18
-        else:
-            devices=[3]
+    excluded = protected_for(node, devices)
+    if node == 'timan1' and excluded:
+        devices=[3]
     if devices is None:
         devices = []
         for path in Path('/proc/driver/nvidia/gpus').glob('*/information'):
@@ -135,7 +140,7 @@ def admission(campaign, run, *, observed=None, ignore_index=None, count=None):
     if type(per_worker) is not int or per_worker < 1:
         raise ValueError('positive integer per-worker VRAM reservation required')
     requested_devices = campaign.get('worker_egl_devices')
-    protected = PROTECTED.get(campaign.get('worker_node'), set())
+    protected = protected_for(campaign.get('worker_node'), requested_devices)
     observed = inventory(campaign.get('worker_node'), requested_devices) if observed is None else observed
     cards = {c['device']: c for c in observed if c.get('usable') and c['device'] not in protected and
              (requested_devices is None or c['device'] in requested_devices)}

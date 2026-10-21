@@ -90,8 +90,9 @@ class Slots:
         from exp.r17_integration.ops import worker_gpu as g
         with self.observation_lock:
             if time.monotonic()-self.observed_at>20:return None
+            protected = g.protected_for(self.c.get('worker_node'), self.c.get('worker_egl_devices'))
             return dict(time=self.observed_at,cards=[dict(c) for c in self.observed
-                if c.get('usable') and c['device'] not in g.PROTECTED.get(self.c.get('worker_node'),set())])
+                if c.get('usable') and c['device'] not in protected])
 
     def acquire(self, index):
         from exp.r17_integration.ops import worker_gpu as g
