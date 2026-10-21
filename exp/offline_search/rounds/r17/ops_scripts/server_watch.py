@@ -142,17 +142,21 @@ def main():
             # A replica is one host process; at ~100% CPU it is saturated even with the GPU half idle (GR00T).
             replicas_busy = bool(d and d['server_cpu']) and sum(c >= 85 for c in d['server_cpu']) >= len(d['server_cpu']) / 2
             hungry = bool(d and serving and d['gpu_mean'] is not None and d['gpu_mean'] < STARVED_UTIL and not replicas_busy and room)
-            # Two rounds in a row: an R15 arm or a batch starting from zero workers is not starvation.
+            # Two rounds in a row: a batch starting from zero workers is not starvation. R15/R16 batches report no
+            # rate to the central scheduler and restart servers and workers every arm (~1.5 min idle, 10-21 18:30 false
+            # alarm when two samples hit arm boundaries), so a server serving only those needs three rounds.
             starved[s] = starved.get(s, 0) + 1 if hungry else 0
-            if starved[s] >= 2:
+            need = 3 if serving and all(batches[b]['rate'] is None for b in serving) else 2
+            if starved[s] >= need:
                 alerts.append(f'{s} GPU {d["gpu_mean"]}% (min {d["gpu_min"]}), replica CPU {d["server_cpu"]} '
-                              f'serving {serving}; room on {room} (2 rounds)')
+                              f'serving {serving}; room on {room} ({need} rounds)')
         for b, v in batches.items():
             if v['done']:
                 continue
             if v['rate'] is not None and last.get(b) and v['rate'] < 0.5 * last[b]:
                 alerts.append(f'{b} rate {last[b]} -> {v["rate"]}/min (active {v["active"]}, target {v["target"]})')
-            idle[b] = idle.get(b, 0) + 1 if v['active'] == 0 else 0
+            # R15/R16 (no scheduler rate) bring their own worker fleets; the scheduler shows them as 0 active.
+            idle[b] = idle.get(b, 0) + 1 if v['active'] == 0 and v['rate'] is not None else 0
             if idle[b] >= 2:
                 alerts.append(f'{b} has no active workers for {idle[b]} rounds (desired {v["desired"]})')
             if v['rate'] is not None:
