@@ -65,6 +65,13 @@ owner 的常驻指令，逐字有效：
 - floors 现 `{"fa_ls_dp_f_f_m_j": 32, "fa_ls_v11_0": 70}`。
 - 在调研（opus 只读）：H100 队列 ~88 h（4 批 FW MT50 旋钮下降 ~42 h）vs 4090 ~22 h；旋钮下降批次 IR 离线算、可换卡 → 考虑 FW/GR00T MT50 旋钮下降挪 4090、DP LIBERO 旋钮下降挪 pod（需装 openpi 环境）。结论回来前不动队列。
 
+**20:1x 增补（⛔ 拔哈希核验；缓存部件研究跑起来；pod / h100-temp 续）**
+- ⛔ owner：「部署文件做哈希核验这些奇怪的东西你见到都拔了」（已写记忆 feedback-keep-it-simple）。已拔：R16 驱动启动的源码锁 verify/stable、read_group/verify_pack 哈希（1dc72173）；formal_finalize 的「汇总不是 PASS 就抛错」改为只记 aggregate_status（b8c7bccf）；后台证据整理器出错不再判 FAIL，改 PASS + evidence_incomplete（dad086b4，新准备的批次生效）。分析只要求 RECEIPT.json 存在，FAIL 回执的数据照用。
+- 缓存部件研究（#135）：19:11 被 R16 源码锁拒 → 拔掉；19:3x 本机 R16 worker 在 π0.5 R3 占满 4090 显存（23/24 GB）时 import mujoco 时 EGL 找不到设备、无限重启，而中央调度器本机优先、timan107 给 0 → b4aeab3f `conductor_runner --no-local-workers`（两个研究 launch 已带）。重启方法：hold 链 → kill -TERM runner（INTERRUPTED，常驻服务端保留）→ 等 timan107 上旧 agent 退出（锁）→ 新链（ALREADY_STARTED 复用服务端）。**g4090ag** 20:03 起 fa_cs_pi_r（20:08 62 局，timan107 ~21 worker）→ fa_cs_gr_r。floor fa_cs_pi_r=64。
+- jupyter：-02 的 v09_0_j4 收齐 6,350 局（回执 FAIL 只因证据整理器在 pod 上 snapshot 不到 run manifest）；v04_0_j2 因源批次 R2 没开桥接被拒 → pod_copy 一律开 ffk_dp_capacity_bridge（commit 见 log），v04_0 重复制为 _j3，v06_0_j2 手动加旗标。链 **pod2j**（遇失败不停）v04_3_j2 → v06_0_j2，**pod2k** 接 v04_0_j3；**pod1j** v09_1_j4（33,650 局）在跑。
+- h100-temp：v02_s 链 60,000/60,000 齐；fa_ls_v05_0 20:05 PASS（4,023 局）；按队尾领 **fa_ls_v05_4**（领取文件 mw/claim_h100temp_fa_ls_v05_4，链 h100tmp20）。下一个队尾是 v05_3。
+- floors：`{v09_1_j4, v04_3_j2, v06_0_j2, v04_0_j3: 32, fa_cs_pi_r: 64, fa_ls_v05_4: 48}`。
+
 **18:5x 增补（h100-temp：c3 + 从 H100 队尾领 v05_0）**
 - fa_ls_v02_s_c2（Fast-WAM · MetaWorld，h100-temp）18:46 收齐 50,108 局，回执 FAIL：587 局重试耗尽（服务端 CUDA OOM：R3 三个 ~26 GiB 副本把 80 GB 卡占满；RUN_CONFIGS 的 FW 一节本就写 R3 放不下）。错误集中 18:15–18:31，之后 0 错。c3 = 这 587 局（`resume --remaining --verify-closed`，⚠ 必须带 h100-temp alias 环境，否则去本机找 mps_guard.process.json）。
 - h100-temp 链 **h100tmp18**（alias 环境在链进程上）：fa_ls_v02_s_c3 → **fa_ls_v05_0**（Fast-WAM · LIBERO · 缓存变体 4,023 局，H100 链 h100m26 的最后一项）。领取守卫：`filter_failed_knob/commands/prepare_fa_ls_v05_0.sh` 在无 alias 且存在 `mw/claim_h100temp_fa_ls_v05_0` 时 exit 3（原件 `.before_h100temp_claim`）。v05_0 的 worker 只在 timan107（不在 h100-temp）。⚠ 若 h100-temp 中途被停：不重跑、通知 owner；v05_0 删领取文件让 H100 链跑或建续批。floors 加 c3:120、v05_0:48，去掉 c2。
