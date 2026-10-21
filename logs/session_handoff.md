@@ -52,7 +52,7 @@ owner 的常驻指令，逐字有效：
 
 
 
-## 1. 现在在哪（2026-10-21 00:3x CDT；**最先读「10-21 00:3x 增补」，再读「10-21 00:0x 增补（compact 前总状态）」，再读「22:5x」「22:1x」「21:4x」增补，再读「21:3x 增补（compact 前总状态）」**，再读 20:5x 旧门事故、其余增补与 09:4x 总状态，再读其后各增补（09:29 → 21:2x 倒序）与 10-19 21:0x 总状态；10-14 及更早只作背景）
+## 1. 现在在哪（2026-10-21 11:5x CDT；**最先读「10-21 11:5x 增补（compact 前总状态）」，再读「10-21 00:3x 增补」，再读「10-21 00:0x 增补（compact 前总状态）」，再读「22:5x」「22:1x」「21:4x」增补，再读「21:3x 增补（compact 前总状态）」**，再读 20:5x 旧门事故、其余增补与 09:4x 总状态，再读其后各增补（09:29 → 21:2x 倒序）与 10-19 21:0x 总状态；10-14 及更早只作背景）
 
 ### ★★★★★★★★★★★★★★★★★★★★★★★★ 2026-10-20 09:4x CDT 总状态（compact 后最先读这块）
 
@@ -64,6 +64,37 @@ owner 的常驻指令，逐字有效：
 - 处置：09:56 按 PID SIGSTOP 复制 rsync（3726105/3726106/3729764）和两个 governor（3343372/3951564）。效果（同一时刻对比）：Cosmos 15→60 局/分、pod2 DP 85→250、v11_0 50→125（v11_0 同时 floor 40→70）。⛔ **复制保持暂停**；剩 ~190 GB（eval 533/~720 GB）以后找没有 driver 在跑、或可接受的短窗口一次性不限速跑完，不要再长时间节流慢跑。恢复命令：`kill -CONT 3343372 3951564 3726105 3726106 3729764`。记忆 reference-weilandserver-data 已加这条。
 - floors 现 `{"fa_ls_dp_f_f_m_j": 32, "fa_ls_v11_0": 70}`。
 - 在调研（opus 只读）：H100 队列 ~88 h（4 批 FW MT50 旋钮下降 ~42 h）vs 4090 ~22 h；旋钮下降批次 IR 离线算、可换卡 → 考虑 FW/GR00T MT50 旋钮下降挪 4090、DP LIBERO 旋钮下降挪 pod（需装 openpi 环境）。结论回来前不动队列。
+
+**10-21 11:5x 增补（compact 前总状态；00:3x 之后的一切，先读这块）**
+
+在跑（11:48 实测）：
+- **H100**：链 **h100m28**（chain_ffk）= 原库 · Fast-WAM · MetaWorld · 全步 · 旋钮下降 `fa_ls_fw_f_u_m`（08:35 起，37,363/90,000，~211–239 局/分，GPU 只有 31%：两副本 OMP=4 各 ~345% CPU，整机负载 9/20）→ v02_b（**campaign 已设 server_threads=8**，原件 .before_threads_1021；看提速）→ fw_f_f_l_l → fw_f_u_l_l → v08_1 → fw_r_u_m → fw_f_f_m → fw_r_f_mc2 → v05_1_rz → v05_2_rz（⚠ 最后两批 vfix retry 会在 /data 上改名，轮到前要处理）。成功过滤库 · GR00T · MetaWorld · 缓存变体 v03_0 + v03_1(+c1) 全齐（95,594）。
+- **H100 R15**：原库 · π0.5 · LIBERO · 全步 · Q3 各档 `fa_pi_f_u_l_q`（多机 timan107+timan1）l50/l100/l200 已完，l500 起两次失败：07:48 WORKERS_BUSY（已修 da7e1bf2）、11:40 **GPU_TIGHT free=18129 need=27000**（H100 被 FW 的 76 GiB 预算占着，3 个 π0.5 副本放不下）。链 h100q3/h100q4 都 STOPPED（有 hold）。后面 fa_pi_f_f_l_q（成功过滤库，16,000，单机）也没跑。**待办**：两批（剩 ~26,000 局）要么挪 4090（R15 本机服务端，需按 SERVER_HOST=local 重新 prepare；4090 卡 48 GB 放得下 3×9 GB），要么在 H100 两批 FW 之间串行插进去（+~11 h）。推荐挪 4090，排在 g4090bb 之后。续跑脚本 commands/{prepare,launch}_fa_pi_f_u_l_q_r.sh（prepare 是空操作，launch 跳过已完成 arm）。
+- **4090**：链 **g4090ba**（chain_ffk_stop2）= 原库 · π0.5 · LIBERO · 减步 · Q3 各档 `fa_pi_r_u_l_q`（11:21 起，~87 局/分，GPU 100%）→ 成功过滤库同类 `fa_pi_r_f_l_q`（各 16,000，~3 h 一批）→ 链 **g4090bb** 等 `[ffk-g4090ba] queue done`：`fa_gr_f_f_o_q_r`（成功过滤库 · GR00T · 全步 · Q3 旋钮关续跑，多机，07:57 因 23100 端口释放超时停，已修）→ fa_cs_pi_rg → fa_cs_gr_rg（带门四组，启动脚本已加 `--groot-suite-servers 3,1`）。GR00T 旋钮关全齐后跑 build_levels_fa_gr_{f,r}_{u,f}_l_q.sh 建 GR00T 各档四批再排。
+- **jupyter-ziyang10-02**：原库 · GR00T · MetaWorld · 全步 · 旋钮下降续跑 `fa_ls_gr_f_u_m_jc1`（80,745/88,693，~145–154 局/分，只 ~10 个 A100 worker；它的 timan107 worker 组 06:53 被旧守卫退役后已结束，没恢复），~1 h 完。链 pod2gr2。
+- **jupyter-ziyang10**：成功过滤库 · GR00T · MetaWorld · 全步 · 旋钮下降 `fa_ls_gr_f_f_m_j`（70,157/90,000）。**worker 越多越慢**：159 个时 85 局/分，caps 限 30 后 136–183 局/分（A100 9 + timan107 21）。链 pod1gr1。~2–2.5 h 完。两台 pod 跑完后没有现成能接的活（MIG 只放得下 GR00T/DP，剩下的 GR00T 都在 R15/R16，只支持 4090/H100 服务端）。
+- 调度器（A100 run_23500）：floors `{jc1:32, gr_f_f_m_j:32}`，caps `{gr_f_f_m_j:30}`（批结束要撤）。
+- 巡检 server_watch（后台 benhe4zxc，每 10 min）：server 连续两轮饿着、局速腰斩、批次两轮无 worker、**链日志出现 STOPPED/FAILED** 就打印 ALERT 并退出 → 处理后重挂。
+
+估算（11:1x）：H100 Fast-WAM 队列 ~44 h（瓶颈），4090 ~24 h，pod ~1–2.5 h。建议（未执行，等 owner 点头）：FW LIBERO 那几批（v08_1 + 全步各档两批 ~15 h）挪到 4090，两台约 10-22 晚上齐；h100-temp 若再借可接一批 FW MetaWorld。
+
+owner 本段新规定/决定（已写记忆）：
+- 「你压低他干啥呢，你是心疼服务器跑着累吗」：⛔ 不准为给 worker 机减负压批次的 worker（feedback-dynamic-worker-count）。例外是证据表明 worker 多反而变慢（pod），或别的 server 被饿着。
+- /data 现在不写，原件（*.data_old_1021）先留着。
+- 「你把磁盘能清理的清了」→ 已清（见下）；剩三块等 owner：timan107 `/scratch/zixuans8/Isaac-GR00T`（33 GB，8 月 RoboCasa 老环境，无进程/环境引用）、H100 `/data/mw_finetune/eval` 里 107 个 10-17 前无回执的老目录（~109 GB，可能是服务端日志唯一一份）、H100 `/data/dp_h100`（129 GB，9 月 DP 环境 + x0_multimodal 109 GB，归属不明）。
+- h100-temp：机主 10-21 13:0x 在线跑 CPU 脚本和 codex，GPU 空着；owner 给它挂了借来的盘 **/media/volume/OmniDataVol**（/dev/sdc 1000 G，已用 105 G、剩 880 G，可写）。⛔ 盘上原有数据（.cache、.conda、vllm-omni-profile）不准删不准动，我们只在自建子目录（如 ziyang_r17）写（记忆 feedback-devices-and-gpus）。要不要借 h100-temp 跑 FW 等 owner。
+
+本段做的事（全推 origin Ziyang）：
+- 迁移完成：37 个排队目录（00:37）、C2 大复制（02:58–04:41，572 GB）、R16 island（06:14）、**06:36 /data/mw_finetune/eval、06:37 /data/r17_library、/data/r17_frozen 原子换成指向 /nvme 的软链**；54 个旧门副本挪 /nvme/weiland/openpi/_trash_oldgate_20261020/eval；/data 上已无写入进程。
+- 调度器：38585197（副本 CPU 用满线程预算也算饱和）→ 573013d6（只算本批 backend 端口上的进程；整机算法曾把 v03_1 按在 14 个 worker）；abc44049（caps 也约束第二轮）；229c69b1（加了不提速时第一轮只报最后有效数量）。
+- 服务端 b10473e1（#206 代理 00:35 卡死后由我审完提交）：每副本一个模型线程（命中 64→20 ms、未命中 110→58 ms）；线程按机器：H100 SERVER_CORES=10（GR00T R5→2 线程：**325–378 局/分、GPU 100%**；OMP=4 时 179、GPU 37%）。RUN_CONFIGS 已记（3d1c05e1）。Q3 树 openpi_r16_q3_server 的 serve_groot_libero.py 也原地加了单模型线程。
+- R16：f35c4c74 `--groot-suite-servers L10,SPATIAL`（spatial 220 步先完，2+2 时尾巴减半）；2e644988 driver 允许没活的套件无 endpoint；fa_cs_gr_r 用 4,0 收尾（41→54 局/分），02:56 收齐。
+- R15：d2320e5b 多机（WORKER_HOSTS 开启；timan107 只收校园连接、timan1 在 NAT 后，四台时 driver 只能 a100）+ **push/pull 从 tether push/pull 改公网 rsync**；da7e1bf2 收尾杀本 root 掉队 worker、本地服务停机预算 180 s；cb4cb010 R15 analyze served-fit 哈希只记录（参照 fit 反序列化撞旧门对象）。R15 测试 45 个失败（26 旧 + 写死旧 tether push/pull）待改。
+- 拔锁 78d0a79e（MATRIX §4.3 大部分）；剩 formal_eval:395-399 config sha、vla_workers worker.sha256、closed_loop node.py（已拔 SHA mismatch）。
+- 停掉 10-18 的 timan107 内存守卫 t107_mem_guard.sh（会永久退役节点；现有 NodeExecutor 内存底线）。
+- server_watch：两轮才报饿 + 报链失败（ops_scripts 副本已提交）。
+- Q3：π0.5 旋钮关四批 + GR00T 减步两批 + GR00T 全步原库已齐；π0.5 各档四批已建（cb4cb010）。
+- 磁盘：timan107 删 324 个已完成批次 worker 目录（27 GB，96%→82%，根盘 212 G 里 /scratch 148 G：我们 70、key4 54、yurenh2 24）；H100 /data 删 97 个已完成无引用副本（41 GB）+ /data/r17_formal_moved（58 GB）→ 85%；h100-temp 删我们的 sprof_1020（16 GB）；pod /tmp 删已完成 DP 副本。
 
 **10-21 00:3x 增补（compact 后接着办；owner 00:2x「我睡觉了独自推进」）**
 - v09_1_j4（成功过滤库 · DP · LIBERO · 全步 · 各档）00:05 收齐 33,650 局，floor 已撤。
