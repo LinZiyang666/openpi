@@ -18,7 +18,7 @@ FRESH_S = 90  # a node snapshot older than this no longer counts
 START = 64  # first desire (10-20: 16 left a fresh LIBERO batch ~15 min below its ~100-worker need while it doubled)
 SETTLE_S = 120  # after a step, wait at most this long for live workers to reach 95% of desired
 MEASURE_S = 180  # accepted-rate window after a step
-HOLD_S = 900  # time in hold before one probe step
+HOLD_S = 300  # time in hold before one probe step (owner 10-20: keep exploring upward)
 BUSY_UTIL = 90  # server GPU utilization (%) that forces hold
 STABLE_TOLERANCE = .15  # the shared pool is steady once its active workers reach 85% of the targets' total
 MIX_TOLERANCE = .2  # windows whose cohort (yaml) shares differ more than this are not comparable
@@ -42,9 +42,13 @@ def atomic(path, value):
 
 
 def helped(before, after):
-    """A step helped unless the rate gained less than a third of its proportional share."""
+    """A step helped if the accepted rate rose at least 5%.
+
+    The old bar (a third of the proportional share) failed every large step: workers added at the step have not
+    finished their first episode inside the 180 s window (10-20: 20 -> 92 workers, 29.5 -> 45.4 per minute, judged
+    a failure and cut back to 20)."""
     (rate0, active0), (rate1, active1) = before[:2], after[:2]
-    return active0 <= 0 or rate1 - rate0 >= rate0 * (active1 - active0) / (3 * active0)
+    return active0 <= 0 or rate1 >= 1.05 * rate0
 
 
 def comparable(before, after):
@@ -175,9 +179,10 @@ class BatchClient:
                     step = max(4, math.ceil(active / 4)) if self.failed else max(8, active)
                     self.desired, self.phase, self.since = active + step, 'settle', now
                 else:
-                    # Hold at the count before the step: holding at `active` would keep every failed step.
+                    # Hold at the current count, never below it: a step that did not show in one window
+                    # has not cost anything, and cutting back starves the batch (owner 10-20).
                     self.failed = True
-                    self.desired, self.phase, self.since = round(self.base[1]), 'hold', now
+                    self.desired, self.phase, self.since = max(active, round(self.base[1])), 'hold', now
                 self.note('step', rate=point[0], mean_active=point[1], base=self.base)
         elif not busy and now - self.since >= HOLD_S:
             rate, mix = self.window(now - MEASURE_S, now)
