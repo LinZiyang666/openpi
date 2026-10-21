@@ -20,6 +20,7 @@ STARVED_UTIL = 60
 LOG = Path('/home/weiland/projects/openpi_ext/scratch/r17_ops/server_watch.log')
 EVAL = (Path('/data/mw_finetune/eval'), Path('/nvme/weiland/openpi/eval'))
 WORKER_NODES = ('timan107', 'timan1', 'a100')
+CHAIN_LOG = Path('/home/weiland/projects/openpi_ext/scratch/r17_ops/mw/chain.log')
 
 
 def sh(argv, timeout=60):
@@ -112,6 +113,7 @@ class Rates:
 
 def main():
     rates, last, idle, starved = Rates(), {}, {}, {}
+    chain_offset = CHAIN_LOG.stat().st_size  # only failures from now on
     while True:
         now = time.time()
         servers = {'local': probe('local'), 'h100': probe('h100')}
@@ -128,6 +130,12 @@ def main():
         with LOG.open('a') as out:
             out.write(json.dumps(row) + '\n')
         alerts = []
+        # A chain that stops on a failure leaves its machine idle until someone restarts it (10-21: 4090 idle 3.5 h).
+        size = CHAIN_LOG.stat().st_size
+        with CHAIN_LOG.open() as f:
+            f.seek(chain_offset)
+            alerts += [l.strip() for l in f.read().splitlines() if 'STOPPED after failure' in l or 'FAILED' in l]
+        chain_offset = size
         room = [n for n, w in workers.items() if w and w['load'] < 0.8 * w['cores'] and w['ram_free_gib'] > 30]
         for s, d in servers.items():
             serving = [b for b, v in batches.items() if v['server'] == s and not v['done']]
