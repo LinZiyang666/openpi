@@ -7,6 +7,7 @@ campaign with the source fleet closed/isolated, never an in-place driver restart
 """
 from __future__ import annotations
 
+from collections import deque
 from dataclasses import asdict, replace
 import argparse
 import fcntl
@@ -83,6 +84,13 @@ class AsyncQueue(CompatibleEpisodeQueue):
             if not accepted:raise RuntimeError('durable result rejected by scheduler')
 
 
+# Infrastructure circuit breaker: an unreachable server turns every remaining episode into a fast
+# retry-exhausted failure (10-21: EMFILE on the H100 proxy, then two pods lost at 17:41 burned ~150k
+# episodes). Past this many such terminals within the window the driver stops dispatching; the rest
+# stays unaccepted for a resume instead of being recorded as policy failures.
+INFRA_BREAKER_ERRORS, INFRA_BREAKER_WINDOW_S = 50, 120
+
+
 class AsyncCampaignDriver(ProbeRecordingDriver):
     def __init__(self,strategy,*,evidence_directory,live_fleets=False,**kwargs):
         directory=Path(evidence_directory)
@@ -92,6 +100,7 @@ class AsyncCampaignDriver(ProbeRecordingDriver):
         super().__init__(strategy,**kwargs)
         self.evidence=(GroupCommit(directory,extra_streams=('fleet_dispatch.jsonl',)) if live_fleets
                        else GroupCommit(directory))
+        self._infra_exhausted, self.infra_breaker = deque(), None
         self._scheduler=AsyncQueue(self._graph,endpoints=strategy.endpoints,
             dispatch_path=directory/'dispatch.jsonl',evidence=self.evidence,**(kwargs.get('scheduler_kwargs') or {}))
         if hasattr(strategy,'bind_driver'):strategy.bind_driver(self)
@@ -130,6 +139,12 @@ class AsyncCampaignDriver(ProbeRecordingDriver):
                 status='done' if result.success else 'failed',success=result.success,ts=time.time(),
                 attempt=result.attempt,accepted=accepted,run_id=self._run_id)
             if result.error is not None:record['error']=result.error
+            if accepted and result.error and 'retry budget exhausted' in result.error:
+                now=time.time();window=self._infra_exhausted;window.append(now)
+                while window and window[0]<now-INFRA_BREAKER_WINDOW_S:window.popleft()
+                if len(window)>=INFRA_BREAKER_ERRORS and self.infra_breaker is None:
+                    self.infra_breaker=dict(time=now,errors=len(window),window_s=INFRA_BREAKER_WINDOW_S,last_error=result.error[:300])
+                    print('INFRA_BREAKER', json.dumps(self.infra_breaker), flush=True)
             if result.duration_s is not None:record['duration_s']=round(float(result.duration_s),3)
             evidence['journal.jsonl']=[record]
         def committed():
@@ -179,7 +194,7 @@ def run(campaign,directory):
     started=time.monotonic();error=None;commit=None
     try:
         driver.run(stop=lambda:stopped or bool(driver.probe_rejections) or driver.evidence.failure is not None or
-                   time.monotonic()-started>campaign['seconds'])
+                   driver.infra_breaker is not None or time.monotonic()-started>campaign['seconds'])
     except Exception as exc:error=repr(exc)
     finally:
         try:commit=driver.close()
@@ -190,7 +205,7 @@ def run(campaign,directory):
                     driver.worker_shutdown['status']=='PASS' else 'PARTIAL',all_done=driver.scheduler.all_done(),
                     elapsed_seconds=time.monotonic()-started,worker_shutdown=driver.worker_shutdown,
                     rejected_worker_probes=len(driver.probe_rejections),error=error,group_commit=commit,
-                    orchestration=campaign.get('orchestration'))
+                    orchestration=campaign.get('orchestration'),infra_breaker=driver.infra_breaker)
         write_json(directory/'DRIVER_RECEIPT.json',report);lock.close()
     raise SystemExit(0 if report['status']=='PASS' else 2)
 

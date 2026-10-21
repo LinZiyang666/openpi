@@ -731,7 +731,7 @@ def run_driver(campaign,directory):
     start=time.monotonic();error=None;commit=None
     try:
         driver.run(stop=lambda:stopped or bool(driver.probe_rejections) or driver.evidence.failure is not None or
-                   time.monotonic()-start>campaign['seconds'])
+                   getattr(driver,'infra_breaker',None) is not None or time.monotonic()-start>campaign['seconds'])
     except Exception as exc:error=repr(exc)
     finally:
         try:commit=driver.close()
@@ -741,7 +741,7 @@ def run_driver(campaign,directory):
             driver.worker_shutdown['status']=='PASS' else 'PARTIAL',all_done=driver.scheduler.all_done(),
             elapsed_seconds=time.monotonic()-start,worker_shutdown=driver.worker_shutdown,
             rejected_worker_probes=len(driver.probe_rejections),error=error,group_commit=commit,
-            orchestration=campaign.get('orchestration'))
+            orchestration=campaign.get('orchestration'),infra_breaker=getattr(driver,'infra_breaker',None))
         atomic_json(directory/'DRIVER_RECEIPT.json',report);lock.close()
     raise SystemExit(0 if report['status']=='PASS' else 2)
 
