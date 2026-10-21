@@ -288,7 +288,16 @@ class QueueScheduler(EpisodeScheduler):
             self._refresh_activation()
             ready=[sid for sid,rt in self._rt.items() if rt.state==StageState.READY and rt.pending]
             if not ready: return None
-            ready.sort(); sid=ready[self.cursor % len(ready)]; self.cursor+=1
+            ready.sort()
+            # Work for the least-loaded endpoint first: sorted stage names cluster by suite, so a plain cursor
+            # handed one suite's residents ~160 tasks in a row while the other suite's sat idle (10-20: GR00T
+            # spatial residents at 0% CPU, libero_10 at 100%, 4 replicas serving like 2).
+            def load(sid):
+                suite=self._ep_index[self._rt[sid].pending[0]][1].experiment
+                return min((self.endpoint_load[k] for k,suites in self.endpoints.items() if suite in suites),default=0)
+            loads={sid:load(sid) for sid in ready}
+            least=min(loads.values()); ready=[sid for sid in ready if loads[sid]==least]
+            sid=ready[self.cursor % len(ready)]; self.cursor+=1
             rt=self._rt[sid]; uid=rt.pending.pop(0); ep=self._ep_index[uid][1]
             compatible=[key for key,suites in self.endpoints.items() if ep.experiment in suites]
             if not compatible: raise ValueError('No checkpoint-compatible server')
