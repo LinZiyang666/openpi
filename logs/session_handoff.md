@@ -74,6 +74,8 @@ owner 的常驻指令，逐字有效：
 - §4A3：$CLAUDE_JOB_DIR/tmp/a3_island.sh 在等 fa_cs_gr_r ended → hold g4090ar → R16 island（37 MB）搬 /nvme → 起 **g4090as**（chain_ffk_stop2，同一串 Q3 批次）。日志 a3_island.log。
 - jupyter-ziyang10-02：jc1（原库 · GR00T · MetaWorld · 全步 · 旋钮下降续跑 88,693，R1/14 GiB，/nvme）链 **pod2gr2** 00:24 start，floor 32。
 - jupyter-ziyang10：领 H100 队列的 fa_ls_gr_f_f_m（成功过滤库 · GR00T · MetaWorld · 全步 · 旋钮下降 90,000）→ pod 副本 **fa_ls_gr_f_f_m_j**（R1/14 GiB，端口 23470/23471，驱动 23193，/nvme），领取文件 mw/claim_pod1_fa_ls_gr_f_f_m（prepare 守卫原件 .before_pod1_claim）。链 **pod1gr1** 00:24 prepare；起跑后加 floor 32。-10 的 /tmp/zl_r17 已 21 GB（17:38 两台 pod 在 18 GB 时一起掉过线，原因不明）。
+- 00:2x 我用 caps.json 把 fa_cs_gr_r 压到 120（想给 timan107 负载 69/48 腾 CPU），owner：「你压低他干啥呢，你是心疼服务器跑着累吗」→ 00:29 已撤，caps.json = {}。规矩已写进记忆：不准为 worker 机减负砍批次 worker。代码 abc44049（cap 也约束分配器第二轮）留着，只在批次自己的测量坏掉时用。
+- 78d0a79e 拔 MATRIX §4.3 大部分锁；formal_eval:395-399、vla_workers:39,48、closed_loop h100/node.py 三处等 #206 代理交回再拔。
 - 还要做：§4B 在跑批次跑完后整目录搬（v03_0、fa_pi_f_u_o_q_*、fa_cs_gr_r、fa_ls_gr_f_u_m_j）；§4C2 剩 ~190 GB 等 /data 上没有 driver 写时不限速重跑（排除软链）；C3 核对；C4 整个 eval 换软链。#206 线程/批处理代理还在跑（在 h100-temp 空卡上做 40 s 短测，已提醒机主一用就停）。
 
 **10-21 00:0x 增补（compact 前总状态；22:5x 之后的一切，先读这块）**
