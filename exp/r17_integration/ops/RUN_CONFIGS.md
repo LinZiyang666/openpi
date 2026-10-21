@@ -784,6 +784,15 @@ DP K100 (10x the denoising work per call) is a poor fit. Fast-WAM does not load 
 while `raw_wan.load_text` moves the umt5-xxl encoder (11.4 GB bf16) to the GPU next to the 12 GB policy;
 `fastwam_text_cache` moves T5 off only after loading. Serving it needs a loader that keeps T5 on the CPU
 from the start (the 4090 text-cache lane measured 13.5 GB per replica at B16), a model-side change.
+**Superseded 2026-10-21 (cd8b73d5, 287b6fc4): Fast-WAM is served without umT5-xxl.** `models/fastwam/text_table.py`
+precomputes every campaign prompt's T5 context (batch 1; on the H100 batch-2..16 rows are bitwise equal to batch 1, 62/62)
+into `table_h100.pt` (89 prompts, MT50 49 + LIBERO 40; H100 `/home/exouser/fw_text_tables/`, local `/nvme/weiland/openpi/fw_text_tables/`).
+Campaign `fastwam_text_table` (absolute path on the serving machine) builds the policy without T5 and makes `encode_prompt` a lookup;
+`longseg_1017/runtime_fix` overlays the four files into inherited releases. H100: ~14 GB per replica instead of 27 (fa_ls_v02_b: 44 GiB
+for R2). Pods: `setup.sh fastwam_nfs` (NFS home, both pods share it) + `pod_copy --source <H100 FW job> --memory-gib 15.5 --max-batch 8`.
+Slice probe (MT50, no library): 12.64 GiB after load; B16 peak 13.66 / reserved 14.48 GiB; K10 B8 0.91 s, B16 1.72 s; K3 B8 0.45 s,
+B16 0.84 s. Pods run B8 (a cache library on top of B16 is too close to 16 GiB). `fa_ls_fw_r_p_m_j` (pure K3 reference) ran ~40 episodes/min,
+0 errors. Fast-WAM is not cross-card equivalent (xgpu_1017), so each pod batch has its pod same-card pure reference at the same B8.
 On the slice any CUDA out-of-memory surfaces as `NVML_SUCCESS == r INTERNAL ASSERT FAILED at
 CUDACachingAllocator.cpp:1016`: PyTorch's OOM report calls NVML, which the container may not query.
 
