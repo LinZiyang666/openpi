@@ -180,10 +180,12 @@ class BatchClient:
                     step = max(4, math.ceil(active / 4)) if self.failed else max(8, active)
                     self.desired, self.phase, self.since = active + step, 'settle', now
                 else:
-                    # Hold at the current count, never below it: a step that did not show in one window
-                    # has not cost anything, and cutting back starves the batch (owner 10-20).
+                    # The first claim is the last count that paid off; the workers above it stay through the
+                    # allocator's work-conserving pass while nobody else needs them, so nothing is cut back
+                    # (owner 10-20) but idle-waiting workers no longer outrank another batch's starving server
+                    # (10-21: pod workers at 0.006 cores held timan107's RAM, the 4090 R15 batch got 26).
                     self.failed = True
-                    self.desired, self.phase, self.since = max(active, round(self.base[1])), 'hold', now
+                    self.desired, self.phase, self.since = round(self.base[1]), 'hold', now
                 self.note('step', rate=point[0], mean_active=point[1], base=self.base)
         elif not busy and now - self.since >= HOLD_S:
             rate, mix = self.window(now - MEASURE_S, now)
