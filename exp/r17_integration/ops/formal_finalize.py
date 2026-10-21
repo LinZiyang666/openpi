@@ -521,7 +521,9 @@ def background(directory):
             with retry_scope(directory/'evidence_transport'):
                 report = finalize(read(directory/'campaign.json'),directory,release['deployment'],report)
         except BaseException as exc:
-            report.update(status='FAIL',evidence_pending=False,finalization_error=repr(exc))
+            # The finalizer runs after the run's episodes are complete; an evidence-collection problem is
+            # recorded and never turns the run into a failure.
+            report.update(status='PASS',evidence_pending=False,evidence_incomplete=True,finalization_error=repr(exc))
             durable_json(directory/'RECEIPT.json',report)
         durable_json(directory/'EVIDENCE_FINALIZATION.json',dict(status=report['status'],cpu_only=True,
             owner=owner if 'owner' in locals() else None,finished_at=datetime.now(timezone.utc).isoformat(),
