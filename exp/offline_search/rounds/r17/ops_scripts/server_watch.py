@@ -111,7 +111,7 @@ class Rates:
 
 
 def main():
-    rates, last, idle = Rates(), {}, {}
+    rates, last, idle, starved = Rates(), {}, {}, {}
     while True:
         now = time.time()
         servers = {'local': probe('local'), 'h100': probe('h100')}
@@ -133,9 +133,12 @@ def main():
             serving = [b for b, v in batches.items() if v['server'] == s and not v['done']]
             # A replica is one host process; at ~100% CPU it is saturated even with the GPU half idle (GR00T).
             replicas_busy = bool(d and d['server_cpu']) and sum(c >= 85 for c in d['server_cpu']) >= len(d['server_cpu']) / 2
-            if d and serving and d['gpu_mean'] is not None and d['gpu_mean'] < STARVED_UTIL and not replicas_busy and room:
+            hungry = bool(d and serving and d['gpu_mean'] is not None and d['gpu_mean'] < STARVED_UTIL and not replicas_busy and room)
+            # Two rounds in a row: an R15 arm or a batch starting from zero workers is not starvation.
+            starved[s] = starved.get(s, 0) + 1 if hungry else 0
+            if starved[s] >= 2:
                 alerts.append(f'{s} GPU {d["gpu_mean"]}% (min {d["gpu_min"]}), replica CPU {d["server_cpu"]} '
-                              f'serving {serving}; room on {room}')
+                              f'serving {serving}; room on {room} (2 rounds)')
         for b, v in batches.items():
             if v['done']:
                 continue
