@@ -52,7 +52,7 @@ owner 的常驻指令，逐字有效：
 
 
 
-## 1. 现在在哪（2026-10-21 00:0x CDT；**最先读「10-21 00:0x 增补（compact 前总状态）」，再读「22:5x」「22:1x」「21:4x」增补，再读「21:3x 增补（compact 前总状态）」**，再读 20:5x 旧门事故、其余增补与 09:4x 总状态，再读其后各增补（09:29 → 21:2x 倒序）与 10-19 21:0x 总状态；10-14 及更早只作背景）
+## 1. 现在在哪（2026-10-21 00:3x CDT；**最先读「10-21 00:3x 增补」，再读「10-21 00:0x 增补（compact 前总状态）」，再读「22:5x」「22:1x」「21:4x」增补，再读「21:3x 增补（compact 前总状态）」**，再读 20:5x 旧门事故、其余增补与 09:4x 总状态，再读其后各增补（09:29 → 21:2x 倒序）与 10-19 21:0x 总状态；10-14 及更早只作背景）
 
 ### ★★★★★★★★★★★★★★★★★★★★★★★★ 2026-10-20 09:4x CDT 总状态（compact 后最先读这块）
 
@@ -64,6 +64,17 @@ owner 的常驻指令，逐字有效：
 - 处置：09:56 按 PID SIGSTOP 复制 rsync（3726105/3726106/3729764）和两个 governor（3343372/3951564）。效果（同一时刻对比）：Cosmos 15→60 局/分、pod2 DP 85→250、v11_0 50→125（v11_0 同时 floor 40→70）。⛔ **复制保持暂停**；剩 ~190 GB（eval 533/~720 GB）以后找没有 driver 在跑、或可接受的短窗口一次性不限速跑完，不要再长时间节流慢跑。恢复命令：`kill -CONT 3343372 3951564 3726105 3726106 3729764`。记忆 reference-weilandserver-data 已加这条。
 - floors 现 `{"fa_ls_dp_f_f_m_j": 32, "fa_ls_v11_0": 70}`。
 - 在调研（opus 只读）：H100 队列 ~88 h（4 批 FW MT50 旋钮下降 ~42 h）vs 4090 ~22 h；旋钮下降批次 IR 离线算、可换卡 → 考虑 FW/GR00T MT50 旋钮下降挪 4090、DP LIBERO 旋钮下降挪 pod（需装 openpi 环境）。结论回来前不动队列。
+
+**10-21 00:3x 增补（compact 后接着办；owner 00:2x「我睡觉了独自推进」）**
+- v09_1_j4（成功过滤库 · DP · LIBERO · 全步 · 各档）00:05 收齐 33,650 局，floor 已撤。
+- 调度器 38585197：副本 CPU 用满线程预算（OMP=1 时 ≥85%，过半副本）也算饱和，客户端停涨、分配器第二轮不翻倍（4090 副本 104%、GPU 72% 时把 fa_cs_gr_r 从 99 翻到 184，速度 108→92）。A100 已重部署；节点/客户端那半边新批次生效。实测：GR00T 常驻进程总 CPU 104%，最忙的线程只有 10–18%——瓶颈是 GIL，不是单个线程。
+- /nvme 第一阶段 41fe5824（交回 rounds/r17/NVME_PHASE_A_HANDBACK.md）：新建 run/发布目录实体在 /nvme、/data 留软链；local_workers 根目录改 /nvme（下个 4090 本机 worker 批次会重建 env311）；拔了 resolve 父目录检查和 R15 assets.py sha 钉。formal_eval 里线程那段是 #206 代理的，单独提交。
+- 10-20 暂停的复制（rsync 3726105/3726106/3729764、governor 3343372/3951564、copy_to_nvme 3296379、mirror_nvme 3950599）00:22 按 PID 停掉——mirror 先停：它的整目录 rsync 遇到 /data 上的软链会去替换 /nvme 实体目录。
+- §4A2：37 个排队未 prepare 的目录（H100 v03_1/fw_f_u_m/v02_b/v08_1/fw_r_u_m/fw_f_f_m/fw_r_f_mc2，R15 fa_pi_f_f_o_q_*/fa_gr_f_{u,f}_o_q_*，R16 Q3 组 6 个）后台复制→dry-run 核对→原子换软链，原件 *.data_old_1021（$CLAUDE_JOB_DIR/tmp/a2_migrate.sh，日志 a2_migrate.log；/nvme 上旧副本挪 /nvme/weiland/openpi/_stale_copies_1021）。v05_1_rz/v05_2_rz（vfix retry 用 /data 同级备份）暂留 /data，轮到前要处理。
+- §4A3：$CLAUDE_JOB_DIR/tmp/a3_island.sh 在等 fa_cs_gr_r ended → hold g4090ar → R16 island（37 MB）搬 /nvme → 起 **g4090as**（chain_ffk_stop2，同一串 Q3 批次）。日志 a3_island.log。
+- jupyter-ziyang10-02：jc1（原库 · GR00T · MetaWorld · 全步 · 旋钮下降续跑 88,693，R1/14 GiB，/nvme）链 **pod2gr2** 00:24 start，floor 32。
+- jupyter-ziyang10：领 H100 队列的 fa_ls_gr_f_f_m（成功过滤库 · GR00T · MetaWorld · 全步 · 旋钮下降 90,000）→ pod 副本 **fa_ls_gr_f_f_m_j**（R1/14 GiB，端口 23470/23471，驱动 23193，/nvme），领取文件 mw/claim_pod1_fa_ls_gr_f_f_m（prepare 守卫原件 .before_pod1_claim）。链 **pod1gr1** 00:24 prepare；起跑后加 floor 32。-10 的 /tmp/zl_r17 已 21 GB（17:38 两台 pod 在 18 GB 时一起掉过线，原因不明）。
+- 还要做：§4B 在跑批次跑完后整目录搬（v03_0、fa_pi_f_u_o_q_*、fa_cs_gr_r、fa_ls_gr_f_u_m_j）；§4C2 剩 ~190 GB 等 /data 上没有 driver 写时不限速重跑（排除软链）；C3 核对；C4 整个 eval 换软链。#206 线程/批处理代理还在跑（在 h100-temp 空卡上做 40 s 短测，已提醒机主一用就停）。
 
 **10-21 00:0x 增补（compact 前总状态；22:5x 之后的一切，先读这块）**
 
