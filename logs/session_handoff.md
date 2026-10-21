@@ -52,7 +52,7 @@ owner 的常驻指令，逐字有效：
 
 
 
-## 1. 现在在哪（2026-10-21 11:5x CDT；**最先读「10-21 14:0x 增补」，再读「10-21 13:2x 增补」，再读「10-21 12:0x 增补」，再读「10-21 11:5x 增补（compact 前总状态）」，再读「10-21 00:3x 增补」，再读「10-21 00:0x 增补（compact 前总状态）」，再读「22:5x」「22:1x」「21:4x」增补，再读「21:3x 增补（compact 前总状态）」**，再读 20:5x 旧门事故、其余增补与 09:4x 总状态，再读其后各增补（09:29 → 21:2x 倒序）与 10-19 21:0x 总状态；10-14 及更早只作背景）
+## 1. 现在在哪（2026-10-21 11:5x CDT；**最先读「10-21 15:0x 增补」，再读「10-21 14:0x 增补」，再读「10-21 13:2x 增补」，再读「10-21 12:0x 增补」，再读「10-21 11:5x 增补（compact 前总状态）」，再读「10-21 00:3x 增补」，再读「10-21 00:0x 增补（compact 前总状态）」，再读「22:5x」「22:1x」「21:4x」增补，再读「21:3x 增补（compact 前总状态）」**，再读 20:5x 旧门事故、其余增补与 09:4x 总状态，再读其后各增补（09:29 → 21:2x 倒序）与 10-19 21:0x 总状态；10-14 及更早只作背景）
 
 ### ★★★★★★★★★★★★★★★★★★★★★★★★ 2026-10-20 09:4x CDT 总状态（compact 后最先读这块）
 
@@ -64,6 +64,11 @@ owner 的常驻指令，逐字有效：
 - 处置：09:56 按 PID SIGSTOP 复制 rsync（3726105/3726106/3729764）和两个 governor（3343372/3951564）。效果（同一时刻对比）：Cosmos 15→60 局/分、pod2 DP 85→250、v11_0 50→125（v11_0 同时 floor 40→70）。⛔ **复制保持暂停**；剩 ~190 GB（eval 533/~720 GB）以后找没有 driver 在跑、或可接受的短窗口一次性不限速跑完，不要再长时间节流慢跑。恢复命令：`kill -CONT 3343372 3951564 3726105 3726106 3729764`。记忆 reference-weilandserver-data 已加这条。
 - floors 现 `{"fa_ls_dp_f_f_m_j": 32, "fa_ls_v11_0": 70}`。
 - 在调研（opus 只读）：H100 队列 ~88 h（4 批 FW MT50 旋钮下降 ~42 h）vs 4090 ~22 h；旋钮下降批次 IR 离线算、可换卡 → 考虑 FW/GR00T MT50 旋钮下降挪 4090、DP LIBERO 旋钮下降挪 pod（需装 openpi 环境）。结论回来前不动队列。
+
+**10-21 15:0x 增补**
+- 原库 · π0.5 · LIBERO · 全步 · Q3 各档 `fa_pi_f_u_l_q` 32 个 arm 全满 500（16,000），14:52 收齐；h100q5 的 STOPPED 是 R15 无回执的预期误报。**h100q6** 14:59 起 `fa_pi_f_f_l_q`（成功过滤库同类，2 副本，QUEUE.json 已改）；跑完同样会 STOPPED（预期）。
+- pod：-02 `fa_ls_fw_r_p_m_j` 14:36 PASS 2,500（~75 局/分）；`fa_ls_fw_r_u_m_j` 14:44 起，加缓存库后 B8 切片剩 0.96 GiB、0 错；-10 `fa_ls_fw_f_p_m_j` 14:29 起（~45 局/分）。GR00T 两批 pod 都 PASS（jc1 88,693、gr_f_f_m_j 90,000），floors/caps 已清空。
+- 4090：fa_pi_r_u_l_q 14:33 收齐 → fa_pi_r_f_l_q 14:34 起，三个 π0.5 常驻串行启动（各 ~3.5 min），GPU 空 ~12 min，14:46 回 97%。可改并行启动（等 owner）。
 
 **10-21 14:0x 增补：Fast-WAM 上 jupyter 切片（无 T5）**
 - 287b6fc4：setup.sh `fastwam_nfs`（全部放 NFS `/home/ziyang10/zl_r17/fastwam/{env,deps,lerobot,fwsrc,base,mt50,wan,table}` + `.pulled_*`，r17x 绑到 H100 路径；两台 pod 共用 NFS，-02 拉一次 36 GB，-10 秒过）；pod_copy 支持 H100 Fast-WAM（R1、`fastwam_text_table=/data/mw_finetune/fastwam_text_tables/table_h100.pt`、`--max-batch`）。H100 临时 rsyncd :23117（前缀在 $CLAUDE_JOB_DIR/tmp/fw_pod_rsync_prefix）14:0x 已按 PID 关。
