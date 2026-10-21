@@ -446,7 +446,11 @@ def import_reuse(group, journal_path):
 
 LEGACY = 'exp.offline_search.rounds.r17.scheduler.legacy'
 # LIBERO simulator environment per worker node; the 4090's is the same build (r16_local_island).
-CONDA = {'timan107': '/scratch/zixuans8/libero_sim', 'local': '/home/weiland/projects/openpi_ext/envs/libero_sim'}
+CONDA = {'timan107': '/scratch/zixuans8/libero_sim', 'timan1': '/scratch/zixuans8/libero_sim',
+         'local': '/home/weiland/projects/openpi_ext/envs/libero_sim'}
+# Native EGL device ids a node's renderers may use. timan1: only NVML GPUs 2 and 1 are ours, which are
+# EGL devices 1 and 2 (10-20: a context on EGL 1 shows up on GPU 2, EGL 2 on GPU 1).
+EGL_DEVICES = {'timan107': tuple(range(8)), 'timan1': (1, 2), 'local': (0,)}
 
 
 def run_driver(args):
@@ -513,9 +517,12 @@ def run_agent(args):
         for i in range(args.workers):
             suffix='' if pool=='B' else '_apool'
             pools=','.join(f'{s}={REPO}/exp/common/data/db_init/libero/{s}{suffix}' for s in ('libero_10','libero_spatial'))
-            specs.append(WorkerSpec(f'{prefix}{i:02d}',servers[i%len(servers)],str(i%8),
+            egl=EGL_DEVICES[args.node][i%len(EGL_DEVICES[args.node])]
+            # timan1 hides every EGL device once CUDA_VISIBLE_DEVICES names a card; its renderers need no CUDA (as R17).
+            specs.append(WorkerSpec(f'{prefix}{i:02d}',servers[i%len(servers)],'' if args.node=='timan1' else str(egl),
                          conda_env=CONDA[args.node],init_states_dir=pools,resize_size=256 if args.model=='groot' else 224,
-                         replan_steps=5,seed=SEED,probe=True,env=dict(env,MUJOCO_EGL_DEVICE_ID=str(i%8))))
+                         replan_steps=5,seed=SEED,probe=True,
+                         env=dict(env,MUJOCO_EGL_DEVICE_ID=str(egl))))
         agent=WorkerAgent(specs,args.driver_host,args.port)
         for sig in (signal.SIGTERM,signal.SIGINT,signal.SIGHUP): signal.signal(sig,lambda *_:agent.stop())
         if args.lease_stdin:

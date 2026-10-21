@@ -21,6 +21,8 @@ LOOPBACK = REPO/'exp/offline_search/rounds/r17/filter_failed_knob/r16_local/site
 # A group's worker agents: the island's timan107 (shared class) and the 4090 itself (local class, its servers).
 AGENTS = {'timan107': dict(python='/scratch/zixuans8/openpi/.venv/bin/python', home='/home/zixuans8',
                            path='/scratch/zixuans8/dsp_bin:/usr/local/bin:/usr/bin:/bin', driver_host='ziyanglin.com'),
+          'timan1': dict(python='/scratch/zixuans8/openpi/.venv/bin/python', home='/home/zixuans8',
+                         path='/scratch/zixuans8/dsp_bin:/usr/local/bin:/usr/bin:/bin', driver_host='ziyanglin.com'),
           'local': dict(python=sys.executable, home='/home/weiland',
                         path='/home/weiland/miniconda3/bin:/usr/local/bin:/usr/bin:/bin', driver_host='127.0.0.1')}
 
@@ -174,7 +176,7 @@ def _run(args):
     remote_repo=args.agent_island
     if remote_repo=='/scratch/zixuans8/openpi_trace_h100' or not remote_repo.startswith('/scratch/zixuans8/openpi_r16_conductor_'):
         raise ValueError('Use an isolated R16 conductor worker island')
-    islands=dict(timan107=remote_repo,local=LOCAL_ISLAND)
+    islands=dict(timan107=remote_repo,timan1=remote_repo,local=LOCAL_ISLAND)  # timan1: same path, same libero_sim
     # The 4090 has no VRAM left for renderers once the residents fill it (pi05 R3: 23 of 24 GB).
     if getattr(args,'no_local_workers',False):del islands['local']
     campaign=legacy.campaign(root.name,'local',tuple(islands))
