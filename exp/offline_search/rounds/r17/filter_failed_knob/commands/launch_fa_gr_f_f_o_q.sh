@@ -3,4 +3,7 @@
 # 4090 servers from /home/weiland/projects/openpi_r16_q3_server; 5 GR00T replicas. See q3_port_1020/HANDBACK.md.
 set -euo pipefail
 cd /home/weiland/projects/openpi
+# R15 multi-node (d2320e5b, opt-in): driver + agent on timan107, agent-only on timan1. 10-21 06:3x the
+# single-host fa_gr_f_u_o_q got 13-34 timan107 workers and left the 4090 GPU at 8%.
+export WORKER_HOST=timan107 WORKER_HOSTS=timan107,timan1
 env -u CUDA_VISIBLE_DEVICES -u JAX_PLATFORMS OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONPATH=.:src .venv/bin/python -m exp.offline_search.rounds.r17.filter_failed_knob.q3_port_1020.build dispatch launch --name fa_gr_f_f_o_q
