@@ -52,7 +52,7 @@ owner 的常驻指令，逐字有效：
 
 
 
-## 1. 现在在哪（2026-10-20 21:4x CDT；**最先读「21:4x 增补」，再读「21:3x 增补（compact 前总状态）」**，再读 20:5x 旧门事故、其余增补与 09:4x 总状态，再读其后各增补（09:29 → 21:2x 倒序）与 10-19 21:0x 总状态；10-14 及更早只作背景）
+## 1. 现在在哪（2026-10-20 21:4x CDT；**最先读「22:1x 增补」「21:4x 增补」，再读「21:3x 增补（compact 前总状态）」**，再读 20:5x 旧门事故、其余增补与 09:4x 总状态，再读其后各增补（09:29 → 21:2x 倒序）与 10-19 21:0x 总状态；10-14 及更早只作背景）
 
 ### ★★★★★★★★★★★★★★★★★★★★★★★★ 2026-10-20 09:4x CDT 总状态（compact 后最先读这块）
 
@@ -64,6 +64,15 @@ owner 的常驻指令，逐字有效：
 - 处置：09:56 按 PID SIGSTOP 复制 rsync（3726105/3726106/3729764）和两个 governor（3343372/3951564）。效果（同一时刻对比）：Cosmos 15→60 局/分、pod2 DP 85→250、v11_0 50→125（v11_0 同时 floor 40→70）。⛔ **复制保持暂停**；剩 ~190 GB（eval 533/~720 GB）以后找没有 driver 在跑、或可接受的短窗口一次性不限速跑完，不要再长时间节流慢跑。恢复命令：`kill -CONT 3343372 3951564 3726105 3726106 3729764`。记忆 reference-weilandserver-data 已加这条。
 - floors 现 `{"fa_ls_dp_f_f_m_j": 32, "fa_ls_v11_0": 70}`。
 - 在调研（opus 只读）：H100 队列 ~88 h（4 批 FW MT50 旋钮下降 ~42 h）vs 4090 ~22 h；旋钮下降批次 IR 离线算、可换卡 → 考虑 FW/GR00T MT50 旋钮下降挪 4090、DP LIBERO 旋钮下降挪 pod（需装 openpi 环境）。结论回来前不动队列。
+
+**22:1x 增补（owner：所有机器装齐 worker 环境；H100 本机 worker 接调度器；jupyter 要拿活）**
+- ⛔ owner 21:5x：「你在所有worker机都装所有环境，同时h100还需要像4090这样允许在本机部署worker并接入调度器，所以4090和h100也要装」（已写记忆 feedback-devices-and-gpus）。实测盘点 `rounds/r17/scheduler/WORKER_ENV_MATRIX.md`。
+  - 已装并实测：MetaWorld env（本机 uv venv metaworld_sim + uv cpython 3.11.15，同路径）→ A100、H100（EGL 出帧、版本同 timan107）；R16 一套（libero_sim 实体 H100:/data/mw_finetune/qualification/zl_envs/libero_sim 软链到原路径、island、assets、openpi_client、conda 替身）→ H100；R15 island（timan107 的 openpi_trace_h100 去掉 os_cl/runs，109 MB）→ timan1 同路径、A100/H100 `/data/mw_finetune/qualification/r15_island`、本机 /nvme 实体 + 同名软链。⚠ 远端 rsyncd（use chroot=no）会把绝对符号链接开头的 / 去掉，推完要重建（脚本 $CLAUDE_JOB_DIR/tmp/push_envs.sh、abs_links.py）。
+  - 代码：d0220081（scheduler/defaults SHARED a100、LOCAL h100 加 metaworld；formal_eval h100/a100 MetaWorld 用同路径 env）；14de1714（allocate LOCAL_FIRST=('local','h100')：H100 本机 worker 像 4090 一样先发——旧规则要公共池稳定 10 分钟，6,470 行分配里 H100 只拿到过一次 7 个）。A100 调度器 22:00 重部署，floors 保留。只对新准备的批次生效（resume.build 会 force 重算节点）。
+  - 还缺（任务 #204）：R15 多机（主机表 + h100 键名撞服务端 helper + driver 绑 127.0.0.1）、R16 加 h100（R16 服务固定 4090，按规则 H100 用不上）、MATRIX §4.3 的哈希/sha/源码锁要拔、local_workers/timan1_workers 的「只 LIBERO」两处删。H100 上 GR00T R11 占 79.2 GB，本机放不下 MetaWorld worker（物理限制）。
+- h100-temp：fa_ls_fw_r_f_m 21:50 起只拿到 13 个 worker（~20 局/分，9 万局要 70+ h）→ 22:06 SIGTERM 平稳停（453 局，timan1 实测无残留）→ `filter_failed.resume --remaining --verify-closed`（带 h100-temp alias）建 **fa_ls_fw_r_f_mc1**（89,547 局，节点 a100+timan1+timan107），脚本 filter_failed_knob/commands/{prepare,launch}_fa_ls_fw_r_f_mc1.sh，链 **h100tmp24** 22:15 start；floor c1:48（去掉原批）。
+- jupyter-ziyang10-02 自 21:07 空闲（owner 22:0x 问）：H100 队列里只有 GR00T · MetaWorld 放得进 MIG（每副本 ~6.5 GB → pod R2 不开 MPS）。GR00T venv(6.7G)+uv cpython 3.11.16+checkpoint-60000 的 safetensors/配置（7.1G）已拉到 pod NFS 家目录 `/home/ziyang10/zl_r17/groot/{venv,uvpy,ckpt}`（不放 /tmp：pod 本地已 16–18 GB，17:38 曾双双掉线）。opus 代理在改 pod_copy（H100 GR00T 源）/setup.sh groot/r17x 绑定，交回 `longseg_1017/POD_GROOT_HANDBACK.md`。另一选项待 owner：拆 v09_1_j4 一半给 -02。
+- #199：调研 MAP.md 交回（只换 R10Recipe.inner 为 Q3StallInner + 插件 stall_only；标定纯 CPU 16 份；各档周期重解；重跑旋钮关 32,000 + 带门四组 32,000 + 各档重选）。已定：段中不插 LOOK、base 取无门 fit、模式名 stall_only。opus 代理实现中（不碰 fa_cs 在用文件，复制新服务端树；产物 /nvme/weiland/openpi/r17_q3_port_1020/；交回 q3_port_1020/HANDBACK.md）。
 
 **21:4x 增补（compact 后接着办）**
 - ⛔ owner 21:4x：「那个网页你不要管了」→ 网页 v28 不再改（#203 只剩文字汇总）。formal-A `filter_failed_knob/formal_a_1016/RESULTS.json` 的 π0.5/GR00T 32 行已标 withdrawn（172958ed）；R16 k1ref 结果 10-18 已随开发集作废撤掉（21102980），不用再动。
