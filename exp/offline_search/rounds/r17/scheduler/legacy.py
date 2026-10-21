@@ -42,7 +42,7 @@ def campaign(batch, server_node, nodes):
     return dict(run_name=batch, domain='libero', server_host=c['server_host'], scheduler_url=c['scheduler_url'],
                 scheduler_nodes={n: v for n, v in c['scheduler_nodes'].items() if n in nodes},
                 scheduler_node_config={n: v for n, v in c['scheduler_node_config'].items() if n in nodes},
-                worker_vram_mib=c['worker_vram_mib'], worker_max_episodes=4, worker_max_seconds=1800)
+                worker_vram_mib=c['worker_vram_mib'], worker_max_episodes=0, worker_max_seconds=0)  # LIBERO: no per-episode growth (#184), no generations (5ed3c20f)
 
 
 def node_campaign(c, node):
