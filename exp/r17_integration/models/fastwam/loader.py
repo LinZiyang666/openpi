@@ -170,11 +170,18 @@ def seal_descriptor(spec):
 
 
 @contextmanager
-def _raw_loaders(wan_root):
+def _raw_loaders(wan_root, text_encoder=True):
     import importlib
     import sys
     import lerobot.policies.fastwam.modeling_fastwam as implementation
-    from exp.mw_finetune.fastwam.raw_wan import install_raw_loaders
+    import exp.mw_finetune.fastwam.raw_wan as raw_wan
+    native_install = raw_wan.install_raw_loaders
+    def install_raw_loaders(root):
+        native_install(root)
+        if not text_encoder:  # prompts come from a precomputed table (text_table.py); umT5-xxl is never built
+            implementation.load_pretrained_wan_text_encoder = lambda **kwargs: None
+    # The MT50 build_model installs the raw loaders again itself; it must get the same text choice.
+    raw_wan.install_raw_loaders = install_raw_loaders
     names = ("load_pretrained_wan_vae", "load_pretrained_wan_text_encoder")
     saved = {n: getattr(implementation, n) for n in names}
     # The island installs LeRobot, while raw FastWAM is a separate source tree.
@@ -192,6 +199,7 @@ def _raw_loaders(wan_root):
         install_raw_loaders(wan_root)
         yield
     finally:
+        raw_wan.install_raw_loaders = native_install
         sys.path.remove(source_path)
         for name, value in saved.items():
             setattr(implementation, name, value)
@@ -221,7 +229,7 @@ def _load_libero(spec, device):
     return policy
 
 
-def load_adapter(spec, *, device="cpu"):
+def load_adapter(spec, *, device="cpu", text_encoder=True):
     """Explicit load only. Real model loading is never attempted by import/tests."""
     from .protocols import validate_benchmark_specs
     validate_benchmark_specs(spec)
@@ -243,7 +251,7 @@ def load_adapter(spec, *, device="cpu"):
     devices = [torch.device(device).index or 0] if torch.device(device).type == "cuda" else []
     # C constructs with a temporary global seed and raw-loader shim. Bound those
     # effects to serialized explicit loading and restore them before serving.
-    with _LOAD_LOCK, torch.random.fork_rng(devices=devices), _raw_loaders(spec.wan_root):
+    with _LOAD_LOCK, torch.random.fork_rng(devices=devices), _raw_loaders(spec.wan_root, text_encoder):
         if spec.benchmark == "libero":
             policy = _load_libero(spec, device)
         else:

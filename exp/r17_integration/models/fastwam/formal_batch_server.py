@@ -14,6 +14,30 @@ import threading
 import time
 
 
+def campaign_prompts(adapter,campaign):
+    """Every wire prompt this campaign can send (prompt_template wraps the task language)."""
+    benchmark=json.loads((Path(campaign['assets'])/'benchmark.json').read_text())
+    from .text_table import libero_language
+    if campaign.get('domain')=='metaworld':
+        return sorted({adapter.wire.prompt_template.format(task=row[1]) for row in benchmark['tasks']})
+    return sorted({adapter.wire.prompt_template.format(task=libero_language(n)) for n in benchmark['ordered_tasks']
+                   if n.split('/')[0] in campaign['suites']})
+
+
+def table_text(adapter,campaign):
+    """Serve prompts from the precomputed table; the model was loaded without T5."""
+    from .text_table import load,install
+    if adapter.model.text_encoder is not None:
+        raise ValueError('fastwam_text_table requires a model loaded without its text encoder')
+    table=load(Path(campaign['assets'])/campaign['fastwam_text_table'],adapter.model.device)
+    prompts=campaign_prompts(adapter,campaign)
+    missing=[p for p in prompts if p not in table]
+    if missing:
+        raise ValueError(f'text table lacks {len(missing)} campaign prompts, e.g. {missing[0]!r}')
+    install(adapter.model,table)
+    return prompts
+
+
 def cache_text(adapter,campaign):
     """Encode each prompt of the campaign once (batch 1), then move T5 off the GPU.
 
@@ -85,7 +109,10 @@ def serve(campaign,port,directory):
         if torch.cuda.get_device_name(campaign['device']) != treatment['gpu_family']:
             pass
     adapter,original_provider=load(dict(campaign,benchmark_spec=str(Path(campaign['assets'])/'benchmark.json')),campaign['device'])
-    cached_prompts=cache_text(adapter,campaign) if campaign.get('fastwam_text_cache') else None
+    if campaign.get('fastwam_text_table'):
+        cached_prompts=table_text(adapter,campaign)
+    else:
+        cached_prompts=cache_text(adapter,campaign) if campaign.get('fastwam_text_cache') else None
     total=torch.cuda.get_device_properties(campaign['device']).total_memory
     torch.cuda.set_per_process_memory_fraction(campaign['memory_budget_gib']*2**30/campaign['replicas']/total,campaign['device'])
     qualification = None
@@ -144,7 +171,8 @@ def serve(campaign,port,directory):
         if qualification:
             metadata['batching_self_check'] = qualification
         if cached_prompts:
-            metadata['text_cache']=dict(prompts=cached_prompts,text_encoder_device='cpu')
+            metadata['text_cache']=(dict(prompts=cached_prompts,text_encoder_device='none',table=campaign['fastwam_text_table'])
+                if campaign.get('fastwam_text_table') else dict(prompts=cached_prompts,text_encoder_device='cpu'))
         if captures is not None:
             metadata.update(formal_pure_inference=False,library_teacher=True,debug_capture=True,
                             capture_profile='B-full-native-library-allowlist; received_wire_uint8')

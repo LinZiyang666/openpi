@@ -57,7 +57,7 @@ def load(job, device='cuda:0'):
     elif model == 'fastwam':
         from exp.r17_integration.models.fastwam.loader import load_adapter, LoadSpec
         from exp.r17_integration.models.fastwam.provider import register_provider
-        adapter = load_adapter(LoadSpec(**desc), device=device)
+        adapter = load_adapter(LoadSpec(**desc), device=device, text_encoder=not job.get('fastwam_text_table'))
         provider = register_provider(adapter)
     elif model == 'cosmos':
         from exp.r17_integration.models.cosmos.loader import load_adapter

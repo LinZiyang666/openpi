@@ -22,11 +22,18 @@ BATCHING_FILES = SERVER_FILES + ('exp/r17_integration/common/batch_runtime.py',
                   'exp/r17_integration/models/groot/provider.py', 'exp/r17_integration/models/groot/batcher.py',
                   'exp/r17_integration/models/pi05/adapter.py', 'src/openpi/cache/groot/batcher.py',
                   'src/openpi/cache/groot/staged.py')
+# fastwam_text_table: the resident is built without umT5-xxl and reads prompt encodings from the table.
+FASTWAM_TEXT_FILES = ('exp/r17_integration/models/fastwam/formal_batch_server.py',
+                      'exp/r17_integration/models/fastwam/loader.py',
+                      'exp/r17_integration/models/fastwam/text_table.py',
+                      'exp/r17_integration/qualification/model_runtime.py')
 
 
 def overlay_files(campaign):
     if campaign.get('stage_batching'):
         return BATCHING_FILES
+    if campaign.get('fastwam_text_table'):
+        return FASTWAM_TEXT_FILES
     return SERVER_FILES if campaign.get('model') in ('groot', 'pi05') else ()
 
 
