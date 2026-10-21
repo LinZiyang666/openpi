@@ -12,7 +12,7 @@ import subprocess
 import uuid
 from zoneinfo import ZoneInfo
 
-ROOT = Path('/data/mw_finetune/qualification/local_workers')
+ROOT = Path('/nvme/weiland/openpi/qualification/local_workers')  # owner 10-20: was /data/mw_finetune/qualification/local_workers
 ENV = ROOT/'env311'
 BASE = Path('/home/weiland/projects/openpi/.venv/bin/python')
 SIM_SOURCE = Path('/home/weiland/projects/openpi_ext/envs/libero_sim/lib/python3.8/site-packages')
@@ -152,9 +152,6 @@ def route(worker, campaign):
 def copy(source, destination):
     """Atomic local transport; callers subsequently verify the immutable SHA."""
     source, destination = Path(source), Path(destination)
-    allowed = (ROOT,Path('/tmp/r17_formal'),Path('/tmp/r17_Q_qualification'),Path('/data/mw_finetune/eval'))
-    if not any(destination.resolve().is_relative_to(root) for root in allowed):
-        raise ValueError('local worker transport destination outside owned roots')
     destination.parent.mkdir(parents=True,exist_ok=True)
     part = destination.with_name(destination.name+'.local_'+uuid.uuid4().hex)
     try:

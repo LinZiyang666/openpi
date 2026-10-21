@@ -299,9 +299,8 @@ def main(argv=None):
         print(json.dumps(dict(status='PASS',cpu_only=True,results=results,output=str(args.prepared_queue))))
         return 0
     directory=args.output or launch.FORMAL_ROOT/('formal_queue_'+time.strftime('%Y%m%d_%H%M%S')+'_'+uuid.uuid4().hex[:8])
-    if directory.resolve().parent!=launch.FORMAL_ROOT:
-        parser.error('queue output must be a direct child of formal root')
-    directory.mkdir(parents=True,exist_ok=False)
+    from .immutable_release import nvme_dir
+    nvme_dir(directory)  # real dir on /nvme, /data path a symlink (owner 10-20)
     write_json(directory/'QUEUE_PLAN.json',dict(jobs=[{k:v for k,v in j.items() if k!='args'} for j in jobs],
         cpu_only=args.prepare_only,prestaging_depth=1,startup_retries=args.startup_retries,
         continuation_source=str(args.continue_queue) if args.continue_queue else None))

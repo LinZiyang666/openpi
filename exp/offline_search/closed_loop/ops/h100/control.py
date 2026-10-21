@@ -428,7 +428,9 @@ def sync(runroot, names, plan_only=False, concurrent=False, workdir=None):
 
 
 def _sync(runroot, names, plan_only=False, concurrent=False, active=(), workdir=None):
-    runroot = Path(runroot).resolve()
+    # Keep the given /data address: arms.json names it, and it maps to BASE/runs/<name> on H100
+    # even when the local directory is a symlink to /nvme (owner 10-20). abspath, not resolve.
+    runroot = Path(os.path.abspath(runroot))
     work = Path(workdir).resolve() if workdir else runroot / "h100_sync"
     work.mkdir(parents=True, exist_ok=True)
     with open(work / "sync.lock", "w") as lock:
@@ -511,7 +513,7 @@ def install_scheduler(runroot):
 
 
 def collect(runroot, arm, manifest=None):
-    root = Path(runroot).resolve()
+    root = Path(os.path.abspath(runroot))  # the given /data address (see _sync)
     target = root / "runs" / arm
     tag = root.name
     host = launch_host(root, arm)
@@ -680,7 +682,7 @@ def execution_env(row):
 
 
 def chain(runroot, names):
-    root = Path(runroot).resolve()
+    root = Path(os.path.abspath(runroot))  # the given /data address (see _sync)
     host, worker_island = worker_host(), island()
     server = server_host()
     ports = server_ports()

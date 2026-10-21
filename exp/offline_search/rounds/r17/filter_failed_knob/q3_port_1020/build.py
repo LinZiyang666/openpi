@@ -9,7 +9,8 @@ Every fit is the frozen no-gate cache of the cache study (..._cr / ..._c fit.pkl
 Q3StallInner(base, C(task only), Q3); knob batches add the unchanged R15 TaskDescentKnob layer (all ten
 tasks at one level; caps 0 for off, Q3-resolved periods otherwise). Success-filtered fits are the existing
 candidate-row filter (vla.candidates) of the same object. Plugin: --os-judge stall_only. Servers run the
-Q3 server tree (runner.py / legacy.py); fits and definitions live under /nvme, run roots under /data (small).
+Q3 server tree (runner.py / legacy.py); fits and definitions live under /nvme; new run roots are real
+directories under /nvme/weiland/openpi/eval with their /data/mw_finetune/eval address left as a symlink.
 """
 from __future__ import annotations
 
@@ -27,6 +28,7 @@ from types import SimpleNamespace
 import numpy as np
 
 from .fit import HERE, KNOB, REPO, OUT, CELLS, LEVELS, read, dump, short, load_cs, library, stall_model, q3_path, cs_fit
+from exp.r17_integration.ops.immutable_release import nvme_dir
 
 EVAL = Path('/data/mw_finetune/eval')
 TREE = Path('/home/weiland/projects/openpi_r16_q3_server')
@@ -186,7 +188,7 @@ def r15_unit(model, arm, stage, cells, levels, fits):
     unit = f'fa_{M[model]}_f_{A[arm]}_{STAGES[stage]}_q'
     tops = topologies(model, arm); jobs = []
     for cell in cells:
-        root = EVAL/f'{unit}_{short(cell)}'; fresh(root); root.mkdir(parents=True, exist_ok=True)
+        root = EVAL/f'{unit}_{short(cell)}'; fresh(root); nvme_dir(root, exist_ok=True)  # real dir on /nvme
         if (root/'arms.json').exists():
             (root/'arms.json').unlink()
         manifest = root/'eval500.json'
@@ -254,7 +256,7 @@ def r16_group(name, model, source, entries, info):
     group['definitions_sha256'] = {**{str(p): sha(p) for p in files},
                                    **{e['row']['plugin_args'][e['row']['plugin_args'].index('--os-fit-artifact')+1]: e['fit_sha256'] for e in entries}}
     group['group_sha256'] = hashlib.sha256(rc.canonical(group)).hexdigest()
-    root.mkdir(parents=True, exist_ok=True)
+    nvme_dir(root, exist_ok=True)  # real dir on /nvme; group root keeps its /data address
     dump(root/'group.json', group)
     dump(root/'ROOT.json', dict(group_sha256=group['group_sha256'], definitions_sha256=group['definitions_sha256']))
     return dict(name=name, run=str(root), group=str(root/'group.json'), model=model, pipeline='R16',

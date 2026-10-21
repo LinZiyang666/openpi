@@ -100,8 +100,11 @@ def clone(src,name,*,workers=None,groups=None,mode=None,stage=None,kind=None):
         if any((root/n).exists() for n in ('PREPARED.json','LAUNCH.json','RECEIPT.json')):raise ValueError('Never change a prepared/launched rerun')
         if (root/'FFK_DEFINITION.json').exists():return read(root/'FFK_DEFINITION.json')
         import time
-        root.rename(root.with_name(root.name+'.incomplete_'+str(time.time_ns())))
-    root.mkdir(exist_ok=False)
+        real=root.resolve()  # set the real (/nvme) directory aside; a /data symlink is only a pointer
+        real.rename(real.with_name(root.name+'.incomplete_'+str(time.time_ns())))
+        if root.is_symlink():root.unlink()
+    from exp.r17_integration.ops.immutable_release import nvme_dir
+    nvme_dir(root)  # real dir on /nvme, /data path a symlink
     original=read(src/'campaign.json');c=copy.deepcopy(original)
     stage_source=src
     while not (stage_source/'WORKER_DEPLOYMENT.json').exists():

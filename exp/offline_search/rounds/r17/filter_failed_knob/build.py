@@ -119,8 +119,8 @@ def build(source, name, *, table=None, unfiltered=False, off=False, ladder_sourc
     from exp.r17_integration.ops import cache_study
     source = Path(source).resolve()
     if not name.startswith(('ffk1015_','fa_')): raise ValueError('New ffk1015_ or formal-A fa_ name required')
-    root = EVAL/name
-    root.mkdir(exist_ok=False)
+    from exp.r17_integration.ops.immutable_release import nvme_dir
+    root = nvme_dir(EVAL/name)  # real dir on /nvme, /data path a symlink
     campaign = copy.deepcopy(read(source/'campaign.json'))
     for key in list(campaign):
         if key.startswith(('resume_', 'cache_resume', 'cache_worker_refresh')) or key in (

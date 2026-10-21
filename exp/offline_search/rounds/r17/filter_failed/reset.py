@@ -182,7 +182,9 @@ def reset(root, verified_dead=False, *, local_only=False, unstage_only=False):
             # The server node also mirrors the run directory (MPS control, servers).
             script = ('for p in "$1"/MPS_READY.json "$1"/mps "$1"/mps_control "$1"/servers; '
                       'do if [ -e "$p" ]; then mv -n "$p" "$p$2" && echo "$p"; fi; done')
-            renamed += launch.remote(campaign['server_node'], ['bash', '-c', script, 'reset', str(root), suffix])
+            # Its /data address (campaign server_run), not this machine's resolved /nvme path (owner 10-20).
+            renamed += launch.remote(campaign['server_node'], ['bash', '-c', script, 'reset',
+                                     str(Path(campaign['server_run']).parent), suffix])
             external += [dict(node=campaign['server_node'], original=p, saved=p+suffix) for p in renamed.split()]
         names = {'LAUNCH.json', 'RECEIPT.json', '.startup_inputs', 'LAUNCH_WORKER_DEPLOYMENT.json',
                  'PHASE_TIMINGS.jsonl', 'TETHER_RETRY_RECEIPT.json', 'TETHER_CALLS.jsonl', 'BATCHING_CONTROL.json',

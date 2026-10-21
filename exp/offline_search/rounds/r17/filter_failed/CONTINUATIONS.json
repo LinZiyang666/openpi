@@ -149,6 +149,21 @@
       "name": "fa_ls_v02_s_c3",
       "run": "/data/mw_finetune/eval/fa_ls_v02_s_c3",
       "source": "/data/mw_finetune/eval/fa_ls_v02_s_c2"
+    },
+    {
+      "name": "fa_ls_fw_r_f_mc1",
+      "run": "/data/mw_finetune/eval/fa_ls_fw_r_f_mc1",
+      "source": "/data/mw_finetune/eval/fa_ls_fw_r_f_m"
+    },
+    {
+      "name": "fa_ls_fw_r_f_mc2",
+      "run": "/data/mw_finetune/eval/fa_ls_fw_r_f_mc2",
+      "source": "/data/mw_finetune/eval/fa_ls_fw_r_f_mc1"
+    },
+    {
+      "name": "fa_ls_gr_f_u_m_jc1",
+      "run": "/data/mw_finetune/eval/fa_ls_gr_f_u_m_jc1",
+      "source": "/data/mw_finetune/eval/fa_ls_gr_f_u_m_j"
     }
   ]
 }

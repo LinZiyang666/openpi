@@ -145,7 +145,8 @@ def r15_jobs(u,keep,selected_levels):
         root=f.EVAL/names.cell_name(u['name'],cell) if short else f.ROOT/'queue'/u['name']/(u['name']+'_'+cell)
         manifest=root/'eval500.json'
         if not root.exists():
-            root.mkdir(parents=True);manifest.write_bytes((src/'eval500.json').read_bytes());specs=[]
+            from exp.r17_integration.ops.immutable_release import nvme_dir
+            nvme_dir(root);manifest.write_bytes((src/'eval500.json').read_bytes());specs=[]  # real dir on /nvme
             catalog={r['arm']:r for r in read(src/'arms.json')};inputs=read(src/'arms_in.json')
             for level in selected_levels:
                 original=next(s for s in inputs if catalog[s['name']]['r14_descent_level']==level)
@@ -166,6 +167,8 @@ def r16_jobs(u,keep,selected_levels):
     entries=[copy.deepcopy(e) for e in source['entries'] if e['formal_grid_level'] in selected_levels and
              (e['row']['suite'],e['row']['r10_size']) in keep]
     if not entries:return []
+    from exp.r17_integration.ops.immutable_release import nvme_dir
+    nvme_dir(root,exist_ok=True)  # real dir on /nvme, /data path a symlink
     group=dict(source,root=str(root),entries=entries);group.pop('group_sha256',None)
     group['group_sha256']=a.sha(c.canonical(group));dump(root/'group.json',group)
     dump(root/'ROOT.json',dict(group_sha256=group['group_sha256'],definitions_sha256=group['definitions_sha256']))

@@ -69,7 +69,8 @@ def clone_r17(old,short):
     """Relocate output only, preserving every YAML byte and every planned UID."""
     from .build import cpu_plan
     src=Path(old['run']);root=f.EVAL/short
-    root.mkdir(exist_ok=False)
+    from exp.r17_integration.ops.immutable_release import nvme_dir
+    nvme_dir(root)  # real dir on /nvme, /data path a symlink
     shutil.copytree(src/'assets',root/'assets')
     for file in ('runtime.tar','workers.tar','RUNTIME_RELEASE.json','STUDY.json','EPISODE_PLAN.json'):
         shutil.copyfile(src/file,root/file)
@@ -100,7 +101,8 @@ def clone_r17(old,short):
 
 
 def clone_vla(old,short):
-    src=Path(old['run']);root=f.EVAL/short;root.mkdir(exist_ok=False)
+    from exp.r17_integration.ops.immutable_release import nvme_dir
+    src=Path(old['run']);root=nvme_dir(f.EVAL/short)  # real dir on /nvme, /data path a symlink
     if old['pipeline']=='R15':
         manifest=root/'eval500.json';manifest.write_bytes((src/'eval500.json').read_bytes())
         specs=copy.deepcopy(read(src/'arms_in.json'))

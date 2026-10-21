@@ -24,7 +24,8 @@ def local_dp_template(src):
     import hashlib
     src=Path(src);root=EVAL/('fa_ls_t_'+hashlib.sha256(str(src).encode()).hexdigest()[:8])
     if root.exists():return root
-    root.mkdir(parents=True)
+    from exp.r17_integration.ops.immutable_release import nvme_dir
+    nvme_dir(root)  # real dir on /nvme, /data path a symlink
     c=copy.deepcopy(read(src/'campaign.json'));release=read(src/'RUNTIME_RELEASE.json')
     c.update(server_node='local',server_python='/data/mw_finetune/dp/env/bin/python',
         longseg_deployment_origin=dict(source=str(src),server_node='h100',target='RTX 4090',

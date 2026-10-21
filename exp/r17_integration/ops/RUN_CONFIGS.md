@@ -501,7 +501,7 @@ episode (the H100 shard drain afterwards is not included). Util/W are medians of
 
 > ⛔ owner 10-20：GR00T 最多开 4–5 个副本，不准开 11 个（`fa_ls_gr_r_u_m` R11 时 H100 GPU 只有 5%，71–79 GB 显存全被副本占着，H100 本机 worker 一个都放不下）。副本数按实测 GPU 利用率定：个位数利用率说明副本多了，先加 worker。排队的 GR00T MT50 批次（v03_0、v03_1、gr_f_f_m、gr_f_u_m）已改 R5，`cache_knob.MW_PROFILES["groot_mw"]` 改 R5 / 36 GiB。
 
-> jupyter pod 服务 GR00T · MetaWorld（10-20 实测）：`fa_ls_gr_f_u_m_j` 在 jupyter-ziyang10-02 的 H200 MIG 1g.18gb 上，R2、不开 MPS、14 GiB（pod_copy，环境在 pod NFS 家目录，`setup.sh groot`），worker 只用公共池：23:03–23:13 稳态 **116 局/分、0 报错**，调度器给 ~32 个 worker（客户端 desired 29）。同批在 H100 R11 上约 250 局/分。第一个副本从 NFS 加载约 15 分钟（22:45 启动 → 23:00 出局）。
+> jupyter pod 服务 GR00T · MetaWorld（10-20 实测）：`fa_ls_gr_f_u_m_j` 在 jupyter-ziyang10-02 的 H200 MIG 1g.18gb 上，R2、不开 MPS、14 GiB（pod_copy，环境在 pod NFS 家目录，`setup.sh groot`），worker 只用公共池：23:03–23:13 稳态 **116 局/分、0 报错**，调度器给 ~32 个 worker（客户端 desired 29）。同批在 H100 R11 上约 250 局/分。第一个副本从 NFS 加载约 15 分钟（22:45 启动 → 23:00 出局）。之后 R2（每副本 7 GiB）在 16 GiB slice 上显存溢出（累计 757 条 error：`NVML_SUCCESS == r INTERNAL ASSERT` / `CUDNN_STATUS_INTERNAL_ERROR`），23:51 平稳停；续跑 `fa_ls_gr_f_u_m_jc1` 改 **R1 / 14 GiB**（端口 23474 + 后端 23475，驱动 23192），吞吐待实测。
 
 Full-step test success (seed 7, 2,500 episodes), reported as the equal-weight mean of the four difficulty groups (easy 28 / medium 11 / hard 6 / very hard 5 tasks; the convention of the RLinf and SmolVLA MT50 tables) and, second, the per-task mean: GR00T 67.1 / 75.8, DP 46.0 / 61.2, π0.5 46.7 / 56.3. Published π0.5 SFT (same RLinf checkpoint) is 43.8 group mean. Always state which mean a MetaWorld number is.
 
@@ -1200,7 +1200,9 @@ Killing the chain's bash is the same as closing the session when that bash is th
 
 The UTF-8/filesystem-encoded **absolute pipe directory**, not just the run name,
 must be<=85 bytes. Current layout is
-`/data/mw_finetune/eval/<run>/mps/<6-character GPU hash>/p`.
+`/data/mw_finetune/eval/<run>/mps/<6-character GPU hash>/p`. Since 10-21 new run directories are real directories
+under `/nvme/weiland/openpi/eval/<run>` (the `/data` path is a symlink) and `mps.paths` resolves it, so the pipe
+path is 3 bytes longer: run names at most 46 characters (was 49).
 Use short names such as `hs6fw_ctl_HHMMSS`, `hs5dp_ctl_HHMMSS` or `hs5dp_c10`.
 Short names do not remove one-shot uniqueness/seal requirements; use a fresh
 name for each preparation. Do not use long descriptive campaign names or

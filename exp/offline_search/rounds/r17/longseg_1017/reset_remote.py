@@ -97,7 +97,8 @@ def run(host, root, backup, *, check_only=False):
         'h100':('/data/mw_finetune/eval', '/tmp/r17_formal'),
         'timan1':('/scratch/zixuans8/mw_r17/formal/stage', '/scratch/zixuans8/mw_r17/formal/runs'),
         'timan107':('/tmp/r17_formal', '/scratch/zixuans8/mw_r17/formal/runs'),
-        'local':('/tmp/r17_formal', '/data/mw_finetune/qualification/local_workers/runs'),
+        'local':('/tmp/r17_formal', '/data/mw_finetune/qualification/local_workers/runs',
+                 '/nvme/weiland/openpi/qualification/local_workers/runs'),  # owner 10-20: new local runs on /nvme
     }
     if str(Path(root).parent) not in allowed.get(host, ()):
         raise ValueError('unsupported node or campaign archive parent; no reset performed')

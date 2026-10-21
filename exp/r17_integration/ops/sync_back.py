@@ -15,7 +15,7 @@ from .build_client_bundle import add_bytes, json_bytes, safe_name, sha256
 def atomic_bytes(path, data):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    if path.is_symlink() or any(p.is_symlink() for p in path.parents):
+    if path.is_symlink():  # parents may be symlinks: /data run roots link to /nvme (owner 10-20)
         raise ValueError("symlink install target")
     part = path.with_name(path.name + ".part")
     with part.open("wb") as f:

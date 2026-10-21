@@ -41,7 +41,8 @@ def reset(root, backup, *, remote_backup=None, remote_stage_backup=None):
             raise ValueError('fixed/source-pinned continuations cannot use zero-progress reset')
         server_root=Path(campaign.get('server_run',str(root/'servers'))).parent
         remote_needed=campaign.get('server_node')=='h100'
-        if remote_needed and (server_root!=root or remote_backup is None):
+        # H100's copy lives at the campaign's /data address; locally root may resolve to /nvme (owner 10-20).
+        if remote_needed and (server_root.name!=root.name or remote_backup is None):
             raise ValueError('H100 reset requires --remote-backup and a campaign-owned server_run')
         if remote_backup is not None and not remote_needed:
             raise ValueError('remote backup requested for a non-H100 campaign')
@@ -67,8 +68,9 @@ def reset(root, backup, *, remote_backup=None, remote_stage_backup=None):
                 raise ValueError('unsupported worker node; never reset timan108')
             stage_parent=Path('/scratch/zixuans8/mw_r17/formal/stage' if node=='timan1' else '/tmp/r17_formal')
             expected_stage=stage_parent/root.name/node
-            worker_parent=Path('/data/mw_finetune/qualification/local_workers/runs' if node=='local'
-                               else '/scratch/zixuans8/mw_r17/formal/runs')
+            # local: the recorded parent (/data before 10-21, /nvme after); reset_remote allowlists both
+            worker_parent=(Path(item.get('worker_run','')).parent if node=='local'
+                           else Path('/scratch/zixuans8/mw_r17/formal/runs'))
             expected_run=worker_parent/(root.name+'_'+node)
             if item.get('stage')!=str(expected_stage) or item.get('worker_run')!=str(expected_run):
                 raise ValueError('worker paths do not match this campaign; inspect manually')

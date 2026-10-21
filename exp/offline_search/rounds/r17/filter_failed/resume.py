@@ -27,7 +27,8 @@ def local_clone(snapshot,name,failure,*,worker_counts=None,campaign_overrides=No
     prefixes=(prefix,'fa_') if campaign.get('filter_failed_knob') else (prefix,)
     if not name.startswith(prefixes) or not all(c.isalnum() or c in '_-' for c in name):
         raise ValueError('A new '+prefix+' continuation name is required')
-    root=formal_eval.FORMAL_ROOT/name;root.mkdir(exist_ok=False)
+    from exp.r17_integration.ops.immutable_release import nvme_dir
+    root=nvme_dir(formal_eval.FORMAL_ROOT/name)  # real dir on /nvme, /data path a symlink
     seal=read(snapshot/'PREPARED.json')
     for relative in dict.fromkeys([*seal['files'],'runtime.tar','workers.tar']):
         dest=root/relative;dest.parent.mkdir(parents=True,exist_ok=True)

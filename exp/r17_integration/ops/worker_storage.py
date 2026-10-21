@@ -16,7 +16,7 @@ import tarfile
 from .formal_process import alive, ticks
 
 REMOTE_RUNS = '/scratch/zixuans8/mw_r17/formal/runs'
-LOCAL_RUNS = '/data/mw_finetune/qualification/local_workers/runs'
+LOCAL_RUNS = '/nvme/weiland/openpi/qualification/local_workers/runs'  # local_workers.ROOT/runs (owner 10-20: off /data)
 
 
 def file_sha(path):

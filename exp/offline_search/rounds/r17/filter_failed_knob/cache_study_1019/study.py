@@ -122,7 +122,8 @@ def build_model(model):
                      source_group_sha256=source['group_sha256']))
     group['definitions_sha256'] = {str(p): sha(p) for p in sorted(defs.rglob('*')) if p.is_file()}
     group['group_sha256'] = a.sha(rc.canonical(group))
-    root.mkdir(parents=True, exist_ok=True)
+    from exp.r17_integration.ops.immutable_release import nvme_dir
+    nvme_dir(root, exist_ok=True)  # real dir on /nvme; group root keeps its /data address
     dump(root/'group.json', group)
     dump(root/'ROOT.json', dict(group_sha256=group['group_sha256'], definitions_sha256=group['definitions_sha256']))
     return dict(name=name, run=str(root), model=model, mode='reduced', arm='original', stage='cache_study',

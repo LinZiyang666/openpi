@@ -1,8 +1,10 @@
 """Cooperative, single-reader /data budget for this withdrawal/rebuild only."""
 from contextlib import contextmanager
+import errno
 import fcntl
 import os
 from pathlib import Path
+import shutil
 import time
 import threading
 from unittest.mock import patch
@@ -124,4 +126,8 @@ def tree(source,dest):
             copy(src,dst)
         elif any((src.parent/n).exists() for n in ('stall.json','stall.pkl')):
             copy(src,dst)  # stall artifacts: a link bumps ctime in running servers' stamps (staging.stall_file)
-        else:os.link(src,dst)  # immutable descriptors, YAMLs, views and fitted arrays
+        else:
+            try:os.link(src,dst)  # immutable descriptors, YAMLs, views and fitted arrays
+            except OSError as error:
+                if error.errno!=errno.EXDEV:raise
+                shutil.copyfile(src,dst)  # source on /data, new run on /nvme

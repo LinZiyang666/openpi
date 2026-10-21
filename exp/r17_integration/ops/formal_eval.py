@@ -1926,8 +1926,6 @@ def main(argv=None):
     if not name or len(name) > 150 or any(c not in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-' for c in name):
         raise ValueError('run name must be a unique plain identifier')
     directory = args.output or FORMAL_ROOT / name
-    if directory.resolve().parent != FORMAL_ROOT:
-        raise ValueError('results must be a direct child of /data/mw_finetune/eval')
     if args.mps:
         from exp.r17_integration.models.fastwam.ops.mps import paths
         if args.output is not None and args.run_name != directory.name:
@@ -1938,7 +1936,8 @@ def main(argv=None):
         # UUID hashes have fixed width. Reject long custom names during CPU
         # preparation, before creating processes or a daemon.
         paths(directory, 'GPU-placeholder')
-    directory.mkdir(parents=True, exist_ok=False)
+    from .immutable_release import nvme_dir
+    nvme_dir(directory)  # real directory on /nvme, the /data path a symlink (owner 10-20)
     model, suffix = args.model.rsplit('_', 1)
     domain = 'libero' if suffix == 'libero' else 'metaworld'
     host = 'ziyanglin.com' if args.server_node == 'local' else h100_host()

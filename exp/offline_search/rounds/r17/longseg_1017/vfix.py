@@ -215,15 +215,17 @@ def retry(root, backup, *, remote_backup=None, remote_stage_backup=None, prepare
             source = Path(campaign['filter_failed_source'])
             archives = []
             if campaign['server_node'] == 'h100':
-                if Path(campaign['server_run']).parent != root or remote_backup is None:
+                # H100's copy lives at the campaign's /data address; locally root may resolve to /nvme (owner 10-20).
+                server_root = Path(campaign['server_run']).parent
+                if server_root.name != root.name or remote_backup is None:
                     raise ValueError('H100 retry requires --remote-backup and a campaign-owned server_run')
                 remote_backup = Path(remote_backup)
                 stage = Path('/tmp/r17_formal')/root.name
                 stage_backup = Path(remote_stage_backup) if remote_stage_backup else stage.with_name(remote_backup.name)
-                for target, original in ((remote_backup, root), (stage_backup, stage)):
+                for target, original in ((remote_backup, server_root), (stage_backup, stage)):
                     if target.parent != original.parent or not target.name.startswith(root.name+'.'):
                         raise ValueError('remote backups must be explicit siblings named <campaign>.<suffix>')
-                archives += [('h100', root, remote_backup), ('h100', stage, stage_backup)]
+                archives += [('h100', server_root, remote_backup), ('h100', stage, stage_backup)]
             elif remote_backup is not None or remote_stage_backup is not None:
                 raise ValueError('remote backups requested for a non-H100 campaign')
             suffix = backup.name[len(root.name):]
@@ -233,8 +235,9 @@ def retry(root, backup, *, remote_backup=None, remote_stage_backup=None, prepare
                 if node not in ('local', 'timan1', 'timan107'):
                     raise ValueError('unsupported worker node; never reset timan108')
                 stage_parent = Path('/scratch/zixuans8/mw_r17/formal/stage' if node == 'timan1' else '/tmp/r17_formal')
-                run_parent = Path('/data/mw_finetune/qualification/local_workers/runs' if node == 'local'
-                                  else '/scratch/zixuans8/mw_r17/formal/runs')
+                # local: the recorded parent (/data before 10-21, /nvme after); reset_remote allowlists both
+                run_parent = (Path(item.get('worker_run', '')).parent if node == 'local'
+                              else Path('/scratch/zixuans8/mw_r17/formal/runs'))
                 expected_stage, expected_run = stage_parent/root.name/node, run_parent/(root.name+'_'+node)
                 if item.get('stage') != str(expected_stage) or item.get('worker_run') != str(expected_run):
                     raise ValueError('worker paths do not match this campaign; inspect manually')

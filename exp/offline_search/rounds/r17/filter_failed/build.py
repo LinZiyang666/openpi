@@ -164,7 +164,8 @@ def prepare_r17(source, selected, study_path, number):
     original = read(source / 'campaign.json')
     name = f"ff1015_{original['model']}_{'mt' if original['domain']=='metaworld' else 'li'}_{number:02d}"
     root = sources.EVAL / name
-    root.mkdir(parents=True, exist_ok=True)
+    from exp.r17_integration.ops.immutable_release import nvme_dir
+    nvme_dir(root, exist_ok=True)  # real dir on /nvme, /data path a symlink
     campaign = copy.deepcopy(original)
     for key in list(campaign):
         if key.startswith(('resume_', 'cache_resume', 'cache_capacity', 'cache_worker_refresh')) or key in (

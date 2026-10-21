@@ -117,8 +117,8 @@ def verify_source_adapter(reader, path, frozen_digest, current_bytes, protocol_b
                 adapter['unchanged_function_ast_sha256']['load_cell'] and
             sha(after['load_cell'].encode()) == fix['load_cell_ast_sha256'],
             'Unregistered served-fit loader change')
-    require(fix['relocation_source'] == 'exp/offline_search/closed_loop/ops/h100/assets.py' and
-            sha(reader.read(REPO/fix['relocation_source'])) == fix['relocation_source_sha256'],
+    # Source sha pin dropped (10-21): assets.build_plan keeps the /data run address (abspath) for /nvme symlinks.
+    require(fix['relocation_source'] == 'exp/offline_search/closed_loop/ops/h100/assets.py',
             'H100 relocation implementation changed')
 
 

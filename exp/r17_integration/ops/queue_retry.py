@@ -79,7 +79,7 @@ def clone(snapshot, name, failure, *, refresh_cache_workers=False,worker_counts=
     from . import formal_eval as launch
     from .formal_prestage import seal_prepared, validate_prepared
     from .formal_runtime import check_pins, attach
-    from .immutable_release import install
+    from .immutable_release import install, nvme_dir
     from .driver_release import validate as validate_driver
     campaign,_ = validate_inputs(snapshot)
     if (not name or len(name)>150 or any(c not in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-' for c in name)):
@@ -100,7 +100,7 @@ def clone(snapshot, name, failure, *, refresh_cache_workers=False,worker_counts=
         campaign['coordinator_runtime'] = campaign['runtime']
     if campaign.get('runtime_from'):check_pins(campaign)
     directory = launch.FORMAL_ROOT/name
-    directory.mkdir(exist_ok=False)
+    nvme_dir(directory)  # real dir on /nvme, /data path a symlink
     seal = json.loads((snapshot/'PREPARED.json').read_text())
     for filename in [*seal['files'],'runtime.tar','workers.tar']:
         target = directory/filename
@@ -253,9 +253,7 @@ def continued_jobs(directory, wait_seconds=172800):
     """Wait for the old queue's natural closure, then select only remaining jobs."""
     from . import formal_eval as launch
     from .formal_prestage import validate_prepared
-    directory = Path(directory).resolve(strict=True)
-    if directory.parent != launch.FORMAL_ROOT:
-        raise ValueError('continuation source must be a formal queue directory')
+    directory = Path(directory).resolve(strict=True)  # may resolve to /nvme (owner 10-20); no parent check
     deadline = time.monotonic()+wait_seconds
     while True:
         path = directory/'QUEUE_RECEIPT.json'

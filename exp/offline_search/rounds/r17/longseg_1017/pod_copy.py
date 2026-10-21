@@ -149,7 +149,8 @@ def copy_job(source, name, pod, driver_port, *, replicas=None, memory_gib=14, st
                          resources_before=before, resources_after=resources,
                          scientific_definition_unchanged=True,
                          reason='serve on a jupyter pod MIG slice (R'+str(replicas)+' without MPS: the MPS guard cannot read MIG via nvidia-smi)')
-    root.mkdir()
+    from exp.r17_integration.ops.immutable_release import nvme_dir
+    nvme_dir(root)  # real dir on /nvme, /data path a symlink
     budget.tree(src/'assets', root/'assets')
     for name_ in DEFINITION:
         if (src/name_).exists():

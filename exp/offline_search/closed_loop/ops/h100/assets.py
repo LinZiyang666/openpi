@@ -135,7 +135,8 @@ def build_plan(run, names, work, *, store=STORE, base=BASE, local=False,
                isolate_generated=None):
     from exp.offline_search.closed_loop.devset import root_pool, arm_contract
     from exp.offline_search.closed_loop.ops.remote.run_gtp_subset import load_manifest
-    run, work = Path(run).resolve(), Path(work)
+    # abspath, not resolve: arms.json strings use the /data address even when it links to /nvme (owner 10-20).
+    run, work = Path(os.path.abspath(run)), Path(work)
     rows = {r["arm"]: r for r in json.loads((run / "arms.json").read_text())}
     pool = root_pool(run)
     if not names:
