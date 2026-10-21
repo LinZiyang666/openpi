@@ -6,8 +6,9 @@ NodeExecutor on this node, spawning the agent's fixed WorkerSpecs. Both read the
 OPENPI_AUTOSCALE_CONFIG; its directory holds AUTOSCALE_CONTROL.json / AUTOSCALE_NODE.json.
 
 Launcher side (4090): `campaign` / `node_campaign` describe the batch, `install` puts this package and the
-conductor hooks into the frozen R15/R16 worker islands. Legacy batches run only on nodes with such an island:
-R15 timan107 (driver and agent in one run_gtp process), R16 timan107 and the 4090 (its servers are local).
+conductor hooks into the frozen R15/R16 worker islands. Legacy batches run only on nodes with such an island.
+R15 (closed_loop/ops/h100/fleet.py): the driver's fleet runs driver and agent in one run_gtp process, the
+arm's other fleets agent-only run_gtp processes connected to it. R16: agents on every island, driver on the 4090.
 """
 from __future__ import annotations
 

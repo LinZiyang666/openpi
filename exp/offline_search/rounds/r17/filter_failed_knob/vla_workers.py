@@ -32,7 +32,7 @@ def probe(host, pipeline):
     from exp.offline_search.closed_loop.ops.h100.fleet import island
     root = str(island(host)) if pipeline == 'R15' else (
         '/scratch/zixuans8/openpi_r16_conductor_v1' if host == 'timan107' else R16_ISLAND)
-    required = ['/scratch/zixuans8/openpi/.venv/bin/python', '/scratch/zixuans8/libero_sim/bin/python']
+    required = ['/scratch/zixuans8/openpi/.venv/bin/python', '/scratch/zixuans8/libero_sim/bin/python'] if host.startswith('timan') else ['/data/mw_finetune/qualification/h100_workers/env311/bin/python', '/home/weiland/projects/openpi_ext/envs/libero_sim/bin/python']  # run_arm.sh PY / SIM
     if pipeline == 'R15':
         required += [root+'/os_cl/'+n for n in ('node.py', 'run_arm.sh', 'run_gtp_subset.py')]
     elif host == 'timan107':
@@ -48,18 +48,20 @@ def probe(host, pipeline):
             'island='+repr(root)+',installed=Path('+repr(root+'/worker.sha256')+').is_file(),'
             'admission=capacity('+repr(host)+',"/scratch/zixuans8/mw_r17/formal/runs/ffk_legacy_probe",530,2048))))')
     try:
-        result = subprocess.run(['tether', 'exec', '--safe', '--timeout', '90s', host, '--',
+        from exp.offline_search.closed_loop.ops.h100.fleet import node
+        result = subprocess.run(['tether', 'exec', '--safe', '--timeout', '90s', node(host), '--',
                                  '/usr/bin/python3', '-B', '-S', '-c', code],
                                 capture_output=True, text=True, timeout=95, check=True)
         row = json.loads(result.stdout.strip().splitlines()[-1])
-        row['usable'] = row['host'] == host and not row['missing']
+        # Hostnames differ from fleet keys on the Jetstream machines (a100 'videogen', h100 'vla-cache').
+        row['usable'] = row['host'] in (host, {'a100': 'videogen', 'h100w': 'vla-cache'}.get(host)) and not row['missing']
         return row
     except (subprocess.SubprocessError, OSError, ValueError) as exc:
         return dict(usable=False, error=str(exc), host=host)
 
 
 def choose(job, requested='auto', *, require_capacity=False):
-    hosts = ('timan107',) if job['pipeline'] == 'R15' else ('timan107', 'timan1')
+    hosts = (os.environ.get('WORKER_HOST', 'timan107'),) if job['pipeline'] == 'R15' else ('timan107', 'timan1')  # R15: the driver's fleet (fleet.DRIVERS); agents via WORKER_HOSTS
     requested = 'timan1' if requested == 'timan1_gpu2' else requested
     if requested != 'auto' and requested not in hosts:
         raise ValueError(f'{job["pipeline"]} worker hosts: {hosts}')

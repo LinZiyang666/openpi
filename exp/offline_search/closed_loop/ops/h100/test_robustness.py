@@ -259,12 +259,11 @@ def test_another_chains_port_is_refused_before_launch(tmp_path, monkeypatch):
 @pytest.mark.parametrize("total,accepted", [(64, True), (65, True), (250, True), (0, False)])
 def test_new_island_node_treats_workers_as_desired_maximum(tmp_path, monkeypatch, total, accepted):
     monkeypatch.setattr(node, "ISLAND", tmp_path)
-    monkeypatch.setattr(node, "T107_ISLAND", tmp_path)
     monkeypatch.setattr(node, "session_exists", lambda receipt: False)
     monkeypatch.setattr(node, "wait_workers", lambda: None)
     monkeypatch.setattr(node, "call", lambda *a, **k: "")
     spec = dict(role="driver", out=str(tmp_path / "os_cl/runs/B"), arm="B", suite="libero_10",
-                servers=["host:23220"], workers=[total], env={})
+                servers=["host:23220"], workers=[total], env={"WORKER_HOST": "timan107"})
     if accepted:
         node.launch(spec)
         assert (tmp_path / "os_cl/runs/B/driver.job.json").exists()
@@ -275,15 +274,17 @@ def test_new_island_node_treats_workers_as_desired_maximum(tmp_path, monkeypatch
             node.launch(spec)
 
 
-def test_t107_node_refuses_payload_that_would_select_old_island(tmp_path, monkeypatch):
+def test_shared_island_path_launches_for_its_own_fleet(tmp_path, monkeypatch):
+    # timan1 uses timan107's island path: its helper keeps WORKER_HOST=timan1 (run_arm picks GPUs/env by it).
     monkeypatch.setattr(node, "ISLAND", tmp_path)
-    monkeypatch.setattr(node, "T107_ISLAND", tmp_path)
     monkeypatch.setattr(node, "session_exists", lambda receipt: False)
-    monkeypatch.setattr(node, "wait_workers", lambda: pytest.fail("must refuse before launching"))
-    spec = dict(role="driver", out=str(tmp_path / "os_cl/runs/B"), arm="B", suite="libero_10",
-                servers=["host:23220"], workers=[1], env={"WORKER_HOST": "timan108"})
-    with pytest.raises(ValueError, match="new timan107 island requires"):
-        node.launch(spec)
+    monkeypatch.setattr(node, "wait_workers", lambda: None)
+    monkeypatch.setattr(node, "call", lambda *a, **k: "")
+    spec = dict(role="driver", out=str(tmp_path / "os_cl/runs/B/agent"), arm="B", suite="libero_10",
+                servers=["host:23220"], workers=[1], env={"WORKER_HOST": "timan1", "OSCL_AGENT_OF": "1.2.3.4:24220"})
+    node.launch(spec)
+    job = json.loads((tmp_path / "os_cl/runs/B/agent/driver.job.json").read_text())
+    assert job["env"]["WORKER_HOST"] == "timan1" and job["env"]["OSCL_AGENT_OF"] == "1.2.3.4:24220"
 
 
 @pytest.mark.parametrize("action", ["start", "start-server", "status", "stop", "install", "pull", "archive", "checkpoints", "manifest", "supervise", "--help"])
@@ -845,3 +846,41 @@ def test_server_stop_escalates_only_recorded_owned_pid(tmp_path, monkeypatch, re
     node.stop(spec, timeout_s=2)
     assert signals == ([signal.SIGTERM] if recycled else [signal.SIGTERM, signal.SIGKILL])
     assert json.loads((out / "server_arm.owner.json").read_text())["stopped"]
+
+
+def test_worker_hosts_opt_in_and_reach(monkeypatch):
+    from exp.offline_search.closed_loop.ops.h100 import fleet
+    monkeypatch.setenv("WORKER_HOST", "timan107")
+    monkeypatch.delenv("WORKER_HOSTS", raising=False)
+    assert fleet.worker_hosts() == ("timan107",)  # unset: one fleet, as before
+    monkeypatch.setenv("WORKER_HOSTS", "timan107,timan1")
+    assert fleet.worker_hosts() == ("timan107", "timan1")
+    monkeypatch.setenv("WORKER_HOSTS", "timan1,a100")  # a100 cannot reach a timan107 driver
+    with pytest.raises(ValueError, match="cannot reach"):
+        fleet.worker_hosts()
+    monkeypatch.setenv("WORKER_HOST", "a100")
+    monkeypatch.setenv("WORKER_HOSTS", "a100,timan107,timan1,h100w")
+    assert fleet.worker_hosts() == ("a100", "timan107", "timan1", "h100w")
+    assert fleet.node("h100w") == "h100" and control.REMOTE_NODE["h100w"] != control.REMOTE_NODE["h100"]
+
+
+def test_multi_fleet_chain_starts_and_stops_agents(tmp_path, monkeypatch):
+    from exp.offline_search.rounds.r17.scheduler import defaults
+    root, events, _ = mock_chain(tmp_path, monkeypatch)
+    plan = json.loads((root / "h100_sync/synced.json").read_text())
+    (root / "h100_sync/synced.json").write_text(json.dumps(dict(plan, fleets=["timan107", "timan1"])))
+    monkeypatch.setattr(defaults, "require", lambda campaign, directory: None)
+    pushed, calls, rpc = [], [], control.rpc
+    monkeypatch.setattr(control, "push", lambda host, local, dest: pushed.append((host, str(dest))))
+    monkeypatch.setattr(control, "rpc", lambda machine, action, spec, **kw:
+                        calls.append((machine, action, spec)) or rpc(machine, action, spec, **kw))
+    control.chain(root, ["first"])
+    starts = [(m, s) for m, a, s in calls if a == "start" and s["role"] == "driver"]
+    (_, driver), (machine, agent) = starts
+    assert machine == "timan1" and driver["env"]["OSCL_DRIVER_PORT"] == "24210"
+    assert agent["env"]["OSCL_AGENT_OF"] == "192.17.58.207:24210" and agent["env"]["WORKER_HOST"] == "timan1"
+    assert "OSCL_DRIVER_PORT" not in agent["env"] and agent["out"].endswith("/runs/r08/first/agent")
+    assert agent["env"]["OPENPI_AUTOSCALE_CONFIG"] in [d for h, d in pushed if h == "timan1"]
+    assert ("timan1", "stop") in [(m, a) for m, a, s in calls if s is agent]
+    launch = json.loads((root / "runs/first/h100_launch.json").read_text())
+    assert [a["worker_host"] for a in launch["agents"]] == ["timan1"]

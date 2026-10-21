@@ -71,17 +71,18 @@ def configure_node(n, lock, marker):
 @contextmanager
 def r15(root):
     from exp.offline_search.closed_loop.ops.h100 import control as c
-    host = c.worker_host(); helper = c.REMOTE_NODE[host]
-    lock = worker_lock(root, c.island(host)); native_remote = c.remote
+    native_remote = c.remote
     source = inspect.getsource(configure_node)
-    boot = ('import importlib.util\n'
-            's=importlib.util.spec_from_file_location("ffk_native_node",'+repr(helper)+')\n'
-            'n=importlib.util.module_from_spec(s);s.loader.exec_module(n)\n'+source+'\n'
-            'configure_node(n,'+repr(lock)+','+repr(Path(root).name)+')\nn.main()\n')
+    def boot(host):
+        # Every fleet of the arm (driver and agent-only ones): this root's own lock on that fleet's island.
+        return ('import importlib.util\n'
+                's=importlib.util.spec_from_file_location("ffk_native_node",'+repr(c.REMOTE_NODE[host])+')\n'
+                'n=importlib.util.module_from_spec(s);s.loader.exec_module(n)\n'+source+'\n'
+                'configure_node(n,'+repr(worker_lock(root, c.island(host)))+','+repr(Path(root).name)+')\nn.main()\n')
     def remote(node, argv, *a, **kw):
         argv = list(map(str, argv))
-        if node == host and argv[:2] == ['python3', helper]:
-            argv = ['/usr/bin/python3', '-B', '-S', '-c', boot, *argv[2:]]
+        if node in c.FLEETS and argv[:2] == ['python3', c.REMOTE_NODE[node]]:
+            argv = ['/usr/bin/python3', '-B', '-S', '-c', boot(node), *argv[2:]]
         return native_remote(node, argv, *a, **kw)
     with patch.object(c, 'fleet_lock', fleet_lock), patch.object(c, 'remote', remote):
         yield

@@ -5,11 +5,13 @@ list of [task_id, episode_idx] pairs / dictionaries. OSCL_EPISODES and OSCL_TASK
 retain their old meaning when no manifest is supplied. Full pool attestation stays 50.
 """
 import argparse
+import dataclasses
 import hashlib
 import json
 import os
 from pathlib import Path
 import sys
+import time
 
 
 def pair(row):
@@ -66,6 +68,47 @@ def selected_tasks(tasks, manifest=None, keep_ep=None, keep_t=None):
             and (not keep_t or t.task_id in keep_t)]
 
 
+class AgentOnly:
+    """The driver's stand-in on another fleet of the arm: run() returns once that driver reports the arm done
+    or has been unreachable for 10 minutes (supervisor pulls refresh AUTOSCALE_CONTROL.json every 15 s)."""
+    per_step_rows = ()
+
+    def __init__(self, port):
+        self.port = port
+        self.control = Path(os.environ["OPENPI_AUTOSCALE_CONFIG"]).parent / "AUTOSCALE_CONTROL.json"
+        self.control.unlink(missing_ok=True)  # a previous attempt's "done" must not end or stall this one
+
+    def run(self):
+        started = time.time()
+        while True:
+            time.sleep(5)
+            try:
+                if json.loads(self.control.read_text()).get("done"):
+                    return
+                last = self.control.stat().st_mtime
+            except (OSError, ValueError):
+                last = started
+            if time.time() - last > 600:
+                return
+
+
+def multinode(run_gtp):
+    """One arm, agents on several fleets (closed_loop/ops/h100/fleet.py). OSCL_DRIVER_PORT: the driver listens on
+    0.0.0.0:<port> (its own agent still uses 127.0.0.1). OSCL_AGENT_OF=<host>:<port>: no driver here, only this
+    fleet's agent, connected to that driver, worker ids prefixed with WORKER_HOST."""
+    port, agent_of = os.environ.get("OSCL_DRIVER_PORT"), os.environ.get("OSCL_AGENT_OF")
+    if port:
+        driver = run_gtp.ConductorDriver
+        run_gtp.ConductorDriver = lambda *a, **k: driver(*a, **dict(k, bind_host="0.0.0.0", bind_port=int(port)))
+    if agent_of:
+        host, _, port = agent_of.rpartition(":")
+        agent, prefix = run_gtp.WorkerAgent, os.environ["WORKER_HOST"] + "_"
+        run_gtp.ConductorDriver = lambda *a, **k: AgentOnly(int(port))
+        run_gtp.WorkerAgent = lambda specs, driver_host, driver_port: agent(
+            [dataclasses.replace(s, worker_id=prefix + s.worker_id) for s in specs], host, int(port))
+        print(f"AGENT_ONLY driver={host}:{port}", flush=True)
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(add_help=False)
     ap.add_argument("--manifest", default=os.environ.get("OSCL_MANIFEST"))
@@ -75,10 +118,11 @@ def main(argv=None):
         check_manifest(manifest, suite=rest[rest.index("--task-suite") + 1])
     keep_ep = {int(x) for x in os.environ.get("OSCL_EPISODES", "").split(",") if x.strip()}
     keep_t = {int(x) for x in os.environ.get("OSCL_TASKS", "").split(",") if x.strip()}
-    sys.path.insert(0, "/scratch/zixuans8/openpi_trace")
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # this island (<island>/os_cl/run_gtp_subset.py)
     from exp.gate_threshold_pareto import run_gtp
     from exp.offline_search.closed_loop.worker_pool import install
     install(run_gtp, rest, manifest)
+    multinode(run_gtp)
     original = run_gtp.SweepStrategy._episodes
 
     def episodes(self, yaml_id, server):

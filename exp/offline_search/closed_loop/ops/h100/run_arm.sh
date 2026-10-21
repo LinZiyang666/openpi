@@ -6,28 +6,29 @@
 set -uo pipefail
 SUITE=${1:?suite}; ARM=${2:?arm}; SERVERS=${3:?servers}; SW=${4:?server-workers}; OUT=${5:?out}
 shift 5
-R=/scratch/zixuans8/openpi_trace
-DEFAULT_WORKER_HOST=timan107
-if [ "$(readlink -f "$0")" = /scratch/zixuans8/openpi_trace_h100/os_cl/run_arm.sh ]; then
-  DEFAULT_WORKER_HOST=timan107
-  [ "${WORKER_HOST:-timan107}" = timan107 ] || { echo "new island requires WORKER_HOST=timan107" >&2; exit 2; }
-fi
-case "${WORKER_HOST:-$DEFAULT_WORKER_HOST}" in
+# Per fleet (fleet.py FLEETS): island, renderer cards, HOME, PATH (conda shim), driver/agent python, LIBERO sim env.
+# OSCL_DRIVER_PORT / OSCL_AGENT_OF (run_gtp_subset.py): this arm also has agents on other fleets / this is one.
+HOME_DIR=/home/zixuans8; BIN=/scratch/zixuans8/dsp_bin; PY=/scratch/zixuans8/openpi/.venv/bin/python
+SIM=/scratch/zixuans8/libero_sim
+case "${WORKER_HOST:-timan107}" in
   timan107) R=/scratch/zixuans8/openpi_trace_h100; GPU_IDS=0,1,2,3,4,5,6,7; GPU_COUNT=8 ;;
-  *) echo "WORKER_HOST must be timan107; timan108 is disabled" >&2; exit 2 ;;
+  timan1) R=/scratch/zixuans8/openpi_trace_h100; GPU_IDS=1,2; GPU_COUNT=2 ;;
+  a100|h100w) R=/data/mw_finetune/qualification/r15_island; GPU_IDS=0; GPU_COUNT=1; HOME_DIR=/home/weiland
+    BIN=/home/weiland/zl_bin; PY=/data/mw_finetune/qualification/h100_workers/env311/bin/python
+    SIM=/home/weiland/projects/openpi_ext/envs/libero_sim ;;
+  *) echo "unknown WORKER_HOST ${WORKER_HOST}; timan108 is disabled" >&2; exit 2 ;;
 esac
 # Hold the lock in the driver shell and its run_gtp child for their entire lifetime.
 mkdir -p "$R/os_cl/locks"
 exec 9>"$R/os_cl/locks/fleet.lock"
 flock -n 9 || exit 75
-export HOME=/home/zixuans8
+export HOME=$HOME_DIR
 export LIBERO_CONFIG_PATH=$R/os_cl/libero
 # Central worker scheduler: the driver's BatchClient and the agent's NodeExecutor read $OPENPI_AUTOSCALE_CONFIG.
 export OPENPI_WORKER_MEMORY_GUARD=1 OPENPI_WORKER_GOVERNOR=exp.offline_search.rounds.r17.scheduler.legacy
 export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1
 export PYTHONPATH=$R/packages/openpi-client/src:$R/src:$R
-export PATH=/scratch/zixuans8/dsp_bin:/usr/local/bin:/usr/bin:/bin
-PY=/scratch/zixuans8/openpi/.venv/bin/python
+export PATH=$BIN:/usr/local/bin:/usr/bin:/bin
 MANIFEST=${OSCL_MANIFEST:-}
 REPLAN=${OSCL_REPLAN_STEPS:-}
 EXTRA_ARGS=()
@@ -88,7 +89,7 @@ $PY "${ENTRY[@]}" \
   --trials 50 \
   --gpus "$GPU_COUNT" \
   --gpu-ids "$GPU_IDS" \
-  --conda-env /scratch/zixuans8/libero_sim \
+  --conda-env "$SIM" \
   --judge-type threshold \
   --eval-gate always_search \
   "${RES[@]}" \

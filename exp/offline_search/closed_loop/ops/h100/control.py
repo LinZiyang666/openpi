@@ -19,14 +19,14 @@ import uuid
 
 from .assets import BASE, ISLAND, build_plan, remap
 from .node import atomic, identity, sha
-from .fleet import FLEETS, island, worker_host
+from .fleet import DRIVERS, FLEETS, island, node as tether_node, worker_host, worker_hosts
 from .server_host import server_host, endpoint
 from exp.offline_search.closed_loop.devset import root_pool, arm_contract, validate_journal_pool
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[4]
-REMOTE_NODE = {"h100": str(BASE / "node.py")}
-REMOTE_NODE["timan107"] = str(island("timan107") / "os_cl/node.py")
+REMOTE_NODE = {"h100": str(BASE / "node.py")}  # the server helper; worker fleets use their island's copy
+REMOTE_NODE.update((host, str(island(host) / "os_cl/node.py")) for host in FLEETS)
 PY = REPO / ".venv/bin/python"
 T108_STAGE = Path("/srv/local/zixuans8/oscl_sb_stage")  # md0, same disk as /scratch; tether allows /srv
 T107_STAGE = Path("/tmp/oscl_sb3_stage")  # tether allow_roots excludes /scratch on timan107
@@ -71,27 +71,16 @@ def remote(node, cmd, timeout=300, attempts=None):
     if node == 'timan108':raise ValueError('timan108 is disabled; no probe allowed')
     if node == 'local':
         return run(cmd, timeout=timeout, attempts=1)
-    return run(["tether", "exec", node, "--", "bash", "-c", shlex.join(list(map(str, cmd)))],
+    return run(["tether", "exec", tether_node(node), "--", "bash", "-c", shlex.join(list(map(str, cmd)))],
                timeout=timeout, attempts=attempts)
 
 
 def push(node, local, destination):
+    """Files travel by public-IP rsync (direct_transfer); tether only runs commands (owner rule: no tether push/pull)."""
     if node == 'timan108':raise ValueError('timan108 is disabled; no transfer allowed')
-    if node in FLEETS:
-        stage_root = T108_STAGE if node == "timan108" else T107_STAGE
-        if node not in _STAGING_READY:
-            remote(node, ["mkdir", "-p", stage_root])
-            _STAGING_READY.add(node)
-        stage = stage_root / (sha(local) + ".push")
-        run(["tether", "push", "--force", local, f"{node}:{stage}"])
-        # One idempotent exec for mkdir/cp/rm, including duplicate execution after rm.
-        qstage, qdest = shlex.quote(str(stage)), shlex.quote(str(destination))
-        script = (f"mkdir -p {shlex.quote(str(Path(destination).parent))} && "
-                  f"if test -f {qstage}; then cp {qstage} {qdest} && rm -f {qstage}; fi && "
-                  f"test \"$(sha256sum {qdest} | cut -d ' ' -f 1)\" = {sha(local)}")
-        remote(node, ["bash", "-c", script])
-    else:
-        run(["tether", "push", "--force", local, f"{node}:{destination}"])
+    from exp.r17_integration.ops.formal_eval import transfer
+    remote(node, ["mkdir", "-p", str(Path(destination).parent)])
+    transfer(["rsync", "push", str(local), f"{tether_node(node)}:{destination}"])
 
 
 def rpc(node, action, spec, timeout=300, attempts=None):
@@ -349,22 +338,15 @@ def _setup(worker_only=False):
             brel = Path(f'exp/offline_search/closed_loop/ops/h100/bpool_{suite}.yaml')
             worker = [(p, r) for p, r in worker if r != brel]
             worker.append((bpath, brel))
-        # Own config under scratch; never update the user's ~/.libero or sim environment.
-        cfg = dict(assets="/home/zixuans8/.cache/libero/assets",
-                   bddl_files="/scratch/zixuans8/libero_sim/lib/python3.8/site-packages/libero/libero/bddl_files",
-                   benchmark_root="/scratch/zixuans8/libero_sim/lib/python3.8/site-packages/libero/libero",
-                   datasets="/scratch/zixuans8/libero_sim/lib/python3.8/site-packages/libero/datasets",
-                   init_states="/scratch/zixuans8/libero_sim/lib/python3.8/site-packages/libero/libero/init_files")
+        # Own config in the island; never update the user's ~/.libero or sim environment (same envs as run_arm.sh).
+        home, sim = (("/home/zixuans8", "/scratch/zixuans8/libero_sim") if host.startswith("timan") else
+                     ("/home/weiland", "/home/weiland/projects/openpi_ext/envs/libero_sim"))
+        libero = sim + "/lib/python3.8/site-packages/libero"
+        cfg = dict(assets=home + "/.cache/libero/assets", bddl_files=libero + "/libero/bddl_files",
+                   benchmark_root=libero + "/libero", datasets=libero + "/datasets", init_states=libero + "/libero/init_files")
         path = Path(td) / "config.yaml"
         path.write_text(yaml.safe_dump(cfg))
         worker.append((path, Path("os_cl/libero/config.yaml")))
-        # The unchanged legacy subset helper inserts the old island explicitly.
-        # Relocate that one copied helper only, never edit the old island/source.
-        if host == "timan107":
-            subset = Path(td) / "run_gtp_subset.py"
-            subset.write_text((HERE.parent / "remote/run_gtp_subset.py").read_text().replace(str(ISLAND), str(worker_island)))
-            worker = [(p, r) for p, r in worker if str(r) != "os_cl/run_gtp_subset.py"]
-            worker.append((subset, Path("os_cl/run_gtp_subset.py")))
         bundle(host, worker_island, worker)
 
 
@@ -439,6 +421,9 @@ def _sync(runroot, names, plan_only=False, concurrent=False, active=(), workdir=
         plan = build_plan(runroot, names, work, local=True) if local else build_plan(runroot, names, work)
         plan["arms_sha256"] = sha(runroot / "arms.json")
         plan["worker_host"] = worker_host()
+        fleets = list(worker_hosts())
+        if len(fleets) > 1:
+            plan["fleets"] = fleets  # the chain starts agent-only processes on fleets[1:]
         if local:
             plan['worker_island'] = str(island())
             (work / 'plan.json').write_text(json.dumps(plan, indent=1))
@@ -458,7 +443,7 @@ def _sync(runroot, names, plan_only=False, concurrent=False, active=(), workdir=
         for item in plan["files"]:
             if item["rel"] in protected and item["sha256"] != protected[item["rel"]]:
                 raise RuntimeError("ACTIVE_ASSET_CONFLICT " + item["rel"])
-        install_scheduler(runroot)
+        install_scheduler(runroot, fleets)
         if not local:
             with daemon(work, plan["files"]) as url:
                 spec = dict(dest=str(BASE), files=plan["files"], reserve_files=plan["files"], url=url)
@@ -485,31 +470,33 @@ def _sync(runroot, names, plan_only=False, concurrent=False, active=(), workdir=
                 cfg = next(x for x in plan["files"] if x["original"] == original["yaml"])
                 pairs += [(Path(cfg["source"]), Path("cfg") / (row["arm"] + ".yaml")),
                           (Path(original["matrix"]), Path("cfg") / ("matrix_" + row["arm"] + ".yaml"))]
-            bundle(worker_host(), island() / "os_cl", pairs)
-            if plan.get('init_pool') == 'B':
-                from exp.offline_search.closed_loop.devset import pool_record
-                import yaml
-                pool_files = []
-                for suite in sorted({r['suite'] for r in plan['arms']}):
-                    record_path, record = pool_record(suite)
-                    directory = REPO / f'exp/common/data/db_init/libero/{suite}'
-                    pool_files += [(p, p.relative_to(REPO)) for p in sorted(directory.glob('*.init'))]
-                    record['apool_dir'] = str(island() / directory.relative_to(REPO))
-                    path = Path(td) / record_path.name
-                    path.write_text(yaml.safe_dump(record, sort_keys=False))
-                    pool_files.append((path, record_path.relative_to(REPO)))
-                bundle(worker_host(), island(), pool_files)
+            for host in fleets:
+                bundle(host, island(host) / "os_cl", pairs)
+                if plan.get('init_pool') == 'B':
+                    from exp.offline_search.closed_loop.devset import pool_record
+                    import yaml
+                    pool_files = []
+                    for suite in sorted({r['suite'] for r in plan['arms']}):
+                        record_path, record = pool_record(suite)
+                        directory = REPO / f'exp/common/data/db_init/libero/{suite}'
+                        pool_files += [(p, p.relative_to(REPO)) for p in sorted(directory.glob('*.init'))]
+                        record['apool_dir'] = str(island(host) / directory.relative_to(REPO))
+                        path = Path(td) / (host + '_' + record_path.name)
+                        path.write_text(yaml.safe_dump(record, sort_keys=False))
+                        pool_files.append((path, record_path.relative_to(REPO)))
+                    bundle(host, island(host), pool_files)
         (work / "synced.json").write_text(json.dumps(plan, indent=1))
         print("SYNC_OK")
         return plan
 
 
-def install_scheduler(runroot):
-    """Central worker scheduler: its package, the conductor hooks and this helper/run_arm into the
-    worker island; runroot/workers.tar is what the chain's launch check reads."""
+def install_scheduler(runroot, hosts=None):
+    """Central worker scheduler: its package, the conductor hooks and this helper/run_arm/subset entry into
+    every fleet's island; runroot/workers.tar is what the chain's launch check reads."""
     from exp.offline_search.rounds.r17.scheduler.legacy import install
-    install(runroot, {worker_host(): island()},
-            [(HERE / "run_arm.sh", "os_cl/run_arm.sh"), (HERE / "node.py", "os_cl/node.py")])
+    install(runroot, {tether_node(h): island(h) for h in hosts or [worker_host()]},
+            [(HERE / "run_arm.sh", "os_cl/run_arm.sh"), (HERE / "node.py", "os_cl/node.py"),
+             (HERE.parent / "remote/run_gtp_subset.py", "os_cl/run_gtp_subset.py")])
 
 
 def collect(runroot, arm, manifest=None):
@@ -545,10 +532,11 @@ def collect(runroot, arm, manifest=None):
                         pulled = local if len(volume["parts"]) == 1 else Path(td) / "part.tar"
                         for attempt in range(8):
                             try:
-                                run(["tether", "pull", "--force", f"{node}:{part['archive']}", pulled],
-                                    timeout=590, attempts=1)
+                                from exp.r17_integration.ops.formal_eval import transfer
+                                pulled.unlink(missing_ok=True)
+                                transfer(["rsync", "pull", f"{tether_node(node)}:{part['archive']}", str(pulled)])
                                 break
-                            except (RuntimeError, subprocess.TimeoutExpired) as exc:
+                            except Exception as exc:
                                 if "too_large" in str(exc).lower() or attempt == 7:
                                     raise
                                 time.sleep(min(15 * (attempt+1), 60))
@@ -706,7 +694,12 @@ def chain(runroot, names):
         with open(log, "a") as f:
             f.write("   " + time.strftime("%H:%M:%S") + " " + msg + "\n")
         print(msg, flush=True)
-    active = dict(servers=[], driver=None)
+    active = dict(servers=[], driver=None, agents=[])
+    def stop_agents():
+        # Agent-only processes of the arm's other fleets; each stop also waits for that fleet's workers.
+        for machine, spec in active["agents"][:]:
+            note(rpc(machine, "stop", spec, timeout=590))
+            active["agents"].remove((machine, spec))
     def cleanup():
         errors = []
         if active["driver"]:
@@ -715,6 +708,10 @@ def chain(runroot, names):
                 active["driver"] = None
             except Exception as exc:
                 errors.append(str(exc))
+        try:
+            stop_agents()
+        except Exception as exc:
+            errors.append(str(exc))
         for spec in active["servers"][:]:
             try:
                 note(rpc(server, "stop", spec))
@@ -738,6 +735,7 @@ def chain(runroot, names):
             raise RuntimeError("synced worker host differs; sync for WORKER_HOST again")
         if plan.get('server_host', 'h100') != server:
             raise RuntimeError('synced server host differs; sync for SERVER_HOST again')
+        hosts = plan.get("fleets", [host])  # only a sync with WORKER_HOSTS records several fleets
         prepared = {r["arm"]: r for r in plan["arms"]}
         originals = {r["arm"]: r for r in json.loads((root / "arms.json").read_text())}
         missing = sorted(set(names) - prepared.keys())
@@ -763,12 +761,19 @@ def chain(runroot, names):
                 contract = arm_contract(root, originals[name], load_manifest(selected_path))
                 if plan.get('dev_contracts', {}).get(name) != contract:
                     raise RuntimeError('dev selection/library/fit changed since sync; sync again')
-        # One scheduler batch per run root (all arms); workers only on the island's host.
+        # One scheduler batch per run root (all arms) over the arm's fleets: the driver's fleet runs its agent
+        # in-process, every other fleet an agent-only run_gtp connected to the driver's public port (fleet.DRIVERS).
         from exp.offline_search.rounds.r17.scheduler import legacy
         from exp.offline_search.rounds.r17.scheduler.defaults import require
-        campaign = legacy.node_campaign(legacy.campaign(root.name, server, (host,)), host)
+        full = legacy.campaign(root.name, server, [tether_node(h) for h in hosts])
+        hosts = [h for h in hosts if tether_node(h) in full["scheduler_nodes"]]  # e.g. no h100 class for a 4090 server
+        campaigns = {h: legacy.node_campaign(full, tether_node(h)) for h in hosts}
+        campaign = campaigns[host]
         require(campaign, root)
         workers = campaign["node_workers"]
+        driver_port = ports[0] + 1000  # distinct per concurrent batch, as its server ports are
+        if len(hosts) > 1:
+            note(f"FLEETS driver={host} {DRIVERS[host][0]}:{driver_port} agents={','.join(hosts[1:])}")
         receipt = dict(pid=os.getpid(), starttime=identity(os.getpid()),
                        cmdline=Path(f"/proc/{os.getpid()}/cmdline").read_bytes().hex(), worker_host=host)
         if server == 'local':
@@ -816,7 +821,8 @@ def chain(runroot, names):
                     contract_path = dest / 'pool_contract.json'
                     contract_path.write_text(json.dumps(plan['dev_contracts'][arm], sort_keys=True))
                     remote_contract = str(worker_island / 'os_cl/cfg' / f'pool_contract_{root.name}_{arm}.json')
-                    push(host, contract_path, remote_contract)
+                    for h in hosts:
+                        push(h, contract_path, remote_contract.replace(str(worker_island), str(island(h)), 1))
                     env.update(OSCL_INIT_POOL='B', OSCL_POOL_CONTRACT=remote_contract,
                                OSCL_POOL_CONTRACT_SHA256=sha(contract_path))
                 env.update(execution_env(row))
@@ -831,7 +837,8 @@ def chain(runroot, names):
                     saved = dest / "manifest.json"
                     saved.write_bytes(Path(manifest).read_bytes())
                     remote_manifest = str(worker_island / "os_cl/cfg" / f"manifest_{root.name}_{arm}_{manifest_sha}.json")
-                    push(host, saved, remote_manifest)
+                    for h in hosts:
+                        push(h, saved, remote_manifest.replace(str(worker_island), str(island(h)), 1))
                     env["OSCL_MANIFEST"] = remote_manifest
                     manifest = str(saved)
                 selection_data = dict(manifest=manifest)
@@ -844,9 +851,25 @@ def chain(runroot, names):
                               workers=[workers//len(ports) + (i < workers%len(ports)) for i in range(len(ports))], env=env)
                 if host != "timan108":
                     env["WORKER_HOST"] = host
+                agents = []
+                for h in hosts[1:]:
+                    # The driver's spec on the agent's own island, in a subdirectory; the arm's results stay on the driver.
+                    agent_out = island(h) / "os_cl/runs" / root.name / arm / "agent"
+                    (dest / f"scheduler_{h}.json").write_text(json.dumps(campaigns[h]))
+                    push(h, dest / f"scheduler_{h}.json", agent_out / "scheduler/campaign.json")
+                    agent_env = {k: v.replace(str(worker_island), str(island(h)), 1) for k, v in env.items()}
+                    agent_env.update(WORKER_HOST=h, OSCL_AGENT_OF=f"{DRIVERS[host][0]}:{driver_port}",
+                                     OPENPI_AUTOSCALE_CONFIG=str(agent_out / "scheduler/campaign.json"))
+                    n = campaigns[h]["node_workers"]
+                    agents.append((h, dict(driver, out=str(agent_out), env=agent_env,
+                                           workers=[n//len(ports) + (i < n%len(ports)) for i in range(len(ports))])))
+                if agents:
+                    env["OSCL_DRIVER_PORT"] = str(driver_port)
                 specs = [server_spec(root, row, p) for p in ports]
                 def save_launch():
                     launch = dict(servers=specs, driver=driver, code_tree=code_tree, worker_host=host)
+                    if agents:
+                        launch['agents'] = [dict(worker_host=h, spec=a) for h, a in agents]
                     if server == 'local':
                         launch['server_host'] = server
                     (dest / "h100_launch.json").write_text(json.dumps(launch, indent=1))
@@ -890,9 +913,14 @@ def chain(runroot, names):
                 complete = False
                 for attempt in range(1, attempts+1):
                     driver["launch_id"] = uuid.uuid4().hex
+                    for _, a in agents:
+                        a["launch_id"] = driver["launch_id"]
                     save_launch()
                     active["driver"] = driver
                     note(rpc(host, "start", driver))
+                    for h, a in agents:
+                        active["agents"].append((h, a))
+                        note(rpc(h, "start", a))
                     note(f"driver attempt {attempt} launched")
                     dead = False
                     failures = 0
@@ -906,11 +934,13 @@ def chain(runroot, names):
                             event(f"SERVER_DIED arm={arm}")
                             note(rpc(host, "stop", driver, timeout=590))
                             active["driver"] = None
+                            stop_agents()
                             break
                         if driver_status and not driver_status["running"]:
                             # Session disappearance alone does not prove legacy run_gtp has exited.
                             note(rpc(host, "stop", driver, timeout=590))
                             active["driver"] = None
+                            stop_agents()
                             break
                     purged = remote(host, ["python3", worker_island / "os_cl/purge_exc.py", driver["out"]])
                     note("purged=" + purged)
@@ -980,6 +1010,8 @@ def abort(root, arms):
     for arm in arms:
         spec = json.loads((Path(root) / "runs" / arm / "h100_launch.json").read_text())
         print(rpc(launch_host(Path(root), arm), "stop", spec["driver"], timeout=590))
+        for agent in spec.get("agents", []):
+            print(rpc(agent["worker_host"], "stop", agent["spec"], timeout=590))
         for server in spec["servers"]:
             print(rpc(launch_server_host(Path(root), arm), "stop", server))
 

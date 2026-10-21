@@ -105,7 +105,7 @@ def test_worker_only_setup_never_contacts_h100_or_other_fleet(tmp_path, monkeypa
     assert set(contacts) == {"timan107"}
     dest, files = bundles[0]
     assert dest == island("timan107")
-    assert str(island("timan107")) in files["os_cl/run_gtp_subset.py"]
+    assert "sys.path.insert(0, str(Path(__file__).resolve().parents[1]))" in files["os_cl/run_gtp_subset.py"]
     assert 'sys.path.insert(0, "/scratch/zixuans8/openpi_trace")' not in files["os_cl/run_gtp_subset.py"]
     for suite in ("libero_spatial", "libero_10"):
         cfg = yaml.safe_load(files[f"exp/ablation_study/cache_size/config/apool_{suite}.yaml"])
