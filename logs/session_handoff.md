@@ -65,6 +65,27 @@ owner 的常驻指令，逐字有效：
 - floors 现 `{"fa_ls_dp_f_f_m_j": 32, "fa_ls_v11_0": 70}`。
 - 在调研（opus 只读）：H100 队列 ~88 h（4 批 FW MT50 旋钮下降 ~42 h）vs 4090 ~22 h；旋钮下降批次 IR 离线算、可换卡 → 考虑 FW/GR00T MT50 旋钮下降挪 4090、DP LIBERO 旋钮下降挪 pod（需装 openpi 环境）。结论回来前不动队列。
 
+**21:3x 增补（compact 前总状态；20:5x 之后的一切，先读这块）**
+
+在跑（21:33）：
+- 4090：**原库 · π0.5 · LIBERO · 减步 · 缓存部件研究**（fa_cs_pi_r，c/cr/ch/chr 四组无门，16,000 局；21:32 约 3,700 局）。链 **g4090al**（21:32 起）→ 之后 fa_cs_gr_r（GR00T 同研究）。旧链 g4090a{d..k} 都有 hold 文件、已停。R16 runner 现在在 **timan107 / timan1 / a100 / local** 四处起 agent，速度 ~33/分 → ~100/分。常驻 3 个 π0.5 服务端被复用（ALREADY_STARTED）。⚠ 待核：d13a21f9 后 timan1 的 R16 worker 是否已分到 EGL 1（GPU2）和 EGL 2（GPU1）。
+- H100：原库 · GR00T · MetaWorld · 旋钮下降 fa_ls_gr_r_u_m（21:28 68,848/90,000，~132/分，H100 GPU 42%）；只能用 timan107（MT50；H100 env311 无 metaworld，A100 只 LIBERO）；floor 32。链 h100m26 继续（hold 在 h100m25）。
+- h100-temp：v05_4 21:05 PASS（2,945）；按队尾领 **fa_ls_v05_3**（347 局，链 h100tmp21，领取文件 mw/claim_h100temp_fa_ls_v05_3）。v05_3 之后的队尾是 fa_ls_fw_r_f_m（Fast-WAM MT50 旋钮下降 90,000）——⚠ FW MT50 R3 在 h100-temp 跑 2.5 h 后 CUDA OOM（c2 的 587 局），领之前考虑 R2。
+- jupyter-ziyang10：成功过滤库 · DP · LIBERO · 全步 · 各档 fa_ls_v09_1_j4（21:28 15,888/33,650，~51/分，40 worker）。jupyter-ziyang10-02：21:07 起**空闲**（v09_0_j4 6,350、v04_3_j2 1,752、v06_0_j2 32、v04_0_j3 4,001 都已收齐）。⚠ 向 owner 提议把 v09_1_j4 剩余局按 UID 奇偶拆一半给 -02（需给 resume 加 split 选项、先平稳停该批），**owner 未答复**。-03 离线。H100 队列剩的全是 GR00T/FW（FW 26 GB 放不进 MIG 16 GB），pod 没有现成 DP 活。
+- floors（A100 run_23500/floors.json）：`{fa_ls_v09_1_j4:32, fa_cs_pi_r:64, fa_ls_gr_r_u_m:32, fa_ls_v05_3:32}`；批结束要清。
+
+本段做的修复（全推 origin Ziyang）：
+- ⛔ 哈希核验拔除：1dc72173（R16 驱动源码锁/group/参照哈希）、b8c7bccf（汇总非 PASS 只记 aggregate_status）、dad086b4（后台证据整理出错 → PASS + evidence_incomplete，新准备的批次生效）。
+- ⛔ 旧门代码删除 65b1cc5f（见 20:5x）。
+- R16 runner：2fb93ff0 本机 agent 启动不再卡 30 s；9a97b9c2 legacy worker 不再每 4 局换代（之前 650 局重启 146 次）；--no-local-workers（b4aeab3f）**已撤**（a577be99）。
+- 本机 worker 起不来的**真因**不是显存（4090 是 48 GB，空 26 GB）：`openpi_ext/envs/libero_sim/etc/conda/activate.d/nvidia_egl.sh` 指向驱动 595.71.05 的旧库，驱动已升 595.91.07 → 改名 `.disabled_1020_driver_595.91.07`。
+- timan1 接入（0e7a47d9）：libero_sim 本就在、与 timan107 同版本；拷了 R16 island（/scratch/zixuans8/openpi_r16_conductor_v1）和 timan107 的 openpi_client 源码到同路径、补 libero_sim 的 _openpi_client.pth；conda 替身 /scratch/zixuans8/dsp_bin/conda（**跳过 activate.d**，那里的 nvidia_egl.sh 同样过时、会让 EGL 看不到设备）。实测 EGL 1 = NVML GPU2、EGL 2 = GPU1；timan1 上设了 CUDA_VISIBLE_DEVICES 就看不到 EGL 设备 → 设空。GPU 统计：50035d82（worker_gpu 只对 device 3 走 GPU3 老路）、4c6daf1a（protected_for：timan1 给 {1,2} 时不再按 PROTECTED 过滤，inventory/admission/fleet.view 共用）、d13a21f9（timan1 新 worker 派到我们 worker 少的那张卡，平手先 GPU2；原来 GPU2 显存不满就不派 GPU1，48 个渲染全挤 GPU2）。
+- A100 接入（50035d82）：env311 是 mujoco 3.6.0 不能混；从本机推 libero_sim（3.8.20 / mujoco 3.2.3 / robosuite 1.4.0 / numpy 1.22.4）到 `/home/weiland/projects/openpi_ext/envs/libero_sim`、island 到 `/data/mw_finetune/qualification/r16_local_island`、资产 `/home/weiland/.cache/libero/assets`、openpi_client `/home/weiland/projects/openpi/packages/openpi-client/src`、conda 替身 `/home/weiland/zl_bin/conda`（sudo 建 /home/weiland 归 exouser）；agent 用 env311 python；EGL 0。⚠ A100 上临时 rsyncd 端口 23119（pid 3319377，配置 /tmp/zl_simd_1020，**需 munge symlinks = no**）**还开着，要关**。本机沙箱里开的端口外部连不进来（只能往外推）。A100 磁盘：删 111 个旧 worker 运行目录 + env.tar → 剩 25 GB；xgpu_1017/env、cl18 还在。
+- 调度器：cf901b4f 共享池稳定改按总量（在跑 ≥ 目标和 85%），之前逐节点 5% 永远不稳 → H100/server 机本机 worker 从没发过；0472702a（单节点批次优先留节点）**已撤** 0a32e040；A100 调度器 21:2x 重新部署过（loop pid 3335523）。H100 本机节点只开 LIBERO 是对的。
+- R16 runner 重启法：touch mw/hold_ff_<tag> → kill -TERM runner → 等 runner 退出、timan107/timan1/a100 上旧 agent 退出（否则 flock 失败）→ `chain_ffk.run.sh <新tag> '\[ffk-<旧tag>\] fa_cs_pi_r ended' fa_cs_pi_r fa_cs_gr_r`。
+
+未完成（任务表 #199–#203）：#199 Q3 移植进 R15/R16 后重跑 π0.5/GR00T LIBERO 旋钮关+各档（最大）；#203 网页 v28/RESULTS 撤旧门行；jupyter-02 的活（等 owner 定拆分）；关 A100 rsyncd；R17 timan1_gpu2 路径（冻结批次）仍 GPU2 优先，新 R17 批次才走 d13a21f9。
+
 **20:5x 增补（⛔⛔ π0.5/GR00T LIBERO 旧门事故）**
 - 事实：π0.5/GR00T 在 LIBERO 走 R15/R16 老流程，旋钮关与各档全是旧门（R15 `--os-judge guard_only`；R16 `TriggerCommitJudge` progress_guard=noprog_span n=3 eps=.5），不是 Q3。10-13 拔旧门只拔了 R17 代码。10-19 缓存研究交回已写明，我挂成 #182「待 owner 定」没当场报 → owner 震怒。抽查确认 DP/Fast-WAM/Cosmos LIBERO、全部 MetaWorld（含 π0.5/GR00T MT50）都是 Q3（stall_path）。
 - 处置（owner 令）：旧门数据进垃圾 `/data/mw_finetune/_trash_oldgate_20261020/eval/`（54 个 fa_pi_*/fa_gr_* 目录）+ `openpi_ext/attic/_trash_oldgate_20261020/`（vla/runs/off 两个、r16/k1ref/runs/off 两个旋钮关源目录），MANIFEST.txt 两处。共 **73,950 局**：π0.5 42,000（减步 32,500 + 全步 9,500）、GR00T 31,950（减步 23,950 + 全步 8,000）；约 16 h 4090 + 2 h H100。保留：纯推理参照 fa_pi_f_ps/p10、缓存部件研究无门四组（在跑）、R16 phase1 K1 纯推理参照。formal_a_1016/runs/ffk1015_*（定义，被缓存研究 group.json 引用）暂留原处。
