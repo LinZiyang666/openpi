@@ -1,0 +1,83 @@
+{
+ "model": "pi05",
+ "mode": "reduced",
+ "arm": "original",
+ "unit": "fa_pi_r_u_o_q",
+ "rows": [
+  {
+   "suite": "libero_10",
+   "size": 50,
+   "n": 500,
+   "pure_n": 500,
+   "successes": 383,
+   "pure_successes": 459,
+   "status": "tune"
+  },
+  {
+   "suite": "libero_10",
+   "size": 100,
+   "n": 500,
+   "pure_n": 500,
+   "successes": 404,
+   "pure_successes": 459,
+   "status": "tune"
+  },
+  {
+   "suite": "libero_10",
+   "size": 200,
+   "n": 500,
+   "pure_n": 500,
+   "successes": 426,
+   "pure_successes": 459,
+   "status": "tune"
+  },
+  {
+   "suite": "libero_10",
+   "size": 500,
+   "n": 500,
+   "pure_n": 500,
+   "successes": 453,
+   "pure_successes": 459,
+   "status": "tune"
+  },
+  {
+   "suite": "libero_spatial",
+   "size": 50,
+   "n": 500,
+   "pure_n": 500,
+   "successes": 447,
+   "pure_successes": 492,
+   "status": "tune"
+  },
+  {
+   "suite": "libero_spatial",
+   "size": 100,
+   "n": 500,
+   "pure_n": 500,
+   "successes": 478,
+   "pure_successes": 492,
+   "status": "tune"
+  },
+  {
+   "suite": "libero_spatial",
+   "size": 200,
+   "n": 500,
+   "pure_n": 500,
+   "successes": 482,
+   "pure_successes": 492,
+   "status": "tune"
+  },
+  {
+   "suite": "libero_spatial",
+   "size": 500,
+   "n": 500,
+   "pure_n": 500,
+   "successes": 484,
+   "pure_successes": 492,
+   "status": "tune"
+  }
+ ],
+ "reference": "same-step same-GPU pure A",
+ "rule": "tune iff complete off successes < pure successes",
+ "dev_outcomes_used": false
+}

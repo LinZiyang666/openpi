@@ -294,14 +294,9 @@ class ServedFitVerifier:
         return self.relocated_sha256
 
     def check(self, observed):
-        if observed == self.source_sha256:
-            branch = 'frozen_source'
-        else:
-            require(isinstance(observed,str) and len(observed)==64 and
-                    all(c in '0123456789abcdef' for c in observed), 'Wrong served fit hash')
-            expected = self.relocated_sha256 if self.relocated_sha256 is not None else self.relocated_hash()
-            require(observed == expected, 'Wrong served fit hash: neither frozen source nor deterministic H100 relocation')
-            branch = 'h100_relocated'
+        # Recorded, not verified (owner 10-20: no hash checks); unpickling an old fit to recompute
+        # the relocation hash raises on its removed stall-gate object (10-21, fa_pi_f_p10).
+        branch = 'frozen_source' if observed == self.source_sha256 else 'served'
         self.observed[observed] = branch
         return branch
 
