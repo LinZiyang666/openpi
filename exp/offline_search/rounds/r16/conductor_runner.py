@@ -30,21 +30,23 @@ AGENTS = {'timan107': dict(python='/scratch/zixuans8/openpi/.venv/bin/python', h
                         path='/home/weiland/miniconda3/bin:/usr/local/bin:/usr/bin:/bin', driver_host='127.0.0.1')}
 
 
-def server_count(group, groot_servers_per_suite=None):
+def server_count(group, groot_servers_per_suite=None, split=None):
     m=group['model'];smoke='smoke' in Path(group['root']).name
+    if m=='groot' and split:return sum(split)
     if groot_servers_per_suite is not None and (type(groot_servers_per_suite) is not int or groot_servers_per_suite<1):
         raise ValueError('GR00T servers per suite must be a positive integer')
     if m=='pi05':return 1 if smoke else 3
     return 2*(groot_servers_per_suite if groot_servers_per_suite is not None else (1 if smoke else 2))
 
 
-def server_specs(group, ports, generation, *, groot_servers_per_suite=None):
-    m=group['model'];count=server_count(group,groot_servers_per_suite)
+def server_specs(group, ports, generation, *, groot_servers_per_suite=None, split=None):
+    m=group['model'];count=server_count(group,groot_servers_per_suite,split)
     if len(ports)!=count:raise ValueError(f'{m} requires {count} servers')
     if len(set(ports))!=count or any(not 23100<=p<=23199 for p in ports):raise ValueError('Invalid/duplicate server ports')
     specs=[]
     for i,port in enumerate(ports):
-        suite='libero_10' if m=='pi05' or i<count//2 else 'libero_spatial'
+        # GR00T residents serve one suite; --groot-suite-servers sets (libero_10, libero_spatial) counts.
+        suite='libero_10' if m=='pi05' or i<(split[0] if split else count//2) else 'libero_spatial'
         entry=next(e for e in group['entries'] if e['row']['suite']==suite)
         row=entry['row'];name=row['arm'];root=Path(group['root'])
         plugin=['--os-method',row['method'],'--os-kwargs',json.dumps(row['kwargs']),
@@ -113,7 +115,9 @@ def prepare_servers(group,args):
     """Reconcile only owned server receipts; episode journals/fences are untouched."""
     from exp.offline_search.closed_loop.ops.h100 import local_server
     root=Path(group['root']);plan=root/'runner_state.json'
-    per_suite=getattr(args,'groot_servers_per_suite',None);count=server_count(group,per_suite)
+    per_suite=getattr(args,'groot_servers_per_suite',None);split=getattr(args,'groot_suite_servers',None)
+    count=server_count(group,per_suite,split)
+    if split and args.ports is None:raise ValueError('--groot-suite-servers needs --ports')
     state=json.loads(plan.read_bytes()) if plan.exists() else None
     if state and state['group_sha256']!=group['group_sha256']:raise ValueError('Changed runner group')
     if state and state.get('retired'):
@@ -121,7 +125,7 @@ def prepare_servers(group,args):
     old=state['servers'] if state else [];alive={s['port']:local_server.status(s)['running'] for s in old}
     if args.ports is not None:
         # Validate the complete requested topology before retiring anything.
-        desired=server_specs(group,args.ports,1,groot_servers_per_suite=per_suite)
+        desired=server_specs(group,args.ports,1,groot_servers_per_suite=per_suite,split=split)
         if args.port in args.ports:raise ValueError('Driver/server port overlap')
         kept=[s for target in desired for s in old if alive[s['port']] and
               (s['port'],s['suite'])==(target['port'],target['suite'])]
@@ -149,7 +153,7 @@ def prepare_servers(group,args):
                   [s['port'] for s in kept if s['suite']=='libero_spatial']+fresh[cut:]
     else:ports=[s['port'] for s in kept]
     if args.port in ports:raise ValueError('Driver/server port overlap')
-    candidates=server_specs(group,ports,gen,groot_servers_per_suite=per_suite)
+    candidates=server_specs(group,ports,gen,groot_servers_per_suite=per_suite,split=split)
     specs=[next((s for s in kept if s['port']==new['port']),new) for new in candidates]
     state['servers']=specs;write_json(plan,state)
     return specs
@@ -174,7 +178,7 @@ def _run(args):
             if state['group_sha256']!=group['group_sha256']:raise ValueError('Changed completed runner group')
             stop_servers(state['servers']+state.get('retired',[]))
         print('GROUP_ALREADY_COMPLETE; owned models released; no launches',flush=True);return
-    server_count(group,getattr(args,'groot_servers_per_suite',None))
+    server_count(group,getattr(args,'groot_servers_per_suite',None),getattr(args,'groot_suite_servers',None))
     if args.smoke_episodes is not None and 'smoke' not in root.name:raise ValueError('Use prepare-smoke first')
     remote_repo=args.agent_island
     if remote_repo=='/scratch/zixuans8/openpi_trace_h100' or not remote_repo.startswith('/scratch/zixuans8/openpi_r16_conductor_'):
@@ -286,6 +290,8 @@ def main():
     ap.add_argument('--no-local-workers',action='store_true',help='workers on timan107 only')
     ap.add_argument('--groot-servers-per-suite',type=int,
                     help='Identical processes per checkpoint (default: 2; isolated smoke: 1)')
+    ap.add_argument('--groot-suite-servers',type=lambda s:tuple(map(int,s.split(','))),
+                    help='GR00T residents for libero_10,libero_spatial (e.g. 3,1; 4,0 once spatial is done)')
     ap.add_argument('--smoke-episodes',type=int)
     run(ap.parse_args())
 
