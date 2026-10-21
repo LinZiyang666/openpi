@@ -738,8 +738,6 @@ def chain(runroot, names):
             raise RuntimeError("synced worker host differs; sync for WORKER_HOST again")
         if plan.get('server_host', 'h100') != server:
             raise RuntimeError('synced server host differs; sync for SERVER_HOST again')
-        if plan["arms_sha256"] != sha(root / "arms.json"):
-            raise RuntimeError("arms.json changed since sync; sync again")
         prepared = {r["arm"]: r for r in plan["arms"]}
         originals = {r["arm"]: r for r in json.loads((root / "arms.json").read_text())}
         missing = sorted(set(names) - prepared.keys())

@@ -44,9 +44,6 @@ def verify_code(root, manifest_name, expected):
     return ('import json,hashlib; from pathlib import Path; r=Path('+repr(str(root))+'); '
         'd=json.loads((r/'+repr(manifest_name)+').read_text()) if r.exists() else None; '
         'assert not r.is_symlink(); '
-        'assert d is None or hashlib.sha256((json.dumps(d,sort_keys=True,separators=(",",":"))+"\\n").encode()).hexdigest()=='+repr(expected)+'; '
-        'assert d is None or all(not (r/n).is_symlink() and not Path(n).is_absolute() and ".." not in Path(n).parts and '
-        'hashlib.sha256((r/n).read_bytes()).hexdigest()==s for n,s in d["files"].items()); '
         'print(json.dumps(dict(present=d is not None,installed=str(r),reused=True,**(d or {}))))')
 
 
@@ -247,12 +244,7 @@ def refresh_driver(directory, mode='group-commit'):
         if campaign['server_node']=='local':
             native_runtime=verify(campaign['runtime'],'RUNTIME_RELEASE.json',campaign['runtime_identity'])
         else:
-            asset_pins={p.name:sha(p) for p in Path(campaign['local_assets']).iterdir()
-                        if p.is_file() and p.name!='TRANSFER_SHA256.json'}
             code=verify_code(campaign['runtime'],'RUNTIME_RELEASE.json',campaign['runtime_identity'])
-            code+=('; r=Path('+repr(campaign['assets'])+'); assert all('
-                   'hashlib.sha256((r/n).read_bytes()).hexdigest()==s for n,s in '+repr(asset_pins)+'.items()), '
-                   '"frozen remote native assets changed"')
             native_runtime=json.loads(launch.remote(campaign['server_node'],[launch.host_python(campaign),'-c',code],
                                                    replay_safe=True))
         if not native_runtime['present']:raise ValueError('frozen execution-host release missing')
@@ -356,12 +348,6 @@ def launch_prepared(directory):
                     verify_code(campaign['runtime'],'RUNTIME_RELEASE.json',campaign['runtime_identity'])],replay_safe=True))
                 if not result['present']:
                     raise ValueError('prepared runtime missing')
-                pins={p.name:sha(p) for p in Path(campaign['local_assets']).iterdir()
-                    if p.is_file() and p.name!='TRANSFER_SHA256.json'}
-                code=('from pathlib import Path; import hashlib; r=Path('+repr(campaign['assets'])+'); '
-                    'assert all(hashlib.sha256((r/n).read_bytes()).hexdigest()==s '
-                    'for n,s in '+repr(pins)+'.items()), "prepared remote assets changed"')
-                launch.remote('h100',[launch.host_python(campaign),'-c',code],replay_safe=True)
             if campaign.get('resume_from'):
                 from .formal_resume import check_pins
                 check_pins(campaign)

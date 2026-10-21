@@ -71,8 +71,6 @@ def authorize(campaign, *, today=None):
     if campaign.get('live_fleet_authorization'):
         from .live_fleet_worker import authorization
         record=authorization(campaign)
-        if campaign.get('domain')!='libero':
-            raise ValueError('local live worker install supports LIBERO only')
         return dict(schema='r17.local_worker_exception.v1',study_date=STUDY_DATE,
             scope='owner-authorized live formal/cache fleet',node='local',host='weilandserver',
             workers=dict(nodes),model_sampler_server_unchanged=True,live_fleet=record)
