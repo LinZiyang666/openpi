@@ -89,7 +89,10 @@ def plan(reports, now, previous=None):
             b = min(open_nodes, key=lambda b: (share(b, groups[b]), b))
             keep = [n for n in open_nodes[b] if alloc[b][n] < max(reports[b]['active'].get(n, 0),
                                                                     previous.get(b, {}).get(n, 0))]
-            n = max(keep or open_nodes[b], key=headroom)  # nodes are sorted: ties go to the first name
+            # A node that is another open batch's only usable node goes last for a batch with alternatives
+            # (R16 cache studies render only on timan107; 10-20 three multi-node batches held 34 of its 62).
+            pinned = {nodes[0] for o, nodes in open_nodes.items() if o != b and len(nodes) == 1}
+            n = max(keep or open_nodes[b], key=lambda n: (n not in pinned, headroom(n)))  # ties: first name
             alloc[b][n] += 1
             for x in RESOURCES:
                 room[n][x] -= cost[b][n][x]
