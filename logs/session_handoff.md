@@ -65,6 +65,13 @@ owner 的常驻指令，逐字有效：
 - floors 现 `{"fa_ls_dp_f_f_m_j": 32, "fa_ls_v11_0": 70}`。
 - 在调研（opus 只读）：H100 队列 ~88 h（4 批 FW MT50 旋钮下降 ~42 h）vs 4090 ~22 h；旋钮下降批次 IR 离线算、可换卡 → 考虑 FW/GR00T MT50 旋钮下降挪 4090、DP LIBERO 旋钮下降挪 pod（需装 openpi 环境）。结论回来前不动队列。
 
+**20:5x 增补（⛔⛔ π0.5/GR00T LIBERO 旧门事故）**
+- 事实：π0.5/GR00T 在 LIBERO 走 R15/R16 老流程，旋钮关与各档全是旧门（R15 `--os-judge guard_only`；R16 `TriggerCommitJudge` progress_guard=noprog_span n=3 eps=.5），不是 Q3。10-13 拔旧门只拔了 R17 代码。10-19 缓存研究交回已写明，我挂成 #182「待 owner 定」没当场报 → owner 震怒。抽查确认 DP/Fast-WAM/Cosmos LIBERO、全部 MetaWorld（含 π0.5/GR00T MT50）都是 Q3（stall_path）。
+- 处置（owner 令）：旧门数据进垃圾 `/data/mw_finetune/_trash_oldgate_20261020/eval/`（54 个 fa_pi_*/fa_gr_* 目录）+ `openpi_ext/attic/_trash_oldgate_20261020/`（vla/runs/off 两个、r16/k1ref/runs/off 两个旋钮关源目录），MANIFEST.txt 两处。共 **73,950 局**：π0.5 42,000（减步 32,500 + 全步 9,500）、GR00T 31,950（减步 23,950 + 全步 8,000）；约 16 h 4090 + 2 h H100。保留：纯推理参照 fa_pi_f_ps/p10、缓存部件研究无门四组（在跑）、R16 phase1 K1 纯推理参照。formal_a_1016/runs/ffk1015_*（定义，被缓存研究 group.json 引用）暂留原处。
+- 旧门代码删除（65b1cc5f）：MixedJudge 带 guards 构造/反序列化报错，`--os-judge guard_only` 退出，R6 TriggerCommitJudge 构造报错；R16 冻结副本 openpi_r16_k1ref_server/_cpu 同 3 文件替换（原件 .before_oldgate_removal_1020，权限复原只读）。验证：旧门 fit 反序列化报错；缓存研究 c/cr fit 正常加载。
+- 待办（#199）：Q3 移植进 R15/R16 → 重跑 π0.5/GR00T LIBERO 旋钮关 + 各档；建缓存研究带门四组。网页 v28 与 RESULTS 里 π0.5/GR00T LIBERO 旋钮行（含 R16 k1ref 汇总）都是旧门，要撤下。
+- 调度器 0472702a（单节点批次优先留节点）已部署 A100；缓存研究 ~33 局/分、timan107 ~17 worker（timan1/A100 也满）。
+
 **20:1x 增补（⛔ 拔哈希核验；缓存部件研究跑起来；pod / h100-temp 续）**
 - ⛔ owner：「部署文件做哈希核验这些奇怪的东西你见到都拔了」（已写记忆 feedback-keep-it-simple）。已拔：R16 驱动启动的源码锁 verify/stable、read_group/verify_pack 哈希（1dc72173）；formal_finalize 的「汇总不是 PASS 就抛错」改为只记 aggregate_status（b8c7bccf）；后台证据整理器出错不再判 FAIL，改 PASS + evidence_incomplete（dad086b4，新准备的批次生效）。分析只要求 RECEIPT.json 存在，FAIL 回执的数据照用。
 - 缓存部件研究（#135）：19:11 被 R16 源码锁拒 → 拔掉；19:3x 本机 R16 worker 在 π0.5 R3 占满 4090 显存（23/24 GB）时 import mujoco 时 EGL 找不到设备、无限重启，而中央调度器本机优先、timan107 给 0 → b4aeab3f `conductor_runner --no-local-workers`（两个研究 launch 已带）。重启方法：hold 链 → kill -TERM runner（INTERRUPTED，常驻服务端保留）→ 等 timan107 上旧 agent 退出（锁）→ 新链（ALREADY_STARTED 复用服务端）。**g4090ag** 20:03 起 fa_cs_pi_r（20:08 62 局，timan107 ~21 worker）→ fa_cs_gr_r。floor fa_cs_pi_r=64。
