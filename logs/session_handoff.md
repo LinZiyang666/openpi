@@ -52,7 +52,7 @@ owner 的常驻指令，逐字有效：
 
 
 
-## 1. 现在在哪（2026-10-20 21:4x CDT；**最先读「22:1x 增补」「21:4x 增补」，再读「21:3x 增补（compact 前总状态）」**，再读 20:5x 旧门事故、其余增补与 09:4x 总状态，再读其后各增补（09:29 → 21:2x 倒序）与 10-19 21:0x 总状态；10-14 及更早只作背景）
+## 1. 现在在哪（2026-10-20 21:4x CDT；**最先读「22:5x 增补」「22:1x 增补」「21:4x 增补」，再读「21:3x 增补（compact 前总状态）」**，再读 20:5x 旧门事故、其余增补与 09:4x 总状态，再读其后各增补（09:29 → 21:2x 倒序）与 10-19 21:0x 总状态；10-14 及更早只作背景）
 
 ### ★★★★★★★★★★★★★★★★★★★★★★★★ 2026-10-20 09:4x CDT 总状态（compact 后最先读这块）
 
@@ -64,6 +64,13 @@ owner 的常驻指令，逐字有效：
 - 处置：09:56 按 PID SIGSTOP 复制 rsync（3726105/3726106/3729764）和两个 governor（3343372/3951564）。效果（同一时刻对比）：Cosmos 15→60 局/分、pod2 DP 85→250、v11_0 50→125（v11_0 同时 floor 40→70）。⛔ **复制保持暂停**；剩 ~190 GB（eval 533/~720 GB）以后找没有 driver 在跑、或可接受的短窗口一次性不限速跑完，不要再长时间节流慢跑。恢复命令：`kill -CONT 3343372 3951564 3726105 3726106 3729764`。记忆 reference-weilandserver-data 已加这条。
 - floors 现 `{"fa_ls_dp_f_f_m_j": 32, "fa_ls_v11_0": 70}`。
 - 在调研（opus 只读）：H100 队列 ~88 h（4 批 FW MT50 旋钮下降 ~42 h）vs 4090 ~22 h；旋钮下降批次 IR 离线算、可换卡 → 考虑 FW/GR00T MT50 旋钮下降挪 4090、DP LIBERO 旋钮下降挪 pod（需装 openpi 环境）。结论回来前不动队列。
+
+**22:5x 增补（GR00T 副本上限；h100-temp 被机主停；Q3 重跑排上；pod 接 GR00T）**
+- ⛔ owner 22:2x：「以后不准开11个groot，你开来玩的吗4到5个足够」（记忆 feedback-throughput-sizing、RUN_CONFIGS 已写）。排队的 GR00T MT50 四批 fa_ls_v03_0/v03_1/gr_f_f_m/gr_f_u_m 改 R5：campaign.json 的 replicas、cache_worker_orchestration.replicas、FFK_DEFINITION.replicas，⚠ 还必须改 backend_ports/ports（启动按 backend_ports 个数起副本——我第一次漏了，pod 代理发现）和 memory_budget_gib=36；原件 .before_groot_r5_*。cache_knob.MW_PROFILES groot_mw → R5/36 GiB（096225d4）。owner 22:1x「配置可以很激进剩余显存几个G就可以了」→ H100 同机服务预留 4096→1024 MiB（07dd2274），加卡预留 2 GiB 共 ~3 GB。在跑的 gr_r_u_m（R11）不重开，~23:00 完；之后 H100 下一批起本机 worker（后台 bejbd973q 等 h100 本机 worker 出现）。
+- h100-temp：fa_ls_fw_r_f_mc1（2,047 局）22:41 两副本同时 server closing——**机主停的**（在跑 dlm refresh_kernel_bench），已 PushNotification、不重跑。剩 88,010 局建 **fa_ls_fw_r_f_mc2**（H100）：resume 不带 --verify-closed（回执 all_owned_closed=True；带了会去本机找 mps_guard.process.json），再按 execution_host_rebind.source 结构化还原路由（campaign 路由字段、删 execution_host/scheduler_*；EPISODE_PLAN/FULL_EPISODE_PLAN 每局 server_host → H100；原件 .before_unalias_*）。链 **h100m27** 等 `[ffk-h100m26] queue done`。
+- jupyter-ziyang10-02：22:36 起领 fa_ls_gr_f_u_m（成功过滤库 · GR00T · MetaWorld · 全步 · 旋钮下降 90,000）为 pod 副本 **fa_ls_gr_f_u_m_j**（R2 无 MPS 14 GiB，链 pod2gr1，floor 32；领取 mw/claim_pod2_fa_ls_gr_f_u_m，prepare 守卫原件 .before_pod2_claim）。代码 a6926825；pod 上 setup groot 两行探针通过；第三条隧道 pod 24474→H100 23476（fwd.py）。GR00T 环境在 pod NFS 家目录 /home/ziyang10/zl_r17/groot。
+- #199 Q3：实现 badf4d1b（Q3StallInner + 新服务端树 openpi_r16_q3_server 的 plugin stall_only；拟合/周期 /nvme/weiland/openpi/r17_q3_port_1020/；交回 q3_port_1020/HANDBACK.md）。H100 的 /data/oscl_h100/openpi 已推 stall_only.py + plugin.py（md5 对上，原件 .before_q3_1020）。链 **h100q1**（等 Cosmos lc1 ended）= π0.5 全步旋钮关两库；**g4090am**（等 `[ffk-g4090al] queue done`）= 减步旋钮关 4 批 → GR00T 全步旋钮关 2 批（4090 R5）→ 带门四组 2 批。各档：旋钮关完后 commands/build_levels_*_l_q.sh。⚠ 链启动用 `(setsid nohup ... &)` 子 shell 写法，直接 `setsid nohup ... &` 有一次进程没留下来。
+- floors：`{fa_ls_v09_1_j4:32, fa_cs_pi_r:64, fa_ls_gr_r_u_m:32, fa_ls_gr_f_u_m_j:32}`（c1 已撤；c2 起跑时加）。
 
 **22:1x 增补（owner：所有机器装齐 worker 环境；H100 本机 worker 接调度器；jupyter 要拿活）**
 - ⛔ owner 21:5x：「你在所有worker机都装所有环境，同时h100还需要像4090这样允许在本机部署worker并接入调度器，所以4090和h100也要装」（已写记忆 feedback-devices-and-gpus）。实测盘点 `rounds/r17/scheduler/WORKER_ENV_MATRIX.md`。
