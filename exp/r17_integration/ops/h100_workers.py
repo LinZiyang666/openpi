@@ -71,10 +71,10 @@ def route(worker, campaign):
     vram, ram = SIZES[campaign['domain']]
     worker.update(worker_egl_device=0, worker_egl_devices=[0], worker_vram_mib=vram,
                   worker_memory_mib=ram, worker_ram_reservation_mib=ram,
-                  # On the server's machine the card also runs the model: keep room for its growth.
-                  # h100-temp gets no own-machine renderers (Xid 31, defaults.apply); on the H100
-                  # itself Cosmos holds ~6.2 GB/replica steadily, and 12 GB capped it at ~10 workers.
-                  worker_server_vram_headroom_mib=4096 if node == 'h100' else 0,
+                  # On the server's machine the card also runs the model: keep a little room for its growth.
+                  # h100-temp gets no own-machine renderers (Xid 31, defaults.apply). Owner 10-20: aggressive,
+                  # a few GB left is enough (1 GiB here + the 2 GiB card reserve); 4 GiB left GR00T R11 none.
+                  worker_server_vram_headroom_mib=1024 if node == 'h100' else 0,
                   policy_endpoint=('127.0.0.1:'+str(campaign['public_port']) if node == 'h100'
                                    else campaign['endpoint']))
     return worker
