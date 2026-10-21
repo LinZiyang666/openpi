@@ -143,8 +143,10 @@ def copy_job(source, name, pod, driver_port, *, replicas=1, memory_gib=14):
     job = read(src/'FFK_DEFINITION.json')
     job.update(name=name, run=str(root), gpu='H200 MIG 1g.18gb ('+pod+')', replicas=replicas,
                pod_copy_of=job.get('name', source))
-    if c.get('ffk_dp_capacity_bridge'):
-        pin_bridge(root, c, job)
+    # The bridge presents the source's 4090 placement to the DP cache-study admission; a pod copy needs it
+    # even when the source itself (R2) did not (fa_ls_v04_0_j2 was refused at 19:39).
+    c['ffk_dp_capacity_bridge'] = True
+    pin_bridge(root, c, job)
     budget.dump(root/'FFK_DEFINITION.json', job)
     budget.dump(root/'campaign.json', c)
     paths = commands(name, pod, driver_port)
