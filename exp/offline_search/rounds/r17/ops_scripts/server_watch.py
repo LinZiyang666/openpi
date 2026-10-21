@@ -134,7 +134,7 @@ def main():
         size = CHAIN_LOG.stat().st_size
         with CHAIN_LOG.open() as f:
             f.seek(chain_offset)
-            alerts += [l.strip() for l in f.read().splitlines() if 'STOPPED after failure' in l or 'FAILED' in l]
+            alerts += [l.strip() for l in f.read().splitlines() if 'STOPPED after failure' in l or 'FAILED' in l or 'receipt=FAIL' in l or 'receipt=PARTIAL' in l]
         chain_offset = size
         room = [n for n, w in workers.items() if w and w['load'] < 0.8 * w['cores'] and w['ram_free_gib'] > 30]
         for s, d in servers.items():
