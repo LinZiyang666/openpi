@@ -175,6 +175,8 @@ def _run(args):
     if remote_repo=='/scratch/zixuans8/openpi_trace_h100' or not remote_repo.startswith('/scratch/zixuans8/openpi_r16_conductor_'):
         raise ValueError('Use an isolated R16 conductor worker island')
     islands=dict(timan107=remote_repo,local=LOCAL_ISLAND)
+    # The 4090 has no VRAM left for renderers once the residents fill it (pi05 R3: 23 of 24 GB).
+    if getattr(args,'no_local_workers',False):del islands['local']
     campaign=legacy.campaign(root.name,'local',tuple(islands))
     legacy.install(root,islands,[(HERE/'conductor.py','exp/offline_search/rounds/r16/conductor.py'),
                                  (LOOPBACK,'loopback/sitecustomize.py')])
@@ -276,6 +278,7 @@ def main():
     ap.add_argument('--group',type=Path,required=True);ap.add_argument('--agent-island',required=True)
     ap.add_argument('--port',type=int,default=23179)
     ap.add_argument('--ports',type=lambda s:list(map(int,s.split(','))))
+    ap.add_argument('--no-local-workers',action='store_true',help='workers on timan107 only')
     ap.add_argument('--groot-servers-per-suite',type=int,
                     help='Identical processes per checkpoint (default: 2; isolated smoke: 1)')
     ap.add_argument('--smoke-episodes',type=int)
