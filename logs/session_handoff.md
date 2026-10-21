@@ -52,7 +52,7 @@ owner 的常驻指令，逐字有效：
 
 
 
-## 1. 现在在哪（2026-10-21 11:5x CDT；**最先读「10-21 13:2x 增补」，再读「10-21 12:0x 增补」，再读「10-21 11:5x 增补（compact 前总状态）」，再读「10-21 00:3x 增补」，再读「10-21 00:0x 增补（compact 前总状态）」，再读「22:5x」「22:1x」「21:4x」增补，再读「21:3x 增补（compact 前总状态）」**，再读 20:5x 旧门事故、其余增补与 09:4x 总状态，再读其后各增补（09:29 → 21:2x 倒序）与 10-19 21:0x 总状态；10-14 及更早只作背景）
+## 1. 现在在哪（2026-10-21 11:5x CDT；**最先读「10-21 14:0x 增补」，再读「10-21 13:2x 增补」，再读「10-21 12:0x 增补」，再读「10-21 11:5x 增补（compact 前总状态）」，再读「10-21 00:3x 增补」，再读「10-21 00:0x 增补（compact 前总状态）」，再读「22:5x」「22:1x」「21:4x」增补，再读「21:3x 增补（compact 前总状态）」**，再读 20:5x 旧门事故、其余增补与 09:4x 总状态，再读其后各增补（09:29 → 21:2x 倒序）与 10-19 21:0x 总状态；10-14 及更早只作背景）
 
 ### ★★★★★★★★★★★★★★★★★★★★★★★★ 2026-10-20 09:4x CDT 总状态（compact 后最先读这块）
 
@@ -64,6 +64,13 @@ owner 的常驻指令，逐字有效：
 - 处置：09:56 按 PID SIGSTOP 复制 rsync（3726105/3726106/3729764）和两个 governor（3343372/3951564）。效果（同一时刻对比）：Cosmos 15→60 局/分、pod2 DP 85→250、v11_0 50→125（v11_0 同时 floor 40→70）。⛔ **复制保持暂停**；剩 ~190 GB（eval 533/~720 GB）以后找没有 driver 在跑、或可接受的短窗口一次性不限速跑完，不要再长时间节流慢跑。恢复命令：`kill -CONT 3343372 3951564 3726105 3726106 3729764`。记忆 reference-weilandserver-data 已加这条。
 - floors 现 `{"fa_ls_dp_f_f_m_j": 32, "fa_ls_v11_0": 70}`。
 - 在调研（opus 只读）：H100 队列 ~88 h（4 批 FW MT50 旋钮下降 ~42 h）vs 4090 ~22 h；旋钮下降批次 IR 离线算、可换卡 → 考虑 FW/GR00T MT50 旋钮下降挪 4090、DP LIBERO 旋钮下降挪 pod（需装 openpi 环境）。结论回来前不动队列。
+
+**10-21 14:0x 增补：Fast-WAM 上 jupyter 切片（无 T5）**
+- 287b6fc4：setup.sh `fastwam_nfs`（全部放 NFS `/home/ziyang10/zl_r17/fastwam/{env,deps,lerobot,fwsrc,base,mt50,wan,table}` + `.pulled_*`，r17x 绑到 H100 路径；两台 pod 共用 NFS，-02 拉一次 36 GB，-10 秒过）；pod_copy 支持 H100 Fast-WAM（R1、`fastwam_text_table=/data/mw_finetune/fastwam_text_tables/table_h100.pt`、`--max-batch`）。H100 临时 rsyncd :23117（前缀在 $CLAUDE_JOB_DIR/tmp/fw_pod_rsync_prefix）14:0x 已按 PID 关。
+- 切片实测（-02，fwprobe2）：加载后 12.64 GiB；B16 峰值 13.66/保留 14.48 GiB；K10 B8 0.91 s、B16 1.72 s；K3 B8 0.45 s、B16 0.84 s（H100 一个副本实际只有 ~4.6 次未命中/s，CPU 卡）。pod 用 **B8**（加缓存库后 B16 太贴 16 GiB），预算 15.5 GiB。
+- ⚠ Fast-WAM 跨卡不等价（#171：4090↔H100 动作最大差 0.029、top1 96.7%）→ 照 DP 先例，pod 批次配 pod 同卡纯推理参照（B8 同口径）。
+- **-02 链 pod2fw1**（chain_ffk_stop，13:59 起）：fa_ls_fw_r_p_m_j（Fast-WAM · MetaWorld · 减步 · 纯推理参照 2,500，源 fa_ls_fw_r_p_m）→ fa_ls_fw_r_u_m_j（原库 · Fast-WAM · MetaWorld · 减步 · 旋钮下降 90,000）。驱动端口 23192，pod 端口 23474/23475。H100 链 h100m28 轮到 fa_ls_fw_r_u_m 时 prepare 会 exit 3 跳过（认领文件 mw/claim_pod2_fa_ls_fw_r_u_m，原脚本 .before_pod2_claim）→ 巡检会报一次 FAILED，属预期。
+- **-10**：GR00T fa_ls_gr_f_f_m_j 收尾中（结束后 bjzygzdkz 自动撤它的 floor/cap）；已建 fa_ls_fw_f_p_m_j（全步纯推理参照）+ fa_ls_fw_f_f_m_j（成功过滤库 · 全步 · 旋钮下降），驱动 23193、端口 23470/23471；待 -02 第一批正常出局后起链，并给 H100 的 fa_ls_fw_f_f_m 加认领。
 
 **10-21 13:2x 增补：Fast-WAM 文本编码表（owner：prompt 固定，T5 不进 GPU 也不进 CPU）**
 - Fast-WAM = 策略 ~12 GB（6.02B 参数）+ umT5-xxl 11.4 GB；H100 每副本 27 GB 里近一半是 T5，且每次未命中都把整批 prompt 重跑 T5。
