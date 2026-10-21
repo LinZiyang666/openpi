@@ -77,6 +77,21 @@ def thread_budget(pid):
         return os.cpu_count()
 
 
+def listeners(ports):
+    """Socket inodes listening on any of `ports` (TCP, v4 and v6)."""
+    inodes = set()
+    for table in ('/proc/net/tcp', '/proc/net/tcp6'):
+        try:
+            rows = Path(table).read_text().splitlines()[1:]
+        except OSError:
+            continue
+        for row in rows:
+            fields = row.split()
+            if fields[3] == '0A' and int(fields[1].rsplit(':', 1)[1], 16) in ports:
+                inodes.add(fields[9])
+    return inodes
+
+
 def identity(pid):
     sample = stat(pid)
     return sample[0] if sample else None
@@ -179,7 +194,7 @@ class NodeExecutor:
         self.history = deque(maxlen=HISTORY)  # last samples (ram, vram, cpu) of finished generations
         self.known = {}  # (pid, start ticks) -> is a scheduler worker
         self.cpu_sample, self.cpu = None, dict(capacity=None, own={})
-        self.server_cpu = None  # per server process on this node's cards: CPU in % of its thread budget
+        self.server_cpu = None  # per server process of this batch: CPU in % of its thread budget
         self.vram_capacity = None
         self.last_resources = float('-inf')
 
@@ -295,17 +310,29 @@ class NodeExecutor:
                     marked[key] = sample[1]
         self.known = {k: v for k, v in self.known.items() if k in seen}
         own = {self._generation(w): tree['cpu'] for w, tree in trees.items()}
-        # Model servers: our non-worker processes on this node's cards. A replica using its whole thread budget is
-        # CPU-bound however idle the GPU is (GR00T B1 replicas with OMP=1 at ~100%, the GPU half used, 10-20).
-        view = self.slots.view() if self.slots is not None else None
-        servers = {(p['pid'], sample[0]): (sample[1], thread_budget(p['pid'])) for card in (view or {}).get('cards', [])
-                   for p in card['processes'] if p['uid'] == os.getuid()
-                   for sample in [stat(p['pid'])] if sample and not self._worker(p['pid'], sample[0])}
+        # This batch's model servers: our processes listening on its backend ports (never another batch's on the
+        # same machine). A replica using its whole thread budget is CPU-bound however idle the GPU is (GR00T B1
+        # replicas with OMP=1 at ~104%, the 4090 GPU at 72%, 10-20). Without known ports (R15/R16) nothing is reported.
+        ports = set(self.campaign.get('backend_ports') or ())
+        inodes = listeners(ports) if ports and self.node == self.campaign.get('server_host') else set()
+        servers = {}
+        for name in os.listdir('/proc') if inodes else ():
+            if not name.isdigit():
+                continue
+            try:
+                if Path('/proc/' + name).stat().st_uid != os.getuid() or not any(
+                        os.readlink('/proc/%s/fd/%s' % (name, fd))[8:-1] in inodes for fd in os.listdir('/proc/%s/fd' % name)):
+                    continue
+            except OSError:
+                continue
+            sample = stat(int(name))
+            if sample:
+                servers[(int(name), sample[0])] = (sample[1], thread_budget(int(name)))
         previous, self.cpu_sample = self.cpu_sample, dict(time=now, busy=busy, total=total, boot=boot,
                                                           marked=marked, own=own, servers=servers)
         if previous is None:
             return
-        if view is not None:
+        if inodes:
             span = (now - previous['time']) * HZ / 100
             self.server_cpu = sorted(round((ticks - previous['servers'][key][0]) / span / budget)
                                      for key, (ticks, budget) in servers.items() if key in previous['servers'])
