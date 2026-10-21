@@ -78,6 +78,9 @@ owner 的常驻指令，逐字有效：
 - 78d0a79e 拔 MATRIX §4.3 大部分锁；formal_eval:395-399、vla_workers:39,48、closed_loop h100/node.py 三处等 #206 代理交回再拔。
 - 00:37 §4A2 37 个目录全部搬完（0 失败）。jc1 00:40 出局 0 错；gr_f_f_m_j 00:34 start，floor 32（floors = fa_cs_gr_r 64、jc1 32、gr_f_f_m_j 32）。
 - §4C2/C3 窗口脚本 $CLAUDE_JOB_DIR/tmp/c2_window.sh（日志 c2_window.log）：等 v03_0、fa_pi_f_u_o_q、fa_cs_gr_r 都 ended 且 island 搬完、/data/eval 无进程占用 → 不限速 rsync 剩余 eval（排除软链和 *.data_old_1021）→ eval/r17_frozen/library dry-run 核对（结果 c3_*_dry.txt）。**C4（整个 eval 换软链）、C1（库和 r17_frozen 换软链）我看过核对结果再手动做。**
+- 01:1x v03_0 收齐 24,406；R15 fa_pi_f_u_o_q 跑完（h100q1 照预期 STOPPED，h100q2 01:30 起 fa_pi_f_f_o_q）；v03_1 01:20 start。
+- ⚠ 我的错：38585197 的饱和判断按「整台机器上的服务进程」算，H100 上 R15 π0.5 三个副本加载时 CPU 100%，把 v03_1 的客户端按在 14 个 worker（GPU 11%）。修 573013d6：只算本批 backend 端口上监听的进程；端口未知（R15/R16）就不报，只看 GPU。v03_1 是旧版冻结的 → floors 加 fa_ls_v03_1:150（批结束要撤）。
+- 4090 尾巴：fa_cs_gr_r 的 spatial 8,000 局已齐，2 个 spatial 常驻闲着（速度 100→41）。conductor_runner 加 `--groot-suite-servers L10,SPATIAL`（未提交前先用；commit 见下），01:33 SIGINT runner（INTERRUPTED 平稳）→ 新链 **g4090at** 跑 `fa_cs_gr_r4`（同一 group，--ports 23150,23151,23154,23155 --groot-suite-servers 4,0：保留 2 个 libero_10，停 2 个 spatial，新起 2 个 libero_10）→ 下游 **g4090au**（chain_ffk_stop2，Q3 八批）；g4090ar 放了 hold。a3/c2 两个监视脚本已改名重挂（a3_island2.sh 等 `[ffk-g4090at] fa_cs_gr_r4 ended` → hold g4090au → island → 起 g4090av；c2_window2.sh 同样等 fa_cs_gr_r4 ended）。⚠ 以后 R16 GR00T 组开头就用 3,1（spatial 每局 220 步、libero_10 520 步），spatial 完后换 4,0。新常驻会带上 #206 代理未提交的 OMP=4（server_threads）。
 - 还要做：§4B 在跑批次跑完后整目录搬（v03_0、fa_pi_f_u_o_q_*、fa_cs_gr_r、fa_ls_gr_f_u_m_j）；§4C2 剩 ~190 GB 等 /data 上没有 driver 写时不限速重跑（排除软链）；C3 核对；C4 整个 eval 换软链。#206 线程/批处理代理还在跑（在 h100-temp 空卡上做 40 s 短测，已提醒机主一用就停）。
 
 **10-21 00:0x 增补（compact 前总状态；22:5x 之后的一切，先读这块）**
