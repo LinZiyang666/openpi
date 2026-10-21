@@ -23,9 +23,10 @@ def inventory(node, devices=None):
     """Skip protected GPUs before making any NVIDIA query; fail closed per card."""
     excluded = PROTECTED.get(node, set())
     if node == 'timan1':
-        if devices is not None and set(devices) != {3}:
-            pass
-        devices=[3]
+        if devices is not None and devices and set(devices) <= {1, 2}:
+            excluded = set()  # R16 renders directly on minors 1/2 = GPU2/GPU1, the cards authorized 10-18
+        else:
+            devices=[3]
     if devices is None:
         devices = []
         for path in Path('/proc/driver/nvidia/gpus').glob('*/information'):
@@ -43,16 +44,18 @@ def inventory(node, devices=None):
     for device in sorted(set(devices)-excluded):
         try:
             selector=bus.get(device, str(device))
-            if node == 'timan1':
+            # The timan1 special case is the GPU3 (minor 0) island; R16 renders on minors 1/2 (GPU2/GPU1) by PCI.
+            gpu3 = node == 'timan1' and device == 3
+            if gpu3:
                 from .timan1_workers import UUID,PCI
                 selector=UUID
             query = subprocess.run(['nvidia-smi', '-i', selector, '-q', '-x'],
                 capture_output=True, text=True, timeout=8, check=True)
             card = ET.fromstring(query.stdout).find('gpu')
-            expected_minor=0 if node == 'timan1' else device
+            expected_minor=0 if gpu3 else device
             if card is None or int(card.findtext('minor_number')) != expected_minor:
                 raise ValueError('physical NVIDIA ordinal differs from device minor')
-            if node == 'timan1' and (card.findtext('uuid') != UUID or
+            if gpu3 and (card.findtext('uuid') != UUID or
                     card.findtext('pci/pci_bus_id','').lower().replace('00000000:','0000:') != PCI):
                 pass
             memory = card.find('fb_memory_usage')
@@ -60,7 +63,7 @@ def inventory(node, devices=None):
             row = dict(device=device, uuid=card.findtext('uuid'), name=card.findtext('product_name'),
                        total_mib=number(memory.findtext('total')), used_mib=number(memory.findtext('used')),
                        processes=[], usable=True)
-            if node == 'timan1':
+            if gpu3:
                 row.update(device_minor=0,pci=PCI,namespace_guard_required=True)
             for proc in card.findall('processes/process_info'):
                 pid = int(proc.findtext('pid'))

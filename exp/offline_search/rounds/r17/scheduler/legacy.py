@@ -48,7 +48,8 @@ def campaign(batch, server_node, nodes):
 def node_campaign(c, node):
     local = c['scheduler_nodes'][node]['class'] == 'local'
     return dict(c, worker_node=node, node_workers=c['scheduler_nodes'][node]['max'],
-                worker_server_vram_headroom_mib=HEADROOM.get(node, 0) if local else 0)
+                worker_server_vram_headroom_mib=HEADROOM.get(node, 0) if local else 0,
+                **({'worker_egl_devices': [1, 2]} if node == 'timan1' else {}))  # our timan1 cards: GPU2, GPU1
 
 
 def payload(extra=()):

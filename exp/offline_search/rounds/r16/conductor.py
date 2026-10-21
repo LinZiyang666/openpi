@@ -447,10 +447,11 @@ def import_reuse(group, journal_path):
 LEGACY = 'exp.offline_search.rounds.r17.scheduler.legacy'
 # LIBERO simulator environment per worker node; the 4090's is the same build (r16_local_island).
 CONDA = {'timan107': '/scratch/zixuans8/libero_sim', 'timan1': '/scratch/zixuans8/libero_sim',
-         'local': '/home/weiland/projects/openpi_ext/envs/libero_sim'}
+         'local': '/home/weiland/projects/openpi_ext/envs/libero_sim',
+         'a100': '/home/weiland/projects/openpi_ext/envs/libero_sim'}  # a100 mirrors the 4090 host's paths
 # Native EGL device ids a node's renderers may use. timan1: only NVML GPUs 2 and 1 are ours, which are
 # EGL devices 1 and 2 (10-20: a context on EGL 1 shows up on GPU 2, EGL 2 on GPU 1).
-EGL_DEVICES = {'timan107': tuple(range(8)), 'timan1': (1, 2), 'local': (0,)}
+EGL_DEVICES = {'timan107': tuple(range(8)), 'timan1': (1, 2), 'local': (0,), 'a100': (0,)}
 
 
 def run_driver(args):
