@@ -499,6 +499,7 @@ episode (the H100 shard drain afterwards is not included). Util/W are medians of
 | `pimk1_fulc4` MT50 knob, B | π0.5 | 4090 | R3 B8, remote timan107 ×40 only | resume | 110 (k10) | 33.4 req/s, h 0.80 | SM mean 57%; ingress 23 MB/s | workers: remote round trip p50 244 ms (0.69 MB/request through the 33 MB/s ingress) |
 | **`pimk1_fuld` MT50 knob, C (production)** | π0.5 | 4090 | **R4 B8 W5, `--wire-zlib`, timan107 ×80 (8 GPUs) + local ×32**, budget 40 GiB | resume | **131–176 (k10)** | **65.5 req/s, h 0.83 (98% of the sweep's R4 B8 prediction)** | SM mean 87%, p50 99%; 42 GB, 429 W; ingress 14 MB/s | server |
 
+> ⛔ owner 10-20：GR00T 最多开 4–5 个副本，不准开 11 个（`fa_ls_gr_r_u_m` R11 时 H100 GPU 只有 5%，71–79 GB 显存全被副本占着，H100 本机 worker 一个都放不下）。副本数按实测 GPU 利用率定：个位数利用率说明副本多了，先加 worker。排队的 GR00T MT50 批次（v03_0、v03_1、gr_f_f_m、gr_f_u_m）已改 R5，`cache_knob.MW_PROFILES["groot_mw"]` 改 R5 / 36 GiB。
 Full-step test success (seed 7, 2,500 episodes), reported as the equal-weight mean of the four difficulty groups (easy 28 / medium 11 / hard 6 / very hard 5 tasks; the convention of the RLinf and SmolVLA MT50 tables) and, second, the per-task mean: GR00T 67.1 / 75.8, DP 46.0 / 61.2, π0.5 46.7 / 56.3. Published π0.5 SFT (same RLinf checkpoint) is 43.8 group mean. Always state which mean a MetaWorld number is.
 
 Next time: DP R4 B8 MPS saturates both GPUs, keep it. Fast-WAM on H100 leaves the GPU half idle at R2; try R3 B16

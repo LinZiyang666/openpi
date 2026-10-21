@@ -35,7 +35,8 @@ MW_PROFILES = {
     "dp_mw": dict(node="h100", replicas=4, startup=3, batch=8, budget=24, workers="timan107=30,timan1=20", port=23180, driver=23189),
     "fastwam_mw": dict(node="h100", replicas=3, startup=3, batch=16, budget=76, workers="timan107=30,timan1=20", port=23170, driver=23179),
     "pi05_mw": dict(node="local", replicas=5, startup=3, batch=1, budget=47, workers="timan107=24,timan1=20", port=23160, driver=23169),
-    "groot_mw": dict(node="h100", replicas=8, startup=4, batch=1, budget=56, workers="timan107=40,timan1=20", port=23160, driver=23169),
+    # owner 10-20: 4-5 GR00T replicas are enough (R11 ran the H100 at 5% GPU); never 11.
+    "groot_mw": dict(node="h100", replicas=5, startup=4, batch=1, budget=36, workers="timan107=40,timan1=20", port=23160, driver=23169),
 }
 LEVELS = {'k50':'0.5', 'k40':'0.4', 'k30':'0.3', 'k20':'0.2', 'k10':'0.1', 'koff':None, 'pure':None}
 
