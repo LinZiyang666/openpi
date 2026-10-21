@@ -50,22 +50,44 @@ def configure_node(n, lock, marker):
                 # $0 and ownership's argv needle remain the native script path.
                 value['cmd'] = ['bash', '-c', source, cmd[1], *cmd[2:]]
         return atomic(path, value)
-    def workers(proc_root=Path('/proc')):
-        found = 0
+    def own(proc_root=Path('/proc')):
+        pids = []
         for p in proc_root.glob('[0-9]*'):
             try:
                 if p.stat().st_uid != os.getuid(): continue
                 argv = (p/'cmdline').read_bytes().split(b'\0')
                 if b'examples.libero.worker_entry' not in argv: continue
                 if ('FFK_WORKER_FLEET='+marker).encode() in (p/'environ').read_bytes().split(b'\0'):
-                    found += 1
+                    pids.append(int(p.name))
             except (FileNotFoundError, ProcessLookupError, PermissionError): pass
-        return found
+        return pids
+    def workers(proc_root=Path('/proc')):
+        return len(own(proc_root))
+    def wait_workers(timeout_s=120):
+        # A straggler of this root's previous arm (10-21: one worker on the timan1 agent) failed the whole
+        # arm with WORKERS_BUSY; after the wait, stop only this root's own workers, by PID.
+        import signal, time
+        deadline = time.monotonic() + timeout_s
+        while own() and time.monotonic() < deadline:
+            time.sleep(2)
+        for sig, grace in ((signal.SIGTERM, 10), (signal.SIGKILL, 10)):
+            pids = own()
+            if not pids:
+                return
+            print(f"STRAY_WORKERS {sig.name} {pids}", flush=True)
+            for pid in pids:
+                try: os.kill(pid, sig)
+                except ProcessLookupError: pass
+            end = time.monotonic() + grace
+            while own() and time.monotonic() < end:
+                time.sleep(.5)
+        if own():
+            raise RuntimeError(f"WORKERS_BUSY existing={len(own())}; own workers survived SIGKILL")
     # Native cleanup still waits for its own fleet lock and workers only.
     source = inspect.getsource(n.wait_fleet)
     source = source.replace('path = ISLAND / "os_cl/locks/fleet.lock"', 'path = Path('+repr(lock)+')')
     exec(source, n.__dict__)
-    n.atomic, n.island_workers = save, workers
+    n.atomic, n.island_workers, n.wait_workers = save, workers, wait_workers
 
 
 @contextmanager

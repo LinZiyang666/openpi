@@ -27,7 +27,7 @@ CPUS = '22-37,66-81'
 GROOT = Path('/home/weiland/projects/openpi_ext/third_party/gr00t_n15')
 GROOT_PY = '/home/weiland/projects/openpi_ext/envs/gr00t_n15_venv/.venv/bin/python'
 PI05_CKPT = '/home/weiland/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch'
-PORT_RELEASE_TIMEOUT = 60
+PORT_RELEASE_TIMEOUT = 180  # 10-21: a GR00T replica took most of 60 s to exit after SIGTERM; the port wait then timed out
 
 
 def cpu_affinity_set(value):
