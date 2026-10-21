@@ -16,11 +16,11 @@ GIB = 1024 ** 3
 URL = 'http://149.165.152.232:23500'  # the A100 (owner 10-19)
 PACKAGE = 'exp/offline_search/rounds/r17/scheduler'
 ROOT = Path(__file__).resolve().parents[5]
-# Shared pool: any batch may use these. The A100 has no MetaWorld environment.
-SHARED = {'a100': ('libero',), 'timan1': ('libero', 'metaworld'), 'timan107': ('libero', 'metaworld')}
+# Shared pool: any batch may use these. Every worker machine has every worker environment (owner 10-20).
+SHARED = {'a100': ('libero', 'metaworld'), 'timan1': ('libero', 'metaworld'), 'timan107': ('libero', 'metaworld')}
 # Local class: renderers on the server's own machine serve only that server.
 # Servers on h100-temp (Xid 31 renderer faults) and jupyter pods get none.
-LOCAL = {'h100': ('libero',), 'local': ('libero', 'metaworld')}
+LOCAL = {'h100': ('libero', 'metaworld'), 'local': ('libero', 'metaworld')}
 # NodeExecutor RAM safety lines, bytes. A100: worker-only machine; timan107: 12 GiB coordinator guard below.
 NODE_CONFIG = {'a100': dict(floor=16 * GIB, critical=6 * GIB), 'timan107': dict(floor=24 * GIB, critical=16 * GIB)}
 DEFAULT_CONFIG = dict(floor=20 * GIB, critical=10 * GIB)

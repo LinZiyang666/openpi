@@ -507,13 +507,15 @@ def prepare_workers(campaign, directory, *, payload_override=None):
             **(dict(inherited=inherited_deployment[node]) if node in inherited_deployment else {})) if campaign['domain'] == 'libero' else None
         worker_python = '/scratch/zixuans8/openpi/.venv/bin/python' if campaign['domain'] == 'libero' else '/scratch/zixuans8/mw_r17/envs/sim/bin/python'
         if campaign['domain'] == 'metaworld':
-            if node == 'local':
+            # The H100 and the A100 carry a copy of the 4090's environment at the same path (owner 10-20).
+            same_as_local = node in ('local', 'h100', 'a100')
+            if same_as_local:
                 from .worker_installs import LOCAL_METAWORLD_PYTHON
                 worker_python = LOCAL_METAWORLD_PYTHON
             remote(node, ['env','PYTHONPATH='+pythonpath(destination),worker_python,'-c',
                 'from exp.r17_integration.ops.worker_installs import prepare_metaworld; '
                 'prepare_metaworld(timan1='+repr(node == 'timan1')+
-                (',local=True' if node == 'local' else '')+')'], replay_safe=True)
+                (',local=True' if same_as_local else '')+')'], replay_safe=True)
         elif node == 'local':
             from .local_workers import environment
             worker_python = environment()
