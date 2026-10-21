@@ -124,8 +124,12 @@ class Slots:
                 return False
             _, _, card = max(candidates, key=lambda r: r[:2])
             order = self.c.get('worker_egl_devices') if self.c.get('worker_node') == 'timan1' else None
-            if order:  # timan1 (owner 2026-10-18): fill GPU2 first, then GPU1
-                card = min(candidates, key=lambda r: order.index(r[2]['device']) if r[2]['device'] in order else len(order))[2]
+            if order:
+                # timan1: alternate GPU2 and GPU1 by this fleet's renderers per card; ties go to GPU2 (owner 10-18
+                # order). Filling GPU2's VRAM first left GPU1 idle while GPU2's renderer ran at 100% (10-20).
+                ours = {d: sum(1 for a in self.assignments.values() if a['device'] == d) for d in cards}
+                rank = lambda r: (ours.get(r[2]['device'], 0), order.index(r[2]['device']) if r[2]['device'] in order else len(order))
+                card = min(candidates, key=rank)[2]
             self.assignments[index] = dict(index=index, device=card['device'], uuid=card['uuid'],
                                            worker_vram_mib=self.record['worker_vram_mib'])
             self.save()
