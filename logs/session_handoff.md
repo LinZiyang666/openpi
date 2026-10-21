@@ -52,7 +52,7 @@ owner 的常驻指令，逐字有效：
 
 
 
-## 1. 现在在哪（2026-10-20 21:3x CDT；**最先读「21:3x 增补（compact 前总状态）」**，再读 20:5x 旧门事故、其余增补与 09:4x 总状态，再读其后各增补（09:29 → 21:2x 倒序）与 10-19 21:0x 总状态；10-14 及更早只作背景）
+## 1. 现在在哪（2026-10-20 21:4x CDT；**最先读「21:4x 增补」，再读「21:3x 增补（compact 前总状态）」**，再读 20:5x 旧门事故、其余增补与 09:4x 总状态，再读其后各增补（09:29 → 21:2x 倒序）与 10-19 21:0x 总状态；10-14 及更早只作背景）
 
 ### ★★★★★★★★★★★★★★★★★★★★★★★★ 2026-10-20 09:4x CDT 总状态（compact 后最先读这块）
 
@@ -64,6 +64,15 @@ owner 的常驻指令，逐字有效：
 - 处置：09:56 按 PID SIGSTOP 复制 rsync（3726105/3726106/3729764）和两个 governor（3343372/3951564）。效果（同一时刻对比）：Cosmos 15→60 局/分、pod2 DP 85→250、v11_0 50→125（v11_0 同时 floor 40→70）。⛔ **复制保持暂停**；剩 ~190 GB（eval 533/~720 GB）以后找没有 driver 在跑、或可接受的短窗口一次性不限速跑完，不要再长时间节流慢跑。恢复命令：`kill -CONT 3343372 3951564 3726105 3726106 3729764`。记忆 reference-weilandserver-data 已加这条。
 - floors 现 `{"fa_ls_dp_f_f_m_j": 32, "fa_ls_v11_0": 70}`。
 - 在调研（opus 只读）：H100 队列 ~88 h（4 批 FW MT50 旋钮下降 ~42 h）vs 4090 ~22 h；旋钮下降批次 IR 离线算、可换卡 → 考虑 FW/GR00T MT50 旋钮下降挪 4090、DP LIBERO 旋钮下降挪 pod（需装 openpi 环境）。结论回来前不动队列。
+
+**21:4x 增补（compact 后接着办）**
+- ⛔ owner 21:4x：「那个网页你不要管了」→ 网页 v28 不再改（#203 只剩文字汇总）。formal-A `filter_failed_knob/formal_a_1016/RESULTS.json` 的 π0.5/GR00T 32 行已标 withdrawn（172958ed）；R16 k1ref 结果 10-18 已随开发集作废撤掉（21102980），不用再动。
+- timan1 R16 worker 实测已分两卡：EGL1/GPU2 25 个、EGL2/GPU1 24 个，两卡 100%（d13a21f9 生效）。
+- A100 临时 rsyncd（23119）已关；#200 完成。floors 去掉 v05_3、加 fa_ls_fw_r_f_m:48。
+- h100-temp：v05_3 21:34 PASS（347）→ 领队尾 **fa_ls_fw_r_f_m**（原库 · Fast-WAM · MetaWorld · 全步 · 旋钮下降，90,000，campaign 本就是 R2 每副本 ~38 GiB；h100-temp 实测 0/80 GB）。领取文件 mw/claim_h100temp_fa_ls_fw_r_f_m，prepare 包装原件 `.before_h100temp_claim`。第一次 prepare（链 h100tmp22）失败：`direct_transfer.daemon` 读到空 pid 文件 → 守护进程泄漏占住本机 23118 → 后续传输全失败 → worker_resilience「no usable worker node remains」。修 8a471626（等 pid 文件有内容再读），按 PID 停泄漏的 rsync，链 **h100tmp23** 21:43 重新 prepare。
+- 缓存部件研究 fa_cs_pi_r：21:44 5,152/16,000，~133 局/分，0 报错（journal 的 failed = 任务没成功，不是出错），预计 ~23:05 完 → fa_cs_gr_r。
+- timan107 CPU 打满（48 核负载 42）：GR00T MT50 gr_r_u_m 只拿到 18 worker（目标 32）是 CPU 所限。
+- #199 Q3 移植：派只读 opus 代理出方案，写 `filter_failed_knob/q3_port_1020/MAP.md`；交回后我审、定路径（R16/R15 判定器换 Q3，或改走 R17 的 pi05_libero/groot_libero 路径 04987e6b）。⚠ formal_a_1016/off_decisions/{pi05,groot}_*.json 是旧门旋钮关的结论，重跑后要替换，各档批次不能用旧的建。
 
 **21:3x 增补（compact 前总状态；20:5x 之后的一切，先读这块）**
 
