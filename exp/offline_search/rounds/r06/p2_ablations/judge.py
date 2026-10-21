@@ -9,6 +9,8 @@ from exp.offline_search.harness import api
 from exp.offline_search.rounds.r05.q1_commit.judge import CommitJudge
 from exp.offline_search.rounds.r06.p1_groot_commit.judge import GrootCommitJudge
 
+OLD_STALL_GATE = 'old stall gate removed (owner 10-20): the stuck/no-progress guards (noprog_span; R15 --os-judge guard_only; R16 TriggerCommitJudge) are gone. The stall gate is Q3 only: miss_mode=stall_only + stall_path.'
+
 BITS = {"stuck": 1, "terminal": 2, "overtime": 4, "no_progress": 8}
 
 
@@ -16,6 +18,7 @@ class _TriggerMask:
     family = "r6_p2_trigger"
 
     def __init__(self, disabled_guard="none", **kwargs):
+        raise RuntimeError(OLD_STALL_GATE)
         if disabled_guard not in (*BITS, "all", "none"):
             raise ValueError(f"unknown disabled_guard: {disabled_guard}")
         super().__init__(**kwargs)

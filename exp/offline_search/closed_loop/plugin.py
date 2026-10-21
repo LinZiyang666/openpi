@@ -61,6 +61,8 @@ import weakref
 
 import numpy as np
 
+OLD_STALL_GATE = 'old stall gate removed (owner 10-20): the stuck/no-progress guards (noprog_span; R15 --os-judge guard_only; R16 TriggerCommitJudge) are gone. The stall gate is Q3 only: miss_mode=stall_only + stall_path.'
+
 log = logging.getLogger("osplug")
 
 REPO = pathlib.Path(__file__).resolve().parents[3]
@@ -252,6 +254,8 @@ class JudgeSpec:
         if int(burst) < 1:
             raise ValueError("--os-judge-burst must be >= 1")
         kw = dict(cap=cap, step0=step0, burst=burst, text=str(text))
+        if mode == "guard_only":
+            raise SystemExit("--os-judge guard_only: " + OLD_STALL_GATE)
         if mode in ("always", "guard_only"):
             if len(parts) != 1:
                 raise ValueError(f"{mode} takes no parameter")

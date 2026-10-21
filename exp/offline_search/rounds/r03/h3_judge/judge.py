@@ -64,6 +64,8 @@ if str(G3_DIR) not in sys.path:
     sys.path.insert(0, str(G3_DIR))
 import g3_core as core  # noqa: E402  (the r02 module, by its plain name: pickles of its Tables refer to it)
 
+OLD_STALL_GATE = 'old stall gate removed (owner 10-20): the stuck/no-progress guards (noprog_span; R15 --os-judge guard_only; R16 TriggerCommitJudge) are gone. The stall gate is Q3 only: miss_mode=stall_only + stall_path.'
+
 WRAPPERS_SPEC = str(G3_DIR / "wrappers.py") + ":DriftCalibratedConfidence"
 V7 = core.load_class(WRAPPERS_SPEC)
 _W = sys.modules[V7.__module__]
@@ -105,6 +107,8 @@ class MixedJudge(V7):
         for e in events:
             if e not in EVENTS:
                 raise ValueError(f"events must be a subset of {EVENTS}, got {e!r}")
+        if guards:
+            raise RuntimeError(OLD_STALL_GATE)
         self.guards, self.events = bool(guards), events
         self.burst, self.ret_margin = max(int(burst), 0), float(ret_margin)
         self.ret_n, self.ret_hold = max(int(ret_n), 1), max(int(ret_hold), 1)
@@ -155,6 +159,12 @@ class MixedJudge(V7):
 
     def __reduce__(self):
         return (_rebuild_mx, (type(self), self.base_spec), self.__dict__)
+
+    def __setstate__(self, state):
+        # A pickled fit with guards on is a judge from the removed gate; it never serves again.
+        if state.get('guards'):
+            raise RuntimeError(OLD_STALL_GATE)
+        self.__dict__.update(state)
 
     # --------------------------------------------------------------------------------------------- fit
     def fit(self, lib, ctx):
