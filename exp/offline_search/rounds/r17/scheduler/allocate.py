@@ -16,6 +16,30 @@ DEFAULT_COST = {'libero': dict(ram=2.2 * GIB, vram=650, cpu=.3),
                 'metaworld': dict(ram=1.0 * GIB, vram=300, cpu=.5)}
 
 
+SATURATED_UTIL = 90  # server GPU utilization (%) at which more workers stop paying off
+
+
+def server_util(report):
+    """GPU utilization of the batch's server machine (its own-machine snapshot), or None (MIG pods, no snapshot)."""
+    return (report['node_state'].get(report['server_host']) or {}).get('gpu_util')
+
+
+def saturated(report):
+    return (server_util(report) or 0) >= SATURATED_UTIL
+
+
+def explore(report):
+    """Workers a batch may hold in the work-conserving pass: double while its server GPU has room, hold when it is
+    saturated, and without a utilization reading (MIG pods) twice the client's own desire."""
+    active, desired = sum(report['active'].values()), report['desired']
+    util = server_util(report)
+    if util is None:
+        return 2 * desired
+    if util >= SATURATED_UTIL:
+        return max(desired, active)
+    return 2 * max(desired, active)
+
+
 def live(reports, now):
     return {b: r for b, r in reports.items() if now - r['received'] <= TTL_S}
 
@@ -103,12 +127,22 @@ def plan(reports, now, previous=None):
     # like the 4090). Remote workers reach the 4090's server through its ~33 MB/s public ingress, which one MT50
     # batch's images saturate (10-20: 100 remote workers, GPU 8%). Waiting for a stable shared pool left the
     # H100's own workers at 0 almost always (one 7-worker target in 6,470 allocation rows, 10-20).
-    for node in [n for n in local_nodes if n in LOCAL_FIRST]:
-        fill(own(node))
-    fill(shared)
+    def rounds():
+        for node in [n for n in local_nodes if n in LOCAL_FIRST]:
+            fill(own(node))
+        fill(shared)
+        for node in [n for n in local_nodes if n not in LOCAL_FIRST]:
+            fill({b: nodes for b, nodes in own(node).items() if reports[b]['shared_stable_s'] >= STABLE_S})
+    rounds()
+    # Work-conserving second pass (owner 10-20: no idle workers while a server can take more). Each batch's
+    # desire is only its first claim: what is left goes, by the same dominant share, to batches whose server GPU
+    # has room (explore: doubling until it saturates). A client's step test that misreads (its window closes
+    # before new workers finish an episode) no longer leaves worker machines idle.
+    for b, r in reports.items():
+        if not r['done']:
+            want[b] = max(want[b], min(sum(v['max'] for v in r['nodes'].values()), explore(r)))
+    rounds()
     shares = {b: share(b, shared[b]) for b in reports}
-    for node in [n for n in local_nodes if n not in LOCAL_FIRST]:
-        fill({b: nodes for b, nodes in own(node).items() if reports[b]['shared_stable_s'] >= STABLE_S})
     return dict(targets=alloc, capacity=capacity, shares=shares)
 
 
