@@ -434,8 +434,9 @@ def endpoints_from_args(spec, model):
         if model=='groot' and (not sep or suite not in ('libero_10','libero_spatial')):
             raise ValueError('Each GR00T endpoint must declare its suite checkpoint')
         endpoints[key]=suites
-    if set(s for v in endpoints.values() for s in v)!={'libero_10','libero_spatial'}:
-        raise ValueError('Both suites must have endpoints')
+    # A suite may go without endpoints once its episodes are all done (runner --groot-suite-servers 4,0).
+    if not endpoints or not set(s for v in endpoints.values() for s in v)<={'libero_10','libero_spatial'}:
+        raise ValueError('Invalid endpoint suites')
     return endpoints
 
 
