@@ -20,7 +20,7 @@ SETTLE_S = 120  # after a step, wait at most this long for live workers to reach
 MEASURE_S = 180  # accepted-rate window after a step
 HOLD_S = 900  # time in hold before one probe step
 BUSY_UTIL = 90  # server GPU utilization (%) that forces hold
-STABLE_TOLERANCE = .05  # per shared node, |active - target| <= max(1, 5%) counts as equal (recycling gaps)
+STABLE_TOLERANCE = .15  # the shared pool is steady once its active workers reach 85% of the targets' total
 MIX_TOLERANCE = .2  # windows whose cohort (yaml) shares differ more than this are not comparable
 STATE = ('time', 'ram_available', 'ram_floor', 'workers_ram', 'worker_ram', 'vram_capacity', 'workers_vram',
          'worker_vram', 'cpu_capacity', 'workers_cpu', 'worker_cpu', 'gpu_util')
@@ -129,8 +129,11 @@ class BatchClient:
             self.retired = set((read(self.root / 'WORKER_NODE_STATE.json') or {}).get('retired', []))
             active = {n: self.snapshots[n]['active'] if n in self.snapshots and self.fresh(self.snapshots[n]) else 0
                       for n in self.nodes}
-            steady = all(abs(active[n] - self.targets[n]) <= max(1, self.targets[n] * STABLE_TOLERANCE)
-                         for n, v in self.nodes.items() if v['class'] == 'shared')
+            # Totals over the shared pool: per-node equality never held, since the scheduler moves a few
+            # targets every round (10-20: shared_stable_s stayed 0, so no server host ever got local workers).
+            shared = [n for n, v in self.nodes.items() if v['class'] == 'shared']
+            want = sum(self.targets[n] for n in shared)
+            steady = sum(active[n] for n in shared) >= want * (1 - STABLE_TOLERANCE)
             self.stable_since = (self.stable_since if self.stable_since is not None else now) if steady else None
             if done and not self.done:
                 self.done, self.desired = True, 0
