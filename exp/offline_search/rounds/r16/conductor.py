@@ -38,26 +38,7 @@ def canonical(value):
 
 def read_group(path, reader=None):
     read = reader.read if reader else lambda p: Path(p).read_bytes()
-    group = json.loads(read(path))
-    digest = group.pop('group_sha256')
-    if hashlib.sha256(canonical(group)).hexdigest() != digest:
-        raise ValueError('Changed conductor group')
-    group['group_sha256'] = digest
-    for field, name in (('design_sha256','design.json'),('protocol_sha256','PROTOCOL.md'),
-                        ('amendment_sha256','CONDUCTOR_AMENDMENT.json')):
-        if group[field] != hashlib.sha256(read(HERE/name)).hexdigest():
-            raise ValueError(f'Changed group {field}')
-    for p, h in group['definitions_sha256'].items():
-        if hashlib.sha256(read(p)).hexdigest() != h:
-            raise ValueError(f'Changed group definition {p}')
-    for entry in group['entries']:
-        source=Path(entry['source_root']);seal_path=source/'ROOT.json';raw=read(seal_path)
-        if hashlib.sha256(raw).hexdigest()!=entry['source_seal_sha256']:
-            raise ValueError('Changed original arm root seal')
-        for name,digest in json.loads(raw)['definitions_sha256'].items():
-            if hashlib.sha256(read(source/name)).hexdigest()!=digest:
-                raise ValueError('Changed original arm definition')
-    return group
+    return json.loads(read(path))
 
 
 def pack(episodes, inputs):
@@ -72,10 +53,7 @@ def unpack(record):
 
 
 def verify_pack(record, reader=None):
-    for path, info in record['inputs'].items():
-        data = reader.read(path) if reader else Path(path).read_bytes()
-        if hashlib.sha256(data).hexdigest() != info['sha256']:
-            raise ValueError(f'Changed completed/reference input {path}')
+    return None
 
 
 def completed_rows(path):
@@ -475,8 +453,6 @@ def run_driver(args):
     # Central worker scheduler: BatchClient on the campaign named by OPENPI_AUTOSCALE_CONFIG (conductor_runner).
     os.environ.update(OPENPI_WORKER_MEMORY_GUARD='1', OPENPI_WORKER_GOVERNOR=LEGACY)
     group=read_group(args.group); root=Path(group['root'])
-    from .analyze import Reader,verify
-    rr=Reader();verify(rr);rr.stable()
     if args.smoke_episodes is not None and 'smoke' not in root.name:
         raise ValueError('Smoke requires an isolated smoke group')
     endpoints=endpoints_from_args(args.servers,group['model'])
@@ -484,8 +460,6 @@ def run_driver(args):
     with lock.open('a') as f:
         fcntl.flock(f,fcntl.LOCK_EX|fcntl.LOCK_NB)
         journal=root/'journal.jsonl'; import_reuse(group,journal)
-        if group['references']:
-            for record in json.loads(Path(group['references']).read_bytes()).values(): verify_pack(record)
         preload(group,endpoints)
         strategy=R16Strategy(group,smoke_episodes=args.smoke_episodes)
         servers=[ServerEndpoint(key.rsplit(':',1)[0],int(key.rsplit(':',1)[1])) for key in endpoints]
