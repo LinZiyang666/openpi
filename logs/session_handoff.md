@@ -52,7 +52,7 @@ owner 的常驻指令，逐字有效：
 
 
 
-## 1. 现在在哪（2026-10-21 11:5x CDT；**最先读「10-21 17:3x 增补」，再读「10-21 15:0x 增补」，再读「10-21 14:0x 增补」，再读「10-21 13:2x 增补」，再读「10-21 12:0x 增补」，再读「10-21 11:5x 增补（compact 前总状态）」，再读「10-21 00:3x 增补」，再读「10-21 00:0x 增补（compact 前总状态）」，再读「22:5x」「22:1x」「21:4x」增补，再读「21:3x 增补（compact 前总状态）」**，再读 20:5x 旧门事故、其余增补与 09:4x 总状态，再读其后各增补（09:29 → 21:2x 倒序）与 10-19 21:0x 总状态；10-14 及更早只作背景）
+## 1. 现在在哪（2026-10-21 11:5x CDT；**最先读「10-21 18:3x 增补」，再读「10-21 17:3x 增补」，再读「10-21 15:0x 增补」，再读「10-21 14:0x 增补」，再读「10-21 13:2x 增补」，再读「10-21 12:0x 增补」，再读「10-21 11:5x 增补（compact 前总状态）」，再读「10-21 00:3x 增补」，再读「10-21 00:0x 增补（compact 前总状态）」，再读「22:5x」「22:1x」「21:4x」增补，再读「21:3x 增补（compact 前总状态）」**，再读 20:5x 旧门事故、其余增补与 09:4x 总状态，再读其后各增补（09:29 → 21:2x 倒序）与 10-19 21:0x 总状态；10-14 及更早只作背景）
 
 ### ★★★★★★★★★★★★★★★★★★★★★★★★ 2026-10-20 09:4x CDT 总状态（compact 后最先读这块）
 
@@ -64,6 +64,12 @@ owner 的常驻指令，逐字有效：
 - 处置：09:56 按 PID SIGSTOP 复制 rsync（3726105/3726106/3729764）和两个 governor（3343372/3951564）。效果（同一时刻对比）：Cosmos 15→60 局/分、pod2 DP 85→250、v11_0 50→125（v11_0 同时 floor 40→70）。⛔ **复制保持暂停**；剩 ~190 GB（eval 533/~720 GB）以后找没有 driver 在跑、或可接受的短窗口一次性不限速跑完，不要再长时间节流慢跑。恢复命令：`kill -CONT 3343372 3951564 3726105 3726106 3729764`。记忆 reference-weilandserver-data 已加这条。
 - floors 现 `{"fa_ls_dp_f_f_m_j": 32, "fa_ls_v11_0": 70}`。
 - 在调研（opus 只读）：H100 队列 ~88 h（4 批 FW MT50 旋钮下降 ~42 h）vs 4090 ~22 h；旋钮下降批次 IR 离线算、可换卡 → 考虑 FW/GR00T MT50 旋钮下降挪 4090、DP LIBERO 旋钮下降挪 pod（需装 openpi 环境）。结论回来前不动队列。
+
+**10-21 18:3x 增补：两台 pod 17:41 同时掉线**
+- ⛔ jupyter-ziyang10 和 -02 17:41 同时 OFFLINE（10-20 17:38 也是两台一起掉，疑似平台每天这个点回收）。jupyter_watch 当时没在跑，没推通知（我之前说「有 jupyter_watch 盯着」是错的）；server_watch 靠新加的 receipt=FAIL 规则在 18:1x 抓到。
+- driver 在服务端不可达时把剩下的局全部快速记成失败：fa_ls_fw_r_u_m_j 作废 66,285（好 23,715）、fa_ls_fw_f_f_m_j 作废 82,495（好 7,505）。都是 retry-exhausted（InvalidMessage / ConnectionClosed），resume --infra-errors 已建 **fa_ls_fw_r_u_m_jc1（66,285）**、**fa_ls_fw_f_f_m_jc1（82,495）**，prepare/launch 脚本已写（pod 别名，驱动 23192/23193）。纯推理参照 fa_ls_fw_r_p_m_j、fa_ls_fw_f_p_m_j 已 PASS，不受影响。
+- 28e95c59 driver 熔断：120 s 内 ≥50 局 retry-exhausted 就停止派发（PARTIAL，DRIVER_RECEIPT.infra_breaker），剩下的局保持未接受，续跑补上。新 prepare 的批次生效（driver_release 覆盖 formal_driver_fast.py / cache_study.py）。
+- 等 pod 恢复：后台 bv5imo5ae 等任一 pod ONLINE；恢复后：setup.sh fastwam_nfs（NFS 文件都在，几分钟）→ 重建 pod 反向隧道（~/.tether-agent/zl_tunnel/tunnel.sh 24472 23474 等）→ jupyter_watch 重挂 → 起 pod 链跑两批 jc1。**需要 owner 在 JupyterHub 重开两台 server 并启动 tether agent。**
 
 **10-21 17:3x 增补：EMFILE 事故与补跑**
 - ⚠ 原库 · Fast-WAM · MetaWorld · 全步 · 旋钮下降 `fa_ls_fw_f_u_m` 16:12 收齐 90,000，但回执 FAIL：**3,855 局是基础设施失败被记成策略失败**（3,849 局 `replica backend unavailable: [Errno 24] Too many open files`，6 局服务端 traceback；全在 11–12 点，调度器给了 ~580 个 worker；H100 tether-agent 起的进程软 nofile=1024，代理每个客户端占 2 个 fd）。链 chain_ffk 没停、巡检也没报（行是 `ended rc=2 receipt=FAIL`）。
