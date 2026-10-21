@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from dataclasses import asdict
-import contextlib
 import json
 import os
 from pathlib import Path
@@ -167,22 +166,30 @@ def serve(campaign, port, directory, cuda_graph=False):
         base_factory = make_connection_factory(provider, config, storage, **adapter_kwargs)
     if runtime is not None:
         base_factory = runtime.wrap_connection_factory(base_factory)
+    import contextvars
+    from concurrent.futures import ThreadPoolExecutor
     import threading
     evidence_lock = threading.Lock()
-    resident_lock = threading.RLock()
+    # B1: every request of this replica runs on one model thread, in arrival order (the
+    # exclusion the resident lock gave). Serving each request on whichever connection
+    # thread held the lock made the same work ~3x slower per request (h100-temp profile
+    # 10-21: hit 64 -> 20 ms, miss 110 -> 58 ms). Batched adapters keep their stage queues.
+    model_thread = ThreadPoolExecutor(max_workers=1, thread_name_prefix='r17-model') if runtime is None else None
     def factory(*args, **kwargs):
         core = base_factory(*args, **kwargs)
         original = core.infer
         def infer(obs):
             begin = time.monotonic()
-            # Without a stage runtime, serialize resident sampler buffers.
-            # Batched adapters submit concurrent connections to stage queues.
-            with resident_lock if runtime is None else contextlib.nullcontext():
-                service_begin = time.monotonic()
+            def call():
+                start = time.monotonic()
                 if captures is not None:
                     core.capture_sink.bind_observation(obs)
                 result = original(obs)
-                service_seconds = time.monotonic()-service_begin
+                return result, start, time.monotonic()-start
+            if model_thread is None:
+                result, service_begin, service_seconds = call()
+            else:
+                result, service_begin, service_seconds = model_thread.submit(contextvars.copy_context().run, call).result()
             hit = result.get('__hit_meta__', {})
             row = dict(replica_port=port, task_uid=core._episode.get('task_uid'),
                 task_name=core._episode.get('task_name'), decision_seq=hit.get('decision_seq'),
@@ -225,6 +232,8 @@ def serve(campaign, port, directory, cuda_graph=False):
     try:
         server.serve_forever(stop_on_request=True)
     finally:
+        if model_thread is not None:
+            model_thread.shutdown(wait=False)
         if runtime is not None:
             runtime.close()
         if captures is not None:

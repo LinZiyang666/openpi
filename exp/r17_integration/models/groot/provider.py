@@ -24,14 +24,15 @@ class _TimedLockView:
     waiting to acquire it is accumulated, so P1 can separate queueing from
     host service time (``drain_queue_wait_ms``). No model/RNG state is touched.
     """
-    def __init__(self, lock):
+    def __init__(self, lock, ledger=None):
         self._lock = lock
-        self._wait_ms = 0.0
+        # One ledger per connection, shared by its model-lock and transform-lock views.
+        self._ledger = ledger if ledger is not None else [0.0]
 
     def __enter__(self):
         begin = time.perf_counter()
         self._lock.acquire()
-        self._wait_ms += (time.perf_counter() - begin) * 1000.0
+        self._ledger[0] += (time.perf_counter() - begin) * 1000.0
         return self
 
     def __exit__(self, *exc):
@@ -39,18 +40,24 @@ class _TimedLockView:
         return False
 
     def drain(self):
-        wait, self._wait_ms = self._wait_ms, 0.0
+        wait, self._ledger[0] = self._ledger[0], 0.0
         return wait
 
 
 class GrootMetaWorldAdapter:
-    def __init__(self, backend, manifest, *, model_lock=None, runner_factory=GrootStagedRunner):
+    def __init__(self, backend, manifest, *, model_lock=None, transform_lock=None, runner_factory=GrootStagedRunner):
         self.manifest = manifest
         self.stage_executor = None
         self.spec = manifest.model_spec()
         self.model_lock = model_lock if model_lock is not None else threading.RLock()
+        # CPU transforms (image resize/normalize, tokenizer, state/action norm) only need
+        # exclusion among themselves, not against the GPU stages: with stage batching they
+        # run on the connection threads while a stage batch holds the model lock.
+        self.transform_lock = transform_lock if transform_lock is not None else threading.RLock()
         # Shared exclusion, connection-local queue-wait ledger (N5).
-        self._timed_lock = _TimedLockView(self.model_lock)
+        ledger = [0.0]
+        self._timed_lock = _TimedLockView(self.model_lock, ledger)
+        self._timed_transforms = _TimedLockView(self.transform_lock, ledger)
         self.backends = backend if isinstance(backend, dict) else {None:backend}
         self.runners = {suite:runner_factory(b.model) for suite,b in self.backends.items()}
         self.state_transforms = {}
@@ -110,7 +117,7 @@ class GrootMetaWorldAdapter:
             self._select_backend(request.task_name.split("/", 1)[0])
         native = to_groot_observation(wire_obs, self.manifest.benchmark)
         batched = {name: np.expand_dims(value, 0) for name, value in native.items()}
-        with self._timed_lock:
+        with self._timed_transforms:
             normalized = self.backend.apply_transforms(batched)
         return PreparedObs(normalized, request, np.asarray(observation_field(wire_obs, "state"), dtype=np.float32).copy())
 
@@ -221,7 +228,7 @@ class GrootMetaWorldAdapter:
         chunk = torch.as_tensor(normalized_chunk).detach().cpu().float().clone()
         if chunk.shape != (16, 32) or not torch.isfinite(chunk).all():
             raise ValueError("normalized chunk must be finite H16×32")
-        with self._timed_lock:
+        with self._timed_transforms:
             result = self.backend.unapply_transforms({"action": chunk[None]})
         return WireChunk(wire_actions(result, self.manifest.benchmark))
 
@@ -229,7 +236,7 @@ class GrootMetaWorldAdapter:
         state = np.asarray(observation_field(wire_obs, "state"), dtype=np.float32)
         if state.shape != (self.manifest.state_dim,) or not np.isfinite(state).all():
             raise ValueError("state-only tail requires finite native state")
-        with self._timed_lock:
+        with self._timed_transforms:
             if hasattr(self.backend, "normalize_state_only"):
                 normalized = torch.as_tensor(self.backend.normalize_state_only(state.copy()))
             else:
@@ -299,9 +306,11 @@ class GrootMetaWorldAdapter:
 def make_provider(backend, manifest, *, model_lock=None, runner_factory=GrootStagedRunner):
     from exp.r17_integration.common.provider import AdapterProvider
     lock = model_lock if model_lock is not None else threading.RLock()
+    transforms = threading.RLock()
 
     def adapter():
-        return GrootMetaWorldAdapter(backend, manifest, model_lock=lock, runner_factory=runner_factory)
+        return GrootMetaWorldAdapter(backend, manifest, model_lock=lock, transform_lock=transforms,
+                                     runner_factory=runner_factory)
 
     def sampler(k):
         if type(k) is not int or k != manifest.denoising_steps:

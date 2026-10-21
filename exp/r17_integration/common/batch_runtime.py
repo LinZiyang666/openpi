@@ -81,7 +81,8 @@ class _StageBatcher:
     def _run(items, call):
         import torch
         first = items[0]
-        # GR00T's transforms and compiled vision buffers share this lock.
+        # The model lock covers the GPU stages (and compiled vision buffers); GR00T CPU
+        # transforms use their own lock and overlap these batches.
         with first.lock if first.lock is not None else contextlib.nullcontext():
             for item in items:
                 for event in item.ready_events:

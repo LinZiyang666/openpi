@@ -669,6 +669,20 @@ def host_python(campaign):
     return CONTROL_PYTHON
 
 
+# Cores a server node gives its replicas. The H100 has 20 and also runs ~40 local workers: 10 for the
+# servers (10-21: five GR00T replicas at OMP=4 took the whole machine, 35% system time spinning, GPU 37%,
+# 179 eps/min vs ~300 at OMP=1). The 4090's servers are pinned to NUMA node 1 (22-43,66-87).
+SERVER_CORES = {'h100': 10, 'local': 44}
+
+
+def server_threads(campaign):
+    """CPU threads per server replica (torch intra-op, OpenMP, MKL, OpenBLAS)."""
+    if campaign.get('server_threads'):
+        return int(campaign['server_threads'])
+    cores = SERVER_CORES.get(campaign.get('server_node'), os.cpu_count() or 8)
+    return max(1, min(4, cores // max(1, int(campaign.get('replicas') or 1))))
+
+
 def server_env(campaign, root):
     h100_native = campaign['server_node'] == 'h100' and campaign['model'] in ('pi05', 'groot')
     # python_deps312 supplies h5py to the Python 3.12 server envs; the 4090 openpi .venv (Python 3.11, DP LIBERO
@@ -684,8 +698,9 @@ def server_env(campaign, root):
             extra += ':'+vendor+'/examples/Libero'
     if campaign['model'] == 'cosmos':
         extra = '/data/cosmos/r17_runtime_deps310:'+campaign['vendor']
+    threads = str(server_threads(campaign))
     env = dict(PYTHONPATH=pythonpath(root, extra.strip(':')), PYTHONDONTWRITEBYTECODE='1',
-        OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1', MKL_NUM_THREADS='1', TOKENIZERS_PARALLELISM='false',
+        OMP_NUM_THREADS=threads, OPENBLAS_NUM_THREADS=threads, MKL_NUM_THREADS=threads, TOKENIZERS_PARALLELISM='false',
         XLA_PYTHON_CLIENT_PREALLOCATE='false')
     if h100_native:
         env['HF_HOME'] = '/home/exouser/.cache/huggingface'

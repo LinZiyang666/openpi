@@ -117,7 +117,7 @@ def command(spec):
     env = dict(spec['env'])
     env.setdefault('PI05_CKPT', PI05_CKPT)
     env.setdefault('GROOT_CKPT', f"/data/ckpt/n15_{spec['suite']}")
-    env.setdefault('OMP', '1')
+    env.setdefault('OMP', '4')  # CPU threads per server process (workers keep 1)
     argv, env = node.command(spec['model'], spec['suite'], spec['port'], spec['yaml'],
                              spec['out'], spec['tag'], spec['plugin'], env)
     argv[0] = str(TREE / '.venv/bin/python') if spec['model'] == 'pi05' else GROOT_PY

@@ -92,6 +92,10 @@ def record(job, host, rows, action):
 def r15_command(job, action, host):
     root = Path(job['run'])
     env = dict(os.environ, **job['topology']['env']); env['WORKER_HOST'] = host
+    # Server CPU threads per replica (H100: 10 of its 20 cores, the rest for local workers, as
+    # formal_eval.SERVER_CORES; 4090 servers 32 pinned CPUs); the recorded topologies carry OMP=1.
+    cores = 10 if env.get('SERVER_HOST', 'h100') == 'h100' else 32
+    env['OMP'] = str(max(1, min(4, cores // max(1, int(env.get('LOCAL_SERVER_COUNT') or job.get('replicas') or 1)))))
     if action == 'prepare':
         env['OSCL_ISOLATE_GENERATED_ASSETS'] = '1'
     env['FFK_WORKER_FLEET_ROOT'] = str(root)

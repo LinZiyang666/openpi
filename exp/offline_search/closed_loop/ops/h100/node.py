@@ -196,7 +196,7 @@ def command(model, suite, port, yaml, log, tag, plugin, env):
     if not stock:
         args = [*plugin, "--os-log-dir", log, "--os-tag", tag, *args]
     env.update(HOME="/home/exouser", PYTHONPATH=f"/home/exouser/gr00t_n15:/home/exouser/gr00t_n15/examples/Libero:{TREE}:{TREE}/src:{TREE}/packages/openpi-client/src",
-               OMP_NUM_THREADS=env.get("OMP", "4"), MKL_NUM_THREADS=env.get("OMP", "4"), OPENBLAS_NUM_THREADS="1",
+               OMP_NUM_THREADS=env.get("OMP", "4"), MKL_NUM_THREADS=env.get("OMP", "4"), OPENBLAS_NUM_THREADS=env.get("OMP", "4"),
                OPENPI_SERVER_GPU_MEMORY_LOCK=env.get("GPU_LOCK", "0"), CUDA_VISIBLE_DEVICES="0")
     return [py, str(entry), *args], env
 

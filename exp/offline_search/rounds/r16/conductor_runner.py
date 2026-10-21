@@ -39,6 +39,11 @@ def server_count(group, groot_servers_per_suite=None, split=None):
     return 2*(groot_servers_per_suite if groot_servers_per_suite is not None else (1 if smoke else 2))
 
 
+def server_threads(count, cpus=32):
+    """CPU threads per resident: the local servers share 32 pinned CPUs (local_server.CPUS)."""
+    return max(1, min(4, cpus//max(1, count)))
+
+
 def server_specs(group, ports, generation, *, groot_servers_per_suite=None, split=None):
     m=group['model'];count=server_count(group,groot_servers_per_suite,split)
     if len(ports)!=count:raise ValueError(f'{m} requires {count} servers')
@@ -54,7 +59,7 @@ def server_specs(group, ports, generation, *, groot_servers_per_suite=None, spli
         specs.append(dict(role='server',server_host='local',run_root=str(root),
             model=m,suite=suite,port=port,yaml=row['yaml'],out=str(root/'runs'/f'resident_{generation}_{i}'),
             tag=f'r16_{m}_k{group["k"]}_{generation}_{i}',plugin=plugin,
-            env=dict(STAGE1_ONLY='0',OMP='1',GROOT_DENOISING_STEPS=str(group['k'])),
+            env=dict(STAGE1_ONLY='0',OMP=str(server_threads(count)),GROOT_DENOISING_STEPS=str(group['k'])),
             need_mb=10000 if m=='pi05' else 6500,registry=str(root/'group.json')))
     return specs
 

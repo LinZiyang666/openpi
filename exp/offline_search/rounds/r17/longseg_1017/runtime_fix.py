@@ -13,6 +13,21 @@ from pathlib import Path
 from .runtime import source
 
 REPO = Path(__file__).resolve().parents[5]
+# Whole working-tree files written into (or added to) inherited releases, which predate them.
+# formal_server.py: B1 requests run on one model thread per replica (pi0.5/GR00T campaigns).
+# With `stage_batching` also cross-connection stage batching: formal_server stage_batching,
+# common.batch_runtime, the GR00T/pi0.5 stage hooks, GR00T S1/S2 batches and its transform lock.
+SERVER_FILES = ('exp/r17_integration/ops/formal_server.py',)
+BATCHING_FILES = SERVER_FILES + ('exp/r17_integration/common/batch_runtime.py',
+                  'exp/r17_integration/models/groot/provider.py', 'exp/r17_integration/models/groot/batcher.py',
+                  'exp/r17_integration/models/pi05/adapter.py', 'src/openpi/cache/groot/batcher.py',
+                  'src/openpi/cache/groot/staged.py')
+
+
+def overlay_files(campaign):
+    if campaign.get('stage_batching'):
+        return BATCHING_FILES
+    return SERVER_FILES if campaign.get('model') in ('groot', 'pi05') else ()
 
 
 def _module_path(module):
@@ -70,16 +85,30 @@ def patched_files(read):
     return result
 
 
-def apply(archive):
-    """Rewrite `archive` in place; return {member: (old_sha, new_sha)}."""
+def apply(archive, files=()):
+    """Rewrite `archive` in place; return {member: (old_sha, new_sha)}.
+
+    `files` are working-tree paths written whole (added when the archive lacks them),
+    after the method rewrites, so they carry their own complete definitions.
+    """
+    import copy
     import hashlib
     archive = Path(archive)
     with tarfile.open(archive) as tar:
         members = tar.getmembers()
         data = {m.name: tar.extractfile(m).read() for m in members}
     fixed = patched_files(lambda member: data[member].decode())
+    fixed.update({name: (REPO / name).read_text() for name in files})
     receipt = {}
     buffer = io.BytesIO()
+    names = {m.name for m in members}
+    template = next(m for m in members if m.isfile())
+    for name in files:
+        if name not in names:
+            m = copy.copy(template)
+            m.name = name
+            members.append(m)
+            data[name] = b''
     with tarfile.open(fileobj=buffer, mode='w') as out:
         for m in members:
             body = data[m.name]
@@ -108,7 +137,7 @@ def stage(launch, campaign, root):
     from exp.r17_integration.ops.immutable_release import archive_manifest, identity, install, sha
     root = Path(root)
     archive = root/'runtime.tar'
-    members = apply(archive)
+    members = apply(archive, overlay_files(campaign))
     document = archive_manifest(archive)
     pin, archive_pin = identity(document), sha(archive)
     release = '/data/mw_finetune/qualification/formal_runtime_'+pin
