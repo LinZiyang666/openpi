@@ -52,7 +52,7 @@ owner 的常驻指令，逐字有效：
 
 
 
-## 1. 现在在哪（2026-10-20 21:4x CDT；**最先读「22:5x 增补」「22:1x 增补」「21:4x 增补」，再读「21:3x 增补（compact 前总状态）」**，再读 20:5x 旧门事故、其余增补与 09:4x 总状态，再读其后各增补（09:29 → 21:2x 倒序）与 10-19 21:0x 总状态；10-14 及更早只作背景）
+## 1. 现在在哪（2026-10-21 00:0x CDT；**最先读「10-21 00:0x 增补（compact 前总状态）」，再读「22:5x」「22:1x」「21:4x」增补，再读「21:3x 增补（compact 前总状态）」**，再读 20:5x 旧门事故、其余增补与 09:4x 总状态，再读其后各增补（09:29 → 21:2x 倒序）与 10-19 21:0x 总状态；10-14 及更早只作背景）
 
 ### ★★★★★★★★★★★★★★★★★★★★★★★★ 2026-10-20 09:4x CDT 总状态（compact 后最先读这块）
 
@@ -64,6 +64,44 @@ owner 的常驻指令，逐字有效：
 - 处置：09:56 按 PID SIGSTOP 复制 rsync（3726105/3726106/3729764）和两个 governor（3343372/3951564）。效果（同一时刻对比）：Cosmos 15→60 局/分、pod2 DP 85→250、v11_0 50→125（v11_0 同时 floor 40→70）。⛔ **复制保持暂停**；剩 ~190 GB（eval 533/~720 GB）以后找没有 driver 在跑、或可接受的短窗口一次性不限速跑完，不要再长时间节流慢跑。恢复命令：`kill -CONT 3343372 3951564 3726105 3726106 3729764`。记忆 reference-weilandserver-data 已加这条。
 - floors 现 `{"fa_ls_dp_f_f_m_j": 32, "fa_ls_v11_0": 70}`。
 - 在调研（opus 只读）：H100 队列 ~88 h（4 批 FW MT50 旋钮下降 ~42 h）vs 4090 ~22 h；旋钮下降批次 IR 离线算、可换卡 → 考虑 FW/GR00T MT50 旋钮下降挪 4090、DP LIBERO 旋钮下降挪 pod（需装 openpi 环境）。结论回来前不动队列。
+
+**10-21 00:0x 增补（compact 前总状态；22:5x 之后的一切，先读这块）**
+
+在跑（00:00 实测）：
+- **4090**：原库 · GR00T · LIBERO · 减步 · 缓存部件研究 fa_cs_gr_r（无门四组 16,000；23:59 约 2,600 局，111 局/分，102 worker，4 个常驻 CPU 都 ~103%、GPU 67%——卡在副本 CPU）。链 **g4090ap**（chain_ffk）→ 完后 **g4090ar**（chain_ffk_stop2）= Q3 重跑：fa_pi_r_u_o_q fa_pi_r_f_o_q fa_gr_r_u_o_q fa_gr_r_f_o_q fa_gr_f_u_o_q fa_gr_f_f_o_q fa_cs_pi_rg fa_cs_gr_rg。hold：g4090al/am/an/ao/aq。原库 · π0.5 · LIBERO · 缓存部件研究 fa_cs_pi_r 22:57 收齐 16,000。
+- **H100**：链 h100m26（R5 的 GR00T MT50 v03_0 23:24 起，385 局/分，74 worker 含 H100 本机 40，GPU 95%）→ v03_1 → gr_f_f_m → gr_f_u_m（领给 pod，守卫跳过）→ v05_1_rz v05_2_rz fw_f_u_m v02_b fw_f_f_l_l fw_f_u_l_l v08_1 fw_r_u_m fw_f_f_m → fw_r_f_m（领给 h100-temp，跳过）→ v05_3/4/0（已完）。**h100m27** 等 h100m26 queue done → fa_ls_fw_r_f_mc2（原库 · Fast-WAM · MetaWorld · 全步 · 旋钮下降续跑 88,010，路由已还原 H100）。**h100q1** = π0.5 全步旋钮关 Q3 原库 fa_pi_f_u_o_q（R15，H100 3 副本，worker 只在 timan107，23:33 起）→ 因无 RECEIPT 会 STOPPED → **h100q2**（chain_ffk_stop2）接 fa_pi_f_f_o_q。原库 · GR00T · MetaWorld · 旋钮下降 gr_r_u_m 23:00 收齐 90,000。
+- **jupyter-ziyang10**：成功过滤库 · DP · LIBERO · 全步 · 各档 fa_ls_v09_1_j4（~32k/33,650，~101 局/分，缺 worker 62/103），约 00:20 完；链 pod1j。完后 floor 要清。
+- **jupyter-ziyang10-02**：空着。fa_ls_gr_f_u_m_j（⚠ **原库** · GR00T · MetaWorld · 全步 · 旋钮下降，名字 u=原库；我曾标错成成功过滤库）R2 显存溢出（每副本 7 GiB，GR00T 要 7.1–7.3 GB → CUDACachingAllocator NVML INTERNAL ASSERT / CUDNN_STATUS_INTERNAL_ERROR，23:19 起 1,461 局重试耗尽）→ 23:51 SIGTERM 停（链 pod2gr1 hold）。续跑 jc1 改 **R1/14 GiB**，目录建在 /nvme——等 NVME 第一阶段代理交回（它会建好 jc1 和 filter_failed_knob/commands/{prepare,launch}_fa_ls_gr_f_u_m_jc1.sh，不 prepare/launch）→ 我审、提交、起链、加 floor。
+- **h100-temp**：22:41 机主停了我们（跑 dlm refresh_kernel_bench），已 PushNotification；不再领活。
+- floors（A100 run_23500/floors.json）：`{fa_ls_v09_1_j4:100, fa_cs_gr_r:64}`。
+
+⛔ owner 本段新规定（都已写进记忆）：
+- 网页不用管（21:4x）。
+- 所有 worker 机 + H100/4090 装齐全部 worker 环境；H100 像 4090 本机起 worker 接调度器（feedback-devices-and-gpus）。
+- GR00T 最多 4–5 副本，不准 11（feedback-throughput-sizing）；H100 本机 worker 显存预留激进，只留几个 G。
+- /data 不准新写：新批次/续跑/运行时/日志全部 /nvme，原路径软链，实验不停、存量边跑边搬（reference-weilandserver-data）。
+- 定期分析各 server 负载、不准饿着 server；调度器要自己找到合适 worker 数（feedback-dynamic-worker-count）。
+- 服务端不准单线程 + B1：GR00T 服务端 OMP/MKL/OPENBLAS_NUM_THREADS=1、每副本一次一个请求，owner：「单线程有问题…我们不是有batch吗…cpu也应该是多线程」。
+
+本段修复（全推 origin Ziyang）：
+- 环境：MetaWorld env → A100/H100（同路径 /home/weiland/projects/openpi_ext/envs/metaworld_sim + uv cpython 3.11.15）；R16 一套 → H100；R15 island → timan1/A100/H100/本机。盘点 scheduler/WORKER_ENV_MATRIX.md。远端 rsyncd（use chroot=no）会去掉绝对软链的 /，推完重建（$CLAUDE_JOB_DIR/tmp/push_envs.sh + abs_links.py）。
+- 调度：d0220081（A100/H100 放开 MetaWorld）、14de1714（LOCAL_FIRST 加 h100）、07dd2274（H100 同机预留 1 GiB）、71578855（客户端起步 64）、cd0b010f（涨 5% 算有效、不收回、停 5 min）、**87be3605（分配器第二轮：剩余 worker 按主导份额给 GPU<90% 的批次，可翻倍；无 GPU 读数的 pod 给到 desired×2）**，A100 调度器已重部署。实测 23:31 后 timan1/107/A100 上行 44/30/28 MB/s。
+- R16：**79b0317a 派活先选负载最轻的服务端**（原来按阶段名排序轮转，同一套件成块派，GR00T spatial 常驻 0% CPU）→ fa_cs_gr_r 54–62 → 99–111 局/分。runner 重启两次（23:25、23:44），常驻保留。
+- GR00T R5：096225d4（cache_knob 默认 R5/36 GiB）；排队四批 v03_0/v03_1/gr_f_f_m/gr_f_u_m 改 replicas、cache_worker_orchestration.replicas、FFK_DEFINITION、**backend_ports/ports（按 backend_ports 个数起副本，必须一起改）**、memory_budget_gib=36（原件 .before_groot_r5_*）。
+- pod GR00T：a6926825（pod_copy 支持 H100 GR00T、setup.sh groot 在 NFS 家目录 /home/ziyang10/zl_r17/groot、r17x 绑定、pod 等待 1800 s）；第三条隧道 pod 24474→H100 23476（fwd.py）。RUN_CONFIGS 记 116 局/分（2bcad267）。
+- Q3（#199）：badf4d1b（Q3StallInner + /home/weiland/projects/openpi_r16_q3_server plugin stall_only；拟合/周期 /nvme/weiland/openpi/r17_q3_port_1020/；交回 filter_failed_knob/q3_port_1020/HANDBACK.md）；H100 /data/oscl_h100/openpi 推 stall_only.py + plugin.py（原件 .before_q3_1020）。各档：旋钮关单位跑完后 commands/build_levels_*_l_q.sh。
+- 链脚本 openpi_ext/scratch/r17_ops/ff/**chain_ffk_stop2.run.sh**：R15/R16 单位没有 RECEIPT.json，rc 0 即通过（chain_ffk_stop 会在第一批后停）。起链用 `(setsid nohup bash … &)` 子 shell。
+- 其它：8a471626（direct_transfer 读到空 pid 文件 → 守护泄漏占口）、172958ed（formal-A RESULTS π0.5/GR00T 32 行标 withdrawn）。
+
+巡检：`openpi_ext/scratch/r17_ops/server_watch.py`（后台 bk9q0wg2j；每 10 min 记 server GPU 逐秒/副本 CPU/入口、worker 机负载/内存/上行、各批 desired/active/局速到 server_watch.log；server 饿着（GPU<60% 且副本 CPU 未满且 worker 机有余）/局速腰斩/批次无 worker 两轮 → 打印 ALERT 退出 → 我处理后重挂）。
+
+00:00 瓶颈结论：H100 GPU 95%、4090 副本 CPU 满（都饱）；jupyter-10 缺 worker；worker 机受内存（A100 剩 18–24 GB、timan107 MemAvailable 54 GB）和 timan1 渲染 GPU 99% 限制，CPU 空着没用。RSS vs PSS 实测只差 12–17%（#189）。
+
+在跑的代理（交回后我审、提交、上真实批次）：
+1. **NVME 第一阶段**（交回 rounds/r17/NVME_PHASE_A_HANDBACK.md）：nvme_dir() 新目录落 /nvme+原路径软链、改 6 处建目录 + immutable_release.install()、拔软链检查（formal_eval 1929-1930、sync_back 18-19、immutable_release 37/44、local_workers 155-157…）、io_budget 跨盘硬链接改复制、R15 远端路径处理；建好 jc1（R1）。调研报告 rounds/r17/NVME_MIGRATION.md（§4A 迁排队批次：复制→原子换软链→原件 *.data_old_1021；§4C 存量：暂停的复制停在 673 项的第 376 项，剩 ~190 GB，要不限速重跑、排除软链；先杀 SIGSTOP 的 3729764/3726106/3726105/3343372/3951564 和 mirror_nvme.sh 3950599/3296379；/nvme 上 54 份旧门批次副本 64 GB 挪 /nvme 垃圾目录）。
+2. **服务端多线程 + GR00T 批处理**（#206，交回 r17_integration/ops/SERVER_THREADS_BATCH_HANDBACK.md）：py-spy 采样定位每请求 CPU 时间、服务端去掉 OMP=1（worker 保留）、拔 GR00T B2 那道 1e-3 数值门、把预处理和 S1/S2 也批起来、π0.5 R15/R16 同查；下一批生效（H100 fa_ls_v03_1、4090 Q3 批）。
+
+还没做：R15 多机（主机表、h100 撞名、driver 绑 127.0.0.1）、R16 加 h100、MATRIX §4.3 哈希/sha/源码锁要拔、RSS→PSS（#189）、h100-temp 机主空了再领、jupyter-10 跑完后接什么（-10 也可装 GR00T：环境在 NFS 家目录两台共用）。
 
 **22:5x 增补（GR00T 副本上限；h100-temp 被机主停；Q3 重跑排上；pod 接 GR00T）**
 - ⛔ owner 22:2x：「以后不准开11个groot，你开来玩的吗4到5个足够」（记忆 feedback-throughput-sizing、RUN_CONFIGS 已写）。排队的 GR00T MT50 四批 fa_ls_v03_0/v03_1/gr_f_f_m/gr_f_u_m 改 R5：campaign.json 的 replicas、cache_worker_orchestration.replicas、FFK_DEFINITION.replicas，⚠ 还必须改 backend_ports/ports（启动按 backend_ports 个数起副本——我第一次漏了，pod 代理发现）和 memory_budget_gib=36；原件 .before_groot_r5_*。cache_knob.MW_PROFILES groot_mw → R5/36 GiB（096225d4）。owner 22:1x「配置可以很激进剩余显存几个G就可以了」→ H100 同机服务预留 4096→1024 MiB（07dd2274），加卡预留 2 GiB 共 ~3 GB。在跑的 gr_r_u_m（R11）不重开，~23:00 完；之后 H100 下一批起本机 worker（后台 bejbd973q 等 h100 本机 worker 出现）。
