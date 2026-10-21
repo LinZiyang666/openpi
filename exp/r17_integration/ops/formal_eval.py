@@ -1507,7 +1507,10 @@ def run_campaign(campaign, directory, deployment):
                     pass
         if campaign.get('native_parity_only'):
             raise NativeQualificationComplete()
-        proxy = [server_python, '-u', '-c', 'from openpi.serving.replica_proxy import run_proxy; '
+        # Two descriptors per client (client + backend socket): the H100's tether-agent soft limit of 1024
+        # failed 3,849 fa_ls_fw_f_u_m episodes at ~580 workers (EMFILE, 10-21 11:xx). Raise soft to hard first.
+        proxy = [server_python, '-u', '-c', 'import resource as r; r.setrlimit(r.RLIMIT_NOFILE, (r.getrlimit(r.RLIMIT_NOFILE)[1],)*2); '
+            'from openpi.serving.replica_proxy import run_proxy; '
             f'run_proxy({campaign["public_port"]},{campaign["backend_ports"]!r})']
         if campaign['server_node'] == 'local':
             spawn_local('proxy', proxy, env)
