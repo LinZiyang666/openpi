@@ -68,6 +68,15 @@ def stat(pid):
     return None if fields[0] == 'Z' else (fields[19], sum(map(int, fields[11:15])), int(fields[21]) * PAGE)
 
 
+def thread_budget(pid):
+    """Cores a process may compute on: its OMP_NUM_THREADS, else every core."""
+    try:
+        environ = Path('/proc/%d/environ' % pid).read_bytes().split(b'\0')
+        return max(1, int(next(e for e in environ if e.startswith(b'OMP_NUM_THREADS=')).split(b'=', 1)[1]))
+    except (OSError, StopIteration, ValueError):
+        return os.cpu_count()
+
+
 def identity(pid):
     sample = stat(pid)
     return sample[0] if sample else None
@@ -170,6 +179,7 @@ class NodeExecutor:
         self.history = deque(maxlen=HISTORY)  # last samples (ram, vram, cpu) of finished generations
         self.known = {}  # (pid, start ticks) -> is a scheduler worker
         self.cpu_sample, self.cpu = None, dict(capacity=None, own={})
+        self.server_cpu = None  # per server process on this node's cards: CPU in % of its thread budget
         self.vram_capacity = None
         self.last_resources = float('-inf')
 
@@ -285,10 +295,20 @@ class NodeExecutor:
                     marked[key] = sample[1]
         self.known = {k: v for k, v in self.known.items() if k in seen}
         own = {self._generation(w): tree['cpu'] for w, tree in trees.items()}
+        # Model servers: our non-worker processes on this node's cards. A replica using its whole thread budget is
+        # CPU-bound however idle the GPU is (GR00T B1 replicas with OMP=1 at ~100%, the GPU half used, 10-20).
+        view = self.slots.view() if self.slots is not None else None
+        servers = {(p['pid'], sample[0]): (sample[1], thread_budget(p['pid'])) for card in (view or {}).get('cards', [])
+                   for p in card['processes'] if p['uid'] == os.getuid()
+                   for sample in [stat(p['pid'])] if sample and not self._worker(p['pid'], sample[0])}
         previous, self.cpu_sample = self.cpu_sample, dict(time=now, busy=busy, total=total, boot=boot,
-                                                          marked=marked, own=own)
+                                                          marked=marked, own=own, servers=servers)
         if previous is None:
             return
+        if view is not None:
+            span = (now - previous['time']) * HZ / 100
+            self.server_cpu = sorted(round((ticks - previous['servers'][key][0]) / span / budget)
+                                     for key, (ticks, budget) in servers.items() if key in previous['servers'])
         def cores(old, key, ticks):
             # A process first seen in this window counts whole only if it started inside it.
             delta = max(0, ticks - old[key]) if key in old else ticks if int(key[1]) >= previous['boot'] else 0
@@ -360,7 +380,7 @@ class NodeExecutor:
             workers_ram=sum(tree['rss'] for tree in trees.values()), worker_ram=worker['ram'],
             vram_capacity=self.vram_capacity, workers_vram=sum(vram.values()), worker_vram=worker['vram'],
             cpu_capacity=self.cpu['capacity'], workers_cpu=sum(cpu.values()), worker_cpu=worker['cpu'],
-            gpu_util=self.slots.gpu_util() if self.slots is not None else None)
+            gpu_util=self.slots.gpu_util() if self.slots is not None else None, server_cpu=self.server_cpu)
         # The scheduler takes a node's capacity from its freshest snapshot: publish only once measured.
         if self.vram_capacity is not None and self.cpu['capacity'] is not None:
             atomic(self.snapshot_path, self.snapshot)

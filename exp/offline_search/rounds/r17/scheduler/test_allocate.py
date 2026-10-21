@@ -15,12 +15,24 @@ def report(server, nodes, desired, stable=0.):
 
 
 def test_4090_batch_takes_its_own_host_first_without_stability_wait():
+    # No GPU reading on the server: the work-conserving pass gives it twice its desire, all on its own host.
     out = plan({'b': report('local', ('local', 'timan1'), 50)}, 1.)
-    assert out['targets']['b'] == {'local': 50, 'timan1': 0}
+    assert out['targets']['b'] == {'local': 100, 'timan1': 0}
 
 
-def test_h100_local_workers_still_wait_for_a_stable_shared_pool():
-    shared_first = plan({'c': report('h100', ('h100', 'timan1'), 50)}, 1.)
-    assert shared_first['targets']['c'] == {'h100': 0, 'timan1': 50}
-    stable = plan({'c': report('h100', ('h100', 'timan1'), 400, stable=700.)}, 1.)
-    assert stable['targets']['c']['h100'] > 0
+def test_h100_fills_its_own_workers_first_like_the_4090():
+    out = plan({'c': report('h100', ('h100', 'timan1'), 50)}, 1.)
+    assert out['targets']['c'] == {'h100': 100, 'timan1': 0}
+
+
+def saturation(server_cpu, gpu_util=60.):
+    r = report('local', ('local', 'timan1'), 50)
+    r['node_state']['local'].update(gpu_util=gpu_util, server_cpu=server_cpu)
+    return sum(plan({'b': r}, 1.)['targets']['b'].values())
+
+
+def test_cpu_bound_replicas_stop_the_work_conserving_doubling():
+    assert saturation([104, 104, 103, 90]) == 50
+    assert saturation([0, 102, 102, 102, 102, 102]) == 50
+    assert saturation([40, 50, 60, 70]) == 100
+    assert saturation([40, 50], gpu_util=95.) == 50

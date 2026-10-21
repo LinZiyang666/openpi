@@ -17,6 +17,7 @@ DEFAULT_COST = {'libero': dict(ram=2.2 * GIB, vram=650, cpu=.3),
 
 
 SATURATED_UTIL = 90  # server GPU utilization (%) at which more workers stop paying off
+SATURATED_CPU = 85  # replica CPU in % of its thread budget (OMP_NUM_THREADS) at which it is CPU-bound
 
 
 def server_util(report):
@@ -24,18 +25,20 @@ def server_util(report):
     return (report['node_state'].get(report['server_host']) or {}).get('gpu_util')
 
 
-def saturated(report):
-    return (server_util(report) or 0) >= SATURATED_UTIL
+def saturated(state):
+    """A server machine's snapshot shows no room: its GPU is busy, or at least half its replicas are CPU-bound."""
+    cpu = (state or {}).get('server_cpu') or []
+    return ((state or {}).get('gpu_util') or 0) >= SATURATED_UTIL or \
+        bool(cpu) and sum(c >= SATURATED_CPU for c in cpu) >= len(cpu) / 2
 
 
 def explore(report):
-    """Workers a batch may hold in the work-conserving pass: double while its server GPU has room, hold when it is
-    saturated, and without a utilization reading (MIG pods) twice the client's own desire."""
+    """Workers a batch may hold in the work-conserving pass: double while its server has room, hold when it is
+    saturated (GPU or replica CPU), and without a utilization reading (MIG pods) twice the client's own desire."""
     active, desired = sum(report['active'].values()), report['desired']
-    util = server_util(report)
-    if util is None:
+    if server_util(report) is None:
         return 2 * desired
-    if util >= SATURATED_UTIL:
+    if saturated(report['node_state'].get(report['server_host'])):
         return max(desired, active)
     return 2 * max(desired, active)
 

@@ -11,6 +11,8 @@ import threading
 import time
 import urllib.request
 
+from .allocate import saturated
+
 TICK_S = 2
 REPORT_S = 15
 DESIRE_S = 30
@@ -19,11 +21,10 @@ START = 64  # first desire (10-20: 16 left a fresh LIBERO batch ~15 min below it
 SETTLE_S = 120  # after a step, wait at most this long for live workers to reach 95% of desired
 MEASURE_S = 180  # accepted-rate window after a step
 HOLD_S = 300  # time in hold before one probe step (owner 10-20: keep exploring upward)
-BUSY_UTIL = 90  # server GPU utilization (%) that forces hold
 STABLE_TOLERANCE = .15  # the shared pool is steady once its active workers reach 85% of the targets' total
 MIX_TOLERANCE = .2  # windows whose cohort (yaml) shares differ more than this are not comparable
 STATE = ('time', 'ram_available', 'ram_floor', 'workers_ram', 'worker_ram', 'vram_capacity', 'workers_vram',
-         'worker_vram', 'cpu_capacity', 'workers_cpu', 'worker_cpu', 'gpu_util')
+         'worker_vram', 'cpu_capacity', 'workers_cpu', 'worker_cpu', 'gpu_util', 'server_cpu')
 OPENER = urllib.request.build_opener(urllib.request.ProxyHandler({}))  # public address directly, never a proxy
 
 
@@ -155,7 +156,7 @@ class BatchClient:
         progress = self.driver.scheduler.progress()
         remaining = progress['episodes_total'] - progress['episodes_done'] - progress['episodes_failed']
         host = self.snapshots.get(self.campaign['server_host'])
-        busy = bool(host) and self.fresh(host) and (host.get('gpu_util') or 0) >= BUSY_UTIL
+        busy = bool(host) and self.fresh(host) and saturated(host)
         before = self.phase, self.desired
         if self.phase == 'start':
             self.desired, self.phase, self.since = min(remaining, max(START, self.resume)), 'settle', now
