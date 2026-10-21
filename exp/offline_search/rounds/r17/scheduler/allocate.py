@@ -9,7 +9,7 @@ import statistics
 
 TTL_S = 60  # a report is live this long after it arrived
 STABLE_S = 600  # shared-pool stability a batch needs before it gets local workers
-LOCAL_FIRST = ('local',)  # local nodes filled before the shared pool (see plan)
+LOCAL_FIRST = ('local', 'h100')  # server machines whose own workers are filled before the shared pool (owner 10-20)
 RESOURCES = ('ram', 'vram', 'cpu')
 GIB = 2 ** 30
 DEFAULT_COST = {'libero': dict(ram=2.2 * GIB, vram=650, cpu=.3),
@@ -99,10 +99,10 @@ def plan(reports, now, previous=None):
     def own(node):
         return {b: [node] for b, r in reports.items()
                 if r['server_host'] == node and r['nodes'].get(node, {}).get('class') == 'local'}
-    # The RTX 4090 host's own workers come first, without the stability wait: remote workers reach its
-    # server through that host's public ingress (~33 MB/s), which one MT50 batch's images saturate
-    # (10-20: 100 remote workers, GPU 8%, 2.3 s per call for 0.03 s of service). Other local nodes
-    # (the H100, whose GPU the model saturates) keep local workers last, after a stable shared pool.
+    # The RTX 4090's and the H100's own workers come first, without the stability wait (owner 10-20: the H100
+    # like the 4090). Remote workers reach the 4090's server through its ~33 MB/s public ingress, which one MT50
+    # batch's images saturate (10-20: 100 remote workers, GPU 8%). Waiting for a stable shared pool left the
+    # H100's own workers at 0 almost always (one 7-worker target in 6,470 allocation rows, 10-20).
     for node in [n for n in local_nodes if n in LOCAL_FIRST]:
         fill(own(node))
     fill(shared)
