@@ -85,6 +85,8 @@ owner 的常驻指令，逐字有效：
 
 **21:5x 增补：R15 π0.5 被显存挤停，已续**：fa_pi_f_f_l_q 21:39 在 s200_ir25 起服务时 GPU_TIGHT（free 8,236 < need 18,000 MiB）停（27/32 档已完成）。根因：h100m29 的 fa_ls_fw_f_f_l_l 是 prepare 时现建的 LIBERO 各档批，**没加编码表**，两副本各 29–30 GB（带 T5）。处置：QUEUE.json 里 s200、s500 改 PORTS=23230 / LOCAL_SERVER_COUNT=1（原件 /nvme/weiland/openpi/QUEUE.json.before_r1_2152）；新建 commands/prepare|launch_fa_pi_f_f_l_q_r.sh（续跑，已完成档跳过），链 **h100q7**（chain_ffk_stop）21:50 起；跑完同样会因 R15 无回执 STOPPED（预期，核对 32×500）。下一批 **fa_ls_fw_f_u_l_l** 已提前 build-levels（30,000）并改 campaign：编码表 + 44 GiB + 4 线程（原件 campaign.json.before_texttable_1021），h100m29 轮到时 prepare 直接用。fw_f_f_l_l（30,000，~82/min，~03:10 完）不动。
 
+**22:1x 增补**：π0.5 续跑 s200_ir25 22:12 完成（500，sr 0.968，单副本 13.5 min）→ 28/32 档齐；s500_ir45 起服务时又 GPU_TIGHT（free 8,676 < 9,000：π0.5 停服务换档时空出的显存被 H100 本机渲染 worker 占走）。H100 GPU 已 99%，π0.5 硬挤只是抢 Fast-WAM 的 GPU → 改为推迟：QUEUE.json s500 恢复 2 副本（23230,23231），链 **h100q8**（chain_ffk_stop）等 `[ffk-h100m29] start fa_ls_fw_f_u_l_l`（~03:1x，该批有编码表，省 ~30 GB）再跑 fa_pi_f_f_l_q_r（剩 s500 四档，~50 min）。第一次续跑日志改名 ff/fa_pi_f_f_l_q_r.run1.log。h100q7 的 STOPPED 已处理。
+
 今天的关键修复（全推 origin Ziyang）：
 - **Fast-WAM 编码表**（cd8b73d5，owner 想法）：T5 不进 GPU/CPU；H100 上 batch 2–16 与 batch-1 逐位相同；副本 27→~15 GB；表在 H100 `/home/exouser/fw_text_tables/table_h100.pt`、本机 `/nvme/weiland/openpi/fw_text_tables/`、pod `/data/mw_finetune/fastwam_text_tables/`（NFS 绑定）。campaign `fastwam_text_table` + longseg runtime_fix 覆盖 4 个文件。v02_b、mc1、v08_1、fw_r_f_mc2 已改（预算 44 GiB、server_threads 4）。
 - **pod 跑 Fast-WAM**（287b6fc4）：setup.sh fastwam_nfs（NFS 共享，⚠ 两台不要并发 setup）；pod_copy 支持 H100 Fast-WAM（R1、B8、15.5 GiB、编码表）；Fast-WAM 跨卡不等价 → pod 批次配 pod 同卡纯推理参照。
