@@ -35,8 +35,9 @@ FASTWAM_TEXT_FILES = ('exp/r17_integration/models/fastwam/formal_batch_server.py
 # Older frozen runtimes still raise on identity checks the owner removed (10-10): the adapter_binding
 # checkpoint/norm/layout/feature identities (the checkpoint identity digests the fastwam code, so any overlay
 # or new release breaks it; fa_ls_v08_1c1/c2 10-22) and the batch implementation identity.
+# Without the table nothing under models/fastwam/*.py is overlaid: those files are digested into the checkpoint
+# identity, so replacing one made load_adapter refuse the sealed content (fa_ls_v05_1 10-22 11:20).
 RELAXED_FILES = ('exp/r17_integration/common/provider.py',
-                 'exp/r17_integration/models/fastwam/formal_batching.py',
                  'exp/r17_integration/models/fastwam/ops/library_compatibility.py')
 
 
