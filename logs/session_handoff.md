@@ -52,7 +52,7 @@ owner 的常驻指令，逐字有效：
 
 
 
-## 1. 现在在哪（2026-10-21 11:5x CDT；**最先读「10-21 22:xx 新实验：集群部署模拟」，再读「10-21 19:5x 增补（compact 前总状态）」，再读「10-21 19:4x 增补」，再读「10-21 18:3x 增补」，再读「10-21 17:3x 增补」，再读「10-21 15:0x 增补」，再读「10-21 14:0x 增补」，再读「10-21 13:2x 增补」，再读「10-21 12:0x 增补」，再读「10-21 11:5x 增补（compact 前总状态）」，再读「10-21 00:3x 增补」，再读「10-21 00:0x 增补（compact 前总状态）」，再读「22:5x」「22:1x」「21:4x」增补，再读「21:3x 增补（compact 前总状态）」**，再读 20:5x 旧门事故、其余增补与 09:4x 总状态，再读其后各增补（09:29 → 21:2x 倒序）与 10-19 21:0x 总状态；10-14 及更早只作背景）
+## 1. 现在在哪（2026-10-21 11:5x CDT；**看守会话（本会话 35f2869b 的分支，只看守实验）最先读「10-22 18:3x 看守会话总状态（compact 前）」；新实验会话读 exp/cluster_sim/HANDOFF.md 与「10-21 22:xx 新实验：集群部署模拟」；之后读「10-21 22:xx 新实验：集群部署模拟」，再读「10-21 19:5x 增补（compact 前总状态）」，再读「10-21 19:4x 增补」，再读「10-21 18:3x 增补」，再读「10-21 17:3x 增补」，再读「10-21 15:0x 增补」，再读「10-21 14:0x 增补」，再读「10-21 13:2x 增补」，再读「10-21 12:0x 增补」，再读「10-21 11:5x 增补（compact 前总状态）」，再读「10-21 00:3x 增补」，再读「10-21 00:0x 增补（compact 前总状态）」，再读「22:5x」「22:1x」「21:4x」增补，再读「21:3x 增补（compact 前总状态）」**，再读 20:5x 旧门事故、其余增补与 09:4x 总状态，再读其后各增补（09:29 → 21:2x 倒序）与 10-19 21:0x 总状态；10-14 及更早只作背景）
 
 ### ★★★★★★★★★★★★★★★★★★★★★★★★ 2026-10-20 09:4x CDT 总状态（compact 后最先读这块）
 
@@ -64,6 +64,50 @@ owner 的常驻指令，逐字有效：
 - 处置：09:56 按 PID SIGSTOP 复制 rsync（3726105/3726106/3729764）和两个 governor（3343372/3951564）。效果（同一时刻对比）：Cosmos 15→60 局/分、pod2 DP 85→250、v11_0 50→125（v11_0 同时 floor 40→70）。⛔ **复制保持暂停**；剩 ~190 GB（eval 533/~720 GB）以后找没有 driver 在跑、或可接受的短窗口一次性不限速跑完，不要再长时间节流慢跑。恢复命令：`kill -CONT 3343372 3951564 3726105 3726106 3729764`。记忆 reference-weilandserver-data 已加这条。
 - floors 现 `{"fa_ls_dp_f_f_m_j": 32, "fa_ls_v11_0": 70}`。
 - 在调研（opus 只读）：H100 队列 ~88 h（4 批 FW MT50 旋钮下降 ~42 h）vs 4090 ~22 h；旋钮下降批次 IR 离线算、可换卡 → 考虑 FW/GR00T MT50 旋钮下降挪 4090、DP LIBERO 旋钮下降挪 pod（需装 openpi 环境）。结论回来前不动队列。
+
+**10-22 18:3x 看守会话总状态（compact 前；看守会话先读这块，再往下读「10-21 19:5x 增补」里按时间倒插的 10-22 各增补（12:5x→00:1x），最后读 10-21 各块）**
+
+一句话：所有排队实验基本跑完。只剩 H100 上 **fa_ls_fw_f_u_l_l 之后的 fa_ls_v08_1c7**（原库 · Fast-WAM · LIBERO · 全步 · 缓存变体 v08_1，40,000；18:31 已 37,428，~19:00 完）。之后任何机器都没有排队批次，下一步实验等 owner 定。
+
+**机器现状（18:3x）**
+- weilandserver / 4090：⛔ **18:25 起整台交给新实验会话「openpi新实验」**（owner 10-21：4090 让出 + 本机不跑重 CPU 活；看守、调度、driver、改代码、轻量分析照常）。已发交接确认。⛔ 不再往 4090 排任何批次；`exp/cluster_sim/*`（如 record_resident.py）是新实验的进程，不碰。本机我们只剩：c7 的 driver/启动器（~0.33 核、1.5 GB）、链脚本、巡检。
+- H100：链 **h100m41** 跑 c7（编码表、10 GiB 余量）。跑完后核对回执 PASS（会先 PENDING_EVIDENCE，审计 5–25 min）。
+- 两台 pod：18:24 回来，在线、空闲；jupyter_watch 已重挂。⚠ pod 连续三天 17:4x 同时掉线。
+- 巡检：server_watch 在自动重启循环里（后台 bnr4ccd1h，报警写 openpi_ext/scratch/r17_ops/server_watch.alerts.log）；`$CLAUDE_JOB_DIR/tmp/guard_wait.sh N` 等事故（链 STOPPED/FAILED/receipt FAIL·PARTIAL、巡检进程没了、alerts.log 新 ALERT）或超时，后台 bw0im8dw4 在跑；jupyter_watch 由 b6v8cz7zr 接上。⛔ **任何时候不能没有巡检**（owner：「你的monitor怎么一个都没有了」）。
+- scheduler（A100 `/home/exouser/scheduler/run_23500/`）：floors.json、caps.json 都已清空。
+
+**10-21 晚至 10-22 收齐的数据（全部 0 错）**
+- 原库 · Fast-WAM · MetaWorld · 全步 · 旋钮下降：fa_ls_fw_f_u_m + mc1（EMFILE 补跑 3,855，PASS）。
+- 原库 · Fast-WAM · MetaWorld · 减步 · 旋钮下降：fa_ls_fw_r_u_m_j 23,715 + jc2 66,285（PASS）。
+- 成功过滤库 · Fast-WAM · MetaWorld · 全步 · 旋钮下降：fa_ls_fw_f_f_m_j 7,505 + jc2 82,495（PASS）。
+- 成功过滤库 · Fast-WAM · MetaWorld · 减步 · 旋钮下降：**fa_ls_fw_r_f_m_j**（-02 pod 全新 90,000，同卡参照 fa_ls_fw_r_p_m_j）；⚠ 回执卡 PENDING_EVIDENCE、all_owned_closed=False（结束时 timan1 上监管进程还活着，timan1 被他人压死），数据完整，证据审计待补（formal_finalize --retry-closed 不适用）。H100 上的 fa_ls_fw_r_f_m/mc1/mc2 不再用。
+- 原库 · Fast-WAM · MetaWorld · 减步 · 缓存变体：fa_ls_v02_b 60,000 PASS（第一批用编码表）。
+- 成功过滤库 · Fast-WAM · LIBERO · 全步 · 各档：fa_ls_fw_f_f_l_l 12,545 + **fa_ls_fw_f_f_l_lc1** 17,455（PASS）。原库同类 fa_ls_fw_f_u_l_l 30,000 PASS。
+- Fast-WAM · LIBERO · 缓存变体：fa_ls_v05_1 288 PASS、fa_ls_v05_2 397 PASS；v08_1 = c7 在跑（v08_1、c1–c6 都 0 局 FAIL，分析传 c7 沿链回溯）。
+- π0.5 · LIBERO · 全步 · Q3 各档：原库 fa_pi_f_u_l_q、成功过滤库 fa_pi_f_f_l_q 都 32 档 × 500。
+- GR00T · LIBERO · 减步 · Q3 各档：fa_gr_r_u_l_q、fa_gr_r_f_l_q 都 20 档 × 500。全步：fa_gr_f_u_l_q、fa_gr_f_f_l_q 都 24 档 × 500。
+- π0.5 / GR00T · LIBERO · 减步 · 缓存部件带门四组：fa_cs_pi_rg、fa_cs_gr_rg 各 16,000。
+- 续跑合并不用手工：分析传最末续跑目录，analyze_cache.resume_segments 沿 CACHE_RESUME source 回溯、丢 retry-exhausted 行。
+
+**10-22 的代码改动（全推 origin Ziyang）**
+- 调度器客户端（380403d9→f09da644）：**只按实测步进结论增减 worker**，没有「忙」的捷径（副本 CPU 与 H100 GPU 利用率都误判过）。
+- h100_workers.route（51d3faa1）：Fast-WAM 服务下 H100 本机渲染 worker 留 10 GiB 余量（其余模型 1 GiB）。
+- server_watch（51f8e7e4）：速度腰斩要连续两轮才报；改为自动重启循环运行。
+- ⛔ **拔旧冻结包里的防御（owner 11:4x 明确同意）**：runtime_fix.strip_defenses（30b6e89f→1e9c6f39）在 prepare 时把工作区「raise→pass / 改写后不再 raise」的地方移植进旧冻结包（含方法级改写文件），其余代码不动；FASTWAM_TEXT_FILES 加 formal_batching/provider/library_compatibility；不带表的 Fast-WAM 只覆盖 provider/library_compatibility（**不碰 models/fastwam/*.py：它们进 checkpoint 指纹**）；vfix.repin 去字节比对、vfix 认所有部署节点（a100/h100）；library_salvage.prove_closed 允许无本机进程；resume.refresh_remaining 源 journal 不存在时不钉哈希。⚠ 曾被 Claude Code 自动模式以「Security Test Removal」拦过一次，owner 同意后才继续。
+- R15 续跑去掉某台 worker 机：只改 WORKER_HOSTS 不够，要改各作业 `h100_sync/synced.json` 的 `fleets`（原件 .before_no_timan1_1022）。
+
+**owner 10-22 定的规矩（已进记忆）**
+- 防御（哈希/指纹/字节比对、源码锁）见到就拔，旧冻结包里的也拔（用覆盖），不改配置去绕。
+- 巡检报警会退出 → 必须立刻重挂；现在用自动重启循环。
+- pod 只认领 MetaWorld 批次；Fast-WAM · LIBERO 在 16 GiB 切片上 B8 溢出（已用编码表、无 T5 仍溢出，LIBERO 两路相机）→ 若要上 pod 得 B4/B2 并配同 B 同卡纯推理参照（owner 问过「fast wam不是能上pod吗」，答：能，但 LIBERO 要降批）。
+- weilandserver 归新实验；看守会话只看守。
+
+**没做完 / 待办**
+1. c7 跑完 → 核回执 PASS → 汇报「所有排队实验完成」。
+2. **逐格完整性对账**：按名字分组有 45 组最后一段不是 PASS（大多是改名的 pod 副本 _j、作废探针 fa_ls_t_*、早期证据 bug 的 FAIL 回执），要逐格（模型 × 库 × 全/减步 × benchmark × 阶段）对到最终批次链、数干净局 = 计划局，列出真缺口。只读、小并发。
+3. fa_ls_fw_r_f_m_j 证据审计补做（回执 PENDING_EVIDENCE）。
+4. timan1 被其他用户（xuanhe4、yurenh2，D 状态进程上千）压到 load ~1300，tether 调用常挂；调度器已自动不用它。
+5. 待 owner：H100 /data 老目录 109 GB、dp_h100 129 GB、timan107 Isaac-GR00T 33 GB、本机 /data 原件与垃圾箱删不删；下一步实验方向。
 
 **10-21 22:xx 新实验：集群部署模拟（本会话「openpi新实验」负责；在跑批次的看守改由兄弟会话 [75fc7a] 负责）**
 - **「openpi新实验」会话的独立交接在 `exp/cluster_sim/HANDOFF.md`（compact 后先读它）。**
