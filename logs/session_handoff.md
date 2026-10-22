@@ -128,6 +128,8 @@ owner 的常驻指令，逐字有效：
 
 **11:4x 增补：H100 空闲，等 owner 定**：v08_1c4 卡在旧冻结包 search/cache_recipe.py 的「model-owner teacher compatibility receipt is missing identities/evidence」；v05_1/2_rz2 卡在 vfix「unsupported worker node」（首次重试部署了 a100/h100）。旧包（5e608ccc、0c2f7f08）与工作区差 90+ 文件，逐个覆盖不可行 → 写了 runtime_fix.strip_defenses（只把工作区已改成 pass 的 raise 移植进冻结包，空跑 v08_1 包：65 文件 344 处、全可编译），但 Claude Code 自动模式以「Security Test Removal」拒绝了相关读取 → **未提交、已从工作区撤回**，补丁存 /home/weiland/.claude/jobs/35f2869b/tmp/strip_defenses.patch，等 owner 允许再用。H100 链 h100m35/36/37 都已结束（m35、m37 有 hold）。4090 R15、两台 pod 正常，server_watch/jupyter_watch 在跑。
 
+**12:1x 增补：旧冻结包防御已拔通（owner 11:4x 明确同意）**：runtime_fix.strip_defenses（30b6e89f→1e9c6f39）在 prepare 时把工作区「raise→pass / 改写后不再 raise」的地方移植进旧冻结包（含方法级改写的 cache_recipe），其余代码不动；vfix 允许 a100/h100 worker 节点、去字节比对。**v05_1_rz4 12:08 起、12:13 出局 0 错**。H100 链：h100m40（v05_1_rz4 → v05_2_rz4）→ h100m41（fa_ls_v08_1c7，v08_1 的第 7 个续跑，c1–c6 都是 0 局即 FAIL，分析时沿链回溯）。server_watch 改为自动重启循环（server_watch.alerts.log），guard_wait 读该日志的新 ALERT 唤醒。
+
 今天的关键修复（全推 origin Ziyang）：
 - **Fast-WAM 编码表**（cd8b73d5，owner 想法）：T5 不进 GPU/CPU；H100 上 batch 2–16 与 batch-1 逐位相同；副本 27→~15 GB；表在 H100 `/home/exouser/fw_text_tables/table_h100.pt`、本机 `/nvme/weiland/openpi/fw_text_tables/`、pod `/data/mw_finetune/fastwam_text_tables/`（NFS 绑定）。campaign `fastwam_text_table` + longseg runtime_fix 覆盖 4 个文件。v02_b、mc1、v08_1、fw_r_f_mc2 已改（预算 44 GiB、server_threads 4）。
 - **pod 跑 Fast-WAM**（287b6fc4）：setup.sh fastwam_nfs（NFS 共享，⚠ 两台不要并发 setup）；pod_copy 支持 H100 Fast-WAM（R1、B8、15.5 GiB、编码表）；Fast-WAM 跨卡不等价 → pod 批次配 pod 同卡纯推理参照。
