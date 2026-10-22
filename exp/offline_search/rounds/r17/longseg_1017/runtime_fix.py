@@ -23,7 +23,10 @@ BATCHING_FILES = SERVER_FILES + ('exp/r17_integration/common/batch_runtime.py',
                   'exp/r17_integration/models/pi05/adapter.py', 'src/openpi/cache/groot/batcher.py',
                   'src/openpi/cache/groot/staged.py')
 # fastwam_text_table: the resident is built without umT5-xxl and reads prompt encodings from the table.
+# formal_batching.py: older frozen runtimes still raise on the batch implementation identity, which the
+# text-table server changes (fa_ls_v08_1 10-22 10:43); the working copy only records it.
 FASTWAM_TEXT_FILES = ('exp/r17_integration/models/fastwam/formal_batch_server.py',
+                      'exp/r17_integration/models/fastwam/formal_batching.py',
                       'exp/r17_integration/models/fastwam/loader.py',
                       'exp/r17_integration/models/fastwam/text_table.py',
                       'exp/r17_integration/qualification/model_runtime.py')
