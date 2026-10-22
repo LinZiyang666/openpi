@@ -130,6 +130,8 @@ owner 的常驻指令，逐字有效：
 
 **12:1x 增补：旧冻结包防御已拔通（owner 11:4x 明确同意）**：runtime_fix.strip_defenses（30b6e89f→1e9c6f39）在 prepare 时把工作区「raise→pass / 改写后不再 raise」的地方移植进旧冻结包（含方法级改写的 cache_recipe），其余代码不动；vfix 允许 a100/h100 worker 节点、去字节比对。**v05_1_rz4 12:08 起、12:13 出局 0 错**。H100 链：h100m40（v05_1_rz4 → v05_2_rz4）→ h100m41（fa_ls_v08_1c7，v08_1 的第 7 个续跑，c1–c6 都是 0 局即 FAIL，分析时沿链回溯）。server_watch 改为自动重启循环（server_watch.alerts.log），guard_wait 读该日志的新 ALERT 唤醒。
 
+**12:5x 增补**：✅ fa_ls_v05_1 PASS 288、fa_ls_v05_2 PASS 397（Fast-WAM · LIBERO · 缓存变体，第 4 次 vfix 重试，旧包防御已移植拔除）。✅ fa_ls_v08_1c7 12:36 起、12:50 已 930 局 0 错（v08_1 四万局，~18:00 完；分析传 c7）。✅ 4090 fa_gr_f_u_l_q 24 档 × 500 齐（12:34）；fa_gr_f_f_l_q 12:39 起，~17:10 完 → 4090 交接。H100 队列只剩 c7。
+
 今天的关键修复（全推 origin Ziyang）：
 - **Fast-WAM 编码表**（cd8b73d5，owner 想法）：T5 不进 GPU/CPU；H100 上 batch 2–16 与 batch-1 逐位相同；副本 27→~15 GB；表在 H100 `/home/exouser/fw_text_tables/table_h100.pt`、本机 `/nvme/weiland/openpi/fw_text_tables/`、pod `/data/mw_finetune/fastwam_text_tables/`（NFS 绑定）。campaign `fastwam_text_table` + longseg runtime_fix 覆盖 4 个文件。v02_b、mc1、v08_1、fw_r_f_mc2 已改（预算 44 GiB、server_threads 4）。
 - **pod 跑 Fast-WAM**（287b6fc4）：setup.sh fastwam_nfs（NFS 共享，⚠ 两台不要并发 setup）；pod_copy 支持 H100 Fast-WAM（R1、B8、15.5 GiB、编码表）；Fast-WAM 跨卡不等价 → pod 批次配 pod 同卡纯推理参照。
