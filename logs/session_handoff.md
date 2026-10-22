@@ -66,6 +66,7 @@ owner 的常驻指令，逐字有效：
 - 在调研（opus 只读）：H100 队列 ~88 h（4 批 FW MT50 旋钮下降 ~42 h）vs 4090 ~22 h；旋钮下降批次 IR 离线算、可换卡 → 考虑 FW/GR00T MT50 旋钮下降挪 4090、DP LIBERO 旋钮下降挪 pod（需装 openpi 环境）。结论回来前不动队列。
 
 **10-21 22:xx 新实验：集群部署模拟（本会话「openpi新实验」负责；在跑批次的看守改由兄弟会话 [75fc7a] 负责）**
+- **「openpi新实验」会话的独立交接在 `exp/cluster_sim/HANDOFF.md`（compact 后先读它）。**
 - owner 定的内容全部写在 `exp/cluster_sim/DESIGN.md`（先读它）。简述：π0.5 · LIBERO-10 · 4090 单份模型（≤24 GB、无副本）；全步纯推理（K10、无缓存）vs 完整系统（成功过滤库 500 级、Q3 实测档位、减步 K1、修正器 + 停滞门、**不开长执行段**）；只录完整系统 500 局的请求，两边回放同一份；回放 N 槽位、种子打乱、冷启动在一个请求间隔内均匀错开、请求间隔 252 ms（5 步 × 50 ms + 2 ms）；记录每条请求服务器延迟（收到→发出）、每秒请求数、每个 N 的 500 局总时间；不测成功率；两边各自调到最优，正式实验每边一套参数只变 N = 5,10,20,…,100。
 - owner 追加：CPU 线程要放开（单线程等于没优化）；讨论时别加防御性核对（记忆已加）。
 - 代码（f78b9a5f 起）：LEVELS.json（任务 0 ir25 / 4 ir40 / 6 ir32 / 其余关）、record_group.py（`/data/mw_finetune/eval/cs_rec_pi05` 已建，500 局）、record_run.py + record_resident.py（Q3 runner 照常，常驻收帧落盘 `$CLUSTER_SIM_RAW`）、record.py split、replay.py、serve.py + serve_entry.py（两模式同一服务树/拦截器/协调器；每段批上限与等待；去第三路相机与指令补齐 token 968→592；线程池 512；不绑核）、sweep.py、analyze.py、R16_SERVING_MAP.md（代理画的 R16 π0.5 服务路径）。
