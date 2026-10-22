@@ -94,7 +94,8 @@ def archive(request, *, campaign_parent='/data/mw_finetune/eval', proc_root='/pr
 def run(host, root, backup, *, check_only=False):
     from pathlib import Path
     allowed = {
-        'h100':('/data/mw_finetune/eval', '/tmp/r17_formal'),
+        'h100':('/data/mw_finetune/eval', '/tmp/r17_formal', '/data/mw_finetune/qualification/h100_workers/runs'),
+        'a100':('/tmp/r17_formal', '/data/mw_finetune/qualification/h100_workers/runs'),
         'timan1':('/scratch/zixuans8/mw_r17/formal/stage', '/scratch/zixuans8/mw_r17/formal/runs'),
         'timan107':('/tmp/r17_formal', '/scratch/zixuans8/mw_r17/formal/runs'),
         'local':('/tmp/r17_formal', '/data/mw_finetune/qualification/local_workers/runs',

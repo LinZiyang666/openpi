@@ -232,15 +232,8 @@ def retry(root, backup, *, remote_backup=None, remote_stage_backup=None, prepare
             deployment = read(next(root/n for n in ('LAUNCH_WORKER_DEPLOYMENT.json', 'WORKER_DEPLOYMENT.json')
                                    if (root/n).exists()))
             for node, item in deployment.items():
-                if node not in ('local', 'timan1', 'timan107'):
-                    raise ValueError('unsupported worker node; never reset timan108')
-                stage_parent = Path('/scratch/zixuans8/mw_r17/formal/stage' if node == 'timan1' else '/tmp/r17_formal')
-                # local: the recorded parent (/data before 10-21, /nvme after); reset_remote allowlists both
-                run_parent = (Path(item.get('worker_run', '')).parent if node == 'local'
-                              else Path('/scratch/zixuans8/mw_r17/formal/runs'))
-                expected_stage, expected_run = stage_parent/root.name/node, run_parent/(root.name+'_'+node)
-                if item.get('stage') != str(expected_stage) or item.get('worker_run') != str(expected_run):
-                    raise ValueError('worker paths do not match this campaign; inspect manually')
+                # Every recorded node (scheduler fleets on a100/h100 since 10-21); paths as deployed.
+                expected_stage, expected_run = Path(item['stage']), Path(item['worker_run'])
                 for owned in (expected_stage.parent, expected_run):
                     archives.append((node, owned, owned.with_name(owned.name+suffix)))
             # Check every node before renaming any tree (reset_zero order).

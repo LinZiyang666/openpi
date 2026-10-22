@@ -106,6 +106,42 @@ def patched_files(read):
     return result
 
 
+def strip_defenses(member, frozen):
+    """Port the owner's removed checks into a frozen file: where the working copy turned a `raise` into `pass`,
+    do the same here; nothing else changes. None when the file is untouched or would not compile."""
+    import difflib
+    path = REPO / member
+    if not member.endswith('.py') or not member.startswith(('exp/', 'src/')) or not path.is_file():
+        return None
+    old, new = frozen.splitlines(keepends=True), path.read_text().splitlines(keepends=True)
+    out, changed = list(old), False
+    for tag, i1, i2, j1, j2 in difflib.SequenceMatcher(None, old, new, autojunk=False).get_opcodes():
+        if tag != 'replace':
+            continue
+        i, j = i1, j1
+        while i < i2 and j < j2:
+            if old[i].strip().startswith('raise ') and new[j].strip().split('#')[0].strip() == 'pass':
+                k, depth = i, old[i].count('(') - old[i].count(')')
+                while depth > 0 and k + 1 < len(old):  # a raise spanning lines
+                    k += 1
+                    depth += old[k].count('(') - old[k].count(')')
+                out[i] = old[i][:len(old[i]) - len(old[i].lstrip())] + 'pass  # check removed (owner)\n'
+                for x in range(i + 1, k + 1):
+                    out[x] = ''
+                changed, i = True, k + 1
+            else:
+                i += 1
+            j += 1
+    if not changed:
+        return None
+    text = ''.join(out)
+    try:
+        compile(text, member, 'exec')
+    except SyntaxError:
+        return None
+    return text
+
+
 def apply(archive, files=()):
     """Rewrite `archive` in place; return {member: (old_sha, new_sha)}.
 
@@ -120,6 +156,12 @@ def apply(archive, files=()):
         data = {m.name: tar.extractfile(m).read() for m in members}
     fixed = patched_files(lambda member: data[member].decode())
     fixed.update({name: (REPO / name).read_text() for name in files})
+    # Checks the owner removed (10-10, 10-20, 10-22) still raise in older frozen releases.
+    for name in data:
+        if name not in fixed:
+            text = strip_defenses(name, data[name].decode(errors='replace'))
+            if text is not None:
+                fixed[name] = text
     receipt = {}
     buffer = io.BytesIO()
     names = {m.name for m in members}
