@@ -81,6 +81,8 @@ owner 的常驻指令，逐字有效：
 
 **20:5x 增补：调度器把 H100 Fast-WAM 饿着（已修 380403d9）**：mc1 起来后只有 22 个 worker、65 局/分。根因：客户端把「副本 CPU ÷ OMP_NUM_THREADS ≥ 85%」当忙，Fast-WAM 副本 116 个线程，空载也读 115%（v02_b 12 个 worker、GPU 8% 就判忙），且 settle 阶段一判忙就冻结在当时已起的 worker 数，之后永不再探。fw_f_u_m（40）、v02_b（12–28）当时都被压住，靠兜底分配才涨。处置：A100 `/home/exouser/scheduler/run_23500/floors.json` = {fa_ls_fw_f_u_mc1: 200}（原件 .bak_2050；mc1 结束后清空）→ 65 → 282 局/分；client.py 改为只看 GPU ≥ 90% 判忙、settle 不冻结（各批之间的兜底分配仍用 GPU 或 CPU），新 prepare 的批次生效；后台 bh1oyoqhw 核对 fw_f_f_l_l 的决策与速度。
 
+**21:4x 增补**：mc1 21:22 回执 PASS（3,855）；floors.json 已清空。h100m29 21:08 起 fa_ls_fw_f_f_l_l：新客户端 settle→measure 正常，GPU 92% 时停在 57（真饱和，与 R15 π0.5 同卡），GPU 降到 87% 后再探；82 局/分、0 错。4090：fa_cs_pi_rg 21:25 收齐 16,000，21:29 起 fa_cs_gr_rg（21:37 出局 0 错，换批 GPU 空 ~8 min）。jupyter-ziyang10 jc2 速度 5 分钟段在 56–131 间波动（0 错），~10 h 完；-02 jc2 ~143–193/min，~03:30 完。本会话 21:2x 起分支（/branch），新实验「集群部署模拟」由别的会话做，这个会话只看守实验。
+
 今天的关键修复（全推 origin Ziyang）：
 - **Fast-WAM 编码表**（cd8b73d5，owner 想法）：T5 不进 GPU/CPU；H100 上 batch 2–16 与 batch-1 逐位相同；副本 27→~15 GB；表在 H100 `/home/exouser/fw_text_tables/table_h100.pt`、本机 `/nvme/weiland/openpi/fw_text_tables/`、pod `/data/mw_finetune/fastwam_text_tables/`（NFS 绑定）。campaign `fastwam_text_table` + longseg runtime_fix 覆盖 4 个文件。v02_b、mc1、v08_1、fw_r_f_mc2 已改（预算 44 GiB、server_threads 4）。
 - **pod 跑 Fast-WAM**（287b6fc4）：setup.sh fastwam_nfs（NFS 共享，⚠ 两台不要并发 setup）；pod_copy 支持 H100 Fast-WAM（R1、B8、15.5 GiB、编码表）；Fast-WAM 跨卡不等价 → pod 批次配 pod 同卡纯推理参照。
