@@ -286,14 +286,22 @@ def finalize(campaign, directory, deployment, report, *, retain_worker_storage=F
             if verified['partials'] or verified['digest'] != old['remote']['manifest']['digest']:
                 pass
         else:
-            value = server_snapshot(campaign,directory)
-            report.setdefault('transfers',{})['h100_servers'] = pull_snapshot('h100_servers',value,
-                directory/'servers',key=campaign['run_name']+'_servers',python=launch.host_python(campaign),
-                root=campaign['runtime'],deadline=deadline)
+            # Server-side logs are diagnostics (episodes are in the driver): a lost server disk (a pod container
+            # restart clears its /tmp) is recorded, not fatal.
+            try:
+                value = server_snapshot(campaign,directory)
+                report.setdefault('transfers',{})['h100_servers'] = pull_snapshot('h100_servers',value,
+                    directory/'servers',key=campaign['run_name']+'_servers',python=launch.host_python(campaign),
+                    root=campaign['runtime'],deadline=deadline)
+            except Exception as exc:
+                report['server_snapshot_error'] = repr(exc)
         durable_json(directory/'RECEIPT.json',report)
     report['backend_evidence'] = launch.backend_evidence(directory)
     if campaign.get('fastwam_batching') or campaign.get('cache_study') and campaign.get('dp_batching'):
-        report['batching_audit'] = native_batch_audit(campaign,directory)
+        try:
+            report['batching_audit'] = native_batch_audit(campaign,directory)
+        except Exception as exc:
+            report['batching_audit_incomplete'] = repr(exc)
     if not parity:
         aggregate_rc = report['driver_completion']['returncode']
         if campaign.get('resume_from'):
