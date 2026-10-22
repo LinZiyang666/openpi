@@ -112,6 +112,8 @@ owner 的常驻指令，逐字有效：
 
 **01:4x 增补**：✅ 成功过滤库 · π0.5 · LIBERO · 全步 · Q3 各档 `fa_pi_f_f_l_q` 32 档 × 500 全齐（01:45，h100q9 STOPPED rc=0 = R15 无回执，预期）；原库那批早已齐 → π0.5 全步 Q3 各档两批完成。4090 01:28 起 g4090bc 第一批 fa_gr_r_u_l_q（01:32 出局）。
 
+**03:0x 增补：4090 GR00T 换 4,0**：fa_gr_r_u_l_q 的 libero_spatial 2,000 局已齐，spatial 常驻闲着（速度 73→44）→ hold_ff_g4090bc + SIGINT runner 832909（INTERRUPTED 平稳）→ 新链 **g4090bd**（chain_ffk_stop2）：`fa_gr_r_u_l_q4`（commands/launch_fa_gr_r_u_l_q4.sh：--ports 23150,23151,23152,23154 --groot-suite-servers 4,0；23153 spatial 退役、23154 新起；03:02 出局）→ fa_gr_r_f_l_q → fa_gr_f_u_l_q → fa_gr_f_f_l_q。fa_gr_r_f_l_q 也是 3,1，spatial 先完时照此处理（写 _q4 包装 + hold g4090bd + 新链）。交接等待改认 `[ffk-g4090bd] queue done|STOPPED`（后台任务已换）。
+
 今天的关键修复（全推 origin Ziyang）：
 - **Fast-WAM 编码表**（cd8b73d5，owner 想法）：T5 不进 GPU/CPU；H100 上 batch 2–16 与 batch-1 逐位相同；副本 27→~15 GB；表在 H100 `/home/exouser/fw_text_tables/table_h100.pt`、本机 `/nvme/weiland/openpi/fw_text_tables/`、pod `/data/mw_finetune/fastwam_text_tables/`（NFS 绑定）。campaign `fastwam_text_table` + longseg runtime_fix 覆盖 4 个文件。v02_b、mc1、v08_1、fw_r_f_mc2 已改（预算 44 GiB、server_threads 4）。
 - **pod 跑 Fast-WAM**（287b6fc4）：setup.sh fastwam_nfs（NFS 共享，⚠ 两台不要并发 setup）；pod_copy 支持 H100 Fast-WAM（R1、B8、15.5 GiB、编码表）；Fast-WAM 跨卡不等价 → pod 批次配 pod 同卡纯推理参照。
