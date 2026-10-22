@@ -89,6 +89,8 @@ owner 的常驻指令，逐字有效：
 
 **22:2x 增补：weilandserver 让给新实验（owner 经会话「openpi新实验」转达）**：4090 现队列（g4090bb → g4090bc，GR00T 四批，~明天中午）跑完后**不再往 4090 排任何批次**；让出后本机无 local 层 worker（只有服务端在 4090 的批次才有 local 层，H100/pod 批次只用 a100/h100/timan1/timan107）、4090 无常驻、无 rsync/大复制。H100/pod 批次的 driver（formal_driver_fast，3 个合计 ~0.6 核、~3 GB）、证据审计、链脚本、巡检挪不了，owner 已确认可以留（「那点cpu占用不影响」）。owner 澄清：让出 = 让出 4090 GPU + 本机不跑重 CPU 活（本机渲染 worker、开满核的并行分析/批量解析）；看守、调度、driver、改代码、轻量分析照常（大分析放别的机器或小并发）。后台 b9zd82ez6 等 `[ffk-g4090bc] queue done|STOPPED` 且 4090 显存 <1 GB → 再给「openpi新实验」发消息（空闲时刻 + 剩余进程清单）。新实验由那个会话负责，本会话不碰。
 
+**22:3x 增补（owner 去睡，独自推进）**：后台：server_watch（bs279kblo，报警即退出 → 处理完重挂）、jupyter_watch（b7p1dwig5）、b3gnl3j7y（h100m29 起 fw_f_u_l_l 后 20 min 核对：编码表、0 错、h100q8 π0.5 s500 四档起来）、bk5wn4a1j（-02 起 fa_ls_fw_f_b_l_j 后 20 min 核对 LIBERO 切片报错）、b9a5n82ac（-10 jc2 结束 → 按规矩认领：候选 fw_r_f_m 的 pod 副本 fa_ls_fw_r_f_m_j（配 fa_ls_fw_r_p_m_j 参照，~11 h）或 v05 两批；⚠ pod 常在 17:4x 掉线）、b9zd82ez6（4090 队列完、显存清零 → 给「openpi新实验」发确认）。预计：4090 fa_cs_gr_rg ~01:5x 完 → g4090bc；H100 fw_f_f_l_l ~03:1x 完 → fw_f_u_l_l + π0.5 s500；-02 jc2 ~03:3x 完 → pod2fw5；-10 jc2 ~08:00 完。
+
 今天的关键修复（全推 origin Ziyang）：
 - **Fast-WAM 编码表**（cd8b73d5，owner 想法）：T5 不进 GPU/CPU；H100 上 batch 2–16 与 batch-1 逐位相同；副本 27→~15 GB；表在 H100 `/home/exouser/fw_text_tables/table_h100.pt`、本机 `/nvme/weiland/openpi/fw_text_tables/`、pod `/data/mw_finetune/fastwam_text_tables/`（NFS 绑定）。campaign `fastwam_text_table` + longseg runtime_fix 覆盖 4 个文件。v02_b、mc1、v08_1、fw_r_f_mc2 已改（预算 44 GiB、server_threads 4）。
 - **pod 跑 Fast-WAM**（287b6fc4）：setup.sh fastwam_nfs（NFS 共享，⚠ 两台不要并发 setup）；pod_copy 支持 H100 Fast-WAM（R1、B8、15.5 GiB、编码表）；Fast-WAM 跨卡不等价 → pod 批次配 pod 同卡纯推理参照。
