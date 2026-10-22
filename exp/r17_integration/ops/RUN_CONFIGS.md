@@ -55,7 +55,7 @@ gain. Select a measured treatment before a baseline and freeze it for its arms.
   puts a fleet on every eligible node at its physical hard cap (target starts at 0): shared pool
   a100 (LIBERO only, 80), timan1 (LIBERO 166 / MT50 664), timan107 (104 / 440); local layer
   4090 `local` (83 / 332) only when the server is on the 4090 (5 GiB server VRAM line), `h100` (LIBERO 40)
-  only when the server is on the H100 (4 GiB). MetaWorld never uses a100/h100; servers on h100-temp or
+  only when the server is on the H100 (4 GiB; Fast-WAM servers keep 12 GiB free, `h100_workers.route`, since its LIBERO full-step replicas hit CUDA OOM with 3 GiB). MetaWorld never uses a100/h100; servers on h100-temp or
   jupyter pods get no local layer. `wire_zlib` is always on. `--worker-counts`/`--workers` only
   label the canonical topology. Launch (`scheduler.defaults.require`) fails unless the scheduler answers
   `/healthz` and the driver runtime and `workers.tar` carry the current scheduler `VERSION`;

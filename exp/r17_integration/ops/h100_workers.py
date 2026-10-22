@@ -74,7 +74,10 @@ def route(worker, campaign):
                   # On the server's machine the card also runs the model: keep a little room for its growth.
                   # h100-temp gets no own-machine renderers (Xid 31, defaults.apply). Owner 10-20: aggressive,
                   # a few GB left is enough (1 GiB here + the 2 GiB card reserve); 4 GiB left GR00T R11 none.
-                  worker_server_vram_headroom_mib=1024 if node == 'h100' else 0,
+                  # Fast-WAM LIBERO full-step replicas outgrow that (10-21: 1,168 CUDA OOMs without the text
+                  # table, 17 in 20 min with it): leave its 44 GiB budget less the ~34 GB two replicas hold.
+                  worker_server_vram_headroom_mib=(10240 if campaign.get('model') == 'fastwam' else 1024)
+                  if node == 'h100' else 0,
                   policy_endpoint=('127.0.0.1:'+str(campaign['public_port']) if node == 'h100'
                                    else campaign['endpoint']))
     return worker
