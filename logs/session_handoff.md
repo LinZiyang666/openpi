@@ -89,7 +89,7 @@ owner 本段决定（已写记忆）：
 - ⛔ h100-temp 没有 owner 当次明说一律不用（机主 ljy 的 codex 在做 SM90 稀疏 attention kernel 计时 + 之后的 AIME26/MATH500/HumanEval/LongBench v2 评测，会大量用 GPU）；借来的盘 /media/volume/OmniDataVol（880 G 空）原有数据不动。
 - jupyter 空闲直接去 4090/H100 队列认领（pod_copy + 认领文件 + 同卡参照）。
 - 「H100 80G 显存」：H100 上 π0.5 R15 和 Fast-WAM 同卡跑（2 副本；整卡 ~30 GB 被本机渲染 worker 占）。
-- 待 owner（20:0x 已问，只剩删数据）：H100 /data（88%，剩 126 GB）107 个 10-17 前无回执老目录 ~109 GB、dp_h100 129 GB（建议都先拉回 /archive 核哈希再删）；timan107 Isaac-GR00T 33 GB（建议删）；本机 /data 原件与垃圾箱（留/挪 /archive/删）。我自己定（不再问 owner）：4090 常驻改并行启动（先实测显存再上）；-10 补跑先不拆（-02 跑完 jc2 还要接 v08_1_j，两台都排到明晚，拆只是挪活），按实际速度再看。
+- 待 owner（20:0x 已问，只剩删数据）：H100 /data（88%，剩 126 GB）107 个 10-17 前无回执老目录 ~109 GB、dp_h100 129 GB（建议都先拉回 /archive 核哈希再删）；timan107 Isaac-GR00T 33 GB（建议删）；本机 /data 原件与垃圾箱（留/挪 /archive/删）。我自己定（不再问 owner）：4090 常驻并行启动**不做**（20:1x 实测：余下换批全是 GR00T，每个常驻 35–70 s，4 个串行 ~3 min，并行最多省 ~6 min 总计；R15 GR00T 每档开销 ~48 s/~11 min；准入按启动时空闲显存判，并行会同时通过，不值得冒险）；-10 补跑先不拆（-02 跑完 jc2 还要接 v08_1_j，两台都排到明晚，拆只是挪活），按实际速度再看。
 - ⚠ 我今天两次违规：pkill -f 匹配到自己（只按 PID 杀）；git stash 时链在写仓库（别再 stash，用 worktree 对比）。
 
 **10-21 19:4x 增补**
