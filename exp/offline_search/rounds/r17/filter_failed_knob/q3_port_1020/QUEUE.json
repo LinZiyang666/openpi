@@ -2605,9 +2605,9 @@
       "env": {
        "SERVER_HOST": "h100",
        "WORKER_HOST": "timan108",
-       "PORTS": "23230,23231",
+       "PORTS": "23230",
        "WPS": "13",
-       "LOCAL_SERVER_COUNT": "2",
+       "LOCAL_SERVER_COUNT": "1",
        "OMP": "1",
        "OPENBLAS_NUM_THREADS": "1",
        "OMP_NUM_THREADS": "1",
@@ -2656,9 +2656,9 @@
       "env": {
        "SERVER_HOST": "h100",
        "WORKER_HOST": "timan108",
-       "PORTS": "23230,23231",
+       "PORTS": "23230",
        "WPS": "13",
-       "LOCAL_SERVER_COUNT": "2",
+       "LOCAL_SERVER_COUNT": "1",
        "OMP": "1",
        "OPENBLAS_NUM_THREADS": "1",
        "OMP_NUM_THREADS": "1",

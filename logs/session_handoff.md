@@ -83,6 +83,8 @@ owner 的常驻指令，逐字有效：
 
 **21:4x 增补**：mc1 21:22 回执 PASS（3,855）；floors.json 已清空。h100m29 21:08 起 fa_ls_fw_f_f_l_l：新客户端 settle→measure 正常，GPU 92% 时停在 57（真饱和，与 R15 π0.5 同卡），GPU 降到 87% 后再探；82 局/分、0 错。4090：fa_cs_pi_rg 21:25 收齐 16,000，21:29 起 fa_cs_gr_rg（21:37 出局 0 错，换批 GPU 空 ~8 min）。jupyter-ziyang10 jc2 速度 5 分钟段在 56–131 间波动（0 错），~10 h 完；-02 jc2 ~143–193/min，~03:30 完。本会话 21:2x 起分支（/branch），新实验「集群部署模拟」由别的会话做，这个会话只看守实验。
 
+**21:5x 增补：R15 π0.5 被显存挤停，已续**：fa_pi_f_f_l_q 21:39 在 s200_ir25 起服务时 GPU_TIGHT（free 8,236 < need 18,000 MiB）停（27/32 档已完成）。根因：h100m29 的 fa_ls_fw_f_f_l_l 是 prepare 时现建的 LIBERO 各档批，**没加编码表**，两副本各 29–30 GB（带 T5）。处置：QUEUE.json 里 s200、s500 改 PORTS=23230 / LOCAL_SERVER_COUNT=1（原件 /nvme/weiland/openpi/QUEUE.json.before_r1_2152）；新建 commands/prepare|launch_fa_pi_f_f_l_q_r.sh（续跑，已完成档跳过），链 **h100q7**（chain_ffk_stop）21:50 起；跑完同样会因 R15 无回执 STOPPED（预期，核对 32×500）。下一批 **fa_ls_fw_f_u_l_l** 已提前 build-levels（30,000）并改 campaign：编码表 + 44 GiB + 4 线程（原件 campaign.json.before_texttable_1021），h100m29 轮到时 prepare 直接用。fw_f_f_l_l（30,000，~82/min，~03:10 完）不动。
+
 今天的关键修复（全推 origin Ziyang）：
 - **Fast-WAM 编码表**（cd8b73d5，owner 想法）：T5 不进 GPU/CPU；H100 上 batch 2–16 与 batch-1 逐位相同；副本 27→~15 GB；表在 H100 `/home/exouser/fw_text_tables/table_h100.pt`、本机 `/nvme/weiland/openpi/fw_text_tables/`、pod `/data/mw_finetune/fastwam_text_tables/`（NFS 绑定）。campaign `fastwam_text_table` + longseg runtime_fix 覆盖 4 个文件。v02_b、mc1、v08_1、fw_r_f_mc2 已改（预算 44 GiB、server_threads 4）。
 - **pod 跑 Fast-WAM**（287b6fc4）：setup.sh fastwam_nfs（NFS 共享，⚠ 两台不要并发 setup）；pod_copy 支持 H100 Fast-WAM（R1、B8、15.5 GiB、编码表）；Fast-WAM 跨卡不等价 → pod 批次配 pod 同卡纯推理参照。
