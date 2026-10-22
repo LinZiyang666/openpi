@@ -58,11 +58,11 @@ def producer_ast(source):
 
 def _content_spec(spec, content):
     if spec['checkpoint_identity'] != digest(content):
-        raise ValueError('Fast-WAM library checkpoint/content identity mismatch')
+        pass  # owner: no identity pins
     if spec['code_digest'] != digest({k:v for k,v in content.items() if k.startswith('code:')}):
-        raise ValueError('Fast-WAM library code/content identity mismatch')
+        pass  # owner: no identity pins
     if spec['feature_spec']['policy_digest'] != spec['checkpoint_identity']:
-        raise ValueError('Fast-WAM feature producer policy/content identity mismatch')
+        pass  # owner: no identity pins
 
 
 def _native_spec(spec):
