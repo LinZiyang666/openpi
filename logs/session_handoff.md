@@ -79,6 +79,8 @@ owner 的常驻指令，逐字有效：
 
 **20:3x 增补**：v02_b 20:16 收齐 60,000（0 错误尝试，回执 PENDING_EVIDENCE = 证据审计在后台跑，v03_0/v03_1c1 同样后来变 PASS；后台 bohzmddbd 等结果）。h100m29 20:23 起 fa_ls_fw_f_u_mc1（20:35 已 157 局 0 错）。两台 pod jc2 20:03 出局 0 错。**续跑合并不用手工**：分析传最末续跑目录（fa_ls_fw_f_u_mc1、fa_ls_fw_r_u_m_jc2、fa_ls_fw_f_f_m_jc2），cache/analyze_cache.resume_segments 沿 CACHE_RESUME source 回溯到源批，accepted_terminal 丢掉 retry-exhausted 行、后段覆盖前段（knob/common.load_knob 同走 load_lane）；三批 source 已核对指向源批（jc1 不在链上）。
 
+**20:5x 增补：调度器把 H100 Fast-WAM 饿着（已修 380403d9）**：mc1 起来后只有 22 个 worker、65 局/分。根因：客户端把「副本 CPU ÷ OMP_NUM_THREADS ≥ 85%」当忙，Fast-WAM 副本 116 个线程，空载也读 115%（v02_b 12 个 worker、GPU 8% 就判忙），且 settle 阶段一判忙就冻结在当时已起的 worker 数，之后永不再探。fw_f_u_m（40）、v02_b（12–28）当时都被压住，靠兜底分配才涨。处置：A100 `/home/exouser/scheduler/run_23500/floors.json` = {fa_ls_fw_f_u_mc1: 200}（原件 .bak_2050；mc1 结束后清空）→ 65 → 282 局/分；client.py 改为只看 GPU ≥ 90% 判忙、settle 不冻结（各批之间的兜底分配仍用 GPU 或 CPU），新 prepare 的批次生效；后台 bh1oyoqhw 核对 fw_f_f_l_l 的决策与速度。
+
 今天的关键修复（全推 origin Ziyang）：
 - **Fast-WAM 编码表**（cd8b73d5，owner 想法）：T5 不进 GPU/CPU；H100 上 batch 2–16 与 batch-1 逐位相同；副本 27→~15 GB；表在 H100 `/home/exouser/fw_text_tables/table_h100.pt`、本机 `/nvme/weiland/openpi/fw_text_tables/`、pod `/data/mw_finetune/fastwam_text_tables/`（NFS 绑定）。campaign `fastwam_text_table` + longseg runtime_fix 覆盖 4 个文件。v02_b、mc1、v08_1、fw_r_f_mc2 已改（预算 44 GiB、server_threads 4）。
 - **pod 跑 Fast-WAM**（287b6fc4）：setup.sh fastwam_nfs（NFS 共享，⚠ 两台不要并发 setup）；pod_copy 支持 H100 Fast-WAM（R1、B8、15.5 GiB、编码表）；Fast-WAM 跨卡不等价 → pod 批次配 pod 同卡纯推理参照。
