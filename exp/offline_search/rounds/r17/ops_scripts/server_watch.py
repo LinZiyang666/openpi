@@ -112,7 +112,7 @@ class Rates:
 
 
 def main():
-    rates, last, idle, starved = Rates(), {}, {}, {}
+    rates, drop, idle, starved = Rates(), {}, {}, {}
     chain_offset = CHAIN_LOG.stat().st_size  # only failures from now on
     while True:
         now = time.time()
@@ -153,14 +153,20 @@ def main():
         for b, v in batches.items():
             if v['done']:
                 continue
-            if v['rate'] is not None and last.get(b) and v['rate'] < 0.5 * last[b]:
-                alerts.append(f'{b} rate {last[b]} -> {v["rate"]}/min (active {v["active"]}, target {v["target"]})')
+            # Two rounds in a row below half the rate before the drop: LIBERO level batches swing 2x from one
+            # round to the next with their task mix (10-22 night: five single-round halvings, all with 0 errors).
+            if v['rate'] is not None:
+                ref, n = drop.get(b, (None, 0))
+                if ref and v['rate'] < 0.5 * ref:
+                    drop[b] = (ref, n + 1)
+                    if n + 1 >= 2:
+                        alerts.append(f'{b} rate {ref} -> {v["rate"]}/min for {n + 1} rounds (active {v["active"]}, target {v["target"]})')
+                else:
+                    drop[b] = (v['rate'], 0)
             # R15/R16 (no scheduler rate) bring their own worker fleets; the scheduler shows them as 0 active.
             idle[b] = idle.get(b, 0) + 1 if v['active'] == 0 and v['rate'] is not None else 0
             if idle[b] >= 2:
                 alerts.append(f'{b} has no active workers for {idle[b]} rounds (desired {v["desired"]})')
-            if v['rate'] is not None:
-                last[b] = v['rate']
         if alerts:
             print(row['time'], 'ALERT', *alerts, sep='\n  ', flush=True)
             print('  batches', json.dumps(batches), flush=True)
