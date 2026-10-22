@@ -58,7 +58,7 @@ compact 后先读本文件，再读 `DESIGN.md`（owner 的需求与决议，权
 | `sweep.py` | 一种模式：起服务 → 预热 20 局（不计入）→ 各 N 回放 → SIGINT 停（启动器转 SIGTERM）→ `analyze.py` 写 `RESULTS.json` |
 | `tune.py` + `tune_pure.json` / `tune_cache.json` | 第 2 步：候选配置逐个短跑（N=5、40，各 60 局），汇总 `TUNE.json` |
 
-commits：847ce11a（设计）、f78b9a5f（主体）、408e33fc、49fd5e53、974f07b3、cdfff73e、93a09b80、46de5d40、b9c9664a。
+commits：847ce11a（设计）、f78b9a5f（主体）、408e33fc、49fd5e53、974f07b3、cdfff73e、93a09b80、46de5d40、b9c9664a、5758401e（本文件）、962065e3（LEVELS 和调参候选原先被 .gitignore 的 *.json 挡住没进库，已强制加入；两边各加一个 CUDA graph 候选 `--compile-mode reduce-overhead`）。
 
 ## 现状（10-21 23:1x）
 
