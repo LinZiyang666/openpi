@@ -104,6 +104,8 @@ owner 的常驻指令，逐字有效：
 
 **23:2x 增补**：fw_f_f_l_l 掉到 30 个 worker、36 局/分——不是 OOM（OOM 期间单调用中位 ~3 s 不变），是我 20:5x 改的客户端「GPU ≥ 90% 即忙 → 冻在当前 active」被 H100 的 99%/215 W 读数骗了。处置：floors.json = {fa_ls_fw_f_f_l_l: 70}（原件 .bak_2318，**该批结束后清空**）→ 76 局/分；f09da644 客户端去掉 busy 捷径，只按实测步进结论增减（hold 每 5 min 必探），新 prepare 批次生效。OOM 仍零星（~12 次/分重试成功；H100 本机 28 个渲染 worker），retry-exhausted 仍 10。
 
+**00:1x 增补**：fw_f_f_l_l 00:06 一分钟 28 局 retry-exhausted（累计 40/10,723，熔断线 50/120 s）。不出手：平均 ~68 局/分与 OOM 前相当；最坏触发熔断 → PARTIAL、h100m29 接 fw_f_u_l_l、余量进续跑。没用 swap_sched_fleet 原地换 H100 worker 组（可加大 worker_server_vram_headroom_mib），因为换过的批次续跑 prepare 会报 remote ownership receipt identity changed，而本批必须续跑。
+
 今天的关键修复（全推 origin Ziyang）：
 - **Fast-WAM 编码表**（cd8b73d5，owner 想法）：T5 不进 GPU/CPU；H100 上 batch 2–16 与 batch-1 逐位相同；副本 27→~15 GB；表在 H100 `/home/exouser/fw_text_tables/table_h100.pt`、本机 `/nvme/weiland/openpi/fw_text_tables/`、pod `/data/mw_finetune/fastwam_text_tables/`（NFS 绑定）。campaign `fastwam_text_table` + longseg runtime_fix 覆盖 4 个文件。v02_b、mc1、v08_1、fw_r_f_mc2 已改（预算 44 GiB、server_threads 4）。
 - **pod 跑 Fast-WAM**（287b6fc4）：setup.sh fastwam_nfs（NFS 共享，⚠ 两台不要并发 setup）；pod_copy 支持 H100 Fast-WAM（R1、B8、15.5 GiB、编码表）；Fast-WAM 跨卡不等价 → pod 批次配 pod 同卡纯推理参照。
