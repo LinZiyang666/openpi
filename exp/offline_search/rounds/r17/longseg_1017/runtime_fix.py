@@ -29,7 +29,13 @@ FASTWAM_TEXT_FILES = ('exp/r17_integration/models/fastwam/formal_batch_server.py
                       'exp/r17_integration/models/fastwam/formal_batching.py',
                       'exp/r17_integration/models/fastwam/loader.py',
                       'exp/r17_integration/models/fastwam/text_table.py',
-                      'exp/r17_integration/qualification/model_runtime.py')
+                      'exp/r17_integration/qualification/model_runtime.py',
+                      'exp/r17_integration/common/provider.py')
+# Older frozen runtimes still raise on identity checks the owner removed (10-10): the adapter_binding
+# checkpoint/norm/layout/feature identities (the checkpoint identity digests the fastwam code, so any overlay
+# or new release breaks it; fa_ls_v08_1c1/c2 10-22) and the batch implementation identity.
+RELAXED_FILES = ('exp/r17_integration/common/provider.py',
+                 'exp/r17_integration/models/fastwam/formal_batching.py')
 
 
 def overlay_files(campaign):
@@ -37,6 +43,8 @@ def overlay_files(campaign):
         return BATCHING_FILES
     if campaign.get('fastwam_text_table'):
         return FASTWAM_TEXT_FILES
+    if campaign.get('model') == 'fastwam':
+        return RELAXED_FILES
     return SERVER_FILES if campaign.get('model') in ('groot', 'pi05') else ()
 
 

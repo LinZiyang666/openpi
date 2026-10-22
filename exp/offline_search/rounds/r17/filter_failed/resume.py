@@ -162,7 +162,8 @@ def refresh_remaining(root, closure):
     selection=infra_error_selection(source,include_missing=True)
     selection.update(refresh_after_source_closure=False,source_closure_proof=closure)
     for name in ('RECEIPT.json','driver/journal.jsonl'):
-        selection['source_pins'][str(source/name)]=sha(source/name)
+        if (source/name).exists():  # a launch that failed before its driver started has no journal
+            selection['source_pins'][str(source/name)]=sha(source/name)
     suffix='.before_closure_'+datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')
     for name in ('EPISODE_PLAN.json','CACHE_RESUME.json','CACHE_RESUME_QUARANTINE.json','LOCAL_PLAN_SEAL.json'):
         p=root/name

@@ -63,7 +63,9 @@ def receipt_processes(references):
 
 def prove_closed(receipt, campaign, remote):
     local = receipt.get('owned_local', [])
-    if not local or not receipt.get('owned_remote'):
+    # A launch that failed before its driver started owns no local process (fa_ls_v08_1 10-22: replica refused
+    # to serve); whatever was recorded is still probed.
+    if not local and not receipt.get('owned_remote'):
         raise ValueError('salvage requires original process ownership receipts')
     proof = dict(local=process_probe(local, campaign['run_name']), remote={})
     grouped = {}
