@@ -136,6 +136,8 @@ owner 的常驻指令，逐字有效：
 
 **16:0x 增补**：✅ -02 fa_ls_fw_r_f_m_j 90,000 0 错（14:4x 齐，回执等审计）；两台 pod 都空闲（队列已无 MetaWorld 批次）。⚠ timan1 被其他用户压死（load ~1240：xuanhe4 358 个、yurenh2 33 个 D 状态进程），tether exec timan1 挂/失败 → 4090 fa_gr_f_f_l_q 15:36 在 l200_ir40 CHAIN_STOPPED（9/24 档）。处理：commands/{prepare,launch}_fa_gr_f_f_l_q_r.sh（WORKER_HOSTS=timan107）+ 剩余 4 个作业的 h100_sync/synced.json `fleets` 去掉 timan1（原件 .before_no_timan1_1022；只改环境变量不够，续跑不重同步，fleets 记在 synced.json）→ 链 **g4090bg** 15:55 起，过了失败点（15:58 进 ir32）。交接等待 bqhlu8wad 只认 `[ffk-g4090bg] queue done` 并核 24×500。4090 预计 ~18:00 空闲（已告知「openpi新实验」）。H100 c7 进行中（阶段式派发，阶段尾部速度会掉，正常）。
 
+**16:1x 增补**：fa_ls_fw_r_f_m_j（-02，成功过滤库 · Fast-WAM · MetaWorld · 减步 · 旋钮下降）90,000 局、0 错误尝试，但回执停在 PENDING_EVIDENCE、all_owned_closed=False：结束时 timan1 上该批 worker 监管进程还活着（timan1 被他人压死），证据审计没起。16:15 核 timan1 已无该批进程。数据完整可用（analyze_cache 只记录回执状态，不按它过滤）；链 pod2fw6 一直在等回执 → 按 PID 停了。formal_finalize --retry-closed 只接「审计超时」型 FAIL，不适用；要补证据审计以后再做。
+
 今天的关键修复（全推 origin Ziyang）：
 - **Fast-WAM 编码表**（cd8b73d5，owner 想法）：T5 不进 GPU/CPU；H100 上 batch 2–16 与 batch-1 逐位相同；副本 27→~15 GB；表在 H100 `/home/exouser/fw_text_tables/table_h100.pt`、本机 `/nvme/weiland/openpi/fw_text_tables/`、pod `/data/mw_finetune/fastwam_text_tables/`（NFS 绑定）。campaign `fastwam_text_table` + longseg runtime_fix 覆盖 4 个文件。v02_b、mc1、v08_1、fw_r_f_mc2 已改（预算 44 GiB、server_threads 4）。
 - **pod 跑 Fast-WAM**（287b6fc4）：setup.sh fastwam_nfs（NFS 共享，⚠ 两台不要并发 setup）；pod_copy 支持 H100 Fast-WAM（R1、B8、15.5 GiB、编码表）；Fast-WAM 跨卡不等价 → pod 批次配 pod 同卡纯推理参照。
