@@ -11,7 +11,7 @@ knobs: --batch 1:32,2:16,3:16  --wait-ms 1:0,2:0,3:0  --workers 1:1,2:1,3:1  --t
 Both modes run the same server tree, model, interceptor and coordinator (serve_entry.py); the cache mode adds the
 plugin arms. No CPU pinning. In cache mode the arms' bundles are loaded over one control connection after the port
 opens (as the R16 driver does); READY.json is written when the server takes robots. The command blocks until the
-server exits; SIGINT/SIGTERM are passed on.
+server exits; SIGINT/SIGTERM stop the server (SIGTERM, then SIGKILL after 15 s).
 """
 from __future__ import annotations
 
@@ -53,7 +53,8 @@ def environment(args, module):
     runtime = Path(args.log) / 'runtime'
     runtime.mkdir(parents=True, exist_ok=True)
     workers = dict(item.split(':') for item in args.workers.split(','))
-    env.update(PYTHONPATH=f'{TREE}:{TREE}/src:{TREE}/packages/openpi-client/src', CUDA_VISIBLE_DEVICES='0',
+    env.update(PYTHONPATH=f'{TREE}:{TREE}/src:{TREE}/packages/openpi-client/src',
+               CUDA_VISIBLE_DEVICES=os.environ.get('CLUSTER_SIM_GPU', '0'),
                HOME='/home/weiland', PYTHONDONTWRITEBYTECODE='1', HF_HUB_OFFLINE='1', TRANSFORMERS_OFFLINE='1',
                OPENPI_SERVER_GPU_MEMORY_LOCK='0', STAGE1_ONLY='0', TMPDIR=str(runtime),
                TORCHINDUCTOR_CACHE_DIR=str(runtime / 'inductor'), TRITON_CACHE_DIR=str(runtime / 'triton'),
@@ -108,8 +109,16 @@ def main():
     with (Path(args.log) / 'server.log').open('a') as out:
         proc = subprocess.Popen([str(TREE / '.venv/bin/python'), *argv], cwd=TREE, env=env, stdout=out, stderr=out,
                                 start_new_session=True)
+    def stop(signum, frame):
+        # The server ignores SIGINT (its stage threads keep it alive); SIGTERM ends it, SIGKILL if it lingers.
+        os.killpg(proc.pid, signal.SIGTERM)
+        try:
+            proc.wait(timeout=15)
+        except subprocess.TimeoutExpired:
+            os.killpg(proc.pid, signal.SIGKILL)
+
     for sig in (signal.SIGINT, signal.SIGTERM):
-        signal.signal(sig, lambda s, f: os.killpg(proc.pid, s))
+        signal.signal(sig, stop)
     wait_port(args.port, proc)
     if group is not None:
         preload(args.port, group)
