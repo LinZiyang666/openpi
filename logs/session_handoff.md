@@ -87,6 +87,8 @@ owner 的常驻指令，逐字有效：
 
 **22:1x 增补**：π0.5 续跑 s200_ir25 22:12 完成（500，sr 0.968，单副本 13.5 min）→ 28/32 档齐；s500_ir45 起服务时又 GPU_TIGHT（free 8,676 < 9,000：π0.5 停服务换档时空出的显存被 H100 本机渲染 worker 占走）。H100 GPU 已 99%，π0.5 硬挤只是抢 Fast-WAM 的 GPU → 改为推迟：QUEUE.json s500 恢复 2 副本（23230,23231），链 **h100q8**（chain_ffk_stop）等 `[ffk-h100m29] start fa_ls_fw_f_u_l_l`（~03:1x，该批有编码表，省 ~30 GB）再跑 fa_pi_f_f_l_q_r（剩 s500 四档，~50 min）。第一次续跑日志改名 ff/fa_pi_f_f_l_q_r.run1.log。h100q7 的 STOPPED 已处理。
 
+**22:2x 增补：weilandserver 让给新实验（owner 经会话「openpi新实验」转达）**：4090 现队列（g4090bb → g4090bc，GR00T 四批，~明天中午）跑完后**不再往 4090 排任何批次**；让出后本机无 local 层 worker（只有服务端在 4090 的批次才有 local 层，H100/pod 批次只用 a100/h100/timan1/timan107）、4090 无常驻、无 rsync/大复制。H100/pod 批次的 driver（formal_driver_fast，3 个合计 ~0.6 核、~3 GB）、证据审计、链脚本、巡检挪不了，已告知对方请 owner 确认。后台 b9zd82ez6 等 `[ffk-g4090bc] queue done|STOPPED` 且 4090 显存 <1 GB → 再给「openpi新实验」发消息（空闲时刻 + 剩余进程清单）。新实验由那个会话负责，本会话不碰。
+
 今天的关键修复（全推 origin Ziyang）：
 - **Fast-WAM 编码表**（cd8b73d5，owner 想法）：T5 不进 GPU/CPU；H100 上 batch 2–16 与 batch-1 逐位相同；副本 27→~15 GB；表在 H100 `/home/exouser/fw_text_tables/table_h100.pt`、本机 `/nvme/weiland/openpi/fw_text_tables/`、pod `/data/mw_finetune/fastwam_text_tables/`（NFS 绑定）。campaign `fastwam_text_table` + longseg runtime_fix 覆盖 4 个文件。v02_b、mc1、v08_1、fw_r_f_mc2 已改（预算 44 GiB、server_threads 4）。
 - **pod 跑 Fast-WAM**（287b6fc4）：setup.sh fastwam_nfs（NFS 共享，⚠ 两台不要并发 setup）；pod_copy 支持 H100 Fast-WAM（R1、B8、15.5 GiB、编码表）；Fast-WAM 跨卡不等价 → pod 批次配 pod 同卡纯推理参照。
