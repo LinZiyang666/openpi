@@ -28,6 +28,7 @@ def main():
     parser.add_argument('--robots', default='5,10,20,30,40,50,60,70,80,90,100')
     parser.add_argument('--seed', type=int, default=0)
     parser.add_argument('--port', type=int, default=8000)
+    parser.add_argument('--episodes', type=int, default=0, help='first K episodes per replay (tuning); 0 = all 500')
     args, serve_args = parser.parse_known_args()
     run = Path(args.run)
     server_log = run / 'server'
@@ -41,7 +42,8 @@ def main():
             time.sleep(2)
         for n in map(int, args.robots.split(',')):
             asyncio.run(replay.run(argparse.Namespace(library=args.library, url=f'ws://127.0.0.1:{args.port}', robots=n,
-                                                      seed=args.seed, interval=replay.INTERVAL_S, out=str(run / 'replay'))))
+                                                      seed=args.seed, interval=replay.INTERVAL_S, out=str(run / 'replay'),
+                                                      episodes=args.episodes)))
             time.sleep(3)  # last request rows reach the server log
     finally:
         os.killpg(server.pid, signal.SIGINT)

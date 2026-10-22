@@ -6,7 +6,7 @@ A seeded shuffle orders the 500 episodes; N slots each take the next episode unt
 at i * interval / N. After every infer reply a robot waits `interval` seconds (the simulated time to execute the
 returned actions plus the network round trip) before sending its next infer; control frames go out at once.
 
-  python -m exp.cluster_sim.replay --library DIR --url ws://127.0.0.1:8000 --robots 20 --seed 0 --out DIR
+  python -m exp.cluster_sim.replay --library DIR --url ws://127.0.0.1:8000 --robots 20 --seed 0 --out DIR [--episodes K]
 """
 from __future__ import annotations
 
@@ -57,7 +57,7 @@ async def robot(slot, url, queue, interval, start, rows):
 async def run(args):
     episodes = load(args.library)
     random.Random(args.seed).shuffle(episodes)
-    queue = list(episodes)
+    queue = episodes[:args.episodes] if args.episodes else list(episodes)
     rows = []
     t0 = time.time()
     await asyncio.gather(*(robot(i, args.url, queue, args.interval, i * args.interval / args.robots, rows)
@@ -83,6 +83,7 @@ def main():
     parser.add_argument('--seed', type=int, default=0)
     parser.add_argument('--interval', type=float, default=INTERVAL_S)
     parser.add_argument('--out', required=True)
+    parser.add_argument('--episodes', type=int, default=0, help='first K of the shuffled library (tuning); 0 = all')
     asyncio.run(run(parser.parse_args()))
 
 
