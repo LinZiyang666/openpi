@@ -50,6 +50,8 @@ def receipt_processes(references):
     for reference in references:
         path = Path(reference['path'])
         if not path.is_absolute():raise ValueError('absolute ownership receipt path required')
+        if not path.exists():
+            continue  # wiped with its machine (jupyter pod restart, 10-21): nothing it recorded can still run
         recorded = json.loads(path.read_text())
         for role, pin in reference['identities'].items():
             observed = recorded.get(role, {})
