@@ -110,6 +110,8 @@ owner 的常驻指令，逐字有效：
 
 **01:2x 增补**：① c1 起来后编码表生效（两副本 text_encoder_device none、各 ~16.8 GB），20 min 仍 17 次 OOM（全重试成功）→ 51d3faa1 `h100_workers.route`：H100 本机渲染 worker 在 Fast-WAM 服务下留 10 GiB 余量（其余模型仍 1 GiB，owner 10-20 激进口径），新 prepare 生效（fw_f_u_l_l、fw_r_f_mc2、v05_1/2_rz 都受益；v05 两批无编码表也因此不会再 OOM）。② 4090 fa_cs_gr_rg 卡在最后 1 局 10 min（GPU 0%）：a100 上 worker r16_groot_a100_04 单线程 100% CPU、3 h 48 min 不发请求（挂死）→ 按 PID SIGTERM 1031826 → driver 重派 attempt 2 → 01:25 收齐 16,000、DONE。R16 本机 worker 收尾时 EGL_NOT_INITIALIZED 崩、agent 重启（4 h 55 次），不影响数据。③ π0.5 s500_ir45 01:08 完成（500，sr 0.972），单副本换档正常。
 
+**01:4x 增补**：✅ 成功过滤库 · π0.5 · LIBERO · 全步 · Q3 各档 `fa_pi_f_f_l_q` 32 档 × 500 全齐（01:45，h100q9 STOPPED rc=0 = R15 无回执，预期）；原库那批早已齐 → π0.5 全步 Q3 各档两批完成。4090 01:28 起 g4090bc 第一批 fa_gr_r_u_l_q（01:32 出局）。
+
 今天的关键修复（全推 origin Ziyang）：
 - **Fast-WAM 编码表**（cd8b73d5，owner 想法）：T5 不进 GPU/CPU；H100 上 batch 2–16 与 batch-1 逐位相同；副本 27→~15 GB；表在 H100 `/home/exouser/fw_text_tables/table_h100.pt`、本机 `/nvme/weiland/openpi/fw_text_tables/`、pod `/data/mw_finetune/fastwam_text_tables/`（NFS 绑定）。campaign `fastwam_text_table` + longseg runtime_fix 覆盖 4 个文件。v02_b、mc1、v08_1、fw_r_f_mc2 已改（预算 44 GiB、server_threads 4）。
 - **pod 跑 Fast-WAM**（287b6fc4）：setup.sh fastwam_nfs（NFS 共享，⚠ 两台不要并发 setup）；pod_copy 支持 H100 Fast-WAM（R1、B8、15.5 GiB、编码表）；Fast-WAM 跨卡不等价 → pod 批次配 pod 同卡纯推理参照。
