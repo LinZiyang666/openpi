@@ -61,6 +61,11 @@ gain. Select a measured treatment before a baseline and freeze it for its arms.
   `/healthz` and the driver runtime and `workers.tar` carry the current scheduler `VERSION`;
   re-prepare such a batch (`filter_failed.stage --run <dir> --reprepare`). MetaWorld recycles at episode
   boundaries after 32 episodes or 30 minutes, LIBERO after 4 episodes.
+  A batch's own desire (`scheduler/client.py`) treats only server GPU >= 90% as busy and never freezes while
+  a step is still ramping (settle); replica CPU against `OMP_NUM_THREADS` misreads Fast-WAM (10-21 H100: 115% of
+  4 threads with 12 workers and GPU 8% held v02_b/fw_f_u_m/mc1 at 12-40 workers; floor 200 took mc1 65 -> 282/min).
+  The allocator's work-conserving pass still uses GPU-or-CPU saturation. If a batch sits far below its need,
+  `floors.json` next to the scheduler log on the A100 (`/home/exouser/scheduler/run_23500/`) raises its desire.
 - Every batched Fast-WAM arm needs `--paired-control /data/mw_finetune/eval/<baseline>`:
   a completed, closed PASS K10/C5 official-50 baseline covering its suites,
   with valid composition audit and matching treatment. DP needs the same

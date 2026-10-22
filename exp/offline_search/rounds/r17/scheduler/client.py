@@ -11,7 +11,7 @@ import threading
 import time
 import urllib.request
 
-from .allocate import saturated
+from .allocate import SATURATED_UTIL
 
 TICK_S = 2
 REPORT_S = 15
@@ -156,11 +156,15 @@ class BatchClient:
         progress = self.driver.scheduler.progress()
         remaining = progress['episodes_total'] - progress['episodes_done'] - progress['episodes_failed']
         host = self.snapshots.get(self.campaign['server_host'])
-        busy = bool(host) and self.fresh(host) and saturated(host)
+        # GPU only: replica CPU against OMP_NUM_THREADS misreads Fast-WAM (H100 10-21: 115% of 4 threads with 12
+        # workers and the GPU at 8%, held at 12-40 workers; a floor of 200 took fa_ls_fw_f_u_mc1 from 65 to 282/min).
+        # A CPU-bound server still shows in the measured step verdict.
+        busy = bool(host) and self.fresh(host) and (host.get('gpu_util') or 0) >= SATURATED_UTIL
         before = self.phase, self.desired
         if self.phase == 'start':
             self.desired, self.phase, self.since = min(remaining, max(START, self.resume)), 'settle', now
-        elif busy and self.phase != 'hold':
+        elif busy and self.phase not in ('hold', 'settle'):
+            # Not while settling: active is still the part of the last step spawned so far.
             self.desired, self.phase, self.since = active, 'hold', now
         elif self.phase == 'settle':
             if active >= .95 * self.desired or now - self.since >= SETTLE_S:
