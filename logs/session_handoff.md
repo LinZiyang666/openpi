@@ -120,6 +120,8 @@ owner 的常驻指令，逐字有效：
 
 **05:4x 增补**：fa_gr_r_f_l_q 的 spatial 05:38 收齐 → hold_ff_g4090bd + SIGINT runner 1573301 → 新链 **g4090be**（chain_ffk_stop2）：fa_gr_r_f_l_q4（4,0；05:46 出局）→ fa_gr_f_u_l_q → fa_gr_f_f_l_q。交接等待改认 `[ffk-g4090be] queue done|STOPPED` + 4090 显存 <1 GB（后台已换）；空闲后给「openpi新实验」发确认（时刻 + 剩余进程）。
 
+**07:1x 增补**：H100 fw_f_u_l_l 被共享池挤（-10 jc2 是 MIG pod，兜底分配按其 desire×2 拿到 356 目标、timan1 234），H100 GPU 58% → floors.json = {fa_ls_fw_f_u_l_l: 180}（原件 .bak_0716，**该批结束后清空**）→ 目标 189、88 局/分、0 OOM。另：server_watch 速度腰斩改为连续两轮才报（51f8e7e4，夜里 5 次单轮误报）。4090 预计：fa_gr_r_f_l_q ~07:35 完，之后 GR00T 全步 R15 两批各 12,000（~11 min/档）→ 4090 空闲约 16:30（比原估中午晚）。
+
 今天的关键修复（全推 origin Ziyang）：
 - **Fast-WAM 编码表**（cd8b73d5，owner 想法）：T5 不进 GPU/CPU；H100 上 batch 2–16 与 batch-1 逐位相同；副本 27→~15 GB；表在 H100 `/home/exouser/fw_text_tables/table_h100.pt`、本机 `/nvme/weiland/openpi/fw_text_tables/`、pod `/data/mw_finetune/fastwam_text_tables/`（NFS 绑定）。campaign `fastwam_text_table` + longseg runtime_fix 覆盖 4 个文件。v02_b、mc1、v08_1、fw_r_f_mc2 已改（预算 44 GiB、server_threads 4）。
 - **pod 跑 Fast-WAM**（287b6fc4）：setup.sh fastwam_nfs（NFS 共享，⚠ 两台不要并发 setup）；pod_copy 支持 H100 Fast-WAM（R1、B8、15.5 GiB、编码表）；Fast-WAM 跨卡不等价 → pod 批次配 pod 同卡纯推理参照。
