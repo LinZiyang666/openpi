@@ -11,7 +11,6 @@ import threading
 import time
 import urllib.request
 
-from .allocate import SATURATED_UTIL
 
 TICK_S = 2
 REPORT_S = 15
@@ -156,16 +155,13 @@ class BatchClient:
         progress = self.driver.scheduler.progress()
         remaining = progress['episodes_total'] - progress['episodes_done'] - progress['episodes_failed']
         host = self.snapshots.get(self.campaign['server_host'])
-        # GPU only: replica CPU against OMP_NUM_THREADS misreads Fast-WAM (H100 10-21: 115% of 4 threads with 12
-        # workers and the GPU at 8%, held at 12-40 workers; a floor of 200 took fa_ls_fw_f_u_mc1 from 65 to 282/min).
-        # A CPU-bound server still shows in the measured step verdict.
-        busy = bool(host) and self.fresh(host) and (host.get('gpu_util') or 0) >= SATURATED_UTIL
+        # Only the measured step verdict moves the desire. A "busy" shortcut that froze it at the active count
+        # misread both signals: replica CPU against OMP_NUM_THREADS (Fast-WAM at 115% of 4 threads with 12 workers,
+        # GPU 8%) and GPU utilization (H100 at 99% and 215 W while fa_ls_fw_f_f_l_l fell from 57-75 to 30 workers
+        # and 82 to 36/min, 10-21). A saturated server fails its probes and returns to the last count that paid off.
         before = self.phase, self.desired
         if self.phase == 'start':
             self.desired, self.phase, self.since = min(remaining, max(START, self.resume)), 'settle', now
-        elif busy and self.phase not in ('hold', 'settle'):
-            # Not while settling: active is still the part of the last step spawned so far.
-            self.desired, self.phase, self.since = active, 'hold', now
         elif self.phase == 'settle':
             if active >= .95 * self.desired or now - self.since >= SETTLE_S:
                 self.phase, self.since, self.samples = 'measure', now, [active]
@@ -191,7 +187,7 @@ class BatchClient:
                     self.failed = True
                     self.desired, self.phase, self.since = round(self.base[1]), 'hold', now
                 self.note('step', rate=point[0], mean_active=point[1], base=self.base)
-        elif not busy and now - self.since >= HOLD_S:
+        elif now - self.since >= HOLD_S:
             rate, mix = self.window(now - MEASURE_S, now)
             self.base = (rate, active, mix)
             self.desired, self.phase, self.since = active + max(2, math.ceil(active / 10)), 'settle', now
@@ -199,7 +195,7 @@ class BatchClient:
         self.desired = max(1, min(self.desired, ceiling))
         if (self.phase, self.desired) != before:
             self.note('desire', phase=self.phase, desired=self.desired, active=active, remaining=remaining,
-                      gpu_util=host.get('gpu_util') if host else None, busy=busy)
+                      gpu_util=host.get('gpu_util') if host else None)
 
     def report(self, now, active):
         nodes = {n: v for n, v in self.nodes.items() if n not in self.retired}
