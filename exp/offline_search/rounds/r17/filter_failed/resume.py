@@ -33,8 +33,11 @@ def local_clone(snapshot,name,failure,*,worker_counts=None,campaign_overrides=No
     for relative in dict.fromkeys([*seal['files'],'runtime.tar','workers.tar']):
         dest=root/relative;dest.parent.mkdir(parents=True,exist_ok=True)
         shutil.copyfile(snapshot/relative,dest)
+    # A pod copy keeps its source's assets address because the frozen YAMLs name it (stall_path); stage
+    # installs both addresses. A continuation must keep it too (10-21: a restarted pod lacked it).
+    source_address=campaign.get('assets') if campaign.get('assets')!=campaign.get('local_assets') else None
     campaign.update(run_name=name,prepare_only=True,local_assets=str(root/'assets'),
-                    assets=str(root/'assets'),server_run=str(root/'servers'))
+                    assets=source_address or str(root/'assets'),server_run=str(root/'servers'))
     if campaign['server_node']=='h100':
         campaign['server_campaign']='/tmp/r17_formal/'+name+'/server/campaign.json'
     campaign.update(campaign_overrides or {})
