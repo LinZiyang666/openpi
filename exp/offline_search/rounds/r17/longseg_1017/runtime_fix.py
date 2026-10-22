@@ -107,28 +107,37 @@ def patched_files(read):
 
 
 def strip_defenses(member, frozen):
-    """Port the owner's removed checks into a frozen file: where the working copy turned a `raise` into `pass`,
-    do the same here; nothing else changes. None when the file is untouched or would not compile."""
+    """Port the owner's removed checks into a frozen file; nothing else changes. A `raise` is turned into `pass`
+    where the working copy turned it into `pass`, or where the working copy rewrote/deleted that stretch and kept no
+    `raise` in it (cache_recipe.validate_teacher now returns the hook's verdict unchecked, 10-22). None when the
+    file is untouched or would not compile."""
     import difflib
     path = REPO / member
     if not member.endswith('.py') or not member.startswith(('exp/', 'src/')) or not path.is_file():
         return None
     old, new = frozen.splitlines(keepends=True), path.read_text().splitlines(keepends=True)
     out, changed = list(old), False
+
+    def drop(i):
+        k, depth = i, old[i].count('(') - old[i].count(')')
+        while depth > 0 and k + 1 < len(old):  # a raise spanning lines
+            k += 1
+            depth += old[k].count('(') - old[k].count(')')
+        out[i] = old[i][:len(old[i]) - len(old[i].lstrip())] + 'pass  # check removed (owner)\n'
+        for x in range(i + 1, k + 1):
+            out[x] = ''
+        return k + 1
+
     for tag, i1, i2, j1, j2 in difflib.SequenceMatcher(None, old, new, autojunk=False).get_opcodes():
-        if tag != 'replace':
+        if tag not in ('replace', 'delete'):
             continue
+        whole = not any(line.strip().startswith('raise ') for line in new[j1:j2])
         i, j = i1, j1
-        while i < i2 and j < j2:
-            if old[i].strip().startswith('raise ') and new[j].strip().split('#')[0].strip() == 'pass':
-                k, depth = i, old[i].count('(') - old[i].count(')')
-                while depth > 0 and k + 1 < len(old):  # a raise spanning lines
-                    k += 1
-                    depth += old[k].count('(') - old[k].count(')')
-                out[i] = old[i][:len(old[i]) - len(old[i].lstrip())] + 'pass  # check removed (owner)\n'
-                for x in range(i + 1, k + 1):
-                    out[x] = ''
-                changed, i = True, k + 1
+        while i < i2:
+            here = old[i].strip().startswith('raise ')
+            paired = j < j2 and new[j].strip().split('#')[0].strip() == 'pass'
+            if here and (whole or paired):
+                i, changed = drop(i), True
             else:
                 i += 1
             j += 1
