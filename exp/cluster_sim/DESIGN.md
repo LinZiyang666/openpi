@@ -63,4 +63,22 @@ owner 10-21 定的需求与决议。实现细节随代码补在「实现」一�
 
 ## 实现
 
-（随代码补充：录制入口、回放端、服务脚本、数据位置。）
+R16 服务端的请求路径见 `R16_SERVING_MAP.md`（π0.5 是 PyTorch eager bf16；推理三段：第 1 段视觉 + 文本嵌入，第 2 段 Gemma-2B 前缀，第 3 段动作专家去噪 K 步）。
+
+**旋钮档位**（`LEVELS.json`，正式选档规则：同步数 K1 纯推理参照，少于纯推理不超过 2 个成功算达标，ir45 → ir40 → ir32 → ir25 → 关，遇到第一个不达标就停）：任务 0 ir25、任务 4 ir40、任务 6 ir32，其余 7 个任务旋钮关（fa_pi_r_f_o_q_l500_off）。
+
+**不开长执行段**：R16 的长执行段就是 `--os-blind`（命中后不看图沿缓存继续）和 `--os-policy-tail --os-policy-tail-blocks 1`（未命中后下一条直接给模型输出的后 5 步）。录制分组去掉这三项，每条请求都先跑第 1 段看图，再由方法判命中或未命中（未命中跑第 2、3 段，K=1）。
+
+**录制**
+- `record_group.py`：把上面四个分组拼成录制分组 `/data/mw_finetune/eval/cs_rec_pi05`（实体在 /nvme），每个分组只保留选它的任务的局，共 500 局。
+- `record_run.py`：照常用 Q3 runner（R16 常驻、worker 走中央调度器），只把常驻换成 `record_resident.py` 启动；它把服务端收到的每一帧原样写进 `$CLUSTER_SIM_RAW/c<pid>_<n>.msgpack`。
+- `record.py split`：按 episode_start … episode_end 切成一局一个文件 `ep_<task>_<init>.msgpack`（开头补上这条连接最近一次 select_bundle），同一局多次出现取最后一次完整的。
+
+**回放**（`replay.py`）：LIBERO 控制频率实测 20 Hz（每步 50 ms），R16 worker 每条请求执行 5 步，请求间隔 = 5 × 50 ms + 2 ms = 252 ms；收到推理回复后等这么久再发下一条推理，控制帧立即发。每个槽位一条连接，连续回放多局。
+
+**服务端**
+- `serve.py`：两种模式同一服务树（`openpi_r16_q3_server`）、同一模型和推理拦截器、同一批处理协调器。纯推理是 `scripts.serve_policy --cache`（拦截器不带缓存，第 1→2→3 段，K=10）；完整系统是 R16 常驻加四个分组（启动后按 R16 driver 的方式发 load_cache_config 预载）。不绑核、不限线程（owner：CPU 线程要放开）。
+- `serve_entry.py`：两种模式共用的改动——每条请求的到达/发出时间（`requests_<pid>.csv`）；每段单独的批上限和等待（取到第一条后先把队列里已有的全部取走，再等到等待时间）；不编码 mask 全空的第三路相机、指令只留 80 个 token（被 mask 的 token 不占位置、不参与注意力，计算等价，前缀 968 → 592）；请求线程池 512；显存上限 24 GB；阶段计时器关闭。
+- `sweep.py`：起一种模式的服务器，依次回放各个 N，停服务，`analyze.py` 算每个 N 的每秒请求数、延迟 mean/p50/p90/p99 和 500 局总时间。
+
+数据：录制原始帧 `/nvme/weiland/openpi/cluster_sim/raw`，回放库 `/nvme/weiland/openpi/cluster_sim/library`，各次扫描 `/nvme/weiland/openpi/cluster_sim/runs/<名字>`。
