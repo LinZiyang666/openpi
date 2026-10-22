@@ -52,7 +52,7 @@ owner 的常驻指令，逐字有效：
 
 
 
-## 1. 现在在哪（2026-10-21 11:5x CDT；**最先读「10-21 19:4x 增补」，再读「10-21 18:3x 增补」，再读「10-21 17:3x 增补」，再读「10-21 15:0x 增补」，再读「10-21 14:0x 增补」，再读「10-21 13:2x 增补」，再读「10-21 12:0x 增补」，再读「10-21 11:5x 增补（compact 前总状态）」，再读「10-21 00:3x 增补」，再读「10-21 00:0x 增补（compact 前总状态）」，再读「22:5x」「22:1x」「21:4x」增补，再读「21:3x 增补（compact 前总状态）」**，再读 20:5x 旧门事故、其余增补与 09:4x 总状态，再读其后各增补（09:29 → 21:2x 倒序）与 10-19 21:0x 总状态；10-14 及更早只作背景）
+## 1. 现在在哪（2026-10-21 11:5x CDT；**最先读「10-21 19:5x 增补（compact 前总状态）」，再读「10-21 19:4x 增补」，再读「10-21 18:3x 增补」，再读「10-21 17:3x 增补」，再读「10-21 15:0x 增补」，再读「10-21 14:0x 增补」，再读「10-21 13:2x 增补」，再读「10-21 12:0x 增补」，再读「10-21 11:5x 增补（compact 前总状态）」，再读「10-21 00:3x 增补」，再读「10-21 00:0x 增补（compact 前总状态）」，再读「22:5x」「22:1x」「21:4x」增补，再读「21:3x 增补（compact 前总状态）」**，再读 20:5x 旧门事故、其余增补与 09:4x 总状态，再读其后各增补（09:29 → 21:2x 倒序）与 10-19 21:0x 总状态；10-14 及更早只作背景）
 
 ### ★★★★★★★★★★★★★★★★★★★★★★★★ 2026-10-20 09:4x CDT 总状态（compact 后最先读这块）
 
@@ -64,6 +64,33 @@ owner 的常驻指令，逐字有效：
 - 处置：09:56 按 PID SIGSTOP 复制 rsync（3726105/3726106/3729764）和两个 governor（3343372/3951564）。效果（同一时刻对比）：Cosmos 15→60 局/分、pod2 DP 85→250、v11_0 50→125（v11_0 同时 floor 40→70）。⛔ **复制保持暂停**；剩 ~190 GB（eval 533/~720 GB）以后找没有 driver 在跑、或可接受的短窗口一次性不限速跑完，不要再长时间节流慢跑。恢复命令：`kill -CONT 3343372 3951564 3726105 3726106 3729764`。记忆 reference-weilandserver-data 已加这条。
 - floors 现 `{"fa_ls_dp_f_f_m_j": 32, "fa_ls_v11_0": 70}`。
 - 在调研（opus 只读）：H100 队列 ~88 h（4 批 FW MT50 旋钮下降 ~42 h）vs 4090 ~22 h；旋钮下降批次 IR 离线算、可换卡 → 考虑 FW/GR00T MT50 旋钮下降挪 4090、DP LIBERO 旋钮下降挪 pod（需装 openpi 环境）。结论回来前不动队列。
+
+**10-21 19:5x 增补（compact 前总状态；先读这块，再往下读 19:4x → 18:3x → 17:3x → 15:0x → 14:0x → 13:2x → 12:0x → 11:5x）**
+
+在跑（19:45 实测）：
+- **H100**（链 h100m28 带 hold，跑完 v02_b 即停 → 链 **h100m29** 接）：原库 · Fast-WAM · MetaWorld · 减步 · 缓存变体 `fa_ls_v02_b`（编码表，52,159/60,000，~220–440 局/分，~20:15 完）。h100m29 顺序：fa_ls_fw_f_u_mc1（EMFILE 补跑 3,855）→ fa_ls_fw_f_f_l_l → fa_ls_fw_f_u_l_l（LIBERO 全步各档，prepare 时才建，各 ~25–30k，~70 局/分）→ fa_ls_v08_1（已被 -02 认领，prepare 会 exit 3 跳过，巡检会报一次 FAILED，属预期）→ fa_ls_fw_r_f_mc2（88,010，编码表）→ v05_1_rz、v05_2_rz（⚠ vfix retry 会在 /data 改名，轮到前处理）。H100 预计明晚 23–24 点完。
+- **H100 R15**（同卡）：成功过滤库 · π0.5 · LIBERO · 全步 · Q3 各档 `fa_pi_f_f_l_q`（链 **h100q6**，2 副本，18/32 档，每档 ~14 min，~23:10 完；单机 worker，比原库那批的多机慢一半）。跑完链会因 R15 无回执 STOPPED（预期，核对 32 arm × 500 即可）。原库 fa_pi_f_u_l_q 32×500 已齐。
+- **4090**：链 g4090bb：原库 · π0.5 · LIBERO · 减步 · 缓存部件带门四组 `fa_cs_pi_rg`（4,320/16,000，147 局/分，~21:10）→ `fa_cs_gr_rg`（16,000，~3 h）；然后链 **g4090bc**：GR00T Q3 各档 fa_gr_r_u_l_q、fa_gr_r_f_l_q（各 10,000，3+1 常驻）、fa_gr_f_u_l_q、fa_gr_f_f_l_q（各 12,000，R15 多机）。4090 预计明天中午完。GR00T、π0.5 旋钮关 8 批全齐；π0.5 减步各档两批齐。
+- **jupyter-ziyang10-02**（链 **pod2fw4**）：`fa_ls_fw_r_u_m_jc2`（原库 · Fast-WAM · MetaWorld · 减步 · 旋钮下降，17:41 掉线作废的 66,285 局补跑；19:36 prepare）→ 链 **pod2fw5**：fa_ls_fw_f_b_l_j、fa_ls_fw_f_p_l_j（LIBERO 全步纯推理参照各 1,000，兼切片显存探针）→ fa_ls_v08_1_j（40,000）。
+- **jupyter-ziyang10**（链 **pod1fw3**）：`fa_ls_fw_f_f_m_jc2`（成功过滤库 · Fast-WAM · MetaWorld · 全步 · 旋钮下降补跑 82,495，~49 局/分 → ~28 h）。
+- 好数据：fa_ls_fw_r_u_m_j 23,715、fa_ls_fw_f_f_m_j 7,505（+ jc2 合并）；纯推理参照 fa_ls_fw_r_p_m_j、fa_ls_fw_f_p_m_j 都 PASS 2,500。jc1 两批作废（0 局）。
+- 后台：server_watch（每 10 min；报饿/腰斩/无 worker/链 STOPPED·FAILED·receipt=FAIL·PARTIAL；R15/R16-only 三轮）、jupyter_watch（pod 离线即退出报）、bmcv8hus1（等 jc2 出局）。告警后它们退出 → 处理完重挂。
+- 调度器 floors/caps 都已清空。
+
+今天的关键修复（全推 origin Ziyang）：
+- **Fast-WAM 编码表**（cd8b73d5，owner 想法）：T5 不进 GPU/CPU；H100 上 batch 2–16 与 batch-1 逐位相同；副本 27→~15 GB；表在 H100 `/home/exouser/fw_text_tables/table_h100.pt`、本机 `/nvme/weiland/openpi/fw_text_tables/`、pod `/data/mw_finetune/fastwam_text_tables/`（NFS 绑定）。campaign `fastwam_text_table` + longseg runtime_fix 覆盖 4 个文件。v02_b、mc1、v08_1、fw_r_f_mc2 已改（预算 44 GiB、server_threads 4）。
+- **pod 跑 Fast-WAM**（287b6fc4）：setup.sh fastwam_nfs（NFS 共享，⚠ 两台不要并发 setup）；pod_copy 支持 H100 Fast-WAM（R1、B8、15.5 GiB、编码表）；Fast-WAM 跨卡不等价 → pod 批次配 pod 同卡纯推理参照。
+- **EMFILE**：H100 tether-agent 软 nofile 1024，代理 2 fd/客户端，~580 worker 时 3,855 局失败 → 057181d5 代理启动提到硬上限；在跑进程已 prlimit。
+- **driver 熔断**（28e95c59）：120 s 内 ≥50 局 retry-exhausted 就停（PARTIAL + infra_breaker），剩余留给续跑；新 prepare 的批次生效（jc1 失败时 0 局被收，已验证）。
+- resume 保留 pod 副本源 assets 地址（069a5314）；library_salvage 收据文件随机器清空 = 已关停；巡检加 receipt=FAIL/PARTIAL 与 R15/R16 三轮规则。
+- 全量扫描：其他带 retry-exhausted 的批次都已被各自续跑覆盖。
+
+owner 本段决定（已写记忆）：
+- ⛔ h100-temp 没有 owner 当次明说一律不用（机主 ljy 的 codex 在做 SM90 稀疏 attention kernel 计时 + 之后的 AIME26/MATH500/HumanEval/LongBench v2 评测，会大量用 GPU）；借来的盘 /media/volume/OmniDataVol（880 G 空）原有数据不动。
+- jupyter 空闲直接去 4090/H100 队列认领（pod_copy + 认领文件 + 同卡参照）。
+- 「H100 80G 显存」：H100 上 π0.5 R15 和 Fast-WAM 同卡跑（2 副本；整卡 ~30 GB 被本机渲染 worker 占）。
+- 待 owner：4090 换批时三个 π0.5 常驻串行启动 ~12 min，可改并行；-10 补跑太长时可在 -02 空出来后拆一半（同为 H200 切片）；H100 /data 107 个老目录 109 GB、dp_h100 129 GB、timan107 Isaac-GR00T 33 GB 删不删。
+- ⚠ 我今天两次违规：pkill -f 匹配到自己（只按 PID 杀）；git stash 时链在写仓库（别再 stash，用 worktree 对比）。
 
 **10-21 19:4x 增补**
 - pod 19:06 恢复（owner 重开）：隧道重建（H100 24470–24473）、setup.sh fastwam_nfs 两台重跑（⚠ 两台共用 NFS，别并发跑 setup，会抢 bin/r17x.part）、jupyter_watch 重挂。
