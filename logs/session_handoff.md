@@ -132,6 +132,8 @@ owner 的常驻指令，逐字有效：
 
 **12:5x 增补**：✅ fa_ls_v05_1 PASS 288、fa_ls_v05_2 PASS 397（Fast-WAM · LIBERO · 缓存变体，第 4 次 vfix 重试，旧包防御已移植拔除）。✅ fa_ls_v08_1c7 12:36 起、12:50 已 930 局 0 错（v08_1 四万局，~18:00 完；分析传 c7）。✅ 4090 fa_gr_f_u_l_q 24 档 × 500 齐（12:34）；fa_gr_f_f_l_q 12:39 起，~17:10 完 → 4090 交接。H100 队列只剩 c7。
 
+**14:2x 增补**：✅ -10 fa_ls_fw_f_f_m_jc2 PASS 82,495（+ _j 7,505 = 成功过滤库 · Fast-WAM · MetaWorld · 全步 · 旋钮下降 90,000 齐；分析传 jc2）。jupyter-ziyang10 空闲：队列里已没有 pod 能接的 MetaWorld 批次（H100 剩 v08_1c7 是 LIBERO、4090 剩 R15），不拆 -02 的余量（~1 万局、~1.5 h，resume 无 split 选项）。-02 fa_ls_fw_r_f_m_j ~15:30 完、H100 v08_1c7 ~18:00、4090 fa_gr_f_f_l_q ~17:10。
+
 今天的关键修复（全推 origin Ziyang）：
 - **Fast-WAM 编码表**（cd8b73d5，owner 想法）：T5 不进 GPU/CPU；H100 上 batch 2–16 与 batch-1 逐位相同；副本 27→~15 GB；表在 H100 `/home/exouser/fw_text_tables/table_h100.pt`、本机 `/nvme/weiland/openpi/fw_text_tables/`、pod `/data/mw_finetune/fastwam_text_tables/`（NFS 绑定）。campaign `fastwam_text_table` + longseg runtime_fix 覆盖 4 个文件。v02_b、mc1、v08_1、fw_r_f_mc2 已改（预算 44 GiB、server_threads 4）。
 - **pod 跑 Fast-WAM**（287b6fc4）：setup.sh fastwam_nfs（NFS 共享，⚠ 两台不要并发 setup）；pod_copy 支持 H100 Fast-WAM（R1、B8、15.5 GiB、编码表）；Fast-WAM 跨卡不等价 → pod 批次配 pod 同卡纯推理参照。
