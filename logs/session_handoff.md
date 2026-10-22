@@ -70,6 +70,7 @@ owner 的常驻指令，逐字有效：
 - owner 追加：CPU 线程要放开（单线程等于没优化）；讨论时别加防御性核对（记忆已加）。
 - 代码（f78b9a5f 起）：LEVELS.json（任务 0 ir25 / 4 ir40 / 6 ir32 / 其余关）、record_group.py（`/data/mw_finetune/eval/cs_rec_pi05` 已建，500 局）、record_run.py + record_resident.py（Q3 runner 照常，常驻收帧落盘 `$CLUSTER_SIM_RAW`）、record.py split、replay.py、serve.py + serve_entry.py（两模式同一服务树/拦截器/协调器；每段批上限与等待；去第三路相机与指令补齐 token 968→592；线程池 512；不绑核）、sweep.py、analyze.py、R16_SERVING_MAP.md（代理画的 R16 π0.5 服务路径）。
 - 4090 协调：兄弟会话答应 4090 队列（GR00T Q3 各档，预计 10-22 中午完）跑完后不再排 4090，显存清零时发消息给「openpi新实验」；H100/pod 批次的 driver 留在本机（owner：那点 CPU 不影响）。
+- 10-21 夜里（GPU 被占，只在 CPU 上）：去 token 等价校验（动作最大差 0.005）；纯推理 / 完整系统两种模式 CPU 端到端跑通（合成库 `/home/weiland/.claude/jobs/35f2869b/tmp/synth_lib`）；sweep.py 全流程跑通；分组改用自己的 yaml 副本（evidence_dir 在实验根目录下）；启动器改 SIGTERM 停服务；方法查询单次 ~8 ms（OMP=1）；tune.py + tune_pure.json / tune_cache.json 备好；后台 bdawirabp 等 g4090bc 跑完且 4090 无计算进程时通知。详见 exp/cluster_sim/DESIGN.md「10-21 夜里已确认」。
 - 下一步（4090 空出后）：① `CLUSTER_SIM_RAW=/nvme/weiland/openpi/cluster_sim/raw python -m exp.cluster_sim.record_run run --group /data/mw_finetune/eval/cs_rec_pi05/group.json --agent-island /scratch/zixuans8/openpi_r16_conductor_v1 --port 23159 --ports 23150,23151,23152` → `python -m exp.cluster_sim.record split --raw … --out /nvme/weiland/openpi/cluster_sim/library`；② `sweep.py --episodes 100` 短跑调两边参数（批上限/等待/各段 worker 数/OMP）；③ 正式两次 sweep（各约 3–5 h）。
 
 **10-21 19:5x 增补（compact 前总状态；先读这块，再往下读 19:4x → 18:3x → 17:3x → 15:0x → 14:0x → 13:2x → 12:0x → 11:5x）**
