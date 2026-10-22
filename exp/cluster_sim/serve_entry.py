@@ -163,6 +163,28 @@ async def run(self, *args, **kwargs):
 _wps.WebsocketPolicyServer.run = run
 
 
+# Optional torch.compile of the model's three heavy parts (CLUSTER_SIM_COMPILE = vision,lm,expert), same for both
+# modes; dynamic batch shapes, so batch sizes do not each recompile.
+COMPILE = [c for c in os.environ.get('CLUSTER_SIM_COMPILE', '').split(',') if c]
+if COMPILE:
+    from openpi.policies import policy_config as _pc  # noqa: E402
+
+    _create = _pc.create_trained_policy
+
+    def create_trained_policy(*args, **kwargs):
+        policy = _create(*args, **kwargs)
+        pwe = policy._model.paligemma_with_expert
+        opts = dict(dynamic=True, mode=os.environ.get('CLUSTER_SIM_COMPILE_MODE', 'max-autotune-no-cudagraphs'))
+        if 'vision' in COMPILE:
+            pwe.embed_image = torch.compile(pwe.embed_image, **opts)
+        if 'lm' in COMPILE:
+            pwe.paligemma.language_model = torch.compile(pwe.paligemma.language_model, **opts)
+        if 'expert' in COMPILE:
+            pwe.gemma_expert.model = torch.compile(pwe.gemma_expert.model, **opts)
+        return policy
+
+    _pc.create_trained_policy = create_trained_policy
+
 # Stage timers off in both modes (the cache yaml already sets timer.enabled false; --cache would enable them).
 from openpi.cache import timing as _timing  # noqa: E402
 

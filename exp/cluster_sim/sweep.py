@@ -29,6 +29,7 @@ def main():
     parser.add_argument('--seed', type=int, default=0)
     parser.add_argument('--port', type=int, default=8000)
     parser.add_argument('--episodes', type=int, default=0, help='first K episodes per replay (tuning); 0 = all 500')
+    parser.add_argument('--warmup', type=int, default=40, help='episodes replayed at 20 robots before measuring (not analyzed)')
     args, serve_args = parser.parse_known_args()
     run = Path(args.run)
     server_log = run / 'server'
@@ -40,6 +41,10 @@ def main():
             if server.poll() is not None:
                 raise RuntimeError(f'server exited with {server.returncode}; see {server_log}/server.log')
             time.sleep(2)
+        if args.warmup:
+            asyncio.run(replay.run(argparse.Namespace(library=args.library, url=f'ws://127.0.0.1:{args.port}', robots=20,
+                                                      seed=args.seed + 1, interval=replay.INTERVAL_S,
+                                                      out=str(run / 'warmup'), episodes=args.warmup)))
         for n in map(int, args.robots.split(',')):
             asyncio.run(replay.run(argparse.Namespace(library=args.library, url=f'ws://127.0.0.1:{args.port}', robots=n,
                                                       seed=args.seed, interval=replay.INTERVAL_S, out=str(run / 'replay'),

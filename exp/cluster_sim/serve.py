@@ -6,7 +6,7 @@
   python -m exp.cluster_sim.serve --mode cache --group /data/mw_finetune/eval/cs_rec_pi05/group.json --port 8000 --log DIR
 
 knobs: --batch 1:32,2:16,3:16  --wait-ms 1:0,2:0,3:0  --workers 1:1,2:1,3:1  --threads 512  --text-tokens 80
-       --vram-gb 24  --omp N (unset: library defaults, every core)
+       --vram-gb 24  --omp N (unset: library defaults, every core)  --compile vision,lm,expert  --compile-mode M
 
 Both modes run the same server tree, model, interceptor and coordinator (serve_entry.py); the cache mode adds the
 plugin arms. No CPU pinning. In cache mode the arms' bundles are loaded over one control connection after the port
@@ -60,6 +60,7 @@ def environment(args, module):
                CLUSTER_SIM_MODULE=module, CLUSTER_SIM_LOG=str(args.log), CLUSTER_SIM_BATCH=args.batch,
                CLUSTER_SIM_WAIT_MS=args.wait_ms, CLUSTER_SIM_THREADS=str(args.threads),
                CLUSTER_SIM_TEXT_TOKENS=str(args.text_tokens), CLUSTER_SIM_VRAM_GB=str(args.vram_gb),
+               CLUSTER_SIM_COMPILE=args.compile, CLUSTER_SIM_COMPILE_MODE=args.compile_mode,
                **{f'BATCHING_STAGE{s}_WORKERS': n for s, n in workers.items()})
     return env
 
@@ -97,6 +98,8 @@ def main():
     parser.add_argument('--text-tokens', type=int, default=80)
     parser.add_argument('--vram-gb', type=float, default=24)
     parser.add_argument('--omp', type=int, default=0)
+    parser.add_argument('--compile', default='', help='comma list of vision,lm,expert (torch.compile)')
+    parser.add_argument('--compile-mode', default='max-autotune-no-cudagraphs')
     args = parser.parse_args()
     Path(args.log).mkdir(parents=True, exist_ok=True)
     argv, module, group = command(args)
