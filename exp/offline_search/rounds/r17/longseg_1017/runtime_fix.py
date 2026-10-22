@@ -166,9 +166,11 @@ def apply(archive, files=()):
     fixed = patched_files(lambda member: data[member].decode())
     fixed.update({name: (REPO / name).read_text() for name in files})
     # Checks the owner removed (10-10, 10-20, 10-22) still raise in older frozen releases.
+    # Method-rewritten members too (cache_recipe.CacheStudyRecipe carries validate_teacher's file, 10-22);
+    # whole-file overlays are already the working copy.
     for name in data:
-        if name not in fixed:
-            text = strip_defenses(name, data[name].decode(errors='replace'))
+        if name not in files:
+            text = strip_defenses(name, fixed.get(name, data[name].decode(errors='replace')))
             if text is not None:
                 fixed[name] = text
     receipt = {}
