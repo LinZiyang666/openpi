@@ -118,6 +118,8 @@ owner 的常驻指令，逐字有效：
 
 **05:2x 增补**：✅ fa_ls_fw_f_f_l_lc1 04:40 收齐 17,455、05:00 回执 PASS → 成功过滤库 · Fast-WAM · LIBERO · 全步 · 各档 30,000 齐（分析传 c1）。h100m30 04:48 起 fa_ls_fw_f_u_l_l（编码表 + 10 GiB 余量）：20 min 1,757 局、0 错、0 OOM，H100 显存 63.8 GB（留 ~17 GB）。✅ 4090 fa_gr_r_u_l_q 04:31 收齐（20 档 × 500）；g4090bd 04:32 起 fa_gr_r_f_l_q（3,1），spatial 收齐时后台 bsfo2bv6a 提醒 → 用已写好的 launch_fa_gr_r_f_l_q4.sh 照 03:0x 流程切 4,0（hold g4090bd + 新链 g4090be: fa_gr_r_f_l_q4 fa_gr_f_u_l_q fa_gr_f_f_l_q + 交接等待改认 g4090be）。-02 fa_ls_fw_r_f_m_j 04:13 起，~140–210 局/分、0 错。
 
+**05:4x 增补**：fa_gr_r_f_l_q 的 spatial 05:38 收齐 → hold_ff_g4090bd + SIGINT runner 1573301 → 新链 **g4090be**（chain_ffk_stop2）：fa_gr_r_f_l_q4（4,0；05:46 出局）→ fa_gr_f_u_l_q → fa_gr_f_f_l_q。交接等待改认 `[ffk-g4090be] queue done|STOPPED` + 4090 显存 <1 GB（后台已换）；空闲后给「openpi新实验」发确认（时刻 + 剩余进程）。
+
 今天的关键修复（全推 origin Ziyang）：
 - **Fast-WAM 编码表**（cd8b73d5，owner 想法）：T5 不进 GPU/CPU；H100 上 batch 2–16 与 batch-1 逐位相同；副本 27→~15 GB；表在 H100 `/home/exouser/fw_text_tables/table_h100.pt`、本机 `/nvme/weiland/openpi/fw_text_tables/`、pod `/data/mw_finetune/fastwam_text_tables/`（NFS 绑定）。campaign `fastwam_text_table` + longseg runtime_fix 覆盖 4 个文件。v02_b、mc1、v08_1、fw_r_f_mc2 已改（预算 44 GiB、server_threads 4）。
 - **pod 跑 Fast-WAM**（287b6fc4）：setup.sh fastwam_nfs（NFS 共享，⚠ 两台不要并发 setup）；pod_copy 支持 H100 Fast-WAM（R1、B8、15.5 GiB、编码表）；Fast-WAM 跨卡不等价 → pod 批次配 pod 同卡纯推理参照。
