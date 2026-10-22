@@ -98,6 +98,8 @@ owner 的常驻指令，逐字有效：
 
 **22:3x 增补（owner 去睡，独自推进）**：后台：server_watch（bs279kblo，报警即退出 → 处理完重挂）、jupyter_watch（b7p1dwig5）、b3gnl3j7y（h100m29 起 fw_f_u_l_l 后 20 min 核对：编码表、0 错、h100q8 π0.5 s500 四档起来）、bk5wn4a1j（-02 起 fa_ls_fw_f_b_l_j 后 20 min 核对 LIBERO 切片报错）、b9a5n82ac（-10 jc2 结束 → 按规矩认领：候选 fw_r_f_m 的 pod 副本 fa_ls_fw_r_f_m_j（配 fa_ls_fw_r_p_m_j 参照，~11 h）或 v05 两批；⚠ pod 常在 17:4x 掉线）、b9zd82ez6（4090 队列完、显存清零 → 给「openpi新实验」发确认）。预计：4090 fa_cs_gr_rg ~01:5x 完 → g4090bc；H100 fw_f_f_l_l ~03:1x 完 → fw_f_u_l_l + π0.5 s500；-02 jc2 ~03:3x 完 → pod2fw5；-10 jc2 ~08:00 完。
 
+**23:0x 增补：fw_f_f_l_l 副本 CUDA OOM**：22:13 π0.5 停后，H100 本机渲染 worker 把显存填到只剩 fleet 底线（card_reserve 2 GiB + h100 worker_server_vram_headroom_mib 1024），无编码表的 FW 副本（各 ~26 GB）峰值长不上去 → `torch.OutOfMemoryError`（/tmp/r17_formal/fa_ls_fw_f_f_l_l/server/replica_{0,1}.log 各 ~2,500–3,000 条），大多重试成功；22:55 有 10 局 retry-exhausted（infra 错，分析自动剔除）。处理：不动在跑批（错误 0.16%、成簇、PyTorch 缓存池长到峰值后会自愈）；巡检每轮数错误；突增（≳50/轮）就按 PID 停几个 H100 本机 worker 腾显存。**fw_f_f_l_l 结束后要建 infra-errors 续跑**（`filter_failed/resume.py --infra-errors`，campaign 加编码表 + 44 GiB + 4 线程），排在 H100。之后的 FW 批都有编码表（副本 ~14 GB），不会再这样。
+
 今天的关键修复（全推 origin Ziyang）：
 - **Fast-WAM 编码表**（cd8b73d5，owner 想法）：T5 不进 GPU/CPU；H100 上 batch 2–16 与 batch-1 逐位相同；副本 27→~15 GB；表在 H100 `/home/exouser/fw_text_tables/table_h100.pt`、本机 `/nvme/weiland/openpi/fw_text_tables/`、pod `/data/mw_finetune/fastwam_text_tables/`（NFS 绑定）。campaign `fastwam_text_table` + longseg runtime_fix 覆盖 4 个文件。v02_b、mc1、v08_1、fw_r_f_mc2 已改（预算 44 GiB、server_threads 4）。
 - **pod 跑 Fast-WAM**（287b6fc4）：setup.sh fastwam_nfs（NFS 共享，⚠ 两台不要并发 setup）；pod_copy 支持 H100 Fast-WAM（R1、B8、15.5 GiB、编码表）；Fast-WAM 跨卡不等价 → pod 批次配 pod 同卡纯推理参照。
