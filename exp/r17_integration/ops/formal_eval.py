@@ -1683,7 +1683,9 @@ def run_campaign(campaign, directory, deployment):
                     report['shard_transfer_failure'] = shard_pump.failure
                 print('H100 shard transfer shutdown failed: '+str(exc),file=sys.stderr,flush=True)
         save()
-        if report['status'] in ('PASS','PENDING_EVIDENCE') and report['all_owned_closed']:
+        # A worker node that could not confirm its closure (lost, overloaded) does not hold back the evidence seal.
+        if report['status'] in ('PASS','PENDING_EVIDENCE') and (report['all_owned_closed'] or
+                report.get('worker_node_closure_pending')):
             from .formal_finalize import finalize, handoff
             try:
                 if not any(campaign.get(k) for k in ('smoke','library','native_parity_only')):

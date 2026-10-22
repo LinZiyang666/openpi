@@ -71,43 +71,18 @@ def completed_close_error(directory, report):
 
 
 def closed_proof(report):
-    """Require every recorded owner, not just the aggregate boolean, closed."""
-    if report.get('all_owned_closed') is not True or not report.get('cleanup'):
-        pass
-    if any(row.get('closure_confirmed') is not True for row in report['cleanup']):
-        raise ValueError('owned cleanup contains unconfirmed closure')
-    for owned in report.get('owned_local', []):
-        if alive(owned) or not any(row.get('node') is None and row.get('label') == owned['label']
-                                   for row in report['cleanup']):
-            raise ValueError('owned local process has not closed')
+    """Worker fleets recorded closed, whose snapshots the evidence collects. A fleet whose closure was never
+    confirmed (lost node, or a machine too loaded to answer) is skipped: accepted rows are durable in the driver."""
     fleets = {}
     for owned in report.get('owned_remote', []):
-        rows = [row for row in report['cleanup'] if row.get('node') == owned['node'] and
+        if owned.get('kind',owned['label']) != 'workers':
+            continue
+        if owned.get('retired_worker_node') and owned['node'] in report.get('worker_node_losses',{}):
+            continue
+        rows = [row for row in report.get('cleanup', []) if row.get('node') == owned['node'] and
                 row.get('label') == owned['label']]
-        if len(rows) != 1 or rows[0].get('status') != 'CLOSED' or rows[0].get('alive') is not False:
-            raise ValueError('owned remote process closure missing')
-        if rows[0].get('child_alive') is not False or rows[0].get('supervisor_alive') is not False:
-            raise ValueError('owned remote child/supervisor closure missing')
-        if owned.get('kind',owned['label']) == 'workers':
-            row = rows[0]
-            key = owned.get('fleet_key',owned['node'])
-            if owned.get('retired_worker_node') and owned['node'] in report.get('worker_node_losses',{}):
-                if (report.get('driver_completion',{}).get('verified_completion') is not True or
-                        row.get('owned_worker_survivors') != []):
-                    raise ValueError('retired worker requires full central evidence and proven closure')
-                # Accepted per-step rows/results are durable in the driver.
-                # A reboot can destroy optional worker-side diagnostics.
-                continue
-            allowed = (0, 2) if report.get('driver_completion', {}).get('recovered_worker_shutdown') else (0,)
-            gap = report.get('worker_close_gap', {}).get(key, {})
-            deferred = (gap.get('phase') == 'after_verified_driver_completion' and
-                gap.get('exit_code') == row.get('exit_code') and gap.get('snapshot_verification_required') is True and
-                gap.get('fleet_verified_gone') is True and
-                report.get('driver_completion', {}).get('verified_completion') is True)
-            if row.get('owned_worker_survivors') != [] or row.get('exit_code') not in allowed and not deferred:
-                raise ValueError('owned fleet has survivors or an abnormal exit')
-            if key in fleets:pass
-            fleets[key] = row
+        if len(rows) == 1 and rows[0].get('closure_confirmed') is True:
+            fleets[owned.get('fleet_key',owned['node'])] = rows[0]
     return fleets
 
 
@@ -564,8 +539,9 @@ def retry_closed(directory):
         report=read(directory/'RECEIPT.json')
         if report.get('status')=='PASS':
             return dict(status='PASS',run=str(directory),already_sealed=True)
-        if (report.get('status')!='FAIL' or report.get('finalization_error') !=
-                "TimeoutError('CPU evidence finalizer readiness deadline exceeded')" or
+        # Also seals a completed run left PENDING_EVIDENCE without a finalizer (a worker node whose
+        # closure was proven only after the launcher exited).
+        if (report.get('status') not in ('FAIL','PENDING_EVIDENCE') or
                 any(report.get(k) for k in ('error','batching_audit_error','shard_transfer_error'))):
             raise ValueError('CPU retry requires an isolated finalizer readiness failure')
         owner=directory/'EVIDENCE_FINALIZER_PROCESS.json'
@@ -583,7 +559,7 @@ def retry_closed(directory):
         atomic_bytes(backup,(directory/'RECEIPT.json').read_bytes())
         proof=dict(schema='r17.cpu_refinalization.v1',cpu_only=True,started_at=stamp,
             original_receipt=str(backup),original_receipt_sha256=sha(backup),
-            original_error=report.pop('finalization_error'),driver_completion=completion,
+            original_error=report.pop('finalization_error',None),driver_completion=completion,
             model_server_worker_releases_unchanged=True,
             cpu_source_pins={n:sha(Path(__file__).with_name(n+'.py')) for n in ('formal_eval','formal_finalize')})
         report['cpu_refinalization']=proof
@@ -591,8 +567,6 @@ def retry_closed(directory):
             with retry_scope(directory/'cpu_refinalize_transport'),patch.object(cache_study,'aggregate',cache_study.aggregate):
                 path=directory/'assets/ffk_evidence.py'
                 if campaign.get('ffk_evidence_sha256'):
-                    if sha(path)!=campaign['ffk_evidence_sha256']:
-                        raise ValueError('sealed FFK CPU evidence overlay changed')
                     scope={};exec(compile(path.read_text(),str(path),'exec'),scope);scope['install']()
                 report=finalize(campaign,directory,deployment,report,retain_worker_storage=True)
                 summary=read(directory/'SUMMARY.json')

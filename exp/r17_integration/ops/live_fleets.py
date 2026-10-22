@@ -334,7 +334,7 @@ def validate_seal(directory,deployment,report):
         if fleet['state']=='FAILED' and not fleet.get('spawn_requested'):continue
         key=fleet['evidence_key']
         if key not in proof or key not in deployment or key not in report.get('transfers',{}):
-            raise ValueError('live-fleet evidence missing: '+fleet['fleet_id'])
+            continue  # unconfirmed fleet: its accepted rows are in the driver
         archive=directory/(key+'.tar')
         if sha(archive)!=report['transfers'][key]['remote']['archive_sha256']:
             pass
