@@ -81,4 +81,12 @@ R16 服务端的请求路径见 `R16_SERVING_MAP.md`（π0.5 是 PyTorch eager b
 - `serve_entry.py`：两种模式共用的改动——每条请求的到达/发出时间（`requests_<pid>.csv`）；每段单独的批上限和等待（取到第一条后先把队列里已有的全部取走，再等到等待时间）；不编码 mask 全空的第三路相机、指令只留 80 个 token（被 mask 的 token 不占位置、不参与注意力，计算等价，前缀 968 → 592）；请求线程池 512；显存上限 24 GB；阶段计时器关闭。
 - `sweep.py`：起一种模式的服务器，依次回放各个 N，停服务，`analyze.py` 算每个 N 的每秒请求数、延迟 mean/p50/p90/p99 和 500 局总时间。
 
+**10-21 夜里已确认（GPU 被正式队列占着，只在 CPU 上做）**
+- 去 token 等价：同一观测、同一噪声，去掉第三路相机和指令补齐 token 前后，10×7 动作最大差 0.005（动作幅度 ~1，bf16 换 GEMM 形状的量级）。LIBERO-10 指令（含离散状态）最长 62 个 token，留 80。
+- CPU 端到端：纯推理和完整系统两种模式都跑通（服务启动、分组预载、select_bundle、命中/未命中两条路线、请求计时、批统计、回放、统计脚本）；完整系统里旋钮关分组判命中只跑第 1 段，ir40 分组的旋钮强制未命中跑第 2、3 段。
+- 每个分组用自己的 yaml 副本（`<root>/definitions/<arm>/config.yaml`），evidence_dir 改到 `<root>/evidence/<arm>`；原件指向 R16 测试共用的证据目录，不能往那里写。
+- 服务进程不理 SIGINT（批处理线程不是守护线程），启动器改用 SIGTERM（15 s 后 SIGKILL）停服务。
+- 完整系统的方法查询（纯 CPU numpy）：生产里测到 30–65 ms 是三个常驻挤在 32 个绑定核上的争抢；单独测旋钮关分组每次查询约 8 ms（OMP=1）/ 5 ms（OMP=4），其中只为写日志的 `original_corrector_audit` 又算一遍距离，约占 2 ms。表很小（每任务 ~2,500 行 × 136 维）。
+- 粗估 GPU 上限：纯推理每条请求要跑第 2 段（Gemma-2B，592 token）约 26 ms → ~30–38 条/秒；完整系统多数请求只跑第 1 段（SigLIP 两路相机）约 3.5 ms。可选 `--compile vision,lm,expert`（两边同用），4090 空出后实测再定。
+
 数据：录制原始帧 `/nvme/weiland/openpi/cluster_sim/raw`，回放库 `/nvme/weiland/openpi/cluster_sim/library`，各次扫描 `/nvme/weiland/openpi/cluster_sim/runs/<名字>`。
