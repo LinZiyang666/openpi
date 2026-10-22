@@ -1,0 +1,58 @@
+{
+ "b16": [
+  "--batch",
+  "1:16,2:16,3:16"
+ ],
+ "b8": [
+  "--batch",
+  "1:8,2:8,3:8"
+ ],
+ "b32": [
+  "--batch",
+  "1:32,2:32,3:32"
+ ],
+ "b16_s3x2": [
+  "--batch",
+  "1:16,2:16,3:16",
+  "--workers",
+  "1:1,2:1,3:2"
+ ],
+ "b16_omp8": [
+  "--batch",
+  "1:16,2:16,3:16",
+  "--omp",
+  "8"
+ ],
+ "b16_cv": [
+  "--batch",
+  "1:16,2:16,3:16",
+  "--compile",
+  "vision"
+ ],
+ "b16_cvl": [
+  "--batch",
+  "1:16,2:16,3:16",
+  "--compile",
+  "vision,lm"
+ ],
+ "b16_cvle": [
+  "--batch",
+  "1:16,2:16,3:16",
+  "--compile",
+  "vision,lm,expert"
+ ],
+ "b16_notrim": [
+  "--batch",
+  "1:16,2:16,3:16",
+  "--text-tokens",
+  "0"
+ ],
+ "b16_cvle_cg": [
+  "--batch",
+  "1:16,2:16,3:16",
+  "--compile",
+  "vision,lm,expert",
+  "--compile-mode",
+  "reduce-overhead"
+ ]
+}

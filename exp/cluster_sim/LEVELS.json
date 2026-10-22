@@ -1,0 +1,297 @@
+{
+ "rule": "formal_a_analysis.choose: same-step (K1) pure A reference, a level passes if pure - successes <= 2; descend ir45 -> ir40 -> ir32 -> ir25 -> off, stop before the first failure",
+ "source": {
+  "levels": "/nvme/weiland/openpi/eval/fa_pi_r_f_l_q",
+  "off": "/nvme/weiland/openpi/eval/fa_pi_r_f_o_q",
+  "pure": "r16 design phase1 pi05 k1 (formal_a_analysis.vla_references)",
+  "off_arm": "fa_pi_r_f_o_q_l500_off"
+ },
+ "cell": {
+  "model": "pi05",
+  "suite": "libero_10",
+  "library": "filtered",
+  "size": 500,
+  "k": 1
+ },
+ "no_knob": false,
+ "selected": {
+  "0": "ir25",
+  "1": "off",
+  "2": "off",
+  "3": "off",
+  "4": "ir40",
+  "5": "off",
+  "6": "ir32",
+  "7": "off",
+  "8": "off",
+  "9": "off"
+ },
+ "tasks": {
+  "0": {
+   "pure": {
+    "successes": 50,
+    "n": 50
+   },
+   "ir45": {
+    "successes": 49,
+    "n": 50
+   },
+   "ir40": {
+    "successes": 49,
+    "n": 50
+   },
+   "ir32": {
+    "successes": 49,
+    "n": 50
+   },
+   "ir25": {
+    "successes": 49,
+    "n": 50
+   },
+   "off": {
+    "successes": 41,
+    "n": 50
+   }
+  },
+  "1": {
+   "pure": {
+    "successes": 50,
+    "n": 50
+   },
+   "ir45": {
+    "successes": 49,
+    "n": 50
+   },
+   "ir40": {
+    "successes": 50,
+    "n": 50
+   },
+   "ir32": {
+    "successes": 50,
+    "n": 50
+   },
+   "ir25": {
+    "successes": 49,
+    "n": 50
+   },
+   "off": {
+    "successes": 49,
+    "n": 50
+   }
+  },
+  "2": {
+   "pure": {
+    "successes": 46,
+    "n": 50
+   },
+   "ir45": {
+    "successes": 46,
+    "n": 50
+   },
+   "ir40": {
+    "successes": 48,
+    "n": 50
+   },
+   "ir32": {
+    "successes": 49,
+    "n": 50
+   },
+   "ir25": {
+    "successes": 50,
+    "n": 50
+   },
+   "off": {
+    "successes": 50,
+    "n": 50
+   }
+  },
+  "3": {
+   "pure": {
+    "successes": 47,
+    "n": 50
+   },
+   "ir45": {
+    "successes": 48,
+    "n": 50
+   },
+   "ir40": {
+    "successes": 49,
+    "n": 50
+   },
+   "ir32": {
+    "successes": 49,
+    "n": 50
+   },
+   "ir25": {
+    "successes": 50,
+    "n": 50
+   },
+   "off": {
+    "successes": 49,
+    "n": 50
+   }
+  },
+  "4": {
+   "pure": {
+    "successes": 48,
+    "n": 50
+   },
+   "ir45": {
+    "successes": 47,
+    "n": 50
+   },
+   "ir40": {
+    "successes": 47,
+    "n": 50
+   },
+   "ir32": {
+    "successes": 42,
+    "n": 50
+   },
+   "ir25": {
+    "successes": 45,
+    "n": 50
+   },
+   "off": {
+    "successes": 42,
+    "n": 50
+   }
+  },
+  "5": {
+   "pure": {
+    "successes": 49,
+    "n": 50
+   },
+   "ir45": {
+    "successes": 50,
+    "n": 50
+   },
+   "ir40": {
+    "successes": 50,
+    "n": 50
+   },
+   "ir32": {
+    "successes": 50,
+    "n": 50
+   },
+   "ir25": {
+    "successes": 50,
+    "n": 50
+   },
+   "off": {
+    "successes": 50,
+    "n": 50
+   }
+  },
+  "6": {
+   "pure": {
+    "successes": 41,
+    "n": 50
+   },
+   "ir45": {
+    "successes": 43,
+    "n": 50
+   },
+   "ir40": {
+    "successes": 44,
+    "n": 50
+   },
+   "ir32": {
+    "successes": 42,
+    "n": 50
+   },
+   "ir25": {
+    "successes": 34,
+    "n": 50
+   },
+   "off": {
+    "successes": 42,
+    "n": 50
+   }
+  },
+  "7": {
+   "pure": {
+    "successes": 50,
+    "n": 50
+   },
+   "ir45": {
+    "successes": 50,
+    "n": 50
+   },
+   "ir40": {
+    "successes": 49,
+    "n": 50
+   },
+   "ir32": {
+    "successes": 50,
+    "n": 50
+   },
+   "ir25": {
+    "successes": 50,
+    "n": 50
+   },
+   "off": {
+    "successes": 49,
+    "n": 50
+   }
+  },
+  "8": {
+   "pure": {
+    "successes": 33,
+    "n": 50
+   },
+   "ir45": {
+    "successes": 31,
+    "n": 50
+   },
+   "ir40": {
+    "successes": 37,
+    "n": 50
+   },
+   "ir32": {
+    "successes": 41,
+    "n": 50
+   },
+   "ir25": {
+    "successes": 42,
+    "n": 50
+   },
+   "off": {
+    "successes": 37,
+    "n": 50
+   }
+  },
+  "9": {
+   "pure": {
+    "successes": 45,
+    "n": 50
+   },
+   "ir45": {
+    "successes": 45,
+    "n": 50
+   },
+   "ir40": {
+    "successes": 47,
+    "n": 50
+   },
+   "ir32": {
+    "successes": 48,
+    "n": 50
+   },
+   "ir25": {
+    "successes": 45,
+    "n": 50
+   },
+   "off": {
+    "successes": 46,
+    "n": 50
+   }
+  }
+ },
+ "arms": {
+  "ir25": "fa_pi_r_f_l_q_l500_ir25",
+  "ir40": "fa_pi_r_f_l_q_l500_ir40",
+  "ir32": "fa_pi_r_f_l_q_l500_ir32",
+  "off": "fa_pi_r_f_o_q_l500_off"
+ }
+}
