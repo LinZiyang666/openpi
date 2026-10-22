@@ -140,6 +140,8 @@ owner 的常驻指令，逐字有效：
 
 **17:4x 增补**：两台 pod 17:44 又同时 OFFLINE（连续三天同一时段），两台手上批次都已收齐、队列无 pod 可接的批次 → 无损失；jupyter_watch 已退出，pod 回来（owner 重开）再挂。4090 R15 第二批 s100 档中（~18:20 完），H100 c7 ~2.7 万/4 万。
 
+**18:2x 增补：4090 交接完成**：✅ fa_gr_f_f_l_q（成功过滤库 · GR00T · LIBERO · 全步 · Q3 各档）24 档 × 500 齐（18:24:47）；原库同类 12:34 已齐 → GR00T 全步 Q3 各档两批完成。4090 18:25 空闲（5 MiB），floors 已清空，已给「openpi新实验」发交接确认（空闲时刻 + 剩余进程：H100 v08_1c7 driver/启动器 ~0.33 核 1.5 GB、链脚本、巡检）。⛔ 之后不再往 4090 排批次，本机不跑重 CPU 活。H100 只剩 fa_ls_v08_1c7（36,5xx/40,000，~19:00 完）；两台 pod 离线且空闲。
+
 今天的关键修复（全推 origin Ziyang）：
 - **Fast-WAM 编码表**（cd8b73d5，owner 想法）：T5 不进 GPU/CPU；H100 上 batch 2–16 与 batch-1 逐位相同；副本 27→~15 GB；表在 H100 `/home/exouser/fw_text_tables/table_h100.pt`、本机 `/nvme/weiland/openpi/fw_text_tables/`、pod `/data/mw_finetune/fastwam_text_tables/`（NFS 绑定）。campaign `fastwam_text_table` + longseg runtime_fix 覆盖 4 个文件。v02_b、mc1、v08_1、fw_r_f_mc2 已改（预算 44 GiB、server_threads 4）。
 - **pod 跑 Fast-WAM**（287b6fc4）：setup.sh fastwam_nfs（NFS 共享，⚠ 两台不要并发 setup）；pod_copy 支持 H100 Fast-WAM（R1、B8、15.5 GiB、编码表）；Fast-WAM 跨卡不等价 → pod 批次配 pod 同卡纯推理参照。
