@@ -36,12 +36,18 @@ def execution_host(c,root):
     from exp.offline_search.rounds.r17.filter_failed_knob.common import read
     from .io_budget import dump
     alias=h100_alias()
-    if alias is None or c['server_node']!='h100':
-        check_execution_host(c);return c
+    if c['server_node']!='h100':
+        return c
+    if alias is None:
+        # A job built for an alias machine (e.g. h100-temp) moves back to the H100 itself: same rebind, H100 lane driver.
+        if c.get('execution_host','h100')=='h100':
+            return c
+        from exp.r17_integration.ops.formal_eval import H100_IP
+        alias=dict(node='h100',host=H100_IP,driver_port=23199,public_port=None)
+    elif alias['driver_port']==23199:raise ValueError('R17_DRIVER_PORT must differ from the H100 lane driver 23199')
     if (c.get('execution_host'),c['driver_port'],c['endpoint_host'])==(alias['node'],alias['driver_port'],alias['host']) and (
             not alias['public_port'] or c['public_port']==alias['public_port']):
         return c
-    if alias['driver_port']==23199:raise ValueError('R17_DRIVER_PORT must differ from the H100 lane driver 23199')
     root=Path(root)
     if any((root/n).exists() for n in ('PREPARED.json','LAUNCH.json','RECEIPT.json')):
         raise ValueError('prepared for '+c.get('execution_host','h100')+'; reset it before moving it to '+alias['node'])

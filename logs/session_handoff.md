@@ -52,7 +52,7 @@ owner 的常驻指令，逐字有效：
 
 
 
-## 1. 现在在哪（2026-10-21 11:5x CDT；**看守会话（本会话 35f2869b 的分支，只看守实验）最先读「10-22 18:3x 看守会话总状态（compact 前）」；新实验会话读 exp/cluster_sim/HANDOFF.md 与「10-21 22:xx 新实验：集群部署模拟」；之后读「10-21 22:xx 新实验：集群部署模拟」，再读「10-21 19:5x 增补（compact 前总状态）」，再读「10-21 19:4x 增补」，再读「10-21 18:3x 增补」，再读「10-21 17:3x 增补」，再读「10-21 15:0x 增补」，再读「10-21 14:0x 增补」，再读「10-21 13:2x 增补」，再读「10-21 12:0x 增补」，再读「10-21 11:5x 增补（compact 前总状态）」，再读「10-21 00:3x 增补」，再读「10-21 00:0x 增补（compact 前总状态）」，再读「22:5x」「22:1x」「21:4x」增补，再读「21:3x 增补（compact 前总状态）」**，再读 20:5x 旧门事故、其余增补与 09:4x 总状态，再读其后各增补（09:29 → 21:2x 倒序）与 10-19 21:0x 总状态；10-14 及更早只作背景）
+## 1. 现在在哪（2026-10-21 11:5x CDT；**看守会话（本会话 35f2869b 的分支，只看守实验）最先读「10-22 19:1x 看守会话增补」，再读「10-22 18:3x 看守会话总状态（compact 前）」；新实验会话读 exp/cluster_sim/HANDOFF.md 与「10-21 22:xx 新实验：集群部署模拟」；之后读「10-21 22:xx 新实验：集群部署模拟」，再读「10-21 19:5x 增补（compact 前总状态）」，再读「10-21 19:4x 增补」，再读「10-21 18:3x 增补」，再读「10-21 17:3x 增补」，再读「10-21 15:0x 增补」，再读「10-21 14:0x 增补」，再读「10-21 13:2x 增补」，再读「10-21 12:0x 增补」，再读「10-21 11:5x 增补（compact 前总状态）」，再读「10-21 00:3x 增补」，再读「10-21 00:0x 增补（compact 前总状态）」，再读「22:5x」「22:1x」「21:4x」增补，再读「21:3x 增补（compact 前总状态）」**，再读 20:5x 旧门事故、其余增补与 09:4x 总状态，再读其后各增补（09:29 → 21:2x 倒序）与 10-19 21:0x 总状态；10-14 及更早只作背景）
 
 ### ★★★★★★★★★★★★★★★★★★★★★★★★ 2026-10-20 09:4x CDT 总状态（compact 后最先读这块）
 
@@ -64,6 +64,31 @@ owner 的常驻指令，逐字有效：
 - 处置：09:56 按 PID SIGSTOP 复制 rsync（3726105/3726106/3729764）和两个 governor（3343372/3951564）。效果（同一时刻对比）：Cosmos 15→60 局/分、pod2 DP 85→250、v11_0 50→125（v11_0 同时 floor 40→70）。⛔ **复制保持暂停**；剩 ~190 GB（eval 533/~720 GB）以后找没有 driver 在跑、或可接受的短窗口一次性不限速跑完，不要再长时间节流慢跑。恢复命令：`kill -CONT 3343372 3951564 3726105 3726106 3729764`。记忆 reference-weilandserver-data 已加这条。
 - floors 现 `{"fa_ls_dp_f_f_m_j": 32, "fa_ls_v11_0": 70}`。
 - 在调研（opus 只读）：H100 队列 ~88 h（4 批 FW MT50 旋钮下降 ~42 h）vs 4090 ~22 h；旋钮下降批次 IR 离线算、可换卡 → 考虑 FW/GR00T MT50 旋钮下降挪 4090、DP LIBERO 旋钮下降挪 pod（需装 openpi 环境）。结论回来前不动队列。
+
+**10-22 19:1x 看守会话增补（先读这块，再读下面 18:3x 总状态）**
+- 收尾：
+  - c7 19:08 完，40,000 局，回执 PENDING_EVIDENCE，证据审计在跑；后台 bd9sk62qa 等它封账。
+  - -02 批 fa_ls_fw_r_f_m_j 已封 PASS（9f8f071b/35ef966e 拔掉封账准入：closed_proof 不再要求每台都证明关闭；retry_closed 收 PENDING_EVIDENCE；服务端快照/批处理审计拿不到只记 server_snapshot_error / batching_audit_incomplete）。
+  - pod 容器 17:4x 重启清空了 /tmp/zl_r17/data；19:0x 已在两台 pod 重跑 setup.sh fastwam_nfs + groot（NFS 大件都在，秒过）。DP 在 pod 上还要从 H100 临时 rsyncd 拉约 18 GB，用到再拉。
+  - timan1 已恢复（load 25）。
+- 对账（$CLAUDE_JOB_DIR/tmp/completeness_audit.md）：
+  - 真缺口只有 fa_ls_v07_0（原库 · Fast-WAM · LIBERO · 全步 · 缓存变体，32 局，h100-temp 结束时漏排）：campaign 改用编码表 + h100 本机 worker（原件 .before_texttable_1022）；ports.execution_host 加「别名机器 → H100」改绑；链 h100m43 在跑。
+  - 14 个末段数据完整但回执未封，等 SR/IR 分析跑完后用 formal_finalize --retry-closed 逐个补封。
+  - 注意：v01_0 / v02_s / v09_1 实为原库（unfiltered=true）。
+- ⛔ owner 新实验（10-22 18:4x）：「长执行段关」旋钮下降，只做成功过滤库，全步和减步各一组，每个库大小。
+  - 要跑：LIBERO 的 π0.5、GR00T、DP、Fast-WAM；MetaWorld 的 GR00T、DP、Fast-WAM。
+  - 不跑：Cosmos · LIBERO 和 π0.5 · MetaWorld（执行步数等于规划步数，没有长执行段这一维）。
+  - 关 = 每次决策只执行 5 步：
+    - R15/R16 去掉 --os-blind --os-policy-tail --os-policy-tail-blocks 1，同 cg/crg；
+    - R17 改 commit_horizon 5，并换同库现成的 C5 拟合（MT50 fit_keep_success_1015_norefit_*，LIBERO ff1015_*_li_* 的 C5 fit）。
+  - 不重新标定：档位沿用长执行段开各组的周期，降出来 IR 是多少就是多少。
+  - ⛔ 停滞门只用 Q3：R17 用 stall_only + C5 原件（exec_steps 5），不用 q3_decision1018；R15/R16 用 q3_port 的 stall_only。绝不碰旧门。上线后查决策记录。
+  - 不用 4090；服务上 H100 和两台 pod（pod 只跑 MetaWorld），worker 用 A100/timan107/timan1。
+  - 两个子代理在建：
+    - R17 → rounds/r17/longseg_off_1022/HANDBACK.md，名字 fa_lo_*；
+    - R15/R16 → filter_failed_knob/longseg_off_1022/HANDBACK.md。
+  - 都只建不跑；我审完再排链。
+- owner 19:1x 问「每组的 sr 和 ir 都算出来了吗」：没有全算（longseg RESULTS 是 10-21 13:21 的，只有 LIBERO DP/FW 减步是最终数）。子代理按最终链重算全部，限 8 进程、nice，输出 $CLAUDE_JOB_DIR/tmp/results_1022.md，不覆盖旧 RESULTS.json。
 
 **10-22 18:3x 看守会话总状态（compact 前；看守会话先读这块，再往下读「10-21 19:5x 增补」里按时间倒插的 10-22 各增补（12:5x→00:1x），最后读 10-21 各块）**
 
