@@ -38,10 +38,9 @@ def load_entry(group,entry,reader,*,freeze=None):
     fit=row['plugin_args'][row['plugin_args'].index('--os-fit-artifact')+1]
     a.require(a.sha(reader.read(fit))==entry['fit_sha256'],'Changed resident fit')
     args=row['plugin_args']
+    # Long execution segment on/off and the Q3 stall_only judge are per-batch settings (guard_only removed 10-20).
     a.require(row['replan_steps']==5 and row['full_model'] and row['recording'] is False and
-              args[args.index('--os-rollout-seed')+1]=='2026101401' and '--os-blind' in args and
-              '--os-policy-tail' in args and args[args.index('--os-policy-tail-blocks')+1]=='1' and
-              args[args.index('--os-judge')+1]=='guard_only','Changed client/policy protocol')
+              args[args.index('--os-rollout-seed')+1]=='2026101401','Changed client/policy protocol')
     cfg=yaml.safe_load(reader.read(row['yaml']))
     a.require(cfg['miss']['num_steps']==k,'Wrong resident K')
     manifest=json.loads(reader.read(row['manifest']))

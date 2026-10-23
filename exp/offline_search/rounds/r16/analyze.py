@@ -77,10 +77,9 @@ def load(record,name,expected,pool,k,reader,*,freeze=None):
     require(row['episodes']==10*width and row['replan_steps']==5 and row['full_model'] and not row['recording'],
             'Changed horizon or model settings')
     args = row['plugin_args']
-    require('--os-blind' in args and '--os-policy-tail' in args and
-            args[args.index('--os-policy-tail-blocks')+1]=='1' and
-            args[args.index('--os-rollout-seed')+1]=='2026101401','Changed policy-tail or seed')
-    require(args[args.index('--os-judge')+1]=='guard_only','Changed judge')
+    # The long execution segment (--os-blind --os-policy-tail) is a per-batch setting and the stall judge is
+    # Q3 stall_only (guard_only was removed, owner 10-20); only the rollout seed is part of the protocol.
+    require(args[args.index('--os-rollout-seed')+1]=='2026101401','Changed seed')
     manifest = reader.read(row['manifest']); md = json.loads(manifest)
     require(sorted(map(tuple,md['pairs'] if isinstance(md,dict) else md))==expected,'Wrong manifest identities')
     fit = Path(args[args.index('--os-fit-artifact')+1]); digest = seal['fit_sha256'][str(fit)]

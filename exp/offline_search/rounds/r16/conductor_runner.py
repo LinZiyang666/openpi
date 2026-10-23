@@ -17,6 +17,9 @@ from .conductor import read_group, run_driver
 
 LOCAL_ISLAND = '/data/mw_finetune/qualification/r16_local_island'  # same worker.tar, local libero_sim config
 SERVER_TREE = Path('/home/weiland/projects/openpi_r16_k1ref_server')  # frozen R16 server checkout (k1ref/snapshot.py)
+# Where the residents run: the 4090 behind ziyanglin.com by default; a wrapper (longseg_off_1022/runner.py) sets the H100.
+ENDPOINT_HOST = 'ziyanglin.com'  # address the driver and the worker agents dial for the residents
+SERVER_NODE = 'local'  # the residents' machine for the central scheduler
 LOOPBACK = REPO/'exp/offline_search/rounds/r17/filter_failed_knob/r16_local/sitecustomize.py'
 # A group's worker agents: the island's timan107 (shared class) and the 4090 itself (local class, its servers).
 AGENTS = {'timan107': dict(python='/scratch/zixuans8/openpi/.venv/bin/python', home='/home/zixuans8',
@@ -191,7 +194,7 @@ def _run(args):
     islands=dict(timan107=remote_repo,timan1=remote_repo,a100=LOCAL_ISLAND,local=LOCAL_ISLAND)
     # The 4090 has no VRAM left for renderers once the residents fill it (pi05 R3: 23 of 24 GB).
     if getattr(args,'no_local_workers',False):del islands['local']
-    campaign=legacy.campaign(root.name,'local',tuple(islands))
+    campaign=legacy.campaign(root.name,SERVER_NODE,tuple(islands))
     legacy.install(root,islands,[(HERE/'conductor.py','exp/offline_search/rounds/r16/conductor.py'),
                                  (LOOPBACK,'loopback/sitecustomize.py')])
     require(campaign,root)
@@ -220,7 +223,7 @@ def _run(args):
                 time.sleep(1)
             # Models start one at a time; startup peaks do not overlap.
     finally:local_server.command,local_server.TREE=BASE_COMMAND,tree
-    endpoints=','.join(f'ziyanglin.com:{s["port"]}'+('='+s['suite'] if group['model']=='groot' else '') for s in specs)
+    endpoints=','.join(f'{ENDPOINT_HOST}:{s["port"]}'+('='+s['suite'] if group['model']=='groot' else '') for s in specs)
     token=uuid.uuid4().hex
     def renew(active):
         for node,a in agents.items():
