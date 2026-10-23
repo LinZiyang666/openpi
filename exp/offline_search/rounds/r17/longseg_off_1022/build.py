@@ -153,6 +153,7 @@ def make_edit(model, benchmark, items, selection_on, deploy=None, record=None):
             settings_changed = {k: [r[k], v] for k, v in fit_settings.items() if r[k] != v}
             r.update(fit_settings)
             register_metadata(Path(c['filter_failed_source']), doc)
+            r['fit_identity'] = None  # the C10 template's; validate_recipe compares a present one
             r['fit_identity'] = fit_identity(config_from_dict(doc))
             config = config_from_dict(doc)
             identity = bundle_identity(config)

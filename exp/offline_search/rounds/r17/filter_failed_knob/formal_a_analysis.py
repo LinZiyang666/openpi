@@ -83,7 +83,8 @@ def vla_references(model,mode):
 def load_r17(job):
     from exp.offline_search.rounds.r17.filter_failed_knob.common import continued_lanes
     cells,_=c.load_knob(continued_lanes([Path(job['run'])]),'A') if not job.get('reuse_only') else ({},{})
-    result={(s,n):arms for (m,s,n),arms in cells.items()}
+    # (suite, size), or (suite, size, tag) for a seeds_1023 library (tag = seed and segment).
+    result={cell[1:]:arms for cell,arms in cells.items()}
     if job.get('off_reuse'):
         for lane in continued_lanes([Path(job['off_reuse'])]):
             sources=c.cache.Sources()

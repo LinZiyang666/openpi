@@ -75,6 +75,16 @@ def merge(target, incoming):
             target[key] = episode
 
 
+def knob_cell(model, suite, size, group, base):
+    """(cell, level). seeds_1023 groups <base>_<tag>_<level> carry their library seed and segment
+    (tag, e.g. x3c10); the cell is then (model, suite, size, tag), otherwise (model, suite, size)."""
+    prefix, _, level = group.rpartition("_")
+    head, _, tag = prefix.partition("_")
+    if head != base or level not in LEVELS:
+        raise ValueError(f"unknown knob group {group}")
+    return (model, suite, size) + ((tag,) if tag else ()), level
+
+
 def load_knob(lanes, pool):
     """Return observed levels and planned task levels, including empty cells."""
     cells, planned = {}, {}
@@ -96,26 +106,26 @@ def load_knob(lanes, pool):
                 group = extra.get("cache_group", "control")
                 if group == "control":
                     continue
-                prefix, _, level = group.rpartition("_")
-                if prefix != base or level not in LEVELS:
-                    raise ValueError(f"{lane}: unknown knob group {group}")
                 key = cache.canonical(task)
                 if extra.get("init_pool", "A") != pool or not 0 <= key[2] < limit:
                     raise ValueError(f"{lane}: expected pool {pool}, init 0..{limit-1}: {key}")
                 size = extra["library_size"]
                 if size not in SIZES:
                     raise ValueError(f"{lane}: unsupported library size {size}")
-                cell = model, key[0], size
+                try:
+                    cell, level = knob_cell(model, key[0], size, group, base)
+                except ValueError as exc:
+                    raise ValueError(f"{lane}: {exc}") from None
                 cells.setdefault(cell, {}).setdefault(level, {})
                 planned.setdefault(cell, {}).setdefault(key[1], set()).add(level)
         for (model, size, group, suite), result in loaded.items():
             if group == "control":
                 continue
-            level = group.rpartition("_")[2]
+            cell, level = knob_cell(model, suite, size, group, base)
             if level == "pure":
                 for episode in result["data"].values():
                     episode["pure"] = True
-            merge(cells[model, suite, size][level], result["data"])
+            merge(cells[cell][level], result["data"])
     if not cells:
         raise ValueError("No knob tasks in the supplied lanes")
     return cells, planned

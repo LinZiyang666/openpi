@@ -55,13 +55,16 @@ def inventory():
     return dict(records=records,artifacts=artifacts,fits=fit_records)
 
 
-def labels(record):
-    """Decode just task/episode/step arrays; leave weights/features/actions cold."""
+def labels(record,kept=None):
+    """Decode just task/episode/step arrays; leave weights/features/actions cold.
+
+    kept: the library's successful episode ids; by default those of record's seed (seeds_1023) or the original one."""
     root=Path(record['fit']);ready=read(root/'READY.json')
     fields=dict(ready['tree']['mapping'])
     with (root/'fit.npz').open('rb') as stream,np.load(stream,allow_pickle=False) as archive:
         data={name:archive[fields[name]['array']] for name in ('task','episode','step')}
-    data['success']=np.isin(data['episode'],cells()[record['model'],record['suite'],record['size']]['kept_episode_ids'])
+    if kept is None:kept=cells(record.get('seed'))[record['model'],record['suite'],record['size']]['kept_episode_ids']
+    data['success']=np.isin(data['episode'],kept)
     return data
 
 
@@ -94,10 +97,10 @@ def q3_metrics(model):
         scope='Original successful-library LOEO empirical quantiles; no online FAR/conformal guarantee')
 
 
-def fit_q3(record,data):
+def fit_q3(record,data,work=WORK):
     from exp.offline_search.rounds.r06.ideation_Q3.stall.stall import StallModel,_digest
     source=Path(record['old_stall']);destination=source.with_name(source.name+'_decision1018')
-    metrics_file=WORK/'q3'/f'{record["old_stall_digest"]}.json'
+    metrics_file=Path(work)/'q3'/f'{record["old_stall_digest"]}.json'
     if metrics_file.exists():return read(metrics_file)
     old=StallModel.load(source)
     # Check the source success labels against the original empirical artifact.

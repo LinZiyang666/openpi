@@ -2,8 +2,8 @@
 
 Wired as longseg_1017.workflow: after the OFF batch completes, each cell is classified against
 same-step pure inference on the same GPU (formal_a_queue.classify, unchanged); only cells that do not
-reach it get the k50..k10 levels. Every lane serves on the H100. Cells whose library has no C5 fit
-(size 500: only C10 fits exist, and nothing is refit) are not built.
+reach it get the k50..k10 levels. Every lane serves on the H100. A cell whose library has no C5 fit
+is an error (fit500.py made the size-500 ones).
 
     python -m exp.offline_search.rounds.r17.longseg_off_1022.workflow initialize
     python -m exp.offline_search.rounds.r17.longseg_off_1022.workflow {build-levels,prepare,launch} --name fa_lo_dp_r_f_l_l
@@ -76,8 +76,10 @@ def initialize():
             groups = read(run/'assets/CACHE_STUDY.json')['groups']
             stores = {(g['suite'], g['library_size']): yaml.safe_load((run/'assets'/g['file']).read_text())['recipe']['store_digest']
                       for g in groups}
-            items = [(g, run/'assets'/g['file'], None) for g in groups if stores[g['suite'], g['library_size']] in refs]
             missing = sorted(cell for cell, store in stores.items() if store not in refs)
+            if missing:  # fit500.py made the size-500 C5 fits; a cell is never dropped silently
+                raise ValueError(f'{on}: no C5 fit for {missing}; run longseg_off_1022.fit500 first')
+            items = [(g, run/'assets'/g['file'], None) for g in groups]
             n = name(model, mode, 'off')
             existing = {u['name']: u for u in read(INDEX)['units']} if INDEX.exists() else {}
             if n not in existing:

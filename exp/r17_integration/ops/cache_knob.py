@@ -177,10 +177,22 @@ def build(output, *, gaps=GAPS, model=None, table=None, miss_steps='full', parti
     return output/'STUDY.json'
 
 
-def calibrate(output, *, sources, model=None, miss_steps='full', sizes=None):
-    """The existing R17 B-only proxy calibration (vision=0, miss=1)."""
+def schedule_levels(fit, view, binding, ordered_tasks):
+    """One selected library's B-only LOEO replay solved at each level (vision=0, miss=1)."""
     from types import SimpleNamespace
     from exp.r17_integration.common.ir import calibrate_periodic, library_schedule
+    config = SimpleNamespace(adapter_binding=binding,
+        recipe=SimpleNamespace(ordered_tasks=tuple(ordered_tasks), guard=False))
+    replay = library_schedule(fit,view,config)
+    levels = {}
+    for target in (.5,.4,.3,.2,.1):
+        solved = calibrate_periodic(target,replay,dict(vision=0,miss=1))
+        levels[str(target)] = dict(gap=solved['setting'], pred=solved['pred_IR_rounded'], status=solved['solve_status'])
+    return levels
+
+
+def calibrate(output, *, sources, model=None, miss_steps='full', sizes=None):
+    """The existing R17 B-only proxy calibration (vision=0, miss=1)."""
     from exp.r17_integration.search.fit import load_fitted_recipe
     from exp.r17_integration.search.teacher_library import RowIndexStore
     rows = {}
@@ -201,15 +213,10 @@ def calibrate(output, *, sources, model=None, miss_steps='full', sizes=None):
             parent = study.read(Path(row['library'])/'READY.json')
             fit = load_fitted_recipe(r['fitted_path'], expected_binding=parent['binding'])
             view = RowIndexStore(study.view_path(row))
-            config = SimpleNamespace(adapter_binding=binding,
-                recipe=SimpleNamespace(ordered_tasks=tuple(r['ordered_tasks']), guard=False))
-            replay = library_schedule(fit,view,config)
             entry = dict(model=bundle,suite=suite,size=size,commit=fit.commit,miss_steps=miss_steps,
                 num_steps=binding['num_steps'],
-                calibration_scope='selected B library LOEO; model-call proxy, vision=0/miss=1',levels={})
-            for target in (.5,.4,.3,.2,.1):
-                solved = calibrate_periodic(target,replay,dict(vision=0,miss=1))
-                entry['levels'][str(target)] = dict(gap=solved['setting'], pred=solved['pred_IR_rounded'], status=solved['solve_status'])
+                calibration_scope='selected B library LOEO; model-call proxy, vision=0/miss=1',
+                levels=schedule_levels(fit,view,binding,r['ordered_tasks']))
             stream.write(json.dumps(entry)+'\n');stream.flush()
     return output
 

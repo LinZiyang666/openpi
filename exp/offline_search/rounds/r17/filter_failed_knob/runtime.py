@@ -6,7 +6,14 @@ still used to attest/load the unchanged Q3 metric; only retrieval sees the view.
 from __future__ import annotations
 
 
-def install(selection):
+def selection_file(recipe):
+    """The kept library episodes of one fit, beside it: <fit>/../selection/<fit digest>.json (seeds_1023)."""
+    from pathlib import Path
+    return Path(recipe.fitted_path).parent/'selection'/(recipe.fitted_digest+'.json')
+
+
+def install(selection, filtered=None):
+    import json
     import numpy as np
     import inspect
     import textwrap
@@ -16,12 +23,21 @@ def install(selection):
 
     native_fit, native_stall = cr.verified_fit, cr.load_stall
     native_query, native_look = cr.CacheStudyRecipe.query, cr.CacheStudyRecipe.force_look
+    filtered = bool(selection) if filtered is None else filtered
 
     def verified(config, binding):
         original = native_fit(config, binding)
-        kept = selection.get(config.recipe.fitted_digest)
-        if kept is None or config.recipe.periodic_gap == 0:
+        if not filtered or config.recipe.periodic_gap == 0:
             return original
+        # Read at each fit load, so YAMLs registered later on a live resident filter too.
+        kept, source = selection.get(config.recipe.fitted_digest), 'campaign'
+        if kept is None:
+            path = selection_file(config.recipe)
+            if not path.exists():
+                raise ValueError('success-filtered campaign: no kept-episode selection for fit '+
+                                 config.recipe.fitted_digest+' ('+str(path)+')')
+            kept, source = json.loads(path.read_text())['kept_episode_ids'], str(path)
+        print(f'ffk selection fit={config.recipe.fitted_digest} kept={len(kept)} from={source}', flush=True)
         selected = r17_candidates(original, kept)
         selected._ffk_original_fit = original
         return selected
@@ -79,7 +95,8 @@ def main():
     p.add_argument('--cuda-graph', action='store_true')
     args = p.parse_args()
     campaign = json.loads(Path(args.campaign).read_text())
-    install(campaign['filter_failed_knob']['selection'])
+    meta = campaign['filter_failed_knob']
+    install(meta['selection'], meta.get('arm', 'filtered' if meta['selection'] else 'unfiltered') == 'filtered')
     if campaign.get('ffk_dp_capacity_bridge'):
         from exp.offline_search.rounds.r17.filter_failed.server_cli import bridge
         from exp.r17_integration.models.dp import formal_batch_server

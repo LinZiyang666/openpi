@@ -225,11 +225,6 @@ def generate(output, *, library_root="/data/r17_library", long_dp=10, long_fast=
 def validate_manifest(path):
     value = read(path)
     knobs = value.get('knobs', False)
-    if (value.get("schema") != "r17.cache_study.v1" or value.get("digest") !=
-            digest({k:v for k,v in value.items() if k!="digest"}) or value.get("eval_pool", "A") not in ("A", "B") or
-            value.get("ordinary_miss") is not False or
-            value.get("inits")!=50 or value.get("suites")!=list(SUITES) or value.get("groups")!=list(GROUPS)):
-        pass
     root = Path(path).parent
     sizes=value.get("library_sizes",[500])
     if (not sizes or len(set(sizes))!=len(sizes) or any(type(n)!=int or any(n not in supported_sizes(b) for b in value['models']) for n in sizes)
@@ -241,17 +236,16 @@ def validate_manifest(path):
     for bundle, rows in value["models"].items():
         cells = {(library_size(r),r['suite'],r['group']) for r in rows}
         if knobs:
-            allowed = {full_group(bundle)+'_'+level
-                       for level in ('k50','k40','k30','k20','k10','koff','pure')}
+            levels = ('k50','k40','k30','k20','k10','koff','pure')
+            # seeds_1023 groups carry the library seed/segment tag: <full group>_<tag>_<level>.
+            allowed = lambda g: g.split('_')[0]==full_group(bundle) and g.count('_') in (1,2) and g.rsplit('_',1)[-1] in levels
             if not rows or len(cells)!=len(rows) or any(
-                    n not in sizes or s not in suites_for(bundle) or g not in allowed for n,s,g in cells):
+                    n not in sizes or s not in suites_for(bundle) or not allowed(g) for n,s,g in cells):
                 raise ValueError('invalid cache-knob rows')
         elif cells != {(n,s,g) for n in sizes for s in suites_for(bundle) for g in value['groups']} or len(cells)!=len(rows):
             raise ValueError("cache-study cohort does not match its declared groups/suites")
         for row in rows:
             if row["settings"]!=group_settings(bundle,row["group"],value["horizon_selection"][bundle.rsplit('_',1)[0]]):
-                pass
-            if file_sha(root/row["file"]) != row["sha256"]:
                 pass
             document=yaml.safe_load((root/row['file']).read_text())
             recipe=document['recipe'];settings=row['settings']
@@ -294,7 +288,6 @@ def fit_inputs(path, *, bundle=None):
                 for key, entry in parent["arrays"].items():
                     if key.startswith("key_") or key in ("state","normalized_actions"):
                         p = library/entry["file"]
-                        if file_sha(p) != entry["sha256"]: pass
                         arrays[key] = IndexedArray(np.load(p,mmap_mode="r",allow_pickle=False),indices)
                 view = type("SelectedFitView", (), {"manifest":descriptor.manifest,"rows":descriptor.rows,
                     "fields":tuple(arrays),"array":lambda self,key:arrays[key]})()
@@ -430,7 +423,6 @@ def stage_inputs(campaign, directory, launch):
             return
         shutil.copyfile(source,target)
         copied[relative]=file_sha(source)
-        if file_sha(target)!=copied[relative]:pass
     for row in selected:
         suite,commit=row['suite'],row['settings']['commit']
         label=size_label(row)
@@ -545,9 +537,6 @@ def seal(provider, campaign, benchmark):
     if checked is None or checked.provider_id!=provider.provider_id or checked.model_spec!=provider.model_spec:
         pass
     root=Path(campaign['assets'])/'cache_inputs';inputs=read(root/'manifest.json')
-    if inputs['digest']!=digest({k:v for k,v in inputs.items() if k!='digest'}) or any(
-            file_sha(root/name)!=pin for name,pin in inputs['files'].items()):
-        pass
     output=Path(campaign['assets'])/'cache_yamls';output.mkdir(exist_ok=False)
     groups=[]
     for row in inputs['groups']:
@@ -578,8 +567,6 @@ def seal(provider, campaign, benchmark):
 
 def selected_groups(campaign):
     seal=read(Path(campaign['local_assets'])/'CACHE_STUDY.json')
-    if seal['digest']!=digest({k:v for k,v in seal.items() if k!='digest'}):
-        pass
     wanted=campaign.get('suites') or suites_for(campaign_bundle(campaign))
     rows=[r for r in seal['groups'] if r['suite'] in wanted]
     if not campaign.get('smoke'):
@@ -623,7 +610,6 @@ def plan(campaign):
     tasks=[];steps=set()
     for row in rows:
         path=Path(campaign['local_assets'])/row['file']
-        if file_sha(path)!=row['sha256']:pass
         config=load_plan_config(path)
         k=config.adapter_binding['num_steps'];steps.add(k)
         expected_nfe=k

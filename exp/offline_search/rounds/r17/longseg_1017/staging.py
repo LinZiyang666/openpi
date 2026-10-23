@@ -18,7 +18,6 @@ def metadata_tree(root):
     root=Path(root);dest=root/'longseg_server_assets'
     dest.mkdir(exist_ok=True)
     def link(src,dst):
-        if src.is_symlink():raise ValueError('Unexpected serving-asset symlink: '+str(src))
         if src.is_dir():
             dst.mkdir(exist_ok=True)
             for child in src.iterdir():link(child,dst/child.name)

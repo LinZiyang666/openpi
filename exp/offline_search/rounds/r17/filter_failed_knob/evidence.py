@@ -25,7 +25,8 @@ def empty_uids(directory):
         if kept is None or group.get('periodic_gap')==0:continue
         key=suite,ex['library_size'],group['fit_digest']
         if key not in cohorts:
-            path=meta['cells'][f'{suite}/{ex["library_size"]}']['labels'].split('#')[0]
+            # Seeded libraries (seeds_1023) carry their own labels on the group row.
+            path=(group.get('labels') or meta['cells'][f'{suite}/{ex["library_size"]}']['labels']).split('#')[0]
             if path not in labels:labels[path]=read(path)['metadata']['episodes']
             ids=set(kept);by_task={}
             for episode in labels[path]:

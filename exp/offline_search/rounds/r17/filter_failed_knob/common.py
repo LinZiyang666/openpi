@@ -39,7 +39,11 @@ def sha(path):
     return h.hexdigest()
 
 
-def cells():
+def cells(seed=None):
+    """(model, suite, size) -> success-filter cell of the original library seed, or of a seeds_1023 seed."""
+    if seed is not None:
+        from exp.offline_search.rounds.r17.seeds_1023.inputs import cells as seeded
+        return seeded(seed)
     return {(c['model'], c['suite'], c['size']): c for c in read(HERE.parent/'filter_failed/CELLS.json')['cells']}
 
 

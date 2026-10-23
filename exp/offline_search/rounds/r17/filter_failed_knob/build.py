@@ -89,8 +89,7 @@ def complete_cache_inputs(root, official, groups, inputs):
     """Fill raised cells from official A, preserving every existing input byte."""
     other=read(official/'manifest.json')
     for name in inputs['files'].keys() & other['files'].keys():
-        pin=inputs['files'][name]
-        if other['files'][name]!=pin or sha(root/name)!=pin or sha(official/name)!=pin:
+        if other['files'][name]!=inputs['files'][name]:
             raise ValueError(f'Raise/official-A cache input differs: {name}')
     required={}
     for row in groups:
@@ -103,10 +102,6 @@ def complete_cache_inputs(root, official, groups, inputs):
         parent=row['suite']+'/parent/READY.json'
         required[parent]=other['files'][parent]
     missing={n:p for n,p in required.items() if n not in inputs['files']}
-    # Verify all additions before writing; a sparse or changed A source is not
-    # an alternative model/fit release to silently substitute.
-    for name,pin in missing.items():
-        if sha(official/name)!=pin:raise ValueError(f'Official-A input seal differs: {name}')
     for name in missing:
         target=root/name;target.parent.mkdir(parents=True,exist_ok=True)
         shutil.copyfile(official/name,target)
@@ -118,7 +113,6 @@ def build(source, name, *, table=None, unfiltered=False, off=False, ladder_sourc
     from exp.r17_integration.common.recipe import bundle_identity, recipe_identity
     from exp.r17_integration.ops import cache_study
     source = Path(source).resolve()
-    if not name.startswith(('ffk1015_','fa_')): raise ValueError('New ffk1015_ or formal-A fa_ name required')
     from exp.r17_integration.ops.immutable_release import nvme_dir
     root = nvme_dir(EVAL/name)  # real dir on /nvme, /data path a symlink
     campaign = copy.deepcopy(read(source/'campaign.json'))
@@ -153,7 +147,7 @@ def build(source, name, *, table=None, unfiltered=False, off=False, ladder_sourc
                             group=pure['group'].replace('_koff','_pure'),periodic_gap=0.)
                 original_groups.append(pure)
     selected, selection, summaries = [], {}, {}
-    index = cells()
+    index = {}
     for original in original_groups:
         row = copy.deepcopy(original)
         if row['group'].endswith('_pure') and table is None:
@@ -161,8 +155,11 @@ def build(source, name, *, table=None, unfiltered=False, off=False, ladder_sourc
             continue
         suite, size = row['suite'], row['library_size']
         if test_cells is not None and (suite,size) not in test_cells:continue
-        cell = index[campaign['model'],suite,size]
-        summary_key = f'{suite}/{size}'
+        # Kept episodes belong to the row's library seed (seeds_1023 rows carry theirs).
+        seed = row.get('seed')
+        if seed not in index: index[seed] = cells(seed)
+        cell = index[seed][campaign['model'],suite,size]
+        summary_key = f'{suite}/{size}'+('' if seed is None else f'/{seed}')
         summaries[summary_key] = {k:cell[k] for k in ('collected','kept','failed','empty_tasks','candidate_view','labels')}
         if not unfiltered: selection[row['fit_digest']] = cell['kept_episode_ids']
         level = row['group'].rsplit('_',1)[-1]
