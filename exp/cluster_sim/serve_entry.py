@@ -1,18 +1,27 @@
 """Single-copy π0.5 server process for the cluster simulation (run by serve.py inside the R16 server tree).
 
 Runs $CLUSTER_SIM_MODULE (the R16 resident for the cache system, scripts.serve_policy --cache for pure inference)
-unchanged, after five process-local changes that both modes share:
+unchanged, after these process-local changes (1-6 in both modes, 7 in cache mode only):
 
 1. Request timing: every frame's arrival (after recv) and its reply (after send) per connection, appended to
    $CLUSTER_SIM_LOG/requests_<pid>.csv as `conn,kind,t_recv,t_sent` (kind = infer / ctrl).
 2. Batching: per-stage batch limit and wait (CLUSTER_SIM_BATCH / CLUSTER_SIM_WAIT_MS, e.g. "1:32,2:16,3:16");
    a stage worker takes its first request, drains everything already queued, then waits up to its wait.
+   CLUSTER_SIM_UNITS groups stages that take the GPU one batch at a time (e.g. "1,23": stage 1 on its own, stages 2
+   and 3 exclusive with stage 3 first); a stage adds whatever arrived while it waited for its unit.
    Stage worker counts stay BATCHING_STAGE{1,2,3}_WORKERS. Per-stage batch counts go to stages_<pid>.json.
 3. Prefix trimming: cameras whose mask is all False (LIBERO's empty third view) are not encoded, and the prompt
    is cut to CLUSTER_SIM_TEXT_TOKENS. Masked tokens take no position (cumsum of the pad mask) and no attention,
    so the computation is the same; only the GEMM shapes shrink (968 -> 512 + text tokens).
 4. Request threads: the asyncio default executor gets CLUSTER_SIM_THREADS threads (default 32 otherwise).
 5. Memory: the process may allocate at most CLUSTER_SIM_VRAM_GB of the card.
+6. CUDA graphs (CLUSTER_SIM_GRAPHS=1): stage 1 (preprocess + SigLIP + prefix embedding), stage 2 (Gemma prefix KV)
+   and one denoise step each replay a CUDA graph, one per padded batch size (CLUSTER_SIM_BUCKETS); batches are padded
+   with copies of their last row and the outputs sliced back. Each stage is FX-traced on real inputs first; with
+   CLUSTER_SIM_COMPILE set the traced stages are compiled by inductor before capture (without graphs,
+   CLUSTER_SIM_COMPILE=vision,lm,expert compiles those modules).
+7. Cache mode (CLUSTER_SIM_KEYS=1): CP1 keys computed per stage-1 batch with one D2H; no device-wide sync in the
+   plugin's stage-1 counter. See section 7 below.
 Stage timers (SystemTimer) are off in both modes.
 """
 import sys
@@ -22,6 +31,7 @@ sys.path.pop(0)  # this directory; imports resolve through the server tree's PYT
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 import contextlib
+import dataclasses
 import itertools
 import json
 import logging
@@ -33,6 +43,7 @@ import threading
 import time
 
 import torch
+from torch.utils import _pytree
 from websockets.asyncio.connection import Connection
 
 LOG = Path(os.environ['CLUSTER_SIM_LOG'])
@@ -84,7 +95,74 @@ from openpi.serving import batching_coordinator as _bc  # noqa: E402
 
 BATCH = {s: int(v) for s, v in per_stage('CLUSTER_SIM_BATCH', 32).items()}
 WAIT = {s: v / 1000.0 for s, v in per_stage('CLUSTER_SIM_WAIT_MS', 0).items()}
-_stage_counts = {s: [0, 0] for s in (1, 2, 3)}  # batches, requests
+_stage_counts = {s: [0, 0, 0.0] for s in (1, 2, 3)}  # batches, requests, busy seconds
+_stage_sizes = {s: {} for s in (1, 2, 3)}  # batch size -> [batches, busy seconds]
+
+
+class Gate:
+    """Stage batches run side by side (shared); a CUDA graph capture runs with no other stage on the GPU."""
+
+    def __init__(self):
+        self.cv, self.active, self.exclusive, self.waiting = threading.Condition(), 0, False, 0
+
+    def enter(self):
+        with self.cv:
+            self.cv.wait_for(lambda: not self.exclusive and not self.waiting)
+            self.active += 1
+
+    def leave(self):
+        with self.cv:
+            self.active -= 1
+            self.cv.notify_all()
+
+    @contextlib.contextmanager
+    def alone(self):  # called from inside a stage batch
+        self.leave()
+        with self.cv:
+            self.waiting += 1
+            self.cv.wait_for(lambda: not self.exclusive and self.active == 0)
+            self.waiting -= 1
+            self.exclusive = True
+        try:
+            torch.cuda.synchronize()
+            yield
+        finally:
+            with self.cv:
+                self.exclusive = False
+                self.active += 1  # back in the batch it came from
+                self.cv.notify_all()
+
+
+_gate = Gate()
+
+
+class Unit:
+    """Stages of one unit take the GPU one batch at a time; the waiting stage furthest along goes first (3 > 2 > 1),
+    so in-flight requests finish before new ones start."""
+
+    def __init__(self):
+        self.cv, self.busy, self.waiting = threading.Condition(), False, {1: 0, 2: 0, 3: 0}
+
+    @contextlib.contextmanager
+    def turn(self, stage):
+        with self.cv:
+            self.waiting[stage] += 1
+            self.cv.wait_for(lambda: not self.busy and not any(self.waiting[s] for s in (1, 2, 3) if s > stage))
+            self.waiting[stage] -= 1
+            self.busy = True
+        try:
+            yield
+        finally:
+            with self.cv:
+                self.busy = False
+                self.cv.notify_all()
+
+
+# CLUSTER_SIM_UNITS: stage groups that share the GPU exclusively, e.g. "1,2,3" (all side by side), "1,23", "123".
+UNITS = {}
+for group in os.environ.get('CLUSTER_SIM_UNITS', '1,2,3').split(','):
+    unit = Unit() if len(group) > 1 else None
+    UNITS.update({int(c): unit for c in group})
 
 
 class Coordinator(_bc.BatchingCoordinator):
@@ -114,15 +192,31 @@ class Coordinator(_bc.BatchingCoordinator):
                     batch.append(q.get(timeout=remaining))
                 except queue.Empty:
                     break
+            unit = UNITS[stage_id]
+            with unit.turn(stage_id) if unit is not None else contextlib.nullcontext():
+                while len(batch) < size:  # whatever arrived while waiting for the unit
+                    try:
+                        batch.append(q.get_nowait())
+                    except queue.Empty:
+                        break
+                t0 = time.monotonic()
+                _gate.enter()
+                try:
+                    with torch.cuda.stream(stream) if stream is not None else contextlib.nullcontext():
+                        self._run_batch(stage_id, batch)
+                except BaseException as exc:
+                    logger.exception('stage %d batch failed', stage_id)
+                    self._fail_batch(batch, exc, stream)
+                finally:
+                    _gate.leave()
+            busy = time.monotonic() - t0
             counts = _stage_counts[stage_id]
             counts[0] += 1
             counts[1] += len(batch)
-            try:
-                with torch.cuda.stream(stream) if stream is not None else contextlib.nullcontext():
-                    self._run_batch(stage_id, batch)
-            except BaseException as exc:
-                logger.exception('stage %d batch failed', stage_id)
-                self._fail_batch(batch, exc, stream)
+            counts[2] += busy
+            by_size = _stage_sizes[stage_id].setdefault(len(batch), [0, 0.0])
+            by_size[0] += 1
+            by_size[1] += busy
             for req in batch:
                 req.payload = None
             batch.clear()
@@ -134,14 +228,20 @@ _bc.BatchingCoordinator = Coordinator
 from openpi.models_pytorch import pi0_pytorch as _pi0  # noqa: E402
 
 TEXT_TOKENS = int(os.environ.get('CLUSTER_SIM_TEXT_TOKENS', '80'))
+GRAPHS = os.environ.get('CLUSTER_SIM_GRAPHS') == '1'
 _embed_prefix = _pi0.PI0Pytorch.embed_prefix
 
 
+_keep = []
+
+
 def embed_prefix(self, images, img_masks, lang_tokens, lang_masks):
-    keep = [i for i, m in enumerate(img_masks) if bool(m.any())]
-    if bool(lang_masks[:, TEXT_TOKENS:].any()):
-        raise ValueError(f'prompt longer than CLUSTER_SIM_TEXT_TOKENS={TEXT_TOKENS}')
-    return _embed_prefix(self, [images[i] for i in keep], [img_masks[i] for i in keep],
+    # With CUDA graphs the camera set is fixed by the first (eager) call: traced graphs hold no host syncs.
+    if not (GRAPHS and _keep):
+        _keep[:] = [i for i, m in enumerate(img_masks) if bool(m.any())]
+        if bool(lang_masks[:, TEXT_TOKENS:].any()):
+            raise ValueError(f'prompt longer than CLUSTER_SIM_TEXT_TOKENS={TEXT_TOKENS}')
+    return _embed_prefix(self, [images[i] for i in _keep], [img_masks[i] for i in _keep],
                          lang_tokens[:, :TEXT_TOKENS], lang_masks[:, :TEXT_TOKENS])
 
 
@@ -163,17 +263,86 @@ async def run(self, *args, **kwargs):
 _wps.WebsocketPolicyServer.run = run
 
 
-# Optional torch.compile of the model's three heavy parts (CLUSTER_SIM_COMPILE = vision,lm,expert), same for both
-# modes; dynamic batch shapes, so batch sizes do not each recompile.
+# 6. CUDA graphs and optional torch.compile, the same for both modes ------------------------------------------------
 COMPILE = [c for c in os.environ.get('CLUSTER_SIM_COMPILE', '').split(',') if c]
-if COMPILE:
-    from openpi.policies import policy_config as _pc  # noqa: E402
+BUCKETS = sorted(int(b) for b in os.environ.get('CLUSTER_SIM_BUCKETS', '1,2,4,8,12,16,24,32,48,64').split(','))
 
-    _create = _pc.create_trained_policy
 
-    def create_trained_policy(*args, **kwargs):
-        policy = _create(*args, **kwargs)
-        pwe = policy._model.paligemma_with_expert
+class Graphed:
+    """CUDA graphs of one batch-first tensor function, one per padded batch size, replayed on the caller's stream.
+
+    Each graph keeps static inputs and outputs; a call copies its rows into the inputs, replays, and clones the first
+    n rows of the outputs (in stream order, before the next replay can overwrite them). Graphs of one function share
+    a memory pool; the function is only ever called from one stage thread."""
+
+    def __init__(self, name, fn, limit):
+        self.name, self.fn, self.graphs, self.pool = name, fn, {}, torch.cuda.graph_pool_handle()
+        self.sizes = [b for b in BUCKETS if b < limit] + [limit]
+
+    def __call__(self, *args):
+        leaves, spec = _pytree.tree_flatten(args)  # None fields stay None leaves
+        n = next(x for x in leaves if isinstance(x, torch.Tensor)).shape[0]
+        if not self.graphs:  # first call: every size at once, from this call's rows, with the GPU to ourselves
+            with _gate.alone():
+                for size in self.sizes:
+                    self.graphs[size] = self.capture(leaves, spec, n, size)
+        size = next(b for b in self.sizes if b >= n)
+        inputs, outputs, graph, _ = self.graphs[size]
+        for static, x in zip(inputs, leaves):
+            if isinstance(x, torch.Tensor):
+                static[:n].copy_(x)
+        graph.replay()
+        return _pytree.tree_map(lambda t: t[:n].clone(), outputs)
+
+    def capture(self, leaves, spec, n, size):
+        inputs = [x if not isinstance(x, torch.Tensor) else
+                  torch.cat([x, x[-1:].expand(size - n, *x.shape[1:])]) if size > n else x[:size].clone() for x in leaves]
+        args = _pytree.tree_unflatten(inputs, spec)
+        side = torch.cuda.Stream()
+        side.wait_stream(torch.cuda.current_stream())
+        with torch.cuda.stream(side):
+            self.fn(*args)  # eager first: fixes the camera set before tracing
+            fn = trace(self.fn, args)
+            for _ in range(3):
+                fn(*args)
+        torch.cuda.current_stream().wait_stream(side)
+        graph = torch.cuda.CUDAGraph()
+        with torch.cuda.graph(graph, pool=self.pool, stream=side, capture_error_mode='thread_local'):
+            outputs = fn(*args)
+        logger.info('captured %s batch %d', self.name, size)
+        return inputs, outputs, graph, fn  # fn holds the traced graph's GPU constants the capture reads
+
+
+def trace(fn, args):
+    """FX-trace one stage on real inputs (as exp/r17_integration/profile/latency.py does): Python structure and
+    host-side tensors (e.g. torch.tensor(list) masks) become graph constants on the GPU, so the graph can be captured.
+    With CLUSTER_SIM_COMPILE set the traced graph is compiled by inductor (our own CUDA graph on top)."""
+    from torch.fx.experimental.proxy_tensor import make_fx
+    graph = make_fx(fn, tracing_mode='real', _error_on_data_dependent_ops=False)(*args)
+    device = torch.device('cuda', torch.cuda.current_device())
+    for node in graph.graph.nodes:
+        value = getattr(graph, node.target, None) if node.op == 'get_attr' else None
+        if isinstance(value, torch.Tensor) and value.device.type == 'cpu':
+            setattr(graph, node.target, value.to(device))
+        target = node.kwargs.get('device') if node.op == 'call_function' else None
+        if isinstance(target, torch.device) and target.type == 'cpu':
+            node.kwargs = {**node.kwargs, 'device': device}
+        if node.target == torch.ops.aten._local_scalar_dense.default:
+            raise RuntimeError('host sync left in a traced stage')
+    graph.graph.eliminate_dead_code()
+    graph.recompile()
+    if COMPILE:
+        return torch.compile(graph, mode=os.environ.get('CLUSTER_SIM_COMPILE_MODE', 'max-autotune-no-cudagraphs'),
+                             fullgraph=True, dynamic=False)
+    return graph
+
+
+def accelerate(model):
+    from transformers import DynamicCache
+    from openpi.models import model as _model
+
+    pwe = model.paligemma_with_expert
+    if not GRAPHS:
         opts = dict(dynamic=True, mode=os.environ.get('CLUSTER_SIM_COMPILE_MODE', 'max-autotune-no-cudagraphs'))
         if 'vision' in COMPILE:
             pwe.embed_image = torch.compile(pwe.embed_image, **opts)
@@ -181,9 +350,109 @@ if COMPILE:
             pwe.paligemma.language_model = torch.compile(pwe.paligemma.language_model, **opts)
         if 'expert' in COMPILE:
             pwe.gemma_expert.model = torch.compile(pwe.gemma_expert.model, **opts)
+        return
+    torch._dynamo.config.cache_size_limit = 256
+
+    stage1 = Graphed('stage1', lambda fields: model.__class__._stage1_token_prep(model, _model.Observation(**fields)),
+                     BATCH[1])
+    model._stage1_token_prep = lambda obs: stage1({f.name: getattr(obs, f.name) for f in dataclasses.fields(obs)})
+
+    def backbone(embs, pad, att, pos):
+        return tuple(model.__class__._stage2_llm_backbone(model, embs, pad, att, pos))
+    stage2 = Graphed('stage2', backbone, BATCH[2])
+    model._stage2_llm_backbone = lambda *a: DynamicCache.from_legacy_cache(stage2(*a))
+
+    def backbone_capture(embs, pad, att, pos):
+        out, kv = pwe.forward(attention_mask=att, position_ids=pos, past_key_values=None,
+                              inputs_embeds=[embs, None], use_cache=True)
+        return out[0], tuple(kv)
+    stage2c = Graphed('stage2_capture', backbone_capture, BATCH[2])
+
+    def run_stage2_capture(s1):
+        out, kv = stage2c(s1.prefix_embs, s1.prefix_pad_masks, s1.prefix_att_2d_masks_4d, s1.prefix_position_ids)
+        return _pi0.Stage2Output(stage1=s1, past_key_values=DynamicCache.from_legacy_cache(kv), prefix_out=out)
+    model.run_stage2_capture = run_stage2_capture
+
+    def step(state, pad, kv, x, t):
+        return model.__class__.denoise_step(model, state, pad, DynamicCache.from_legacy_cache(kv), x, t)
+    denoise = Graphed('denoise', step, BATCH[3])
+    model.denoise_step = lambda state, pad, kv, x, t: denoise(state, pad, tuple(kv), x, t.contiguous())
+
+
+if COMPILE or GRAPHS:
+    from openpi.policies import policy_config as _pc  # noqa: E402
+
+    _create = _pc.create_trained_policy
+
+    def create_trained_policy(*args, **kwargs):
+        policy = _create(*args, **kwargs)
+        accelerate(policy._model)
+        logger.info('cluster_sim: graphs=%s compile=%s buckets=%s', GRAPHS, COMPILE, BUCKETS)
         return policy
 
     _pc.create_trained_policy = create_trained_policy
+
+# 7. Cache mode only (CLUSTER_SIM_KEYS=1): CP1 keys for a whole stage-1 batch with one D2H copy, and no device-wide sync
+# around stage 1. The keys are the CP1SpatialPool16 keys (vision_0/1: 16x16 -> 4x4 pooled tokens, robot_state), the
+# same values the key builder computed per request with three synchronous .cpu() copies on the request thread; the
+# plugin's stage-1 counter called torch.cuda.synchronize(), which made every request wait for all GPU work (stage 1
+# results are already complete when the coordinator publishes them).
+if os.environ.get('CLUSTER_SIM_KEYS') == '1':
+    import inspect
+    import textwrap
+
+    import torch.nn.functional as F
+    from openpi.cache.components import key_builder as _kb
+    from openpi.models import model as _obs_model
+    from openpi.serving import batching_coordinator as _bco
+    from openpi.serving import stage_io as _sio
+
+    def cp1_keys(out):
+        b = out.prefix_embs.shape[0]
+        tokens = out.prefix_embs[:, :512].reshape(b * 2, 16, 16, -1).permute(0, 3, 1, 2)
+        pooled = F.adaptive_avg_pool2d(tokens, (4, 4)).permute(0, 2, 3, 1).reshape(b, 2, -1).float()
+        vision = torch.empty(pooled.shape, dtype=torch.float32, pin_memory=True)
+        vision.copy_(pooled, non_blocking=True)
+        state = torch.empty(out.state.shape, dtype=torch.float32, pin_memory=True)
+        state.copy_(out.state.float(), non_blocking=True)
+        return vision, state  # ready once the stage stream is synchronized, before the batch is published
+
+    def run_stage1_batch(self, payloads):
+        batched = _sio.stack_observation(payloads, device=self._device)
+        if isinstance(batched, dict) and 'image' in batched:
+            batched = _obs_model.Observation.from_dict(batched)
+        out = self._model.run_stage1(batched)
+        shards = _sio.split_stage1_output(out, len(payloads))
+        vision, state = cp1_keys(out)
+        for i, shard in enumerate(shards):
+            shard.cs_keys = {_kb.VISION_0: vision[i, 0], _kb.VISION_1: vision[i, 1], _kb.ROBOT_STATE: state[i]}
+        return shards
+
+    _bco.Pi05StageBatcher.run_stage1_batch = run_stage1_batch
+    _collect, _build = _kb._CP1BaseKeyBuilder.collect, _kb._CP1BaseKeyBuilder.build
+    _fields = {_kb.VISION_0, _kb.VISION_1, _kb.ROBOT_STATE}
+
+    def collect(self, checkpoint_id, **stage_outputs):
+        _collect(self, checkpoint_id, **stage_outputs)
+        keys = getattr(stage_outputs.get('stage1'), 'cs_keys', None)
+        if keys is not None:
+            self._cache['cs_keys'] = keys
+
+    def build(self, checkpoint_id):
+        keys = self._cache.get('cs_keys')
+        if keys is None or type(self) is not _kb.CP1SpatialPool16KeyBuilder or self._enabled is None \
+                or not self._enabled <= _fields:
+            return _build(self, checkpoint_id)
+        return {k: v for k, v in keys.items() if k in self._enabled}
+
+    _kb._CP1BaseKeyBuilder.collect, _kb._CP1BaseKeyBuilder.build = collect, build
+
+    from exp.offline_search.closed_loop import plugin as _plugin
+
+    source = textwrap.dedent(inspect.getsource(_plugin._BlindAdapter._instrument))
+    namespace = {}
+    exec(compile(source.replace('torch.cuda.synchronize()', 'pass'), _plugin.__file__, 'exec'), _plugin.__dict__, namespace)
+    _plugin._BlindAdapter._instrument = namespace['_instrument']
 
 # Stage timers off in both modes (the cache yaml already sets timer.enabled false; --cache would enable them).
 from openpi.cache import timing as _timing  # noqa: E402
@@ -211,8 +480,11 @@ def flush():
                 f.writelines(rows)
         (LOG / f'stages_{os.getpid()}.json').write_text(json.dumps(dict(
             batches={s: c[0] for s, c in _stage_counts.items()}, requests={s: c[1] for s, c in _stage_counts.items()},
+            busy_s={s: round(c[2], 3) for s, c in _stage_counts.items()},
+            by_size={s: {n: [b, round(1000 * t / b, 2)] for n, (b, t) in sorted(list(d.items()))} for s, d in _stage_sizes.items()},
             batch_limit=BATCH, wait_s=WAIT, text_tokens=TEXT_TOKENS, time=time.time())) + '\n')
 
 
-threading.Thread(target=flush, daemon=True).start()
-runpy.run_module(os.environ['CLUSTER_SIM_MODULE'], run_name='__main__', alter_sys=True)
+if __name__ == '__main__':
+    threading.Thread(target=flush, daemon=True).start()
+    runpy.run_module(os.environ['CLUSTER_SIM_MODULE'], run_name='__main__', alter_sys=True)

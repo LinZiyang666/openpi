@@ -7,6 +7,7 @@
 
 knobs: --batch 1:32,2:16,3:16  --wait-ms 1:0,2:0,3:0  --workers 1:1,2:1,3:1  --threads 512  --text-tokens 80
        --vram-gb 24  --omp N (unset: library defaults, every core)  --compile vision,lm,expert  --compile-mode M
+       --graphs  --buckets 1,2,4,8,12,16,24,32,48,64  --units 1,2,3 | 1,23 | 123
 
 Both modes run the same server tree, model, interceptor and coordinator (serve_entry.py); the cache mode adds the
 plugin arms. No CPU pinning. In cache mode the arms' bundles are loaded over one control connection after the port
@@ -29,6 +30,7 @@ TREE = Path('/home/weiland/projects/openpi_r16_q3_server')
 PI05_CKPT = '/home/weiland/.cache/openpi/openpi-assets/checkpoints/pi05_libero_pytorch'
 ENTRY = Path(__file__).with_name('serve_entry.py')
 RESIDENT = 'exp.offline_search.rounds.r16.resident'
+SHARED_CACHE = Path('/nvme/weiland/openpi/cluster_sim/compile_cache')  # inductor/triton caches shared by every server start
 
 
 def command(args):
@@ -57,11 +59,13 @@ def environment(args, module):
                CUDA_VISIBLE_DEVICES=os.environ.get('CLUSTER_SIM_GPU', '0'),
                HOME='/home/weiland', PYTHONDONTWRITEBYTECODE='1', HF_HUB_OFFLINE='1', TRANSFORMERS_OFFLINE='1',
                OPENPI_SERVER_GPU_MEMORY_LOCK='0', STAGE1_ONLY='0', TMPDIR=str(runtime),
-               TORCHINDUCTOR_CACHE_DIR=str(runtime / 'inductor'), TRITON_CACHE_DIR=str(runtime / 'triton'),
+               TORCHINDUCTOR_CACHE_DIR=str(SHARED_CACHE / 'inductor'), TRITON_CACHE_DIR=str(SHARED_CACHE / 'triton'),
                CLUSTER_SIM_MODULE=module, CLUSTER_SIM_LOG=str(args.log), CLUSTER_SIM_BATCH=args.batch,
                CLUSTER_SIM_WAIT_MS=args.wait_ms, CLUSTER_SIM_THREADS=str(args.threads),
                CLUSTER_SIM_TEXT_TOKENS=str(args.text_tokens), CLUSTER_SIM_VRAM_GB=str(args.vram_gb),
                CLUSTER_SIM_COMPILE=args.compile, CLUSTER_SIM_COMPILE_MODE=args.compile_mode,
+               CLUSTER_SIM_GRAPHS='1' if args.graphs else '0', CLUSTER_SIM_BUCKETS=args.buckets,
+               CLUSTER_SIM_UNITS=args.units, CLUSTER_SIM_KEYS='1' if args.mode == 'cache' else '0',
                **{f'BATCHING_STAGE{s}_WORKERS': n for s, n in workers.items()})
     return env
 
@@ -101,14 +105,21 @@ def main():
     parser.add_argument('--omp', type=int, default=0)
     parser.add_argument('--compile', default='', help='comma list of vision,lm,expert (torch.compile)')
     parser.add_argument('--compile-mode', default='max-autotune-no-cudagraphs')
+    parser.add_argument('--graphs', action='store_true', help='CUDA graphs per padded batch size (stages 1, 2, denoise step)')
+    parser.add_argument('--buckets', default='1,2,4,8,12,16,24,32,48,64')
+    parser.add_argument('--units', default='1,2,3', help='stage groups sharing the GPU one batch at a time, e.g. 1,23 or 123')
     args = parser.parse_args()
     Path(args.log).mkdir(parents=True, exist_ok=True)
     argv, module, group = command(args)
     env = environment(args, module)
     (Path(args.log) / 'SERVER.json').write_text(json.dumps(dict(vars(args), argv=argv, module=module), indent=1) + '\n')
     with (Path(args.log) / 'server.log').open('a') as out:
-        proc = subprocess.Popen([str(TREE / '.venv/bin/python'), *argv], cwd=TREE, env=env, stdout=out, stderr=out,
-                                start_new_session=True)
+        # CLUSTER_SIM_PYSPY=<file>: run the server under py-spy (ptrace_scope 1 only lets a parent attach).
+        pyspy = os.environ.get('CLUSTER_SIM_PYSPY')
+        prefix = [os.path.expanduser('~/.local/bin/py-spy'), 'record', '--threads', '--idle', '-r', '50', '-f', 'raw',
+                  '-o', pyspy, '--'] if pyspy else []
+        proc = subprocess.Popen([*prefix, str(TREE / '.venv/bin/python'), *argv], cwd=TREE, env=env, stdout=out,
+                                stderr=out, start_new_session=True)
     def stop(signum, frame):
         # The server ignores SIGINT (its stage threads keep it alive); SIGTERM ends it, SIGKILL if it lingers.
         os.killpg(proc.pid, signal.SIGTERM)
