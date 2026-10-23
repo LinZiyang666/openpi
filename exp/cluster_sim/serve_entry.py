@@ -15,7 +15,8 @@ unchanged, after these process-local changes (1-6 in both modes, 7 in cache mode
 3. Prefix trimming: cameras whose mask is all False (LIBERO's empty third view) are not encoded, and the prompt
    is cut to CLUSTER_SIM_TEXT_TOKENS. Masked tokens take no position (cumsum of the pad mask) and no attention,
    so the computation is the same; only the GEMM shapes shrink (968 -> 512 + text tokens).
-4. Request threads: the asyncio default executor gets CLUSTER_SIM_THREADS threads (default 32 otherwise).
+4. Request threads: the asyncio default executor gets CLUSTER_SIM_THREADS threads (default 32 otherwise). Control
+   frames (select_bundle, episode_start, episode_end) run in one dedicated thread instead of the event loop.
 5. Memory: the process may allocate at most CLUSTER_SIM_VRAM_GB of the card. Explicit gc.collect() is a no-op and
    gc.freeze() runs at the first infer request (startup objects leave the collector's generations).
 6. CUDA graphs (CLUSTER_SIM_GRAPHS=1): stage 1 (preprocess + SigLIP + prefix embedding), stage 2 (Gemma prefix KV)
@@ -348,6 +349,34 @@ async def run(self, *args, **kwargs):
 
 
 _wps.WebsocketPolicyServer.run = run
+
+# Control frames off the event loop: the server handles select_bundle / episode_start / episode_end synchronously in
+# the asyncio loop, and in cache mode a bundle switch rebuilds the connection's interceptor and plugin session (tens of
+# ms, occasionally ~0.2 s). While it runs no connection sends or receives, so every reply waits. They now run in one
+# dedicated thread (control work stays serialized as before; the event loop keeps serving), awaited in order, so each
+# connection still sees its frames handled one after another.
+import functools  # noqa: E402
+import inspect  # noqa: E402
+import textwrap  # noqa: E402
+
+_ctrl_executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix='control')
+
+
+async def _ctrl_call(fn, *args, **kwargs):
+    return await asyncio.get_running_loop().run_in_executor(_ctrl_executor, functools.partial(fn, *args, **kwargs))
+
+
+_handler_source = textwrap.dedent(inspect.getsource(_wps.WebsocketPolicyServer._handler))
+for _old, _new in (('_bind_bundle(bundle_id)\n', 'await _ctrl_call(_bind_bundle, bundle_id)\n'),
+                   ('_bind_bundle(sb_bundle_id)\n', 'await _ctrl_call(_bind_bundle, sb_bundle_id)\n'),
+                   ('conn_policy.on_episode_start(\n', 'await _ctrl_call(conn_policy.on_episode_start,\n'),
+                   ('conn_policy.on_episode_end(success=', 'await _ctrl_call(conn_policy.on_episode_end, success=')):
+    assert _handler_source.count(_old) == 1, _old
+    _handler_source = _handler_source.replace(_old, _new)
+_namespace = {}
+_wps._ctrl_call = _ctrl_call  # the handler runs in the module's own globals (it assigns _current_bundle there)
+exec(compile(_handler_source, _wps.__file__, 'exec'), _wps.__dict__, _namespace)
+_wps.WebsocketPolicyServer._handler = _namespace['_handler']
 
 
 # 6. CUDA graphs and optional torch.compile, the same for both modes ------------------------------------------------
