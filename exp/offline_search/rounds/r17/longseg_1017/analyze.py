@@ -72,6 +72,14 @@ def stats(data,model,mode,suite,gpu):
     st['ir']=st['latency_ir']=None;return st
 
 _LANES={}
+_FINAL={}
+_JOBS=None
+
+def registry():
+    """REFERENCE_SELECTION plus the final-chain reference overrides (arm-specific keys allowed)."""
+    refs=dict(read(HERE/'REFERENCE_SELECTION.json')['references'])
+    refs.update(_FINAL.get('references',{}))
+    return refs
 
 def lane_data(root):
     if str(root) in _LANES:return _LANES[str(root)]
@@ -83,12 +91,15 @@ def prefetch(roots):
     from concurrent.futures import ProcessPoolExecutor
     roots=sorted({str(r) for r in roots if (Path(r)/'RECEIPT.json').exists()}-set(_LANES))
     if roots:
-        with ProcessPoolExecutor(max_workers=max(1,min(len(roots),(os.cpu_count() or 2)//2))) as pool:
+        with ProcessPoolExecutor(max_workers=max(1,min(len(roots),_JOBS or (os.cpu_count() or 2)//2))) as pool:
             _LANES.update(zip(roots,pool.map(lane_data,roots)))
 
-def reference(model,benchmark,mode,gpu,*,long=False):
-    registry=read(HERE/'REFERENCE_SELECTION.json')['references']
-    entry=registry[f'{model}:{benchmark}:{mode}:{gpu}'+(':long' if long else '')]
+def reference_entry(model,benchmark,mode,gpu,*,long=False,arm=None):
+    refs=registry();key=f'{model}:{benchmark}:{mode}:{gpu}';suffix=':long' if long else ''
+    return refs.get(f'{key}:{arm}{suffix}') or refs[key+suffix]
+
+def reference(model,benchmark,mode,gpu,*,long=False,arm=None):
+    entry=reference_entry(model,benchmark,mode,gpu,long=long,arm=arm)
     root=Path(entry['run'])
     if not (root/'RECEIPT.json').exists():return {}
     if read(root/'campaign.json').get('cache_study'):
@@ -132,7 +143,7 @@ def whole_segment_result(result,data,target,long_pure,model,mode,suite,gpu):
             if tasks and all(v['executed_tolerance_met'] is not None for v in tasks.values()) else None))
     return out,chosen
 
-def unaffected_libero():
+def unaffected_libero(models=('cosmos','pi05','groot'),output_name='unaffected_libero'):
     """Reuse the accepted formal-A analysis without rewriting its old output.
 
     Legacy VLA keeps its original per-decision cost ledger. Cosmos uses only
@@ -140,14 +151,14 @@ def unaffected_libero():
     """
     from exp.offline_search.rounds.r17.filter_failed_knob import formal_a as f
     from exp.offline_search.rounds.r17.filter_failed_knob import formal_a_analysis as old
-    jobs=[j for j in old.active_jobs() if j['model'] in ('cosmos','pi05','groot')]
-    output=HERE/'unaffected_libero';output.mkdir(exist_ok=True)
+    jobs=[j for j in old.active_jobs() if j['model'] in models]
+    output=HERE/output_name;output.mkdir(exist_ok=True)
     overrides=f.ROOT/'PURE_A_OVERRIDES.json'
     if overrides.exists():dump(output/'PURE_A_OVERRIDES.json',read(overrides))
     native_stats=old.stats
     def measured(data,model,mode,suite):
         return stats(data,model,mode,suite,'H100') if model=='cosmos' else native_stats(data,model,mode,suite)
-    with patch.object(f,'ROOT',output),patch.object(f,'MODELS',('cosmos','pi05','groot')),patch.object(old,'active_jobs',return_value=jobs),patch.object(old,'stats',measured):
+    with patch.object(f,'ROOT',output),patch.object(f,'MODELS',tuple(models)),patch.object(old,'active_jobs',return_value=jobs),patch.object(old,'stats',measured):
         old.analyze()
     rows=read(output/'RESULTS.json')['rows']
     for r in rows:
@@ -159,16 +170,26 @@ def unaffected_libero():
 def _main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--benchmark',choices=('mt50','libero','all'),default='all')
     p.add_argument('--include-unaffected',action='store_true',help='Also reuse Cosmos and legacy VLA formal-A outcomes after those queues finish')
+    p.add_argument('--unaffected-models',nargs='+',default=['cosmos','pi05','groot'])
+    p.add_argument('--unaffected-dir',default='unaffected_libero')
+    p.add_argument('--final-chains',type=Path,help='JSON: canonical name -> final chain tip, plus reference overrides')
+    p.add_argument('--jobs',type=int,help='Process pool size (default cpu_count//2)')
+    p.add_argument('--out',type=Path,default=HERE/'RESULTS.json')
+    p.add_argument('--results-dir',type=Path,default=HERE/'results')
     args=p.parse_args();jobs=read(HERE/'CAMPAIGNS.json')['jobs']
+    global _JOBS;_JOBS=args.jobs
+    if args.final_chains:_FINAL.update(read(args.final_chains))
     if (HERE/'FORMAL_QUEUE.json').exists():
         for u in read(HERE/'FORMAL_QUEUE.json')['units']:
             for j in u['jobs']:
                 if j['name'] not in {v['name'] for v in jobs}:jobs.append(j)
+    final=_FINAL.get('runs',{})
+    jobs=[dict(j,run=final.get(j['name'],j['run']),canonical_run=j['run']) for j in jobs]
     all_data=defaultdict(dict);gpu_for={};rows=[];libs=library_cells();active_keys=set()
     recalibration=read(HERE/'RECALIBRATION.json') if (HERE/'RECALIBRATION.json').exists() else {}
     calibration_levels=recalibration.get('level_inventory',[])
     selected=[j for j in jobs if j['stage'] in ('descent','off','levels') and args.benchmark in ('all',j['benchmark'])]
-    references=read(HERE/'REFERENCE_SELECTION.json')['references']
+    references=registry()
     prefetch([j['run'] for j in selected]+[e['run'] for k,e in references.items()
               if (args.benchmark=='all' or k.split(':')[1]==args.benchmark) and (Path(e['run'])/'campaign.json').exists()
               and read(Path(e['run'])/'campaign.json').get('cache_study')])
@@ -182,15 +203,20 @@ def _main():
             for level,data in arms.items():c.merge(all_data[key].setdefault((suite,size),{}).setdefault(level,{}),data)
     for model,benchmark,mode in sorted(gpu_for):
         gpu=gpu_for[model,benchmark,mode]
-        refs=reference(model,benchmark,mode,gpu) if (model,benchmark,mode) in active_keys else {}
-        long_refs=reference(model,benchmark,mode,gpu,long=True) if (model,benchmark,mode) in active_keys else {}
+        active=(model,benchmark,mode) in active_keys
+        refs_by={arm:reference(model,benchmark,mode,gpu,arm=arm) if active else {} for arm in ('original','filtered')}
+        long_by={arm:reference(model,benchmark,mode,gpu,long=True,arm=arm) if active else {} for arm in ('original','filtered')}
+        ref_runs={arm:{kind:reference_entry(model,benchmark,mode,gpu,long=kind=='pure_long',arm=arm)
+                       for kind in ('pure','pure_long')} for arm in ('original','filtered')}
+        arm_runs={arm:[dict(name=j['name'],run=j['run'],canonical_run=j['canonical_run']) for j in selected
+                       if (j['model'],j['benchmark'],j['mode'],j['arm'])==(model,benchmark,mode,arm)] for arm in ('original','filtered')}
         selections={}
         for arm in ('original','filtered'):
-            data=all_data[model,benchmark,mode,arm]
+            data=all_data[model,benchmark,mode,arm];refs=refs_by[arm]
             if benchmark=='mt50':
                 native=descent.analyze_mt50({(LABELS[model],s,n):v for (s,n),v in data.items()},
-                    {(LABELS[model],s):v for s,v in refs.items()},HERE/'results'/f'{model}_{mode}_{arm}',mode,
-                    control_overrides=[LABELS[model]+'='+Path(read(HERE/'REFERENCE_SELECTION.json')['references'][f'{model}:{benchmark}:{mode}:{gpu}']['run']).name],
+                    {(LABELS[model],s):v for s,v in refs.items()},args.results_dir/f'{model}_{mode}_{arm}',mode,
+                    control_overrides=[LABELS[model]+'='+Path(ref_runs[arm]['pure']['run']).name],
                     prices=lambda label,suite:prices(label,suite,gpu),summary=decision_summary)
                 for r in native['cells']:
                     chosen={}
@@ -205,10 +231,13 @@ def _main():
                         tasks=d['tasks'],no_knob=d['no_knob'],complete=d['complete']),d['data'])
         for suite,size in sorted({(s,n) for arm,s,n in selections}):
             converted={arm:whole_segment_result(*selections.get((arm,suite,size),({},{})),
-                refs.get(suite,{}),long_refs.get(suite,{}),model,mode,suite,gpu) for arm in ('original','filtered')}
+                refs_by[arm].get(suite,{}),long_by[arm].get(suite,{}),model,mode,suite,gpu) for arm in ('original','filtered')}
             x=converted['original'];y=converted['filtered']
             for arm,converted_arm in (('original',x),('filtered',y)):
-                measured=all_data[model,benchmark,mode,arm].get((suite,size),{})
+                refs=refs_by[arm];measured=all_data[model,benchmark,mode,arm].get((suite,size),{})
+                converted_arm[0].update(runs=arm_runs[arm],reference_runs=ref_runs[arm],
+                    native_pure_target=stats(refs.get(suite,{}),model,mode,suite,gpu),
+                    pure_long=stats(long_by[arm].get(suite,{}),model,mode,suite,gpu))
                 predicted={r['level']:{k:r.get(k) for k in ('old_gap','new_gap','nominal_ir','predicted_ir','absolute_error','passed')}
                     for r in calibration_levels if (r['model'],r['benchmark'],r['mode'],r['arm'],r['suite'],r['size'])==
                     (model,benchmark,mode,arm,suite,size)}
@@ -225,12 +254,11 @@ def _main():
                 original=x[0],filtered=y[0],paired_filtered_minus_original=paired(x[1],y[1]),
                 filtered_episodes_kept=info['kept'],collected=info['collected'],
                 empty_tasks=info['empty_tasks'],expected_outcomes_per_arm=2500 if suite=='mt50' else 500,
-                native_pure_target=stats(refs.get(suite,{}),model,mode,suite,gpu),
-                pure_long=stats(long_refs.get(suite,{}),model,mode,suite,gpu),
+                native_pure_target=x[0]['native_pure_target'],pure_long=x[0]['pure_long'],
                 fallback_note='Selection uses the same-step native-length pure target. Any selected pure fallback is executed from fresh pure+long outcomes. Missing control outcomes stay missing; actual tolerance is reported explicitly.',
                 ir_note='Only accept formal IR when its latency receipt GPU equals this row GPU.'))
-    if args.include_unaffected and args.benchmark in ('all','libero'):rows+=unaffected_libero()
-    dump(HERE/'RESULTS.json',dict(rows=rows,names=read(HERE/'NAMES.json'),
+    if args.include_unaffected and args.benchmark in ('all','libero'):rows+=unaffected_libero(args.unaffected_models,args.unaffected_dir)
+    dump(args.out,dict(rows=rows,names=read(HERE/'NAMES.json'),final_chains=_FINAL or None,
          dev_outcomes_used=False,withdrawn_outcomes_used=False,clock_unit='segment_decision',
          level_ir_definition='M/N segment heads; tails count in neither',
          latency_ir_definition='Separate measured stage-cost metric, unchanged native-C0/control normalization'))

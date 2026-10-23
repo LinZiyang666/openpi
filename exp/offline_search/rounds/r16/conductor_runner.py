@@ -245,7 +245,7 @@ def _run(args):
                  PYTHONDONTWRITEBYTECODE='1',OPENPI_AUTOSCALE_CONFIG=a['config'],PATH=o['path'])
         # Background only the agent: `cd && nohup ... &` backgrounds the whole list in a subshell that keeps
         # the caller's stdout pipe open, so a local (subprocess) start waited for the agent and timed out.
-        command='cd '+shlex.quote(island)+' && { nohup env '+shlex.join([f'{k}={v}' for k,v in env.items()]+agent)+\
+        command='cd '+shlex.quote(island)+' && { setsid nohup env '+shlex.join([f'{k}={v}' for k,v in env.items()]+agent)+\
                 ' >'+shlex.quote(a['log'])+' 2>&1 </dev/null & }'
         control.remote(node,['bash','-c',command],timeout=30)
     lease_stop=threading.Event()

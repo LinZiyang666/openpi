@@ -10,19 +10,37 @@ from exp.offline_search.rounds.r17.knob import common as c
 from exp.offline_search.rounds.r17.cache import analyze_cache as cache
 
 
+def load(root):
+    snapshot=cache.receipt_snapshot(Path(root))
+    loaded=cache.load_lane(Path(root),snapshot,cache.Sources(),c.SIZES,suites=c.SUITES)
+    return loaded,snapshot
+
+
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--family',action='append',help='Original family name, e.g. csfw_k3');a=p.parse_args()
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--family',action='append',help='Original family name, e.g. csfw_k3')
+    p.add_argument('--final-chains',type=Path,help='JSON: canonical name -> final chain tip (fresh fa_ls_ continuations / pod copies)')
+    p.add_argument('--jobs',type=int,default=1,help='Lanes read in parallel')
+    p.add_argument('--out',type=Path,default=HERE/'CACHE_VARIANT_RESULTS.json');a=p.parse_args()
+    final=read(a.final_chains)['runs'] if a.final_chains else {}
     catalog=read(HERE/'CAMPAIGNS.json');jobs={j['name']:j for j in catalog['jobs']};rows=[]
+    families=[f for f in catalog['source_cohorts'] if not a.family or Path(f['source']).name in a.family]
+    roots={n:Path(final.get(n,jobs[n]['run'])) for f in families for n in f['jobs']}
+    roots={n:r for n,r in roots.items() if (r/'RECEIPT.json').exists()}
+    for n,r in roots.items():
+        # Final-chain tips continue fresh fa_ls_ segments only; load_lane walks them back.
+        if n not in final:assert not read(r/'campaign.json').get('cache_resume_selection')
+    from concurrent.futures import ProcessPoolExecutor
+    with ProcessPoolExecutor(max_workers=max(1,a.jobs)) as pool:
+        lanes=dict(zip(roots,pool.map(load,[str(r) for r in roots.values()])))
     with filesystem_budget():
-        for family in catalog['source_cohorts']:
-            if a.family and Path(family['source']).name not in a.family:continue
-            cells=defaultdict(dict);sources=cache.Sources();lineages=[]
+        for family in families:
+            cells=defaultdict(dict);lineages=[]
             for n in family['jobs']:
-                j=jobs[n];root=Path(j['run'])
-                if not (root/'RECEIPT.json').exists():continue
-                assert not read(root/'campaign.json').get('cache_resume_selection')
-                loaded=cache.load_lane(root,cache.receipt_snapshot(root),sources,c.SIZES,suites=c.SUITES)
-                lineages.append(n)
+                if n not in lanes:continue
+                loaded,snapshot=lanes[n]
+                lineages.append(dict(name=n,run=str(roots[n]),segments=[s['lane'] for s in snapshot['segments']],
+                    receipts=[s['status'] for s in snapshot['segments']],accepted=snapshot['accepted_episodes'],
+                    cost_episodes=snapshot['cost_episodes']))
                 for key,value in loaded.items():
                     assert not cells[key].keys()&value['data'].keys(),'Fresh cohorts overlap'
                     cells[key].update(value['data'])
@@ -37,5 +55,5 @@ def main():
                     no_old_outcomes_inherited=True,
                     reference_inventory=str(HERE/'VARIANT_REFERENCES.json'),
                     ir_note='Within-study model calls/NFE per control and measured service cost remain available; do not substitute a pure/profile with a different frozen model identity.'))
-        dump(HERE/'CACHE_VARIANT_RESULTS.json',dict(rows=rows,clock_unit='segment_decision'))
+        dump(a.out,dict(rows=rows,clock_unit='segment_decision',final_chains=final or None))
 if __name__=='__main__':main()
