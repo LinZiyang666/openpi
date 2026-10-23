@@ -90,6 +90,10 @@ owner 的常驻指令，逐字有效：
 - 05:2x：π0.5 全步各档 05:01 完（h100lo11）。GR00T · MetaWorld · 全步挪到 H100：链 **h100lo13** = H100 C5 参照 fa_lo_gr_f_b_m（2,500，05:26 起，~80/分）→ fa_lo_gr_f_f_m（R5/36 GiB，R17 H100 车道 23160/23199），与 GR00T R16 各档并行；REFERENCES.json 加 groot:mt50:full:H100；pod1lo4 挂 hold（跑完 fa_lo_gr_r_f_m_j_rz 就停，pod 版 gr_f_f_m_j 不跑）。pod1 之后空闲。
 - 想法（未做，需 owner 定）：调度器 LOCAL 类只给 'h100'/'local'，别名机（sean）没有本机 worker；sean GPU 常有 40 GB 空闲，可让 sean 也有本机 LIBERO worker，但节点名 'h100' 在别名下会映射到 sean，调度器会把两台的容量混成一个名字，要改得更细。
 - 06:1x cluster_sim 会话交还 weilandserver：集群部署模拟全部跑完（结果 exp/cluster_sim/DESIGN.md「正式实验」，2a531f60；纯推理饱和 41.6 条/秒，完整系统约 88–90 条/秒），4090 自 06:12 空闲（显存 5 MiB，8000 端口空），无残留进程；它写过的目录 /nvme/weiland/openpi/cluster_sim/ 与 /data/mw_finetune/eval/cs_rec_pi05 别动。⛔ owner 10-22 第 4 条「暂不用 4090」仍有效，**没 owner 明说不往 4090 排批次**；待 owner 定是否启用（可用来分担 LIBERO 各档或做 IR 计时）。
+- 10:5x owner 醒来：
+  - timan 共享盘查清：我们在 /home/zixuans8 只占 35 GB（.cache 25 G），盘满是别人占的，现已剩 175 GB。
+  - ⛔ owner「4090可以加入车队」：10-22 第 4 条「暂不用 4090」作废。但剩余工作都是 Fast-WAM/GR00T，参照是 H100 卡或 pod 卡（同卡规则），4090 要另跑参照且本机无 Fast-WAM 文本编码表（只能 R1 带 T5），Fast-WAM MT50 全步在 4090 上估 15 h，比等 H100 慢，所以没往 4090 排；4090 留给后续实验/分析。
+  - Fast-WAM 两条线分到两台 H100 级机器并行：seanlo6 跑完 fa_lo_fw_r_f_l_l 后 hold；**seanlo8**（车道 1）= fa_lo_fw_f_b_m → fa_lo_fw_f_f_m；**h100lo14**（真 H100，R17 车道 23199）= fa_lo_fw_f_f_l_l，等 h100lo13（GR00T MT50 全步）和 h100lo12（GR00T LIBERO 全步各档）都完（约 16:40，避免 H100 显存同时压 GR00T R16 + FW）。预计全部 ~22:30–23:00 完。
 - 长执行段关建档：决策记录不开 --os-blind 时没有 vision/miss_k，r16 analyze.load 报「Need explicit hit/vision booleans」；q3_port_1020/analysis.py 读入时补 vision=True、miss_k=启动 miss_steps（99f9eafa）。π0.5 减步 fa_lo_pi_r_f_l_q 已建（长任务 50；空间 50/200/500 四格 × ir45/40/32/25 = 8,000 局），链 h100lo9 等 h100lo1 或 h100lo8 任一结束即起（显存：H100 同时最多两条）。其余三条线由 $CLAUDE_JOB_DIR/tmp/auto_levels.sh 在参照结束后自动建（GR00T 全步还要等 h100lo1 旋钮关结束），建完要我审再排。
 - guard_wait 只在 STOPPED/FAILED/receipt=FAIL 时醒；「ended rc=1 receipt= 空」不会叫醒，巡检时要自己看 chain.log。
 - DP · MetaWorld：同卡 C5 参照在 pod 上已有（REFERENCES.json：fa_ls_dp_{r,f}_b_m_j，MIG 1g.18gb），两批旋钮关应做 pod `_j` 副本跑，不用新参照；pod 要重装 DP 环境（约 18 GB）。
