@@ -14,7 +14,8 @@ unchanged, after these process-local changes (1-6 in both modes, 7 in cache mode
    is cut to CLUSTER_SIM_TEXT_TOKENS. Masked tokens take no position (cumsum of the pad mask) and no attention,
    so the computation is the same; only the GEMM shapes shrink (968 -> 512 + text tokens).
 4. Request threads: the asyncio default executor gets CLUSTER_SIM_THREADS threads (default 32 otherwise).
-5. Memory: the process may allocate at most CLUSTER_SIM_VRAM_GB of the card.
+5. Memory: the process may allocate at most CLUSTER_SIM_VRAM_GB of the card. Explicit gc.collect() is a no-op and
+   gc.freeze() runs at the first infer request (startup objects leave the collector's generations).
 6. CUDA graphs (CLUSTER_SIM_GRAPHS=1): stage 1 (preprocess + SigLIP + prefix embedding), stage 2 (Gemma prefix KV)
    and one denoise step each replay a CUDA graph, one per padded batch size (CLUSTER_SIM_BUCKETS); batches are padded
    with copies of their last row and the outputs sliced back. Each stage is FX-traced on real inputs first; with
@@ -32,6 +33,7 @@ import asyncio
 from concurrent.futures import ThreadPoolExecutor
 import contextlib
 import dataclasses
+import gc
 import itertools
 import json
 import logging
@@ -69,8 +71,14 @@ _rows, _rows_lock, _conn_ids = [], threading.Lock(), itertools.count()
 _recv, _send = Connection.recv, Connection.send
 
 
+_frozen = []
+
+
 async def recv(self, *args, **kwargs):
     data = await _recv(self, *args, **kwargs)
+    if not _frozen and isinstance(data, (bytes, bytearray)) and data.find(b'__ctrl__', 0, 64) < 0:
+        _frozen.append(True)
+        gc.freeze()  # first infer: everything built at startup and preload leaves the collector's generations
     if isinstance(data, (bytes, bytearray)):
         if not hasattr(self, '_cs_id'):
             self._cs_id = next(_conn_ids)
@@ -89,6 +97,9 @@ async def send(self, *args, **kwargs):
 
 
 Connection.recv, Connection.send = recv, send
+# The server runs a full gc.collect() on every connection close (and torch.cuda.graph before each capture); with this
+# heap one takes seconds while holding the GIL, stalling every other request. The generational collector still runs.
+gc.collect = lambda generation=2: 0
 
 # 2. batching ------------------------------------------------------------------------------------------------------
 from openpi.serving import batching_coordinator as _bc  # noqa: E402

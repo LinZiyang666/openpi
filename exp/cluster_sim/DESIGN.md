@@ -91,3 +91,19 @@ R16 服务端的请求路径见 `R16_SERVING_MAP.md`（π0.5 是 PyTorch eager b
 - 粗估 GPU 上限：纯推理每条请求要跑第 2 段（Gemma-2B，592 token）约 26 ms → ~30–38 条/秒；完整系统多数请求只跑第 1 段（SigLIP 两路相机）约 3.5 ms。可选 `--compile vision,lm,expert`（两边同用），4090 空出后实测再定。
 
 数据：录制原始帧 `/nvme/weiland/openpi/cluster_sim/raw`，回放库 `/nvme/weiland/openpi/cluster_sim/library`，各次扫描 `/nvme/weiland/openpi/cluster_sim/runs/<名字>`。
+
+**10-22 晚：录制完成，服务调优（4090 实测）**
+- 录制：18:32–18:41 跑完 500 局（27,747 条推理请求，455 局成功），切成回放库 `/nvme/weiland/openpi/cluster_sim/library`。
+- eager（原服务）单条请求：第 1 段 53 ms、第 2 段 28 ms、第 3 段 318 ms（10 步去噪，每步约 32 ms，耗在发 kernel 上）；1 台机器人延迟中位 398 ms。
+- 两边共用的推理优化（`serve_entry.py` 第 6 节）：每段先用 make_fx 描成静态图，再用 inductor 编译（default 模式），按批大小分档录 CUDA graph（不足一档的批用最后一行补齐）；数值类型不变（bf16）。单段单独测（`bench_stages.py`，`/nvme/weiland/openpi/cluster_sim/bench/`）：
+
+  | 批大小 | 第 1 段 | 第 2 段 | 第 3 段 K=10 | 第 3 段 K=1 | 纯推理每条 |
+  |---|---|---|---|---|---|
+  | 1 | 6.6 ms | 17.9 | 26.3 | 3.4 | 50.8 |
+  | 16 | 55.3 | 252.4 | 53.0 | 5.9 | 22.5 |
+  | 32 | 109.8 | 506.5 | 106.6 | 11.0 | 22.6 |
+
+  第 2 段（Gemma-2B，592 个前缀 token）每条约 15.8 ms，按约 2.35 TFLOP/条算约为 4090 bf16 张量核标称峰值（165 TFLOPs）的 90%；纯推理上限约 1/22.5 ms ≈ 44 条/秒。
+- 调度：`--units` 把段分组，同组的段一次一批独占 GPU，排队时第 3 段优先（先完成在途请求）。
+- 完整系统专有的 CPU–GPU 往返（第 7 节）：缓存键（两路相机 16×16→4×4 池化 + 状态）在第 1 段整批算完、一次拷回 CPU，替代每条请求在请求线程里三次同步 `.cpu()`；去掉插件第 1 段计数器里的整卡 `torch.cuda.synchronize()`（它让每条命中请求等所有 GPU 工作）。
+- CPU：不设 OMP 时每个小 CPU 运算都开 88 个线程，16 台机器人时约 87 个线程空转抢核（每秒只处理 6 条）；每次运算 1 个线程、靠几百个请求线程并行时，16 台机器人延迟中位从 470 ms 降到 68 ms。服务关闭连接时的整堆 `gc.collect()`（每次数秒、持有 GIL）改为空操作，第一条推理时 `gc.freeze()`。

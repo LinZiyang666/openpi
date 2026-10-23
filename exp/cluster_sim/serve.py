@@ -116,7 +116,8 @@ def main():
     with (Path(args.log) / 'server.log').open('a') as out:
         # CLUSTER_SIM_PYSPY=<file>: run the server under py-spy (ptrace_scope 1 only lets a parent attach).
         pyspy = os.environ.get('CLUSTER_SIM_PYSPY')
-        prefix = [os.path.expanduser('~/.local/bin/py-spy'), 'record', '--threads', '--idle', '-r', '50', '-f', 'raw',
+        flags = os.environ.get('CLUSTER_SIM_PYSPY_FLAGS', '--threads --idle').split()
+        prefix = [os.path.expanduser('~/.local/bin/py-spy'), 'record', *flags, '-r', '50', '-f', 'raw',
                   '-o', pyspy, '--'] if pyspy else []
         proc = subprocess.Popen([*prefix, str(TREE / '.venv/bin/python'), *argv], cwd=TREE, env=env, stdout=out,
                                 stderr=out, start_new_session=True)
