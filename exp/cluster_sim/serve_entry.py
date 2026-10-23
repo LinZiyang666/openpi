@@ -182,6 +182,10 @@ class Coordinator(_bc.BatchingCoordinator):
     def __init__(self, model, **kwargs):
         kwargs.update(max_batch_size=max(BATCH.values()), max_wait_ms=1000.0 * max(WAIT.values()))
         super().__init__(model, **kwargs)
+        # CLUSTER_SIM_PRIORITY ("1:0,3:-3"): CUDA stream priority per stage (lower runs first; 4090 range 0..-3).
+        for stage, priority in per_stage('CLUSTER_SIM_PRIORITY', 0).items() if os.environ.get('CLUSTER_SIM_PRIORITY') else ():
+            for key in [k for k in self._worker_streams if k[0] == stage]:
+                self._worker_streams[key] = torch.cuda.Stream(device=self._device, priority=int(priority))
 
     def _stage_loop_inner(self, stage_id, q, stream=None):
         size, wait = BATCH[stage_id], WAIT[stage_id]

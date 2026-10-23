@@ -80,5 +80,37 @@
   "all",
   "--compile-mode",
   "default"
+ ],
+ "g_b32_f23_p_o4": [
+  "--batch",
+  "1:32,2:16,3:16",
+  "--units",
+  "1,2,3",
+  "--fuse23",
+  "--priority",
+  "1:0,3:-3",
+  "--omp",
+  "4",
+  "--graphs",
+  "--compile",
+  "all",
+  "--compile-mode",
+  "default"
+ ],
+ "g_b32_f23_p1_o4": [
+  "--batch",
+  "1:32,2:16,3:16",
+  "--units",
+  "1,2,3",
+  "--fuse23",
+  "--priority",
+  "1:-3,3:0",
+  "--omp",
+  "4",
+  "--graphs",
+  "--compile",
+  "all",
+  "--compile-mode",
+  "default"
  ]
 }
