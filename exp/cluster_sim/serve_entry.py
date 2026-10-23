@@ -379,9 +379,38 @@ def accelerate(model):
         return
     torch._dynamo.config.cache_size_limit = 256
 
-    stage1 = Graphed('stage1', lambda fields: model.__class__._stage1_token_prep(model, _model.Observation(**fields)),
-                     BATCH[1])
-    model._stage1_token_prep = lambda obs: stage1({f.name: getattr(obs, f.name) for f in dataclasses.fields(obs)})
+    # Stage 1 from the stacked request dict (uint8 images): Observation.from_dict's conversions and type checks run
+    # inside the traced graph, so a batch is one copy-in and one replay (section 11 calls it).
+    def front(tree):
+        obs = _model.Observation.from_dict({**tree, 'image': dict(tree['image'])})
+        return tuple(model.__class__._stage1_token_prep(model, obs))
+    model._cs_stage1 = Graphed('stage1', front, BATCH[1])
+
+    # Fused back end: Gemma prefix KV and the whole denoise loop of one batch in one graph per (steps, saved
+    # timesteps), the same arithmetic as _stage2_llm_backbone + _stage3_with_intermediates (section 11 calls it).
+    def back(steps, save, state, embs, pad, att, pos, noise):
+        kv = model.__class__._stage2_llm_backbone(model, embs, pad, att, pos)
+        bsize = state.shape[0]
+        dt = torch.tensor(-1.0 / steps, dtype=torch.float32, device=state.device)
+        save_at = {}
+        for st in save:
+            save_at[round((1.0 - st) * steps)] = st
+        x_t, timestep, inter = noise, torch.tensor(1.0, dtype=torch.float32, device=state.device), {}
+        for step in range(steps):
+            if step in save_at:
+                inter[save_at[step]] = x_t.clone()
+            v_t = model.__class__.denoise_step(model, state, pad, kv, x_t, timestep.expand(bsize))
+            x_t = x_t + dt * v_t
+            timestep = timestep + dt
+        return x_t, tuple(inter[t] for t in sorted(inter))
+    graphs = {}
+
+    def run_back(steps, save, *args):
+        key = (steps, tuple(save))
+        if key not in graphs:
+            graphs[key] = Graphed(f'back_k{steps}', lambda *a: back(steps, key[1], *a), BATCH[3])
+        return graphs[key](*args)
+    model._cs_back = run_back
 
     def backbone(embs, pad, att, pos):
         return tuple(model.__class__._stage2_llm_backbone(model, embs, pad, att, pos))
@@ -578,6 +607,73 @@ def timer_init(self, enabled=True, *args, **kwargs):
 
 _timing.SystemTimer.__init__ = timer_init
 
+
+# 11. With CUDA graphs, the stage-1 batch is built with one pinned-buffer stack per leaf and one async H2D copy (in place
+# of jax.tree.map + per-request torch.as_tensor + pageable copies), then replays the stage-1 graph; with the fused back
+# end, a stage-3 batch stacks its requests' stage-1 outputs and replays one back-end graph (no per-request KV split,
+# clone and re-stack, no per-step copies). Replies are built exactly as Pi05StageBatcher.run_stage3_miss builds them.
+KEYS = os.environ.get('CLUSTER_SIM_KEYS') == '1'
+if GRAPHS:
+    from openpi.serving import batching_coordinator as _bco11
+    from openpi.serving import stage_io as _sio11
+
+    _pinned = {}
+
+    def fast_stack(payloads, device):
+        leaves, spec = _pytree.tree_flatten(payloads[0])
+        columns = [_pytree.tree_flatten(p)[0] for p in payloads]
+        n, out = len(payloads), []
+        for j, first in enumerate(leaves):
+            xs = [torch.as_tensor(c[j]) for c in columns]
+            key = (j, n, tuple(xs[0].shape), xs[0].dtype)
+            buf = _pinned.get(key)
+            if buf is None:
+                buf = _pinned[key] = torch.empty((n, *xs[0].shape), dtype=xs[0].dtype, pin_memory=True)
+            torch.stack(xs, out=buf)
+            out.append(buf.to(device, non_blocking=True))  # the batch's stream sync precedes the next reuse
+        return _pytree.tree_unflatten(out, spec)
+
+    def run_stage1_batch_graphed(self, payloads):
+        tree = fast_stack(payloads, self._device)
+        state, embs, pad, att, pos = self._model._cs_stage1(tree)
+        out = _pi0.Stage1Output(state=state, prefix_embs=embs, prefix_pad_masks=pad, prefix_att_2d_masks_4d=att,
+                                prefix_position_ids=pos)
+        shards = _sio11.split_stage1_output(out, len(payloads))
+        if KEYS:
+            vision, keystate = cp1_keys(out)
+            for i, shard in enumerate(shards):
+                shard.cs_keys = {_kb.VISION_0: vision[i, 0], _kb.VISION_1: vision[i, 1], _kb.ROBOT_STATE: keystate[i]}
+        return shards
+
+    _bco11.Pi05StageBatcher.run_stage1_batch = run_stage1_batch_graphed
+
+    if os.environ.get('CLUSTER_SIM_FUSE23') == '1':
+        def run_stage3_miss_graphed(self, payloads, *, num_steps, save_timesteps_per_request):
+            if not all(getattr(p.stage2_out, 'cs_pending', False) for p in payloads):
+                return _miss(self, payloads, num_steps=num_steps, save_timesteps_per_request=save_timesteps_per_request)
+            s1 = _sio11.stack_stage1_output([p.stage2_out.stage1 for p in payloads])
+            noise = torch.stack([p.noise for p in payloads], dim=0).to(self._device)
+            requested = [s for s in save_timesteps_per_request if s is not None]
+            save = (0.7, 0.5, 0.3) if not requested else self.order_timesteps(set().union(*[
+                set(_bco11._MODEL_DEFAULT_SAVE_TIMESTEPS if s is None else s) for s in save_timesteps_per_request]))
+            action, saved = self._model._cs_back(num_steps, save, s1.state, s1.prefix_embs, s1.prefix_pad_masks,
+                                                 s1.prefix_att_2d_masks_4d, s1.prefix_position_ids, noise)
+            save_at = {}
+            for st in save:
+                save_at[round((1.0 - st) * num_steps)] = st
+            inter = dict(zip(sorted(t for i, t in save_at.items() if i < num_steps), saved))
+            shards = _sio11.split_stage3_intermediates(inter, len(payloads))
+            if not requested:
+                return [_bco11._Stage3Reply(action_chunk=action[i:i + 1], intermediates=shards[i])
+                        for i in range(len(payloads))]
+            replies = []
+            for i, wanted in enumerate(save_timesteps_per_request):
+                keep = set(wanted) if wanted is not None else set(_bco11._MODEL_DEFAULT_SAVE_TIMESTEPS)
+                replies.append(_bco11._Stage3Reply(action_chunk=action[i:i + 1],
+                                                   intermediates={t: v for t, v in (shards[i] or {}).items() if t in keep}))
+            return replies
+
+        _bco11.Pi05StageBatcher.run_stage3_miss = run_stage3_miss_graphed
 
 # log writer -------------------------------------------------------------------------------------------------------
 def flush():
