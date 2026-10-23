@@ -527,7 +527,10 @@ def prepare_workers(campaign, directory, *, payload_override=None):
         env = dict(HOME='/home/zixuans8', PYTHONPATH=pythonpath(destination, extra),
             PYTHONDONTWRITEBYTECODE='1', OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1', MKL_NUM_THREADS='1',
             MUJOCO_GL='egl', PYOPENGL_PLATFORM='egl', MUJOCO_EGL_DEVICE_ID=str(campaign['worker_egl_device']),
-            LIBERO_CONFIG_PATH='/scratch/zixuans8/openpi_trace_h100/os_cl/libero')
+            LIBERO_CONFIG_PATH='/scratch/zixuans8/openpi_trace_h100/os_cl/libero',
+            # robosuite's numba cache: the dependency tree is read-only and the timan NFS home can be full
+            # ("no locator available", 10-23); keep it on the node's local disk.
+            NUMBA_CACHE_DIR='/tmp/r17_numba_cache')
         if node == 'local':
             from .local_workers import LOCAL_HOME
             env['HOME'] = LOCAL_HOME
