@@ -8,7 +8,7 @@ import argparse
 import json
 from pathlib import Path
 
-LABEL = {'pure': '全步纯推理（K=10）', 'cache': '完整系统（K=1，缓存）', 'cache_seg': '完整系统 + 长执行段', 'cache_full': '缓存系统（全步 K=10）'}
+LABEL = {'pure': '全步纯推理（K=10）', 'cache': '完整系统（K=1，缓存）', 'cache_seg': '完整系统 + 长执行段（K=1）', 'cache_full': '缓存系统全步（K=10）'}
 
 
 def load(runs):
@@ -37,7 +37,7 @@ def figure(res, path):
     import matplotlib.pyplot as plt
     fig, axes = plt.subplots(1, 4, figsize=(19, 4.6))
     colors = {'pure': '#c0504d', 'cache': '#2f6db5', 'cache_seg': '#3a9a5b', 'cache_full': '#8e6bbf'}
-    names = {'pure': 'pure inference (K=10)', 'cache': 'cache system (K=1)', 'cache_seg': 'cache system + long segments', 'cache_full': 'cache system, full step (K=10)'}
+    names = {'pure': 'pure inference (K=10)', 'cache': 'cache system (K=1)', 'cache_seg': 'cache system + long segments (K=1)', 'cache_full': 'cache system, full step (K=10)'}
     for m, rows in res.items():
         ns = sorted(rows)
         kw = dict(color=colors[m], lw=2, marker='o', ms=4)
