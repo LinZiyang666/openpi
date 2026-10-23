@@ -1,64 +1,69 @@
 {
   "references": {
-    "dp:libero:reduced:H100": {
-      "run": "/data/mw_finetune/eval/fa_lo_dp_r_b_l",
-      "new": true,
-      "c5_pure": true
-    },
     "dp:libero:full:H100": {
-      "run": "/data/mw_finetune/eval/fa_lo_dp_f_b_l",
+      "c5_pure": true,
       "new": true,
-      "c5_pure": true
+      "run": "/data/mw_finetune/eval/fa_lo_dp_f_b_l"
     },
-    "fastwam:libero:reduced:H100": {
-      "run": "/data/mw_finetune/eval/fa_lo_fw_r_b_l",
+    "dp:libero:reduced:H100": {
+      "c5_pure": true,
       "new": true,
-      "c5_pure": true
-    },
-    "fastwam:libero:full:H100": {
-      "run": "/data/mw_finetune/eval/fa_ls_fw_f_b_l",
-      "new": false,
-      "c5_pure": true
-    },
-    "groot:mt50:reduced:H200 MIG 1g.18gb": {
-      "run": "/data/mw_finetune/eval/fa_lo_gr_r_b_m_j",
-      "new": true,
-      "c5_pure": true
-    },
-    "groot:mt50:full:H200 MIG 1g.18gb": {
-      "run": "/data/mw_finetune/eval/fa_lo_gr_f_b_m_j",
-      "new": true,
-      "c5_pure": true
-    },
-    "fastwam:mt50:reduced:H200 MIG 1g.18gb": {
-      "run": "/data/mw_finetune/eval/fa_lo_fw_r_b_m_j",
-      "new": true,
-      "c5_pure": true
-    },
-    "fastwam:mt50:full:H200 MIG 1g.18gb": {
-      "run": "/data/mw_finetune/eval/fa_lo_fw_f_b_m_j",
-      "new": true,
-      "c5_pure": true
-    },
-    "dp:mt50:reduced:H200 MIG 1g.18gb": {
-      "run": "/data/mw_finetune/eval/fa_ls_dp_r_b_m_j",
-      "new": false,
-      "c5_pure": true
-    },
-    "dp:mt50:full:H200 MIG 1g.18gb": {
-      "run": "/data/mw_finetune/eval/fa_ls_dp_f_b_m_j",
-      "new": false,
-      "c5_pure": true
-    },
-    "dp:mt50:reduced:H100": {
-      "run": "/data/mw_finetune/eval/fa_lo_dp_r_b_m",
-      "new": true,
-      "c5_pure": true
+      "run": "/data/mw_finetune/eval/fa_lo_dp_r_b_l"
     },
     "dp:mt50:full:H100": {
-      "run": "/data/mw_finetune/eval/fa_lo_dp_f_b_m",
+      "c5_pure": true,
       "new": true,
-      "c5_pure": true
+      "run": "/data/mw_finetune/eval/fa_lo_dp_f_b_m"
+    },
+    "dp:mt50:full:H200 MIG 1g.18gb": {
+      "c5_pure": true,
+      "new": false,
+      "run": "/data/mw_finetune/eval/fa_ls_dp_f_b_m_j"
+    },
+    "dp:mt50:reduced:H100": {
+      "c5_pure": true,
+      "new": true,
+      "run": "/data/mw_finetune/eval/fa_lo_dp_r_b_m"
+    },
+    "dp:mt50:reduced:H200 MIG 1g.18gb": {
+      "c5_pure": true,
+      "new": false,
+      "run": "/data/mw_finetune/eval/fa_ls_dp_r_b_m_j"
+    },
+    "fastwam:libero:full:H100": {
+      "c5_pure": true,
+      "new": false,
+      "run": "/data/mw_finetune/eval/fa_ls_fw_f_b_l"
+    },
+    "fastwam:libero:reduced:H100": {
+      "c5_pure": true,
+      "new": true,
+      "run": "/data/mw_finetune/eval/fa_lo_fw_r_b_l"
+    },
+    "fastwam:mt50:full:H200 MIG 1g.18gb": {
+      "c5_pure": true,
+      "new": true,
+      "run": "/data/mw_finetune/eval/fa_lo_fw_f_b_m_j"
+    },
+    "fastwam:mt50:reduced:H200 MIG 1g.18gb": {
+      "c5_pure": true,
+      "new": true,
+      "run": "/data/mw_finetune/eval/fa_lo_fw_r_b_m_j"
+    },
+    "groot:mt50:full:H100": {
+      "c5_pure": true,
+      "new": true,
+      "run": "/data/mw_finetune/eval/fa_lo_gr_f_b_m"
+    },
+    "groot:mt50:full:H200 MIG 1g.18gb": {
+      "c5_pure": true,
+      "new": true,
+      "run": "/data/mw_finetune/eval/fa_lo_gr_f_b_m_j"
+    },
+    "groot:mt50:reduced:H200 MIG 1g.18gb": {
+      "c5_pure": true,
+      "new": true,
+      "run": "/data/mw_finetune/eval/fa_lo_gr_r_b_m_j"
     }
   },
   "rule": "long-segment-OFF selection: same model/benchmark/steps, same card (H100 or pod MIG slice), C5 pure"
