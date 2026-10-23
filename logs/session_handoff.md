@@ -71,7 +71,7 @@ owner 的常驻指令，逐字有效：
   | 实验 | 机器 / 链 | 进度 | 预计 |
   |---|---|---|---|
   | 成功过滤库 · Fast-WAM · MetaWorld · 减步 · 旋钮关 fa_lo_fw_r_f_m_j2（B8） | jupyter-ziyang10-02 / pod2lo6 | 79,282/90,000 | ~17:30 |
-  | 成功过滤库 · Fast-WAM · LIBERO · 全步 · 各档 fa_lo_fw_f_f_l_l（22,500，5 格？见 RESULTS_OFF） | 真 H100（R17 车道 23420/driver 23199，带 H100 本机 40 个渲染 worker）/ h100lo14 | 1,882/22,500，~55/分 | ~22:00 |
+  | 成功过滤库 · Fast-WAM · LIBERO · 全步 · 各档 fa_lo_fw_f_f_l_l（9 格 × 5 组 × 500 = 22,500：长任务 50/100/200/300/400/500，空间 50/100/500） | 真 H100（R17 车道 23420/driver 23199，带 H100 本机 40 个渲染 worker）/ h100lo14 | 1,882/22,500，~55/分 | ~22:00 |
   | 成功过滤库 · Fast-WAM · MetaWorld · 全步 · 旋钮关 fa_lo_fw_f_f_m（R2/B16/76 GiB；参照 fa_lo_fw_f_b_m 已完 2,500） | h100-sean 车道 1（driver 23197，服务 23170）/ seanlo8 | 15:28 起，服务启动中 | ~23:00 |
   其余 11 条线全部跑完：π0.5/GR00T/DP LIBERO 两种步数（Fast-WAM LIBERO 减步也完）、GR00T/DP MetaWorld 两种步数。空闲：pod1（jupyter-ziyang10）、sean 车道 2（driver 23198）。pod1 没有能加速剩余 Fast-WAM 的活（同卡参照 + 一批一个服务端）。
 - **三批跑完后要做**：
