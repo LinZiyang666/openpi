@@ -22,11 +22,13 @@ unchanged, after these process-local changes (1-6 in both modes, 7 in cache mode
    with copies of their last row and the outputs sliced back. Each stage is FX-traced on real inputs first; with
    CLUSTER_SIM_COMPILE set the traced stages are compiled by inductor before capture (without graphs,
    CLUSTER_SIM_COMPILE=vision,lm,expert compiles those modules).
-8. Fused back end (CLUSTER_SIM_FUSE23=1): stage 2 runs inside the stage-3 batch, no hand-off through the request
-   thread (section 8 below).
-9. Cache mode, CLUSTER_SIM_LEAN=1: the logging-only corrector audit (a second distance pass per query) is skipped.
 7. Cache mode (CLUSTER_SIM_KEYS=1): CP1 keys computed per stage-1 batch with one D2H; no device-wide sync in the
-   plugin's stage-1 counter. See section 7 below.
+   plugin's stage-1 counter.
+8. Fused back end (CLUSTER_SIM_FUSE23=1): stage 2 runs inside the stage-3 batch, no hand-off through the request
+   thread.
+9. Cache mode, CLUSTER_SIM_LEAN=1: the logging-only corrector audit (a second distance pass per query) is skipped.
+10. Cache mode, CLUSTER_SIM_DOT=1: the fitted methods' matrix products run through np.dot (same BLAS, bit-identical,
+   GIL released) instead of numpy's GIL-holding matmul.
 Stage timers (SystemTimer) are off in both modes.
 """
 import sys
@@ -450,6 +452,57 @@ if os.environ.get('CLUSTER_SIM_LEAN') == '1':
 
     _r14.original_corrector_audit = lambda base, q, res: dict(
         audit_reconstruction_ms=0., corrector=dict(distance=0., gate=0., motion_rms=0., norm=0., blend=.5))
+
+# 10. Cache mode, CLUSTER_SIM_DOT=1: the fitted methods' matrix products release the GIL. numpy 1.26's `@` (matmul)
+# holds the GIL through the BLAS call, so every request's projections (64x32768 per camera), table distances,
+# corrector heads and stall-gate projections serialize all request threads and starve the stage threads; np.dot runs
+# the same BLAS routine without the GIL and is bit-identical (checked on these shapes). The fitted method loaded from
+# each arm's artifact gets its 2-D float arrays (>= 4096 entries) as DotArray views: `@` on them calls np.dot.
+if os.environ.get('CLUSTER_SIM_DOT') == '1':
+    import pickle as _pickle
+
+    import numpy as np
+
+    class DotArray(np.ndarray):
+        def __matmul__(self, other):
+            return np.dot(self.view(np.ndarray), other)
+
+        def __rmatmul__(self, other):
+            return np.dot(other, self.view(np.ndarray))
+
+    def dotify(obj, seen):
+        if id(obj) in seen:
+            return obj
+        seen.add(id(obj))
+        if type(obj) is np.ndarray:
+            return obj.view(DotArray) if obj.ndim == 2 and obj.dtype.kind == 'f' and obj.size >= 4096 else obj
+        if isinstance(obj, dict):
+            for k in list(obj):
+                obj[k] = dotify(obj[k], seen)
+        elif isinstance(obj, list):
+            obj[:] = [dotify(v, seen) for v in obj]
+        elif isinstance(obj, tuple) and hasattr(obj, '_fields'):
+            return obj._replace(**{f: dotify(getattr(obj, f), seen) for f in obj._fields})
+        elif isinstance(obj, tuple):
+            return type(obj)(dotify(v, seen) for v in obj)
+        elif hasattr(obj, '__dict__') and type(obj).__module__.startswith('exp.'):
+            for k, v in list(vars(obj).items()):
+                object.__setattr__(obj, k, dotify(v, seen))
+        return obj
+
+    class _Pickle:
+        def __getattr__(self, name):
+            return getattr(_pickle, name)
+
+        def load(self, f, **kwargs):
+            blob = _pickle.load(f, **kwargs)
+            if isinstance(blob, dict) and 'method' in blob:
+                blob['method'] = dotify(blob['method'], set())
+            return blob
+
+    from exp.offline_search.closed_loop import plugin as _plugin_dot
+
+    _plugin_dot.pickle = _Pickle()
 
 # 7. Cache mode only (CLUSTER_SIM_KEYS=1): CP1 keys for a whole stage-1 batch with one D2H copy, and no device-wide sync
 # around stage 1. The keys are the CP1SpatialPool16 keys (vision_0/1: 16x16 -> 4x4 pooled tokens, robot_state), the
