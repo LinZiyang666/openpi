@@ -25,11 +25,12 @@
   "--compile-mode",
   "default"
  ],
- "g_b64_u123_o4": [
+ "g_b32_f23_o4": [
   "--batch",
-  "1:64,2:16,3:16",
+  "1:32,2:16,3:16",
   "--units",
   "1,2,3",
+  "--fuse23",
   "--omp",
   "4",
   "--graphs",
@@ -38,11 +39,26 @@
   "--compile-mode",
   "default"
  ],
- "g_b32_u123_o2": [
+ "g_b64_f23_o4": [
+  "--batch",
+  "1:64,2:16,3:16",
+  "--units",
+  "1,2,3",
+  "--fuse23",
+  "--omp",
+  "4",
+  "--graphs",
+  "--compile",
+  "all",
+  "--compile-mode",
+  "default"
+ ],
+ "g_b32_f23_o2": [
   "--batch",
   "1:32,2:16,3:16",
   "--units",
   "1,2,3",
+  "--fuse23",
   "--omp",
   "2",
   "--graphs",
@@ -51,28 +67,14 @@
   "--compile-mode",
   "default"
  ],
- "g_b32_u123_w2_o4": [
+ "g_b32_f23_o8": [
   "--batch",
   "1:32,2:16,3:16",
-  "--wait-ms",
-  "1:2,2:0,3:0",
   "--units",
   "1,2,3",
+  "--fuse23",
   "--omp",
-  "4",
-  "--graphs",
-  "--compile",
-  "all",
-  "--compile-mode",
-  "default"
- ],
- "g_b32_uall_o4": [
-  "--batch",
-  "1:32,2:16,3:16",
-  "--units",
-  "123",
-  "--omp",
-  "4",
+  "8",
   "--graphs",
   "--compile",
   "all",
