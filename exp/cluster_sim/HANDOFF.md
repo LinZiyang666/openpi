@@ -60,14 +60,11 @@ compact 后先读本文件，再读 `DESIGN.md`（owner 的需求与决议，权
 
 commits：847ce11a（设计）、f78b9a5f（主体）、408e33fc、49fd5e53、974f07b3、cdfff73e、93a09b80、46de5d40、b9c9664a、5758401e（本文件）、962065e3（LEVELS 和调参候选原先被 .gitignore 的 *.json 挡住没进库，已强制加入；两边各加一个 CUDA graph 候选 `--compile-mode reduce-overhead`）。
 
-## 现状（10-23 01:xx）
+## 现状（10-23 06:xx）：实验完成
 
-- 10-22 18:25 起整台 weilandserver 归本会话；owner：实验做完把设备还给看守会话（发消息给 [75fc7a]）。owner 10-22 夜里睡了，「你独自推进」。
-- 录制完成（500 局、27,747 条推理请求，回放库 `/nvme/weiland/openpi/cluster_sim/library`），录制与服务命中判定一致。
-- 服务优化全部在 `serve_entry.py`（编号段 1–11，说明见文件头和 DESIGN.md「10-22 晚」「10-22 夜」）：整段 CUDA graph（第 1 段从请求字典起、合并后段含整个去噪循环，启动时预录）、inductor、`--fuse23`、`--units`、`--priority`、完整系统的批量缓存键与去整卡同步、`--dot`（方法矩阵乘放 GIL，逐位相同）、`--lean`（去日志专用审计）、GC、CPU 线程。⛔ 不换精度。
-- 当前最好：完整系统 `--batch 1:32,2:16,3:16 --fuse23 --omp 4 --graphs --compile all --compile-mode default --dot --lean`：80 台稳态 89.5 条/秒、中位 520 ms；1 台中位 14 ms。纯推理 `--batch 1:16,2:16,3:16 --fuse23 --omp 4 --graphs --compile all --compile-mode default`（整段图版本在测，`tune/pure3/g2_b16_f23`）。
-- 在测：完整系统第 1 段流优先（`tune/cache3/g2_f23_dot_p1`），之后定参数跑正式回放（`runs/pure`、`runs/cache`，N=5..100、500 局、种子 0）。
-- 判定核对脚本 `$CLAUDE_JOB_DIR/tmp/cmp_dec.py A_summary B_summary`（未命中后一步的差异来自去噪噪声，属正常）。
+- 录制、调优、正式回放全部完成；结果和结论在 DESIGN.md「正式实验」，表 `runs/REPORT.md`，图 `runs/report.png`（`/nvme/weiland/openpi/cluster_sim/runs/`）。
+- 纯推理 04:08、完整系统 05:54 跑完；两边无失败请求；完整系统各 N 命中率 78.3%（与录制一致）。
+- 10-23 06:1x 已把 weilandserver 交还看守会话 [75fc7a]（4090 无本会话进程）。
 
 ## 4090 空出后的步骤（照做）
 
