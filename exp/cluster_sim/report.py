@@ -8,12 +8,12 @@ import argparse
 import json
 from pathlib import Path
 
-LABEL = {'pure': '全步纯推理（K=10）', 'cache': '完整系统（K=1，缓存）', 'cache_seg': '完整系统 + 长执行段'}
+LABEL = {'pure': '全步纯推理（K=10）', 'cache': '完整系统（K=1，缓存）', 'cache_seg': '完整系统 + 长执行段', 'cache_full': '缓存系统（全步 K=10）'}
 
 
 def load(runs):
     return {m: {r['robots']: r for r in json.loads((Path(runs) / m / 'RESULTS.json').read_text())}
-            for m in ('pure', 'cache', 'cache_seg') if (Path(runs) / m / 'RESULTS.json').exists()}
+            for m in ('pure', 'cache_full', 'cache', 'cache_seg') if (Path(runs) / m / 'RESULTS.json').exists()}
 
 
 def table(res):
@@ -39,8 +39,8 @@ def figure(res, path):
     import matplotlib.pyplot as plt
     plt.rcParams['font.sans-serif'] = ['Noto Sans CJK SC', 'WenQuanYi Zen Hei', 'DejaVu Sans']
     fig, axes = plt.subplots(1, 3, figsize=(15, 4.2))
-    colors = {'pure': '#c0504d', 'cache': '#2f6db5', 'cache_seg': '#3a9a5b'}
-    names = {'pure': 'pure inference (K=10)', 'cache': 'cache system (K=1)', 'cache_seg': 'cache system + long segments'}
+    colors = {'pure': '#c0504d', 'cache': '#2f6db5', 'cache_seg': '#3a9a5b', 'cache_full': '#8e6bbf'}
+    names = {'pure': 'pure inference (K=10)', 'cache': 'cache system (K=1)', 'cache_seg': 'cache system + long segments', 'cache_full': 'cache system, full step (K=10)'}
     for m, rows in res.items():
         ns = sorted(rows)
         axes[0].plot(ns, [rows[n]['requests_per_s'] for n in ns], 'o-', color=colors[m], label=names[m])
