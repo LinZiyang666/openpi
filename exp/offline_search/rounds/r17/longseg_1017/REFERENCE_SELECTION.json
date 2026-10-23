@@ -98,6 +98,51 @@
     "fastwam:libero:reduced:RTX 4090": {
       "run": "/data/mw_finetune/eval/hs7fwk1_4090c",
       "new": false
+    },
+    "dp:libero:reduced:H100": {
+      "run": "/data/mw_finetune/eval/fa_lo_dp_r_b_l",
+      "new": true,
+      "longseg_off_1022": true
+    },
+    "dp:libero:full:H100": {
+      "run": "/data/mw_finetune/eval/fa_lo_dp_f_b_l",
+      "new": true,
+      "longseg_off_1022": true
+    },
+    "fastwam:libero:reduced:H100": {
+      "run": "/data/mw_finetune/eval/fa_lo_fw_r_b_l",
+      "new": true,
+      "longseg_off_1022": true
+    },
+    "groot:mt50:reduced:H200 MIG 1g.18gb": {
+      "run": "/data/mw_finetune/eval/fa_lo_gr_r_b_m_j",
+      "new": true,
+      "longseg_off_1022": true
+    },
+    "groot:mt50:full:H200 MIG 1g.18gb": {
+      "run": "/data/mw_finetune/eval/fa_lo_gr_f_b_m_j",
+      "new": true,
+      "longseg_off_1022": true
+    },
+    "fastwam:mt50:reduced:H200 MIG 1g.18gb": {
+      "run": "/data/mw_finetune/eval/fa_lo_fw_r_b_m_j",
+      "new": true,
+      "longseg_off_1022": true
+    },
+    "fastwam:mt50:full:H200 MIG 1g.18gb": {
+      "run": "/data/mw_finetune/eval/fa_lo_fw_f_b_m_j",
+      "new": true,
+      "longseg_off_1022": true
+    },
+    "dp:mt50:reduced:H200 MIG 1g.18gb": {
+      "run": "/data/mw_finetune/eval/fa_ls_dp_r_b_m_j",
+      "new": false,
+      "longseg_off_1022": true
+    },
+    "dp:mt50:full:H200 MIG 1g.18gb": {
+      "run": "/data/mw_finetune/eval/fa_ls_dp_f_b_m_j",
+      "new": false,
+      "longseg_off_1022": true
     }
   }
 }

@@ -1,0 +1,805 @@
+{
+  "jobs": [
+    {
+      "name": "fa_lo_gr_r_f_m",
+      "run": "/data/mw_finetune/eval/fa_lo_gr_r_f_m",
+      "source": "/nvme/weiland/openpi/eval/ffk1015_groot_mt50_reduced_descent",
+      "episodes": 90000,
+      "model": "groot",
+      "benchmark": "mt50",
+      "mode": "reduced",
+      "stage": "descent",
+      "gpu": "H100",
+      "replicas": 5,
+      "batch": 1,
+      "workers": {
+        "timan1": 20,
+        "timan107": 20
+      },
+      "python": "/home/exouser/gr00t_n15_venv/.venv/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_6a3136e32dc06ee8f76d09340a7d03aebf443ffa6d2c80ec754da981a0e9c394",
+      "unfiltered": false,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "d5a39710b4cc28cf376d64d2d1ca0497fd5f299ff4883281ce6b4a926ab5b6d9",
+      "arm": "filtered",
+      "longseg": "off",
+      "commit_horizon": 5,
+      "on_campaign": "fa_ls_gr_r_f_m",
+      "cells": [
+        [
+          "mt50",
+          250
+        ],
+        [
+          "mt50",
+          500
+        ],
+        [
+          "mt50",
+          1000
+        ],
+        [
+          "mt50",
+          1500
+        ],
+        [
+          "mt50",
+          2000
+        ],
+        [
+          "mt50",
+          2500
+        ]
+      ]
+    },
+    {
+      "name": "fa_lo_gr_f_f_m",
+      "run": "/data/mw_finetune/eval/fa_lo_gr_f_f_m",
+      "source": "/nvme/weiland/openpi/eval/ffk1015_groot_mt50_full_descent",
+      "episodes": 90000,
+      "model": "groot",
+      "benchmark": "mt50",
+      "mode": "full",
+      "stage": "descent",
+      "gpu": "H100",
+      "replicas": 5,
+      "batch": 1,
+      "workers": {
+        "timan1": 20,
+        "timan107": 20
+      },
+      "python": "/home/exouser/gr00t_n15_venv/.venv/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_6a3136e32dc06ee8f76d09340a7d03aebf443ffa6d2c80ec754da981a0e9c394",
+      "unfiltered": false,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "3628e5728956da818ec8f75eafb03437eed04f8866f78e5adaa58af8f0e878fb",
+      "arm": "filtered",
+      "longseg": "off",
+      "commit_horizon": 5,
+      "on_campaign": "fa_ls_gr_f_f_m",
+      "cells": [
+        [
+          "mt50",
+          250
+        ],
+        [
+          "mt50",
+          500
+        ],
+        [
+          "mt50",
+          1000
+        ],
+        [
+          "mt50",
+          1500
+        ],
+        [
+          "mt50",
+          2000
+        ],
+        [
+          "mt50",
+          2500
+        ]
+      ]
+    },
+    {
+      "name": "fa_lo_dp_r_f_m",
+      "run": "/data/mw_finetune/eval/fa_lo_dp_r_f_m",
+      "source": "/nvme/weiland/openpi/eval/ffk1015_dp_mt50_reduced_descent",
+      "episodes": 90000,
+      "model": "dp",
+      "benchmark": "mt50",
+      "mode": "reduced",
+      "stage": "descent",
+      "gpu": "H100",
+      "replicas": 4,
+      "batch": 16,
+      "workers": {
+        "timan1": 60,
+        "timan107": 60
+      },
+      "python": "/data/mw_finetune/dp/env/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_c33e2281905a033a39150c5a71a207f45dc564fb3babf5a0b661442b8fb7e2ed",
+      "unfiltered": false,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "c480675d19213c5b21c211d5aee1e3ba9533d434877954babbdf84255ef1336b",
+      "arm": "filtered",
+      "longseg": "off",
+      "commit_horizon": 5,
+      "on_campaign": "fa_ls_dp_r_f_m",
+      "cells": [
+        [
+          "mt50",
+          250
+        ],
+        [
+          "mt50",
+          500
+        ],
+        [
+          "mt50",
+          1000
+        ],
+        [
+          "mt50",
+          1500
+        ],
+        [
+          "mt50",
+          2000
+        ],
+        [
+          "mt50",
+          2500
+        ]
+      ]
+    },
+    {
+      "name": "fa_lo_dp_f_f_m",
+      "run": "/data/mw_finetune/eval/fa_lo_dp_f_f_m",
+      "source": "/nvme/weiland/openpi/eval/ffk1015_dp_mt50_full_descent",
+      "episodes": 90000,
+      "model": "dp",
+      "benchmark": "mt50",
+      "mode": "full",
+      "stage": "descent",
+      "gpu": "H100",
+      "replicas": 8,
+      "batch": 32,
+      "workers": {
+        "timan1": 60,
+        "timan107": 60
+      },
+      "python": "/data/mw_finetune/dp/env/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_c33e2281905a033a39150c5a71a207f45dc564fb3babf5a0b661442b8fb7e2ed",
+      "unfiltered": false,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "08c719ba709bab8febbb788455916ebbc81bf1924f15c6e1e29fe0b3a369f66e",
+      "arm": "filtered",
+      "longseg": "off",
+      "commit_horizon": 5,
+      "on_campaign": "fa_ls_dp_f_f_m",
+      "cells": [
+        [
+          "mt50",
+          250
+        ],
+        [
+          "mt50",
+          500
+        ],
+        [
+          "mt50",
+          1000
+        ],
+        [
+          "mt50",
+          1500
+        ],
+        [
+          "mt50",
+          2000
+        ],
+        [
+          "mt50",
+          2500
+        ]
+      ]
+    },
+    {
+      "name": "fa_lo_fw_r_f_m",
+      "run": "/data/mw_finetune/eval/fa_lo_fw_r_f_m",
+      "source": "/nvme/weiland/openpi/eval/ffk1015_fastwam_mt50_reduced_descent",
+      "episodes": 90000,
+      "model": "fastwam",
+      "benchmark": "mt50",
+      "mode": "reduced",
+      "stage": "descent",
+      "gpu": "H100",
+      "replicas": 2,
+      "batch": 16,
+      "workers": {
+        "timan1": 60,
+        "timan107": 60
+      },
+      "python": "/data/mw_finetune/envs/fastwam/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_c33e2281905a033a39150c5a71a207f45dc564fb3babf5a0b661442b8fb7e2ed",
+      "unfiltered": false,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "f635bc57b71e57c429e5b4d9652de4cc587cbe545be5c5ee9a4376e3056ae4fd",
+      "arm": "filtered",
+      "longseg": "off",
+      "commit_horizon": 5,
+      "on_campaign": "fa_ls_fw_r_f_m",
+      "cells": [
+        [
+          "mt50",
+          250
+        ],
+        [
+          "mt50",
+          500
+        ],
+        [
+          "mt50",
+          1000
+        ],
+        [
+          "mt50",
+          1500
+        ],
+        [
+          "mt50",
+          2000
+        ],
+        [
+          "mt50",
+          2500
+        ]
+      ]
+    },
+    {
+      "name": "fa_lo_fw_f_f_m",
+      "run": "/data/mw_finetune/eval/fa_lo_fw_f_f_m",
+      "source": "/nvme/weiland/openpi/eval/ffk1015_fastwam_mt50_full_descent",
+      "episodes": 90000,
+      "model": "fastwam",
+      "benchmark": "mt50",
+      "mode": "full",
+      "stage": "descent",
+      "gpu": "H100",
+      "replicas": 2,
+      "batch": 16,
+      "workers": {
+        "timan1": 60,
+        "timan107": 60
+      },
+      "python": "/data/mw_finetune/envs/fastwam/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_c33e2281905a033a39150c5a71a207f45dc564fb3babf5a0b661442b8fb7e2ed",
+      "unfiltered": false,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "015027866e2c67c8946c26676fa558369d1e7f469e8330f325ef624c8b22abcf",
+      "arm": "filtered",
+      "longseg": "off",
+      "commit_horizon": 5,
+      "on_campaign": "fa_ls_fw_f_f_m",
+      "cells": [
+        [
+          "mt50",
+          250
+        ],
+        [
+          "mt50",
+          500
+        ],
+        [
+          "mt50",
+          1000
+        ],
+        [
+          "mt50",
+          1500
+        ],
+        [
+          "mt50",
+          2000
+        ],
+        [
+          "mt50",
+          2500
+        ]
+      ]
+    },
+    {
+      "name": "fa_lo_dp_r_f_o_l",
+      "run": "/data/mw_finetune/eval/fa_lo_dp_r_f_o_l",
+      "source": "/nvme/weiland/openpi/eval/ffk1015_dp_libero_reduced_formal_A_filtered",
+      "episodes": 6000,
+      "model": "dp",
+      "benchmark": "libero",
+      "mode": "reduced",
+      "stage": "off",
+      "gpu": "H100",
+      "replicas": 4,
+      "batch": 8,
+      "workers": {
+        "timan1": 24,
+        "timan107": 24
+      },
+      "python": "/home/weiland/projects/openpi/.venv/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_3faa6dcf5cd5dacf9109052a0a85f69b53564282161b9f14f165f7229b8d53d4",
+      "unfiltered": false,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "e4a4f5ebcc8a8de0de390c22fa29a368242c534a7c8eb8f450d668e761791da0",
+      "arm": "filtered",
+      "longseg": "off",
+      "commit_horizon": 5,
+      "on_campaign": "fa_ls_dp_r_f_o_l",
+      "cells": [
+        [
+          "libero_10",
+          50
+        ],
+        [
+          "libero_10",
+          100
+        ],
+        [
+          "libero_10",
+          200
+        ],
+        [
+          "libero_10",
+          300
+        ],
+        [
+          "libero_10",
+          400
+        ],
+        [
+          "libero_10",
+          500
+        ],
+        [
+          "libero_spatial",
+          50
+        ],
+        [
+          "libero_spatial",
+          100
+        ],
+        [
+          "libero_spatial",
+          200
+        ],
+        [
+          "libero_spatial",
+          300
+        ],
+        [
+          "libero_spatial",
+          400
+        ],
+        [
+          "libero_spatial",
+          500
+        ]
+      ]
+    },
+    {
+      "name": "fa_lo_dp_f_f_o_l",
+      "run": "/data/mw_finetune/eval/fa_lo_dp_f_f_o_l",
+      "source": "/nvme/weiland/openpi/eval/ffk1015_dp_libero_full_formal_A_filtered",
+      "episodes": 6000,
+      "model": "dp",
+      "benchmark": "libero",
+      "mode": "full",
+      "stage": "off",
+      "gpu": "H100",
+      "replicas": 4,
+      "batch": 8,
+      "workers": {
+        "timan1": 24,
+        "timan107": 24
+      },
+      "python": "/home/weiland/projects/openpi/.venv/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_5927a753312bf5981cba81a2e389edea914bde0580523b0dc3c8ea8d58f1fa1e",
+      "unfiltered": false,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "0700b9136c2c13f71ed9cda64dfe45f6ddd91a7d2a2fa6959b97095640f35733",
+      "arm": "filtered",
+      "longseg": "off",
+      "commit_horizon": 5,
+      "on_campaign": "fa_ls_dp_f_f_o_l",
+      "cells": [
+        [
+          "libero_10",
+          50
+        ],
+        [
+          "libero_10",
+          100
+        ],
+        [
+          "libero_10",
+          200
+        ],
+        [
+          "libero_10",
+          300
+        ],
+        [
+          "libero_10",
+          400
+        ],
+        [
+          "libero_10",
+          500
+        ],
+        [
+          "libero_spatial",
+          50
+        ],
+        [
+          "libero_spatial",
+          100
+        ],
+        [
+          "libero_spatial",
+          200
+        ],
+        [
+          "libero_spatial",
+          300
+        ],
+        [
+          "libero_spatial",
+          400
+        ],
+        [
+          "libero_spatial",
+          500
+        ]
+      ]
+    },
+    {
+      "name": "fa_lo_fw_r_f_o_l",
+      "run": "/data/mw_finetune/eval/fa_lo_fw_r_f_o_l",
+      "source": "/nvme/weiland/openpi/eval/ffk1015_fastwam_libero_full_formal_A_filtered",
+      "episodes": 6000,
+      "model": "fastwam",
+      "benchmark": "libero",
+      "mode": "reduced",
+      "stage": "off",
+      "gpu": "H100",
+      "replicas": 2,
+      "batch": 16,
+      "workers": {
+        "timan1": 35,
+        "timan107": 35
+      },
+      "python": "/data/mw_finetune/envs/fastwam/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_20550932745afaeb6bf31e858d1bfb91740727cf98bd0c6a5cd9171a8d9baa21",
+      "unfiltered": false,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "5ff256a2b4d8076a2095a096ddaf148dea4d8f2b3967096417de729e3d1d51ed",
+      "arm": "filtered",
+      "longseg": "off",
+      "commit_horizon": 5,
+      "on_campaign": "fa_ls_fw_r_f_o_l",
+      "cells": [
+        [
+          "libero_10",
+          50
+        ],
+        [
+          "libero_10",
+          100
+        ],
+        [
+          "libero_10",
+          200
+        ],
+        [
+          "libero_10",
+          300
+        ],
+        [
+          "libero_10",
+          400
+        ],
+        [
+          "libero_10",
+          500
+        ],
+        [
+          "libero_spatial",
+          50
+        ],
+        [
+          "libero_spatial",
+          100
+        ],
+        [
+          "libero_spatial",
+          200
+        ],
+        [
+          "libero_spatial",
+          300
+        ],
+        [
+          "libero_spatial",
+          400
+        ],
+        [
+          "libero_spatial",
+          500
+        ]
+      ]
+    },
+    {
+      "name": "fa_lo_fw_f_f_o_l",
+      "run": "/data/mw_finetune/eval/fa_lo_fw_f_f_o_l",
+      "source": "/nvme/weiland/openpi/eval/ffk1015_fastwam_libero_full_formal_A_filtered",
+      "episodes": 6000,
+      "model": "fastwam",
+      "benchmark": "libero",
+      "mode": "full",
+      "stage": "off",
+      "gpu": "H100",
+      "replicas": 2,
+      "batch": 16,
+      "workers": {
+        "timan1": 42,
+        "timan107": 43
+      },
+      "python": "/data/mw_finetune/envs/fastwam/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_20550932745afaeb6bf31e858d1bfb91740727cf98bd0c6a5cd9171a8d9baa21",
+      "unfiltered": false,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "2356830134e6a7f64516841fc708c155f55253ecf12c012e3bc11e36ca83426f",
+      "arm": "filtered",
+      "longseg": "off",
+      "commit_horizon": 5,
+      "on_campaign": "fa_ls_fw_f_f_o_l",
+      "cells": [
+        [
+          "libero_10",
+          50
+        ],
+        [
+          "libero_10",
+          100
+        ],
+        [
+          "libero_10",
+          200
+        ],
+        [
+          "libero_10",
+          300
+        ],
+        [
+          "libero_10",
+          400
+        ],
+        [
+          "libero_10",
+          500
+        ],
+        [
+          "libero_spatial",
+          50
+        ],
+        [
+          "libero_spatial",
+          100
+        ],
+        [
+          "libero_spatial",
+          200
+        ],
+        [
+          "libero_spatial",
+          300
+        ],
+        [
+          "libero_spatial",
+          400
+        ],
+        [
+          "libero_spatial",
+          500
+        ]
+      ]
+    },
+    {
+      "name": "fa_lo_dp_r_b_l",
+      "run": "/data/mw_finetune/eval/fa_lo_dp_r_b_l",
+      "source": "/nvme/weiland/openpi/eval/ffk1015_dp_libero_reduced_formal_A_original",
+      "episodes": 1000,
+      "model": "dp",
+      "benchmark": "libero",
+      "mode": "reduced",
+      "stage": "pure",
+      "gpu": "H100",
+      "replicas": 4,
+      "batch": 8,
+      "workers": {
+        "timan1": 24,
+        "timan107": 24
+      },
+      "python": "/home/weiland/projects/openpi/.venv/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_3faa6dcf5cd5dacf9109052a0a85f69b53564282161b9f14f165f7229b8d53d4",
+      "unfiltered": true,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "f0adec5bd5bcdca7506b494429e9626194e82fb223c71551d59c292d5114421b",
+      "arm": "pure_reference",
+      "commit_horizon": 5
+    },
+    {
+      "name": "fa_lo_dp_f_b_l",
+      "run": "/data/mw_finetune/eval/fa_lo_dp_f_b_l",
+      "source": "/nvme/weiland/openpi/eval/ffk1015_dp_libero_full_formal_A_original",
+      "episodes": 1000,
+      "model": "dp",
+      "benchmark": "libero",
+      "mode": "full",
+      "stage": "pure",
+      "gpu": "H100",
+      "replicas": 4,
+      "batch": 8,
+      "workers": {
+        "timan1": 24,
+        "timan107": 24
+      },
+      "python": "/home/weiland/projects/openpi/.venv/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_5927a753312bf5981cba81a2e389edea914bde0580523b0dc3c8ea8d58f1fa1e",
+      "unfiltered": true,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "bc0db984828567f9e7ac15911d7170671484952d94252a02957c85efc9cf088c",
+      "arm": "pure_reference",
+      "commit_horizon": 5
+    },
+    {
+      "name": "fa_lo_fw_r_b_l",
+      "run": "/data/mw_finetune/eval/fa_lo_fw_r_b_l",
+      "source": "/nvme/weiland/openpi/eval/ffk1015_fastwam_libero_full_formal_A_filtered",
+      "episodes": 1000,
+      "model": "fastwam",
+      "benchmark": "libero",
+      "mode": "reduced",
+      "stage": "pure",
+      "gpu": "H100",
+      "replicas": 2,
+      "batch": 16,
+      "workers": {
+        "timan1": 35,
+        "timan107": 35
+      },
+      "python": "/data/mw_finetune/envs/fastwam/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_20550932745afaeb6bf31e858d1bfb91740727cf98bd0c6a5cd9171a8d9baa21",
+      "unfiltered": true,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "70bef5b4439a6c7dcff5edc741c93c1dd46d656914f44565b422d1fa2a60d5fa",
+      "arm": "pure_reference",
+      "commit_horizon": 5
+    },
+    {
+      "name": "fa_lo_gr_r_b_m",
+      "run": "/data/mw_finetune/eval/fa_lo_gr_r_b_m",
+      "source": "/nvme/weiland/openpi/eval/ffk1015_groot_mt50_reduced_descent",
+      "episodes": 2500,
+      "model": "groot",
+      "benchmark": "mt50",
+      "mode": "reduced",
+      "stage": "pure",
+      "gpu": "H100",
+      "replicas": 5,
+      "batch": 1,
+      "workers": {
+        "timan1": 20,
+        "timan107": 20
+      },
+      "python": "/home/exouser/gr00t_n15_venv/.venv/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_6a3136e32dc06ee8f76d09340a7d03aebf443ffa6d2c80ec754da981a0e9c394",
+      "unfiltered": true,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "e5e7670fc63d22604abed56d936a203b88b7218cdce8f3ab881fd1686cbc393b",
+      "arm": "pure_reference",
+      "commit_horizon": 5
+    },
+    {
+      "name": "fa_lo_gr_f_b_m",
+      "run": "/data/mw_finetune/eval/fa_lo_gr_f_b_m",
+      "source": "/nvme/weiland/openpi/eval/ffk1015_groot_mt50_full_descent",
+      "episodes": 2500,
+      "model": "groot",
+      "benchmark": "mt50",
+      "mode": "full",
+      "stage": "pure",
+      "gpu": "H100",
+      "replicas": 5,
+      "batch": 1,
+      "workers": {
+        "timan1": 20,
+        "timan107": 20
+      },
+      "python": "/home/exouser/gr00t_n15_venv/.venv/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_6a3136e32dc06ee8f76d09340a7d03aebf443ffa6d2c80ec754da981a0e9c394",
+      "unfiltered": true,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "b4b40a2c9224275bff8125a4507867e9cb6e7354a0fae28b353c3c6a255eca4b",
+      "arm": "pure_reference",
+      "commit_horizon": 5
+    },
+    {
+      "name": "fa_lo_fw_r_b_m",
+      "run": "/data/mw_finetune/eval/fa_lo_fw_r_b_m",
+      "source": "/nvme/weiland/openpi/eval/ffk1015_fastwam_mt50_reduced_descent",
+      "episodes": 2500,
+      "model": "fastwam",
+      "benchmark": "mt50",
+      "mode": "reduced",
+      "stage": "pure",
+      "gpu": "H100",
+      "replicas": 2,
+      "batch": 16,
+      "workers": {
+        "timan1": 60,
+        "timan107": 60
+      },
+      "python": "/data/mw_finetune/envs/fastwam/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_c33e2281905a033a39150c5a71a207f45dc564fb3babf5a0b661442b8fb7e2ed",
+      "unfiltered": true,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "09c6daf2950a4621a4a40ba054e97bd64133009958802ddafd1dd904e90aeaaf",
+      "arm": "pure_reference",
+      "commit_horizon": 5
+    },
+    {
+      "name": "fa_lo_fw_f_b_m",
+      "run": "/data/mw_finetune/eval/fa_lo_fw_f_b_m",
+      "source": "/nvme/weiland/openpi/eval/ffk1015_fastwam_mt50_full_descent",
+      "episodes": 2500,
+      "model": "fastwam",
+      "benchmark": "mt50",
+      "mode": "full",
+      "stage": "pure",
+      "gpu": "H100",
+      "replicas": 2,
+      "batch": 16,
+      "workers": {
+        "timan1": 60,
+        "timan107": 60
+      },
+      "python": "/data/mw_finetune/envs/fastwam/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_c33e2281905a033a39150c5a71a207f45dc564fb3babf5a0b661442b8fb7e2ed",
+      "unfiltered": true,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "caaa5b307002dc24607335b9817a74cf6a5f45c7f5d2289edfa16ac5a87621a8",
+      "arm": "pure_reference",
+      "commit_horizon": 5
+    }
+  ]
+}

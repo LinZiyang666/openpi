@@ -841,6 +841,850 @@
     }
    ],
    "status": "BUILT"
+  },
+  {
+   "name": "fa_lo_gr_f_p_q",
+   "model": "groot",
+   "mode": "full",
+   "arm": "pure",
+   "stage": "pure",
+   "pipeline": "R15",
+   "gpu": "H100",
+   "replicas": 4,
+   "episodes": 1000,
+   "jobs": [
+    {
+     "name": "fa_lo_gr_f_p_q_l10",
+     "run": "/data/mw_finetune/eval/fa_lo_gr_f_p_q_l10",
+     "arm": "fa_lo_gr_f_p_q_l10_c10",
+     "model": "groot",
+     "mode": "full",
+     "arm_kind": "pure",
+     "pipeline": "R15",
+     "stage": "pure",
+     "cell": "groot_l10_50",
+     "suite": "l10",
+     "episodes": 500,
+     "levels": [
+      "c10"
+     ],
+     "gpu": "H100",
+     "replicas": 4,
+     "workers": "central scheduler: a100/timan107/timan1",
+     "topology": {
+      "source_root": "/home/weiland/trace_runs/os_closed_loop/r14_descent_test_groot_l10_50",
+      "source_arm": "r14dt_groot_l10_50_pure_c10",
+      "gpu": "H100",
+      "workers": {
+       "timan107": 64
+      },
+      "replicas": 4,
+      "env": {
+       "SERVER_HOST": "h100",
+       "WORKER_HOST": "a100",
+       "PORTS": "23250,23251,23252,23253",
+       "WPS": "16",
+       "LOCAL_SERVER_COUNT": "4",
+       "OMP": "1",
+       "OPENBLAS_NUM_THREADS": "1",
+       "OMP_NUM_THREADS": "1",
+       "MKL_NUM_THREADS": "1",
+       "PYTHONDONTWRITEBYTECODE": "1",
+       "STAGE1_ONLY": "0",
+       "STOCK": "0",
+       "NEED_MB": "7200",
+       "SYNC_PORT": "23194",
+       "MAX_ATTEMPTS": "3",
+       "POLL_SECONDS": "60"
+      }
+     },
+     "reference_source": {
+      "root": "/home/weiland/trace_runs/os_closed_loop/r14_descent_test_groot_l10_50",
+      "arm": "r14dt_groot_l10_50_pure_c10",
+      "server_host": "local"
+     },
+     "server_tree": "/data/oscl_h100/openpi (h100)"
+    },
+    {
+     "name": "fa_lo_gr_f_p_q_s",
+     "run": "/data/mw_finetune/eval/fa_lo_gr_f_p_q_s",
+     "arm": "fa_lo_gr_f_p_q_s_c10",
+     "model": "groot",
+     "mode": "full",
+     "arm_kind": "pure",
+     "pipeline": "R15",
+     "stage": "pure",
+     "cell": "groot_spatial_50",
+     "suite": "spatial",
+     "episodes": 500,
+     "levels": [
+      "c10"
+     ],
+     "gpu": "H100",
+     "replicas": 4,
+     "workers": "central scheduler: a100/timan107/timan1",
+     "topology": {
+      "source_root": "/home/weiland/trace_runs/os_closed_loop/r14_descent_test_groot_spatial_50",
+      "source_arm": "r14dt_groot_spatial_50_pure_c10",
+      "gpu": "H100",
+      "workers": {
+       "timan107": 64
+      },
+      "replicas": 4,
+      "env": {
+       "SERVER_HOST": "h100",
+       "WORKER_HOST": "a100",
+       "PORTS": "23250,23251,23252,23253",
+       "WPS": "16",
+       "LOCAL_SERVER_COUNT": "4",
+       "OMP": "1",
+       "OPENBLAS_NUM_THREADS": "1",
+       "OMP_NUM_THREADS": "1",
+       "MKL_NUM_THREADS": "1",
+       "PYTHONDONTWRITEBYTECODE": "1",
+       "STAGE1_ONLY": "0",
+       "STOCK": "0",
+       "NEED_MB": "7200",
+       "SYNC_PORT": "23194",
+       "MAX_ATTEMPTS": "3",
+       "POLL_SECONDS": "60"
+      }
+     },
+     "reference_source": {
+      "root": "/home/weiland/trace_runs/os_closed_loop/r14_descent_test_groot_spatial_50",
+      "arm": "r14dt_groot_spatial_50_pure_c10",
+      "server_host": "local"
+     },
+     "server_tree": "/data/oscl_h100/openpi (h100)"
+    }
+   ],
+   "status": "UNUSED",
+   "segment": "c10",
+   "unused": "owner 10-22: levels select against the C5 references fa_lo_*_p5_q"
+  },
+  {
+   "name": "fa_lo_pi_r_p_q",
+   "model": "pi05",
+   "mode": "reduced",
+   "arm": "pure",
+   "stage": "pure",
+   "pipeline": "R15",
+   "gpu": "H100",
+   "replicas": 3,
+   "episodes": 1000,
+   "jobs": [
+    {
+     "name": "fa_lo_pi_r_p_q_l10",
+     "run": "/data/mw_finetune/eval/fa_lo_pi_r_p_q_l10",
+     "arm": "fa_lo_pi_r_p_q_l10_c10",
+     "model": "pi05",
+     "mode": "reduced",
+     "arm_kind": "pure",
+     "pipeline": "R15",
+     "stage": "pure",
+     "cell": "pi05_l10_50",
+     "suite": "l10",
+     "episodes": 500,
+     "levels": [
+      "c10"
+     ],
+     "gpu": "H100",
+     "replicas": 3,
+     "workers": "central scheduler: a100/timan107/timan1",
+     "topology": {
+      "source_root": "/home/weiland/trace_runs/os_closed_loop/r16_phase1_pi05_l10_k1",
+      "source_arm": "r16p1_pi05_l10_k1_pure_c10",
+      "gpu": "H100",
+      "workers": {
+       "timan108": 39
+      },
+      "replicas": 3,
+      "env": {
+       "SERVER_HOST": "h100",
+       "WORKER_HOST": "a100",
+       "PORTS": "23254,23255,23256",
+       "WPS": "13",
+       "LOCAL_SERVER_COUNT": "3",
+       "OMP": "1",
+       "OPENBLAS_NUM_THREADS": "1",
+       "OMP_NUM_THREADS": "1",
+       "MKL_NUM_THREADS": "1",
+       "PYTHONDONTWRITEBYTECODE": "1",
+       "STAGE1_ONLY": "0",
+       "STOCK": "0",
+       "NEED_MB": "8800",
+       "SYNC_PORT": "23194",
+       "MAX_ATTEMPTS": "3",
+       "POLL_SECONDS": "60"
+      }
+     },
+     "reference_source": {
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_phase1_pi05_l10_k1",
+      "arm": "r16p1_pi05_l10_k1_pure_c10",
+      "server_host": "local"
+     },
+     "server_tree": "/data/oscl_h100/openpi (h100)"
+    },
+    {
+     "name": "fa_lo_pi_r_p_q_s",
+     "run": "/data/mw_finetune/eval/fa_lo_pi_r_p_q_s",
+     "arm": "fa_lo_pi_r_p_q_s_c10",
+     "model": "pi05",
+     "mode": "reduced",
+     "arm_kind": "pure",
+     "pipeline": "R15",
+     "stage": "pure",
+     "cell": "pi05_spatial_50",
+     "suite": "spatial",
+     "episodes": 500,
+     "levels": [
+      "c10"
+     ],
+     "gpu": "H100",
+     "replicas": 3,
+     "workers": "central scheduler: a100/timan107/timan1",
+     "topology": {
+      "source_root": "/home/weiland/trace_runs/os_closed_loop/r16_phase1_pi05_spatial_k1",
+      "source_arm": "r16p1_pi05_spatial_k1_pure_c10",
+      "gpu": "H100",
+      "workers": {
+       "timan108": 39
+      },
+      "replicas": 3,
+      "env": {
+       "SERVER_HOST": "h100",
+       "WORKER_HOST": "a100",
+       "PORTS": "23254,23255,23256",
+       "WPS": "13",
+       "LOCAL_SERVER_COUNT": "3",
+       "OMP": "1",
+       "OPENBLAS_NUM_THREADS": "1",
+       "OMP_NUM_THREADS": "1",
+       "MKL_NUM_THREADS": "1",
+       "PYTHONDONTWRITEBYTECODE": "1",
+       "STAGE1_ONLY": "0",
+       "STOCK": "0",
+       "NEED_MB": "8800",
+       "SYNC_PORT": "23194",
+       "MAX_ATTEMPTS": "3",
+       "POLL_SECONDS": "60"
+      }
+     },
+     "reference_source": {
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_phase1_pi05_spatial_k1",
+      "arm": "r16p1_pi05_spatial_k1_pure_c10",
+      "server_host": "local"
+     },
+     "server_tree": "/data/oscl_h100/openpi (h100)"
+    }
+   ],
+   "status": "UNUSED",
+   "segment": "c10",
+   "unused": "owner 10-22: levels select against the C5 references fa_lo_*_p5_q"
+  },
+  {
+   "name": "fa_lo_gr_r_p_q",
+   "model": "groot",
+   "mode": "reduced",
+   "arm": "pure",
+   "stage": "pure",
+   "pipeline": "R15",
+   "gpu": "H100",
+   "replicas": 4,
+   "episodes": 1000,
+   "jobs": [
+    {
+     "name": "fa_lo_gr_r_p_q_l10",
+     "run": "/data/mw_finetune/eval/fa_lo_gr_r_p_q_l10",
+     "arm": "fa_lo_gr_r_p_q_l10_c10",
+     "model": "groot",
+     "mode": "reduced",
+     "arm_kind": "pure",
+     "pipeline": "R15",
+     "stage": "pure",
+     "cell": "groot_l10_50",
+     "suite": "l10",
+     "episodes": 500,
+     "levels": [
+      "c10"
+     ],
+     "gpu": "H100",
+     "replicas": 4,
+     "workers": "central scheduler: a100/timan107/timan1",
+     "topology": {
+      "source_root": "/home/weiland/trace_runs/os_closed_loop/r16_phase1_groot_l10_k1",
+      "source_arm": "r16p1_groot_l10_k1_pure_c10",
+      "gpu": "H100",
+      "workers": {
+       "timan107": 64
+      },
+      "replicas": 4,
+      "env": {
+       "SERVER_HOST": "h100",
+       "WORKER_HOST": "a100",
+       "PORTS": "23257,23258,23259,23260",
+       "WPS": "16",
+       "LOCAL_SERVER_COUNT": "4",
+       "OMP": "1",
+       "OPENBLAS_NUM_THREADS": "1",
+       "OMP_NUM_THREADS": "1",
+       "MKL_NUM_THREADS": "1",
+       "PYTHONDONTWRITEBYTECODE": "1",
+       "STAGE1_ONLY": "0",
+       "STOCK": "0",
+       "NEED_MB": "7200",
+       "SYNC_PORT": "23194",
+       "MAX_ATTEMPTS": "3",
+       "POLL_SECONDS": "60"
+      }
+     },
+     "reference_source": {
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_phase1_groot_l10_k1",
+      "arm": "r16p1_groot_l10_k1_pure_c10",
+      "server_host": "local"
+     },
+     "server_tree": "/data/oscl_h100/openpi (h100)"
+    },
+    {
+     "name": "fa_lo_gr_r_p_q_s",
+     "run": "/data/mw_finetune/eval/fa_lo_gr_r_p_q_s",
+     "arm": "fa_lo_gr_r_p_q_s_c10",
+     "model": "groot",
+     "mode": "reduced",
+     "arm_kind": "pure",
+     "pipeline": "R15",
+     "stage": "pure",
+     "cell": "groot_spatial_50",
+     "suite": "spatial",
+     "episodes": 500,
+     "levels": [
+      "c10"
+     ],
+     "gpu": "H100",
+     "replicas": 4,
+     "workers": "central scheduler: a100/timan107/timan1",
+     "topology": {
+      "source_root": "/home/weiland/trace_runs/os_closed_loop/r16_phase1_groot_spatial_k1",
+      "source_arm": "r16p1_groot_spatial_k1_pure_c10",
+      "gpu": "H100",
+      "workers": {
+       "timan107": 64
+      },
+      "replicas": 4,
+      "env": {
+       "SERVER_HOST": "h100",
+       "WORKER_HOST": "a100",
+       "PORTS": "23257,23258,23259,23260",
+       "WPS": "16",
+       "LOCAL_SERVER_COUNT": "4",
+       "OMP": "1",
+       "OPENBLAS_NUM_THREADS": "1",
+       "OMP_NUM_THREADS": "1",
+       "MKL_NUM_THREADS": "1",
+       "PYTHONDONTWRITEBYTECODE": "1",
+       "STAGE1_ONLY": "0",
+       "STOCK": "0",
+       "NEED_MB": "7200",
+       "SYNC_PORT": "23194",
+       "MAX_ATTEMPTS": "3",
+       "POLL_SECONDS": "60"
+      }
+     },
+     "reference_source": {
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_phase1_groot_spatial_k1",
+      "arm": "r16p1_groot_spatial_k1_pure_c10",
+      "server_host": "local"
+     },
+     "server_tree": "/data/oscl_h100/openpi (h100)"
+    }
+   ],
+   "status": "UNUSED",
+   "segment": "c10",
+   "unused": "owner 10-22: levels select against the C5 references fa_lo_*_p5_q"
+  },
+  {
+   "name": "fa_lo_pi_f_p5_q",
+   "model": "pi05",
+   "mode": "full",
+   "arm": "pure",
+   "stage": "pure",
+   "segment": "c5",
+   "pipeline": "R15",
+   "gpu": "H100",
+   "replicas": 3,
+   "episodes": 1000,
+   "jobs": [
+    {
+     "name": "fa_lo_pi_f_p5_q_l10",
+     "run": "/data/mw_finetune/eval/fa_lo_pi_f_p5_q_l10",
+     "arm": "fa_lo_pi_f_p5_q_l10_c5",
+     "model": "pi05",
+     "mode": "full",
+     "arm_kind": "pure",
+     "pipeline": "R15",
+     "stage": "pure",
+     "segment": "c5",
+     "cell": "pi05_l10_50",
+     "suite": "l10",
+     "episodes": 500,
+     "levels": [
+      "c10"
+     ],
+     "gpu": "H100",
+     "replicas": 3,
+     "workers": "central scheduler: a100/timan107/timan1",
+     "topology": {
+      "source_root": "/data/mw_finetune/eval/fa_pi_f_p10",
+      "source_arm": "ffk1015_pi05_libero_full_formal_A_pure_l10_r1_c10",
+      "gpu": "H100",
+      "workers": {
+       "timan108": 39
+      },
+      "replicas": 3,
+      "env": {
+       "SERVER_HOST": "h100",
+       "WORKER_HOST": "a100",
+       "PORTS": "23261,23262,23263",
+       "WPS": "13",
+       "LOCAL_SERVER_COUNT": "3",
+       "OMP": "1",
+       "OPENBLAS_NUM_THREADS": "1",
+       "OMP_NUM_THREADS": "1",
+       "MKL_NUM_THREADS": "1",
+       "PYTHONDONTWRITEBYTECODE": "1",
+       "STAGE1_ONLY": "0",
+       "STOCK": "0",
+       "NEED_MB": "9000",
+       "SYNC_PORT": "23194",
+       "MAX_ATTEMPTS": "3",
+       "POLL_SECONDS": "60"
+      }
+     },
+     "reference_source": {
+      "root": "/data/mw_finetune/eval/fa_pi_f_p10",
+      "arm": "ffk1015_pi05_libero_full_formal_A_pure_l10_r1_c10",
+      "server_host": "h100"
+     },
+     "server_tree": "/data/oscl_h100/openpi (h100)"
+    },
+    {
+     "name": "fa_lo_pi_f_p5_q_s",
+     "run": "/data/mw_finetune/eval/fa_lo_pi_f_p5_q_s",
+     "arm": "fa_lo_pi_f_p5_q_s_c5",
+     "model": "pi05",
+     "mode": "full",
+     "arm_kind": "pure",
+     "pipeline": "R15",
+     "stage": "pure",
+     "segment": "c5",
+     "cell": "pi05_spatial_50",
+     "suite": "spatial",
+     "episodes": 500,
+     "levels": [
+      "c10"
+     ],
+     "gpu": "H100",
+     "replicas": 3,
+     "workers": "central scheduler: a100/timan107/timan1",
+     "topology": {
+      "source_root": "/data/mw_finetune/eval/fa_pi_f_ps",
+      "source_arm": "ffk1015_pi05_libero_full_formal_A_pure_spatial_c10",
+      "gpu": "H100",
+      "workers": {
+       "timan108": 39
+      },
+      "replicas": 3,
+      "env": {
+       "SERVER_HOST": "h100",
+       "WORKER_HOST": "a100",
+       "PORTS": "23261,23262,23263",
+       "WPS": "13",
+       "LOCAL_SERVER_COUNT": "3",
+       "OMP": "1",
+       "OPENBLAS_NUM_THREADS": "1",
+       "OMP_NUM_THREADS": "1",
+       "MKL_NUM_THREADS": "1",
+       "PYTHONDONTWRITEBYTECODE": "1",
+       "STAGE1_ONLY": "0",
+       "STOCK": "0",
+       "NEED_MB": "9000",
+       "SYNC_PORT": "23194",
+       "MAX_ATTEMPTS": "3",
+       "POLL_SECONDS": "60"
+      }
+     },
+     "reference_source": {
+      "root": "/data/mw_finetune/eval/fa_pi_f_ps",
+      "arm": "ffk1015_pi05_libero_full_formal_A_pure_spatial_c10",
+      "server_host": "h100"
+     },
+     "server_tree": "/data/oscl_h100/openpi (h100)"
+    }
+   ],
+   "status": "BUILT"
+  },
+  {
+   "name": "fa_lo_gr_f_p5_q",
+   "model": "groot",
+   "mode": "full",
+   "arm": "pure",
+   "stage": "pure",
+   "segment": "c5",
+   "pipeline": "R15",
+   "gpu": "H100",
+   "replicas": 4,
+   "episodes": 1000,
+   "jobs": [
+    {
+     "name": "fa_lo_gr_f_p5_q_l10",
+     "run": "/data/mw_finetune/eval/fa_lo_gr_f_p5_q_l10",
+     "arm": "fa_lo_gr_f_p5_q_l10_c5",
+     "model": "groot",
+     "mode": "full",
+     "arm_kind": "pure",
+     "pipeline": "R15",
+     "stage": "pure",
+     "segment": "c5",
+     "cell": "groot_l10_50",
+     "suite": "l10",
+     "episodes": 500,
+     "levels": [
+      "c10"
+     ],
+     "gpu": "H100",
+     "replicas": 4,
+     "workers": "central scheduler: a100/timan107/timan1",
+     "topology": {
+      "source_root": "/home/weiland/trace_runs/os_closed_loop/r14_descent_test_groot_l10_50",
+      "source_arm": "r14dt_groot_l10_50_pure_c10",
+      "gpu": "H100",
+      "workers": {
+       "timan107": 64
+      },
+      "replicas": 4,
+      "env": {
+       "SERVER_HOST": "h100",
+       "WORKER_HOST": "a100",
+       "PORTS": "23250,23251,23252,23253",
+       "WPS": "16",
+       "LOCAL_SERVER_COUNT": "4",
+       "OMP": "1",
+       "OPENBLAS_NUM_THREADS": "1",
+       "OMP_NUM_THREADS": "1",
+       "MKL_NUM_THREADS": "1",
+       "PYTHONDONTWRITEBYTECODE": "1",
+       "STAGE1_ONLY": "0",
+       "STOCK": "0",
+       "NEED_MB": "7200",
+       "SYNC_PORT": "23194",
+       "MAX_ATTEMPTS": "3",
+       "POLL_SECONDS": "60"
+      }
+     },
+     "reference_source": {
+      "root": "/home/weiland/trace_runs/os_closed_loop/r14_descent_test_groot_l10_50",
+      "arm": "r14dt_groot_l10_50_pure_c10",
+      "server_host": "local"
+     },
+     "server_tree": "/data/oscl_h100/openpi (h100)"
+    },
+    {
+     "name": "fa_lo_gr_f_p5_q_s",
+     "run": "/data/mw_finetune/eval/fa_lo_gr_f_p5_q_s",
+     "arm": "fa_lo_gr_f_p5_q_s_c5",
+     "model": "groot",
+     "mode": "full",
+     "arm_kind": "pure",
+     "pipeline": "R15",
+     "stage": "pure",
+     "segment": "c5",
+     "cell": "groot_spatial_50",
+     "suite": "spatial",
+     "episodes": 500,
+     "levels": [
+      "c10"
+     ],
+     "gpu": "H100",
+     "replicas": 4,
+     "workers": "central scheduler: a100/timan107/timan1",
+     "topology": {
+      "source_root": "/home/weiland/trace_runs/os_closed_loop/r14_descent_test_groot_spatial_50",
+      "source_arm": "r14dt_groot_spatial_50_pure_c10",
+      "gpu": "H100",
+      "workers": {
+       "timan107": 64
+      },
+      "replicas": 4,
+      "env": {
+       "SERVER_HOST": "h100",
+       "WORKER_HOST": "a100",
+       "PORTS": "23250,23251,23252,23253",
+       "WPS": "16",
+       "LOCAL_SERVER_COUNT": "4",
+       "OMP": "1",
+       "OPENBLAS_NUM_THREADS": "1",
+       "OMP_NUM_THREADS": "1",
+       "MKL_NUM_THREADS": "1",
+       "PYTHONDONTWRITEBYTECODE": "1",
+       "STAGE1_ONLY": "0",
+       "STOCK": "0",
+       "NEED_MB": "7200",
+       "SYNC_PORT": "23194",
+       "MAX_ATTEMPTS": "3",
+       "POLL_SECONDS": "60"
+      }
+     },
+     "reference_source": {
+      "root": "/home/weiland/trace_runs/os_closed_loop/r14_descent_test_groot_spatial_50",
+      "arm": "r14dt_groot_spatial_50_pure_c10",
+      "server_host": "local"
+     },
+     "server_tree": "/data/oscl_h100/openpi (h100)"
+    }
+   ],
+   "status": "BUILT"
+  },
+  {
+   "name": "fa_lo_pi_r_p5_q",
+   "model": "pi05",
+   "mode": "reduced",
+   "arm": "pure",
+   "stage": "pure",
+   "segment": "c5",
+   "pipeline": "R15",
+   "gpu": "H100",
+   "replicas": 3,
+   "episodes": 1000,
+   "jobs": [
+    {
+     "name": "fa_lo_pi_r_p5_q_l10",
+     "run": "/data/mw_finetune/eval/fa_lo_pi_r_p5_q_l10",
+     "arm": "fa_lo_pi_r_p5_q_l10_c5",
+     "model": "pi05",
+     "mode": "reduced",
+     "arm_kind": "pure",
+     "pipeline": "R15",
+     "stage": "pure",
+     "segment": "c5",
+     "cell": "pi05_l10_50",
+     "suite": "l10",
+     "episodes": 500,
+     "levels": [
+      "c10"
+     ],
+     "gpu": "H100",
+     "replicas": 3,
+     "workers": "central scheduler: a100/timan107/timan1",
+     "topology": {
+      "source_root": "/home/weiland/trace_runs/os_closed_loop/r16_phase1_pi05_l10_k1",
+      "source_arm": "r16p1_pi05_l10_k1_pure_c10",
+      "gpu": "H100",
+      "workers": {
+       "timan108": 39
+      },
+      "replicas": 3,
+      "env": {
+       "SERVER_HOST": "h100",
+       "WORKER_HOST": "a100",
+       "PORTS": "23254,23255,23256",
+       "WPS": "13",
+       "LOCAL_SERVER_COUNT": "3",
+       "OMP": "1",
+       "OPENBLAS_NUM_THREADS": "1",
+       "OMP_NUM_THREADS": "1",
+       "MKL_NUM_THREADS": "1",
+       "PYTHONDONTWRITEBYTECODE": "1",
+       "STAGE1_ONLY": "0",
+       "STOCK": "0",
+       "NEED_MB": "8800",
+       "SYNC_PORT": "23194",
+       "MAX_ATTEMPTS": "3",
+       "POLL_SECONDS": "60"
+      }
+     },
+     "reference_source": {
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_phase1_pi05_l10_k1",
+      "arm": "r16p1_pi05_l10_k1_pure_c10",
+      "server_host": "local"
+     },
+     "server_tree": "/data/oscl_h100/openpi (h100)"
+    },
+    {
+     "name": "fa_lo_pi_r_p5_q_s",
+     "run": "/data/mw_finetune/eval/fa_lo_pi_r_p5_q_s",
+     "arm": "fa_lo_pi_r_p5_q_s_c5",
+     "model": "pi05",
+     "mode": "reduced",
+     "arm_kind": "pure",
+     "pipeline": "R15",
+     "stage": "pure",
+     "segment": "c5",
+     "cell": "pi05_spatial_50",
+     "suite": "spatial",
+     "episodes": 500,
+     "levels": [
+      "c10"
+     ],
+     "gpu": "H100",
+     "replicas": 3,
+     "workers": "central scheduler: a100/timan107/timan1",
+     "topology": {
+      "source_root": "/home/weiland/trace_runs/os_closed_loop/r16_phase1_pi05_spatial_k1",
+      "source_arm": "r16p1_pi05_spatial_k1_pure_c10",
+      "gpu": "H100",
+      "workers": {
+       "timan108": 39
+      },
+      "replicas": 3,
+      "env": {
+       "SERVER_HOST": "h100",
+       "WORKER_HOST": "a100",
+       "PORTS": "23254,23255,23256",
+       "WPS": "13",
+       "LOCAL_SERVER_COUNT": "3",
+       "OMP": "1",
+       "OPENBLAS_NUM_THREADS": "1",
+       "OMP_NUM_THREADS": "1",
+       "MKL_NUM_THREADS": "1",
+       "PYTHONDONTWRITEBYTECODE": "1",
+       "STAGE1_ONLY": "0",
+       "STOCK": "0",
+       "NEED_MB": "8800",
+       "SYNC_PORT": "23194",
+       "MAX_ATTEMPTS": "3",
+       "POLL_SECONDS": "60"
+      }
+     },
+     "reference_source": {
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_phase1_pi05_spatial_k1",
+      "arm": "r16p1_pi05_spatial_k1_pure_c10",
+      "server_host": "local"
+     },
+     "server_tree": "/data/oscl_h100/openpi (h100)"
+    }
+   ],
+   "status": "BUILT"
+  },
+  {
+   "name": "fa_lo_gr_r_p5_q",
+   "model": "groot",
+   "mode": "reduced",
+   "arm": "pure",
+   "stage": "pure",
+   "segment": "c5",
+   "pipeline": "R15",
+   "gpu": "H100",
+   "replicas": 4,
+   "episodes": 1000,
+   "jobs": [
+    {
+     "name": "fa_lo_gr_r_p5_q_l10",
+     "run": "/data/mw_finetune/eval/fa_lo_gr_r_p5_q_l10",
+     "arm": "fa_lo_gr_r_p5_q_l10_c5",
+     "model": "groot",
+     "mode": "reduced",
+     "arm_kind": "pure",
+     "pipeline": "R15",
+     "stage": "pure",
+     "segment": "c5",
+     "cell": "groot_l10_50",
+     "suite": "l10",
+     "episodes": 500,
+     "levels": [
+      "c10"
+     ],
+     "gpu": "H100",
+     "replicas": 4,
+     "workers": "central scheduler: a100/timan107/timan1",
+     "topology": {
+      "source_root": "/home/weiland/trace_runs/os_closed_loop/r16_phase1_groot_l10_k1",
+      "source_arm": "r16p1_groot_l10_k1_pure_c10",
+      "gpu": "H100",
+      "workers": {
+       "timan107": 64
+      },
+      "replicas": 4,
+      "env": {
+       "SERVER_HOST": "h100",
+       "WORKER_HOST": "a100",
+       "PORTS": "23257,23258,23259,23260",
+       "WPS": "16",
+       "LOCAL_SERVER_COUNT": "4",
+       "OMP": "1",
+       "OPENBLAS_NUM_THREADS": "1",
+       "OMP_NUM_THREADS": "1",
+       "MKL_NUM_THREADS": "1",
+       "PYTHONDONTWRITEBYTECODE": "1",
+       "STAGE1_ONLY": "0",
+       "STOCK": "0",
+       "NEED_MB": "7200",
+       "SYNC_PORT": "23194",
+       "MAX_ATTEMPTS": "3",
+       "POLL_SECONDS": "60"
+      }
+     },
+     "reference_source": {
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_phase1_groot_l10_k1",
+      "arm": "r16p1_groot_l10_k1_pure_c10",
+      "server_host": "local"
+     },
+     "server_tree": "/data/oscl_h100/openpi (h100)"
+    },
+    {
+     "name": "fa_lo_gr_r_p5_q_s",
+     "run": "/data/mw_finetune/eval/fa_lo_gr_r_p5_q_s",
+     "arm": "fa_lo_gr_r_p5_q_s_c5",
+     "model": "groot",
+     "mode": "reduced",
+     "arm_kind": "pure",
+     "pipeline": "R15",
+     "stage": "pure",
+     "segment": "c5",
+     "cell": "groot_spatial_50",
+     "suite": "spatial",
+     "episodes": 500,
+     "levels": [
+      "c10"
+     ],
+     "gpu": "H100",
+     "replicas": 4,
+     "workers": "central scheduler: a100/timan107/timan1",
+     "topology": {
+      "source_root": "/home/weiland/trace_runs/os_closed_loop/r16_phase1_groot_spatial_k1",
+      "source_arm": "r16p1_groot_spatial_k1_pure_c10",
+      "gpu": "H100",
+      "workers": {
+       "timan107": 64
+      },
+      "replicas": 4,
+      "env": {
+       "SERVER_HOST": "h100",
+       "WORKER_HOST": "a100",
+       "PORTS": "23257,23258,23259,23260",
+       "WPS": "16",
+       "LOCAL_SERVER_COUNT": "4",
+       "OMP": "1",
+       "OPENBLAS_NUM_THREADS": "1",
+       "OMP_NUM_THREADS": "1",
+       "MKL_NUM_THREADS": "1",
+       "PYTHONDONTWRITEBYTECODE": "1",
+       "STAGE1_ONLY": "0",
+       "STOCK": "0",
+       "NEED_MB": "7200",
+       "SYNC_PORT": "23194",
+       "MAX_ATTEMPTS": "3",
+       "POLL_SECONDS": "60"
+      }
+     },
+     "reference_source": {
+      "root": "/home/weiland/trace_runs/os_closed_loop/r16_phase1_groot_spatial_k1",
+      "arm": "r16p1_groot_spatial_k1_pure_c10",
+      "server_host": "local"
+     },
+     "server_tree": "/data/oscl_h100/openpi (h100)"
+    }
+   ],
+   "status": "BUILT"
   }
  ]
 }

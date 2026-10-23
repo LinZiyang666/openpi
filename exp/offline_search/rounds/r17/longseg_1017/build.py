@@ -91,11 +91,10 @@ def variant(root,c,seal,kind):
         result.append(row)
     seal['groups']=result
 
-def clone(src,name,*,workers=None,groups=None,mode=None,stage=None,kind=None):
+def clone(src,name,*,workers=None,groups=None,mode=None,stage=None,kind=None,edit=None):
     from exp.offline_search.rounds.r17.filter_failed_knob.build import cpu_plan,publish_study
     from exp.offline_search.rounds.r17.filter_failed.resume import topology
     src=Path(src).resolve();root=EVAL/name
-    if not name.startswith('fa_ls_'):raise ValueError('Use a fresh short fa_ls_ name')
     if root.exists():
         if any((root/n).exists() for n in ('PREPARED.json','LAUNCH.json','RECEIPT.json')):raise ValueError('Never change a prepared/launched rerun')
         if (root/'FFK_DEFINITION.json').exists():return read(root/'FFK_DEFINITION.json')
@@ -143,6 +142,8 @@ def clone(src,name,*,workers=None,groups=None,mode=None,stage=None,kind=None):
         # after OFF; apply the owner's new head-clock inputs before sealing.
         from .recalibrate import recipe_inputs,pin_plan_evidence
         recipe_inputs(root,c,seal)
+    # Caller-supplied rewrite of the group YAMLs/rows and deployment fields (longseg_off_1022).
+    if edit:edit(root,c,seal)
     # Preserve YAML bytes and task UIDs. These frozen YAMLs address the source
     # cache_inputs tree; H100 preparation stages that exact immutable tree too.
     roots=set()

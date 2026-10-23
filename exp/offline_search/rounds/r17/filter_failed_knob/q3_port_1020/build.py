@@ -74,7 +74,8 @@ def kept(cell):
 
 
 def caps_for(cell, level):
-    return [0.] * 10 if level == 'off' else [float(read(OUT/'PERIODS.json')[cell][level])] * 10
+    # off and c10 (pure inference: a knob call at every decision) have zero cap placeholders (TaskDescentKnob.set_table)
+    return [0.] * 10 if level in ('off', 'c10') else [float(read(OUT/'PERIODS.json')[cell][level])] * 10
 
 
 # ---------------------------------------------------------------------------------------------- fits

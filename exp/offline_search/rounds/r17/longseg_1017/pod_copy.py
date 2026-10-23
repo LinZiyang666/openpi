@@ -125,10 +125,10 @@ def copy_job(source, name, pod, driver_port, *, replicas=None, memory_gib=14, st
     if root.exists():
         raise ValueError(str(root)+' exists')
     c = read(src/'campaign.json')
-    dp = (c['server_node'], c['model']) == ('local', 'dp')
+    dp = c['model'] == 'dp'  # a 4090 or an H100 DP job (longseg_off_1022 builds DP MT50 on the H100)
     fw = (c['server_node'], c['model']) == ('h100', 'fastwam')
     if not dp and not fw and (c['server_node'], c['model']) != ('h100', 'groot'):
-        raise ValueError('expects a 4090 DP job or an H100 GR00T/Fast-WAM job')
+        raise ValueError('expects a DP job or an H100 GR00T/Fast-WAM job')
     if replicas is None:
         replicas = 1 if dp or fw else 2
     ran = any((src/n).exists() for n in ('PREPARED.json', 'LAUNCH.json', 'RECEIPT.json'))
