@@ -24,6 +24,7 @@ unchanged, after these process-local changes (1-6 in both modes, 7 in cache mode
    CLUSTER_SIM_COMPILE=vision,lm,expert compiles those modules).
 8. Fused back end (CLUSTER_SIM_FUSE23=1): stage 2 runs inside the stage-3 batch, no hand-off through the request
    thread (section 8 below).
+9. Cache mode, CLUSTER_SIM_LEAN=1: the logging-only corrector audit (a second distance pass per query) is skipped.
 7. Cache mode (CLUSTER_SIM_KEYS=1): CP1 keys computed per stage-1 batch with one D2H; no device-wide sync in the
    plugin's stage-1 counter. See section 7 below.
 Stage timers (SystemTimer) are off in both modes.
@@ -441,6 +442,14 @@ if os.environ.get('CLUSTER_SIM_FUSE23') == '1':
 
     _bc.BatchingCoordinator.submit_to_stage = submit_to_stage
     _bc23.Pi05StageBatcher.run_stage3_miss = run_stage3_miss
+
+# 9. Cache mode, CLUSTER_SIM_LEAN=1: R14Knob._diagnostics runs original_corrector_audit on every query, a second
+# donor-distance pass (base._dist) only for its log record; it never feeds a decision. Lean mode logs zeros instead.
+if os.environ.get('CLUSTER_SIM_LEAN') == '1':
+    from exp.offline_search.rounds.r14.knob import recipe as _r14
+
+    _r14.original_corrector_audit = lambda base, q, res: dict(
+        audit_reconstruction_ms=0., corrector=dict(distance=0., gate=0., motion_rms=0., norm=0., blend=.5))
 
 # 7. Cache mode only (CLUSTER_SIM_KEYS=1): CP1 keys for a whole stage-1 batch with one D2H copy, and no device-wide sync
 # around stage 1. The keys are the CP1SpatialPool16 keys (vision_0/1: 16x16 -> 4x4 pooled tokens, robot_state), the
