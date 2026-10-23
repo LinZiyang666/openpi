@@ -68,7 +68,7 @@ def environment(args, module):
                CLUSTER_SIM_UNITS=args.units, CLUSTER_SIM_KEYS='1' if args.mode == 'cache' else '0',
                CLUSTER_SIM_FUSE23='1' if args.fuse23 else '0', CLUSTER_SIM_PRIORITY=args.priority,
                CLUSTER_SIM_LEAN='1' if args.lean else '0', CLUSTER_SIM_DOT='1' if args.dot else '0',
-               CLUSTER_SIM_STEPS='10' if args.mode == 'pure' else '1',
+               CLUSTER_SIM_STEPS='10' if args.mode == 'pure' else '1', CLUSTER_SIM_PIPE1='1' if args.pipe1 else '0',
                **{f'BATCHING_STAGE{s}_WORKERS': n for s, n in workers.items()})
     return env
 
@@ -111,6 +111,7 @@ def main():
     parser.add_argument('--graphs', action='store_true', help='CUDA graphs per padded batch size (stages 1, 2, denoise step)')
     parser.add_argument('--buckets', default='1,2,4,8,12,16,24,32,48,64')
     parser.add_argument('--priority', default='', help='CUDA stream priority per stage, e.g. 1:0,3:-3 (lower first)')
+    parser.add_argument('--pipe1', action='store_true', help='stage 1 keeps two batches in flight (double buffering)')
     parser.add_argument('--dot', action='store_true', help="cache mode: fitted methods' matrix products via np.dot (GIL released)")
     parser.add_argument('--lean', action='store_true', help='cache mode: skip the logging-only corrector audit')
     parser.add_argument('--fuse23', action='store_true', help='stage 2 runs inside the stage-3 batch (no hand-off)')

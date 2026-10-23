@@ -7,7 +7,8 @@ unchanged, after these process-local changes (1-6 in both modes, 7 in cache mode
    $CLUSTER_SIM_LOG/requests_<pid>.csv as `conn,kind,t_recv,t_sent` (kind = infer / ctrl).
 2. Batching: per-stage batch limit and wait (CLUSTER_SIM_BATCH / CLUSTER_SIM_WAIT_MS, e.g. "1:32,2:16,3:16");
    a stage worker takes its first request, drains everything already queued, then waits up to its wait.
-   CLUSTER_SIM_UNITS groups stages that take the GPU one batch at a time (e.g. "1,23": stage 1 on its own, stages 2
+   CLUSTER_SIM_PIPE1=1 keeps two stage-1 batches in flight (the next one is stacked and launched while the GPU runs
+   the current one). CLUSTER_SIM_UNITS groups stages that take the GPU one batch at a time (e.g. "1,23": stage 1 on its own, stages 2
    and 3 exclusive with stage 3 first); a stage adds whatever arrived while it waited for its unit.
    Stage worker counts stay BATCHING_STAGE{1,2,3}_WORKERS. Per-stage batch counts go to stages_<pid>.json and
    every batch (stage, start, end, size, oldest request's queue wait) to batches_<pid>.csv.
@@ -193,6 +194,8 @@ class Coordinator(_bc.BatchingCoordinator):
                 self._worker_streams[key] = torch.cuda.Stream(device=self._device, priority=int(priority))
 
     def _stage_loop_inner(self, stage_id, q, stream=None):
+        if stage_id == 1 and PIPE1:
+            return self._stage1_pipelined(q, stream)
         size, wait = BATCH[stage_id], WAIT[stage_id]
         while self.fatal_error is None and (not self._stop.is_set() or not q.empty()):
             try:
@@ -248,6 +251,61 @@ class Coordinator(_bc.BatchingCoordinator):
             batch.clear()
 
 
+    def _stage1_pipelined(self, q, stream):
+        """Stage 1 with two batches in flight (CLUSTER_SIM_PIPE1=1): batch k+1 is collected, stacked and launched while
+        the GPU runs batch k; then batch k is synchronized (its event) and published. With nothing queued the batch in
+        flight is published at once, so a lone request waits for no one."""
+        size, pending = BATCH[1], None
+        while self.fatal_error is None and (not self._stop.is_set() or not q.empty() or pending):
+            batch = []
+            try:
+                batch.append(q.get_nowait() if pending else q.get(timeout=0.1))
+            except queue.Empty:
+                pass
+            while batch and len(batch) < size:
+                try:
+                    batch.append(q.get_nowait())
+                except queue.Empty:
+                    break
+            launched = None
+            if batch:
+                t0, wall = time.monotonic(), time.time()
+                oldest = t0 - min(r.enqueue_t for r in batch)
+                try:
+                    with torch.cuda.stream(stream):
+                        shards = self._batcher.run_stage1_batch([r.payload for r in batch])
+                        done = torch.cuda.Event()
+                        done.record(stream)
+                    launched = (batch, shards, done, t0, wall, oldest)
+                except BaseException as exc:
+                    logger.exception('stage 1 batch failed')
+                    self._fail_batch(batch, exc, stream)
+            if pending:
+                self._finish_stage1(*pending, stream)
+            pending = launched
+
+    def _finish_stage1(self, batch, shards, done, t0, wall, oldest, stream):
+        try:
+            done.synchronize()
+            self._publish_batch(batch, shards)
+        except BaseException as exc:
+            logger.exception('stage 1 batch failed')
+            self._fail_batch(batch, exc, stream)
+        busy = time.monotonic() - t0
+        with _rows_lock:
+            _batch_rows.append(f'1,{wall:.6f},{wall + busy:.6f},{len(batch)},{oldest:.6f}\n')
+        counts = _stage_counts[1]
+        counts[0] += 1
+        counts[1] += len(batch)
+        counts[2] += busy
+        by_size = _stage_sizes[1].setdefault(len(batch), [0, 0.0])
+        by_size[0] += 1
+        by_size[1] += busy
+        for req in batch:
+            req.payload = None
+
+
+PIPE1 = os.environ.get('CLUSTER_SIM_PIPE1') == '1'
 _bc.BatchingCoordinator = Coordinator
 
 # 3. prefix trimming -----------------------------------------------------------------------------------------------
@@ -650,20 +708,21 @@ if GRAPHS:
     from openpi.serving import batching_coordinator as _bco11
     from openpi.serving import stage_io as _sio11
 
-    _pinned = {}
+    _pinned, _parity = {}, [0]
 
     def fast_stack(payloads, device):
         leaves, spec = _pytree.tree_flatten(payloads[0])
         columns = [_pytree.tree_flatten(p)[0] for p in payloads]
         n, out = len(payloads), []
+        _parity[0] ^= 1  # two buffer sets: with stage 1 pipelined, the previous batch's H2D copy may still be queued
         for j, first in enumerate(leaves):
             xs = [torch.as_tensor(c[j]) for c in columns]
-            key = (j, n, tuple(xs[0].shape), xs[0].dtype)
+            key = (_parity[0], j, n, tuple(xs[0].shape), xs[0].dtype)
             buf = _pinned.get(key)
             if buf is None:
                 buf = _pinned[key] = torch.empty((n, *xs[0].shape), dtype=xs[0].dtype, pin_memory=True)
             torch.stack(xs, out=buf)
-            out.append(buf.to(device, non_blocking=True))  # the batch's stream sync precedes the next reuse
+            out.append(buf.to(device, non_blocking=True))  # a buffer set is reused two batches later, after its sync
         return _pytree.tree_unflatten(out, spec)
 
     def run_stage1_batch_graphed(self, payloads):
