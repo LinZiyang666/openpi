@@ -24,6 +24,25 @@ def _require_q3(ok, message):
 
 
 a.require = _require_q3
+_jsonl = a.Reader.jsonl
+
+
+def _jsonl_segment_off(self, path):
+    """Long segment OFF serves without --os-blind: every decision runs the vision stage and the plugin records
+    neither `vision` nor a policy call's `miss_k` (only the blind path does). Fill them: vision True, miss_k the
+    shard's startup miss_steps."""
+    k = None
+    for d in _jsonl(self, path):
+        if d.get('ev') == 'startup':
+            k = d.get('miss_steps', k)
+        elif d.get('ev') == 'dec' and 'vision' not in d:
+            d['vision'] = True
+            if d.get('hit') is False and 'miss_k' not in d:
+                d['miss_k'] = k
+        yield d
+
+
+a.Reader.jsonl = _jsonl_segment_off
 
 
 def load_job(job):
