@@ -45,7 +45,9 @@ def _jsonl_segment_off(self, path):
 a.Reader.jsonl = _jsonl_segment_off
 
 
-def load_job(job):
+def load_job(job, key=lambda row: (row['suite'], row['r10_size'])):
+    """{key(row): {level: episodes}}; key defaults to (suite, size). Units that mix subset seeds or long-segment
+    variants in one group pass a key that includes them (seeds_1023/vla)."""
     from ..formal_a_analysis import legacy_data
     result, root = {}, Path(job['run'])
     if job['pipeline'] == 'R15':
@@ -55,13 +57,13 @@ def load_job(job):
                 continue
             ep = a.load(record, row['arm'], [(t, i) for t in range(10) for i in range(50)], 'A',
                         10 if job['model'] == 'pi05' else 8, a.Reader())
-            result.setdefault((row['suite'], row['r10_size']), {})[row['r14_descent_level']] = legacy_data(ep, row['suite'])
+            result.setdefault(key(row), {})[row['r14_descent_level']] = legacy_data(ep, row['suite'])
     elif (root/'DONE.json').exists():
         group = read(root/'group.json')
         for entry in group['entries']:
             view = dict(entry, pairs=[(t, i) for t in range(10) for i in range(50)])
             ep = ca.load_entry(group, view, a.Reader()); row = entry['row']
-            result.setdefault((row['suite'], row['r10_size']), {}).setdefault(entry['formal_grid_level'], {}).update(
+            result.setdefault(key(row), {}).setdefault(entry['formal_grid_level'], {}).update(
                 legacy_data(ep, row['suite']))
     return result
 

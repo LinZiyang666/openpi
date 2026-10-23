@@ -35,7 +35,7 @@ def queue_workers(u):
 def name(model,mode,arm,stage):
     return names.unit(model,mode,arm,stage) if names.MAP.exists() else f'ffk1015_{model}_libero_{mode}_formal_A_{arm}_{stage}'
 def templates():return read(DRAFTS)['jobs']
-def cells(model):return [(s,n) for s in ('libero_10','libero_spatial') for n in ((50,100,200,300,400,500) if model in f.TEST_SOURCE else (50,100,200,500))]
+def cells(model,sizes=None):return [(s,n) for s in ('libero_10','libero_spatial') for n in (sizes or ((50,100,200,300,400,500) if model in f.TEST_SOURCE else (50,100,200,500)))]
 def off_level(model):return 'koff' if model in f.TEST_SOURCE else 'off'
 def levels(model):return (f.R17_LEVELS if model in f.TEST_SOURCE else f.VLA_LEVELS)[:-1]
 

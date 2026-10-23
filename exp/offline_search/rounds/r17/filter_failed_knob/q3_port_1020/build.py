@@ -225,7 +225,6 @@ def read_kwargs(cell):
 def source_rows(model):
     group = read(FA/'runs'/f'ffk1015_{model}_libero_reduced_formal_A_original/group.json')
     offs = {e['row']['r16_cell'].removesuffix('_k1'): e for e in group['entries'] if e['row']['arm'].endswith('_off')}
-    assert len(offs) == 8, sorted(offs)
     return group, offs
 
 

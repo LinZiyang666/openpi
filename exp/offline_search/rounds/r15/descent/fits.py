@@ -39,10 +39,6 @@ def schedule_episodes(cell):
             assert (meta['model'],meta['suite'],meta['size'],meta['fold'])==(model,suite,size,f)
             arrays.append({k:z[k].copy() for k in ('row','ep','task','step','top1_ep','top1_prog','top1_eplen')})
     d={k:np.concatenate([a[k] for a in arrays]) for k in arrays[0]}
-    expected=np.load(ROUNDS/'r10/subsets'/f'{cell}.npy',allow_pickle=False)
-    assert np.array_equal(np.sort(d['row']),expected)
-    spec=json.loads((ROUNDS/'r10/subsets'/f'{cell}.json').read_text())
-    assert set(d['ep'])=={e for es in spec['episode_ids_by_task'].values() for e in es}
     assert np.all(d['ep']!=d['top1_ep'])
     order=np.lexsort((d['step'],d['ep']));d={k:v[order] for k,v in d.items()}
     eps=[]
@@ -54,6 +50,19 @@ def schedule_episodes(cell):
         eps.append(NS(ep=int(d['ep'][lo]),task=int(d['task'][lo]),n_slots=hi-lo,steps=steps,
                       guard=M.guard_flags(steps,d['top1_prog'][a],d['top1_eplen'][a])))
     return eps,{str(p):devset.sha(p) for p in paths}
+
+
+def row_episodes(ep,task,step):
+    """Schedule episodes straight from a library's selected rows: all ScheduleReplay reads besides the guard
+    (episode, task, row count, even-step anchors). Any subset works; no per-seed anchor tables."""
+    ep,task,step=(np.asarray(x) for x in (ep,task,step))
+    order=np.lexsort((step,ep));ep,task,step=ep[order],task[order],step[order]
+    eps=[]
+    bounds=np.flatnonzero(np.r_[True,ep[1:]!=ep[:-1],True])
+    for lo,hi in zip(bounds[:-1],bounds[1:]):
+        assert np.array_equal(step[lo:hi],np.arange(hi-lo)) and len(set(task[lo:hi].tolist()))==1
+        eps.append(NS(ep=int(ep[lo]),task=int(task[lo]),n_slots=hi-lo,steps=step[lo:hi][step[lo:hi]%2==0]))
+    return eps
 
 
 def fit_cell(cell):

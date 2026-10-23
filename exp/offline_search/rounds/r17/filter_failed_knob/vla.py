@@ -22,15 +22,24 @@ ROOT = HERE/'vla'
 SOURCE = Path('/home/weiland/projects/openpi/exp/offline_search/rounds/r16/k1ref')
 
 
-def candidates(blob, kept):
+def candidates(blob, kept, empty=()):
+    """Keep only the kept episodes' candidate rows. Empty tasks are refused: TaskDescentKnob's c10 queries
+    Q3StallInner/base before forcing a MISS, and --os-policy-tail may serve the next decision without a call.
+    An unfiltered placeholder is therefore not a no-retrieval fallback, even when explicitly declared empty."""
     result = dict(blob)
     method = copy.copy(blob['method']); result['method'] = method
     method.inner = copy.copy(method.inner)
     base = copy.copy(method.inner.base); method.inner.base = base
     selected = np.isin(base.lib_ep, list(kept)); base.tasks = {}
+    missing = sorted(int(t) for t, table in blob['method'].inner.base.tasks.items() if not selected[table.rows].any())
+    if missing != sorted(map(int, empty)):
+        raise ValueError(f'tasks without a kept episode {missing} differ from declared {sorted(empty)}')
+    if missing:
+        raise ValueError(f'empty tasks {missing}: c10 still queries the unfiltered table and permits policy tails; '
+                         'a no-retrieval fallback must be defined before serving this cell')
     for task, table in blob['method'].inner.base.tasks.items():
         mask = selected[table.rows]
-        if mask.any(): base.tasks[task] = table if mask.all() else _slice(table,mask,R10_CANDIDATES)
+        base.tasks[task] = table if mask.all() else _slice(table,mask,R10_CANDIDATES)
     if hasattr(method,'_full_tasks'):
         method._full_tasks = dict(base.tasks)
     return result
