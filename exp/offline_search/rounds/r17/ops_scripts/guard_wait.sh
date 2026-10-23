@@ -10,7 +10,7 @@ while [ $SECONDS -lt $end ]; do
   pgrep -f "[s]erver_watch.py" >/dev/null || { why="server_watch not running"; break; }
   newa=$(tail -n +$((astart+1)) $A | grep -A3 "ALERT" | grep -v "^  batches\|^  servers\|^  workers")
   [ -n "$newa" ] && { why="server_watch alert: $newa"; break; }
-  pgrep -f "[j]upyter_watch.sh" >/dev/null || { why="jupyter_watch not running"; break; }
+  [ -n "$NOJW" ] || pgrep -f "[j]upyter_watch.sh" >/dev/null || { why="jupyter_watch not running"; break; }
   sleep 15
 done
 echo "$(date +%T) wake: $why"
