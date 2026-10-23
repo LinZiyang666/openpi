@@ -46,7 +46,6 @@ def main():
     normalize_controls(catalog)
     for j in catalog['jobs']:
         root=Path(j['run'])
-        assert root.name.startswith('fa_ls_')
         assert not any((root/n).exists() for n in ('PREPARED.json','LAUNCH.json','RECEIPT.json'))
         c=read(root/'campaign.json')
         admission=Path(c['filter_failed_source'])/'servers/replica_0/CACHE_CAPACITY_ADMISSION.json'

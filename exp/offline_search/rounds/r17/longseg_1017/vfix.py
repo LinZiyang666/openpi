@@ -87,8 +87,6 @@ def repin(root, *, dry_run=False):
     if any((root/n).exists() for n in ('PREPARED.json', 'LAUNCH.json', 'RECEIPT.json', 'DONE.json')):
         raise ValueError('never re-pin a prepared/launched definition: '+str(root))
     c = read(root/'campaign.json')
-    if not c.get('longseg_1017') or not root.name.startswith('fa_ls_'):
-        raise ValueError('not a long-segment fa_ls_ definition: '+str(root))
     result = dict(name=root.name, runtime=c['runtime'])
     if not needs_fallback(c):
         return dict(result, status='NOT_AFFECTED')

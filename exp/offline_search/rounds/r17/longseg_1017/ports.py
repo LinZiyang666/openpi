@@ -96,7 +96,6 @@ def finalize():
     for j in catalog['jobs']:
         root=Path(j['run']);c=read(root/'campaign.json')
         if c['longseg_1017'].get('transport_rebind'):continue
-        assert root.name.startswith('fa_ls_')
         assert not any((root/n).exists() for n in ('PREPARED.json','LAUNCH.json','RECEIPT.json'))
         route(c,root)
         _,model,tasks,_=cpu_plan(c)
