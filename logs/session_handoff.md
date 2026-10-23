@@ -52,7 +52,7 @@ owner 的常驻指令，逐字有效：
 
 
 
-## 1. 现在在哪（2026-10-21 11:5x CDT；**看守会话（本会话 35f2869b 的分支，只看守实验）最先读「10-22 19:1x 看守会话增补」，再读「10-22 18:3x 看守会话总状态（compact 前）」；新实验会话读 exp/cluster_sim/HANDOFF.md 与「10-21 22:xx 新实验：集群部署模拟」；之后读「10-21 22:xx 新实验：集群部署模拟」，再读「10-21 19:5x 增补（compact 前总状态）」，再读「10-21 19:4x 增补」，再读「10-21 18:3x 增补」，再读「10-21 17:3x 增补」，再读「10-21 15:0x 增补」，再读「10-21 14:0x 增补」，再读「10-21 13:2x 增补」，再读「10-21 12:0x 增补」，再读「10-21 11:5x 增补（compact 前总状态）」，再读「10-21 00:3x 增补」，再读「10-21 00:0x 增补（compact 前总状态）」，再读「22:5x」「22:1x」「21:4x」增补，再读「21:3x 增补（compact 前总状态）」**，再读 20:5x 旧门事故、其余增补与 09:4x 总状态，再读其后各增补（09:29 → 21:2x 倒序）与 10-19 21:0x 总状态；10-14 及更早只作背景）
+## 1. 现在在哪（2026-10-21 11:5x CDT；**看守会话（本会话 35f2869b 的分支，只看守实验）最先读「10-22 22:0x 看守会话增补」，再读「10-22 19:1x 看守会话增补」，再读「10-22 18:3x 看守会话总状态（compact 前）」；新实验会话读 exp/cluster_sim/HANDOFF.md 与「10-21 22:xx 新实验：集群部署模拟」；之后读「10-21 22:xx 新实验：集群部署模拟」，再读「10-21 19:5x 增补（compact 前总状态）」，再读「10-21 19:4x 增补」，再读「10-21 18:3x 增补」，再读「10-21 17:3x 增补」，再读「10-21 15:0x 增补」，再读「10-21 14:0x 增补」，再读「10-21 13:2x 增补」，再读「10-21 12:0x 增补」，再读「10-21 11:5x 增补（compact 前总状态）」，再读「10-21 00:3x 增补」，再读「10-21 00:0x 增补（compact 前总状态）」，再读「22:5x」「22:1x」「21:4x」增补，再读「21:3x 增补（compact 前总状态）」**，再读 20:5x 旧门事故、其余增补与 09:4x 总状态，再读其后各增补（09:29 → 21:2x 倒序）与 10-19 21:0x 总状态；10-14 及更早只作背景）
 
 ### ★★★★★★★★★★★★★★★★★★★★★★★★ 2026-10-20 09:4x CDT 总状态（compact 后最先读这块）
 
@@ -64,6 +64,33 @@ owner 的常驻指令，逐字有效：
 - 处置：09:56 按 PID SIGSTOP 复制 rsync（3726105/3726106/3729764）和两个 governor（3343372/3951564）。效果（同一时刻对比）：Cosmos 15→60 局/分、pod2 DP 85→250、v11_0 50→125（v11_0 同时 floor 40→70）。⛔ **复制保持暂停**；剩 ~190 GB（eval 533/~720 GB）以后找没有 driver 在跑、或可接受的短窗口一次性不限速跑完，不要再长时间节流慢跑。恢复命令：`kill -CONT 3343372 3951564 3726105 3726106 3729764`。记忆 reference-weilandserver-data 已加这条。
 - floors 现 `{"fa_ls_dp_f_f_m_j": 32, "fa_ls_v11_0": 70}`。
 - 在调研（opus 只读）：H100 队列 ~88 h（4 批 FW MT50 旋钮下降 ~42 h）vs 4090 ~22 h；旋钮下降批次 IR 离线算、可换卡 → 考虑 FW/GR00T MT50 旋钮下降挪 4090、DP LIBERO 旋钮下降挪 pod（需装 openpi 环境）。结论回来前不动队列。
+
+**10-22 22:0x 看守会话增补（先读这块；owner 21:5x 去睡，「你独自推进」）**
+- ⛔ 新机 **h100-sean**（149.165.169.137，tether 节点 h100-sean）：owner「和 h100 一样是一等公民，自由使用」，同 h100 角色。
+  - 设备清单 dist_experiment_control/docs/devices.md §2.10（8833184）；记忆 feedback-devices-and-gpus。
+  - /data → /media/volume/sdb/ziyang_r17/data。盘上原有 .cache/.conda/vllm-omni-profile 与 home 里别人的项目不动；~/.cache/huggingface 是别人原有的 HF 缓存，我们只并入了几个小文件。
+  - 从 H100 不限速整套复制（约 360 GB，425 MB/s；H100 临时 rsyncd 23117 已关）。π0.5/GR00T/Fast-WAM/DP/LIBERO worker（EGL）/MetaWorld 环境都在 sean GPU 上验证过。
+  - ufw 放行 23000–24999。driver 端口 **23197**（23195/23196 是 prepare 的 rsync 服务，别用），已登记 gpu_share/LEDGER.md。
+  - 链 **seanlo1**（别名 env `R17_H100_NODE=h100-sean R17_H100_HOST=149.165.169.137 R17_DRIVER_PORT=23197` 在链进程上）：fa_lo_dp_r_b_l → dp_f_b_l → fw_r_b_l → dp_r_f_o_l → dp_f_f_o_l → fw_r_f_o_l → fw_f_f_o_l（R17 LIBERO 长执行段关参照 + 旋钮关）。21:55 误起过一条重复 seanlo1，已按 PID 停掉，它残留的 dp_f_b_l 准备也停了（只留下改绑到 sean 的 .before_alias）。
+- H100 链：
+  - h100lo1：π0.5 全步旋钮关已完，GR00T 全步旋钮关 21:46 起；
+  - h100lo5：之后接全步两份 C5 参照 fa_lo_{pi,gr}_f_p5_q；
+  - h100lo3：GR00T 减步旋钮关已完；
+  - h100lo6：减步两份 C5 参照 fa_lo_{pi,gr}_r_p5_q，π0.5 21:38 起。
+  - R17 LIBERO 已从 H100 队列挪到 sean（停掉了等待中的 h100lo4）。
+- pod：
+  - 17:4x 容器重启后反向隧道断，20:55 两批 MT50 0 局失败。已在 pod 上重起 5 条隧道（记忆 feedback-devices-and-gpus 有端口表）。
+  - vfix/repin/ports 的 fa_ls_ 名字门已拔（53ebf584）。
+  - pod1：链 pod1lo3（GR00T 减步参照 2,500 已完 → 全步参照）→ hold_after_refs 挂 hold → pod1lo4（fa_lo_gr_r_f_m_j_rz → fa_lo_gr_f_f_m_j）。
+  - -02：pod2lo4（fa_lo_fw_r_f_m_j_rz）→ hold → pod2lo5（fa_lo_fw_{r,f}_b_m_j2 每批 8 个 → fa_lo_fw_f_f_m_j）。FW 参照 B16 在 16 GiB 切片上溢出（66 局 FAIL），改 B8 重建为 _j2。
+- 已完成：
+  - SR/IR 全部重算（06327ab5、5047c89c：拔计价指纹门；Fast-WAM MT50 系统侧扣 T5）；
+  - π0.5 MT50 成功过滤库下降补算（0cd1b94b）；
+  - 网页 v29（三节旋钮表左原库右成功过滤库；本地源 openpi_ext/scratch/r17_ops/livepage/live_1022）。
+- 待办：
+  - DP · MetaWorld 长执行段关两批（fa_lo_dp_{r,f}_f_m）未上卡：sean 跑完 LIBERO 后接，或 pod 装 DP 环境；H100 同卡 DP MT50 减步 C5 参照还缺。
+  - 各旋钮关跑完后用 CPU 选格建各档：π0.5/GR00T 用 build_levels_fa_lo_*.sh；R17 用 longseg_off_1022 workflow build-levels。
+  - 14 张数据完整的回执待补封。
 
 **10-22 19:1x 看守会话增补（先读这块，再读下面 18:3x 总状态）**
 - 收尾：
