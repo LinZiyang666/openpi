@@ -60,14 +60,15 @@ compact 后先读本文件，再读 `DESIGN.md`（owner 的需求与决议，权
 
 commits：847ce11a（设计）、f78b9a5f（主体）、408e33fc、49fd5e53、974f07b3、cdfff73e、93a09b80、46de5d40、b9c9664a、5758401e（本文件）、962065e3（LEVELS 和调参候选原先被 .gitignore 的 *.json 挡住没进库，已强制加入；两边各加一个 CUDA graph 候选 `--compile-mode reduce-overhead`）。
 
-## 现状（10-22 21:xx）
+## 现状（10-22 23:xx）
 
-- 10-22 18:25 看守会话把整台 weilandserver 交给本会话（4090 不再排批次）。
-- **录制已完成**：500 局、27,747 条推理请求，回放库 `/nvme/weiland/openpi/cluster_sim/library`（`SUMMARY.json`）。
-- **服务优化**（细节和实测数字见 DESIGN.md「10-22 晚」）：CUDA graph + inductor（两边共用，bf16 不变）、段分组 `--units`、完整系统的批量缓存键与去掉整卡同步、GC、CPU 线程。
-- ⛔ owner 10-22：不换精度（不做 FP8）；CPU 线程不限（这里指不绑核、不压 worker；每个 BLAS 调用开 2–4 个线程、靠几百个请求线程并行，是实测最快的配置，要向 owner 讲清）。astra 可以用（codex_daemon_run.py）。
-- **在跑**：调参 `exp.cluster_sim.tune`，纯推理 `tune/pure2`（N=5,40，60 局），完整系统 `tune/cache2`（N=5,80，120 局），日志 `/nvme/weiland/openpi/cluster_sim/logs/tune_{pure2,cache2}.log`，结果各目录 `TUNE.json`。
-- 诊断脚本（不进库）：`$CLAUDE_JOB_DIR/tmp/diag.sh NAME MODE opts`（N=1×2 局 + N=16×16 局，打印延迟和每段批耗时）、`prof.sh`（py-spy，`CLUSTER_SIM_PYSPY_FLAGS="--threads --gil"`）。
+- 10-22 18:25 看守会话把整台 weilandserver 交给本会话（4090 不再排批次）。owner 10-22 22:xx：「你的实验做完之后把设备还给守护进程」——正式回放跑完后给看守会话发消息交还。
+- 本会话 10-22 21:3x 以 bypass 权限重开（`claude --bg --resume fcd51a3d-... --dangerously-skip-permissions`），job 目录换成 `$CLAUDE_JOB_DIR`（旧的 `jobs/fcd51a3d/tmp` 已删）；临时脚本 `$CLAUDE_JOB_DIR/tmp/prof.sh`。
+- **录制已完成**：500 局、27,747 条推理请求，回放库 `/nvme/weiland/openpi/cluster_sim/library`。录制与服务的逐条命中判定一致率 99.87%（6,706 条），命中率约 78%。
+- **服务优化**（细节和实测数字见 DESIGN.md「10-22 晚」）：CUDA graph + inductor（两边共用，bf16 不变）、段分组 `--units`、第 2+3 段合并 `--fuse23`、流优先级 `--priority`、完整系统的批量缓存键与去掉整卡同步、GC、CPU 线程。
+- ⛔ owner 10-22：不换精度（不做 FP8）；CPU 线程不限（每个 BLAS 调用开 2–8 个线程、靠几百个请求线程并行，是实测最快的配置，要向 owner 讲清）。astra 可以用。
+- **在跑（setsid 脱离会话）**：纯推理调参第 2 轮 `tune/pure2`（`TUNE_round1.json` 是第 1 轮），之后自动跑完整系统 `tune/cache2`（N=5:30 局、80:120 局）；日志 `/nvme/weiland/openpi/cluster_sim/logs/tune_{pure2,cache2}.log`。
+- 纯推理目前最好：`--fuse23`，批上限 16，40 台机器人 34.2 条/秒、中位 531 ms；5 台中位 60 ms。
 
 ## 4090 空出后的步骤（照做）
 
