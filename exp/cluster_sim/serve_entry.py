@@ -443,7 +443,40 @@ if COMPILE or GRAPHS:
         policy = _create(*args, **kwargs)
         accelerate(policy._model)
         logger.info('cluster_sim: graphs=%s compile=%s buckets=%s', GRAPHS, COMPILE, BUCKETS)
+        if GRAPHS:
+            precapture(policy)
         return policy
+
+    def precapture(policy):
+        """Compile and capture every graph before the server takes robots: one stand-in LIBERO request (blank images,
+        a LIBERO-10 instruction) through the batched stage-1 and back-end paths at the miss step count
+        (CLUSTER_SIM_STEPS: 10 pure, 1 cache); each Graphed captures all its batch sizes on that first call."""
+        import jax
+        import numpy as np
+        from openpi.serving import batching_coordinator as _bcp
+        from openpi.serving.batching_core import Stage3MissPayload
+
+        t0 = time.monotonic()
+        obs = {'observation/image': np.zeros((224, 224, 3), np.uint8), 'observation/wrist_image': np.zeros((224, 224, 3), np.uint8),
+               'observation/state': np.zeros(8), 'prompt': 'put both the alphabet soup and the cream cheese box in the basket'}
+        payload = jax.tree.map(lambda x: torch.from_numpy(np.array(x)), policy._input_transform(obs))
+        model = policy._model
+        batcher = _bcp.Pi05StageBatcher(model, policy._pytorch_device)
+        steps = int(os.environ.get('CLUSTER_SIM_STEPS', '10'))
+        _gate.enter()
+        try:
+            with torch.no_grad():
+                shard = batcher.run_stage1_batch([payload])[0]
+                if os.environ.get('CLUSTER_SIM_FUSE23') == '1':
+                    s2 = _pi0.Stage2Output(stage1=shard, past_key_values=None)
+                    s2.cs_pending = True
+                    noise = torch.zeros(model.config.action_horizon, model.config.action_dim, device=policy._pytorch_device)
+                    batcher.run_stage3_miss([Stage3MissPayload(stage2_out=s2, noise=noise, num_steps=steps)],
+                                            num_steps=steps, save_timesteps_per_request=[None])
+            torch.cuda.synchronize()
+        finally:
+            _gate.leave()
+        logger.info('cluster_sim: graphs captured in %.0f s', time.monotonic() - t0)
 
     _pc.create_trained_policy = create_trained_policy
 

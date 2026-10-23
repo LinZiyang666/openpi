@@ -68,6 +68,7 @@ def environment(args, module):
                CLUSTER_SIM_UNITS=args.units, CLUSTER_SIM_KEYS='1' if args.mode == 'cache' else '0',
                CLUSTER_SIM_FUSE23='1' if args.fuse23 else '0', CLUSTER_SIM_PRIORITY=args.priority,
                CLUSTER_SIM_LEAN='1' if args.lean else '0', CLUSTER_SIM_DOT='1' if args.dot else '0',
+               CLUSTER_SIM_STEPS='10' if args.mode == 'pure' else '1',
                **{f'BATCHING_STAGE{s}_WORKERS': n for s, n in workers.items()})
     return env
 
