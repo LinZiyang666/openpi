@@ -28,7 +28,7 @@ def main():
     parser.add_argument('--robots', default='5,10,20,30,40,50,60,70,80,90,100')
     parser.add_argument('--seed', type=int, default=0)
     parser.add_argument('--port', type=int, default=8000)
-    parser.add_argument('--episodes', type=int, default=0, help='first K episodes per replay (tuning); 0 = all 500')
+    parser.add_argument('--episodes', default='0', help='first K episodes per replay (tuning), or N:K per robot count; 0 = all 500')
     parser.add_argument('--warmup', type=int, default=40, help='episodes replayed at 20 robots before measuring (not analyzed)')
     args, serve_args = parser.parse_known_args()
     run = Path(args.run)
@@ -45,10 +45,11 @@ def main():
             asyncio.run(replay.run(argparse.Namespace(library=args.library, url=f'ws://127.0.0.1:{args.port}', robots=20,
                                                       seed=args.seed + 1, interval=replay.INTERVAL_S,
                                                       out=str(run / 'warmup'), episodes=args.warmup)))
+        per = dict(map(int, x.split(':')) for x in args.episodes.split(',')) if ':' in args.episodes else {}
         for n in map(int, args.robots.split(',')):
             asyncio.run(replay.run(argparse.Namespace(library=args.library, url=f'ws://127.0.0.1:{args.port}', robots=n,
                                                       seed=args.seed, interval=replay.INTERVAL_S, out=str(run / 'replay'),
-                                                      episodes=args.episodes)))
+                                                      episodes=per.get(n, 0) if per else int(args.episodes))))
             time.sleep(3)  # last request rows reach the server log
     finally:
         os.killpg(server.pid, signal.SIGINT)

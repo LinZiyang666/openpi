@@ -24,7 +24,7 @@ def main():
     parser.add_argument('--out', required=True)
     parser.add_argument('--configs', required=True)
     parser.add_argument('--robots', default='5,40')
-    parser.add_argument('--episodes', type=int, default=60)
+    parser.add_argument('--episodes', default='60', help='K, or N:K per robot count')
     parser.add_argument('--warmup', type=int, default=20)
     parser.add_argument('--only', default='', help='comma list of config names to run (default all)')
     args = parser.parse_args()
@@ -38,7 +38,7 @@ def main():
         run = out / name
         if not (run / 'RESULTS.json').exists():
             subprocess.run([sys.executable, '-m', 'exp.cluster_sim.sweep', '--mode', args.mode, '--run', str(run),
-                            '--library', args.library, '--robots', args.robots, '--episodes', str(args.episodes),
+                            '--library', args.library, '--robots', args.robots, '--episodes', args.episodes,
                             '--warmup', str(args.warmup), *options], check=False)
         if (run / 'RESULTS.json').exists():
             table[name] = dict(options=options, results=json.loads((run / 'RESULTS.json').read_text()))
