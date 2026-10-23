@@ -89,6 +89,7 @@ owner 的常驻指令，逐字有效：
   3. 建批：`$P -m $M.workflow initialize --bundle B`（14 批第一步），VLA 8 个 R15 单位 + 2 个 R16 组；排链（同模型同 K 用 chain_ffk_resident.run.sh 的 J+ 接常驻）。
   4. 长执行段关汇总 results_off.py（等 lc1/mc1/j2 三批完），然后网页。
   5. π0.5 MT50 seed 9/10 采库上 4090（R5，~2.5 h/种子）。
+- 17:45 两台 pod 每日容器重启（owner 17:4x 重开）：-02 上 fa_lo_fw_r_f_m_j2 停在 88,597/90,000（59 局重试耗尽），按 PID SIGTERM（回执 FAIL：清理时 pod 环境已没）。恢复：-02 `cd /home/ziyang10/zl_r17 && HOME=/home/ziyang10 bash setup.sh fastwam_nfs rsync://none/x`（模块都在 NFS，占位源即可）；隧道 `cd /home/ziyang10/.tether-agent/zl_tunnel && HOME=/home/ziyang10/.tether-agent setsid nohup bash tunnel.sh 24472 23474 >> tunnel_pod2_24472.log 2>&1 &`（24473 23475 同）；resume --remaining --verify-closed → **fa_lo_fw_r_f_m_j2c1**（1,462 局），链 **pod2lo7**（17:49 起）。jupyter_watch 重挂；pod1 暂空（没跑 setup）。guard_wait 加了 NOJW=1（pod 下线期间跳过 jupyter_watch 检查）。
 - 17:0x fa_lo_fw_f_f_mc1 实测 ~205 局/分（原 95），4 副本各 15–16.5 GB、text_encoder none、GPU ~85%，预计 ~24:00 完。
 - 任务 #21（设计建批）、#22（MT50 采库）、#23（LIBERO 新子集建库）。
 - 同时 16:2x：Fast-WAM · MetaWorld · 全步 · 旋钮关原批 fa_lo_fw_f_f_m（R2 无编码表，~95 局/分，两副本各吃满 4 线程、sean GPU ~43%）停在 4,591 局（PARTIAL，all_owned_closed）→ 续跑 **fa_lo_fw_f_f_mc1**（85,409 局；编码表 + R4 + 76 GiB + server_threads 3，原件 campaign.json.before_texttable_1023），链 **seanlo9**（sean 车道 1，16:38 起）。分析传 mc1，自动并回源批。
