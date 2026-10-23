@@ -65,6 +65,7 @@ commits：847ce11a（设计）、f78b9a5f（主体）、408e33fc、49fd5e53、97
 - 录制、调优、正式回放全部完成；结果和结论在 DESIGN.md「正式实验」，表 `runs/REPORT.md`，图 `runs/report.png`（`/nvme/weiland/openpi/cluster_sim/runs/`）。
 - 纯推理 04:08、完整系统 05:54 跑完；两边无失败请求；完整系统各 N 命中率 78.3%（与录制一致）。
 - 10-23 06:1x 已把 weilandserver 交还看守会话 [75fc7a]（4090 无本会话进程）。
+- 10-23 上午 owner 加测「完整系统 + 长执行段」（回放端 `--stride 2`，502 ms 间隔）：11:0x 借回 4090，12:16 跑完（`runs/cache_seg`），12:17 再次交还看守会话。结果见 DESIGN.md「加测结果」。
 
 ## 4090 空出后的步骤（照做）
 
