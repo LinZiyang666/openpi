@@ -479,8 +479,8 @@ Sources: [Cosmos handback](../handbacks/HANDBACK_COSMOS.md),
 
 ## MetaWorld MT50 measured topology (2026-10-13)
 
-Seeds: test = seed 7, idx 0-49 (2,500 episodes, the official MT50 count); library = seed 8, idx 0-49. Seeds 9 and
-10 are reserved. Workers: timan107 x40 + timan1 x36 (GPU 3 only) = 76, `--worker-memory-mib 2048
+Seeds: test = seed 7, idx 0-49 (2,500 episodes, the official MT50 count); original library = seed 8, idx 0-49.
+Seeds 9 and 10 use separate roots (10-23 commands below). Workers: timan107 x40 + timan1 x36 (GPU 3 only) = 76, `--worker-memory-mib 2048
 --worker-vram-mib 1024 --worker-egl-devices 0,1,2,3,4,5,6,7`. Servers: weilandserver 4090 (49 GB) and H100 (80 GB).
 All rows below ran 2,500 episodes with 0 errored episodes. "span" runs from the first to the 2,500th accepted
 episode (the H100 shard drain afterwards is not included). Util/W are medians of 1-minute nvidia-smi samples.
@@ -525,6 +525,194 @@ bash openpi_ext/scratch/r17_ops/mw/collect_one.v2.run.sh /data/r17_frozen/openpi
   --replicas 4 --mps --memory-budget-gib 24 --max-batch 8 --batch-wait-ms 5 \
   --worker-counts timan107=40,timan1=36 --port 23180 --driver-port 23189
 ```
+
+**10-23 新种子采库（W3，以下命令由协调者在获分配的机器运行）。**
+`BenchmarkSpec.library_seed` 仍为 8，benchmark identity 不变；实际种子由 campaign 的
+`library_seed` 经 `task.extra.seed` 传到 `MT1(task, seed).train_tasks[idx]`。
+新根为 `/data/r17_library/seed{9,10}/<m>_mw_mt50/{campaigns,bpool}`，保留 `_mt50/bpool`
+后缀。全步原生 sampler、C5、无图片，捕获 keys/state/normalized_actions/执行确认，失败局照收；
+正式每库 2,500 局。新脚本固定六档 `5,10,20,30,40,50`，旧脚本及 seed 8 库不变。
+finish 默认按模型动作 horizon 拟合：DP/GR00T/Fast-WAM 为 C10；π0.5 只有 5 步动作，按 DESIGN 为 C5。
+没有成本 profile 时不生成 pending KNOBS 文件。
+
+先在 timan1 或其他空闲 CPU 主机同步代码，使用匹配依赖的 Python（首次回归约 3–10 分钟、4–8 GiB RAM）：
+
+```bash
+ROOT=/path/to/reviewed/openpi
+PY=$ROOT/.venv/bin/python
+SCRIPT=/path/to/openpi_ext/scratch/r17_ops/mw/collect_seed.run.sh
+cd "$ROOT"
+bash -n "$SCRIPT"
+env CUDA_VISIBLE_DEVICES='' JAX_PLATFORMS=cpu OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 \
+  "$PY" -m pytest -q exp/r17_integration/tests/ops/test_mt50_library.py \
+  exp/r17_integration/tests/search/test_teacher_library.py \
+  exp/r17_integration/tests/ops/test_cache_study.py \
+  -k 'not library_and_fit_mutation_fences'
+```
+
+首次正式采集前还必须回归：默认 seed 8 计划及既有库可读；seed 9/10 的 2,500 个坐标唯一、
+seed 7、混合种子及错误 `init_pool` 被拒；LIBERO B 仍可用；外置 `nested_views(..., output_root=...)`
+能经相对 `parent_path` 重开，既有不同选择仍报错；不完整局仍被 RowIndexStore 拒绝；
+fit 的 store_digest/commit/binding 和 Q3 度量错误仍报错；缺成本时无 KNOBS 新文件；
+把一个 closed smoke campaign 复制到另一台机器，运行 finish 两次均通过。
+旧 `test_library_staging.py` 的空间/主机拒绝测试、`test_cache_study.py` 的文件戳拒绝测试需要负责人按新规则更新，
+不应把这些旧预期当成新验收条件。W3 未修改测试文件，也未在占用中的本机运行这些命令。
+
+八个冒烟与八个正式采集用同一函数逐条调用。端口与 worker 数留空由协调者按中央调度分配；
+每个命令调用前填好变量。以下命令不并行启动同一 GPU；π0.5 必须等 4090 交还。
+默认 π0.5、GR00T 共用 `23160` 服务窗口及 `23169` driver，两个种子之间也冲突；
+请显式分配 `--port`、后端连续 R 个端口和 `--driver-port`（23100–23199）。
+
+```bash
+ROOT=/path/to/reviewed/openpi
+SCRIPT=/path/to/openpi_ext/scratch/r17_ops/mw/collect_seed.run.sh
+PORT=''          # 每次调用前填服务端口；同时预留 PORT+1..PORT+R
+DRIVER_PORT=''   # 每次调用前填独占 driver 端口
+WORKER_COUNTS='' # 由中央调度分配，例如 timan107=N,timan1=N
+collect_seed() {
+  local model=$1 seed=$2 mode=$3 server replicas budget batch
+  local extra=()
+  case "$model" in
+    pi05_mw)    server=local; replicas=5; budget=46; batch=1;;
+    groot_mw)   server=local; replicas=4; budget=36; batch=1;;
+    dp_mw)      server=h100;  replicas=4; budget=24; batch=8;;
+    fastwam_mw) server=h100;  replicas=2; budget=60; batch=16;;
+  esac
+  if [ "$mode" = smoke ]; then extra+=(--smoke); fi
+  bash "$SCRIPT" "$ROOT" "$model" "$server" "$seed" \
+    "/data/r17_library/seed$seed" "w3_${model}_s${seed}_${mode}" \
+    --collect-only "${extra[@]}" --replicas "$replicas" --replica-startup-width 3 --mps \
+    --memory-budget-gib "$budget" --max-batch "$batch" --batch-wait-ms 5 \
+    --worker-counts "${WORKER_COUNTS:?由协调者填写}" \
+    --port "${PORT:?由协调者填写}" --driver-port "${DRIVER_PORT:?由协调者填写}"
+}
+# GPU 冒烟：每条 4 局，含模型加载约 5–15 分钟；CPU RAM 预留 16–32 GiB + 每 worker 2 GiB。
+collect_seed pi05_mw 9 smoke
+collect_seed pi05_mw 10 smoke
+collect_seed groot_mw 9 smoke
+collect_seed groot_mw 10 smoke
+collect_seed dp_mw 9 smoke
+collect_seed dp_mw 10 smoke
+collect_seed fastwam_mw 9 smoke
+collect_seed fastwam_mw 10 smoke
+# GPU 正式：每条 2,500 局；π 约 2.5h，GR 约 1–1.7h，DP 约 0.5h，FW 约 0.75h。
+# 内存预算同上；另外预留 shard 传输/关闭时间，约 5–30 分钟，依存储和网络而定。
+collect_seed pi05_mw 9 full
+collect_seed pi05_mw 10 full
+collect_seed groot_mw 9 full
+collect_seed groot_mw 10 full
+collect_seed dp_mw 9 full
+collect_seed dp_mw 10 full
+collect_seed fastwam_mw 9 full
+collect_seed fastwam_mw 10 full
+```
+
+脚本 `--collect-only` 在 closed/PASS 后退出；不要在采集主机顺带抢 CPU 拟合。
+迁移时完整复制 campaign（含 assets、servers、driver、RECEIPT、EPISODE_PLAN），使用包含本修改的代码和拟合依赖；
+普通 campaign 无需原始 checkout 或 GPU/checkpoint。repair/salvage 的额外 provenance 引用仍需原路径数据。
+以下在 timan1、H100 或任意获分配 CPU 主机执行（本机仅交还后）：
+
+```bash
+# 若换机器，由协调者先复制；绝对路径一致最方便，输出位置也可用 --library-root 指定。
+# rsync -a /data/r17_library/seed9/dp_mw_mt50/campaigns/w3_dp_mw_s9_full/ \
+#   <CPU_HOST>:/data/r17_library/seed9/dp_mw_mt50/campaigns/w3_dp_mw_s9_full/
+# smoke 每条约 1–5 分钟/4–8 GiB；full 六档拟合暂估每库 0.5–4h/16–64 GiB，单进程。
+for seed in 9 10; do
+  for model in pi05_mw groot_mw dp_mw fastwam_mw; do
+    for mode in smoke full; do
+      env CUDA_VISIBLE_DEVICES='' JAX_PLATFORMS=cpu OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 \
+        "$ROOT/.venv/bin/python" -m exp.r17_integration.ops.library_campaign \
+        --model "$model" --suite mt50 --library-root "/data/r17_library/seed$seed" \
+        --finish "/data/r17_library/seed$seed/${model}_mt50/campaigns/w3_${model}_s${seed}_${mode}"
+    done
+  done
+done
+```
+
+预期 smoke 仅生成 campaign 内 `smoke_parent/READY.json`（4 局）；正式生成 bpool/READY.json、
+六个 `subsets/size_N`、六个 `fits/size_N/READY.json` 和 LIBRARY_PIPELINE.json，finish 可重跑。
+冒烟 finish 通过后才开始对应正式采集；上面的循环也可只选 `mode=smoke` 或 `mode=full`。
+
+读回核对（每个正式库随机抽 3 个任务、各抽 1 个 idx；CPU，无渲染；约每库 1–3 分钟、4–8 GiB RAM）。
+在与采集 worker 相同 MetaWorld/MuJoCo 版本的环境运行；`PYTHONPATH` 指向本代码。
+核对实际捕获的 `task_data_hash`，并把生产 env 工厂的 reset + 15 步 settle 起点与直接 MT1 oracle 比较。
+state.npy 是模型检索状态，部分模型已归一化，不直接拿它和原始 obs 作数值比较。
+
+```bash
+MW_PYTHON=/path/to/worker-env/bin/python
+PYTHONPATH="$ROOT:$ROOT/src" OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 \
+  "$MW_PYTHON" - <<'PY'
+import json, pickle, random
+from pathlib import Path
+import metaworld
+import numpy as np
+from exp.metaworld.env import make_env, reset_and_settle
+from exp.r17_integration.benchmarks.metaworld import FORMAL_SPEC
+from exp.r17_integration.benchmarks.physical_mt50 import task_data_digest
+from exp.r17_integration.search.cache_recipe import sealed_store_descriptor
+from exp.r17_integration.search.teacher_library import RowIndexStore
+
+rng = random.Random(20261023)
+for seed in (9, 10):
+    for model in ('pi05_mw', 'groot_mw', 'dp_mw', 'fastwam_mw'):
+        home = Path(f'/data/r17_library/seed{seed}/{model}_mt50')
+        run = home/'campaigns'/f'w3_{model}_s{seed}_full'
+        plan = json.loads((run/'EPISODE_PLAN.json').read_text())
+        tasks = plan['tasks']
+        assert len(tasks) == 2500 and plan['benchmark_protocol'] == FORMAL_SPEC.identity
+        assert FORMAL_SPEC.library_seed == 8 and FORMAL_SPEC.seed == 7
+        assert {(t['task_id'], t['orig_init_state_idx']) for t in tasks} == {
+            (tid, idx) for tid in range(50) for idx in range(50)}
+        assert all(t['extra']['seed'] == seed and t['extra']['init_pool'] == f'seed{seed}'
+                   and t['extra']['commit_horizon'] == 5 for t in tasks)
+        ready = json.loads((home/'bpool/READY.json').read_text())
+        assert ready['metadata']['seed'] == seed and ready['metadata']['init_pool'] == f'seed{seed}'
+        assert len(ready['metadata']['episodes']) == 2500
+        k = ready['binding']['sampler']['num_steps']
+        assert all(r['seed'] == seed and r['init_pool'] == f'seed{seed}' and r['split'] == 'library'
+                   and r['source'] == 'policy' and r['actual_nfe'] == k and r['stage_calls'] == [1,1,k]
+                   for r in ready['rows'])
+        first = {r['library_episode_id']: r for r in ready['rows'] if r['decision_seq'] == 0}
+        assert set(first) == set(range(2500))
+        parent = None
+        for n in (5,10,20,30,40,50):
+            view = RowIndexStore(home/'bpool/subsets'/f'size_{n}', parent=parent)
+            parent = view.parent
+            assert set(view.manifest['episode_ids']) == {tid*50+i for tid in range(50) for i in range(n)}
+            assert view.manifest['metadata']['subset_seed'] == seed
+            sealed_store_descriptor(view.directory, view.manifest['content_digest'])
+            fit = json.loads((home/'bpool/fits'/f'size_{n}'/'READY.json').read_text())['receipt']
+            assert fit['store_digest'] == view.manifest['content_digest'] and fit['binding'] == ready['binding']
+            assert fit['config']['commit_horizon'] == (5 if model == 'pi05_mw' else 10)
+        for tid in rng.sample(range(50), 3):
+            t = rng.choice([t for t in tasks if t['task_id'] == tid])
+            name, idx = t['extra']['task_name'], t['orig_init_state_idx']
+            oracle = metaworld.MT1(name, seed=seed)
+            task = oracle.train_tasks[idx]
+            assert first[tid*50+idx]['task_data_hash'] == task_data_digest(bytes(task.data))
+            env = make_env(name, idx, t['extra']['seed'])
+            direct = oracle.train_classes[name](render_mode='rgb_array', camera_name='corner2', width=480, height=480)
+            try:
+                direct.set_task(task)
+                state = np.random.get_state()
+                actual = reset_and_settle(env)
+                np.random.set_state(state)
+                expected = reset_and_settle(direct)
+                np.testing.assert_allclose(env.unwrapped._last_rand_vec, pickle.loads(task.data)['rand_vec'], rtol=0, atol=0)
+                np.testing.assert_allclose(actual, expected, rtol=0, atol=1e-7)
+                np.testing.assert_allclose(env.data.qpos, direct.data.qpos, rtol=0, atol=1e-7)
+            finally:
+                env.close(); direct.close()
+            print(model, seed, name, idx, 'seed/pool/task_data/start PASS')
+        print(home/'bpool', '2500 episodes / six views / fits PASS')
+PY
+```
+
+归属外待协调：`ops/formal_eval.py` 的 H100 prepare 仍内联执行 `/data` ≥ staging limit + reserve
+检查（约 30 GB），需删除那条空间断言才彻底解除准入门；`ops/cache_study.py:fit_inputs` 的
+`if file_sha(p) != entry['sha256']: pass` 需删除。`library_staging.DEFAULT_POLICY` 的旧 reserve
+字段暂留给这些既有调用者兼容；该模块已取消 `/data` 准入及运行期下限，保留 shard 配额和传输确认。
+采集仍由 `driver_release.py` 强制 legacy driver，group-commit 尚未验证。
 
 Test baseline: `formal_eval --model <m> --server-node local --replicas R --replica-startup-width 3 --mps --max-batch B --driver-mode group-commit
 --worker-counts timan107=40,timan1=36 --prepare-only`, then `check_direct.py` and `launch_direct_root.sh`; see

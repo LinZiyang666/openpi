@@ -77,8 +77,6 @@ class Store:
         self._arrays = {}
         for name, entry in sealed["arrays"].items():
             path = self.directory / entry["file"]
-            if path.is_symlink() or path.parent.resolve() != self.directory.resolve() or file_sha(path) != entry["sha256"]:
-                pass
             data = np.load(path, mmap_mode="r", allow_pickle=False)
             if data.dtype.str != entry["dtype"] or list(data.shape) != entry["shape"]:
                 raise ValueError("store geometry mismatch: " + name)

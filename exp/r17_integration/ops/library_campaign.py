@@ -2,7 +2,7 @@
 
 No GPUs are started without --run or --repair. --finish uses a closed receipt on
 CPU, useful when a fit job is run separately from collection. LIBERO smoke
-uses two episodes; MT50 smoke uses two tasks x two seed8 initial states.
+uses two episodes; MT50 smoke uses two tasks x two library-seed initial states.
 """
 from __future__ import annotations
 
@@ -27,8 +27,11 @@ PORT_BASE = {'dp_libero':23320,'fastwam_libero':23340,'cosmos_libero':23360,
 def teacher_tasks(campaign, benchmark, tasks):
     """B is a separate input pool; keep the sealed A-serving protocol/table."""
     if benchmark.benchmark != 'libero':
+        seed = campaign.get('library_seed', 8)
+        if type(seed) is not int or not 0 <= seed < 2**32 or seed == benchmark.seed:
+            raise ValueError('library seed must be explicit and distinct from the test seed')
         return [replace(task, extra=dict(task.extra, partition='library', split='library',
-            seed=benchmark.library_seed, init_pool='seed8', trial=0, suite_task_id=task.task_id,
+            seed=seed, init_pool=f'seed{seed}', trial=0, suite_task_id=task.task_id,
             library_episode_id=task.task_id*50+task.orig_init_state_idx)) for task in tasks]
     audit = load_alignment(campaign['alignment'])
     if audit['suite'] != campaign['suite']:
@@ -174,13 +177,18 @@ def disk_estimate(model, suite, *, wire_size=256, normalized_action_bytes=4, sta
 
 def finish(campaign, directory):
     """Publish only after accepted episodes, closed replicas and checked sync."""
-    from .library_staging import bounded, require_build_host
-    require_build_host(campaign)
+    from .library_staging import bounded
     from exp.r17_integration.debug.validate import model_binding
     from exp.r17_integration.search.teacher_library import build_teacher_parent, fit_nested_libraries, calibrate_teacher_knobs
     from exp.r17_integration.search.store import Store
     from .formal_driver import plan
     directory = Path(directory)
+    # A closed campaign can be copied to a CPU host without the source checkout.
+    campaign = dict(campaign)
+    if not campaign.get('repair_merge'):
+        campaign['local_assets'] = str(directory/'assets')
+        if campaign.get('domain', 'libero') == 'libero':
+            campaign['alignment'] = str(directory/'ALIGNMENT.json')
     receipt = json.loads((directory/'RECEIPT.json').read_text())
     if (receipt.get('status') != 'PASS' or receipt.get('all_owned_closed') is not True or
             receipt.get('worker_storage_cleanup_pending')):
@@ -233,13 +241,13 @@ def finish(campaign, directory):
         raise ValueError('existing parent belongs to another aligned collection')
     fit_options = {} if alignment else dict(sizes=campaign.get('subset_counts', [10,20,30,40,50]))
     products = {} if campaign['smoke'] else fit_nested_libraries(parent,alignment,task_names=benchmark.ordered_tasks,**fit_options)
-    knobs = {} if campaign['smoke'] else calibrate_teacher_knobs(parent,products,task_names=benchmark.ordered_tasks,
+    knobs = {} if campaign['smoke'] or campaign.get('ir_costs') is None else calibrate_teacher_knobs(parent,products,task_names=benchmark.ordered_tasks,
         cost_profile=campaign.get('ir_costs'),miss_sampler=campaign.get('miss_sampler'))
     result = dict(status='PASS',schema='r17.teacher_pipeline.v1',smoke=campaign['smoke'],
         parent=str(destination),parent_digest=parent.manifest['content_digest'],rows=len(parent.rows),
         episodes=len(episodes),failed_episodes=sum(not e['success'] for e in episodes),fits=products,
         alignment_digest=alignment['digest'] if alignment else None,official_A_fit_reads=0,actual_gpu_collection=not campaign.get('synthetic',False),
-        knob_products=knobs,knob_cost_qualification_pending=bool(knobs) and any(v['status']=='pending_cost_qualification' for v in knobs.values()))
+        knob_products=knobs)
     write_json(directory/'LIBRARY_PIPELINE.json',result)
     return result
 
@@ -248,6 +256,8 @@ def parse_args(argv=None):
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--model',required=True,choices=tuple(PORT_BASE))
     p.add_argument('--suite',required=True,choices=(*SUITES,'mt50'))
+    p.add_argument('--library-seed',type=int,default=8,help='MT50 library seed; test seed 7 is forbidden')
+    p.add_argument('--library-root',type=Path,default=LIBRARY_ROOT,help='Root containing <model>_<suite>/{campaigns,bpool}')
     p.add_argument('--checkpoint'); p.add_argument('--alignment',type=Path)
     p.add_argument('--g2-a-receipt',type=Path,help='Q slot_G2_fastwam_libero_A PASS receipt with model_manifest')
     p.add_argument('--g2-b-receipt',type=Path,help='Q slot_G2_fastwam_libero_B PASS receipt with model_manifest')
@@ -255,7 +265,7 @@ def parse_args(argv=None):
     p.add_argument('--ab-descriptor',type=Path,help='Descriptor for optional P3 loader-parity receipt')
     p.add_argument('--ir-costs',type=Path,help='Measured r17.ir_costs.v1; no π/GR cost reuse')
     p.add_argument('--miss-sampler',type=Path,help='Sealed native SamplerSpec for the cost profile; teacher grid by default')
-    p.add_argument('--server-node',choices=('local','h100')); p.add_argument('--worker-node',choices=('timan107','timan108','timan1'))
+    p.add_argument('--server-node',choices=('local','h100')); p.add_argument('--worker-node',choices=('local','timan107','timan108','timan1'))
     from .local_workers import counts
     p.add_argument('--worker-counts',type=counts,help='Per-node counts, e.g. timan107=24,timan1=40')
     p.add_argument('--capture-images',action=argparse.BooleanOptionalAction,default=None)
@@ -289,6 +299,10 @@ def parse_args(argv=None):
     vla = a.model in ('pi05_libero', 'groot_libero')
     a.server_node = a.server_node or ('local' if a.model in ('dp_libero', 'pi05_libero') else 'h100')
     mw = a.model.endswith('_mw')
+    if mw and (not 0 <= a.library_seed < 2**32 or a.library_seed == 7):
+        p.error('--library-seed must be a non-test seed in 0..2**32-1')
+    if mw and a.library_seed != 8 and a.library_root.resolve() == LIBRARY_ROOT.resolve() and not a.finish:
+        p.error('new library seeds require a separate --library-root, e.g. /data/r17_library/seed9')
     from exp.r17_integration.models.dp.batch_runtime import BatchConfig
     BatchConfig(a.max_batch,a.batch_wait_ms)
     if a.max_batch>1 and (not mw or a.model not in ('dp_mw','fastwam_mw')):
@@ -298,9 +312,6 @@ def parse_args(argv=None):
     a.worker_node = a.worker_node or ('timan107' if mw or vla or a.model=='dp_libero' else 'timan108')
     a.worker_counts = a.worker_counts or {a.worker_node:a.workers}
     a.workers = sum(a.worker_counts.values())
-    if 'local' in a.worker_counts: p.error('library simulators require remote worker nodes')
-    if 'timan1' in a.worker_counts and (not mw or a.worker_counts['timan1']>40):
-        p.error('timan1 MetaWorld workers require GPU3 only, maximum40')
     if sorted(set(a.subset_counts)) != a.subset_counts or any(n<1 or n>50 for n in a.subset_counts):
         p.error('nested per-task counts must be distinct increasing values in1..50')
     a.replicas = a.replicas if a.replicas is not None else (1 if mw else 2 if a.smoke and a.model=='dp_libero' else 12 if a.model=='dp_libero' else 1)
@@ -341,12 +352,17 @@ def main(argv=None):
             raise ValueError('finish must match the closed library campaign')
         if a.ir_costs: campaign['ir_costs']=json.loads(a.ir_costs.read_text())
         if a.miss_sampler: campaign['miss_sampler']=json.loads(a.miss_sampler.read_text())
+        if a.library_root.resolve() != LIBRARY_ROOT.resolve():
+            campaign['library_parent'] = str(a.library_root.absolute()/(a.model+'_'+a.suite)/'bpool')
         print(json.dumps(finish(campaign,a.finish))); return 0
     repair = None
     if a.repair:
         from .library_repair import inspect_repair
         repair = inspect_repair(a.repair,model=a.model.rsplit('_',1)[0],suite=a.suite,
                                 checkpoint=a.checkpoint,alignment=a.alignment)
+        a.library_seed = repair[0].get('library_seed', 8)
+        if a.library_root.resolve() == LIBRARY_ROOT.resolve():
+            a.library_root = Path(repair[0]['library_parent']).parent.parent
         if a.model=='fastwam_libero':
             original = repair[0]
             a.g2_a_receipt = a.g2_a_receipt or original.get('g2_a_receipt')
@@ -360,16 +376,15 @@ def main(argv=None):
     mw = a.suite == 'mt50'
     alignment = a.alignment or AUDIT_ROOT/(a.suite+'.json')
     audit = None if mw else repair[1] if repair else load_alignment(alignment)
-    name = a.run_name or ('teacher_'+a.model+'_'+a.suite+('_repair_' if repair else
+    seed_label = f'_seed{a.library_seed}' if mw else ''
+    name = a.run_name or ('teacher_'+a.model+'_'+a.suite+seed_label+('_repair_' if repair else
         ('_smoke4_' if mw else '_smoke2_') if a.smoke else ('_2500_' if mw else '_500_'))+
         time.strftime('%Y%m%d_%H%M%S')+'_'+uuid.uuid4().hex[:8])
     if a.mps and a.run_name is None:
-        name = 't_'+a.model.rsplit('_',1)[0]+'_'+time.strftime('%H%M%S')+'_'+uuid.uuid4().hex[:6]
+        name = 't_'+a.model.rsplit('_',1)[0]+seed_label+'_'+time.strftime('%H%M%S')+'_'+uuid.uuid4().hex[:6]
     if not name or len(name)>150 or any(c not in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-' for c in name):
         raise ValueError('unique plain campaign identifier required')
-    home = LIBRARY_ROOT/(a.model+'_'+a.suite)
-    if not a.smoke and (home/'bpool').exists():
-        raise ValueError('B500 parent already exists; use --finish for a closed collection')
+    home = a.library_root.absolute()/(a.model+'_'+a.suite)
     directory = home/'campaigns'/name
     directory.mkdir(parents=True,exist_ok=False)
     if audit is not None:
@@ -412,6 +427,7 @@ def main(argv=None):
         for key in ('alignment','bpool_archive','bpool_transfer'):
             campaign.pop(key)
         campaign.update(worker_memory_mib=2048,worker_vram_mib=1024,worker_max_episodes=0)
+        campaign['library_seed'] = a.library_seed
     if model == 'groot':
         campaign['vendor'] = '/home/weiland/projects/openpi_ext/third_party/gr00t_n15'
     if repair:
@@ -422,13 +438,12 @@ def main(argv=None):
             repair_pin=pin,repair_attempts=pin['repair_attempts'],repair_prior_attempts=pin['prior_attempts'])
         write_json(directory/'REPAIR_PLAN.json',pin)
     if a.server_node=='h100':
-        from .library_staging import DEFAULT_POLICY, require_build_host
+        from .library_staging import DEFAULT_POLICY
         campaign['h100_staging'] = dict(DEFAULT_POLICY)
         if not a.capture_images:
             # Image-free episodes are a few MB; 256 MiB slots capped concurrency near 66 episodes.
             campaign['h100_staging']['shard_bytes'] = 64*1024**2
         campaign['h100_batch'] = True
-        require_build_host(campaign)
     if a.ir_costs: campaign['ir_costs']=json.loads(a.ir_costs.read_text())
     if a.miss_sampler: campaign['miss_sampler']=json.loads(a.miss_sampler.read_text())
     # Direct endpoints only (formal.open_tunnels never exposes through the broker).

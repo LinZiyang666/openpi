@@ -16,8 +16,11 @@ from .store import SCHEMA, Store, atomic_json, fsync_directory
 def build_teacher_parent(sources, destination, binding, episodes, alignment=None, *, expected_episodes=500, capture_images=True):
     """Two bounded passes; RGB never accumulates in a Python whole-run list."""
     sources = tuple(map(Path, sources))
-    if len(episodes) != expected_episodes:
+    if not episodes or len(episodes) != expected_episodes:
         raise ValueError('teacher episode count differs from plan')
+    seed = episodes[0].get('seed') if not alignment else None
+    if not alignment and (type(seed) is not int or not 0 <= seed < 2**32 or seed == 7):
+        raise ValueError('teacher requires an explicit non-test library seed')
     if alignment and (alignment['init_pool'] != 'B' or alignment['status'] != 'PASS'):
         pass
     by_coordinate = {(r['task_id'],r['orig_init_state_idx']):r for r in alignment['rows']} if alignment else {}
@@ -33,7 +36,9 @@ def build_teacher_parent(sources, destination, binding, episodes, alignment=None
                 ep['init_state_sha256'] == witness['init_array']['state_sha256'] and ep['task_name'] == canonical_name and
                 ep['task_data_hash'] == task_data_digest(dict(witness['init_array'],task_name=canonical_name)))
         else:
-            aligned = ep.get('seed') == 8 and ep['library_episode_id'] == coordinate[0]*50+coordinate[1]
+            aligned = (ep.get('seed') == seed and ep.get('init_pool') == f'seed{seed}' and
+                0 <= coordinate[0] < 50 and 0 <= coordinate[1] < 50 and
+                ep['library_episode_id'] == coordinate[0]*50+coordinate[1])
         if (ep.get('split') != 'library' or not ep.get('closed_ok') or
             type(ep.get('success')) is not bool or ep.get('error') is not None or not aligned):
             raise ValueError('teacher cohort/init/episode alignment mismatch')
@@ -122,10 +127,12 @@ def build_teacher_parent(sources, destination, binding, episodes, alignment=None
         entries[name] = dict(file=path.name, sha256=file_sha(path), dtype=data.dtype.str,
                             shape=list(data.shape), mode='dense')
     metadata = dict(recipe='teacher_library', episodes=episodes, key_fields=list(fields),
-        init_pool='B' if alignment else 'seed8', alignment_digest=alignment['digest'] if alignment else None,
+        init_pool='B' if alignment else f'seed{seed}', alignment_digest=alignment['digest'] if alignment else None,
         images='received_wire_uint8' if capture_images else 'disabled',
         failed_episodes_kept=True, expected_episodes=expected_episodes, full_native_sampler=True,
         fit_reads='selected B-only arrays; no A/query/outcome features')
+    if not alignment:
+        metadata['seed'] = seed
     if any(ep.get('prior_attempts') for ep in episodes):
         prior = [row for ep in episodes for row in ep.get('prior_attempts', [])]
         metadata['pre_decision_infrastructure_attempts'] = [row for row in prior if row.get('disposition') not in ('discarded_node_failure','discarded_missing_worker_result')]
@@ -189,7 +196,9 @@ class RowIndexStore:
         return IndexedArray(self.parent.array(name),self.indices)
 
 
-def nested_views(parent, alignment=None, *, sizes=(50,100,200,300,400,500)):
+def nested_views(parent, alignment=None, *, sizes=(50,100,200,300,400,500), output_root=None):
+    root = Path(output_root) if output_root is not None else parent.directory/'subsets'
+    seed = parent.manifest['metadata'].get('seed', parent.rows[0].get('seed')) if not alignment else None
     result, previous = {}, set()
     for size in sizes:
         if alignment:
@@ -205,10 +214,12 @@ def nested_views(parent, alignment=None, *, sizes=(50,100,200,300,400,500)):
         if not selected <= available:
             raise ValueError('subset episodes absent from500 parent')
         indices = np.array([i for i,r in enumerate(parent.rows) if r['library_episode_id'] in selected], np.int64)
-        directory = parent.directory/'subsets'/('size_'+str(size))
+        directory = root/('size_'+str(size))
         if directory.exists():
             view = RowIndexStore(directory,parent=parent)
-            if set(view.manifest['episode_ids']) != selected or view.manifest['metadata']['alignment_digest'] != (alignment['digest'] if alignment else None):
+            if (view.manifest['parent_digest'] != parent.manifest['content_digest'] or
+                set(view.manifest['episode_ids']) != selected or
+                view.manifest['metadata']['alignment_digest'] != (alignment['digest'] if alignment else None)):
                 raise ValueError('existing subset differs from audited R10 selection')
             result[size] = view
             previous = selected
@@ -217,13 +228,13 @@ def nested_views(parent, alignment=None, *, sizes=(50,100,200,300,400,500)):
         path = directory/'row_indices.npy'
         with path.open('xb') as stream:
             np.save(stream,indices,allow_pickle=False); stream.flush(); os.fsync(stream.fileno())
-        manifest = dict(schema='r17.row_index_view.v1',parent_path='../..',parent_digest=parent.manifest['content_digest'],
+        manifest = dict(schema='r17.row_index_view.v1',parent_path=os.path.relpath(parent.directory,directory),parent_digest=parent.manifest['content_digest'],
             binding=parent.manifest['binding'],rows=len(indices),episode_ids=sorted(selected),size=size,
             row_indices_sha256=file_sha(path),metadata=dict(init_pool='B',split='library',
-                subset_seed=alignment['subset_seed'] if alignment else 8,
+                subset_seed=alignment['subset_seed'] if alignment else seed,
                 alignment_digest=alignment['digest'] if alignment else None,selected_fit_only=True))
         if not alignment:
-            manifest['metadata'].update(init_pool='seed8',episodes_per_task=size)
+            manifest['metadata'].update(init_pool=f'seed{seed}',episodes_per_task=size)
         manifest['content_digest'] = digest(manifest)
         atomic_json(directory/'VIEW.json',manifest)
         result[size] = RowIndexStore(directory,parent=parent)
@@ -278,11 +289,11 @@ def fit_nested_libraries(parent, alignment=None, *, task_names, sizes=(50,100,20
 def calibrate_teacher_knobs(parent, products, *, task_names, cost_profile=None, miss_sampler=None):
     """Use P1's selected-library LOEO schedule and exact R11 cap solver.
 
-    Unmeasured new-model costs produce explicit pending receipts. They never
-    inherit π/GR coefficients, approximate wall latency, or pretend MISS-rate
-    labels are owner IR. Once supplied, one profile is bound to one native MISS
-    grid; teacher sampler/fit products remain unchanged.
+    Without measured costs there is no calibration product. A supplied profile
+    is bound to one native MISS grid; teacher sampler/fit products stay unchanged.
     """
+    if cost_profile is None:
+        return {}
     from .fit import load_fitted_recipe
     from .analyze import _validate_ir_costs
     from exp.r17_integration.common.recipe import retrieval_model_identity
@@ -290,37 +301,34 @@ def calibrate_teacher_knobs(parent, products, *, task_names, cost_profile=None, 
     from exp.r17_integration.common.contracts import SamplerSpec
     from types import SimpleNamespace
     binding = parent.manifest['binding']
-    if cost_profile is not None:
-        _validate_ir_costs(cost_profile)
-        sampler = SamplerSpec(**(miss_sampler or binding['sampler']))
-        if (set(cost_profile) != {'schema','vision','miss','retrieval_model_identity','sampler_identity','benchmark_protocol','source_identity'} or
-            cost_profile['retrieval_model_identity'] != retrieval_model_identity(binding['model']) or
-            cost_profile['benchmark_protocol'] != binding['benchmark_protocol'] or
-            cost_profile['sampler_identity'] != sampler.identity or cost_profile['miss']<=0 or
-            cost_profile['vision']+cost_profile['miss']>1+1e-9):
-            raise ValueError('knob costs differ from teacher model/protocol or explicit MISS grid')
+    _validate_ir_costs(cost_profile)
+    sampler = SamplerSpec(**(miss_sampler or binding['sampler']))
+    if (set(cost_profile) != {'schema','vision','miss','retrieval_model_identity','sampler_identity','benchmark_protocol','source_identity'} or
+        cost_profile['retrieval_model_identity'] != retrieval_model_identity(binding['model']) or
+        cost_profile['benchmark_protocol'] != binding['benchmark_protocol'] or
+        cost_profile['sampler_identity'] != sampler.identity or cost_profile['miss']<=0 or
+        cost_profile['vision']+cost_profile['miss']>1+1e-9):
+        raise ValueError('knob costs differ from teacher model/protocol or explicit MISS grid')
     result = {}
     for size,product in products.items():
         view = RowIndexStore(parent.directory/'subsets'/('size_'+size),parent=parent)
         document = dict(schema='r17.teacher_knobs.v1',size=int(size),store_digest=view.manifest['content_digest'],
-            fit_digest=product['fit_digest'],status='pending_cost_qualification',
-            reason='new-model GPU capture-off cost profile required for owner IR25/32/40/45',calibrations={})
-        if cost_profile is not None:
-            recipe = load_fitted_recipe(product['directory'],expected_binding=binding)
-            config = SimpleNamespace(adapter_binding={'benchmark_protocol':binding['benchmark_protocol']},
-                recipe=SimpleNamespace(ordered_tasks=tuple(task_names),guard=False))
-            replay = library_schedule(recipe,view,config)
-            for level in (.25,.32,.40,.45):
-                try:
-                    calibration = calibrate_periodic(level,replay,cost_profile)
-                    calibration.update(store_digest=view.manifest['content_digest'],fit_digest=product['fit_digest'])
-                    calibration['digest'] = digest(calibration)
-                    document['calibrations'][str(level)] = calibration
-                except ValueError as exc:
-                    if 'feasible interval' not in str(exc): raise
-                    document['calibrations'][str(level)] = dict(status='infeasible',reason=str(exc))
-            document.update(status='calibrated',reason='P1 library-only LOEO schedules; R11 cap solver',
-                miss_sampler=miss_sampler or binding['sampler'],cost_profile=cost_profile)
+            fit_digest=product['fit_digest'],status='calibrated',
+            reason='P1 library-only LOEO schedules; R11 cap solver',calibrations={},
+            miss_sampler=miss_sampler or binding['sampler'],cost_profile=cost_profile)
+        recipe = load_fitted_recipe(product['directory'],expected_binding=binding)
+        config = SimpleNamespace(adapter_binding={'benchmark_protocol':binding['benchmark_protocol']},
+            recipe=SimpleNamespace(ordered_tasks=tuple(task_names),guard=False))
+        replay = library_schedule(recipe,view,config)
+        for level in (.25,.32,.40,.45):
+            try:
+                calibration = calibrate_periodic(level,replay,cost_profile)
+                calibration.update(store_digest=view.manifest['content_digest'],fit_digest=product['fit_digest'])
+                calibration['digest'] = digest(calibration)
+                document['calibrations'][str(level)] = calibration
+            except ValueError as exc:
+                if 'feasible interval' not in str(exc): raise
+                document['calibrations'][str(level)] = dict(status='infeasible',reason=str(exc))
         document['digest'] = digest(document)
         path = parent.directory/'fits'/('size_'+size)/('KNOBS_'+document['digest'][:16]+'.json')
         if path.exists():

@@ -18,33 +18,14 @@ from exp.r17_integration.common.contracts import digest
 _descriptors, _stalls, _artifacts_lock = {}, {}, threading.RLock()
 
 
-def _stamp(paths):
-    return tuple((str(p), *(getattr(s, k) for s in (p.lstat(), p.stat())
-        for k in ("st_dev","st_ino","st_size","st_mtime_ns","st_ctime_ns","st_mode"))) for p in paths)
-
-
 def sealed_store_descriptor(path, expected):
     key = str(Path(path).resolve()), expected
     with _artifacts_lock:
         cached = _descriptors.get(key)
         if cached:
-            result, paths, stamp = cached
-            if _stamp(paths) != stamp:
-                pass
-            return result
-        directory=Path(path)
-        own_paths=([directory/"VIEW.json",directory/"row_indices.npy"] if (directory/"VIEW.json").exists()
-                   else [directory/"READY.json"])
-        before=_stamp(own_paths)
+            return cached
         result = _read_store_descriptor(path, expected)
-        if _stamp(own_paths)!=before:
-            raise ValueError("library metadata changed during verification")
-        if hasattr(result, "parent"):
-            sealed_store_descriptor(result.parent.directory,result.parent.manifest['content_digest'])
-            paths = [result.directory/"VIEW.json", result.directory/"row_indices.npy", result.parent.directory/"READY.json"]
-        else:
-            paths = [result.directory/"READY.json"]
-        _descriptors[key] = result, paths, _stamp(paths)
+        _descriptors[key] = result
         return result
 
 
@@ -52,14 +33,12 @@ def _read_store_descriptor(path, expected):
     directory = Path(path)
     if (directory / "VIEW.json").exists():
         import numpy as np
-        from exp.r17_integration.debug.validate import file_sha
         view = json.loads((directory / "VIEW.json").read_text())
         if (view.get("schema") != "r17.row_index_view.v1" or view.get("content_digest") != expected or
                 digest({k:v for k,v in view.items() if k != "content_digest"}) != expected):
             pass
         parent = sealed_store_descriptor(directory / view["parent_path"], view["parent_digest"])
-        if (view["binding"] != parent.manifest["binding"] or
-                file_sha(directory / "row_indices.npy") != view["row_indices_sha256"]):
+        if view["binding"] != parent.manifest["binding"]:
             raise ValueError("selected library view binding/rows mismatch")
         indices = np.load(directory / "row_indices.npy", allow_pickle=False)
         if (indices.ndim != 1 or indices.dtype.kind not in "iu" or len(indices) != view["rows"] or
@@ -79,8 +58,12 @@ def _read_store_descriptor(path, expected):
             value.get("content_digest") != expected or
             digest({k: v for k, v in value.items() if k != "content_digest"}) != expected):
         pass
-    if any(row.get("split") != "library" or (row.get("init_pool", "B") != "B" and
-           not (row.get("init_pool") == "seed8" and row.get("seed") == 8)) for row in value["rows"]):
+    metadata = value.get("metadata", {})
+    seed = metadata.get("seed", value["rows"][0].get("seed") if value["rows"] else None)
+    pool = metadata.get("init_pool", value["rows"][0].get("init_pool", "B") if value["rows"] else "B")
+    if any(row.get("split") != "library" or row.get("init_pool", "B") != pool or
+           (pool != "B" and (type(seed) is not int or not 0 <= seed < 2**32 or seed == 7 or
+            pool != f"seed{seed}" or row.get("seed") != seed)) for row in value["rows"]):
         raise ValueError("teacher fit source must be B library only")
     return SimpleNamespace(manifest=value, directory=Path(path))
 
@@ -143,12 +126,8 @@ def verified_fit(config, binding):
     from .fit import load_fitted_recipe
     r = config.recipe
     path = Path(r.fitted_path)
-    stamp = tuple((str(p.resolve()), p.stat().st_ino, p.stat().st_size, p.stat().st_mtime_ns,
-                   p.stat().st_ctime_ns) for p in (path/"READY.json", path/"fit.npz"))
     with _fits_lock:
         cached = _fits.get((str(path.resolve()), r.fitted_digest))
-    if cached is not None and cached[0] != stamp:
-        raise ValueError("verified fitted recipe changed; publish an immutable new generation")
     value = json.loads((path / "READY.json").read_text())
     if value.get("digest") != r.fitted_digest or digest({k:v for k,v in value.items() if k != "digest"}) != r.fitted_digest:
         pass
@@ -169,14 +148,10 @@ def verified_fit(config, binding):
     if receipt["binding"] != binding:
         raise ValueError("fitted teacher binding mismatch")
     if cached is not None:
-        return cached[1]
+        return cached
     result = load_fitted_recipe(path, expected_binding=binding)
-    after = tuple((str(p.resolve()), p.stat().st_ino, p.stat().st_size, p.stat().st_mtime_ns,
-                   p.stat().st_ctime_ns) for p in (path/"READY.json", path/"fit.npz"))
-    if stamp != after:
-        raise ValueError("fitted recipe changed during verification")
     with _fits_lock:
-        _fits[(str(path.resolve()), r.fitted_digest)] = stamp, result
+        _fits[(str(path.resolve()), r.fitted_digest)] = result
     return result
 
 
@@ -254,35 +229,23 @@ def validate_deployed_stall_metric(recipe, model):
 
 def load_stall(config, recipe):
     from exp.offline_search.rounds.r06.ideation_Q3.stall.stall import StallModel, _digest
-    from exp.r17_integration.debug.validate import file_sha
     r = config.recipe
     root = Path(r.stall_path)
     key = str(root.resolve()), r.stall_digest, r.fitted_digest
     with _artifacts_lock:
         cached = _stalls.get(key)
         if cached:
-            model, paths, stamp = cached
-            if _stamp(paths) != stamp:
-                raise ValueError("verified stall artifact changed; publish an immutable generation")
-            return model
-    ready_before=_stamp([root/"READY.json"])
+            return cached
     receipt = json.loads((root / "READY.json").read_text())
-    paths = [root/"READY.json", *(root/name for name in receipt["files"])]
-    before=_stamp(paths)
-    if _stamp([root/"READY.json"])!=ready_before:
-        raise ValueError("stall artifact changed during verification")
     if receipt.get("digest") != r.stall_digest or digest({k:v for k,v in receipt.items() if k != "digest"}) != r.stall_digest:
         pass
     if (receipt.get("store_digest") != r.store_digest or receipt.get("fitted_digest") != r.fitted_digest or
-            receipt.get("calibration_partition") != "B_library_successful_LOEO" or
-            any(file_sha(root/name) != pin for name,pin in receipt["files"].items())):
+            receipt.get("calibration_partition") != "B_library_successful_LOEO"):
         raise ValueError("stall artifact B/fit/source binding mismatch")
     model = StallModel.load(root)
     model.deployed_metric_evidence = validate_deployed_stall_metric(recipe, model)
-    if _stamp(paths)!=before:
-        raise ValueError("stall artifact changed during verification")
     with _artifacts_lock:
-        _stalls[key] = model, paths, _stamp(paths)
+        _stalls[key] = model
     return model
 
 

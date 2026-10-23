@@ -49,7 +49,9 @@ class LibraryCaptureBridge(CaptureBridge):
         fields = self.binding['model']['feature_spec']['fields']
         keys = {name:rawkeys[name] for name in fields}
         row = {key:value for key,value in record.items() if key in RECORD_FIELDS}
-        if row.get('split') != 'library' or (row.get('init_pool') != 'B' and row.get('seed') != 8):
+        seed = row.get('seed')
+        if row.get('split') != 'library' or (row.get('init_pool') != 'B' and
+            (type(seed) is not int or not 0 <= seed < 2**32 or seed == 7 or row.get('init_pool') != f'seed{seed}')):
             raise ValueError('teacher capture requires library provenance')
         row['episode_id'] = row['library_episode_id']
         return super().capture(row, selected, rawkeys=keys, prompt='')
