@@ -113,3 +113,12 @@ R16 服务端的请求路径见 `R16_SERVING_MAP.md`（π0.5 是 PyTorch eager b
 - 纯推理：第 2 段（Gemma 前缀）每条约 15.8 ms，随批线性增长，是纯推理的硬上限（约 44 条/秒）。第 2、3 段合并成一批（`--fuse23`，省掉第 2 段结果经请求线程交给第 3 段时被拆碎）后，40 台机器人稳态 40.4 条/秒（上限的 92%），5 台中位 60 ms；更大的后段批（32）、三段串行、凑批等待都更差。
 - 完整系统：80 台机器人时稳态只有 55–60 条/秒、GPU 利用率 38%。py-spy（`--gil`）：请求线程里方法的 numpy 矩阵乘（每条请求两次 64×32768 投影、表距离、修正器、停滞门投影）全程持有 GIL——numpy 1.26 的 `@` 在 BLAS 调用期间不放 GIL（8/32 个线程同时算总吞吐不变）；`np.dot` 走同一 BLAS、逐位相同、放 GIL（8 线程 6.7 倍）。`--dot` 把拟合方法里的大矩阵换成 `@` 走 `np.dot` 的 ndarray 子类；1 台机器人回放 192 条判定中 160 条（含距离分数）逐位相同，其余 32 条都紧跟在未命中之后（方法用上一次未命中的模型动作，随去噪噪声的随机数序列而变），与 `--dot` 无关。GIL 占用从 64 s 降到 18 s，80 台稳态 68.6 条/秒。
 - 之后第 1 段线程被拼批的 Python 开销卡住（`stack_observation` 的 jax tree + 逐请求 as_tensor、`Observation.from_dict` 的类型检查），后段线程把第 2 段结果按请求拆开、逐层复制 KV 再拼回。改为整段图：第 1 段从拼好的请求字典（uint8 图像）开始整段录图（锁页缓冲区一次异步拷贝）；合并后段把 Gemma 前缀和整个去噪循环录成一张图（每个步数、批大小一张）。
+
+## 正式实验
+
+每边一套固定参数，只变机器人数 N；每个 N 放完 500 局（27,747 条推理请求），种子 0，先在 20 台机器人下放 40 局预热（不计入）。脚本 `run_formal.sh`，结果 `/nvme/weiland/openpi/cluster_sim/runs/{pure,cache}/RESULTS.json`，汇总 `report.py` → `runs/REPORT.md`、`runs/report.png`。
+
+| | 全步纯推理 | 完整系统 |
+|---|---|---|
+| 参数 | `--batch 1:16,2:16,3:16 --fuse23 --omp 4 --graphs --compile all --compile-mode default` | `--batch 1:32,2:16,3:16 --fuse23 --priority 1:-3,3:0 --pipe1 --omp 4 --graphs --compile all --compile-mode default --dot --lean` |
+| 共同 | 整段 CUDA graph（启动时预录）、inductor、bf16、前缀去空相机 + 指令 80 token、GC、每个 BLAS 调用 4 线程 | 同左 |
