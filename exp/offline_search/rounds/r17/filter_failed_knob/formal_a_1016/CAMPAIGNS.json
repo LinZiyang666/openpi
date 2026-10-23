@@ -3163,6 +3163,81 @@
       "stage": "levels",
       "artifacts": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/formal_a_1016/runs/ffk1015_groot_libero_full_formal_A_filtered/ARTIFACTS.json",
       "worker_host_failover": true
+    },
+    {
+      "name": "fa_co_f_u_l",
+      "run": "/data/mw_finetune/eval/fa_co_f_u_l",
+      "source": "/data/mw_finetune/eval/knobtestcos2",
+      "episodes": 30000,
+      "model": "cosmos",
+      "benchmark": "libero",
+      "gpu": "H100",
+      "workers": {
+        "timan1": 166,
+        "timan107": 104
+      },
+      "replicas": 8,
+      "python": "/data/cosmos/cosmos-policy/.venv/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_3faa6dcf5cd5dacf9109052a0a85f69b53564282161b9f14f165f7229b8d53d4",
+      "unfiltered": true,
+      "mode": "full",
+      "arm": "original",
+      "stage": "levels",
+      "pipeline": "R17",
+      "batch": 1,
+      "mps": {
+        "active_thread_percentage": 100,
+        "compute_mode_change": false,
+        "enabled": true,
+        "private_per_campaign_gpu": true,
+        "schema": "r17.mps.v1"
+      },
+      "levels": [
+        "k50",
+        "k40",
+        "k30",
+        "k20",
+        "k10"
+      ],
+      "off_reuse": null
+    },
+    {
+      "name": "fa_co_f_f_l",
+      "run": "/data/mw_finetune/eval/fa_co_f_f_l",
+      "source": "/data/mw_finetune/eval/knobtestcos2",
+      "episodes": 30000,
+      "model": "cosmos",
+      "benchmark": "libero",
+      "gpu": "H100",
+      "workers": {
+        "a100": 80,
+        "timan1": 166,
+        "timan107": 104
+      },
+      "replicas": 8,
+      "python": "/data/cosmos/cosmos-policy/.venv/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_3faa6dcf5cd5dacf9109052a0a85f69b53564282161b9f14f165f7229b8d53d4",
+      "unfiltered": false,
+      "mode": "full",
+      "arm": "filtered",
+      "stage": "levels",
+      "pipeline": "R17",
+      "batch": 1,
+      "mps": {
+        "active_thread_percentage": 100,
+        "compute_mode_change": false,
+        "enabled": true,
+        "private_per_campaign_gpu": true,
+        "schema": "r17.mps.v1"
+      },
+      "levels": [
+        "k50",
+        "k40",
+        "k30",
+        "k20",
+        "k10"
+      ],
+      "off_reuse": null
     }
   ],
   "queue_units": [
@@ -4191,29 +4266,6 @@
       "renamed_from": "ffk1015_cosmos_libero_full_formal_A_original_off"
     },
     {
-      "name": "fa_co_f_u_l",
-      "model": "cosmos",
-      "mode": "full",
-      "arm": "original",
-      "stage": "levels",
-      "gpu": "H100",
-      "replicas": 8,
-      "batch": 1,
-      "workers": {
-        "timan1": 35,
-        "timan107": 25,
-        "timan108": 25
-      },
-      "jobs": [],
-      "status": "WAITING_OFF",
-      "episodes": null,
-      "maximum_episodes": 30000,
-      "dependencies": [
-        "fa_co_f_u_o"
-      ],
-      "renamed_from": "ffk1015_cosmos_libero_full_formal_A_original_levels"
-    },
-    {
       "name": "fa_co_f_f_o",
       "model": "cosmos",
       "mode": "full",
@@ -4322,29 +4374,6 @@
       ],
       "dependencies": [],
       "renamed_from": "ffk1015_cosmos_libero_full_formal_A_filtered_off"
-    },
-    {
-      "name": "fa_co_f_f_l",
-      "model": "cosmos",
-      "mode": "full",
-      "arm": "filtered",
-      "stage": "levels",
-      "gpu": "H100",
-      "replicas": 8,
-      "batch": 1,
-      "workers": {
-        "timan1": 35,
-        "timan107": 25,
-        "timan108": 25
-      },
-      "jobs": [],
-      "status": "WAITING_OFF",
-      "episodes": null,
-      "maximum_episodes": 30000,
-      "dependencies": [
-        "fa_co_f_f_o"
-      ],
-      "renamed_from": "ffk1015_cosmos_libero_full_formal_A_filtered_levels"
     },
     {
       "name": "fa_gr_f_u_o",
@@ -8696,6 +8725,244 @@
         "ir40",
         "ir32",
         "ir25"
+      ]
+    },
+    {
+      "name": "fa_co_f_u_l",
+      "model": "cosmos",
+      "mode": "full",
+      "arm": "original",
+      "stage": "levels",
+      "gpu": "H100",
+      "replicas": 8,
+      "batch": 1,
+      "workers": {
+        "timan1": 166,
+        "timan107": 104
+      },
+      "jobs": [
+        {
+          "name": "fa_co_f_u_l",
+          "run": "/data/mw_finetune/eval/fa_co_f_u_l",
+          "source": "/data/mw_finetune/eval/knobtestcos2",
+          "episodes": 30000,
+          "model": "cosmos",
+          "benchmark": "libero",
+          "gpu": "H100",
+          "workers": {
+            "timan1": 166,
+            "timan107": 104
+          },
+          "replicas": 8,
+          "python": "/data/cosmos/cosmos-policy/.venv/bin/python",
+          "runtime": "/data/mw_finetune/qualification/formal_runtime_3faa6dcf5cd5dacf9109052a0a85f69b53564282161b9f14f165f7229b8d53d4",
+          "unfiltered": true,
+          "mode": "full",
+          "arm": "original",
+          "stage": "levels",
+          "pipeline": "R17",
+          "batch": 1,
+          "mps": {
+            "active_thread_percentage": 100,
+            "compute_mode_change": false,
+            "enabled": true,
+            "private_per_campaign_gpu": true,
+            "schema": "r17.mps.v1"
+          },
+          "levels": [
+            "k50",
+            "k40",
+            "k30",
+            "k20",
+            "k10"
+          ],
+          "off_reuse": null
+        }
+      ],
+      "status": "BUILT",
+      "episodes": 30000,
+      "maximum_episodes": 30000,
+      "dependencies": [
+        "fa_co_f_u_o"
+      ],
+      "renamed_from": "ffk1015_cosmos_libero_full_formal_A_original_levels",
+      "off_decision_sha256": "446f7d72ed451c778cda5b287dcc9c39cfb1685442e1a11d2d2d119ae8a994bc",
+      "selected_cells": [
+        [
+          "libero_10",
+          50
+        ],
+        [
+          "libero_10",
+          100
+        ],
+        [
+          "libero_10",
+          200
+        ],
+        [
+          "libero_10",
+          300
+        ],
+        [
+          "libero_10",
+          400
+        ],
+        [
+          "libero_10",
+          500
+        ],
+        [
+          "libero_spatial",
+          50
+        ],
+        [
+          "libero_spatial",
+          100
+        ],
+        [
+          "libero_spatial",
+          200
+        ],
+        [
+          "libero_spatial",
+          300
+        ],
+        [
+          "libero_spatial",
+          400
+        ],
+        [
+          "libero_spatial",
+          500
+        ]
+      ],
+      "levels": [
+        "k50",
+        "k40",
+        "k30",
+        "k20",
+        "k10"
+      ]
+    },
+    {
+      "name": "fa_co_f_f_l",
+      "model": "cosmos",
+      "mode": "full",
+      "arm": "filtered",
+      "stage": "levels",
+      "gpu": "H100",
+      "replicas": 8,
+      "batch": 1,
+      "workers": {
+        "a100": 80,
+        "timan1": 166,
+        "timan107": 104
+      },
+      "jobs": [
+        {
+          "name": "fa_co_f_f_l",
+          "run": "/data/mw_finetune/eval/fa_co_f_f_l",
+          "source": "/data/mw_finetune/eval/knobtestcos2",
+          "episodes": 30000,
+          "model": "cosmos",
+          "benchmark": "libero",
+          "gpu": "H100",
+          "workers": {
+            "a100": 80,
+            "timan1": 166,
+            "timan107": 104
+          },
+          "replicas": 8,
+          "python": "/data/cosmos/cosmos-policy/.venv/bin/python",
+          "runtime": "/data/mw_finetune/qualification/formal_runtime_3faa6dcf5cd5dacf9109052a0a85f69b53564282161b9f14f165f7229b8d53d4",
+          "unfiltered": false,
+          "mode": "full",
+          "arm": "filtered",
+          "stage": "levels",
+          "pipeline": "R17",
+          "batch": 1,
+          "mps": {
+            "active_thread_percentage": 100,
+            "compute_mode_change": false,
+            "enabled": true,
+            "private_per_campaign_gpu": true,
+            "schema": "r17.mps.v1"
+          },
+          "levels": [
+            "k50",
+            "k40",
+            "k30",
+            "k20",
+            "k10"
+          ],
+          "off_reuse": null
+        }
+      ],
+      "status": "BUILT",
+      "episodes": 30000,
+      "maximum_episodes": 30000,
+      "dependencies": [
+        "fa_co_f_f_o"
+      ],
+      "renamed_from": "ffk1015_cosmos_libero_full_formal_A_filtered_levels",
+      "off_decision_sha256": "2c4e4230efb1be8f53a193f99e29e8a5a4c4b561f12e3b336d4c498993209450",
+      "selected_cells": [
+        [
+          "libero_10",
+          50
+        ],
+        [
+          "libero_10",
+          100
+        ],
+        [
+          "libero_10",
+          200
+        ],
+        [
+          "libero_10",
+          300
+        ],
+        [
+          "libero_10",
+          400
+        ],
+        [
+          "libero_10",
+          500
+        ],
+        [
+          "libero_spatial",
+          50
+        ],
+        [
+          "libero_spatial",
+          100
+        ],
+        [
+          "libero_spatial",
+          200
+        ],
+        [
+          "libero_spatial",
+          300
+        ],
+        [
+          "libero_spatial",
+          400
+        ],
+        [
+          "libero_spatial",
+          500
+        ]
+      ],
+      "levels": [
+        "k50",
+        "k40",
+        "k30",
+        "k20",
+        "k10"
       ]
     }
   ],

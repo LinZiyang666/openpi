@@ -1,0 +1,117 @@
+{
+  "model": "cosmos",
+  "mode": "full",
+  "arm": "original",
+  "rows": [
+    {
+      "suite": "libero_10",
+      "size": 50,
+      "n": 500,
+      "pure_n": 500,
+      "successes": 190,
+      "pure_successes": 493,
+      "status": "tune"
+    },
+    {
+      "suite": "libero_10",
+      "size": 100,
+      "n": 500,
+      "pure_n": 500,
+      "successes": 327,
+      "pure_successes": 493,
+      "status": "tune"
+    },
+    {
+      "suite": "libero_10",
+      "size": 200,
+      "n": 500,
+      "pure_n": 500,
+      "successes": 384,
+      "pure_successes": 493,
+      "status": "tune"
+    },
+    {
+      "suite": "libero_10",
+      "size": 300,
+      "n": 500,
+      "pure_n": 500,
+      "successes": 418,
+      "pure_successes": 493,
+      "status": "tune"
+    },
+    {
+      "suite": "libero_10",
+      "size": 400,
+      "n": 500,
+      "pure_n": 500,
+      "successes": 424,
+      "pure_successes": 493,
+      "status": "tune"
+    },
+    {
+      "suite": "libero_10",
+      "size": 500,
+      "n": 500,
+      "pure_n": 500,
+      "successes": 430,
+      "pure_successes": 493,
+      "status": "tune"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 50,
+      "n": 500,
+      "pure_n": 500,
+      "successes": 226,
+      "pure_successes": 482,
+      "status": "tune"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 100,
+      "n": 500,
+      "pure_n": 500,
+      "successes": 457,
+      "pure_successes": 482,
+      "status": "tune"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 200,
+      "n": 500,
+      "pure_n": 500,
+      "successes": 474,
+      "pure_successes": 482,
+      "status": "tune"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 300,
+      "n": 500,
+      "pure_n": 500,
+      "successes": 481,
+      "pure_successes": 482,
+      "status": "tune"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 400,
+      "n": 500,
+      "pure_n": 500,
+      "successes": 476,
+      "pure_successes": 482,
+      "status": "tune"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 500,
+      "n": 500,
+      "pure_n": 500,
+      "successes": 479,
+      "pure_successes": 482,
+      "status": "tune"
+    }
+  ],
+  "reference": "same-step same-GPU pure A",
+  "dev_outcomes_used": false
+}

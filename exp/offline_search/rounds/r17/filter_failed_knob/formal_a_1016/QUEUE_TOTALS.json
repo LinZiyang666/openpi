@@ -108,8 +108,8 @@
       "model": "cosmos",
       "mode": "full",
       "arm": "original",
-      "ready_episodes": 6000,
-      "deferred_upper_bound": 30000,
+      "ready_episodes": 36000,
+      "deferred_upper_bound": 0,
       "units": [
         "fa_co_f_u_o",
         "fa_co_f_u_l"
@@ -119,8 +119,8 @@
       "model": "cosmos",
       "mode": "full",
       "arm": "filtered",
-      "ready_episodes": 6000,
-      "deferred_upper_bound": 30000,
+      "ready_episodes": 36000,
+      "deferred_upper_bound": 0,
       "units": [
         "fa_co_f_f_o",
         "fa_co_f_f_l"
@@ -214,6 +214,6 @@
     }
   ],
   "pure_reference_episodes": 1000,
-  "ready_episodes": 263950,
-  "deferred_upper_bound": 196000
+  "ready_episodes": 323950,
+  "deferred_upper_bound": 136000
 }

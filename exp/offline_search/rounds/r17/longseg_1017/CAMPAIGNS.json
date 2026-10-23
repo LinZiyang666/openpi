@@ -1522,8 +1522,9 @@
       "no_old_outcomes_inherited": true,
       "uid_namespace": "native task/init cohort namespace; RNG seed/campaign unchanged",
       "transport_plan_rebound": true,
-      "bootstrap_sha256": "4e07fb3ecbfbc15000886cdaeb6cc16da2fbd346e045df22ad8ac77a1e5e4f5e",
-      "evidence_sha256": "ed812fd78746a1ccfceae7ee6a2a9f943808cad52b6b73c31e7e79150dfa7333"
+      "bootstrap_sha256": "ba0d1c56040fcc5bde46cf446f3662c37832c0ec256032735ae4424658929f96",
+      "evidence_sha256": "ed812fd78746a1ccfceae7ee6a2a9f943808cad52b6b73c31e7e79150dfa7333",
+      "vfix1018": true
     },
     {
       "name": "fa_ls_v05_2",
@@ -1554,8 +1555,9 @@
       "no_old_outcomes_inherited": true,
       "uid_namespace": "native task/init cohort namespace; RNG seed/campaign unchanged",
       "transport_plan_rebound": true,
-      "bootstrap_sha256": "4e07fb3ecbfbc15000886cdaeb6cc16da2fbd346e045df22ad8ac77a1e5e4f5e",
-      "evidence_sha256": "ed812fd78746a1ccfceae7ee6a2a9f943808cad52b6b73c31e7e79150dfa7333"
+      "bootstrap_sha256": "ba0d1c56040fcc5bde46cf446f3662c37832c0ec256032735ae4424658929f96",
+      "evidence_sha256": "ed812fd78746a1ccfceae7ee6a2a9f943808cad52b6b73c31e7e79150dfa7333",
+      "vfix1018": true
     },
     {
       "name": "fa_ls_v05_3",

@@ -7674,5 +7674,3493 @@
       "kept_episodes": 462,
       "file": "cache_yamls/lo_libero_10_500_chrg_koff.yaml"
     }
+  ],
+  "fa_lo_dp_r_f_l_l": [
+    {
+      "suite": "libero_spatial",
+      "size": 50,
+      "group": "chrg_k50",
+      "before": {
+        "fit": "b8be064da38686ea0049bcb521a8dc6bb8050cb1de471770493e156187d9b47b",
+        "stall": "ba45384fa850e10378799e8c579ed4972d8565a25e438dcdb79423ef97d38858",
+        "commit": 10,
+        "gap": 0.4909,
+        "fit_identity": "d412914ea296cf21b0097eb05846af3d9569d6c5661e6414ab51b55358100817"
+      },
+      "after": {
+        "fit": "45e0d1e21fb0c2bc4df8c90ae5763ff81c4195f1a98123f426ae18b6815ae470",
+        "stall": "b906dcb45a0b974007eb1171233171c949a668132ef4b60240eb2f38ca28bd36",
+        "commit": 5,
+        "gap": 0.9098,
+        "fit_identity": "ad490512f4508675a414b1e08f7bb814e4cc7edaedf3afa3ff7336a54542e6aa",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 42,
+      "file": "cache_yamls/lo_libero_spatial_50_chrg_k50.yaml"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 50,
+      "group": "chrg_k40",
+      "before": {
+        "fit": "b8be064da38686ea0049bcb521a8dc6bb8050cb1de471770493e156187d9b47b",
+        "stall": "ba45384fa850e10378799e8c579ed4972d8565a25e438dcdb79423ef97d38858",
+        "commit": 10,
+        "gap": 0.7632,
+        "fit_identity": "d412914ea296cf21b0097eb05846af3d9569d6c5661e6414ab51b55358100817"
+      },
+      "after": {
+        "fit": "45e0d1e21fb0c2bc4df8c90ae5763ff81c4195f1a98123f426ae18b6815ae470",
+        "stall": "b906dcb45a0b974007eb1171233171c949a668132ef4b60240eb2f38ca28bd36",
+        "commit": 5,
+        "gap": 1.3935,
+        "fit_identity": "ad490512f4508675a414b1e08f7bb814e4cc7edaedf3afa3ff7336a54542e6aa",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 42,
+      "file": "cache_yamls/lo_libero_spatial_50_chrg_k40.yaml"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 50,
+      "group": "chrg_k30",
+      "before": {
+        "fit": "b8be064da38686ea0049bcb521a8dc6bb8050cb1de471770493e156187d9b47b",
+        "stall": "ba45384fa850e10378799e8c579ed4972d8565a25e438dcdb79423ef97d38858",
+        "commit": 10,
+        "gap": 1.1643,
+        "fit_identity": "d412914ea296cf21b0097eb05846af3d9569d6c5661e6414ab51b55358100817"
+      },
+      "after": {
+        "fit": "45e0d1e21fb0c2bc4df8c90ae5763ff81c4195f1a98123f426ae18b6815ae470",
+        "stall": "b906dcb45a0b974007eb1171233171c949a668132ef4b60240eb2f38ca28bd36",
+        "commit": 5,
+        "gap": 1.9984,
+        "fit_identity": "ad490512f4508675a414b1e08f7bb814e4cc7edaedf3afa3ff7336a54542e6aa",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 42,
+      "file": "cache_yamls/lo_libero_spatial_50_chrg_k30.yaml"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 50,
+      "group": "chrg_k20",
+      "before": {
+        "fit": "b8be064da38686ea0049bcb521a8dc6bb8050cb1de471770493e156187d9b47b",
+        "stall": "ba45384fa850e10378799e8c579ed4972d8565a25e438dcdb79423ef97d38858",
+        "commit": 10,
+        "gap": 1.9231,
+        "fit_identity": "d412914ea296cf21b0097eb05846af3d9569d6c5661e6414ab51b55358100817"
+      },
+      "after": {
+        "fit": "45e0d1e21fb0c2bc4df8c90ae5763ff81c4195f1a98123f426ae18b6815ae470",
+        "stall": "b906dcb45a0b974007eb1171233171c949a668132ef4b60240eb2f38ca28bd36",
+        "commit": 5,
+        "gap": 3.1806,
+        "fit_identity": "ad490512f4508675a414b1e08f7bb814e4cc7edaedf3afa3ff7336a54542e6aa",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 42,
+      "file": "cache_yamls/lo_libero_spatial_50_chrg_k20.yaml"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 50,
+      "group": "chrg_k10",
+      "before": {
+        "fit": "b8be064da38686ea0049bcb521a8dc6bb8050cb1de471770493e156187d9b47b",
+        "stall": "ba45384fa850e10378799e8c579ed4972d8565a25e438dcdb79423ef97d38858",
+        "commit": 10,
+        "gap": 4.0162,
+        "fit_identity": "d412914ea296cf21b0097eb05846af3d9569d6c5661e6414ab51b55358100817"
+      },
+      "after": {
+        "fit": "45e0d1e21fb0c2bc4df8c90ae5763ff81c4195f1a98123f426ae18b6815ae470",
+        "stall": "b906dcb45a0b974007eb1171233171c949a668132ef4b60240eb2f38ca28bd36",
+        "commit": 5,
+        "gap": 6.0412,
+        "fit_identity": "ad490512f4508675a414b1e08f7bb814e4cc7edaedf3afa3ff7336a54542e6aa",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 42,
+      "file": "cache_yamls/lo_libero_spatial_50_chrg_k10.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 50,
+      "group": "chrg_k50",
+      "before": {
+        "fit": "55f38996f90a2fbce7c5370e7d2a6ffce316e4fd0d1e2b884521292bf1249212",
+        "stall": "30889eff70fb32d9e23bcb757aa78f97027206c6651e9d0a512e3968ae8fe296",
+        "commit": 10,
+        "gap": 0.4964,
+        "fit_identity": "0681fd581c50f320379e1a523db5f613d04e556a65fcdd4045c1a5d6a8aea271"
+      },
+      "after": {
+        "fit": "83a2667bb77f7588f7c57a338dd68c6249e32117e209dce65f7ff5558c3a38ca",
+        "stall": "b9dbd1f2ffefed47337e944c8734f13cdf1c99c359458561eb03aa3a3bfb42c8",
+        "commit": 5,
+        "gap": 0.9616,
+        "fit_identity": "85dedb345ecb96fe5878dc288eb4e7ac5015282a9cfe2a5a449b15518a708dad",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 42,
+      "file": "cache_yamls/lo_libero_10_50_chrg_k50.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 50,
+      "group": "chrg_k40",
+      "before": {
+        "fit": "55f38996f90a2fbce7c5370e7d2a6ffce316e4fd0d1e2b884521292bf1249212",
+        "stall": "30889eff70fb32d9e23bcb757aa78f97027206c6651e9d0a512e3968ae8fe296",
+        "commit": 10,
+        "gap": 0.7632,
+        "fit_identity": "0681fd581c50f320379e1a523db5f613d04e556a65fcdd4045c1a5d6a8aea271"
+      },
+      "after": {
+        "fit": "83a2667bb77f7588f7c57a338dd68c6249e32117e209dce65f7ff5558c3a38ca",
+        "stall": "b9dbd1f2ffefed47337e944c8734f13cdf1c99c359458561eb03aa3a3bfb42c8",
+        "commit": 5,
+        "gap": 1.3845,
+        "fit_identity": "85dedb345ecb96fe5878dc288eb4e7ac5015282a9cfe2a5a449b15518a708dad",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 42,
+      "file": "cache_yamls/lo_libero_10_50_chrg_k40.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 50,
+      "group": "chrg_k30",
+      "before": {
+        "fit": "55f38996f90a2fbce7c5370e7d2a6ffce316e4fd0d1e2b884521292bf1249212",
+        "stall": "30889eff70fb32d9e23bcb757aa78f97027206c6651e9d0a512e3968ae8fe296",
+        "commit": 10,
+        "gap": 1.1637,
+        "fit_identity": "0681fd581c50f320379e1a523db5f613d04e556a65fcdd4045c1a5d6a8aea271"
+      },
+      "after": {
+        "fit": "83a2667bb77f7588f7c57a338dd68c6249e32117e209dce65f7ff5558c3a38ca",
+        "stall": "b9dbd1f2ffefed47337e944c8734f13cdf1c99c359458561eb03aa3a3bfb42c8",
+        "commit": 5,
+        "gap": 2.1977,
+        "fit_identity": "85dedb345ecb96fe5878dc288eb4e7ac5015282a9cfe2a5a449b15518a708dad",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 42,
+      "file": "cache_yamls/lo_libero_10_50_chrg_k30.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 50,
+      "group": "chrg_k20",
+      "before": {
+        "fit": "55f38996f90a2fbce7c5370e7d2a6ffce316e4fd0d1e2b884521292bf1249212",
+        "stall": "30889eff70fb32d9e23bcb757aa78f97027206c6651e9d0a512e3968ae8fe296",
+        "commit": 10,
+        "gap": 1.9507,
+        "fit_identity": "0681fd581c50f320379e1a523db5f613d04e556a65fcdd4045c1a5d6a8aea271"
+      },
+      "after": {
+        "fit": "83a2667bb77f7588f7c57a338dd68c6249e32117e209dce65f7ff5558c3a38ca",
+        "stall": "b9dbd1f2ffefed47337e944c8734f13cdf1c99c359458561eb03aa3a3bfb42c8",
+        "commit": 5,
+        "gap": 3.6913,
+        "fit_identity": "85dedb345ecb96fe5878dc288eb4e7ac5015282a9cfe2a5a449b15518a708dad",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 42,
+      "file": "cache_yamls/lo_libero_10_50_chrg_k20.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 50,
+      "group": "chrg_k10",
+      "before": {
+        "fit": "55f38996f90a2fbce7c5370e7d2a6ffce316e4fd0d1e2b884521292bf1249212",
+        "stall": "30889eff70fb32d9e23bcb757aa78f97027206c6651e9d0a512e3968ae8fe296",
+        "commit": 10,
+        "gap": 4.3528,
+        "fit_identity": "0681fd581c50f320379e1a523db5f613d04e556a65fcdd4045c1a5d6a8aea271"
+      },
+      "after": {
+        "fit": "83a2667bb77f7588f7c57a338dd68c6249e32117e209dce65f7ff5558c3a38ca",
+        "stall": "b9dbd1f2ffefed47337e944c8734f13cdf1c99c359458561eb03aa3a3bfb42c8",
+        "commit": 5,
+        "gap": 7.4629,
+        "fit_identity": "85dedb345ecb96fe5878dc288eb4e7ac5015282a9cfe2a5a449b15518a708dad",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 42,
+      "file": "cache_yamls/lo_libero_10_50_chrg_k10.yaml"
+    }
+  ],
+  "fa_lo_dp_f_f_l_l": [
+    {
+      "suite": "libero_spatial",
+      "size": 50,
+      "group": "chrg_k50",
+      "before": {
+        "fit": "b8be064da38686ea0049bcb521a8dc6bb8050cb1de471770493e156187d9b47b",
+        "stall": "ba45384fa850e10378799e8c579ed4972d8565a25e438dcdb79423ef97d38858",
+        "commit": 10,
+        "gap": 0.4909,
+        "fit_identity": "d412914ea296cf21b0097eb05846af3d9569d6c5661e6414ab51b55358100817"
+      },
+      "after": {
+        "fit": "45e0d1e21fb0c2bc4df8c90ae5763ff81c4195f1a98123f426ae18b6815ae470",
+        "stall": "b906dcb45a0b974007eb1171233171c949a668132ef4b60240eb2f38ca28bd36",
+        "commit": 5,
+        "gap": 0.9098,
+        "fit_identity": "ad490512f4508675a414b1e08f7bb814e4cc7edaedf3afa3ff7336a54542e6aa",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 42,
+      "file": "cache_yamls/lo_libero_spatial_50_chrg_k50.yaml"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 50,
+      "group": "chrg_k40",
+      "before": {
+        "fit": "b8be064da38686ea0049bcb521a8dc6bb8050cb1de471770493e156187d9b47b",
+        "stall": "ba45384fa850e10378799e8c579ed4972d8565a25e438dcdb79423ef97d38858",
+        "commit": 10,
+        "gap": 0.7632,
+        "fit_identity": "d412914ea296cf21b0097eb05846af3d9569d6c5661e6414ab51b55358100817"
+      },
+      "after": {
+        "fit": "45e0d1e21fb0c2bc4df8c90ae5763ff81c4195f1a98123f426ae18b6815ae470",
+        "stall": "b906dcb45a0b974007eb1171233171c949a668132ef4b60240eb2f38ca28bd36",
+        "commit": 5,
+        "gap": 1.3935,
+        "fit_identity": "ad490512f4508675a414b1e08f7bb814e4cc7edaedf3afa3ff7336a54542e6aa",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 42,
+      "file": "cache_yamls/lo_libero_spatial_50_chrg_k40.yaml"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 50,
+      "group": "chrg_k30",
+      "before": {
+        "fit": "b8be064da38686ea0049bcb521a8dc6bb8050cb1de471770493e156187d9b47b",
+        "stall": "ba45384fa850e10378799e8c579ed4972d8565a25e438dcdb79423ef97d38858",
+        "commit": 10,
+        "gap": 1.1643,
+        "fit_identity": "d412914ea296cf21b0097eb05846af3d9569d6c5661e6414ab51b55358100817"
+      },
+      "after": {
+        "fit": "45e0d1e21fb0c2bc4df8c90ae5763ff81c4195f1a98123f426ae18b6815ae470",
+        "stall": "b906dcb45a0b974007eb1171233171c949a668132ef4b60240eb2f38ca28bd36",
+        "commit": 5,
+        "gap": 1.9984,
+        "fit_identity": "ad490512f4508675a414b1e08f7bb814e4cc7edaedf3afa3ff7336a54542e6aa",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 42,
+      "file": "cache_yamls/lo_libero_spatial_50_chrg_k30.yaml"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 50,
+      "group": "chrg_k20",
+      "before": {
+        "fit": "b8be064da38686ea0049bcb521a8dc6bb8050cb1de471770493e156187d9b47b",
+        "stall": "ba45384fa850e10378799e8c579ed4972d8565a25e438dcdb79423ef97d38858",
+        "commit": 10,
+        "gap": 1.9231,
+        "fit_identity": "d412914ea296cf21b0097eb05846af3d9569d6c5661e6414ab51b55358100817"
+      },
+      "after": {
+        "fit": "45e0d1e21fb0c2bc4df8c90ae5763ff81c4195f1a98123f426ae18b6815ae470",
+        "stall": "b906dcb45a0b974007eb1171233171c949a668132ef4b60240eb2f38ca28bd36",
+        "commit": 5,
+        "gap": 3.1806,
+        "fit_identity": "ad490512f4508675a414b1e08f7bb814e4cc7edaedf3afa3ff7336a54542e6aa",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 42,
+      "file": "cache_yamls/lo_libero_spatial_50_chrg_k20.yaml"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 50,
+      "group": "chrg_k10",
+      "before": {
+        "fit": "b8be064da38686ea0049bcb521a8dc6bb8050cb1de471770493e156187d9b47b",
+        "stall": "ba45384fa850e10378799e8c579ed4972d8565a25e438dcdb79423ef97d38858",
+        "commit": 10,
+        "gap": 4.0162,
+        "fit_identity": "d412914ea296cf21b0097eb05846af3d9569d6c5661e6414ab51b55358100817"
+      },
+      "after": {
+        "fit": "45e0d1e21fb0c2bc4df8c90ae5763ff81c4195f1a98123f426ae18b6815ae470",
+        "stall": "b906dcb45a0b974007eb1171233171c949a668132ef4b60240eb2f38ca28bd36",
+        "commit": 5,
+        "gap": 6.0412,
+        "fit_identity": "ad490512f4508675a414b1e08f7bb814e4cc7edaedf3afa3ff7336a54542e6aa",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 42,
+      "file": "cache_yamls/lo_libero_spatial_50_chrg_k10.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 50,
+      "group": "chrg_k50",
+      "before": {
+        "fit": "55f38996f90a2fbce7c5370e7d2a6ffce316e4fd0d1e2b884521292bf1249212",
+        "stall": "30889eff70fb32d9e23bcb757aa78f97027206c6651e9d0a512e3968ae8fe296",
+        "commit": 10,
+        "gap": 0.4964,
+        "fit_identity": "0681fd581c50f320379e1a523db5f613d04e556a65fcdd4045c1a5d6a8aea271"
+      },
+      "after": {
+        "fit": "83a2667bb77f7588f7c57a338dd68c6249e32117e209dce65f7ff5558c3a38ca",
+        "stall": "b9dbd1f2ffefed47337e944c8734f13cdf1c99c359458561eb03aa3a3bfb42c8",
+        "commit": 5,
+        "gap": 0.9616,
+        "fit_identity": "85dedb345ecb96fe5878dc288eb4e7ac5015282a9cfe2a5a449b15518a708dad",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 42,
+      "file": "cache_yamls/lo_libero_10_50_chrg_k50.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 50,
+      "group": "chrg_k40",
+      "before": {
+        "fit": "55f38996f90a2fbce7c5370e7d2a6ffce316e4fd0d1e2b884521292bf1249212",
+        "stall": "30889eff70fb32d9e23bcb757aa78f97027206c6651e9d0a512e3968ae8fe296",
+        "commit": 10,
+        "gap": 0.7632,
+        "fit_identity": "0681fd581c50f320379e1a523db5f613d04e556a65fcdd4045c1a5d6a8aea271"
+      },
+      "after": {
+        "fit": "83a2667bb77f7588f7c57a338dd68c6249e32117e209dce65f7ff5558c3a38ca",
+        "stall": "b9dbd1f2ffefed47337e944c8734f13cdf1c99c359458561eb03aa3a3bfb42c8",
+        "commit": 5,
+        "gap": 1.3845,
+        "fit_identity": "85dedb345ecb96fe5878dc288eb4e7ac5015282a9cfe2a5a449b15518a708dad",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 42,
+      "file": "cache_yamls/lo_libero_10_50_chrg_k40.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 50,
+      "group": "chrg_k30",
+      "before": {
+        "fit": "55f38996f90a2fbce7c5370e7d2a6ffce316e4fd0d1e2b884521292bf1249212",
+        "stall": "30889eff70fb32d9e23bcb757aa78f97027206c6651e9d0a512e3968ae8fe296",
+        "commit": 10,
+        "gap": 1.1637,
+        "fit_identity": "0681fd581c50f320379e1a523db5f613d04e556a65fcdd4045c1a5d6a8aea271"
+      },
+      "after": {
+        "fit": "83a2667bb77f7588f7c57a338dd68c6249e32117e209dce65f7ff5558c3a38ca",
+        "stall": "b9dbd1f2ffefed47337e944c8734f13cdf1c99c359458561eb03aa3a3bfb42c8",
+        "commit": 5,
+        "gap": 2.1977,
+        "fit_identity": "85dedb345ecb96fe5878dc288eb4e7ac5015282a9cfe2a5a449b15518a708dad",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 42,
+      "file": "cache_yamls/lo_libero_10_50_chrg_k30.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 50,
+      "group": "chrg_k20",
+      "before": {
+        "fit": "55f38996f90a2fbce7c5370e7d2a6ffce316e4fd0d1e2b884521292bf1249212",
+        "stall": "30889eff70fb32d9e23bcb757aa78f97027206c6651e9d0a512e3968ae8fe296",
+        "commit": 10,
+        "gap": 1.9507,
+        "fit_identity": "0681fd581c50f320379e1a523db5f613d04e556a65fcdd4045c1a5d6a8aea271"
+      },
+      "after": {
+        "fit": "83a2667bb77f7588f7c57a338dd68c6249e32117e209dce65f7ff5558c3a38ca",
+        "stall": "b9dbd1f2ffefed47337e944c8734f13cdf1c99c359458561eb03aa3a3bfb42c8",
+        "commit": 5,
+        "gap": 3.6913,
+        "fit_identity": "85dedb345ecb96fe5878dc288eb4e7ac5015282a9cfe2a5a449b15518a708dad",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 42,
+      "file": "cache_yamls/lo_libero_10_50_chrg_k20.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 50,
+      "group": "chrg_k10",
+      "before": {
+        "fit": "55f38996f90a2fbce7c5370e7d2a6ffce316e4fd0d1e2b884521292bf1249212",
+        "stall": "30889eff70fb32d9e23bcb757aa78f97027206c6651e9d0a512e3968ae8fe296",
+        "commit": 10,
+        "gap": 4.3528,
+        "fit_identity": "0681fd581c50f320379e1a523db5f613d04e556a65fcdd4045c1a5d6a8aea271"
+      },
+      "after": {
+        "fit": "83a2667bb77f7588f7c57a338dd68c6249e32117e209dce65f7ff5558c3a38ca",
+        "stall": "b9dbd1f2ffefed47337e944c8734f13cdf1c99c359458561eb03aa3a3bfb42c8",
+        "commit": 5,
+        "gap": 7.4629,
+        "fit_identity": "85dedb345ecb96fe5878dc288eb4e7ac5015282a9cfe2a5a449b15518a708dad",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 42,
+      "file": "cache_yamls/lo_libero_10_50_chrg_k10.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 100,
+      "group": "chrg_k50",
+      "before": {
+        "fit": "7dd17b61a9a1e30793da8733172d38716f60bd76cf57a5163cdae181a9dcd215",
+        "stall": "9092527f5f3f12db1ae10f40c4739af58f8715b93b13f09c549c20fe6b44798f",
+        "commit": 10,
+        "gap": 0.4958,
+        "fit_identity": "0a10bea73fb7697cab880e031ec1e8b004ac4eb91f4f46f6e4efcafd153e441e"
+      },
+      "after": {
+        "fit": "9b693b2e4ff0300a354f770ad06d41476e6f6f9963dec53099f5be1e6d31de36",
+        "stall": "fa758ecfe75e2287a33b62eee646207cf687ef9a87958d0fee61e1bbcb7ed5b0",
+        "commit": 5,
+        "gap": 0.9618,
+        "fit_identity": "3679c08a608ec3406d2a71d95bcc70ce9adff726d639dca57c497c8673328068",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 82,
+      "file": "cache_yamls/lo_libero_10_100_chrg_k50.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 100,
+      "group": "chrg_k40",
+      "before": {
+        "fit": "7dd17b61a9a1e30793da8733172d38716f60bd76cf57a5163cdae181a9dcd215",
+        "stall": "9092527f5f3f12db1ae10f40c4739af58f8715b93b13f09c549c20fe6b44798f",
+        "commit": 10,
+        "gap": 0.7468,
+        "fit_identity": "0a10bea73fb7697cab880e031ec1e8b004ac4eb91f4f46f6e4efcafd153e441e"
+      },
+      "after": {
+        "fit": "9b693b2e4ff0300a354f770ad06d41476e6f6f9963dec53099f5be1e6d31de36",
+        "stall": "fa758ecfe75e2287a33b62eee646207cf687ef9a87958d0fee61e1bbcb7ed5b0",
+        "commit": 5,
+        "gap": 1.407,
+        "fit_identity": "3679c08a608ec3406d2a71d95bcc70ce9adff726d639dca57c497c8673328068",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 82,
+      "file": "cache_yamls/lo_libero_10_100_chrg_k40.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 100,
+      "group": "chrg_k30",
+      "before": {
+        "fit": "7dd17b61a9a1e30793da8733172d38716f60bd76cf57a5163cdae181a9dcd215",
+        "stall": "9092527f5f3f12db1ae10f40c4739af58f8715b93b13f09c549c20fe6b44798f",
+        "commit": 10,
+        "gap": 1.1737,
+        "fit_identity": "0a10bea73fb7697cab880e031ec1e8b004ac4eb91f4f46f6e4efcafd153e441e"
+      },
+      "after": {
+        "fit": "9b693b2e4ff0300a354f770ad06d41476e6f6f9963dec53099f5be1e6d31de36",
+        "stall": "fa758ecfe75e2287a33b62eee646207cf687ef9a87958d0fee61e1bbcb7ed5b0",
+        "commit": 5,
+        "gap": 2.218,
+        "fit_identity": "3679c08a608ec3406d2a71d95bcc70ce9adff726d639dca57c497c8673328068",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 82,
+      "file": "cache_yamls/lo_libero_10_100_chrg_k30.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 100,
+      "group": "chrg_k20",
+      "before": {
+        "fit": "7dd17b61a9a1e30793da8733172d38716f60bd76cf57a5163cdae181a9dcd215",
+        "stall": "9092527f5f3f12db1ae10f40c4739af58f8715b93b13f09c549c20fe6b44798f",
+        "commit": 10,
+        "gap": 1.9556,
+        "fit_identity": "0a10bea73fb7697cab880e031ec1e8b004ac4eb91f4f46f6e4efcafd153e441e"
+      },
+      "after": {
+        "fit": "9b693b2e4ff0300a354f770ad06d41476e6f6f9963dec53099f5be1e6d31de36",
+        "stall": "fa758ecfe75e2287a33b62eee646207cf687ef9a87958d0fee61e1bbcb7ed5b0",
+        "commit": 5,
+        "gap": 3.7194,
+        "fit_identity": "3679c08a608ec3406d2a71d95bcc70ce9adff726d639dca57c497c8673328068",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 82,
+      "file": "cache_yamls/lo_libero_10_100_chrg_k20.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 100,
+      "group": "chrg_k10",
+      "before": {
+        "fit": "7dd17b61a9a1e30793da8733172d38716f60bd76cf57a5163cdae181a9dcd215",
+        "stall": "9092527f5f3f12db1ae10f40c4739af58f8715b93b13f09c549c20fe6b44798f",
+        "commit": 10,
+        "gap": 4.3158,
+        "fit_identity": "0a10bea73fb7697cab880e031ec1e8b004ac4eb91f4f46f6e4efcafd153e441e"
+      },
+      "after": {
+        "fit": "9b693b2e4ff0300a354f770ad06d41476e6f6f9963dec53099f5be1e6d31de36",
+        "stall": "fa758ecfe75e2287a33b62eee646207cf687ef9a87958d0fee61e1bbcb7ed5b0",
+        "commit": 5,
+        "gap": 7.7838,
+        "fit_identity": "3679c08a608ec3406d2a71d95bcc70ce9adff726d639dca57c497c8673328068",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 82,
+      "file": "cache_yamls/lo_libero_10_100_chrg_k10.yaml"
+    }
+  ],
+  "fa_lo_fw_r_f_l_l": [
+    {
+      "suite": "libero_spatial",
+      "size": 50,
+      "group": "chrg_k50",
+      "before": {
+        "fit": "722f9885de7e7630c2a6c3d101be8a71da5e836f7e0aeca5ccedfabc299c246f",
+        "stall": "7323d46c4d718d5c92da32153b9332083c144cb4f77569a5aa3afaa63f396974",
+        "commit": 10,
+        "gap": 0.5029,
+        "fit_identity": "067f04c55e29b7fc0d81c65c488102ce4540362aea3990c49fe23478285bbc03"
+      },
+      "after": {
+        "fit": "7fa241ec39984e78831fb0cf36a49ecb43eb0bf36b25eecf0b3d0c497ac5d170",
+        "stall": "9aa88075d6afecb15ec76ee8770a43ec46790db39d34b95f31f57f740ca486fc",
+        "commit": 5,
+        "gap": 0.9094,
+        "fit_identity": "35c50b38a20412af5dc0f82b9017939bdea83be4fd3a425c4ab55c602d70750a",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 43,
+      "file": "cache_yamls/lo_libero_spatial_50_chrg_k50.yaml"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 50,
+      "group": "chrg_k40",
+      "before": {
+        "fit": "722f9885de7e7630c2a6c3d101be8a71da5e836f7e0aeca5ccedfabc299c246f",
+        "stall": "7323d46c4d718d5c92da32153b9332083c144cb4f77569a5aa3afaa63f396974",
+        "commit": 10,
+        "gap": 0.7766,
+        "fit_identity": "067f04c55e29b7fc0d81c65c488102ce4540362aea3990c49fe23478285bbc03"
+      },
+      "after": {
+        "fit": "7fa241ec39984e78831fb0cf36a49ecb43eb0bf36b25eecf0b3d0c497ac5d170",
+        "stall": "9aa88075d6afecb15ec76ee8770a43ec46790db39d34b95f31f57f740ca486fc",
+        "commit": 5,
+        "gap": 1.461,
+        "fit_identity": "35c50b38a20412af5dc0f82b9017939bdea83be4fd3a425c4ab55c602d70750a",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 43,
+      "file": "cache_yamls/lo_libero_spatial_50_chrg_k40.yaml"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 50,
+      "group": "chrg_k30",
+      "before": {
+        "fit": "722f9885de7e7630c2a6c3d101be8a71da5e836f7e0aeca5ccedfabc299c246f",
+        "stall": "7323d46c4d718d5c92da32153b9332083c144cb4f77569a5aa3afaa63f396974",
+        "commit": 10,
+        "gap": 1.1748,
+        "fit_identity": "067f04c55e29b7fc0d81c65c488102ce4540362aea3990c49fe23478285bbc03"
+      },
+      "after": {
+        "fit": "7fa241ec39984e78831fb0cf36a49ecb43eb0bf36b25eecf0b3d0c497ac5d170",
+        "stall": "9aa88075d6afecb15ec76ee8770a43ec46790db39d34b95f31f57f740ca486fc",
+        "commit": 5,
+        "gap": 2.0369,
+        "fit_identity": "35c50b38a20412af5dc0f82b9017939bdea83be4fd3a425c4ab55c602d70750a",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 43,
+      "file": "cache_yamls/lo_libero_spatial_50_chrg_k30.yaml"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 50,
+      "group": "chrg_k20",
+      "before": {
+        "fit": "722f9885de7e7630c2a6c3d101be8a71da5e836f7e0aeca5ccedfabc299c246f",
+        "stall": "7323d46c4d718d5c92da32153b9332083c144cb4f77569a5aa3afaa63f396974",
+        "commit": 10,
+        "gap": 1.9108,
+        "fit_identity": "067f04c55e29b7fc0d81c65c488102ce4540362aea3990c49fe23478285bbc03"
+      },
+      "after": {
+        "fit": "7fa241ec39984e78831fb0cf36a49ecb43eb0bf36b25eecf0b3d0c497ac5d170",
+        "stall": "9aa88075d6afecb15ec76ee8770a43ec46790db39d34b95f31f57f740ca486fc",
+        "commit": 5,
+        "gap": 3.2848,
+        "fit_identity": "35c50b38a20412af5dc0f82b9017939bdea83be4fd3a425c4ab55c602d70750a",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 43,
+      "file": "cache_yamls/lo_libero_spatial_50_chrg_k20.yaml"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 50,
+      "group": "chrg_k10",
+      "before": {
+        "fit": "722f9885de7e7630c2a6c3d101be8a71da5e836f7e0aeca5ccedfabc299c246f",
+        "stall": "7323d46c4d718d5c92da32153b9332083c144cb4f77569a5aa3afaa63f396974",
+        "commit": 10,
+        "gap": 3.9993,
+        "fit_identity": "067f04c55e29b7fc0d81c65c488102ce4540362aea3990c49fe23478285bbc03"
+      },
+      "after": {
+        "fit": "7fa241ec39984e78831fb0cf36a49ecb43eb0bf36b25eecf0b3d0c497ac5d170",
+        "stall": "9aa88075d6afecb15ec76ee8770a43ec46790db39d34b95f31f57f740ca486fc",
+        "commit": 5,
+        "gap": 5.8836,
+        "fit_identity": "35c50b38a20412af5dc0f82b9017939bdea83be4fd3a425c4ab55c602d70750a",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 43,
+      "file": "cache_yamls/lo_libero_spatial_50_chrg_k10.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 50,
+      "group": "chrg_k50",
+      "before": {
+        "fit": "5478de03b6c543b8f0e1a2706cfdea940c10e038bbfdb1e4e0161b07f42289ae",
+        "stall": "7fbcbd409b46eb0bc4ff6ffbb6ef11cbaa08b55ea893ff96c33100090f1ed71e",
+        "commit": 10,
+        "gap": 0.4883,
+        "fit_identity": "603ead8b8e2714df71537617cd538bfcdd0737d12b0f26558c33faf7f74bcad6"
+      },
+      "after": {
+        "fit": "1f03922e9640bacebedde8ad43778e09b60847e9a3b997359d0ad31e1a646171",
+        "stall": "343a33b12e1840b3844d106ec0ef0e55b42b473c0a7a7e81ee97dfcbbac6ab29",
+        "commit": 5,
+        "gap": 0.9618,
+        "fit_identity": "05129ea0348d6afa8a2dcfed09a5d5317b540f4f85559829579ee36083c40d9d",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 49,
+      "file": "cache_yamls/lo_libero_10_50_chrg_k50.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 50,
+      "group": "chrg_k40",
+      "before": {
+        "fit": "5478de03b6c543b8f0e1a2706cfdea940c10e038bbfdb1e4e0161b07f42289ae",
+        "stall": "7fbcbd409b46eb0bc4ff6ffbb6ef11cbaa08b55ea893ff96c33100090f1ed71e",
+        "commit": 10,
+        "gap": 0.7513,
+        "fit_identity": "603ead8b8e2714df71537617cd538bfcdd0737d12b0f26558c33faf7f74bcad6"
+      },
+      "after": {
+        "fit": "1f03922e9640bacebedde8ad43778e09b60847e9a3b997359d0ad31e1a646171",
+        "stall": "343a33b12e1840b3844d106ec0ef0e55b42b473c0a7a7e81ee97dfcbbac6ab29",
+        "commit": 5,
+        "gap": 1.4225,
+        "fit_identity": "05129ea0348d6afa8a2dcfed09a5d5317b540f4f85559829579ee36083c40d9d",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 49,
+      "file": "cache_yamls/lo_libero_10_50_chrg_k40.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 50,
+      "group": "chrg_k30",
+      "before": {
+        "fit": "5478de03b6c543b8f0e1a2706cfdea940c10e038bbfdb1e4e0161b07f42289ae",
+        "stall": "7fbcbd409b46eb0bc4ff6ffbb6ef11cbaa08b55ea893ff96c33100090f1ed71e",
+        "commit": 10,
+        "gap": 1.1694,
+        "fit_identity": "603ead8b8e2714df71537617cd538bfcdd0737d12b0f26558c33faf7f74bcad6"
+      },
+      "after": {
+        "fit": "1f03922e9640bacebedde8ad43778e09b60847e9a3b997359d0ad31e1a646171",
+        "stall": "343a33b12e1840b3844d106ec0ef0e55b42b473c0a7a7e81ee97dfcbbac6ab29",
+        "commit": 5,
+        "gap": 2.1563,
+        "fit_identity": "05129ea0348d6afa8a2dcfed09a5d5317b540f4f85559829579ee36083c40d9d",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 49,
+      "file": "cache_yamls/lo_libero_10_50_chrg_k30.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 50,
+      "group": "chrg_k20",
+      "before": {
+        "fit": "5478de03b6c543b8f0e1a2706cfdea940c10e038bbfdb1e4e0161b07f42289ae",
+        "stall": "7fbcbd409b46eb0bc4ff6ffbb6ef11cbaa08b55ea893ff96c33100090f1ed71e",
+        "commit": 10,
+        "gap": 1.951,
+        "fit_identity": "603ead8b8e2714df71537617cd538bfcdd0737d12b0f26558c33faf7f74bcad6"
+      },
+      "after": {
+        "fit": "1f03922e9640bacebedde8ad43778e09b60847e9a3b997359d0ad31e1a646171",
+        "stall": "343a33b12e1840b3844d106ec0ef0e55b42b473c0a7a7e81ee97dfcbbac6ab29",
+        "commit": 5,
+        "gap": 3.6684,
+        "fit_identity": "05129ea0348d6afa8a2dcfed09a5d5317b540f4f85559829579ee36083c40d9d",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 49,
+      "file": "cache_yamls/lo_libero_10_50_chrg_k20.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 50,
+      "group": "chrg_k10",
+      "before": {
+        "fit": "5478de03b6c543b8f0e1a2706cfdea940c10e038bbfdb1e4e0161b07f42289ae",
+        "stall": "7fbcbd409b46eb0bc4ff6ffbb6ef11cbaa08b55ea893ff96c33100090f1ed71e",
+        "commit": 10,
+        "gap": 4.2403,
+        "fit_identity": "603ead8b8e2714df71537617cd538bfcdd0737d12b0f26558c33faf7f74bcad6"
+      },
+      "after": {
+        "fit": "1f03922e9640bacebedde8ad43778e09b60847e9a3b997359d0ad31e1a646171",
+        "stall": "343a33b12e1840b3844d106ec0ef0e55b42b473c0a7a7e81ee97dfcbbac6ab29",
+        "commit": 5,
+        "gap": 7.4517,
+        "fit_identity": "05129ea0348d6afa8a2dcfed09a5d5317b540f4f85559829579ee36083c40d9d",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 49,
+      "file": "cache_yamls/lo_libero_10_50_chrg_k10.yaml"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 100,
+      "group": "chrg_k50",
+      "before": {
+        "fit": "a757cc82699f05856538f4bd6ed8bf6d0df1c12b3bfa560b2faec7d382197473",
+        "stall": "8566075c5d604d5f60669ace8557233972e5315e6f43f4df6a7285791cda503b",
+        "commit": 10,
+        "gap": 0.5092,
+        "fit_identity": "da4ef496db9afa671bb33170cbb55125be6cfd77ab2edd3e51195e76f0fb1c16"
+      },
+      "after": {
+        "fit": "9f144725a365ead22f9d7c53d7a781b0d2655eb43d8b3c3abb30212934797951",
+        "stall": "16035c8dccd58d2e4e797d13e342ac277d1bc416c9d3c32568df8102add477a4",
+        "commit": 5,
+        "gap": 0.9361,
+        "fit_identity": "899eb126fe48ea31224efe743f0b8f13dfcc49daf32dd71af06925ef53b7f724",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 85,
+      "file": "cache_yamls/lo_libero_spatial_100_chrg_k50.yaml"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 100,
+      "group": "chrg_k40",
+      "before": {
+        "fit": "a757cc82699f05856538f4bd6ed8bf6d0df1c12b3bfa560b2faec7d382197473",
+        "stall": "8566075c5d604d5f60669ace8557233972e5315e6f43f4df6a7285791cda503b",
+        "commit": 10,
+        "gap": 0.7637,
+        "fit_identity": "da4ef496db9afa671bb33170cbb55125be6cfd77ab2edd3e51195e76f0fb1c16"
+      },
+      "after": {
+        "fit": "9f144725a365ead22f9d7c53d7a781b0d2655eb43d8b3c3abb30212934797951",
+        "stall": "16035c8dccd58d2e4e797d13e342ac277d1bc416c9d3c32568df8102add477a4",
+        "commit": 5,
+        "gap": 1.4224,
+        "fit_identity": "899eb126fe48ea31224efe743f0b8f13dfcc49daf32dd71af06925ef53b7f724",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 85,
+      "file": "cache_yamls/lo_libero_spatial_100_chrg_k40.yaml"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 100,
+      "group": "chrg_k30",
+      "before": {
+        "fit": "a757cc82699f05856538f4bd6ed8bf6d0df1c12b3bfa560b2faec7d382197473",
+        "stall": "8566075c5d604d5f60669ace8557233972e5315e6f43f4df6a7285791cda503b",
+        "commit": 10,
+        "gap": 1.172,
+        "fit_identity": "da4ef496db9afa671bb33170cbb55125be6cfd77ab2edd3e51195e76f0fb1c16"
+      },
+      "after": {
+        "fit": "9f144725a365ead22f9d7c53d7a781b0d2655eb43d8b3c3abb30212934797951",
+        "stall": "16035c8dccd58d2e4e797d13e342ac277d1bc416c9d3c32568df8102add477a4",
+        "commit": 5,
+        "gap": 2.0786,
+        "fit_identity": "899eb126fe48ea31224efe743f0b8f13dfcc49daf32dd71af06925ef53b7f724",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 85,
+      "file": "cache_yamls/lo_libero_spatial_100_chrg_k30.yaml"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 100,
+      "group": "chrg_k20",
+      "before": {
+        "fit": "a757cc82699f05856538f4bd6ed8bf6d0df1c12b3bfa560b2faec7d382197473",
+        "stall": "8566075c5d604d5f60669ace8557233972e5315e6f43f4df6a7285791cda503b",
+        "commit": 10,
+        "gap": 1.9093,
+        "fit_identity": "da4ef496db9afa671bb33170cbb55125be6cfd77ab2edd3e51195e76f0fb1c16"
+      },
+      "after": {
+        "fit": "9f144725a365ead22f9d7c53d7a781b0d2655eb43d8b3c3abb30212934797951",
+        "stall": "16035c8dccd58d2e4e797d13e342ac277d1bc416c9d3c32568df8102add477a4",
+        "commit": 5,
+        "gap": 3.381,
+        "fit_identity": "899eb126fe48ea31224efe743f0b8f13dfcc49daf32dd71af06925ef53b7f724",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 85,
+      "file": "cache_yamls/lo_libero_spatial_100_chrg_k20.yaml"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 100,
+      "group": "chrg_k10",
+      "before": {
+        "fit": "a757cc82699f05856538f4bd6ed8bf6d0df1c12b3bfa560b2faec7d382197473",
+        "stall": "8566075c5d604d5f60669ace8557233972e5315e6f43f4df6a7285791cda503b",
+        "commit": 10,
+        "gap": 4.0415,
+        "fit_identity": "da4ef496db9afa671bb33170cbb55125be6cfd77ab2edd3e51195e76f0fb1c16"
+      },
+      "after": {
+        "fit": "9f144725a365ead22f9d7c53d7a781b0d2655eb43d8b3c3abb30212934797951",
+        "stall": "16035c8dccd58d2e4e797d13e342ac277d1bc416c9d3c32568df8102add477a4",
+        "commit": 5,
+        "gap": 5.9588,
+        "fit_identity": "899eb126fe48ea31224efe743f0b8f13dfcc49daf32dd71af06925ef53b7f724",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 85,
+      "file": "cache_yamls/lo_libero_spatial_100_chrg_k10.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 100,
+      "group": "chrg_k50",
+      "before": {
+        "fit": "676c417ce797ec880ad53285ad9fa83ce9cccbc76f01fd769d9b888067a80a74",
+        "stall": "d673998d333d4e7578f0cb14e8adeba937bd3d207c0704c02912218790acc1b0",
+        "commit": 10,
+        "gap": 0.4905,
+        "fit_identity": "bef187db3ed96f8a393a41af9dc16690aa9040a1d67b9577fe1e0f0a0c165efd"
+      },
+      "after": {
+        "fit": "b6566c5db2b384e3508c94a98d9ecb0925c86563514009c2b2362c9fb3661fde",
+        "stall": "1020c777f3740eb55dda73c14719e50a23cd96ef576946b09ca9204e1d5d37ba",
+        "commit": 5,
+        "gap": 0.973,
+        "fit_identity": "2cfc017740837ca6446ee1965cd7a7b542f666e4ed04cfe8d5d2d4b699ae3d8d",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 95,
+      "file": "cache_yamls/lo_libero_10_100_chrg_k50.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 100,
+      "group": "chrg_k40",
+      "before": {
+        "fit": "676c417ce797ec880ad53285ad9fa83ce9cccbc76f01fd769d9b888067a80a74",
+        "stall": "d673998d333d4e7578f0cb14e8adeba937bd3d207c0704c02912218790acc1b0",
+        "commit": 10,
+        "gap": 0.748,
+        "fit_identity": "bef187db3ed96f8a393a41af9dc16690aa9040a1d67b9577fe1e0f0a0c165efd"
+      },
+      "after": {
+        "fit": "b6566c5db2b384e3508c94a98d9ecb0925c86563514009c2b2362c9fb3661fde",
+        "stall": "1020c777f3740eb55dda73c14719e50a23cd96ef576946b09ca9204e1d5d37ba",
+        "commit": 5,
+        "gap": 1.4562,
+        "fit_identity": "2cfc017740837ca6446ee1965cd7a7b542f666e4ed04cfe8d5d2d4b699ae3d8d",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 95,
+      "file": "cache_yamls/lo_libero_10_100_chrg_k40.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 100,
+      "group": "chrg_k30",
+      "before": {
+        "fit": "676c417ce797ec880ad53285ad9fa83ce9cccbc76f01fd769d9b888067a80a74",
+        "stall": "d673998d333d4e7578f0cb14e8adeba937bd3d207c0704c02912218790acc1b0",
+        "commit": 10,
+        "gap": 1.173,
+        "fit_identity": "bef187db3ed96f8a393a41af9dc16690aa9040a1d67b9577fe1e0f0a0c165efd"
+      },
+      "after": {
+        "fit": "b6566c5db2b384e3508c94a98d9ecb0925c86563514009c2b2362c9fb3661fde",
+        "stall": "1020c777f3740eb55dda73c14719e50a23cd96ef576946b09ca9204e1d5d37ba",
+        "commit": 5,
+        "gap": 2.2394,
+        "fit_identity": "2cfc017740837ca6446ee1965cd7a7b542f666e4ed04cfe8d5d2d4b699ae3d8d",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 95,
+      "file": "cache_yamls/lo_libero_10_100_chrg_k30.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 100,
+      "group": "chrg_k20",
+      "before": {
+        "fit": "676c417ce797ec880ad53285ad9fa83ce9cccbc76f01fd769d9b888067a80a74",
+        "stall": "d673998d333d4e7578f0cb14e8adeba937bd3d207c0704c02912218790acc1b0",
+        "commit": 10,
+        "gap": 1.9524,
+        "fit_identity": "bef187db3ed96f8a393a41af9dc16690aa9040a1d67b9577fe1e0f0a0c165efd"
+      },
+      "after": {
+        "fit": "b6566c5db2b384e3508c94a98d9ecb0925c86563514009c2b2362c9fb3661fde",
+        "stall": "1020c777f3740eb55dda73c14719e50a23cd96ef576946b09ca9204e1d5d37ba",
+        "commit": 5,
+        "gap": 3.7439,
+        "fit_identity": "2cfc017740837ca6446ee1965cd7a7b542f666e4ed04cfe8d5d2d4b699ae3d8d",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 95,
+      "file": "cache_yamls/lo_libero_10_100_chrg_k20.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 100,
+      "group": "chrg_k10",
+      "before": {
+        "fit": "676c417ce797ec880ad53285ad9fa83ce9cccbc76f01fd769d9b888067a80a74",
+        "stall": "d673998d333d4e7578f0cb14e8adeba937bd3d207c0704c02912218790acc1b0",
+        "commit": 10,
+        "gap": 4.2539,
+        "fit_identity": "bef187db3ed96f8a393a41af9dc16690aa9040a1d67b9577fe1e0f0a0c165efd"
+      },
+      "after": {
+        "fit": "b6566c5db2b384e3508c94a98d9ecb0925c86563514009c2b2362c9fb3661fde",
+        "stall": "1020c777f3740eb55dda73c14719e50a23cd96ef576946b09ca9204e1d5d37ba",
+        "commit": 5,
+        "gap": 7.9886,
+        "fit_identity": "2cfc017740837ca6446ee1965cd7a7b542f666e4ed04cfe8d5d2d4b699ae3d8d",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 95,
+      "file": "cache_yamls/lo_libero_10_100_chrg_k10.yaml"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 200,
+      "group": "chrg_k50",
+      "before": {
+        "fit": "472e7dfd680d3d4d954a86e07e6d4a9afb8e3121f7caa38e74de2dc8eda1496a",
+        "stall": "96e025280f9bddbe44e4adaeeffc6d20e08ae7903369cd12185c65d53faa1148",
+        "commit": 10,
+        "gap": 0.5016,
+        "fit_identity": "0f4e93a2005cc757c00c2c2e1f4189412fceed399b125958639eb123c077f7b7"
+      },
+      "after": {
+        "fit": "b99629ca61a238149006eade1f21b8954c6cc399f7fdd412e11527f748bc29e7",
+        "stall": "894e33e3319b108d82ba4d1c9d2848096c06720e70ff59c3cad839e9233368b3",
+        "commit": 5,
+        "gap": 0.936,
+        "fit_identity": "004f405f8bde03b74c4763b769fdf9e02b0a31e8c8c87b34d2e4da03c5bc8b8a",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 175,
+      "file": "cache_yamls/lo_libero_spatial_200_chrg_k50.yaml"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 200,
+      "group": "chrg_k40",
+      "before": {
+        "fit": "472e7dfd680d3d4d954a86e07e6d4a9afb8e3121f7caa38e74de2dc8eda1496a",
+        "stall": "96e025280f9bddbe44e4adaeeffc6d20e08ae7903369cd12185c65d53faa1148",
+        "commit": 10,
+        "gap": 0.7637,
+        "fit_identity": "0f4e93a2005cc757c00c2c2e1f4189412fceed399b125958639eb123c077f7b7"
+      },
+      "after": {
+        "fit": "b99629ca61a238149006eade1f21b8954c6cc399f7fdd412e11527f748bc29e7",
+        "stall": "894e33e3319b108d82ba4d1c9d2848096c06720e70ff59c3cad839e9233368b3",
+        "commit": 5,
+        "gap": 1.4021,
+        "fit_identity": "004f405f8bde03b74c4763b769fdf9e02b0a31e8c8c87b34d2e4da03c5bc8b8a",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 175,
+      "file": "cache_yamls/lo_libero_spatial_200_chrg_k40.yaml"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 200,
+      "group": "chrg_k30",
+      "before": {
+        "fit": "472e7dfd680d3d4d954a86e07e6d4a9afb8e3121f7caa38e74de2dc8eda1496a",
+        "stall": "96e025280f9bddbe44e4adaeeffc6d20e08ae7903369cd12185c65d53faa1148",
+        "commit": 10,
+        "gap": 1.1628,
+        "fit_identity": "0f4e93a2005cc757c00c2c2e1f4189412fceed399b125958639eb123c077f7b7"
+      },
+      "after": {
+        "fit": "b99629ca61a238149006eade1f21b8954c6cc399f7fdd412e11527f748bc29e7",
+        "stall": "894e33e3319b108d82ba4d1c9d2848096c06720e70ff59c3cad839e9233368b3",
+        "commit": 5,
+        "gap": 2.1219,
+        "fit_identity": "004f405f8bde03b74c4763b769fdf9e02b0a31e8c8c87b34d2e4da03c5bc8b8a",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 175,
+      "file": "cache_yamls/lo_libero_spatial_200_chrg_k30.yaml"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 200,
+      "group": "chrg_k20",
+      "before": {
+        "fit": "472e7dfd680d3d4d954a86e07e6d4a9afb8e3121f7caa38e74de2dc8eda1496a",
+        "stall": "96e025280f9bddbe44e4adaeeffc6d20e08ae7903369cd12185c65d53faa1148",
+        "commit": 10,
+        "gap": 1.9158,
+        "fit_identity": "0f4e93a2005cc757c00c2c2e1f4189412fceed399b125958639eb123c077f7b7"
+      },
+      "after": {
+        "fit": "b99629ca61a238149006eade1f21b8954c6cc399f7fdd412e11527f748bc29e7",
+        "stall": "894e33e3319b108d82ba4d1c9d2848096c06720e70ff59c3cad839e9233368b3",
+        "commit": 5,
+        "gap": 3.4385,
+        "fit_identity": "004f405f8bde03b74c4763b769fdf9e02b0a31e8c8c87b34d2e4da03c5bc8b8a",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 175,
+      "file": "cache_yamls/lo_libero_spatial_200_chrg_k20.yaml"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 200,
+      "group": "chrg_k10",
+      "before": {
+        "fit": "472e7dfd680d3d4d954a86e07e6d4a9afb8e3121f7caa38e74de2dc8eda1496a",
+        "stall": "96e025280f9bddbe44e4adaeeffc6d20e08ae7903369cd12185c65d53faa1148",
+        "commit": 10,
+        "gap": 4.0026,
+        "fit_identity": "0f4e93a2005cc757c00c2c2e1f4189412fceed399b125958639eb123c077f7b7"
+      },
+      "after": {
+        "fit": "b99629ca61a238149006eade1f21b8954c6cc399f7fdd412e11527f748bc29e7",
+        "stall": "894e33e3319b108d82ba4d1c9d2848096c06720e70ff59c3cad839e9233368b3",
+        "commit": 5,
+        "gap": 6.6498,
+        "fit_identity": "004f405f8bde03b74c4763b769fdf9e02b0a31e8c8c87b34d2e4da03c5bc8b8a",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 175,
+      "file": "cache_yamls/lo_libero_spatial_200_chrg_k10.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 200,
+      "group": "chrg_k50",
+      "before": {
+        "fit": "a6ca12ac3958bba5f48e2c8267e6b0f79d16530cdd9d761c7356eee1d38bb5e2",
+        "stall": "af6613c387c9995a04225782a647fcb405da6a8d2c14686f4e5bafcd7d7297ec",
+        "commit": 10,
+        "gap": 0.4988,
+        "fit_identity": "c9362972998cc329f05e9c6d6f0704b23dc360e100b4d910b4b8293e0aef21bf"
+      },
+      "after": {
+        "fit": "2ac7795d28ea986f3f5b3946dee9056c4ff2de2b3add5e6b46a7515ae219642e",
+        "stall": "3c05c8fa36138b1cfd854c680e89721efd7cb2d4317d4c11c6a6d333f061ce08",
+        "commit": 5,
+        "gap": 0.9737,
+        "fit_identity": "3b41b9d31771b28e685ce2866ad629e48f7b4ff5dc7775e8be4fa461f41d9268",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 188,
+      "file": "cache_yamls/lo_libero_10_200_chrg_k50.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 200,
+      "group": "chrg_k40",
+      "before": {
+        "fit": "a6ca12ac3958bba5f48e2c8267e6b0f79d16530cdd9d761c7356eee1d38bb5e2",
+        "stall": "af6613c387c9995a04225782a647fcb405da6a8d2c14686f4e5bafcd7d7297ec",
+        "commit": 10,
+        "gap": 0.7632,
+        "fit_identity": "c9362972998cc329f05e9c6d6f0704b23dc360e100b4d910b4b8293e0aef21bf"
+      },
+      "after": {
+        "fit": "2ac7795d28ea986f3f5b3946dee9056c4ff2de2b3add5e6b46a7515ae219642e",
+        "stall": "3c05c8fa36138b1cfd854c680e89721efd7cb2d4317d4c11c6a6d333f061ce08",
+        "commit": 5,
+        "gap": 1.4825,
+        "fit_identity": "3b41b9d31771b28e685ce2866ad629e48f7b4ff5dc7775e8be4fa461f41d9268",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 188,
+      "file": "cache_yamls/lo_libero_10_200_chrg_k40.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 200,
+      "group": "chrg_k30",
+      "before": {
+        "fit": "a6ca12ac3958bba5f48e2c8267e6b0f79d16530cdd9d761c7356eee1d38bb5e2",
+        "stall": "af6613c387c9995a04225782a647fcb405da6a8d2c14686f4e5bafcd7d7297ec",
+        "commit": 10,
+        "gap": 1.1678,
+        "fit_identity": "c9362972998cc329f05e9c6d6f0704b23dc360e100b4d910b4b8293e0aef21bf"
+      },
+      "after": {
+        "fit": "2ac7795d28ea986f3f5b3946dee9056c4ff2de2b3add5e6b46a7515ae219642e",
+        "stall": "3c05c8fa36138b1cfd854c680e89721efd7cb2d4317d4c11c6a6d333f061ce08",
+        "commit": 5,
+        "gap": 2.2847,
+        "fit_identity": "3b41b9d31771b28e685ce2866ad629e48f7b4ff5dc7775e8be4fa461f41d9268",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 188,
+      "file": "cache_yamls/lo_libero_10_200_chrg_k30.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 200,
+      "group": "chrg_k20",
+      "before": {
+        "fit": "a6ca12ac3958bba5f48e2c8267e6b0f79d16530cdd9d761c7356eee1d38bb5e2",
+        "stall": "af6613c387c9995a04225782a647fcb405da6a8d2c14686f4e5bafcd7d7297ec",
+        "commit": 10,
+        "gap": 1.9603,
+        "fit_identity": "c9362972998cc329f05e9c6d6f0704b23dc360e100b4d910b4b8293e0aef21bf"
+      },
+      "after": {
+        "fit": "2ac7795d28ea986f3f5b3946dee9056c4ff2de2b3add5e6b46a7515ae219642e",
+        "stall": "3c05c8fa36138b1cfd854c680e89721efd7cb2d4317d4c11c6a6d333f061ce08",
+        "commit": 5,
+        "gap": 4.0121,
+        "fit_identity": "3b41b9d31771b28e685ce2866ad629e48f7b4ff5dc7775e8be4fa461f41d9268",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 188,
+      "file": "cache_yamls/lo_libero_10_200_chrg_k20.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 200,
+      "group": "chrg_k10",
+      "before": {
+        "fit": "a6ca12ac3958bba5f48e2c8267e6b0f79d16530cdd9d761c7356eee1d38bb5e2",
+        "stall": "af6613c387c9995a04225782a647fcb405da6a8d2c14686f4e5bafcd7d7297ec",
+        "commit": 10,
+        "gap": 4.236,
+        "fit_identity": "c9362972998cc329f05e9c6d6f0704b23dc360e100b4d910b4b8293e0aef21bf"
+      },
+      "after": {
+        "fit": "2ac7795d28ea986f3f5b3946dee9056c4ff2de2b3add5e6b46a7515ae219642e",
+        "stall": "3c05c8fa36138b1cfd854c680e89721efd7cb2d4317d4c11c6a6d333f061ce08",
+        "commit": 5,
+        "gap": 9.1023,
+        "fit_identity": "3b41b9d31771b28e685ce2866ad629e48f7b4ff5dc7775e8be4fa461f41d9268",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 188,
+      "file": "cache_yamls/lo_libero_10_200_chrg_k10.yaml"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 300,
+      "group": "chrg_k50",
+      "before": {
+        "fit": "ef98f04c09349d1a3de4e445291bade8eb2a35663a7cb96a01cc58b4a860d49d",
+        "stall": "ac77bd70dd052db759408967538061f0b64926b56674d0d2b3bade114abe61c5",
+        "commit": 10,
+        "gap": 0.5018,
+        "fit_identity": "90286d98e4054f6228eb3edd35007cc6d71bf7696504a8d31b4f79cd3be6f376"
+      },
+      "after": {
+        "fit": "46d15c3f88592c640562b82949caaf97ef30388716303447ae868194507d5345",
+        "stall": "0c9965b1a1575047aec81460409cff5347f0001200c8fcd42cb27f9401af517b",
+        "commit": 5,
+        "gap": 0.9392,
+        "fit_identity": "286f40013a3026ff5d1d23506bacdbf366a08cf0ee0870b5e118410d6b3c0e2c",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 259,
+      "file": "cache_yamls/lo_libero_spatial_300_chrg_k50.yaml"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 300,
+      "group": "chrg_k40",
+      "before": {
+        "fit": "ef98f04c09349d1a3de4e445291bade8eb2a35663a7cb96a01cc58b4a860d49d",
+        "stall": "ac77bd70dd052db759408967538061f0b64926b56674d0d2b3bade114abe61c5",
+        "commit": 10,
+        "gap": 0.7542,
+        "fit_identity": "90286d98e4054f6228eb3edd35007cc6d71bf7696504a8d31b4f79cd3be6f376"
+      },
+      "after": {
+        "fit": "46d15c3f88592c640562b82949caaf97ef30388716303447ae868194507d5345",
+        "stall": "0c9965b1a1575047aec81460409cff5347f0001200c8fcd42cb27f9401af517b",
+        "commit": 5,
+        "gap": 1.4024,
+        "fit_identity": "286f40013a3026ff5d1d23506bacdbf366a08cf0ee0870b5e118410d6b3c0e2c",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 259,
+      "file": "cache_yamls/lo_libero_spatial_300_chrg_k40.yaml"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 300,
+      "group": "chrg_k30",
+      "before": {
+        "fit": "ef98f04c09349d1a3de4e445291bade8eb2a35663a7cb96a01cc58b4a860d49d",
+        "stall": "ac77bd70dd052db759408967538061f0b64926b56674d0d2b3bade114abe61c5",
+        "commit": 10,
+        "gap": 1.1681,
+        "fit_identity": "90286d98e4054f6228eb3edd35007cc6d71bf7696504a8d31b4f79cd3be6f376"
+      },
+      "after": {
+        "fit": "46d15c3f88592c640562b82949caaf97ef30388716303447ae868194507d5345",
+        "stall": "0c9965b1a1575047aec81460409cff5347f0001200c8fcd42cb27f9401af517b",
+        "commit": 5,
+        "gap": 2.1219,
+        "fit_identity": "286f40013a3026ff5d1d23506bacdbf366a08cf0ee0870b5e118410d6b3c0e2c",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 259,
+      "file": "cache_yamls/lo_libero_spatial_300_chrg_k30.yaml"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 300,
+      "group": "chrg_k20",
+      "before": {
+        "fit": "ef98f04c09349d1a3de4e445291bade8eb2a35663a7cb96a01cc58b4a860d49d",
+        "stall": "ac77bd70dd052db759408967538061f0b64926b56674d0d2b3bade114abe61c5",
+        "commit": 10,
+        "gap": 1.9115,
+        "fit_identity": "90286d98e4054f6228eb3edd35007cc6d71bf7696504a8d31b4f79cd3be6f376"
+      },
+      "after": {
+        "fit": "46d15c3f88592c640562b82949caaf97ef30388716303447ae868194507d5345",
+        "stall": "0c9965b1a1575047aec81460409cff5347f0001200c8fcd42cb27f9401af517b",
+        "commit": 5,
+        "gap": 3.4681,
+        "fit_identity": "286f40013a3026ff5d1d23506bacdbf366a08cf0ee0870b5e118410d6b3c0e2c",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 259,
+      "file": "cache_yamls/lo_libero_spatial_300_chrg_k20.yaml"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 300,
+      "group": "chrg_k10",
+      "before": {
+        "fit": "ef98f04c09349d1a3de4e445291bade8eb2a35663a7cb96a01cc58b4a860d49d",
+        "stall": "ac77bd70dd052db759408967538061f0b64926b56674d0d2b3bade114abe61c5",
+        "commit": 10,
+        "gap": 4.0071,
+        "fit_identity": "90286d98e4054f6228eb3edd35007cc6d71bf7696504a8d31b4f79cd3be6f376"
+      },
+      "after": {
+        "fit": "46d15c3f88592c640562b82949caaf97ef30388716303447ae868194507d5345",
+        "stall": "0c9965b1a1575047aec81460409cff5347f0001200c8fcd42cb27f9401af517b",
+        "commit": 5,
+        "gap": 7.0179,
+        "fit_identity": "286f40013a3026ff5d1d23506bacdbf366a08cf0ee0870b5e118410d6b3c0e2c",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 259,
+      "file": "cache_yamls/lo_libero_spatial_300_chrg_k10.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 300,
+      "group": "chrg_k50",
+      "before": {
+        "fit": "92affdba26561e77f7001954ad892fc59e4e4f950476038cccd86bbd4241fa56",
+        "stall": "5398986956112a54295aac16355f6e27930221397e5cef33b38381dde0a8d28b",
+        "commit": 10,
+        "gap": 0.5017,
+        "fit_identity": "942f0928f0688c8998343a806cc0a58c53d4284591196ce290ac2c7aebfd2719"
+      },
+      "after": {
+        "fit": "132d7b7586aff7c36a5adea431b041a655888029094b12e29823028b666aff1c",
+        "stall": "70e5db31613db7079886a512ca298ae410b90e20431083e2d11720513dc4c1b0",
+        "commit": 5,
+        "gap": 0.9831,
+        "fit_identity": "903af1bb27a2d8bd0033d37bf0eb2715ad7db7f59560e4ced2ff456919692d5a",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 279,
+      "file": "cache_yamls/lo_libero_10_300_chrg_k50.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 300,
+      "group": "chrg_k40",
+      "before": {
+        "fit": "92affdba26561e77f7001954ad892fc59e4e4f950476038cccd86bbd4241fa56",
+        "stall": "5398986956112a54295aac16355f6e27930221397e5cef33b38381dde0a8d28b",
+        "commit": 10,
+        "gap": 0.7536,
+        "fit_identity": "942f0928f0688c8998343a806cc0a58c53d4284591196ce290ac2c7aebfd2719"
+      },
+      "after": {
+        "fit": "132d7b7586aff7c36a5adea431b041a655888029094b12e29823028b666aff1c",
+        "stall": "70e5db31613db7079886a512ca298ae410b90e20431083e2d11720513dc4c1b0",
+        "commit": 5,
+        "gap": 1.4902,
+        "fit_identity": "903af1bb27a2d8bd0033d37bf0eb2715ad7db7f59560e4ced2ff456919692d5a",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 279,
+      "file": "cache_yamls/lo_libero_10_300_chrg_k40.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 300,
+      "group": "chrg_k30",
+      "before": {
+        "fit": "92affdba26561e77f7001954ad892fc59e4e4f950476038cccd86bbd4241fa56",
+        "stall": "5398986956112a54295aac16355f6e27930221397e5cef33b38381dde0a8d28b",
+        "commit": 10,
+        "gap": 1.1704,
+        "fit_identity": "942f0928f0688c8998343a806cc0a58c53d4284591196ce290ac2c7aebfd2719"
+      },
+      "after": {
+        "fit": "132d7b7586aff7c36a5adea431b041a655888029094b12e29823028b666aff1c",
+        "stall": "70e5db31613db7079886a512ca298ae410b90e20431083e2d11720513dc4c1b0",
+        "commit": 5,
+        "gap": 2.3345,
+        "fit_identity": "903af1bb27a2d8bd0033d37bf0eb2715ad7db7f59560e4ced2ff456919692d5a",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 279,
+      "file": "cache_yamls/lo_libero_10_300_chrg_k30.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 300,
+      "group": "chrg_k20",
+      "before": {
+        "fit": "92affdba26561e77f7001954ad892fc59e4e4f950476038cccd86bbd4241fa56",
+        "stall": "5398986956112a54295aac16355f6e27930221397e5cef33b38381dde0a8d28b",
+        "commit": 10,
+        "gap": 1.9603,
+        "fit_identity": "942f0928f0688c8998343a806cc0a58c53d4284591196ce290ac2c7aebfd2719"
+      },
+      "after": {
+        "fit": "132d7b7586aff7c36a5adea431b041a655888029094b12e29823028b666aff1c",
+        "stall": "70e5db31613db7079886a512ca298ae410b90e20431083e2d11720513dc4c1b0",
+        "commit": 5,
+        "gap": 4.1023,
+        "fit_identity": "903af1bb27a2d8bd0033d37bf0eb2715ad7db7f59560e4ced2ff456919692d5a",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 279,
+      "file": "cache_yamls/lo_libero_10_300_chrg_k20.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 300,
+      "group": "chrg_k10",
+      "before": {
+        "fit": "92affdba26561e77f7001954ad892fc59e4e4f950476038cccd86bbd4241fa56",
+        "stall": "5398986956112a54295aac16355f6e27930221397e5cef33b38381dde0a8d28b",
+        "commit": 10,
+        "gap": 4.2428,
+        "fit_identity": "942f0928f0688c8998343a806cc0a58c53d4284591196ce290ac2c7aebfd2719"
+      },
+      "after": {
+        "fit": "132d7b7586aff7c36a5adea431b041a655888029094b12e29823028b666aff1c",
+        "stall": "70e5db31613db7079886a512ca298ae410b90e20431083e2d11720513dc4c1b0",
+        "commit": 5,
+        "gap": 10.0788,
+        "fit_identity": "903af1bb27a2d8bd0033d37bf0eb2715ad7db7f59560e4ced2ff456919692d5a",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 279,
+      "file": "cache_yamls/lo_libero_10_300_chrg_k10.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 400,
+      "group": "chrg_k50",
+      "before": {
+        "fit": "3a30862d38bb7ac48c10b03728be4f3ac327ad88b51ddec357070b0e5dd9e9df",
+        "stall": "b63f117e5613134744ea2b0f1d7072a67e9438ac17a29164b2f843321fba1b21",
+        "commit": 10,
+        "gap": 0.5008,
+        "fit_identity": "0cb35df0960d8d46bf805da37c9edfd6d6080d9853bfd2ca2ab1da07865593b4"
+      },
+      "after": {
+        "fit": "2fca3bcb11e068bc8af54406739bf0647d77cdeebfcbbc0bfe367a445e1e6470",
+        "stall": "db4e0e18e2594f98e0fcf0519cfcd1c6f316c2eeeea14ef61994d17a52ccc754",
+        "commit": 5,
+        "gap": 0.9825,
+        "fit_identity": "c818a0c3fb65ed57bc3d4c0a1b40b35a57f12340730213fe2c90a32f4124aaf5",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 371,
+      "file": "cache_yamls/lo_libero_10_400_chrg_k50.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 400,
+      "group": "chrg_k40",
+      "before": {
+        "fit": "3a30862d38bb7ac48c10b03728be4f3ac327ad88b51ddec357070b0e5dd9e9df",
+        "stall": "b63f117e5613134744ea2b0f1d7072a67e9438ac17a29164b2f843321fba1b21",
+        "commit": 10,
+        "gap": 0.7501,
+        "fit_identity": "0cb35df0960d8d46bf805da37c9edfd6d6080d9853bfd2ca2ab1da07865593b4"
+      },
+      "after": {
+        "fit": "2fca3bcb11e068bc8af54406739bf0647d77cdeebfcbbc0bfe367a445e1e6470",
+        "stall": "db4e0e18e2594f98e0fcf0519cfcd1c6f316c2eeeea14ef61994d17a52ccc754",
+        "commit": 5,
+        "gap": 1.499,
+        "fit_identity": "c818a0c3fb65ed57bc3d4c0a1b40b35a57f12340730213fe2c90a32f4124aaf5",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 371,
+      "file": "cache_yamls/lo_libero_10_400_chrg_k40.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 400,
+      "group": "chrg_k30",
+      "before": {
+        "fit": "3a30862d38bb7ac48c10b03728be4f3ac327ad88b51ddec357070b0e5dd9e9df",
+        "stall": "b63f117e5613134744ea2b0f1d7072a67e9438ac17a29164b2f843321fba1b21",
+        "commit": 10,
+        "gap": 1.1688,
+        "fit_identity": "0cb35df0960d8d46bf805da37c9edfd6d6080d9853bfd2ca2ab1da07865593b4"
+      },
+      "after": {
+        "fit": "2fca3bcb11e068bc8af54406739bf0647d77cdeebfcbbc0bfe367a445e1e6470",
+        "stall": "db4e0e18e2594f98e0fcf0519cfcd1c6f316c2eeeea14ef61994d17a52ccc754",
+        "commit": 5,
+        "gap": 2.3295,
+        "fit_identity": "c818a0c3fb65ed57bc3d4c0a1b40b35a57f12340730213fe2c90a32f4124aaf5",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 371,
+      "file": "cache_yamls/lo_libero_10_400_chrg_k30.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 400,
+      "group": "chrg_k20",
+      "before": {
+        "fit": "3a30862d38bb7ac48c10b03728be4f3ac327ad88b51ddec357070b0e5dd9e9df",
+        "stall": "b63f117e5613134744ea2b0f1d7072a67e9438ac17a29164b2f843321fba1b21",
+        "commit": 10,
+        "gap": 1.9571,
+        "fit_identity": "0cb35df0960d8d46bf805da37c9edfd6d6080d9853bfd2ca2ab1da07865593b4"
+      },
+      "after": {
+        "fit": "2fca3bcb11e068bc8af54406739bf0647d77cdeebfcbbc0bfe367a445e1e6470",
+        "stall": "db4e0e18e2594f98e0fcf0519cfcd1c6f316c2eeeea14ef61994d17a52ccc754",
+        "commit": 5,
+        "gap": 4.1202,
+        "fit_identity": "c818a0c3fb65ed57bc3d4c0a1b40b35a57f12340730213fe2c90a32f4124aaf5",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 371,
+      "file": "cache_yamls/lo_libero_10_400_chrg_k20.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 400,
+      "group": "chrg_k10",
+      "before": {
+        "fit": "3a30862d38bb7ac48c10b03728be4f3ac327ad88b51ddec357070b0e5dd9e9df",
+        "stall": "b63f117e5613134744ea2b0f1d7072a67e9438ac17a29164b2f843321fba1b21",
+        "commit": 10,
+        "gap": 4.2331,
+        "fit_identity": "0cb35df0960d8d46bf805da37c9edfd6d6080d9853bfd2ca2ab1da07865593b4"
+      },
+      "after": {
+        "fit": "2fca3bcb11e068bc8af54406739bf0647d77cdeebfcbbc0bfe367a445e1e6470",
+        "stall": "db4e0e18e2594f98e0fcf0519cfcd1c6f316c2eeeea14ef61994d17a52ccc754",
+        "commit": 5,
+        "gap": 10.1362,
+        "fit_identity": "c818a0c3fb65ed57bc3d4c0a1b40b35a57f12340730213fe2c90a32f4124aaf5",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 371,
+      "file": "cache_yamls/lo_libero_10_400_chrg_k10.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 500,
+      "group": "chrg_k50",
+      "before": {
+        "fit": "a021fd5e9721495dd51a019c5318b6c9ecb48d21ea444f1ce8e01afdae7f6257",
+        "stall": "62a3bb5c8a9e57772187c315e99082d9196446f69aff01bdd6954ad32a547a79",
+        "commit": 10,
+        "gap": 0.5025,
+        "fit_identity": "5c86e2bdf06b3441b7a0db1ebf3a659b230e0fc1e455345d9e48163b5a878569"
+      },
+      "after": {
+        "fit": "18df2ed822917f4137a351c92ac5caf44a2548e119f42ff153f144c90ad4e2c3",
+        "stall": "909f139869cf72a7fecd4d6dc046b24b54f0a016ff7d00f8f35b812aed3fe34e",
+        "commit": 5,
+        "gap": 0.9807,
+        "fit_identity": "34ff99e4286bed49c0f08fd7fb22eaec3e8e42335f1b1d5e6673e0580d1ffe73",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 462,
+      "file": "cache_yamls/lo_libero_10_500_chrg_k50.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 500,
+      "group": "chrg_k40",
+      "before": {
+        "fit": "a021fd5e9721495dd51a019c5318b6c9ecb48d21ea444f1ce8e01afdae7f6257",
+        "stall": "62a3bb5c8a9e57772187c315e99082d9196446f69aff01bdd6954ad32a547a79",
+        "commit": 10,
+        "gap": 0.7509,
+        "fit_identity": "5c86e2bdf06b3441b7a0db1ebf3a659b230e0fc1e455345d9e48163b5a878569"
+      },
+      "after": {
+        "fit": "18df2ed822917f4137a351c92ac5caf44a2548e119f42ff153f144c90ad4e2c3",
+        "stall": "909f139869cf72a7fecd4d6dc046b24b54f0a016ff7d00f8f35b812aed3fe34e",
+        "commit": 5,
+        "gap": 1.501,
+        "fit_identity": "34ff99e4286bed49c0f08fd7fb22eaec3e8e42335f1b1d5e6673e0580d1ffe73",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 462,
+      "file": "cache_yamls/lo_libero_10_500_chrg_k40.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 500,
+      "group": "chrg_k30",
+      "before": {
+        "fit": "a021fd5e9721495dd51a019c5318b6c9ecb48d21ea444f1ce8e01afdae7f6257",
+        "stall": "62a3bb5c8a9e57772187c315e99082d9196446f69aff01bdd6954ad32a547a79",
+        "commit": 10,
+        "gap": 1.1663,
+        "fit_identity": "5c86e2bdf06b3441b7a0db1ebf3a659b230e0fc1e455345d9e48163b5a878569"
+      },
+      "after": {
+        "fit": "18df2ed822917f4137a351c92ac5caf44a2548e119f42ff153f144c90ad4e2c3",
+        "stall": "909f139869cf72a7fecd4d6dc046b24b54f0a016ff7d00f8f35b812aed3fe34e",
+        "commit": 5,
+        "gap": 2.3425,
+        "fit_identity": "34ff99e4286bed49c0f08fd7fb22eaec3e8e42335f1b1d5e6673e0580d1ffe73",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 462,
+      "file": "cache_yamls/lo_libero_10_500_chrg_k30.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 500,
+      "group": "chrg_k20",
+      "before": {
+        "fit": "a021fd5e9721495dd51a019c5318b6c9ecb48d21ea444f1ce8e01afdae7f6257",
+        "stall": "62a3bb5c8a9e57772187c315e99082d9196446f69aff01bdd6954ad32a547a79",
+        "commit": 10,
+        "gap": 1.9592,
+        "fit_identity": "5c86e2bdf06b3441b7a0db1ebf3a659b230e0fc1e455345d9e48163b5a878569"
+      },
+      "after": {
+        "fit": "18df2ed822917f4137a351c92ac5caf44a2548e119f42ff153f144c90ad4e2c3",
+        "stall": "909f139869cf72a7fecd4d6dc046b24b54f0a016ff7d00f8f35b812aed3fe34e",
+        "commit": 5,
+        "gap": 4.1131,
+        "fit_identity": "34ff99e4286bed49c0f08fd7fb22eaec3e8e42335f1b1d5e6673e0580d1ffe73",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 462,
+      "file": "cache_yamls/lo_libero_10_500_chrg_k20.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 500,
+      "group": "chrg_k10",
+      "before": {
+        "fit": "a021fd5e9721495dd51a019c5318b6c9ecb48d21ea444f1ce8e01afdae7f6257",
+        "stall": "62a3bb5c8a9e57772187c315e99082d9196446f69aff01bdd6954ad32a547a79",
+        "commit": 10,
+        "gap": 4.2318,
+        "fit_identity": "5c86e2bdf06b3441b7a0db1ebf3a659b230e0fc1e455345d9e48163b5a878569"
+      },
+      "after": {
+        "fit": "18df2ed822917f4137a351c92ac5caf44a2548e119f42ff153f144c90ad4e2c3",
+        "stall": "909f139869cf72a7fecd4d6dc046b24b54f0a016ff7d00f8f35b812aed3fe34e",
+        "commit": 5,
+        "gap": 10.0463,
+        "fit_identity": "34ff99e4286bed49c0f08fd7fb22eaec3e8e42335f1b1d5e6673e0580d1ffe73",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 462,
+      "file": "cache_yamls/lo_libero_10_500_chrg_k10.yaml"
+    }
+  ],
+  "fa_lo_fw_f_f_l_l": [
+    {
+      "suite": "libero_spatial",
+      "size": 50,
+      "group": "chrg_k50",
+      "before": {
+        "fit": "722f9885de7e7630c2a6c3d101be8a71da5e836f7e0aeca5ccedfabc299c246f",
+        "stall": "7323d46c4d718d5c92da32153b9332083c144cb4f77569a5aa3afaa63f396974",
+        "commit": 10,
+        "gap": 0.5029,
+        "fit_identity": "067f04c55e29b7fc0d81c65c488102ce4540362aea3990c49fe23478285bbc03"
+      },
+      "after": {
+        "fit": "7fa241ec39984e78831fb0cf36a49ecb43eb0bf36b25eecf0b3d0c497ac5d170",
+        "stall": "9aa88075d6afecb15ec76ee8770a43ec46790db39d34b95f31f57f740ca486fc",
+        "commit": 5,
+        "gap": 0.9094,
+        "fit_identity": "35c50b38a20412af5dc0f82b9017939bdea83be4fd3a425c4ab55c602d70750a",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 43,
+      "file": "cache_yamls/lo_libero_spatial_50_chrg_k50.yaml"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 50,
+      "group": "chrg_k40",
+      "before": {
+        "fit": "722f9885de7e7630c2a6c3d101be8a71da5e836f7e0aeca5ccedfabc299c246f",
+        "stall": "7323d46c4d718d5c92da32153b9332083c144cb4f77569a5aa3afaa63f396974",
+        "commit": 10,
+        "gap": 0.7766,
+        "fit_identity": "067f04c55e29b7fc0d81c65c488102ce4540362aea3990c49fe23478285bbc03"
+      },
+      "after": {
+        "fit": "7fa241ec39984e78831fb0cf36a49ecb43eb0bf36b25eecf0b3d0c497ac5d170",
+        "stall": "9aa88075d6afecb15ec76ee8770a43ec46790db39d34b95f31f57f740ca486fc",
+        "commit": 5,
+        "gap": 1.461,
+        "fit_identity": "35c50b38a20412af5dc0f82b9017939bdea83be4fd3a425c4ab55c602d70750a",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 43,
+      "file": "cache_yamls/lo_libero_spatial_50_chrg_k40.yaml"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 50,
+      "group": "chrg_k30",
+      "before": {
+        "fit": "722f9885de7e7630c2a6c3d101be8a71da5e836f7e0aeca5ccedfabc299c246f",
+        "stall": "7323d46c4d718d5c92da32153b9332083c144cb4f77569a5aa3afaa63f396974",
+        "commit": 10,
+        "gap": 1.1748,
+        "fit_identity": "067f04c55e29b7fc0d81c65c488102ce4540362aea3990c49fe23478285bbc03"
+      },
+      "after": {
+        "fit": "7fa241ec39984e78831fb0cf36a49ecb43eb0bf36b25eecf0b3d0c497ac5d170",
+        "stall": "9aa88075d6afecb15ec76ee8770a43ec46790db39d34b95f31f57f740ca486fc",
+        "commit": 5,
+        "gap": 2.0369,
+        "fit_identity": "35c50b38a20412af5dc0f82b9017939bdea83be4fd3a425c4ab55c602d70750a",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 43,
+      "file": "cache_yamls/lo_libero_spatial_50_chrg_k30.yaml"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 50,
+      "group": "chrg_k20",
+      "before": {
+        "fit": "722f9885de7e7630c2a6c3d101be8a71da5e836f7e0aeca5ccedfabc299c246f",
+        "stall": "7323d46c4d718d5c92da32153b9332083c144cb4f77569a5aa3afaa63f396974",
+        "commit": 10,
+        "gap": 1.9108,
+        "fit_identity": "067f04c55e29b7fc0d81c65c488102ce4540362aea3990c49fe23478285bbc03"
+      },
+      "after": {
+        "fit": "7fa241ec39984e78831fb0cf36a49ecb43eb0bf36b25eecf0b3d0c497ac5d170",
+        "stall": "9aa88075d6afecb15ec76ee8770a43ec46790db39d34b95f31f57f740ca486fc",
+        "commit": 5,
+        "gap": 3.2848,
+        "fit_identity": "35c50b38a20412af5dc0f82b9017939bdea83be4fd3a425c4ab55c602d70750a",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 43,
+      "file": "cache_yamls/lo_libero_spatial_50_chrg_k20.yaml"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 50,
+      "group": "chrg_k10",
+      "before": {
+        "fit": "722f9885de7e7630c2a6c3d101be8a71da5e836f7e0aeca5ccedfabc299c246f",
+        "stall": "7323d46c4d718d5c92da32153b9332083c144cb4f77569a5aa3afaa63f396974",
+        "commit": 10,
+        "gap": 3.9993,
+        "fit_identity": "067f04c55e29b7fc0d81c65c488102ce4540362aea3990c49fe23478285bbc03"
+      },
+      "after": {
+        "fit": "7fa241ec39984e78831fb0cf36a49ecb43eb0bf36b25eecf0b3d0c497ac5d170",
+        "stall": "9aa88075d6afecb15ec76ee8770a43ec46790db39d34b95f31f57f740ca486fc",
+        "commit": 5,
+        "gap": 5.8836,
+        "fit_identity": "35c50b38a20412af5dc0f82b9017939bdea83be4fd3a425c4ab55c602d70750a",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 43,
+      "file": "cache_yamls/lo_libero_spatial_50_chrg_k10.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 50,
+      "group": "chrg_k50",
+      "before": {
+        "fit": "5478de03b6c543b8f0e1a2706cfdea940c10e038bbfdb1e4e0161b07f42289ae",
+        "stall": "7fbcbd409b46eb0bc4ff6ffbb6ef11cbaa08b55ea893ff96c33100090f1ed71e",
+        "commit": 10,
+        "gap": 0.4883,
+        "fit_identity": "603ead8b8e2714df71537617cd538bfcdd0737d12b0f26558c33faf7f74bcad6"
+      },
+      "after": {
+        "fit": "1f03922e9640bacebedde8ad43778e09b60847e9a3b997359d0ad31e1a646171",
+        "stall": "343a33b12e1840b3844d106ec0ef0e55b42b473c0a7a7e81ee97dfcbbac6ab29",
+        "commit": 5,
+        "gap": 0.9618,
+        "fit_identity": "05129ea0348d6afa8a2dcfed09a5d5317b540f4f85559829579ee36083c40d9d",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 49,
+      "file": "cache_yamls/lo_libero_10_50_chrg_k50.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 50,
+      "group": "chrg_k40",
+      "before": {
+        "fit": "5478de03b6c543b8f0e1a2706cfdea940c10e038bbfdb1e4e0161b07f42289ae",
+        "stall": "7fbcbd409b46eb0bc4ff6ffbb6ef11cbaa08b55ea893ff96c33100090f1ed71e",
+        "commit": 10,
+        "gap": 0.7513,
+        "fit_identity": "603ead8b8e2714df71537617cd538bfcdd0737d12b0f26558c33faf7f74bcad6"
+      },
+      "after": {
+        "fit": "1f03922e9640bacebedde8ad43778e09b60847e9a3b997359d0ad31e1a646171",
+        "stall": "343a33b12e1840b3844d106ec0ef0e55b42b473c0a7a7e81ee97dfcbbac6ab29",
+        "commit": 5,
+        "gap": 1.4225,
+        "fit_identity": "05129ea0348d6afa8a2dcfed09a5d5317b540f4f85559829579ee36083c40d9d",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 49,
+      "file": "cache_yamls/lo_libero_10_50_chrg_k40.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 50,
+      "group": "chrg_k30",
+      "before": {
+        "fit": "5478de03b6c543b8f0e1a2706cfdea940c10e038bbfdb1e4e0161b07f42289ae",
+        "stall": "7fbcbd409b46eb0bc4ff6ffbb6ef11cbaa08b55ea893ff96c33100090f1ed71e",
+        "commit": 10,
+        "gap": 1.1694,
+        "fit_identity": "603ead8b8e2714df71537617cd538bfcdd0737d12b0f26558c33faf7f74bcad6"
+      },
+      "after": {
+        "fit": "1f03922e9640bacebedde8ad43778e09b60847e9a3b997359d0ad31e1a646171",
+        "stall": "343a33b12e1840b3844d106ec0ef0e55b42b473c0a7a7e81ee97dfcbbac6ab29",
+        "commit": 5,
+        "gap": 2.1563,
+        "fit_identity": "05129ea0348d6afa8a2dcfed09a5d5317b540f4f85559829579ee36083c40d9d",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 49,
+      "file": "cache_yamls/lo_libero_10_50_chrg_k30.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 50,
+      "group": "chrg_k20",
+      "before": {
+        "fit": "5478de03b6c543b8f0e1a2706cfdea940c10e038bbfdb1e4e0161b07f42289ae",
+        "stall": "7fbcbd409b46eb0bc4ff6ffbb6ef11cbaa08b55ea893ff96c33100090f1ed71e",
+        "commit": 10,
+        "gap": 1.951,
+        "fit_identity": "603ead8b8e2714df71537617cd538bfcdd0737d12b0f26558c33faf7f74bcad6"
+      },
+      "after": {
+        "fit": "1f03922e9640bacebedde8ad43778e09b60847e9a3b997359d0ad31e1a646171",
+        "stall": "343a33b12e1840b3844d106ec0ef0e55b42b473c0a7a7e81ee97dfcbbac6ab29",
+        "commit": 5,
+        "gap": 3.6684,
+        "fit_identity": "05129ea0348d6afa8a2dcfed09a5d5317b540f4f85559829579ee36083c40d9d",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 49,
+      "file": "cache_yamls/lo_libero_10_50_chrg_k20.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 50,
+      "group": "chrg_k10",
+      "before": {
+        "fit": "5478de03b6c543b8f0e1a2706cfdea940c10e038bbfdb1e4e0161b07f42289ae",
+        "stall": "7fbcbd409b46eb0bc4ff6ffbb6ef11cbaa08b55ea893ff96c33100090f1ed71e",
+        "commit": 10,
+        "gap": 4.2403,
+        "fit_identity": "603ead8b8e2714df71537617cd538bfcdd0737d12b0f26558c33faf7f74bcad6"
+      },
+      "after": {
+        "fit": "1f03922e9640bacebedde8ad43778e09b60847e9a3b997359d0ad31e1a646171",
+        "stall": "343a33b12e1840b3844d106ec0ef0e55b42b473c0a7a7e81ee97dfcbbac6ab29",
+        "commit": 5,
+        "gap": 7.4517,
+        "fit_identity": "05129ea0348d6afa8a2dcfed09a5d5317b540f4f85559829579ee36083c40d9d",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 49,
+      "file": "cache_yamls/lo_libero_10_50_chrg_k10.yaml"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 100,
+      "group": "chrg_k50",
+      "before": {
+        "fit": "a757cc82699f05856538f4bd6ed8bf6d0df1c12b3bfa560b2faec7d382197473",
+        "stall": "8566075c5d604d5f60669ace8557233972e5315e6f43f4df6a7285791cda503b",
+        "commit": 10,
+        "gap": 0.5092,
+        "fit_identity": "da4ef496db9afa671bb33170cbb55125be6cfd77ab2edd3e51195e76f0fb1c16"
+      },
+      "after": {
+        "fit": "9f144725a365ead22f9d7c53d7a781b0d2655eb43d8b3c3abb30212934797951",
+        "stall": "16035c8dccd58d2e4e797d13e342ac277d1bc416c9d3c32568df8102add477a4",
+        "commit": 5,
+        "gap": 0.9361,
+        "fit_identity": "899eb126fe48ea31224efe743f0b8f13dfcc49daf32dd71af06925ef53b7f724",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 85,
+      "file": "cache_yamls/lo_libero_spatial_100_chrg_k50.yaml"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 100,
+      "group": "chrg_k40",
+      "before": {
+        "fit": "a757cc82699f05856538f4bd6ed8bf6d0df1c12b3bfa560b2faec7d382197473",
+        "stall": "8566075c5d604d5f60669ace8557233972e5315e6f43f4df6a7285791cda503b",
+        "commit": 10,
+        "gap": 0.7637,
+        "fit_identity": "da4ef496db9afa671bb33170cbb55125be6cfd77ab2edd3e51195e76f0fb1c16"
+      },
+      "after": {
+        "fit": "9f144725a365ead22f9d7c53d7a781b0d2655eb43d8b3c3abb30212934797951",
+        "stall": "16035c8dccd58d2e4e797d13e342ac277d1bc416c9d3c32568df8102add477a4",
+        "commit": 5,
+        "gap": 1.4224,
+        "fit_identity": "899eb126fe48ea31224efe743f0b8f13dfcc49daf32dd71af06925ef53b7f724",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 85,
+      "file": "cache_yamls/lo_libero_spatial_100_chrg_k40.yaml"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 100,
+      "group": "chrg_k30",
+      "before": {
+        "fit": "a757cc82699f05856538f4bd6ed8bf6d0df1c12b3bfa560b2faec7d382197473",
+        "stall": "8566075c5d604d5f60669ace8557233972e5315e6f43f4df6a7285791cda503b",
+        "commit": 10,
+        "gap": 1.172,
+        "fit_identity": "da4ef496db9afa671bb33170cbb55125be6cfd77ab2edd3e51195e76f0fb1c16"
+      },
+      "after": {
+        "fit": "9f144725a365ead22f9d7c53d7a781b0d2655eb43d8b3c3abb30212934797951",
+        "stall": "16035c8dccd58d2e4e797d13e342ac277d1bc416c9d3c32568df8102add477a4",
+        "commit": 5,
+        "gap": 2.0786,
+        "fit_identity": "899eb126fe48ea31224efe743f0b8f13dfcc49daf32dd71af06925ef53b7f724",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 85,
+      "file": "cache_yamls/lo_libero_spatial_100_chrg_k30.yaml"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 100,
+      "group": "chrg_k20",
+      "before": {
+        "fit": "a757cc82699f05856538f4bd6ed8bf6d0df1c12b3bfa560b2faec7d382197473",
+        "stall": "8566075c5d604d5f60669ace8557233972e5315e6f43f4df6a7285791cda503b",
+        "commit": 10,
+        "gap": 1.9093,
+        "fit_identity": "da4ef496db9afa671bb33170cbb55125be6cfd77ab2edd3e51195e76f0fb1c16"
+      },
+      "after": {
+        "fit": "9f144725a365ead22f9d7c53d7a781b0d2655eb43d8b3c3abb30212934797951",
+        "stall": "16035c8dccd58d2e4e797d13e342ac277d1bc416c9d3c32568df8102add477a4",
+        "commit": 5,
+        "gap": 3.381,
+        "fit_identity": "899eb126fe48ea31224efe743f0b8f13dfcc49daf32dd71af06925ef53b7f724",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 85,
+      "file": "cache_yamls/lo_libero_spatial_100_chrg_k20.yaml"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 100,
+      "group": "chrg_k10",
+      "before": {
+        "fit": "a757cc82699f05856538f4bd6ed8bf6d0df1c12b3bfa560b2faec7d382197473",
+        "stall": "8566075c5d604d5f60669ace8557233972e5315e6f43f4df6a7285791cda503b",
+        "commit": 10,
+        "gap": 4.0415,
+        "fit_identity": "da4ef496db9afa671bb33170cbb55125be6cfd77ab2edd3e51195e76f0fb1c16"
+      },
+      "after": {
+        "fit": "9f144725a365ead22f9d7c53d7a781b0d2655eb43d8b3c3abb30212934797951",
+        "stall": "16035c8dccd58d2e4e797d13e342ac277d1bc416c9d3c32568df8102add477a4",
+        "commit": 5,
+        "gap": 5.9588,
+        "fit_identity": "899eb126fe48ea31224efe743f0b8f13dfcc49daf32dd71af06925ef53b7f724",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 85,
+      "file": "cache_yamls/lo_libero_spatial_100_chrg_k10.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 100,
+      "group": "chrg_k50",
+      "before": {
+        "fit": "676c417ce797ec880ad53285ad9fa83ce9cccbc76f01fd769d9b888067a80a74",
+        "stall": "d673998d333d4e7578f0cb14e8adeba937bd3d207c0704c02912218790acc1b0",
+        "commit": 10,
+        "gap": 0.4905,
+        "fit_identity": "bef187db3ed96f8a393a41af9dc16690aa9040a1d67b9577fe1e0f0a0c165efd"
+      },
+      "after": {
+        "fit": "b6566c5db2b384e3508c94a98d9ecb0925c86563514009c2b2362c9fb3661fde",
+        "stall": "1020c777f3740eb55dda73c14719e50a23cd96ef576946b09ca9204e1d5d37ba",
+        "commit": 5,
+        "gap": 0.973,
+        "fit_identity": "2cfc017740837ca6446ee1965cd7a7b542f666e4ed04cfe8d5d2d4b699ae3d8d",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 95,
+      "file": "cache_yamls/lo_libero_10_100_chrg_k50.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 100,
+      "group": "chrg_k40",
+      "before": {
+        "fit": "676c417ce797ec880ad53285ad9fa83ce9cccbc76f01fd769d9b888067a80a74",
+        "stall": "d673998d333d4e7578f0cb14e8adeba937bd3d207c0704c02912218790acc1b0",
+        "commit": 10,
+        "gap": 0.748,
+        "fit_identity": "bef187db3ed96f8a393a41af9dc16690aa9040a1d67b9577fe1e0f0a0c165efd"
+      },
+      "after": {
+        "fit": "b6566c5db2b384e3508c94a98d9ecb0925c86563514009c2b2362c9fb3661fde",
+        "stall": "1020c777f3740eb55dda73c14719e50a23cd96ef576946b09ca9204e1d5d37ba",
+        "commit": 5,
+        "gap": 1.4562,
+        "fit_identity": "2cfc017740837ca6446ee1965cd7a7b542f666e4ed04cfe8d5d2d4b699ae3d8d",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 95,
+      "file": "cache_yamls/lo_libero_10_100_chrg_k40.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 100,
+      "group": "chrg_k30",
+      "before": {
+        "fit": "676c417ce797ec880ad53285ad9fa83ce9cccbc76f01fd769d9b888067a80a74",
+        "stall": "d673998d333d4e7578f0cb14e8adeba937bd3d207c0704c02912218790acc1b0",
+        "commit": 10,
+        "gap": 1.173,
+        "fit_identity": "bef187db3ed96f8a393a41af9dc16690aa9040a1d67b9577fe1e0f0a0c165efd"
+      },
+      "after": {
+        "fit": "b6566c5db2b384e3508c94a98d9ecb0925c86563514009c2b2362c9fb3661fde",
+        "stall": "1020c777f3740eb55dda73c14719e50a23cd96ef576946b09ca9204e1d5d37ba",
+        "commit": 5,
+        "gap": 2.2394,
+        "fit_identity": "2cfc017740837ca6446ee1965cd7a7b542f666e4ed04cfe8d5d2d4b699ae3d8d",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 95,
+      "file": "cache_yamls/lo_libero_10_100_chrg_k30.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 100,
+      "group": "chrg_k20",
+      "before": {
+        "fit": "676c417ce797ec880ad53285ad9fa83ce9cccbc76f01fd769d9b888067a80a74",
+        "stall": "d673998d333d4e7578f0cb14e8adeba937bd3d207c0704c02912218790acc1b0",
+        "commit": 10,
+        "gap": 1.9524,
+        "fit_identity": "bef187db3ed96f8a393a41af9dc16690aa9040a1d67b9577fe1e0f0a0c165efd"
+      },
+      "after": {
+        "fit": "b6566c5db2b384e3508c94a98d9ecb0925c86563514009c2b2362c9fb3661fde",
+        "stall": "1020c777f3740eb55dda73c14719e50a23cd96ef576946b09ca9204e1d5d37ba",
+        "commit": 5,
+        "gap": 3.7439,
+        "fit_identity": "2cfc017740837ca6446ee1965cd7a7b542f666e4ed04cfe8d5d2d4b699ae3d8d",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 95,
+      "file": "cache_yamls/lo_libero_10_100_chrg_k20.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 100,
+      "group": "chrg_k10",
+      "before": {
+        "fit": "676c417ce797ec880ad53285ad9fa83ce9cccbc76f01fd769d9b888067a80a74",
+        "stall": "d673998d333d4e7578f0cb14e8adeba937bd3d207c0704c02912218790acc1b0",
+        "commit": 10,
+        "gap": 4.2539,
+        "fit_identity": "bef187db3ed96f8a393a41af9dc16690aa9040a1d67b9577fe1e0f0a0c165efd"
+      },
+      "after": {
+        "fit": "b6566c5db2b384e3508c94a98d9ecb0925c86563514009c2b2362c9fb3661fde",
+        "stall": "1020c777f3740eb55dda73c14719e50a23cd96ef576946b09ca9204e1d5d37ba",
+        "commit": 5,
+        "gap": 7.9886,
+        "fit_identity": "2cfc017740837ca6446ee1965cd7a7b542f666e4ed04cfe8d5d2d4b699ae3d8d",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 95,
+      "file": "cache_yamls/lo_libero_10_100_chrg_k10.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 200,
+      "group": "chrg_k50",
+      "before": {
+        "fit": "a6ca12ac3958bba5f48e2c8267e6b0f79d16530cdd9d761c7356eee1d38bb5e2",
+        "stall": "af6613c387c9995a04225782a647fcb405da6a8d2c14686f4e5bafcd7d7297ec",
+        "commit": 10,
+        "gap": 0.4988,
+        "fit_identity": "c9362972998cc329f05e9c6d6f0704b23dc360e100b4d910b4b8293e0aef21bf"
+      },
+      "after": {
+        "fit": "2ac7795d28ea986f3f5b3946dee9056c4ff2de2b3add5e6b46a7515ae219642e",
+        "stall": "3c05c8fa36138b1cfd854c680e89721efd7cb2d4317d4c11c6a6d333f061ce08",
+        "commit": 5,
+        "gap": 0.9737,
+        "fit_identity": "3b41b9d31771b28e685ce2866ad629e48f7b4ff5dc7775e8be4fa461f41d9268",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 188,
+      "file": "cache_yamls/lo_libero_10_200_chrg_k50.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 200,
+      "group": "chrg_k40",
+      "before": {
+        "fit": "a6ca12ac3958bba5f48e2c8267e6b0f79d16530cdd9d761c7356eee1d38bb5e2",
+        "stall": "af6613c387c9995a04225782a647fcb405da6a8d2c14686f4e5bafcd7d7297ec",
+        "commit": 10,
+        "gap": 0.7632,
+        "fit_identity": "c9362972998cc329f05e9c6d6f0704b23dc360e100b4d910b4b8293e0aef21bf"
+      },
+      "after": {
+        "fit": "2ac7795d28ea986f3f5b3946dee9056c4ff2de2b3add5e6b46a7515ae219642e",
+        "stall": "3c05c8fa36138b1cfd854c680e89721efd7cb2d4317d4c11c6a6d333f061ce08",
+        "commit": 5,
+        "gap": 1.4825,
+        "fit_identity": "3b41b9d31771b28e685ce2866ad629e48f7b4ff5dc7775e8be4fa461f41d9268",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 188,
+      "file": "cache_yamls/lo_libero_10_200_chrg_k40.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 200,
+      "group": "chrg_k30",
+      "before": {
+        "fit": "a6ca12ac3958bba5f48e2c8267e6b0f79d16530cdd9d761c7356eee1d38bb5e2",
+        "stall": "af6613c387c9995a04225782a647fcb405da6a8d2c14686f4e5bafcd7d7297ec",
+        "commit": 10,
+        "gap": 1.1678,
+        "fit_identity": "c9362972998cc329f05e9c6d6f0704b23dc360e100b4d910b4b8293e0aef21bf"
+      },
+      "after": {
+        "fit": "2ac7795d28ea986f3f5b3946dee9056c4ff2de2b3add5e6b46a7515ae219642e",
+        "stall": "3c05c8fa36138b1cfd854c680e89721efd7cb2d4317d4c11c6a6d333f061ce08",
+        "commit": 5,
+        "gap": 2.2847,
+        "fit_identity": "3b41b9d31771b28e685ce2866ad629e48f7b4ff5dc7775e8be4fa461f41d9268",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 188,
+      "file": "cache_yamls/lo_libero_10_200_chrg_k30.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 200,
+      "group": "chrg_k20",
+      "before": {
+        "fit": "a6ca12ac3958bba5f48e2c8267e6b0f79d16530cdd9d761c7356eee1d38bb5e2",
+        "stall": "af6613c387c9995a04225782a647fcb405da6a8d2c14686f4e5bafcd7d7297ec",
+        "commit": 10,
+        "gap": 1.9603,
+        "fit_identity": "c9362972998cc329f05e9c6d6f0704b23dc360e100b4d910b4b8293e0aef21bf"
+      },
+      "after": {
+        "fit": "2ac7795d28ea986f3f5b3946dee9056c4ff2de2b3add5e6b46a7515ae219642e",
+        "stall": "3c05c8fa36138b1cfd854c680e89721efd7cb2d4317d4c11c6a6d333f061ce08",
+        "commit": 5,
+        "gap": 4.0121,
+        "fit_identity": "3b41b9d31771b28e685ce2866ad629e48f7b4ff5dc7775e8be4fa461f41d9268",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 188,
+      "file": "cache_yamls/lo_libero_10_200_chrg_k20.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 200,
+      "group": "chrg_k10",
+      "before": {
+        "fit": "a6ca12ac3958bba5f48e2c8267e6b0f79d16530cdd9d761c7356eee1d38bb5e2",
+        "stall": "af6613c387c9995a04225782a647fcb405da6a8d2c14686f4e5bafcd7d7297ec",
+        "commit": 10,
+        "gap": 4.236,
+        "fit_identity": "c9362972998cc329f05e9c6d6f0704b23dc360e100b4d910b4b8293e0aef21bf"
+      },
+      "after": {
+        "fit": "2ac7795d28ea986f3f5b3946dee9056c4ff2de2b3add5e6b46a7515ae219642e",
+        "stall": "3c05c8fa36138b1cfd854c680e89721efd7cb2d4317d4c11c6a6d333f061ce08",
+        "commit": 5,
+        "gap": 9.1023,
+        "fit_identity": "3b41b9d31771b28e685ce2866ad629e48f7b4ff5dc7775e8be4fa461f41d9268",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 188,
+      "file": "cache_yamls/lo_libero_10_200_chrg_k10.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 300,
+      "group": "chrg_k50",
+      "before": {
+        "fit": "92affdba26561e77f7001954ad892fc59e4e4f950476038cccd86bbd4241fa56",
+        "stall": "5398986956112a54295aac16355f6e27930221397e5cef33b38381dde0a8d28b",
+        "commit": 10,
+        "gap": 0.5017,
+        "fit_identity": "942f0928f0688c8998343a806cc0a58c53d4284591196ce290ac2c7aebfd2719"
+      },
+      "after": {
+        "fit": "132d7b7586aff7c36a5adea431b041a655888029094b12e29823028b666aff1c",
+        "stall": "70e5db31613db7079886a512ca298ae410b90e20431083e2d11720513dc4c1b0",
+        "commit": 5,
+        "gap": 0.9831,
+        "fit_identity": "903af1bb27a2d8bd0033d37bf0eb2715ad7db7f59560e4ced2ff456919692d5a",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 279,
+      "file": "cache_yamls/lo_libero_10_300_chrg_k50.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 300,
+      "group": "chrg_k40",
+      "before": {
+        "fit": "92affdba26561e77f7001954ad892fc59e4e4f950476038cccd86bbd4241fa56",
+        "stall": "5398986956112a54295aac16355f6e27930221397e5cef33b38381dde0a8d28b",
+        "commit": 10,
+        "gap": 0.7536,
+        "fit_identity": "942f0928f0688c8998343a806cc0a58c53d4284591196ce290ac2c7aebfd2719"
+      },
+      "after": {
+        "fit": "132d7b7586aff7c36a5adea431b041a655888029094b12e29823028b666aff1c",
+        "stall": "70e5db31613db7079886a512ca298ae410b90e20431083e2d11720513dc4c1b0",
+        "commit": 5,
+        "gap": 1.4902,
+        "fit_identity": "903af1bb27a2d8bd0033d37bf0eb2715ad7db7f59560e4ced2ff456919692d5a",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 279,
+      "file": "cache_yamls/lo_libero_10_300_chrg_k40.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 300,
+      "group": "chrg_k30",
+      "before": {
+        "fit": "92affdba26561e77f7001954ad892fc59e4e4f950476038cccd86bbd4241fa56",
+        "stall": "5398986956112a54295aac16355f6e27930221397e5cef33b38381dde0a8d28b",
+        "commit": 10,
+        "gap": 1.1704,
+        "fit_identity": "942f0928f0688c8998343a806cc0a58c53d4284591196ce290ac2c7aebfd2719"
+      },
+      "after": {
+        "fit": "132d7b7586aff7c36a5adea431b041a655888029094b12e29823028b666aff1c",
+        "stall": "70e5db31613db7079886a512ca298ae410b90e20431083e2d11720513dc4c1b0",
+        "commit": 5,
+        "gap": 2.3345,
+        "fit_identity": "903af1bb27a2d8bd0033d37bf0eb2715ad7db7f59560e4ced2ff456919692d5a",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 279,
+      "file": "cache_yamls/lo_libero_10_300_chrg_k30.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 300,
+      "group": "chrg_k20",
+      "before": {
+        "fit": "92affdba26561e77f7001954ad892fc59e4e4f950476038cccd86bbd4241fa56",
+        "stall": "5398986956112a54295aac16355f6e27930221397e5cef33b38381dde0a8d28b",
+        "commit": 10,
+        "gap": 1.9603,
+        "fit_identity": "942f0928f0688c8998343a806cc0a58c53d4284591196ce290ac2c7aebfd2719"
+      },
+      "after": {
+        "fit": "132d7b7586aff7c36a5adea431b041a655888029094b12e29823028b666aff1c",
+        "stall": "70e5db31613db7079886a512ca298ae410b90e20431083e2d11720513dc4c1b0",
+        "commit": 5,
+        "gap": 4.1023,
+        "fit_identity": "903af1bb27a2d8bd0033d37bf0eb2715ad7db7f59560e4ced2ff456919692d5a",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 279,
+      "file": "cache_yamls/lo_libero_10_300_chrg_k20.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 300,
+      "group": "chrg_k10",
+      "before": {
+        "fit": "92affdba26561e77f7001954ad892fc59e4e4f950476038cccd86bbd4241fa56",
+        "stall": "5398986956112a54295aac16355f6e27930221397e5cef33b38381dde0a8d28b",
+        "commit": 10,
+        "gap": 4.2428,
+        "fit_identity": "942f0928f0688c8998343a806cc0a58c53d4284591196ce290ac2c7aebfd2719"
+      },
+      "after": {
+        "fit": "132d7b7586aff7c36a5adea431b041a655888029094b12e29823028b666aff1c",
+        "stall": "70e5db31613db7079886a512ca298ae410b90e20431083e2d11720513dc4c1b0",
+        "commit": 5,
+        "gap": 10.0788,
+        "fit_identity": "903af1bb27a2d8bd0033d37bf0eb2715ad7db7f59560e4ced2ff456919692d5a",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 279,
+      "file": "cache_yamls/lo_libero_10_300_chrg_k10.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 400,
+      "group": "chrg_k50",
+      "before": {
+        "fit": "3a30862d38bb7ac48c10b03728be4f3ac327ad88b51ddec357070b0e5dd9e9df",
+        "stall": "b63f117e5613134744ea2b0f1d7072a67e9438ac17a29164b2f843321fba1b21",
+        "commit": 10,
+        "gap": 0.5008,
+        "fit_identity": "0cb35df0960d8d46bf805da37c9edfd6d6080d9853bfd2ca2ab1da07865593b4"
+      },
+      "after": {
+        "fit": "2fca3bcb11e068bc8af54406739bf0647d77cdeebfcbbc0bfe367a445e1e6470",
+        "stall": "db4e0e18e2594f98e0fcf0519cfcd1c6f316c2eeeea14ef61994d17a52ccc754",
+        "commit": 5,
+        "gap": 0.9825,
+        "fit_identity": "c818a0c3fb65ed57bc3d4c0a1b40b35a57f12340730213fe2c90a32f4124aaf5",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 371,
+      "file": "cache_yamls/lo_libero_10_400_chrg_k50.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 400,
+      "group": "chrg_k40",
+      "before": {
+        "fit": "3a30862d38bb7ac48c10b03728be4f3ac327ad88b51ddec357070b0e5dd9e9df",
+        "stall": "b63f117e5613134744ea2b0f1d7072a67e9438ac17a29164b2f843321fba1b21",
+        "commit": 10,
+        "gap": 0.7501,
+        "fit_identity": "0cb35df0960d8d46bf805da37c9edfd6d6080d9853bfd2ca2ab1da07865593b4"
+      },
+      "after": {
+        "fit": "2fca3bcb11e068bc8af54406739bf0647d77cdeebfcbbc0bfe367a445e1e6470",
+        "stall": "db4e0e18e2594f98e0fcf0519cfcd1c6f316c2eeeea14ef61994d17a52ccc754",
+        "commit": 5,
+        "gap": 1.499,
+        "fit_identity": "c818a0c3fb65ed57bc3d4c0a1b40b35a57f12340730213fe2c90a32f4124aaf5",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 371,
+      "file": "cache_yamls/lo_libero_10_400_chrg_k40.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 400,
+      "group": "chrg_k30",
+      "before": {
+        "fit": "3a30862d38bb7ac48c10b03728be4f3ac327ad88b51ddec357070b0e5dd9e9df",
+        "stall": "b63f117e5613134744ea2b0f1d7072a67e9438ac17a29164b2f843321fba1b21",
+        "commit": 10,
+        "gap": 1.1688,
+        "fit_identity": "0cb35df0960d8d46bf805da37c9edfd6d6080d9853bfd2ca2ab1da07865593b4"
+      },
+      "after": {
+        "fit": "2fca3bcb11e068bc8af54406739bf0647d77cdeebfcbbc0bfe367a445e1e6470",
+        "stall": "db4e0e18e2594f98e0fcf0519cfcd1c6f316c2eeeea14ef61994d17a52ccc754",
+        "commit": 5,
+        "gap": 2.3295,
+        "fit_identity": "c818a0c3fb65ed57bc3d4c0a1b40b35a57f12340730213fe2c90a32f4124aaf5",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 371,
+      "file": "cache_yamls/lo_libero_10_400_chrg_k30.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 400,
+      "group": "chrg_k20",
+      "before": {
+        "fit": "3a30862d38bb7ac48c10b03728be4f3ac327ad88b51ddec357070b0e5dd9e9df",
+        "stall": "b63f117e5613134744ea2b0f1d7072a67e9438ac17a29164b2f843321fba1b21",
+        "commit": 10,
+        "gap": 1.9571,
+        "fit_identity": "0cb35df0960d8d46bf805da37c9edfd6d6080d9853bfd2ca2ab1da07865593b4"
+      },
+      "after": {
+        "fit": "2fca3bcb11e068bc8af54406739bf0647d77cdeebfcbbc0bfe367a445e1e6470",
+        "stall": "db4e0e18e2594f98e0fcf0519cfcd1c6f316c2eeeea14ef61994d17a52ccc754",
+        "commit": 5,
+        "gap": 4.1202,
+        "fit_identity": "c818a0c3fb65ed57bc3d4c0a1b40b35a57f12340730213fe2c90a32f4124aaf5",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 371,
+      "file": "cache_yamls/lo_libero_10_400_chrg_k20.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 400,
+      "group": "chrg_k10",
+      "before": {
+        "fit": "3a30862d38bb7ac48c10b03728be4f3ac327ad88b51ddec357070b0e5dd9e9df",
+        "stall": "b63f117e5613134744ea2b0f1d7072a67e9438ac17a29164b2f843321fba1b21",
+        "commit": 10,
+        "gap": 4.2331,
+        "fit_identity": "0cb35df0960d8d46bf805da37c9edfd6d6080d9853bfd2ca2ab1da07865593b4"
+      },
+      "after": {
+        "fit": "2fca3bcb11e068bc8af54406739bf0647d77cdeebfcbbc0bfe367a445e1e6470",
+        "stall": "db4e0e18e2594f98e0fcf0519cfcd1c6f316c2eeeea14ef61994d17a52ccc754",
+        "commit": 5,
+        "gap": 10.1362,
+        "fit_identity": "c818a0c3fb65ed57bc3d4c0a1b40b35a57f12340730213fe2c90a32f4124aaf5",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 371,
+      "file": "cache_yamls/lo_libero_10_400_chrg_k10.yaml"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 500,
+      "group": "chrg_k50",
+      "before": {
+        "fit": "aa344093709780a472891b0ffa226dddf897428a8f33de02b6895eddc1e27e7b",
+        "stall": "5b234715d15d637787a81b55a41f1d46e21229b0f1f35fc5bb62366ccb300e2c",
+        "commit": 10,
+        "gap": 0.5016,
+        "fit_identity": "f2c2493ece8041279bc0ca0e7c034e75d1bd035754a628ae9602355d5127fe74"
+      },
+      "after": {
+        "fit": "3408179f1b1f8cead8511b9236b1335e62fecb807178ed808bbaead49a6a483f",
+        "stall": "b123fe68bc68afd1ac59103a32f2b67c0154dbc5b9ca3b4e129c3a039e31f75d",
+        "commit": 5,
+        "gap": 0.9322,
+        "fit_identity": "54b340852c1f70d08e2ffed195b237c3bfdacca0cfda4850ee7aaeaca81af72b",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 432,
+      "file": "cache_yamls/lo_libero_spatial_500_chrg_k50.yaml"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 500,
+      "group": "chrg_k40",
+      "before": {
+        "fit": "aa344093709780a472891b0ffa226dddf897428a8f33de02b6895eddc1e27e7b",
+        "stall": "5b234715d15d637787a81b55a41f1d46e21229b0f1f35fc5bb62366ccb300e2c",
+        "commit": 10,
+        "gap": 0.7603,
+        "fit_identity": "f2c2493ece8041279bc0ca0e7c034e75d1bd035754a628ae9602355d5127fe74"
+      },
+      "after": {
+        "fit": "3408179f1b1f8cead8511b9236b1335e62fecb807178ed808bbaead49a6a483f",
+        "stall": "b123fe68bc68afd1ac59103a32f2b67c0154dbc5b9ca3b4e129c3a039e31f75d",
+        "commit": 5,
+        "gap": 1.3819,
+        "fit_identity": "54b340852c1f70d08e2ffed195b237c3bfdacca0cfda4850ee7aaeaca81af72b",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 432,
+      "file": "cache_yamls/lo_libero_spatial_500_chrg_k40.yaml"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 500,
+      "group": "chrg_k30",
+      "before": {
+        "fit": "aa344093709780a472891b0ffa226dddf897428a8f33de02b6895eddc1e27e7b",
+        "stall": "5b234715d15d637787a81b55a41f1d46e21229b0f1f35fc5bb62366ccb300e2c",
+        "commit": 10,
+        "gap": 1.1628,
+        "fit_identity": "f2c2493ece8041279bc0ca0e7c034e75d1bd035754a628ae9602355d5127fe74"
+      },
+      "after": {
+        "fit": "3408179f1b1f8cead8511b9236b1335e62fecb807178ed808bbaead49a6a483f",
+        "stall": "b123fe68bc68afd1ac59103a32f2b67c0154dbc5b9ca3b4e129c3a039e31f75d",
+        "commit": 5,
+        "gap": 2.0937,
+        "fit_identity": "54b340852c1f70d08e2ffed195b237c3bfdacca0cfda4850ee7aaeaca81af72b",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 432,
+      "file": "cache_yamls/lo_libero_spatial_500_chrg_k30.yaml"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 500,
+      "group": "chrg_k20",
+      "before": {
+        "fit": "aa344093709780a472891b0ffa226dddf897428a8f33de02b6895eddc1e27e7b",
+        "stall": "5b234715d15d637787a81b55a41f1d46e21229b0f1f35fc5bb62366ccb300e2c",
+        "commit": 10,
+        "gap": 1.9125,
+        "fit_identity": "f2c2493ece8041279bc0ca0e7c034e75d1bd035754a628ae9602355d5127fe74"
+      },
+      "after": {
+        "fit": "3408179f1b1f8cead8511b9236b1335e62fecb807178ed808bbaead49a6a483f",
+        "stall": "b123fe68bc68afd1ac59103a32f2b67c0154dbc5b9ca3b4e129c3a039e31f75d",
+        "commit": 5,
+        "gap": 3.4233,
+        "fit_identity": "54b340852c1f70d08e2ffed195b237c3bfdacca0cfda4850ee7aaeaca81af72b",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 432,
+      "file": "cache_yamls/lo_libero_spatial_500_chrg_k20.yaml"
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 500,
+      "group": "chrg_k10",
+      "before": {
+        "fit": "aa344093709780a472891b0ffa226dddf897428a8f33de02b6895eddc1e27e7b",
+        "stall": "5b234715d15d637787a81b55a41f1d46e21229b0f1f35fc5bb62366ccb300e2c",
+        "commit": 10,
+        "gap": 3.9958,
+        "fit_identity": "f2c2493ece8041279bc0ca0e7c034e75d1bd035754a628ae9602355d5127fe74"
+      },
+      "after": {
+        "fit": "3408179f1b1f8cead8511b9236b1335e62fecb807178ed808bbaead49a6a483f",
+        "stall": "b123fe68bc68afd1ac59103a32f2b67c0154dbc5b9ca3b4e129c3a039e31f75d",
+        "commit": 5,
+        "gap": 6.6664,
+        "fit_identity": "54b340852c1f70d08e2ffed195b237c3bfdacca0cfda4850ee7aaeaca81af72b",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 432,
+      "file": "cache_yamls/lo_libero_spatial_500_chrg_k10.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 500,
+      "group": "chrg_k50",
+      "before": {
+        "fit": "a021fd5e9721495dd51a019c5318b6c9ecb48d21ea444f1ce8e01afdae7f6257",
+        "stall": "62a3bb5c8a9e57772187c315e99082d9196446f69aff01bdd6954ad32a547a79",
+        "commit": 10,
+        "gap": 0.5025,
+        "fit_identity": "5c86e2bdf06b3441b7a0db1ebf3a659b230e0fc1e455345d9e48163b5a878569"
+      },
+      "after": {
+        "fit": "18df2ed822917f4137a351c92ac5caf44a2548e119f42ff153f144c90ad4e2c3",
+        "stall": "909f139869cf72a7fecd4d6dc046b24b54f0a016ff7d00f8f35b812aed3fe34e",
+        "commit": 5,
+        "gap": 0.9807,
+        "fit_identity": "34ff99e4286bed49c0f08fd7fb22eaec3e8e42335f1b1d5e6673e0580d1ffe73",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 462,
+      "file": "cache_yamls/lo_libero_10_500_chrg_k50.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 500,
+      "group": "chrg_k40",
+      "before": {
+        "fit": "a021fd5e9721495dd51a019c5318b6c9ecb48d21ea444f1ce8e01afdae7f6257",
+        "stall": "62a3bb5c8a9e57772187c315e99082d9196446f69aff01bdd6954ad32a547a79",
+        "commit": 10,
+        "gap": 0.7509,
+        "fit_identity": "5c86e2bdf06b3441b7a0db1ebf3a659b230e0fc1e455345d9e48163b5a878569"
+      },
+      "after": {
+        "fit": "18df2ed822917f4137a351c92ac5caf44a2548e119f42ff153f144c90ad4e2c3",
+        "stall": "909f139869cf72a7fecd4d6dc046b24b54f0a016ff7d00f8f35b812aed3fe34e",
+        "commit": 5,
+        "gap": 1.501,
+        "fit_identity": "34ff99e4286bed49c0f08fd7fb22eaec3e8e42335f1b1d5e6673e0580d1ffe73",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 462,
+      "file": "cache_yamls/lo_libero_10_500_chrg_k40.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 500,
+      "group": "chrg_k30",
+      "before": {
+        "fit": "a021fd5e9721495dd51a019c5318b6c9ecb48d21ea444f1ce8e01afdae7f6257",
+        "stall": "62a3bb5c8a9e57772187c315e99082d9196446f69aff01bdd6954ad32a547a79",
+        "commit": 10,
+        "gap": 1.1663,
+        "fit_identity": "5c86e2bdf06b3441b7a0db1ebf3a659b230e0fc1e455345d9e48163b5a878569"
+      },
+      "after": {
+        "fit": "18df2ed822917f4137a351c92ac5caf44a2548e119f42ff153f144c90ad4e2c3",
+        "stall": "909f139869cf72a7fecd4d6dc046b24b54f0a016ff7d00f8f35b812aed3fe34e",
+        "commit": 5,
+        "gap": 2.3425,
+        "fit_identity": "34ff99e4286bed49c0f08fd7fb22eaec3e8e42335f1b1d5e6673e0580d1ffe73",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 462,
+      "file": "cache_yamls/lo_libero_10_500_chrg_k30.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 500,
+      "group": "chrg_k20",
+      "before": {
+        "fit": "a021fd5e9721495dd51a019c5318b6c9ecb48d21ea444f1ce8e01afdae7f6257",
+        "stall": "62a3bb5c8a9e57772187c315e99082d9196446f69aff01bdd6954ad32a547a79",
+        "commit": 10,
+        "gap": 1.9592,
+        "fit_identity": "5c86e2bdf06b3441b7a0db1ebf3a659b230e0fc1e455345d9e48163b5a878569"
+      },
+      "after": {
+        "fit": "18df2ed822917f4137a351c92ac5caf44a2548e119f42ff153f144c90ad4e2c3",
+        "stall": "909f139869cf72a7fecd4d6dc046b24b54f0a016ff7d00f8f35b812aed3fe34e",
+        "commit": 5,
+        "gap": 4.1131,
+        "fit_identity": "34ff99e4286bed49c0f08fd7fb22eaec3e8e42335f1b1d5e6673e0580d1ffe73",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 462,
+      "file": "cache_yamls/lo_libero_10_500_chrg_k20.yaml"
+    },
+    {
+      "suite": "libero_10",
+      "size": 500,
+      "group": "chrg_k10",
+      "before": {
+        "fit": "a021fd5e9721495dd51a019c5318b6c9ecb48d21ea444f1ce8e01afdae7f6257",
+        "stall": "62a3bb5c8a9e57772187c315e99082d9196446f69aff01bdd6954ad32a547a79",
+        "commit": 10,
+        "gap": 4.2318,
+        "fit_identity": "5c86e2bdf06b3441b7a0db1ebf3a659b230e0fc1e455345d9e48163b5a878569"
+      },
+      "after": {
+        "fit": "18df2ed822917f4137a351c92ac5caf44a2548e119f42ff153f144c90ad4e2c3",
+        "stall": "909f139869cf72a7fecd4d6dc046b24b54f0a016ff7d00f8f35b812aed3fe34e",
+        "commit": 5,
+        "gap": 10.0463,
+        "fit_identity": "34ff99e4286bed49c0f08fd7fb22eaec3e8e42335f1b1d5e6673e0580d1ffe73",
+        "k": 16,
+        "kref": 8,
+        "early": true,
+        "miss_mode": "stall_only",
+        "guard": false,
+        "serve_loeo": false,
+        "corrector": true
+      },
+      "settings_changed": {},
+      "kept_episodes": 462,
+      "file": "cache_yamls/lo_libero_10_500_chrg_k10.yaml"
+    }
   ]
 }

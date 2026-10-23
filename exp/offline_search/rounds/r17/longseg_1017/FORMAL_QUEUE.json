@@ -54,26 +54,6 @@
     {
       "model": "dp",
       "mode": "reduced",
-      "arm": "original",
-      "source": "/data/mw_finetune/eval/ffk1015_dp_libero_reduced_formal_A_original",
-      "workers": {
-        "timan1": 24,
-        "timan107": 24
-      },
-      "gpu": "RTX 4090",
-      "replicas": 4,
-      "batch": 8,
-      "pipeline": "R17",
-      "name": "fa_ls_dp_r_u_l_l",
-      "stage": "levels",
-      "status": "WAITING_OFF",
-      "episodes": null,
-      "maximum_episodes": 30000,
-      "jobs": []
-    },
-    {
-      "model": "dp",
-      "mode": "reduced",
       "arm": "filtered",
       "source": "/data/mw_finetune/eval/ffk1015_dp_libero_reduced_formal_A_filtered",
       "workers": {
@@ -121,26 +101,6 @@
           "scientific_plan_equal_except_recipe_inputs": true
         }
       ]
-    },
-    {
-      "model": "dp",
-      "mode": "reduced",
-      "arm": "filtered",
-      "source": "/data/mw_finetune/eval/ffk1015_dp_libero_reduced_formal_A_filtered",
-      "workers": {
-        "timan1": 24,
-        "timan107": 24
-      },
-      "gpu": "RTX 4090",
-      "replicas": 4,
-      "batch": 8,
-      "pipeline": "R17",
-      "name": "fa_ls_dp_r_f_l_l",
-      "stage": "levels",
-      "status": "WAITING_OFF",
-      "episodes": null,
-      "maximum_episodes": 30000,
-      "jobs": []
     },
     {
       "model": "dp",
@@ -196,26 +156,6 @@
     {
       "model": "dp",
       "mode": "full",
-      "arm": "original",
-      "source": "/data/mw_finetune/eval/ffk1015_dp_libero_full_formal_A_original",
-      "workers": {
-        "timan1": 24,
-        "timan107": 24
-      },
-      "gpu": "RTX 4090",
-      "replicas": 4,
-      "batch": 8,
-      "pipeline": "R17",
-      "name": "fa_ls_dp_f_u_l_l",
-      "stage": "levels",
-      "status": "WAITING_OFF",
-      "episodes": null,
-      "maximum_episodes": 30000,
-      "jobs": []
-    },
-    {
-      "model": "dp",
-      "mode": "full",
       "arm": "filtered",
       "source": "/data/mw_finetune/eval/ffk1015_dp_libero_full_formal_A_filtered",
       "workers": {
@@ -263,26 +203,6 @@
           "scientific_plan_equal_except_recipe_inputs": true
         }
       ]
-    },
-    {
-      "model": "dp",
-      "mode": "full",
-      "arm": "filtered",
-      "source": "/data/mw_finetune/eval/ffk1015_dp_libero_full_formal_A_filtered",
-      "workers": {
-        "timan1": 24,
-        "timan107": 24
-      },
-      "gpu": "RTX 4090",
-      "replicas": 4,
-      "batch": 8,
-      "pipeline": "R17",
-      "name": "fa_ls_dp_f_f_l_l",
-      "stage": "levels",
-      "status": "WAITING_OFF",
-      "episodes": null,
-      "maximum_episodes": 30000,
-      "jobs": []
     },
     {
       "model": "fastwam",
@@ -338,26 +258,6 @@
     {
       "model": "fastwam",
       "mode": "reduced",
-      "arm": "original",
-      "source": "/data/mw_finetune/eval/ffk1015_fastwam_libero_reduced_formal_A_original",
-      "workers": {
-        "timan1": 35,
-        "timan107": 35
-      },
-      "gpu": "RTX 4090",
-      "replicas": 2,
-      "batch": 16,
-      "pipeline": "R17",
-      "name": "fa_ls_fw_r_u_l_l",
-      "stage": "levels",
-      "status": "WAITING_OFF",
-      "episodes": null,
-      "maximum_episodes": 30000,
-      "jobs": []
-    },
-    {
-      "model": "fastwam",
-      "mode": "reduced",
       "arm": "filtered",
       "source": "/data/mw_finetune/eval/ffk1015_fastwam_libero_reduced_formal_A_filtered",
       "workers": {
@@ -405,26 +305,6 @@
           "scientific_plan_equal_except_recipe_inputs": true
         }
       ]
-    },
-    {
-      "model": "fastwam",
-      "mode": "reduced",
-      "arm": "filtered",
-      "source": "/data/mw_finetune/eval/ffk1015_fastwam_libero_reduced_formal_A_filtered",
-      "workers": {
-        "timan1": 35,
-        "timan107": 35
-      },
-      "gpu": "RTX 4090",
-      "replicas": 2,
-      "batch": 16,
-      "pipeline": "R17",
-      "name": "fa_ls_fw_r_f_l_l",
-      "stage": "levels",
-      "status": "WAITING_OFF",
-      "episodes": null,
-      "maximum_episodes": 30000,
-      "jobs": []
     },
     {
       "model": "fastwam",
@@ -480,26 +360,6 @@
     {
       "model": "fastwam",
       "mode": "full",
-      "arm": "original",
-      "source": "/data/mw_finetune/eval/ffk1015_fastwam_libero_full_formal_A_original",
-      "workers": {
-        "timan1": 42,
-        "timan107": 43
-      },
-      "gpu": "H100",
-      "replicas": 2,
-      "batch": 16,
-      "pipeline": "R17",
-      "name": "fa_ls_fw_f_u_l_l",
-      "stage": "levels",
-      "status": "WAITING_OFF",
-      "episodes": null,
-      "maximum_episodes": 30000,
-      "jobs": []
-    },
-    {
-      "model": "fastwam",
-      "mode": "full",
       "arm": "filtered",
       "source": "/data/mw_finetune/eval/ffk1015_fastwam_libero_full_formal_A_filtered",
       "workers": {
@@ -549,6 +409,412 @@
       ]
     },
     {
+      "model": "dp",
+      "mode": "reduced",
+      "arm": "original",
+      "source": "/data/mw_finetune/eval/ffk1015_dp_libero_reduced_formal_A_original",
+      "workers": {
+        "timan1": 24,
+        "timan107": 24
+      },
+      "gpu": "RTX 4090",
+      "replicas": 4,
+      "batch": 8,
+      "pipeline": "R17",
+      "name": "fa_ls_dp_r_u_l_l",
+      "stage": "levels",
+      "status": "BUILT",
+      "episodes": 5000,
+      "maximum_episodes": 30000,
+      "jobs": [
+        {
+          "name": "fa_ls_dp_r_u_l_l",
+          "run": "/data/mw_finetune/eval/fa_ls_dp_r_u_l_l",
+          "source": "/data/mw_finetune/eval/ffk1015_dp_libero_reduced_formal_A_original",
+          "episodes": 5000,
+          "model": "dp",
+          "benchmark": "libero",
+          "mode": "reduced",
+          "stage": "levels",
+          "gpu": "RTX 4090",
+          "replicas": 4,
+          "batch": 8,
+          "workers": {
+            "timan1": 24,
+            "timan107": 24
+          },
+          "python": "/home/weiland/projects/openpi/.venv/bin/python",
+          "runtime": "/data/mw_finetune/qualification/formal_runtime_3faa6dcf5cd5dacf9109052a0a85f69b53564282161b9f14f165f7229b8d53d4",
+          "unfiltered": true,
+          "pipeline": "R17",
+          "source_full_native_plan_equal": null,
+          "task_uid_sha256": "ede982c1e37d77784a4bfb587a04b559317e0683e30515943c752e6e02a0c475",
+          "arm": "original"
+        }
+      ],
+      "selected_cells": [
+        [
+          "libero_10",
+          50
+        ],
+        [
+          "libero_spatial",
+          50
+        ]
+      ]
+    },
+    {
+      "model": "fastwam",
+      "mode": "reduced",
+      "arm": "filtered",
+      "source": "/data/mw_finetune/eval/ffk1015_fastwam_libero_reduced_formal_A_filtered",
+      "workers": {
+        "timan1": 35,
+        "timan107": 35
+      },
+      "gpu": "RTX 4090",
+      "replicas": 2,
+      "batch": 16,
+      "pipeline": "R17",
+      "name": "fa_ls_fw_r_f_l_l",
+      "stage": "levels",
+      "status": "BUILT",
+      "episodes": 25000,
+      "maximum_episodes": 30000,
+      "jobs": [
+        {
+          "name": "fa_ls_fw_r_f_l_l",
+          "run": "/data/mw_finetune/eval/fa_ls_fw_r_f_l_l",
+          "source": "/data/mw_finetune/eval/ffk1015_fastwam_libero_reduced_formal_A_filtered",
+          "episodes": 25000,
+          "model": "fastwam",
+          "benchmark": "libero",
+          "mode": "reduced",
+          "stage": "levels",
+          "gpu": "RTX 4090",
+          "replicas": 2,
+          "batch": 16,
+          "workers": {
+            "timan1": 35,
+            "timan107": 35
+          },
+          "python": "/data/mw_finetune/envs/fastwam/bin/python",
+          "runtime": "/data/mw_finetune/qualification/formal_runtime_a7a387ed6d45ce9cf5ece2628f32577ee5a55ab55bbcb2a771e25ebc227b4f07",
+          "unfiltered": false,
+          "pipeline": "R17",
+          "source_full_native_plan_equal": null,
+          "task_uid_sha256": "499a2ff4397a899f4d84d630f37568089e15c9b79a757fdd2f54f82add182d00",
+          "arm": "filtered"
+        }
+      ],
+      "selected_cells": [
+        [
+          "libero_10",
+          50
+        ],
+        [
+          "libero_10",
+          100
+        ],
+        [
+          "libero_10",
+          200
+        ],
+        [
+          "libero_10",
+          300
+        ],
+        [
+          "libero_10",
+          400
+        ],
+        [
+          "libero_10",
+          500
+        ],
+        [
+          "libero_spatial",
+          50
+        ],
+        [
+          "libero_spatial",
+          100
+        ],
+        [
+          "libero_spatial",
+          400
+        ],
+        [
+          "libero_spatial",
+          500
+        ]
+      ]
+    },
+    {
+      "model": "fastwam",
+      "mode": "reduced",
+      "arm": "original",
+      "source": "/data/mw_finetune/eval/ffk1015_fastwam_libero_reduced_formal_A_original",
+      "workers": {
+        "timan1": 35,
+        "timan107": 35
+      },
+      "gpu": "RTX 4090",
+      "replicas": 2,
+      "batch": 16,
+      "pipeline": "R17",
+      "name": "fa_ls_fw_r_u_l_l",
+      "stage": "levels",
+      "status": "BUILT",
+      "episodes": 30000,
+      "maximum_episodes": 30000,
+      "jobs": [
+        {
+          "name": "fa_ls_fw_r_u_l_l",
+          "run": "/data/mw_finetune/eval/fa_ls_fw_r_u_l_l",
+          "source": "/data/mw_finetune/eval/ffk1015_fastwam_libero_reduced_formal_A_original",
+          "episodes": 30000,
+          "model": "fastwam",
+          "benchmark": "libero",
+          "mode": "reduced",
+          "stage": "levels",
+          "gpu": "RTX 4090",
+          "replicas": 2,
+          "batch": 16,
+          "workers": {
+            "timan1": 35,
+            "timan107": 35
+          },
+          "python": "/data/mw_finetune/envs/fastwam/bin/python",
+          "runtime": "/data/mw_finetune/qualification/formal_runtime_a7a387ed6d45ce9cf5ece2628f32577ee5a55ab55bbcb2a771e25ebc227b4f07",
+          "unfiltered": true,
+          "pipeline": "R17",
+          "source_full_native_plan_equal": null,
+          "task_uid_sha256": "8d54b4f675403c4da261259a75418abb16ee9db1fd273c7f052d60f5c6e645b9",
+          "arm": "original"
+        }
+      ],
+      "selected_cells": [
+        [
+          "libero_10",
+          50
+        ],
+        [
+          "libero_10",
+          100
+        ],
+        [
+          "libero_10",
+          200
+        ],
+        [
+          "libero_10",
+          300
+        ],
+        [
+          "libero_10",
+          400
+        ],
+        [
+          "libero_10",
+          500
+        ],
+        [
+          "libero_spatial",
+          50
+        ],
+        [
+          "libero_spatial",
+          100
+        ],
+        [
+          "libero_spatial",
+          200
+        ],
+        [
+          "libero_spatial",
+          300
+        ],
+        [
+          "libero_spatial",
+          400
+        ],
+        [
+          "libero_spatial",
+          500
+        ]
+      ]
+    },
+    {
+      "model": "dp",
+      "mode": "reduced",
+      "arm": "filtered",
+      "source": "/data/mw_finetune/eval/ffk1015_dp_libero_reduced_formal_A_filtered",
+      "workers": {
+        "timan1": 24,
+        "timan107": 24
+      },
+      "gpu": "RTX 4090",
+      "replicas": 4,
+      "batch": 8,
+      "pipeline": "R17",
+      "name": "fa_ls_dp_r_f_l_l",
+      "stage": "levels",
+      "status": "BUILT",
+      "episodes": 5000,
+      "maximum_episodes": 30000,
+      "jobs": [
+        {
+          "name": "fa_ls_dp_r_f_l_l",
+          "run": "/data/mw_finetune/eval/fa_ls_dp_r_f_l_l",
+          "source": "/data/mw_finetune/eval/ffk1015_dp_libero_reduced_formal_A_filtered",
+          "episodes": 5000,
+          "model": "dp",
+          "benchmark": "libero",
+          "mode": "reduced",
+          "stage": "levels",
+          "gpu": "RTX 4090",
+          "replicas": 4,
+          "batch": 8,
+          "workers": {
+            "timan1": 24,
+            "timan107": 24
+          },
+          "python": "/home/weiland/projects/openpi/.venv/bin/python",
+          "runtime": "/data/mw_finetune/qualification/formal_runtime_3faa6dcf5cd5dacf9109052a0a85f69b53564282161b9f14f165f7229b8d53d4",
+          "unfiltered": false,
+          "pipeline": "R17",
+          "source_full_native_plan_equal": null,
+          "task_uid_sha256": "b94f8899a694087e71e24c17783e02c6ec68d370ba4eef04c966860852c8b56b",
+          "arm": "filtered"
+        }
+      ],
+      "selected_cells": [
+        [
+          "libero_10",
+          50
+        ],
+        [
+          "libero_spatial",
+          50
+        ]
+      ]
+    },
+    {
+      "model": "dp",
+      "mode": "full",
+      "arm": "filtered",
+      "source": "/data/mw_finetune/eval/ffk1015_dp_libero_full_formal_A_filtered",
+      "workers": {
+        "timan1": 24,
+        "timan107": 24
+      },
+      "gpu": "RTX 4090",
+      "replicas": 4,
+      "batch": 8,
+      "pipeline": "R17",
+      "name": "fa_ls_dp_f_f_l_l",
+      "stage": "levels",
+      "status": "BUILT",
+      "episodes": 7500,
+      "maximum_episodes": 30000,
+      "jobs": [
+        {
+          "name": "fa_ls_dp_f_f_l_l",
+          "run": "/data/mw_finetune/eval/fa_ls_dp_f_f_l_l",
+          "source": "/data/mw_finetune/eval/ffk1015_dp_libero_full_formal_A_filtered",
+          "episodes": 7500,
+          "model": "dp",
+          "benchmark": "libero",
+          "mode": "full",
+          "stage": "levels",
+          "gpu": "RTX 4090",
+          "replicas": 4,
+          "batch": 8,
+          "workers": {
+            "timan1": 24,
+            "timan107": 24
+          },
+          "python": "/home/weiland/projects/openpi/.venv/bin/python",
+          "runtime": "/data/mw_finetune/qualification/formal_runtime_5927a753312bf5981cba81a2e389edea914bde0580523b0dc3c8ea8d58f1fa1e",
+          "unfiltered": false,
+          "pipeline": "R17",
+          "source_full_native_plan_equal": null,
+          "task_uid_sha256": "bab6df2fcea8e4c09be4d45bc736b25dd875ba49fc36792bfd83711e1ec94751",
+          "arm": "filtered"
+        }
+      ],
+      "selected_cells": [
+        [
+          "libero_10",
+          50
+        ],
+        [
+          "libero_spatial",
+          50
+        ],
+        [
+          "libero_spatial",
+          100
+        ]
+      ]
+    },
+    {
+      "model": "dp",
+      "mode": "full",
+      "arm": "original",
+      "source": "/data/mw_finetune/eval/ffk1015_dp_libero_full_formal_A_original",
+      "workers": {
+        "timan1": 24,
+        "timan107": 24
+      },
+      "gpu": "RTX 4090",
+      "replicas": 4,
+      "batch": 8,
+      "pipeline": "R17",
+      "name": "fa_ls_dp_f_u_l_l",
+      "stage": "levels",
+      "status": "BUILT",
+      "episodes": 5000,
+      "maximum_episodes": 30000,
+      "jobs": [
+        {
+          "name": "fa_ls_dp_f_u_l_l",
+          "run": "/data/mw_finetune/eval/fa_ls_dp_f_u_l_l",
+          "source": "/data/mw_finetune/eval/ffk1015_dp_libero_full_formal_A_original",
+          "episodes": 5000,
+          "model": "dp",
+          "benchmark": "libero",
+          "mode": "full",
+          "stage": "levels",
+          "gpu": "RTX 4090",
+          "replicas": 4,
+          "batch": 8,
+          "workers": {
+            "timan1": 24,
+            "timan107": 24
+          },
+          "python": "/home/weiland/projects/openpi/.venv/bin/python",
+          "runtime": "/data/mw_finetune/qualification/formal_runtime_5927a753312bf5981cba81a2e389edea914bde0580523b0dc3c8ea8d58f1fa1e",
+          "unfiltered": true,
+          "pipeline": "R17",
+          "source_full_native_plan_equal": null,
+          "task_uid_sha256": "570e20ce42f177fc41f14b60653676d5f3976b9cf8e7eb329db6e6cbeb272802",
+          "arm": "original"
+        }
+      ],
+      "selected_cells": [
+        [
+          "libero_10",
+          50
+        ],
+        [
+          "libero_spatial",
+          50
+        ]
+      ]
+    },
+    {
       "model": "fastwam",
       "mode": "full",
       "arm": "filtered",
@@ -563,10 +829,180 @@
       "pipeline": "R17",
       "name": "fa_ls_fw_f_f_l_l",
       "stage": "levels",
-      "status": "WAITING_OFF",
-      "episodes": null,
+      "status": "BUILT",
+      "episodes": 30000,
       "maximum_episodes": 30000,
-      "jobs": []
+      "jobs": [
+        {
+          "name": "fa_ls_fw_f_f_l_l",
+          "run": "/data/mw_finetune/eval/fa_ls_fw_f_f_l_l",
+          "source": "/nvme/weiland/openpi/eval/ffk1015_fastwam_libero_full_formal_A_filtered",
+          "episodes": 30000,
+          "model": "fastwam",
+          "benchmark": "libero",
+          "mode": "full",
+          "stage": "levels",
+          "gpu": "H100",
+          "replicas": 2,
+          "batch": 16,
+          "workers": {
+            "timan1": 42,
+            "timan107": 43
+          },
+          "python": "/data/mw_finetune/envs/fastwam/bin/python",
+          "runtime": "/data/mw_finetune/qualification/formal_runtime_20550932745afaeb6bf31e858d1bfb91740727cf98bd0c6a5cd9171a8d9baa21",
+          "unfiltered": false,
+          "pipeline": "R17",
+          "source_full_native_plan_equal": null,
+          "task_uid_sha256": "0fe671a9295c6798f3c57e7190ca991f2d106a4c306ba0b46dc9eb81339dbb80",
+          "arm": "filtered"
+        }
+      ],
+      "selected_cells": [
+        [
+          "libero_10",
+          50
+        ],
+        [
+          "libero_10",
+          100
+        ],
+        [
+          "libero_10",
+          200
+        ],
+        [
+          "libero_10",
+          300
+        ],
+        [
+          "libero_10",
+          400
+        ],
+        [
+          "libero_10",
+          500
+        ],
+        [
+          "libero_spatial",
+          50
+        ],
+        [
+          "libero_spatial",
+          100
+        ],
+        [
+          "libero_spatial",
+          200
+        ],
+        [
+          "libero_spatial",
+          300
+        ],
+        [
+          "libero_spatial",
+          400
+        ],
+        [
+          "libero_spatial",
+          500
+        ]
+      ]
+    },
+    {
+      "model": "fastwam",
+      "mode": "full",
+      "arm": "original",
+      "source": "/data/mw_finetune/eval/ffk1015_fastwam_libero_full_formal_A_original",
+      "workers": {
+        "timan1": 42,
+        "timan107": 43
+      },
+      "gpu": "H100",
+      "replicas": 2,
+      "batch": 16,
+      "pipeline": "R17",
+      "name": "fa_ls_fw_f_u_l_l",
+      "stage": "levels",
+      "status": "BUILT",
+      "episodes": 30000,
+      "maximum_episodes": 30000,
+      "jobs": [
+        {
+          "name": "fa_ls_fw_f_u_l_l",
+          "run": "/data/mw_finetune/eval/fa_ls_fw_f_u_l_l",
+          "source": "/nvme/weiland/openpi/eval/ffk1015_fastwam_libero_full_formal_A_original",
+          "episodes": 30000,
+          "model": "fastwam",
+          "benchmark": "libero",
+          "mode": "full",
+          "stage": "levels",
+          "gpu": "H100",
+          "replicas": 2,
+          "batch": 16,
+          "workers": {
+            "timan1": 42,
+            "timan107": 43
+          },
+          "python": "/data/mw_finetune/envs/fastwam/bin/python",
+          "runtime": "/data/mw_finetune/qualification/formal_runtime_20550932745afaeb6bf31e858d1bfb91740727cf98bd0c6a5cd9171a8d9baa21",
+          "unfiltered": true,
+          "pipeline": "R17",
+          "source_full_native_plan_equal": null,
+          "task_uid_sha256": "0a2f2814c1e05a46a9f2e92098165ad7ece76367b2d78d98f45b88d5f5b9a7fd",
+          "arm": "original"
+        }
+      ],
+      "selected_cells": [
+        [
+          "libero_10",
+          50
+        ],
+        [
+          "libero_10",
+          100
+        ],
+        [
+          "libero_10",
+          200
+        ],
+        [
+          "libero_10",
+          300
+        ],
+        [
+          "libero_10",
+          400
+        ],
+        [
+          "libero_10",
+          500
+        ],
+        [
+          "libero_spatial",
+          50
+        ],
+        [
+          "libero_spatial",
+          100
+        ],
+        [
+          "libero_spatial",
+          200
+        ],
+        [
+          "libero_spatial",
+          300
+        ],
+        [
+          "libero_spatial",
+          400
+        ],
+        [
+          "libero_spatial",
+          500
+        ]
+      ]
     }
   ]
 }

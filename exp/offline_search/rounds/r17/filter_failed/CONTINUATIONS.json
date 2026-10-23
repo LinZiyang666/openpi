@@ -164,6 +164,81 @@
       "name": "fa_ls_gr_f_u_m_jc1",
       "run": "/data/mw_finetune/eval/fa_ls_gr_f_u_m_jc1",
       "source": "/data/mw_finetune/eval/fa_ls_gr_f_u_m_j"
+    },
+    {
+      "name": "fa_ls_v03_1c1",
+      "run": "/data/mw_finetune/eval/fa_ls_v03_1c1",
+      "source": "/nvme/weiland/openpi/eval/fa_ls_v03_1"
+    },
+    {
+      "name": "fa_ls_fw_f_u_mc1",
+      "run": "/data/mw_finetune/eval/fa_ls_fw_f_u_mc1",
+      "source": "/nvme/weiland/openpi/eval/fa_ls_fw_f_u_m"
+    },
+    {
+      "name": "fa_ls_fw_r_u_m_jc1",
+      "run": "/data/mw_finetune/eval/fa_ls_fw_r_u_m_jc1",
+      "source": "/nvme/weiland/openpi/eval/fa_ls_fw_r_u_m_j"
+    },
+    {
+      "name": "fa_ls_fw_f_f_m_jc1",
+      "run": "/data/mw_finetune/eval/fa_ls_fw_f_f_m_jc1",
+      "source": "/nvme/weiland/openpi/eval/fa_ls_fw_f_f_m_j"
+    },
+    {
+      "name": "fa_ls_fw_r_u_m_jc2",
+      "run": "/data/mw_finetune/eval/fa_ls_fw_r_u_m_jc2",
+      "source": "/nvme/weiland/openpi/eval/fa_ls_fw_r_u_m_j"
+    },
+    {
+      "name": "fa_ls_fw_f_f_m_jc2",
+      "run": "/data/mw_finetune/eval/fa_ls_fw_f_f_m_jc2",
+      "source": "/nvme/weiland/openpi/eval/fa_ls_fw_f_f_m_j"
+    },
+    {
+      "name": "fa_ls_fw_f_f_l_lc1",
+      "run": "/data/mw_finetune/eval/fa_ls_fw_f_f_l_lc1",
+      "source": "/nvme/weiland/openpi/eval/fa_ls_fw_f_f_l_l"
+    },
+    {
+      "name": "fa_ls_v08_1c1",
+      "run": "/data/mw_finetune/eval/fa_ls_v08_1c1",
+      "source": "/nvme/weiland/openpi/eval/fa_ls_v08_1"
+    },
+    {
+      "name": "fa_ls_v08_1c2",
+      "run": "/data/mw_finetune/eval/fa_ls_v08_1c2",
+      "source": "/nvme/weiland/openpi/eval/fa_ls_v08_1c1"
+    },
+    {
+      "name": "fa_ls_v08_1c3",
+      "run": "/data/mw_finetune/eval/fa_ls_v08_1c3",
+      "source": "/nvme/weiland/openpi/eval/fa_ls_v08_1c2"
+    },
+    {
+      "name": "fa_ls_v08_1c4",
+      "run": "/data/mw_finetune/eval/fa_ls_v08_1c4",
+      "source": "/nvme/weiland/openpi/eval/fa_ls_v08_1c3"
+    },
+    {
+      "name": "fa_ls_v08_1c5",
+      "run": "/data/mw_finetune/eval/fa_ls_v08_1c5",
+      "source": "/nvme/weiland/openpi/eval/fa_ls_v08_1c4"
+    },
+    {
+      "name": "fa_ls_v08_1c6",
+      "run": "/data/mw_finetune/eval/fa_ls_v08_1c6",
+      "source": "/nvme/weiland/openpi/eval/fa_ls_v08_1c5"
+    },
+    {
+      "name": "fa_ls_v08_1c7",
+      "run": "/data/mw_finetune/eval/fa_ls_v08_1c7",
+      "source": "/nvme/weiland/openpi/eval/fa_ls_v08_1c6"
+    },
+    {
+      "name": "fa_lo_fw_f_f_mc1",
+      "run": "/data/mw_finetune/eval/fa_lo_fw_f_f_mc1",
+      "source": "/nvme/weiland/openpi/eval/fa_lo_fw_f_f_m"
     }
   ]
 }
