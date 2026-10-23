@@ -31,6 +31,7 @@ unchanged, after these process-local changes (1-6 in both modes, 7 in cache mode
 9. Cache mode, CLUSTER_SIM_LEAN=1: the logging-only corrector audit (a second distance pass per query) is skipped.
 10. Cache mode, CLUSTER_SIM_DOT=1: the fitted methods' matrix products run through np.dot (same BLAS, bit-identical,
    GIL released) instead of numpy's GIL-holding matmul.
+12. Cache mode, CLUSTER_SIM_MISS_STEPS=K: misses run K denoise steps (full step: 10) instead of the bundle's.
 Stage timers (SystemTimer) are off in both modes.
 """
 import sys
@@ -378,6 +379,34 @@ _wps._ctrl_call = _ctrl_call  # the handler runs in the module's own globals (it
 exec(compile(_handler_source, _wps.__file__, 'exec'), _wps.__dict__, _namespace)
 _wps.WebsocketPolicyServer._handler = _namespace['_handler']
 
+# Timing of the per-connection rebuild a bundle switch does (factory = whole wrapper stack), -> stages_<pid>.json.
+_ctrl_times = {}
+
+
+def _timed(name, fn):
+    @functools.wraps(fn)
+    def wrapper(*args, **kwargs):
+        t0 = time.perf_counter()
+        try:
+            return fn(*args, **kwargs)
+        finally:
+            entry = _ctrl_times.setdefault(name, [0, 0.0])
+            entry[0] += 1
+            entry[1] += time.perf_counter() - t0
+    return wrapper
+
+
+_server_init = _wps.WebsocketPolicyServer.__init__
+
+
+def _server_init_timed(self, *args, connection_policy_factory=None, **kwargs):
+    if connection_policy_factory is not None:
+        connection_policy_factory = _timed('factory', connection_policy_factory)
+    _server_init(self, *args, connection_policy_factory=connection_policy_factory, **kwargs)
+
+
+_wps.WebsocketPolicyServer.__init__ = _server_init_timed
+
 
 # 6. CUDA graphs and optional torch.compile, the same for both modes ------------------------------------------------
 COMPILE = [c for c in os.environ.get('CLUSTER_SIM_COMPILE', '').split(',') if c]
@@ -656,6 +685,14 @@ if os.environ.get('CLUSTER_SIM_DOT') == '1':
 
     _plugin_dot.pickle = _Pickle()
 
+# 12. Cache mode, CLUSTER_SIM_MISS_STEPS=K: misses denoise K steps instead of the bundle's miss.num_steps (owner 10-23:
+# a cache-system arm without step reduction, K=10).
+if os.environ.get('CLUSTER_SIM_MISS_STEPS'):
+    from openpi.cache import interceptor as _icp
+
+    _miss_k = int(os.environ['CLUSTER_SIM_MISS_STEPS'])
+    _icp.InferenceInterceptor._miss_steps = lambda self: _miss_k
+
 # 7. Cache mode only (CLUSTER_SIM_KEYS=1): CP1 keys for a whole stage-1 batch with one D2H copy, and no device-wide sync
 # around stage 1. The keys are the CP1SpatialPool16 keys (vision_0/1: 16x16 -> 4x4 pooled tokens, robot_state), the
 # same values the key builder computed per request with three synchronous .cpu() copies on the request thread; the
@@ -712,6 +749,20 @@ if os.environ.get('CLUSTER_SIM_KEYS') == '1':
     _kb._CP1BaseKeyBuilder.collect, _kb._CP1BaseKeyBuilder.build = collect, build
 
     from exp.offline_search.closed_loop import plugin as _plugin
+
+    # A bundle switch clones the arm's fitted method (copy.deepcopy with a memo that shares every array); the memo is
+    # built by walking the whole method graph each time. The fitted method is read-only, so its memo is built once
+    # per method and copied (deepcopy adds its own entries to the copy).
+    _share_memo, _memos = _plugin._share_memo, {}
+
+    def share_memo(obj):
+        memo = _memos.get(id(obj))
+        if memo is None:
+            memo = _memos[id(obj)] = (_share_memo(obj), obj)  # keep obj alive so its id stays unique
+        return dict(memo[0])
+
+    _plugin._share_memo = _timed('share_memo', share_memo)
+    _plugin.clone_method = _timed('clone_method', _plugin.clone_method)
 
     source = textwrap.dedent(inspect.getsource(_plugin._BlindAdapter._instrument))
     namespace = {}
@@ -824,6 +875,7 @@ def flush():
             busy_s={s: round(c[2], 3) for s, c in _stage_counts.items()},
             by_size={s: {n: [b, round(1000 * t / b, 2)] for n, (b, t) in sorted(list(d.items()))} for s, d in _stage_sizes.items()},
             stage1_phases_s={k: round(v, 3) for k, v in list(_phases.items())},
+            control_s={k: [n, round(t, 3)] for k, (n, t) in list(_ctrl_times.items())},
             batch_limit=BATCH, wait_s=WAIT, text_tokens=TEXT_TOKENS, time=time.time())) + '\n')
 
 
