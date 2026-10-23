@@ -116,6 +116,7 @@ WAIT = {s: v / 1000.0 for s, v in per_stage('CLUSTER_SIM_WAIT_MS', 0).items()}
 _stage_counts = {s: [0, 0, 0.0] for s in (1, 2, 3)}  # batches, requests, busy seconds
 _stage_sizes = {s: {} for s in (1, 2, 3)}  # batch size -> [batches, busy seconds]
 _batch_rows = []  # stage,t_start,t_end,size,oldest_wait_s -> batches_<pid>.csv
+_phases = {}  # stage-1 seconds per phase (stack, graph, split_keys, sync) -> stages_<pid>.json
 
 
 class Gate:
@@ -286,7 +287,9 @@ class Coordinator(_bc.BatchingCoordinator):
 
     def _finish_stage1(self, batch, shards, done, t0, wall, oldest, stream):
         try:
+            waited = time.perf_counter()
             done.synchronize()
+            _phases['sync'] = _phases.get('sync', 0.0) + time.perf_counter() - waited
             self._publish_batch(batch, shards)
         except BaseException as exc:
             logger.exception('stage 1 batch failed')
@@ -726,8 +729,11 @@ if GRAPHS:
         return _pytree.tree_unflatten(out, spec)
 
     def run_stage1_batch_graphed(self, payloads):
+        t = [time.perf_counter()]
         tree = fast_stack(payloads, self._device)
+        t.append(time.perf_counter())
         state, embs, pad, att, pos = self._model._cs_stage1(tree)
+        t.append(time.perf_counter())
         out = _pi0.Stage1Output(state=state, prefix_embs=embs, prefix_pad_masks=pad, prefix_att_2d_masks_4d=att,
                                 prefix_position_ids=pos)
         shards = _sio11.split_stage1_output(out, len(payloads))
@@ -735,6 +741,9 @@ if GRAPHS:
             vision, keystate = cp1_keys(out)
             for i, shard in enumerate(shards):
                 shard.cs_keys = {_kb.VISION_0: vision[i, 0], _kb.VISION_1: vision[i, 1], _kb.ROBOT_STATE: keystate[i]}
+        t.append(time.perf_counter())
+        for name, a, b in (('stack', t[0], t[1]), ('graph', t[1], t[2]), ('split_keys', t[2], t[3])):
+            _phases[name] = _phases.get(name, 0.0) + (b - a)
         return shards
 
     _bco11.Pi05StageBatcher.run_stage1_batch = run_stage1_batch_graphed
@@ -785,6 +794,7 @@ def flush():
             batches={s: c[0] for s, c in _stage_counts.items()}, requests={s: c[1] for s, c in _stage_counts.items()},
             busy_s={s: round(c[2], 3) for s, c in _stage_counts.items()},
             by_size={s: {n: [b, round(1000 * t / b, 2)] for n, (b, t) in sorted(list(d.items()))} for s, d in _stage_sizes.items()},
+            stage1_phases_s={k: round(v, 3) for k, v in list(_phases.items())},
             batch_limit=BATCH, wait_s=WAIT, text_tokens=TEXT_TOKENS, time=time.time())) + '\n')
 
 
