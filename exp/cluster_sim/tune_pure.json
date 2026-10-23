@@ -139,5 +139,53 @@
   "all",
   "--compile-mode",
   "default"
+ ],
+ "g_b16_f23_w1s2_o4": [
+  "--batch",
+  "1:16,2:16,3:16",
+  "--units",
+  "1,2,3",
+  "--fuse23",
+  "--omp",
+  "4",
+  "--wait-ms",
+  "1:2,2:0,3:0",
+  "--graphs",
+  "--compile",
+  "all",
+  "--compile-mode",
+  "default"
+ ],
+ "g_b16_f23_wb5_o4": [
+  "--batch",
+  "1:16,2:16,3:16",
+  "--units",
+  "1,2,3",
+  "--fuse23",
+  "--omp",
+  "4",
+  "--wait-ms",
+  "1:0,2:0,3:5",
+  "--graphs",
+  "--compile",
+  "all",
+  "--compile-mode",
+  "default"
+ ],
+ "g_b16_f23_wb10_o4": [
+  "--batch",
+  "1:16,2:16,3:16",
+  "--units",
+  "1,2,3",
+  "--fuse23",
+  "--omp",
+  "4",
+  "--wait-ms",
+  "1:0,2:0,3:10",
+  "--graphs",
+  "--compile",
+  "all",
+  "--compile-mode",
+  "default"
  ]
 }
