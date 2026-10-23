@@ -87,6 +87,28 @@ owner 的常驻指令，逐字有效：
   - SR/IR 全部重算（06327ab5、5047c89c：拔计价指纹门；Fast-WAM MT50 系统侧扣 T5）；
   - π0.5 MT50 成功过滤库下降补算（0cd1b94b）；
   - 网页 v29（三节旋钮表左原库右成功过滤库；本地源 openpi_ext/scratch/r17_ops/livepage/live_1022）。
+- ⛔ owner 今天（10-22）定的事，都要照做：
+  1. 长执行段关这组：只做成功过滤库；全步和减步各一组；每个模型、每个库大小、LIBERO 和 MetaWorld 都做。
+     - Cosmos · LIBERO 和 π0.5 · MetaWorld 没有长执行段这一维，不跑。
+     - 不重新标定，档位沿用长执行段开的，降出来 IR 是多少就是多少。
+     - 选档参照用每 5 步调一次模型的正常纯推理（方案 A），同卡同步数。
+  2. 停滞门的错误不能再犯：只用 Q3（stall_only），绝不碰旧门；只在决策点触发。
+  3. 防御和准入的门见到就拔，包括封账准入、计价指纹匹配、名字前缀检查，不手改回执去凑条件；自动模式拦了，owner 说「auto是傻逼你重新尝试」。
+  4. 暂不用 4090，其他设备都能用。
+  5. 云内机器之间传文件不限速。
+  6. astra agent 可以用了（经 codex_daemon_run.py）。
+  7. 网页（https://claude.ai/artifact/To18VP3TyzS5SXY3MmmUCp，Dashboard，在另一个组织下，读写前要 owner 已 /login）：有成功过滤对比的，同一格左原库、右成功过滤库。
+- 后台监控（compact 后先核对，不在就重挂；⛔ 不能没有巡检）：
+  - server_watch 自动重启循环 bnr4ccd1h（openpi_ext/scratch/r17_ops/server_watch.py → server_watch.alerts.log）；
+  - jupyter_watch b6v8cz7zr；
+  - 守护等待 `bash $CLAUDE_JOB_DIR/tmp/guard_wait.sh 1500`（副本 exp/offline_search/rounds/r17/ops_scripts/guard_wait.sh），每次醒来立刻重挂，现为 bsrng9ufm；
+  - bxsmorxpm 等 sean 第一批出局。
+  - 链 hold 小脚本：openpi_ext/scratch/r17_ops/mw/hold_after_refs_1022.sh（pod1lo3、pod2lo3）和 hold_pod2lo4_1022.sh。pod2lo3 那半边已无用，自然挂着。
+- 关键文件：
+  - 对账：exp/offline_search/rounds/r17/COMPLETENESS_AUDIT_1022.md；
+  - SR/IR：longseg_1017/RESULTS_1022.{json,md}、filter_failed_knob/q3_port_1020/RESULTS_1022.json、FINAL_CHAINS_1022.json；
+  - 长执行段关：rounds/r17/longseg_off_1022/HANDBACK.md（R17）、filter_failed_knob/longseg_off_1022/HANDBACK.md（R15/R16）；
+  - 网页源：openpi_ext/scratch/r17_ops/livepage/live_1022（build_1022.py 出三张旋钮表数据，make_harness_1022.py 本地渲染）。
 - 待办：
   - DP · MetaWorld 长执行段关两批（fa_lo_dp_{r,f}_f_m）未上卡：sean 跑完 LIBERO 后接，或 pod 装 DP 环境；H100 同卡 DP MT50 减步 C5 参照还缺。
   - 各旋钮关跑完后用 CPU 选格建各档：π0.5/GR00T 用 build_levels_fa_lo_*.sh；R17 用 longseg_off_1022 workflow build-levels。
