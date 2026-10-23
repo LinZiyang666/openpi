@@ -86,6 +86,7 @@ owner 的常驻指令，逐字有效：
   - 车道 1（driver 23197）：seanlo3 跑完 dp_r_f_o_l 后 hold 停 → **seanlo6** = fa_lo_fw_r_f_o_l → fw_f_f_o_l → R17 各档 fw_r_f_l_l → fw_f_f_l_l → fa_lo_fw_f_b_m → fa_lo_fw_f_f_m。seanlo4 已按 PID 停。
   - 车道 2（driver 23198，R17_PUBLIC_PORT=23280）：seanlo5 跑完 dp_r_f_m 后 hold 停 → **seanlo7** = fa_lo_dp_f_f_o_l → 各档 dp_r_f_l_l → dp_f_f_l_l → fa_lo_dp_f_f_m。
   - R17 各档 prepare = longseg_off_1022.workflow prepare（内部判格建定义再走 filter_failed.stage，别名改绑照常）。
+- 03:5x worker 机事故：timan 的 NFS 家目录 /home/zixuans8（cs-czhai-file-01，10T 共享盘）满了（剩 418 MB）。R17 worker 环境 HOME=/home/zixuans8，robosuite 依赖目录只读，numba 缓存写不进 → 自检报「cannot cache function 'mat2quat': no locator available」→ timan1/timan107 被排除，sean 上 fa_lo_dp_r_f_l_l、fa_lo_fw_f_f_o_l 只剩 a100（16–18 局/分）。已在 formal_eval worker 环境加 NUMBA_CACHE_DIR=/tmp/r17_numba_cache（之后的准备生效）；这两批已锁单机，不中途改。NFS 满不是我们能清的（共享盘），owner 醒来可看是否要通知管理员。
 - 长执行段关建档：决策记录不开 --os-blind 时没有 vision/miss_k，r16 analyze.load 报「Need explicit hit/vision booleans」；q3_port_1020/analysis.py 读入时补 vision=True、miss_k=启动 miss_steps（99f9eafa）。π0.5 减步 fa_lo_pi_r_f_l_q 已建（长任务 50；空间 50/200/500 四格 × ir45/40/32/25 = 8,000 局），链 h100lo9 等 h100lo1 或 h100lo8 任一结束即起（显存：H100 同时最多两条）。其余三条线由 $CLAUDE_JOB_DIR/tmp/auto_levels.sh 在参照结束后自动建（GR00T 全步还要等 h100lo1 旋钮关结束），建完要我审再排。
 - guard_wait 只在 STOPPED/FAILED/receipt=FAIL 时醒；「ended rc=1 receipt= 空」不会叫醒，巡检时要自己看 chain.log。
 - DP · MetaWorld：同卡 C5 参照在 pod 上已有（REFERENCES.json：fa_ls_dp_{r,f}_b_m_j，MIG 1g.18gb），两批旋钮关应做 pod `_j` 副本跑，不用新参照；pod 要重装 DP 环境（约 18 GB）。
