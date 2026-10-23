@@ -1,4 +1,4 @@
-"""Formal results table and figure: runs/{pure,cache,cache_seg}/RESULTS.json -> runs/REPORT.md, runs/report.png.
+"""Formal results table and figure: runs/{pure,cache_full,cache,cache_seg}/RESULTS.json -> runs/REPORT.md, runs/report.png.
 
   python -m exp.cluster_sim.report --runs /nvme/weiland/openpi/cluster_sim/runs
 """
@@ -18,43 +18,47 @@ def load(runs):
 
 def table(res):
     ns = sorted(set().union(*[set(v) for v in res.values()]))
-    lines = ['| N | ' + ' | '.join(f'{LABEL[m]} {c}' for m in res for c in ('请求/秒', '延迟中位/p90/p99 ms', '500 局用时 s')) + ' |',
-             '|' + '---|' * (1 + 3 * len(res))]
-    for n in ns:
-        cells = []
-        for m in res:
-            r = res[m].get(n)
-            if r is None:
-                cells += ['', '', '']
-                continue
-            lat = r['latency_ms']
-            cells += [f"{r['requests_per_s']:.1f}", f"{lat['p50']:.0f} / {lat['p90']:.0f} / {lat['p99']:.0f}", f"{r['total_s']:.0f}"]
-        lines.append(f'| {n} | ' + ' | '.join(cells) + ' |')
-    return '\n'.join(lines)
+    cols = {'500 局用时 s（括号内为纯推理用时 / 本组用时）': lambda m, r: f"{r['total_s']:.0f}" + (
+                f" ({res['pure'][r['robots']]['total_s'] / r['total_s']:.2f}×)" if 'pure' in res and r['robots'] in res['pure'] else ''),
+            '每秒请求数（括号内为全部机器人都在跑的稳态段）': lambda m, r: f"{r['requests_per_s']:.1f} ({r['steady_requests_per_s']:.1f})",
+            '服务器端延迟 中位 / p90 / p99 ms': lambda m, r: '{p50:.0f} / {p90:.0f} / {p99:.0f}'.format(**r['latency_ms'])}
+    out = []
+    for title, cell in cols.items():
+        out += [f'### {title}', '', '| N | ' + ' | '.join(LABEL[m] for m in res) + ' |', '|' + '---|' * (1 + len(res))]
+        for n in ns:
+            out.append(f'| {n} | ' + ' | '.join(cell(m, res[m][n]) if n in res[m] else '' for m in res) + ' |')
+        out.append('')
+    return '\n'.join(out)
 
 
 def figure(res, path):
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
-    plt.rcParams['font.sans-serif'] = ['Noto Sans CJK SC', 'WenQuanYi Zen Hei', 'DejaVu Sans']
-    fig, axes = plt.subplots(1, 3, figsize=(15, 4.2))
+    fig, axes = plt.subplots(1, 4, figsize=(19, 4.6))
     colors = {'pure': '#c0504d', 'cache': '#2f6db5', 'cache_seg': '#3a9a5b', 'cache_full': '#8e6bbf'}
     names = {'pure': 'pure inference (K=10)', 'cache': 'cache system (K=1)', 'cache_seg': 'cache system + long segments', 'cache_full': 'cache system, full step (K=10)'}
     for m, rows in res.items():
         ns = sorted(rows)
-        axes[0].plot(ns, [rows[n]['requests_per_s'] for n in ns], 'o-', color=colors[m], label=names[m])
-        axes[1].plot(ns, [rows[n]['latency_ms']['p50'] for n in ns], 'o-', color=colors[m], label=f'{names[m]} p50')
-        axes[1].plot(ns, [rows[n]['latency_ms']['p99'] for n in ns], 'o--', color=colors[m], alpha=.6, label=f'{names[m]} p99')
-        axes[2].plot(ns, [rows[n]['total_s'] / 60 for n in ns], 'o-', color=colors[m], label=names[m])
-    for ax, title, unit in zip(axes, ('server throughput', 'request latency (receive -> send)', 'time to finish 500 episodes'),
-                               ('requests / s', 'ms', 'minutes')):
-        ax.set_title(title)
+        kw = dict(color=colors[m], lw=2, marker='o', ms=4)
+        axes[0].plot(ns, [rows[n]['requests_per_s'] for n in ns], label=names[m], **kw)
+        axes[1].plot(ns, [rows[n]['latency_ms']['p50'] for n in ns], label=f'{names[m]} p50', **kw)
+        axes[1].plot(ns, [rows[n]['latency_ms']['p99'] for n in ns], color=colors[m], lw=1.2, ls='--', alpha=.7, label=f'{names[m]} p99')
+        axes[2].plot(ns, [rows[n]['total_s'] / 60 for n in ns], label=names[m], **kw)
+        if 'pure' in res:
+            axes[3].plot(ns, [res['pure'][n]['total_s'] / rows[n]['total_s'] for n in ns], label=names[m], **kw)
+    for ax, title, unit in zip(axes, ('server throughput', 'request latency (receive -> send)', 'time to finish 500 episodes',
+                                      'speed-up vs pure inference (500-episode time)'), ('requests / s', 'ms', 'minutes', 'x')):
+        ax.set_title(title, fontsize=11)
         ax.set_xlabel('robots N')
         ax.set_ylabel(unit)
-        ax.grid(alpha=.3)
-        ax.legend(fontsize=8)
-    fig.suptitle('pi0.5 · LIBERO-10 · one RTX 4090 (single model copy)')
+        ax.grid(alpha=.25)
+        ax.set_ylim(bottom=0)
+        ax.spines[['top', 'right']].set_visible(False)
+    for ax in (axes[0], axes[2], axes[3]):
+        ax.legend(fontsize=8, frameon=False)
+    axes[1].legend(fontsize=7, frameon=False, ncol=1)
+    fig.suptitle('pi0.5 · LIBERO-10 · one RTX 4090 (single model copy) · 500 recorded episodes per N', fontsize=12)
     fig.tight_layout()
     fig.savefig(path, dpi=130)
 
