@@ -52,7 +52,7 @@ owner 的常驻指令，逐字有效：
 
 
 
-## 1. 现在在哪（2026-10-21 11:5x CDT；**看守会话（本会话 35f2869b 的分支，只看守实验）最先读「10-22 22:1x 看守增补」，再读「10-22 22:0x 看守会话增补」，再读「10-22 19:1x 看守会话增补」，再读「10-22 18:3x 看守会话总状态（compact 前）」；新实验会话读 exp/cluster_sim/HANDOFF.md 与「10-21 22:xx 新实验：集群部署模拟」；之后读「10-21 22:xx 新实验：集群部署模拟」，再读「10-21 19:5x 增补（compact 前总状态）」，再读「10-21 19:4x 增补」，再读「10-21 18:3x 增补」，再读「10-21 17:3x 增补」，再读「10-21 15:0x 增补」，再读「10-21 14:0x 增补」，再读「10-21 13:2x 增补」，再读「10-21 12:0x 增补」，再读「10-21 11:5x 增补（compact 前总状态）」，再读「10-21 00:3x 增补」，再读「10-21 00:0x 增补（compact 前总状态）」，再读「22:5x」「22:1x」「21:4x」增补，再读「21:3x 增补（compact 前总状态）」**，再读 20:5x 旧门事故、其余增补与 09:4x 总状态，再读其后各增补（09:29 → 21:2x 倒序）与 10-19 21:0x 总状态；10-14 及更早只作背景）
+## 1. 现在在哪（2026-10-21 11:5x CDT；**看守会话（本会话 35f2869b 的分支，只看守实验）最先读「10-23 15:4x 看守会话总状态」，再读「10-22 22:1x 看守增补」，再读「10-22 22:0x 看守会话增补」，再读「10-22 19:1x 看守会话增补」，再读「10-22 18:3x 看守会话总状态（compact 前）」；新实验会话读 exp/cluster_sim/HANDOFF.md 与「10-21 22:xx 新实验：集群部署模拟」；之后读「10-21 22:xx 新实验：集群部署模拟」，再读「10-21 19:5x 增补（compact 前总状态）」，再读「10-21 19:4x 增补」，再读「10-21 18:3x 增补」，再读「10-21 17:3x 增补」，再读「10-21 15:0x 增补」，再读「10-21 14:0x 增补」，再读「10-21 13:2x 增补」，再读「10-21 12:0x 增补」，再读「10-21 11:5x 增补（compact 前总状态）」，再读「10-21 00:3x 增补」，再读「10-21 00:0x 增补（compact 前总状态）」，再读「22:5x」「22:1x」「21:4x」增补，再读「21:3x 增补（compact 前总状态）」**，再读 20:5x 旧门事故、其余增补与 09:4x 总状态，再读其后各增补（09:29 → 21:2x 倒序）与 10-19 21:0x 总状态；10-14 及更早只作背景）
 
 ### ★★★★★★★★★★★★★★★★★★★★★★★★ 2026-10-20 09:4x CDT 总状态（compact 后最先读这块）
 
@@ -64,6 +64,36 @@ owner 的常驻指令，逐字有效：
 - 处置：09:56 按 PID SIGSTOP 复制 rsync（3726105/3726106/3729764）和两个 governor（3343372/3951564）。效果（同一时刻对比）：Cosmos 15→60 局/分、pod2 DP 85→250、v11_0 50→125（v11_0 同时 floor 40→70）。⛔ **复制保持暂停**；剩 ~190 GB（eval 533/~720 GB）以后找没有 driver 在跑、或可接受的短窗口一次性不限速跑完，不要再长时间节流慢跑。恢复命令：`kill -CONT 3343372 3951564 3726105 3726106 3729764`。记忆 reference-weilandserver-data 已加这条。
 - floors 现 `{"fa_ls_dp_f_f_m_j": 32, "fa_ls_v11_0": 70}`。
 - 在调研（opus 只读）：H100 队列 ~88 h（4 批 FW MT50 旋钮下降 ~42 h）vs 4090 ~22 h；旋钮下降批次 IR 离线算、可换卡 → 考虑 FW/GR00T MT50 旋钮下降挪 4090、DP LIBERO 旋钮下降挪 pod（需装 openpi 环境）。结论回来前不动队列。
+
+**10-23 15:4x 看守会话总状态（compact 前写；compact 后最先读这块，细节在下面 10-22 22:1x 起的增补）**
+- 角色：看守会话（35f2869b）。owner 在线，今天新定：①「4090 可以加入车队」，但随后借给 cluster_sim 会话补集群模拟（owner 加的实验），**借到约 19:00**，对方跑完会发跨会话消息交还；交还前不往 4090 排批次、不碰端口 8000。②timan 共享盘的事已查清，不用再管（见下）。
+- **长执行段关实验（只做成功过滤库）还剩 3 批，全是 Fast-WAM**（15:38 进度）：
+  | 实验 | 机器 / 链 | 进度 | 预计 |
+  |---|---|---|---|
+  | 成功过滤库 · Fast-WAM · MetaWorld · 减步 · 旋钮关 fa_lo_fw_r_f_m_j2（B8） | jupyter-ziyang10-02 / pod2lo6 | 79,282/90,000 | ~17:30 |
+  | 成功过滤库 · Fast-WAM · LIBERO · 全步 · 各档 fa_lo_fw_f_f_l_l（22,500，5 格？见 RESULTS_OFF） | 真 H100（R17 车道 23420/driver 23199，带 H100 本机 40 个渲染 worker）/ h100lo14 | 1,882/22,500，~55/分 | ~22:00 |
+  | 成功过滤库 · Fast-WAM · MetaWorld · 全步 · 旋钮关 fa_lo_fw_f_f_m（R2/B16/76 GiB；参照 fa_lo_fw_f_b_m 已完 2,500） | h100-sean 车道 1（driver 23197，服务 23170）/ seanlo8 | 15:28 起，服务启动中 | ~23:00 |
+  其余 11 条线全部跑完：π0.5/GR00T/DP LIBERO 两种步数（Fast-WAM LIBERO 减步也完）、GR00T/DP MetaWorld 两种步数。空闲：pod1（jupyter-ziyang10）、sean 车道 2（driver 23198）。pod1 没有能加速剩余 Fast-WAM 的活（同卡参照 + 一批一个服务端）。
+- **三批跑完后要做**：
+  1. 重跑汇总 `cd ~/projects/openpi && env CUDA_VISIBLE_DEVICES= PYTHONPATH=.:src nice -n 10 .venv/bin/python -m exp.offline_search.rounds.r17.longseg_off_1022.results_off`（~15 分钟，8 进程），核对后提交 RESULTS_OFF.{json,md}。当前版本 8d2ec4fc：11/14 条完成（92 格）。
+  2. 把长执行段关 vs 开的对比换进网页 https://claude.ai/artifact/To18VP3TyzS5SXY3MmmUCp（Dashboard，读写前 owner 要已 /login；本地源 openpi_ext/scratch/r17_ops/livepage/live_1022，build_1022.py/make_harness_1022.py；之前约定：同格左原库右成功过滤库——长执行段关只有成功过滤库，需要新开一节「长执行段关 vs 开」，先问 owner 放法或按同格左开右关）。
+  3. 已向 owner 报过的发现：π0.5 libero_10 的 C5 纯推理（82.2% 减步 / 85.0% 全步）明显低于长执行段开的纯推理（91.8/90.8）；MetaWorld（GR00T、DP）关的 6 格全达标而开 0 格，代价 IR 约 1.5–2 倍。
+- **监控（compact 后先核对，缺了就重挂；owner 15:3x 问过「为什么不挂 monitor」）**：
+  - server_watch 自动重启循环（任务 bnr4ccd1h，进程名 server_watch.py）→ openpi_ext/scratch/r17_ops/server_watch.{log,alerts.log}；
+  - jupyter_watch（b6v8cz7zr）；
+  - guard_wait：`bash $CLAUDE_JOB_DIR/tmp/guard_wait.sh 1500` 后台跑，醒来读输出后立刻重挂（副本 exp/offline_search/rounds/r17/ops_scripts/guard_wait.sh；它不报正常结束）；
+  - **Monitor 工具**：`cd ~/projects/openpi_ext/scratch/r17_ops && tail -n0 -F mw/chain.log server_watch.alerts.log | grep --line-buffered -E "ended rc=|FAILED|STOPPED|CHAIN_STOPPED|queue done|hold file present|ALERT|rate .* -> |Traceback|server_watch exited"`，timeout 1800000，到期重挂。
+  - server_watch 的「rate X -> Y」告警多是尖峰回落（FW LIBERO 常态 50–70/分，DP MT50 170–300/分），看 2 轮再判断。
+- **今天（10-23）学到/改过的，都已提交**：
+  - sean 两条车道：车道 1 driver 23197（服务用定义里的端口）；车道 2 driver 23198 + `R17_PUBLIC_PORT=23280`（formal_eval.h100_alias 新增）；两车道不同时跑 Fast-WAM（预算 70–76 GiB）。LEDGER 已登记 23198。sean 的 /data 是 bind mount（不是软链，冻结运行时拒绝软链上级），fstab 有 nofail 行。
+  - 真 H100：R17 车道只有一条（driver 23199）；R16 常驻 π0.5 用 23150–52、GR00T 23153–56；旧管线参照 232xx；H100 上 23117（longseg_off h100.py rsyncd）/23118（direct_transfer）别占。
+  - worker 环境加 NUMBA_CACHE_DIR=/tmp/r17_numba_cache（ecd3824f）：timan NFS 家目录满时 robosuite numba 缓存写不进 → 自检失败 → 批次被收窄到 a100。准备时看 campaign 的 scheduler_nodes 是否含三台。
+  - 长执行段关决策记录无 vision/miss_k：q3_port_1020/analysis.py 读入时补（99f9eafa）。
+  - 封账：retry_closed 与 finalize 同口径，只在局数不全/终止错误时失败，证据缺口记 aggregate_status（90d870d1）；14 张补封 13 张 PASS，fa_co_r_f_lc8 保持 FAIL（续跑段本身不全）。
+  - broker（racknerd/linziyang.top）重启后会自己恢复（drop-in 30-restart-until-nats.conf）；排查 `ssh racknerd` + `journalctl -u tether-broker`。
+  - timan 共享盘 cs-czhai-file-01（10 TB，所有组员共用一个文件系统）：我们只占 35 GB；最大占用 shmajumd ~4 TB（outlink 3,023 G + inlink 971 G，2025-09 起没动）；其余 ~6 TB 在 75 个 700 家目录里读不到；凌晨写满/清掉的是读不到的人。脚本 ops_scripts/home_usage.sh。
+- 链脚本：openpi_ext/scratch/r17_ops/ff/chain_ffk.run.sh（`<tag> <等待正则> 项...`，`WAIT:<正则>` 项；touch mw/hold_ff_<tag> 在两项之间停）；别名 env 起 sean 链：`R17_H100_NODE=h100-sean R17_H100_HOST=149.165.169.137 R17_DRIVER_PORT=23197`（车道 2 改 23198 并加 R17_PUBLIC_PORT=23280）。命令在 filter_failed_knob/commands/{prepare,launch}_<名>.sh。
+- 任务表：#4 巡检、#11 排队看守、#19 汇总 进行中；其余完成。
 
 **10-22 22:1x 看守增补（compact 后；先读这块再读 22:0x）**
 - 21:56–22:00 tether broker 断线：racknerd（linziyang.top）内核升级重启，tether-broker 在 NATS 就绪前启动、撞 systemd 启动上限停摆。已 `systemctl reset-failed && start`；加 `/etc/systemd/system/tether-broker.service.d/30-restart-until-nats.conf`（StartLimitIntervalSec=0、RestartSec=5），以后重启会自己恢复。排查入口：`ssh racknerd`（root，key 已配），`journalctl -u tether-broker`。
