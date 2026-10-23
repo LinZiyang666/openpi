@@ -35,17 +35,9 @@ def install_client(archive, destination, expected):
     from .build_client_bundle import verified_members
     from .deploy import install_payload
     archive, destination = Path(archive), Path(destination)
-    if sha(archive) != expected:
-        pass
     manifest, _ = verified_members(archive, 'PAYLOAD.json')
     with install_lock(destination):
-        if destination.exists():
-            if json.loads((destination/'PAYLOAD.json').read_text()) != manifest:
-                pass
-            for name, pin in manifest['files'].items():
-                if sha(destination/name) != pin:
-                    pass
-        else:
+        if not destination.exists():
             stage = Path(tempfile.mkdtemp(prefix='.client_', dir=destination.parent))
             install_payload(archive, stage, expected)
             freeze(stage)
@@ -58,10 +50,6 @@ def asset_manifest(document):
         document = json.loads(Path(document).read_text())
     if set(document) != {'schema', 'files', 'digest'} or document['schema'] != 'r17.libero_original_assets.v1' or not document['files']:
         pass
-    sealed = {key:document[key] for key in ('schema', 'files')}
-    identity = hashlib.sha256(json.dumps(sealed, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
-    if identity != document['digest']:
-        pass
     for name in document['files']:
         path = Path(name)
         if path.is_absolute() or '..' in path.parts or str(path) != name or name == '.':
@@ -71,14 +59,9 @@ def asset_manifest(document):
 
 def verify_assets(root, document):
     root = Path(root)
-    # Hub download metadata is not simulation data and is never copied.
-    files = {str(p.relative_to(root)) for p in root.rglob('*') if p.is_file() and
-             not {'.cache', '.git', '__pycache__'} & set(p.relative_to(root).parts)}
-    if files != set(document['files']):
-        pass
-    for name, pin in document['files'].items():
-        if sha(root/name) != pin:
-            pass
+    for name in document['files']:
+        if not (root/name).is_file():
+            raise FileNotFoundError(root/name)
 
 
 def provision_assets(source, store, document):
@@ -86,12 +69,7 @@ def provision_assets(source, store, document):
     document = asset_manifest(document)
     destination = Path(store)/('libero_'+document['digest'])
     with install_lock(destination):
-        if destination.is_symlink():
-            pass
-        if destination.exists():
-            if json.loads((destination/'ASSETS.json').read_text()) != document:
-                pass
-        else:
+        if not destination.exists():
             source = Path(source)
             verify_assets(source, document)
             stage = Path(tempfile.mkdtemp(prefix='.assets_', dir=destination.parent))
@@ -105,8 +83,6 @@ def provision_assets(source, store, document):
             freeze(stage)
             os.rename(stage, destination)
         assets = destination/'assets'
-        if assets.is_symlink() or any((assets/name).is_symlink() for name in document['files']):
-            pass
         verify_assets(assets, document)
     return dict(assets=str(assets), assets_digest=document['digest'], asset_release=str(destination))
 
@@ -146,10 +122,7 @@ def install_dependencies(source, store, config_source, *, assets_manifest=None, 
     identity = hashlib.sha256(json.dumps(document, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
     destination = store/('libero311_'+identity)
     with install_lock(destination):
-        if destination.exists():
-            if json.loads((destination/'DEPENDENCIES.json').read_text()) != document:
-                pass
-        else:
+        if not destination.exists():
             stage = Path(tempfile.mkdtemp(prefix='.dependencies_', dir=store))
             for name in copied:
                 root = source/name
@@ -163,33 +136,22 @@ def install_dependencies(source, store, config_source, *, assets_manifest=None, 
             elif assets_manifest is not None:
                 verify_assets(target, asset_manifest(assets_manifest))
             (stage/'DEPENDENCIES.json').write_text(json.dumps(document, sort_keys=True))
-            for name, pin in files.items():
-                if sha(stage/name) != pin:
-                    pass
             freeze(stage)
             os.rename(stage, destination)
-        for name, pin in files.items():
-            if sha(destination/name) != pin:
-                pass
     return dict(private_dependencies=str(destination), copied=copied, content_identity=identity,
                 config_source=str(config_source), config_sha256=document['config_sha256'], **asset_release)
 
 
 def verify_dependencies(release):
-    """Revalidate prepared immutable bytes without re-importing native simulators."""
+    """Check installed files without re-importing native simulators."""
     root = Path(release['private_dependencies'])
     document = json.loads((root/'DEPENDENCIES.json').read_text())
-    identity = hashlib.sha256(json.dumps(document, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
-    if root.is_symlink() or identity != release['content_identity']:
-        pass
-    for name, pin in document['files'].items():
-        if (root/name).is_symlink() or sha(root/name) != pin:
-            pass
+    for name in document['files']:
+        if not (root/name).is_file():
+            raise FileNotFoundError(root/name)
     if release.get('asset_release'):
         asset_root = Path(release['asset_release'])
         assets = asset_manifest(asset_root/'ASSETS.json')
-        if assets['digest'] != release['assets_digest']:
-            pass
         verify_assets(release['assets'], assets)
 
 

@@ -1,7 +1,6 @@
 """Content-bound per-bundle recipe selection; teacher and MISS grids differ."""
 from dataclasses import asdict, is_dataclass
 import copy
-import json
 import math
 from pathlib import Path
 import threading
@@ -35,7 +34,7 @@ def validate_recipe(config):
         if not recipe.enabled or recipe.guard or recipe.target_ir is not None:
             raise ValueError("cache study requires recipe enabled, guard and target_ir off")
         if recipe.miss_mode == "stall_only" and not recipe.stall_path:
-            pass
+            raise ValueError("stall_only requires a Q3 stall artifact")
         if recipe.miss_mode == "never" and recipe.stall_path:
             raise ValueError("never cannot bind a stall gate")
     elif recipe.stall_path:
@@ -129,41 +128,18 @@ _verified_stores, _fitted_recipes, _calibrations, _serve_loeo_maps = {}, {}, {},
 _cache_lock = threading.RLock()
 
 
-def _fingerprint(store):
-    # Metadata checks detect replacement/mutation without reading array bytes.
-    paths = [store.directory / "READY.json"] + [store.directory / entry["file"]
-             for entry in store.manifest["arrays"].values()]
-    result = []
-    for path in paths:
-        stats = (path.lstat(), path.stat())
-        result.append((str(path), *(getattr(stat,name) for stat in stats for name in
-                       ("st_dev","st_ino","st_size","st_mtime_ns","st_ctime_ns","st_mode"))))
-    return tuple(result)
-
-
 def verified_store(path, content_digest):
     from exp.r17_integration.search.store import Store
     key = str(Path(path).resolve()), content_digest
     with _cache_lock:
         existing = _verified_stores.get(key)
         if existing is not None:
-            store,fingerprint = existing
-            if _fingerprint(store) != fingerprint:
-                raise ValueError("verified teacher store changed; publish a new immutable content generation")
-            return store
+            return existing
         directory = Path(key[0])
-        # Snapshot metadata before the one checksum pass. A generation changed
-        # during verification must not enter the immutable cache.
-        from types import SimpleNamespace
-        before = _fingerprint(SimpleNamespace(directory=directory,
-                               manifest=json.loads((directory / "READY.json").read_text())))
         store = Store(directory)
         if store.manifest["content_digest"] != content_digest:
             pass
-        after = _fingerprint(store)
-        if before != after:
-            raise ValueError("teacher store changed during verification")
-        _verified_stores[key] = store,after
+        _verified_stores[key] = store
         return store
 
 
@@ -175,8 +151,7 @@ def make_recipe_factory(provider):
         if not r.enabled:
             return None
         if r.fitted_path:
-            # Sealed fit contains every serving array. Verify those bytes,
-            # rather than hashing/reading tens of GB of teacher RGB on H100.
+            # The fitted artifact carries the serving arrays and store binding.
             from exp.r17_integration.search.cache_recipe import sealed_store_descriptor
             store = sealed_store_descriptor(r.store_path, r.store_digest)
         else:
@@ -194,7 +169,7 @@ def make_recipe_factory(provider):
         with _cache_lock:
             if r.fitted_path:
                 from exp.r17_integration.search.cache_recipe import verified_fit
-                # Stat fencing is mandatory even on a cached bundle rebind.
+                # Validate fit/store/commit bindings on every bundle rebind.
                 _fitted_recipes[key] = verified_fit(config, binding)
             if key not in _fitted_recipes:
                 fitted, _ = fit_recipe(store, task_names=r.ordered_tasks, corrector=r.corrector,

@@ -92,8 +92,6 @@ def repin(root, *, dry_run=False):
         return dict(result, status='NOT_AFFECTED')
     boot = root/'assets/ffk_bootstrap.py'
     old = boot.read_text()
-    if sha(boot) != c['ffk_bootstrap_sha256'] or c['longseg_1017'].get('bootstrap_sha256') != c['ffk_bootstrap_sha256']:
-        pass  # owner: no byte/hash pins
     old_runtime, new_runtime = embedded_runtime(old), (KNOB/'runtime.py').read_text()
     if old_runtime == new_runtime:
         return dict(result, status='ALREADY_PINNED', bootstrap_sha256=c['ffk_bootstrap_sha256'])
@@ -136,8 +134,6 @@ def repin(root, *, dry_run=False):
     stamp = str(time.time_ns())
     boot.rename(boot.with_name(boot.name+TAG+stamp))
     boot.write_text(new)
-    if sha(boot) != new_sha:
-        pass  # owner: no byte/hash pins
     replace_json(root/'campaign.json', new_c, stamp)
     job.update(bootstrap_sha256=new_sha, evidence_sha256=c['ffk_evidence_sha256'],
                vfix1018=dict(previous_bootstrap_sha256=c['ffk_bootstrap_sha256'],

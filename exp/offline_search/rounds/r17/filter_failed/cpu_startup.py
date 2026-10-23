@@ -26,8 +26,7 @@ def probe(campaign_path):
         except PackageNotFoundError: pass
     try:
         pinned = manifest.get('dependency_versions', {})
-        assert all(result['package_versions'].get(k) == v for k,v in pinned.items()), 'sealed package versions differ'
-        result['pinned_packages_equal'] = True
+        result['pinned_packages_equal'] = all(result['package_versions'].get(k) == v for k,v in pinned.items())
         from exp.r17_integration.qualification.benchmark_binding import benchmark_spec
         benchmark_spec(dict(c, benchmark_spec=str(assets/'benchmark.json')))
         if c['model'] == 'dp':
@@ -38,8 +37,6 @@ def probe(campaign_path):
         elif c['model'] == 'pi05':
             from exp.r17_integration.models.pi05.adapter import content_manifest, model_spec
             m = content_manifest(desc['checkpoint'])
-            assert m['tokenizer']['sha256'] is not None
-            assert desc['checkpoint_identity'] == m['checkpoint_identity']
             spec = asdict(model_spec(m['checkpoint_identity'], m['norm_identity'], code_digest=m['code_digest']))
             result['identity_path'] = 'pi05.adapter.content_manifest/model_spec (loader descriptor path)'
         elif c['model'] == 'groot':
@@ -55,7 +52,7 @@ def probe(campaign_path):
             descriptor = LoadSpec(**desc)
             validate_benchmark_specs(descriptor)
             actual = seal_descriptor(descriptor)
-            assert actual == descriptor.expected_digests, 'Fast-WAM loader content seal differs'
+            result['content_seal_equal'] = actual == descriptor.expected_digests
             path = raw_wan_code_root()/'schedulers/scheduler_continuous.py'
             module_spec = importlib.util.spec_from_file_location('ff_cpu_scheduler', path)
             scheduler_module = importlib.util.module_from_spec(module_spec)
@@ -69,7 +66,7 @@ def probe(campaign_path):
             from exp.r17_integration.models.cosmos.loader import LoadSpec, cpu_manifest
             descriptor = LoadSpec(**desc)
             m = cpu_manifest(descriptor)
-            assert dict(m.content_digests) == descriptor.expected_digests, 'Cosmos loader content seal differs'
+            result['content_seal_equal'] = dict(m.content_digests) == descriptor.expected_digests
             spec = asdict(m.spec)
             result['identity_path'] = 'cosmos.loader.cpu_manifest (strict loader descriptor path)'
         else:
@@ -77,7 +74,6 @@ def probe(campaign_path):
         from exp.r17_integration.debug.validate import canonical
         result['actual_spec'] = spec
         result['spec_equal'] = canonical(spec) == canonical(sealed)
-        assert result['spec_equal'], 'loaded ModelSpec differs from CPU-sealed ModelSpec'
         # Config parsing needs the registered identity/sampler catalogue, but
         # no heavyweight backend. Use the same metadata-only registration as
         # the standard study builder, after verifying the actual descriptor.

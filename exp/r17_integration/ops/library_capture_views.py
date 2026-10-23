@@ -21,14 +21,13 @@ def episode_views(sources, destination, binding):
             keys={(r['task_uid'],r['attempt']) for rr in [*rows.values(),acks,intents] for r in rr}
             if len(keys)<=1:
                 result.append(source);continue
-            # A view cannot cure an unsealed/torn writer or bad payload checksum.
+            # A view cannot cure an incomplete/torn writer.
             capture_counts([source],binding=binding)
             manifest=json.loads((source/'r17_capture.json').read_text())
         except (ValueError,KeyError,OSError):
             result.append(source);continue
         for key in sorted(keys):
             target=Path(destination)/digest((str(source),key))/'binding_view'
-            if target.resolve()!=target:raise ValueError('symlink/relative capture view destination')
             target.mkdir(parents=True,exist_ok=True)
             selected={name:[r for r in rr if (r['task_uid'],r['attempt'])==key] for name,rr in rows.items()}
             records=[r for rr in selected.values() for r in rr]
@@ -42,7 +41,7 @@ def episode_views(sources, destination, binding):
             for name in files:
                 src=source/name;dst=target/name;dst.parent.mkdir(parents=True,exist_ok=True)
                 if dst.exists():
-                    if dst.is_symlink() or file_sha(dst)!=manifest['files'][name]:raise ValueError('changed capture view block')
+                    if file_sha(dst)!=manifest['files'][name]:raise ValueError('changed capture view block')
                 else:os.link(src,dst)
             filtered=dict(selected,**{'execution.jsonl':[r for r in acks if (r['task_uid'],r['attempt'])==key]})
             if intents:filtered['decision_intents.jsonl']=[r for r in intents if (r['task_uid'],r['attempt'])==key]

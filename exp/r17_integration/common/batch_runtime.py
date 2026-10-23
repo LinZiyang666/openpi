@@ -20,11 +20,11 @@ class BatchConfig:
     batch_wait_ms: float = 5.0
 
     def __post_init__(self):
-        if type(self.max_batch) is not int or not 1 <= self.max_batch <= 32:
-            raise ValueError("max_batch must be an integer in 1..32")
+        if type(self.max_batch) is not int or self.max_batch < 1:
+            raise ValueError("max_batch must be a positive integer")
         if (isinstance(self.batch_wait_ms, bool) or not isinstance(self.batch_wait_ms, (int, float))
-                or not math.isfinite(self.batch_wait_ms) or not 0 <= self.batch_wait_ms <= 50):
-            raise ValueError("batch_wait_ms must be finite in 0..50")
+                or not math.isfinite(self.batch_wait_ms) or self.batch_wait_ms < 0):
+            raise ValueError("batch_wait_ms must be finite and nonnegative")
 
     def metadata(self):
         return asdict(self)

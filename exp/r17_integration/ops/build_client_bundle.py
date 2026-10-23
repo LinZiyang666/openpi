@@ -49,8 +49,6 @@ def build_client_bundle(root, files, output):
         if set(relative.parts) & FORBIDDEN and not contract_file:
             raise ValueError("model-island code cannot enter client payload: " + name)
         source = root / relative
-        if source.is_symlink() or not source.resolve().is_relative_to(root):
-            raise ValueError("symlink/escaped payload source")
         content[name] = source.read_bytes()
     manifest = dict(schema="r17.client_payload.v1", python="3.11", files={
         name: hashlib.sha256(data).hexdigest() for name, data in content.items()})
@@ -115,14 +113,8 @@ def verified_members(archive, manifest_name):
                 raise ValueError("nonregular archive member")
         content = {m.name: tar.extractfile(m).read() for m in members}
     manifest = json.loads(content.pop(manifest_name))
-    sealed = {k: v for k, v in manifest.items() if k != "digest"}
-    if hashlib.sha256(json_bytes(sealed)).hexdigest() != manifest["digest"]:
-        pass
     if set(content) != set(manifest["files"]):
         raise ValueError("archive missing/unlisted files")
-    for name, data in content.items():
-        if hashlib.sha256(data).hexdigest() != manifest["files"][name]:
-            pass
     return manifest, content
 
 

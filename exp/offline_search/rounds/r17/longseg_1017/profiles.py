@@ -28,10 +28,10 @@ LOCAL_DESCRIPTOR_PATHS={'groot':('/home/exouser/gr00t_n15','/home/weiland/projec
                         'cosmos':('/data/cosmos/cosmos-policy','/home/weiland/projects/openpi_ext/lines/cosmos-policy')}
 
 def first_row_metadata(parent):
-    """Read only the arrays header and first recorded row, at most 16 MiB."""
+    """Read through the arrays header and first recorded row."""
     decoder=json.JSONDecoder();text=''
     with filesystem_budget(),(parent/'READY.json').open() as stream:
-        for _ in range(256):
+        while True:
             block=stream.read(65536)
             if not block:break
             text+=block
@@ -42,7 +42,7 @@ def first_row_metadata(parent):
                     a,_=decoder.raw_decode(text,arrays.end());r,_=decoder.raw_decode(text,row.end())
                     if 'task_name' in r:return dict(arrays=a,rows=[r])
             except json.JSONDecodeError:pass
-    raise ValueError('First observation metadata is outside the bounded READY prefix: '+str(parent))
+    raise ValueError('First observation metadata is missing from READY: '+str(parent))
 
 def initialize():
     jobs=read(HERE/'CAMPAIGNS.json')['jobs'];units=[]

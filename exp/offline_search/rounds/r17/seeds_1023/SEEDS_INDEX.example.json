@@ -1,0 +1,123 @@
+{
+  "version": 1,
+  "example": true,
+  "_instructions": [
+    "复制为 SEEDS_INDEX.json，由协调者填最终名字/路径后删除 example。此文件不能直接用于正式汇总。",
+    "batches 的键为 W1 campaign 名或 W2 job 名；一个物理 run 只登记一次。W2 多 job 的 unit 拆为多个键，并可用 unit 字段记录单位名。",
+    "每个 slice 显式写模型、benchmark、步数、段长、库种子、GPU 和 reference；同一合并批次可有四个 slice。不要从 _x3/_x4 猜种子。",
+    "batches 只允许 LIBERO 20261003/20261004、MT50 9/10。旧种子只读现有汇总；--verify-existing 单独从原批次重算旧种子作回归。",
+    "R17 groups 是 CACHE_STUDY/FULL_EPISODE_PLAN 中精确的 cache_group -> 原生档名映射；sizes/suites 限定归属。必须覆盖批次全部非 control 组，每组恰好归属一个 slice。",
+    "R15/R16 arms 是 arms.json 的 arm 或 group.json entries[].row.arm；每个 arm 恰好归属一个 slice，suite/size/level 从原生元数据读取。",
+    "off 和 levels 两个批次使用相同维度及 reference，脚本自动合并。levels 只列实际跑的格和原生档；不生成空的占位批次。",
+    "R17 档：koff,k50,k40,k30,k20,k10；VLA 档：off,ir45,ir40,ir32,ir25。纯推理组名显式指定；独立纯推理批次填 control。",
+    "LIBERO suites 固定两个套件；sizes：DP/Fast-WAM/Cosmos=50,100,200,300,400；pi05/groot=50,100,200。某批只跑部分大小时 sizes 可缩小。",
+    "Cosmos LIBERO 与 pi05 MT50 的 long_segment 只能是 default；其他模型用 off/on。LIBERO 500 只读旧种子全集，不伪造新种子重复测量。",
+    "references 中的 model/benchmark/mode/gpu 是协调者对实际参照的确认，脚本必须逐项匹配。参照与库种子无关，允许共享。",
+    "R17 长段开必须同时填 reference（选档目标）和 long_reference（实际 pure 回退执行）；关/default 只填 reference。",
+    "DP/FW 的参照从 longseg_off_1022/REFERENCES.json 选同卡同步数；长段实际回退从 longseg_1017/REFERENCE_SELECTION.json 及最终链覆盖选取。",
+    "Cosmos 用 formal_a.PURE；pi05 MT50 用 tpi7_0536/tpi7k2_1135（4090）。",
+    "VLA 关为 fa_lo_*_p5_q，开为 formal_a_queue.references 的原 root/arm；H100 缺的开参照须先完成 fa_lo_{gr_f,pi_r,gr_r}_p_q。R15 references.jobs 是精确 root/arm 对。",
+    "路径为绝对路径，或相对 SEEDS_INDEX.json；run 必须是最终续跑链 tip。脚本不会扫描目录或自动追认新的续跑目录。",
+    "下面只展示格式；PLACEHOLDER 必须替换，须补全全部模型/步数/种子/段长/库大小。缺格会写入 RESULTS_SEEDS.json 并返回非零。",
+    "指定的三个旧汇总当前缺 pi05 MT50 seed8；脚本显式报缺，不从其他模型或种子代填。由协调者确认旧成功过滤库汇总来源后再接入。"
+  ],
+  "references": {
+    "dp_libero_full_h100_c5": {
+      "pipeline": "R17", "model": "dp", "benchmark": "libero", "mode": "full", "gpu": "H100",
+      "run": "/data/mw_finetune/eval/fa_lo_dp_f_b_l",
+      "groups": ["PLACEHOLDER_exact_pure_group"]
+    },
+    "dp_libero_full_h100_c10": {
+      "pipeline": "R17", "model": "dp", "benchmark": "libero", "mode": "full", "gpu": "H100",
+      "run": "/data/mw_finetune/eval/PLACEHOLDER_dp_long_pure_final_tip",
+      "groups": ["PLACEHOLDER_exact_pure_group"]
+    },
+    "pi05_mt50_full_4090_c5": {
+      "pipeline": "R17", "model": "pi05", "benchmark": "mt50", "mode": "full", "gpu": "RTX 4090",
+      "run": "/data/mw_finetune/eval/tpi7_0536", "groups": ["control"]
+    },
+    "pi05_libero_reduced_h100_c5": {
+      "pipeline": "R15", "model": "pi05", "benchmark": "libero", "mode": "reduced", "gpu": "H100",
+      "jobs": [
+        {"run": "/data/mw_finetune/eval/PLACEHOLDER_fa_lo_pi_r_p5_q_l10", "arm": "PLACEHOLDER_arm_l10"},
+        {"run": "/data/mw_finetune/eval/PLACEHOLDER_fa_lo_pi_r_p5_q_spatial", "arm": "PLACEHOLDER_arm_spatial"}
+      ]
+    },
+    "pi05_libero_reduced_h100_c10": {
+      "pipeline": "R15", "model": "pi05", "benchmark": "libero", "mode": "reduced", "gpu": "H100",
+      "jobs": [
+        {"run": "/data/mw_finetune/eval/PLACEHOLDER_fa_lo_pi_r_p_q_l10", "arm": "PLACEHOLDER_arm_l10"},
+        {"run": "/data/mw_finetune/eval/PLACEHOLDER_fa_lo_pi_r_p_q_spatial", "arm": "PLACEHOLDER_arm_spatial"}
+      ]
+    }
+  },
+  "batches": {
+    "PLACEHOLDER_W1_dp_full_libero_off_batch": {
+      "pipeline": "R17", "run": "/data/mw_finetune/eval/PLACEHOLDER_W1_dp_full_libero_final_tip",
+      "slices": [
+        {
+          "model": "dp", "benchmark": "libero", "mode": "full", "gpu": "H100", "seed": 20261003, "long_segment": "off",
+          "reference": "dp_libero_full_h100_c5", "suites": ["libero_10", "libero_spatial"], "sizes": [50, 100, 200, 300, 400],
+          "groups": {"PLACEHOLDER_s20261003_c5_koff": "koff"}
+        },
+        {
+          "model": "dp", "benchmark": "libero", "mode": "full", "gpu": "H100", "seed": 20261003, "long_segment": "on",
+          "reference": "dp_libero_full_h100_c5", "long_reference": "dp_libero_full_h100_c10",
+          "suites": ["libero_10", "libero_spatial"], "sizes": [50, 100, 200, 300, 400],
+          "groups": {"PLACEHOLDER_s20261003_c10_koff": "koff"}
+        },
+        {
+          "model": "dp", "benchmark": "libero", "mode": "full", "gpu": "H100", "seed": 20261004, "long_segment": "off",
+          "reference": "dp_libero_full_h100_c5", "suites": ["libero_10", "libero_spatial"], "sizes": [50, 100, 200, 300, 400],
+          "groups": {"PLACEHOLDER_s20261004_c5_koff": "koff"}
+        },
+        {
+          "model": "dp", "benchmark": "libero", "mode": "full", "gpu": "H100", "seed": 20261004, "long_segment": "on",
+          "reference": "dp_libero_full_h100_c5", "long_reference": "dp_libero_full_h100_c10",
+          "suites": ["libero_10", "libero_spatial"], "sizes": [50, 100, 200, 300, 400],
+          "groups": {"PLACEHOLDER_s20261004_c10_koff": "koff"}
+        }
+      ]
+    },
+    "PLACEHOLDER_W1_pi05_mt50_full_off_batch": {
+      "pipeline": "R17", "run": "/data/mw_finetune/eval/PLACEHOLDER_W1_pi05_mt50_full_final_tip",
+      "slices": [
+        {
+          "model": "pi05", "benchmark": "mt50", "mode": "full", "gpu": "RTX 4090", "seed": 9, "long_segment": "default",
+          "reference": "pi05_mt50_full_4090_c5", "suites": ["mt50"], "sizes": [250, 500, 1000, 1500, 2000, 2500],
+          "groups": {"PLACEHOLDER_seed9_c5_koff": "koff"}
+        },
+        {
+          "model": "pi05", "benchmark": "mt50", "mode": "full", "gpu": "RTX 4090", "seed": 10, "long_segment": "default",
+          "reference": "pi05_mt50_full_4090_c5", "suites": ["mt50"], "sizes": [250, 500, 1000, 1500, 2000, 2500],
+          "groups": {"PLACEHOLDER_seed10_c5_koff": "koff"}
+        }
+      ]
+    },
+    "PLACEHOLDER_W2_pi05_reduced_off_group": {
+      "pipeline": "R16", "unit": "PLACEHOLDER_W2_unit", "run": "/data/mw_finetune/eval/PLACEHOLDER_W2_pi05_reduced_group",
+      "slices": [
+        {
+          "model": "pi05", "benchmark": "libero", "mode": "reduced", "gpu": "H100", "seed": 20261003, "long_segment": "off",
+          "reference": "pi05_libero_reduced_h100_c5", "suites": ["libero_10", "libero_spatial"], "sizes": [50, 100, 200],
+          "arms": ["PLACEHOLDER_x3_off_l50", "PLACEHOLDER_x3_off_l100", "PLACEHOLDER_x3_off_l200", "PLACEHOLDER_x3_off_s50", "PLACEHOLDER_x3_off_s100", "PLACEHOLDER_x3_off_s200"]
+        },
+        {
+          "model": "pi05", "benchmark": "libero", "mode": "reduced", "gpu": "H100", "seed": 20261003, "long_segment": "on",
+          "reference": "pi05_libero_reduced_h100_c10", "suites": ["libero_10", "libero_spatial"], "sizes": [50, 100, 200],
+          "arms": ["PLACEHOLDER_x3_on_l50", "PLACEHOLDER_x3_on_l100", "PLACEHOLDER_x3_on_l200", "PLACEHOLDER_x3_on_s50", "PLACEHOLDER_x3_on_s100", "PLACEHOLDER_x3_on_s200"]
+        },
+        {
+          "model": "pi05", "benchmark": "libero", "mode": "reduced", "gpu": "H100", "seed": 20261004, "long_segment": "off",
+          "reference": "pi05_libero_reduced_h100_c5", "suites": ["libero_10", "libero_spatial"], "sizes": [50, 100, 200],
+          "arms": ["PLACEHOLDER_x4_off_l50", "PLACEHOLDER_x4_off_l100", "PLACEHOLDER_x4_off_l200", "PLACEHOLDER_x4_off_s50", "PLACEHOLDER_x4_off_s100", "PLACEHOLDER_x4_off_s200"]
+        },
+        {
+          "model": "pi05", "benchmark": "libero", "mode": "reduced", "gpu": "H100", "seed": 20261004, "long_segment": "on",
+          "reference": "pi05_libero_reduced_h100_c10", "suites": ["libero_10", "libero_spatial"], "sizes": [50, 100, 200],
+          "arms": ["PLACEHOLDER_x4_on_l50", "PLACEHOLDER_x4_on_l100", "PLACEHOLDER_x4_on_l200", "PLACEHOLDER_x4_on_s50", "PLACEHOLDER_x4_on_s100", "PLACEHOLDER_x4_on_s200"]
+        }
+      ]
+    }
+  }
+}

@@ -176,8 +176,6 @@ def inspect_repair(directory, *, model, suite, checkpoint=None, alignment=None):
 def verify_repair_seal(campaign):
     """Runs after a fresh CPU seal, before any deployment/inference launch."""
     pin = campaign['repair_pin']
-    if digest({k:v for k,v in pin.items() if k != 'digest'}) != pin['digest']:
-        raise ValueError('repair provenance pin is corrupt')
     if seal_pins(campaign) != pin['seal']:
         raise ValueError('repair teacher seal/checkpoint/weight/code/norm differs from original')
     from .library_alignment import load_alignment

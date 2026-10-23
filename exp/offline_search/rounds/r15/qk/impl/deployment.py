@@ -47,7 +47,6 @@ def inventory():
     for size in (50, 200):
         manifest = json.loads((HERE/f'artifacts/pi05_l10_{size}/manifest.json').read_text())
         for record in manifest['records'].values():
-            assert digest(record['path']) == record['sha256']
             blob = pickle.loads(Path(record['path']).read_bytes())
             assert blob['method'].light_key_spec == record['kwargs']['encoder_spec']
             pickle.loads(Path(record['baseline']).read_bytes())

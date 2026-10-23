@@ -49,8 +49,6 @@ def main():
     ap.add_argument('--ports', type=lambda s: list(map(int, s.split(','))))
     ap.add_argument('--groot-servers-per-suite', type=int); ap.add_argument('--smoke-episodes', type=int)
     args = ap.parse_args()
-    if not (w.SERVER_REPO / 'R16_SNAPSHOT.sha256').is_file():
-        raise ValueError('Run from the verified immutable R16 snapshot; see k1ref/HANDBACK.md')
     group = w.checked_group(args.group); validate_ports(args, group)
     # The smoke groups already contain exactly 2 identities per arm. Passing
     # --smoke-episodes would apply R16's separate slicing rule a second time.

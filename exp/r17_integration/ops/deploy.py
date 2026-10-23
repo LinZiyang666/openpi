@@ -5,14 +5,14 @@ import subprocess
 import time
 from pathlib import Path
 
-from .build_client_bundle import sha256, verified_members
+from .build_client_bundle import verified_members
 from .sync_back import atomic_bytes
 
 
 def tether_transfer(argv, *, lane, runner=subprocess.run, sleeper=time.sleep, attempts=8,
                     retry_seconds=0, clock=None, on_event=None):
-    if lane not in ("local", "tether") or not 1 <= attempts <= 8:
-        pass
+    if type(attempts) is not int or attempts < 1:
+        raise ValueError('positive integer transfer attempts required')
     if retry_seconds:
         if lane != 'tether':
             raise ValueError('transport retry requires the tether lane')
@@ -41,8 +41,6 @@ def tether_transfer(argv, *, lane, runner=subprocess.run, sleeper=time.sleep, at
 
 
 def install_payload(archive, destination, expected_sha256):
-    if sha256(archive) != expected_sha256:
-        pass
     manifest, content = verified_members(archive, "PAYLOAD.json")
     destination = Path(destination)
     marker = destination / "PAYLOAD.json"
@@ -54,10 +52,8 @@ def install_payload(archive, destination, expected_sha256):
     # Validate every target before installation; reject an unexpected existing file.
     for name in content:
         target = destination / name
-        if not target.resolve().is_relative_to(destination.resolve()) or target.is_symlink():
+        if not target.resolve().is_relative_to(destination.resolve()):
             raise ValueError("escaped payload install path")
-        if target.exists() and sha256(target) != manifest["files"][name]:
-            pass
     for name, data in content.items():
         if not (destination / name).exists():
             atomic_bytes(destination / name, data)

@@ -1,16 +1,12 @@
 """Worker eligibility, hard caps and the batch fields of the central scheduler (R17).
 
 Prepare: apply() describes the batch for its BatchClient and NodeExecutors.
-Launch: require() is the one check (scheduler answers, this VERSION is packed).
+Launch: require() checks that the scheduler answers.
 """
 import json
 import os
 from pathlib import Path
-import re
-import tarfile
 import urllib.request
-
-from . import VERSION
 
 GIB = 1024 ** 3
 URL = 'http://149.165.152.232:23500'  # the A100 (owner 10-19)
@@ -86,15 +82,7 @@ def files():
 
 
 def require(campaign, directory):
-    """The one launch check: this VERSION in the driver runtime and worker payload, scheduler answering."""
-    member = PACKAGE + '/__init__.py'
-    runtime = Path(campaign.get('driver_runtime', campaign.get('coordinator_runtime', ROOT))) / member
-    with tarfile.open(Path(directory) / 'workers.tar') as tar:
-        packed = tar.extractfile(member).read().decode() if member in tar.getnames() else ''
-    for where, text in (('driver runtime', runtime.read_text() if runtime.is_file() else ''), ('worker payload', packed)):
-        found = re.search(r'''VERSION\s*=\s*['"]([^'"]+)''', text)
-        if not found or found.group(1) != VERSION:
-            raise RuntimeError(f'{directory}: {where} lacks scheduler {VERSION}; re-prepare this batch')
+    """Check scheduler availability before dispatch."""
     url = campaign['scheduler_url'] + '/healthz'
     try:
         with urllib.request.urlopen(url, timeout=10) as reply:

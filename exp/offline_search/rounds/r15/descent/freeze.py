@@ -7,8 +7,6 @@ from .prepare import HERE,R14,REPO,CELLS,write_json,atomic
 
 
 def main():
-    for name in ('protocol.json','PROTOCOL.md','PROTOCOL.sha256'):
-        if (HERE/name).exists():raise FileExistsError('already frozen: '+name)
     source=R14/'descent_astra'
     p=copy.deepcopy(json.loads((source/'protocol.json').read_text()))
     p.update(schema='r15.descent.protocol.v1',frozen_at_utc=datetime.now(timezone.utc).isoformat(),

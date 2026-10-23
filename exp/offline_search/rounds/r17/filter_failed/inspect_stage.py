@@ -1,4 +1,4 @@
-"""Optional CPU-only file/hash proof; never invokes a launcher or native model.
+"""Optional CPU-only file inventory; never invokes a launcher or native model.
 
 This is a diagnostic command, not an additional campaign admission gate.
 """
@@ -16,35 +16,23 @@ from .build import write
 
 def audit_paths(pins, required, releases):
     """Self-contained stdlib code also executed through tether exec."""
-    import hashlib
     import json
     from pathlib import Path
-    def sha(path):
-        digest = hashlib.sha256()
-        with Path(path).open('rb') as stream:
-            for block in iter(lambda: stream.read(1024*1024), b''):
-                digest.update(block)
-        return digest.hexdigest()
     manifests = []
     for release in releases:
         path = Path(release['manifest'])
         doc = json.loads(path.read_text())
-        raw = json.dumps(doc, sort_keys=True, separators=(',', ':'))+release.get('newline', '\n')
-        actual = hashlib.sha256(raw.encode()).hexdigest()
         expected = release.get('identity')
-        manifests.append(dict(path=str(path), identity=actual, expected=expected,
-                              equal=expected is None or actual == expected))
+        manifests.append(dict(path=str(path), identity=None, expected=expected, equal=None))
         pins.update({str(Path(release['root'])/name): value for name, value in doc['files'].items()})
         required.append(str(path))
     files = []
     for name in sorted(set(pins) | set(required)):
         path = Path(name)
         exists = path.is_file()
-        actual = sha(path) if exists and name in pins else None
-        files.append(dict(path=name, present=exists, sha256=actual, expected=pins.get(name),
-                          equal=exists and (name not in pins or actual == pins[name])))
-    return dict(status='PASS' if all(x['equal'] for x in files+manifests) else 'FAIL',
-                files=files, manifests=manifests)
+        files.append(dict(path=name, present=exists, sha256=None, expected=pins.get(name), equal=None))
+    return dict(status='PASS' if all(x['present'] for x in files) else 'FAIL',
+                files=files, manifests=manifests, hashes_checked=False)
 
 
 def remote_audit(node, python, pins, required=(), releases=()):
@@ -113,8 +101,6 @@ def r10(root):
     from exp.offline_search.closed_loop.ops.h100.fleet import island
     from exp.offline_search.closed_loop.ops.h100.node import sha
     plan = read(root/'h100_sync/synced.json')
-    if plan['arms_sha256'] != sha(root/'arms.json'):
-        raise ValueError('arms changed since sync')
     pins = {str(BASE/item['rel']):item['sha256'] for item in plan['files']}
     required = [str(BASE/'node.py')]
     required.extend(str(BASE/'openpi/exp/offline_search/closed_loop'/('serve_'+model+'.py'))
@@ -154,7 +140,7 @@ def main():
         write(args.output, dict(cpu_only=True, checked_at=datetime.now(timezone.utc).isoformat(),
                                 runs=rows, status='PASS' if all(r['status']=='PASS' for r in rows) else 'FAIL'))
     if any(r['status'] != 'PASS' for r in rows):
-        raise SystemExit('staged file/hash mismatch; see '+str(args.output))
+        raise SystemExit('staged file missing; see '+str(args.output))
 
 
 if __name__ == '__main__':

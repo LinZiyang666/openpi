@@ -49,9 +49,8 @@ def build(island):
     hashes={name:sha(path) for name,path in sorted(files.items())}
     checks=destination/'worker.sha256';atomic(checks,''.join(f'{h}  {n}\n' for n,h in hashes.items()).encode())
     archive=destination/'worker.tar'
-    with tarfile.open(archive,'w') as tf:
+    with tarfile.open(archive,'w',dereference=True) as tf:
         for name,path in sorted(files.items()):
-            if path.is_symlink():raise ValueError('Symlink deployment source refused')
             tf.add(path,arcname=name,recursive=False)
         tf.add(checks,arcname='worker.sha256',recursive=False)
     local={str(path):sha(path) for path in sorted(HERE.glob('*.py'))}

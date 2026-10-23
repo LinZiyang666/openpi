@@ -229,8 +229,6 @@ def load_stock_artifact(path, binding):
     path = Path(path)
     receipt = json.loads(path.with_suffix(path.suffix + ".receipt.json").read_text())
     require_binding(receipt["binding"], binding)
-    if file_sha(path) != receipt["sha256"]:
-        raise ValueError("stock artifact checksum mismatch")
     with path.open("rb") as f:
         artifact = pickle.load(f)
     require_binding(artifact["r17_manifest"]["binding"], binding)

@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 import shutil
 
-from .immutable_release import archive_manifest, identity, sha
+from .immutable_release import archive_manifest, sha
 from .formal_process import write_json
 
 
@@ -46,8 +46,6 @@ def paired_lineage(campaign, source, *, require_complete=False):
     native = ('runtime.tar','workers.tar','assets/model_manifest.json',
               'assets/model_spec.json','assets/benchmark.json','assets/full.yaml')
     pins = {name:sha(source/name) for name in native}
-    if any(sha(control/name) != pin for name,pin in pins.items()) or old['runtime_identity'] != resumed['runtime_identity']:
-        pass
     original = read(source/'EPISODE_PLAN.json')
     full = read(control/'FULL_EPISODE_PLAN.json')
     def semantics(task):
@@ -83,10 +81,6 @@ def attach(campaign, source):
     old, release = read(source/'campaign.json'), read(source/'RUNTIME_RELEASE.json')
     archive = source/'runtime.tar'
     document = archive_manifest(archive)
-    if (sha(archive) != release['archive_sha256'] or identity(document) != release['identity'] or
-            old.get('runtime_identity') != release['identity'] or old['runtime'] != release['root'] or
-            old['server_node'] != release['node']):
-        pass
     for key in ('model', 'domain', 'checkpoint', 'server_node', 'official_50', 'smoke',
                 'mps', 'fastwam_batching', 'dp_batching'):
         if campaign.get(key) != old.get(key):
@@ -139,9 +133,6 @@ def check_pins(campaign):
 def copy_runtime(campaign, destination):
     check_pins(campaign)
     shutil.copyfile(Path(campaign['runtime_from'])/'runtime.tar', destination)
-    if (sha(destination) != campaign['runtime_source_pins']['runtime.tar'] or
-            identity(archive_manifest(destination)) != campaign['runtime_source_identity']):
-        pass
 
 
 def worker_payload(campaign, directory):
@@ -149,8 +140,6 @@ def worker_payload(campaign, directory):
     check_pins(campaign)
     destination = Path(directory)/'workers.tar'
     shutil.copyfile(Path(campaign['runtime_from'])/'workers.tar', destination)
-    if sha(destination) != campaign['runtime_source_pins']['workers.tar']:
-        pass
     manifest, _ = verified_members(destination, 'PAYLOAD.json')
     return dict(archive_sha256=sha(destination), manifest=manifest)
 

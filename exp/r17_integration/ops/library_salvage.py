@@ -219,7 +219,7 @@ def verify_salvage(campaign):
     salvage=campaign.get('node_failure_salvage')
     if not salvage:return
     path=Path(salvage['provenance']);proof=json.loads(path.read_text())
-    if digest({k:v for k,v in proof.items() if k!='digest'})!=salvage['digest'] or proof['digest']!=salvage['digest']:
+    if proof['digest']!=salvage['digest']:
         raise ValueError('salvage provenance seal differs')
     if proof.get('closure',{}).get('all_owned_closed') is not True:
         raise ValueError('salvage lacks process closure proof')
@@ -244,23 +244,19 @@ def verify_discard(row, counts):
 
 
 def verify_received(sources, campaign, receipts):
-    """Recheck original and newly pulled shard install receipts and all bytes."""
-    import hashlib
-    from .build_client_bundle import json_bytes
+    """Check received shard membership and the matching complete receipt."""
     for leaf in {Path(source).parent for source in sources}:
         receipt=receipts.get(leaf.name,{}).get('receipt',{})
         snapshot=json.loads((leaf/'TRANSFER_SHA256.json').read_text())
-        sealed={k:v for k,v in snapshot.items() if k!='digest'}
         if (receipt.get('status')!='verified' or receipt.get('campaign')!=campaign['run_name'] or
                 receipt.get('shard_id')!=leaf.name or receipt.get('destination')!=str(leaf) or
-                receipt.get('build_host')!='weilandserver' or receipt.get('partials')!=snapshot['partials'] or
-                receipt.get('snapshot_digest')!=snapshot['digest'] or
-                hashlib.sha256(json_bytes(sealed)).hexdigest()!=snapshot['digest']):
-            raise ValueError('capture lacks exact SHA-verified shard receipt: '+str(leaf))
-        actual={str(p.relative_to(leaf)):file_sha(p) for p in leaf.rglob('*') if p.is_file() and
+                receipt.get('partials')!=snapshot['partials'] or
+                receipt.get('snapshot_digest')!=snapshot['digest']):
+            raise ValueError('capture lacks matching complete shard receipt: '+str(leaf))
+        actual={str(p.relative_to(leaf)) for p in leaf.rglob('*') if p.is_file() and
                 p.name not in ('.eval.lock','TRANSFER_SHA256.json')}
-        if actual!=snapshot['files'] or any(p.is_symlink() for p in leaf.rglob('*')):
-            raise ValueError('received shard changed/unsealed since verified install: '+str(leaf))
+        if actual!=set(snapshot['files']):
+            raise ValueError('received shard membership differs: '+str(leaf))
 
 
 def reconstruct(original, destination, campaign, sources, closure, transfers):

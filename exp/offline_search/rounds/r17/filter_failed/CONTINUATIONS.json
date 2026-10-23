@@ -239,6 +239,11 @@
       "name": "fa_lo_fw_f_f_mc1",
       "run": "/data/mw_finetune/eval/fa_lo_fw_f_f_mc1",
       "source": "/nvme/weiland/openpi/eval/fa_lo_fw_f_f_m"
+    },
+    {
+      "name": "fa_lo_fw_f_f_l_lc1",
+      "run": "/data/mw_finetune/eval/fa_lo_fw_f_f_l_lc1",
+      "source": "/nvme/weiland/openpi/eval/fa_lo_fw_f_f_l_l"
     }
   ]
 }

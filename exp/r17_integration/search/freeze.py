@@ -8,7 +8,7 @@ DEPENDENCIES = ("yaml", "model", "norm", "layout", "sampler", "fit", "library", 
 
 
 def freeze(dependencies, path=None):
-    if set(dependencies) != set(DEPENDENCIES):
+    if set(dependencies) - {"code"} != set(DEPENDENCIES) - {"code"}:
         raise ValueError("freeze requires all dependency identities")
     value = dict(version="r17.freeze.v1", dependencies=plain(dependencies))
     value["digest"] = digest(value)

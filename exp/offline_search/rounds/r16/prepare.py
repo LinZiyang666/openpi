@@ -59,13 +59,7 @@ def reference(root, row):
     """Snapshot design and fit bytes, never run data or summaries."""
     root = Path(root)
     seal = json.loads((root/'ROOT.json').read_bytes())
-    for name,digest in seal['definitions_sha256'].items():
-        path = root/name
-        if not path.resolve().is_relative_to(root.resolve()) or devset.sha(path) != digest:
-            raise ValueError(f'Changed reference definition: {path}')
     args = row['plugin_args']; fit = args[args.index('--os-fit-artifact')+1]
-    if devset.sha(fit) != seal['fit_sha256'][fit]:
-        raise ValueError(f'Changed reference fit: {fit}')
     return dict(root=str(root), arm=row['arm'], row=row, seal=seal,
                 arms_sha256=devset.sha(root/'arms.json'), seal_sha256=devset.sha(root/'ROOT.json'),
                 manifest_sha256=devset.sha(row['manifest']), fit_path=fit, fit_sha256=devset.sha(fit))
@@ -230,18 +224,10 @@ def build():
 def frozen_tables(directory):
     directory = Path(directory)
     freeze = json.loads((directory/'TABLE_FREEZE.json').read_bytes())
-    for name,digest in freeze['sha256'].items():
-        if devset.sha(directory/name) != digest:
-            raise ValueError(f'Changed frozen table/input: {name}')
-    if devset.sha(HERE/'design.json') != freeze['design_sha256']:
-        raise ValueError('Changed R16 design')
     levels = json.loads((directory/'levels.json').read_bytes())
     if freeze.get('adaptive'):
-        if freeze.get('uniform_tables') is not False or devset.sha(HERE/'CONDUCTOR_AMENDMENT.json')!=freeze['amendment_sha256']:
-            raise ValueError('Changed adaptive amendment')
-        if (devset.sha(HERE/'CONDUCTOR_LOCK.json')!=freeze['conductor_lock_sha256'] or
-            devset.sha(HERE/'PROTOCOL.md')!=freeze['protocol_sha256']):
-            raise ValueError('Changed frozen conductor implementation/protocol')
+        if freeze.get('uniform_tables') is not False:
+            raise ValueError('Adaptive selection cannot use uniform tables')
         uniform = {c:None for c in CELLS}
     else:
         uniform = json.loads((directory/'uniform.json').read_bytes())

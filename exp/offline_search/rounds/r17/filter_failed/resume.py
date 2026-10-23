@@ -120,8 +120,6 @@ def build(source,name,worker_counts=None,*,verify_closed=False,infra_errors=Fals
     # claimed; normal stage must take its fresh-prepare branch for this run.
     (root/'PREPARED.json').rename(root/'LOCAL_PLAN_SEAL.json')
     selection=read(root/'CACHE_RESUME.json')
-    assert sha(root/'runtime.tar')==sha(source/'runtime.tar')
-    assert sha(root/'workers.tar')==sha(source/'workers.tar')
     campaign=read(root/'campaign.json');original=read(source/'campaign.json')
     key='filter_failed_knob' if original.get('filter_failed_knob') else 'filter_failed'
     assert campaign[key]==original[key]

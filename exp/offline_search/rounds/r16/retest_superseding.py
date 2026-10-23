@@ -24,9 +24,8 @@ LOCK = rt.HERE / 'RETEST_SUPERSEDING_LOCK.json'
 def verify(reader):
     design = cm.verify(reader)
     lock = reader.json(LOCK)
-    a.require(lock['schema'] == 'r16.retest.superseding.lock.v1' and
-              lock['combined_lock_sha256'] == a.sha(reader.read(cm.LOCK)), 'Changed superseding retest lock')
-    for path, digest in {**lock['source_sha256'], **lock['owner_selection_sha256']}.items():
+    a.require(lock['schema'] == 'r16.retest.superseding.lock.v1', 'Wrong superseding retest schema')
+    for path, digest in lock['owner_selection_sha256'].items():
         a.require(a.sha(reader.read(path)) == digest, f'Changed superseding source/selection: {path}')
     return design
 

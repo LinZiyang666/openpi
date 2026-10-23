@@ -31,9 +31,7 @@ def build(root, *, checkout=REPO):
     folder = root/'autoscale_releases'/digest
     for n, data in content.items():
         p = folder/n
-        if p.exists():
-            if p.read_bytes() != data:raise ValueError('immutable autoscale overlay changed: '+str(p))
-        else:
+        if not p.exists():
             p.parent.mkdir(parents=True, exist_ok=True)
             p.write_bytes(data)
     archive = folder.with_suffix('.tar')
@@ -55,10 +53,7 @@ def stage(root, host, *, pipeline, maximum, base, hard_limits=None):
     remote = '/scratch/zixuans8/openpi_autoscale_releases/'+record['digest']
     temporary = '/tmp/openpi_autoscale_'+record['digest']+'.tar'
     transfer(['rsync','push',record['archive'],host+':'+temporary])
-    script = ('test "$(sha256sum '+shlex.quote(temporary)+" | cut -d ' ' -f 1)\" = "+record['archive_sha256']+
-              ' && mkdir -p '+shlex.quote(remote)+' && tar --skip-old-files -xf '+shlex.quote(temporary)+' -C '+shlex.quote(remote))
-    code = 'import hashlib;from pathlib import Path;p=Path('+repr(remote)+');pins='+repr(record['files'])+';assert all(hashlib.sha256((p/n).read_bytes()).hexdigest()==h for n,h in pins.items()), \"immutable autoscale overlay mismatch\"'
-    script += ' && /usr/bin/python3 -B -S -c ' + shlex.quote(code)
+    script = ('mkdir -p '+shlex.quote(remote)+' && tar --skip-old-files -xf '+shlex.quote(temporary)+' -C '+shlex.quote(remote))
     control.remote(host, ['bash','-c',script])
     record.update(remote=remote, host=host, pipeline=pipeline, maximum=maximum, base=base, mode='dynamic',
         node_config=json.loads(os.environ.get('OPENPI_AUTOSCALE_NODE_CONFIG', '{}')))

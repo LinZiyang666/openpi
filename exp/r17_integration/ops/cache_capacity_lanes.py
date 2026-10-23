@@ -36,16 +36,12 @@ def finish_copy(snapshot,destination,authorization):
         pins={n:sha(snapshot/n) for n in study.read(snapshot/'PREPARED.json')['files']
             if n.startswith('assets/') or n in ('EPISODE_PLAN.json','RUNTIME_RELEASE.json','FROZEN_RUNTIME.json')}
         pins['runtime.tar']=sha(snapshot/'runtime.tar')
-        if any(sha(destination/n)!=pin for n,pin in pins.items()):
-            pass
         driver_release.validate(campaign,destination)
         campaign['cache_worker_refresh']=dict(archive=str(snapshot/'workers.tar'),
             archive_sha256=sha(snapshot/'workers.tar'),files={f'exp/r17_integration/ops/{n}.py':sha(launch.ROOT/f'exp/r17_integration/ops/{n}.py')
                 for n in ('formal_workers','worker_gpu','worker_disk')})
         write_json(destination/'campaign.json',campaign)
         with launch.retry_scope(destination):deployment=launch.prepare_workers(campaign,destination)
-        if any(sha(destination/n)!=pin for n,pin in pins.items()):
-            pass
         preflight=study.read(destination/'PREFLIGHT.json')
         preflight.update(worker_nodes=list(deployment),execution_worker_nodes=campaign['execution_worker_nodes'],
             execution_workers=campaign['execution_workers'],replicas=campaign['replicas'],ports=campaign['ports'],

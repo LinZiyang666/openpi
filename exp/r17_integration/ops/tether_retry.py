@@ -6,6 +6,7 @@ from contextvars import ContextVar
 from datetime import datetime, timezone
 from functools import wraps
 import json
+import math
 import os
 from pathlib import Path
 import re
@@ -129,8 +130,8 @@ def retry(operation, *, label, node=None, seconds=RETRY_SECONDS, sleeper=None, c
     Command execution timeouts stay real errors. The retry window bounds the
     waits; a final in-flight CLI call retains its own execution timeout.
     """
-    if not 0 < seconds <= RETRY_SECONDS:
-        raise ValueError('retry window must be positive and at most300 seconds')
+    if not math.isfinite(seconds) or seconds <= 0:
+        raise ValueError('retry window must be finite and positive')
     sleeper, clock = sleeper or time.sleep, clock or time.monotonic
     journal = current_journal.get()
     started, attempt = None, 0

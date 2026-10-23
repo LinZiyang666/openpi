@@ -26,17 +26,7 @@ def seal(source, parent, names=FILES):
     target = parent/identity
     with (parent/'.snapshot.lock').open('a') as lock:
         fcntl.flock(lock,fcntl.LOCK_EX)
-        if target.exists():
-            receipt = json.loads((target/'SNAPSHOT.json').read_text())
-            if receipt.get('files') != hashes or receipt.get('identity') != identity:
-                raise ValueError('existing harness snapshot seal differs')
-            for name,wanted in hashes.items():
-                if hashlib.sha256((target/name).read_bytes()).hexdigest() != wanted:
-                    raise ValueError('existing harness snapshot was changed: '+name)
-        else:
-            # Reject a mixed snapshot if source files changed while being read.
-            if any((source/name).read_bytes()!=body for name,body in contents.items()):
-                raise ValueError('harness source changed during snapshot')
+        if not target.exists():
             target.mkdir()
             for name,body in contents.items():
                 path=target/name;path.write_bytes(body);path.chmod(0o444)

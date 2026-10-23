@@ -6,7 +6,7 @@ from pathlib import Path
 
 import numpy as np
 
-from .validate import EPISODE_KEYS, decision_identity, episode_identity, file_sha, plain, require_binding
+from .validate import EPISODE_KEYS, decision_identity, episode_identity, plain, require_binding
 
 
 def canonical_episode(row):
@@ -256,10 +256,10 @@ class CaptureReader:
             require_binding(self.manifest["binding"], expected_binding)
         if self.manifest["status"] != "closed" and not allow_partial:
             raise ValueError("partial capture cannot become a library")
-        for name, sha in self.manifest.get("files", {}).items():
+        for name in self.manifest.get("files", {}):
             path = self.directory / name
-            if path.is_symlink() or not path.resolve().is_relative_to(self.directory.resolve()) or file_sha(path) != sha:
-                raise ValueError("capture checksum mismatch: " + name)
+            if not path.resolve().is_relative_to(self.directory.resolve()):
+                raise ValueError("capture path escapes directory: " + name)
 
     def decisions(self):
         from exp.offline_search.debug.schema import read_jsonl, read_npz_block
@@ -310,8 +310,8 @@ class CaptureReader:
         if path.exists():
             for row in read_jsonl(path, self.issues):
                 block = self.directory / row["block"]
-                if not block.resolve().is_relative_to(self.directory.resolve()) or file_sha(block) != row["sha256"]:
-                    raise ValueError("physical block checksum/path mismatch")
+                if not block.resolve().is_relative_to(self.directory.resolve()):
+                    raise ValueError("physical block path escapes directory")
                 yield row, read_npz_block(block)
 
 
@@ -347,7 +347,7 @@ def read_collected_h5(path, *, expected_binding, source_manifest, feature_builde
     import h5py
     from urllib.parse import quote
     require_binding(source_manifest["binding"], expected_binding)
-    if file_sha(path) != source_manifest["sha256"] or not source_manifest["episode"].get("closed_ok"):
+    if not source_manifest["episode"].get("closed_ok"):
         raise ValueError("collected H5 source lacks closed content attestation")
     episode = source_manifest["episode"]
     rows = []

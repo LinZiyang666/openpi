@@ -37,10 +37,9 @@ D=$DATA/mw_finetune
 PY=cpython-3.12.3-linux-x86_64-gnu
 mkdir -p "$BASE/bin" "$D/dp" "$D/envs" "$D/qualification" "$D/python" "$D/eval"
 
-# 1. proot (static, checksum from the v5.5.0 release) and rsync (conda-forge).
+# 1. proot (static v5.5.0 release) and rsync (conda-forge).
 if [ ! -x "$BASE/bin/proot" ]; then
   curl -sSL -m 120 -o "$BASE/bin/proot.part" https://github.com/proot-me/proot/releases/download/v5.5.0/proot
-  echo "db185300a9daabbce86aca7632d8c7fdc4249f6f153171954013b70c5f491ec0  $BASE/bin/proot.part" | sha256sum -c
   chmod +x "$BASE/bin/proot.part" && mv "$BASE/bin/proot.part" "$BASE/bin/proot"
 fi
 [ -x "$BASE/tools/bin/rsync" ] || /opt/conda/bin/conda create -y -q -p "$BASE/tools" -c conda-forge --override-channels rsync

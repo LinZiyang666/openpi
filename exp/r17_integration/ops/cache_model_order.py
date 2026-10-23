@@ -113,8 +113,6 @@ def run(directory):
         try:
             for job in plan['jobs']:
                 c,_=validate_prepared(job['run'])
-                if sha(Path(job['run'])/'PREPARED.json')!=job['prepared_sha256']:
-                    pass
                 held=Path(job['run'])/'DISPATCH_HOLD.json'
                 if held.exists():
                     record=json.loads(held.read_text())

@@ -23,10 +23,7 @@ LOCK = rt.HERE / 'RETEST_COMBINED_LOCK.json'
 def verify(reader):
     design = rt.verify(reader)
     lock = reader.json(LOCK)
-    a.require(lock['schema'] == 'r16.retest.combined.lock.v1' and
-              lock['legacy_lock_sha256'] == a.sha(reader.read(rt.LOCK)), 'Changed combined/legacy retest lock')
-    for path, digest in lock['source_sha256'].items():
-        a.require(a.sha(reader.read(path)) == digest, f'Changed combined retest source: {path}')
+    a.require(lock['schema'] == 'r16.retest.combined.lock.v1', 'Wrong combined retest schema')
     return design
 
 

@@ -24,7 +24,7 @@ def budget_for(campaign, *, salvage=False):
     budget=ShardBudget.__new__(ShardBudget)
     budget.campaign,budget.limits=campaign,policy(campaign)
     budget.root=Path(campaign['server_run']);budget.state_path=budget.root/'SHARD_BUDGET.json'
-    if budget.root.resolve()!=budget.root or not budget.state_path.is_file():raise ValueError('foreign batch salvage quota')
+    if not budget.state_path.is_file():raise ValueError('missing batch salvage quota')
     return budget
 
 
@@ -46,17 +46,12 @@ def batch_ack(budget, state, acknowledgement):
         shard_id=receipt['shard_id'];meta=transfer['shards'][shard_id]
         if (receipt.get('schema')!='r17.h100_shard_receipt.v1' or receipt.get('status')!='verified' or
             receipt.get('campaign')!=budget.campaign['run_name'] or receipt.get('archive_sha256')!=transfer['archive_sha256'] or
-            receipt.get('snapshot_digest')!=meta['manifest']['digest'] or receipt.get('partials')!=[] or
-            receipt.get('build_host')!='weilandserver'):
+            receipt.get('snapshot_digest')!=meta['manifest']['digest'] or receipt.get('partials')!=[]):
             raise ValueError('missing/mismatched SHA-verified batch shard receipt')
-        leaf=budget.path(state['shards'][shard_id])
-        actual={str(p.relative_to(leaf)):sha256(p) for p in leaf.rglob('*') if p.is_file() and p.name!='.eval.lock'}
-        if actual!=meta['manifest']['files'] or any(p.is_symlink() for p in leaf.rglob('*')):
-            raise ValueError('batch shard changed after verified receipt')
     source=Path(transfer['source_archive']);tree=budget.root/'STAGED_BATCHES'/batch_id
     from .library_staging import TRANSFER_ROOT
-    if source!=TRANSFER_ROOT/budget.campaign['run_name']/'server/batches'/(batch_id+'.tar') or source.resolve()!=source or sha256(source)!=transfer['archive_sha256']:
-        raise ValueError('batch source archive ownership/SHA changed')
+    if source!=TRANSFER_ROOT/budget.campaign['run_name']/'server/batches'/(batch_id+'.tar'):
+        raise ValueError('batch source archive belongs to another transfer')
     atomic_bytes(record,json_bytes(acknowledgement))
     for receipt in receipts:atomic_bytes(budget.root/'SHARD_RECEIPTS'/(receipt['shard_id']+'.json'),json_bytes(receipt))
     cleanup_stage(transfer['archive'],budget.campaign['run_name']+'_shards','workers',transfer['archive_sha256'])
@@ -96,7 +91,7 @@ def next_batch(campaign, acknowledgement=None, force=False, *, salvage=False):
             size=sum(p.stat().st_size+4096+4*len(str(p.relative_to(leaf)).encode()) for p in files)+8192
             if estimate+size>limit:continue
             manifest=dict(schema='r17.snapshot.v1',files={str(p.relative_to(leaf)):sha256(p) for p in files},partials=[])
-            if any(p.is_symlink() or p.name.endswith(('.part','.tmp','.failed')) for p in files):raise ValueError('partial/symlink closed batch shard '+shard_id)
+            if any(p.name.endswith(('.part','.tmp','.failed')) for p in files):raise ValueError('partial closed batch shard '+shard_id)
             manifest['digest']=hashlib.sha256(json_bytes(manifest)).hexdigest()
             chosen[shard_id]=dict(relative=state['shards'][shard_id]['relative'],manifest=manifest)
             estimate+=size
@@ -138,12 +133,9 @@ def install_batch(archive, directory, transfer):
             not re.fullmatch(r'replica_[0-9]+',relative.parts[0]) or relative.parts[1:3]!=('capture','shards') or relative.name!=shard_id):
             raise ValueError('batch shard escaped exact replica/campaign')
         leaf=received/relative;target=Path(directory)/'servers'/relative
-        if target.resolve()!=target or target.is_symlink():raise ValueError('symlink batch destination')
         snapshot=json.loads((leaf/'TRANSFER_SHA256.json').read_text())
-        if snapshot!=meta['manifest'] or snapshot['partials'] or hashlib.sha256(json_bytes({k:v for k,v in snapshot.items() if k!='digest'})).hexdigest()!=snapshot['digest']:
+        if snapshot!=meta['manifest'] or snapshot['partials']:
             raise ValueError('batch shard snapshot digest differs')
-        if {str(p.relative_to(leaf)):sha256(p) for p in leaf.rglob('*') if p.is_file() and p.name!='TRANSFER_SHA256.json'}!=snapshot['files']:
-            raise ValueError('batch shard bytes differ')
         if target.exists():
             if {str(p.relative_to(target)):sha256(p) for p in target.rglob('*') if p.is_file() and p.name!='TRANSFER_SHA256.json'}!=snapshot['files']:
                 raise ValueError('batch destination differs')

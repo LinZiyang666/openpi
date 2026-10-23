@@ -21,7 +21,6 @@ def generate():
             target=Path(cell['original_fit']).with_name(Path(cell['run_fit']).stem+'_'+TAG+'.pkl')
             if old!=target:
                 shutil.copyfile(old,target)
-                assert sha(old)==sha(target)
                 artifact['path']=str(target)
                 # Remove only our own newly created artifact from the original
                 # run directory; original fits/campaign files are never edited.

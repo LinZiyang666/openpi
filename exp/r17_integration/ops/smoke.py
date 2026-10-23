@@ -1,4 +1,4 @@
-"""Run an explicitly supplied qualification hook with a <=15 minute deadline.
+"""Run an explicitly supplied qualification hook with a configurable deadline.
 
 Dry run is the default. Hooks must close owned workers/services in finally.
 Only the child created here may receive termination on deadline.
@@ -38,9 +38,10 @@ def main():
     p.add_argument("--gpu-slot-token", help="coordinator-owned exclusive lock file")
     p.add_argument("--child", action="store_true", help=argparse.SUPPRESS)
     a = p.parse_args()
-    if not 1 <= a.deadline <= 900:
-        p.error("deadline must lie in 1..900 seconds")
+    if a.deadline < 1:
+        p.error("deadline must be positive")
     plan = qualification_plan(a.model, a.checkpoint_sha)
+    plan['deadline_seconds'] = a.deadline
     if not a.execute:
         atomic_bytes(a.receipt, json_bytes(plan))
         print(json.dumps(plan))

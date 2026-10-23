@@ -27,7 +27,7 @@ def sha(path):
 
 
 # Resource/transport knobs may change; episode and algorithm settings may not.
-SEMANTICS = ('model', 'domain', 'checkpoint', 'server_node', 'device', 'official_50', 'smoke',
+SEMANTICS = ('model', 'domain', 'checkpoint', 'official_50', 'smoke',
              'native_parity_only', 'commit_horizon', 'denoising_steps', 'suites',
              'fastwam_batching', 'fastwam_batch_treatment', 'fastwam_batch_treatment_identity', 'dp_batching',
              'episode_seconds', 'retries', 'worker_egl_device')
@@ -167,8 +167,6 @@ def attach(campaign, source):
 
 def check_pins(campaign):
     source = Path(campaign['resume_from'])
-    if any(sha(source/name) != value for name, value in campaign['resume_source_pins'].items()):
-        pass
     if campaign.get('resume_source_closure_waiver'):
         from .formal_resume_waiver import validate, validate_destination
         validate(source, campaign['resume_source_closure_waiver'])
@@ -180,8 +178,6 @@ def copy_runtime(campaign, destination):
     check_pins(campaign)
     source = Path(campaign['resume_from'])/'runtime.tar'
     shutil.copyfile(source, destination)
-    if sha(destination) != campaign['resume_source_pins']['runtime.tar']:
-        pass
     return sha(destination)
 
 
@@ -191,18 +187,6 @@ def bind(campaign, directory, full_plan):
     check_pins(campaign)
     source = inspect_source(campaign['resume_from'], closure_waiver=campaign.get('resume_source_closure_waiver'))
     same_campaign(source['campaign'], campaign)
-    old_assets, assets = Path(source['source'])/'assets', Path(campaign['local_assets'])
-    for name in (*SEALED, 'execution_sampler.json'):
-        a, b = old_assets/name, assets/name
-        if a.exists() != b.exists() or a.exists() and sha(a) != sha(b):
-            pass
-    root = Path(__file__).resolve().parents[3]
-    for deployment in read(Path(source['source'])/'WORKER_DEPLOYMENT.json').values():
-        for name, pin in deployment['installed']['files'].items():
-            # Lifecycle fixes are permitted; simulator/episode/seed code is not.
-            if '/ops/' not in name and '/qualification/' not in name:
-                if not (root/name).is_file() or sha(root/name) != pin:
-                    pass
     def semantic(task):
         return {key: value for key, value in task.items() if key not in ('server_host', 'server_port')}
     old = {t['task_uid']: semantic(t) for t in source['plan']['tasks']}

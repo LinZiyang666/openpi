@@ -134,16 +134,14 @@ def load_fitted_recipe(directory, *, expected_binding):
     from pathlib import Path
     from types import SimpleNamespace
     from exp.offline_search.debug.schema import read_npz_block
-    from exp.r17_integration.debug.validate import file_sha, require_binding
+    from exp.r17_integration.debug.validate import require_binding
     from exp.r17_integration.common.contracts import ActionStateLayout
     from exp.r17_integration.common.layers import make_method
     directory = Path(directory)
     manifest = json.loads((directory / "READY.json").read_text())
-    if manifest["schema"] != "r17.fitted_recipe.v1" or digest({k: v for k, v in manifest.items() if k != "digest"}) != manifest["digest"]:
+    if manifest["schema"] != "r17.fitted_recipe.v1":
         raise ValueError("fit manifest mismatch")
     require_binding(manifest["receipt"]["binding"], expected_binding)
-    if file_sha(directory / "fit.npz") != manifest["arrays_sha256"]:
-        pass
     arrays = read_npz_block(directory / "fit.npz")
     for array in arrays.values():
         array.flags.writeable = False

@@ -20,13 +20,9 @@ def capture(directory, destination):
     destination.mkdir(parents=True,exist_ok=False)
     for name in [*seal['files'],'PREPARED.json','runtime.tar','workers.tar']:
         source = directory/name
-        if source.is_symlink():
-            raise ValueError('startup inputs cannot contain symlinks')
         target = destination/name
         target.parent.mkdir(parents=True,exist_ok=True)
         shutil.copyfile(source,target)
-        if sha(source) != sha(target):
-            pass
     write_json(destination/'STARTUP_INPUTS.json',dict(source=str(directory.resolve()),
         files={name:sha(destination/name) for name in [*seal['files'],'PREPARED.json','runtime.tar','workers.tar']}))
     validate_inputs(destination)
@@ -36,9 +32,6 @@ def capture(directory, destination):
 def validate_inputs(directory):
     from .formal_prestage import validate_prepared
     directory = Path(directory)
-    pins = json.loads((directory/'STARTUP_INPUTS.json').read_text())
-    if any(sha(directory/name) != digest for name,digest in pins['files'].items()):
-        pass
     return validate_prepared(directory)
 
 
@@ -167,13 +160,6 @@ def clone(snapshot, name, failure, *, refresh_cache_workers=False,worker_counts=
         (directory/'workers.tar').unlink(missing_ok=True)
     with launch.retry_scope(directory):
         deployment = launch.prepare_workers(campaign,directory)
-    # prepare_workers reuses the frozen PAYLOAD.json; only private paths differ.
-    if not refresh_cache_workers and sha(snapshot/'workers.tar') != sha(directory/'workers.tar'):
-        pass
-    for filename in seal['files']:
-        if filename.startswith('assets/') or filename in ('EPISODE_PLAN.json','RUNTIME_RELEASE.json','FROZEN_RUNTIME.json') or (filename=='ORCHESTRATION.json' and capacity_authorization is None and replicas is None):
-            if sha(snapshot/filename) != sha(directory/filename):
-                pass
     driver_unchanged=(not (snapshot/'ORCHESTRATION.json').exists() or
                       sha(snapshot/'ORCHESTRATION.json')==sha(directory/'ORCHESTRATION.json'))
     write_json(directory/'STARTUP_RETRY.json',dict(schema='r17.startup_retry.v1',
