@@ -44,6 +44,12 @@ def coefficients(model, suite):
     system_stage2 = stage2
     if model == "Fast-WAM" and suite != "mt50":  # GPU T5 in stage2: pure inference pays it, the cache system does not
         system_stage2 = json.loads((PROFILE / "results_cached_text" / f"{MODELS[model]}_{suite}.json").read_text())["stage2_ms"]
+    elif model == "Fast-WAM":
+        # No MetaWorld cached-text timing exists; T5 pads every prompt to 128 tokens, so its 4090 cost is the
+        # LIBERO full-minus-cached stage2 difference (same encoder, same length).
+        full, cached = (json.loads((PROFILE / d / f"{MODELS[model]}_libero_10.json").read_text())["stage2_ms"]
+                        for d in ("results", "results_cached_text"))
+        system_stage2 = stage2 - (full - cached)
     unit = stage1 + stage2 + r["stage3_full_loop_ms"]
     def coef(s2):
         return dict(vision=stage1 / unit, full_miss=(s2 + r["stage3_full_loop_ms"]) / unit,

@@ -18,15 +18,8 @@ LABELS={'dp':'DP','groot':'GR00T','fastwam':'Fast-WAM','cosmos':'Cosmos'}
 def prices(label,suite,gpu):
     from exp.offline_search.rounds.r17.knob import ir_formal as ir
     model={v:k for k,v in LABELS.items()}[label]
-    benchmark='mt50' if suite=='mt50' else 'libero'
-    if model=='cosmos':
-        spec=read(HERE.parent/'filter_failed_knob/startup_checks/fa_co_r_u_l.json')['actual_spec']
-    else:
-        job=next(j for j in read(HERE/'CAMPAIGNS.json')['jobs'] if
-                 (j['model'],j['benchmark'],j['gpu'],j['stage'])==(model,benchmark,gpu,'long'))
-        proof=read(HERE/'cpu'/f'{job["name"]}.json')
-        spec=read(Path(proof['native_strict_loader_proof']))['actual_spec']
-    keys=('model_id','checkpoint_identity','code_digest','norm_identity','layout','feature_spec','python_island')
+    # Profiles are matched by model and benchmark only: the same weights served with another code revision
+    # (e.g. the H100 Fast-WAM text-table loader, which changes code_digest/checkpoint_identity) cost the same per call.
     # Owner 10-20: LIBERO is priced from one timing (libero_10) for every suite; the suites share the
     # model and input shapes, so the per-call cost is the same.
     suite='mt50' if suite=='mt50' else 'libero_10'
@@ -42,8 +35,7 @@ def prices(label,suite,gpu):
                 and '4090' in r.get('gpu_name','') and all(n==c['expected_actual_nfe']
                 for c in r.get('cells',{}).values() for n in c.get('actual_nfe_by_iteration',[])))
     for root in (HERE/'profiles'/'4090',ir.PROFILE):
-        if all((root/p).exists() and timed(read(root/p)) and
-               all(read(root/p).get('model_spec',{}).get(k)==spec.get(k) for k in keys) for p in paths):
+        if all((root/p).exists() and timed(read(root/p)) for p in paths):
             with patch.object(ir,'PROFILE',root):return ir.coefficients(label,suite)
     return None,None
 
