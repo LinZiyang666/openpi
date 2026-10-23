@@ -15,8 +15,9 @@ unchanged, after these process-local changes (1-6 in both modes, 7 in cache mode
 3. Prefix trimming: cameras whose mask is all False (LIBERO's empty third view) are not encoded, and the prompt
    is cut to CLUSTER_SIM_TEXT_TOKENS. Masked tokens take no position (cumsum of the pad mask) and no attention,
    so the computation is the same; only the GEMM shapes shrink (968 -> 512 + text tokens).
-4. Request threads: the asyncio default executor gets CLUSTER_SIM_THREADS threads (default 32 otherwise). Control
-   frames (select_bundle, episode_start, episode_end) run in one dedicated thread instead of the event loop.
+4. Request threads: the asyncio default executor gets CLUSTER_SIM_THREADS threads (default 32 otherwise). Connection
+   wrapper stacks are pooled per bundle, so a connection switching bundles reuses a built stack instead of
+   rebuilding one in the event loop.
 5. Memory: the process may allocate at most CLUSTER_SIM_VRAM_GB of the card. Explicit gc.collect() is a no-op and
    gc.freeze() runs at the first infer request (startup objects leave the collector's generations).
 6. CUDA graphs (CLUSTER_SIM_GRAPHS=1): stage 1 (preprocess + SigLIP + prefix embedding), stage 2 (Gemma prefix KV)
@@ -351,33 +352,14 @@ async def run(self, *args, **kwargs):
 
 _wps.WebsocketPolicyServer.run = run
 
-# Control frames off the event loop: the server handles select_bundle / episode_start / episode_end synchronously in
-# the asyncio loop, and in cache mode a bundle switch rebuilds the connection's interceptor and plugin session (tens of
-# ms, occasionally ~0.2 s). While it runs no connection sends or receives, so every reply waits. They now run in one
-# dedicated thread (control work stays serialized as before; the event loop keeps serving), awaited in order, so each
-# connection still sees its frames handled one after another.
+# Bundle switches without rebuilds: the replay hands each robot slot the next shuffled episode, so a connection moves
+# between the four arms almost every episode, and every select_bundle to another arm rebuilt the connection's whole
+# wrapper stack (interceptor, orchestrator components, plugin session with a copy of the fitted method) inside the
+# event loop, stalling every connection. Stacks are now pooled per bundle: a connection that leaves a bundle returns
+# its stack to that bundle's pool (in place of on_task_end), and the next connection selecting the bundle takes it, so
+# a switch is a pointer swap. Per-episode state is reset at episode_start as before; stacks are only ever used by one
+# connection at a time (control frames run on the event loop, as natively).
 import functools  # noqa: E402
-import inspect  # noqa: E402
-import textwrap  # noqa: E402
-
-_ctrl_executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix='control')
-
-
-async def _ctrl_call(fn, *args, **kwargs):
-    return await asyncio.get_running_loop().run_in_executor(_ctrl_executor, functools.partial(fn, *args, **kwargs))
-
-
-_handler_source = textwrap.dedent(inspect.getsource(_wps.WebsocketPolicyServer._handler))
-for _old, _new in (('_bind_bundle(bundle_id)\n', 'await _ctrl_call(_bind_bundle, bundle_id)\n'),
-                   ('_bind_bundle(sb_bundle_id)\n', 'await _ctrl_call(_bind_bundle, sb_bundle_id)\n'),
-                   ('conn_policy.on_episode_start(\n', 'await _ctrl_call(conn_policy.on_episode_start,\n'),
-                   ('conn_policy.on_episode_end(success=', 'await _ctrl_call(conn_policy.on_episode_end, success=')):
-    assert _handler_source.count(_old) == 1, _old
-    _handler_source = _handler_source.replace(_old, _new)
-_namespace = {}
-_wps._ctrl_call = _ctrl_call  # the handler runs in the module's own globals (it assigns _current_bundle there)
-exec(compile(_handler_source, _wps.__file__, 'exec'), _wps.__dict__, _namespace)
-_wps.WebsocketPolicyServer._handler = _namespace['_handler']
 
 # Timing of the per-connection rebuild a bundle switch does (factory = whole wrapper stack), -> stages_<pid>.json.
 _ctrl_times = {}
@@ -399,9 +381,34 @@ def _timed(name, fn):
 _server_init = _wps.WebsocketPolicyServer.__init__
 
 
+_pools = {}  # bundle_id -> idle wrapper stacks
+
+
+def _pooled(factory):
+    def make(shared_base_policy, bundle_id='default'):
+        pool = _pools.setdefault(bundle_id, [])
+        if pool:
+            return pool.pop()
+        stack = factory(shared_base_policy, bundle_id)
+        begin, begun = getattr(stack, 'on_task_begin', None), []
+
+        def on_task_begin():
+            if begin is not None and not begun:
+                begun.append(True)
+                begin()
+
+        def on_task_end():
+            if all(s is not stack for s in pool):
+                pool.append(stack)
+
+        stack.on_task_begin, stack.on_task_end = on_task_begin, on_task_end
+        return stack
+    return make
+
+
 def _server_init_timed(self, *args, connection_policy_factory=None, **kwargs):
     if connection_policy_factory is not None:
-        connection_policy_factory = _timed('factory', connection_policy_factory)
+        connection_policy_factory = _pooled(_timed('factory', connection_policy_factory))
     _server_init(self, *args, connection_policy_factory=connection_policy_factory, **kwargs)
 
 
