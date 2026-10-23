@@ -40,6 +40,11 @@
       "new": true,
       "run": "/data/mw_finetune/eval/fa_lo_fw_r_b_l"
     },
+    "fastwam:mt50:full:H100": {
+      "c5_pure": true,
+      "new": true,
+      "run": "/data/mw_finetune/eval/fa_lo_fw_f_b_m"
+    },
     "fastwam:mt50:full:H200 MIG 1g.18gb": {
       "c5_pure": true,
       "new": true,
@@ -48,7 +53,8 @@
     "fastwam:mt50:reduced:H200 MIG 1g.18gb": {
       "c5_pure": true,
       "new": true,
-      "run": "/data/mw_finetune/eval/fa_lo_fw_r_b_m_j"
+      "note": "B8; the B16 _j failed (NVML assert, 66 episodes)",
+      "run": "/data/mw_finetune/eval/fa_lo_fw_r_b_m_j2"
     },
     "groot:mt50:full:H100": {
       "c5_pure": true,
