@@ -21,7 +21,7 @@ def campaign_prompts(adapter,campaign):
     if campaign.get('domain')=='metaworld':
         return sorted({adapter.wire.prompt_template.format(task=row[1]) for row in benchmark['tasks']})
     return sorted({adapter.wire.prompt_template.format(task=libero_language(n)) for n in benchmark['ordered_tasks']
-                   if n.split('/')[0] in campaign['suites']})
+                   if not campaign.get('suites') or n.split('/')[0] in campaign['suites']})
 
 
 def table_text(adapter,campaign):
