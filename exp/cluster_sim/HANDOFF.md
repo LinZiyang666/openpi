@@ -9,26 +9,12 @@ compact 后先读本文件，再读 `DESIGN.md`（owner 决议 + 调优过程 + 
 - 正式批次（H100、pod、4090 队列）的看守是兄弟会话 `[75fc7a]`。它的名字很长，就是 owner 那句「我们要做一个新实验，是模拟集群部署实验，我现在和你讨论设计…」，SendMessage 的 `to` 用 ListAgents 里那一行的全名加 ` [75fc7a]`。我不碰它的批次和端口（23192/23193/23197/23198/23199、23117/23118）。
 - 本会话 10-22 21:3x 以 bypass 权限重开（`claude --bg --resume fcd51a3d-4543-4bf6-a842-38214526e7b5 --dangerously-skip-permissions`）；job 临时目录是 `$CLAUDE_JOB_DIR/tmp`（旧的 `jobs/fcd51a3d` 已删）。
 
-## ⛔ 现在在跑什么、我要接着做什么（10-23 14:3x 写）
+## 状态（10-23 19:0x 写）
 
-4090 借用中：看守会话同意借到 **10-23 19:00 左右**，期间它不排 4090、不碰端口 8000。跑完必须给 `[75fc7a]` 发消息交还（写清：4090 空闲时刻、无本会话进程、端口 8000 空）。
-
-后台链（`setsid` 脱离会话，compact/重启不受影响），依次：
-1. `runs/cache_seg`：完整系统 + 长执行段（重跑，修好服务端后），14:19 起，约 1.3 h。
-2. `runs/cache_full`：缓存系统、不开长执行段、**不减步**（未命中 K=10），保留旋钮档位，约 1.6 h。
-   - 1、2 由 `run_formal.sh`（PID 1345950，`MODES="cache_seg cache_full"`）跑，日志 `/nvme/weiland/openpi/cluster_sim/logs/formal_cache_seg.log`、`formal_cache_full.log`。
-3. `runs/cache`：完整系统重跑。等 PID 1345950 退出后，链 PID 1652783 先把旧 `runs/cache` 改名 `runs/cache_v1_rebuild`，再 `MODES=cache` 跑，日志 `logs/formal_v2_cache.out`、`formal_cache.log`。预计 **18:40 前后**全部结束。
-
-查进度：`ls /nvme/weiland/openpi/cluster_sim/runs/*/replay/`、`pgrep -af "run_formal|exp.cluster_sim"`、`nvidia-smi`。每个 run 结束会写 `RESULTS.json`。
-
-全部跑完后照做：
-1. 每组核对：没有失败请求（`grep -c "batch failed\|RuntimeError" runs/<x>/server/server.log`）；每个 N 都是 500 局；`stages_*.json` 里 `control_s.factory` 的次数（池化后只有开头几十到一百多次重建）。
-2. 新旧对比：`runs/cache_seg` vs `runs/cache_seg_v1_rebuild`、`runs/cache` vs `runs/cache_v1_rebuild`，看高负载段（N≥40）吞吐和延迟变化。
-3. 命中率：按各 N 回放时间窗统计 `/data/mw_finetune/eval/cs_rec_pi05/runs/*/server_8000/decisions_*.jsonl` 里 `ev=dec` 的 `hit`（以前：不跳请求 78.3%，长执行段 81.4%）。
-4. `PYTHONPATH=.:src .venv/bin/python -m exp.cluster_sim.report --runs /nvme/weiland/openpi/cluster_sim/runs`，生成 `runs/REPORT.md` 和 `runs/report.png`，四条线：纯推理、缓存系统全步、完整系统、完整系统 + 长执行段。亲自看图，再用 SendUserFile 发给 owner。
-5. 把结果写进 DESIGN.md（替换「加测结果」里旧的长执行段数字，注明旧数字来自重建缺陷版本），更新本文件。
-6. 给 `[75fc7a]` 发消息交还 4090。
-7. 用白话汇报 owner：三组倍数（以 500 局用时或稳态吞吐比）、延迟、和 IR 的关系、修了什么。
+- 四组正式回放全部跑完（18:50），都没有失败请求：`runs/pure`、`runs/cache_full`、`runs/cache`、`runs/cache_seg`；修复前的旧数据在 `runs/cache_v1_rebuild`、`runs/cache_seg_v1_rebuild`。
+- 报告：`runs/REPORT.md`、`runs/report.png`（四条线），已发给 owner；结果和解读写进了 DESIGN.md「正式实验」。
+- 4090 18:52 已交还看守会话 `[75fc7a]`（它已确认接手 4090 和本机算力）。之后本会话不在本机跑任何计算，要再用 4090 先找看守会话借。
+- 没有待办；owner 有新问题再按 DESIGN.md 的数据回答。命中率统计脚本：按回放时间窗数 `/data/mw_finetune/eval/cs_rec_pi05/runs/*/server_8000/decisions_*.jsonl` 里 `ev=dec` 的 `hit`（结果：不跳请求 78.3%，长执行段 81.4%，各 N 相同）。
 
 ## owner 定下的实验内容和后来的决定
 
@@ -74,12 +60,12 @@ compact 后先读本文件，再读 `DESIGN.md`（owner 决议 + 调优过程 + 
 
 另外：拟合方法的 share memo 按方法缓存一次（复制更快）。
 
-## 结果（到 14:3x 为止）
+## 结果（全部跑完，详见 DESIGN.md）
 
-- **纯推理**（`runs/pure`，有效，不受换分组问题影响，控制帧 0.1 ms）：饱和 41.6 条/秒（稳态 42.5 ≈ 上限 44 的 96%），500 局约 667 s；N=5 中位 52 ms。
-- **完整系统 v1**（重建缺陷版本，将被重跑替换）：饱和约 88–90 条/秒（稳态 91–96），500 局约 310–320 s；命中率 78.3%。
-- **长执行段 v1**（重建缺陷版本，`runs/cache_seg_v1_rebuild`）：N=100 时 500 局 181 s，相对纯推理 3.68 倍；命中率 81.4%；同等负载下吞吐比完整系统低约 10%。owner 由此发现服务端问题。
-- **池化验证**（`tune/cache5/{seg_pool,cache_pool}`，短跑）：同等负载（长执行段 N=100 vs 完整系统 N=50）稳态吞吐 81.0 vs 83.9，基本对齐。延迟差约 2 倍是饱和闭环的必然：L = N/C − Z。
+- 饱和后（N≥40）500 局用时：纯推理约 667 s；缓存系统全步（K=10）303–334 s（2.0–2.2×）；完整系统（K=1）301–315 s（2.1–2.2×）；完整系统 + 长执行段（K=1）N≥60 时 156–160 s（4.2–4.3×）。
+- 饱和稳态吞吐：纯推理 42.5 条/秒（上限约 44）；三组缓存系统 87–99 条/秒，都卡在请求端 CPU；减步只在中低负载缩短延迟。
+- 重跑前后：完整系统 N=20–50 快 5–6%、N≥70 不变；长执行段 N≥40 快 10–19%（N=100 181→156 s）。
+- 中位延迟：N=10 时纯推理 123 ms、三组缓存系统 16–18 ms；N=100 时纯推理 2.0 s、全步 604 ms、完整系统 651 ms、长执行段 447 ms。
 - **IR 回答**（owner 问过）：
   - 这套配置的正式 IR = 0.120（含长执行段，成功率 93.6%；同步数纯推理参照 0.305），来自 `q3_port_1020/RESULTS_1022.json`。
   - 正式价格反推：看图 0.152、K=1 未命中 0.454（回代各档吻合）。
