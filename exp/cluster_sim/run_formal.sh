@@ -9,7 +9,7 @@ LIB=/nvme/weiland/openpi/cluster_sim/library
 ROBOTS=5,10,20,30,40,50,60,70,80,90,100
 COMMON=(--graphs --compile all --compile-mode default --fuse23)
 PURE=(--batch 1:16,2:16,3:16 --omp 4 "${COMMON[@]}")
-CACHE=(--batch 1:32,2:16,3:16 --priority 1:-3,3:0 --omp "${CACHE_OMP:-4}" --dot --lean "${COMMON[@]}")
+CACHE=(--batch 1:32,2:16,3:16 --priority 1:-3,3:0 --pipe1 --omp "${CACHE_OMP:-4}" --dot --lean "${COMMON[@]}")
 mkdir -p "$OUT" "$LOG"
 for mode in ${MODES:-pure cache}; do
   if [ "$mode" = pure ]; then opts=("${PURE[@]}"); else opts=("${CACHE[@]}"); fi
