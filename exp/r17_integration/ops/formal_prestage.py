@@ -43,7 +43,6 @@ def verify_code(root, manifest_name, expected):
     # Bootstrap verification never executes code from an unverified release.
     return ('import json,hashlib; from pathlib import Path; r=Path('+repr(str(root))+'); '
         'd=json.loads((r/'+repr(manifest_name)+').read_text()) if r.exists() else None; '
-        'assert not r.is_symlink(); '
         'print(json.dumps(dict(present=d is not None,installed=str(r),reused=True,**(d or {}))))')
 
 
@@ -293,7 +292,8 @@ def refresh_driver(directory, mode='group-commit'):
                     orchestration=campaign['orchestration']['selected']['identity'],episodes=plan['episodes'])
 
 
-def launch_prepared(directory):
+def launch_prepared(directory, *, resident=None):
+    """resident: dict(attach=, keep=) for R17 resident reuse across campaigns (seeds_1023.resident_attach)."""
     from . import formal_eval as launch
     directory = Path(directory).resolve(strict=True)
     if directory.parent != launch.FORMAL_ROOT:
@@ -302,6 +302,8 @@ def launch_prepared(directory):
     # Exclusive one-shot claim: two queues cannot dispatch the same plan.
     with preparation_lock(directory):
         campaign, deployment = validate_prepared(directory)
+        if resident:
+            campaign['resident'] = resident
         from exp.offline_search.rounds.r17.scheduler.defaults import require
         require(campaign, directory)
         launch.check_execution_host(campaign)

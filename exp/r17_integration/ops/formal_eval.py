@@ -1194,6 +1194,10 @@ def run_campaign(campaign, directory, deployment):
     shard_pump = None
     live_fleets = None
     mps_ready = None
+    # Resident reuse across campaigns of one lane (filter_failed_knob.launch --attach-resident/--keep-resident).
+    from exp.offline_search.rounds.r17.seeds_1023 import resident_attach
+    resident = campaign.get('resident') or {}
+    attached, kept_local, resident_root = None, [], None
     last_status = -float('inf')
     status_cache, control_files = {}, {}
     until = time.monotonic() + campaign['seconds']
@@ -1203,7 +1207,8 @@ def run_campaign(campaign, directory, deployment):
             if (path:=directory/(node+'_DISK_ADMISSION.json')).is_file()}
         write_json(directory / 'RECEIPT.json', report)
     def spawn_local(label, argv, env):
-        log = (directory / (label+'.log')).open('ab')
+        path = (Path(resident_root) if resident_root and label != 'driver' else directory) / (label+'.log')
+        log = path.open('ab')
         handles.append(log)
         child_env = {**os.environ, **env}
         if label == 'driver':
@@ -1217,7 +1222,7 @@ def run_campaign(campaign, directory, deployment):
                       campaign['runtime'] if campaign.get('runtime_from') else ROOT)
         child = subprocess.Popen(argv, env=child_env, cwd=child_root, stdout=log,
             stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL, start_new_session=True)
-        entry = dict(label=label, pid=child.pid, pgid=child.pid, start_ticks=ticks(child.pid), argv=argv)
+        entry = dict(label=label, pid=child.pid, pgid=child.pid, start_ticks=ticks(child.pid), argv=argv, log=str(path))
         local.append((child, entry))
         report['owned_local'].append(entry)
         save()
@@ -1234,7 +1239,8 @@ def run_campaign(campaign, directory, deployment):
             return owned_spawn(sys.modules[__name__],node,label,argv,env,root,python,stage,
                 seconds=campaign['seconds'],lease_seconds=LEASE_SECONDS,ownership=ownership,record=record)
         request = dict(argv=argv, env=env, cwd=root, receipt=stage+'/'+label+'.process.json',
-            log=stage+'/'+label+'.log', lease=stage+'/'+label+'.lease', seconds=campaign['seconds'],
+            log=stage+'/'+label+'.log', lease=stage+'/'+label+'.lease',
+            seconds=resident_attach.KEEP_SECONDS if resident_root and label != 'workers' else campaign['seconds'],
             lease_seconds=LEASE_SECONDS)
         try:
             receipt = json.loads(remote(node, ['env', 'PYTHONPATH='+pythonpath(root), python, '-m',
@@ -1272,9 +1278,12 @@ def run_campaign(campaign, directory, deployment):
             raise TimeoutError('campaign stopped or hard deadline exceeded')
         for child, entry in local:
             if child.poll() is not None and (entry['label'] != 'driver' or entry['label'] == required_label):
-                path = directory / (entry['label']+'.log')
+                path = Path(entry['log'])
                 require_service_alive(entry['label'], dict(status='CLOSED', exit_code=child.returncode),
                                       str(path), lambda: path.read_text(errors='replace')[-6000:])
+        for entry in kept_local:
+            if not alive(entry):
+                raise RuntimeError(entry['label']+' of the attached resident exited; log '+entry['log'])
         probe()
         for owned in remote_owned:
             if owned.get('kind',owned['label'])=='workers':
@@ -1396,12 +1405,24 @@ def run_campaign(campaign, directory, deployment):
             shard_pump = ShardPump(campaign,directory,shard_remote,
                 lambda path,target: transfer(['rsync','pull','h100:'+path,str(target)]))
             shard_pump.start()
+        # A matching kept resident on this lane serves this campaign: no port admission, MPS, replicas or proxy.
+        attached = resident_attach.claim(sys.modules[__name__], campaign, directory, report)
+        if attached is not None:
+            kept_local = attached['local']
+            remote_owned[:0] = attached['remote']
+            mps_ready = (attached['mps'] or {}).get('ready')
+        elif resident.get('keep'):
+            resident_root = resident_attach.start(sys.modules[__name__], campaign, directory, report)
+        if report.get('resident'):
+            write_json(directory / 'campaign.json', campaign)
+            save()
+        server_stage = resident_root+'/server' if resident_root else '/tmp/r17_formal/'+campaign['run_name']+'/server'
         # Actual reusable listener admission tolerates TCP TIME_WAIT and waits
         # for a prior owned service's release. Never signal an occupied port.
         from .formal_ports import admit
         report['port_release'] = admit(campaign, directory, remote=remote,
-                                      python=server_python, heartbeat=check)
-        if campaign.get('mps'):
+                                      python=server_python, heartbeat=check, driver_only=attached is not None)
+        if campaign.get('mps') and attached is None:
             # A by-value CLI guard serializes the frozen runtime's control
             # queries without overlaying any model/server/worker source.
             from .mps_control_guard import deploy as deploy_mps_control
@@ -1418,8 +1439,7 @@ def run_campaign(campaign, directory, deployment):
             if campaign['server_node']=='local':
                 spawn_local('mps_guard', argv, env)
             else:
-                spawn_remote('h100','mps_guard',argv,env,server_root,server_python,
-                             '/tmp/r17_formal/'+campaign['run_name']+'/server')
+                spawn_remote('h100','mps_guard',argv,env,server_root,server_python,server_stage)
             deadline = min(until,time.monotonic()+30)
             while time.monotonic()<deadline:
                 check()
@@ -1449,7 +1469,7 @@ def run_campaign(campaign, directory, deployment):
         width = campaign.get('replica_startup_width', 1)
         from .formal_prestage import phase
         attestations = []
-        for index, port in enumerate(campaign['backend_ports']):
+        for index, port in enumerate([] if attached is not None else campaign['backend_ports']):
             if index % width == 0:
                 for sibling in range(index,min(index+width,len(campaign['backend_ports']))):
                     sibling_port=campaign['backend_ports'][sibling]
@@ -1464,7 +1484,7 @@ def run_campaign(campaign, directory, deployment):
                         spawn_local('replica_'+str(sibling), argv, replica_env)
                     else:
                         spawn_remote('h100', 'replica_'+str(sibling), argv, replica_env, server_root, server_python,
-                            '/tmp/r17_formal/'+campaign['run_name']+'/server')
+                            server_stage)
             control_host = backend_control_host(campaign)
             with phase(directory,'replica_ready_'+str(index)):
                 wait_port(control_host, port, required_label='replica_'+str(index))
@@ -1517,11 +1537,11 @@ def run_campaign(campaign, directory, deployment):
         proxy = [server_python, '-u', '-c', 'import resource as r; r.setrlimit(r.RLIMIT_NOFILE, (r.getrlimit(r.RLIMIT_NOFILE)[1],)*2); '
             'from openpi.serving.replica_proxy import run_proxy; '
             f'run_proxy({campaign["public_port"]},{campaign["backend_ports"]!r})']
-        if campaign['server_node'] == 'local':
+        if attached is None and campaign['server_node'] == 'local':
             spawn_local('proxy', proxy, env)
-        else:
-            spawn_remote('h100', 'proxy', proxy, env, server_root, server_python,
-                '/tmp/r17_formal/'+campaign['run_name']+'/server')
+        elif attached is None:
+            spawn_remote('h100', 'proxy', proxy, env, server_root, server_python, server_stage)
+        control_host = backend_control_host(campaign)
         endpoint_port = campaign.get('endpoint_port', campaign['public_port'])
         if (campaign['model']=='cosmos' or campaign.get('library') or
                 (campaign['endpoint_host'], endpoint_port) != (control_host, campaign['public_port'])):
@@ -1617,7 +1637,20 @@ def run_campaign(campaign, directory, deployment):
         print(str(exc), file=sys.stderr, flush=True)
     finally:
         if live_fleets is not None:live_fleets.freeze()
+        # A verified complete campaign hands its resident to the next one on the lane; otherwise it is closed below.
+        keep = False
+        if resident.get('keep') and report['status'] == 'PENDING_EVIDENCE':
+            try:
+                resident_attach.keep(sys.modules[__name__], campaign, directory, report,
+                    [e for _,e in local if e['label'] != 'driver'],
+                    [o for o in remote_owned if o.get('kind',o['label']) != 'workers'], mps_ready, attached)
+                keep = True
+            except Exception as exc:
+                report['resident_keep_error'] = repr(exc)
+        handed = lambda label: keep and label not in ('workers', 'driver')
         for owned in reversed(remote_owned):
+            if handed(owned.get('kind',owned['label'])):
+                continue
             try:
                 result = (worker_state.cleanup(owned,managed) if owned.get('retired_worker_node')
                           else managed(owned, 'stop'))
@@ -1631,6 +1664,8 @@ def run_campaign(campaign, directory, deployment):
                 if report['status'] != 'FAIL':
                     report['status'] = 'PARTIAL'
         for child, entry in reversed(local):
+            if handed(entry['label']):
+                continue
             try:
                 result = stop_group(entry, grace=30) if entry['label']=='mps_guard' else stop_group(entry)
                 entry['exit_code'] = child.wait(timeout=15)
@@ -1640,9 +1675,15 @@ def run_campaign(campaign, directory, deployment):
                     raise
                 report['status'] = 'PARTIAL'
                 report['cleanup'].append(dict(label=entry['label'],error=repr(exc),closure_confirmed=False))
+        for entry in ([] if keep else reversed(kept_local)):
+            try:
+                result = stop_group(entry, grace=30) if entry['label']=='mps_guard' else stop_group(entry)
+                report['cleanup'].append(dict(label=entry['label'], **result, closure_confirmed=not alive(entry)))
+            except Exception as exc:
+                report['cleanup'].append(dict(label=entry['label'], error=repr(exc), closure_confirmed=not alive(entry)))
         for handle in handles:
             handle.close()
-        if mps_ready is not None:
+        if mps_ready is not None and not keep:
             try:
                 final = mps_command('state')
                 report.setdefault('mps', {})['closure'] = final
@@ -1654,10 +1695,17 @@ def run_campaign(campaign, directory, deployment):
                 report['cleanup'].append(dict(label='mps_daemon', closure_confirmed=False, error=repr(exc)))
         for sig, handler in previous.items():
             signal.signal(sig, handler)
-        report['all_owned_closed'] = all(not alive(entry) for _,entry in local) and all(
+        # A handed-over resident is registered for the next campaign, not owned by this one any more.
+        owned_local = [entry for _,entry in local if not handed(entry['label'])]
+        report['all_owned_closed'] = all(not alive(entry) for entry in owned_local) and all(
             r['closure_confirmed'] for r in report['cleanup'])
+        if report.get('resident') and not keep:
+            report['resident'].update(stopped=True, released_at=time.time())
+            if attached is not None:
+                try:resident_attach.release(attached, campaign, report['cleanup'])
+                except Exception as exc:report['resident_release_error'] = repr(exc)
         if worker_state is not None and worker_state.retired:
-            report['active_owned_closed'] = all(not alive(entry) for _,entry in local) and all(
+            report['active_owned_closed'] = all(not alive(entry) for entry in owned_local) and all(
                 r['closure_confirmed'] for r in report['cleanup'] if r.get('node') not in worker_state.retired)
             if (report['status']=='PENDING_EVIDENCE' and report.get('driver_completion',{}).get('verified_completion')
                     and report['active_owned_closed'] and not report['all_owned_closed']):

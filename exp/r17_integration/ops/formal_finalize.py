@@ -278,7 +278,19 @@ def finalize(campaign, directory, deployment, report, *, retain_worker_storage=F
             report.setdefault('resolved_worker_failures',{})[node] = failures
         report.setdefault('transfers',{})[node] = old
         durable_json(directory/'RECEIPT.json',report)
-    if campaign['server_node'] == 'h100':
+    # A kept resident (seeds_1023.resident_attach) writes its server rows under its own directory: the
+    # campaign that stops it brings that directory back beside the registry copy; kept ones stay live.
+    resident = report.get('resident') or {}
+    if campaign['server_node'] == 'h100' and resident.get('stopped'):
+        try:
+            value = server_snapshot(dict(campaign, server_run=resident['server_run']), directory)
+            report.setdefault('transfers',{})['resident_servers'] = pull_snapshot('h100_servers',value,
+                Path(resident['local_dir'])/'servers',key=campaign['run_name']+'_servers',
+                python=launch.host_python(campaign),root=campaign['runtime'],deadline=deadline)
+        except Exception as exc:
+            report['server_snapshot_error'] = repr(exc)
+        durable_json(directory/'RECEIPT.json',report)
+    elif campaign['server_node'] == 'h100' and not resident:
         old = report.get('transfers',{}).get('h100_servers')
         if old:
             verified = install_snapshot(directory/'servers.tar',directory/'servers',
@@ -296,8 +308,9 @@ def finalize(campaign, directory, deployment, report, *, retain_worker_storage=F
             except Exception as exc:
                 report['server_snapshot_error'] = repr(exc)
         durable_json(directory/'RECEIPT.json',report)
-    report['backend_evidence'] = launch.backend_evidence(directory)
-    if campaign.get('fastwam_batching') or campaign.get('cache_study') and campaign.get('dp_batching'):
+    if not resident:
+        report['backend_evidence'] = launch.backend_evidence(directory)
+    if not resident and (campaign.get('fastwam_batching') or campaign.get('cache_study') and campaign.get('dp_batching')):
         try:
             report['batching_audit'] = native_batch_audit(campaign,directory)
         except Exception as exc:
@@ -424,6 +437,9 @@ def handoff(campaign, directory, deployment, report):
     release = dict(schema='r17.gpu_release.v1',status='GPU_RELEASED',cpu_only_remaining=True,
         released_at=datetime.now(timezone.utc).isoformat(),input_pins=pins,orchestration=pin,
         deployment=deployment,all_owned_closed=True,driver_completion=report['driver_completion'])
+    if report.get('resident'):
+        # resident.kept: this campaign's processes are closed; its resident was handed to the next campaign.
+        release['resident'] = report['resident']
     durable_json(directory/'GPU_RELEASED.json',release)
     env = dict(os.environ,CUDA_VISIBLE_DEVICES='',JAX_PLATFORMS='cpu',PYTHONDONTWRITEBYTECODE='1',
         PYTHONPATH=launch.pythonpath(pin['root']),OMP_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1')

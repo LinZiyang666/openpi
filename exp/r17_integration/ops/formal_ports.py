@@ -14,9 +14,15 @@ def local_ports(campaign):
 
 
 def prepare_admission(campaign):
-    """Fail before staging on a local collision, without starting a listener."""
+    """Fail before staging on a local collision, without starting a listener.
+
+    Server ports of the lane's registered kept resident are skipped: its launch attaches to it or stops it."""
+    from exp.offline_search.rounds.r17.seeds_1023.resident_attach import held_ports
+    held = held_ports(campaign)
     busy = []
     for port in local_ports(campaign):
+        if port in held:
+            continue
         with socket.socket() as sock:
             sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             try:
@@ -65,15 +71,20 @@ def wait_release(probe, *, seconds=120, heartbeat=lambda: None):
         time.sleep(min(.5, remaining))
 
 
-def admit(campaign, directory, *, remote, python, heartbeat=lambda: None):
-    """Send the same CPU probe by value; model/runtime pins remain unchanged."""
+def admit(campaign, directory, *, remote, python, heartbeat=lambda: None, driver_only=False):
+    """Send the same CPU probe by value; model/runtime pins remain unchanged.
+
+    driver_only: an attached kept resident already serves the public/backend ports."""
     from .formal_process import write_json
     directory = Path(directory)
     result = dict(schema='r17.port_release.v1', status='WAITING', cpu_only=True,
-                  seconds=120, server_node=campaign['server_node'], samples={})
+                  seconds=120, server_node=campaign['server_node'], samples={}, driver_only=driver_only)
     started = time.monotonic()
     try:
-        if campaign['server_node'] == 'local':
+        if driver_only:
+            result['samples']['local_driver'] = wait_release(
+                lambda: probe_ports([campaign['driver_port']]), heartbeat=heartbeat)
+        elif campaign['server_node'] == 'local':
             result['samples']['local'] = wait_release(lambda: probe_ports(campaign['ports']),
                                                      heartbeat=heartbeat)
         else:

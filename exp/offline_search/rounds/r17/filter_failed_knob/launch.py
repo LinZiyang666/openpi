@@ -40,7 +40,7 @@ def rewrite(value,code,evidence=''):
 
 @timan1_gpu2.coordinator()
 @worker_resilience.coordinator()
-def main(root):
+def main(root, *, attach=False, keep=False):
     from exp.r17_integration.ops import formal_eval as f
     from exp.r17_integration.ops.formal_prestage import launch_prepared
     popen,remote=f.subprocess.Popen,f.remote
@@ -58,10 +58,16 @@ def main(root):
             side_effect=lambda c,d,workers:(c,workers)),patch.object(cache_study,'aggregate',cache_study.aggregate):
         exec(compile(body,'ffk_cpu_evidence','exec'),scope:={})
         scope['install']()
-        return launch_prepared(root)
+        return launch_prepared(root,resident=dict(attach=attach,keep=keep) if attach or keep else None)
 
 
 if __name__=='__main__':
     import argparse
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--run',type=Path,required=True)
-    raise SystemExit(main(p.parse_args().run))
+    # R17 resident reuse across campaigns of one lane (seeds_1023/resident_attach.py).
+    p.add_argument('--attach-resident',action='store_true',
+                   help="Serve from the lane's kept resident when model/K/runtime/ports match; stop a mismatching one")
+    p.add_argument('--keep-resident',action='store_true',
+                   help='Leave the resident running after a verified complete driver, for the next --attach-resident campaign')
+    a=p.parse_args()
+    raise SystemExit(main(a.run,attach=a.attach_resident,keep=a.keep_resident))
