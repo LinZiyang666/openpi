@@ -21,6 +21,8 @@ unchanged, after these process-local changes (1-6 in both modes, 7 in cache mode
    with copies of their last row and the outputs sliced back. Each stage is FX-traced on real inputs first; with
    CLUSTER_SIM_COMPILE set the traced stages are compiled by inductor before capture (without graphs,
    CLUSTER_SIM_COMPILE=vision,lm,expert compiles those modules).
+8. Fused back end (CLUSTER_SIM_FUSE23=1): stage 2 runs inside the stage-3 batch, no hand-off through the request
+   thread (section 8 below).
 7. Cache mode (CLUSTER_SIM_KEYS=1): CP1 keys computed per stage-1 batch with one D2H; no device-wide sync in the
    plugin's stage-1 counter. See section 7 below.
 Stage timers (SystemTimer) are off in both modes.
@@ -402,6 +404,33 @@ if COMPILE or GRAPHS:
         return policy
 
     _pc.create_trained_policy = create_trained_policy
+
+# 8. Fused back end (CLUSTER_SIM_FUSE23=1, both modes): stage 2 and stage 3 of a request run as one batch on the stage-3
+# worker. Submitting to stage 2 returns at once with a placeholder Stage2Output (the interceptor only passes it on to
+# stage 3); the stage-3 batch first runs stage 2 batched for its placeholders, then denoises. This removes the
+# stage-2 -> request thread -> stage-3 hand-off, which split each stage-2 batch into many small stage-3 batches.
+if os.environ.get('CLUSTER_SIM_FUSE23') == '1':
+    from openpi.serving import batching_coordinator as _bc23
+
+    _submit = _bc.BatchingCoordinator.submit_to_stage
+    _miss = _bc23.Pi05StageBatcher.run_stage3_miss
+
+    def submit_to_stage(self, stage_id, bundle_id, payload, *, requires_stage2_capture=False, **kwargs):
+        if stage_id == 2 and not requires_stage2_capture:
+            out = _pi0.Stage2Output(stage1=payload, past_key_values=None)
+            out.cs_pending = True
+            return out
+        return _submit(self, stage_id, bundle_id, payload, requires_stage2_capture=requires_stage2_capture, **kwargs)
+
+    def run_stage3_miss(self, payloads, **kwargs):
+        pending = [p for p in payloads if getattr(p.stage2_out, 'cs_pending', False)]
+        if pending:
+            for p, real in zip(pending, self.run_stage2_batch([p.stage2_out.stage1 for p in pending], capture=False)):
+                p.stage2_out = real
+        return _miss(self, payloads, **kwargs)
+
+    _bc.BatchingCoordinator.submit_to_stage = submit_to_stage
+    _bc23.Pi05StageBatcher.run_stage3_miss = run_stage3_miss
 
 # 7. Cache mode only (CLUSTER_SIM_KEYS=1): CP1 keys for a whole stage-1 batch with one D2H copy, and no device-wide sync
 # around stage 1. The keys are the CP1SpatialPool16 keys (vision_0/1: 16x16 -> 4x4 pooled tokens, robot_state), the
