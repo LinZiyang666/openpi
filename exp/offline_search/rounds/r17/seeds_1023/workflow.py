@@ -17,14 +17,16 @@ Cosmos formal_a PURE; pi0.5 MT50 the 4090 controls of knob/common (tpi7_0536, tp
 from __future__ import annotations
 
 import argparse
+import os
 from pathlib import Path
 import shlex
+from unittest.mock import patch
 
 from exp.offline_search.rounds.r17.longseg_1017.io_budget import dump
 from exp.offline_search.rounds.r17.longseg_off_1022 import build as lob
 from exp.offline_search.rounds.r17.filter_failed_knob.common import REPO, read
 from . import inputs as ip
-from .build import EVAL, HERE, define, name
+from .build import EVAL, HERE, define, name, deployment_env
 
 QUEUE = HERE/'QUEUE.json'
 LEVELS = tuple(ip.LEVELS)
@@ -77,8 +79,11 @@ def reference(u, off_run):
     model, bench, mode = u['model'], u['benchmark'], u['mode']
     if u['bundle'] in ip.LONG:
         key = f'{model}:{bench}:{mode}:{lob.card(off_run)}'
-        if key not in read(lob.REFERENCES)['references']:
-            raise ValueError(f'no same-step same-card C5 pure reference {key} in {lob.REFERENCES}')
+        registry = read(lob.REFERENCES)['references']
+        if key not in registry:
+            available = [k for k in registry if k.startswith(f'{model}:{bench}:{mode}:')]
+            raise ValueError(f'no same-step same-card C5 pure reference {key} in {lob.REFERENCES}; '
+                             f'available cards: {available} (cannot substitute another card)')
         return lob.reference(model, bench, mode, lob.card(off_run)), key
     if model == 'cosmos':
         from exp.offline_search.rounds.r17.filter_failed_knob import formal_a_queue as q
@@ -121,7 +126,7 @@ def build_levels(n, off_run=None):
                          str([(r['seed'], r['suite'], r['size'], r['segment'], r['n'], r['pure_n']) for r in rows if r['status'] == 'pending']))
     keep = [(r['seed'], r['suite'], r['size'], r['segment']) for r in rows if r['status'] == 'tune']
     if keep:
-        job = define(u['bundle'], u['mode'], 'levels', keep, LEVELS, like=off['jobs'][0]['run'])
+        job = define(u['bundle'], u['mode'], 'levels', keep, LEVELS, like=off_run)
         u.update(jobs=[job], status='BUILT', episodes=job['episodes'])
     else:
         u.update(jobs=[], status='SKIP_OFF_SUFFICIENT', episodes=0)
@@ -136,12 +141,14 @@ def dispatch(n, verb):
         print('SKIP_OFF_SUFFICIENT', n)
         return
     root = Path(u['jobs'][0]['run'])
-    if verb == 'prepare':
-        from exp.offline_search.rounds.r17.filter_failed.stage import stage
-        stage(root)
-    else:
-        from exp.offline_search.rounds.r17.filter_failed_knob.launch import main
-        main(root)
+    env = deployment_env(read(Path(u['off_run'])/'campaign.json')) if u.get('off_run') else {}
+    with patch.dict(os.environ, env):
+        if verb == 'prepare':
+            from exp.offline_search.rounds.r17.filter_failed.stage import stage
+            stage(root)
+        else:
+            from exp.offline_search.rounds.r17.filter_failed_knob.launch import main
+            main(root)
 
 
 def main():

@@ -23,7 +23,9 @@ from __future__ import annotations
 
 from contextlib import ExitStack
 import copy
+import os
 from pathlib import Path
+import shlex
 import shutil
 from unittest.mock import patch
 
@@ -42,6 +44,7 @@ TOK = {'dp': 'dp', 'fastwam': 'fw', 'groot': 'gr', 'cosmos': 'co', 'pi05': 'pi'}
 # RUN_CONFIGS (10-21): H100 Fast-WAM serves without umT5-xxl, prompt encodings from this table (pods: pod_copy's).
 FW_TEXT_TABLE = '/home/exouser/fw_text_tables/table_h100.pt'
 _route = ports.route
+_pin = lb.pin
 # Serving fields a levels batch takes from its knob-off definition (as the coordinator may have tuned it), so a
 # kept resident can serve both (resident_attach.SIGNATURE); ports follow the lane (ports.route, stage's alias).
 SERVING = ('replicas', 'memory_budget_gib', 'server_threads', 'mps', 'dp_batching', 'stage_batching', 'fastwam_batching',
@@ -59,6 +62,16 @@ def text_table(deploy):
             deploy(root, c)
         c['fastwam_text_table'] = FW_TEXT_TABLE
     return edit
+
+
+def deployment_env(c):
+    """Keep a levels batch on the actual OFF host, including prepare/launch wrappers."""
+    if c['server_node'] != 'h100':
+        return {}
+    if c.get('execution_host', 'h100') == 'h100':
+        return {k: '' for k in ('R17_H100_NODE', 'R17_H100_HOST', 'R17_DRIVER_PORT', 'R17_PUBLIC_PORT')}
+    return dict(R17_H100_NODE=c['execution_host'], R17_H100_HOST=c['endpoint_host'],
+                R17_DRIVER_PORT=str(c['driver_port']), R17_PUBLIC_PORT=str(c['public_port']))
 
 
 def deployment(bundle, mode):
@@ -89,6 +102,27 @@ def plain_route(c, root, workers=None):
 def plain_pin(root, c):
     from exp.offline_search.rounds.r17.filter_failed_knob.build import freeze_bootstrap
     freeze_bootstrap(root, c)
+
+
+def pin(root, c):
+    (_pin if c['seeds_1023']['bundle'] in ip.LONG else plain_pin)(root, c)
+    if ip.benchmark(c['seeds_1023']['bundle']) != 'mt50':
+        return
+    # Inherited releases still reject every MT50 library except seed 8. Pin W3's
+    # descriptor reader in this bootstrap too (pi0.5 has no longseg overlay).
+    import inspect
+    from exp.r17_integration.search import cache_recipe
+    from exp.offline_search.rounds.r17.filter_failed_knob.common import sha
+    path = root/'assets/ffk_bootstrap.py'
+    body, marker = path.read_text(), "ffk_runtime=dict(__name__='__main__')"
+    assert body.count(marker) == 1
+    code = ('from exp.r17_integration.search import cache_recipe as _sd_recipe\n'
+            'exec(compile('+repr(inspect.getsource(cache_recipe._read_store_descriptor))+
+            ', "seeds_1023_store_descriptor", "exec"), vars(_sd_recipe))\n')
+    path.write_text(body.replace(marker, code+marker, 1))
+    c['ffk_bootstrap_sha256'] = sha(path)
+    if c.get('longseg_1017'):
+        c['longseg_1017']['bootstrap_sha256'] = c['ffk_bootstrap_sha256']
 
 
 def make_edit(bundle, mode, stage, cells, levels, src, deploy, templates, like=None):
@@ -171,12 +205,20 @@ def define(bundle, mode, stage, cells, levels, like=None):
 
     like: the lane's knob-off definition; a levels batch takes its serving fields and frozen bootstrap."""
     src, deploy, workers, templates, long = deployment(bundle, mode)
+    if like:
+        # The actual OFF run may be a pod copy. Keep its card, routes and runtime
+        # as well as its serving knobs, so the selected reference still applies.
+        src, deploy = Path(like), None
+        prior = read(src/'campaign.json')
+        workers = prior.get('execution_worker_nodes', prior['worker_nodes'])
     n = name(bundle, mode, stage)
     edit = make_edit(bundle, mode, stage, cells, levels, src, deploy, templates, like)
     with ExitStack() as stack:
         stack.enter_context(patch.object(lb, 'COMMANDS', lob.COMMANDS))
+        stack.enter_context(patch.object(lb, 'pin', pin))
+        if like:
+            stack.enter_context(patch.dict(os.environ, deployment_env(prior)))
         if not long:  # Cosmos, pi0.5: no longseg runtime patch or staging path
-            stack.enter_context(patch.object(lb, 'pin', plain_pin))
             stack.enter_context(patch.object(ports, 'route', plain_route))
         job = lb.clone(src, n, workers=workers, groups=[], mode=mode, stage=None, edit=edit)
     if like:
@@ -188,6 +230,14 @@ def define(bundle, mode, stage, cells, levels, like=None):
             c['longseg_1017']['bootstrap_sha256'] = prior['ffk_bootstrap_sha256']
         dump(root/'campaign.json', c)
         job['bootstrap_from'] = str(like)
+        job['gpu'] = lob.card(like) if c['server_node'] == 'h100' else 'RTX 4090'
+        for verb in ('prepare', 'launch'):
+            path = lob.COMMANDS/f'{verb}_{n}.sh'
+            env = deployment_env(prior)
+            if env:
+                marker = 'set -euo pipefail\n'
+                path.write_text(path.read_text().replace(marker, marker+'export '+
+                                ' '.join(k+'='+shlex.quote(v) for k, v in env.items())+'\n', 1))
     job.update(stage=stage, arm='filtered', bundle=bundle, levels=list(levels), longseg_runtime=long,
                cells=[list(cell) for cell in cells])
     dump(Path(job['run'])/'FFK_DEFINITION.json', job)
