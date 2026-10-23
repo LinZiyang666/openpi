@@ -71,6 +71,15 @@ owner 的常驻指令，逐字有效：
   - H100 π0.5 减步 C5 参照：长任务档 500 局完成（成功率 82.2%），空间任务档起步时失败、3 个服务残留（已 node.py stop）；GR00T 减步 C5 参照准备被跳过。以链 **h100lo7** 重排（fa_lo_pi_r_p5_q 续跑空间档 → fa_lo_gr_r_p5_q）。
   - sean：seanlo1 的准备卡在断线时发出的 tether exec 上（远端进程已不在），按 PID 停掉；seanlo2 又发现冻结运行时 formal_runtime_3c7664… 的 sync_back.atomic_bytes 拒绝「上级路径有软链」，而 sean 的 /data 原是软链 → 改成 bind mount（`/media/volume/sdb/ziyang_r17/data` → `/data`，fstab 加 nofail 行，原件 /etc/fstab.before_ziyang_bind_1022）。现链 **seanlo3**（同样 7 批，别名 env 同前）。
   - pod 两批、H100 GR00T 全步旋钮关靠 tether 重试自己恢复了。
+- 22:2x 链排布（以此为准）：
+  - H100：h100lo1 GR00T 全步旋钮关（fa_lo_gr_f_f_o_q，8 档逐个）；h100lo7 减步 C5 参照（π0.5 空间档续跑 → GR00T）；**h100lo8** 接 h100lo7 后跑全步 C5 参照 fa_lo_{pi,gr}_f_p5_q（旧 h100lo5 等 h100lo1 的已按 PID 停掉；各参照端口互不重叠）。
+  - sean 车道 1（driver 23197，服务 23180/23420/23170…）：seanlo3 = R17 LIBERO 7 批 → **seanlo4** = Fast-WAM · MetaWorld · 全步参照 fa_lo_fw_f_b_m（H100 原定义）→ 全步旋钮关 fa_lo_fw_f_f_m（R2/B16/76 GiB）。sean 与 H100 同型号，参照按 H100 算。
+  - sean 车道 2（**driver 23198，R17_PUBLIC_PORT=23280**，formal_eval.h100_alias 新增该变量）：**seanlo5** = DP · MetaWorld：H100 C5 参照 fa_lo_dp_{r,f}_b_m（build.py dp_mt50_h100 新建，登记 dp:mt50:*:H100）→ 旋钮关 fa_lo_dp_r_f_m → fa_lo_dp_f_f_m。LEDGER 已登记 23198。
+  - -02：pod2lo5 跑完 fa_lo_fw_r_b_m_j2 后 hold；**pod2lo6** = fa_lo_fw_r_f_m_j2（B8，15.5 GiB）。原 fa_lo_fw_r_f_m_j（B16）21:22–21:48 在 MIG 上撞 NVML INTERNAL ASSERT 死掉（只 60 行，已作废）；全步参照 fw_f_b_m_j2 不跑了（全步挪 sean）。fa_lo_fw_f_f_m_j2 也已建好备用。
+  - pod1：pod1lo3 GR00T 全步参照 → hold → pod1lo4（gr_r_f_m_j_rz → gr_f_f_m_j）不变。
+- GR00T 减步旋钮关 fa_lo_gr_r_f_o_q：4,000 局 21:33 跑完，拉回决策日志那步因 H100 rsync 端口 23117 被我给 sean 复制占用而失败；22:1x 已补拉（runs 501 MB）。抽查：无 policy-tail/blind，判定 stall_only，未命中全是 force:63（Q3 停滞）。⛔ H100 上 23117（longseg_off h100.py）和 23118（direct_transfer）别再拿去开别的 rsyncd。
+- 补封 13 张回执在后台跑（日志 $CLAUDE_JOB_DIR/tmp/reseal_1022.log）。fa_ls_dp_r_u_m_jc1 补封失败且应当失败：pod 上的服务端详细决策记录在 17:4x 容器重启时丢了，收回的只有 serving.jsonl（无 miss_mode/stall_call），审计因字段缺失报 318 万条违例（ordinary MISS forbidden 等），不是行为违规；回执保持 FAIL、写明原因，数据按对账照常计入。其余 pod 批次（_j/_jc*）大概率同样。
+- 长执行段关建档：决策记录不开 --os-blind 时没有 vision/miss_k，r16 analyze.load 报「Need explicit hit/vision booleans」；q3_port_1020/analysis.py 读入时补 vision=True、miss_k=启动 miss_steps（99f9eafa）。π0.5 减步 fa_lo_pi_r_f_l_q 已建（长任务 50；空间 50/200/500 四格 × ir45/40/32/25 = 8,000 局），链 h100lo9 等 h100lo1 或 h100lo8 任一结束即起（显存：H100 同时最多两条）。其余三条线由 $CLAUDE_JOB_DIR/tmp/auto_levels.sh 在参照结束后自动建（GR00T 全步还要等 h100lo1 旋钮关结束），建完要我审再排。
 - guard_wait 只在 STOPPED/FAILED/receipt=FAIL 时醒；「ended rc=1 receipt= 空」不会叫醒，巡检时要自己看 chain.log。
 - DP · MetaWorld：同卡 C5 参照在 pod 上已有（REFERENCES.json：fa_ls_dp_{r,f}_b_m_j，MIG 1g.18gb），两批旋钮关应做 pod `_j` 副本跑，不用新参照；pod 要重装 DP 环境（约 18 GB）。
 
