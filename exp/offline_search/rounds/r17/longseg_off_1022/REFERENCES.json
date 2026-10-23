@@ -49,6 +49,16 @@
       "run": "/data/mw_finetune/eval/fa_ls_dp_f_b_m_j",
       "new": false,
       "c5_pure": true
+    },
+    "dp:mt50:reduced:H100": {
+      "run": "/data/mw_finetune/eval/fa_lo_dp_r_b_m",
+      "new": true,
+      "c5_pure": true
+    },
+    "dp:mt50:full:H100": {
+      "run": "/data/mw_finetune/eval/fa_lo_dp_f_b_m",
+      "new": true,
+      "c5_pure": true
     }
   },
   "rule": "long-segment-OFF selection: same model/benchmark/steps, same card (H100 or pod MIG slice), C5 pure"

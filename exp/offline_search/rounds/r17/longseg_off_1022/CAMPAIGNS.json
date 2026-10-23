@@ -800,6 +800,56 @@
       "task_uid_sha256": "caaa5b307002dc24607335b9817a74cf6a5f45c7f5d2289edfa16ac5a87621a8",
       "arm": "pure_reference",
       "commit_horizon": 5
+    },
+    {
+      "name": "fa_lo_dp_r_b_m",
+      "run": "/data/mw_finetune/eval/fa_lo_dp_r_b_m",
+      "source": "/nvme/weiland/openpi/eval/ffk1015_dp_mt50_reduced_descent",
+      "episodes": 2500,
+      "model": "dp",
+      "benchmark": "mt50",
+      "mode": "reduced",
+      "stage": "pure",
+      "gpu": "H100",
+      "replicas": 4,
+      "batch": 16,
+      "workers": {
+        "timan1": 60,
+        "timan107": 60
+      },
+      "python": "/data/mw_finetune/dp/env/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_c33e2281905a033a39150c5a71a207f45dc564fb3babf5a0b661442b8fb7e2ed",
+      "unfiltered": true,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "2e65d9d6ea63210b26332bbdaae868e90c0c5167facfb4c94f531cf34d88d2f7",
+      "arm": "pure_reference",
+      "commit_horizon": 5
+    },
+    {
+      "name": "fa_lo_dp_f_b_m",
+      "run": "/data/mw_finetune/eval/fa_lo_dp_f_b_m",
+      "source": "/nvme/weiland/openpi/eval/ffk1015_dp_mt50_full_descent",
+      "episodes": 2500,
+      "model": "dp",
+      "benchmark": "mt50",
+      "mode": "full",
+      "stage": "pure",
+      "gpu": "H100",
+      "replicas": 8,
+      "batch": 32,
+      "workers": {
+        "timan1": 60,
+        "timan107": 60
+      },
+      "python": "/data/mw_finetune/dp/env/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_c33e2281905a033a39150c5a71a207f45dc564fb3babf5a0b661442b8fb7e2ed",
+      "unfiltered": true,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "2f756428233ddec8db2a6a00c3e55b1f4087dd2849c1c61321252a9d8df99be3",
+      "arm": "pure_reference",
+      "commit_horizon": 5
     }
   ]
 }

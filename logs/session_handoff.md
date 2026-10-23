@@ -52,7 +52,7 @@ owner 的常驻指令，逐字有效：
 
 
 
-## 1. 现在在哪（2026-10-21 11:5x CDT；**看守会话（本会话 35f2869b 的分支，只看守实验）最先读「10-22 22:0x 看守会话增补」，再读「10-22 19:1x 看守会话增补」，再读「10-22 18:3x 看守会话总状态（compact 前）」；新实验会话读 exp/cluster_sim/HANDOFF.md 与「10-21 22:xx 新实验：集群部署模拟」；之后读「10-21 22:xx 新实验：集群部署模拟」，再读「10-21 19:5x 增补（compact 前总状态）」，再读「10-21 19:4x 增补」，再读「10-21 18:3x 增补」，再读「10-21 17:3x 增补」，再读「10-21 15:0x 增补」，再读「10-21 14:0x 增补」，再读「10-21 13:2x 增补」，再读「10-21 12:0x 增补」，再读「10-21 11:5x 增补（compact 前总状态）」，再读「10-21 00:3x 增补」，再读「10-21 00:0x 增补（compact 前总状态）」，再读「22:5x」「22:1x」「21:4x」增补，再读「21:3x 增补（compact 前总状态）」**，再读 20:5x 旧门事故、其余增补与 09:4x 总状态，再读其后各增补（09:29 → 21:2x 倒序）与 10-19 21:0x 总状态；10-14 及更早只作背景）
+## 1. 现在在哪（2026-10-21 11:5x CDT；**看守会话（本会话 35f2869b 的分支，只看守实验）最先读「10-22 22:1x 看守增补」，再读「10-22 22:0x 看守会话增补」，再读「10-22 19:1x 看守会话增补」，再读「10-22 18:3x 看守会话总状态（compact 前）」；新实验会话读 exp/cluster_sim/HANDOFF.md 与「10-21 22:xx 新实验：集群部署模拟」；之后读「10-21 22:xx 新实验：集群部署模拟」，再读「10-21 19:5x 增补（compact 前总状态）」，再读「10-21 19:4x 增补」，再读「10-21 18:3x 增补」，再读「10-21 17:3x 增补」，再读「10-21 15:0x 增补」，再读「10-21 14:0x 增补」，再读「10-21 13:2x 增补」，再读「10-21 12:0x 增补」，再读「10-21 11:5x 增补（compact 前总状态）」，再读「10-21 00:3x 增补」，再读「10-21 00:0x 增补（compact 前总状态）」，再读「22:5x」「22:1x」「21:4x」增补，再读「21:3x 增补（compact 前总状态）」**，再读 20:5x 旧门事故、其余增补与 09:4x 总状态，再读其后各增补（09:29 → 21:2x 倒序）与 10-19 21:0x 总状态；10-14 及更早只作背景）
 
 ### ★★★★★★★★★★★★★★★★★★★★★★★★ 2026-10-20 09:4x CDT 总状态（compact 后最先读这块）
 
@@ -64,6 +64,15 @@ owner 的常驻指令，逐字有效：
 - 处置：09:56 按 PID SIGSTOP 复制 rsync（3726105/3726106/3729764）和两个 governor（3343372/3951564）。效果（同一时刻对比）：Cosmos 15→60 局/分、pod2 DP 85→250、v11_0 50→125（v11_0 同时 floor 40→70）。⛔ **复制保持暂停**；剩 ~190 GB（eval 533/~720 GB）以后找没有 driver 在跑、或可接受的短窗口一次性不限速跑完，不要再长时间节流慢跑。恢复命令：`kill -CONT 3343372 3951564 3726105 3726106 3729764`。记忆 reference-weilandserver-data 已加这条。
 - floors 现 `{"fa_ls_dp_f_f_m_j": 32, "fa_ls_v11_0": 70}`。
 - 在调研（opus 只读）：H100 队列 ~88 h（4 批 FW MT50 旋钮下降 ~42 h）vs 4090 ~22 h；旋钮下降批次 IR 离线算、可换卡 → 考虑 FW/GR00T MT50 旋钮下降挪 4090、DP LIBERO 旋钮下降挪 pod（需装 openpi 环境）。结论回来前不动队列。
+
+**10-22 22:1x 看守增补（compact 后；先读这块再读 22:0x）**
+- 21:56–22:00 tether broker 断线：racknerd（linziyang.top）内核升级重启，tether-broker 在 NATS 就绪前启动、撞 systemd 启动上限停摆。已 `systemctl reset-failed && start`；加 `/etc/systemd/system/tether-broker.service.d/30-restart-until-nats.conf`（StartLimitIntervalSec=0、RestartSec=5），以后重启会自己恢复。排查入口：`ssh racknerd`（root，key 已配），`journalctl -u tether-broker`。
+- 断线损伤与处理：
+  - H100 π0.5 减步 C5 参照：长任务档 500 局完成（成功率 82.2%），空间任务档起步时失败、3 个服务残留（已 node.py stop）；GR00T 减步 C5 参照准备被跳过。以链 **h100lo7** 重排（fa_lo_pi_r_p5_q 续跑空间档 → fa_lo_gr_r_p5_q）。
+  - sean：seanlo1 的准备卡在断线时发出的 tether exec 上（远端进程已不在），按 PID 停掉；seanlo2 又发现冻结运行时 formal_runtime_3c7664… 的 sync_back.atomic_bytes 拒绝「上级路径有软链」，而 sean 的 /data 原是软链 → 改成 bind mount（`/media/volume/sdb/ziyang_r17/data` → `/data`，fstab 加 nofail 行，原件 /etc/fstab.before_ziyang_bind_1022）。现链 **seanlo3**（同样 7 批，别名 env 同前）。
+  - pod 两批、H100 GR00T 全步旋钮关靠 tether 重试自己恢复了。
+- guard_wait 只在 STOPPED/FAILED/receipt=FAIL 时醒；「ended rc=1 receipt= 空」不会叫醒，巡检时要自己看 chain.log。
+- DP · MetaWorld：同卡 C5 参照在 pod 上已有（REFERENCES.json：fa_ls_dp_{r,f}_b_m_j，MIG 1g.18gb），两批旋钮关应做 pod `_j` 副本跑，不用新参照；pod 要重装 DP 环境（约 18 GB）。
 
 **10-22 22:0x 看守会话增补（先读这块；owner 21:5x 去睡，「你独自推进」）**
 - ⛔ 新机 **h100-sean**（149.165.169.137，tether 节点 h100-sean）：owner「和 h100 一样是一等公民，自由使用」，同 h100 角色。

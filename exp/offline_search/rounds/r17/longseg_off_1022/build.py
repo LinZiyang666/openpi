@@ -275,20 +275,34 @@ POD = 'H200 MIG 1g.18gb'  # jupyter-ziyang10 and jupyter-ziyang10-02: the same M
 GROOT_POD, FW_POD = ('jupyter-ziyang10', 23193), ('jupyter-ziyang10-02', 23192)
 
 
+def job(name, src, *, model, benchmark, mode, workers, kind=None, edit=None, groups=None):
+    with patch.object(lb, 'COMMANDS', COMMANDS):
+        j = lb.clone(src, name, workers=workers, groups=groups, mode=mode, stage=None, kind=kind, edit=edit)
+    j.update(stage='pure', arm='pure_reference', commit_horizon=5)
+    dump(Path(j['run'])/'FFK_DEFINITION.json', j)
+    catalog = read(INDEX)
+    catalog['jobs'] = [x for x in catalog['jobs'] if x['name'] != name]+[j]
+    dump(INDEX, catalog)
+    return j
+
+
+def dp_mt50_h100():
+    """H100 C5 pure references for DP MT50 (the knob-off batches run on an H100: the H100 or h100-sean),
+    from the same H100 originals as fa_lo_dp_*_f_m, as pure_refs builds fa_lo_{gr,fw}_*_b_m."""
+    registry = read(REFERENCES)
+    for mode in ('reduced', 'full'):
+        on, n = on_job(f'fa_ls_dp_{mode[0]}_f_m'), f'fa_lo_dp_{mode[0]}_b_m'
+        job(n, on.get('original_source') or on['source'], model='dp', benchmark='mt50', mode=mode,
+            workers=on['workers'], kind='pure')
+        registry['references'][f'dp:mt50:{mode}:H100'] = dict(run=str(EVAL/n), new=True, c5_pure=True)
+    dump(REFERENCES, registry)
+    return registry
+
+
 def pure_refs():
     """Same-card plain C5 pure references (model called every 5 controls), mirroring fa_ls_*_b_*."""
     from exp.offline_search.rounds.r17.longseg_1017 import pod_copy
     refs = {}
-
-    def job(name, src, *, model, benchmark, mode, workers, kind=None, edit=None, groups=None):
-        with patch.object(lb, 'COMMANDS', COMMANDS):
-            j = lb.clone(src, name, workers=workers, groups=groups, mode=mode, stage=None, kind=kind, edit=edit)
-        j.update(stage='pure', arm='pure_reference', commit_horizon=5)
-        dump(Path(j['run'])/'FFK_DEFINITION.json', j)
-        catalog = read(INDEX)
-        catalog['jobs'] = [x for x in catalog['jobs'] if x['name'] != name]+[j]
-        dump(INDEX, catalog)
-        return j
     # H100 LIBERO: DP reduced/full from the same sources as fa_ls_dp_{r,f}_b_l, served like fa_lo_dp_*_f_o_l.
     for mode in ('reduced', 'full'):
         n = f'fa_lo_dp_{mode[0]}_b_l'
@@ -382,10 +396,12 @@ def mt50():
 
 def main():
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument('action', choices=('mt50', 'pure'))
+    p.add_argument('action', choices=('mt50', 'pure', 'dp_mt50_h100'))
     a = p.parse_args()
     if a.action == 'mt50':
         mt50()
+    elif a.action == 'dp_mt50_h100':
+        dp_mt50_h100()
     else:
         pure_refs()
 

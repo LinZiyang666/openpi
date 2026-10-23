@@ -137,7 +137,8 @@ def h100_alias():
     spawn, rsync transfer and release install of this process that names 'h100'
     then reaches that machine. Campaigns keep server_node='h100'.
     A POD_PROFILES node also fixes the lane's public port, wraps commands in r17x
-    and has no inbound transfers.
+    and has no inbound transfers. Otherwise R17_PUBLIC_PORT (optional) moves the lane's
+    public and backend ports, so a second lane can serve beside the first on one machine.
     """
     values = [os.environ.get(key, '') for key in ALIAS_ENV]
     if not any(values):
@@ -146,7 +147,8 @@ def h100_alias():
     if not all(values) or node == H100_NODE or not port.isdigit() or int(port) not in DIRECT_PORTS:
         raise ValueError('set '+', '.join(ALIAS_ENV)+' together: alias tether node, its public IP, driver port 23100-23199')
     pod = POD_PROFILES.get(node)
-    return dict(node=node, host=host, driver_port=int(port), public_port=pod and pod['public_port'],
+    public = pod['public_port'] if pod else int(os.environ.get('R17_PUBLIC_PORT') or 0) or None
+    return dict(node=node, host=host, driver_port=int(port), public_port=public,
                 wrap=pod and POD_BASE+'/bin/r17x', inbound=pod is None)
 
 
