@@ -9,7 +9,8 @@ unchanged, after these process-local changes (1-6 in both modes, 7 in cache mode
    a stage worker takes its first request, drains everything already queued, then waits up to its wait.
    CLUSTER_SIM_UNITS groups stages that take the GPU one batch at a time (e.g. "1,23": stage 1 on its own, stages 2
    and 3 exclusive with stage 3 first); a stage adds whatever arrived while it waited for its unit.
-   Stage worker counts stay BATCHING_STAGE{1,2,3}_WORKERS. Per-stage batch counts go to stages_<pid>.json.
+   Stage worker counts stay BATCHING_STAGE{1,2,3}_WORKERS. Per-stage batch counts go to stages_<pid>.json and
+   every batch (stage, start, end, size, oldest request's queue wait) to batches_<pid>.csv.
 3. Prefix trimming: cameras whose mask is all False (LIBERO's empty third view) are not encoded, and the prompt
    is cut to CLUSTER_SIM_TEXT_TOKENS. Masked tokens take no position (cumsum of the pad mask) and no attention,
    so the computation is the same; only the GEMM shapes shrink (968 -> 512 + text tokens).
@@ -110,6 +111,7 @@ BATCH = {s: int(v) for s, v in per_stage('CLUSTER_SIM_BATCH', 32).items()}
 WAIT = {s: v / 1000.0 for s, v in per_stage('CLUSTER_SIM_WAIT_MS', 0).items()}
 _stage_counts = {s: [0, 0, 0.0] for s in (1, 2, 3)}  # batches, requests, busy seconds
 _stage_sizes = {s: {} for s in (1, 2, 3)}  # batch size -> [batches, busy seconds]
+_batch_rows = []  # stage,t_start,t_end,size,oldest_wait_s -> batches_<pid>.csv
 
 
 class Gate:
@@ -217,6 +219,8 @@ class Coordinator(_bc.BatchingCoordinator):
                     except queue.Empty:
                         break
                 t0 = time.monotonic()
+                wall = time.time()
+                oldest = t0 - min(r.enqueue_t for r in batch)
                 _gate.enter()
                 try:
                     with torch.cuda.stream(stream) if stream is not None else contextlib.nullcontext():
@@ -227,6 +231,8 @@ class Coordinator(_bc.BatchingCoordinator):
                 finally:
                     _gate.leave()
             busy = time.monotonic() - t0
+            with _rows_lock:
+                _batch_rows.append(f'{stage_id},{wall:.6f},{wall + busy:.6f},{len(batch)},{oldest:.6f}\n')
             counts = _stage_counts[stage_id]
             counts[0] += 1
             counts[1] += len(batch)
@@ -517,11 +523,14 @@ def flush():
     while True:
         time.sleep(2)
         with _rows_lock:
-            rows = _rows[:]
-            del _rows[:]
+            rows, batches = _rows[:], _batch_rows[:]
+            del _rows[:], _batch_rows[:]
         if rows:
             with path.open('a') as f:
                 f.writelines(rows)
+        if batches:
+            with (LOG / f'batches_{os.getpid()}.csv').open('a') as f:
+                f.writelines(batches)
         (LOG / f'stages_{os.getpid()}.json').write_text(json.dumps(dict(
             batches={s: c[0] for s, c in _stage_counts.items()}, requests={s: c[1] for s, c in _stage_counts.items()},
             busy_s={s: round(c[2], 3) for s, c in _stage_counts.items()},
