@@ -60,18 +60,14 @@ compact 后先读本文件，再读 `DESIGN.md`（owner 的需求与决议，权
 
 commits：847ce11a（设计）、f78b9a5f（主体）、408e33fc、49fd5e53、974f07b3、cdfff73e、93a09b80、46de5d40、b9c9664a、5758401e（本文件）、962065e3（LEVELS 和调参候选原先被 .gitignore 的 *.json 挡住没进库，已强制加入；两边各加一个 CUDA graph 候选 `--compile-mode reduce-overhead`）。
 
-## 现状（10-21 23:1x）
+## 现状（10-22 21:xx）
 
-- **代码完成，CPU 端到端已跑通**（合成库 `/home/weiland/.claude/jobs/35f2869b/tmp/synth_lib`，2 局 × 3 条推理）：
-  - 纯推理和完整系统都通：分组预载、select_bundle、命中走第 1 段、旋钮强制未命中走第 2、3 段、计时、批统计都正常；
-  - sweep 全流程通，自动起停，RESULTS.json 正常写出。
-- 测试服务已全部关掉（8190–8192 端口空闲）。
-- **4090 还在跑正式队列**：
-  - 链 g4090bb 的 fa_cs_gr_rg 21:29 起，约 0:30 完；
-  - 之后链 g4090bc 跑 GR00T Q3 各档四批，看守会话估计 10-22 中午前后跑完。
-- **10-22 看守会话更新**：4090 预计 10-22 17:50–18:00 空出（15:2x 再更新；08:xx 时估 4:30–5:30）（最后两批是 GR00T 全步 R15，各 12,000 局，worker 被 H100 和 pod 分走；已给这两批设 worker 下限 104）。
-- **看守会话的承诺**：4090 队列跑完后不再排 4090，显存清零时给「openpi新实验」发消息。owner 同意 H100/pod 批次的 driver（约 0.6 核）留在本机（「那点cpu占用不影响」）。
-- **后台 `bgk4z8yj7`**：4090 连续 10 分钟没有计算进程就退出通知我（10-22 03:00 看守会话把 g4090bc 换成了链 g4090bd，按链名等会错过，所以改成只看显卡）。compact 后若它不在，就重挂同样的等待。
+- 10-22 18:25 看守会话把整台 weilandserver 交给本会话（4090 不再排批次）。
+- **录制已完成**：500 局、27,747 条推理请求，回放库 `/nvme/weiland/openpi/cluster_sim/library`（`SUMMARY.json`）。
+- **服务优化**（细节和实测数字见 DESIGN.md「10-22 晚」）：CUDA graph + inductor（两边共用，bf16 不变）、段分组 `--units`、完整系统的批量缓存键与去掉整卡同步、GC、CPU 线程。
+- ⛔ owner 10-22：不换精度（不做 FP8）；CPU 线程不限（这里指不绑核、不压 worker；每个 BLAS 调用开 2–4 个线程、靠几百个请求线程并行，是实测最快的配置，要向 owner 讲清）。astra 可以用（codex_daemon_run.py）。
+- **在跑**：调参 `exp.cluster_sim.tune`，纯推理 `tune/pure2`（N=5,40，60 局），完整系统 `tune/cache2`（N=5,80，120 局），日志 `/nvme/weiland/openpi/cluster_sim/logs/tune_{pure2,cache2}.log`，结果各目录 `TUNE.json`。
+- 诊断脚本（不进库）：`$CLAUDE_JOB_DIR/tmp/diag.sh NAME MODE opts`（N=1×2 局 + N=16×16 局，打印延迟和每段批耗时）、`prof.sh`（py-spy，`CLUSTER_SIM_PYSPY_FLAGS="--threads --gil"`）。
 
 ## 4090 空出后的步骤（照做）
 

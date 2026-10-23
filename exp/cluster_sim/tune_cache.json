@@ -1,58 +1,82 @@
 {
- "b32": [
-  "--batch",
-  "1:32,2:16,3:16"
- ],
- "b64": [
-  "--batch",
-  "1:64,2:16,3:16"
- ],
- "b16": [
-  "--batch",
-  "1:16,2:16,3:16"
- ],
- "b32_s1x2": [
+ "g_b32_u123_o4": [
   "--batch",
   "1:32,2:16,3:16",
-  "--workers",
-  "1:2,2:1,3:1"
- ],
- "b32_omp1": [
-  "--batch",
-  "1:32,2:16,3:16",
+  "--units",
+  "1,2,3",
   "--omp",
-  "1"
- ],
- "b32_omp4": [
-  "--batch",
-  "1:32,2:16,3:16",
-  "--omp",
-  "4"
- ],
- "b32_cv": [
-  "--batch",
-  "1:32,2:16,3:16",
+  "4",
+  "--graphs",
   "--compile",
-  "vision"
- ],
- "b32_cvle": [
-  "--batch",
-  "1:32,2:16,3:16",
-  "--compile",
-  "vision,lm,expert"
- ],
- "b32_notrim": [
-  "--batch",
-  "1:32,2:16,3:16",
-  "--text-tokens",
-  "0"
- ],
- "b32_cvle_cg": [
-  "--batch",
-  "1:32,2:16,3:16",
-  "--compile",
-  "vision,lm,expert",
+  "all",
   "--compile-mode",
-  "reduce-overhead"
+  "default"
+ ],
+ "g_b32_u1_23_o4": [
+  "--batch",
+  "1:32,2:16,3:16",
+  "--units",
+  "1,23",
+  "--omp",
+  "4",
+  "--graphs",
+  "--compile",
+  "all",
+  "--compile-mode",
+  "default"
+ ],
+ "g_b64_u123_o4": [
+  "--batch",
+  "1:64,2:16,3:16",
+  "--units",
+  "1,2,3",
+  "--omp",
+  "4",
+  "--graphs",
+  "--compile",
+  "all",
+  "--compile-mode",
+  "default"
+ ],
+ "g_b32_u123_o2": [
+  "--batch",
+  "1:32,2:16,3:16",
+  "--units",
+  "1,2,3",
+  "--omp",
+  "2",
+  "--graphs",
+  "--compile",
+  "all",
+  "--compile-mode",
+  "default"
+ ],
+ "g_b32_u123_w2_o4": [
+  "--batch",
+  "1:32,2:16,3:16",
+  "--wait-ms",
+  "1:2,2:0,3:0",
+  "--units",
+  "1,2,3",
+  "--omp",
+  "4",
+  "--graphs",
+  "--compile",
+  "all",
+  "--compile-mode",
+  "default"
+ ],
+ "g_b32_uall_o4": [
+  "--batch",
+  "1:32,2:16,3:16",
+  "--units",
+  "123",
+  "--omp",
+  "4",
+  "--graphs",
+  "--compile",
+  "all",
+  "--compile-mode",
+  "default"
  ]
 }
