@@ -423,6 +423,9 @@ def main(argv=None):
         memory_budget_gib=a.memory_budget_gib or (4 if mw and model=='dp' else 20 if model in ('pi05','groot') else 14 if model=='dp' else 36 if model=='fastwam' else 10),
         local_assets=str(directory/'assets'),assets=str(directory/'assets'),server_run=str(directory/'servers'),
         runtime=str(ROOT),vendor='/data/cosmos/cosmos-policy' if a.server_node=='h100' else '/home/weiland/projects/openpi_ext/lines/cosmos-policy',live_k=4)
+    alias = formal.h100_alias()
+    if a.server_node=='h100' and alias:
+        campaign['execution_host'] = alias['node']
     if mw:
         for key in ('alignment','bpool_archive','bpool_transfer'):
             campaign.pop(key)
