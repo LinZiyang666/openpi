@@ -1494,6 +1494,16 @@ A guard now runs: `r17_ops/ff/h100_disk_guard2.sh` (tmux `h100_disk_guard2`, log
 checks every 10 min and, when H100 `/` is above 80%, moves the staging of runs whose last `chain.log` line is
 `ended rc=` (re-queued or re-prepared runs are skipped; a repeated prepare also restores `/tmp` copies).
 
+### H100 /data fills; port 23117 belongs to the VLA asset sync
+
+H100 `/data` (1 TB) reached 99% on 2026-10-24 (16 GB free): closed campaigns keep their `servers/` decision logs
+there (20-30 GB each for Fast-WAM MT50). VLA prepares pull assets only with 30 GiB headroom (`DISK_BLOCKED`), so
+three C10 references failed. Pull closed runs' `servers/` back to `/nvme/weiland/openpi/h100_pullback_1024/` with a
+read-only rsync daemon on H100, verify with `rsync -c` (0 differing files), then delete the H100 copy
+(`seeds_1023`-era helpers: `rounds/r17/ops_scripts/pullback.sh`, `pullback_free.sh`). Do not run that daemon on
+port 23117: the VLA (q3_port legacy) asset sync starts its own H100 rsync daemon there, and `fa_x34_pi_r_k1`
+failed while mine held it.
+
 ### Short-name R17 campaigns need their assets at both addresses on H100
 
 The short-name formal_A copies keep the long-name `campaign.assets` (frozen YAMLs and task UIDs stay byte-identical)
