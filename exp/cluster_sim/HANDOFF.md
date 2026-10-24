@@ -82,7 +82,8 @@ compact 后先读本文件，再读 `DESIGN.md`（owner 决议 + 调优过程 + 
 | `replay.py` | 回放端（`--stride`、`--episodes`、`--interval`） |
 | `sweep.py` | 起服务 → 预热 → 各 N 回放 → 停 → analyze（`--episodes N:K` 可按 N 指定局数） |
 | `analyze.py` | RESULTS.json：吞吐、稳态吞吐、延迟分位、GPU 忙碌占比、各段批统计 |
-| `report.py` | 汇总表 + 图 |
+| `report.py` | 汇总表 + 图（owner 10-23 定稿：一行四栏、尺寸不变，延迟栏画全部/命中/未命中三条平均线，高对比色） |
+| `hitsplit.py` | 命中/未命中的平均延迟 → `runs/<组>/HITSPLIT.json`（主图要用） |
 | `run_formal.sh` | 正式回放（`MODES` 可选 pure / cache / cache_seg / cache_full） |
 | `tune.py`、`tune_*.json` | 调参扫格子 |
 | `bench_stages.py`、`check_graphs.py` | 单段计时、整段图与 eager 对比（K=10 动作差 0.0024，K=1 差 0.014） |
