@@ -52,7 +52,7 @@ owner 的常驻指令，逐字有效：
 
 
 
-## 1. 现在在哪（2026-10-21 11:5x CDT；**看守会话（本会话 35f2869b 的分支，只看守实验）最先读「10-23 20:2x 看守会话总状态」，再读「10-23 16:4x 新实验」，再读「10-23 15:4x 看守会话总状态」，再读「10-22 22:1x 看守增补」，再读「10-22 22:0x 看守会话增补」，再读「10-22 19:1x 看守会话增补」，再读「10-22 18:3x 看守会话总状态（compact 前）」；新实验会话读 exp/cluster_sim/HANDOFF.md 与「10-21 22:xx 新实验：集群部署模拟」；之后读「10-21 22:xx 新实验：集群部署模拟」，再读「10-21 19:5x 增补（compact 前总状态）」，再读「10-21 19:4x 增补」，再读「10-21 18:3x 增补」，再读「10-21 17:3x 增补」，再读「10-21 15:0x 增补」，再读「10-21 14:0x 增补」，再读「10-21 13:2x 增补」，再读「10-21 12:0x 增补」，再读「10-21 11:5x 增补（compact 前总状态）」，再读「10-21 00:3x 增补」，再读「10-21 00:0x 增补（compact 前总状态）」，再读「22:5x」「22:1x」「21:4x」增补，再读「21:3x 增补（compact 前总状态）」**，再读 20:5x 旧门事故、其余增补与 09:4x 总状态，再读其后各增补（09:29 → 21:2x 倒序）与 10-19 21:0x 总状态；10-14 及更早只作背景）
+## 1. 现在在哪（2026-10-21 11:5x CDT；**看守会话（本会话 35f2869b 的分支，只看守实验）最先读「10-24 15:2x 看守会话总状态」，再读「10-23 20:2x 看守会话总状态」，再读「10-23 16:4x 新实验」，再读「10-23 15:4x 看守会话总状态」，再读「10-22 22:1x 看守增补」，再读「10-22 22:0x 看守会话增补」，再读「10-22 19:1x 看守会话增补」，再读「10-22 18:3x 看守会话总状态（compact 前）」；新实验会话读 exp/cluster_sim/HANDOFF.md 与「10-21 22:xx 新实验：集群部署模拟」；之后读「10-21 22:xx 新实验：集群部署模拟」，再读「10-21 19:5x 增补（compact 前总状态）」，再读「10-21 19:4x 增补」，再读「10-21 18:3x 增补」，再读「10-21 17:3x 增补」，再读「10-21 15:0x 增补」，再读「10-21 14:0x 增补」，再读「10-21 13:2x 增补」，再读「10-21 12:0x 增补」，再读「10-21 11:5x 增补（compact 前总状态）」，再读「10-21 00:3x 增补」，再读「10-21 00:0x 增补（compact 前总状态）」，再读「22:5x」「22:1x」「21:4x」增补，再读「21:3x 增补（compact 前总状态）」**，再读 20:5x 旧门事故、其余增补与 09:4x 总状态，再读其后各增补（09:29 → 21:2x 倒序）与 10-19 21:0x 总状态；10-14 及更早只作背景）
 
 ### ★★★★★★★★★★★★★★★★★★★★★★★★ 2026-10-20 09:4x CDT 总状态（compact 后最先读这块）
 
@@ -64,6 +64,57 @@ owner 的常驻指令，逐字有效：
 - 处置：09:56 按 PID SIGSTOP 复制 rsync（3726105/3726106/3729764）和两个 governor（3343372/3951564）。效果（同一时刻对比）：Cosmos 15→60 局/分、pod2 DP 85→250、v11_0 50→125（v11_0 同时 floor 40→70）。⛔ **复制保持暂停**；剩 ~190 GB（eval 533/~720 GB）以后找没有 driver 在跑、或可接受的短窗口一次性不限速跑完，不要再长时间节流慢跑。恢复命令：`kill -CONT 3343372 3951564 3726105 3726106 3729764`。记忆 reference-weilandserver-data 已加这条。
 - floors 现 `{"fa_ls_dp_f_f_m_j": 32, "fa_ls_v11_0": 70}`。
 - 在调研（opus 只读）：H100 队列 ~88 h（4 批 FW MT50 旋钮下降 ~42 h）vs 4090 ~22 h；旋钮下降批次 IR 离线算、可换卡 → 考虑 FW/GR00T MT50 旋钮下降挪 4090、DP LIBERO 旋钮下降挪 pod（需装 openpi 环境）。结论回来前不动队列。
+
+**10-24 15:2x 看守会话总状态（compact 前写；compact 后最先读这块，再读「10-24 12:4x」「04:5x」「01:2x」「08:1x」增补，再读 10-23 20:2x）**
+
+### owner 指令（都有效）
+- 看守会话：守实验、不饿服务端、监控常驻、见冗余防御就拔；先答再干；实验列表写白话。
+- 新种子实验（10-23 16:4x 定，DESIGN.md 在 exp/offline_search/rounds/r17/seeds_1023/）：成功过滤库旋钮下降，LIBERO 子集种子 20261003/20261004（DP/FW/Cosmos 50–400，π0.5/GR00T 50/100/200），MT50 seed 9/10（250–2500）；4 变体（全/减步 × 长执行段开/关；Cosmos LIBERO、π0.5 MT50 只有默认段长两组）；两步：先旋钮关，未达标格再各档；参照 = 同卡同步数纯推理。
+- ⛔ owner 10-24 00:4x 批准：**第二步改逐档轮次**（每轮只跑上一档还通过的任务，首次失败冻结；owner 确认「不影响最终数字」才批）。
+- owner 10-23 22:0x：网页「先不管」（本地 live_1023 已做好，上传要 owner /login 到另一个组织）。
+- owner 10-23 21:3x：不用新的性能测量（IR 用现有 4090 计时档案）；owner 本机跑 CPU 重任务（Go 测试，两个 NUMA 节点都占，π0.5 4090 服务端吃 CPU，略受影响；建议 owner 放 node 0）。
+- 可大胆用 astra/opus 代理；不带凭据；按 PID 杀；提交只署 LinZiyang666 不加 AI 署名；h100-temp 不用。
+
+### 已完成
+- 长执行段关 14 条线全完，RESULTS_OFF 2cb73e94（116 格；「开」侧 152 值与网页一致）。
+- 新种子采库 8 库全 PASS；所有第一步（旋钮关）除下列「剩余」外全完。
+- 完整线：**DP LIBERO 减步**（轮次 4,500/2,250/2,000/1,850/1,800，省 45%，端到端 choose 核过 9 格各 500 局）、**DP LIBERO 全步**（5,000/2,900/2,400/2,150/1,950，省 42%）。
+
+### 各车道（15:2x）——链都在跑，按顺序自动推进
+| 车道 | 链 | 现在 | 后面 |
+|---|---|---|---|
+| sean 车道 2（driver 23198/public 23280） | **seanlo18** | DP MT50 减步第一步完（60,000），fa_sd_dp_r_m_k1 prepare 中 | dp_r_m_k2–5 → dp_f_m_o（60,000）→ dp_f_m_k1–5 |
+| sean 车道 1（driver 23197） | **seanlo19** | FW LIBERO 全步第 2 轮 fa_sd_fw_f_l_k2 9,633/10,350 | k3–k5 → fw_r_l_o（20,000）→ fw_r_l_k1–5 |
+| 真 H100 B（R17 车道 23170–72，driver 23199） | **h100fw5** | FW MT50 减步第 2 轮 26,327/34,250 | k3–k5 → fw_f_m_o → fw_f_m_k1–5（R2/36 GiB/3 线程与 VLA 共卡） |
+| 真 H100 A（VLA，R16 端口 23150–58） | **h100vla4** | GR00T LIBERO 减步第 2 轮 fa_x34_gr_r_k2 1,245/5,450 | x4_pi_f_on_o → pi_r_k4 → gr_r_k3 → x4_pi_f_lo_o → gr_r_k4 → 4 个 GR00T 全步第一步 → 全步 4 轮 × 8 单位 |
+| 4090 | **4090sd4** | π0.5 MT50 减步第 4 轮 fa_sd_pi_r_m_k4（16,750）刚开 | k5 → pi_f_m_o（30,000）→ pi_f_m_k1–5 |
+| pod -02（driver 23192，端口 23474–76） | **pod2sd2** | GR00T MT50 减步第 2 轮 fa_sd_gr_r_m_k2 1,650/29,300 | k3–k5 |
+| pod1（driver 23193，端口 23470–72） | **pod1sd2** | GR00T MT50 全步第 1 轮 fa_sd_gr_f_m_k1 46,467/60,000 | k2–k5 |
+- 已完成的 VLA：π0.5 减步 k1/k2/k3、GR00T 减步 k1（+ 补跑 k1r）、全步第一步 fa_x3_pi_f_{on,lo}_o。
+- 判格：π0.5 MT50 r 12/12、FW MT50 r 24/24、GR00T MT50 r/f 24/24、FW LIBERO f 36/40、DP LIBERO r 9/40、f 10/40。
+- **剩余未排**：Cosmos LIBERO 两批（fa_sd_co_{r,f}_l_o + 各 5 轮；R8/76 GiB 要整张 H100）。计划：pod 空出后接 DP MT50 全步（pod 有 DP MT50 同卡参照 fa_ls_dp_{r,f}_b_m_j；pod 要装 DP 环境），让 sean 提前整卡给 Cosmos。owner 10:5x 问完成时间，答 ~10-26 中午到下午。
+
+### ⛔ 今天 17:4x pod 例行重启（两台 pod 的 GR00T 轮次会被打断）恢复步骤
+1. jupyter_watch 报警后等 pod 回来；两台都 `cd /home/ziyang10/zl_r17 && HOME=/home/ziyang10 bash setup.sh groot rsync://none/x`（GR00T 环境在 NFS）。
+2. 隧道（pod 上 `cd /home/ziyang10/.tether-agent/zl_tunnel && HOME=/home/ziyang10/.tether-agent setsid nohup bash tunnel.sh <H100端口> <pod端口> >> tunnel_<x>.log 2>&1 &`）：-02：24472→23474、24473→23475、24474→23476；pod1：24470→23470、24471→23471、24475→23472。H100 fwd.py 现映射：23470→24470、23471→24471、23472→24475、23474→24472、23475→24473、23476→24474（重启不影响 H100）。jupyter_watch（bwhjthtcu）重挂。
+3. 被打断的轮次：按 PID SIGTERM 启动器 → `filter_failed.resume --source <run> --name <run>c1 --remaining --verify-closed` → 新链（同 pod 车道 env 由 wrapper 带）先跑 `<run>c1` 再接剩下的轮次。轮次读数经 continued_lanes 会顺着续跑登记读全（已核）。旧链 pod2sd2/pod1sd2 会因上一轮不完整而依次 prepare 失败跳过（无害），新链接上即可。
+
+### 轮次机制（7741d401、faf59429、fd21dfe4）
+- R17：`python -m exp.offline_search.rounds.r17.seeds_1023.workflow rounds --name fa_sd_<m>_<r|f>_<l|m>_k [--off-run <pod _j>]` 已对 14 条线注册（GR00T MT50 带 --off-run _j）；链里 `fa_sd_*_k1..k5` 的 prepare 自动按前几轮结果建本轮（row tasks），build 读上一轮约 5–15 分钟。
+- VLA：`seeds_1023.vla.build rounds --model --mode` 已注册；`fa_x34_{pi,gr}_r_k1..4`、`fa_x{3,4}_{pi,gr}_f_{on,lo}_k1..4`；R16 用零局 stage（已真机跑通）。
+- 坏局：没有任何决策记录的「失败」局（worker 侧出错）→ loader 当缺失；`vla.build repair --name <unit>` 自动只补跑这些 (任务,起点)（fa_x34_gr_r_k1r 6 局全成功，原记录是假失败）。R17 线用另一套 loader，未发现。
+- H100 MT50 参照 tfw7k3_1051/tgr7h1_k2 是 knob 时代对照，lob.reference 已能读（faf59429）。
+
+### 今天的坑（别再犯）
+- 真 H100 /data 满（VLA 资产拉取要 30 GiB 余量）：旧批次 servers/ 拉回 /nvme/weiland/openpi/h100_pullback_1024/ 核对后删 H100 副本（脚本 ops_scripts/pullback.sh、pullback_free.sh）；⛔ **H100 23117 端口是 VLA 同步资产用的**，拉回别用这个端口。H100 eval 里还有 ~270 GB 旧 servers/ 可照此腾。
+- worker 自动伸缩 hold 基准 bug（4072a43c，新批次生效）；必要时 A100 floors.json 保底（现 {}）。
+- ffk 启动的服务端是 `python -c` bootstrap，pin_local.sh 匹配不到（π0.5 没绑 NUMA，owner 拒了我手动 taskset 那次——没问就别再做）。
+- pgrep -f 会匹配到自己的 bash -c（kill 前先看 ps）。
+
+### 监控（compact 后核对，缺了重挂）
+- server_watch 循环 bnr4ccd1h；jupyter_watch bwhjthtcu；guard_wait：`bash $CLAUDE_JOB_DIR/tmp/guard_wait.sh 1500`（副本 ops_scripts/guard_wait.sh）醒来重挂；Monitor（30 分钟到期重挂）：`cd ~/projects/openpi_ext/scratch/r17_ops && tail -n0 -F mw/chain.log server_watch.alerts.log | grep --line-buffered -E "ended rc=|FAILED|STOPPED|CHAIN_STOPPED|queue done|hold file present|ALERT|rate .* -> |Traceback|server_watch exited|DIRECT_FAIL|collect-|queue start|after-collect|pod1-q|\[hold\]|\[pullback\]"`。
+- YAML 核对脚本 ops_scripts/check_sd.py；进度：`grep -c '"accepted": true' $(readlink -f /data/mw_finetune/eval/<run>)/driver/journal.jsonl`（VLA R16 组在 <run>/journal.jsonl，R15 在 runs/*/client/journal.jsonl）。
+- 任务表：#4 巡检、#19 汇总（网页暂不管）、#21 新种子总、#24 常驻复用、#29 逐档轮次 进行中。
 
 **10-23 20:2x 看守会话总状态（compact 前写；compact 后最先读这块，再读下面「10-23 16:4x 新实验」的逐条增补，再读 15:4x）**
 
