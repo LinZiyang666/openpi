@@ -1,0 +1,475 @@
+{
+  "bundle": "groot_mw",
+  "seed": 8,
+  "passed": false,
+  "cells": [
+    {
+      "suite": "mt50",
+      "size": 250,
+      "fit_digest": "0768e7ca269dbc5e87abdaba713c6b6e541130742f905379990de0cb5839e338",
+      "checks": {
+        "view": {
+          "new": "/data/mw_finetune/eval/sdx8_groot_mw/assets/cache_inputs/mt50/parent/subsets/size_250",
+          "old": "/data/r17_library/groot_mw_mt50/bpool/subsets/size_5",
+          "equal": {
+            "VIEW.json": true,
+            "row_indices.npy": true
+          }
+        },
+        "native_fit": {
+          "new": "/data/mw_finetune/eval/sdx8_groot_mw/assets/cache_inputs/mt50/n250_C10/fit",
+          "old": "/data/r17_library/groot_mw_mt50/bpool/fits/size_5",
+          "equal": {
+            "fit.npz": true,
+            "READY.json": true
+          }
+        },
+        "selection": {
+          "cells": true,
+          "campaigns": {
+            "reduced": true,
+            "full": true
+          },
+          "file": true
+        },
+        "native_stall": {
+          "new": "/data/mw_finetune/eval/sdx8_groot_mw/assets/cache_inputs/mt50/n250_C10/stall",
+          "old": "/data/mw_finetune/eval/grmk1_red/assets/cache_inputs/mt50/n250_C10/stall",
+          "equal": {
+            "READY.json": false,
+            "stall.json": false,
+            "stall.pkl": false,
+            "stall.loeo.csv": false
+          }
+        },
+        "segment_q3": {
+          "new": "/data/mw_finetune/eval/sdx8_groot_mw/assets/cache_inputs/mt50/n250_C10/stall_decision1018",
+          "old": "/data/mw_finetune/eval/grmk1_red/assets/cache_inputs/mt50/n250_C10/stall_decision1018",
+          "equal": {
+            "READY.json": false,
+            "stall.json": false,
+            "stall.pkl": false,
+            "stall.loeo.csv": false
+          }
+        },
+        "gaps": {
+          "k50": true,
+          "k40": true,
+          "k30": true,
+          "k20": true,
+          "k10": true
+        },
+        "c5_fit": {
+          "new": "/data/mw_finetune/eval/sdx8_groot_mw/assets/cache_inputs/mt50/n250_C5/fit",
+          "old": "/data/mw_finetune/eval/csgr_h5/assets/cache_inputs/mt50/n250_C5/fit",
+          "equal": {
+            "fit.npz": false,
+            "READY.json": false
+          }
+        },
+        "c5_stall": {
+          "new": "/data/mw_finetune/eval/sdx8_groot_mw/assets/cache_inputs/mt50/n250_C5/stall",
+          "old": "/data/mw_finetune/eval/csgr_h5/assets/cache_inputs/mt50/n250_C5/stall",
+          "equal": {
+            "READY.json": false,
+            "stall.json": false,
+            "stall.pkl": false,
+            "stall.loeo.csv": false
+          }
+        },
+        "c5_selection": true,
+        "c5_gaps": true
+      }
+    },
+    {
+      "suite": "mt50",
+      "size": 500,
+      "fit_digest": "9703c66765e607b41f880ac4b2a8c5cdda28b1ca64816a7c66c71c0b46a86acf",
+      "checks": {
+        "view": {
+          "new": "/data/mw_finetune/eval/sdx8_groot_mw/assets/cache_inputs/mt50/parent/subsets/size_500",
+          "old": "/data/r17_library/groot_mw_mt50/bpool/subsets/size_10",
+          "equal": {
+            "VIEW.json": true,
+            "row_indices.npy": true
+          }
+        },
+        "native_fit": {
+          "new": "/data/mw_finetune/eval/sdx8_groot_mw/assets/cache_inputs/mt50/n500_C10/fit",
+          "old": "/data/r17_library/groot_mw_mt50/bpool/fits/size_10",
+          "equal": {
+            "fit.npz": true,
+            "READY.json": true
+          }
+        },
+        "selection": {
+          "cells": true,
+          "campaigns": {
+            "reduced": true,
+            "full": true
+          },
+          "file": true
+        },
+        "native_stall": {
+          "new": "/data/mw_finetune/eval/sdx8_groot_mw/assets/cache_inputs/mt50/n500_C10/stall",
+          "old": "/data/mw_finetune/eval/grmk1_red/assets/cache_inputs/mt50/n500_C10/stall",
+          "equal": {
+            "READY.json": false,
+            "stall.json": false,
+            "stall.pkl": false,
+            "stall.loeo.csv": false
+          }
+        },
+        "segment_q3": {
+          "new": "/data/mw_finetune/eval/sdx8_groot_mw/assets/cache_inputs/mt50/n500_C10/stall_decision1018",
+          "old": "/data/mw_finetune/eval/grmk1_red/assets/cache_inputs/mt50/n500_C10/stall_decision1018",
+          "equal": {
+            "READY.json": false,
+            "stall.json": false,
+            "stall.pkl": false,
+            "stall.loeo.csv": false
+          }
+        },
+        "gaps": {
+          "k50": true,
+          "k40": true,
+          "k30": true,
+          "k20": true,
+          "k10": true
+        },
+        "c5_fit": {
+          "new": "/data/mw_finetune/eval/sdx8_groot_mw/assets/cache_inputs/mt50/n500_C5/fit",
+          "old": "/data/mw_finetune/eval/csgr_h5/assets/cache_inputs/mt50/n500_C5/fit",
+          "equal": {
+            "fit.npz": false,
+            "READY.json": false
+          }
+        },
+        "c5_stall": {
+          "new": "/data/mw_finetune/eval/sdx8_groot_mw/assets/cache_inputs/mt50/n500_C5/stall",
+          "old": "/data/mw_finetune/eval/csgr_h5/assets/cache_inputs/mt50/n500_C5/stall",
+          "equal": {
+            "READY.json": false,
+            "stall.json": false,
+            "stall.pkl": false,
+            "stall.loeo.csv": false
+          }
+        },
+        "c5_selection": true,
+        "c5_gaps": true
+      }
+    },
+    {
+      "suite": "mt50",
+      "size": 1000,
+      "fit_digest": "8e3af1def46da92ab7e89b61776268d707cb0f41f61413afb8559d49b0891b9e",
+      "checks": {
+        "view": {
+          "new": "/data/mw_finetune/eval/sdx8_groot_mw/assets/cache_inputs/mt50/parent/subsets/size_1000",
+          "old": "/data/r17_library/groot_mw_mt50/bpool/subsets/size_20",
+          "equal": {
+            "VIEW.json": true,
+            "row_indices.npy": true
+          }
+        },
+        "native_fit": {
+          "new": "/data/mw_finetune/eval/sdx8_groot_mw/assets/cache_inputs/mt50/n1000_C10/fit",
+          "old": "/data/r17_library/groot_mw_mt50/bpool/fits/size_20",
+          "equal": {
+            "fit.npz": true,
+            "READY.json": true
+          }
+        },
+        "selection": {
+          "cells": true,
+          "campaigns": {
+            "reduced": true,
+            "full": true
+          },
+          "file": true
+        },
+        "native_stall": {
+          "new": "/data/mw_finetune/eval/sdx8_groot_mw/assets/cache_inputs/mt50/n1000_C10/stall",
+          "old": "/data/mw_finetune/eval/grmk1_red/assets/cache_inputs/mt50/n1000_C10/stall",
+          "equal": {
+            "READY.json": false,
+            "stall.json": false,
+            "stall.pkl": false,
+            "stall.loeo.csv": false
+          }
+        },
+        "segment_q3": {
+          "new": "/data/mw_finetune/eval/sdx8_groot_mw/assets/cache_inputs/mt50/n1000_C10/stall_decision1018",
+          "old": "/data/mw_finetune/eval/grmk1_red/assets/cache_inputs/mt50/n1000_C10/stall_decision1018",
+          "equal": {
+            "READY.json": false,
+            "stall.json": false,
+            "stall.pkl": false,
+            "stall.loeo.csv": false
+          }
+        },
+        "gaps": {
+          "k50": true,
+          "k40": true,
+          "k30": true,
+          "k20": true,
+          "k10": true
+        },
+        "c5_fit": {
+          "new": "/data/mw_finetune/eval/sdx8_groot_mw/assets/cache_inputs/mt50/n1000_C5/fit",
+          "old": "/data/mw_finetune/eval/csgr_h5/assets/cache_inputs/mt50/n1000_C5/fit",
+          "equal": {
+            "fit.npz": false,
+            "READY.json": false
+          }
+        },
+        "c5_stall": {
+          "new": "/data/mw_finetune/eval/sdx8_groot_mw/assets/cache_inputs/mt50/n1000_C5/stall",
+          "old": "/data/mw_finetune/eval/csgr_h5/assets/cache_inputs/mt50/n1000_C5/stall",
+          "equal": {
+            "READY.json": false,
+            "stall.json": false,
+            "stall.pkl": false,
+            "stall.loeo.csv": false
+          }
+        },
+        "c5_selection": true,
+        "c5_gaps": true
+      }
+    },
+    {
+      "suite": "mt50",
+      "size": 1500,
+      "fit_digest": "22f39cd8b65ed65e3b80905acb99928478d98b1064c693ee5827269c29af66c1",
+      "checks": {
+        "view": {
+          "new": "/data/mw_finetune/eval/sdx8_groot_mw/assets/cache_inputs/mt50/parent/subsets/size_1500",
+          "old": "/data/r17_library/groot_mw_mt50/bpool/subsets/size_30",
+          "equal": {
+            "VIEW.json": true,
+            "row_indices.npy": true
+          }
+        },
+        "native_fit": {
+          "new": "/data/mw_finetune/eval/sdx8_groot_mw/assets/cache_inputs/mt50/n1500_C10/fit",
+          "old": "/data/r17_library/groot_mw_mt50/bpool/fits/size_30",
+          "equal": {
+            "fit.npz": true,
+            "READY.json": true
+          }
+        },
+        "selection": {
+          "cells": true,
+          "campaigns": {
+            "reduced": true,
+            "full": true
+          },
+          "file": true
+        },
+        "native_stall": {
+          "new": "/data/mw_finetune/eval/sdx8_groot_mw/assets/cache_inputs/mt50/n1500_C10/stall",
+          "old": "/data/mw_finetune/eval/grmk1_red/assets/cache_inputs/mt50/n1500_C10/stall",
+          "equal": {
+            "READY.json": false,
+            "stall.json": false,
+            "stall.pkl": false,
+            "stall.loeo.csv": false
+          }
+        },
+        "segment_q3": {
+          "new": "/data/mw_finetune/eval/sdx8_groot_mw/assets/cache_inputs/mt50/n1500_C10/stall_decision1018",
+          "old": "/data/mw_finetune/eval/grmk1_red/assets/cache_inputs/mt50/n1500_C10/stall_decision1018",
+          "equal": {
+            "READY.json": false,
+            "stall.json": false,
+            "stall.pkl": false,
+            "stall.loeo.csv": false
+          }
+        },
+        "gaps": {
+          "k50": true,
+          "k40": true,
+          "k30": true,
+          "k20": true,
+          "k10": true
+        },
+        "c5_fit": {
+          "new": "/data/mw_finetune/eval/sdx8_groot_mw/assets/cache_inputs/mt50/n1500_C5/fit",
+          "old": "/data/mw_finetune/eval/csgr_h5/assets/cache_inputs/mt50/n1500_C5/fit",
+          "equal": {
+            "fit.npz": false,
+            "READY.json": false
+          }
+        },
+        "c5_stall": {
+          "new": "/data/mw_finetune/eval/sdx8_groot_mw/assets/cache_inputs/mt50/n1500_C5/stall",
+          "old": "/data/mw_finetune/eval/csgr_h5/assets/cache_inputs/mt50/n1500_C5/stall",
+          "equal": {
+            "READY.json": false,
+            "stall.json": false,
+            "stall.pkl": false,
+            "stall.loeo.csv": false
+          }
+        },
+        "c5_selection": true,
+        "c5_gaps": true
+      }
+    },
+    {
+      "suite": "mt50",
+      "size": 2000,
+      "fit_digest": "bae649fe5cd5bfc61c97fe6ea6b00b892d7d6d308c121f00f4e480160d0a313d",
+      "checks": {
+        "view": {
+          "new": "/data/mw_finetune/eval/sdx8_groot_mw/assets/cache_inputs/mt50/parent/subsets/size_2000",
+          "old": "/data/r17_library/groot_mw_mt50/bpool/subsets/size_40",
+          "equal": {
+            "VIEW.json": true,
+            "row_indices.npy": true
+          }
+        },
+        "native_fit": {
+          "new": "/data/mw_finetune/eval/sdx8_groot_mw/assets/cache_inputs/mt50/n2000_C10/fit",
+          "old": "/data/r17_library/groot_mw_mt50/bpool/fits/size_40",
+          "equal": {
+            "fit.npz": true,
+            "READY.json": true
+          }
+        },
+        "selection": {
+          "cells": true,
+          "campaigns": {
+            "reduced": true,
+            "full": true
+          },
+          "file": true
+        },
+        "native_stall": {
+          "new": "/data/mw_finetune/eval/sdx8_groot_mw/assets/cache_inputs/mt50/n2000_C10/stall",
+          "old": "/data/mw_finetune/eval/grmk1_red/assets/cache_inputs/mt50/n2000_C10/stall",
+          "equal": {
+            "READY.json": false,
+            "stall.json": false,
+            "stall.pkl": false,
+            "stall.loeo.csv": false
+          }
+        },
+        "segment_q3": {
+          "new": "/data/mw_finetune/eval/sdx8_groot_mw/assets/cache_inputs/mt50/n2000_C10/stall_decision1018",
+          "old": "/data/mw_finetune/eval/grmk1_red/assets/cache_inputs/mt50/n2000_C10/stall_decision1018",
+          "equal": {
+            "READY.json": false,
+            "stall.json": false,
+            "stall.pkl": false,
+            "stall.loeo.csv": false
+          }
+        },
+        "gaps": {
+          "k50": true,
+          "k40": true,
+          "k30": true,
+          "k20": true,
+          "k10": true
+        },
+        "c5_fit": {
+          "new": "/data/mw_finetune/eval/sdx8_groot_mw/assets/cache_inputs/mt50/n2000_C5/fit",
+          "old": "/data/mw_finetune/eval/csgr_h5/assets/cache_inputs/mt50/n2000_C5/fit",
+          "equal": {
+            "fit.npz": false,
+            "READY.json": false
+          }
+        },
+        "c5_stall": {
+          "new": "/data/mw_finetune/eval/sdx8_groot_mw/assets/cache_inputs/mt50/n2000_C5/stall",
+          "old": "/data/mw_finetune/eval/csgr_h5/assets/cache_inputs/mt50/n2000_C5/stall",
+          "equal": {
+            "READY.json": false,
+            "stall.json": false,
+            "stall.pkl": false,
+            "stall.loeo.csv": false
+          }
+        },
+        "c5_selection": true,
+        "c5_gaps": true
+      }
+    },
+    {
+      "suite": "mt50",
+      "size": 2500,
+      "fit_digest": "6e216151d852a5f35cb46e094655e61df22b60cef3fa2de44b8d372c8af92e4d",
+      "checks": {
+        "view": {
+          "new": "/data/mw_finetune/eval/sdx8_groot_mw/assets/cache_inputs/mt50/parent/subsets/size_2500",
+          "old": "/data/r17_library/groot_mw_mt50/bpool/subsets/size_50",
+          "equal": {
+            "VIEW.json": true,
+            "row_indices.npy": true
+          }
+        },
+        "native_fit": {
+          "new": "/data/mw_finetune/eval/sdx8_groot_mw/assets/cache_inputs/mt50/n2500_C10/fit",
+          "old": "/data/r17_library/groot_mw_mt50/bpool/fits/size_50",
+          "equal": {
+            "fit.npz": true,
+            "READY.json": true
+          }
+        },
+        "selection": {
+          "cells": true,
+          "campaigns": {
+            "reduced": true,
+            "full": true
+          },
+          "file": true
+        },
+        "native_stall": {
+          "new": "/data/mw_finetune/eval/sdx8_groot_mw/assets/cache_inputs/mt50/n2500_C10/stall",
+          "old": "/data/mw_finetune/eval/grmk1_red/assets/cache_inputs/mt50/n2500_C10/stall",
+          "equal": {
+            "READY.json": false,
+            "stall.json": false,
+            "stall.pkl": false,
+            "stall.loeo.csv": false
+          }
+        },
+        "segment_q3": {
+          "new": "/data/mw_finetune/eval/sdx8_groot_mw/assets/cache_inputs/mt50/n2500_C10/stall_decision1018",
+          "old": "/data/mw_finetune/eval/grmk1_red/assets/cache_inputs/mt50/n2500_C10/stall_decision1018",
+          "equal": {
+            "READY.json": false,
+            "stall.json": false,
+            "stall.pkl": false,
+            "stall.loeo.csv": false
+          }
+        },
+        "gaps": {
+          "k50": true,
+          "k40": true,
+          "k30": true,
+          "k20": true,
+          "k10": true
+        },
+        "c5_fit": {
+          "new": "/data/mw_finetune/eval/sdx8_groot_mw/assets/cache_inputs/mt50/n2500_C5/fit",
+          "old": "/data/mw_finetune/eval/csgr_h5/assets/cache_inputs/mt50/n2500_C5/fit",
+          "equal": {
+            "fit.npz": false,
+            "READY.json": false
+          }
+        },
+        "c5_stall": {
+          "new": "/data/mw_finetune/eval/sdx8_groot_mw/assets/cache_inputs/mt50/n2500_C5/stall",
+          "old": "/data/mw_finetune/eval/csgr_h5/assets/cache_inputs/mt50/n2500_C5/stall",
+          "equal": {
+            "READY.json": false,
+            "stall.json": false,
+            "stall.pkl": false,
+            "stall.loeo.csv": false
+          }
+        },
+        "c5_selection": true,
+        "c5_gaps": true
+      }
+    }
+  ]
+}

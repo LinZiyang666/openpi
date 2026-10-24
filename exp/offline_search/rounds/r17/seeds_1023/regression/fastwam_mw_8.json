@@ -1,0 +1,475 @@
+{
+  "bundle": "fastwam_mw",
+  "seed": 8,
+  "passed": false,
+  "cells": [
+    {
+      "suite": "mt50",
+      "size": 250,
+      "fit_digest": "47bc59b9b485fa46c96a8b9517a586634ca9d753fc3d9fe7848106eaa877d8a9",
+      "checks": {
+        "view": {
+          "new": "/data/mw_finetune/eval/sdx8_fastwam_mw/assets/cache_inputs/mt50/parent/subsets/size_250",
+          "old": "/data/r17_library/fastwam_mw_mt50/bpool/subsets/size_5",
+          "equal": {
+            "VIEW.json": true,
+            "row_indices.npy": true
+          }
+        },
+        "native_fit": {
+          "new": "/data/mw_finetune/eval/sdx8_fastwam_mw/assets/cache_inputs/mt50/n250_C10/fit",
+          "old": "/data/r17_library/fastwam_mw_mt50/bpool/fits/size_5",
+          "equal": {
+            "fit.npz": true,
+            "READY.json": true
+          }
+        },
+        "selection": {
+          "cells": true,
+          "campaigns": {
+            "reduced": true,
+            "full": true
+          },
+          "file": true
+        },
+        "native_stall": {
+          "new": "/data/mw_finetune/eval/sdx8_fastwam_mw/assets/cache_inputs/mt50/n250_C10/stall",
+          "old": "/data/mw_finetune/eval/fwmk1_redx/assets/cache_inputs/mt50/n250_C10/stall",
+          "equal": {
+            "READY.json": false,
+            "stall.json": false,
+            "stall.pkl": false,
+            "stall.loeo.csv": false
+          }
+        },
+        "segment_q3": {
+          "new": "/data/mw_finetune/eval/sdx8_fastwam_mw/assets/cache_inputs/mt50/n250_C10/stall_decision1018",
+          "old": "/data/mw_finetune/eval/fwmk1_redx/assets/cache_inputs/mt50/n250_C10/stall_decision1018",
+          "equal": {
+            "READY.json": false,
+            "stall.json": false,
+            "stall.pkl": false,
+            "stall.loeo.csv": false
+          }
+        },
+        "gaps": {
+          "k50": true,
+          "k40": true,
+          "k30": true,
+          "k20": true,
+          "k10": true
+        },
+        "c5_fit": {
+          "new": "/data/mw_finetune/eval/sdx8_fastwam_mw/assets/cache_inputs/mt50/n250_C5/fit",
+          "old": "/data/mw_finetune/eval/csfw_k3/assets/cache_inputs/mt50/n250_C5/fit",
+          "equal": {
+            "fit.npz": false,
+            "READY.json": false
+          }
+        },
+        "c5_stall": {
+          "new": "/data/mw_finetune/eval/sdx8_fastwam_mw/assets/cache_inputs/mt50/n250_C5/stall",
+          "old": "/data/mw_finetune/eval/csfw_k3/assets/cache_inputs/mt50/n250_C5/stall",
+          "equal": {
+            "READY.json": false,
+            "stall.json": false,
+            "stall.pkl": false,
+            "stall.loeo.csv": false
+          }
+        },
+        "c5_selection": true,
+        "c5_gaps": true
+      }
+    },
+    {
+      "suite": "mt50",
+      "size": 500,
+      "fit_digest": "3a1f585129f2151f14101c670da937ac79142d7a432ba7cab8784fff41b3a114",
+      "checks": {
+        "view": {
+          "new": "/data/mw_finetune/eval/sdx8_fastwam_mw/assets/cache_inputs/mt50/parent/subsets/size_500",
+          "old": "/data/r17_library/fastwam_mw_mt50/bpool/subsets/size_10",
+          "equal": {
+            "VIEW.json": true,
+            "row_indices.npy": true
+          }
+        },
+        "native_fit": {
+          "new": "/data/mw_finetune/eval/sdx8_fastwam_mw/assets/cache_inputs/mt50/n500_C10/fit",
+          "old": "/data/r17_library/fastwam_mw_mt50/bpool/fits/size_10",
+          "equal": {
+            "fit.npz": true,
+            "READY.json": true
+          }
+        },
+        "selection": {
+          "cells": true,
+          "campaigns": {
+            "reduced": true,
+            "full": true
+          },
+          "file": true
+        },
+        "native_stall": {
+          "new": "/data/mw_finetune/eval/sdx8_fastwam_mw/assets/cache_inputs/mt50/n500_C10/stall",
+          "old": "/data/mw_finetune/eval/fwmk1_redx/assets/cache_inputs/mt50/n500_C10/stall",
+          "equal": {
+            "READY.json": false,
+            "stall.json": false,
+            "stall.pkl": false,
+            "stall.loeo.csv": false
+          }
+        },
+        "segment_q3": {
+          "new": "/data/mw_finetune/eval/sdx8_fastwam_mw/assets/cache_inputs/mt50/n500_C10/stall_decision1018",
+          "old": "/data/mw_finetune/eval/fwmk1_redx/assets/cache_inputs/mt50/n500_C10/stall_decision1018",
+          "equal": {
+            "READY.json": false,
+            "stall.json": false,
+            "stall.pkl": false,
+            "stall.loeo.csv": false
+          }
+        },
+        "gaps": {
+          "k50": true,
+          "k40": true,
+          "k30": true,
+          "k20": true,
+          "k10": true
+        },
+        "c5_fit": {
+          "new": "/data/mw_finetune/eval/sdx8_fastwam_mw/assets/cache_inputs/mt50/n500_C5/fit",
+          "old": "/data/mw_finetune/eval/csfw_k3/assets/cache_inputs/mt50/n500_C5/fit",
+          "equal": {
+            "fit.npz": false,
+            "READY.json": false
+          }
+        },
+        "c5_stall": {
+          "new": "/data/mw_finetune/eval/sdx8_fastwam_mw/assets/cache_inputs/mt50/n500_C5/stall",
+          "old": "/data/mw_finetune/eval/csfw_k3/assets/cache_inputs/mt50/n500_C5/stall",
+          "equal": {
+            "READY.json": false,
+            "stall.json": false,
+            "stall.pkl": false,
+            "stall.loeo.csv": false
+          }
+        },
+        "c5_selection": true,
+        "c5_gaps": true
+      }
+    },
+    {
+      "suite": "mt50",
+      "size": 1000,
+      "fit_digest": "0764b23772ac051057723ad7abc7227b4028b3684ef9632fedadee0393addac4",
+      "checks": {
+        "view": {
+          "new": "/data/mw_finetune/eval/sdx8_fastwam_mw/assets/cache_inputs/mt50/parent/subsets/size_1000",
+          "old": "/data/r17_library/fastwam_mw_mt50/bpool/subsets/size_20",
+          "equal": {
+            "VIEW.json": true,
+            "row_indices.npy": true
+          }
+        },
+        "native_fit": {
+          "new": "/data/mw_finetune/eval/sdx8_fastwam_mw/assets/cache_inputs/mt50/n1000_C10/fit",
+          "old": "/data/r17_library/fastwam_mw_mt50/bpool/fits/size_20",
+          "equal": {
+            "fit.npz": true,
+            "READY.json": true
+          }
+        },
+        "selection": {
+          "cells": true,
+          "campaigns": {
+            "reduced": true,
+            "full": true
+          },
+          "file": true
+        },
+        "native_stall": {
+          "new": "/data/mw_finetune/eval/sdx8_fastwam_mw/assets/cache_inputs/mt50/n1000_C10/stall",
+          "old": "/data/mw_finetune/eval/fwmk1_redx/assets/cache_inputs/mt50/n1000_C10/stall",
+          "equal": {
+            "READY.json": false,
+            "stall.json": false,
+            "stall.pkl": false,
+            "stall.loeo.csv": false
+          }
+        },
+        "segment_q3": {
+          "new": "/data/mw_finetune/eval/sdx8_fastwam_mw/assets/cache_inputs/mt50/n1000_C10/stall_decision1018",
+          "old": "/data/mw_finetune/eval/fwmk1_redx/assets/cache_inputs/mt50/n1000_C10/stall_decision1018",
+          "equal": {
+            "READY.json": false,
+            "stall.json": false,
+            "stall.pkl": false,
+            "stall.loeo.csv": false
+          }
+        },
+        "gaps": {
+          "k50": true,
+          "k40": true,
+          "k30": true,
+          "k20": true,
+          "k10": true
+        },
+        "c5_fit": {
+          "new": "/data/mw_finetune/eval/sdx8_fastwam_mw/assets/cache_inputs/mt50/n1000_C5/fit",
+          "old": "/data/mw_finetune/eval/csfw_k3/assets/cache_inputs/mt50/n1000_C5/fit",
+          "equal": {
+            "fit.npz": false,
+            "READY.json": false
+          }
+        },
+        "c5_stall": {
+          "new": "/data/mw_finetune/eval/sdx8_fastwam_mw/assets/cache_inputs/mt50/n1000_C5/stall",
+          "old": "/data/mw_finetune/eval/csfw_k3/assets/cache_inputs/mt50/n1000_C5/stall",
+          "equal": {
+            "READY.json": false,
+            "stall.json": false,
+            "stall.pkl": false,
+            "stall.loeo.csv": false
+          }
+        },
+        "c5_selection": true,
+        "c5_gaps": true
+      }
+    },
+    {
+      "suite": "mt50",
+      "size": 1500,
+      "fit_digest": "b804669411ff072b9f98f25d46da9476f8b823b25b3f231990968163e712098c",
+      "checks": {
+        "view": {
+          "new": "/data/mw_finetune/eval/sdx8_fastwam_mw/assets/cache_inputs/mt50/parent/subsets/size_1500",
+          "old": "/data/r17_library/fastwam_mw_mt50/bpool/subsets/size_30",
+          "equal": {
+            "VIEW.json": true,
+            "row_indices.npy": true
+          }
+        },
+        "native_fit": {
+          "new": "/data/mw_finetune/eval/sdx8_fastwam_mw/assets/cache_inputs/mt50/n1500_C10/fit",
+          "old": "/data/r17_library/fastwam_mw_mt50/bpool/fits/size_30",
+          "equal": {
+            "fit.npz": true,
+            "READY.json": true
+          }
+        },
+        "selection": {
+          "cells": true,
+          "campaigns": {
+            "reduced": true,
+            "full": true
+          },
+          "file": true
+        },
+        "native_stall": {
+          "new": "/data/mw_finetune/eval/sdx8_fastwam_mw/assets/cache_inputs/mt50/n1500_C10/stall",
+          "old": "/data/mw_finetune/eval/fwmk1_redx/assets/cache_inputs/mt50/n1500_C10/stall",
+          "equal": {
+            "READY.json": false,
+            "stall.json": false,
+            "stall.pkl": false,
+            "stall.loeo.csv": false
+          }
+        },
+        "segment_q3": {
+          "new": "/data/mw_finetune/eval/sdx8_fastwam_mw/assets/cache_inputs/mt50/n1500_C10/stall_decision1018",
+          "old": "/data/mw_finetune/eval/fwmk1_redx/assets/cache_inputs/mt50/n1500_C10/stall_decision1018",
+          "equal": {
+            "READY.json": false,
+            "stall.json": false,
+            "stall.pkl": false,
+            "stall.loeo.csv": false
+          }
+        },
+        "gaps": {
+          "k50": true,
+          "k40": true,
+          "k30": true,
+          "k20": true,
+          "k10": true
+        },
+        "c5_fit": {
+          "new": "/data/mw_finetune/eval/sdx8_fastwam_mw/assets/cache_inputs/mt50/n1500_C5/fit",
+          "old": "/data/mw_finetune/eval/csfw_k3/assets/cache_inputs/mt50/n1500_C5/fit",
+          "equal": {
+            "fit.npz": false,
+            "READY.json": false
+          }
+        },
+        "c5_stall": {
+          "new": "/data/mw_finetune/eval/sdx8_fastwam_mw/assets/cache_inputs/mt50/n1500_C5/stall",
+          "old": "/data/mw_finetune/eval/csfw_k3/assets/cache_inputs/mt50/n1500_C5/stall",
+          "equal": {
+            "READY.json": false,
+            "stall.json": false,
+            "stall.pkl": false,
+            "stall.loeo.csv": false
+          }
+        },
+        "c5_selection": true,
+        "c5_gaps": true
+      }
+    },
+    {
+      "suite": "mt50",
+      "size": 2000,
+      "fit_digest": "f517b631cf2e8746afe124142fbf7291e7b64c4523e397484e245ec41e7ebb2f",
+      "checks": {
+        "view": {
+          "new": "/data/mw_finetune/eval/sdx8_fastwam_mw/assets/cache_inputs/mt50/parent/subsets/size_2000",
+          "old": "/data/r17_library/fastwam_mw_mt50/bpool/subsets/size_40",
+          "equal": {
+            "VIEW.json": true,
+            "row_indices.npy": true
+          }
+        },
+        "native_fit": {
+          "new": "/data/mw_finetune/eval/sdx8_fastwam_mw/assets/cache_inputs/mt50/n2000_C10/fit",
+          "old": "/data/r17_library/fastwam_mw_mt50/bpool/fits/size_40",
+          "equal": {
+            "fit.npz": true,
+            "READY.json": true
+          }
+        },
+        "selection": {
+          "cells": true,
+          "campaigns": {
+            "reduced": true,
+            "full": true
+          },
+          "file": true
+        },
+        "native_stall": {
+          "new": "/data/mw_finetune/eval/sdx8_fastwam_mw/assets/cache_inputs/mt50/n2000_C10/stall",
+          "old": "/data/mw_finetune/eval/fwmk1_redx/assets/cache_inputs/mt50/n2000_C10/stall",
+          "equal": {
+            "READY.json": false,
+            "stall.json": false,
+            "stall.pkl": false,
+            "stall.loeo.csv": false
+          }
+        },
+        "segment_q3": {
+          "new": "/data/mw_finetune/eval/sdx8_fastwam_mw/assets/cache_inputs/mt50/n2000_C10/stall_decision1018",
+          "old": "/data/mw_finetune/eval/fwmk1_redx/assets/cache_inputs/mt50/n2000_C10/stall_decision1018",
+          "equal": {
+            "READY.json": false,
+            "stall.json": false,
+            "stall.pkl": false,
+            "stall.loeo.csv": false
+          }
+        },
+        "gaps": {
+          "k50": true,
+          "k40": true,
+          "k30": true,
+          "k20": true,
+          "k10": true
+        },
+        "c5_fit": {
+          "new": "/data/mw_finetune/eval/sdx8_fastwam_mw/assets/cache_inputs/mt50/n2000_C5/fit",
+          "old": "/data/mw_finetune/eval/csfw_k3/assets/cache_inputs/mt50/n2000_C5/fit",
+          "equal": {
+            "fit.npz": false,
+            "READY.json": false
+          }
+        },
+        "c5_stall": {
+          "new": "/data/mw_finetune/eval/sdx8_fastwam_mw/assets/cache_inputs/mt50/n2000_C5/stall",
+          "old": "/data/mw_finetune/eval/csfw_k3/assets/cache_inputs/mt50/n2000_C5/stall",
+          "equal": {
+            "READY.json": false,
+            "stall.json": false,
+            "stall.pkl": false,
+            "stall.loeo.csv": false
+          }
+        },
+        "c5_selection": true,
+        "c5_gaps": true
+      }
+    },
+    {
+      "suite": "mt50",
+      "size": 2500,
+      "fit_digest": "9ab29962f3b61aff03ef1ba2c361a31bb4bf35c2e5c46ce180dae6f7ff9cfe69",
+      "checks": {
+        "view": {
+          "new": "/data/mw_finetune/eval/sdx8_fastwam_mw/assets/cache_inputs/mt50/parent/subsets/size_2500",
+          "old": "/data/r17_library/fastwam_mw_mt50/bpool/subsets/size_50",
+          "equal": {
+            "VIEW.json": true,
+            "row_indices.npy": true
+          }
+        },
+        "native_fit": {
+          "new": "/data/mw_finetune/eval/sdx8_fastwam_mw/assets/cache_inputs/mt50/n2500_C10/fit",
+          "old": "/data/r17_library/fastwam_mw_mt50/bpool/fits/size_50",
+          "equal": {
+            "fit.npz": true,
+            "READY.json": true
+          }
+        },
+        "selection": {
+          "cells": true,
+          "campaigns": {
+            "reduced": true,
+            "full": true
+          },
+          "file": true
+        },
+        "native_stall": {
+          "new": "/data/mw_finetune/eval/sdx8_fastwam_mw/assets/cache_inputs/mt50/n2500_C10/stall",
+          "old": "/data/mw_finetune/eval/fwmk1_redx/assets/cache_inputs/mt50/n2500_C10/stall",
+          "equal": {
+            "READY.json": false,
+            "stall.json": false,
+            "stall.pkl": false,
+            "stall.loeo.csv": false
+          }
+        },
+        "segment_q3": {
+          "new": "/data/mw_finetune/eval/sdx8_fastwam_mw/assets/cache_inputs/mt50/n2500_C10/stall_decision1018",
+          "old": "/data/mw_finetune/eval/fwmk1_redx/assets/cache_inputs/mt50/n2500_C10/stall_decision1018",
+          "equal": {
+            "READY.json": false,
+            "stall.json": false,
+            "stall.pkl": false,
+            "stall.loeo.csv": false
+          }
+        },
+        "gaps": {
+          "k50": true,
+          "k40": true,
+          "k30": true,
+          "k20": true,
+          "k10": true
+        },
+        "c5_fit": {
+          "new": "/data/mw_finetune/eval/sdx8_fastwam_mw/assets/cache_inputs/mt50/n2500_C5/fit",
+          "old": "/data/mw_finetune/eval/csfw_k3/assets/cache_inputs/mt50/n2500_C5/fit",
+          "equal": {
+            "fit.npz": false,
+            "READY.json": false
+          }
+        },
+        "c5_stall": {
+          "new": "/data/mw_finetune/eval/sdx8_fastwam_mw/assets/cache_inputs/mt50/n2500_C5/stall",
+          "old": "/data/mw_finetune/eval/csfw_k3/assets/cache_inputs/mt50/n2500_C5/stall",
+          "equal": {
+            "READY.json": false,
+            "stall.json": false,
+            "stall.pkl": false,
+            "stall.loeo.csv": false
+          }
+        },
+        "c5_selection": true,
+        "c5_gaps": true
+      }
+    }
+  ]
+}

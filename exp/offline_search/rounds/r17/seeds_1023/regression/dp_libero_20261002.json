@@ -1,0 +1,817 @@
+{
+  "bundle": "dp_libero",
+  "seed": 20261002,
+  "passed": false,
+  "cells": [
+    {
+      "suite": "libero_10",
+      "size": 50,
+      "fit_digest": "55f38996f90a2fbce7c5370e7d2a6ffce316e4fd0d1e2b884521292bf1249212",
+      "checks": {
+        "view": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_10/parent/subsets/size_50",
+          "old": "/data/r17_library/dp_libero_libero_10/bpool/subsets/size_50",
+          "equal": {
+            "VIEW.json": true,
+            "row_indices.npy": true
+          }
+        },
+        "native_fit": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_10/n50_C10/fit",
+          "old": "/data/r17_library/dp_libero_libero_10/bpool/fits/size_50",
+          "equal": {
+            "fit.npz": true,
+            "READY.json": true
+          }
+        },
+        "native_refit": {
+          "independent_refit": false
+        },
+        "selection": {
+          "cells": true,
+          "campaigns": {
+            "reduced": true,
+            "full": true
+          },
+          "file": true
+        },
+        "native_stall": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_10/n50_C10/stall",
+          "old": "/data/mw_finetune/eval/ffk1015_dp_libero_reduced_formal_A_original/assets/cache_inputs/libero_10/n50_C10/stall",
+          "equal": {
+            "READY.json": true,
+            "stall.json": true,
+            "stall.pkl": true,
+            "stall.loeo.csv": true
+          }
+        },
+        "segment_q3": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_10/n50_C10/stall_decision1018",
+          "old": "/data/mw_finetune/eval/ffk1015_dp_libero_reduced_formal_A_original/assets/cache_inputs/libero_10/n50_C10/stall_decision1018",
+          "equal": {
+            "READY.json": false,
+            "stall.json": true,
+            "stall.pkl": true,
+            "stall.loeo.csv": true
+          }
+        },
+        "gaps": {
+          "k50": true,
+          "k40": true,
+          "k30": true,
+          "k20": true,
+          "k10": true
+        },
+        "c5_fit": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_10/n50_C5/fit",
+          "old": "/data/mw_finetune/eval/cszed/assets/cache_inputs/libero_10/n50_C5/fit",
+          "equal": {
+            "fit.npz": true,
+            "READY.json": true
+          }
+        },
+        "c5_stall": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_10/n50_C5/stall",
+          "old": "/data/mw_finetune/eval/cszed/assets/cache_inputs/libero_10/n50_C5/stall",
+          "equal": {
+            "READY.json": true,
+            "stall.json": true,
+            "stall.pkl": true,
+            "stall.loeo.csv": true
+          }
+        },
+        "c5_selection": true,
+        "c5_gaps": true
+      }
+    },
+    {
+      "suite": "libero_10",
+      "size": 100,
+      "fit_digest": "7dd17b61a9a1e30793da8733172d38716f60bd76cf57a5163cdae181a9dcd215",
+      "checks": {
+        "view": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_10/parent/subsets/size_100",
+          "old": "/data/r17_library/dp_libero_libero_10/bpool/subsets/size_100",
+          "equal": {
+            "VIEW.json": true,
+            "row_indices.npy": true
+          }
+        },
+        "native_fit": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_10/n100_C10/fit",
+          "old": "/data/r17_library/dp_libero_libero_10/bpool/fits/size_100",
+          "equal": {
+            "fit.npz": true,
+            "READY.json": true
+          }
+        },
+        "native_refit": {
+          "independent_refit": false
+        },
+        "selection": {
+          "cells": true,
+          "campaigns": {
+            "reduced": true,
+            "full": true
+          },
+          "file": true
+        },
+        "native_stall": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_10/n100_C10/stall",
+          "old": "/data/mw_finetune/eval/ffk1015_dp_libero_reduced_formal_A_original/assets/cache_inputs/libero_10/n100_C10/stall",
+          "equal": {
+            "READY.json": true,
+            "stall.json": true,
+            "stall.pkl": true,
+            "stall.loeo.csv": true
+          }
+        },
+        "segment_q3": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_10/n100_C10/stall_decision1018",
+          "old": "/data/mw_finetune/eval/ffk1015_dp_libero_reduced_formal_A_original/assets/cache_inputs/libero_10/n100_C10/stall_decision1018",
+          "equal": {
+            "READY.json": false,
+            "stall.json": true,
+            "stall.pkl": true,
+            "stall.loeo.csv": true
+          }
+        },
+        "gaps": {
+          "k50": true,
+          "k40": true,
+          "k30": true,
+          "k20": true,
+          "k10": true
+        },
+        "c5_fit": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_10/n100_C5/fit",
+          "old": "/data/mw_finetune/eval/cszed/assets/cache_inputs/libero_10/n100_C5/fit",
+          "equal": {
+            "fit.npz": true,
+            "READY.json": true
+          }
+        },
+        "c5_stall": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_10/n100_C5/stall",
+          "old": "/data/mw_finetune/eval/cszed/assets/cache_inputs/libero_10/n100_C5/stall",
+          "equal": {
+            "READY.json": true,
+            "stall.json": true,
+            "stall.pkl": true,
+            "stall.loeo.csv": true
+          }
+        },
+        "c5_selection": true,
+        "c5_gaps": true
+      }
+    },
+    {
+      "suite": "libero_10",
+      "size": 200,
+      "fit_digest": "1e5735fe3d13965da137f4a733f40d7d0aba10afc1c2cdaa115bb67af97592b4",
+      "checks": {
+        "view": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_10/parent/subsets/size_200",
+          "old": "/data/r17_library/dp_libero_libero_10/bpool/subsets/size_200",
+          "equal": {
+            "VIEW.json": true,
+            "row_indices.npy": true
+          }
+        },
+        "native_fit": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_10/n200_C10/fit",
+          "old": "/data/r17_library/dp_libero_libero_10/bpool/fits/size_200",
+          "equal": {
+            "fit.npz": true,
+            "READY.json": true
+          }
+        },
+        "native_refit": {
+          "independent_refit": false
+        },
+        "selection": {
+          "cells": true,
+          "campaigns": {
+            "reduced": true,
+            "full": true
+          },
+          "file": true
+        },
+        "native_stall": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_10/n200_C10/stall",
+          "old": "/data/mw_finetune/eval/ffk1015_dp_libero_reduced_formal_A_original/assets/cache_inputs/libero_10/n200_C10/stall",
+          "equal": {
+            "READY.json": true,
+            "stall.json": true,
+            "stall.pkl": true,
+            "stall.loeo.csv": true
+          }
+        },
+        "segment_q3": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_10/n200_C10/stall_decision1018",
+          "old": "/data/mw_finetune/eval/ffk1015_dp_libero_reduced_formal_A_original/assets/cache_inputs/libero_10/n200_C10/stall_decision1018",
+          "equal": {
+            "READY.json": false,
+            "stall.json": true,
+            "stall.pkl": true,
+            "stall.loeo.csv": true
+          }
+        },
+        "gaps": {
+          "k50": true,
+          "k40": true,
+          "k30": true,
+          "k20": true,
+          "k10": true
+        },
+        "c5_fit": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_10/n200_C5/fit",
+          "old": "/data/mw_finetune/eval/cszed/assets/cache_inputs/libero_10/n200_C5/fit",
+          "equal": {
+            "fit.npz": true,
+            "READY.json": true
+          }
+        },
+        "c5_stall": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_10/n200_C5/stall",
+          "old": "/data/mw_finetune/eval/cszed/assets/cache_inputs/libero_10/n200_C5/stall",
+          "equal": {
+            "READY.json": true,
+            "stall.json": true,
+            "stall.pkl": true,
+            "stall.loeo.csv": true
+          }
+        },
+        "c5_selection": true,
+        "c5_gaps": true
+      }
+    },
+    {
+      "suite": "libero_10",
+      "size": 300,
+      "fit_digest": "5cee112d23bbc68557cd8299512cf7803d77109cf06e271ed5488fa4da190bcb",
+      "checks": {
+        "view": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_10/parent/subsets/size_300",
+          "old": "/data/r17_library/dp_libero_libero_10/bpool/subsets/size_300",
+          "equal": {
+            "VIEW.json": true,
+            "row_indices.npy": true
+          }
+        },
+        "native_fit": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_10/n300_C10/fit",
+          "old": "/data/r17_library/dp_libero_libero_10/bpool/fits/size_300",
+          "equal": {
+            "fit.npz": true,
+            "READY.json": true
+          }
+        },
+        "native_refit": {
+          "independent_refit": false
+        },
+        "selection": {
+          "cells": true,
+          "campaigns": {
+            "reduced": true,
+            "full": true
+          },
+          "file": true
+        },
+        "native_stall": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_10/n300_C10/stall",
+          "old": "/data/mw_finetune/eval/ffk1015_dp_libero_reduced_formal_A_original/assets/cache_inputs/libero_10/n300_C10/stall",
+          "equal": {
+            "READY.json": true,
+            "stall.json": true,
+            "stall.pkl": true,
+            "stall.loeo.csv": true
+          }
+        },
+        "segment_q3": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_10/n300_C10/stall_decision1018",
+          "old": "/data/mw_finetune/eval/ffk1015_dp_libero_reduced_formal_A_original/assets/cache_inputs/libero_10/n300_C10/stall_decision1018",
+          "equal": {
+            "READY.json": false,
+            "stall.json": true,
+            "stall.pkl": true,
+            "stall.loeo.csv": true
+          }
+        },
+        "gaps": {
+          "k50": true,
+          "k40": true,
+          "k30": true,
+          "k20": true,
+          "k10": true
+        },
+        "c5_fit": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_10/n300_C5/fit",
+          "old": "/data/mw_finetune/eval/cszed/assets/cache_inputs/libero_10/n300_C5/fit",
+          "equal": {
+            "fit.npz": true,
+            "READY.json": true
+          }
+        },
+        "c5_stall": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_10/n300_C5/stall",
+          "old": "/data/mw_finetune/eval/cszed/assets/cache_inputs/libero_10/n300_C5/stall",
+          "equal": {
+            "READY.json": true,
+            "stall.json": true,
+            "stall.pkl": true,
+            "stall.loeo.csv": true
+          }
+        },
+        "c5_selection": true,
+        "c5_gaps": true
+      }
+    },
+    {
+      "suite": "libero_10",
+      "size": 400,
+      "fit_digest": "270b90d204b6e2943060d0127d54ab4294280ef44d29291c4083feee8cde87a8",
+      "checks": {
+        "view": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_10/parent/subsets/size_400",
+          "old": "/data/r17_library/dp_libero_libero_10/bpool/subsets/size_400",
+          "equal": {
+            "VIEW.json": true,
+            "row_indices.npy": true
+          }
+        },
+        "native_fit": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_10/n400_C10/fit",
+          "old": "/data/r17_library/dp_libero_libero_10/bpool/fits/size_400",
+          "equal": {
+            "fit.npz": true,
+            "READY.json": true
+          }
+        },
+        "native_refit": {
+          "independent_refit": false
+        },
+        "selection": {
+          "cells": true,
+          "campaigns": {
+            "reduced": true,
+            "full": true
+          },
+          "file": true
+        },
+        "native_stall": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_10/n400_C10/stall",
+          "old": "/data/mw_finetune/eval/ffk1015_dp_libero_reduced_formal_A_original/assets/cache_inputs/libero_10/n400_C10/stall",
+          "equal": {
+            "READY.json": true,
+            "stall.json": true,
+            "stall.pkl": true,
+            "stall.loeo.csv": true
+          }
+        },
+        "segment_q3": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_10/n400_C10/stall_decision1018",
+          "old": "/data/mw_finetune/eval/ffk1015_dp_libero_reduced_formal_A_original/assets/cache_inputs/libero_10/n400_C10/stall_decision1018",
+          "equal": {
+            "READY.json": false,
+            "stall.json": true,
+            "stall.pkl": true,
+            "stall.loeo.csv": true
+          }
+        },
+        "gaps": {
+          "k50": true,
+          "k40": true,
+          "k30": true,
+          "k20": true,
+          "k10": true
+        },
+        "c5_fit": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_10/n400_C5/fit",
+          "old": "/data/mw_finetune/eval/cszed/assets/cache_inputs/libero_10/n400_C5/fit",
+          "equal": {
+            "fit.npz": true,
+            "READY.json": true
+          }
+        },
+        "c5_stall": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_10/n400_C5/stall",
+          "old": "/data/mw_finetune/eval/cszed/assets/cache_inputs/libero_10/n400_C5/stall",
+          "equal": {
+            "READY.json": true,
+            "stall.json": true,
+            "stall.pkl": true,
+            "stall.loeo.csv": true
+          }
+        },
+        "c5_selection": true,
+        "c5_gaps": true
+      }
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 50,
+      "fit_digest": "b8be064da38686ea0049bcb521a8dc6bb8050cb1de471770493e156187d9b47b",
+      "checks": {
+        "view": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_spatial/parent/subsets/size_50",
+          "old": "/data/r17_library/dp_libero_libero_spatial/bpool/subsets/size_50",
+          "equal": {
+            "VIEW.json": true,
+            "row_indices.npy": true
+          }
+        },
+        "native_fit": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_spatial/n50_C10/fit",
+          "old": "/data/r17_library/dp_libero_libero_spatial/bpool/fits/size_50",
+          "equal": {
+            "fit.npz": true,
+            "READY.json": true
+          }
+        },
+        "native_refit": {
+          "independent_refit": false
+        },
+        "selection": {
+          "cells": true,
+          "campaigns": {
+            "reduced": true,
+            "full": true
+          },
+          "file": true
+        },
+        "native_stall": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_spatial/n50_C10/stall",
+          "old": "/data/mw_finetune/eval/ffk1015_dp_libero_reduced_formal_A_original/assets/cache_inputs/libero_spatial/n50_C10/stall",
+          "equal": {
+            "READY.json": true,
+            "stall.json": true,
+            "stall.pkl": true,
+            "stall.loeo.csv": true
+          }
+        },
+        "segment_q3": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_spatial/n50_C10/stall_decision1018",
+          "old": "/data/mw_finetune/eval/ffk1015_dp_libero_reduced_formal_A_original/assets/cache_inputs/libero_spatial/n50_C10/stall_decision1018",
+          "equal": {
+            "READY.json": false,
+            "stall.json": true,
+            "stall.pkl": true,
+            "stall.loeo.csv": true
+          }
+        },
+        "gaps": {
+          "k50": true,
+          "k40": true,
+          "k30": true,
+          "k20": true,
+          "k10": true
+        },
+        "c5_fit": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_spatial/n50_C5/fit",
+          "old": "/data/mw_finetune/eval/cszed/assets/cache_inputs/libero_spatial/n50_C5/fit",
+          "equal": {
+            "fit.npz": true,
+            "READY.json": true
+          }
+        },
+        "c5_stall": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_spatial/n50_C5/stall",
+          "old": "/data/mw_finetune/eval/cszed/assets/cache_inputs/libero_spatial/n50_C5/stall",
+          "equal": {
+            "READY.json": true,
+            "stall.json": true,
+            "stall.pkl": true,
+            "stall.loeo.csv": true
+          }
+        },
+        "c5_selection": true,
+        "c5_gaps": true
+      }
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 100,
+      "fit_digest": "a1556650590edaf9b7264521db719a261e1f9bf3bc02045b3868d6e71e7b421d",
+      "checks": {
+        "view": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_spatial/parent/subsets/size_100",
+          "old": "/data/r17_library/dp_libero_libero_spatial/bpool/subsets/size_100",
+          "equal": {
+            "VIEW.json": true,
+            "row_indices.npy": true
+          }
+        },
+        "native_fit": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_spatial/n100_C10/fit",
+          "old": "/data/r17_library/dp_libero_libero_spatial/bpool/fits/size_100",
+          "equal": {
+            "fit.npz": true,
+            "READY.json": true
+          }
+        },
+        "native_refit": {
+          "independent_refit": false
+        },
+        "selection": {
+          "cells": true,
+          "campaigns": {
+            "reduced": true,
+            "full": true
+          },
+          "file": true
+        },
+        "native_stall": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_spatial/n100_C10/stall",
+          "old": "/data/mw_finetune/eval/ffk1015_dp_libero_reduced_formal_A_original/assets/cache_inputs/libero_spatial/n100_C10/stall",
+          "equal": {
+            "READY.json": true,
+            "stall.json": true,
+            "stall.pkl": true,
+            "stall.loeo.csv": true
+          }
+        },
+        "segment_q3": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_spatial/n100_C10/stall_decision1018",
+          "old": "/data/mw_finetune/eval/ffk1015_dp_libero_reduced_formal_A_original/assets/cache_inputs/libero_spatial/n100_C10/stall_decision1018",
+          "equal": {
+            "READY.json": false,
+            "stall.json": true,
+            "stall.pkl": true,
+            "stall.loeo.csv": true
+          }
+        },
+        "gaps": {
+          "k50": true,
+          "k40": true,
+          "k30": true,
+          "k20": true,
+          "k10": true
+        },
+        "c5_fit": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_spatial/n100_C5/fit",
+          "old": "/data/mw_finetune/eval/cszed/assets/cache_inputs/libero_spatial/n100_C5/fit",
+          "equal": {
+            "fit.npz": true,
+            "READY.json": true
+          }
+        },
+        "c5_stall": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_spatial/n100_C5/stall",
+          "old": "/data/mw_finetune/eval/cszed/assets/cache_inputs/libero_spatial/n100_C5/stall",
+          "equal": {
+            "READY.json": true,
+            "stall.json": true,
+            "stall.pkl": true,
+            "stall.loeo.csv": true
+          }
+        },
+        "c5_selection": true,
+        "c5_gaps": true
+      }
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 200,
+      "fit_digest": "c3497d728eb15eb1827b17ff6d594e18a246572560d0c59ed22a05b594c565a2",
+      "checks": {
+        "view": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_spatial/parent/subsets/size_200",
+          "old": "/data/r17_library/dp_libero_libero_spatial/bpool/subsets/size_200",
+          "equal": {
+            "VIEW.json": true,
+            "row_indices.npy": true
+          }
+        },
+        "native_fit": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_spatial/n200_C10/fit",
+          "old": "/data/r17_library/dp_libero_libero_spatial/bpool/fits/size_200",
+          "equal": {
+            "fit.npz": true,
+            "READY.json": true
+          }
+        },
+        "native_refit": {
+          "independent_refit": false
+        },
+        "selection": {
+          "cells": true,
+          "campaigns": {
+            "reduced": true,
+            "full": true
+          },
+          "file": true
+        },
+        "native_stall": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_spatial/n200_C10/stall",
+          "old": "/data/mw_finetune/eval/ffk1015_dp_libero_reduced_formal_A_original/assets/cache_inputs/libero_spatial/n200_C10/stall",
+          "equal": {
+            "READY.json": true,
+            "stall.json": true,
+            "stall.pkl": true,
+            "stall.loeo.csv": true
+          }
+        },
+        "segment_q3": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_spatial/n200_C10/stall_decision1018",
+          "old": "/data/mw_finetune/eval/ffk1015_dp_libero_reduced_formal_A_original/assets/cache_inputs/libero_spatial/n200_C10/stall_decision1018",
+          "equal": {
+            "READY.json": false,
+            "stall.json": true,
+            "stall.pkl": true,
+            "stall.loeo.csv": true
+          }
+        },
+        "gaps": {
+          "k50": true,
+          "k40": true,
+          "k30": true,
+          "k20": true,
+          "k10": true
+        },
+        "c5_fit": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_spatial/n200_C5/fit",
+          "old": "/data/mw_finetune/eval/cszed/assets/cache_inputs/libero_spatial/n200_C5/fit",
+          "equal": {
+            "fit.npz": true,
+            "READY.json": true
+          }
+        },
+        "c5_stall": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_spatial/n200_C5/stall",
+          "old": "/data/mw_finetune/eval/cszed/assets/cache_inputs/libero_spatial/n200_C5/stall",
+          "equal": {
+            "READY.json": true,
+            "stall.json": true,
+            "stall.pkl": true,
+            "stall.loeo.csv": true
+          }
+        },
+        "c5_selection": true,
+        "c5_gaps": true
+      }
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 300,
+      "fit_digest": "04479ab496e0f765e8b5e87f599e5e6015b6e00717e8b550fe82a3c0e31a6d10",
+      "checks": {
+        "view": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_spatial/parent/subsets/size_300",
+          "old": "/data/r17_library/dp_libero_libero_spatial/bpool/subsets/size_300",
+          "equal": {
+            "VIEW.json": true,
+            "row_indices.npy": true
+          }
+        },
+        "native_fit": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_spatial/n300_C10/fit",
+          "old": "/data/r17_library/dp_libero_libero_spatial/bpool/fits/size_300",
+          "equal": {
+            "fit.npz": true,
+            "READY.json": true
+          }
+        },
+        "native_refit": {
+          "independent_refit": false
+        },
+        "selection": {
+          "cells": true,
+          "campaigns": {
+            "reduced": true,
+            "full": true
+          },
+          "file": true
+        },
+        "native_stall": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_spatial/n300_C10/stall",
+          "old": "/data/mw_finetune/eval/ffk1015_dp_libero_reduced_formal_A_original/assets/cache_inputs/libero_spatial/n300_C10/stall",
+          "equal": {
+            "READY.json": true,
+            "stall.json": true,
+            "stall.pkl": true,
+            "stall.loeo.csv": true
+          }
+        },
+        "segment_q3": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_spatial/n300_C10/stall_decision1018",
+          "old": "/data/mw_finetune/eval/ffk1015_dp_libero_reduced_formal_A_original/assets/cache_inputs/libero_spatial/n300_C10/stall_decision1018",
+          "equal": {
+            "READY.json": false,
+            "stall.json": true,
+            "stall.pkl": true,
+            "stall.loeo.csv": true
+          }
+        },
+        "gaps": {
+          "k50": true,
+          "k40": true,
+          "k30": true,
+          "k20": true,
+          "k10": true
+        },
+        "c5_fit": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_spatial/n300_C5/fit",
+          "old": "/data/mw_finetune/eval/cszed/assets/cache_inputs/libero_spatial/n300_C5/fit",
+          "equal": {
+            "fit.npz": true,
+            "READY.json": true
+          }
+        },
+        "c5_stall": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_spatial/n300_C5/stall",
+          "old": "/data/mw_finetune/eval/cszed/assets/cache_inputs/libero_spatial/n300_C5/stall",
+          "equal": {
+            "READY.json": true,
+            "stall.json": true,
+            "stall.pkl": true,
+            "stall.loeo.csv": true
+          }
+        },
+        "c5_selection": true,
+        "c5_gaps": true
+      }
+    },
+    {
+      "suite": "libero_spatial",
+      "size": 400,
+      "fit_digest": "7a274546e1e578297a6eac35656ccde92a667a9c37312d4a7ccfc6b7e2c49ded",
+      "checks": {
+        "view": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_spatial/parent/subsets/size_400",
+          "old": "/data/r17_library/dp_libero_libero_spatial/bpool/subsets/size_400",
+          "equal": {
+            "VIEW.json": true,
+            "row_indices.npy": true
+          }
+        },
+        "native_fit": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_spatial/n400_C10/fit",
+          "old": "/data/r17_library/dp_libero_libero_spatial/bpool/fits/size_400",
+          "equal": {
+            "fit.npz": true,
+            "READY.json": true
+          }
+        },
+        "native_refit": {
+          "independent_refit": false
+        },
+        "selection": {
+          "cells": true,
+          "campaigns": {
+            "reduced": true,
+            "full": true
+          },
+          "file": true
+        },
+        "native_stall": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_spatial/n400_C10/stall",
+          "old": "/data/mw_finetune/eval/ffk1015_dp_libero_reduced_formal_A_original/assets/cache_inputs/libero_spatial/n400_C10/stall",
+          "equal": {
+            "READY.json": true,
+            "stall.json": true,
+            "stall.pkl": true,
+            "stall.loeo.csv": true
+          }
+        },
+        "segment_q3": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_spatial/n400_C10/stall_decision1018",
+          "old": "/data/mw_finetune/eval/ffk1015_dp_libero_reduced_formal_A_original/assets/cache_inputs/libero_spatial/n400_C10/stall_decision1018",
+          "equal": {
+            "READY.json": false,
+            "stall.json": true,
+            "stall.pkl": true,
+            "stall.loeo.csv": true
+          }
+        },
+        "gaps": {
+          "k50": true,
+          "k40": true,
+          "k30": true,
+          "k20": true,
+          "k10": true
+        },
+        "c5_fit": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_spatial/n400_C5/fit",
+          "old": "/data/mw_finetune/eval/cszed/assets/cache_inputs/libero_spatial/n400_C5/fit",
+          "equal": {
+            "fit.npz": true,
+            "READY.json": true
+          }
+        },
+        "c5_stall": {
+          "new": "/data/mw_finetune/eval/sdx2_dp_libero/assets/cache_inputs/libero_spatial/n400_C5/stall",
+          "old": "/data/mw_finetune/eval/cszed/assets/cache_inputs/libero_spatial/n400_C5/stall",
+          "equal": {
+            "READY.json": true,
+            "stall.json": true,
+            "stall.pkl": true,
+            "stall.loeo.csv": true
+          }
+        },
+        "c5_selection": true,
+        "c5_gaps": true
+      }
+    }
+  ]
+}
