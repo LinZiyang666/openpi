@@ -4,7 +4,7 @@
 <run>/replay/n<NNN>_s<seed>_summary.json  replay window and episode total (replay.py)
 
 For each replay: the infer requests the server received inside its window, requests per second over the window,
-latency (t_sent - t_recv) mean / p50 / p90 / p99 in ms, and the time to finish its 500 episodes. Diagnostics:
+latency (t_sent - t_recv) mean and p10 / p25 / p50 / p75 / p90 / p99 in ms, and the time to finish its 500 episodes. Diagnostics:
 steady_requests_per_s counts only the stretch where all N robots run (from the last robot's first episode to the
 last episode's start, after which robots drop out); from <run>/server/batches_<pid>.csv, the share of the window
 with any stage batch on the GPU (gpu_busy) and per stage the batches, mean size, mean batch ms and mean queue wait
@@ -68,7 +68,8 @@ def analyze(run):
         s = json.loads(path.read_text())
         inside = reqs[(reqs[:, 0] >= s['start']) & (reqs[:, 1] <= s['end'])] if len(reqs) else reqs
         lat = (inside[:, 1] - inside[:, 0]) * 1000.0
-        q = np.percentile(lat, [50, 90, 99]) if len(lat) else [None] * 3
+        pct = (10, 25, 50, 75, 90, 99)
+        q = np.percentile(lat, pct) if len(lat) else [None] * len(pct)
         eps = [json.loads(line) for line in path.with_name(path.name.replace('_summary.json', '_episodes.jsonl')).read_text().splitlines()]
         first = {}
         for e in eps:
@@ -79,9 +80,7 @@ def analyze(run):
                         infer_requests=int(len(inside)), requests_per_s=round(len(inside) / s['total_s'], 2),
                         steady_requests_per_s=round(len(steady) / (b - a), 2) if steady is not None else None,
                         latency_ms=dict(mean=round(float(lat.mean()), 2) if len(lat) else None,
-                                        p50=round(float(q[0]), 2) if len(lat) else None,
-                                        p90=round(float(q[1]), 2) if len(lat) else None,
-                                        p99=round(float(q[2]), 2) if len(lat) else None),
+                                        **{f'p{p}': round(float(v), 2) if len(lat) else None for p, v in zip(pct, q)}),
                         **diagnostics(bat, s['start'], s['end'])))
     out.sort(key=lambda r: r['robots'])
     (run / 'RESULTS.json').write_text(json.dumps(out, indent=1) + '\n')
