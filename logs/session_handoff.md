@@ -130,6 +130,12 @@ owner 的常驻指令，逐字有效：
 - 现链：真 H100 B **h100fw5**（fw_r_m_k1–5 → fw_f_m_o → fw_f_m_k1–5；k1 = 24 格 60,000）；真 H100 A h100vla2（fa_x34_gr_r_k1 6,500 在跑，hold 后停）→ **h100vla3**（fa_x34_pi_r_k1 10,000 → 其余 46 项原顺序）；4090 4090sd4（pi_r_m_k1 30,000 在跑，~94 局/分）；sean seanlo16→seanlo18、seanlo11→seanlo12(hold)→seanlo19；pods pod2sd1→pod2sd2、pod1sd1→pod1sd2。
 - 判格结果：π0.5 MT50 减步 12/12 格要调、FW MT50 减步 24/24、DP LIBERO 减步 9/40。
 
+### 10-24 08:1x 早间状态
+- ✅ 第一个完整线：DP · LIBERO · 减步（第一步 20,000 + 5 轮 4,500/2,250/2,000/1,850/1,800 = 12,400，全跑要 22,500，省 45%）。端到端核对：formal_a_analysis.choose 读 off + 5 轮，9 个要调格都选出完整 500 局。
+- 第一步全部完成的：DP LIBERO r/f、FW LIBERO f、GR00T LIBERO r 组、π0.5 LIBERO r 组、FW MT50 r、GR00T MT50 r/f（pod）、π0.5 MT50 r；3 个 H100 C10 参照。剩：FW LIBERO r、DP MT50 r/f、FW MT50 f、π0.5 MT50 f、8 个 VLA 全步 R15 单位、Cosmos LIBERO 两批（未排）。
+- 在跑第 1 轮：FW MT50 r（H100 B）、π0.5 MT50 r（4090）、GR00T MT50 r（-02）/f（pod1）、FW LIBERO f（sean 1）、π0.5 LIBERO r（H100 A，07:20 起）；GR00T LIBERO r 第 1 轮已完（6,500）。DP LIBERO f 第 1 轮在 sean 2 准备。
+- 判格：π0.5 MT50 r 12/12、FW MT50 r 24/24、GR00T MT50 r 24/24、GR00T MT50 f 24/24、FW LIBERO f 36/40、DP LIBERO r 9/40。
+
 ### 监控（compact 后核对，缺了重挂）
 - server_watch 自动重启循环（bnr4ccd1h）；jupyter_watch（bwhjthtcu）；guard_wait：`bash $CLAUDE_JOB_DIR/tmp/guard_wait.sh 1500` 醒来重挂（pod 下线时 `NOJW=1`）；Monitor（30 分钟到期重挂）：`cd ~/projects/openpi_ext/scratch/r17_ops && tail -n0 -F mw/chain.log server_watch.alerts.log | grep --line-buffered -E "ended rc=|FAILED|STOPPED|CHAIN_STOPPED|queue done|hold file present|ALERT|rate .* -> |Traceback|server_watch exited|DIRECT_FAIL|collect-|queue start|after-collect|pod1-q"`。
 - 任务表：#4 巡检、#11 看守、#19 汇总、#21 新种子总、#22 采库、#24 常驻复用、#26 H100 提速、#28 第二步与 MT50 建批 进行中。
