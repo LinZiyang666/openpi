@@ -99,6 +99,14 @@ owner 的常驻指令，逐字有效：
 - 粗算各车道收尾：4090 ~10-25 19:00；pod -02 ~10-25 04:00（之后闲，pod 只有 MT50 参照，DP/FW 在 MIG 上太慢，不挪）；pod1 ~10-25 傍晚；sean 车道 2 DP 全步 ~10-25 16:00；Cosmos 与真 H100 B 的 FW MT50 全步都在 ~10-26 上午到中午。VLA 车道一空，就把 h100fw5 里还没开的 FW MT50 全步单位改回整卡副本数（现 R2/36 GiB）。
 - 真 H100 /data 96%（45 G）→ 第二批拉回 9 个旧 servers/（~142 G：fa_ls_v08_1c7、fastwamc6066547406、fa_ls_fw_f_u_m、fa_ls_fw_f_u_l_l、knobdevfw4、ffk1015_dp_mt50_reduced_descentc1、dpmk1_fulx、csdp_1504、dpmk1_redx）到 /nvme/weiland/openpi/h100_pullback_1024/；H100 只读 rsync 守护进程改用 **23119**（/home/exouser/pull_1024b，pid 在 rsyncd.pid，完了按 PID 关）；pullback.sh 现默认 PORT=23119，pullback_free.sh 第一个参数是日志（$CLAUDE_JOB_DIR/tmp/pullback2.log）。
 
+### 10-24 16:3x 增补
+- ⛔ **长段开的 C10 纯推理回退参照必须同卡**（代理试汇总时发现缺）：新种子 7 份缺同卡版，已按源定义改宿主建好（9b72b9ac，`seeds_1023/long_refs.py build/register`，登记 `seeds_1023/LONG_REFERENCES.json`，make_index 只从这表取 long_reference）：H100 的 fa_sd_dp_{r,f}_l_p（各 1,000）、fa_sd_dp_{r,f}_m_p（各 2,500）、fa_sd_fw_r_l_p（1,000，R1/20 GiB/文本表，可与 sean FW 全步 R4 共卡）；pod 的 fa_sd_gr_r_m_p_j（-02）、fa_sd_gr_f_m_p_j（pod1），各 2,500。已有同卡的：FW LIBERO 全步 fa_ls_fw_f_p_l、FW MT50 fa_ls_fw_{r,f}_p_m（H100，不是 _j）。FW 那份 task_uid 前缀随 H100 服务代码变（同目标线一致，其余字段同源）。
+- 排车道：sean 车道 2 **seanlo18 已挂 hold**（DP MT50 r k1 跑完即停）→ **seanlo20**（车道 2 env）：dp_r_m_p → dp_f_m_p → dp_r_l_p → dp_f_l_p → fw_r_l_p → dp_r_m_k2–5 → dp_f_m_o → dp_f_m_k1–5。pod 两个放 17:4x 恢复新链的链尾（见下）。
+- 汇总：`seeds_1023/make_index.py` 生成 SEEDS_INDEX.json（只登记整组完成且参照齐的批次组，其余进 _skipped 并写原因）；DP LIBERO 诊断试跑 80 格 0 错、与 formal_a_analysis.choose 逐任务 0 差异。参照跑完后：`python -m exp.offline_search.rounds.r17.seeds_1023.make_index` 再 `results_seeds --workers 8`。
+- 17:4x 恢复用脚本（ops_scripts）：`pod_up.sh <node> <H100port:podport>...`（隧道 + setup.sh groot），然后
+  `pod_resume.sh fa_sd_gr_r_m_k2 pod2sd2 pod2sd3 fa_sd_gr_r_m_k3 fa_sd_gr_r_m_k4 fa_sd_gr_r_m_k5 fa_sd_gr_r_m_p_j`；
+  `pod_resume.sh fa_sd_gr_f_m_k1 pod1sd2 pod1sd3 fa_sd_gr_f_m_k2 fa_sd_gr_f_m_k3 fa_sd_gr_f_m_k4 fa_sd_gr_f_m_k5 fa_sd_gr_f_m_p_j`（若重启时某批已跑完，就只开新链接剩余项）。
+
 ### ⛔ 今天 17:4x pod 例行重启（两台 pod 的 GR00T 轮次会被打断）恢复步骤
 1. jupyter_watch 报警后等 pod 回来；两台都 `cd /home/ziyang10/zl_r17 && HOME=/home/ziyang10 bash setup.sh groot rsync://none/x`（GR00T 环境在 NFS）。
 2. 隧道（pod 上 `cd /home/ziyang10/.tether-agent/zl_tunnel && HOME=/home/ziyang10/.tether-agent setsid nohup bash tunnel.sh <H100端口> <pod端口> >> tunnel_<x>.log 2>&1 &`）：-02：24472→23474、24473→23475、24474→23476；pod1：24470→23470、24471→23471、24475→23472。H100 fwd.py 现映射：23470→24470、23471→24471、23472→24475、23474→24472、23475→24473、23476→24474（重启不影响 H100）。jupyter_watch（bwhjthtcu）重挂。
