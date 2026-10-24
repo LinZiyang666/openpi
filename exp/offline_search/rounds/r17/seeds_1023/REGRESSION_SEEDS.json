@@ -1,0 +1,466 @@
+{
+  "passed": true,
+  "checked": 232,
+  "tolerance": "IR/SR floats: abs/rel 1e-12; counts, selections and chains exact",
+  "results": [
+    {
+      "kind": "regression",
+      "name": "groot:mt50:reduced:off:8",
+      "value": {
+        "line": {
+          "model": "groot",
+          "benchmark": "mt50",
+          "mode": "reduced",
+          "long_segment": "off",
+          "seed": 8,
+          "gpu": "H200 MIG 1g.18gb"
+        },
+        "source": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_off_1022/RESULTS_OFF.json",
+        "checked": 6,
+        "differences": []
+      }
+    },
+    {
+      "kind": "regression",
+      "name": "groot:mt50:full:off:8",
+      "value": {
+        "line": {
+          "model": "groot",
+          "benchmark": "mt50",
+          "mode": "full",
+          "long_segment": "off",
+          "seed": 8,
+          "gpu": "H100"
+        },
+        "source": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_off_1022/RESULTS_OFF.json",
+        "checked": 6,
+        "differences": []
+      }
+    },
+    {
+      "kind": "regression",
+      "name": "dp:mt50:reduced:off:8",
+      "value": {
+        "line": {
+          "model": "dp",
+          "benchmark": "mt50",
+          "mode": "reduced",
+          "long_segment": "off",
+          "seed": 8,
+          "gpu": "H100"
+        },
+        "source": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_off_1022/RESULTS_OFF.json",
+        "checked": 6,
+        "differences": []
+      }
+    },
+    {
+      "kind": "regression",
+      "name": "dp:mt50:full:off:8",
+      "value": {
+        "line": {
+          "model": "dp",
+          "benchmark": "mt50",
+          "mode": "full",
+          "long_segment": "off",
+          "seed": 8,
+          "gpu": "H100"
+        },
+        "source": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_off_1022/RESULTS_OFF.json",
+        "checked": 6,
+        "differences": []
+      }
+    },
+    {
+      "kind": "regression",
+      "name": "groot:libero:full:off:20261002",
+      "value": {
+        "line": {
+          "model": "groot",
+          "benchmark": "libero",
+          "mode": "full",
+          "long_segment": "off",
+          "seed": 20261002,
+          "gpu": "H100"
+        },
+        "source": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_off_1022/RESULTS_OFF.json",
+        "checked": 8,
+        "differences": []
+      }
+    },
+    {
+      "kind": "regression",
+      "name": "dp:libero:reduced:off:20261002",
+      "value": {
+        "line": {
+          "model": "dp",
+          "benchmark": "libero",
+          "mode": "reduced",
+          "long_segment": "off",
+          "seed": 20261002,
+          "gpu": "H100"
+        },
+        "source": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_off_1022/RESULTS_OFF.json",
+        "checked": 12,
+        "differences": []
+      }
+    },
+    {
+      "kind": "regression",
+      "name": "groot:libero:reduced:off:20261002",
+      "value": {
+        "line": {
+          "model": "groot",
+          "benchmark": "libero",
+          "mode": "reduced",
+          "long_segment": "off",
+          "seed": 20261002,
+          "gpu": "H100"
+        },
+        "source": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_off_1022/RESULTS_OFF.json",
+        "checked": 8,
+        "differences": []
+      }
+    },
+    {
+      "kind": "regression",
+      "name": "dp:libero:full:off:20261002",
+      "value": {
+        "line": {
+          "model": "dp",
+          "benchmark": "libero",
+          "mode": "full",
+          "long_segment": "off",
+          "seed": 20261002,
+          "gpu": "H100"
+        },
+        "source": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_off_1022/RESULTS_OFF.json",
+        "checked": 12,
+        "differences": []
+      }
+    },
+    {
+      "kind": "regression",
+      "name": "pi05:libero:reduced:off:20261002",
+      "value": {
+        "line": {
+          "model": "pi05",
+          "benchmark": "libero",
+          "mode": "reduced",
+          "long_segment": "off",
+          "seed": 20261002,
+          "gpu": "H100"
+        },
+        "source": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_off_1022/RESULTS_OFF.json",
+        "checked": 8,
+        "differences": []
+      }
+    },
+    {
+      "kind": "regression",
+      "name": "pi05:libero:full:off:20261002",
+      "value": {
+        "line": {
+          "model": "pi05",
+          "benchmark": "libero",
+          "mode": "full",
+          "long_segment": "off",
+          "seed": 20261002,
+          "gpu": "H100"
+        },
+        "source": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_off_1022/RESULTS_OFF.json",
+        "checked": 8,
+        "differences": []
+      }
+    },
+    {
+      "kind": "regression",
+      "name": "dp:libero:full:on:20261002",
+      "value": {
+        "line": {
+          "model": "dp",
+          "benchmark": "libero",
+          "mode": "full",
+          "long_segment": "on",
+          "seed": 20261002,
+          "gpu": "RTX 4090"
+        },
+        "source": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/RESULTS_1022.json",
+        "checked": 12,
+        "differences": []
+      }
+    },
+    {
+      "kind": "regression",
+      "name": "dp:libero:reduced:on:20261002",
+      "value": {
+        "line": {
+          "model": "dp",
+          "benchmark": "libero",
+          "mode": "reduced",
+          "long_segment": "on",
+          "seed": 20261002,
+          "gpu": "RTX 4090"
+        },
+        "source": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/RESULTS_1022.json",
+        "checked": 12,
+        "differences": []
+      }
+    },
+    {
+      "kind": "regression",
+      "name": "fastwam:libero:reduced:off:20261002",
+      "value": {
+        "line": {
+          "model": "fastwam",
+          "benchmark": "libero",
+          "mode": "reduced",
+          "long_segment": "off",
+          "seed": 20261002,
+          "gpu": "H100"
+        },
+        "source": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_off_1022/RESULTS_OFF.json",
+        "checked": 12,
+        "differences": []
+      }
+    },
+    {
+      "kind": "regression",
+      "name": "dp:mt50:reduced:on:8",
+      "value": {
+        "line": {
+          "model": "dp",
+          "benchmark": "mt50",
+          "mode": "reduced",
+          "long_segment": "on",
+          "seed": 8,
+          "gpu": "RTX 4090"
+        },
+        "source": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/RESULTS_1022.json",
+        "checked": 6,
+        "differences": []
+      }
+    },
+    {
+      "kind": "regression",
+      "name": "fastwam:libero:reduced:on:20261002",
+      "value": {
+        "line": {
+          "model": "fastwam",
+          "benchmark": "libero",
+          "mode": "reduced",
+          "long_segment": "on",
+          "seed": 20261002,
+          "gpu": "RTX 4090"
+        },
+        "source": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/RESULTS_1022.json",
+        "checked": 12,
+        "differences": []
+      }
+    },
+    {
+      "kind": "regression",
+      "name": "dp:mt50:full:on:8",
+      "value": {
+        "line": {
+          "model": "dp",
+          "benchmark": "mt50",
+          "mode": "full",
+          "long_segment": "on",
+          "seed": 8,
+          "gpu": "RTX 4090"
+        },
+        "source": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/RESULTS_1022.json",
+        "checked": 6,
+        "differences": []
+      }
+    },
+    {
+      "kind": "regression",
+      "name": "fastwam:libero:full:on:20261002",
+      "value": {
+        "line": {
+          "model": "fastwam",
+          "benchmark": "libero",
+          "mode": "full",
+          "long_segment": "on",
+          "seed": 20261002,
+          "gpu": "H100"
+        },
+        "source": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/RESULTS_1022.json",
+        "checked": 12,
+        "differences": []
+      }
+    },
+    {
+      "kind": "regression",
+      "name": "groot:mt50:reduced:on:8",
+      "value": {
+        "line": {
+          "model": "groot",
+          "benchmark": "mt50",
+          "mode": "reduced",
+          "long_segment": "on",
+          "seed": 8,
+          "gpu": "H100"
+        },
+        "source": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/RESULTS_1022.json",
+        "checked": 6,
+        "differences": []
+      }
+    },
+    {
+      "kind": "regression",
+      "name": "fastwam:mt50:full:on:8",
+      "value": {
+        "line": {
+          "model": "fastwam",
+          "benchmark": "mt50",
+          "mode": "full",
+          "long_segment": "on",
+          "seed": 8,
+          "gpu": "H100"
+        },
+        "source": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/RESULTS_1022.json",
+        "checked": 6,
+        "differences": []
+      }
+    },
+    {
+      "kind": "regression",
+      "name": "groot:mt50:full:on:8",
+      "value": {
+        "line": {
+          "model": "groot",
+          "benchmark": "mt50",
+          "mode": "full",
+          "long_segment": "on",
+          "seed": 8,
+          "gpu": "H100"
+        },
+        "source": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/RESULTS_1022.json",
+        "checked": 6,
+        "differences": []
+      }
+    },
+    {
+      "kind": "regression",
+      "name": "cosmos:libero:reduced:default:20261002",
+      "value": {
+        "line": {
+          "model": "cosmos",
+          "benchmark": "libero",
+          "mode": "reduced",
+          "long_segment": "default",
+          "seed": 20261002,
+          "gpu": "H100"
+        },
+        "source": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/RESULTS_1022.json",
+        "checked": 12,
+        "differences": []
+      }
+    },
+    {
+      "kind": "regression",
+      "name": "fastwam:mt50:reduced:on:8",
+      "value": {
+        "line": {
+          "model": "fastwam",
+          "benchmark": "mt50",
+          "mode": "reduced",
+          "long_segment": "on",
+          "seed": 8,
+          "gpu": "H100"
+        },
+        "source": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/RESULTS_1022.json",
+        "checked": 6,
+        "differences": []
+      }
+    },
+    {
+      "kind": "regression",
+      "name": "cosmos:libero:full:default:20261002",
+      "value": {
+        "line": {
+          "model": "cosmos",
+          "benchmark": "libero",
+          "mode": "full",
+          "long_segment": "default",
+          "seed": 20261002,
+          "gpu": "H100"
+        },
+        "source": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/longseg_1017/RESULTS_1022.json",
+        "checked": 12,
+        "differences": []
+      }
+    },
+    {
+      "kind": "regression",
+      "name": "groot:libero:full:on:20261002",
+      "value": {
+        "line": {
+          "model": "groot",
+          "benchmark": "libero",
+          "mode": "full",
+          "long_segment": "on",
+          "seed": 20261002,
+          "gpu": "RTX 4090"
+        },
+        "source": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/q3_port_1020/RESULTS_1022.json",
+        "checked": 8,
+        "differences": []
+      }
+    },
+    {
+      "kind": "regression",
+      "name": "groot:libero:reduced:on:20261002",
+      "value": {
+        "line": {
+          "model": "groot",
+          "benchmark": "libero",
+          "mode": "reduced",
+          "long_segment": "on",
+          "seed": 20261002,
+          "gpu": "RTX 4090"
+        },
+        "source": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/q3_port_1020/RESULTS_1022.json",
+        "checked": 8,
+        "differences": []
+      }
+    },
+    {
+      "kind": "regression",
+      "name": "pi05:libero:full:on:20261002",
+      "value": {
+        "line": {
+          "model": "pi05",
+          "benchmark": "libero",
+          "mode": "full",
+          "long_segment": "on",
+          "seed": 20261002,
+          "gpu": "H100"
+        },
+        "source": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/q3_port_1020/RESULTS_1022.json",
+        "checked": 8,
+        "differences": []
+      }
+    },
+    {
+      "kind": "regression",
+      "name": "pi05:libero:reduced:on:20261002",
+      "value": {
+        "line": {
+          "model": "pi05",
+          "benchmark": "libero",
+          "mode": "reduced",
+          "long_segment": "on",
+          "seed": 20261002,
+          "gpu": "RTX 4090"
+        },
+        "source": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/filter_failed_knob/q3_port_1020/RESULTS_1022.json",
+        "checked": 8,
+        "differences": []
+      }
+    }
+  ]
+}
