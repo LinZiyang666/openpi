@@ -1,0 +1,325 @@
+{
+  "bundle": "pi05_mw",
+  "seed": 8,
+  "passed": false,
+  "cells": [
+    {
+      "suite": "mt50",
+      "size": 250,
+      "fit_digest": "7c0fb33098bc78810e01b72798be2895589cd12108bfef2cef449b360466c836",
+      "checks": {
+        "view": {
+          "new": "/data/mw_finetune/eval/sdx8_pi05_mw/assets/cache_inputs/mt50/parent/subsets/size_250",
+          "old": "/data/r17_library/pi05_mw_mt50/bpool/subsets/size_5",
+          "equal": {
+            "VIEW.json": true,
+            "row_indices.npy": true
+          }
+        },
+        "native_fit": {
+          "new": "/data/mw_finetune/eval/sdx8_pi05_mw/assets/cache_inputs/mt50/n250_C5/fit",
+          "old": "/data/r17_library/pi05_mw_mt50/bpool/fits/size_5",
+          "equal": {
+            "fit.npz": true,
+            "READY.json": true
+          }
+        },
+        "selection": {
+          "cells": true,
+          "campaigns": {
+            "reduced": true,
+            "full": true
+          },
+          "file": true
+        },
+        "native_stall": {
+          "new": "/data/mw_finetune/eval/sdx8_pi05_mw/assets/cache_inputs/mt50/n250_C5/stall",
+          "old": "/data/r17_library/studies_mt50/pi_k2/artifacts/n250/pi05_mw_mt50/C5/stall",
+          "equal": {
+            "READY.json": false,
+            "stall.json": false,
+            "stall.pkl": false,
+            "stall.loeo.csv": false
+          }
+        },
+        "gaps": {
+          "reduced/k50": true,
+          "reduced/k40": true,
+          "reduced/k30": true,
+          "reduced/k20": true,
+          "reduced/k10": true,
+          "full/k50": true,
+          "full/k40": true,
+          "full/k30": true,
+          "full/k20": true,
+          "full/k10": true
+        }
+      }
+    },
+    {
+      "suite": "mt50",
+      "size": 500,
+      "fit_digest": "ae7536446e1e7ceeff81464ce6827d75b280c7ada3cf599011ca845d2560437f",
+      "checks": {
+        "view": {
+          "new": "/data/mw_finetune/eval/sdx8_pi05_mw/assets/cache_inputs/mt50/parent/subsets/size_500",
+          "old": "/data/r17_library/pi05_mw_mt50/bpool/subsets/size_10",
+          "equal": {
+            "VIEW.json": true,
+            "row_indices.npy": true
+          }
+        },
+        "native_fit": {
+          "new": "/data/mw_finetune/eval/sdx8_pi05_mw/assets/cache_inputs/mt50/n500_C5/fit",
+          "old": "/data/r17_library/pi05_mw_mt50/bpool/fits/size_10",
+          "equal": {
+            "fit.npz": true,
+            "READY.json": true
+          }
+        },
+        "selection": {
+          "cells": true,
+          "campaigns": {
+            "reduced": true,
+            "full": true
+          },
+          "file": true
+        },
+        "native_stall": {
+          "new": "/data/mw_finetune/eval/sdx8_pi05_mw/assets/cache_inputs/mt50/n500_C5/stall",
+          "old": "/data/r17_library/studies_mt50/pi_k2/artifacts/n500/pi05_mw_mt50/C5/stall",
+          "equal": {
+            "READY.json": false,
+            "stall.json": false,
+            "stall.pkl": false,
+            "stall.loeo.csv": false
+          }
+        },
+        "gaps": {
+          "reduced/k50": true,
+          "reduced/k40": true,
+          "reduced/k30": true,
+          "reduced/k20": true,
+          "reduced/k10": true,
+          "full/k50": true,
+          "full/k40": true,
+          "full/k30": true,
+          "full/k20": true,
+          "full/k10": true
+        }
+      }
+    },
+    {
+      "suite": "mt50",
+      "size": 1000,
+      "fit_digest": "649859652da3d5a2567abc68c240f3f30f2d40b5fda50570a40f3f112081e65a",
+      "checks": {
+        "view": {
+          "new": "/data/mw_finetune/eval/sdx8_pi05_mw/assets/cache_inputs/mt50/parent/subsets/size_1000",
+          "old": "/data/r17_library/pi05_mw_mt50/bpool/subsets/size_20",
+          "equal": {
+            "VIEW.json": true,
+            "row_indices.npy": true
+          }
+        },
+        "native_fit": {
+          "new": "/data/mw_finetune/eval/sdx8_pi05_mw/assets/cache_inputs/mt50/n1000_C5/fit",
+          "old": "/data/r17_library/pi05_mw_mt50/bpool/fits/size_20",
+          "equal": {
+            "fit.npz": true,
+            "READY.json": true
+          }
+        },
+        "selection": {
+          "cells": true,
+          "campaigns": {
+            "reduced": true,
+            "full": true
+          },
+          "file": true
+        },
+        "native_stall": {
+          "new": "/data/mw_finetune/eval/sdx8_pi05_mw/assets/cache_inputs/mt50/n1000_C5/stall",
+          "old": "/data/r17_library/studies_mt50/pi_k2/artifacts/n1000/pi05_mw_mt50/C5/stall",
+          "equal": {
+            "READY.json": false,
+            "stall.json": false,
+            "stall.pkl": false,
+            "stall.loeo.csv": false
+          }
+        },
+        "gaps": {
+          "reduced/k50": true,
+          "reduced/k40": true,
+          "reduced/k30": true,
+          "reduced/k20": true,
+          "reduced/k10": true,
+          "full/k50": true,
+          "full/k40": false,
+          "full/k30": true,
+          "full/k20": true,
+          "full/k10": true
+        }
+      }
+    },
+    {
+      "suite": "mt50",
+      "size": 1500,
+      "fit_digest": "7dfcb48dd481ce6f5a75a69e51cb4bf54fc5c1e109792e7f2d7bc97e5cea7171",
+      "checks": {
+        "view": {
+          "new": "/data/mw_finetune/eval/sdx8_pi05_mw/assets/cache_inputs/mt50/parent/subsets/size_1500",
+          "old": "/data/r17_library/pi05_mw_mt50/bpool/subsets/size_30",
+          "equal": {
+            "VIEW.json": true,
+            "row_indices.npy": true
+          }
+        },
+        "native_fit": {
+          "new": "/data/mw_finetune/eval/sdx8_pi05_mw/assets/cache_inputs/mt50/n1500_C5/fit",
+          "old": "/data/r17_library/pi05_mw_mt50/bpool/fits/size_30",
+          "equal": {
+            "fit.npz": true,
+            "READY.json": true
+          }
+        },
+        "selection": {
+          "cells": true,
+          "campaigns": {
+            "reduced": true,
+            "full": true
+          },
+          "file": true
+        },
+        "native_stall": {
+          "new": "/data/mw_finetune/eval/sdx8_pi05_mw/assets/cache_inputs/mt50/n1500_C5/stall",
+          "old": "/data/r17_library/studies_mt50/pi_k2/artifacts/n1500/pi05_mw_mt50/C5/stall",
+          "equal": {
+            "READY.json": false,
+            "stall.json": false,
+            "stall.pkl": false,
+            "stall.loeo.csv": false
+          }
+        },
+        "gaps": {
+          "reduced/k50": true,
+          "reduced/k40": true,
+          "reduced/k30": true,
+          "reduced/k20": true,
+          "reduced/k10": true,
+          "full/k50": true,
+          "full/k40": true,
+          "full/k30": true,
+          "full/k20": true,
+          "full/k10": true
+        }
+      }
+    },
+    {
+      "suite": "mt50",
+      "size": 2000,
+      "fit_digest": "2132a4e0855dada9c8930ccf535d5737b2ba72bd94293a00073208e4dbca78d2",
+      "checks": {
+        "view": {
+          "new": "/data/mw_finetune/eval/sdx8_pi05_mw/assets/cache_inputs/mt50/parent/subsets/size_2000",
+          "old": "/data/r17_library/pi05_mw_mt50/bpool/subsets/size_40",
+          "equal": {
+            "VIEW.json": true,
+            "row_indices.npy": true
+          }
+        },
+        "native_fit": {
+          "new": "/data/mw_finetune/eval/sdx8_pi05_mw/assets/cache_inputs/mt50/n2000_C5/fit",
+          "old": "/data/r17_library/pi05_mw_mt50/bpool/fits/size_40",
+          "equal": {
+            "fit.npz": true,
+            "READY.json": true
+          }
+        },
+        "selection": {
+          "cells": true,
+          "campaigns": {
+            "reduced": true,
+            "full": true
+          },
+          "file": true
+        },
+        "native_stall": {
+          "new": "/data/mw_finetune/eval/sdx8_pi05_mw/assets/cache_inputs/mt50/n2000_C5/stall",
+          "old": "/data/r17_library/studies_mt50/pi_k2/artifacts/n2000/pi05_mw_mt50/C5/stall",
+          "equal": {
+            "READY.json": false,
+            "stall.json": false,
+            "stall.pkl": false,
+            "stall.loeo.csv": false
+          }
+        },
+        "gaps": {
+          "reduced/k50": true,
+          "reduced/k40": true,
+          "reduced/k30": true,
+          "reduced/k20": true,
+          "reduced/k10": true,
+          "full/k50": true,
+          "full/k40": true,
+          "full/k30": true,
+          "full/k20": true,
+          "full/k10": true
+        }
+      }
+    },
+    {
+      "suite": "mt50",
+      "size": 2500,
+      "fit_digest": "d4cf3b032b11598c219577f3459fd8d8d3068640bf589f468696efd3bab38abc",
+      "checks": {
+        "view": {
+          "new": "/data/mw_finetune/eval/sdx8_pi05_mw/assets/cache_inputs/mt50/parent/subsets/size_2500",
+          "old": "/data/r17_library/pi05_mw_mt50/bpool/subsets/size_50",
+          "equal": {
+            "VIEW.json": true,
+            "row_indices.npy": true
+          }
+        },
+        "native_fit": {
+          "new": "/data/mw_finetune/eval/sdx8_pi05_mw/assets/cache_inputs/mt50/n2500_C5/fit",
+          "old": "/data/r17_library/pi05_mw_mt50/bpool/fits/size_50",
+          "equal": {
+            "fit.npz": true,
+            "READY.json": true
+          }
+        },
+        "selection": {
+          "cells": true,
+          "campaigns": {
+            "reduced": true,
+            "full": true
+          },
+          "file": true
+        },
+        "native_stall": {
+          "new": "/data/mw_finetune/eval/sdx8_pi05_mw/assets/cache_inputs/mt50/n2500_C5/stall",
+          "old": "/data/r17_library/studies_mt50/pi_k2/artifacts/n2500/pi05_mw_mt50/C5/stall",
+          "equal": {
+            "READY.json": false,
+            "stall.json": false,
+            "stall.pkl": false,
+            "stall.loeo.csv": false
+          }
+        },
+        "gaps": {
+          "reduced/k50": true,
+          "reduced/k40": true,
+          "reduced/k30": true,
+          "reduced/k20": true,
+          "reduced/k10": true,
+          "full/k50": true,
+          "full/k40": true,
+          "full/k30": true,
+          "full/k20": true,
+          "full/k10": true
+        }
+      }
+    }
+  ]
+}
