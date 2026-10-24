@@ -1,4 +1,16 @@
 {
-  "fa_sd_fw_r_m_k4": {"server_threads": 6},
-  "fa_sd_fw_r_m_k5": {"server_threads": 6}
+  "fa_sd_fw_r_m_k4": {
+    "server_threads": 6
+  },
+  "fa_sd_fw_r_m_k5": {
+    "server_threads": 6
+  },
+  "fa_sd_fw_f_l_k4": {
+    "replicas": 3,
+    "memory_budget_gib": 57.0
+  },
+  "fa_sd_fw_f_l_k5": {
+    "replicas": 3,
+    "memory_budget_gib": 57.0
+  }
 }
