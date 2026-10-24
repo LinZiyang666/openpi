@@ -106,6 +106,13 @@ owner 的常驻指令，逐字有效：
 - 多路采库抢 worker 会饿着在跑批次 → 用 floors.json 保底。
 - FW R2 是服务端 CPU 瓶颈（GPU 一半闲）：编码表 + R3（H100 带渲染 worker）/R4（sean）约翻倍。
 
+### 21:4x 增补（compact 后）
+- FINAL_CHAINS_OFF.json 改指向续跑 j2c1/mc1/lc1（经续跑链并回源批，78a83341）；tmp 试跑 results_off：12/14 条完成（FW MT50 减步已 90,000 齐），只剩 lc1、mc1。
+- 网页「长执行段开 vs 关」本地已做好：openpi_ext/scratch/r17_ops/livepage/live_1023（build_onoff.py 从 RESULTS_OFF.json 生成 onoff_1023.json / mt50_onoff_1023.json；index_1023.html 加 #onoff、#mt50-onoff 两节，同格左开右关；make_harness_1023.py 本地预览，宽屏/手机已截图核过）。⚠ 网页在 owner 另一个组织，本会话读写都要 owner 先 /login。上传时：新建两个数据集 onoff、mt50_onoff + 更新 index.html，DATE_ONOFF 换成生成日期。
+- 采库 21:2x：π0.5 s10 被 worker 自动伸缩压到 4 个（hold 结束按瞬时 worker 数取基准，退役 worker 收尾的局把速率虚高）→ A100 floors.json 加 {"w3_pi_s10": 32}（原件 floors.json.bak_2125），恢复 ~23 局/分；client.py 修成按速率窗口内平均 worker 数取基准（4072a43c，新批次生效）。**s10 采完把 w3_pi_s10 从 floors 删掉；lc1 跑完删 lc1。**
+- GR00T MT50 新种子：initialize 建 fa_sd_gr_{r,f}_m_o（各 60,000，24 格，YAML 全核对）——**H100 定义不跑**，跑 pod 副本：fa_sd_gr_r_m_o_j（-02，driver 23192，R2/14 GiB，端口 23474/75/76；链 **pod2sd1** 等 `[collect-fw-pods] -02 w3_fw_s9 ended`）、fa_sd_gr_f_m_o_j（pod1，driver 23193，端口 23470/71/72；链 **pod1sd1** 等 `[pod1-q] w3_fw_s10 ended`）。第二步 build-levels 要传 `--off-run /data/mw_finetune/eval/fa_sd_gr_*_m_o_j`（参照 = pod 同卡 fa_lo_gr_{r,f}_b_m_j）。
+- 隧道：-02 加第三条 24474→23476；pod1 加第三条 24475→23472；H100 fwd.py 改 23472→24475（杀了 -03 时代旧的 23472→24474、23473→24475）。pod 重启后恢复要连这条一起起。
+
 ### 监控（compact 后核对，缺了重挂）
 - server_watch 自动重启循环（bnr4ccd1h）；jupyter_watch（bwhjthtcu）；guard_wait：`bash $CLAUDE_JOB_DIR/tmp/guard_wait.sh 1500` 醒来重挂（pod 下线时 `NOJW=1`）；Monitor（30 分钟到期重挂）：`cd ~/projects/openpi_ext/scratch/r17_ops && tail -n0 -F mw/chain.log server_watch.alerts.log | grep --line-buffered -E "ended rc=|FAILED|STOPPED|CHAIN_STOPPED|queue done|hold file present|ALERT|rate .* -> |Traceback|server_watch exited|DIRECT_FAIL|collect-|queue start|after-collect|pod1-q"`。
 - 任务表：#4 巡检、#11 看守、#19 汇总、#21 新种子总、#22 采库、#24 常驻复用、#26 H100 提速、#28 第二步与 MT50 建批 进行中。
