@@ -125,8 +125,10 @@ def pin(root, c):
         c['longseg_1017']['bootstrap_sha256'] = c['ffk_bootstrap_sha256']
 
 
-def make_edit(bundle, mode, stage, cells, levels, src, deploy, templates, like=None):
-    """clone() hook: one group YAML per (seed, suite, size, segment, level); selection by fit digest."""
+def make_edit(bundle, mode, stage, cells, levels, src, deploy, templates, like=None, tasks=None):
+    """clone() hook: one group YAML per (seed, suite, size, segment, level); selection by fit digest.
+
+    tasks: {cell: task names} plans only those tasks of each cell (a descent round); default every task."""
     def edit(root, c, seal):
         from exp.offline_search.rounds.r17.filter_failed.build import register_metadata
         from exp.offline_search.rounds.r17.filter_failed_knob.common import sha
@@ -182,6 +184,8 @@ def make_edit(bundle, mode, stage, cells, levels, src, deploy, templates, like=N
                            bundle_id=f'sd_{stem}_{identity[:12]}', file=f'cache_yamls/sd_{stem}.yaml')
                 (root/'assets'/row['file']).write_text(yaml.safe_dump(doc, sort_keys=False))
                 row['sha256'] = sha(root/'assets'/row['file'])
+                if tasks:
+                    row['tasks'] = list(tasks[seed, suite, size, segment])
                 groups.append(row)
             selection[art['fit_digest']] = p['summary']['kept_episode_ids']
             summaries[f'{suite}/{size}/{ip.tag(seed)}'] = dict(
@@ -200,10 +204,11 @@ def make_edit(bundle, mode, stage, cells, levels, src, deploy, templates, like=N
     return edit
 
 
-def define(bundle, mode, stage, cells, levels, like=None):
+def define(bundle, mode, stage, cells, levels, like=None, unit=None, tasks=None):
     """Build (or return the existing definition of) one batch. cells: (seed, suite, size, segment).
 
-    like: the lane's knob-off definition; a levels batch takes its serving fields and frozen bootstrap."""
+    like: the lane's knob-off definition; a levels batch takes its serving fields and frozen bootstrap.
+    unit: batch name (default name(bundle, mode, stage)); tasks: per-cell task names, see make_edit."""
     src, deploy, workers, templates, long = deployment(bundle, mode)
     if like:
         # The actual OFF run may be a pod copy. Keep its card, routes and runtime
@@ -211,8 +216,8 @@ def define(bundle, mode, stage, cells, levels, like=None):
         src, deploy = Path(like), None
         prior = read(src/'campaign.json')
         workers = prior.get('execution_worker_nodes', prior['worker_nodes'])
-    n = name(bundle, mode, stage)
-    edit = make_edit(bundle, mode, stage, cells, levels, src, deploy, templates, like)
+    n = unit or name(bundle, mode, stage)
+    edit = make_edit(bundle, mode, stage, cells, levels, src, deploy, templates, like, tasks)
     with ExitStack() as stack:
         stack.enter_context(patch.object(lb, 'COMMANDS', lob.COMMANDS))
         stack.enter_context(patch.object(lb, 'pin', pin))

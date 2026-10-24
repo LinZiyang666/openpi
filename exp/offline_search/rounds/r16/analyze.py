@@ -65,16 +65,19 @@ def checked_root(record,reader):
 
 
 def load(record,name,expected,pool,k,reader,*,freeze=None):
-    """Last accepted terminal error-free journal row, then its last uid/step log."""
+    """Last accepted terminal error-free journal row, then its last uid/step log.
+
+    A row listing `tasks` (a descent round) planned only those tasks of `expected`; the others stay -1 (unscheduled)."""
     root,seal = checked_root(record,reader)
     rows = reader.json(root/'arms.json')
     row = next(r for r in rows if r['arm']==name)
     require(row['init_pool']==pool and row['dev']==(pool=='B'),'Wrong pool')
-    expected = sorted(map(tuple,expected)); positions = {pair:i for i,pair in enumerate(expected)}
+    tasks = sorted(row['tasks']) if 'tasks' in row else list(range(10))
+    expected = sorted(p for p in map(tuple,expected) if 'tasks' not in row or p[0] in tasks); positions = {pair:i for i,pair in enumerate(expected)}
     width = 30 if pool=='B' else 50
-    require(len(expected)==len(positions)==10*width,'Wrong identity count')
-    require(all(sum(t==j for t,i in expected)==width for j in range(10)),'Unbalanced identities')
-    require(row['episodes']==10*width and row['replan_steps']==5 and row['full_model'] and not row['recording'],
+    require(len(expected)==len(positions)==len(tasks)*width,'Wrong identity count')
+    require(all(sum(t==j for t,i in expected)==width for j in tasks),'Unbalanced identities')
+    require(row['episodes']==len(tasks)*width and row['replan_steps']==5 and row['full_model'] and not row['recording'],
             'Changed horizon or model settings')
     args = row['plugin_args']
     # The long execution segment (--os-blind --os-policy-tail) is a per-batch setting and the stall judge is
@@ -124,7 +127,7 @@ def load(record,name,expected,pool,k,reader,*,freeze=None):
     by_pair = {uid_pair(u):r for u,r in accepted.items()}
     require(len(accepted)==len(by_pair)==len(expected) and set(by_pair)==set(expected),'Incomplete accepted episodes')
     summary = reader.json(run/'summary.json')
-    y = np.array([by_pair[p]['success'] for p in expected],dtype=np.int64).reshape(10,width)
+    y = np.array([by_pair[p]['success'] for p in expected],dtype=np.int64).reshape(len(tasks),width)
     require(summary['init_pool']==pool and summary['arm']==name and summary['model']==row['model'],'Wrong summary')
     require(summary['complete']==len(expected) and summary['success']==int(y.sum()) and
             (summary['sr']==round(float(y.mean()),4) or
@@ -132,7 +135,7 @@ def load(record,name,expected,pool,k,reader,*,freeze=None):
     for key,value in [('journal_rows',journal_count),('error_rows',errors),
                       ('retried',sum(int(r.get('attempt',1) or 1)>1 for r in accepted.values()))]:
         require(summary[key]==value,f'Summary {key} mismatch')
-    require(all(summary['per_task'][str(t)]==dict(n=width,success=int(y[t].sum())) for t in range(10)),
+    require(all(summary['per_task'][str(t)]==dict(n=width,success=int(y[j].sum())) for j,t in enumerate(tasks)),
             'Task summary mismatch')
     decisions,duplicates,rejected,starts = {},0,0,0
     shards = sorted(run.glob('server_*/decisions_*.jsonl'))
@@ -192,8 +195,9 @@ def load(record,name,expected,pool,k,reader,*,freeze=None):
     audit = dict(root=str(root),arm=name,k=k,pricing=prices,fit_hash_verification=verifier.audit(),
                  duplicate_decisions=duplicates,rejected_attempt_decisions=rejected,error_rows=errors,
                  duplicate_accepted=duplicate_accepted,summary_stage_ir=stage_ir,leave_own_episode_out=loeo)
-    return Episodes(y,n.reshape(10,width),v.reshape(10,width),m.reshape(10,width),
-                    (prices['vision']*v+prices['miss']*m).reshape(10,width),audit)
+    def grid(x,fill=0):
+        out=np.full((10,width),fill,dtype=x.dtype); out[tasks]=x.reshape(len(tasks),width); return out
+    return Episodes(grid(y,-1),grid(n),grid(v),grid(m),grid(prices['vision']*v+prices['miss']*m),audit)
 
 
 def dev_cell(cell,arms,reference,*,draws=5000):

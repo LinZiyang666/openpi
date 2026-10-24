@@ -1736,6 +1736,912 @@
           5
         ]
       ]
+    },
+    {
+      "name": "fa_sd_gr_r_m_o",
+      "run": "/data/mw_finetune/eval/fa_sd_gr_r_m_o",
+      "source": "/nvme/weiland/openpi/eval/ffk1015_groot_mt50_reduced_descent",
+      "episodes": 60000,
+      "model": "groot",
+      "benchmark": "mt50",
+      "mode": "reduced",
+      "stage": "off",
+      "gpu": "H100",
+      "replicas": 5,
+      "batch": 1,
+      "workers": {
+        "timan1": 20,
+        "timan107": 20
+      },
+      "python": "/home/exouser/gr00t_n15_venv/.venv/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_6a3136e32dc06ee8f76d09340a7d03aebf443ffa6d2c80ec754da981a0e9c394",
+      "unfiltered": false,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "d323f2309f1eb8527f4cc215b760fe8cb3b06e63fd75adf75660838a1ade688e",
+      "arm": "filtered",
+      "bundle": "groot_mw",
+      "levels": [
+        "koff"
+      ],
+      "longseg_runtime": true,
+      "cells": [
+        [
+          9,
+          "mt50",
+          250,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          250,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          500,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          500,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          1000,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          1000,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          1500,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          1500,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          2000,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          2000,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          2500,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          2500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          250,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          250,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          500,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          1000,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          1000,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          1500,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          1500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          2000,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          2000,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          2500,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          2500,
+          5
+        ]
+      ]
+    },
+    {
+      "name": "fa_sd_gr_f_m_o",
+      "run": "/data/mw_finetune/eval/fa_sd_gr_f_m_o",
+      "source": "/nvme/weiland/openpi/eval/ffk1015_groot_mt50_full_descent",
+      "episodes": 60000,
+      "model": "groot",
+      "benchmark": "mt50",
+      "mode": "full",
+      "stage": "off",
+      "gpu": "H100",
+      "replicas": 5,
+      "batch": 1,
+      "workers": {
+        "timan1": 20,
+        "timan107": 20
+      },
+      "python": "/home/exouser/gr00t_n15_venv/.venv/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_6a3136e32dc06ee8f76d09340a7d03aebf443ffa6d2c80ec754da981a0e9c394",
+      "unfiltered": false,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "92fbdf7d5869f89c119e158f1f67664f22f27d5088cf483af6d4f433a94c9bd6",
+      "arm": "filtered",
+      "bundle": "groot_mw",
+      "levels": [
+        "koff"
+      ],
+      "longseg_runtime": true,
+      "cells": [
+        [
+          9,
+          "mt50",
+          250,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          250,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          500,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          500,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          1000,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          1000,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          1500,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          1500,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          2000,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          2000,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          2500,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          2500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          250,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          250,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          500,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          1000,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          1000,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          1500,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          1500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          2000,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          2000,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          2500,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          2500,
+          5
+        ]
+      ]
+    },
+    {
+      "name": "fa_sd_pi_r_m_o",
+      "run": "/data/mw_finetune/eval/fa_sd_pi_r_m_o",
+      "source": "/nvme/weiland/openpi/eval/ffk1015_pi05_mt50_reduced_descent",
+      "episodes": 30000,
+      "model": "pi05",
+      "benchmark": "mt50",
+      "mode": "reduced",
+      "stage": "off",
+      "gpu": "RTX 4090",
+      "replicas": 4,
+      "batch": 1,
+      "workers": {
+        "local": 32,
+        "timan107": 80
+      },
+      "python": "/home/weiland/projects/openpi/.venv/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_af22613ead3df9625293e6efa813376d3629774be676b022609e3b4438b5b4c1",
+      "unfiltered": false,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "f5e1930df751ce0f87cc98cbcaa2241ef54666f7062556c8e7c8640d3a8a165f",
+      "arm": "filtered",
+      "bundle": "pi05_mw",
+      "levels": [
+        "koff"
+      ],
+      "longseg_runtime": false,
+      "cells": [
+        [
+          9,
+          "mt50",
+          250,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          500,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          1000,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          1500,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          2000,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          2500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          250,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          1000,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          1500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          2000,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          2500,
+          5
+        ]
+      ]
+    },
+    {
+      "name": "fa_sd_pi_f_m_o",
+      "run": "/data/mw_finetune/eval/fa_sd_pi_f_m_o",
+      "source": "/nvme/weiland/openpi/eval/ffk1015_pi05_mt50_full_descent_04",
+      "episodes": 30000,
+      "model": "pi05",
+      "benchmark": "mt50",
+      "mode": "full",
+      "stage": "off",
+      "gpu": "RTX 4090",
+      "replicas": 4,
+      "batch": 1,
+      "workers": {
+        "local": 32,
+        "timan107": 80
+      },
+      "python": "/home/weiland/projects/openpi/.venv/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_af22613ead3df9625293e6efa813376d3629774be676b022609e3b4438b5b4c1",
+      "unfiltered": false,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "a3d33be91ef6df4d6faed77b2aa7d20442c5673a1b80bc45d9577af72d424953",
+      "arm": "filtered",
+      "bundle": "pi05_mw",
+      "levels": [
+        "koff"
+      ],
+      "longseg_runtime": false,
+      "cells": [
+        [
+          9,
+          "mt50",
+          250,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          500,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          1000,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          1500,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          2000,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          2500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          250,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          1000,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          1500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          2000,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          2500,
+          5
+        ]
+      ]
+    },
+    {
+      "name": "fa_sd_fw_r_m_o",
+      "run": "/data/mw_finetune/eval/fa_sd_fw_r_m_o",
+      "source": "/nvme/weiland/openpi/eval/ffk1015_fastwam_mt50_reduced_descent",
+      "episodes": 60000,
+      "model": "fastwam",
+      "benchmark": "mt50",
+      "mode": "reduced",
+      "stage": "off",
+      "gpu": "H100",
+      "replicas": 2,
+      "batch": 16,
+      "workers": {
+        "timan1": 60,
+        "timan107": 60
+      },
+      "python": "/data/mw_finetune/envs/fastwam/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_c33e2281905a033a39150c5a71a207f45dc564fb3babf5a0b661442b8fb7e2ed",
+      "unfiltered": false,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "c38652f84eb43e16d9420bca2934bd680fd2a1647ad83adcceea448ac7f4a39d",
+      "arm": "filtered",
+      "bundle": "fastwam_mw",
+      "levels": [
+        "koff"
+      ],
+      "longseg_runtime": true,
+      "cells": [
+        [
+          9,
+          "mt50",
+          250,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          250,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          500,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          500,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          1000,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          1000,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          1500,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          1500,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          2000,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          2000,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          2500,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          2500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          250,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          250,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          500,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          1000,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          1000,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          1500,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          1500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          2000,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          2000,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          2500,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          2500,
+          5
+        ]
+      ]
+    },
+    {
+      "name": "fa_sd_fw_f_m_o",
+      "run": "/data/mw_finetune/eval/fa_sd_fw_f_m_o",
+      "source": "/nvme/weiland/openpi/eval/ffk1015_fastwam_mt50_full_descent",
+      "episodes": 60000,
+      "model": "fastwam",
+      "benchmark": "mt50",
+      "mode": "full",
+      "stage": "off",
+      "gpu": "H100",
+      "replicas": 2,
+      "batch": 16,
+      "workers": {
+        "timan1": 60,
+        "timan107": 60
+      },
+      "python": "/data/mw_finetune/envs/fastwam/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_c33e2281905a033a39150c5a71a207f45dc564fb3babf5a0b661442b8fb7e2ed",
+      "unfiltered": false,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "5912bef2176548cb3950759fc798e386d8aed6077d8f53e02917093d9cb9c184",
+      "arm": "filtered",
+      "bundle": "fastwam_mw",
+      "levels": [
+        "koff"
+      ],
+      "longseg_runtime": true,
+      "cells": [
+        [
+          9,
+          "mt50",
+          250,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          250,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          500,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          500,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          1000,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          1000,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          1500,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          1500,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          2000,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          2000,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          2500,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          2500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          250,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          250,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          500,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          1000,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          1000,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          1500,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          1500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          2000,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          2000,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          2500,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          2500,
+          5
+        ]
+      ]
     }
   ]
 }

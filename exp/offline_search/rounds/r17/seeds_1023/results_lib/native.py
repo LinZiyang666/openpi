@@ -40,9 +40,10 @@ def merge(target, incoming, *, r17):
         target.update(incoming)
 
 
-def cohort(data, suite):
+def cohort(data, suite, planned=None):
+    """Whole 50-init tasks: every task of the suite, or exactly the planned ones (a descent-round arm)."""
     tasks = {k[1] for k in data}
-    return (len(tasks) == c.task_count(suite) and
+    return ((len(tasks) == c.task_count(suite) if planned is None else tasks == {str(t) for t in planned}) and
             set(data) == {(suite, t, i) for t in tasks for i in range(50)})
 
 
@@ -121,18 +122,18 @@ def load_batch(item):
                     raise ValueError(f'{name}/{arm}: incomplete arm')
                 k = 1 if s['mode'] == 'reduced' else 10 if s['model'] == 'pi05' else 8
                 ep = a.load(record, arm, results.PAIRS, 'A', k, reader)
-                level = row['r14_descent_level']
+                level, planned = row['r14_descent_level'], row.get('tasks')
             else:
                 ep = ca.load_entry(record, dict(entry, pairs=results.PAIRS), reader)
-                level = entry['formal_grid_level']
+                level, planned = entry['formal_grid_level'], sorted({t for t, _ in entry['pairs']})
             if level not in off.f.VLA_LEVELS:
                 raise ValueError(f'{name}/{arm}: invalid knob level {level}')
             suite, size = row['suite'], row['r10_size']
             if suite not in s['suites'] or size not in s['sizes']:
                 raise ValueError(f'{name}/{arm}: unexpected suite/size')
             data = results.ledger(ep, suite)
-            if not cohort(data, suite):
-                raise ValueError(f'{name}/{arm}: incomplete cohort ({len(data)}/500)')
+            if not cohort(data, suite, planned):
+                raise ValueError(f'{name}/{arm}: incomplete cohort ({len(data)}/{50*len(planned or range(10))})')
             merge(outputs[i]['data'].setdefault((suite, size), {}).setdefault(level, {}), data, r17=False)
         for s, used in zip(slices, seen):
             if used != set(s['arms']):
