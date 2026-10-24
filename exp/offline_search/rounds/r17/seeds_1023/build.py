@@ -233,6 +233,14 @@ def define(bundle, mode, stage, cells, levels, like=None, unit=None, tasks=None)
         c['ffk_bootstrap_sha256'] = prior['ffk_bootstrap_sha256']
         if c.get('longseg_1017'):
             c['longseg_1017']['bootstrap_sha256'] = prior['ffk_bootstrap_sha256']
+        # SERVING_OVERRIDES.json {unit: {serving field: value}}: throughput knobs for a unit whose knob-off batch
+        # already ran (its campaign is sealed evidence), e.g. more server threads once the card is less shared.
+        override = read(HERE/'SERVING_OVERRIDES.json').get(n, {}) if (HERE/'SERVING_OVERRIDES.json').exists() else {}
+        if not set(override) <= set(SERVING):
+            raise ValueError(f'{n}: only serving fields can be overridden: {sorted(override)}')
+        c.update(override)
+        if override:
+            job['serving_override'] = override
         dump(root/'campaign.json', c)
         job['bootstrap_from'] = str(like)
         job['gpu'] = lob.card(like) if c['server_node'] == 'h100' else 'RTX 4090'
