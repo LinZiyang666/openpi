@@ -2,14 +2,24 @@
   "note": "Long segment OFF: run dir that actually holds each canonical CAMPAIGNS/FORMAL_QUEUE job's data (pod copies, retries), and reference overrides of longseg_off_1022/REFERENCES.json. Read by results_off.py; edit as runs are retried or moved. Sources (10-23): /home/weiland/projects/openpi_ext/scratch/r17_ops/mw/chain.log and each run's RECEIPT.json/journal.",
   "runs": {
     "fa_lo_gr_r_f_m": "/data/mw_finetune/eval/fa_lo_gr_r_f_m_j",
-    "fa_lo_fw_r_f_m": "/data/mw_finetune/eval/fa_lo_fw_r_f_m_j2"
+    "fa_lo_fw_r_f_m": "/data/mw_finetune/eval/fa_lo_fw_r_f_m_j2c1",
+    "fa_lo_fw_f_f_m": "/data/mw_finetune/eval/fa_lo_fw_f_f_mc1",
+    "fa_lo_fw_f_f_l_l": "/data/mw_finetune/eval/fa_lo_fw_f_f_l_lc1"
   },
   "runs_why": {
     "fa_lo_gr_r_f_m": "pod copy on jupyter-ziyang10 (R2); _j failed at startup with 0 episodes, the _rz item reset it in place (old dir kept as fa_lo_gr_r_f_m_j.before_retry_1022a) and relaunched it",
-    "fa_lo_fw_r_f_m": "pod copy on jupyter-ziyang10-02, B8; _j FAIL and its _rz retry failed, _j2 is the fresh B8 copy (pod2lo6)"
+    "fa_lo_fw_r_f_m": "pod copy on jupyter-ziyang10-02, B8 (_j FAIL, its _rz retry failed); _j2 is the fresh B8 copy (pod2lo6), stopped by the 17:45 pod restart at 88,597; _j2c1 is its --remaining resume (1,462), read back through the resume chain",
+    "fa_lo_fw_f_f_m": "h100-sean lane 1; stopped at 37k episodes for the text table + R4 (CPU-bound R2); _mc1 is the --remaining resume, read back through the resume chain",
+    "fa_lo_fw_f_f_l_l": "H100; stopped at 7,224 for the text table + R3; _lc1 is the --remaining resume, read back through the resume chain"
   },
   "references": {
-    "fastwam:mt50:reduced:H200 MIG 1g.18gb": {"run": "/data/mw_finetune/eval/fa_lo_fw_r_b_m_j2", "why": "fa_lo_fw_r_b_m_j ended FAIL with 66 episodes; _j2 (B8, as fa_lo_fw_r_f_m_j2) PASS 2500"},
-    "fastwam:mt50:full:H100": {"run": "/data/mw_finetune/eval/fa_lo_fw_f_b_m", "why": "coordinator 10-22: Fast-WAM MT50 full runs on h100-sean with the H100-class C5 reference fa_lo_fw_f_b_m (not in REFERENCES.json)"}
+    "fastwam:mt50:reduced:H200 MIG 1g.18gb": {
+      "run": "/data/mw_finetune/eval/fa_lo_fw_r_b_m_j2",
+      "why": "fa_lo_fw_r_b_m_j ended FAIL with 66 episodes; _j2 (B8, as fa_lo_fw_r_f_m_j2) PASS 2500"
+    },
+    "fastwam:mt50:full:H100": {
+      "run": "/data/mw_finetune/eval/fa_lo_fw_f_b_m",
+      "why": "coordinator 10-22: Fast-WAM MT50 full runs on h100-sean with the H100-class C5 reference fa_lo_fw_f_b_m (not in REFERENCES.json)"
+    }
   }
 }
