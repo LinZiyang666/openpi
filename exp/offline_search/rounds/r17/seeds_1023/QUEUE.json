@@ -2772,6 +2772,706 @@
       "episodes": null,
       "jobs": [],
       "maximum_episodes": 50000
+    },
+    {
+      "bundle": "dp_mw",
+      "model": "dp",
+      "benchmark": "mt50",
+      "mode": "reduced",
+      "arm": "filtered",
+      "gpu": "H100",
+      "name": "fa_sd_dp_r_m_o",
+      "stage": "off",
+      "status": "BUILT",
+      "episodes": 60000,
+      "jobs": [
+        {
+          "name": "fa_sd_dp_r_m_o",
+          "run": "/data/mw_finetune/eval/fa_sd_dp_r_m_o",
+          "source": "/nvme/weiland/openpi/eval/ffk1015_dp_mt50_reduced_descent",
+          "episodes": 60000,
+          "model": "dp",
+          "benchmark": "mt50",
+          "mode": "reduced",
+          "stage": "off",
+          "gpu": "H100",
+          "replicas": 4,
+          "batch": 16,
+          "workers": {
+            "timan1": 60,
+            "timan107": 60
+          },
+          "python": "/data/mw_finetune/dp/env/bin/python",
+          "runtime": "/data/mw_finetune/qualification/formal_runtime_c33e2281905a033a39150c5a71a207f45dc564fb3babf5a0b661442b8fb7e2ed",
+          "unfiltered": false,
+          "pipeline": "R17",
+          "source_full_native_plan_equal": null,
+          "task_uid_sha256": "6ec0e071b616a12e3fbc1f03ab6799360f01cda28ad58bdaece91423d50e3bf0",
+          "arm": "filtered",
+          "bundle": "dp_mw",
+          "levels": [
+            "koff"
+          ],
+          "longseg_runtime": true,
+          "cells": [
+            [
+              9,
+              "mt50",
+              250,
+              10
+            ],
+            [
+              9,
+              "mt50",
+              250,
+              5
+            ],
+            [
+              9,
+              "mt50",
+              500,
+              10
+            ],
+            [
+              9,
+              "mt50",
+              500,
+              5
+            ],
+            [
+              9,
+              "mt50",
+              1000,
+              10
+            ],
+            [
+              9,
+              "mt50",
+              1000,
+              5
+            ],
+            [
+              9,
+              "mt50",
+              1500,
+              10
+            ],
+            [
+              9,
+              "mt50",
+              1500,
+              5
+            ],
+            [
+              9,
+              "mt50",
+              2000,
+              10
+            ],
+            [
+              9,
+              "mt50",
+              2000,
+              5
+            ],
+            [
+              9,
+              "mt50",
+              2500,
+              10
+            ],
+            [
+              9,
+              "mt50",
+              2500,
+              5
+            ],
+            [
+              10,
+              "mt50",
+              250,
+              10
+            ],
+            [
+              10,
+              "mt50",
+              250,
+              5
+            ],
+            [
+              10,
+              "mt50",
+              500,
+              10
+            ],
+            [
+              10,
+              "mt50",
+              500,
+              5
+            ],
+            [
+              10,
+              "mt50",
+              1000,
+              10
+            ],
+            [
+              10,
+              "mt50",
+              1000,
+              5
+            ],
+            [
+              10,
+              "mt50",
+              1500,
+              10
+            ],
+            [
+              10,
+              "mt50",
+              1500,
+              5
+            ],
+            [
+              10,
+              "mt50",
+              2000,
+              10
+            ],
+            [
+              10,
+              "mt50",
+              2000,
+              5
+            ],
+            [
+              10,
+              "mt50",
+              2500,
+              10
+            ],
+            [
+              10,
+              "mt50",
+              2500,
+              5
+            ]
+          ]
+        }
+      ],
+      "cells": [
+        [
+          9,
+          "mt50",
+          250,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          250,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          500,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          500,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          1000,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          1000,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          1500,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          1500,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          2000,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          2000,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          2500,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          2500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          250,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          250,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          500,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          1000,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          1000,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          1500,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          1500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          2000,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          2000,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          2500,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          2500,
+          5
+        ]
+      ]
+    },
+    {
+      "bundle": "dp_mw",
+      "model": "dp",
+      "benchmark": "mt50",
+      "mode": "reduced",
+      "arm": "filtered",
+      "gpu": "H100",
+      "name": "fa_sd_dp_r_m_k",
+      "stage": "levels",
+      "status": "WAITING_OFF",
+      "off": "fa_sd_dp_r_m_o",
+      "episodes": null,
+      "jobs": [],
+      "maximum_episodes": 300000
+    },
+    {
+      "bundle": "dp_mw",
+      "model": "dp",
+      "benchmark": "mt50",
+      "mode": "full",
+      "arm": "filtered",
+      "gpu": "H100",
+      "name": "fa_sd_dp_f_m_o",
+      "stage": "off",
+      "status": "BUILT",
+      "episodes": 60000,
+      "jobs": [
+        {
+          "name": "fa_sd_dp_f_m_o",
+          "run": "/data/mw_finetune/eval/fa_sd_dp_f_m_o",
+          "source": "/nvme/weiland/openpi/eval/ffk1015_dp_mt50_full_descent",
+          "episodes": 60000,
+          "model": "dp",
+          "benchmark": "mt50",
+          "mode": "full",
+          "stage": "off",
+          "gpu": "H100",
+          "replicas": 8,
+          "batch": 32,
+          "workers": {
+            "timan1": 60,
+            "timan107": 60
+          },
+          "python": "/data/mw_finetune/dp/env/bin/python",
+          "runtime": "/data/mw_finetune/qualification/formal_runtime_c33e2281905a033a39150c5a71a207f45dc564fb3babf5a0b661442b8fb7e2ed",
+          "unfiltered": false,
+          "pipeline": "R17",
+          "source_full_native_plan_equal": null,
+          "task_uid_sha256": "cb35200709874c840177be7d7b4d58efc08234e4b5ccd673482803f48d727cbe",
+          "arm": "filtered",
+          "bundle": "dp_mw",
+          "levels": [
+            "koff"
+          ],
+          "longseg_runtime": true,
+          "cells": [
+            [
+              9,
+              "mt50",
+              250,
+              10
+            ],
+            [
+              9,
+              "mt50",
+              250,
+              5
+            ],
+            [
+              9,
+              "mt50",
+              500,
+              10
+            ],
+            [
+              9,
+              "mt50",
+              500,
+              5
+            ],
+            [
+              9,
+              "mt50",
+              1000,
+              10
+            ],
+            [
+              9,
+              "mt50",
+              1000,
+              5
+            ],
+            [
+              9,
+              "mt50",
+              1500,
+              10
+            ],
+            [
+              9,
+              "mt50",
+              1500,
+              5
+            ],
+            [
+              9,
+              "mt50",
+              2000,
+              10
+            ],
+            [
+              9,
+              "mt50",
+              2000,
+              5
+            ],
+            [
+              9,
+              "mt50",
+              2500,
+              10
+            ],
+            [
+              9,
+              "mt50",
+              2500,
+              5
+            ],
+            [
+              10,
+              "mt50",
+              250,
+              10
+            ],
+            [
+              10,
+              "mt50",
+              250,
+              5
+            ],
+            [
+              10,
+              "mt50",
+              500,
+              10
+            ],
+            [
+              10,
+              "mt50",
+              500,
+              5
+            ],
+            [
+              10,
+              "mt50",
+              1000,
+              10
+            ],
+            [
+              10,
+              "mt50",
+              1000,
+              5
+            ],
+            [
+              10,
+              "mt50",
+              1500,
+              10
+            ],
+            [
+              10,
+              "mt50",
+              1500,
+              5
+            ],
+            [
+              10,
+              "mt50",
+              2000,
+              10
+            ],
+            [
+              10,
+              "mt50",
+              2000,
+              5
+            ],
+            [
+              10,
+              "mt50",
+              2500,
+              10
+            ],
+            [
+              10,
+              "mt50",
+              2500,
+              5
+            ]
+          ]
+        }
+      ],
+      "cells": [
+        [
+          9,
+          "mt50",
+          250,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          250,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          500,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          500,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          1000,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          1000,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          1500,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          1500,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          2000,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          2000,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          2500,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          2500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          250,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          250,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          500,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          1000,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          1000,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          1500,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          1500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          2000,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          2000,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          2500,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          2500,
+          5
+        ]
+      ]
+    },
+    {
+      "bundle": "dp_mw",
+      "model": "dp",
+      "benchmark": "mt50",
+      "mode": "full",
+      "arm": "filtered",
+      "gpu": "H100",
+      "name": "fa_sd_dp_f_m_k",
+      "stage": "levels",
+      "status": "WAITING_OFF",
+      "off": "fa_sd_dp_f_m_o",
+      "episodes": null,
+      "jobs": [],
+      "maximum_episodes": 300000
     }
   ]
 }
