@@ -10,6 +10,7 @@
     "R15/R16 arms 是 arms.json 的 arm 或 group.json entries[].row.arm；每个 arm 恰好归属一个 slice，suite/size/level 从原生元数据读取。",
     "off 和 levels 两个批次使用相同维度及 reference，脚本自动合并。levels 只列实际跑的格和原生档；不生成空的占位批次。",
     "π0.5/GR00T LIBERO 的逐档下降轮（vla.build rounds，k1..k4）代替 levels：每轮的每个 R15 job、R16 group 各登记一个批次，维度与 reference 同 off；轮内 arm 只含计划的任务（arms.json tasks / entries pairs），按计划任务查完整；SKIP_NO_TASKS 的轮没有 run，不登记。",
+    "修补批次（vla.build repair，名字为原批次名加 r）同样各登记一个批次、同维度同 reference：它重跑原批次里没有任何决策行的已接受局（加载器把这些局当作缺失），脚本按线合并；原批次与修补批次都要登记。",
     "R17 档：koff,k50,k40,k30,k20,k10；VLA 档：off,ir45,ir40,ir32,ir25。纯推理组名显式指定；独立纯推理批次填 control。",
     "LIBERO suites 固定两个套件；sizes：DP/Fast-WAM/Cosmos=50,100,200,300,400；pi05/groot=50,100,200。某批只跑部分大小时 sizes 可缩小。",
     "Cosmos LIBERO 与 pi05 MT50 的 long_segment 只能是 default；其他模型用 off/on。LIBERO 500 只读旧种子全集，不伪造新种子重复测量。",

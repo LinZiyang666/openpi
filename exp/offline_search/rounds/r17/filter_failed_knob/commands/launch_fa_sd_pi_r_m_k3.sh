@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 set -euo pipefail
 cd /home/weiland/projects/openpi
-/home/weiland/projects/openpi/.venv/bin/python -m exp.offline_search.rounds.r17.seeds_1023.workflow launch --name fa_sd_pi_r_m_k3
+/home/weiland/projects/openpi/.venv/bin/python -m exp.offline_search.rounds.r17.filter_failed_knob.launch --run /data/mw_finetune/eval/fa_sd_pi_r_m_k3

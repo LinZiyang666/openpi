@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# New subset seeds (seeds_1023): success-filtered library (subset seeds 20261003 and 20261004) . GR00T . LIBERO . reduced K1 . long segment on and off . descent round 1: ir45 for the tasks that passed every earlier level . episodes set when defined (prepare)
+# New subset seeds (seeds_1023): success-filtered library (subset seeds 20261003 and 20261004) . GR00T . LIBERO . reduced K1 . long segment on and off . descent round 1: ir45 for the tasks that passed every earlier level . 6500 episodes
 # H100 residents (/data/oscl_h100/openpi_r16_q3_server); 4 GR00T replicas; Q3 --os-judge stall_only. See seeds_1023/vla/build.py.
 set -euo pipefail
 cd /home/weiland/projects/openpi

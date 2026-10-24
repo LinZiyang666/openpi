@@ -40,10 +40,9 @@ def merge(target, incoming, *, r17):
         target.update(incoming)
 
 
-def cohort(data, suite, planned=None):
-    """Whole 50-init tasks: every task of the suite, or exactly the planned ones (a descent-round arm)."""
+def cohort(data, suite):
     tasks = {k[1] for k in data}
-    return ((len(tasks) == c.task_count(suite) if planned is None else tasks == {str(t) for t in planned}) and
+    return (len(tasks) == c.task_count(suite) and
             set(data) == {(suite, t, i) for t in tasks for i in range(50)})
 
 
@@ -122,18 +121,21 @@ def load_batch(item):
                     raise ValueError(f'{name}/{arm}: incomplete arm')
                 k = 1 if s['mode'] == 'reduced' else 10 if s['model'] == 'pi05' else 8
                 ep = a.load(record, arm, results.PAIRS, 'A', k, reader)
-                level, planned = row['r14_descent_level'], row.get('tasks')
+                level, planned = row['r14_descent_level'], off.read(row['manifest'])
             else:
                 ep = ca.load_entry(record, dict(entry, pairs=results.PAIRS), reader)
-                level, planned = entry['formal_grid_level'], sorted({t for t, _ in entry['pairs']})
+                level, planned = entry['formal_grid_level'], entry['pairs']
             if level not in off.f.VLA_LEVELS:
                 raise ValueError(f'{name}/{arm}: invalid knob level {level}')
             suite, size = row['suite'], row['r10_size']
             if suite not in s['suites'] or size not in s['sizes']:
                 raise ValueError(f'{name}/{arm}: unexpected suite/size')
             data = results.ledger(ep, suite)
-            if not cohort(data, suite, planned):
-                raise ValueError(f'{name}/{arm}: incomplete cohort ({len(data)}/{50*len(planned or range(10))})')
+            # The arm's planned pairs (all 500, a descent round's tasks, a repair's pairs) less the decision-less
+            # episodes (no outcome; a repair batch of the same line supplies them, calculate checks the merged chain).
+            void = {tuple(x) for x in ep.audit.get('decisionless', [])}
+            if set(data) != {(suite, str(t), i) for t, i in planned if (t, i) not in void}:
+                raise ValueError(f'{name}/{arm}: incomplete cohort ({len(data)}/{len(planned)-len(void)})')
             merge(outputs[i]['data'].setdefault((suite, size), {}).setdefault(level, {}), data, r17=False)
         for s, used in zip(slices, seen):
             if used != set(s['arms']):

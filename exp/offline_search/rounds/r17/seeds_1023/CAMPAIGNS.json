@@ -3005,6 +3005,1845 @@
           5
         ]
       ]
+    },
+    {
+      "name": "fa_sd_gr_r_m_k1",
+      "run": "/data/mw_finetune/eval/fa_sd_gr_r_m_k1",
+      "source": "/nvme/weiland/openpi/eval/fa_sd_gr_r_m_o_j",
+      "episodes": 60000,
+      "model": "groot",
+      "benchmark": "mt50",
+      "mode": "reduced",
+      "stage": "levels",
+      "gpu": "H200 MIG 1g.18gb",
+      "replicas": 2,
+      "batch": 1,
+      "workers": {
+        "timan107": 440
+      },
+      "python": "/home/exouser/gr00t_n15_venv/.venv/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_37cafdd90f4bc7550178a640ba9e1b84cfb8d146af5977245a4a6d383bfd116e",
+      "unfiltered": false,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "5defb012c3c9321db4e1de22d35d8027aedac4ffdd6581c5af8cf86d498685cb",
+      "bootstrap_from": "/data/mw_finetune/eval/fa_sd_gr_r_m_o_j",
+      "arm": "filtered",
+      "bundle": "groot_mw",
+      "levels": [
+        "k50"
+      ],
+      "longseg_runtime": true,
+      "cells": [
+        [
+          9,
+          "mt50",
+          250,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          250,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          500,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          500,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          1000,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          1000,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          1500,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          1500,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          2000,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          2000,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          2500,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          2500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          250,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          250,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          500,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          1000,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          1000,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          1500,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          1500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          2000,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          2000,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          2500,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          2500,
+          5
+        ]
+      ]
+    },
+    {
+      "name": "fa_sd_fw_f_l_k1",
+      "run": "/data/mw_finetune/eval/fa_sd_fw_f_l_k1",
+      "source": "/nvme/weiland/openpi/eval/fa_sd_fw_f_l_o",
+      "episodes": 18000,
+      "model": "fastwam",
+      "benchmark": "libero",
+      "mode": "full",
+      "stage": "levels",
+      "gpu": "H100",
+      "replicas": 4,
+      "batch": 16,
+      "workers": {
+        "a100": 80
+      },
+      "python": "/data/mw_finetune/envs/fastwam/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_f81e33a1fc0c3765b1070b2795167e1ecc1822a95a3dcf622477aa34cad69499",
+      "unfiltered": false,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "9fc46e199ecbc2957b66bd316863a6237e6bc93a9422ce201b42b465613482bb",
+      "bootstrap_from": "/data/mw_finetune/eval/fa_sd_fw_f_l_o",
+      "arm": "filtered",
+      "bundle": "fastwam_libero",
+      "levels": [
+        "k50"
+      ],
+      "longseg_runtime": true,
+      "cells": [
+        [
+          20261003,
+          "libero_10",
+          50,
+          10
+        ],
+        [
+          20261003,
+          "libero_10",
+          50,
+          5
+        ],
+        [
+          20261003,
+          "libero_10",
+          100,
+          10
+        ],
+        [
+          20261003,
+          "libero_10",
+          100,
+          5
+        ],
+        [
+          20261003,
+          "libero_10",
+          200,
+          10
+        ],
+        [
+          20261003,
+          "libero_10",
+          200,
+          5
+        ],
+        [
+          20261003,
+          "libero_10",
+          300,
+          10
+        ],
+        [
+          20261003,
+          "libero_10",
+          300,
+          5
+        ],
+        [
+          20261003,
+          "libero_10",
+          400,
+          10
+        ],
+        [
+          20261003,
+          "libero_10",
+          400,
+          5
+        ],
+        [
+          20261003,
+          "libero_spatial",
+          50,
+          10
+        ],
+        [
+          20261003,
+          "libero_spatial",
+          50,
+          5
+        ],
+        [
+          20261003,
+          "libero_spatial",
+          100,
+          10
+        ],
+        [
+          20261003,
+          "libero_spatial",
+          100,
+          5
+        ],
+        [
+          20261003,
+          "libero_spatial",
+          200,
+          10
+        ],
+        [
+          20261003,
+          "libero_spatial",
+          300,
+          10
+        ],
+        [
+          20261003,
+          "libero_spatial",
+          400,
+          10
+        ],
+        [
+          20261003,
+          "libero_spatial",
+          400,
+          5
+        ],
+        [
+          20261004,
+          "libero_10",
+          50,
+          10
+        ],
+        [
+          20261004,
+          "libero_10",
+          50,
+          5
+        ],
+        [
+          20261004,
+          "libero_10",
+          100,
+          10
+        ],
+        [
+          20261004,
+          "libero_10",
+          100,
+          5
+        ],
+        [
+          20261004,
+          "libero_10",
+          200,
+          10
+        ],
+        [
+          20261004,
+          "libero_10",
+          200,
+          5
+        ],
+        [
+          20261004,
+          "libero_10",
+          300,
+          10
+        ],
+        [
+          20261004,
+          "libero_10",
+          300,
+          5
+        ],
+        [
+          20261004,
+          "libero_10",
+          400,
+          10
+        ],
+        [
+          20261004,
+          "libero_10",
+          400,
+          5
+        ],
+        [
+          20261004,
+          "libero_spatial",
+          50,
+          10
+        ],
+        [
+          20261004,
+          "libero_spatial",
+          50,
+          5
+        ],
+        [
+          20261004,
+          "libero_spatial",
+          100,
+          10
+        ],
+        [
+          20261004,
+          "libero_spatial",
+          100,
+          5
+        ],
+        [
+          20261004,
+          "libero_spatial",
+          200,
+          10
+        ],
+        [
+          20261004,
+          "libero_spatial",
+          300,
+          10
+        ],
+        [
+          20261004,
+          "libero_spatial",
+          300,
+          5
+        ],
+        [
+          20261004,
+          "libero_spatial",
+          400,
+          10
+        ]
+      ]
+    },
+    {
+      "name": "fa_sd_dp_r_l_k2",
+      "run": "/data/mw_finetune/eval/fa_sd_dp_r_l_k2",
+      "source": "/nvme/weiland/openpi/eval/fa_sd_dp_r_l_o",
+      "episodes": 2250,
+      "model": "dp",
+      "benchmark": "libero",
+      "mode": "reduced",
+      "stage": "levels",
+      "gpu": "H100",
+      "replicas": 4,
+      "batch": 8,
+      "workers": {
+        "a100": 80
+      },
+      "python": "/home/weiland/projects/openpi/.venv/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_9fde022c65231b7607f94dd36fa710b8da74febf91cc64a8dfb0b8666f270d95",
+      "unfiltered": false,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "84c51590a1763cef499a9bbda4f4e94ba8dcfc0cee6c7eb74aa4254ac4e84a05",
+      "bootstrap_from": "/data/mw_finetune/eval/fa_sd_dp_r_l_o",
+      "arm": "filtered",
+      "bundle": "dp_libero",
+      "levels": [
+        "k40"
+      ],
+      "longseg_runtime": true,
+      "cells": [
+        [
+          20261003,
+          "libero_10",
+          50,
+          10
+        ],
+        [
+          20261003,
+          "libero_10",
+          50,
+          5
+        ],
+        [
+          20261003,
+          "libero_spatial",
+          50,
+          5
+        ],
+        [
+          20261004,
+          "libero_10",
+          50,
+          10
+        ],
+        [
+          20261004,
+          "libero_10",
+          50,
+          5
+        ],
+        [
+          20261004,
+          "libero_spatial",
+          50,
+          10
+        ],
+        [
+          20261004,
+          "libero_spatial",
+          50,
+          5
+        ]
+      ]
+    },
+    {
+      "name": "fa_sd_gr_f_m_k1",
+      "run": "/data/mw_finetune/eval/fa_sd_gr_f_m_k1",
+      "source": "/nvme/weiland/openpi/eval/fa_sd_gr_f_m_o_j",
+      "episodes": 60000,
+      "model": "groot",
+      "benchmark": "mt50",
+      "mode": "full",
+      "stage": "levels",
+      "gpu": "H200 MIG 1g.18gb",
+      "replicas": 2,
+      "batch": 1,
+      "workers": {
+        "timan107": 440
+      },
+      "python": "/home/exouser/gr00t_n15_venv/.venv/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_37cafdd90f4bc7550178a640ba9e1b84cfb8d146af5977245a4a6d383bfd116e",
+      "unfiltered": false,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "0c707c00fe510763bf9b5030c6da0d02b1563e816824b7d35200b45f235cbea0",
+      "bootstrap_from": "/data/mw_finetune/eval/fa_sd_gr_f_m_o_j",
+      "arm": "filtered",
+      "bundle": "groot_mw",
+      "levels": [
+        "k50"
+      ],
+      "longseg_runtime": true,
+      "cells": [
+        [
+          9,
+          "mt50",
+          250,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          250,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          500,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          500,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          1000,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          1000,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          1500,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          1500,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          2000,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          2000,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          2500,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          2500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          250,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          250,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          500,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          1000,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          1000,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          1500,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          1500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          2000,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          2000,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          2500,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          2500,
+          5
+        ]
+      ]
+    },
+    {
+      "name": "fa_sd_dp_r_l_k3",
+      "run": "/data/mw_finetune/eval/fa_sd_dp_r_l_k3",
+      "source": "/nvme/weiland/openpi/eval/fa_sd_dp_r_l_o",
+      "episodes": 2000,
+      "model": "dp",
+      "benchmark": "libero",
+      "mode": "reduced",
+      "stage": "levels",
+      "gpu": "H100",
+      "replicas": 4,
+      "batch": 8,
+      "workers": {
+        "a100": 80
+      },
+      "python": "/home/weiland/projects/openpi/.venv/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_9fde022c65231b7607f94dd36fa710b8da74febf91cc64a8dfb0b8666f270d95",
+      "unfiltered": false,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "f93a89d60274a2bbfa80bb1f2909972c5790f5dd545d831a7b8e027b19738e53",
+      "bootstrap_from": "/data/mw_finetune/eval/fa_sd_dp_r_l_o",
+      "arm": "filtered",
+      "bundle": "dp_libero",
+      "levels": [
+        "k30"
+      ],
+      "longseg_runtime": true,
+      "cells": [
+        [
+          20261003,
+          "libero_10",
+          50,
+          10
+        ],
+        [
+          20261003,
+          "libero_10",
+          50,
+          5
+        ],
+        [
+          20261003,
+          "libero_spatial",
+          50,
+          5
+        ],
+        [
+          20261004,
+          "libero_10",
+          50,
+          10
+        ],
+        [
+          20261004,
+          "libero_10",
+          50,
+          5
+        ],
+        [
+          20261004,
+          "libero_spatial",
+          50,
+          5
+        ]
+      ]
+    },
+    {
+      "name": "fa_sd_dp_r_l_k4",
+      "run": "/data/mw_finetune/eval/fa_sd_dp_r_l_k4",
+      "source": "/nvme/weiland/openpi/eval/fa_sd_dp_r_l_o",
+      "episodes": 1850,
+      "model": "dp",
+      "benchmark": "libero",
+      "mode": "reduced",
+      "stage": "levels",
+      "gpu": "H100",
+      "replicas": 4,
+      "batch": 8,
+      "workers": {
+        "a100": 80
+      },
+      "python": "/home/weiland/projects/openpi/.venv/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_9fde022c65231b7607f94dd36fa710b8da74febf91cc64a8dfb0b8666f270d95",
+      "unfiltered": false,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "0c10d4acee8ae1f0cf2084b5f5fae0e7c1ed4dd8a1a708f12d3673a10305784b",
+      "bootstrap_from": "/data/mw_finetune/eval/fa_sd_dp_r_l_o",
+      "arm": "filtered",
+      "bundle": "dp_libero",
+      "levels": [
+        "k20"
+      ],
+      "longseg_runtime": true,
+      "cells": [
+        [
+          20261003,
+          "libero_10",
+          50,
+          10
+        ],
+        [
+          20261003,
+          "libero_10",
+          50,
+          5
+        ],
+        [
+          20261003,
+          "libero_spatial",
+          50,
+          5
+        ],
+        [
+          20261004,
+          "libero_10",
+          50,
+          10
+        ],
+        [
+          20261004,
+          "libero_10",
+          50,
+          5
+        ],
+        [
+          20261004,
+          "libero_spatial",
+          50,
+          5
+        ]
+      ]
+    },
+    {
+      "name": "fa_sd_dp_r_l_k5",
+      "run": "/data/mw_finetune/eval/fa_sd_dp_r_l_k5",
+      "source": "/nvme/weiland/openpi/eval/fa_sd_dp_r_l_o",
+      "episodes": 1800,
+      "model": "dp",
+      "benchmark": "libero",
+      "mode": "reduced",
+      "stage": "levels",
+      "gpu": "H100",
+      "replicas": 4,
+      "batch": 8,
+      "workers": {
+        "a100": 80
+      },
+      "python": "/home/weiland/projects/openpi/.venv/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_9fde022c65231b7607f94dd36fa710b8da74febf91cc64a8dfb0b8666f270d95",
+      "unfiltered": false,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "d5be09af4ae32fb7d9f32497c3c4afa60be800d852b0bee7d46071bb09c8ec6e",
+      "bootstrap_from": "/data/mw_finetune/eval/fa_sd_dp_r_l_o",
+      "arm": "filtered",
+      "bundle": "dp_libero",
+      "levels": [
+        "k10"
+      ],
+      "longseg_runtime": true,
+      "cells": [
+        [
+          20261003,
+          "libero_10",
+          50,
+          10
+        ],
+        [
+          20261003,
+          "libero_10",
+          50,
+          5
+        ],
+        [
+          20261003,
+          "libero_spatial",
+          50,
+          5
+        ],
+        [
+          20261004,
+          "libero_10",
+          50,
+          10
+        ],
+        [
+          20261004,
+          "libero_10",
+          50,
+          5
+        ],
+        [
+          20261004,
+          "libero_spatial",
+          50,
+          5
+        ]
+      ]
+    },
+    {
+      "name": "fa_sd_dp_f_l_k1",
+      "run": "/data/mw_finetune/eval/fa_sd_dp_f_l_k1",
+      "source": "/nvme/weiland/openpi/eval/fa_sd_dp_f_l_o",
+      "episodes": 5000,
+      "model": "dp",
+      "benchmark": "libero",
+      "mode": "full",
+      "stage": "levels",
+      "gpu": "H100",
+      "replicas": 4,
+      "batch": 8,
+      "workers": {
+        "timan107": 104
+      },
+      "python": "/home/weiland/projects/openpi/.venv/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_23114262bbc1918df666b8e5141ad702dce1d9901d985ec934e75e86ea574179",
+      "unfiltered": false,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "ff84fd0a77eb0c53ce82ec92310950c292e8eeceb52f056b74945aa3a88a13db",
+      "bootstrap_from": "/data/mw_finetune/eval/fa_sd_dp_f_l_o",
+      "arm": "filtered",
+      "bundle": "dp_libero",
+      "levels": [
+        "k50"
+      ],
+      "longseg_runtime": true,
+      "cells": [
+        [
+          20261003,
+          "libero_10",
+          50,
+          10
+        ],
+        [
+          20261003,
+          "libero_10",
+          50,
+          5
+        ],
+        [
+          20261003,
+          "libero_10",
+          100,
+          10
+        ],
+        [
+          20261003,
+          "libero_10",
+          100,
+          5
+        ],
+        [
+          20261003,
+          "libero_spatial",
+          50,
+          10
+        ],
+        [
+          20261003,
+          "libero_spatial",
+          50,
+          5
+        ],
+        [
+          20261004,
+          "libero_10",
+          50,
+          10
+        ],
+        [
+          20261004,
+          "libero_10",
+          50,
+          5
+        ],
+        [
+          20261004,
+          "libero_spatial",
+          50,
+          10
+        ],
+        [
+          20261004,
+          "libero_spatial",
+          50,
+          5
+        ]
+      ]
+    },
+    {
+      "name": "fa_sd_pi_r_m_k2",
+      "run": "/data/mw_finetune/eval/fa_sd_pi_r_m_k2",
+      "source": "/nvme/weiland/openpi/eval/fa_sd_pi_r_m_o",
+      "episodes": 20600,
+      "model": "pi05",
+      "benchmark": "mt50",
+      "mode": "reduced",
+      "stage": "levels",
+      "gpu": "RTX 4090",
+      "replicas": 4,
+      "batch": 1,
+      "workers": {
+        "local": 332
+      },
+      "python": "/home/weiland/projects/openpi/.venv/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_af22613ead3df9625293e6efa813376d3629774be676b022609e3b4438b5b4c1",
+      "unfiltered": false,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "ce1ad8db4c302ee8d65ee476cf64be7950cd43c3458a415fc70f25bd3e790247",
+      "bootstrap_from": "/data/mw_finetune/eval/fa_sd_pi_r_m_o",
+      "arm": "filtered",
+      "bundle": "pi05_mw",
+      "levels": [
+        "k40"
+      ],
+      "longseg_runtime": false,
+      "cells": [
+        [
+          9,
+          "mt50",
+          250,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          500,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          1000,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          1500,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          2000,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          2500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          250,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          1000,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          1500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          2000,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          2500,
+          5
+        ]
+      ]
+    },
+    {
+      "name": "fa_sd_dp_f_l_k2",
+      "run": "/data/mw_finetune/eval/fa_sd_dp_f_l_k2",
+      "source": "/nvme/weiland/openpi/eval/fa_sd_dp_f_l_o",
+      "episodes": 2900,
+      "model": "dp",
+      "benchmark": "libero",
+      "mode": "full",
+      "stage": "levels",
+      "gpu": "H100",
+      "replicas": 4,
+      "batch": 8,
+      "workers": {
+        "timan107": 104
+      },
+      "python": "/home/weiland/projects/openpi/.venv/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_23114262bbc1918df666b8e5141ad702dce1d9901d985ec934e75e86ea574179",
+      "unfiltered": false,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "b285cb4d845e4328fcdc26dddd26ff573dd663347da3f96ca592544059a5ec72",
+      "bootstrap_from": "/data/mw_finetune/eval/fa_sd_dp_f_l_o",
+      "arm": "filtered",
+      "bundle": "dp_libero",
+      "levels": [
+        "k40"
+      ],
+      "longseg_runtime": true,
+      "cells": [
+        [
+          20261003,
+          "libero_10",
+          50,
+          10
+        ],
+        [
+          20261003,
+          "libero_10",
+          50,
+          5
+        ],
+        [
+          20261003,
+          "libero_10",
+          100,
+          10
+        ],
+        [
+          20261003,
+          "libero_10",
+          100,
+          5
+        ],
+        [
+          20261003,
+          "libero_spatial",
+          50,
+          10
+        ],
+        [
+          20261003,
+          "libero_spatial",
+          50,
+          5
+        ],
+        [
+          20261004,
+          "libero_10",
+          50,
+          10
+        ],
+        [
+          20261004,
+          "libero_10",
+          50,
+          5
+        ],
+        [
+          20261004,
+          "libero_spatial",
+          50,
+          10
+        ],
+        [
+          20261004,
+          "libero_spatial",
+          50,
+          5
+        ]
+      ]
+    },
+    {
+      "name": "fa_sd_dp_f_l_k3",
+      "run": "/data/mw_finetune/eval/fa_sd_dp_f_l_k3",
+      "source": "/nvme/weiland/openpi/eval/fa_sd_dp_f_l_o",
+      "episodes": 2400,
+      "model": "dp",
+      "benchmark": "libero",
+      "mode": "full",
+      "stage": "levels",
+      "gpu": "H100",
+      "replicas": 4,
+      "batch": 8,
+      "workers": {
+        "timan107": 104
+      },
+      "python": "/home/weiland/projects/openpi/.venv/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_23114262bbc1918df666b8e5141ad702dce1d9901d985ec934e75e86ea574179",
+      "unfiltered": false,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "7aca87b44e0c73d4f30fb285612c81e6b6289728599f39eba6e396be40f6b284",
+      "bootstrap_from": "/data/mw_finetune/eval/fa_sd_dp_f_l_o",
+      "arm": "filtered",
+      "bundle": "dp_libero",
+      "levels": [
+        "k30"
+      ],
+      "longseg_runtime": true,
+      "cells": [
+        [
+          20261003,
+          "libero_10",
+          50,
+          10
+        ],
+        [
+          20261003,
+          "libero_10",
+          50,
+          5
+        ],
+        [
+          20261003,
+          "libero_10",
+          100,
+          10
+        ],
+        [
+          20261003,
+          "libero_10",
+          100,
+          5
+        ],
+        [
+          20261003,
+          "libero_spatial",
+          50,
+          5
+        ],
+        [
+          20261004,
+          "libero_10",
+          50,
+          10
+        ],
+        [
+          20261004,
+          "libero_10",
+          50,
+          5
+        ],
+        [
+          20261004,
+          "libero_spatial",
+          50,
+          5
+        ]
+      ]
+    },
+    {
+      "name": "fa_sd_pi_r_m_k3",
+      "run": "/data/mw_finetune/eval/fa_sd_pi_r_m_k3",
+      "source": "/nvme/weiland/openpi/eval/fa_sd_pi_r_m_o",
+      "episodes": 18350,
+      "model": "pi05",
+      "benchmark": "mt50",
+      "mode": "reduced",
+      "stage": "levels",
+      "gpu": "RTX 4090",
+      "replicas": 4,
+      "batch": 1,
+      "workers": {
+        "local": 332
+      },
+      "python": "/home/weiland/projects/openpi/.venv/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_af22613ead3df9625293e6efa813376d3629774be676b022609e3b4438b5b4c1",
+      "unfiltered": false,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "83ce4d114f37ab813a659ed08536eeefced3dc1cb82cb79b85fcc22fd4ea476c",
+      "bootstrap_from": "/data/mw_finetune/eval/fa_sd_pi_r_m_o",
+      "arm": "filtered",
+      "bundle": "pi05_mw",
+      "levels": [
+        "k30"
+      ],
+      "longseg_runtime": false,
+      "cells": [
+        [
+          9,
+          "mt50",
+          250,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          500,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          1000,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          1500,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          2000,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          2500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          250,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          1000,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          1500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          2000,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          2500,
+          5
+        ]
+      ]
+    },
+    {
+      "name": "fa_sd_fw_r_m_k2",
+      "run": "/data/mw_finetune/eval/fa_sd_fw_r_m_k2",
+      "source": "/nvme/weiland/openpi/eval/fa_sd_fw_r_m_o",
+      "episodes": 34250,
+      "model": "fastwam",
+      "benchmark": "mt50",
+      "mode": "reduced",
+      "stage": "levels",
+      "gpu": "H100",
+      "replicas": 2,
+      "batch": 16,
+      "workers": {
+        "h100": 40
+      },
+      "python": "/data/mw_finetune/envs/fastwam/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_dd43093f24b4e512685ed14854c06160fa906953cf0c61c69742b251e2329bc8",
+      "unfiltered": false,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "1c2f233caad64147d19faa8565dd0155d1c53f27103ae876a407f3c465efeff8",
+      "bootstrap_from": "/data/mw_finetune/eval/fa_sd_fw_r_m_o",
+      "arm": "filtered",
+      "bundle": "fastwam_mw",
+      "levels": [
+        "k40"
+      ],
+      "longseg_runtime": true,
+      "cells": [
+        [
+          9,
+          "mt50",
+          250,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          250,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          500,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          500,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          1000,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          1000,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          1500,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          1500,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          2000,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          2000,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          2500,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          2500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          250,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          250,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          500,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          1000,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          1000,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          1500,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          1500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          2000,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          2000,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          2500,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          2500,
+          5
+        ]
+      ]
+    },
+    {
+      "name": "fa_sd_dp_f_l_k4",
+      "run": "/data/mw_finetune/eval/fa_sd_dp_f_l_k4",
+      "source": "/nvme/weiland/openpi/eval/fa_sd_dp_f_l_o",
+      "episodes": 2150,
+      "model": "dp",
+      "benchmark": "libero",
+      "mode": "full",
+      "stage": "levels",
+      "gpu": "H100",
+      "replicas": 4,
+      "batch": 8,
+      "workers": {
+        "timan107": 104
+      },
+      "python": "/home/weiland/projects/openpi/.venv/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_23114262bbc1918df666b8e5141ad702dce1d9901d985ec934e75e86ea574179",
+      "unfiltered": false,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "f6bad0483717d208b4e55b8882af9335c75994d2988c744650c4be7feb9abc81",
+      "bootstrap_from": "/data/mw_finetune/eval/fa_sd_dp_f_l_o",
+      "arm": "filtered",
+      "bundle": "dp_libero",
+      "levels": [
+        "k20"
+      ],
+      "longseg_runtime": true,
+      "cells": [
+        [
+          20261003,
+          "libero_10",
+          50,
+          10
+        ],
+        [
+          20261003,
+          "libero_10",
+          50,
+          5
+        ],
+        [
+          20261003,
+          "libero_10",
+          100,
+          10
+        ],
+        [
+          20261003,
+          "libero_10",
+          100,
+          5
+        ],
+        [
+          20261003,
+          "libero_spatial",
+          50,
+          5
+        ],
+        [
+          20261004,
+          "libero_10",
+          50,
+          10
+        ],
+        [
+          20261004,
+          "libero_10",
+          50,
+          5
+        ],
+        [
+          20261004,
+          "libero_spatial",
+          50,
+          5
+        ]
+      ]
+    },
+    {
+      "name": "fa_sd_fw_f_l_k2",
+      "run": "/data/mw_finetune/eval/fa_sd_fw_f_l_k2",
+      "source": "/nvme/weiland/openpi/eval/fa_sd_fw_f_l_o",
+      "episodes": 10350,
+      "model": "fastwam",
+      "benchmark": "libero",
+      "mode": "full",
+      "stage": "levels",
+      "gpu": "H100",
+      "replicas": 4,
+      "batch": 16,
+      "workers": {
+        "a100": 80
+      },
+      "python": "/data/mw_finetune/envs/fastwam/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_f81e33a1fc0c3765b1070b2795167e1ecc1822a95a3dcf622477aa34cad69499",
+      "unfiltered": false,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "5659b6f026965071bbf398feb7a2f4210547035520661a9a67e4a0737d7de969",
+      "bootstrap_from": "/data/mw_finetune/eval/fa_sd_fw_f_l_o",
+      "arm": "filtered",
+      "bundle": "fastwam_libero",
+      "levels": [
+        "k40"
+      ],
+      "longseg_runtime": true,
+      "cells": [
+        [
+          20261003,
+          "libero_10",
+          50,
+          10
+        ],
+        [
+          20261003,
+          "libero_10",
+          50,
+          5
+        ],
+        [
+          20261003,
+          "libero_10",
+          100,
+          10
+        ],
+        [
+          20261003,
+          "libero_10",
+          100,
+          5
+        ],
+        [
+          20261003,
+          "libero_10",
+          200,
+          10
+        ],
+        [
+          20261003,
+          "libero_10",
+          200,
+          5
+        ],
+        [
+          20261003,
+          "libero_10",
+          300,
+          10
+        ],
+        [
+          20261003,
+          "libero_10",
+          300,
+          5
+        ],
+        [
+          20261003,
+          "libero_10",
+          400,
+          10
+        ],
+        [
+          20261003,
+          "libero_10",
+          400,
+          5
+        ],
+        [
+          20261003,
+          "libero_spatial",
+          50,
+          10
+        ],
+        [
+          20261003,
+          "libero_spatial",
+          50,
+          5
+        ],
+        [
+          20261003,
+          "libero_spatial",
+          100,
+          10
+        ],
+        [
+          20261003,
+          "libero_spatial",
+          100,
+          5
+        ],
+        [
+          20261003,
+          "libero_spatial",
+          200,
+          10
+        ],
+        [
+          20261003,
+          "libero_spatial",
+          300,
+          10
+        ],
+        [
+          20261003,
+          "libero_spatial",
+          400,
+          10
+        ],
+        [
+          20261003,
+          "libero_spatial",
+          400,
+          5
+        ],
+        [
+          20261004,
+          "libero_10",
+          50,
+          10
+        ],
+        [
+          20261004,
+          "libero_10",
+          50,
+          5
+        ],
+        [
+          20261004,
+          "libero_10",
+          100,
+          10
+        ],
+        [
+          20261004,
+          "libero_10",
+          100,
+          5
+        ],
+        [
+          20261004,
+          "libero_10",
+          200,
+          10
+        ],
+        [
+          20261004,
+          "libero_10",
+          200,
+          5
+        ],
+        [
+          20261004,
+          "libero_10",
+          300,
+          10
+        ],
+        [
+          20261004,
+          "libero_10",
+          300,
+          5
+        ],
+        [
+          20261004,
+          "libero_10",
+          400,
+          10
+        ],
+        [
+          20261004,
+          "libero_10",
+          400,
+          5
+        ],
+        [
+          20261004,
+          "libero_spatial",
+          50,
+          10
+        ],
+        [
+          20261004,
+          "libero_spatial",
+          50,
+          5
+        ],
+        [
+          20261004,
+          "libero_spatial",
+          100,
+          10
+        ],
+        [
+          20261004,
+          "libero_spatial",
+          100,
+          5
+        ],
+        [
+          20261004,
+          "libero_spatial",
+          200,
+          10
+        ],
+        [
+          20261004,
+          "libero_spatial",
+          300,
+          10
+        ],
+        [
+          20261004,
+          "libero_spatial",
+          300,
+          5
+        ],
+        [
+          20261004,
+          "libero_spatial",
+          400,
+          10
+        ]
+      ]
     }
   ]
 }

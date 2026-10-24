@@ -1,0 +1,274 @@
+{
+ "x3_on": {
+  "model": "pi05",
+  "mode": "reduced",
+  "subset_seed": 20261003,
+  "long_segment": "on",
+  "rows": [
+   {
+    "suite": "libero_10",
+    "size": 50,
+    "n": 500,
+    "pure_n": 500,
+    "successes": 364,
+    "pure_successes": 455,
+    "status": "tune"
+   },
+   {
+    "suite": "libero_10",
+    "size": 100,
+    "n": 500,
+    "pure_n": 500,
+    "successes": 377,
+    "pure_successes": 455,
+    "status": "tune"
+   },
+   {
+    "suite": "libero_10",
+    "size": 200,
+    "n": 500,
+    "pure_n": 500,
+    "successes": 431,
+    "pure_successes": 455,
+    "status": "tune"
+   },
+   {
+    "suite": "libero_spatial",
+    "size": 50,
+    "n": 500,
+    "pure_n": 500,
+    "successes": 460,
+    "pure_successes": 489,
+    "status": "tune"
+   },
+   {
+    "suite": "libero_spatial",
+    "size": 100,
+    "n": 500,
+    "pure_n": 500,
+    "successes": 482,
+    "pure_successes": 489,
+    "status": "tune"
+   },
+   {
+    "suite": "libero_spatial",
+    "size": 200,
+    "n": 500,
+    "pure_n": 500,
+    "successes": 486,
+    "pure_successes": 489,
+    "status": "tune"
+   }
+  ],
+  "reference_arms": [
+   "fa_lo_pi_r_p_q_l10/fa_lo_pi_r_p_q_l10_c10",
+   "fa_lo_pi_r_p_q_s/fa_lo_pi_r_p_q_s_c10"
+  ],
+  "periods": "/home/weiland/projects/openpi_ext/r17_seed_split/s20261003/PERIODS.json",
+  "rule": "tune iff complete off successes < same-card same-step pure successes"
+ },
+ "x4_on": {
+  "model": "pi05",
+  "mode": "reduced",
+  "subset_seed": 20261004,
+  "long_segment": "on",
+  "rows": [
+   {
+    "suite": "libero_10",
+    "size": 50,
+    "n": 500,
+    "pure_n": 500,
+    "successes": 333,
+    "pure_successes": 455,
+    "status": "tune"
+   },
+   {
+    "suite": "libero_10",
+    "size": 100,
+    "n": 500,
+    "pure_n": 500,
+    "successes": 415,
+    "pure_successes": 455,
+    "status": "tune"
+   },
+   {
+    "suite": "libero_10",
+    "size": 200,
+    "n": 500,
+    "pure_n": 500,
+    "successes": 439,
+    "pure_successes": 455,
+    "status": "tune"
+   },
+   {
+    "suite": "libero_spatial",
+    "size": 50,
+    "n": 500,
+    "pure_n": 500,
+    "successes": 465,
+    "pure_successes": 489,
+    "status": "tune"
+   },
+   {
+    "suite": "libero_spatial",
+    "size": 100,
+    "n": 500,
+    "pure_n": 500,
+    "successes": 473,
+    "pure_successes": 489,
+    "status": "tune"
+   },
+   {
+    "suite": "libero_spatial",
+    "size": 200,
+    "n": 500,
+    "pure_n": 500,
+    "successes": 484,
+    "pure_successes": 489,
+    "status": "tune"
+   }
+  ],
+  "reference_arms": [
+   "fa_lo_pi_r_p_q_l10/fa_lo_pi_r_p_q_l10_c10",
+   "fa_lo_pi_r_p_q_s/fa_lo_pi_r_p_q_s_c10"
+  ],
+  "periods": "/home/weiland/projects/openpi_ext/r17_seed_split/s20261004/PERIODS.json",
+  "rule": "tune iff complete off successes < same-card same-step pure successes"
+ },
+ "x3_lo": {
+  "model": "pi05",
+  "mode": "reduced",
+  "subset_seed": 20261003,
+  "long_segment": "off",
+  "rows": [
+   {
+    "suite": "libero_10",
+    "size": 50,
+    "n": 500,
+    "pure_n": 500,
+    "successes": 390,
+    "pure_successes": 411,
+    "status": "tune"
+   },
+   {
+    "suite": "libero_10",
+    "size": 100,
+    "n": 500,
+    "pure_n": 500,
+    "successes": 412,
+    "pure_successes": 411,
+    "status": "skip"
+   },
+   {
+    "suite": "libero_10",
+    "size": 200,
+    "n": 500,
+    "pure_n": 500,
+    "successes": 443,
+    "pure_successes": 411,
+    "status": "skip"
+   },
+   {
+    "suite": "libero_spatial",
+    "size": 50,
+    "n": 500,
+    "pure_n": 500,
+    "successes": 454,
+    "pure_successes": 490,
+    "status": "tune"
+   },
+   {
+    "suite": "libero_spatial",
+    "size": 100,
+    "n": 500,
+    "pure_n": 500,
+    "successes": 473,
+    "pure_successes": 490,
+    "status": "tune"
+   },
+   {
+    "suite": "libero_spatial",
+    "size": 200,
+    "n": 500,
+    "pure_n": 500,
+    "successes": 479,
+    "pure_successes": 490,
+    "status": "tune"
+   }
+  ],
+  "reference_arms": [
+   "fa_lo_pi_r_p5_q_l10/fa_lo_pi_r_p5_q_l10_c5",
+   "fa_lo_pi_r_p5_q_s/fa_lo_pi_r_p5_q_s_c5"
+  ],
+  "periods": "/home/weiland/projects/openpi_ext/r17_seed_split/s20261003/PERIODS.json",
+  "rule": "tune iff complete off successes < same-card same-step pure successes"
+ },
+ "x4_lo": {
+  "model": "pi05",
+  "mode": "reduced",
+  "subset_seed": 20261004,
+  "long_segment": "off",
+  "rows": [
+   {
+    "suite": "libero_10",
+    "size": 50,
+    "n": 500,
+    "pure_n": 500,
+    "successes": 396,
+    "pure_successes": 411,
+    "status": "tune"
+   },
+   {
+    "suite": "libero_10",
+    "size": 100,
+    "n": 500,
+    "pure_n": 500,
+    "successes": 431,
+    "pure_successes": 411,
+    "status": "skip"
+   },
+   {
+    "suite": "libero_10",
+    "size": 200,
+    "n": 500,
+    "pure_n": 500,
+    "successes": 452,
+    "pure_successes": 411,
+    "status": "skip"
+   },
+   {
+    "suite": "libero_spatial",
+    "size": 50,
+    "n": 500,
+    "pure_n": 500,
+    "successes": 470,
+    "pure_successes": 490,
+    "status": "tune"
+   },
+   {
+    "suite": "libero_spatial",
+    "size": 100,
+    "n": 500,
+    "pure_n": 500,
+    "successes": 466,
+    "pure_successes": 490,
+    "status": "tune"
+   },
+   {
+    "suite": "libero_spatial",
+    "size": 200,
+    "n": 500,
+    "pure_n": 500,
+    "successes": 469,
+    "pure_successes": 490,
+    "status": "tune"
+   }
+  ],
+  "reference_arms": [
+   "fa_lo_pi_r_p5_q_l10/fa_lo_pi_r_p5_q_l10_c5",
+   "fa_lo_pi_r_p5_q_s/fa_lo_pi_r_p5_q_s_c5"
+  ],
+  "periods": "/home/weiland/projects/openpi_ext/r17_seed_split/s20261004/PERIODS.json",
+  "rule": "tune iff complete off successes < same-card same-step pure successes"
+ }
+}

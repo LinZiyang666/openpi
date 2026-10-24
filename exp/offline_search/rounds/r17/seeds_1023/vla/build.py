@@ -24,6 +24,11 @@ long_segment, and the analysis keys on both.
                                           frozen levels and final SR/IR equal the full sweep's (formal_a_analysis.choose).
                                           R15 arms run a task-subset manifest (arms.json `tasks`), R16 entries
                                           task-subset pairs.
+  repair --name N                         a finished unit (knob off, round or repair) whose accepted episodes include
+                                          failures without a single decision row (a worker failure, never served; the
+                                          loaders read them as missing): unit <N>r reruns exactly those pairs, each in
+                                          a copy of its arm/entry (same cell, level, fit, plugin and resident settings).
+                                          evaluate, build_round and results merge a repair into the unit it repairs.
   dispatch prepare|launch --name N        coordinator entry points (the commands/ scripts); on a WAITING round it first
                                           defines the round from the finished rounds 1..r-1 (ValueError until then)
 References (H100): segment off = longseg_off_1022 fa_lo_*_p5_q (C5); segment on = pi0.5 full the formal-A H100 pure A
@@ -55,6 +60,7 @@ SEG = {'on': 'on', 'off': 'lo'}
 M = {'pi05': 'pi', 'groot': 'gr'}
 STAGES = {'off': 'o', 'levels': 'l', **{f'k{r}': f'k{r}' for r in range(1, len(LEVELS)+1)}}  # k<r>: descent round r
 ORDER = tuple(LEVELS)
+ORDER_ALL = ('off', *ORDER)
 PAIRS = q3.PAIRS
 BOTH = 'x' + ''.join(str(s)[-1] for s in F.SEEDS)  # x34: the R16 groups hold both seeds
 
@@ -85,36 +91,44 @@ def cell_name(model, row):
 
 
 # ------------------------------------------------------------------------------------- R15 (full step)
-def r15_unit(model, seed, segment, stage, cells, levels, tasks=None):
+def r15_unit(model, seed, segment, stage, cells, levels, tasks=None, *, name=None, pairs=None):
     """tasks {cell: task indices}: only those tasks (a descent round), as a manifest of their 50 inits each and
-    `tasks` in arms.json (r16.analyze.load leaves the others unscheduled); default all ten."""
+    `tasks` in arms.json (r16.analyze.load leaves the others unscheduled); default all ten. pairs {cell: {level:
+    [[task, init], ...]}}: only those levels and pairs (a repair; `pairs` in arms.json). name: default r15_name."""
     from exp.offline_search.rounds.r15.descent import prepare as p
-    d, unit = F.seed_dir(seed), r15_name(model, seed, segment, stage)
+    d, unit = F.seed_dir(seed), name or r15_name(model, seed, segment, stage)
     tops = q3.topologies(model, 'filtered'); jobs = []
     for cell in cells:
         root = q3.EVAL/f'{unit}_{q3.short(cell)}'; q3.fresh(root); nvme_dir(root, exist_ok=True)  # real dir on /nvme
         if (root/'arms.json').exists():
             (root/'arms.json').unlink()
         planned = sorted(tasks[cell]) if tasks else list(range(10))
-        if tasks:
-            manifest = root/'eval_tasks.json'; p.write_json(manifest, [pr for pr in read(lo.MANIFEST) if pr[0] in planned])
+        if pairs:
+            manifests = {level: root/f'eval_{level}.json' for level in pairs[cell]}
+            for level, path in manifests.items():
+                p.write_json(path, sorted(map(list, pairs[cell][level])))
+        elif tasks:
+            manifests = dict.fromkeys(levels, root/'eval_tasks.json')
+            p.write_json(root/'eval_tasks.json', [pr for pr in read(lo.MANIFEST) if pr[0] in planned])
         else:
-            manifest = root/'eval500.json'; manifest.write_bytes(lo.MANIFEST.read_bytes())
+            manifests = dict.fromkeys(levels, root/'eval500.json'); (root/'eval500.json').write_bytes(lo.MANIFEST.read_bytes())
         specs = []
-        for level in levels:
+        for level, manifest in manifests.items():
             spec = q3.r15_spec(cell, f'{root.name}_{level}', str(F.fit_path(d, cell, level)), F.knob_kwargs(d, cell, level), manifest)
             spec['plugin_args'] = segment_args(segment, spec['plugin_args'])
             specs.append(spec)
-        p.emit(root, cell, specs, list(levels), pool='A', final_root=root)
-        if tasks:
-            rows = [dict(row, tasks=planned, episodes=50*len(planned)) for row in read(root/'arms.json')]
+        p.emit(root, cell, specs, list(manifests), pool='A', final_root=root)
+        if tasks or pairs:
+            rows = [dict(row, **({'pairs': read(row['manifest'])} if pairs else {'tasks': planned}), episodes=len(read(row['manifest'])))
+                    for row in read(root/'arms.json')]
             p.write_json(root/'arms.json', rows)
-            p.write_json(root/'ROOT.json', dict(p.seal(root, final_root=root, pool='A', cell=cell), episodes_per_arm=50*len(planned)))
+            p.write_json(root/'ROOT.json', dict(p.seal(root, final_root=root, pool='A', cell=cell), episodes_per_arm=
+                                                {r['arm']: r['episodes'] for r in rows} if pairs else 50*len(planned)))
         top = copy.deepcopy(tops[q3.short(cell)])
         top['env'].update(lo.R15_ENV[model]); top.update(gpu='H100', replicas=len(top['env']['PORTS'].split(',')))
         jobs.append(dict(name=root.name, run=str(root), model=model, mode='full', arm='filtered', pipeline='R15', stage=stage,
-                         cell=cell, subset_seed=seed, long_segment=segment, episodes=50*len(planned)*len(levels), levels=list(levels),
-                         **({'tasks': planned} if tasks else {}),
+                         cell=cell, subset_seed=seed, long_segment=segment, episodes=sum(len(read(m)) for m in manifests.values()),
+                         levels=list(manifests), **({'tasks': planned} if tasks else {}), **({'pairs': pairs[cell]} if pairs else {}),
                          gpu='H100', replicas=top['replicas'], workers='central scheduler: a100/timan107/timan1', topology=top,
                          server_tree='/data/oscl_h100/openpi (h100)'))
     return dict(name=unit, model=model, mode='full', arm='filtered', stage=stage, pipeline='R15', subset_seed=seed,
@@ -123,8 +137,9 @@ def r15_unit(model, seed, segment, stage, cells, levels, tasks=None):
 
 
 # --------------------------------------------------------------------------------- R16 (reduced, K1)
-def r16_entry(group, arm, src, fit, *, seed, segment, cell, level, tasks=None):
-    """tasks: plan only those tasks' pairs (a descent round); the manifest stays the 500 A pairs."""
+def r16_entry(group, arm, src, fit, *, seed, segment, cell, level, tasks=None, pairs=None):
+    """tasks: plan only those tasks' pairs (a descent round), pairs: only those (a repair); the manifest stays the 500
+    A pairs."""
     d = DEFS/group/arm; d.mkdir(parents=True, exist_ok=True)
     (d/'config.yaml').write_bytes(Path(src['yaml']).read_bytes())
     (d/'eval500.json').write_bytes(Path(src['manifest']).read_bytes())
@@ -134,7 +149,7 @@ def r16_entry(group, arm, src, fit, *, seed, segment, cell, level, tasks=None):
     row = copy.deepcopy(src)
     for k in ('matrix', 'remote_yaml', 'remote_matrix', 'yaml_patch'):
         row.pop(k, None)
-    pairs = [pr for pr in PAIRS if tasks is None or pr[0] in tasks]
+    pairs = sorted(map(list, pairs)) if pairs else [pr for pr in PAIRS if tasks is None or pr[0] in tasks]
     row.update(arm=arm, method=F.KNOB_SPEC, kwargs=F.knob_kwargs(F.seed_dir(seed), cell, level),
                plugin_args=segment_args(segment, q3.knob_args(src, str(fit))), yaml=str(d/'config.yaml'),
                yaml_sha256=q3.sha(d/'config.yaml'), manifest=str(d/'eval500.json'), judge='stall_only', full_model=True,
@@ -145,20 +160,24 @@ def r16_entry(group, arm, src, fit, *, seed, segment, cell, level, tasks=None):
                 formal_grid_level=level, source_off_arm=src['arm'])
 
 
-def r16_group(model, stage, cells_by, levels, tasks=None):
+def r16_group(model, stage, cells_by, levels, tasks=None, *, name=None, pairs=None):
     """One resident group: cells_by {(seed, segment): [cells]}, every cell at every level; tasks {(seed, segment,
-    cell): task indices} plans only those (a descent round)."""
+    cell): task indices} plans only those (a descent round); pairs {(seed, segment, cell, level): [[task, init], ...]}
+    only those entries and pairs (a repair). name: default r16_name."""
     from exp.offline_search.rounds.r16 import conductor as rc
-    name = r16_name(model, stage)
+    name = name or r16_name(model, stage)
     source, offs = q3.source_rows(model)
     entries = []
     for (seed, segment), cells in sorted(cells_by.items()):
         for cell in cells:
             for level in levels:
+                if pairs and (seed, segment, cell, level) not in pairs:
+                    continue
                 arm = f'{name}_{tag(seed)}_{SEG[segment]}_{q3.short(cell)}_{level}'
                 entries.append(r16_entry(name, arm, offs[cell]['row'], F.fit_path(F.seed_dir(seed), cell, level),
                                          seed=seed, segment=segment, cell=cell, level=level,
-                                         tasks=tasks[seed, segment, cell] if tasks else None))
+                                         tasks=tasks[seed, segment, cell] if tasks else None,
+                                         pairs=pairs[seed, segment, cell, level] if pairs else None))
     root = q3.EVAL/name; q3.fresh(root)
     group = {k: v for k, v in source.items() if k not in ('entries', 'definitions_sha256', 'group_sha256')}
     group.update(root=str(root), entries=entries, phase='test', references=None, formal_test_A=True, k1ref=False,
@@ -210,8 +229,9 @@ def put(units):
 def describe(u):
     model = {'pi05': 'pi0.5', 'groot': 'GR00T'}[u['model']]
     steps = 'full step' if u['mode'] == 'full' else 'reduced K1'
-    what = {'off': 'knob off', 'levels': 'levels ir45/40/32/25'}.get(
-        u['stage'], f'descent round {u.get("round")}: {u.get("level")} for the tasks that passed every earlier level')
+    what = {'off': 'knob off', 'levels': 'levels ir45/40/32/25'}.get(u['stage']) or (
+        f'descent round {u.get("round")}: {u.get("level")} for the tasks that passed every earlier level' if u['stage'] == 'round'
+        else f'repair of {u.get("repairs")}: its accepted episodes without a decision row, again')
     episodes = 'episodes set when defined (prepare)' if u['episodes'] is None else f'{u["episodes"]} episodes'
     if u['pipeline'] == 'R15':
         lib, seg = f'subset seed {u["subset_seed"]}', f'long segment {u["long_segment"]}'
@@ -305,6 +325,29 @@ def load(job):
     return q3a.load_job(job, lambda row: (row['suite'], row['r10_size'], row['subset_seed'], row['long_segment']))
 
 
+def line(name):
+    """The jobs of unit `name` and of its repairs."""
+    return [j for u in read(INDEX)['units'] if name in (u['name'], u.get('repair_of')) for j in u['jobs']]
+
+
+def decisionless(job):
+    """{arm: [[task, init], ...]} of a finished job: accepted failures without a single decision (no outcome)."""
+    from exp.offline_search.rounds.r17.filter_failed_knob.q3_port_1020 import analysis as q3a
+    a, root = q3a.a, Path(job['run'])
+    if job['pipeline'] == 'R15':
+        rows = read(root/'arms.json')
+        if not all((root/'runs'/r['arm']/'summary.json').exists() for r in rows):
+            raise ValueError(f'{root.name} is not finished')
+        eps = {r['arm']: a.load(read(root/'ROOT.json'), r['arm'], PAIRS, 'A', 10 if job['model'] == 'pi05' else 8, a.Reader())
+               for r in rows}
+    else:
+        if not (root/'DONE.json').exists():
+            raise ValueError(f'{root.name} is not finished')
+        group = read(root/'group.json')
+        eps = {e['row']['arm']: q3a.ca.load_entry(group, dict(e, pairs=PAIRS), a.Reader()) for e in group['entries']}
+    return {arm: ep.audit['decisionless'] for arm, ep in eps.items() if 'decisionless' in ep.audit}
+
+
 def evaluate(model, mode):
     """Knob off vs pure for every seed x segment: {'x3_on': decision, ...} (formal_a_queue.classify per suite x size)."""
     from exp.offline_search.rounds.r17.filter_failed_knob import formal_a_queue as q
@@ -312,7 +355,7 @@ def evaluate(model, mode):
     for u in read(INDEX)['units']:
         if (u['model'], u['mode'], u['stage']) != (model, mode, 'off'):
             continue
-        for job in u['jobs']:
+        for job in line(u['name']):
             for k, by_level in load(job).items():
                 data.setdefault(k, {}).update(by_level.get('off', {}))
     out = {}
@@ -446,7 +489,7 @@ def build_round(name):
         raise ValueError(f'{name}: wait for the complete knob-off cells and pure references: {pending}')
     measured = {}
     for prior in priors:
-        for job in prior['jobs']:
+        for job in line(prior['name']):
             for k, by_level in load(job).items():
                 for level, eps in by_level.items():
                     measured.setdefault(k, {}).setdefault(level, {}).update(eps)
@@ -481,9 +524,57 @@ def build_round(name):
     return u
 
 
+def repair(name):
+    """Define <name>r: the decision-less episodes of the finished unit `name`, exactly those pairs, each in a copy of
+    its arm (R15) or entry (R16) checked against the source; nothing if there are none."""
+    u, _ = lookup(name)
+    rname, units = name + 'r', read(INDEX)['units']
+    if any(x['name'] == rname for x in units):
+        raise ValueError(f'{name}: already repaired by {rname} (repair that one if it needs it)')
+    found = {j['name']: decisionless(j) for j in u['jobs']}
+    if not any(found.values()):
+        print('NO_DECISIONLESS', name, flush=True); return
+    same = ('method', 'kwargs', 'plugin_args', 'judge', 'suite', 'r10_size', 'yaml_sha256', 'subset_seed', 'long_segment',
+            'q3_artifact', 'r14_descent_level', 'client_overrides', 'replan_steps', 'full_model')
+    if u['pipeline'] == 'R16':
+        source = {e['row']['arm']: e for e in read(Path(u['jobs'][0]['group']))['entries']}
+        key = lambda e: (e['row']['subset_seed'], e['row']['long_segment'], e['row']['r16_cell'].removesuffix('_k1'), e['formal_grid_level'])
+        pairs = {key(source[arm]): v for arm, v in found[u['jobs'][0]['name']].items()}
+        cells_by = {}
+        for seed, segment, cell, _ in pairs:
+            cells_by.setdefault((seed, segment), set()).add(cell)
+        built = r16_group(u['model'], 'repair', {k: sorted(v, key=q3.cell_order) for k, v in cells_by.items()},
+                          sorted({k[3] for k in pairs}, key=ORDER_ALL.index), name=rname, pairs=pairs)
+        old = {key(e): e for e in source.values()}
+        for e in read(Path(built['jobs'][0]['group']))['entries']:
+            o = old[key(e)]
+            assert {k: e['row'].get(k) for k in same} == {k: o['row'].get(k) for k in same} and e['fit_sha256'] == o['fit_sha256'], e['row']['arm']
+    else:
+        pairs, old = {}, {}
+        for j in u['jobs']:
+            rows = {r['arm']: r for r in read(Path(j['run'])/'arms.json')}
+            for arm, v in found[j['name']].items():
+                pairs.setdefault(j['cell'], {})[rows[arm]['r14_descent_level']] = v
+                old[j['cell'], rows[arm]['r14_descent_level']] = rows[arm], read(Path(j['run'])/'ROOT.json')['fit_sha256']
+        built = r15_unit(u['model'], u['subset_seed'], u['long_segment'], 'repair', sorted(pairs, key=q3.cell_order), None,
+                         name=rname, pairs=pairs)
+        for j in built['jobs']:
+            fits = read(Path(j['run'])/'ROOT.json')['fit_sha256']
+            for r in read(Path(j['run'])/'arms.json'):
+                o, ofits = old[j['cell'], r['r14_descent_level']]
+                fit = r['plugin_args'][r['plugin_args'].index('--os-fit-artifact')+1]
+                assert {k: r.get(k) for k in same} == {k: o.get(k) for k in same} and fits[fit] == ofits[fit], r['arm']
+    rep = dict(built, stage='repair', repair_of=u.get('repair_of', name), repairs=name,
+               decisionless={f'{j}/{arm}': v for j, arms in found.items() for arm, v in arms.items()},
+               **{k: u[k] for k in ('round', 'level', 'subset_seed', 'long_segment') if k in u})
+    put([rep])
+    print('DEFINED', rname, rep['episodes'], 'repairs', name, flush=True)
+    return rep
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument('action', choices=('build', 'levels', 'rounds', 'dispatch'))
+    p.add_argument('action', choices=('build', 'levels', 'rounds', 'repair', 'dispatch'))
     p.add_argument('dispatch_action', nargs='?', choices=('prepare', 'launch'))
     p.add_argument('--name'); p.add_argument('--model', choices=F.MODELS); p.add_argument('--mode', choices=('full', 'reduced'))
     a = p.parse_args()
@@ -493,6 +584,8 @@ def main():
         levels(a.model, a.mode)
     elif a.action == 'rounds':
         rounds(a.model, a.mode)
+    elif a.action == 'repair':
+        repair(a.name)
     else:
         dispatch(a.dispatch_action, a.name)
 

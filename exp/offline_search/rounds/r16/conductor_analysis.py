@@ -30,6 +30,8 @@ def verify_amendment(reader, path, original_digest, current):
 
 
 def load_entry(group,entry,reader,*,freeze=None):
+    """An accepted failure without a single decision (a worker failure: the server never served it) is no outcome:
+    -1, listed in audit['decisionless']."""
     row=entry['row']; name=row['arm']; k=group['k']; pool=row['init_pool']
     width=30 if pool=='B' else 50
     pairs=sorted(map(tuple,entry['pairs'])); pos={p:j for j,p in enumerate(pairs)}
@@ -67,7 +69,7 @@ def load_entry(group,entry,reader,*,freeze=None):
     if 'reuse' in entry:
         record=reader.json(entry['reuse']);verify_pack(record,reader);reused=unpack(record)
         a.require(reused.audit['arm']==name and reused.audit['k']==k,'Wrong reused arm')
-    decisions={};starts=0
+    decisions={};starts=0;void=[]
     run=root/'runs'/name; shards=sorted(run.glob('server_*/decisions_*.jsonl'))
     reader.shards[str(run)]=list(map(str,shards))
     for path in shards:
@@ -97,8 +99,10 @@ def load_entry(group,entry,reader,*,freeze=None):
             a.require(y[j]==reused.y[t,offset],'Reused journal outcome changed')
             n[j],v[j],m[j]=reused.n[t,offset],reused.v[t,offset],reused.m[t,offset]
             continue
-        a.require(starts>0,'Missing startup audit')
         rows=sorted((d for (u,s),d in decisions.items() if u==uid),key=lambda d:d['step'])
+        if not rows and r['success'] is False:
+            y[j]=-1;void.append(a.uid_pair(uid));continue
+        a.require(starts>0,'Missing startup audit')
         a.require(rows and [d['step'] for d in rows]==list(range(len(rows))),'Missing/noncontiguous decisions')
         for d in rows:
             a.require(type(d['hit']) is bool and type(d['vision']) is bool and d.get('ok',True) and
@@ -116,15 +120,18 @@ def load_entry(group,entry,reader,*,freeze=None):
                           len(diag['donor_episode_ids'])==len(diag['parent_donor_rows'])>0,'Wrong LOEO evidence')
             if row['r14_descent_level']=='c10': a.require(not d['vision'] or not d['hit'],'Pure C10 vision HIT')
             n[j]+=1;v[j]+=d['vision'];m[j]+=not d['hit']
-    n,v,m,y=(x.reshape(10,width) for x in (n,v,m,y))
-    # Each scheduled task-level must be a whole balanced cohort; skipped tasks
-    # are explicitly unknown (-1), never manufactured successes or SR failures.
-    a.require(all(np.all(y[t]>=0) or np.all(y[t]==-1) for t in range(10)),'Partial cohort')
+    held=np.zeros(len(pairs),dtype=bool)
+    held[[pos[p] for p in map(tuple,entry.get('dispatch_pairs',pairs)) if p in pos and p not in void]]=True
+    n,v,m,y,held=(x.reshape(10,width) for x in (n,v,m,y,held))
+    # Each scheduled task-level (its dispatch pairs less decision-less ones) must be a whole balanced cohort; skipped
+    # tasks are explicitly unknown (-1), never manufactured successes or SR failures.
+    a.require(all(np.all(y[t][held[t]]>=0) or np.all(y[t][held[t]]==-1) for t in range(10)),'Partial cohort')
     price=pricing(row['model'],k)
     return a.Episodes(y,n,v,m,price['vision']*v+price['miss']*m,dict(
         arm=name,group_sha256=group['group_sha256'],k=k,pricing=price,
         completed_tasks=[t for t in range(10) if np.all(y[t]>=0)],reuse=entry.get('reuse'),
-        decisions=int(n.sum()),vision=int(v.sum()),misses=int(m.sum()),controls=int(5*n.sum())))
+        decisions=int(n.sum()),vision=int(v.sum()),misses=int(m.sum()),controls=int(5*n.sum()),
+        **({'decisionless':[list(p) for p in sorted(void)]} if void else {})))
 
 
 def partial_choose(stats,tolerance,bound=False):

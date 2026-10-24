@@ -67,17 +67,23 @@ def checked_root(record,reader):
 def load(record,name,expected,pool,k,reader,*,freeze=None):
     """Last accepted terminal error-free journal row, then its last uid/step log.
 
-    A row listing `tasks` (a descent round) planned only those tasks of `expected`; the others stay -1 (unscheduled)."""
+    A row listing `tasks` (a descent round) or `pairs` (a repair) planned only those of `expected`; the others stay -1
+    (unscheduled). An accepted failure without a single decision (a worker failure: the server never served it) is no
+    outcome either: -1, listed in audit['decisionless']."""
     root,seal = checked_root(record,reader)
     rows = reader.json(root/'arms.json')
     row = next(r for r in rows if r['arm']==name)
     require(row['init_pool']==pool and row['dev']==(pool=='B'),'Wrong pool')
-    tasks = sorted(row['tasks']) if 'tasks' in row else list(range(10))
-    expected = sorted(p for p in map(tuple,expected) if 'tasks' not in row or p[0] in tasks); positions = {pair:i for i,pair in enumerate(expected)}
+    every = sorted(map(tuple,expected))
     width = 30 if pool=='B' else 50
-    require(len(expected)==len(positions)==len(tasks)*width,'Wrong identity count')
-    require(all(sum(t==j for t,i in expected)==width for j in tasks),'Unbalanced identities')
-    require(row['episodes']==len(tasks)*width and row['replan_steps']==5 and row['full_model'] and not row['recording'],
+    require(len(every)==len(set(every))==10*width,'Wrong identity count')
+    require(all(sum(t==j for t,i in every)==width for j in range(10)),'Unbalanced identities')
+    planned = (set(map(tuple,row['pairs'])) if 'pairs' in row else {p for p in every if p[0] in row['tasks']} if 'tasks' in row
+               else set(every))
+    expected = [p for p in every if p in planned]; positions = {pair:i for i,pair in enumerate(expected)}
+    require(expected and len(expected)==len(planned),'Wrong identity count')
+    tasks = {t:[j for j,p in enumerate(expected) if p[0]==t] for t in sorted({t for t,i in expected})}
+    require(row['episodes']==len(expected) and row['replan_steps']==5 and row['full_model'] and not row['recording'],
             'Changed horizon or model settings')
     args = row['plugin_args']
     # The long execution segment (--os-blind --os-policy-tail) is a per-batch setting and the stall judge is
@@ -127,7 +133,7 @@ def load(record,name,expected,pool,k,reader,*,freeze=None):
     by_pair = {uid_pair(u):r for u,r in accepted.items()}
     require(len(accepted)==len(by_pair)==len(expected) and set(by_pair)==set(expected),'Incomplete accepted episodes')
     summary = reader.json(run/'summary.json')
-    y = np.array([by_pair[p]['success'] for p in expected],dtype=np.int64).reshape(len(tasks),width)
+    y = np.array([by_pair[p]['success'] for p in expected],dtype=np.int64)
     require(summary['init_pool']==pool and summary['arm']==name and summary['model']==row['model'],'Wrong summary')
     require(summary['complete']==len(expected) and summary['success']==int(y.sum()) and
             (summary['sr']==round(float(y.mean()),4) or
@@ -135,7 +141,7 @@ def load(record,name,expected,pool,k,reader,*,freeze=None):
     for key,value in [('journal_rows',journal_count),('error_rows',errors),
                       ('retried',sum(int(r.get('attempt',1) or 1)>1 for r in accepted.values()))]:
         require(summary[key]==value,f'Summary {key} mismatch')
-    require(all(summary['per_task'][str(t)]==dict(n=width,success=int(y[j].sum())) for j,t in enumerate(tasks)),
+    require(all(summary['per_task'][str(t)]==dict(n=len(js),success=int(y[js].sum())) for t,js in tasks.items()),
             'Task summary mismatch')
     decisions,duplicates,rejected,starts = {},0,0,0
     shards = sorted(run.glob('server_*/decisions_*.jsonl'))
@@ -182,7 +188,8 @@ def load(record,name,expected,pool,k,reader,*,freeze=None):
         if row['r14_descent_level']=='c10':
             require(not d['vision'] or not d['hit'],'Pure C10 used a vision cache HIT')
         j = positions[uid_pair(uid)]; n[j] += 1; v[j] += d['vision']; m[j] += not d['hit']; steps[uid].append(step)
-    require(all(s and sorted(s)==list(range(len(s))) for s in steps.values()),'Noncontiguous decision steps')
+    void = sorted(uid_pair(u) for u,s in steps.items() if not s and accepted[u]['success'] is False)
+    require(all((s or uid_pair(u) in void) and sorted(s)==list(range(len(s))) for u,s in steps.items()),'Noncontiguous decision steps')
     ledger = summary['cost_ledger']; full = ledger['full_stage_costs']
     require(full['k']==default and all(float(full[x])>=0 for x in ('s1','s2','s3')),'Invalid full stage costs')
     require([int(n.sum()),int(v.sum()),int(m.sum())]==[ledger[x] for x in ('decisions','vision_decisions','misses')],
@@ -194,9 +201,12 @@ def load(record,name,expected,pool,k,reader,*,freeze=None):
     prices = pricing(row['model'],k)
     audit = dict(root=str(root),arm=name,k=k,pricing=prices,fit_hash_verification=verifier.audit(),
                  duplicate_decisions=duplicates,rejected_attempt_decisions=rejected,error_rows=errors,
-                 duplicate_accepted=duplicate_accepted,summary_stage_ir=stage_ir,leave_own_episode_out=loeo)
+                 duplicate_accepted=duplicate_accepted,summary_stage_ir=stage_ir,leave_own_episode_out=loeo,
+                 **({'decisionless':[list(p) for p in void]} if void else {}))
+    y[[positions[p] for p in void]] = -1
+    at = {p:i for i,p in enumerate(every)}
     def grid(x,fill=0):
-        out=np.full((10,width),fill,dtype=x.dtype); out[tasks]=x.reshape(len(tasks),width); return out
+        out=np.full(10*width,fill,dtype=x.dtype); out[[at[p] for p in expected]]=x; return out.reshape(10,width)
     return Episodes(grid(y,-1),grid(n),grid(v),grid(m),grid(prices['vision']*v+prices['miss']*m),audit)
 
 
