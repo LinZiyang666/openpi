@@ -113,6 +113,16 @@ owner 的常驻指令，逐字有效：
 - GR00T MT50 新种子：initialize 建 fa_sd_gr_{r,f}_m_o（各 60,000，24 格，YAML 全核对）——**H100 定义不跑**，跑 pod 副本：fa_sd_gr_r_m_o_j（-02，driver 23192，R2/14 GiB，端口 23474/75/76；链 **pod2sd1** 等 `[collect-fw-pods] -02 w3_fw_s9 ended`）、fa_sd_gr_f_m_o_j（pod1，driver 23193，端口 23470/71/72；链 **pod1sd1** 等 `[pod1-q] w3_fw_s10 ended`）。第二步 build-levels 要传 `--off-run /data/mw_finetune/eval/fa_sd_gr_*_m_o_j`（参照 = pod 同卡 fa_lo_gr_{r,f}_b_m_j）。
 - 隧道：-02 加第三条 24474→23476；pod1 加第三条 24475→23472；H100 fwd.py 改 23472→24475（杀了 -03 时代旧的 23472→24474、23473→24475）。pod 重启后恢复要连这条一起起。
 
+### 10-24 01:2x 增补（长执行段关收尾 + 第二步改逐档轮次）
+- ✅ 长执行段关全部完成：mc1 23:57 收齐 85,409、lc1 21:46 收齐 15,276；RESULTS_OFF 正式版 2cb73e94（14 条线 116 格）；「开」侧 152 个值与网页现有成功过滤库一列逐格一致。网页 owner 说先不管（本地 live_1023 已备好，上传要 owner /login）。
+- ⛔ owner 10-24 00:4x：第二步「各档」改成**逐档轮次**（每轮只跑上一档还通过的任务，首次失败即冻结），owner 确认不影响最终数字后批准。实现 7741d401：R17 seeds_1023/workflow.py `rounds --name <_k> [--off-run]` / build_round（prepare 时按前几轮结果建本轮，行里写 tasks）；VLA seeds_1023/vla/build.py `rounds --model --mode`（R15/R16 任务子集，r16/analyze.load 读行 tasks）。CPU 等价核对（长执行段关全档数据，正式选档函数）：FW LIBERO 100/100、GR00T MT50 300/300、DP MT50 300/300、VLA 190/190 任务选档与所选局逐一相同；省 13–42%（VLA ~11%）。脚本 seeds_1023/verify_rounds.py。
+- 轮次单位：R17 `fa_sd_<m>_<r|f>_<l|m>_k1..k5`（14 条线已注册，GR00T MT50 带 --off-run pod 副本 _j）；VLA `fa_x34_{pi,gr}_r_k1..k4`、`fa_x{3,4}_{pi,gr}_f_{on,lo}_k1..k4`。旧 `_k`（全档）与 build_levels_fa_x34_* 不再用。round 1 已真建 fa_sd_dp_r_l_k1（9 格×10 任务×50 = 4,500，YAML 核对全对）。
+- 车道队列（旧链挂 hold，新链接上）：sean 车道 2 seanlo16（dp_f_l_o，hold 后停）→ **seanlo18**：dp_r_l_k1–5 → dp_f_l_k1–5 → dp_r_m_o → dp_r_m_k1–5 → dp_f_m_o → dp_f_m_k1–5；sean 车道 1 seanlo11（fw_f_l_o）→ seanlo12（hold）→ **seanlo19**：fw_f_l_k1–5 → fw_r_l_o → fw_r_l_k1–5；真 H100 B h100fw1（fw_r_m_o，hold）→ **h100fw4**：fw_r_m_k1–5 → fw_f_m_o → fw_f_m_k1–5（R2/36 GiB/3 线程与 VLA 共卡，原件 campaign.json.before_h100share_1023）；4090 4090sd1（pi_r_m_o，hold）→ **4090sd4**：pi_r_m_k1–5 → pi_f_m_o → pi_f_m_k1–5；-02 pod2sd1（gr_r_m_o_j）→ **pod2sd2** gr_r_m_k1–5；pod1 pod1sd1（gr_f_m_o_j）→ **pod1sd2** gr_f_m_k1–5；真 H100 A h100lo17（GR00T 减步组 → 3 个 C10 参照，hold_h100lo17.sh 在 fa_lo_gr_r_p_q 开始时挂 hold）→ **h100vla1**（48 项：减步轮次与 8 个 R15 第一步交替，再全步各轮）。
+- ⚠ Cosmos LIBERO（fa_sd_co_{r,f}_l_o + 轮次）还没排：R8/76 GiB 要整卡，等某张 H100 空出来再放。
+- ⚠ R16 轮次用「零局 stage」跳过未计划任务，真机首次运行要盯（h100vla1 第一项 fa_x34_pi_r_k1）。
+- 采库 8 库全 PASS；A100 floors.json = {}（π0.5 s10 采完已清）。
+- 21:2x 修过 worker 自动伸缩 hold 基准（4072a43c）。ffk 起的服务端是 `python -c` bootstrap，pin_local.sh 匹配不到（「pinned 0」），π0.5 MT50 目前没绑 NUMA（owner 的 CPU 任务两个节点都在用）。
+
 ### 监控（compact 后核对，缺了重挂）
 - server_watch 自动重启循环（bnr4ccd1h）；jupyter_watch（bwhjthtcu）；guard_wait：`bash $CLAUDE_JOB_DIR/tmp/guard_wait.sh 1500` 醒来重挂（pod 下线时 `NOJW=1`）；Monitor（30 分钟到期重挂）：`cd ~/projects/openpi_ext/scratch/r17_ops && tail -n0 -F mw/chain.log server_watch.alerts.log | grep --line-buffered -E "ended rc=|FAILED|STOPPED|CHAIN_STOPPED|queue done|hold file present|ALERT|rate .* -> |Traceback|server_watch exited|DIRECT_FAIL|collect-|queue start|after-collect|pod1-q"`。
 - 任务表：#4 巡检、#11 看守、#19 汇总、#21 新种子总、#22 采库、#24 常驻复用、#26 H100 提速、#28 第二步与 MT50 建批 进行中。
