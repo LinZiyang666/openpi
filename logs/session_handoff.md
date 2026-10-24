@@ -136,6 +136,12 @@ owner 的常驻指令，逐字有效：
 - 在跑第 1 轮：FW MT50 r（H100 B）、π0.5 MT50 r（4090）、GR00T MT50 r（-02）/f（pod1）、FW LIBERO f（sean 1）、π0.5 LIBERO r（H100 A，07:20 起）；GR00T LIBERO r 第 1 轮已完（6,500）。DP LIBERO f 第 1 轮在 sean 2 准备。
 - 判格：π0.5 MT50 r 12/12、FW MT50 r 24/24、GR00T MT50 r 24/24、GR00T MT50 f 24/24、FW LIBERO f 36/40、DP LIBERO r 9/40。
 
+### 10-24 12:4x 增补
+- GR00T LIBERO 减步第 1 轮 fa_x34_gr_r_k1 有 6 局「没有任何决策记录的失败」（worker 侧出错被记成失败，服务端没收到请求）→ 第 2 轮 prepare 报 Missing/noncontiguous decisions。代理改：r16 loader 把这种局当缺失（其余检查不变），`vla.build repair --name <unit>` 自动找出并只补跑这些 (任务, 起点)，line() 把补跑并回（fd21dfe4）。已定义 fa_x34_gr_r_k1r（6 局）。扫过 48 个 VLA 根，只有这一组有。
+- 真 H100 A：h100vla3（fa_x3_pi_f_lo_o 在跑，hold 后停）→ **h100vla4**：fa_x34_gr_r_k1r → pi_r_k3 → gr_r_k2 → x4_pi_f_on_o → pi_r_k4 → gr_r_k3 → x4_pi_f_lo_o → gr_r_k4 → 4 个 GR00T 全步第一步 → 全步 4 轮 × 8 单位。
+- 实测轮次缩小：DP LIBERO 减步 4,500→2,250→2,000→1,850→1,800；π0.5 MT50 减步 30,000→20,600；VLA π0.5 减步 10,000→9,400（VLA 几乎不缩，和长段关比例一致）；DP LIBERO 全步 5,000→2,900→2,400。
+- owner 10:5x 问完成时间：答 ~10-26 中午到下午（Cosmos 两批要整卡 H100，打算 pod 空出后接 DP MT50 全步，让 sean 提前整卡给 Cosmos）。
+
 ### 监控（compact 后核对，缺了重挂）
 - server_watch 自动重启循环（bnr4ccd1h）；jupyter_watch（bwhjthtcu）；guard_wait：`bash $CLAUDE_JOB_DIR/tmp/guard_wait.sh 1500` 醒来重挂（pod 下线时 `NOJW=1`）；Monitor（30 分钟到期重挂）：`cd ~/projects/openpi_ext/scratch/r17_ops && tail -n0 -F mw/chain.log server_watch.alerts.log | grep --line-buffered -E "ended rc=|FAILED|STOPPED|CHAIN_STOPPED|queue done|hold file present|ALERT|rate .* -> |Traceback|server_watch exited|DIRECT_FAIL|collect-|queue start|after-collect|pod1-q"`。
 - 任务表：#4 巡检、#11 看守、#19 汇总、#21 新种子总、#22 采库、#24 常驻复用、#26 H100 提速、#28 第二步与 MT50 建批 进行中。
