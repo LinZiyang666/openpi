@@ -4,7 +4,7 @@
 <run>/replay/n<NNN>_s<seed>_summary.json  replay window and episode total (replay.py)
 
 For each replay: the infer requests the server received inside its window, requests per second over the window,
-latency (t_sent - t_recv) mean and p10 / p25 / p50 / p75 / p90 / p99 in ms, and the time to finish its 500 episodes. Diagnostics:
+latency (t_sent - t_recv) mean and p25 / p50 / p75 / p90 / p99 in ms, and the time to finish its 500 episodes. Diagnostics:
 steady_requests_per_s counts only the stretch where all N robots run (from the last robot's first episode to the
 last episode's start, after which robots drop out); from <run>/server/batches_<pid>.csv, the share of the window
 with any stage batch on the GPU (gpu_busy) and per stage the batches, mean size, mean batch ms and mean queue wait
@@ -68,7 +68,7 @@ def analyze(run):
         s = json.loads(path.read_text())
         inside = reqs[(reqs[:, 0] >= s['start']) & (reqs[:, 1] <= s['end'])] if len(reqs) else reqs
         lat = (inside[:, 1] - inside[:, 0]) * 1000.0
-        pct = (10, 25, 50, 75, 90, 99)
+        pct = (25, 50, 75, 90, 99)
         q = np.percentile(lat, pct) if len(lat) else [None] * len(pct)
         eps = [json.loads(line) for line in path.with_name(path.name.replace('_summary.json', '_episodes.jsonl')).read_text().splitlines()]
         first = {}
