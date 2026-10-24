@@ -185,11 +185,17 @@ class BatchClient:
                     # (owner 10-20) but idle-waiting workers no longer outrank another batch's starving server
                     # (10-21: pod workers at 0.006 cores held timan107's RAM, the 4090 R15 batch got 26).
                     self.failed = True
-                    self.desired, self.phase, self.since = round(self.base[1]), 'hold', now
+                    self.desired, self.phase, self.since, self.samples = round(self.base[1]), 'hold', now, []
                 self.note('step', rate=point[0], mean_active=point[1], base=self.base)
-        elif now - self.since >= HOLD_S:
+        elif now - self.since < HOLD_S:
+            self.samples.append(active)
+        else:
+            # Base on the mean count over the rate window: workers leaving during a hold still deliver their last
+            # episodes, so rate over the instantaneous count read a drain as a fast small fleet and every later step
+            # as a loss (10-23 w3_pi_s10: 43 -> 4 workers, 18 -> 15 per minute at a server-bound 4090).
             rate, mix = self.window(now - MEASURE_S, now)
-            self.base = (rate, active, mix)
+            recent = self.samples[-max(1, MEASURE_S // DESIRE_S):] or [active]
+            self.base = (rate, sum(recent) / len(recent), mix)
             self.desired, self.phase, self.since = active + max(2, math.ceil(active / 10)), 'settle', now
         ceiling = min(remaining, sum(v['max'] for n, v in self.nodes.items() if n not in self.retired))
         self.desired = max(1, min(self.desired, ceiling))
