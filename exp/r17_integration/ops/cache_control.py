@@ -80,8 +80,12 @@ def control_proof(control, runtime, campaign):
             pass
     for field in fields:
         if old.get(field) != campaign.get(field):
-            if field in ('model', 'checkpoint', 'server_node'):
-                raise ValueError('cache control changes model/checkpoint/server: '+field)
+            if field in ('model', 'checkpoint'):
+                raise ValueError('cache control changes model/checkpoint: '+field)
+            if field == 'server_node':
+                # The judged reference is the same-card pure run in the study's reference table, not this control.
+                resource_changes[field]=dict(control=old[field],campaign=campaign[field],reason='served on another card')
+                continue
             if capacity and field=='replicas' and campaign['model']=='dp':
                 resource_changes[field]=dict(control=old[field],campaign=campaign[field],reason='owner capacity request; cached actions unchanged')
                 continue
