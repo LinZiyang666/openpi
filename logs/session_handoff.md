@@ -123,6 +123,13 @@ owner 的常驻指令，逐字有效：
 - 采库 8 库全 PASS；A100 floors.json = {}（π0.5 s10 采完已清）。
 - 21:2x 修过 worker 自动伸缩 hold 基准（4072a43c）。ffk 起的服务端是 `python -c` bootstrap，pin_local.sh 匹配不到（「pinned 0」），π0.5 MT50 目前没绑 NUMA（owner 的 CPU 任务两个节点都在用）。
 
+### 10-24 04:5x 增补
+- 真 H100 /data 满（99%，16 GB）→ 3 个 C10 参照 prepare DISK_BLOCKED（VLA 资产拉取要 30 GiB 余量）。处理：H100 上旧批次 servers/（ffk1015_fastwam_mt50_reduced_descent 29G、fwmk1_fulx 28G、fwmk1_redx 26G）经 H100 临时 rsync 守护进程（23117，只读）限速拉回本机 **/nvme/weiland/openpi/h100_pullback_1024/**，rsync -c 核对 0 差异后删 H100 副本 → 91 GB free。⚠ **23117 是 VLA 同步资产用的端口**，我的守护进程占着时 fa_x34_pi_r_k1 prepare 失败（已关守护进程）。以后拉回换别的端口。H100 /data/mw_finetune/eval 还有 ~270 GB 旧批次 servers/，满了再照此拉回。
+- 3 个 H100 C10 参照（fa_lo_{gr_f,pi_r,gr_r}_p_q）都已完成（各 1,000）。
+- FW MT50 减步第 1 轮 prepare 失败：REFERENCES 里 H100 MT50 减步参照 tfw7k3_1051 / tgr7h1_k2 是 knob 时代对照（无 cache_study），lob.reference 只会读缓存研究 → 改成无 cache_study 时用 knob.test.load_controls（faf59429，两参照各 2,500 局、任务均值与网页一致）。
+- 现链：真 H100 B **h100fw5**（fw_r_m_k1–5 → fw_f_m_o → fw_f_m_k1–5；k1 = 24 格 60,000）；真 H100 A h100vla2（fa_x34_gr_r_k1 6,500 在跑，hold 后停）→ **h100vla3**（fa_x34_pi_r_k1 10,000 → 其余 46 项原顺序）；4090 4090sd4（pi_r_m_k1 30,000 在跑，~94 局/分）；sean seanlo16→seanlo18、seanlo11→seanlo12(hold)→seanlo19；pods pod2sd1→pod2sd2、pod1sd1→pod1sd2。
+- 判格结果：π0.5 MT50 减步 12/12 格要调、FW MT50 减步 24/24、DP LIBERO 减步 9/40。
+
 ### 监控（compact 后核对，缺了重挂）
 - server_watch 自动重启循环（bnr4ccd1h）；jupyter_watch（bwhjthtcu）；guard_wait：`bash $CLAUDE_JOB_DIR/tmp/guard_wait.sh 1500` 醒来重挂（pod 下线时 `NOJW=1`）；Monitor（30 分钟到期重挂）：`cd ~/projects/openpi_ext/scratch/r17_ops && tail -n0 -F mw/chain.log server_watch.alerts.log | grep --line-buffered -E "ended rc=|FAILED|STOPPED|CHAIN_STOPPED|queue done|hold file present|ALERT|rate .* -> |Traceback|server_watch exited|DIRECT_FAIL|collect-|queue start|after-collect|pod1-q"`。
 - 任务表：#4 巡检、#11 看守、#19 汇总、#21 新种子总、#22 采库、#24 常驻复用、#26 H100 提速、#28 第二步与 MT50 建批 进行中。
