@@ -258,6 +258,7 @@ def parse_args(argv=None):
     p.add_argument('--suite',required=True,choices=(*SUITES,'mt50'))
     p.add_argument('--library-seed',type=int,default=8,help='MT50 library seed; test seed 7 is forbidden')
     p.add_argument('--library-root',type=Path,default=LIBRARY_ROOT,help='Root containing <model>_<suite>/{campaigns,bpool}')
+    p.add_argument('--fastwam-text-table',help='Fast-WAM prompt-encoding table (absolute path on the server host); the resident loads without T5')
     p.add_argument('--checkpoint'); p.add_argument('--alignment',type=Path)
     p.add_argument('--g2-a-receipt',type=Path,help='Q slot_G2_fastwam_libero_A PASS receipt with model_manifest')
     p.add_argument('--g2-b-receipt',type=Path,help='Q slot_G2_fastwam_libero_B PASS receipt with model_manifest')
@@ -456,6 +457,8 @@ def main(argv=None):
         from exp.r17_integration.models.dp.batch_runtime import BatchConfig
         campaign['dp_batching'] = BatchConfig(a.max_batch,a.batch_wait_ms).metadata()
     elif a.model=='fastwam_mw':
+        if a.fastwam_text_table:
+            campaign['fastwam_text_table'] = a.fastwam_text_table
         from exp.r17_integration.models.fastwam.formal_batching import bind
         bind(campaign,a.max_batch,a.batch_wait_ms)
     from exp.r17_integration.models.fastwam.ops.mps import bind
