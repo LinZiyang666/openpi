@@ -1,0 +1,85 @@
+{
+  "references": {
+    "dp:libero:reduced:H100": {
+      "run": "/data/mw_finetune/eval/fa_sd_dp_r_l_p",
+      "groups": [
+        "chrg_pure"
+      ],
+      "new": true,
+      "definition_of": "fa_ls_dp_r_p_l"
+    },
+    "dp:libero:full:H100": {
+      "run": "/data/mw_finetune/eval/fa_sd_dp_f_l_p",
+      "groups": [
+        "chrg_pure"
+      ],
+      "new": true,
+      "definition_of": "fa_ls_dp_f_p_l"
+    },
+    "dp:mt50:reduced:H100": {
+      "run": "/data/mw_finetune/eval/fa_sd_dp_r_m_p",
+      "groups": [
+        "chrg_pure"
+      ],
+      "new": true,
+      "definition_of": "fa_ls_dp_r_p_m"
+    },
+    "dp:mt50:full:H100": {
+      "run": "/data/mw_finetune/eval/fa_sd_dp_f_m_p",
+      "groups": [
+        "chrg_pure"
+      ],
+      "new": true,
+      "definition_of": "fa_ls_dp_f_p_m"
+    },
+    "fastwam:libero:reduced:H100": {
+      "run": "/data/mw_finetune/eval/fa_sd_fw_r_l_p",
+      "groups": [
+        "chrg_pure"
+      ],
+      "new": true,
+      "definition_of": "fa_ls_fw_r_p_l"
+    },
+    "fastwam:libero:full:H100": {
+      "run": "/data/mw_finetune/eval/fa_ls_fw_f_p_l",
+      "groups": [
+        "chrg_pure"
+      ],
+      "new": false,
+      "definition_of": null
+    },
+    "fastwam:mt50:reduced:H100": {
+      "run": "/data/mw_finetune/eval/fa_ls_fw_r_p_m",
+      "groups": [
+        "chrg_pure"
+      ],
+      "new": false,
+      "definition_of": null
+    },
+    "fastwam:mt50:full:H100": {
+      "run": "/data/mw_finetune/eval/fa_ls_fw_f_p_m",
+      "groups": [
+        "chrg_pure"
+      ],
+      "new": false,
+      "definition_of": null
+    },
+    "groot:mt50:reduced:H200 MIG 1g.18gb": {
+      "run": "/data/mw_finetune/eval/fa_sd_gr_r_m_p_j",
+      "groups": [
+        "chrg_pure"
+      ],
+      "new": true,
+      "definition_of": "fa_ls_gr_r_p_m"
+    },
+    "groot:mt50:full:H200 MIG 1g.18gb": {
+      "run": "/data/mw_finetune/eval/fa_sd_gr_f_m_p_j",
+      "groups": [
+        "chrg_pure"
+      ],
+      "new": true,
+      "definition_of": "fa_ls_gr_f_p_m"
+    }
+  },
+  "rule": "R17 long segment on: the C10 pure-inference fallback (recipe disabled, commit_horizon 10), same model / benchmark / steps / card as the line"
+}

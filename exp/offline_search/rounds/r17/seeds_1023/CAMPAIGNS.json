@@ -4844,6 +4844,960 @@
           10
         ]
       ]
+    },
+    {
+      "name": "fa_sd_dp_f_l_k5",
+      "run": "/data/mw_finetune/eval/fa_sd_dp_f_l_k5",
+      "source": "/nvme/weiland/openpi/eval/fa_sd_dp_f_l_o",
+      "episodes": 1950,
+      "model": "dp",
+      "benchmark": "libero",
+      "mode": "full",
+      "stage": "levels",
+      "gpu": "H100",
+      "replicas": 4,
+      "batch": 8,
+      "workers": {
+        "timan107": 104
+      },
+      "python": "/home/weiland/projects/openpi/.venv/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_23114262bbc1918df666b8e5141ad702dce1d9901d985ec934e75e86ea574179",
+      "unfiltered": false,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "f50ea20501c6dcfbe1e566ece47c4cc7fe027a328fbab7704c60df02d3ff1e38",
+      "bootstrap_from": "/data/mw_finetune/eval/fa_sd_dp_f_l_o",
+      "arm": "filtered",
+      "bundle": "dp_libero",
+      "levels": [
+        "k10"
+      ],
+      "longseg_runtime": true,
+      "cells": [
+        [
+          20261003,
+          "libero_10",
+          50,
+          10
+        ],
+        [
+          20261003,
+          "libero_10",
+          50,
+          5
+        ],
+        [
+          20261003,
+          "libero_10",
+          100,
+          10
+        ],
+        [
+          20261003,
+          "libero_10",
+          100,
+          5
+        ],
+        [
+          20261003,
+          "libero_spatial",
+          50,
+          5
+        ],
+        [
+          20261004,
+          "libero_10",
+          50,
+          10
+        ],
+        [
+          20261004,
+          "libero_10",
+          50,
+          5
+        ],
+        [
+          20261004,
+          "libero_spatial",
+          50,
+          5
+        ]
+      ]
+    },
+    {
+      "name": "fa_sd_gr_r_m_k2",
+      "run": "/data/mw_finetune/eval/fa_sd_gr_r_m_k2",
+      "source": "/nvme/weiland/openpi/eval/fa_sd_gr_r_m_o_j",
+      "episodes": 29300,
+      "model": "groot",
+      "benchmark": "mt50",
+      "mode": "reduced",
+      "stage": "levels",
+      "gpu": "H200 MIG 1g.18gb",
+      "replicas": 2,
+      "batch": 1,
+      "workers": {
+        "timan107": 440
+      },
+      "python": "/home/exouser/gr00t_n15_venv/.venv/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_37cafdd90f4bc7550178a640ba9e1b84cfb8d146af5977245a4a6d383bfd116e",
+      "unfiltered": false,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "877ace2566237970ed12c5dff125eca57fc034e4bce07bb433ba0b0fb8ba16b5",
+      "bootstrap_from": "/data/mw_finetune/eval/fa_sd_gr_r_m_o_j",
+      "arm": "filtered",
+      "bundle": "groot_mw",
+      "levels": [
+        "k40"
+      ],
+      "longseg_runtime": true,
+      "cells": [
+        [
+          9,
+          "mt50",
+          250,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          250,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          500,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          500,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          1000,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          1000,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          1500,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          1500,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          2000,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          2000,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          2500,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          2500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          250,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          250,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          500,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          1000,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          1000,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          1500,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          1500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          2000,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          2000,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          2500,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          2500,
+          5
+        ]
+      ]
+    },
+    {
+      "name": "fa_sd_pi_r_m_k4",
+      "run": "/data/mw_finetune/eval/fa_sd_pi_r_m_k4",
+      "source": "/nvme/weiland/openpi/eval/fa_sd_pi_r_m_o",
+      "episodes": 16750,
+      "model": "pi05",
+      "benchmark": "mt50",
+      "mode": "reduced",
+      "stage": "levels",
+      "gpu": "RTX 4090",
+      "replicas": 4,
+      "batch": 1,
+      "workers": {
+        "local": 332
+      },
+      "python": "/home/weiland/projects/openpi/.venv/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_af22613ead3df9625293e6efa813376d3629774be676b022609e3b4438b5b4c1",
+      "unfiltered": false,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "4b9f8853cbe4c6481387eab2efffed58b4ba62fb568b2486890765ef3a911b28",
+      "bootstrap_from": "/data/mw_finetune/eval/fa_sd_pi_r_m_o",
+      "arm": "filtered",
+      "bundle": "pi05_mw",
+      "levels": [
+        "k20"
+      ],
+      "longseg_runtime": false,
+      "cells": [
+        [
+          9,
+          "mt50",
+          250,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          500,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          1000,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          1500,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          2000,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          2500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          250,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          1000,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          1500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          2000,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          2500,
+          5
+        ]
+      ]
+    },
+    {
+      "name": "fa_sd_dp_r_m_k1",
+      "run": "/data/mw_finetune/eval/fa_sd_dp_r_m_k1",
+      "source": "/nvme/weiland/openpi/eval/fa_sd_dp_r_m_o",
+      "episodes": 60000,
+      "model": "dp",
+      "benchmark": "mt50",
+      "mode": "reduced",
+      "stage": "levels",
+      "gpu": "H100",
+      "replicas": 4,
+      "batch": 16,
+      "workers": {
+        "timan107": 440
+      },
+      "python": "/data/mw_finetune/dp/env/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_036260819cf2272920fa3c83c124d9ee96303fdac030fbb5561fe4f53bae3f39",
+      "unfiltered": false,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "4e6a2f106413f9a77bfea07702f0c0a7e57d921285d649eed170069801455a5a",
+      "bootstrap_from": "/data/mw_finetune/eval/fa_sd_dp_r_m_o",
+      "arm": "filtered",
+      "bundle": "dp_mw",
+      "levels": [
+        "k50"
+      ],
+      "longseg_runtime": true,
+      "cells": [
+        [
+          9,
+          "mt50",
+          250,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          250,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          500,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          500,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          1000,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          1000,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          1500,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          1500,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          2000,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          2000,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          2500,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          2500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          250,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          250,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          500,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          1000,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          1000,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          1500,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          1500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          2000,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          2000,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          2500,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          2500,
+          5
+        ]
+      ]
+    },
+    {
+      "name": "fa_sd_fw_f_l_k3",
+      "run": "/data/mw_finetune/eval/fa_sd_fw_f_l_k3",
+      "source": "/nvme/weiland/openpi/eval/fa_sd_fw_f_l_o",
+      "episodes": 8950,
+      "model": "fastwam",
+      "benchmark": "libero",
+      "mode": "full",
+      "stage": "levels",
+      "gpu": "H100",
+      "replicas": 4,
+      "batch": 16,
+      "workers": {
+        "a100": 80
+      },
+      "python": "/data/mw_finetune/envs/fastwam/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_f81e33a1fc0c3765b1070b2795167e1ecc1822a95a3dcf622477aa34cad69499",
+      "unfiltered": false,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "e49a97ac173e2777d233157eb2a88a3648f8e32c987796036bbe31af91a2cfb8",
+      "bootstrap_from": "/data/mw_finetune/eval/fa_sd_fw_f_l_o",
+      "arm": "filtered",
+      "bundle": "fastwam_libero",
+      "levels": [
+        "k30"
+      ],
+      "longseg_runtime": true,
+      "cells": [
+        [
+          20261003,
+          "libero_10",
+          50,
+          10
+        ],
+        [
+          20261003,
+          "libero_10",
+          50,
+          5
+        ],
+        [
+          20261003,
+          "libero_10",
+          100,
+          10
+        ],
+        [
+          20261003,
+          "libero_10",
+          100,
+          5
+        ],
+        [
+          20261003,
+          "libero_10",
+          200,
+          10
+        ],
+        [
+          20261003,
+          "libero_10",
+          200,
+          5
+        ],
+        [
+          20261003,
+          "libero_10",
+          300,
+          10
+        ],
+        [
+          20261003,
+          "libero_10",
+          300,
+          5
+        ],
+        [
+          20261003,
+          "libero_10",
+          400,
+          10
+        ],
+        [
+          20261003,
+          "libero_10",
+          400,
+          5
+        ],
+        [
+          20261003,
+          "libero_spatial",
+          50,
+          10
+        ],
+        [
+          20261003,
+          "libero_spatial",
+          50,
+          5
+        ],
+        [
+          20261003,
+          "libero_spatial",
+          100,
+          10
+        ],
+        [
+          20261003,
+          "libero_spatial",
+          100,
+          5
+        ],
+        [
+          20261003,
+          "libero_spatial",
+          200,
+          10
+        ],
+        [
+          20261003,
+          "libero_spatial",
+          300,
+          10
+        ],
+        [
+          20261003,
+          "libero_spatial",
+          400,
+          10
+        ],
+        [
+          20261003,
+          "libero_spatial",
+          400,
+          5
+        ],
+        [
+          20261004,
+          "libero_10",
+          50,
+          10
+        ],
+        [
+          20261004,
+          "libero_10",
+          50,
+          5
+        ],
+        [
+          20261004,
+          "libero_10",
+          100,
+          10
+        ],
+        [
+          20261004,
+          "libero_10",
+          100,
+          5
+        ],
+        [
+          20261004,
+          "libero_10",
+          200,
+          10
+        ],
+        [
+          20261004,
+          "libero_10",
+          200,
+          5
+        ],
+        [
+          20261004,
+          "libero_10",
+          300,
+          10
+        ],
+        [
+          20261004,
+          "libero_10",
+          300,
+          5
+        ],
+        [
+          20261004,
+          "libero_10",
+          400,
+          10
+        ],
+        [
+          20261004,
+          "libero_10",
+          400,
+          5
+        ],
+        [
+          20261004,
+          "libero_spatial",
+          50,
+          10
+        ],
+        [
+          20261004,
+          "libero_spatial",
+          50,
+          5
+        ],
+        [
+          20261004,
+          "libero_spatial",
+          100,
+          10
+        ],
+        [
+          20261004,
+          "libero_spatial",
+          100,
+          5
+        ],
+        [
+          20261004,
+          "libero_spatial",
+          200,
+          10
+        ],
+        [
+          20261004,
+          "libero_spatial",
+          300,
+          10
+        ],
+        [
+          20261004,
+          "libero_spatial",
+          300,
+          5
+        ],
+        [
+          20261004,
+          "libero_spatial",
+          400,
+          10
+        ]
+      ]
+    },
+    {
+      "name": "fa_sd_fw_r_m_k3",
+      "run": "/data/mw_finetune/eval/fa_sd_fw_r_m_k3",
+      "source": "/nvme/weiland/openpi/eval/fa_sd_fw_r_m_o",
+      "episodes": 29000,
+      "model": "fastwam",
+      "benchmark": "mt50",
+      "mode": "reduced",
+      "stage": "levels",
+      "gpu": "H100",
+      "replicas": 2,
+      "batch": 16,
+      "workers": {
+        "h100": 40
+      },
+      "python": "/data/mw_finetune/envs/fastwam/bin/python",
+      "runtime": "/data/mw_finetune/qualification/formal_runtime_dd43093f24b4e512685ed14854c06160fa906953cf0c61c69742b251e2329bc8",
+      "unfiltered": false,
+      "pipeline": "R17",
+      "source_full_native_plan_equal": null,
+      "task_uid_sha256": "4145512a7a0e9562a33dfc5d531a0ebc827cba94f1d1c0dede204fe07e9b10c3",
+      "bootstrap_from": "/data/mw_finetune/eval/fa_sd_fw_r_m_o",
+      "arm": "filtered",
+      "bundle": "fastwam_mw",
+      "levels": [
+        "k30"
+      ],
+      "longseg_runtime": true,
+      "cells": [
+        [
+          9,
+          "mt50",
+          250,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          250,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          500,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          500,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          1000,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          1000,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          1500,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          1500,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          2000,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          2000,
+          5
+        ],
+        [
+          9,
+          "mt50",
+          2500,
+          10
+        ],
+        [
+          9,
+          "mt50",
+          2500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          250,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          250,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          500,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          1000,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          1000,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          1500,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          1500,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          2000,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          2000,
+          5
+        ],
+        [
+          10,
+          "mt50",
+          2500,
+          10
+        ],
+        [
+          10,
+          "mt50",
+          2500,
+          5
+        ]
+      ]
     }
   ]
 }

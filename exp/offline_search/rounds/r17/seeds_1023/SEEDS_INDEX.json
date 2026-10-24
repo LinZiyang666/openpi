@@ -1,0 +1,1056 @@
+{
+  "version": 1,
+  "generated_by": "seeds_1023/make_index.py",
+  "generated_at": "2026-10-24T21:21:03+00:00",
+  "references": {},
+  "batches": {},
+  "_skipped": [
+    {
+      "lane": "fa_sd_dp_r_l",
+      "problems": [
+        "等参照 fa_sd_dp_r_l_p（dp:libero:reduced:H100:long，0/1000）"
+      ],
+      "batches": [
+        {
+          "batch": "fa_sd_dp_r_l_o",
+          "unit": "fa_sd_dp_r_l_o",
+          "run": "/data/mw_finetune/eval/fa_sd_dp_r_l_o",
+          "complete": true,
+          "accepted": 20000,
+          "expected": 20000
+        },
+        {
+          "batch": "fa_sd_dp_r_l_k1",
+          "unit": "fa_sd_dp_r_l_k1",
+          "run": "/data/mw_finetune/eval/fa_sd_dp_r_l_k1",
+          "complete": true,
+          "accepted": 4500,
+          "expected": 4500
+        },
+        {
+          "batch": "fa_sd_dp_r_l_k2",
+          "unit": "fa_sd_dp_r_l_k2",
+          "run": "/data/mw_finetune/eval/fa_sd_dp_r_l_k2",
+          "complete": true,
+          "accepted": 2250,
+          "expected": 2250
+        },
+        {
+          "batch": "fa_sd_dp_r_l_k3",
+          "unit": "fa_sd_dp_r_l_k3",
+          "run": "/data/mw_finetune/eval/fa_sd_dp_r_l_k3",
+          "complete": true,
+          "accepted": 2000,
+          "expected": 2000
+        },
+        {
+          "batch": "fa_sd_dp_r_l_k4",
+          "unit": "fa_sd_dp_r_l_k4",
+          "run": "/data/mw_finetune/eval/fa_sd_dp_r_l_k4",
+          "complete": true,
+          "accepted": 1850,
+          "expected": 1850
+        },
+        {
+          "batch": "fa_sd_dp_r_l_k5",
+          "unit": "fa_sd_dp_r_l_k5",
+          "run": "/data/mw_finetune/eval/fa_sd_dp_r_l_k5",
+          "complete": true,
+          "accepted": 1800,
+          "expected": 1800
+        }
+      ]
+    },
+    {
+      "lane": "fa_sd_dp_f_l",
+      "problems": [
+        "等参照 fa_sd_dp_f_l_p（dp:libero:full:H100:long，0/1000）"
+      ],
+      "batches": [
+        {
+          "batch": "fa_sd_dp_f_l_o",
+          "unit": "fa_sd_dp_f_l_o",
+          "run": "/data/mw_finetune/eval/fa_sd_dp_f_l_o",
+          "complete": true,
+          "accepted": 20000,
+          "expected": 20000
+        },
+        {
+          "batch": "fa_sd_dp_f_l_k1",
+          "unit": "fa_sd_dp_f_l_k1",
+          "run": "/data/mw_finetune/eval/fa_sd_dp_f_l_k1",
+          "complete": true,
+          "accepted": 5000,
+          "expected": 5000
+        },
+        {
+          "batch": "fa_sd_dp_f_l_k2",
+          "unit": "fa_sd_dp_f_l_k2",
+          "run": "/data/mw_finetune/eval/fa_sd_dp_f_l_k2",
+          "complete": true,
+          "accepted": 2900,
+          "expected": 2900
+        },
+        {
+          "batch": "fa_sd_dp_f_l_k3",
+          "unit": "fa_sd_dp_f_l_k3",
+          "run": "/data/mw_finetune/eval/fa_sd_dp_f_l_k3",
+          "complete": true,
+          "accepted": 2400,
+          "expected": 2400
+        },
+        {
+          "batch": "fa_sd_dp_f_l_k4",
+          "unit": "fa_sd_dp_f_l_k4",
+          "run": "/data/mw_finetune/eval/fa_sd_dp_f_l_k4",
+          "complete": true,
+          "accepted": 2150,
+          "expected": 2150
+        },
+        {
+          "batch": "fa_sd_dp_f_l_k5",
+          "unit": "fa_sd_dp_f_l_k5",
+          "run": "/data/mw_finetune/eval/fa_sd_dp_f_l_k5",
+          "complete": true,
+          "accepted": 1950,
+          "expected": 1950
+        }
+      ]
+    },
+    {
+      "lane": "fa_sd_fw_r_l",
+      "problems": [
+        "fa_sd_fw_r_l_k1 WAITING",
+        "fa_sd_fw_r_l_k2 WAITING",
+        "fa_sd_fw_r_l_k3 WAITING",
+        "fa_sd_fw_r_l_k4 WAITING",
+        "fa_sd_fw_r_l_k5 WAITING",
+        "fa_sd_fw_r_l_o: 0/20000 accepted"
+      ],
+      "batches": [
+        {
+          "batch": "fa_sd_fw_r_l_o",
+          "unit": "fa_sd_fw_r_l_o",
+          "run": "/data/mw_finetune/eval/fa_sd_fw_r_l_o",
+          "complete": false,
+          "accepted": 0,
+          "expected": 20000
+        }
+      ]
+    },
+    {
+      "lane": "fa_sd_fw_f_l",
+      "problems": [
+        "fa_sd_fw_f_l_k4 WAITING",
+        "fa_sd_fw_f_l_k5 WAITING",
+        "fa_sd_fw_f_l_k3: 1182/8950 accepted"
+      ],
+      "batches": [
+        {
+          "batch": "fa_sd_fw_f_l_o",
+          "unit": "fa_sd_fw_f_l_o",
+          "run": "/data/mw_finetune/eval/fa_sd_fw_f_l_o",
+          "complete": true,
+          "accepted": 20000,
+          "expected": 20000
+        },
+        {
+          "batch": "fa_sd_fw_f_l_k1",
+          "unit": "fa_sd_fw_f_l_k1",
+          "run": "/data/mw_finetune/eval/fa_sd_fw_f_l_k1",
+          "complete": true,
+          "accepted": 18000,
+          "expected": 18000
+        },
+        {
+          "batch": "fa_sd_fw_f_l_k2",
+          "unit": "fa_sd_fw_f_l_k2",
+          "run": "/data/mw_finetune/eval/fa_sd_fw_f_l_k2",
+          "complete": true,
+          "accepted": 10350,
+          "expected": 10350
+        },
+        {
+          "batch": "fa_sd_fw_f_l_k3",
+          "unit": "fa_sd_fw_f_l_k3",
+          "run": "/data/mw_finetune/eval/fa_sd_fw_f_l_k3",
+          "complete": false,
+          "accepted": 1182,
+          "expected": 8950
+        }
+      ]
+    },
+    {
+      "lane": "fa_sd_co_r_l",
+      "problems": [
+        "fa_sd_co_r_l_k1 WAITING",
+        "fa_sd_co_r_l_k2 WAITING",
+        "fa_sd_co_r_l_k3 WAITING",
+        "fa_sd_co_r_l_k4 WAITING",
+        "fa_sd_co_r_l_k5 WAITING",
+        "fa_sd_co_r_l_o: 0/10000 accepted"
+      ],
+      "batches": [
+        {
+          "batch": "fa_sd_co_r_l_o",
+          "unit": "fa_sd_co_r_l_o",
+          "run": "/data/mw_finetune/eval/fa_sd_co_r_l_o",
+          "complete": false,
+          "accepted": 0,
+          "expected": 10000
+        }
+      ]
+    },
+    {
+      "lane": "fa_sd_co_f_l",
+      "problems": [
+        "fa_sd_co_f_l_k1 WAITING",
+        "fa_sd_co_f_l_k2 WAITING",
+        "fa_sd_co_f_l_k3 WAITING",
+        "fa_sd_co_f_l_k4 WAITING",
+        "fa_sd_co_f_l_k5 WAITING",
+        "fa_sd_co_f_l_o: 0/10000 accepted"
+      ],
+      "batches": [
+        {
+          "batch": "fa_sd_co_f_l_o",
+          "unit": "fa_sd_co_f_l_o",
+          "run": "/data/mw_finetune/eval/fa_sd_co_f_l_o",
+          "complete": false,
+          "accepted": 0,
+          "expected": 10000
+        }
+      ]
+    },
+    {
+      "lane": "fa_sd_dp_r_m",
+      "problems": [
+        "fa_sd_dp_r_m_k2 WAITING",
+        "fa_sd_dp_r_m_k3 WAITING",
+        "fa_sd_dp_r_m_k4 WAITING",
+        "fa_sd_dp_r_m_k5 WAITING",
+        "fa_sd_dp_r_m_k1: 23166/60000 accepted",
+        "等参照 fa_sd_dp_r_m_p（dp:mt50:reduced:H100:long，0/2500）"
+      ],
+      "batches": [
+        {
+          "batch": "fa_sd_dp_r_m_o",
+          "unit": "fa_sd_dp_r_m_o",
+          "run": "/data/mw_finetune/eval/fa_sd_dp_r_m_o",
+          "complete": true,
+          "accepted": 60000,
+          "expected": 60000
+        },
+        {
+          "batch": "fa_sd_dp_r_m_k1",
+          "unit": "fa_sd_dp_r_m_k1",
+          "run": "/data/mw_finetune/eval/fa_sd_dp_r_m_k1",
+          "complete": false,
+          "accepted": 23166,
+          "expected": 60000
+        }
+      ]
+    },
+    {
+      "lane": "fa_sd_dp_f_m",
+      "problems": [
+        "fa_sd_dp_f_m_k1 WAITING",
+        "fa_sd_dp_f_m_k2 WAITING",
+        "fa_sd_dp_f_m_k3 WAITING",
+        "fa_sd_dp_f_m_k4 WAITING",
+        "fa_sd_dp_f_m_k5 WAITING",
+        "fa_sd_dp_f_m_o: 0/60000 accepted"
+      ],
+      "batches": [
+        {
+          "batch": "fa_sd_dp_f_m_o",
+          "unit": "fa_sd_dp_f_m_o",
+          "run": "/data/mw_finetune/eval/fa_sd_dp_f_m_o",
+          "complete": false,
+          "accepted": 0,
+          "expected": 60000
+        }
+      ]
+    },
+    {
+      "lane": "fa_sd_gr_r_m",
+      "problems": [
+        "fa_sd_gr_r_m_k3 WAITING",
+        "fa_sd_gr_r_m_k4 WAITING",
+        "fa_sd_gr_r_m_k5 WAITING",
+        "fa_sd_gr_r_m_k2: 8525/29300 accepted",
+        "等参照 fa_sd_gr_r_m_p_j（groot:mt50:reduced:H200 MIG 1g.18gb:long，0/2500）"
+      ],
+      "batches": [
+        {
+          "batch": "fa_sd_gr_r_m_o_j",
+          "unit": "fa_sd_gr_r_m_o",
+          "run": "/data/mw_finetune/eval/fa_sd_gr_r_m_o_j",
+          "complete": true,
+          "accepted": 60000,
+          "expected": 60000
+        },
+        {
+          "batch": "fa_sd_gr_r_m_k1",
+          "unit": "fa_sd_gr_r_m_k1",
+          "run": "/data/mw_finetune/eval/fa_sd_gr_r_m_k1",
+          "complete": true,
+          "accepted": 60000,
+          "expected": 60000
+        },
+        {
+          "batch": "fa_sd_gr_r_m_k2",
+          "unit": "fa_sd_gr_r_m_k2",
+          "run": "/data/mw_finetune/eval/fa_sd_gr_r_m_k2",
+          "complete": false,
+          "accepted": 8525,
+          "expected": 29300
+        }
+      ]
+    },
+    {
+      "lane": "fa_sd_gr_f_m",
+      "problems": [
+        "fa_sd_gr_f_m_k2 WAITING",
+        "fa_sd_gr_f_m_k3 WAITING",
+        "fa_sd_gr_f_m_k4 WAITING",
+        "fa_sd_gr_f_m_k5 WAITING",
+        "fa_sd_gr_f_m_k1: 51497/60000 accepted",
+        "等参照 fa_sd_gr_f_m_p_j（groot:mt50:full:H200 MIG 1g.18gb:long，0/2500）"
+      ],
+      "batches": [
+        {
+          "batch": "fa_sd_gr_f_m_o_j",
+          "unit": "fa_sd_gr_f_m_o",
+          "run": "/data/mw_finetune/eval/fa_sd_gr_f_m_o_j",
+          "complete": true,
+          "accepted": 60000,
+          "expected": 60000
+        },
+        {
+          "batch": "fa_sd_gr_f_m_k1",
+          "unit": "fa_sd_gr_f_m_k1",
+          "run": "/data/mw_finetune/eval/fa_sd_gr_f_m_k1",
+          "complete": false,
+          "accepted": 51497,
+          "expected": 60000
+        }
+      ]
+    },
+    {
+      "lane": "fa_sd_pi_r_m",
+      "problems": [
+        "fa_sd_pi_r_m_k5 WAITING",
+        "fa_sd_pi_r_m_k4: 5800/16750 accepted"
+      ],
+      "batches": [
+        {
+          "batch": "fa_sd_pi_r_m_o",
+          "unit": "fa_sd_pi_r_m_o",
+          "run": "/data/mw_finetune/eval/fa_sd_pi_r_m_o",
+          "complete": true,
+          "accepted": 30000,
+          "expected": 30000
+        },
+        {
+          "batch": "fa_sd_pi_r_m_k1",
+          "unit": "fa_sd_pi_r_m_k1",
+          "run": "/data/mw_finetune/eval/fa_sd_pi_r_m_k1",
+          "complete": true,
+          "accepted": 30000,
+          "expected": 30000
+        },
+        {
+          "batch": "fa_sd_pi_r_m_k2",
+          "unit": "fa_sd_pi_r_m_k2",
+          "run": "/data/mw_finetune/eval/fa_sd_pi_r_m_k2",
+          "complete": true,
+          "accepted": 20600,
+          "expected": 20600
+        },
+        {
+          "batch": "fa_sd_pi_r_m_k3",
+          "unit": "fa_sd_pi_r_m_k3",
+          "run": "/data/mw_finetune/eval/fa_sd_pi_r_m_k3",
+          "complete": true,
+          "accepted": 18350,
+          "expected": 18350
+        },
+        {
+          "batch": "fa_sd_pi_r_m_k4",
+          "unit": "fa_sd_pi_r_m_k4",
+          "run": "/data/mw_finetune/eval/fa_sd_pi_r_m_k4",
+          "complete": false,
+          "accepted": 5800,
+          "expected": 16750
+        }
+      ]
+    },
+    {
+      "lane": "fa_sd_pi_f_m",
+      "problems": [
+        "fa_sd_pi_f_m_k1 WAITING",
+        "fa_sd_pi_f_m_k2 WAITING",
+        "fa_sd_pi_f_m_k3 WAITING",
+        "fa_sd_pi_f_m_k4 WAITING",
+        "fa_sd_pi_f_m_k5 WAITING",
+        "fa_sd_pi_f_m_o: 0/30000 accepted"
+      ],
+      "batches": [
+        {
+          "batch": "fa_sd_pi_f_m_o",
+          "unit": "fa_sd_pi_f_m_o",
+          "run": "/data/mw_finetune/eval/fa_sd_pi_f_m_o",
+          "complete": false,
+          "accepted": 0,
+          "expected": 30000
+        }
+      ]
+    },
+    {
+      "lane": "fa_sd_fw_r_m",
+      "problems": [
+        "fa_sd_fw_r_m_k3 WAITING",
+        "fa_sd_fw_r_m_k4 WAITING",
+        "fa_sd_fw_r_m_k5 WAITING"
+      ],
+      "batches": [
+        {
+          "batch": "fa_sd_fw_r_m_o",
+          "unit": "fa_sd_fw_r_m_o",
+          "run": "/data/mw_finetune/eval/fa_sd_fw_r_m_o",
+          "complete": true,
+          "accepted": 60000,
+          "expected": 60000
+        },
+        {
+          "batch": "fa_sd_fw_r_m_k1",
+          "unit": "fa_sd_fw_r_m_k1",
+          "run": "/data/mw_finetune/eval/fa_sd_fw_r_m_k1",
+          "complete": true,
+          "accepted": 60000,
+          "expected": 60000
+        },
+        {
+          "batch": "fa_sd_fw_r_m_k2",
+          "unit": "fa_sd_fw_r_m_k2",
+          "run": "/data/mw_finetune/eval/fa_sd_fw_r_m_k2",
+          "complete": true,
+          "accepted": 34250,
+          "expected": 34250
+        }
+      ]
+    },
+    {
+      "lane": "fa_sd_fw_f_m",
+      "problems": [
+        "fa_sd_fw_f_m_k1 WAITING",
+        "fa_sd_fw_f_m_k2 WAITING",
+        "fa_sd_fw_f_m_k3 WAITING",
+        "fa_sd_fw_f_m_k4 WAITING",
+        "fa_sd_fw_f_m_k5 WAITING",
+        "fa_sd_fw_f_m_o: 0/60000 accepted"
+      ],
+      "batches": [
+        {
+          "batch": "fa_sd_fw_f_m_o",
+          "unit": "fa_sd_fw_f_m_o",
+          "run": "/data/mw_finetune/eval/fa_sd_fw_f_m_o",
+          "complete": false,
+          "accepted": 0,
+          "expected": 60000
+        }
+      ]
+    },
+    {
+      "lane": "fa_x3_pi_f_on",
+      "problems": [
+        "fa_x3_pi_f_on_k1 WAITING",
+        "fa_x3_pi_f_on_k2 WAITING",
+        "fa_x3_pi_f_on_k3 WAITING",
+        "fa_x3_pi_f_on_k4 WAITING"
+      ],
+      "batches": [
+        {
+          "batch": "fa_x3_pi_f_on_o_l50",
+          "unit": "fa_x3_pi_f_on_o",
+          "run": "/data/mw_finetune/eval/fa_x3_pi_f_on_o_l50",
+          "complete": true,
+          "accepted": 500,
+          "expected": 500
+        },
+        {
+          "batch": "fa_x3_pi_f_on_o_l100",
+          "unit": "fa_x3_pi_f_on_o",
+          "run": "/data/mw_finetune/eval/fa_x3_pi_f_on_o_l100",
+          "complete": true,
+          "accepted": 500,
+          "expected": 500
+        },
+        {
+          "batch": "fa_x3_pi_f_on_o_l200",
+          "unit": "fa_x3_pi_f_on_o",
+          "run": "/data/mw_finetune/eval/fa_x3_pi_f_on_o_l200",
+          "complete": true,
+          "accepted": 500,
+          "expected": 500
+        },
+        {
+          "batch": "fa_x3_pi_f_on_o_s50",
+          "unit": "fa_x3_pi_f_on_o",
+          "run": "/data/mw_finetune/eval/fa_x3_pi_f_on_o_s50",
+          "complete": true,
+          "accepted": 500,
+          "expected": 500
+        },
+        {
+          "batch": "fa_x3_pi_f_on_o_s100",
+          "unit": "fa_x3_pi_f_on_o",
+          "run": "/data/mw_finetune/eval/fa_x3_pi_f_on_o_s100",
+          "complete": true,
+          "accepted": 500,
+          "expected": 500
+        },
+        {
+          "batch": "fa_x3_pi_f_on_o_s200",
+          "unit": "fa_x3_pi_f_on_o",
+          "run": "/data/mw_finetune/eval/fa_x3_pi_f_on_o_s200",
+          "complete": true,
+          "accepted": 500,
+          "expected": 500
+        }
+      ]
+    },
+    {
+      "lane": "fa_x3_pi_f_lo",
+      "problems": [
+        "fa_x3_pi_f_lo_k1 WAITING",
+        "fa_x3_pi_f_lo_k2 WAITING",
+        "fa_x3_pi_f_lo_k3 WAITING",
+        "fa_x3_pi_f_lo_k4 WAITING"
+      ],
+      "batches": [
+        {
+          "batch": "fa_x3_pi_f_lo_o_l50",
+          "unit": "fa_x3_pi_f_lo_o",
+          "run": "/data/mw_finetune/eval/fa_x3_pi_f_lo_o_l50",
+          "complete": true,
+          "accepted": 500,
+          "expected": 500
+        },
+        {
+          "batch": "fa_x3_pi_f_lo_o_l100",
+          "unit": "fa_x3_pi_f_lo_o",
+          "run": "/data/mw_finetune/eval/fa_x3_pi_f_lo_o_l100",
+          "complete": true,
+          "accepted": 500,
+          "expected": 500
+        },
+        {
+          "batch": "fa_x3_pi_f_lo_o_l200",
+          "unit": "fa_x3_pi_f_lo_o",
+          "run": "/data/mw_finetune/eval/fa_x3_pi_f_lo_o_l200",
+          "complete": true,
+          "accepted": 500,
+          "expected": 500
+        },
+        {
+          "batch": "fa_x3_pi_f_lo_o_s50",
+          "unit": "fa_x3_pi_f_lo_o",
+          "run": "/data/mw_finetune/eval/fa_x3_pi_f_lo_o_s50",
+          "complete": true,
+          "accepted": 500,
+          "expected": 500
+        },
+        {
+          "batch": "fa_x3_pi_f_lo_o_s100",
+          "unit": "fa_x3_pi_f_lo_o",
+          "run": "/data/mw_finetune/eval/fa_x3_pi_f_lo_o_s100",
+          "complete": true,
+          "accepted": 500,
+          "expected": 500
+        },
+        {
+          "batch": "fa_x3_pi_f_lo_o_s200",
+          "unit": "fa_x3_pi_f_lo_o",
+          "run": "/data/mw_finetune/eval/fa_x3_pi_f_lo_o_s200",
+          "complete": true,
+          "accepted": 500,
+          "expected": 500
+        }
+      ]
+    },
+    {
+      "lane": "fa_x4_pi_f_on",
+      "problems": [
+        "fa_x4_pi_f_on_k1 WAITING",
+        "fa_x4_pi_f_on_k2 WAITING",
+        "fa_x4_pi_f_on_k3 WAITING",
+        "fa_x4_pi_f_on_k4 WAITING",
+        "fa_x4_pi_f_on_o_l50: 0/500 accepted",
+        "fa_x4_pi_f_on_o_l100: 0/500 accepted",
+        "fa_x4_pi_f_on_o_l200: 0/500 accepted",
+        "fa_x4_pi_f_on_o_s50: 0/500 accepted",
+        "fa_x4_pi_f_on_o_s100: 0/500 accepted",
+        "fa_x4_pi_f_on_o_s200: 0/500 accepted"
+      ],
+      "batches": [
+        {
+          "batch": "fa_x4_pi_f_on_o_l50",
+          "unit": "fa_x4_pi_f_on_o",
+          "run": "/data/mw_finetune/eval/fa_x4_pi_f_on_o_l50",
+          "complete": false,
+          "accepted": 0,
+          "expected": 500
+        },
+        {
+          "batch": "fa_x4_pi_f_on_o_l100",
+          "unit": "fa_x4_pi_f_on_o",
+          "run": "/data/mw_finetune/eval/fa_x4_pi_f_on_o_l100",
+          "complete": false,
+          "accepted": 0,
+          "expected": 500
+        },
+        {
+          "batch": "fa_x4_pi_f_on_o_l200",
+          "unit": "fa_x4_pi_f_on_o",
+          "run": "/data/mw_finetune/eval/fa_x4_pi_f_on_o_l200",
+          "complete": false,
+          "accepted": 0,
+          "expected": 500
+        },
+        {
+          "batch": "fa_x4_pi_f_on_o_s50",
+          "unit": "fa_x4_pi_f_on_o",
+          "run": "/data/mw_finetune/eval/fa_x4_pi_f_on_o_s50",
+          "complete": false,
+          "accepted": 0,
+          "expected": 500
+        },
+        {
+          "batch": "fa_x4_pi_f_on_o_s100",
+          "unit": "fa_x4_pi_f_on_o",
+          "run": "/data/mw_finetune/eval/fa_x4_pi_f_on_o_s100",
+          "complete": false,
+          "accepted": 0,
+          "expected": 500
+        },
+        {
+          "batch": "fa_x4_pi_f_on_o_s200",
+          "unit": "fa_x4_pi_f_on_o",
+          "run": "/data/mw_finetune/eval/fa_x4_pi_f_on_o_s200",
+          "complete": false,
+          "accepted": 0,
+          "expected": 500
+        }
+      ]
+    },
+    {
+      "lane": "fa_x4_pi_f_lo",
+      "problems": [
+        "fa_x4_pi_f_lo_k1 WAITING",
+        "fa_x4_pi_f_lo_k2 WAITING",
+        "fa_x4_pi_f_lo_k3 WAITING",
+        "fa_x4_pi_f_lo_k4 WAITING",
+        "fa_x4_pi_f_lo_o_l50: 0/500 accepted",
+        "fa_x4_pi_f_lo_o_l100: 0/500 accepted",
+        "fa_x4_pi_f_lo_o_l200: 0/500 accepted",
+        "fa_x4_pi_f_lo_o_s50: 0/500 accepted",
+        "fa_x4_pi_f_lo_o_s100: 0/500 accepted",
+        "fa_x4_pi_f_lo_o_s200: 0/500 accepted"
+      ],
+      "batches": [
+        {
+          "batch": "fa_x4_pi_f_lo_o_l50",
+          "unit": "fa_x4_pi_f_lo_o",
+          "run": "/data/mw_finetune/eval/fa_x4_pi_f_lo_o_l50",
+          "complete": false,
+          "accepted": 0,
+          "expected": 500
+        },
+        {
+          "batch": "fa_x4_pi_f_lo_o_l100",
+          "unit": "fa_x4_pi_f_lo_o",
+          "run": "/data/mw_finetune/eval/fa_x4_pi_f_lo_o_l100",
+          "complete": false,
+          "accepted": 0,
+          "expected": 500
+        },
+        {
+          "batch": "fa_x4_pi_f_lo_o_l200",
+          "unit": "fa_x4_pi_f_lo_o",
+          "run": "/data/mw_finetune/eval/fa_x4_pi_f_lo_o_l200",
+          "complete": false,
+          "accepted": 0,
+          "expected": 500
+        },
+        {
+          "batch": "fa_x4_pi_f_lo_o_s50",
+          "unit": "fa_x4_pi_f_lo_o",
+          "run": "/data/mw_finetune/eval/fa_x4_pi_f_lo_o_s50",
+          "complete": false,
+          "accepted": 0,
+          "expected": 500
+        },
+        {
+          "batch": "fa_x4_pi_f_lo_o_s100",
+          "unit": "fa_x4_pi_f_lo_o",
+          "run": "/data/mw_finetune/eval/fa_x4_pi_f_lo_o_s100",
+          "complete": false,
+          "accepted": 0,
+          "expected": 500
+        },
+        {
+          "batch": "fa_x4_pi_f_lo_o_s200",
+          "unit": "fa_x4_pi_f_lo_o",
+          "run": "/data/mw_finetune/eval/fa_x4_pi_f_lo_o_s200",
+          "complete": false,
+          "accepted": 0,
+          "expected": 500
+        }
+      ]
+    },
+    {
+      "lane": "fa_x34_pi_r",
+      "problems": [
+        "fa_x34_pi_r_k4 WAITING"
+      ],
+      "batches": [
+        {
+          "batch": "fa_x34_pi_r_o",
+          "unit": "fa_x34_pi_r_o",
+          "run": "/data/mw_finetune/eval/fa_x34_pi_r_o",
+          "complete": true,
+          "accepted": 12000,
+          "expected": 12000
+        },
+        {
+          "batch": "fa_x34_pi_r_k1",
+          "unit": "fa_x34_pi_r_k1",
+          "run": "/data/mw_finetune/eval/fa_x34_pi_r_k1",
+          "complete": true,
+          "accepted": 10000,
+          "expected": 10000
+        },
+        {
+          "batch": "fa_x34_pi_r_k2",
+          "unit": "fa_x34_pi_r_k2",
+          "run": "/data/mw_finetune/eval/fa_x34_pi_r_k2",
+          "complete": true,
+          "accepted": 9400,
+          "expected": 9400
+        },
+        {
+          "batch": "fa_x34_pi_r_k3",
+          "unit": "fa_x34_pi_r_k3",
+          "run": "/data/mw_finetune/eval/fa_x34_pi_r_k3",
+          "complete": true,
+          "accepted": 9150,
+          "expected": 9150
+        }
+      ]
+    },
+    {
+      "lane": "fa_x3_gr_f_on",
+      "problems": [
+        "fa_x3_gr_f_on_k1 WAITING",
+        "fa_x3_gr_f_on_k2 WAITING",
+        "fa_x3_gr_f_on_k3 WAITING",
+        "fa_x3_gr_f_on_k4 WAITING",
+        "fa_x3_gr_f_on_o_l50: 0/500 accepted",
+        "fa_x3_gr_f_on_o_l100: 0/500 accepted",
+        "fa_x3_gr_f_on_o_l200: 0/500 accepted",
+        "fa_x3_gr_f_on_o_s50: 0/500 accepted",
+        "fa_x3_gr_f_on_o_s100: 0/500 accepted",
+        "fa_x3_gr_f_on_o_s200: 0/500 accepted"
+      ],
+      "batches": [
+        {
+          "batch": "fa_x3_gr_f_on_o_l50",
+          "unit": "fa_x3_gr_f_on_o",
+          "run": "/data/mw_finetune/eval/fa_x3_gr_f_on_o_l50",
+          "complete": false,
+          "accepted": 0,
+          "expected": 500
+        },
+        {
+          "batch": "fa_x3_gr_f_on_o_l100",
+          "unit": "fa_x3_gr_f_on_o",
+          "run": "/data/mw_finetune/eval/fa_x3_gr_f_on_o_l100",
+          "complete": false,
+          "accepted": 0,
+          "expected": 500
+        },
+        {
+          "batch": "fa_x3_gr_f_on_o_l200",
+          "unit": "fa_x3_gr_f_on_o",
+          "run": "/data/mw_finetune/eval/fa_x3_gr_f_on_o_l200",
+          "complete": false,
+          "accepted": 0,
+          "expected": 500
+        },
+        {
+          "batch": "fa_x3_gr_f_on_o_s50",
+          "unit": "fa_x3_gr_f_on_o",
+          "run": "/data/mw_finetune/eval/fa_x3_gr_f_on_o_s50",
+          "complete": false,
+          "accepted": 0,
+          "expected": 500
+        },
+        {
+          "batch": "fa_x3_gr_f_on_o_s100",
+          "unit": "fa_x3_gr_f_on_o",
+          "run": "/data/mw_finetune/eval/fa_x3_gr_f_on_o_s100",
+          "complete": false,
+          "accepted": 0,
+          "expected": 500
+        },
+        {
+          "batch": "fa_x3_gr_f_on_o_s200",
+          "unit": "fa_x3_gr_f_on_o",
+          "run": "/data/mw_finetune/eval/fa_x3_gr_f_on_o_s200",
+          "complete": false,
+          "accepted": 0,
+          "expected": 500
+        }
+      ]
+    },
+    {
+      "lane": "fa_x3_gr_f_lo",
+      "problems": [
+        "fa_x3_gr_f_lo_k1 WAITING",
+        "fa_x3_gr_f_lo_k2 WAITING",
+        "fa_x3_gr_f_lo_k3 WAITING",
+        "fa_x3_gr_f_lo_k4 WAITING",
+        "fa_x3_gr_f_lo_o_l50: 0/500 accepted",
+        "fa_x3_gr_f_lo_o_l100: 0/500 accepted",
+        "fa_x3_gr_f_lo_o_l200: 0/500 accepted",
+        "fa_x3_gr_f_lo_o_s50: 0/500 accepted",
+        "fa_x3_gr_f_lo_o_s100: 0/500 accepted",
+        "fa_x3_gr_f_lo_o_s200: 0/500 accepted"
+      ],
+      "batches": [
+        {
+          "batch": "fa_x3_gr_f_lo_o_l50",
+          "unit": "fa_x3_gr_f_lo_o",
+          "run": "/data/mw_finetune/eval/fa_x3_gr_f_lo_o_l50",
+          "complete": false,
+          "accepted": 0,
+          "expected": 500
+        },
+        {
+          "batch": "fa_x3_gr_f_lo_o_l100",
+          "unit": "fa_x3_gr_f_lo_o",
+          "run": "/data/mw_finetune/eval/fa_x3_gr_f_lo_o_l100",
+          "complete": false,
+          "accepted": 0,
+          "expected": 500
+        },
+        {
+          "batch": "fa_x3_gr_f_lo_o_l200",
+          "unit": "fa_x3_gr_f_lo_o",
+          "run": "/data/mw_finetune/eval/fa_x3_gr_f_lo_o_l200",
+          "complete": false,
+          "accepted": 0,
+          "expected": 500
+        },
+        {
+          "batch": "fa_x3_gr_f_lo_o_s50",
+          "unit": "fa_x3_gr_f_lo_o",
+          "run": "/data/mw_finetune/eval/fa_x3_gr_f_lo_o_s50",
+          "complete": false,
+          "accepted": 0,
+          "expected": 500
+        },
+        {
+          "batch": "fa_x3_gr_f_lo_o_s100",
+          "unit": "fa_x3_gr_f_lo_o",
+          "run": "/data/mw_finetune/eval/fa_x3_gr_f_lo_o_s100",
+          "complete": false,
+          "accepted": 0,
+          "expected": 500
+        },
+        {
+          "batch": "fa_x3_gr_f_lo_o_s200",
+          "unit": "fa_x3_gr_f_lo_o",
+          "run": "/data/mw_finetune/eval/fa_x3_gr_f_lo_o_s200",
+          "complete": false,
+          "accepted": 0,
+          "expected": 500
+        }
+      ]
+    },
+    {
+      "lane": "fa_x4_gr_f_on",
+      "problems": [
+        "fa_x4_gr_f_on_k1 WAITING",
+        "fa_x4_gr_f_on_k2 WAITING",
+        "fa_x4_gr_f_on_k3 WAITING",
+        "fa_x4_gr_f_on_k4 WAITING",
+        "fa_x4_gr_f_on_o_l50: 0/500 accepted",
+        "fa_x4_gr_f_on_o_l100: 0/500 accepted",
+        "fa_x4_gr_f_on_o_l200: 0/500 accepted",
+        "fa_x4_gr_f_on_o_s50: 0/500 accepted",
+        "fa_x4_gr_f_on_o_s100: 0/500 accepted",
+        "fa_x4_gr_f_on_o_s200: 0/500 accepted"
+      ],
+      "batches": [
+        {
+          "batch": "fa_x4_gr_f_on_o_l50",
+          "unit": "fa_x4_gr_f_on_o",
+          "run": "/data/mw_finetune/eval/fa_x4_gr_f_on_o_l50",
+          "complete": false,
+          "accepted": 0,
+          "expected": 500
+        },
+        {
+          "batch": "fa_x4_gr_f_on_o_l100",
+          "unit": "fa_x4_gr_f_on_o",
+          "run": "/data/mw_finetune/eval/fa_x4_gr_f_on_o_l100",
+          "complete": false,
+          "accepted": 0,
+          "expected": 500
+        },
+        {
+          "batch": "fa_x4_gr_f_on_o_l200",
+          "unit": "fa_x4_gr_f_on_o",
+          "run": "/data/mw_finetune/eval/fa_x4_gr_f_on_o_l200",
+          "complete": false,
+          "accepted": 0,
+          "expected": 500
+        },
+        {
+          "batch": "fa_x4_gr_f_on_o_s50",
+          "unit": "fa_x4_gr_f_on_o",
+          "run": "/data/mw_finetune/eval/fa_x4_gr_f_on_o_s50",
+          "complete": false,
+          "accepted": 0,
+          "expected": 500
+        },
+        {
+          "batch": "fa_x4_gr_f_on_o_s100",
+          "unit": "fa_x4_gr_f_on_o",
+          "run": "/data/mw_finetune/eval/fa_x4_gr_f_on_o_s100",
+          "complete": false,
+          "accepted": 0,
+          "expected": 500
+        },
+        {
+          "batch": "fa_x4_gr_f_on_o_s200",
+          "unit": "fa_x4_gr_f_on_o",
+          "run": "/data/mw_finetune/eval/fa_x4_gr_f_on_o_s200",
+          "complete": false,
+          "accepted": 0,
+          "expected": 500
+        }
+      ]
+    },
+    {
+      "lane": "fa_x4_gr_f_lo",
+      "problems": [
+        "fa_x4_gr_f_lo_k1 WAITING",
+        "fa_x4_gr_f_lo_k2 WAITING",
+        "fa_x4_gr_f_lo_k3 WAITING",
+        "fa_x4_gr_f_lo_k4 WAITING",
+        "fa_x4_gr_f_lo_o_l50: 0/500 accepted",
+        "fa_x4_gr_f_lo_o_l100: 0/500 accepted",
+        "fa_x4_gr_f_lo_o_l200: 0/500 accepted",
+        "fa_x4_gr_f_lo_o_s50: 0/500 accepted",
+        "fa_x4_gr_f_lo_o_s100: 0/500 accepted",
+        "fa_x4_gr_f_lo_o_s200: 0/500 accepted"
+      ],
+      "batches": [
+        {
+          "batch": "fa_x4_gr_f_lo_o_l50",
+          "unit": "fa_x4_gr_f_lo_o",
+          "run": "/data/mw_finetune/eval/fa_x4_gr_f_lo_o_l50",
+          "complete": false,
+          "accepted": 0,
+          "expected": 500
+        },
+        {
+          "batch": "fa_x4_gr_f_lo_o_l100",
+          "unit": "fa_x4_gr_f_lo_o",
+          "run": "/data/mw_finetune/eval/fa_x4_gr_f_lo_o_l100",
+          "complete": false,
+          "accepted": 0,
+          "expected": 500
+        },
+        {
+          "batch": "fa_x4_gr_f_lo_o_l200",
+          "unit": "fa_x4_gr_f_lo_o",
+          "run": "/data/mw_finetune/eval/fa_x4_gr_f_lo_o_l200",
+          "complete": false,
+          "accepted": 0,
+          "expected": 500
+        },
+        {
+          "batch": "fa_x4_gr_f_lo_o_s50",
+          "unit": "fa_x4_gr_f_lo_o",
+          "run": "/data/mw_finetune/eval/fa_x4_gr_f_lo_o_s50",
+          "complete": false,
+          "accepted": 0,
+          "expected": 500
+        },
+        {
+          "batch": "fa_x4_gr_f_lo_o_s100",
+          "unit": "fa_x4_gr_f_lo_o",
+          "run": "/data/mw_finetune/eval/fa_x4_gr_f_lo_o_s100",
+          "complete": false,
+          "accepted": 0,
+          "expected": 500
+        },
+        {
+          "batch": "fa_x4_gr_f_lo_o_s200",
+          "unit": "fa_x4_gr_f_lo_o",
+          "run": "/data/mw_finetune/eval/fa_x4_gr_f_lo_o_s200",
+          "complete": false,
+          "accepted": 0,
+          "expected": 500
+        }
+      ]
+    },
+    {
+      "lane": "fa_x34_gr_r",
+      "problems": [
+        "fa_x34_gr_r_k3 WAITING",
+        "fa_x34_gr_r_k4 WAITING",
+        "fa_x34_gr_r_k2: 4336/5450 accepted"
+      ],
+      "batches": [
+        {
+          "batch": "fa_x34_gr_r_o",
+          "unit": "fa_x34_gr_r_o",
+          "run": "/data/mw_finetune/eval/fa_x34_gr_r_o",
+          "complete": true,
+          "accepted": 12000,
+          "expected": 12000
+        },
+        {
+          "batch": "fa_x34_gr_r_k1",
+          "unit": "fa_x34_gr_r_k1",
+          "run": "/data/mw_finetune/eval/fa_x34_gr_r_k1",
+          "complete": true,
+          "accepted": 6500,
+          "expected": 6500
+        },
+        {
+          "batch": "fa_x34_gr_r_k2",
+          "unit": "fa_x34_gr_r_k2",
+          "run": "/data/mw_finetune/eval/fa_x34_gr_r_k2",
+          "complete": false,
+          "accepted": 4336,
+          "expected": 5450
+        },
+        {
+          "batch": "fa_x34_gr_r_k1r",
+          "unit": "fa_x34_gr_r_k1r",
+          "run": "/data/mw_finetune/eval/fa_x34_gr_r_k1r",
+          "complete": true,
+          "accepted": 6,
+          "expected": 6
+        }
+      ]
+    }
+  ]
+}

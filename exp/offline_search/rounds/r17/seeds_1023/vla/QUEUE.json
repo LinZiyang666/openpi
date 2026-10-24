@@ -2489,21 +2489,6 @@
    "status": "BUILT"
   },
   {
-   "name": "fa_x34_pi_r_k3",
-   "model": "pi05",
-   "mode": "reduced",
-   "arm": "filtered",
-   "stage": "round",
-   "round": 3,
-   "level": "ir32",
-   "pipeline": "R16",
-   "gpu": "H100",
-   "replicas": 3,
-   "episodes": null,
-   "jobs": [],
-   "status": "WAITING"
-  },
-  {
    "name": "fa_x34_pi_r_k4",
    "model": "pi05",
    "mode": "reduced",
@@ -2789,21 +2774,6 @@
    "status": "WAITING",
    "subset_seed": 20261004,
    "long_segment": "off"
-  },
-  {
-   "name": "fa_x34_gr_r_k2",
-   "model": "groot",
-   "mode": "reduced",
-   "arm": "filtered",
-   "stage": "round",
-   "round": 2,
-   "level": "ir40",
-   "pipeline": "R16",
-   "gpu": "H100",
-   "replicas": 4,
-   "episodes": null,
-   "jobs": [],
-   "status": "WAITING"
   },
   {
    "name": "fa_x34_gr_r_k3",
@@ -3978,6 +3948,483 @@
    },
    "round": 1,
    "level": "ir45"
+  },
+  {
+   "name": "fa_x34_pi_r_k3",
+   "model": "pi05",
+   "mode": "reduced",
+   "arm": "filtered",
+   "stage": "round",
+   "round": 3,
+   "level": "ir32",
+   "pipeline": "R16",
+   "gpu": "H100",
+   "replicas": 3,
+   "episodes": 9150,
+   "jobs": [
+    {
+     "name": "fa_x34_pi_r_k3",
+     "run": "/data/mw_finetune/eval/fa_x34_pi_r_k3",
+     "group": "/data/mw_finetune/eval/fa_x34_pi_r_k3/group.json",
+     "model": "pi05",
+     "pipeline": "R16",
+     "episodes": 9150,
+     "port": 23157,
+     "ports": "23150,23151,23152",
+     "groot_suite_servers": null,
+     "replicas": 3,
+     "gpu": "H100",
+     "server_tree": "/data/oscl_h100/openpi_r16_q3_server (h100)"
+    }
+   ],
+   "status": "BUILT",
+   "off_decision": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/seeds_1023/vla/off_decisions/pi05_reduced.json",
+   "tuned_cells": {
+    "x3_on": [
+     "pi05_l10_50",
+     "pi05_l10_100",
+     "pi05_l10_200",
+     "pi05_spatial_50",
+     "pi05_spatial_100",
+     "pi05_spatial_200"
+    ],
+    "x3_lo": [
+     "pi05_l10_50",
+     "pi05_spatial_50",
+     "pi05_spatial_100",
+     "pi05_spatial_200"
+    ],
+    "x4_on": [
+     "pi05_l10_50",
+     "pi05_l10_100",
+     "pi05_l10_200",
+     "pi05_spatial_50",
+     "pi05_spatial_100",
+     "pi05_spatial_200"
+    ],
+    "x4_lo": [
+     "pi05_l10_50",
+     "pi05_spatial_50",
+     "pi05_spatial_100",
+     "pi05_spatial_200"
+    ]
+   },
+   "alive": {
+    "x3_lo_l50": [
+     0,
+     1,
+     3,
+     5,
+     6,
+     7,
+     8,
+     9
+    ],
+    "x3_lo_s100": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9
+    ],
+    "x3_lo_s200": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9
+    ],
+    "x3_lo_s50": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9
+    ],
+    "x3_on_l100": [
+     0,
+     1,
+     2,
+     3,
+     5,
+     7,
+     8,
+     9
+    ],
+    "x3_on_l200": [
+     0,
+     1,
+     2,
+     3,
+     5,
+     7,
+     8,
+     9
+    ],
+    "x3_on_l50": [
+     0,
+     1,
+     2,
+     3,
+     5,
+     7,
+     8,
+     9
+    ],
+    "x3_on_s100": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9
+    ],
+    "x3_on_s200": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9
+    ],
+    "x3_on_s50": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9
+    ],
+    "x4_lo_l50": [
+     0,
+     1,
+     3,
+     5,
+     6,
+     7,
+     8,
+     9
+    ],
+    "x4_lo_s100": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9
+    ],
+    "x4_lo_s200": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9
+    ],
+    "x4_lo_s50": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9
+    ],
+    "x4_on_l100": [
+     0,
+     1,
+     2,
+     3,
+     5,
+     6,
+     7,
+     8,
+     9
+    ],
+    "x4_on_l200": [
+     0,
+     1,
+     2,
+     3,
+     5,
+     7,
+     9
+    ],
+    "x4_on_l50": [
+     0,
+     1,
+     2,
+     3,
+     5,
+     6,
+     7,
+     9
+    ],
+    "x4_on_s100": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9
+    ],
+    "x4_on_s200": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     6,
+     7,
+     8,
+     9
+    ],
+    "x4_on_s50": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9
+    ]
+   }
+  },
+  {
+   "name": "fa_x34_gr_r_k2",
+   "model": "groot",
+   "mode": "reduced",
+   "arm": "filtered",
+   "stage": "round",
+   "round": 2,
+   "level": "ir40",
+   "pipeline": "R16",
+   "gpu": "H100",
+   "replicas": 4,
+   "episodes": 5450,
+   "jobs": [
+    {
+     "name": "fa_x34_gr_r_k2",
+     "run": "/data/mw_finetune/eval/fa_x34_gr_r_k2",
+     "group": "/data/mw_finetune/eval/fa_x34_gr_r_k2/group.json",
+     "model": "groot",
+     "pipeline": "R16",
+     "episodes": 5450,
+     "port": 23158,
+     "ports": "23153,23154,23155,23156",
+     "groot_suite_servers": "3,1",
+     "replicas": 4,
+     "gpu": "H100",
+     "server_tree": "/data/oscl_h100/openpi_r16_q3_server (h100)"
+    }
+   ],
+   "status": "BUILT",
+   "off_decision": "/home/weiland/projects/openpi/exp/offline_search/rounds/r17/seeds_1023/vla/off_decisions/groot_reduced.json",
+   "tuned_cells": {
+    "x3_on": [
+     "groot_l10_50",
+     "groot_l10_100",
+     "groot_l10_200",
+     "groot_spatial_50"
+    ],
+    "x3_lo": [
+     "groot_l10_50",
+     "groot_l10_100"
+    ],
+    "x4_on": [
+     "groot_l10_50",
+     "groot_l10_100",
+     "groot_l10_200",
+     "groot_spatial_50"
+    ],
+    "x4_lo": [
+     "groot_l10_50",
+     "groot_l10_100",
+     "groot_spatial_50"
+    ]
+   },
+   "alive": {
+    "x3_lo_l100": [
+     0,
+     1,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "x3_lo_l50": [
+     0,
+     1,
+     3,
+     5,
+     6,
+     7,
+     8
+    ],
+    "x3_on_l100": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     8
+    ],
+    "x3_on_l200": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     8,
+     9
+    ],
+    "x3_on_l50": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9
+    ],
+    "x3_on_s50": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     9
+    ],
+    "x4_lo_l100": [
+     0,
+     1,
+     2,
+     3,
+     5,
+     6,
+     7
+    ],
+    "x4_lo_l50": [
+     0,
+     1,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8
+    ],
+    "x4_lo_s50": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9
+    ],
+    "x4_on_l100": [
+     0,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9
+    ],
+    "x4_on_l200": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     8
+    ],
+    "x4_on_l50": [
+     0,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9
+    ],
+    "x4_on_s50": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     9
+    ]
+   }
   }
  ]
 }
