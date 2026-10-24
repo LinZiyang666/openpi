@@ -355,6 +355,14 @@ def reference(model, benchmark, mode, gpu):
     root = Path(read(REFERENCES)['references'][f'{model}:{benchmark}:{mode}:{gpu}']['run'])
     if not (root/'RECEIPT.json').exists():
         return {}
+    if not read(root/'campaign.json').get('cache_study'):
+        # A knob-era control (tfw7k3_1051, tgr7h1_k2): the knob reader, as longseg_1017.analyze.reference.
+        from exp.offline_search.rounds.r17.knob import common as c
+        from exp.offline_search.rounds.r17.knob.test import load_controls
+        from exp.offline_search.rounds.r17.longseg_1017.analyze import LABELS
+        controls = load_controls(EVAL, {LABELS[model]}, mode, [LABELS[model]+'='+root.name],
+                                 suites=('mt50',) if benchmark == 'mt50' else c.cache.SUITES)
+        return {suite: data for (label, suite), data in controls.items()}
     result = {}
     for (label, suite, size), arms in lane_data(root).items():
         result.setdefault(suite, {}).update(arms.get('pure', {}))
