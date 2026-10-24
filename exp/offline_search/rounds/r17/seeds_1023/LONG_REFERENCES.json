@@ -25,7 +25,7 @@
       "definition_of": "fa_ls_dp_r_p_m"
     },
     "dp:mt50:full:H100": {
-      "run": "/data/mw_finetune/eval/fa_sd_dp_f_m_p",
+      "run": "/data/mw_finetune/eval/fa_sd_dp_f_m_p2",
       "groups": [
         "chrg_pure"
       ],

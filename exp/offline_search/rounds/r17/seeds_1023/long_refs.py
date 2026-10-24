@@ -5,7 +5,8 @@ Each new batch is its long-segment ON study's pure reference (longseg_1017 fa_ls
   H100 (sean lane 2: the chain exports R17_H100_NODE/HOST/DRIVER_PORT/PUBLIC_PORT; the wrappers carry no env), cloned
   like longseg_off_1022's fa_lo_*_b_* pure references (longseg_1017.build.clone), the rows/YAMLs copied from the source:
     fa_sd_dp_{r,f}_l_p  <- fa_ls_dp_{r,f}_p_l  4090 -> H100 from the same source with dp_libero_h100 (fa_lo_dp_*_b_l)
-    fa_sd_dp_{r,f}_m_p  <- fa_ls_dp_{r,f}_p_m  4090 -> H100 from the H100 original (dp_mt50_h100, fa_lo_dp_*_b_m)
+    fa_sd_dp_r_m_p, fa_sd_dp_f_m_p2 <- fa_ls_dp_{r,f}_p_m  4090 -> H100 from the H100 original (dp_mt50_h100,
+                                               fa_lo_dp_*_b_m); full at R4/20 GiB to fit beside sean's Fast-WAM
     fa_sd_fw_r_l_p      <- fa_ls_fw_r_p_l      4090 -> the H100 Fast-WAM LIBERO resident (fa_lo_fw_r_b_l), R1 / 20 GiB /
                                                text table, so it fits beside sean's Fast-WAM LIBERO full R4 (4 x 14.2 GB)
   pods: fa_sd_gr_{r,f}_m_p_j <- fa_ls_gr_{r,f}_p_m  longseg_1017.pod_copy (GR00T R2 / 14 GiB, the source definition: all
@@ -37,7 +38,9 @@ H100 = {  # new batch: (source pure-long run, clone source, deployment)
     'fa_sd_dp_r_l_p': ('fa_ls_dp_r_p_l', 'ffk1015_dp_libero_reduced_formal_A_original', 'dp_libero'),
     'fa_sd_dp_f_l_p': ('fa_ls_dp_f_p_l', 'ffk1015_dp_libero_full_formal_A_original', 'dp_libero'),
     'fa_sd_dp_r_m_p': ('fa_ls_dp_r_p_m', 'ffk1015_dp_mt50_reduced_descent', None),
-    'fa_sd_dp_f_m_p': ('fa_ls_dp_f_p_m', 'ffk1015_dp_mt50_full_descent', None),
+    # fa_sd_dp_f_m_p (R8/40 GiB) hit CUDA OOM at warmup beside sean's Fast-WAM LIBERO full R4 (4 x 15.2 GB), 10-24 17:38;
+    # p2 serves the same definition at R4/20 GiB (5 GiB per replica as before), replicas started one at a time.
+    'fa_sd_dp_f_m_p2': ('fa_ls_dp_f_p_m', 'ffk1015_dp_mt50_full_descent', 'dp_r4'),
     'fa_sd_fw_r_l_p': ('fa_ls_fw_r_p_l', lob.H100_FW_LIBERO.name, 'fastwam_r1'),
 }
 PODS = {'fa_sd_gr_r_m_p_j': ('fa_ls_gr_r_p_m', 'jupyter-ziyang10-02', 23192),
@@ -45,7 +48,7 @@ PODS = {'fa_sd_gr_r_m_p_j': ('fa_ls_gr_r_p_m', 'jupyter-ziyang10-02', 23192),
 # Existing same-card C10 pure references, and the new ones above, by model:benchmark:mode:card.
 REGISTRY = {
     'dp:libero:reduced:H100': 'fa_sd_dp_r_l_p', 'dp:libero:full:H100': 'fa_sd_dp_f_l_p',
-    'dp:mt50:reduced:H100': 'fa_sd_dp_r_m_p', 'dp:mt50:full:H100': 'fa_sd_dp_f_m_p',
+    'dp:mt50:reduced:H100': 'fa_sd_dp_r_m_p', 'dp:mt50:full:H100': 'fa_sd_dp_f_m_p2',
     'fastwam:libero:reduced:H100': 'fa_sd_fw_r_l_p', 'fastwam:libero:full:H100': 'fa_ls_fw_f_p_l',
     'fastwam:mt50:reduced:H100': 'fa_ls_fw_r_p_m', 'fastwam:mt50:full:H100': 'fa_ls_fw_f_p_m',
     f'groot:mt50:reduced:{lob.POD}': 'fa_sd_gr_r_m_p_j', f'groot:mt50:full:{lob.POD}': 'fa_sd_gr_f_m_p_j',
@@ -59,6 +62,13 @@ def dp_libero(root, c):
     if wire.exists():
         wire.unlink()  # dp_libero_h100 copies the probe frames; never write through a link into the clone source
     lob.dp_libero_h100(root, c)
+
+
+def dp_r4(root, c):
+    """DP MT50 full beside sean's Fast-WAM LIBERO R4: R4 / 20 GiB (same 5 GiB per replica), startup width 1."""
+    c.update(replicas=4, memory_budget_gib=20.0, replica_startup_width=1)
+    if isinstance(c.get('cache_worker_orchestration'), dict) and 'replicas' in c['cache_worker_orchestration']:
+        c['cache_worker_orchestration']['replicas'] = 4
 
 
 def fastwam_r1(root, c):
@@ -97,7 +107,7 @@ def build_h100(name):
     source_name, clone_source, deploy = H100[name]
     source, on = EVAL/source_name, lob.on_job(source_name)
     groups = read(source/'assets/CACHE_STUDY.json')['groups']
-    deploy = {'dp_libero': dp_libero, 'fastwam_r1': fastwam_r1}.get(deploy)
+    deploy = {'dp_libero': dp_libero, 'fastwam_r1': fastwam_r1, 'dp_r4': dp_r4}.get(deploy)
     with patch.object(lb, 'COMMANDS', lob.COMMANDS):  # filter_failed_knob/commands/{prepare,launch}_<name>.sh
         job = lb.clone(EVAL/clone_source, name, workers=on['workers'], groups=groups, mode=on['mode'], stage=None,
                        edit=same_definition(source, deploy))
