@@ -16,6 +16,8 @@ from pathlib import Path
 import numpy as np
 from scipy.stats import beta
 
+from exp.offline_search import zst_logs
+
 HERE = Path(__file__).resolve().parent
 SIZES = (50, 100, 200, 300, 400, 500)
 SUITES = ("libero_spatial", "libero_10")
@@ -46,13 +48,14 @@ class Sources:
 
     def rows(self, path):
         path = Path(path)
-        if not path.exists():
+        if not zst_logs.exists(path):
             self.missing.add(str(path))
             return
         self.files.add(str(path))
         # Bound each read to the current file length while a lane is appending.
-        with path.open("rb") as f:
-            remaining = path.stat().st_size
+        # A finished run's <name>.zst is read to its end (-1: no bound).
+        with zst_logs.open_log(path, "rb") as f:
+            remaining = path.stat().st_size if path.exists() else -1
             while remaining:
                 line = f.readline(remaining)
                 if not line:
@@ -63,7 +66,7 @@ class Sources:
                 try:
                     yield json.loads(line)
                 except json.JSONDecodeError:
-                    if remaining or line.endswith(b"\n"):
+                    if remaining > 0 or line.endswith(b"\n"):
                         raise
                     self.incomplete_lines[str(path)] += 1
 
