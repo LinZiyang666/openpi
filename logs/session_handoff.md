@@ -52,7 +52,7 @@ owner 的常驻指令，逐字有效：
 
 
 
-## 1. 现在在哪（2026-10-21 11:5x CDT；**看守会话（本会话 35f2869b 的分支，只看守实验）最先读「10-24 15:2x 看守会话总状态」，再读「10-23 20:2x 看守会话总状态」，再读「10-23 16:4x 新实验」，再读「10-23 15:4x 看守会话总状态」，再读「10-22 22:1x 看守增补」，再读「10-22 22:0x 看守会话增补」，再读「10-22 19:1x 看守会话增补」，再读「10-22 18:3x 看守会话总状态（compact 前）」；新实验会话读 exp/cluster_sim/HANDOFF.md 与「10-21 22:xx 新实验：集群部署模拟」；之后读「10-21 22:xx 新实验：集群部署模拟」，再读「10-21 19:5x 增补（compact 前总状态）」，再读「10-21 19:4x 增补」，再读「10-21 18:3x 增补」，再读「10-21 17:3x 增补」，再读「10-21 15:0x 增补」，再读「10-21 14:0x 增补」，再读「10-21 13:2x 增补」，再读「10-21 12:0x 增补」，再读「10-21 11:5x 增补（compact 前总状态）」，再读「10-21 00:3x 增补」，再读「10-21 00:0x 增补（compact 前总状态）」，再读「22:5x」「22:1x」「21:4x」增补，再读「21:3x 增补（compact 前总状态）」**，再读 20:5x 旧门事故、其余增补与 09:4x 总状态，再读其后各增补（09:29 → 21:2x 倒序）与 10-19 21:0x 总状态；10-14 及更早只作背景）
+## 1. 现在在哪（2026-10-21 11:5x CDT；**看守会话（本会话 35f2869b 的分支，只看守实验）最先读「10-25 00:0x 看守会话总状态」，再读「10-24 15:2x 看守会话总状态」，再读「10-23 20:2x 看守会话总状态」，再读「10-23 16:4x 新实验」，再读「10-23 15:4x 看守会话总状态」，再读「10-22 22:1x 看守增补」，再读「10-22 22:0x 看守会话增补」，再读「10-22 19:1x 看守会话增补」，再读「10-22 18:3x 看守会话总状态（compact 前）」；新实验会话读 exp/cluster_sim/HANDOFF.md 与「10-21 22:xx 新实验：集群部署模拟」；之后读「10-21 22:xx 新实验：集群部署模拟」，再读「10-21 19:5x 增补（compact 前总状态）」，再读「10-21 19:4x 增补」，再读「10-21 18:3x 增补」，再读「10-21 17:3x 增补」，再读「10-21 15:0x 增补」，再读「10-21 14:0x 增补」，再读「10-21 13:2x 增补」，再读「10-21 12:0x 增补」，再读「10-21 11:5x 增补（compact 前总状态）」，再读「10-21 00:3x 增补」，再读「10-21 00:0x 增补（compact 前总状态）」，再读「22:5x」「22:1x」「21:4x」增补，再读「21:3x 增补（compact 前总状态）」**，再读 20:5x 旧门事故、其余增补与 09:4x 总状态，再读其后各增补（09:29 → 21:2x 倒序）与 10-19 21:0x 总状态；10-14 及更早只作背景）
 
 ### ★★★★★★★★★★★★★★★★★★★★★★★★ 2026-10-20 09:4x CDT 总状态（compact 后最先读这块）
 
@@ -64,6 +64,41 @@ owner 的常驻指令，逐字有效：
 - 处置：09:56 按 PID SIGSTOP 复制 rsync（3726105/3726106/3729764）和两个 governor（3343372/3951564）。效果（同一时刻对比）：Cosmos 15→60 局/分、pod2 DP 85→250、v11_0 50→125（v11_0 同时 floor 40→70）。⛔ **复制保持暂停**；剩 ~190 GB（eval 533/~720 GB）以后找没有 driver 在跑、或可接受的短窗口一次性不限速跑完，不要再长时间节流慢跑。恢复命令：`kill -CONT 3343372 3951564 3726105 3726106 3729764`。记忆 reference-weilandserver-data 已加这条。
 - floors 现 `{"fa_ls_dp_f_f_m_j": 32, "fa_ls_v11_0": 70}`。
 - 在调研（opus 只读）：H100 队列 ~88 h（4 批 FW MT50 旋钮下降 ~42 h）vs 4090 ~22 h；旋钮下降批次 IR 离线算、可换卡 → 考虑 FW/GR00T MT50 旋钮下降挪 4090、DP LIBERO 旋钮下降挪 pod（需装 openpi 环境）。结论回来前不动队列。
+
+**10-25 00:0x 看守会话总状态（compact 前写；compact 后最先读这块，再读「10-24 20:3x」「16:3x」「15:4x」增补和「10-24 15:2x」总状态）**
+
+### owner 新指令（10-24 下午到深夜，都有效）
+- ⛔ **pod / 节点掉线当场 PushNotification**，30 分钟没回再推（10-24 pod 17:49 掉线我 18:35 才推，owner 批评；记忆 feedback-notify-device-incidents 已改）。pod 每天 17:4x 被回收，要 owner 在 JupyterHub 重开。
+- ⛔ **IR 计价只算 GPU 时间**（owner 批准，b214ee61）：R17 计时工具把 CPU prepare 和 host 空隙算进各段（π0.5 MT50 视觉 38.7 ms 中 GPU 只有 9.0）。现在用 `exp/r17_integration/profile/gpu_only.py` 从 nsys 记录算出的 `*_gpu` 档案（两处根目录下的 results_gpu/results_mt50_gpu/results_cached_text_gpu）；`knob/ir_formal.py`、`longseg_1017/analyze.prices` 读 `*_gpu`，DP 不再扣 CPU 文本。RESULTS_1022、RESULTS_OFF、π0.5 MT50 descent、网页本地数据已重出（23763ba1，只 IR 字段变，备份 *.before_gpuonly_1024，对照 /nvme/weiland/openpi/gpuonly_1024/）。D5（π0.5/GR00T LIBERO）不变。网页 latency 两张表仍是旧口径（来自已发布页 assets），上传网页时更新。
+- **/nvme 腾空间**（owner 批准，前提结果不变）：81% → 57%。冷日志打包进 /archive（⛔ btrfs 上的 HC620 叠瓦盘，只能大 tar.zst 顺序写，记忆 feedback-archive-smr-pack；`ops_scripts/archive_pack.sh`，索引 /nvme/weiland/openpi/ARCHIVED_1024.tsv，包副本 /nvme/weiland/openpi/cold_packs_1024/）；162 个 PASS 批次 per_step 原地压 .zst（`ops_scripts/zst_per_step.sh`，读取经 `exp/offline_search/zst_logs.py`，845d1514；⛔ 续跑/重收尾前先 `zstd -d --rm`，RUN_CONFIGS 坑位）。未压：新种子批次（实验完后）、链上游 FAIL/PARTIAL（整链跑满后）。i018/runs 385 G 是 owner 另一项目，没动。
+- **新实验 RT-Cache 基线**（任务 #37）：π0.5 LIBERO，严格照原文（DINOv2-L + SigLIP-so400m-384 的腕部单路键、余弦 kNN、无阈值无回退），每次回放 5 步，成功过滤库，种子 20261002，库 50/100/200/500 × 两套件，测试集 A；top1 与 K=50 均值两套 → 8,000 局。opus 代理在做（代码 exp/offline_search/rounds/r17/rtcache_1024/，数据 /nvme/weiland/openpi/rtcache/，跑在 timan107 空闲卡，/scratch/zixuans8/rtcache）。结果回来后汇报 owner；IR 要在 4090 独占时补测编码器（4090 两批之间）。
+- **π0.5/GR00T LIBERO 补库大小 300/400**（任务 #39）：三个种子 × 四个变体（全/减步 × 长段开/关），成功过滤库。代理已建好未跑：库产物 /nvme/weiland/openpi/r17_seed_split/n34/，单位登记 `seeds_1023/vla/n34_units/QUEUE.json`（R15 全步 12 个 `fa_n{2,3,4}_{pi,gr}_f_{on,lo}_o` 各 2,000；R16 减步 `fa_n234_{pi,gr}_r_o` 各 12,000；旋钮关 48,000；轮次 k1–k4 已登记 WAITING，估 ~9 万），wrapper `filter_failed_knob/commands/*_fa_n*.sh`（入口 `seeds_1023.vla.n34 dispatch`），种子 20261002 一致性 160/160。⛔ **待 owner 定**：20261002 的三条线（GR00T 全步开、π0.5 减步开、GR00T 减步开）原 50–200 在 4090 跑，300/400 放 4090（A，我建议，同卡）还是 H100（B）。定了再排车道：VLA 单位共用 R16 端口只能串行，接 h100vla4 链尾；4090 空出（π0.5 MT50 全步线完）可跑 A 的三条线。results_seeds/make_index 已扩到 300/400（代理改的，未提交，提交前看 git diff）。
+- 论文会话（「iclr后mlsys论文撰写」）：已给主表数据位置（logs/paper_main_table_data_1024.md）、IR 重算通知、看板全部数据导出（logs/paper_ablation_data_1024/，8d6c58ce）。它已按 *_gpu 重跑主表。跨会话消息常被对方扣住要 owner 批准。
+
+### 各车道（10-25 00:0x）
+| 车道 | 链 | 现在 | 后面 |
+|---|---|---|---|
+| sean 车道 1（driver 23197） | **seanco1** | Cosmos LIBERO 减步第 1 轮 fa_sd_co_r_l_k1 4,287/10,000（~25–50 局/分，和 DP 共卡） | co_r_l_k2–5 → co_f_l_o → co_f_l_k1–5；之后 **seanlo22**：fa_sd_fw_f_l_k3c1（1,936）→ fw_f_l_k4 → k5 → fw_r_l_o → fw_r_l_k1–5 |
+| sean 车道 2（driver 23198/public 23280） | **seanlo21** | DP MT50 减步 k5 prepare（k1 60,000 / k2 38,150 / k3 35,150 / k4 31,900） | dp_f_m_o（R4/20 GiB）→ dp_f_m_k1–5 |
+| 真 H100 B（R17 23170–72，driver 23199） | **h100fw5** | FW MT50 减步 k5 13,263/23,400（6 线程，~250 局/分） | fw_f_m_o（6 线程）→ fw_f_m_k1–5 |
+| 真 H100 A（VLA R16 23150–58） | **h100vla4** | GR00T LIBERO 减步 k4 fa_x34_gr_r_k4 | 4 个 GR00T 全步第一步 → 全步 4 轮 × 8 单位；再接 n34（300/400） |
+| 4090 | **4090sd4** | π0.5 MT50 全步旋钮关 fa_sd_pi_f_m_o 28,800/30,000 | pi_f_m_k1–5 |
+| pod -02（driver 23192） | **pod2sd3** | GR00T MT50 减步 k3 9,346/25,350 | k4 → k5 → fa_sd_gr_r_m_p_j（长段参照） |
+| pod1（driver 23193） | **pod1sd3** | GR00T MT50 全步 k2 12,841/29,400 | k3–k5 → fa_sd_gr_f_m_p_j |
+- 已完成整线：DP LIBERO r/f、π0.5 MT50 减步（101,450 局，全档要 150,000）。H100 长段参照 5 份全 PASS（seeds_1023/LONG_REFERENCES.json；fa_sd_dp_f_m_p 作废改 p2）。
+- 今天新建的东西：`seeds_1023/SERVING_OVERRIDES.json`（旋钮关已封存时按单位覆盖服务字段；FW MT50 r k4/k5 server_threads 6、FW LIBERO f k4/k5 R3/57 GiB）、`seeds_1023/long_refs.py`、`make_index.py`、`ops_scripts/{pod_up,pod_resume,archive_pack,zst_per_step}.sh`。
+
+### 今天的坑（别再犯）
+- **sean 显存**：FW LIBERO R4 实际峰值 ~68 GB（每副本 16–17 GB），和车道 2 的 DP 全步 R4（预热 5 GB/副本）一起会 OOM。FW LIBERO 剩余全改 R3/57 GiB；DP MT50 全步 R4/20 GiB（fa_sd_dp_f_m_o 已改，.before_seanshare_1024）。Cosmos R8 实际 ~41 GB，可和 DP 共卡。
+- ⛔ **别改已跑完批次的 campaign.json**（GPU_RELEASED.json 记了它的哈希；要改后续轮次的服务字段用 SERVING_OVERRIDES）。
+- pod 恢复：两台的 `setup.sh groot` 要**一台一台**跑（共用 NFS 上的 bin/r17x，并发会 Stale file handle）。`pod_resume.sh` 里挂链要分两行（`cd $O` 再 `setsid nohup ... &`），否则 `&` 包住整个 `cd && ...` 会留一个子 shell 占住调用方管道。
+- pgrep 自匹配：等待脚本里别 `pgrep -f` 自己命令行里出现的字符串（archive 排队那次空等了 40 分钟）。guard_wait 只能用 run_in_background 起，别 `& disown`/`&`。
+- Cosmos 减步名义 2 步实算 1 步（gpu_only.py 按实际执行步数分组）。
+
+### 监控（compact 后核对，缺了重挂）
+- server_watch 循环 bnr4ccd1h；jupyter_watch bfi6lj76b（pod 回来后重挂的）；guard_wait：`bash $CLAUDE_JOB_DIR/tmp/guard_wait.sh 1500`（pod 下线时加 NOJW=1）；Monitor 30 分钟到期重挂：`cd ~/projects/openpi_ext/scratch/r17_ops && tail -n0 -F mw/chain.log server_watch.alerts.log | grep --line-buffered -E "ended rc=|FAILED|STOPPED|CHAIN_STOPPED|queue done|queue start|hold file present|ALERT|rate .* -> |Traceback|server_watch exited|DIRECT_FAIL|\[hold\]|\[pullback\]"`。
+- 每个 VLA 单位结束后跑 `python -m exp.offline_search.rounds.r17.seeds_1023.vla.build repair --name <unit>`（无坏局打印 NO_DECISIONLESS）。
+- 在跑的代理：RT-Cache 基线（完成后会通知）。任务表：#4 巡检、#19 汇总、#21 新种子、#24 常驻、#29 轮次、#32 Cosmos、#34 长段参照、#37 RT-Cache、#39 300/400 进行中。
 
 **10-24 15:2x 看守会话总状态（compact 前写；compact 后最先读这块，再读「10-24 12:4x」「04:5x」「01:2x」「08:1x」增补，再读 10-23 20:2x）**
 
