@@ -1116,6 +1116,22 @@ Evidence: [Q grouped-driver handback](../qualification/HANDBACK_Q.md#grouped-dri
 
 ## Pitfalls (do not repeat)
 
+### Finished runs keep per_step as `.zst`; cold logs are packed in /archive (10-24)
+
+- `driver/per_step.jsonl` of closed runs (RECEIPT PASS, whole continuation chain done) is compressed in place to
+  `per_step.jsonl.zst` (`ops_scripts/zst_per_step.sh`, byte-compared before the plain file is deleted; list in
+  `/nvme/weiland/openpi/ZST_PER_STEP_1024.tsv`). Analysis reads it through `exp/offline_search/zst_logs.py`
+  (`analyze_cache.Sources.rows`, the one live reader; outputs byte-identical on 4 sample groups, 845d1514).
+  ⛔ Before **resuming or re-finalizing** such a run (`filter_failed.resume`, `formal_resume`, `cache_resume`,
+  `formal_finalize`, `cache_study.aggregate`, library repair/salvage) run `zstd -d --rm <run>/driver/per_step.jsonl.zst`
+  first: those ops paths (also overlaid into frozen runtimes) still read the plain file. Never compress a live run,
+  a chain's upstream segment before its tip is full, or journal.jsonl.
+- Cold server logs / startup snapshots / pulled-back H100 logs are packed into `/archive/openpi/nvme_cold_1024/*.tar.zst`
+  (`ops_scripts/archive_pack.sh`; index `/nvme/weiland/openpi/ARCHIVED_1024.tsv`). /archive is btrfs on an SMR HC620:
+  write one large stream per group, one writer at a time, never file by file.
+- H100 /data pull-back: the read-only rsync daemon must not use port 23117 (VLA asset sync); 23119 worked.
+
+
 ### Replicas need measured host/kernel overlap
 
 Replica processes share compute and duplicate weights/workspace, but **the
