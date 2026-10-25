@@ -107,6 +107,16 @@ owner 的常驻指令，逐字有效：
   `pod_resume.sh fa_sd_gr_r_m_k2 pod2sd2 pod2sd3 fa_sd_gr_r_m_k3 fa_sd_gr_r_m_k4 fa_sd_gr_r_m_k5 fa_sd_gr_r_m_p_j`；
   `pod_resume.sh fa_sd_gr_f_m_k1 pod1sd2 pod1sd3 fa_sd_gr_f_m_k2 fa_sd_gr_f_m_k3 fa_sd_gr_f_m_k4 fa_sd_gr_f_m_k5 fa_sd_gr_f_m_p_j`（若重启时某批已跑完，就只开新链接剩余项）。
 
+### 10-24 20:3x 增补（/nvme 腾空间、sean 显存、pod 未回）
+- **/nvme 81% → 55%**（owner 批准挪走可挪的，前提结果不变）：
+  - 冷日志打包进 /archive（btrfs 上的 HC620 叠瓦盘，⛔ 只能大包顺序写，见记忆 feedback-archive-smr-pack）：`ops_scripts/archive_pack.sh` 打 tar.zst → tar -d 逐字节核对 → 删原件。5 个包（trash/stale、H100 拉回日志、PASS 批次 servers/、PASS 批次 .startup_inputs、非 PASS 批次 servers/）在 /archive/openpi/nvme_cold_1024/，/nvme/weiland/openpi/cold_packs_1024/ 留副本（sha256 一致），索引 /nvme/weiland/openpi/ARCHIVED_1024.tsv。
+  - 162 个 PASS 批次的 driver/per_step.jsonl 原地压成 .zst（484 G → 33 G，逐文件 cmp）；读取经 exp/offline_search/zst_logs.py（845d1514，4 组样本新旧输出逐字节相同）。⛔ 对已压的批次续跑/重收尾前先 `zstd -d --rm`（RUN_CONFIGS 坑位 5966baa1）。未压：新种子批次（实验完后）、链上游 FAIL/PARTIAL（整链跑满后，~159 G）。
+- **sean 显存**：FW LIBERO R4 实际峰值 ~68 GB（每副本 16–17 GB），车道 2 的 DP 全步 R4 一起会 OOM（17:38 fa_sd_dp_f_m_p、18:06 fa_sd_fw_f_l_k3 都是这样挂的）。处理：DP MT50 全步参照改建 fa_sd_dp_f_m_p2（R4/20 GiB，已 PASS），fa_sd_dp_f_m_o 改 R4/20 GiB（备份 .before_seanshare_1024，各轮继承）；FW LIBERO 剩余全改 R3/57 GiB（k3c1 campaign、k4/k5 走 seeds_1023/SERVING_OVERRIDES.json、fw_r_l_o 改 campaign）。车道 1 先跑 Cosmos（seanco1，18:16 起，~30–43 局/分），之后 **seanlo22**：fa_sd_fw_f_l_k3c1（1,936）→ k4 → k5 → fw_r_l_o → fw_r_l_k1–5。车道 2 **seanlo21**：dp_f_m_p2 ✓ → dp_f_l_p ✓ → fw_r_l_p ✓ → dp_r_m_k2（在跑）–k5 → dp_f_m_o → dp_f_m_k1–5。
+- 新增 `seeds_1023/SERVING_OVERRIDES.json`（18872d07）：旋钮关批次已封存时，按单位覆盖服务字段（只准 SERVING 字段）；FW MT50 r k4/k5 server_threads 6（k4 已确认生效），fa_sd_fw_f_m_o campaign 直接改 6（未跑）。⛔ 别改已跑完批次的 campaign.json（GPU_RELEASED.json 记了它的哈希）。
+- 7 份长段 C10 参照：H100 五份全 PASS（dp_r_m_p 58.44%、dp_f_m_p2 59.80%、dp_r_l_p、dp_f_l_p、fw_r_l_p）；pod 两份等 pod。
+- **pod 17:49 起下线未回**（18:35 已推送 owner 去 JupyterHub 重开 + 起 tether agent）。两批 FAIL：gr_r_m_k2 19,282/29,300、gr_f_m_k1 59,423/60,000（all_owned_closed False）；pod1sd2/pod2sd2 已 hold 停。回来后照下方步骤（pod_up.sh、pod_resume.sh）。后台 b8kogj6sp 等两台 ONLINE。
+- π0.5 MT50 减步整线完（旋钮关 + 5 轮 101,450 局，全档要 150,000）；4090 现跑 fa_sd_pi_f_m_o。
+
 ### ⛔ 今天 17:4x pod 例行重启（两台 pod 的 GR00T 轮次会被打断）恢复步骤
 1. jupyter_watch 报警后等 pod 回来；两台都 `cd /home/ziyang10/zl_r17 && HOME=/home/ziyang10 bash setup.sh groot rsync://none/x`（GR00T 环境在 NFS）。
 2. 隧道（pod 上 `cd /home/ziyang10/.tether-agent/zl_tunnel && HOME=/home/ziyang10/.tether-agent setsid nohup bash tunnel.sh <H100端口> <pod端口> >> tunnel_<x>.log 2>&1 &`）：-02：24472→23474、24473→23475、24474→23476；pod1：24470→23470、24471→23471、24475→23472。H100 fwd.py 现映射：23470→24470、23471→24471、23472→24475、23474→24472、23475→24473、23476→24474（重启不影响 H100）。jupyter_watch（bwhjthtcu）重挂。
