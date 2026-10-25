@@ -8117,8 +8117,8 @@
       "no_knob": false,
       "complete_tasks": 50,
       "incomplete": false,
-      "ir": 0.8422522437657167,
-      "pure_ir": 1.0
+      "ir": 0.771155767655532,
+      "pure_ir": 1.0000000000000002
     },
     {
       "model": "π0.5",
@@ -16229,8 +16229,8 @@
       "no_knob": false,
       "complete_tasks": 50,
       "incomplete": false,
-      "ir": 0.7889282564960249,
-      "pure_ir": 1.0
+      "ir": 0.695263379317149,
+      "pure_ir": 1.0000000000000002
     },
     {
       "model": "π0.5",
@@ -24349,8 +24349,8 @@
       "no_knob": false,
       "complete_tasks": 50,
       "incomplete": false,
-      "ir": 0.7252208485693502,
-      "pure_ir": 1.0
+      "ir": 0.6044404978278805,
+      "pure_ir": 1.0000000000000002
     },
     {
       "model": "π0.5",
@@ -32452,8 +32452,8 @@
       "no_knob": false,
       "complete_tasks": 50,
       "incomplete": false,
-      "ir": 0.6621170910897957,
-      "pure_ir": 1.0
+      "ir": 0.5147841515529722,
+      "pure_ir": 1.0000000000000002
     },
     {
       "model": "π0.5",
@@ -40554,8 +40554,8 @@
       "no_knob": false,
       "complete_tasks": 50,
       "incomplete": false,
-      "ir": 0.6773625763601314,
-      "pure_ir": 1.0
+      "ir": 0.5364654700299898,
+      "pure_ir": 1.0000000000000002
     },
     {
       "model": "π0.5",
@@ -48662,8 +48662,8 @@
       "no_knob": false,
       "complete_tasks": 50,
       "incomplete": false,
-      "ir": 0.6264281672080916,
-      "pure_ir": 1.0
+      "ir": 0.46394960102513755,
+      "pure_ir": 1.0000000000000002
     }
   ]
 }
