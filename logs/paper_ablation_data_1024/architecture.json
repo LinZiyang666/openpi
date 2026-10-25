@@ -1,0 +1,222 @@
+[
+ {
+  "model": "DP",
+  "title": "Diffusion Policy (Transformer)",
+  "steps": "100",
+  "sampler": "DDPM, squared-cosine noise schedule, ε-prediction",
+  "horizon": "16",
+  "executed": "Executes the first 5 actions (10 in long-horizon groups), then decides again",
+  "key": "Encoded observation features (two image features + state + language vector)",
+  "stages": [
+   {
+    "kind": "input",
+    "label": "Observation",
+    "detail": "Agent-view + wrist images 96×96 (wrist input zeroed) · 8-D state · task instruction"
+   },
+   {
+    "kind": "enc",
+    "label": "Encoding",
+    "detail": "ResNet18 image encoders · CLIP language vector (768-D projection)"
+   },
+   {
+    "kind": "key",
+    "label": "Cache lookup",
+    "detail": "Query the cache with the encoded features"
+   },
+   {
+    "kind": "loop",
+    "label": "Transformer denoiser",
+    "detail": "12 layers · 8 heads · width 512 · 4-layer condition encoder"
+   },
+   {
+    "kind": "out",
+    "label": "Action chunk",
+    "detail": "16 × 7-D actions"
+   },
+   {
+    "kind": "exec",
+    "label": "Execute",
+    "detail": "First 5 actions (10 with long horizon)"
+   }
+  ],
+  "fig": "{\"w\": 760, \"cols\": [{\"x\": 130, \"w\": 190, \"items\": [{\"t\": \"text\", \"label\": \"Agent-view / wrist images\"}, {\"t\": \"box\", \"kind\": \"enc\", \"label\": \"ResNet18 image encoder ×2\"}, {\"t\": \"box\", \"kind\": \"emb\", \"label\": \"Concat: image·state·text\"}, {\"t\": \"box\", \"kind\": \"key\", \"id\": \"key\", \"label\": \"◆ Cache lookup\"}, {\"t\": \"text\", \"id\": \"obs\", \"label\": \"Observation condition\"}]}, {\"x\": 380, \"w\": 190, \"items\": [{\"t\": \"text\", \"label\": \"Timestep t\"}, {\"t\": \"box\", \"kind\": \"emb\", \"id\": \"cin\", \"label\": \"Timestep + obs. embedding\"}, {\"t\": \"group\", \"rep\": \"×4\", \"label\": \"Condition encoder\", \"items\": [{\"t\": \"box\", \"kind\": \"attn\", \"label\": \"Self-Attention\"}]}, {\"t\": \"text\", \"id\": \"mem\", \"label\": \"Condition memory\"}]}, {\"x\": 620, \"w\": 200, \"items\": [{\"t\": \"text\", \"id\": \"xt\", \"label\": \"Noisy actions x_t (16×7)\"}, {\"t\": \"box\", \"kind\": \"emb\", \"label\": \"Action embedding\"}, {\"t\": \"group\", \"rep\": \"×12\", \"label\": \"Denoising decoder\", \"items\": [{\"t\": \"box\", \"kind\": \"attn\", \"label\": \"Causal Self-Attention\"}, {\"t\": \"box\", \"kind\": \"attn\", \"id\": \"xatt\", \"label\": \"Cross-Attention\"}]}, {\"t\": \"box\", \"kind\": \"lin\", \"label\": \"Output head → noise ε\"}, {\"t\": \"box\", \"kind\": \"step\", \"label\": \"One DDPM update\"}, {\"t\": \"text\", \"id\": \"xt1\", \"label\": \"x_t−1\"}]}], \"edges\": [{\"from\": \"obs\", \"to\": \"cin\"}, {\"from\": \"mem\", \"to\": \"xatt\", \"label\": \"K, V\"}], \"loop\": {\"cols\": [1, 2], \"from\": \"xt\", \"to\": \"xt1\", \"name\": \"DDPM\"}}"
+ },
+ {
+  "model": "Fast-WAM",
+  "title": "Fast-WAM (world-action model on the Wan video DiT)",
+  "steps": "10",
+  "sampler": "Shifted flow matching, one action-expert forward per step",
+  "horizon": "32",
+  "executed": "Executes the first 5 actions (10 in long-horizon groups), then decides again",
+  "key": "Fused tokens before the video DiT + state",
+  "stages": [
+   {
+    "kind": "input",
+    "label": "Observation",
+    "detail": "Two images tiled to 224×448 · 8-D state · task instruction"
+   },
+   {
+    "kind": "enc",
+    "label": "Encoding",
+    "detail": "Wan VAE image encoding · UMT5 text encoding"
+   },
+   {
+    "kind": "key",
+    "label": "Cache lookup",
+    "detail": "Query the cache with the fused tokens before the video DiT"
+   },
+   {
+    "kind": "once",
+    "label": "Video DiT prefill",
+    "detail": "The video expert runs once per decision"
+   },
+   {
+    "kind": "loop",
+    "label": "Action DiT (action expert)",
+    "detail": "Attends to the video prefill and denoises actions iteratively"
+   },
+   {
+    "kind": "out",
+    "label": "Action chunk",
+    "detail": "32 × 7-D actions"
+   },
+   {
+    "kind": "exec",
+    "label": "Execute",
+    "detail": "First 5 actions (10 with long horizon)"
+   }
+  ],
+  "fig": "{\"w\": 760, \"cols\": [{\"x\": 130, \"w\": 200, \"items\": [{\"t\": \"text\", \"label\": \"Two images\"}, {\"t\": \"box\", \"kind\": \"enc\", \"label\": \"Wan2.2 VAE encoder\"}, {\"t\": \"box\", \"kind\": \"key\", \"label\": \"◆ Cache lookup\"}, {\"t\": \"group\", \"rep\": \"×30\", \"label\": \"Video expert\", \"items\": [{\"t\": \"box\", \"kind\": \"attn\", \"label\": \"Self-Attention\"}]}, {\"t\": \"text\", \"id\": \"kv\", \"label\": \"Per-layer K/V cache\"}]}, {\"x\": 360, \"w\": 150, \"items\": [{\"t\": \"text\", \"label\": \"Task instruction + state\"}, {\"t\": \"box\", \"kind\": \"enc\", \"label\": \"UMT5-XXL\"}, {\"t\": \"text\", \"id\": \"txt\", \"label\": \"Text condition\"}]}, {\"x\": 600, \"w\": 210, \"items\": [{\"t\": \"text\", \"id\": \"a0\", \"label\": \"Noisy actions (32×7)\"}, {\"t\": \"box\", \"kind\": \"emb\", \"label\": \"Action embedding + timestep\"}, {\"t\": \"group\", \"rep\": \"×30\", \"label\": \"Action expert\", \"items\": [{\"t\": \"box\", \"kind\": \"attn\", \"id\": \"jatt\", \"label\": \"Joint attention\"}, {\"t\": \"box\", \"kind\": \"attn\", \"id\": \"acx\", \"label\": \"Cross-Attention\"}]}, {\"t\": \"box\", \"kind\": \"lin\", \"label\": \"Action head → flow velocity\"}, {\"t\": \"box\", \"kind\": \"step\", \"label\": \"One flow-matching update\"}, {\"t\": \"text\", \"id\": \"a1\", \"label\": \"Next actions\"}]}], \"edges\": [{\"from\": \"kv\", \"to\": \"jatt\", \"label\": \"Video K/V\"}, {\"from\": \"txt\", \"to\": \"acx\", \"label\": \"Text\"}], \"loop\": {\"cols\": [2], \"from\": \"a0\", \"to\": \"a1\", \"name\": \"flow matching\"}}"
+ },
+ {
+  "model": "Cosmos",
+  "title": "Cosmos Policy (Cosmos-Predict2-2B video DiT)",
+  "steps": "5",
+  "sampler": "EDM, 2nd-order Adams-Bashforth solver, σ from 80 down to 4",
+  "horizon": "16",
+  "executed": "Executes all 16 actions, then decides again",
+  "key": "VAE latents of the current observation + state (a cache hit still runs one VAE encode)",
+  "stages": [
+   {
+    "kind": "input",
+    "label": "Observation",
+    "detail": "Wrist + agent-view images · state · task instruction"
+   },
+   {
+    "kind": "enc",
+    "label": "Encoding",
+    "detail": "VAE-encoded into 9 latent frames (16×9×28×28) · T5 prompt embedding (precomputed)"
+   },
+   {
+    "kind": "key",
+    "label": "Cache lookup",
+    "detail": "Query the cache with the current observation's VAE latents"
+   },
+   {
+    "kind": "loop",
+    "label": "2B video DiT",
+    "detail": "Denoises the whole latent sequence; actions are encoded in latent frames"
+   },
+   {
+    "kind": "out",
+    "label": "Action chunk",
+    "detail": "16 × 7-D actions"
+   },
+   {
+    "kind": "exec",
+    "label": "Execute",
+    "detail": "All 16 actions"
+   }
+  ],
+  "fig": "{\"w\": 760, \"cols\": [{\"x\": 130, \"w\": 200, \"items\": [{\"t\": \"text\", \"label\": \"Images · state\"}, {\"t\": \"box\", \"kind\": \"enc\", \"label\": \"9 frames → VAE encode\"}, {\"t\": \"box\", \"kind\": \"key\", \"label\": \"◆ Cache lookup\"}, {\"t\": \"text\", \"id\": \"cl\", \"label\": \"Conditioning latents\"}]}, {\"x\": 360, \"w\": 150, \"items\": [{\"t\": \"text\", \"label\": \"Prompt\"}, {\"t\": \"box\", \"kind\": \"enc\", \"label\": \"T5 (precomputed)\"}, {\"t\": \"text\", \"id\": \"t5\", \"label\": \"Text\"}]}, {\"x\": 600, \"w\": 210, \"items\": [{\"t\": \"text\", \"id\": \"x0\", \"label\": \"Noisy latents (w/ actions)\"}, {\"t\": \"box\", \"kind\": \"emb\", \"id\": \"pin\", \"label\": \"Patch embedding + timestep\"}, {\"t\": \"group\", \"rep\": \"×28\", \"label\": \"DiT blocks\", \"items\": [{\"t\": \"box\", \"kind\": \"attn\", \"label\": \"Self-Attention\"}, {\"t\": \"box\", \"kind\": \"attn\", \"id\": \"ccx\", \"label\": \"Cross-Attention\"}]}, {\"t\": \"box\", \"kind\": \"lin\", \"label\": \"Output layer → latents\"}, {\"t\": \"box\", \"kind\": \"step\", \"label\": \"One EDM update\"}, {\"t\": \"text\", \"id\": \"x1\", \"label\": \"Action frames → 16 actions\"}]}], \"edges\": [{\"from\": \"cl\", \"to\": \"pin\", \"label\": \"Conditioning frames\"}, {\"from\": \"t5\", \"to\": \"ccx\", \"label\": \"K, V\"}], \"loop\": {\"cols\": [2], \"from\": \"x0\", \"to\": \"x1\", \"name\": \"EDM\"}}"
+ },
+ {
+  "model": "π0.5",
+  "title": "π0.5 (PaliGemma 3B + action expert, openpi pi05_libero)",
+  "steps": "10",
+  "sampler": "Flow matching, 10 Euler steps (time 1→0), one action-expert forward per step",
+  "horizon": "10",
+  "executed": "Executes the first 5 actions, then decides again",
+  "key": "256 projected SigLIP image tokens per camera, 4×4 spatial average pool → 16×2048 = 32,768-D per camera, + 8-D state",
+  "stages": [
+   {
+    "kind": "input",
+    "label": "Observation",
+    "detail": "Agent-view + wrist images 224×224 · task instruction (pi05_libero does not feed the state to the model)"
+   },
+   {
+    "kind": "enc",
+    "label": "Encoding",
+    "detail": "SigLIP So400m/14, 256 image tokens per camera, projected to 2048-D"
+   },
+   {
+    "kind": "key",
+    "label": "Cache lookup",
+    "detail": "Query the cache with the pooled image tokens of both cameras and the state"
+   },
+   {
+    "kind": "once",
+    "label": "Gemma 2B prefix",
+    "detail": "Images + instruction through 18 Gemma layers once per decision, keeping per-layer K/V"
+   },
+   {
+    "kind": "loop",
+    "label": "Action expert (Gemma 300M)",
+    "detail": "18 layers, attends to the prefix K/V, timestep injected via adaRMSNorm"
+   },
+   {
+    "kind": "out",
+    "label": "Action chunk",
+    "detail": "10 × 32-D actions (LIBERO uses the first 7)"
+   },
+   {
+    "kind": "exec",
+    "label": "Execute",
+    "detail": "First 5 actions"
+   }
+  ],
+  "fig": "{\"w\": 760, \"cols\": [{\"x\": 130, \"w\": 210, \"items\": [{\"t\": \"text\", \"label\": \"Two images 224×224\"}, {\"t\": \"box\", \"kind\": \"enc\", \"label\": \"SigLIP So400m/14 ×2\"}, {\"t\": \"box\", \"kind\": \"emb\", \"label\": \"2048-D tokens, 256 each\"}, {\"t\": \"box\", \"kind\": \"key\", \"label\": \"◆ Cache lookup\"}, {\"t\": \"text\", \"id\": \"img\", \"label\": \"Image tokens\"}]}, {\"x\": 370, \"w\": 170, \"items\": [{\"t\": \"text\", \"label\": \"Task instruction\"}, {\"t\": \"box\", \"kind\": \"emb\", \"label\": \"Token embedding\"}, {\"t\": \"group\", \"rep\": \"×18\", \"label\": \"Gemma 2B\", \"items\": [{\"t\": \"box\", \"kind\": \"attn\", \"id\": \"patt\", \"label\": \"Prefix self-attention\"}]}, {\"t\": \"text\", \"id\": \"kv\", \"label\": \"Per-layer K/V cache\"}]}, {\"x\": 610, \"w\": 210, \"items\": [{\"t\": \"text\", \"id\": \"a0\", \"label\": \"Noisy actions (10×32)\"}, {\"t\": \"box\", \"kind\": \"emb\", \"label\": \"Action emb. + adaRMS time\"}, {\"t\": \"group\", \"rep\": \"×18\", \"label\": \"Gemma 300M expert\", \"items\": [{\"t\": \"box\", \"kind\": \"attn\", \"id\": \"jatt\", \"label\": \"Attention (reads prefix K/V)\"}]}, {\"t\": \"box\", \"kind\": \"lin\", \"label\": \"Output head → flow velocity\"}, {\"t\": \"box\", \"kind\": \"step\", \"label\": \"One Euler update\"}, {\"t\": \"text\", \"id\": \"a1\", \"label\": \"Next actions\"}]}], \"edges\": [{\"from\": \"img\", \"to\": \"patt\", \"label\": \"Images\"}, {\"from\": \"kv\", \"to\": \"jatt\", \"label\": \"Prefix K/V\"}], \"loop\": {\"cols\": [2], \"from\": \"a0\", \"to\": \"a1\", \"name\": \"flow matching\"}}"
+ },
+ {
+  "model": "GR00T",
+  "title": "GR00T N1.5 (Eagle 2.5 VLM + DiT action head)",
+  "steps": "4",
+  "sampler": "Flow matching, 4 Euler steps, one DiT forward per step",
+  "horizon": "16",
+  "executed": "Executes the first 5 actions, then decides again",
+  "key": "256 image tokens per camera from Eagle layer 12, 4×4 spatial average pool → 16×2048 = 32,768-D per camera, + 8-D state",
+  "stages": [
+   {
+    "kind": "input",
+    "label": "Observation",
+    "detail": "Agent-view + wrist images · state · task instruction"
+   },
+   {
+    "kind": "enc",
+    "label": "Encoding",
+    "detail": "Eagle 2.5: SigLIP-2 image encoder + Qwen3-1.7B, layer-12 output (2048-D)"
+   },
+   {
+    "kind": "key",
+    "label": "Cache lookup",
+    "detail": "Query the cache with the pooled image tokens of both cameras and the state"
+   },
+   {
+    "kind": "loop",
+    "label": "DiT action head",
+    "detail": "16 layers alternating cross-attention (to VLM features) and self-attention, timestep via AdaNorm"
+   },
+   {
+    "kind": "out",
+    "label": "Action chunk",
+    "detail": "16 × 32-D actions (LIBERO uses the first 7)"
+   },
+   {
+    "kind": "exec",
+    "label": "Execute",
+    "detail": "First 5 actions"
+   }
+  ],
+  "fig": "{\"w\": 760, \"cols\": [{\"x\": 130, \"w\": 210, \"items\": [{\"t\": \"text\", \"label\": \"Two images + instruction\"}, {\"t\": \"box\", \"kind\": \"enc\", \"label\": \"SigLIP-2 image encoder\"}, {\"t\": \"group\", \"rep\": \"×12\", \"label\": \"Qwen3-1.7B layers\", \"items\": [{\"t\": \"box\", \"kind\": \"attn\", \"label\": \"Self-Attention\"}]}, {\"t\": \"box\", \"kind\": \"key\", \"label\": \"◆ Cache lookup\"}, {\"t\": \"text\", \"id\": \"vl\", \"label\": \"Vision-language features\"}]}, {\"x\": 370, \"w\": 150, \"items\": [{\"t\": \"text\", \"label\": \"Robot state\"}, {\"t\": \"box\", \"kind\": \"emb\", \"label\": \"State encoder MLP\"}, {\"t\": \"text\", \"id\": \"st\", \"label\": \"State token\"}]}, {\"x\": 610, \"w\": 210, \"items\": [{\"t\": \"text\", \"id\": \"a0\", \"label\": \"Noisy actions (16×32)\"}, {\"t\": \"box\", \"kind\": \"emb\", \"id\": \"ain\", \"label\": \"Action encoder + timestep\"}, {\"t\": \"group\", \"rep\": \"×16\", \"label\": \"DiT action head\", \"items\": [{\"t\": \"box\", \"kind\": \"attn\", \"id\": \"dca\", \"label\": \"Cross-Attention\"}, {\"t\": \"box\", \"kind\": \"attn\", \"label\": \"Self-Attention\"}]}, {\"t\": \"box\", \"kind\": \"lin\", \"label\": \"Decode → flow velocity\"}, {\"t\": \"box\", \"kind\": \"step\", \"label\": \"One Euler update\"}, {\"t\": \"text\", \"id\": \"a1\", \"label\": \"Next actions\"}]}], \"edges\": [{\"from\": \"vl\", \"to\": \"dca\", \"label\": \"K, V\"}, {\"from\": \"st\", \"to\": \"ain\", \"label\": \"State\"}], \"loop\": {\"cols\": [2], \"from\": \"a0\", \"to\": \"a1\", \"name\": \"flow matching\"}}"
+ }
+]

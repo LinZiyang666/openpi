@@ -1,0 +1,82 @@
+[
+ {
+  "id": "π0.5|group",
+  "model": "π0.5",
+  "suite": "group",
+  "run": "tpi7k2_1135",
+  "miss_steps": "K2",
+  "gpu": "RTX 4090",
+  "n": "2500",
+  "sr": "0.487"
+ },
+ {
+  "id": "π0.5|task",
+  "model": "π0.5",
+  "suite": "task",
+  "run": "tpi7k2_1135",
+  "miss_steps": "K2",
+  "gpu": "RTX 4090",
+  "n": "2500",
+  "sr": "0.5964"
+ },
+ {
+  "id": "GR00T|group",
+  "model": "GR00T",
+  "suite": "group",
+  "run": "tgr7h1_k2",
+  "miss_steps": "K2",
+  "gpu": "H100",
+  "n": "2500",
+  "sr": "0.6626"
+ },
+ {
+  "id": "GR00T|task",
+  "model": "GR00T",
+  "suite": "task",
+  "run": "tgr7h1_k2",
+  "miss_steps": "K2",
+  "gpu": "H100",
+  "n": "2500",
+  "sr": "0.7516"
+ },
+ {
+  "id": "DP|group",
+  "model": "DP",
+  "suite": "group",
+  "run": "tdp7d10_0851",
+  "miss_steps": "DDIM 10",
+  "gpu": "H100",
+  "n": "2500",
+  "sr": "0.4789"
+ },
+ {
+  "id": "DP|task",
+  "model": "DP",
+  "suite": "task",
+  "run": "tdp7d10_0851",
+  "miss_steps": "DDIM 10",
+  "gpu": "H100",
+  "n": "2500",
+  "sr": "0.594"
+ },
+ {
+  "id": "Fast-WAM|group",
+  "model": "Fast-WAM",
+  "suite": "group",
+  "run": "tfw7k3_1051",
+  "miss_steps": "K3",
+  "gpu": "H100",
+  "n": "2500",
+  "sr": "0.44"
+ },
+ {
+  "id": "Fast-WAM|task",
+  "model": "Fast-WAM",
+  "suite": "task",
+  "run": "tfw7k3_1051",
+  "miss_steps": "K3",
+  "gpu": "H100",
+  "n": "2500",
+  "sr": "0.5908"
+ }
+]

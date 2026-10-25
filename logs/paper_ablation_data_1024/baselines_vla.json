@@ -1,0 +1,30 @@
+[
+ {
+  "id": "GR00T|libero_10",
+  "model": "GR00T",
+  "suite": "libero_10",
+  "n": "500",
+  "sr": "0.88"
+ },
+ {
+  "id": "GR00T|libero_spatial",
+  "model": "GR00T",
+  "suite": "libero_spatial",
+  "n": "500",
+  "sr": "0.954"
+ },
+ {
+  "id": "π0.5|libero_10",
+  "model": "π0.5",
+  "suite": "libero_10",
+  "n": "500",
+  "sr": "0.908"
+ },
+ {
+  "id": "π0.5|libero_spatial",
+  "model": "π0.5",
+  "suite": "libero_spatial",
+  "n": "500",
+  "sr": "0.986"
+ }
+]

@@ -1,0 +1,44 @@
+[
+ {
+  "id": "Cosmos|libero_10",
+  "model": "Cosmos",
+  "suite": "libero_10",
+  "n": "500",
+  "sr": "0.986"
+ },
+ {
+  "id": "Cosmos|libero_spatial",
+  "model": "Cosmos",
+  "suite": "libero_spatial",
+  "n": "500",
+  "sr": "0.964"
+ },
+ {
+  "id": "DP|libero_10",
+  "model": "DP",
+  "suite": "libero_10",
+  "n": "500",
+  "sr": "0.796"
+ },
+ {
+  "id": "DP|libero_spatial",
+  "model": "DP",
+  "suite": "libero_spatial",
+  "n": "500",
+  "sr": "0.912"
+ },
+ {
+  "id": "Fast-WAM|libero_10",
+  "model": "Fast-WAM",
+  "suite": "libero_10",
+  "n": "500",
+  "sr": "0.916"
+ },
+ {
+  "id": "Fast-WAM|libero_spatial",
+  "model": "Fast-WAM",
+  "suite": "libero_spatial",
+  "n": "500",
+  "sr": "0.908"
+ }
+]

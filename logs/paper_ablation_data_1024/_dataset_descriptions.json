@@ -1,0 +1,58 @@
+{
+ "architecture": {
+  "title": "Model architectures",
+  "description": "Per-decision pipeline and network structure of the five models: encoders, cache lookup (query key), the iterated denoising module (layers, width, attention) and its loop count, action chunk length and executed actions. Taken from each model's config, loading code and checkpoint tensor shapes."
+ },
+ "mt50_steps": {
+  "title": "MT50 pure inference, fewer steps",
+  "description": "MetaWorld MT50 pure inference (seed 7, 2,500 episodes per row) at the default and reduced numbers of denoising steps, one row per model × setting × suite (suite is 'group' (equal-weight mean of the four difficulty groups: easy 28, medium 11, hard 6, very hard 5 tasks) or 'task' (per-task mean)): sr, difference from the default (diff / diff_pp) and compute saved (nfe_cut); π0.5 and GR00T on the RTX 4090, DP and Fast-WAM on the H100."
+ },
+ "mt50_cells": {
+  "title": "MT50 SR by group and size",
+  "description": "One row per model × suite × group × cache size on MetaWorld MT50 (seed 7, 50 tasks × 50 inits = 2,500 episodes per cell, cache from seed 8, no knob, every model call at the reduced steps); suite is 'group' (equal-weight mean of the four difficulty groups: easy 28, medium 11, hard 6, very hard 5 tasks) or 'task' (per-task mean); sr, the same-step pure-inference baseline_sr and diff / diff_pp. Runs cspi_k2 + cspi_k2vc (π0.5), csgr_h5 + csgr_h6 (GR00T), csdp_1504 (DP), csfw_k3 + w4 + w5 + w6 (Fast-WAM)."
+ },
+ "latency": {
+  "title": "Batch-1 latency",
+  "description": "Median stage latencies on an exclusive RTX 4090, batch 1, compiled + CUDA graph (30 warm-up, 200 runs): stage 1 vision encoding, stage 2 conditioning prefix, full-step and reduced-step denoising loops; text-only encoders (DP's CLIP on CPU, Fast-WAM's T5 on GPU); one full-step pure-inference decision (the denominator; GPU text encoding counted, CPU not); and the cache system's IR coefficients (text-only encoders excluded, divided by that denominator). From exp/r17_integration/profile/results and results_cached_text."
+ },
+ "cells": {
+  "title": "SR by group and cache size",
+  "description": "One row per model × suite × group × cache size: episodes on official test set A, SR, pure-inference SR, difference (diff as a fraction, diff_pp in percentage points), lower bound of the cache-500 difference, cache hit rate and status. All three models come from analyze_cache.py; all 240 cells are complete."
+ },
+ "baselines": {
+  "title": "Pure-inference baselines",
+  "description": "SR of each model on libero_spatial and libero_10 when the model is called on every decision (official test set A, 500 episodes each)."
+ },
+ "mt50_latency": {
+  "title": "MT50 batch-1 latency",
+  "description": "Median stage latencies on an exclusive RTX 4090 for one real MT50 observation, batch 1, compiled + CUDA graph (30 warm-up, 200 runs), from exp/r17_integration/profile/results_mt50; the coefficients use the same rule as ir_formal.py: DP's CPU CLIP text encoding (text_ms) is excluded from the denominator (unit_ms) and from vision."
+ },
+ "mt50_knob": {
+  "title": "MT50 per-task IR knob",
+  "description": "MetaWorld MT50 per-task IR knob on seed 7 (no dev set; the first failure freezes the previous level), one row per model × suite (suite is 'group' (equal-weight mean of the four difficulty groups: easy 28, medium 11, hard 6, very hard 5 tasks) or 'task' (per-task mean)) × steps (full / reduced) × cache size: sr, the same-step pure-inference baseline_sr, diff / diff_pp, formal IR and pure-inference IR (one full-step pure-inference decision = 1); from rounds/r17/knob/mt50/<model>_<steps>/descent.json. Fast-WAM full steps from fwmk1_fulx, reduced steps (K3) from fwmk1_redx (both 2026-10-15)."
+ },
+ "cells_vla": {
+  "title": "π0.5 / GR00T cache SR",
+  "description": "π0.5 and GR00T SR on official test set A, 500 episodes per cell: Cache from R10, Cache + Corrector from R15 (rounds/r15/pure_corr/TEST_A.md), caches of 5–50 demonstrations per task; differences relative to the same model's full-step pure inference."
+ },
+ "mt50_base": {
+  "title": "MT50 cache-study reference",
+  "description": "Pure inference with the same reduced steps as the MT50 cache studies' model calls, one row per model × suite (suite is 'group' (equal-weight mean of the four difficulty groups: easy 28, medium 11, hard 6, very hard 5 tasks) or 'task' (per-task mean)): π0.5 K2 (tpi7k2_1135, RTX 4090), GR00T K2 (tgr7h1_k2, H100), DP DDIM 10 (tdp7d10_0851, H100), Fast-WAM K3 (tfw7k3_1051, H100); 2,500 episodes each."
+ },
+ "knob": {
+  "title": "Per-task IR knob results",
+  "description": "One row per model × steps (full / reduced) × suite × cache size: SR of the full system with the per-task IR knob on official test set A (500 episodes per cell), SR of the same-init reference (pure or reduced-step pure inference), difference (diff_pp in percentage points), formal IR from measured batch-1 latency (ir; pure_ir is the reference's IR), and how many of the 10 tasks fall in each level class. Rule (owner 2026-10-13): the knob is tuned on Cache + Long horizon + Corrector + Stagnation Guard; where that full system alone already reaches pure-inference SR at a cache size, the knob is not tuned and the row takes the full system's cache-study SR and formal IR (rule = full_system; knob_sr / knob_diff_pp / knob_ir keep the tuned values). This applies to DP full steps at cache 100–500 on both suites; reduced-step rows have no full-system cell without the knob. Text encoding: the cache system never counts text-only encoders; pure inference counts them only on the GPU. From the last test round in rounds/r17/knob, ir_formal.json and rounds/r17/cache/CACHE_RESULTS.json. DP reduced steps, caches 100–500 (both suites), also take the full-system rule, from the 2026-10-14 full-system run with every call at DDIM 10 (fsreddp2, rounds/r17/knob/full_system_reduced); their knob values stay in knob_sr / knob_diff_pp / knob_ir."
+ },
+ "knob_vla": {
+  "title": "π0.5 / GR00T knob results",
+  "description": "Per-task IR knob for π0.5 and GR00T on LIBERO official test set A, one row per model × steps × suite × cache size, 500 episodes per cell: full steps from R14 (cache 50) and R15 (100/200/500), no raising (rounds/r14/descent_astra/test_a.json, rounds/r15/descent/test_a.json); reduced steps (every model call at 1 denoising step) from the 2026-10-15 rerun of R16 k = 1 against k = 1 pure inference (rounds/r16/k1ref/results: dev re-selection, test raising, full-system rule; rule = full_system for GR00T libero_spatial 100 and 200). sr, same-step pure-inference baseline_sr, diff_pp, ir and pure_ir relative to full-step pure inference of the same cell (ir_original / pure_ir_original are the raw values)."
+ },
+ "steps": {
+  "title": "Pure inference, fewer steps",
+  "description": "Pure-inference SR when only the number of denoising steps per decision is reduced (official test set A, 500 episodes per cell, paired with the default by initial state): DP from DDPM 100 to DDIM 10/5, Fast-WAM from 10 to 2/1, Cosmos from 5 to 2 (1 network evaluation), from the 10-10 reduced-step study; π0.5 from 10 to 1 and GR00T from 4 to 1, rerun on the R17 serving path on the RTX 4090 on 2026-10-14 (pl_a2, pl_k1a2, gl_a3, gl_k1a)."
+ },
+ "baselines_vla": {
+  "title": "π0.5 / GR00T pure inference",
+  "description": "Full-step pure-inference SR of π0.5 and GR00T on official test set A (500 episodes per cell, R14); 93.2% averaged over the four cells."
+ }
+}
