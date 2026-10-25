@@ -31,3 +31,14 @@
 - 消融各表（cells / cells_vla / mt50_cells）都**没有**正式 IR。要 IR 就按新的 `*_gpu` 价格表和上面的计数自己算：IR = (v·(调用+命中) + m·调用)·C0 / 控制步数。
 - `cells.json` 的状态字段都是「完成」（每格 500 局）。
 - 10-22 还有一批「缓存变体」（DP、Fast-WAM、GR00T 的 8 组 + chrg_koff；带 decision_heads、policy、library、controls、level_ir），文件是 `exp/offline_search/rounds/r17/longseg_1017/CACHE_VARIANT_RESULTS_1022.json`。它不在看板上，需要时可用。
+
+## 补充（10-25 00:2x，回答论文会话追问）
+
+- **DP、Fast-WAM 的长执行段四组（ch、chr、chg、chrg）的计数**：`CACHE_RESULTS.json` 在 10-18 的提交 3a281660 里只留了 c/cr/cg/crg。四个长执行段组在更早的版本 749447f1 里，本目录的 `CACHE_RESULTS_749447f1.{json,md}` 就是那一版。它和 `cells.json` 的 96 个长执行段格逐格对得上（SR 与 n 96/96 一致）。计数在 rows[].cost 里：controls、fresh_decisions、library、requests、nfe；口径看同名 .md。
+- **MT50 的计数**：没有现成汇总。`rounds/r17/survey_predict/mt50_cache_audit.json` 只有每格的 n、successes 和组均值 / 任务均值，没有决策计数。所以 MT50 只报 SR。
+- **π0.5、GR00T 的 R10 A / R15 A+C（cells_vla.json）不是默认段长**：它们是「anchor-tail commit」，命中后先执行锚点，再执行盲尾（BlindAWM），实测大约每 10 个控制步才看一次（IR 0.071 ≈ 视觉系数 0.152 × 0.47）。所以应该归到「扩大执行段」那一列。
+- **π0.5、GR00T 默认段长的缓存消融**：数据在 `rounds/r17/filter_failed_knob/q3_port_1020/RESULTS_1022.json` 的 `cache_component_rows`，共 128 行，来自 R16 缓存部件研究的四个批次 fa_cs_pi_r、fa_cs_pi_rg、fa_cs_gr_r、fa_cs_gr_rg。
+  - 设置：原库，模型调用用减步 K1。
+  - 组：cs_c、cs_cr、cs_cg、cs_crg 是默认段长；cs_ch、cs_chr、cs_chg、cs_chrg 加了长执行段。
+  - 覆盖：两个套件 × 库大小 50/100/200/500，没有 300 和 400。
+  - 每格字段：result 下有 n、sr、successes、ir（D5）、decision_heads、model_calls、decisions；pure 是同步数纯推理。
