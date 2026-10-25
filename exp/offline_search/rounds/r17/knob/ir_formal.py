@@ -12,7 +12,7 @@ when it runs on the GPU. DP's CLIP text encoder runs on the CPU: neither side co
 runs on the GPU inside stage2: the denominator counts it, the numerator uses the cached-text stage2.
 Cosmos does not re-encode text per request.
 
-MT50 uses results_mt50's supplied stage costs for all four models. DP's CPU
+MT50 uses results_mt50_gpu stage costs for all four models (GPU time only, owner 10-24). DP's CPU
 text time is excluded on both sides. MT50 Fast-WAM retains measured stage2;
 the LIBERO-only cached-text stage2 profile is not substituted for MT50.
 
@@ -36,19 +36,19 @@ SUITES = {"libero_10": "长任务", "libero_spatial": "空间任务"}
 def coefficients(model, suite):
     """(system, pure): per-decision costs in units of the full-step pure-inference decision."""
     bundle = c.MODEL_IDS[model]+"_mw" if suite == "mt50" else MODELS[model]
-    directory = "results_mt50" if suite == "mt50" else "results"
+    # GPU time only (owner 10-24, profile/gpu_only.py): CPU prepare and host gaps on neither side, as the
+    # R15/R16 D5 prices; DP's CPU CLIP text is therefore already absent from stage1.
+    directory = "results_mt50_gpu" if suite == "mt50" else "results_gpu"
     r = json.loads((PROFILE / directory / f"{bundle}_{suite}.json").read_text())
     stage1, stage2 = r["stage1_ms"], r["stage2_ms"]
-    if model == "DP":  # CPU CLIP text: counted on neither side
-        stage1 -= r["dp_cpu_text_encoder_ms"]["median"]
     system_stage2 = stage2
     if model == "Fast-WAM" and suite != "mt50":  # GPU T5 in stage2: pure inference pays it, the cache system does not
-        system_stage2 = json.loads((PROFILE / "results_cached_text" / f"{MODELS[model]}_{suite}.json").read_text())["stage2_ms"]
+        system_stage2 = json.loads((PROFILE / "results_cached_text_gpu" / f"{MODELS[model]}_{suite}.json").read_text())["stage2_ms"]
     elif model == "Fast-WAM":
         # No MetaWorld cached-text timing exists; T5 pads every prompt to 128 tokens, so its 4090 cost is the
         # LIBERO full-minus-cached stage2 difference (same encoder, same length).
         full, cached = (json.loads((PROFILE / d / f"{MODELS[model]}_libero_10.json").read_text())["stage2_ms"]
-                        for d in ("results", "results_cached_text"))
+                        for d in ("results_gpu", "results_cached_text_gpu"))
         system_stage2 = stage2 - (full - cached)
     unit = stage1 + stage2 + r["stage3_full_loop_ms"]
     def coef(s2):

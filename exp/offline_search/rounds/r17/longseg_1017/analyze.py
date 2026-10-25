@@ -24,8 +24,9 @@ def prices(label,suite,gpu):
     # model and input shapes, so the per-call cost is the same.
     suite='mt50' if suite=='mt50' else 'libero_10'
     suffix='_mw_mt50.json' if suite=='mt50' else '_libero_'+suite+'.json'
-    paths=[Path('results_mt50' if suite=='mt50' else 'results')/(model+suffix)]
-    if model=='fastwam' and suite!='mt50':paths.append(Path('results_cached_text')/(model+suffix))
+    # GPU time only (owner 10-24): the *_gpu profiles from profile/gpu_only.py, no CPU prepare or host gaps.
+    paths=[Path('results_mt50_gpu' if suite=='mt50' else 'results_gpu')/(model+suffix)]
+    if model=='fastwam' and suite!='mt50':paths.append(Path('results_cached_text_gpu')/(model+suffix))
     # Owner 10-20: timing is measured on the 4090 only (batch 1, compiled CUDA graphs), for every
     # lane whatever GPU served it. A receipt counts when the timing itself is certified on an
     # exclusive device with the expected NFE; eager-vs-compiled output parity is reported by the
